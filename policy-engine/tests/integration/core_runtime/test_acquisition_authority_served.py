@@ -80,6 +80,7 @@ def test_served_acquisition_binds_n7_compiler_and_planner_cas_before_reentry(
     from polisyos.core.contracts.runtime import RunCandidateSimulationAcquisitionHistoryEntry
     from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.data_requirement import DataRequirementCompilationReport
+    from polisyos.foundry import data_plane as foundry_data_plane
     from polisyos.runtime.quality.acquisition_planner import (
         load_acquisition_planner_report,
         validate_persisted_acquisition_planner_report,
@@ -91,6 +92,177 @@ def test_served_acquisition_binds_n7_compiler_and_planner_cas_before_reentry(
         VerifiedAcquisitionRouteClosure,
     )
     from polisyos.runtime.quality.generation_cycle import AcquisitionOverlayReentryReceipt
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+
+    prospective_values_reads = []
+    original_prospective_values = foundry_data_plane.prepare_json_input_binding_values
+
+    def observe_prospective_values(*args, **kwargs):
+        value = original_prospective_values(*args, **kwargs)
+        prospective_values_reads.append(value)
+        return value
+
+    monkeypatch.setattr(
+        foundry_data_plane, "prepare_json_input_binding_values", observe_prospective_values
+    )
+    from dataclasses import replace
+
+    import numpy as np
+
+    from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthBridge
+
+    original_reconciliation = AcquisitionWorldGrowthBridge._reconcile_acquired_candidate_values
+    reconciled_worlds = []
+    refused_value_controls = set()
+
+    def exercise_actual_consumer(bridge, *, prospective_values, world_model_record):
+        actual = prospective_values.materialized_state
+        cash = np.asarray(actual.firms.cash)
+        changed = actual.replace(firms=actual.firms.replace(cash=cash + 17))
+        with pytest.raises(
+            ValueError, match="acquisition_prospective_state_owner_reconciliation_failed"
+        ):
+            original_reconciliation(
+                bridge,
+                prospective_values=replace(prospective_values, materialized_state=changed),
+                world_model_record=world_model_record,
+            )
+        refused_value_controls.add("same_target_changed_other_native_component")
+        first, *rest = prospective_values.effective_rules
+        changed_rule = first.model_copy(
+            update={"source_path": first.source_path + ".not_the_source"}
+        )
+        with pytest.raises(
+            ValueError, match="acquisition_prospective_rule_owner_reconciliation_failed"
+        ):
+            original_reconciliation(
+                bridge,
+                prospective_values=replace(
+                    prospective_values, effective_rules=(changed_rule, *rest)
+                ),
+                world_model_record=world_model_record,
+            )
+        refused_value_controls.add("same_state_wrong_actual_rule")
+        original_reconciliation(
+            bridge, prospective_values=prospective_values, world_model_record=world_model_record
+        )
+        reconciled_worlds.append(world_model_record)
+
+    monkeypatch.setattr(
+        AcquisitionWorldGrowthBridge,
+        "_reconcile_acquired_candidate_values",
+        exercise_actual_consumer,
+    )
+    original_model_reconciliation = (
+        AcquisitionWorldGrowthBridge._reconcile_acquired_candidate_model_values
+    )
+    model_reconciliations = []
+    model_refusals = set()
+
+    def exercise_model_consumer(bridge, *, prospective_model, offer):
+        target = prospective_model.declared_model_values.target_world_slot
+        wrong_baseline = dict(prospective_model.n5_config.baseline_state)
+        wrong_baseline[target] += 17.0
+        with pytest.raises(ValueError, match="acquisition_prospective_n5_configuration_mismatch"):
+            original_model_reconciliation(
+                bridge,
+                prospective_model=replace(
+                    prospective_model,
+                    n5_config=prospective_model.n5_config.model_copy(
+                        deep=True, update={"baseline_state": wrong_baseline}
+                    ),
+                ),
+                offer=offer,
+            )
+        model_refusals.add("same_source_wrong_n5_baseline")
+        declared = prospective_model.declared_model_values
+        with pytest.raises(ValueError, match="acquisition_prospective_declared_model_mismatch"):
+            original_model_reconciliation(
+                bridge,
+                prospective_model=replace(
+                    prospective_model,
+                    declared_model_values=replace(
+                        declared, outcome_per_target_unit=declared.outcome_per_target_unit * 2.0
+                    ),
+                ),
+                offer=offer,
+            )
+        model_refusals.add("same_state_wrong_declared_scm")
+        from polisyos.ir import candidate_ncm_spec_from_declaration
+
+        admission = bridge.control_store.current_execution_job_admission()
+        current = admission.job
+        repository = GenerationSourceRepository(bridge.artifact_store)
+        wrong_spec = candidate_ncm_spec_from_declaration(
+            replace(
+                prospective_model.declared_model_values,
+                outcome_per_target_unit=prospective_model.declared_model_values.outcome_per_target_unit
+                * 2.0,
+            )
+        )
+        wrong_selected_ncm = repository.persist_candidate_ncm_selected_view(
+            ncm_spec=wrong_spec,
+            declaration_ref=offer.model_declaration_ref,
+            job_id=current.job_id,
+            run_id=current.run_id,
+            tenant_id=admission.scope.tenant_id,
+            cell_id=admission.scope.cell_id,
+            profile_content_hash=offer.profile.content_hash,
+        )
+        with pytest.raises(
+            ValueError, match="n4_candidate_scenario_source_v2_ncm_declaration_mismatch"
+        ):
+            repository.load_candidate_declared_ncm(
+                declaration_ref=offer.model_declaration_ref,
+                ncm_ref=wrong_selected_ncm,
+                expected_profile=offer.profile,
+                expected_run_id=current.run_id,
+                expected_job_id=current.job_id,
+                expected_tenant_id=admission.scope.tenant_id,
+                expected_cell_id=admission.scope.cell_id,
+            )
+        # A real selected IR artifact with the same declaration edge still must
+        # prove that declaration relation. Embedded declaration/markers stay.
+        with pytest.raises(
+            ValueError, match="acquisition_prospective_selected_model_not_established"
+        ):
+            original_model_reconciliation(
+                bridge,
+                prospective_model=prospective_model,
+                offer=offer.model_copy(update={"ncm_ref": wrong_selected_ncm}),
+            )
+        model_refusals.add("unchanged_declaration_wrong_selected_ncm_bytes")
+        original_model_reconciliation(bridge, prospective_model=prospective_model, offer=offer)
+        model_reconciliations.append(offer)
+
+    monkeypatch.setattr(
+        AcquisitionWorldGrowthBridge,
+        "_reconcile_acquired_candidate_model_values",
+        exercise_model_consumer,
+    )
+    reissue_reads = []
+    rebound_sources = []
+    original_reissue_read = GenerationSourceRepository.load_candidate_scenario_source_for_reissue
+    original_source_write = GenerationSourceRepository.persist_candidate_scenario_source_v3
+
+    def observe_prior_evaluation(repository, ref, **kwargs):
+        source = original_reissue_read(repository, ref, **kwargs)
+        reissue_reads.append((repository, ref, kwargs, source))
+        return source
+
+    def observe_rebound_source(repository, *, source_record):
+        ref = original_source_write(repository, source_record=source_record)
+        rebound_sources.append((repository, ref, source_record))
+        return ref
+
+    monkeypatch.setattr(
+        GenerationSourceRepository,
+        "load_candidate_scenario_source_for_reissue",
+        observe_prior_evaluation,
+    )
+    monkeypatch.setattr(
+        GenerationSourceRepository, "persist_candidate_scenario_source_v3", observe_rebound_source
+    )
 
     resolved: list[tuple[AcquisitionRouteLoop, VerifiedAcquisitionRouteClosure]] = []
     removal_controls: set[str] = set()
@@ -231,6 +403,54 @@ def test_served_acquisition_binds_n7_compiler_and_planner_cas_before_reentry(
     )
 
     assert result is not None
+    assert prospective_values_reads, "real acquired-world consumer bypassed prospective values"
+    assert all(value.applied_binding_ids for value in prospective_values_reads)
+    assert reconciled_worlds, "real produced WMR never reached its value consumer"
+    assert model_reconciliations, "actual context/NCM values bypassed the model consumer"
+    assert model_refusals == {
+        "same_source_wrong_n5_baseline",
+        "same_state_wrong_declared_scm",
+        "unchanged_declaration_wrong_selected_ncm_bytes",
+    }
+    assert refused_value_controls == {
+        "same_target_changed_other_native_component",
+        "same_state_wrong_actual_rule",
+    }
+    assert reissue_reads, "ordinary acquisition never resolved its selected prior evaluation"
+    for repository, prior_ref, expected, prior in reissue_reads:
+        actual_new = [
+            (ref, source)
+            for _repo, ref, source in rebound_sources
+            if source.origin_source_ref is not None
+            and source.job_id != prior.job_id
+            and source.candidate.candidate_id == prior.candidate.candidate_id
+        ]
+        assert actual_new, "same-candidate reissue did not cross the actual worker occurrence"
+        with tenant_scope(None, tenant_id=prior.tenant_id, cell_id=prior.cell_id):
+            for new_ref, source in actual_new:
+                reopened = repository.load_candidate_scenario_source_v3(
+                    new_ref,
+                    expected_run_id=source.run_id,
+                    expected_job_id=source.job_id,
+                    expected_tenant_id=source.tenant_id,
+                    expected_cell_id=source.cell_id,
+                )
+                assert reopened == source
+                assert source.semantic_identity_hash == prior.semantic_identity_hash
+                assert source.candidate_occurrence_hash != prior.candidate_occurrence_hash
+                assert source.source_record.source_record.context_job_ref != (
+                    prior.source_record.source_record.context_job_ref
+                )
+            # A historical job is a selector for verified lineage, not a grant
+            # to cross run/tenant/cell or substitute an evaluation occurrence.
+            for field, replacement in (
+                ("expected_run_id", "foreign-run"),
+                ("expected_tenant_id", "foreign-tenant"),
+                ("expected_cell_id", "foreign-cell"),
+                ("expected_candidate_id", "foreign-candidate"),
+            ):
+                with pytest.raises(ValueError, match=r"(identity|evaluation_binding)_mismatch"):
+                    original_reissue_read(repository, prior_ref, **{**expected, field: replacement})
     source_witness = json.loads(result["source_root_witness_json"])
     assert source_witness["source_root"] == str(source_inputs.root)
     assert Path(source_witness["selected_l1_dcat_path"]).is_relative_to(source_inputs.root)
@@ -344,6 +564,62 @@ def test_served_acquisition_binds_n7_compiler_and_planner_cas_before_reentry(
     assert artifact_ref_identity_key(prior_n5) != artifact_ref_identity_key(continued_n5)
     assert artifact_ref_identity_key(prior_context) != artifact_ref_identity_key(continued_context)
     assert first_loop._artifact_store is resolved[-1][0]._artifact_store
+    # A constructed carrier and an identity callback cannot replace the owner
+    # at the direct controller entry. All candidate/source markers remain real;
+    # only the proof-producing owner is removed.
+    from types import SimpleNamespace
+
+    from polisyos.common.async_tools import run_coro_sync
+    from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleController,
+        GenerationCycleError,
+    )
+    from polisyos.scientist.orchestration.engine.budget import BudgetState
+
+    direct_controller = GenerationCycleController(
+        artifact_store=first_loop._artifact_store,
+        authority_scope="contract_testing",
+        repo_root=REPO_ROOT,
+    )
+    forged_reader = SimpleNamespace(
+        _artifact_store=first_loop._artifact_store,
+        resolve_current_route=lambda **_selectors: continued,
+    )
+
+    class EmptyActionHistory:
+        def action_outcomes(self, **_selectors):
+            return ()
+
+    stale_exact_reader = AcquisitionRouteLoop(
+        control_store=first_loop._control_store,
+        artifact_store=first_loop._artifact_store,
+        event_log=first_loop._event_log,
+        core_source_resolver=first_loop._core_source_resolver,
+        tenant_id=continued.tenant_id,
+        cell_id=continued.cell_id,
+        action_outcome_reader=EmptyActionHistory(),
+    )
+    for unverified_owner in (
+        forged_reader,
+        lambda *_selectors: continued,
+        stale_exact_reader,
+    ):
+        with pytest.raises(
+            GenerationCycleError, match="acquisition_reentry_route_owner_not_established"
+        ):
+            run_coro_sync(
+                direct_controller.reenter_after_active_acquisition_overlay(
+                    original_run=continued.generation_run,
+                    source_cycle=continued.source_cycle,
+                    problem=continued.design_problem_basis,
+                    overlay_receipt=None,
+                    observation_projection=None,
+                    baseline_path=tmp_path / "unselected-baseline",
+                    overlay_path=tmp_path / "unselected-overlay",
+                    budget_state=BudgetState(limits={}),
+                    source_control_service=unverified_owner,
+                )
+            )
 
     import json
 
@@ -403,6 +679,25 @@ def test_served_acquisition_binds_n7_compiler_and_planner_cas_before_reentry(
 
     second_reentry_ref = history_by_generation[2].reentry_receipt_ref
     assert second_reentry_ref is not None
+    # Actual action-head replay, not a caller's same-basis declaration, is the
+    # source-refresh proof. Keep every history/route marker while removing the
+    # selected continuation bytes from the fresh owner reader.
+    final_loop = resolved[-1][0]
+    with tenant_scope(None, tenant_id=continued.tenant_id, cell_id=continued.cell_id):
+        assert continued.acquisition_basis_transitions
+        assert continued.design_problem_basis == initial.design_problem_basis
+        assert continued.source_cycle.grounding.acquisition_requirement is not None
+        assert continued.source_cycle.grounding.status == "grounding_unavailable"
+        assert continued.source_cycle.value_port.status == "value_pending_n8"
+        assert continued.source_cycle.acquisition_routing_report is not None
+        remove_one_cas_read(
+            final_loop,
+            run_id=continued.run_id,
+            before_action_generation=None,
+            action_job_id=None,
+            target_ref=second_reentry_ref,
+            expected_code="continuation_reentry_unverified",
+        )
     reentry_view = reentry["reentry_receipt_view"]
     assert second_reentry_ref.manifest_profile_sha256 is not None
     assert reentry_view["manifest_profile_sha256"] == (second_reentry_ref.manifest_profile_sha256)

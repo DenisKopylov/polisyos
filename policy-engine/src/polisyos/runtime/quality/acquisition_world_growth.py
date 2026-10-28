@@ -7,16 +7,14 @@ can decide it. An empty selection remains a usable quarantine-only deployment.
 
 from __future__ import annotations
 
-import fcntl
 import hashlib
 import json
 import os
 import re
-from collections.abc import Iterator, Sequence  # noqa: TC003
-from contextlib import contextmanager
+from collections.abc import Sequence  # noqa: TC003
 from datetime import UTC, datetime
 from decimal import Decimal  # Pydantic resolves this annotation
-from pathlib import Path  # noqa: TC003
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, ClassVar, Literal, Protocol, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -26,6 +24,7 @@ from polisyos.core import artifacts, canon, contracts
 from polisyos.data_forge import read_api as data_forge_read_api
 from polisyos.runtime.quality import acquisition_executor
 from polisyos.runtime.quality.acquisition_route_loop import (
+    AcquisitionRouteLoop,
     AcquisitionRouteLoopReceipt,
     AcquisitionRoutePhaseReceipt,
 )
@@ -48,6 +47,7 @@ from polisyos.runtime.quality.semantic_epoch import (
 from polisyos.scientist import BudgetState
 
 if TYPE_CHECKING:
+    from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
     from polisyos.runtime.quality.acquisition_route_loop import (
         VerifiedAcquisitionRouteClosure,
     )
@@ -372,14 +372,17 @@ class AcquisitionWorldGrowthRecoveredOutcome(_Strict):
         return self
 
 
-@contextmanager
-def _owner_lock(path: Path) -> Iterator[None]:
-    with path.open("a+b") as stream:
-        fcntl.flock(stream.fileno(), fcntl.LOCK_EX)
-        try:
-            yield
-        finally:
-            fcntl.flock(stream.fileno(), fcntl.LOCK_UN)
+def _reentry_operation_namespace(overlay_path: Path) -> Path:
+    """Keep pointer serialization distinct from the physical native DB fence.
+
+    The native fence replaces the final suffix. Two appended namespace segments
+    therefore retain the full original filename and the operation discriminator
+    after that transformation, for suffix-less and multi-suffix DB names too.
+    This is a lock namespace selector, not a second overlay or a data path.
+    """
+
+    physical = Path(overlay_path).resolve(strict=False)
+    return physical.with_name(physical.name + ".reentry-operation.lock-target")
 
 
 class AcquisitionWorldGrowthBridge:
@@ -399,6 +402,7 @@ class AcquisitionWorldGrowthBridge:
         cycle_substrate_context_admission_owner: object | None = None,
         control_store: object | None = None,
         action_head_sink: _CurrentActionOutcomeReader | None = None,
+        source_control_service: ControlPlaneService | None = None,
     ) -> None:
         if type(config) is not AcquisitionWorldGrowthConfig:
             raise TypeError("acquisition world growth selection must be typed")
@@ -414,6 +418,18 @@ class AcquisitionWorldGrowthBridge:
         self.cycle_substrate_context_admission_owner = cycle_substrate_context_admission_owner
         self.control_store = control_store
         self.action_head_sink = action_head_sink
+        if source_control_service is not None:
+            from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+
+            if (
+                type(source_control_service) is not ControlPlaneService
+                or source_control_service._control_store is not control_store
+                or source_control_service._artifact_store is not artifact_store
+                or source_control_service._diagnostic_event_log is not event_log
+                or source_control_service.acquisition_route_sink is not action_head_sink
+            ):
+                raise TypeError("acquisition_source_control_owner_unbound")
+        self._source_control_service = source_control_service
 
     def selection(
         self, closure: VerifiedAcquisitionRouteClosure
@@ -606,7 +622,7 @@ class AcquisitionWorldGrowthBridge:
             raise ValueError("acquisition_world_growth_selection_missing")
         self._validate_action_phase(closure, selected, action_phase_ref)
         overlay_path, _ = self._paths(selected)
-        with _owner_lock(overlay_path.with_suffix(".admission.lock")):
+        with data_forge_read_api.catalog.acquisition_overlay_admission_fence(overlay_path):
             pointer = self._action_selector_path(selected, action_phase_ref)
             if pointer.exists():
                 _path, prior = self._read_action_selector(closure, selected, action_phase_ref)
@@ -728,7 +744,7 @@ class AcquisitionWorldGrowthBridge:
         overlay_path, _ = self._paths(selected)
 
         # The shared native owner is the contended resource, across routes/processes.
-        with _owner_lock(overlay_path.with_suffix(".admission.lock")):
+        with data_forge_read_api.catalog.acquisition_overlay_admission_fence(overlay_path):
             before = data_forge_read_api.catalog.project_catalog_acquisition_state(
                 self.authority.baseline_path, overlay_path=overlay_path
             )
@@ -844,7 +860,7 @@ class AcquisitionWorldGrowthBridge:
             if selector.state != "executing":
                 raise ValueError("acquisition_action_outcome_already_selected")
         overlay_path, _ = self._paths(selected, create=False)
-        with _owner_lock(overlay_path.with_suffix(".admission.lock")):
+        with data_forge_read_api.catalog.acquisition_overlay_admission_fence(overlay_path):
             pointer = self._growth_pointer(selected, create=False)
             if not pointer.exists():
                 raise ValueError("acquisition_world_growth_receipt_missing")
@@ -995,7 +1011,7 @@ class AcquisitionWorldGrowthBridge:
             if selector.state != "executing":
                 raise ValueError("acquisition_action_outcome_already_selected")
         overlay_path, _ = self._paths(selected)
-        with _owner_lock(overlay_path.with_suffix(".admission.lock")):
+        with data_forge_read_api.catalog.acquisition_overlay_admission_fence(overlay_path):
             deferral_ref, deferral, attempt = self._load_deferral(closure)
             fence = self._growth_pointer(selected).with_suffix(".admission.started")
             with fence.open("x") as stream:
@@ -1366,9 +1382,8 @@ class AcquisitionWorldGrowthBridge:
                 closure, selected, action_phase_ref, selected_kind, selected_ref
             )
         overlay_path, _ = self._paths(selected)
-        lock_path = overlay_path.with_suffix(".admission.lock")
         remeasure_prior = False
-        with _owner_lock(lock_path):
+        with data_forge_read_api.catalog.acquisition_overlay_admission_fence(overlay_path):
             selector_path, selector = self._read_action_selector(
                 closure, selected, action_phase_ref
             )
@@ -1628,11 +1643,13 @@ class AcquisitionWorldGrowthBridge:
         if selected is None:
             return False
         overlay_path, _ = self._paths(selected, create=False)
-        lock_path = overlay_path.with_suffix(".admission.lock")
+        lock_path = data_forge_read_api.catalog.acquisition_overlay_admission_lock_path(
+            overlay_path
+        )
         pointer = self._growth_pointer(selected, create=False)
         if not lock_path.exists() or not pointer.exists():
             return False
-        with _owner_lock(lock_path):
+        with data_forge_read_api.catalog.acquisition_overlay_admission_fence(overlay_path):
             if not pointer.exists():
                 return False
             pointer_kind, pointer_ref = self._read_outcome_pointer(pointer)
@@ -1654,10 +1671,12 @@ class AcquisitionWorldGrowthBridge:
         if selected is None:
             return "not_established", None
         overlay_path, _ = self._paths(selected, create=False)
-        lock_path = overlay_path.with_suffix(".admission.lock")
+        lock_path = data_forge_read_api.catalog.acquisition_overlay_admission_lock_path(
+            overlay_path
+        )
         if not lock_path.exists():
             return "not_established", None
-        with _owner_lock(lock_path):
+        with data_forge_read_api.catalog.acquisition_overlay_admission_fence(overlay_path):
             snapshot = self._current_action_outcome_snapshot(closure, selected)
             if snapshot is None:
                 return "not_established", None
@@ -1929,6 +1948,40 @@ class AcquisitionWorldGrowthBridge:
         from polisyos.core.artifacts import load_core_json_artifact
 
         _require_promotion_runtime_store_binding(self.promotion_runtime, self.artifact_store)
+        current_action_job_id: str | None = None
+        source_route_reader: AcquisitionRouteLoop | None = None
+        if self._source_control_service is not None:
+            source_route_reader = AcquisitionRouteLoop(
+                control_store=self.control_store,
+                artifact_store=self.artifact_store,
+                event_log=self.event_log,
+                core_source_resolver=(
+                    self._source_control_service.resolve_completed_control_job_core_run_source
+                ),
+                tenant_id=closure.tenant_id,
+                cell_id=closure.cell_id,
+                action_outcome_reader=self.action_head_sink,
+            )
+            current_job = self.control_store.current_execution_job_record()
+            current_action_job_id = current_job.job_id
+            refreshed = source_route_reader.resolve_current_route(
+                run_id=closure.run_id, action_job_id=current_action_job_id
+            )
+            if (
+                refreshed.tenant_id != closure.tenant_id
+                or refreshed.cell_id != closure.cell_id
+                or refreshed.run_id != closure.run_id
+                or refreshed.source_job_id != closure.source_job_id
+                or refreshed.compiled_ref != closure.compiled_ref
+                or refreshed.route_id != closure.route_id
+                or refreshed.cost_basis_hash != closure.cost_basis_hash
+                or refreshed.source_cycle != closure.source_cycle
+                or refreshed.generation_run != closure.generation_run
+            ):
+                raise ValueError("acquisition_source_reaction_selector_changed")
+            # Only the actual live owner output is used below. A caller-carried
+            # same-basis flag or constructed closure cannot provide transitions.
+            closure = refreshed
         growth_refs = tuple(
             ref for ref in refs if self.artifact_store.get_manifest(ref).kind == _GROWTH_KIND
         )
@@ -1939,7 +1992,10 @@ class AcquisitionWorldGrowthBridge:
             raise ValueError("acquisition_live_evidence_not_admitted")
         overlay_path, _ = self._paths(selected)
         pointer = overlay_path.parent / (growth_refs[0].removeprefix("sha256:") + ".reentry.json")
-        with _owner_lock(overlay_path.with_suffix(".admission.lock")):
+        # This operation lock protects recovery pointers only. It deliberately
+        # does not exclude native acquisition writers during an async N5 job.
+        operation_path = _reentry_operation_namespace(overlay_path)
+        with data_forge_read_api.catalog.acquisition_overlay_admission_fence(operation_path):
             growth, admitted = self._verified_growth(closure, growth_refs[0])
             if pointer.exists():
                 ref = json.loads(pointer.read_text())["receipt_ref"]
@@ -2043,6 +2099,7 @@ class AcquisitionWorldGrowthBridge:
                     observation_projection=observation_projection,
                     baseline_path=self.authority.baseline_path,
                     overlay_path=overlay_path,
+                    source_control_service=self._source_control_service,
                     budget_state=BudgetState.model_validate(
                         {
                             "limits": {
@@ -2055,17 +2112,40 @@ class AcquisitionWorldGrowthBridge:
                     ),
                 )
             )
-            self._validate_reentry(closure, growth, receipt)
-            ref = self._persist(
-                closure,
-                receipt.model_dump(mode="json"),
-                _REENTRY_KIND,
-                "polisyos.runtime.AcquisitionOverlayReentryReceipt",
-                "reentry_terminal",
-                event_id=event_id,
-            )
-            self._write_pointer(pointer, ref)
-            return ref
+            # No copied-context borrowing is permitted. Re-read complete owner
+            # selections on the deciding thread after async/numerical work, then
+            # bind this re-entry artifact while every native writer is excluded.
+            with data_forge_read_api.catalog.acquisition_overlay_admission_fence(overlay_path):
+                current_growth, current_admitted = self._verified_growth(closure, growth_refs[0])
+                current_projection = overlay.read_activated_semantic_epoch_observations(
+                    receipt_ref=current_admitted.receipt_ref,
+                    artifact_store=self.artifact_store,
+                    passport=passport,
+                    authority=self.authority,
+                )
+                if (
+                    current_growth != growth
+                    or current_admitted != admitted
+                    or current_projection != observation_projection
+                ):
+                    raise ValueError("acquisition_reentry_native_selector_changed")
+                if source_route_reader is not None:
+                    final_source = source_route_reader.resolve_current_route(
+                        run_id=closure.run_id, action_job_id=current_action_job_id
+                    )
+                    if final_source != closure:
+                        raise ValueError("acquisition_reentry_source_selector_changed")
+                self._validate_reentry(closure, growth, receipt)
+                ref = self._persist(
+                    closure,
+                    receipt.model_dump(mode="json"),
+                    _REENTRY_KIND,
+                    "polisyos.runtime.AcquisitionOverlayReentryReceipt",
+                    "reentry_terminal",
+                    event_id=event_id,
+                )
+                self._write_pointer(pointer, ref)
+                return ref
 
     def _candidate_world_context_handoff(
         self,
@@ -2091,6 +2171,7 @@ class AcquisitionWorldGrowthBridge:
             ControlledAcquisitionSlotBinding,
             build_acquired_observation_candidate_world,
             materialize_acquired_observation_snapshot,
+            prepare_acquired_observation_snapshot,
         )
         from polisyos.runtime.quality.substrate_registry import (
             persist_substrate_registry,
@@ -2177,6 +2258,43 @@ class AcquisitionWorldGrowthBridge:
             ).hexdigest()
         )
         transaction_time = datetime.now(UTC)
+        preparation = prepare_acquired_observation_snapshot(
+            self.artifact_store,
+            base_data_snapshot_ref=base_data_snapshot_ref,
+            overlay=overlay,
+            receipt_ref=growth.activation.overlay_admission_receipt_ref,
+            passport=passport,
+            authority=self.authority,
+            observation_id=selected_row.observation.observation_id,
+            slot_binding=selected_profile_binding,
+            transaction_time=transaction_time,
+        )
+        from polisyos.foundry.data_plane import (
+            load_input_bindings,
+            prepare_json_input_binding_values,
+        )
+
+        prior_bindings = load_input_bindings(
+            self.artifact_store, base_world_views.input_bindings_ref
+        )
+        prospective_rules = [
+            rule
+            for rule in prior_bindings.rules
+            if rule.target_slot_id != preparation.foundry_binding_rule.target_slot_id
+        ]
+        prospective_rules.append(preparation.foundry_binding_rule)
+        prospective_values = prepare_json_input_binding_values(
+            self.artifact_store,
+            payload_json=preparation.payload_json,
+            registry_bundle_ref=base_world_views.registry_bundle_ref,
+            rules=prospective_rules,
+        )
+        prospective_model = admission_owner.prepare_model_values_for_acquired_state(
+            problem=closure.design_problem_basis,
+            profile_selection_ref=refresh.profile_selection_ref,
+            source_world_model=base_world,
+            state=prospective_values.materialized_state,
+        )
         materialization = materialize_acquired_observation_snapshot(
             self.artifact_store,
             base_data_snapshot_ref=base_data_snapshot_ref,
@@ -2188,6 +2306,7 @@ class AcquisitionWorldGrowthBridge:
             slot_binding=selected_profile_binding,
             workspace_dir=workspace_dir / "data-forge",
             transaction_time=transaction_time,
+            prepared=preparation,
         )
         candidate_world = build_acquired_observation_candidate_world(
             self.artifact_store,
@@ -2198,6 +2317,10 @@ class AcquisitionWorldGrowthBridge:
             workspace_dir=workspace_dir / "fabric-world",
             transaction_time=transaction_time,
         )
+        self._reconcile_acquired_candidate_values(
+            prospective_values=prospective_values,
+            world_model_record=candidate_world.world_model.record,
+        )
         offer = admission_owner.admit_context_for_acquired_world(
             problem=closure.design_problem_basis,
             profile_selection_ref=refresh.profile_selection_ref,
@@ -2206,6 +2329,9 @@ class AcquisitionWorldGrowthBridge:
             run_id=current_job.run_id,
             tenant_id=closure.tenant_id,
             cell_id=closure.cell_id,
+        )
+        self._reconcile_acquired_candidate_model_values(
+            prospective_model=prospective_model, offer=offer
         )
         context_owner = CycleSubstrateContextArtifactOwner(
             store=self.artifact_store,
@@ -2286,6 +2412,90 @@ class AcquisitionWorldGrowthBridge:
                 return False
 
         return offer.context, handoff, currentness_resolver
+
+    def _reconcile_acquired_candidate_model_values(
+        self, *, prospective_model: object, offer: object
+    ) -> None:
+        """Consume actual selected context model bytes and exact native N5 values."""
+
+        from polisyos.ir import prepare_ncm_spec_selected_values
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationContextOffer,
+            prepare_candidate_n5_request_values,
+        )
+        from polisyos.runtime.quality.cycle_substrate import AcquiredCandidateModelValues
+        from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+
+        if (
+            type(prospective_model) is not AcquiredCandidateModelValues
+            or type(offer) is not CandidateSimulationContextOffer
+        ):
+            raise TypeError("acquisition_prospective_model_values_untyped")
+        if prepare_candidate_n5_request_values(
+            offer.profile.n5
+        ) != prepare_candidate_n5_request_values(prospective_model.n5_config):
+            raise ValueError("acquisition_prospective_n5_configuration_mismatch")
+        if offer.model_declaration_ref is None or offer.ncm_ref is None:
+            raise ValueError("acquisition_prospective_selected_model_not_established")
+        admission = self.control_store.current_execution_job_admission()
+        if (
+            admission.job.kind != "acquisition"
+            or not admission.job.run_id
+            or admission.scope.status != "established"
+            or not admission.scope.tenant_id
+            or not admission.scope.cell_id
+        ):
+            raise ValueError("acquisition_prospective_selected_model_scope_not_established")
+        repository = GenerationSourceRepository(self.artifact_store)
+        try:
+            actual_declaration, actual_ncm = repository.load_candidate_declared_ncm(
+                declaration_ref=offer.model_declaration_ref,
+                ncm_ref=offer.ncm_ref,
+                expected_profile=offer.profile,
+                expected_run_id=admission.job.run_id,
+                expected_job_id=admission.job.job_id,
+                expected_tenant_id=admission.scope.tenant_id,
+                expected_cell_id=admission.scope.cell_id,
+            )
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise ValueError("acquisition_prospective_selected_model_not_established") from exc
+        if (
+            actual_declaration != offer.model_declaration
+            or prepare_ncm_spec_selected_values(actual_ncm).value_bytes
+            != prepare_ncm_spec_selected_values(prospective_model.ncm_spec).value_bytes
+        ):
+            raise ValueError("acquisition_prospective_declared_model_mismatch")
+
+    def _reconcile_acquired_candidate_values(
+        self, *, prospective_values: object, world_model_record: object
+    ) -> None:
+        """Consume prepared values only after fresh complete state/rule replay."""
+
+        from polisyos.foundry.data_plane import InputBindingValuesPreparation, load_input_bindings
+        from polisyos.foundry.execute import load_state_snapshot, state_snapshot_value_projection
+        from polisyos.runtime.quality.world_model_record import (
+            WorldModelRecord,
+            world_model_artifact_views,
+        )
+
+        if (
+            type(prospective_values) is not InputBindingValuesPreparation
+            or type(world_model_record) is not WorldModelRecord
+        ):
+            raise TypeError("acquisition_prospective_values_untyped")
+        actual_world_views = world_model_artifact_views(world_model_record)
+        actual_state = load_state_snapshot(
+            self.artifact_store, snapshot_ref=actual_world_views.bound_state_snapshot_ref
+        )
+        if state_snapshot_value_projection(actual_state) != state_snapshot_value_projection(
+            prospective_values.materialized_state
+        ):
+            raise ValueError("acquisition_prospective_state_owner_reconciliation_failed")
+        actual_bindings = load_input_bindings(
+            self.artifact_store, actual_world_views.input_bindings_ref
+        )
+        if actual_bindings.rules != list(prospective_values.effective_rules):
+            raise ValueError("acquisition_prospective_rule_owner_reconciliation_failed")
 
     @staticmethod
     def _validate_reentry(

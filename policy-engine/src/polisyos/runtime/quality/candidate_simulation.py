@@ -8,6 +8,8 @@ owners.
 
 from __future__ import annotations
 
+import struct
+from dataclasses import dataclass, fields
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -97,6 +99,69 @@ class CandidateScenarioN5Config(_StrictModel):
         if len(self.comparator_refs) != len(set(self.comparator_refs)):
             raise ValueError("candidate_scenario_n5_comparator_duplicate")
         return self
+
+
+@dataclass(frozen=True)
+class CandidateN5RequestValues:
+    """Exact native request inputs, with finite baseline floats held as bytes."""
+
+    schema_version: str
+    engine_kind: Literal["ncm_parallel_worlds"]
+    budget_ref: str
+    horizon: tuple[tuple[str, int | str], ...]
+    baseline_state: tuple[tuple[str, bytes], ...]
+    comparator_refs: tuple[str, ...]
+    seed: int
+    replications: int
+
+    @property
+    def horizon_spec(self) -> HorizonSpec:
+        """Reconstruct the exact typed horizon consumed by the N5 controller."""
+
+        return HorizonSpec.model_validate(dict(self.horizon))
+
+    def baseline_values(self) -> dict[str, float]:
+        """Return actual finite double values, preserving every sign bit."""
+
+        return {name: struct.unpack("!d", encoded)[0] for name, encoded in self.baseline_state}
+
+
+def prepare_candidate_n5_request_values(
+    config: CandidateScenarioN5Config,
+) -> CandidateN5RequestValues:
+    """Prepare all typed N5 request fields using their actual native value law.
+
+    Field coverage is derived from the source model and the consumed prepared
+    record. A new unsupported field cannot silently remain outside the plan.
+    This is a worker-local request preparation, not source or reuse authority.
+    """
+
+    if type(config) is not CandidateScenarioN5Config:
+        raise TypeError("candidate_n5_request_config_untyped")
+    if set(type(config).model_fields) != {field.name for field in fields(CandidateN5RequestValues)}:
+        raise ValueError("candidate_n5_request_schema_not_supported")
+    validated = CandidateScenarioN5Config.model_validate(config.model_dump(mode="python"))
+    if validated.schema_version != "policyos.runtime.candidate_scenario.n5_config.v1":
+        raise ValueError("candidate_n5_request_schema_not_supported")
+    horizon_values: list[tuple[str, int | str]] = []
+    for name in type(validated.horizon).model_fields:
+        value = getattr(validated.horizon, name)
+        if type(value) not in {int, str}:
+            raise ValueError("candidate_n5_horizon_native_value_not_supported")
+        horizon_values.append((name, value))
+    return CandidateN5RequestValues(
+        schema_version=validated.schema_version,
+        engine_kind=validated.engine_kind,
+        budget_ref=validated.budget_ref,
+        horizon=tuple(horizon_values),
+        baseline_state=tuple(
+            (name, struct.pack("!d", value))
+            for name, value in sorted(validated.baseline_state.items())
+        ),
+        comparator_refs=validated.comparator_refs,
+        seed=validated.seed,
+        replications=validated.replications,
+    )
 
 
 class CandidateSimulationScenarioProfile(_StrictModel):

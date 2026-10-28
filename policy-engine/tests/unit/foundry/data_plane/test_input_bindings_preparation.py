@@ -13,26 +13,27 @@ from pydantic import BaseModel
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import FoundryInputBindingRule
-from polisyos.core.registry import build_default_registry_bundle
+from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
 from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.data_plane import (
     InputBindingsPreparation,
     build_input_bindings,
     prepare_input_bindings,
+    prepare_json_input_binding_values,
 )
 from polisyos.foundry.data_plane.bindings import load_input_bindings
-from polisyos.foundry.execute.executor import load_state_snapshot
+from polisyos.foundry.execute.executor import get_state_path, load_state_snapshot
 from tests.unit.foundry.data_plane.test_bindings_multiscale import (
     SYNTHETIC_MULTISCALE_PAYLOAD,
     _put_json,
 )
 
 
-def _without_writes(
+def _without_writes[T](
     store: FileSystemCAS,
     monkeypatch: pytest.MonkeyPatch,
-    invoke: Callable[[], InputBindingsPreparation],
-) -> InputBindingsPreparation:
+    invoke: Callable[[], T],
+) -> T:
     """Refuse any artifact emission, including hidden state/report writes."""
 
     def refuse_write(*args: object, **kwargs: object) -> NoReturn:
@@ -345,3 +346,121 @@ def test_selected_registered_sql_preparation_matches_actual_writer_and_rejects_m
             rules=rules,
             registered_sql_admission_ref=source_ref,
         )
+
+
+@pytest.mark.parametrize("explicit_rules", [False, True])
+def test_prospective_json_values_match_real_persisted_owner_without_writes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, explicit_rules: bool
+) -> None:
+    """A prospective payload uses full actual state, not a scalar/receipt hash."""
+    import json
+
+    store = FileSystemCAS(tmp_path / "cas")
+    registry_ref = build_default_registry_bundle(store).bundle_ref
+    payload = SYNTHETIC_MULTISCALE_PAYLOAD
+    rules = (
+        [
+            FoundryInputBindingRule(
+                binding_id="prospective.population",
+                source_path="cells.population",
+                target_slot_id="cells.population",
+            )
+        ]
+        if explicit_rules
+        else None
+    )
+    before = {path.relative_to(tmp_path) for path in tmp_path.rglob("*") if path.is_file()}
+    prospective = _without_writes(
+        store,
+        monkeypatch,
+        lambda: prepare_json_input_binding_values(
+            store,
+            payload_json=json.dumps(payload, allow_nan=False).encode(),
+            registry_bundle_ref=registry_ref,
+            rules=rules,
+        ),
+    )
+    assert {path.relative_to(tmp_path) for path in tmp_path.rglob("*") if path.is_file()} == before
+    payload_ref = _put_json(store, payload, kind="fabric.synthetic_multiscale_payload")
+    snapshot_ref = _put_json(store, DataSnapshot(data_ref=payload_ref), kind="fabric.data_snapshot")
+    actual = build_input_bindings(
+        store,
+        data_snapshot_ref=snapshot_ref,
+        registry_bundle_ref=registry_ref,
+        rules=rules,
+    )
+    reader = FileSystemCAS(tmp_path / "cas")
+    _assert_complete_state(
+        prospective.materialized_state,
+        load_state_snapshot(reader, snapshot_ref=actual.bound_state_snapshot_ref),
+    )
+    assert (
+        list(prospective.effective_rules)
+        == load_input_bindings(reader, actual.input_bindings_ref).rules
+    )
+    assert prospective.applied_binding_ids == actual.applied_binding_ids
+
+
+@pytest.mark.parametrize("payload", [b"[]", b'{"value": NaN}', b'{"value": Infinity}'])
+def test_prospective_json_rejects_unsupported_payload_without_artifacts(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, payload: bytes
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    registry_ref = build_default_registry_bundle(store).bundle_ref
+    with pytest.raises(ValueError):
+        _without_writes(
+            store,
+            monkeypatch,
+            lambda: prepare_json_input_binding_values(
+                store,
+                payload_json=payload,
+                registry_bundle_ref=registry_ref,
+            ),
+        )
+
+
+def test_prospective_json_reuses_real_can2_numeric_value_law(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A negative-zero decimal input follows the actual persisted payload codec."""
+    import json
+
+    store = FileSystemCAS(tmp_path / "cas")
+    registry_ref = build_default_registry_bundle(store).bundle_ref
+    payload = {"reported": {"balance": -0.0}}
+    rules = [
+        FoundryInputBindingRule(
+            binding_id="prospective.reported_balance",
+            source_path="reported.balance",
+            target_slot_id="government.balance",
+        )
+    ]
+    prospective = _without_writes(
+        store,
+        monkeypatch,
+        lambda: prepare_json_input_binding_values(
+            store,
+            payload_json=json.dumps(payload).encode(),
+            registry_bundle_ref=registry_ref,
+            rules=rules,
+        ),
+    )
+    payload_ref = _put_json(store, payload, kind="fabric.prospective_can2_payload")
+    snapshot_ref = _put_json(store, DataSnapshot(data_ref=payload_ref), kind="fabric.data_snapshot")
+    built = build_input_bindings(
+        store,
+        data_snapshot_ref=snapshot_ref,
+        registry_bundle_ref=registry_ref,
+        rules=rules,
+    )
+    actual = load_state_snapshot(
+        FileSystemCAS(tmp_path / "cas"), snapshot_ref=built.bound_state_snapshot_ref
+    )
+    _assert_complete_state(prospective.materialized_state, actual)
+    slot_registry = load_registry_bundle_content(store, registry_ref).slot_registry
+    actual_state_path = slot_registry.slots[rules[0].target_slot_id].state_path
+    assert actual_state_path
+    assert not np.signbit(np.asarray(get_state_path(actual, actual_state_path))).any()
+    assert not np.signbit(
+        np.asarray(get_state_path(prospective.materialized_state, actual_state_path))
+    ).any()

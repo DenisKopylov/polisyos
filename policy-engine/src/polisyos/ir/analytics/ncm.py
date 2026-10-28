@@ -20,6 +20,7 @@ This module provides:
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -45,7 +46,7 @@ from polisyos.ir.artifacts.io import (
     _put_owned_json_artifact_with_selected_view,
 )
 from polisyos.ir.migrations.base import CompatibilityMode as _CompatibilityMode
-from polisyos.ir.model_layer.canon import CanonSpec
+from polisyos.ir.model_layer.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.ir.registry.refs import NCMSpecRef
 
 if TYPE_CHECKING:
@@ -427,6 +428,36 @@ _NCM_SPEC_OWNER = _declare_model_owner(
 )
 
 
+@dataclass(frozen=True, slots=True)
+class PreparedNCMSpecSelectedValues:
+    """Actual selected-codec model values and their complete effective bytes."""
+
+    ncm_spec: NCMSpec
+    value_bytes: bytes
+
+
+def prepare_ncm_spec_selected_values(ncm_spec: NCMSpec) -> PreparedNCMSpecSelectedValues:
+    """Compute the actual selected-NCM codec values before an artifact write.
+
+    This uses the exact writer's typed model and canonical profile. It grants no
+    source/lineage authority and does not invent a selected reference. The real
+    writer and consumer still perform their existing owner/profile admission.
+    """
+
+    if type(ncm_spec) is not NCMSpec:
+        raise TypeError("ncm_selected_view_payload_untyped")
+    encoded = to_canonical_bytes(
+        NCMSpec.model_dump(ncm_spec, mode="json"), _NCM_SELECTED_VIEW_CANON_SPEC
+    )
+    normalized = NCMSpec.model_validate(from_canonical_bytes(encoded))
+    return PreparedNCMSpecSelectedValues(
+        ncm_spec=normalized,
+        value_bytes=to_canonical_bytes(
+            NCMSpec.model_dump(normalized, mode="json"), _NCM_SELECTED_VIEW_CANON_SPEC
+        ),
+    )
+
+
 def persist_ncm_spec_selected_view(
     store: _SelectedViewStore,
     ncm_spec: NCMSpec,
@@ -445,7 +476,8 @@ def persist_ncm_spec_selected_view(
     if return_selected_profile is not True:
         raise ValueError("ncm_selected_view_profile_attestation_required")
     canon_spec = _NCM_SELECTED_VIEW_CANON_SPEC
-    payload = NCMSpec.model_dump(ncm_spec, mode="json")
+    prepared = prepare_ncm_spec_selected_values(ncm_spec)
+    payload = NCMSpec.model_dump(prepared.ncm_spec, mode="json")
     ref = _put_owned_json_artifact_with_selected_view(
         store,
         payload,
@@ -553,10 +585,12 @@ def load_ncm_spec(
 __all__ = [
     "ExogenousSpec",
     "NCMSpec",
+    "PreparedNCMSpecSelectedValues",
     "StructuralEquation",
     "candidate_ncm_spec_from_declaration",
     "load_ncm_spec",
     "load_ncm_spec_selected_view",
     "persist_ncm_spec",
     "persist_ncm_spec_selected_view",
+    "prepare_ncm_spec_selected_values",
 ]

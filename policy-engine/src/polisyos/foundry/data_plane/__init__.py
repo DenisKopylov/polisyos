@@ -11,6 +11,7 @@ from .bindings import (
     HTEPhysicalSourceMaterializationBinding,
     InputBindingsBuildResult,
     InputBindingsPreparation,
+    InputBindingValuesPreparation,
     PreparedHTEObservationalInput,
     UkraineFoundryIntakeResult,
     build_input_bindings,
@@ -23,6 +24,7 @@ from .bindings import (
     materialize_method_contract,
     prepare_hte_observational_input,
     prepare_input_bindings,
+    prepare_json_input_binding_values,
     resolve_bound_state_snapshot_ref,
 )
 
@@ -33,6 +35,7 @@ __all__ = [
     "HTEInputPreparationRefusal",
     "HTEPhysicalArraySlotBinding",
     "HTEPhysicalSourceMaterializationBinding",
+    "InputBindingValuesPreparation",
     "InputBindingsBuildResult",
     "InputBindingsPreparation",
     "PreparedHTEObservationalInput",
@@ -47,5 +50,6 @@ __all__ = [
     "materialize_method_contract",
     "prepare_hte_observational_input",
     "prepare_input_bindings",
+    "prepare_json_input_binding_values",
     "resolve_bound_state_snapshot_ref",
 ]

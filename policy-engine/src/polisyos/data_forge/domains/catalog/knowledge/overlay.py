@@ -11,12 +11,17 @@ from __future__ import annotations
 import hashlib
 import json
 import math
-from collections.abc import Mapping, Sequence
+import os
+import threading
+import weakref
+from collections.abc import Callable, Iterator, Mapping, Sequence
+from contextlib import contextmanager
 from decimal import Decimal
 from enum import StrEnum
+from functools import wraps
 from pathlib import Path
 from types import MappingProxyType
-from typing import Any, Literal, Protocol, Self
+from typing import Any, BinaryIO, Concatenate, Literal, Protocol, Self
 
 import duckdb
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -1623,6 +1628,86 @@ def _persist_native_membership_source_graph_to_cas(
         raise OverlayAdmissionError("acquisition_owner_snapshot_cas_copy_drift")
 
 
+class _OverlayAdmissionFenceState:
+    """One physical fence, reentrant only on its owning thread."""
+
+    def __init__(self) -> None:
+        self.thread_lock = threading.RLock()
+        self.depth = 0
+        self.stream: BinaryIO | None = None
+
+
+_OVERLAY_ADMISSION_FENCES: weakref.WeakValueDictionary[
+    tuple[int, Path], _OverlayAdmissionFenceState
+] = weakref.WeakValueDictionary()
+_OVERLAY_ADMISSION_FENCES_LOCK = threading.Lock()
+
+
+def acquisition_overlay_admission_lock_path(overlay_path: Path) -> Path:
+    """Return the single fence identity for the physical native overlay file."""
+
+    return Path(overlay_path).resolve(strict=False).with_suffix(".admission.lock")
+
+
+@contextmanager
+def acquisition_overlay_admission_fence(overlay_path: Path) -> Iterator[None]:
+    """Exclude every other native writer thread/process from a short selection.
+
+    Reentrancy belongs to the same OS thread, never to copied context variables.
+    A Runtime sync-to-async worker must run outside this critical section, then
+    the deciding thread re-resolves its selected inputs under a fresh fence.
+    Unmanaged SQL, external law and arbitrary filesystem corruption are outside
+    this concurrency contract.
+    """
+
+    import fcntl
+
+    lock_path = acquisition_overlay_admission_lock_path(overlay_path)
+    key = (os.getpid(), lock_path)
+    with _OVERLAY_ADMISSION_FENCES_LOCK:
+        state = _OVERLAY_ADMISSION_FENCES.get(key)
+        if state is None:
+            state = _OverlayAdmissionFenceState()
+            _OVERLAY_ADMISSION_FENCES[key] = state
+    with state.thread_lock:
+        if state.depth == 0:
+            lock_path.parent.mkdir(parents=True, exist_ok=True)
+            stream = lock_path.open("a+b")
+            try:
+                fcntl.flock(stream.fileno(), fcntl.LOCK_EX)
+            except BaseException:
+                stream.close()
+                raise
+            state.stream = stream
+        state.depth += 1
+        try:
+            yield
+        finally:
+            state.depth -= 1
+            if state.depth == 0:
+                stream = state.stream
+                state.stream = None
+                if stream is None:
+                    raise RuntimeError("acquisition_overlay_fence_stream_missing")
+                try:
+                    fcntl.flock(stream.fileno(), fcntl.LOCK_UN)
+                finally:
+                    stream.close()
+
+
+def _fenced_overlay_mutation[**P, T](
+    method: Callable[Concatenate[CatalogAcquisitionOverlay, P], T],
+) -> Callable[Concatenate[CatalogAcquisitionOverlay, P], T]:
+    """Make the protocol structural for every maintained overlay writer."""
+
+    @wraps(method)
+    def guarded(self: CatalogAcquisitionOverlay, *args: P.args, **kwargs: P.kwargs) -> T:
+        with acquisition_overlay_admission_fence(self.overlay_path):
+            return method(self, *args, **kwargs)
+
+    return guarded
+
+
 class CatalogAcquisitionOverlay:
     """Epoch transaction owner over a separate DuckDB acquisition overlay."""
 
@@ -1637,6 +1722,7 @@ class CatalogAcquisitionOverlay:
         self._baseline_identity = _baseline_identity(self.baseline_path)
         self._initialized = False
 
+    @_fenced_overlay_mutation
     def initialize(self) -> BaselineIdentity:
         """Create empty mirror tables while attaching epoch zero read-only."""
 
@@ -1901,6 +1987,7 @@ class CatalogAcquisitionOverlay:
         self._require_baseline_unchanged()
         return pending.prepared_semantic_epoch_ref
 
+    @_fenced_overlay_mutation
     def admit_epoch(
         self,
         *,
@@ -2214,6 +2301,7 @@ class CatalogAcquisitionOverlay:
             replayed=False,
         )
 
+    @_fenced_overlay_mutation
     def activate_semantic_epoch(
         self,
         *,
@@ -2705,6 +2793,7 @@ class CatalogAcquisitionOverlay:
             passport_content_hash,
         )
 
+    @_fenced_overlay_mutation
     def resolve_native_membership(
         self,
         *,
@@ -3049,6 +3138,7 @@ class CatalogAcquisitionOverlay:
         canonical = epoch_contract.canonical_epoch_bytes(mapping)
         return len(canonical).to_bytes(8, "big") + canonical
 
+    @_fenced_overlay_mutation
     def resolve_semantic_candidate_denominator(
         self,
         *,
@@ -3160,6 +3250,7 @@ class CatalogAcquisitionOverlay:
             con.close()
         return receipt
 
+    @_fenced_overlay_mutation
     def verify_semantic_projection(
         self,
         *,
@@ -3237,6 +3328,7 @@ class CatalogAcquisitionOverlay:
             con.close()
         return receipt
 
+    @_fenced_overlay_mutation
     def emit_admitted_boundary_evidence(
         self,
         *,

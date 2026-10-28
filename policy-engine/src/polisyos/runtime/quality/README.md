@@ -1329,3 +1329,30 @@ does not authorize candidate values, legal or scientific conclusions, external
 SQL currentness, or publication. NL and other execution purposes are not
 covered. Source implementation alone is not runtime qualification; the first
 native checks are in progress, and G acceptance and E02 closure remain separate.
+
+### Prospective acquired candidate model values
+
+The configured candidate admission owner now exposes the same complete baseline
+calculation before a new WMR exists. `prepare_model_values_for_acquired_state`
+uses the actual configured profile, declaration, all required baseline slots,
+slot paths/units and native context inputs. It passes the declaration's actual
+numeric values through the existing IR candidate NCM owner; it invents no
+coefficient, world ref, calibration or grounding. Actual acquired-world context
+preparation calls that same operation on its freshly loaded selected state.
+The Runtime bridge prepares model/request values before world emission and
+reconciles the real admitted N5 configuration and declared NCM before persisting
+a context handoff. These are candidate preparation values, not a complete B09
+basis, currentness/eligibility evidence or evaluation-retention permission.
+
+`CandidateN5RequestValues` covers the actual N5 config model's full field set;
+its factory rejects unsupported fields/versions and preserves every finite
+baseline float's exact native bytes. The actual candidate request builder
+consumes its reconstructed baseline and horizon plus the other prepared inputs.
+Python/Pydantic `==` is not used as the request equality law. Selected NCM
+values use IR's actual selected-codec preparation, shared with the writer.
+`GenerationSourceRepository.load_candidate_declared_ncm` resolves the exact
+selected declaration and NCM owner profiles and checks their complete effective
+bytes. The bridge consumes that fresh selected content; an embedded declaration
+or same-shaped selected NCM is insufficient. These are input/codec relations,
+not proof of a selected engine implementation, external native dependency,
+current eligibility or retained-terminal authority.

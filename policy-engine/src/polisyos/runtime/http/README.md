@@ -24,6 +24,15 @@ runtime mutations and live streams.
 
 The DS17 OpenAPI example is packaged at `src/polisyos/runtime/http/_resources/` as a pinned historical documentation fixture. It records the source commit, artifact, dependency aggregate, worker receipt, and example time in the OpenAPI description; it makes no claim about current availability or freshness. OpenAPI rendering reads this package resource without consulting the live owner. The real GET continues to resolve and validate the current owner source for every request.
 
+Registered SQL source, cancellation, and method-metric comparison success examples
+are synthetic documentation fixtures checked against the actual response DTOs.
+Their placeholder identifiers are not issuer, authorization, artifact ownership,
+source currentness, candidate authority, or physical worker-stop evidence. The
+materialization example keeps current use `not_checked` and external database
+currentness `not_established`; cancellation keeps physical stop `not_established`;
+the comparison remains `candidate_only` with verification missing. Real routes
+continue to apply their own authorization and owner checks.
+
 - `src/polisyos/runtime/http/permissions.py` for the server-owned action
   permission vocabulary and immutable role grants projected by `/auth/me`.
 

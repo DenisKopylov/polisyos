@@ -836,6 +836,7 @@ def build_production_world_bank_wdi_execution_port(
             ),
             control_store=control_service._control_store,
             action_head_sink=control_service.acquisition_route_sink,
+            source_control_service=control_service,
         )
     return WorldBankWDIAcquisitionExecutionPort(
         world_growth_bridge=world_growth_bridge,

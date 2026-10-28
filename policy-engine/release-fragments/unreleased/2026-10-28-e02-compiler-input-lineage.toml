@@ -10,6 +10,6 @@ change_class = "python-public-api"
 surface_classification = "public_stable: polisyos.foundry.compile, polisyos.foundry.execute, polisyos.scientist.adapters, and polisyos.scientist.compute"
 migration = "Consumers comparing basis inventory by position must use the exact producer order; selected references and values still require independent admission."
 limitations = "Input reference lists and compute facade exports do not establish complete producer custody or authority."
-public_surface_inventory_reviewed = false
+public_surface_inventory_reviewed = true
 migration_docs = ["src/polisyos/foundry/README.md", "src/polisyos/scientist/adapters/README.md", "src/polisyos/scientist/compute/README.md"]
 runbook_docs = []

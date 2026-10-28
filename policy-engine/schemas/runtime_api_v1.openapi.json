@@ -60604,6 +60604,61 @@
           "200": {
             "content": {
               "application/json": {
+                "examples": {
+                  "synthetic_documentation": {
+                    "description": "Synthetic documentation fixture only. Identifiers and hashes do not establish a real issuer, authorization, source, artifact, database currentness, candidate authority, or physical worker stop.",
+                    "summary": "Synthetic cancellation response with physical stop not established",
+                    "value": {
+                      "approval_projection": {
+                        "authority_level": "projection_only",
+                        "eligible": false,
+                        "reasons": [],
+                        "source_surface": "runtime.control_job",
+                        "state": null
+                      },
+                      "authoritative_scorecard_ref": null,
+                      "blocking_quality_failures": [],
+                      "cancellation_disposition": "publication_fenced",
+                      "capability_manifest_ref": null,
+                      "effective_execution_profile": "dev",
+                      "error_message": null,
+                      "execution_status": null,
+                      "failure": null,
+                      "finished_at": null,
+                      "job_id": "fixture-job-1",
+                      "kind": "workflow_run",
+                      "meta": {
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "request_id": "req_0123456789abcdef",
+                        "source_kinds": []
+                      },
+                      "next_diagnostic_commands": [],
+                      "operator_diagnostic": null,
+                      "physical_stop_status": "not_established",
+                      "pipeline_id": null,
+                      "policy_design_case_projection": null,
+                      "progress": {},
+                      "projection_source": {
+                        "authority_level": "projection_only",
+                        "projection_policy": "projection_only",
+                        "source_detail": "control_store_progress",
+                        "source_surface": "runtime.control_job"
+                      },
+                      "quality_evidence_bundle_path": null,
+                      "quality_gates": [],
+                      "quality_scorecard_ref": null,
+                      "quality_status": null,
+                      "requested_execution_profile": null,
+                      "run_id": null,
+                      "runtime_quality_artifact_refs": {},
+                      "runtime_state": null,
+                      "started_at": null,
+                      "state": "cancelled",
+                      "submitted_at": null,
+                      "unresolved_authority_gaps": []
+                    }
+                  }
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ControlJobResponse"
                 }
@@ -62575,6 +62630,57 @@
           "200": {
             "content": {
               "application/json": {
+                "examples": {
+                  "synthetic_documentation": {
+                    "description": "Synthetic documentation fixture only. Identifiers and hashes do not establish a real issuer, authorization, source, artifact, database currentness, candidate authority, or physical worker stop.",
+                    "summary": "Synthetic materialization response with current use not checked",
+                    "value": {
+                      "binding_ref": {
+                        "artifact_id": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+                        "kind": "fabric.registered_sql_admission_binding",
+                        "manifest_profile_sha256": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+                        "media_type": "application/json"
+                      },
+                      "current_use": "not_checked",
+                      "external_database_currentness": "not_established",
+                      "receipt": {
+                        "carrier": {
+                          "admission_epoch": "fixture-epoch-1",
+                          "admission_event_ref": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+                          "admission_scope_digest": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+                          "cell_id": "fixture-cell",
+                          "occurrence_id": "fixture-occurrence-1",
+                          "revision_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+                          "schema_version": "polisyos.source-admission-carrier.v1",
+                          "snapshot_ref": {
+                            "artifact_id": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                            "kind": "fabric.data_snapshot",
+                            "manifest_profile_sha256": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+                            "media_type": "application/json"
+                          },
+                          "source_incarnation_id": "fixture-source-1",
+                          "tenant_id": "fixture-tenant",
+                          "use_contract_ref": {
+                            "artifact_id": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                            "kind": "fabric.registered_sql_use",
+                            "manifest_profile_sha256": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+                            "media_type": "application/json"
+                          }
+                        },
+                        "committed_at": "2026-02-11T12:00:00Z",
+                        "event_id": "fixture-admit-event",
+                        "event_ref": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+                        "generation": 2,
+                        "operation": "admit",
+                        "rule_version": "policyos.registered-sql-admission.v1",
+                        "schema_version": "polisyos.source-admission-receipt.v1",
+                        "scope_head": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+                        "source_registration": null
+                      },
+                      "status": "committed"
+                    }
+                  }
+                },
                 "schema": {
                   "$ref": "#/components/schemas/RegisteredSQLMaterializationResponse"
                 }
@@ -62813,6 +62919,41 @@
           "200": {
             "content": {
               "application/json": {
+                "examples": {
+                  "synthetic_documentation": {
+                    "description": "Synthetic documentation fixture only. Identifiers and hashes do not establish a real issuer, authorization, source, artifact, database currentness, candidate authority, or physical worker stop.",
+                    "summary": "Synthetic source registration response",
+                    "value": {
+                      "registration": {
+                        "admission_scope_digest": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+                        "cell_id": "fixture-cell",
+                        "committed_at": "2026-02-11T12:00:00Z",
+                        "effective_view_contract_ref": {
+                          "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "kind": "fabric.registered_sql_view",
+                          "manifest_profile_sha256": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+                          "media_type": "application/json"
+                        },
+                        "event_id": "fixture-registration-event",
+                        "event_ref": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+                        "generation": 1,
+                        "issuer_key": "documentation-fixture-not-an-issuer",
+                        "provider_id": "fixture-provider",
+                        "registration_key": "fixture-registration",
+                        "rule_version": "policyos.registered-sql-admission.v1",
+                        "schema_version": "polisyos.source-registration.v1",
+                        "source_incarnation_id": "fixture-source-1",
+                        "tenant_id": "fixture-tenant",
+                        "use_contract_ref": {
+                          "artifact_id": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                          "kind": "fabric.registered_sql_use",
+                          "manifest_profile_sha256": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+                          "media_type": "application/json"
+                        }
+                      }
+                    }
+                  }
+                },
                 "schema": {
                   "$ref": "#/components/schemas/RegisteredSQLRegistrationResponse"
                 }
@@ -63045,6 +63186,48 @@
           "200": {
             "content": {
               "application/json": {
+                "examples": {
+                  "synthetic_documentation": {
+                    "description": "Synthetic documentation fixture only. Identifiers and hashes do not establish a real issuer, authorization, source, artifact, database currentness, candidate authority, or physical worker stop.",
+                    "summary": "Synthetic source withdrawal response",
+                    "value": {
+                      "receipt": {
+                        "carrier": {
+                          "admission_epoch": "fixture-epoch-1",
+                          "admission_event_ref": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+                          "admission_scope_digest": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+                          "cell_id": "fixture-cell",
+                          "occurrence_id": "fixture-occurrence-1",
+                          "revision_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+                          "schema_version": "polisyos.source-admission-carrier.v1",
+                          "snapshot_ref": {
+                            "artifact_id": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                            "kind": "fabric.data_snapshot",
+                            "manifest_profile_sha256": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+                            "media_type": "application/json"
+                          },
+                          "source_incarnation_id": "fixture-source-1",
+                          "tenant_id": "fixture-tenant",
+                          "use_contract_ref": {
+                            "artifact_id": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                            "kind": "fabric.registered_sql_use",
+                            "manifest_profile_sha256": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+                            "media_type": "application/json"
+                          }
+                        },
+                        "committed_at": "2026-02-11T12:00:00Z",
+                        "event_id": "fixture-withdraw-event",
+                        "event_ref": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+                        "generation": 3,
+                        "operation": "withdraw",
+                        "rule_version": "policyos.registered-sql-admission.v1",
+                        "schema_version": "polisyos.source-admission-receipt.v1",
+                        "scope_head": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+                        "source_registration": null
+                      }
+                    }
+                  }
+                },
                 "schema": {
                   "$ref": "#/components/schemas/RegisteredSQLWithdrawalResponse"
                 }
@@ -86356,6 +86539,33 @@
           "200": {
             "content": {
               "application/json": {
+                "examples": {
+                  "synthetic_documentation": {
+                    "description": "Synthetic documentation fixture only. Identifiers and hashes do not establish a real issuer, authorization, source, artifact, database currentness, candidate authority, or physical worker stop.",
+                    "summary": "Synthetic candidate comparison with verification missing",
+                    "value": {
+                      "candidate_comparison": {
+                        "authority_status": "candidate_only",
+                        "comparison_contract_sha256": null,
+                        "frontier_candidate_hashes": [],
+                        "limitations": [
+                          "current_candidate_comparison_owner_unavailable"
+                        ],
+                        "observations": [],
+                        "revalidation_required": true,
+                        "status": "verification_missing"
+                      },
+                      "meta": {
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "request_id": "req_0123456789abcdef",
+                        "source_kinds": [
+                          "core_run"
+                        ]
+                      },
+                      "run_id": "R_core_api_001"
+                    }
+                  }
+                },
                 "schema": {
                   "$ref": "#/components/schemas/CompletedExAnteCandidateComparisonResponse"
                 }

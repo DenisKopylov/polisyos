@@ -88,7 +88,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | --- | --- | --- | ---: | --- | --- |
 | `polisyos.common` | `public_stable` | `lazy_facade` | 8 | `team-polisyos` | `src/polisyos/common/README.md` |
 | `polisyos.core` | `public_stable` | `lazy_facade` | 134 | `team-polisyos` | `src/polisyos/core/README.md` |
-| `polisyos.ir` | `public_stable` | `lazy_facade` | 528 | `team-polisyos` | `src/polisyos/ir/README.md` |
+| `polisyos.ir` | `public_stable` | `lazy_facade` | 530 | `team-polisyos` | `src/polisyos/ir/README.md` |
 | `polisyos.obligation_rules` | `internal` | `eager_exports` | 22 | `team-policyos-runtime` | `src/polisyos/obligation_rules/README.md` |
 | `polisyos.obligation_graph` | `internal` | `eager_exports` | 20 | `team-policyos-runtime` | `src/polisyos/obligation_graph/README.md` |
 | `polisyos.method_requirement` | `internal` | `eager_exports` | 14 | `team-policyos-runtime` | `src/polisyos/method_requirement/README.md` |
@@ -1954,7 +1954,7 @@ security
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.ir` | `src/polisyos/ir/__init__.py` | `lazy_facade` | 528 |
+| `polisyos.ir` | `src/polisyos/ir/__init__.py` | `lazy_facade` | 530 |
 | `polisyos.ir.analytics` | `src/polisyos/ir/analytics/__init__.py` | `lazy_facade` | 320 |
 | `polisyos.ir.analytics.calibration_diagnostics` | `src/polisyos/ir/analytics/calibration_diagnostics.py` | `eager_exports` | 6 |
 | `polisyos.ir.api` | `src/polisyos/ir/api.py` | `eager_exports` | 14 |
@@ -1974,7 +1974,7 @@ security
 - Facade: `lazy_facade`
 - Summary: Expose the stable IR contract surface through a lazy package facade.
 
-<details><summary>Entrypoint exports (528)</summary>
+<details><summary>Entrypoint exports (530)</summary>
 
 ```text
 GATE_REQUEST_SCHEMA_VERSION
@@ -2287,6 +2287,7 @@ PosteriorPointRole
 PosteriorSamplesCarrier
 PosteriorSummaryRef
 PosteriorSummaryV11
+PreparedNCMSpecSelectedValues
 ProblemConstraintSpec
 ProblemDomain
 ProblemFrame
@@ -2495,6 +2496,7 @@ persist_twin_network_result
 persist_uncertainty_envelope
 persist_welfare_bundle
 persist_welfare_sample_bundle
+prepare_ncm_spec_selected_values
 proof_bundle_from_identification_result
 proof_bundle_from_negative_certificate
 proof_bundle_from_transportability_result
@@ -3619,7 +3621,7 @@ world_event_id_from_payload
 
 </details>
 
-<details><summary>Supported exports (528)</summary>
+<details><summary>Supported exports (530)</summary>
 
 ```text
 GATE_REQUEST_SCHEMA_VERSION
@@ -3932,6 +3934,7 @@ PosteriorPointRole
 PosteriorSamplesCarrier
 PosteriorSummaryRef
 PosteriorSummaryV11
+PreparedNCMSpecSelectedValues
 ProblemConstraintSpec
 ProblemDomain
 ProblemFrame
@@ -4140,6 +4143,7 @@ persist_twin_network_result
 persist_uncertainty_envelope
 persist_welfare_bundle
 persist_welfare_sample_bundle
+prepare_ncm_spec_selected_values
 proof_bundle_from_identification_result
 proof_bundle_from_negative_certificate
 proof_bundle_from_transportability_result
@@ -5017,8 +5021,8 @@ Export total is unknown; the static reader cannot resolve the extension.
 | `polisyos.foundry.compile` | `src/polisyos/foundry/compile/__init__.py` | `lazy_facade` | 6 |
 | `polisyos.foundry.analysis` | `src/polisyos/foundry/analysis/__init__.py` | `eager_exports` | 19 |
 | `polisyos.foundry.calibration` | `src/polisyos/foundry/calibration/__init__.py` | `unresolved_exports` | unknown (no names proven) |
-| `polisyos.foundry.data_plane` | `src/polisyos/foundry/data_plane/__init__.py` | `eager_exports` | 21 |
-| `polisyos.foundry.execute` | `src/polisyos/foundry/execute/__init__.py` | `lazy_facade` | 20 |
+| `polisyos.foundry.data_plane` | `src/polisyos/foundry/data_plane/__init__.py` | `eager_exports` | 23 |
+| `polisyos.foundry.execute` | `src/polisyos/foundry/execute/__init__.py` | `lazy_facade` | 22 |
 | `polisyos.foundry.methods` | `src/polisyos/foundry/methods/__init__.py` | `eager_exports` | 225 |
 | `polisyos.foundry.methods.backends` | `src/polisyos/foundry/methods/backends/__init__.py` | `lazy_facade` | 25 |
 | `polisyos.foundry.methods.causal` | `src/polisyos/foundry/methods/causal/__init__.py` | `unresolved_exports` | unknown (no names proven) |
@@ -5274,7 +5278,7 @@ StaticBundle
 - Facade: `eager_exports`
 - Summary: Expose input-binding helpers that bridge external data into Foundry state snapshots.
 
-<details><summary>Entrypoint exports (21)</summary>
+<details><summary>Entrypoint exports (23)</summary>
 
 ```text
 HTE_PHYSICAL_SOURCE_BINDING_KIND
@@ -5283,6 +5287,7 @@ HTEInputLimits
 HTEInputPreparationRefusal
 HTEPhysicalArraySlotBinding
 HTEPhysicalSourceMaterializationBinding
+InputBindingValuesPreparation
 InputBindingsBuildResult
 InputBindingsPreparation
 PreparedHTEObservationalInput
@@ -5297,6 +5302,7 @@ load_ukraine_foundry_intake
 materialize_method_contract
 prepare_hte_observational_input
 prepare_input_bindings
+prepare_json_input_binding_values
 resolve_bound_state_snapshot_ref
 ```
 
@@ -5308,7 +5314,7 @@ resolve_bound_state_snapshot_ref
 - Facade: `lazy_facade`
 - Summary: Stable execute facade for compiled Foundry plans.
 
-<details><summary>Entrypoint exports (20)</summary>
+<details><summary>Entrypoint exports (22)</summary>
 
 ```text
 BoundedNumericNPZError
@@ -5328,6 +5334,8 @@ execute
 execution_input_basis_sources
 get_state_path
 load_state_snapshot
+StateSnapshotValueLeaf
+state_snapshot_value_projection
 read_numeric_npz_bounded
 read_state_snapshot_inputs_bounded
 resolve_execution_posture
@@ -9004,7 +9012,7 @@ validate_web_evidence_source_binding
 | `polisyos.data_forge` | `src/polisyos/data_forge/__init__.py` | `lazy_facade` | 49 |
 | `polisyos.data_forge.read_api` | `src/polisyos/data_forge/read_api/__init__.py` | `lazy_facade` | 26 |
 | `polisyos.data_forge.read_api.academic` | `src/polisyos/data_forge/read_api/academic.py` | `lazy_facade` | 110 |
-| `polisyos.data_forge.read_api.catalog` | `src/polisyos/data_forge/read_api/catalog.py` | `lazy_facade` | 152 |
+| `polisyos.data_forge.read_api.catalog` | `src/polisyos/data_forge/read_api/catalog.py` | `lazy_facade` | 154 |
 | `polisyos.data_forge.read_api.legal` | `src/polisyos/data_forge/read_api/legal.py` | `lazy_facade` | 61 |
 | `polisyos.data_forge.read_api.ukraine` | `src/polisyos/data_forge/read_api/ukraine.py` | `lazy_facade` | 75 |
 
@@ -9238,7 +9246,7 @@ validate_claim_adjudication_input_batch
 - Facade: `lazy_facade`
 - Summary: Runtime-safe read API for catalog Data Forge artifacts.
 
-<details><summary>Entrypoint exports (152)</summary>
+<details><summary>Entrypoint exports (154)</summary>
 
 ```text
 AcquisitionAuthorityEntry
@@ -9338,6 +9346,8 @@ SearchFilters
 VariableAlignment
 WVSIndicatorRegistryError
 WVSIndicatorRegistryReadError
+acquisition_overlay_admission_fence
+acquisition_overlay_admission_lock_path
 build_acquisition_authority_provision
 build_authority_entry
 build_authority_registry

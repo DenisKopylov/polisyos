@@ -349,6 +349,12 @@ if TYPE_CHECKING:
         OverlayAdmissionReceipt as OverlayAdmissionReceipt,
     )
     from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+        acquisition_overlay_admission_fence as acquisition_overlay_admission_fence,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+        acquisition_overlay_admission_lock_path as acquisition_overlay_admission_lock_path,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
         build_metric_field_binding as build_metric_field_binding,
     )
     from polisyos.data_forge.domains.catalog.knowledge.overlay import (
@@ -558,6 +564,10 @@ _EXPORTS = {
     "BaselineMutationError": "polisyos.data_forge.domains.catalog.knowledge.overlay",
     "CanonicalAcquisitionObservation": ("polisyos.data_forge.domains.catalog.knowledge.overlay"),
     "CatalogAcquisitionOverlay": "polisyos.data_forge.domains.catalog.knowledge.overlay",
+    "acquisition_overlay_admission_fence": "polisyos.data_forge.domains.catalog.knowledge.overlay",
+    "acquisition_overlay_admission_lock_path": (
+        "polisyos.data_forge.domains.catalog.knowledge.overlay"
+    ),
     "CatalogAcquisitionEpochProjection": ("polisyos.data_forge.domains.catalog.knowledge.overlay"),
     "CatalogAcquisitionEventProjection": ("polisyos.data_forge.domains.catalog.knowledge.overlay"),
     "ActivatedAcquisitionObservationProjection": (

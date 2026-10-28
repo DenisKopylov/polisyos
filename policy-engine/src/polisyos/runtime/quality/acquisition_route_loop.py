@@ -81,8 +81,15 @@ def _resolve_source_cycle_problem_basis(
     source_cycle: GenerationCycleRecord,
     design_problem: DesignProblem,
     design_problem_ref: str,
+    acquisition_basis_transitions: tuple[AcquisitionOverlayReentryReceipt, ...] = (),
 ) -> DesignProblem:
-    """Recompute the source cycle's basis from the same run's revision chain."""
+    """Compose verified source refreshes separately from actual design revisions.
+
+    The route owner's action fold supplies the acquisition proofs only after
+    selected CAS, event, action and append-only continuation replay. A receipt
+    object or same-basis declaration supplied by a caller is not admission;
+    mutation consumers must obtain this closure from that live owner again.
+    """
 
     if (
         _problem_ref(design_problem) != design_problem_ref
@@ -110,6 +117,22 @@ def _resolve_source_cycle_problem_basis(
     if tuple(cycle.cycle_index for cycle in prefix) != tuple(range(source_cycle.cycle_index + 1)):
         raise AcquisitionRouteClosureError("source_cycle_basis_predecessor_missing")
 
+    transitions: dict[int, AcquisitionOverlayReentryReceipt] = {}
+    for transition in acquisition_basis_transitions:
+        index = transition.new_cycle.cycle_index
+        continued = transition.continued_generation_run
+        if (
+            index in transitions
+            or not transition.schema_version.endswith(".v3")
+            or transition.source_cycle_index + 1 != index
+            or transition.design_problem_ref != design_problem_ref
+            or continued is None
+            or continued.run_id != generation_run.run_id
+            or continued.cycles != generation_run.cycles[: index + 1]
+            or transition.new_cycle != continued.cycles[-1]
+        ):
+            raise AcquisitionRouteClosureError("source_acquisition_basis_transition_invalid")
+        transitions[index] = transition
     expected_basis = design_problem
     for cycle in prefix:
         if cycle.design_problem_ref != design_problem_ref or _cycle_basis_ref(
@@ -118,7 +141,13 @@ def _resolve_source_cycle_problem_basis(
             raise AcquisitionRouteClosureError("source_cycle_basis_chain_invalid")
         if cycle.cycle_index == source_cycle.cycle_index:
             return expected_basis
-        expected_basis = cycle.revision_request.revised_problem
+        transition = transitions.get(cycle.cycle_index + 1)
+        if transition is None:
+            expected_basis = cycle.revision_request.revised_problem
+        elif transition.source_candidate_ref != cycle.selected_candidate_ref or _cycle_basis_ref(
+            transition.new_cycle
+        ) != _problem_ref(expected_basis):
+            raise AcquisitionRouteClosureError("source_acquisition_basis_transition_invalid")
     raise AcquisitionRouteClosureError("source_cycle_basis_unresolved")
 
 
@@ -291,6 +320,11 @@ class VerifiedAcquisitionRouteClosure(BaseModel):
     cost_basis_record: AcquisitionCostBasisRecord
     cost_basis_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     route_id: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    # Transport only. The actual action fold replayed these selected receipts;
+    # the production mutation bridge re-resolves that owner before using them.
+    acquisition_basis_transitions: tuple[AcquisitionOverlayReentryReceipt, ...] = Field(
+        default=(), exclude=True, repr=False
+    )
 
     @property
     def route_source_cycle(self) -> GenerationCycleRecord:
@@ -314,6 +348,7 @@ class VerifiedAcquisitionRouteClosure(BaseModel):
             source_cycle=self.source_cycle,
             design_problem=self.design_problem,
             design_problem_ref=self.design_problem_ref,
+            acquisition_basis_transitions=self.acquisition_basis_transitions,
         )
 
     @property
@@ -550,7 +585,7 @@ class AcquisitionRouteLoop:
                 "cost_basis_hash": cost.record_content_hash,
             }
         )
-        generation_run, source_cycle = self._latest_verified_source(
+        generation_run, source_cycle, basis_transitions = self._latest_verified_source(
             run_id=run_id,
             source_job_id=job.job_id,
             route_id=route_id,
@@ -569,6 +604,7 @@ class AcquisitionRouteLoop:
             source_cycle=source_cycle,
             design_problem=compiled.design_problem,
             design_problem_ref=compiled.design_problem_ref,
+            acquisition_basis_transitions=basis_transitions,
         )
         return VerifiedAcquisitionRouteClosure(
             tenant_id=self._tenant_id,
@@ -585,6 +621,7 @@ class AcquisitionRouteLoop:
             generation_run=generation_run,
             source_cycle=source_cycle,
             route_source_cycle_index=route_source_cycle.cycle_index,
+            acquisition_basis_transitions=basis_transitions,
             planner_report=report,
             planner_record=planner_record,
             cost_basis_record=cost,
@@ -607,7 +644,9 @@ class AcquisitionRouteLoop:
         source_cycle: GenerationCycleRecord,
         before_action_generation: int | None,
         action_job_id: str | None,
-    ) -> tuple[GenerationCycleRun, GenerationCycleRecord]:
+    ) -> tuple[
+        GenerationCycleRun, GenerationCycleRecord, tuple[AcquisitionOverlayReentryReceipt, ...]
+    ]:
         """Fold only verified terminal re-entry receipts over the compiled source."""
 
         if before_action_generation is not None and before_action_generation < 1:
@@ -669,6 +708,7 @@ class AcquisitionRouteLoop:
 
         selected_run = generation_run
         selected_cycle = source_cycle
+        basis_transitions: list[AcquisitionOverlayReentryReceipt] = []
         for snapshot in outcomes:
             receipt = snapshot.latest_receipt
             if (
@@ -705,8 +745,21 @@ class AcquisitionRouteLoop:
                 design_problem_ref=design_problem_ref,
                 route_id=route_id,
                 source_job_id=source_job_id,
+                acquisition_basis_transitions=tuple(basis_transitions),
             )
-        return selected_run, selected_cycle
+            # The preceding call verified this exact immutable source/event/
+            # predecessor relation. Reload its typed body for the basis fold;
+            # never derive a transition from a same-ID marker alone.
+            transition = AcquisitionOverlayReentryReceipt.model_validate(
+                self._read_json_artifact(
+                    receipt.reentry_receipt_ref,
+                    expected_kind="runtime_quality.acquisition_overlay_reentry_receipt",
+                    expected_schema_name="polisyos.runtime.AcquisitionOverlayReentryReceipt",
+                    expected_schema_versions=("2.0",),
+                )
+            )
+            basis_transitions.append(transition)
+        return selected_run, selected_cycle, tuple(basis_transitions)
 
     def _verified_reentry_source(
         self,
@@ -719,6 +772,7 @@ class AcquisitionRouteLoop:
         design_problem_ref: str,
         route_id: str,
         source_job_id: str,
+        acquisition_basis_transitions: tuple[AcquisitionOverlayReentryReceipt, ...] = (),
     ) -> tuple[GenerationCycleRun, GenerationCycleRecord]:
         """Verify owner persistence, event scope, growth binding, and append-only N4 history."""
 
@@ -862,6 +916,7 @@ class AcquisitionRouteLoop:
                         source_cycle=source_cycle,
                         design_problem=design_problem,
                         design_problem_ref=design_problem_ref,
+                        acquisition_basis_transitions=acquisition_basis_transitions,
                     )
                 )
                 or reentry.overlay_receipt_ref

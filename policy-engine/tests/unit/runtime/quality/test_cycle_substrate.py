@@ -2702,6 +2702,12 @@ def test_acquired_world_admission_reads_the_selected_state_snapshot_view(
     with monkeypatch.context() as patch:
         patch.setattr(store, "put_json", refuse_preparation_write)
         patch.setattr(store, "put_bytes", refuse_preparation_write)
+        model_values = owner.prepare_model_values_for_acquired_state(
+            problem=problem,
+            profile_selection_ref=profile.profile_selection_ref,
+            source_world_model=acquired_world,
+            state=state,
+        )
         prepared = owner.prepare_context_for_acquired_world(
             problem=problem,
             profile_selection_ref=profile.profile_selection_ref,
@@ -2718,6 +2724,27 @@ def test_acquired_world_admission_reads_the_selected_state_snapshot_view(
     }
     assert prepared.model_declaration.target_baseline == 37.0
     assert prepared.model_declaration.outcome_baseline == 91.0
+    assert model_values.n5_config == prepared.profile.n5
+    assert model_values.declared_model_values.target_baseline == 37.0
+    assert model_values.declared_model_values.outcome_baseline == 91.0
+    assert model_values.declared_model_values.outcome_per_target_unit == 0.5
+    assert model_values.declared_model_values.outcome_noise_stddev == 0.01
+    prospective_ncm = model_values.ncm_spec
+    actual_scm = prospective_ncm.scm_spec
+    assert actual_scm is not None
+    mechanisms = {mechanism.variable: mechanism for mechanism in actual_scm.mechanisms}
+    assert mechanisms["education.teaching_method"].family_params["intercept"] == 37.0
+    assert mechanisms["learning_outcomes"].family_params["intercept"] == 91.0 - 0.5 * 37.0
+    assert mechanisms["learning_outcomes"].family_params["coefficients"] == {
+        "education.teaching_method": 0.5
+    }
+    from polisyos.ir import candidate_ncm_spec_from_declaration
+
+    assert candidate_ncm_spec_from_declaration(prepared.model_declaration) == prospective_ncm
+    inspected_bundle = model_values.source_context_inputs.intervention_substrate
+    assert inspected_bundle is not None
+    assert type(inspected_bundle.knob_dictionary["lane0_knob"]["default"]) is type(knob_default)
+    inspected_bundle.knob_dictionary["lane0_knob"]["default"] = "caller-mutated-model-plan"
     prepared_bundle = prepared.source_context_inputs.intervention_substrate
     assert prepared_bundle is not None
     assert type(prepared_bundle.knob_dictionary["lane0_knob"]["default"]) is type(knob_default)

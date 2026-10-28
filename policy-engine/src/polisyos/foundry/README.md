@@ -429,3 +429,25 @@ The `polisyos.foundry.execute.execution_input_basis_sources` facade derives the
 producer-owned, ordered source-role and selected-reference pairs from a typed
 execution input basis. Foundry uses it for both basis creation and re-entry;
 this enumeration alone is neither source admission nor authority.
+
+### Prospective acquired JSON values
+
+`data_plane.prepare_json_input_binding_values` resolves the real registry and
+uses the same rule validation, entity layout, materialization and error fold as
+`build_input_bindings`, without inventing a DataSnapshot or writing artifacts.
+Its immutable input bytes are numerical input, not source admission. The Runtime
+acquisition bridge separately replays actual Data Forge source custody and passes
+its exact preparation to the real materializer, then reconciles every actual
+new bound-state codec value and rule before context/N5 admission.
+
+`execute.state_snapshot_value_projection` derives the full leaf denominator from
+the maintained snapshot codec and preserves paths, shapes, dtypes and exact
+immutable value bytes (including signed zero and non-target/vector values).
+Equality compares those bytes directly; a derived digest is receipt-only. The
+prospective JSON port reuses the real Core CAN.2 payload encode/decode law
+before binding, including its numeric normalization. The projection compares
+consumed state values, not NPZ archive bytes or contextual snapshot refs. It is
+one facet of a future complete semantic evaluation basis: model/NCM, native
+context/profile, backend, current requirement and eligibility still need their
+actual owners. It does not establish complete equality, evaluation retention or
+authority. Runtime qualification and generated public-surface review are pending.

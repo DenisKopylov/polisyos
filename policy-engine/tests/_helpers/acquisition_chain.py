@@ -341,6 +341,7 @@ def make_wdi_port_case(
     generation_repo_root = (
         Path(__file__).resolve().parents[2] if candidate_scenario_generation else repo
     )
+
     bridge = AcquisitionWorldGrowthBridge(
         config=AcquisitionWorldGrowthConfig(
             routes=(selected,),
@@ -356,6 +357,7 @@ def make_wdi_port_case(
         cycle_substrate_context_admission_owner=(control._cycle_substrate_context_admission_owner),
         control_store=control._control_store,
         action_head_sink=control.acquisition_route_sink,
+        source_control_service=control,
     )
     transport_calls = intercepted_wdi_transport(monkeypatch)
     # Only candidate generation is a fixture; every re-entry owner still runs.

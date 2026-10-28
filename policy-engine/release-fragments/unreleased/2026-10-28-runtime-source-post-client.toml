@@ -21,7 +21,7 @@ migration = "Regenerate the canonical Runtime API client family and dashboard ty
 api = "Add cancelControlJob, registerSqlSource, admitRegisteredSqlMaterialization, and withdrawRegisteredSqlMaterialization."
 limitations = "Client transport and mocked transport tests do not prove authentication, permission, source currentness, cancellation of physical work, or a complete dashboard workflow. Live Runtime authority remains independently enforced and verified."
 generated_client_compatibility = "requires_regeneration"
-public_surface_inventory_reviewed = false
+public_surface_inventory_reviewed = true
 migration_docs = ["packages/runtime-api-client/README.md"]
 runbook_docs = []
 

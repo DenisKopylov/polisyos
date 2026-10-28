@@ -1,0 +1,443 @@
+{
+  "schema": "policyos.e02.execution-progress-evidence-index.v1",
+  "snapshot": "R20/R21 current status",
+  "historical_cut_utc": "2026-10-28T20:09:00Z",
+  "current_update_utc": "2026-10-28T20:17:00Z",
+  "source_cut": {
+    "commit": "d205c52359d9123c0feacdc4d03ed47113960f91",
+    "tree": "d0f92f456b6d31e6bf5a4d289a639669a0712ae6",
+    "branch": "codex/e02-unified-local-20261009",
+    "committed_source_paths": 38,
+    "root_reported_known_dirty_paths": 28,
+    "dirty_scope": "22 R21 source/client/generator paths plus six documentation paths; no new source commit implied"
+  },
+  "original_plan": {
+    "stage": "Wave 2 owner composition and uncovered original criteria",
+    "queue": {
+      "rows": 26,
+      "bundles": 127,
+      "unique_ids": 282,
+      "criterion_occurrences": 291,
+      "task_finding_edges": 319,
+      "expanded_occurrence_to_row_relations_separate": 331
+    },
+    "B198": "preserved",
+    "G_acceptance": false,
+    "formal_closure": false,
+    "R9_GY_Atlas": "not started"
+  },
+  "evidence_payload_copies": 0,
+  "evidence": [
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/docs-progress-r18/r4/manifest.json",
+      "sha256": "4e3e8b36826aef6ee96622ad9323dd977461939bb0dc6c5b734e05a79e417cab",
+      "bytes": 6354,
+      "label": "frozen R18 R4 historical proposal manifest"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/root-c105-tc-r20-commit/branch-readback.json",
+      "sha256": "d0c1c16d0c9cbec20d1d773073b45ffe7036895a95867a031ccf1fb99dc40725",
+      "bytes": 5767,
+      "label": "d205 source commit readback",
+      "commit": "d205c52359d9123c0feacdc4d03ed47113960f91",
+      "tree": "d0f92f456b6d31e6bf5a4d289a639669a0712ae6",
+      "paths": 38
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/root-c105-tc-r20-intake/manifest.json",
+      "sha256": "e18b751d55ce4a28c8904f98c848c6721b0829eaa69684ff474d5ca8f59e6ff1",
+      "bytes": 16381,
+      "label": "existing R20 C105/TC source intake",
+      "entries": 30
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/root-client-and-routes-r21-intake/manifest.json",
+      "sha256": "9142297033663200b57aacd263f9765fe1d4e9479415294dfd0e9cf961e392fa",
+      "bytes": 7407,
+      "label": "R21 route/client source intake",
+      "entries": 14
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/root-generated-r21-intake/manifest.json",
+      "sha256": "39b38ee7ef4f001184376f5b49fd0a598b9dbe59dfec7c5cee17e19047c9e537",
+      "bytes": 3801,
+      "label": "R21 generated-client stage input",
+      "selected_paths": 7
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/root-get-r21-intake/manifest.json",
+      "sha256": "cc9f8d10719301f9bc7ce582d07ede5d6ef2f41b8c875baf2f04cf81ccf8d0c2",
+      "bytes": 1706,
+      "label": "R21 runtime-client GET stage input",
+      "selected_paths": 3
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/r21-affected-checks-final/source-input.json",
+      "sha256": "8aef105f69b8ee7ebf485ad6e7bd6f97ab40f1a72444badc0521faa4b14c93f2",
+      "bytes": 12108,
+      "label": "R21 final affected-check input; 22 known dirty R21 paths at d205"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/r21-affected-checks-final/manifest.json",
+      "sha256": "4dcf429e456c07db9c122ed51d32579437fa017d6ebeea048e5a4cdd1fe75b9c",
+      "bytes": 1737,
+      "label": "R21 final affected checks and exit outcomes"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/r21-physical-ruff-final/manifest.json",
+      "sha256": "980b0411413ed8793eafb9af692881c3404c76cd68cd84a330567a594495154d",
+      "bytes": 4188,
+      "label": "R21 physical Ruff check and format receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/tc-c105-first-native-r20-20261028/audit-result.json",
+      "sha256": "c78792f20af30dce489336dda17df54430875a605dd3f45505a7004de4ebd2c0",
+      "bytes": 10308,
+      "label": "tc-c105-first-native-r20-20261028: audit",
+      "source_commit": "d205c52359d9123c0feacdc4d03ed47113960f91",
+      "source_tree": "d0f92f456b6d31e6bf5a4d289a639669a0712ae6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/tc-c105-first-native-r20-20261028/pytest.xml",
+      "sha256": "29ad5e114298971101c825d100e8d1a90d51fc647dd684f0bbab1655d2333f8d",
+      "bytes": 4442,
+      "label": "tc-c105-first-native-r20-20261028: full JUnit",
+      "source_commit": "d205c52359d9123c0feacdc4d03ed47113960f91",
+      "source_tree": "d0f92f456b6d31e6bf5a4d289a639669a0712ae6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/tc-c105-first-native-r20-20261028/tc-c105-first-native-r20-20261028.stdout.txt",
+      "sha256": "8a8c24f539860831e434d31c5c531ae4fda495e14b2c2caa94f72183516b9d1e",
+      "bytes": 2051,
+      "label": "tc-c105-first-native-r20-20261028: complete stdout",
+      "source_commit": "d205c52359d9123c0feacdc4d03ed47113960f91",
+      "source_tree": "d0f92f456b6d31e6bf5a4d289a639669a0712ae6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/tc-c105-first-native-r20-20261028/tc-c105-first-native-r20-20261028.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "label": "tc-c105-first-native-r20-20261028: complete stderr",
+      "source_commit": "d205c52359d9123c0feacdc4d03ed47113960f91",
+      "source_tree": "d0f92f456b6d31e6bf5a4d289a639669a0712ae6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/tc-c105-first-native-r20-20261028/source-profile-freeze.json",
+      "sha256": "e4a4cfe2f6d9f6a7383295eecfdcdb54b511e40a82485decf47523a11d4bcbac",
+      "bytes": 14363,
+      "label": "tc-c105-first-native-r20-20261028: source/profile freeze",
+      "source_commit": "d205c52359d9123c0feacdc4d03ed47113960f91",
+      "source_tree": "d0f92f456b6d31e6bf5a4d289a639669a0712ae6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/tc-c105-first-native-r20-20261028/readsets/input-readset-79871.json",
+      "sha256": "ce21caa07be48040fd795fac83ef928271afa8bcf0505fdadd76a6bcb87918b8",
+      "bytes": 467805,
+      "label": "tc-c105-first-native-r20-20261028: finite imported-path readset",
+      "source_commit": "d205c52359d9123c0feacdc4d03ed47113960f91",
+      "source_tree": "d0f92f456b6d31e6bf5a4d289a639669a0712ae6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/tc-c105-first-native-r20-20261028-Git-readback.json",
+      "sha256": "5af6a434f7bea0594f7f458756f45aa14d8be17f1740450b434d2f1cddb6918d",
+      "bytes": 618,
+      "label": "tc-c105-first-native-r20-20261028: source/Git readback",
+      "source_commit": "d205c52359d9123c0feacdc4d03ed47113960f91",
+      "source_tree": "d0f92f456b6d31e6bf5a4d289a639669a0712ae6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/berl-wire-prefix-qualified-r19-20261028/audit-result.json",
+      "sha256": "7e8b478ab7938c570b4dd94df5e17d50accbfe8e13c056b20699c46845e616ab",
+      "bytes": 8216,
+      "label": "berl-wire-prefix-qualified-r19-20261028: audit",
+      "source_commit": "aa8571cba044ebe04d4db4f99432cb49abdde59a",
+      "source_tree": "0ff45c87431af2a4139519ff31d123ff465ed862"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/berl-wire-prefix-qualified-r19-20261028/pytest.xml",
+      "sha256": "d445888b323579b20c9489631cdd733d7d6bbafbbe5f17c9129cc8c58f0b1dbd",
+      "bytes": 1155,
+      "label": "berl-wire-prefix-qualified-r19-20261028: full JUnit",
+      "source_commit": "aa8571cba044ebe04d4db4f99432cb49abdde59a",
+      "source_tree": "0ff45c87431af2a4139519ff31d123ff465ed862"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/berl-wire-prefix-qualified-r19-20261028/berl-wire-prefix-qualified-r19-20261028.stdout.txt",
+      "sha256": "07e669495b2eeffe99e38c2f8a30c2395867ee0a2b8240f6e2437222b4c2c8ee",
+      "bytes": 665,
+      "label": "berl-wire-prefix-qualified-r19-20261028: complete stdout",
+      "source_commit": "aa8571cba044ebe04d4db4f99432cb49abdde59a",
+      "source_tree": "0ff45c87431af2a4139519ff31d123ff465ed862"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/berl-wire-prefix-qualified-r19-20261028/berl-wire-prefix-qualified-r19-20261028.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "label": "berl-wire-prefix-qualified-r19-20261028: complete stderr",
+      "source_commit": "aa8571cba044ebe04d4db4f99432cb49abdde59a",
+      "source_tree": "0ff45c87431af2a4139519ff31d123ff465ed862"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/berl-wire-prefix-qualified-r19-20261028/source-profile-freeze.json",
+      "sha256": "67f6183c2d38ccfaef3ba86bb6f4e77f4243ea93c34513b62b243840f1749a61",
+      "bytes": 12448,
+      "label": "berl-wire-prefix-qualified-r19-20261028: source/profile freeze",
+      "source_commit": "aa8571cba044ebe04d4db4f99432cb49abdde59a",
+      "source_tree": "0ff45c87431af2a4139519ff31d123ff465ed862"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/berl-wire-prefix-qualified-r19-20261028/readsets/input-readset-67622.json",
+      "sha256": "36aef8a8edd7a7b08d080ef4adeee5b6be769cc55ed8e62456e6674b04be91e3",
+      "bytes": 31176,
+      "label": "berl-wire-prefix-qualified-r19-20261028: finite imported-path readset",
+      "source_commit": "aa8571cba044ebe04d4db4f99432cb49abdde59a",
+      "source_tree": "0ff45c87431af2a4139519ff31d123ff465ed862"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/berl-wire-prefix-qualified-r19-20261028-Git-readback.json",
+      "sha256": "93bbf39098c7cbf3fdbc0256fbfe5d500bd645cdb3372a135529aa069317b7f8",
+      "bytes": 622,
+      "label": "berl-wire-prefix-qualified-r19-20261028: source/Git readback",
+      "source_commit": "aa8571cba044ebe04d4db4f99432cb49abdde59a",
+      "source_tree": "0ff45c87431af2a4139519ff31d123ff465ed862"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/sql-transport-fixed-r19-targeted-20261028/audit-result.json",
+      "sha256": "69726962e526dbdc46895b338c311fef8311c57f3a26151ee3b8aba078ccd5cc",
+      "bytes": 10983,
+      "label": "sql-transport-fixed-r19-targeted-20261028: audit",
+      "source_commit": "aa8571cba044ebe04d4db4f99432cb49abdde59a",
+      "source_tree": "0ff45c87431af2a4139519ff31d123ff465ed862"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/sql-transport-fixed-r19-targeted-20261028/pytest.xml",
+      "sha256": "dea3086c550f9d2b0252dbb98ed3cef8fd754c8469b277acf35b1347b7f23fc9",
+      "bytes": 26653,
+      "label": "sql-transport-fixed-r19-targeted-20261028: full JUnit",
+      "source_commit": "aa8571cba044ebe04d4db4f99432cb49abdde59a",
+      "source_tree": "0ff45c87431af2a4139519ff31d123ff465ed862"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/sql-transport-fixed-r19-targeted-20261028/sql-transport-fixed-r19-targeted-20261028.stdout.txt",
+      "sha256": "db6cbc75f04f552897050ba68420459a8a4f2729de0406e4f7ebd77ef533b954",
+      "bytes": 27133,
+      "label": "sql-transport-fixed-r19-targeted-20261028: complete stdout",
+      "source_commit": "aa8571cba044ebe04d4db4f99432cb49abdde59a",
+      "source_tree": "0ff45c87431af2a4139519ff31d123ff465ed862"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/sql-transport-fixed-r19-targeted-20261028/sql-transport-fixed-r19-targeted-20261028.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "label": "sql-transport-fixed-r19-targeted-20261028: complete stderr",
+      "source_commit": "aa8571cba044ebe04d4db4f99432cb49abdde59a",
+      "source_tree": "0ff45c87431af2a4139519ff31d123ff465ed862"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/sql-transport-fixed-r19-targeted-20261028/source-profile-freeze.json",
+      "sha256": "ac91e7c513cc9aa2d845460431685b887cce0fb772dea738bfc5a60b15b9579c",
+      "bytes": 14250,
+      "label": "sql-transport-fixed-r19-targeted-20261028: source/profile freeze",
+      "source_commit": "aa8571cba044ebe04d4db4f99432cb49abdde59a",
+      "source_tree": "0ff45c87431af2a4139519ff31d123ff465ed862"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/sql-transport-fixed-r19-targeted-20261028/readsets/input-readset-66844.json",
+      "sha256": "33452b0f26ab50d3b0063266eb63ec03f4ac8269ca6547c1e4d0d75452099540",
+      "bytes": 467705,
+      "label": "sql-transport-fixed-r19-targeted-20261028: finite imported-path readset",
+      "source_commit": "aa8571cba044ebe04d4db4f99432cb49abdde59a",
+      "source_tree": "0ff45c87431af2a4139519ff31d123ff465ed862"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/sql-transport-fixed-r19-targeted-20261028-Git-readback.json",
+      "sha256": "3451fb4c1eb56ecad21feefc59ec009e58eac7a5f570cfa80d89039faef18b83",
+      "bytes": 626,
+      "label": "sql-transport-fixed-r19-targeted-20261028: source/Git readback",
+      "source_commit": "aa8571cba044ebe04d4db4f99432cb49abdde59a",
+      "source_tree": "0ff45c87431af2a4139519ff31d123ff465ed862"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/reviews/C128-mc-actual-independent.md",
+      "sha256": "8734df1288e09548b81fb233798dcd236d3e8457db1612bf1c95c8506d6c406d",
+      "bytes": 9388,
+      "label": "C128 independent review"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/reviews/C128-mc-actual-independent.json",
+      "sha256": "cec4b8148693c0efbe58c80dabcaabf9306761b1b481e9dcb3867308d769fa23",
+      "bytes": 4030,
+      "label": "C128 machine review"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/reviews/CAU01-C129-proof-independent.md",
+      "sha256": "e383bbc1e8966bb8c5bf48b9e7b9889cede619f572603f16a659b4c26fa096e3",
+      "bytes": 5343,
+      "label": "C129 independent review"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/reviews/CAU01-C129-proof-independent.json",
+      "sha256": "17163fa4d878bff79f7eceb7ac8a1bfd5c72aea3149c90339d1ad4ae21807b23",
+      "bytes": 15237,
+      "label": "C129 machine review"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/reviews/C130-B200-r17-actual-qualification-r1.md",
+      "sha256": "89a96d2d9d60706ee24071cf452188f3cd3833e5338d13eeb7f85c45ed160164",
+      "bytes": 17313,
+      "label": "C130 independent review"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/reviews/C130-B200-r17-actual-qualification-r1.json",
+      "sha256": "b4d0024cdd1540a661d9d43a8f46605fa6ca6eb080bb63630596dafdeb2572b0",
+      "bytes": 5918,
+      "label": "C130 machine review"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/r21-affected-checks-final/client-node-restyled.stdout.txt",
+      "sha256": "1b48d24fd136019e7ef6126e47deabc80d4f16c354683fff5a5c2b5b65fbba46",
+      "bytes": 10965,
+      "label": "client suite stdout: 49/49"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/r21-affected-checks-final/client-lint.stdout.txt",
+      "sha256": "c7116c890b298ff5cf9e449714b7ec46d0eb5b89e5e53bc5fee7429a3caf859d",
+      "bytes": 352,
+      "label": "client lint stdout"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/r21-affected-checks-final/changed-format.stdout.txt",
+      "sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+      "bytes": 66,
+      "label": "client Prettier check stdout"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/generated-clients-stage-r21/dashboard.stdout.txt",
+      "sha256": "38ede7175a7b889b77dd09900ad87c1e673dfbc6649bce0bb5944d35a2eb13f7",
+      "bytes": 927,
+      "label": "dashboard generated-stage stdout"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/generated-clients-stage-r21/dashboard.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "label": "dashboard generated-stage stderr"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/r21-affected-checks-final/runtime-api-contract.json",
+      "sha256": "e6922a14b2e62b38cea686e77d998f602c3f29d12b99785c0b17146e0ea1b087",
+      "bytes": 284,
+      "label": "runtime API contract command result: exit 1"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/r21-affected-checks-final/runtime-api-contract.stdout.txt",
+      "sha256": "eadac696275d40881280b2503e88fdd55fb1cb33ae3812de2c5eeb01ae5c61de",
+      "bytes": 726,
+      "label": "runtime API contract full stdout"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/r21-affected-checks-final/runtime-api-contract.stderr.txt",
+      "sha256": "870817236c5b682062e58a31befbd943012294422fa39424143a812a95f7e36e",
+      "bytes": 6755,
+      "label": "runtime API contract full stderr"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/reviews/GEN-r21-ts-ast.json",
+      "sha256": "061f1dea91d71573244e504bceb4830f56da89090be0f904050f39709c078bf2",
+      "bytes": 80552,
+      "label": "R21 TypeScript generation AST review"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/cloud/C131-launch.json",
+      "sha256": "db1a668ea67e66a715cf34c3f347d20ec9a30e326c5b2fa9dab292912971c6fb",
+      "bytes": 790,
+      "label": "C131 launch record"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/cloud/C131/retrieval.json",
+      "sha256": "876cf3d7f6194dc9548c2d8dffd1952236d12b20b82e548994cd5712f32585d5",
+      "bytes": 5385,
+      "label": "C131 returned preflight and delivery"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/reviews/R4-C131-actual-independent.md",
+      "sha256": "5721088191820e4e7272363e890a290e0ee6cd34be12864f3a01697fcb87dac2",
+      "bytes": 4529,
+      "label": "C131 independent return review"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/reviews/R4-C131-actual-independent.json",
+      "sha256": "2cde31efe47d16845b0d6f28cd0134d98fd6dcf3910873114ba5dff69e7c3eda",
+      "bytes": 4411,
+      "label": "C131 machine review"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/cloud/C132-launch.json",
+      "sha256": "837574ad65470a1e69fd55602f6a23382097db34be3600719494cf5cc67a120c",
+      "bytes": 790,
+      "label": "C132 launch record"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/cloud/C132/retrieval.json",
+      "sha256": "5309c22c084b3961b9a84c6cbf8ecbb033744ffefe3065fa19d631ecd10f8eb4",
+      "bytes": 4087,
+      "label": "C132 actual return"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/cloud/C132/reviews/I4-C132-actual-independent.md",
+      "sha256": "3221861eb7d19ff5f7b6263e7b569e709ad4b3a11f2851ab5d0fa52c047773b6",
+      "bytes": 8832,
+      "label": "C132 independent result review"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/cloud/C132/reviews/I4-C132-actual-independent.json",
+      "sha256": "82a4b2091a762ac4ea91853172dda5760853ca966a67c4d9cc287e5bd5317fd2",
+      "bytes": 4956,
+      "label": "C132 machine review"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/cloud/C133-launch.json",
+      "sha256": "e7f9ebea859f1fba6848c312e15d42dc76722eda63460f9de833f576983094aa",
+      "bytes": 790,
+      "label": "C133 launch record"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/cloud/C133/retrieval.json",
+      "sha256": "d98399493df6b17da24753e9256916f650c7844cb0afd7d8880bc105c4f51e82",
+      "bytes": 3145,
+      "label": "C133 returned setup/delivery"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/reviews/S3-C133-actual-independent.md",
+      "sha256": "ab5dc27b84825cdda30660573313fb12747b73e60dffa27ceb7ac8fd90307675",
+      "bytes": 8132,
+      "label": "C133 independent result review"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/reviews/S3-C133-actual-independent.json",
+      "sha256": "0ae5cf4e30c4469ab5b207a994519c748cb58b505d5e4341297b566206d43b28",
+      "bytes": 2831,
+      "label": "C133 machine review"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/reviews/S3-C133-lock-structlog-inventory-r1.json",
+      "sha256": "a137a2192723ac36c5df4997455d61ad116507b52e26f78f4e80eba65368b6a8",
+      "bytes": 1054,
+      "label": "C133 lock/setup inventory review"
+    }
+  ],
+  "r21_stage_outcomes": {
+    "client_tests": "49 PASS / 0 FAIL",
+    "client_lint": "PASS",
+    "client_format": "PASS",
+    "client_typecheck": "PASS",
+    "dashboard_typescript": "3 checks PASS on staged generated outputs",
+    "runtime_api_contract": "FAIL: exactly five missing 2xx success-response examples; owner repair in progress; fixed rerun absent",
+    "current_head_server_runtime": "not established"
+  },
+  "cloud_dispositions": {
+    "C131": "stopped before setup/tests because prompt required an unavailable origin remote despite exact admitted HEAD/tree; C96 tests UNRUN",
+    "C132": "two selected I4 tests independently qualified PASS; bounded synthetic Catalog evidence; full LA-028/G/closure not established",
+    "C133": "setup ERROR: tunnel failed fetching structlog and sklearn unavailable; all selected tests/controls UNRUN"
+  }
+}

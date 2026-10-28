@@ -25,12 +25,22 @@ __all__ = [
     "execution_input_basis_sources",
     "get_state_path",
     "load_state_snapshot",
+    "StateSnapshotValueLeaf",
+    "state_snapshot_value_projection",
     "read_numeric_npz_bounded",
     "read_state_snapshot_inputs_bounded",
     "resolve_execution_posture",
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "StateSnapshotValueLeaf": (
+        "polisyos.foundry.execute._internal.snapshots",
+        "StateSnapshotValueLeaf",
+    ),
+    "state_snapshot_value_projection": (
+        "polisyos.foundry.execute._internal.snapshots",
+        "state_snapshot_value_projection",
+    ),
     "BoundedNumericNPZError": (
         "polisyos.foundry.execute._internal.snapshots",
         "BoundedNumericNPZError",

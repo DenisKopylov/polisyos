@@ -10,6 +10,6 @@ change_class = "python-public-api"
 surface_classification = "public_stable: polisyos.core.contracts and polisyos.ir"
 migration = "Cross-package users import the registered SQL contracts and snapshot matcher from polisyos.core.contracts and LinkReport from polisyos.ir."
 limitations = "These typed identities and the snapshot matching predicate do not establish SQL rights, external currentness, or authority."
-public_surface_inventory_reviewed = false
+public_surface_inventory_reviewed = true
 migration_docs = ["src/polisyos/core/README.md", "src/polisyos/core/contracts/README.md", "src/polisyos/ir/README.md"]
 runbook_docs = []

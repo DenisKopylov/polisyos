@@ -1,0 +1,17 @@
+id = "2026-10-28-e02-acquisition-scoped-reentry-fence"
+title = "Replay actual prior worker sources and share the native acquisition admission fence"
+type = "fixed"
+component = "runtime"
+owner = "team-runtime-quality"
+summary = "Reissue the selected V3 proposal in a new actual worker context, bind missing-CGF gaps to real subjects, produce current N7 reports after reentry and consolidate maintained overlay writers under one physical reentrant admission fence."
+evidence = ["tests/integration/core_runtime/test_acquisition_authority_served.py", "tests/unit/runtime/quality/test_generation_cycle.py", "tests/unit/data_forge/domains/catalog/knowledge/test_overlay_admission_fence.py"]
+compatibility = "Historical sources retain their own job, run, tenant and cell checks; legacy source versions keep conservative actual generation. Missing CGF remains unavailable and unsatisfied. Native writer serialization uses the existing macOS/Linux POSIX flock profile."
+change_class = "python-public-api"
+surface_classification = "public_stable: data_forge.read_api.catalog acquisition overlay admission fence and lock path; internal: generation source replay and reentry"
+migration = "Use each source occurrence's actual owner job rather than the current handoff's job; use the single native owner fence around deciding reads and conditional terminal commits."
+api = "Add acquisition_overlay_admission_fence and acquisition_overlay_admission_lock_path to the maintained Catalog read API; add internal exact historical reissue/lineage owner reads."
+limitations = "Runtime and controls UNRUN. No complete acquisition evaluation basis, equivalent retention decision, retained terminal/history, currentness, issuer authority or full V3/G acceptance is claimed. Public inventory regeneration and composed runtime qualification remain Root work."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["docs/how-to/acquisition-source-reissue.md", "src/polisyos/data_forge/README.md"]
+runbook_docs = []

@@ -219,3 +219,14 @@ requires the same ref in each emitted model and its CAS input lineage; absent
 means no Search task binding. Public consumers can inspect scalar summaries
 without reading the full CATE vector, then use the strict artifact loaders for
 content that their read path is allowed to resolve.
+
+### Selected NCM values before emission
+
+`prepare_ncm_spec_selected_values` uses the actual selected-NCM canonical profile
+and typed decoder to return `PreparedNCMSpecSelectedValues` with complete
+effective value bytes and normalized NCMSpec. The selected writer consumes that
+same preparation. This is codec preparation, not source, lineage or calibration
+authority; `load_ncm_spec_selected_view` still verifies the exact selected
+manifest and declaration edge. Runtime's candidate source owner replays that
+selected content and its declared-model relation instead of trusting embedded
+declarations or comparing unpersisted Python dictionaries.

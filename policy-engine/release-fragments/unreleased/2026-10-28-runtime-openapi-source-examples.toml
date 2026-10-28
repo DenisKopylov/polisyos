@@ -1,0 +1,34 @@
+id = "2026-10-28-runtime-openapi-source-examples"
+title = "Document bounded Runtime source and comparison responses"
+type = "changed"
+component = "runtime-api"
+owner = "team-runtime"
+summary = "Add response-DTO-validated synthetic success examples to the existing registered SQL, cancellation, and method-metric comparison OpenAPI operations."
+evidence = [
+  "src/polisyos/runtime/http/openapi_contract.py",
+  "tests/unit/runtime/http/test_source_and_comparison_openapi_examples.py",
+  "schemas/runtime_api_v1.openapi.json",
+]
+compatibility = "Additive documentation examples for existing operations; route behavior, permissions, wire response models and authority decisions are unchanged."
+change_class = "schema-openapi-abi"
+surface_classification = "public_stable: Runtime API v1 OpenAPI success examples"
+migration = "Regenerate the OpenAPI snapshot and compare the registered client and dashboard type outputs from the same source; no stored data or server authorization is migrated."
+api = "Document three registered SQL source operations, control-job cancellation, and the run method-metric comparison with response-model-validated examples."
+limitations = "Examples are synthetic and do not establish a real issuer, permission, source, selected artifact, external database currentness, candidate authority, or physical worker stop. Runtime route and owner verification remain separate."
+generated_client_compatibility = "declared_compatible"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/http/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "runtime-source-and-comparison-success-examples"
+change_class = "schema-openapi-abi"
+impact = "additive"
+surface = "public_stable: Runtime API v1 OpenAPI success examples"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "Five existing operations receive synthetic response-model-validated examples without altering route behavior or granting authority."
+generated_client_compatibility = "declared_compatible"
+migration_docs = ["src/polisyos/runtime/http/README.md"]
+runbook_docs = []

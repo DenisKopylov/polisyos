@@ -4148,8 +4148,8 @@
         "polisyos.ir.world"
       ],
       "major_subsystem": true,
-      "export_count": 528,
-      "known_export_count": 528,
+      "export_count": 530,
+      "known_export_count": 530,
       "exports": [
         "GATE_REQUEST_SCHEMA_VERSION",
         "SLOT_ID_PATTERN",
@@ -4461,6 +4461,7 @@
         "PosteriorSamplesCarrier",
         "PosteriorSummaryRef",
         "PosteriorSummaryV11",
+        "PreparedNCMSpecSelectedValues",
         "ProblemConstraintSpec",
         "ProblemDomain",
         "ProblemFrame",
@@ -4669,6 +4670,7 @@
         "persist_uncertainty_envelope",
         "persist_welfare_bundle",
         "persist_welfare_sample_bundle",
+        "prepare_ncm_spec_selected_values",
         "proof_bundle_from_identification_result",
         "proof_bundle_from_negative_certificate",
         "proof_bundle_from_transportability_result",
@@ -4689,8 +4691,8 @@
         {
           "module": "polisyos.ir",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 528,
-          "known_export_count": 528,
+          "export_count": 530,
+          "known_export_count": 530,
           "exports": [
             "GATE_REQUEST_SCHEMA_VERSION",
             "SLOT_ID_PATTERN",
@@ -5002,6 +5004,7 @@
             "PosteriorSamplesCarrier",
             "PosteriorSummaryRef",
             "PosteriorSummaryV11",
+            "PreparedNCMSpecSelectedValues",
             "ProblemConstraintSpec",
             "ProblemDomain",
             "ProblemFrame",
@@ -5210,6 +5213,7 @@
             "persist_uncertainty_envelope",
             "persist_welfare_bundle",
             "persist_welfare_sample_bundle",
+            "prepare_ncm_spec_selected_values",
             "proof_bundle_from_identification_result",
             "proof_bundle_from_negative_certificate",
             "proof_bundle_from_transportability_result",
@@ -5245,8 +5249,8 @@
                 "path": "src/polisyos/ir/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 74070,
-                "sha256": "ae998b39223005f4b3fa980f384ae37486634608b241695e61d70e1dcb6b19e9"
+                "bytes": 74378,
+                "sha256": "add21b0f04f5ea8bb0abe594f52c6ff902ec7cfeccf4b5fe3c6322ca5a0cf6b7"
               },
               {
                 "path": "src/polisyos/ir",
@@ -11182,8 +11186,8 @@
         {
           "module": "polisyos.foundry.data_plane",
           "facade_mode_observed": "eager_exports",
-          "export_count": 21,
-          "known_export_count": 21,
+          "export_count": 23,
+          "known_export_count": 23,
           "exports": [
             "HTE_PHYSICAL_SOURCE_BINDING_KIND",
             "HTE_PHYSICAL_SOURCE_BINDING_SCHEMA",
@@ -11191,6 +11195,7 @@
             "HTEInputPreparationRefusal",
             "HTEPhysicalArraySlotBinding",
             "HTEPhysicalSourceMaterializationBinding",
+            "InputBindingValuesPreparation",
             "InputBindingsBuildResult",
             "InputBindingsPreparation",
             "PreparedHTEObservationalInput",
@@ -11205,6 +11210,7 @@
             "materialize_method_contract",
             "prepare_hte_observational_input",
             "prepare_input_bindings",
+            "prepare_json_input_binding_values",
             "resolve_bound_state_snapshot_ref"
           ],
           "has___getattr__": false,
@@ -11231,8 +11237,8 @@
                 "path": "src/polisyos/foundry/data_plane/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 1607,
-                "sha256": "0425e38ea04cbe6a64413345acbff1f22384e6b4fac88bc91973948b41e08389"
+                "bytes": 1759,
+                "sha256": "5b2f2b43f372680c734bb077e318e5783e73377c92e463ce75c83c486030cdda"
               },
               {
                 "path": "src/polisyos/foundry/data_plane",
@@ -11269,8 +11275,8 @@
         {
           "module": "polisyos.foundry.execute",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 20,
-          "known_export_count": 20,
+          "export_count": 22,
+          "known_export_count": 22,
           "exports": [
             "BoundedNumericNPZError",
             "BoundedStateSnapshotInputs",
@@ -11289,6 +11295,8 @@
             "execution_input_basis_sources",
             "get_state_path",
             "load_state_snapshot",
+            "StateSnapshotValueLeaf",
+            "state_snapshot_value_projection",
             "read_numeric_npz_bounded",
             "read_state_snapshot_inputs_bounded",
             "resolve_execution_posture"
@@ -11317,8 +11325,8 @@
                 "path": "src/polisyos/foundry/execute/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 4401,
-                "sha256": "e080bb6ab2bf01fa2c0e7f254269030dd0d3fdd5d4cdb078e47039958296c855"
+                "bytes": 4746,
+                "sha256": "a900b8b9e8f43940448ccefd65998d0cac3a4236ad0652a2d20c8e0d222c1208"
               },
               {
                 "path": "src/polisyos/foundry/execute",
@@ -19569,8 +19577,8 @@
         {
           "module": "polisyos.data_forge.read_api.catalog",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 152,
-          "known_export_count": 152,
+          "export_count": 154,
+          "known_export_count": 154,
           "exports": [
             "AcquisitionAuthorityEntry",
             "AcquisitionAuthorityError",
@@ -19669,6 +19677,8 @@
             "VariableAlignment",
             "WVSIndicatorRegistryError",
             "WVSIndicatorRegistryReadError",
+            "acquisition_overlay_admission_fence",
+            "acquisition_overlay_admission_lock_path",
             "build_acquisition_authority_provision",
             "build_authority_entry",
             "build_authority_registry",
@@ -19749,8 +19759,8 @@
                 "path": "src/polisyos/data_forge/read_api/catalog.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 62201,
-                "sha256": "c9df0da376f5fda55db67aee3cab2f391b4329d30a1181eac594e825a48a5e0d"
+                "bytes": 62753,
+                "sha256": "de52d03ac64f440ff063b733f34cc178d6af526a53e4463a9cc502904ff70085"
               },
               {
                 "path": "src/polisyos/data_forge/read_api/catalog",

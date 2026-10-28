@@ -52,6 +52,8 @@ __all__ = [
     "export_seed_state_npz",
     "import_seed_state_npz",
     "load_state_snapshot",
+    "StateSnapshotValueLeaf",
+    "state_snapshot_value_projection",
     "put_state_snapshot",
     "read_numeric_npz_bounded",
     "read_state_snapshot_inputs_bounded",
@@ -845,6 +847,61 @@ def _validate_snapshot_lineage(
         raise ValueError(
             f"StateSnapshot {snapshot.schema_version} lineage does not match manifest inputs"
         )
+
+
+@dataclass(frozen=True, slots=True)
+class StateSnapshotValueLeaf:
+    """One exact consumed snapshot-codec value, without contextual CAS identity."""
+
+    path: str
+    dtype: str
+    shape: tuple[int, ...]
+    value_bytes: bytes
+
+    @property
+    def value_sha256(self) -> str:
+        """Derive a compact receipt digest after the exact value has been read."""
+
+        return hashlib.sha256(self.value_bytes).hexdigest()
+
+
+def state_snapshot_value_projection(state: GlobalState) -> tuple[StateSnapshotValueLeaf, ...]:
+    """Project every state-codec leaf's path, dtype, shape and exact value bytes.
+
+    The codec's own complete flattener supplies the denominator; no slot list or
+    scalar proxy is maintained here. Array order, signed zero and native numeric
+    dtype remain observable. The projection describes the values persisted and
+    read by this snapshot codec, not all NCM, profile, eligibility or N6 inputs.
+    It does not make a supplied state an admitted artifact or complete basis.
+
+    Args:
+        state: Complete GlobalState produced or loaded through its real owner.
+
+    Returns:
+        Immutable, path-sorted complete snapshot value observations.
+
+    Raises:
+        TypeError: If the state or a value is unsupported by the snapshot codec.
+        ValueError: If the codec encounters duplicate paths or object arrays.
+    """
+
+    if type(state) is not GlobalState:
+        raise TypeError("state_value_projection_requires_global_state")
+    result: list[StateSnapshotValueLeaf] = []
+    paths: set[str] = set()
+    for path, value in _flatten_state(state):
+        if path in paths or value.dtype.hasobject:
+            raise ValueError("state_value_projection_codec_value_not_established")
+        paths.add(path)
+        result.append(
+            StateSnapshotValueLeaf(
+                path=path,
+                dtype=value.dtype.str,
+                shape=tuple(value.shape),
+                value_bytes=value.tobytes(order="C"),
+            )
+        )
+    return tuple(sorted(result, key=lambda leaf: leaf.path))
 
 
 def put_state_snapshot(

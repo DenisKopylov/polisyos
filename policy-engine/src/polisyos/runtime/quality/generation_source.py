@@ -50,6 +50,7 @@ from polisyos.runtime.quality.design_problem import DesignProblem
 
 if TYPE_CHECKING:
     from polisyos.common.canonical_profile import CanonicalProfileRead, CanonicalProfileStatus
+    from polisyos.ir import NCMSpec
     from polisyos.runtime.quality.credal_reference import CredalReference
     from polisyos.runtime.quality.generation_cycle import (
         CandidateSummary,
@@ -1631,6 +1632,68 @@ class GenerationSourceRepository:
             raise ValueError("candidate_simulation_ncm_selected_ref_untyped")
         return ref
 
+    def load_candidate_declared_ncm(
+        self,
+        *,
+        declaration_ref: ArtifactRef,
+        ncm_ref: ArtifactRef,
+        expected_profile: CandidateSimulationScenarioProfile,
+        expected_run_id: str,
+        expected_job_id: str,
+        expected_tenant_id: str,
+        expected_cell_id: str,
+    ) -> tuple[CandidateSimulationSyntheticModelDeclarationV1, NCMSpec]:
+        """Resolve exact selected declaration/NCM bytes and their owner relation."""
+
+        declaration = self.load_candidate_model_declaration(
+            declaration_ref,
+            expected_profile=expected_profile,
+            expected_run_id=expected_run_id,
+            expected_job_id=expected_job_id,
+            expected_tenant_id=expected_tenant_id,
+            expected_cell_id=expected_cell_id,
+        )
+        ncm_manifest = self.store.get_manifest(ncm_ref)
+        ncm_options = _candidate_simulation_write_options(
+            kind="ir.ncm_spec",
+            schema_name="ir.ncm_spec",
+            schema_version="1.0",
+            job_id=expected_job_id,
+            run_id=expected_run_id,
+            tenant_id=expected_tenant_id,
+            cell_id=expected_cell_id,
+            source_ref=declaration.profile_content_hash,
+            input_refs=(
+                input_ref_from_artifact_ref(
+                    declaration_ref,
+                    role="candidate_model_declaration",
+                ),
+            ),
+        )
+        if not _ref_selects_manifest(ncm_ref, ncm_manifest) or not _has_owner_profile(
+            ncm_manifest, ncm_options
+        ):
+            raise ValueError("n4_candidate_scenario_source_v2_ncm_owner_profile_mismatch")
+        from polisyos.ir import (
+            candidate_ncm_spec_from_declaration,
+            load_ncm_spec_selected_view,
+            prepare_ncm_spec_selected_values,
+        )
+
+        ncm_spec = load_ncm_spec_selected_view(
+            _ensure_ir_artifact_store(self.store),
+            ncm_ref,
+            expected_tenant_id=expected_tenant_id,
+            expected_cell_id=expected_cell_id,
+            expected_declaration_ref=declaration_ref,
+        )
+        expected_ncm_spec = prepare_ncm_spec_selected_values(
+            candidate_ncm_spec_from_declaration(declaration)
+        )
+        if prepare_ncm_spec_selected_values(ncm_spec).value_bytes != expected_ncm_spec.value_bytes:
+            raise ValueError("n4_candidate_scenario_source_v2_ncm_declaration_mismatch")
+        return declaration, ncm_spec
+
     def create_candidate_scenario_source_v2(
         self,
         *,
@@ -1778,42 +1841,15 @@ class GenerationSourceRepository:
             or context_slot_units.get(declaration.outcome_variable) != declaration.outcome_unit_id
         ):
             raise ValueError("n4_candidate_scenario_source_v2_unit_binding_mismatch")
-        ncm_manifest = self.store.get_manifest(source.ncm_ref)
-        ncm_options = _candidate_simulation_write_options(
-            kind="ir.ncm_spec",
-            schema_name="ir.ncm_spec",
-            schema_version="1.0",
-            job_id=expected_job_id,
-            run_id=expected_run_id,
-            tenant_id=expected_tenant_id,
-            cell_id=expected_cell_id,
-            source_ref=declaration.profile_content_hash,
-            input_refs=(
-                input_ref_from_artifact_ref(
-                    source.model_declaration_ref,
-                    role="candidate_model_declaration",
-                ),
-            ),
+        _declaration, _ncm_spec = self.load_candidate_declared_ncm(
+            declaration_ref=source.model_declaration_ref,
+            ncm_ref=source.ncm_ref,
+            expected_profile=source_v1.profile,
+            expected_run_id=expected_run_id,
+            expected_job_id=expected_job_id,
+            expected_tenant_id=expected_tenant_id,
+            expected_cell_id=expected_cell_id,
         )
-        if not _ref_selects_manifest(source.ncm_ref, ncm_manifest) or not _has_owner_profile(
-            ncm_manifest, ncm_options
-        ):
-            raise ValueError("n4_candidate_scenario_source_v2_ncm_owner_profile_mismatch")
-        from polisyos.ir import (
-            candidate_ncm_spec_from_declaration,
-            load_ncm_spec_selected_view,
-        )
-
-        ncm_spec = load_ncm_spec_selected_view(
-            _ensure_ir_artifact_store(self.store),
-            source.ncm_ref,
-            expected_tenant_id=source_v1.tenant_id,
-            expected_cell_id=source_v1.cell_id,
-            expected_declaration_ref=source.model_declaration_ref,
-        )
-        expected_ncm_spec = candidate_ncm_spec_from_declaration(declaration)
-        if ncm_spec.model_dump(mode="json") != expected_ncm_spec.model_dump(mode="json"):
-            raise ValueError("n4_candidate_scenario_source_v2_ncm_declaration_mismatch")
         source = _mark_canonical_profile_read(source, profile_read, ref)
         return source
 
@@ -1962,13 +1998,16 @@ class GenerationSourceRepository:
         ):
             raise ValueError("n4_candidate_scenario_source_v3_identity_recompute_mismatch")
         if source.origin_source_ref is not None:
-            origin = self.load_candidate_scenario_source_v3(
+            # An origin belongs to its own persisted worker occurrence. Its
+            # job field selects that historical owner scope; it grants no new
+            # run/tenant/cell access. The full source/context/declaration owner
+            # is then replayed and the semantic lineage is reconciled below.
+            origin = self._load_candidate_scenario_source_v3_in_owner_scope(
                 source.origin_source_ref,
                 expected_run_id=expected_run_id,
-                expected_job_id=expected_job_id,
                 expected_tenant_id=expected_tenant_id,
                 expected_cell_id=expected_cell_id,
-                _visited_refs=_visited_refs | {ref_key},
+                visited_refs=_visited_refs | {ref_key},
             )
             if (
                 origin.origin_source_ref is not None
@@ -1981,6 +2020,134 @@ class GenerationSourceRepository:
             ):
                 raise ValueError("n4_candidate_scenario_source_v3_origin_binding_mismatch")
         source = _mark_canonical_profile_read(source, profile_read, ref)
+        return source
+
+    def load_candidate_scenario_source_in_owner_scope(
+        self,
+        ref: ArtifactRef,
+        *,
+        expected_run_id: str,
+        expected_tenant_id: str,
+        expected_cell_id: str,
+    ) -> N4CandidateScenarioSourceRecord:
+        """Replay a historical source in its actual job without weakening its case.
+
+        The decoded job is only a parser selector. The maintained selected-view
+        loader must verify the complete source, context and declaration under
+        that job and the caller's unchanged run/tenant/cell before returning it.
+        """
+
+        manifest = read_core_manifest_profile(self.store, ref)[0]
+        schema = manifest.artifact_schema
+        models = {
+            (_N4_CANDIDATE_SCENARIO_SOURCE_SCHEMA, "1.0"): N4CandidateScenarioSourceRecordV1,
+            (_N4_CANDIDATE_SCENARIO_SOURCE_V2_SCHEMA, "2.0"): N4CandidateScenarioSourceRecordV2,
+            (_N4_CANDIDATE_SCENARIO_SOURCE_V3_SCHEMA, "3.0"): N4CandidateScenarioSourceRecordV3,
+        }
+        model = models.get((schema.name, schema.version)) if schema is not None else None
+        if model is None:
+            raise ValueError("n4_candidate_scenario_source_schema_unsupported")
+        selected = model.model_validate(read_core_json_artifact(self.store, ref).value)
+        return self.load_candidate_scenario_source_for_n5(
+            ref,
+            expected_run_id=expected_run_id,
+            expected_job_id=selected.job_id,
+            expected_tenant_id=expected_tenant_id,
+            expected_cell_id=expected_cell_id,
+        )
+
+    def _load_candidate_scenario_source_v3_in_owner_scope(
+        self,
+        ref: ArtifactRef,
+        *,
+        expected_run_id: str,
+        expected_tenant_id: str,
+        expected_cell_id: str,
+        visited_refs: frozenset[tuple[str, str, str, str | None]] = frozenset(),
+    ) -> N4CandidateScenarioSourceRecordV3:
+        """Replay an exact historical source under its actual persisted job.
+
+        The first parse is only a scope selector. No field from that parse is
+        admitted until the normal owner has verified the selected CAS bytes,
+        manifest, source/context/declaration and complete lineage. Run, tenant
+        and cell are still supplied by the current verified parent occurrence.
+        """
+
+        selected = N4CandidateScenarioSourceRecordV3.model_validate(
+            read_core_json_artifact(self.store, ref).value
+        )
+        return self.load_candidate_scenario_source_v3(
+            ref,
+            expected_run_id=expected_run_id,
+            expected_job_id=selected.job_id,
+            expected_tenant_id=expected_tenant_id,
+            expected_cell_id=expected_cell_id,
+            _visited_refs=visited_refs,
+        )
+
+    def load_candidate_scenario_source_for_lineage(
+        self,
+        ref: ArtifactRef,
+        *,
+        expected_run_id: str,
+        expected_tenant_id: str,
+        expected_cell_id: str,
+        expected_stable_subject_ref: str,
+        expected_semantic_identity_hash: str,
+        expected_candidate_id: str,
+        expected_profile_selection_ref: str,
+    ) -> N4CandidateScenarioSourceRecordV3:
+        """Reconcile an exact origin against the new proposal's stable semantics."""
+
+        source = self._load_candidate_scenario_source_v3_in_owner_scope(
+            ref,
+            expected_run_id=expected_run_id,
+            expected_tenant_id=expected_tenant_id,
+            expected_cell_id=expected_cell_id,
+        )
+        if (
+            source.stable_subject_ref != expected_stable_subject_ref
+            or source.semantic_identity_hash != expected_semantic_identity_hash
+            or source.candidate.candidate_id != expected_candidate_id
+            or source.profile_selection_ref != expected_profile_selection_ref
+        ):
+            raise ValueError("n4_candidate_scenario_reissue_semantic_lineage_mismatch")
+        return source
+
+    def load_candidate_scenario_source_for_reissue(
+        self,
+        ref: ArtifactRef,
+        *,
+        expected_run_id: str,
+        expected_tenant_id: str,
+        expected_cell_id: str,
+        expected_candidate_id: str,
+        expected_candidate_content_hash: str,
+        expected_world_content_hash: str,
+        expected_context_job_ref: ArtifactRef,
+    ) -> N4CandidateScenarioSourceRecordV3:
+        """Resolve the exact prior evaluation source before same-candidate reissue.
+
+        Each prior job is verified in its own owner scope. A new worker cannot
+        substitute an arbitrary historical proposal: its persisted candidate,
+        atom, world and selected context must all match the selected prior
+        evaluation supplied by the already-verified continuation owner.
+        """
+
+        source = self._load_candidate_scenario_source_v3_in_owner_scope(
+            ref,
+            expected_run_id=expected_run_id,
+            expected_tenant_id=expected_tenant_id,
+            expected_cell_id=expected_cell_id,
+        )
+        if (
+            source.candidate.candidate_id != expected_candidate_id
+            or source.candidate.atom.content_hash != expected_candidate_content_hash
+            or source.world_model_record_hash != expected_world_content_hash
+            or artifact_ref_identity_key(source.source_record.source_record.context_job_ref)
+            != artifact_ref_identity_key(expected_context_job_ref)
+        ):
+            raise ValueError("n4_candidate_scenario_reissue_evaluation_binding_mismatch")
         return source
 
     def load_candidate_scenario_source_for_n5(

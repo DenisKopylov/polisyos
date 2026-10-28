@@ -988,7 +988,10 @@ def test_simulated_nl_producer_costs_settle_and_capture_four_origins(
         assert catalog_read.raw_payload_bytes == catalog_bytes
         assert isinstance(catalog_read.value, dict)
         persisted_catalog = MethodCatalogSnapshot.model_validate(catalog_read.value)
-        assert persisted_catalog == expected_snapshot
+        # Rich metadata uses CAN.2 sequence normalization; compare every wire value.
+        assert persisted_catalog.model_dump(mode="json") == expected_snapshot.model_dump(
+            mode="json"
+        )
         assert persisted_catalog.run_id == run_id
     for result, writer_options in authority_write_options:
         payload_schema = writer_options.schema

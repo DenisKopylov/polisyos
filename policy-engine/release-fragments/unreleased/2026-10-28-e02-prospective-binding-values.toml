@@ -1,0 +1,17 @@
+id = "2026-10-28-e02-prospective-binding-values"
+title = "Reuse actual binding and snapshot owners for prospective acquired values"
+type = "added"
+component = "foundry"
+owner = "team-runtime-quality"
+summary = "Add a write-free JSON input-value port sharing the persisted binding writer and a complete snapshot-codec value projection. Reconcile real acquired-world output before context/N5 admission."
+evidence = ["tests/unit/foundry/data_plane/test_input_bindings_preparation.py", "tests/unit/foundry/execute/test_snapshot_value_projection.py", "tests/integration/core_runtime/test_acquisition_authority_served.py"]
+compatibility = "Additive pure APIs; existing snapshot schemas, SQL admission, actual writer/source custody, grounding and authority semantics preserved."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.foundry.data_plane prospective values preparation and polisyos.foundry.execute snapshot value projection"
+migration = "Use actual shared numerical values and complete codec leaves instead of scalar/ref or NPZ archive-byte stand-ins."
+api = "Add InputBindingValuesPreparation and prepare_json_input_binding_values; add StateSnapshotValueLeaf and state_snapshot_value_projection."
+limitations = "One numerical/state facet and actual consumer reconciliation only; full semantic basis, retained evaluation/history, backend/eligibility proof and V3 acceptance remain outstanding. All runtime checks UNRUN."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/foundry/README.md"]
+runbook_docs = []

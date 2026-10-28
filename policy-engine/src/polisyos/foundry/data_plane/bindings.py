@@ -17,7 +17,7 @@ from dataclasses import dataclass, replace
 from decimal import ROUND_HALF_EVEN, Decimal, InvalidOperation
 from io import BytesIO
 from pathlib import Path
-from typing import Any, Literal, Protocol
+from typing import Any, Literal, NoReturn, Protocol
 
 import jax.numpy as jnp
 import numpy as np
@@ -49,7 +49,7 @@ from polisyos.core.artifacts.manifest import (
     input_ref_from_artifact_ref,
 )
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec, to_canonical_bytes
+from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.contracts import (
     ValueOuterSet,
     data_snapshot_owner_input_requirements,
@@ -1268,6 +1268,21 @@ def materialize_method_contract(
 
 
 @dataclass(frozen=True)
+class InputBindingValuesPreparation:
+    """Complete numerical binding values before any snapshot exists.
+
+    This is a computed value, never an admitted source, evaluation basis or
+    retention permission. Its producer resolves the registry and uses the same
+    rule/state owner as the persisted input-binding writer.
+    """
+
+    effective_rules: tuple[FoundryInputBindingRule, ...]
+    materialized_state: GlobalState
+    applied_binding_ids: tuple[str, ...]
+    warnings: tuple[str, ...]
+
+
+@dataclass(frozen=True)
 class InputBindingsPreparation:
     """Computed candidate state before any input-binding artifacts are written.
 
@@ -1829,6 +1844,30 @@ def _prepare_input_binding_values(
         rules=effective_rules,
     )
 
+    values = _prepare_materialized_binding_values(
+        base_state=base_state,
+        effective_rules=effective_rules,
+        slot_registry=slot_registry,
+        binding_payload=binding_payload,
+    )
+    return InputBindingsPreparation(
+        snapshot=snapshot,
+        effective_rules=values.effective_rules,
+        materialized_state=values.materialized_state,
+        applied_binding_ids=values.applied_binding_ids,
+        warnings=values.warnings,
+    )
+
+
+def _prepare_materialized_binding_values(
+    *,
+    base_state: GlobalState,
+    effective_rules: list[FoundryInputBindingRule],
+    slot_registry: SlotRegistry,
+    binding_payload: Any,
+) -> InputBindingValuesPreparation:
+    """Single materialization/error fold for persisted and prospective payloads."""
+
     materialized_state, applied_ids, errors, warnings = _materialize_state(
         base_state=base_state,
         rules=effective_rules,
@@ -1837,13 +1876,67 @@ def _prepare_input_binding_values(
     )
     if errors:
         raise ValueError("; ".join(errors))
-
-    return InputBindingsPreparation(
-        snapshot=snapshot,
+    return InputBindingValuesPreparation(
         effective_rules=tuple(effective_rules),
         materialized_state=materialized_state,
         applied_binding_ids=tuple(applied_ids),
         warnings=tuple(warnings),
+    )
+
+
+def prepare_json_input_binding_values(
+    store: CoreJSONArtifactStore,
+    *,
+    payload_json: bytes,
+    registry_bundle_ref: ArtifactRef,
+    rules: list[FoundryInputBindingRule] | None = None,
+) -> InputBindingValuesPreparation:
+    """Compute an immutable JSON payload's actual binding values without writes.
+
+    Args:
+        store: Existing registry owner store; no artifact writes are performed.
+        payload_json: Prospective JSON object bytes from the caller's producer.
+        registry_bundle_ref: Real registry resolved through its existing owner.
+        rules: Full explicit rule set, or the existing inference behavior.
+
+    Returns:
+        Complete actual rule/state values from the maintained numerical owner.
+
+    Raises:
+        TypeError: If the payload is not immutable JSON bytes.
+        ValueError: If JSON, source paths, rules or numerical values are invalid.
+
+    This port cannot admit a source, fabricate a DataSnapshot, or establish a
+    semantic equality decision. Source custody and eligibility are resolved by
+    the caller's actual source owner before use and again before emission.
+    """
+
+    if type(payload_json) is not bytes:
+        raise TypeError("prospective_input_payload_requires_immutable_json_bytes")
+
+    def reject_non_json_number(value: str) -> NoReturn:
+        raise ValueError(f"prospective_input_payload_non_json_number:{value}")
+
+    payload = json.loads(payload_json, parse_constant=reject_non_json_number)
+    if type(payload) is not dict:
+        raise ValueError("prospective_input_payload_not_object")
+    # The real materializer emits a Core CAN.2 JSON artifact before Foundry
+    # reads it. Reuse that complete encode/decode law here, including numeric
+    # normalization and typed values; raw JSON parsing is not the consumed value.
+    payload = from_canonical_bytes(to_canonical_bytes(payload, CanonSpec(forbid_floats=False)))
+    registry = load_registry_bundle_content(store, registry_bundle_ref)
+    effective_rules = _prepare_rules(
+        rules=rules, slot_registry=registry.slot_registry, payload=payload
+    )
+    _validate_rules(effective_rules, registry.slot_registry)
+    base_state = _build_payload_base_state(
+        payload=payload, rules=effective_rules, slot_registry=registry.slot_registry
+    )
+    return _prepare_materialized_binding_values(
+        base_state=base_state,
+        effective_rules=effective_rules,
+        slot_registry=registry.slot_registry,
+        binding_payload=payload,
     )
 
 
@@ -2756,6 +2849,14 @@ def _build_base_state(
 ) -> GlobalState:
     if snapshot.data_ref.kind == "foundry.state_snapshot":
         return load_state_snapshot(store, snapshot_ref=snapshot.data_ref)
+
+    return _build_payload_base_state(payload=payload, rules=rules, slot_registry=slot_registry)
+
+
+def _build_payload_base_state(
+    *, payload: Any, rules: list[FoundryInputBindingRule], slot_registry: SlotRegistry
+) -> GlobalState:
+    """Shared empty-state layout derived from actual complete binding inputs."""
 
     n_agents, n_firms, n_cells, n_household_cells = _infer_entity_sizes(
         payload=payload,

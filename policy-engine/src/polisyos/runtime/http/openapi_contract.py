@@ -2504,7 +2504,9 @@ _SUCCESS_EXAMPLE_SETS_BY_OPERATION: dict[
 def _success_example_response_models() -> dict[str, Any]:
     """Return response DTOs that govern model-dispatched success examples."""
     from polisyos.core.contracts import ControlPreAdmissionAttemptResponse
+    from polisyos.core.contracts.control import ControlJobResponse
     from polisyos.core.contracts.runtime import (
+        CompletedExAnteCandidateComparisonResponse,
         LineageBatchResponse,
         LineageExportResponse,
         LineageResponse,
@@ -2519,6 +2521,11 @@ def _success_example_response_models() -> dict[str, Any]:
     from polisyos.runtime.http.services.predictive_calibration import (
         PredictiveCalibrationResponse,
     )
+    from polisyos.runtime.http.services.registered_sql_service_contracts import (
+        RegisteredSQLMaterializationResponse,
+        RegisteredSQLRegistrationResponse,
+        RegisteredSQLWithdrawalResponse,
+    )
 
     return {
         "get_lineage": LineageResponse,
@@ -2528,6 +2535,11 @@ def _success_example_response_models() -> dict[str, Any]:
         "get_predictive_coverage_diagnostic": PredictiveCoverageDiagnosticPreview,
         "get_lex_search_profile": LexSearchProfileResponse,
         "get_run_method_metrics": MethodMetricProjectionResponse,
+        "get_run_method_metric_comparison": CompletedExAnteCandidateComparisonResponse,
+        "cancel_control_job": ControlJobResponse,
+        "register_sql_source": RegisteredSQLRegistrationResponse,
+        "admit_registered_sql_materialization": RegisteredSQLMaterializationResponse,
+        "withdraw_registered_sql_materialization": RegisteredSQLWithdrawalResponse,
         "get_run_candidate_hte_packet": CandidateDecisionPacketHTEProjection,
         "get_control_pre_admission_attempt_by_idempotency_key": (
             ControlPreAdmissionAttemptResponse
@@ -2675,6 +2687,159 @@ def _run_method_metric_projection_success_examples() -> dict[str, Any]:
 
 _SUCCESS_EXAMPLE_SETS_BY_OPERATION["get_run_method_metrics"] = (
     _run_method_metric_projection_success_examples
+)
+
+
+def _synthetic_documentation_example(
+    operation_id: str, payload: dict[str, Any], summary: str
+) -> dict[str, Any]:
+    """Validate a documentation-only response through its registered DTO."""
+    encoded = json.dumps(payload, ensure_ascii=False, allow_nan=False)
+    response = _success_example_response_adapters()[operation_id].validate_json(
+        encoded, strict=True
+    )
+    return {
+        "synthetic_documentation": {
+            "summary": summary,
+            "description": (
+                "Synthetic documentation fixture only. Identifiers and hashes do not "
+                "establish a real issuer, authorization, source, artifact, database "
+                "currentness, candidate authority, or physical worker stop."
+            ),
+            "value": response.model_dump(mode="json"),
+        }
+    }
+
+
+def _source_documentation_ref(kind: str, digit: str) -> dict[str, str]:
+    """Create a selected-view placeholder without claiming that it resolves."""
+    return {
+        "artifact_id": "sha256:" + digit * 64,
+        "kind": kind,
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:" + "e" * 64,
+    }
+
+
+def _source_documentation_carrier() -> dict[str, Any]:
+    """Describe an illustrative admission epoch, never an owner proof."""
+    return {
+        "tenant_id": "fixture-tenant",
+        "cell_id": "fixture-cell",
+        "source_incarnation_id": "fixture-source-1",
+        "admission_scope_digest": "sha256:" + "f" * 64,
+        "occurrence_id": "fixture-occurrence-1",
+        "revision_digest": "sha256:" + "4" * 64,
+        "admission_epoch": "fixture-epoch-1",
+        "admission_event_ref": "sha256:" + "1" * 64,
+        "snapshot_ref": _source_documentation_ref("fabric.data_snapshot", "c"),
+        "use_contract_ref": _source_documentation_ref("fabric.registered_sql_use", "b"),
+    }
+
+
+def _source_documentation_receipt(operation: str) -> dict[str, Any]:
+    """Construct a model-validated illustrative admit or withdrawal payload."""
+    event_ref = "sha256:" + ("1" if operation == "admit" else "2") * 64
+    return {
+        "event_id": f"fixture-{operation}-event",
+        "event_ref": event_ref,
+        "operation": operation,
+        "generation": 2 if operation == "admit" else 3,
+        "committed_at": _TS_SAMPLE,
+        "scope_head": event_ref,
+        "carrier": _source_documentation_carrier(),
+    }
+
+
+def _registered_sql_registration_success_examples() -> dict[str, Any]:
+    return _synthetic_documentation_example(
+        "register_sql_source",
+        {
+            "registration": {
+                "tenant_id": "fixture-tenant",
+                "cell_id": "fixture-cell",
+                "provider_id": "fixture-provider",
+                "issuer_key": "documentation-fixture-not-an-issuer",
+                "registration_key": "fixture-registration",
+                "source_incarnation_id": "fixture-source-1",
+                "effective_view_contract_ref": _source_documentation_ref(
+                    "fabric.registered_sql_view", "a"
+                ),
+                "use_contract_ref": _source_documentation_ref("fabric.registered_sql_use", "b"),
+                "admission_scope_digest": "sha256:" + "f" * 64,
+                "event_id": "fixture-registration-event",
+                "event_ref": "sha256:" + "0" * 64,
+                "generation": 1,
+                "committed_at": _TS_SAMPLE,
+            }
+        },
+        "Synthetic source registration response",
+    )
+
+
+def _registered_sql_materialization_success_examples() -> dict[str, Any]:
+    return _synthetic_documentation_example(
+        "admit_registered_sql_materialization",
+        {
+            "status": "committed",
+            "receipt": _source_documentation_receipt("admit"),
+            "binding_ref": _source_documentation_ref(
+                "fabric.registered_sql_admission_binding", "d"
+            ),
+            "current_use": "not_checked",
+            "external_database_currentness": "not_established",
+        },
+        "Synthetic materialization response with current use not checked",
+    )
+
+
+def _registered_sql_withdrawal_success_examples() -> dict[str, Any]:
+    return _synthetic_documentation_example(
+        "withdraw_registered_sql_materialization",
+        {"receipt": _source_documentation_receipt("withdraw")},
+        "Synthetic source withdrawal response",
+    )
+
+
+def _cancel_control_job_success_examples() -> dict[str, Any]:
+    return _synthetic_documentation_example(
+        "cancel_control_job",
+        {
+            "meta": _META_NO_SOURCE,
+            "job_id": "fixture-job-1",
+            "kind": "workflow_run",
+            "state": "cancelled",
+            "effective_execution_profile": "dev",
+            "cancellation_disposition": "publication_fenced",
+            "physical_stop_status": "not_established",
+        },
+        "Synthetic cancellation response with physical stop not established",
+    )
+
+
+def _run_method_metric_comparison_success_examples() -> dict[str, Any]:
+    return _synthetic_documentation_example(
+        "get_run_method_metric_comparison",
+        {
+            "meta": _META_CORE_RUN,
+            "run_id": _RUN_ID_SAMPLE,
+            "candidate_comparison": {
+                "status": "verification_missing",
+                "limitations": ["current_candidate_comparison_owner_unavailable"],
+            },
+        },
+        "Synthetic candidate comparison with verification missing",
+    )
+
+
+_SUCCESS_EXAMPLE_SETS_BY_OPERATION.update(
+    {
+        "cancel_control_job": _cancel_control_job_success_examples,
+        "register_sql_source": _registered_sql_registration_success_examples,
+        "admit_registered_sql_materialization": _registered_sql_materialization_success_examples,
+        "withdraw_registered_sql_materialization": _registered_sql_withdrawal_success_examples,
+        "get_run_method_metric_comparison": _run_method_metric_comparison_success_examples,
+    }
 )
 
 

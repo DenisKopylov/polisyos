@@ -158,3 +158,25 @@ provenance manifest identity or transform lineage is absent.
 `read_api/surface_routes.py` owns the finite module routes and summaries used by both the lazy
 `read_api` facade and its surface helpers. The authority source-closure reader follows those same
 literal routes and distinguishes module-valued lazy exports from symbol re-exports.
+
+## Acquisition overlay admission fence
+
+The maintained native acquisition overlay writers (`initialize`, `admit_epoch`,
+`activate_semantic_epoch`, `emit_admitted_boundary_evidence`,
+`resolve_native_membership`, `resolve_semantic_candidate_denominator`, and
+`verify_semantic_projection`) share the
+physical overlay's reentrant admission fence. Runtime acquires the same owner
+port through `read_api.catalog.acquisition_overlay_admission_fence(path)` around
+its deciding read and conditional terminal selection. The companion
+`acquisition_overlay_admission_lock_path(path)` resolves physical aliases to
+one fence identity. Nested calls on the same OS thread reuse the holder;
+other threads and processes wait even when they copied the holder's context.
+Runtime executes async/N5 work outside the native fence, then re-resolves its
+complete selections under a short fence before emitting the re-entry artifact.
+The separate recovery-pointer operation lock does not grant native exclusion.
+The backend is the existing POSIX flock profile used on macOS/Linux. This
+protocol does not establish authority, source currentness, a retained-terminal
+SQL commit, or protection against unmanaged SQL/filesystem corruption.
+
+See [source reissue and native fencing](../../../docs/how-to/acquisition-source-reissue.md)
+for the distinct source/evaluation worker scopes and current-requirement bridge.

@@ -1,0 +1,17 @@
+id = "2026-10-28-e02-prospective-model-values"
+title = "Share actual candidate N5 and declared model values before world emission"
+type = "added"
+component = "runtime"
+owner = "team-runtime-quality"
+summary = "Share all-slot baseline, native N5 request preparation and selected IR NCM codec with actual producers and consumers. Replay the exact emitted NCM/declaration owner relation before handoff."
+evidence = ["tests/unit/runtime/quality/test_cycle_substrate.py", "tests/unit/runtime/quality/test_candidate_n5_request_values.py", "tests/unit/ir/analytics/test_ncm.py", "tests/integration/core_runtime/test_acquisition_authority_served.py"]
+compatibility = "Existing source, context and NCM artifact schemas and native context values preserved. Candidate preparation is additive and grants no authority."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.ir (selected NCM value preparation); internal: Runtime candidate model preparation; no new HTTP DTO or IR law"
+migration = "Use the same model/request preparation for prospective state and actual context emission; do not build fake WMR or declaration refs."
+api = "Add acquired model preparation, CandidateN5RequestValues and its actual builder preparation; add PreparedNCMSpecSelectedValues and selected codec preparation; share exact declared-NCM replay through GenerationSourceRepository."
+limitations = "Model/request facet only; full semantic basis, producer software/backend qualification, equality, retained terminal/history and frontier commit remain outstanding. Runtime UNRUN."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/runtime/quality/README.md", "src/polisyos/ir/README.md"]
+runbook_docs = []

@@ -1,12 +1,14 @@
 # E02 continuation planning checkpoint — 27 October 2026
 
+**Execution resumed after disk review.** See [RESUMED-20261028.md](RESUMED-20261028.md) for the current source admission, active proof front and bounded resource policy. The earlier R18/R20 and pause records below are dated history.
+
 This is the new local coordinator's **planning record**, linked to the [executor handover](../executor-handover-20261027/START-HERE.md). After G reviewed checkpoint dad68b70, the user authorized execution with the compact evidence delivery correction. Current execution, source/resource admission and task status are in [EXECUTION.md](EXECUTION.md) and [execution-state.json](execution-state.json); historical planning-only restrictions do not limit that continuation. E02 remains unfinished; independent review, G source acceptance, integration and finding closure are separate acts. R9/GY/Atlas implementation remains blocked on E02 acceptance.
 
-## Current stage in the original plan — R18
+## Current stage in the original plan — R20
 
 **Wave 2 — owner composition and uncovered original criteria — remains the main work.** Wave 0 is done. The Wave 1 front has executed, with properties still open. Wave 3 remains targeted preparation; no full source freeze or single expensive proof wave is claimed. Wave 4 final G reconciliation/review has not started. No completion percentage is inferred.
 
-The original **26 task/decision rows** and their row-by-row routes remain in the canonical [QUEUE.json](QUEUE.json), under [PLAN.md](PLAN.md) and [LAUNCH.md](LAUNCH.md). The denominator remains 26 rows, 127 bundles, 282 unique finding IDs, 291 criterion occurrences, 319 ID-level task–finding edges, and a separately counted 331 occurrence-to-row relations. This summary does not replace or aggregate those rows. Operational `Cnnn` identifiers are evidence locators for existing rows, not substitute task labels. See [R18 current progress](evidence/local-execution-r18/README.md) for the dated evidence cut and limitations.
+The original **26 task/decision rows** and their row-by-row routes remain in the canonical [QUEUE.json](QUEUE.json), under [PLAN.md](PLAN.md) and [LAUNCH.md](LAUNCH.md). The denominator remains 26 rows, 127 bundles, 282 unique finding IDs, 291 criterion occurrences, 319 ID-level task–finding edges, and a separately counted 331 occurrence-to-row relations. This summary does not replace or aggregate those rows. Operational `Cnnn` identifiers are evidence locators for existing rows, not substitute task labels. See [R20 current progress](evidence/local-execution-r20/README.md) for the historical 20:09 cut and current 20:17 R21 update; R18 remains a separate frozen snapshot.
 
 Historical R13/R14 context: R13 application was read back in `ee00568f6067b7cad6efeca700181be09100e33c`, and the R14 R1 source snapshot was `f728cfe467a32eb2a9023fbe157d5d06c4928369` / tree `08371dae76c6ae9bc92c6213b735319d7e68b0e2`. The R14 paragraph’s R10 publication pointer records its earlier as-of state; R17 is the later published checkpoint and R18 records the current local source observation. Earlier receipts remain historical.
 

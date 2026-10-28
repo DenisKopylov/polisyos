@@ -3693,6 +3693,9 @@ class PolicyGroundingPort:
             return _grounding_unavailable(
                 candidate_id,
                 issue_codes=("cgf_disposition_missing",),
+                candidate_content_hash=candidate_content_hash,
+                design_problem_ref=design_problem_ref,
+                authority_level=authority_level,
             )
         result_problem_ref = _object_get(generation_result, "design_problem_ref")
         if result_problem_ref is None:
@@ -5054,6 +5057,7 @@ class JointSimulationPort:
             CandidateSimulationN5InputV3,
             CandidateSimulationN5InputV4,
             CandidateSimulationN5InputV5,
+            prepare_candidate_n5_request_values,
         )
         from polisyos.runtime.quality.cycle_substrate import (
             cycle_job_design_problem_ref,
@@ -5086,6 +5090,10 @@ class JointSimulationPort:
                 raise WorldModelRecordError("candidate_simulation_n5_input_untyped")
         else:
             raise WorldModelRecordError("candidate_simulation_n5_input_untyped")
+
+        prepared_n5 = prepare_candidate_n5_request_values(input_record.n5)
+        if prepared_n5 != prepare_candidate_n5_request_values(input_record.profile.n5):
+            raise WorldModelRecordError("candidate_simulation_n5_native_config_mismatch")
 
         candidate_record: N4CandidateScenarioProposalCandidate | ShadowGeneratedCandidate
         if isinstance(input_record, (CandidateSimulationN5InputV4, CandidateSimulationN5InputV5)):
@@ -5273,7 +5281,7 @@ class JointSimulationPort:
             raw_hint=None,
         )
         plan = EnginePlan(
-            engine_kind=input_record.n5.engine_kind,
+            engine_kind=prepared_n5.engine_kind,
             objective_ref=f"objective://{outcome}",
             eligibility_conditions=("acyclic", "counterfactual_do_worlds"),
             ncm_spec=ncm_spec,
@@ -5284,13 +5292,13 @@ class JointSimulationPort:
             world_model_record=world_record,
             intervention_atoms=(derived_atom,),
             selected_outcomes=(outcome,),
-            horizon=input_record.n5.horizon,
+            horizon=prepared_n5.horizon_spec,
             engine_plan=(plan,),
-            baseline_state=dict(input_record.n5.baseline_state),
-            comparator_refs=input_record.n5.comparator_refs,
-            budget_ref=input_record.n5.budget_ref,
-            seed=input_record.n5.seed,
-            replications=input_record.n5.replications,
+            baseline_state=prepared_n5.baseline_values(),
+            comparator_refs=prepared_n5.comparator_refs,
+            budget_ref=prepared_n5.budget_ref,
+            seed=prepared_n5.seed,
+            replications=prepared_n5.replications,
         )
 
     @staticmethod
@@ -8570,6 +8578,7 @@ class GenerationCycleController:
         baseline_path: Path,
         overlay_path: Path,
         budget_state: BudgetState,
+        source_control_service: object | None = None,
     ) -> AcquisitionOverlayReentryReceipt:
         """Run one new N6 cycle over an exact already-active owner overlay.
 
@@ -8584,22 +8593,81 @@ class GenerationCycleController:
         source_matches = tuple(
             row for row in original_run.cycles if row.cycle_index == source_cycle.cycle_index
         )
-        if source_cycle.cycle_index == 0:
-            expected_source_basis_ref = original_run.design_problem_ref
-        else:
-            previous_matches = tuple(
-                row
-                for row in original_run.cycles
-                if row.cycle_index == source_cycle.cycle_index - 1
+        if source_control_service is not None:
+            # The complete runtime source owner chain is fixed here. In
+            # particular, callers cannot provide an alternate action-history
+            # predicate, even an exact reader class sharing the same CAS.
+            from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+            from polisyos.runtime.quality.acquisition_route_loop import (
+                AcquisitionRouteClosureError,
+                AcquisitionRouteLoop,
             )
+
             if (
-                len(previous_matches) != 1
-                or previous_matches[0].design_problem_ref != original_run.design_problem_ref
+                type(source_control_service) is not ControlPlaneService
+                or source_control_service._artifact_store is not self._artifact_store
             ):
-                raise GenerationCycleError("acquisition_reentry_case_binding_mismatch")
-            expected_source_basis_ref = _problem_ref(
-                previous_matches[0].revision_request.revised_problem
+                raise GenerationCycleError("acquisition_reentry_route_owner_not_established")
+            admission = source_control_service._control_store.current_execution_job_admission()
+            current_action = admission.job
+            if (
+                current_action.kind != "acquisition"
+                or current_action.state != "running"
+                or not current_action.run_id
+                or admission.scope.status != "established"
+                or not admission.scope.tenant_id
+                or not admission.scope.cell_id
+            ):
+                raise GenerationCycleError("acquisition_reentry_route_owner_not_established")
+            source_route_reader = AcquisitionRouteLoop(
+                control_store=source_control_service._control_store,
+                artifact_store=self._artifact_store,
+                event_log=source_control_service._diagnostic_event_log,
+                core_source_resolver=(
+                    source_control_service.resolve_completed_control_job_core_run_source
+                ),
+                tenant_id=admission.scope.tenant_id,
+                cell_id=admission.scope.cell_id,
+                action_outcome_reader=source_control_service.acquisition_route_sink,
             )
+            try:
+                owned_route = source_route_reader.resolve_current_route(
+                    run_id=current_action.run_id,
+                    action_job_id=current_action.job_id,
+                )
+                actual_problem = owned_route.design_problem_basis
+            except AcquisitionRouteClosureError as exc:
+                raise GenerationCycleError(
+                    "acquisition_reentry_route_owner_not_established"
+                ) from exc
+            expected_source_basis_ref = _problem_ref(actual_problem)
+            if (
+                owned_route.generation_run != original_run
+                or owned_route.source_cycle != source_cycle
+                or actual_problem.model_dump(mode="python") != problem.model_dump(mode="python")
+            ):
+                raise GenerationCycleError("acquisition_reentry_route_source_mismatch")
+            # Historical cost/source intent and the current missing-CGF gap are
+            # separate. This owner does not declare the current gap satisfied.
+            acquisition_source_cycle = owned_route.route_source_cycle
+        else:
+            if source_cycle.cycle_index == 0:
+                expected_source_basis_ref = original_run.design_problem_ref
+            else:
+                previous_matches = tuple(
+                    row
+                    for row in original_run.cycles
+                    if row.cycle_index == source_cycle.cycle_index - 1
+                )
+                if (
+                    len(previous_matches) != 1
+                    or previous_matches[0].design_problem_ref != original_run.design_problem_ref
+                ):
+                    raise GenerationCycleError("acquisition_reentry_case_binding_mismatch")
+                expected_source_basis_ref = _problem_ref(
+                    previous_matches[0].revision_request.revised_problem
+                )
+            acquisition_source_cycle = source_cycle
         if (
             source_cycle.design_problem_ref != original_run.design_problem_ref
             or source_matches != (source_cycle,)
@@ -8610,10 +8678,10 @@ class GenerationCycleController:
         if source_cycle.terminal_kind != SearchTerminalKind.ACQUISITION_REQUIRED.value:
             raise GenerationCycleError("acquisition_reentry_source_not_acquisition_terminal")
         requirement = _cycle_acquisition_requirement(
-            source_cycle.grounding,
-            source_cycle.value_port,
+            acquisition_source_cycle.grounding,
+            acquisition_source_cycle.value_port,
         )
-        if requirement is None or source_cycle.acquisition_routing_report is None:
+        if requirement is None or acquisition_source_cycle.acquisition_routing_report is None:
             raise GenerationCycleError("acquisition_reentry_requirement_missing")
         owner_receipt_type = data_forge_read_api.catalog.OverlayAdmissionReceipt
         if not isinstance(overlay_receipt, owner_receipt_type):
@@ -8698,8 +8766,8 @@ class GenerationCycleController:
                 "acquisition_reentry_observation_projection_binding_mismatch"
             )
         if (
-            source_cycle.acquisition_cost_basis_record is not None
-            and source_cycle.acquisition_cost_basis_record.missing_distribution
+            acquisition_source_cycle.acquisition_cost_basis_record is not None
+            and acquisition_source_cycle.acquisition_cost_basis_record.missing_distribution
             != passports[0].variable_id
         ):
             raise GenerationCycleError("acquisition_reentry_cost_overlay_mismatch")
@@ -8765,6 +8833,81 @@ class GenerationCycleController:
                 ) from exc
         elif source_diagnostics.get("candidate_simulation_n4_source_ref") is not None:
             raise GenerationCycleError("acquisition_reentry_n4_source_selected_ref_missing")
+        proposal_reissue: object | None = None
+        if origin_source_ref is not None and self._candidate_simulation_handoff is not None:
+            from polisyos.runtime.quality.design_generation import N4CandidateScenarioProposalRun
+
+            handoff = self._candidate_simulation_handoff
+            repository = self._source_repository
+            prior_world = source_cycle.simulation.world_model_record
+            prior_context_ref = source_cycle.simulation.candidate_simulation_context_job_ref
+            if repository is None or prior_context_ref is None:
+                raise GenerationCycleError("acquisition_reentry_prior_evaluation_owner_missing")
+            prior_source = repository.load_candidate_scenario_source_in_owner_scope(
+                origin_source_ref,
+                expected_run_id=handoff.run_id,
+                expected_tenant_id=handoff.tenant_id,
+                expected_cell_id=handoff.cell_id,
+            )
+            from polisyos.runtime.quality.generation_source import N4CandidateScenarioSourceRecordV3
+
+            if type(prior_source) is N4CandidateScenarioSourceRecordV3:
+                from polisyos.runtime.quality.candidate_simulation import (
+                    CandidateSimulationN5InputV5,
+                )
+
+                input_ref = source_cycle.simulation.candidate_simulation_n5_input_ref
+                if input_ref is None:
+                    raise GenerationCycleError("acquisition_reentry_prior_n5_input_missing")
+                prior_input = repository.resolve_candidate_simulation_v5(
+                    ref=input_ref,
+                    expected_run_id=handoff.run_id,
+                    expected_job_id=prior_source.job_id,
+                    expected_tenant_id=handoff.tenant_id,
+                    expected_cell_id=handoff.cell_id,
+                )
+                if (
+                    type(prior_input) is not CandidateSimulationN5InputV5
+                    or artifact_ref_identity_key(prior_input.n4_source_ref)
+                    != artifact_ref_identity_key(origin_source_ref)
+                    or artifact_ref_identity_key(prior_input.context_job_ref)
+                    != artifact_ref_identity_key(prior_context_ref)
+                    or prior_input.original_candidate_id != source_cycle.selected_candidate_ref
+                    or prior_input.original_candidate_hash
+                    != source_cycle.selected_candidate_content_hash
+                ):
+                    raise GenerationCycleError(
+                        "acquisition_reentry_prior_n5_input_binding_mismatch"
+                    )
+                owner_world = prior_input.profile.context_inputs.world_model_record
+                if prior_world is not None and prior_world.content_hash != owner_world.content_hash:
+                    raise GenerationCycleError("acquisition_reentry_prior_world_binding_mismatch")
+                prior_world = owner_world
+                prior_source = repository.load_candidate_scenario_source_for_reissue(
+                    origin_source_ref,
+                    expected_run_id=handoff.run_id,
+                    expected_tenant_id=handoff.tenant_id,
+                    expected_cell_id=handoff.cell_id,
+                    expected_candidate_id=source_cycle.selected_candidate_ref,
+                    expected_candidate_content_hash=source_cycle.selected_candidate_content_hash,
+                    expected_world_content_hash=prior_world.content_hash,
+                    expected_context_job_ref=prior_context_ref,
+                )
+                original_source = prior_source.source_record.source_record
+                if prior_source.problem.model_dump(mode="python") == problem.model_dump(
+                    mode="python"
+                ):
+                    proposal_reissue = N4CandidateScenarioProposalRun(
+                        proposal=prior_source.proposal,
+                        l2_confidence_vintage=original_source.l2_confidence_vintage,
+                        k_ref_limitation_code=original_source.k_ref_limitation_code,
+                    )
+                else:
+                    self._source_issues.append("acquisition_reentry_new_problem_requires_n4")
+            else:
+                self._source_issues.append(
+                    "acquisition_reentry_legacy_proposal_reissue_not_established"
+                )
         reentry_value_port = _DefaultSimulationBoundFoundryValuePort(
             repo_root=self._repo_root,
             artifact_store=self._artifact_store,
@@ -8792,7 +8935,28 @@ class GenerationCycleController:
             value_port_override=reentry_value_port,
             stable_design_problem_ref=original_run.design_problem_ref,
             candidate_scenario_origin_source_ref=origin_source_ref,
+            candidate_scenario_proposal_reissue=proposal_reissue,
         )
+        # Re-entry creates a new actual cycle. Resolve its current requirement
+        # through the maintained compiler/planner, as the ordinary run loop does;
+        # the historic route report must never stand in for this current gap.
+        # Provider dispatch remains a separate, explicitly authorized action.
+        try:
+            planned_route = self._plan_n7_requirement_gap_if_requested(problem, cycle=new_cycle)
+            if planned_route is not None:
+                new_cycle = _cycle_with_acquisition_routing_report(
+                    new_cycle,
+                    report=planned_route.report,
+                    report_ref=planned_route.report_ref,
+                    cost_basis=planned_route.cost_basis,
+                )
+        except GenerationCycleError as exc:
+            if exc.code not in _N7_ROUTING_FAILURE_CODES:
+                raise
+            reason = exc.code
+            if exc.source_refusal_code is not None:
+                reason = f"{reason}.{exc.source_refusal_code}"
+            new_cycle = _cycle_with_n7_route_failure(new_cycle, reason=reason)
         if (
             new_cycle.design_problem_ref != original_run.design_problem_ref
             or _cycle_basis_ref(new_cycle) != problem_ref
@@ -9114,6 +9278,7 @@ class GenerationCycleController:
         value_port_override: ValuePort | None = None,
         stable_design_problem_ref: str | None = None,
         candidate_scenario_origin_source_ref: CASArtifactRef | None = None,
+        candidate_scenario_proposal_reissue: object | None = None,
     ) -> tuple[GenerationCycleRecord, tuple[CandidateSummary, ...]]:
         state: dict[str, Any] = {
             "problem": problem,
@@ -9123,6 +9288,7 @@ class GenerationCycleController:
             "value_port_override": value_port_override,
             "stable_design_problem_ref": stable_design_problem_ref,
             "candidate_scenario_origin_source_ref": candidate_scenario_origin_source_ref,
+            "candidate_scenario_proposal_reissue": candidate_scenario_proposal_reissue,
         }
         finished = await self._engine.run_async(state)
         return finished["cycle"], tuple(finished["candidate_summaries"])
@@ -11353,7 +11519,7 @@ class GenerationCycleController:
             origin = self._source_repository.load_candidate_scenario_source_for_n5(
                 origin_ref,
                 expected_run_id=handoff.run_id,
-                expected_job_id=handoff.job_id,
+                expected_job_id=origin_handoff.job_id,
                 expected_tenant_id=handoff.tenant_id,
                 expected_cell_id=handoff.cell_id,
             )
@@ -12075,10 +12241,9 @@ class GenerationCycleController:
         if candidate is not None and origin_source_ref is not None:
             if repository is None:
                 raise GenerationCycleError("n4_candidate_scenario_origin_repository_unavailable")
-            prior_source = repository.load_candidate_scenario_source_for_n5(
+            prior_source = repository.load_candidate_scenario_source_in_owner_scope(
                 origin_source_ref,
                 expected_run_id=handoff.run_id,
-                expected_job_id=handoff.job_id,
                 expected_tenant_id=handoff.tenant_id,
                 expected_cell_id=handoff.cell_id,
             )
@@ -12095,6 +12260,16 @@ class GenerationCycleController:
                     and prior_source.candidate.candidate_id == candidate.candidate_id
                     and prior_source.profile_selection_ref == handoff.profile.profile_selection_ref
                 ):
+                    prior_source = repository.load_candidate_scenario_source_for_lineage(
+                        origin_source_ref,
+                        expected_run_id=handoff.run_id,
+                        expected_tenant_id=handoff.tenant_id,
+                        expected_cell_id=handoff.cell_id,
+                        expected_stable_subject_ref=stable_subject_ref,
+                        expected_semantic_identity_hash=semantic_identity_hash,
+                        expected_candidate_id=candidate.candidate_id,
+                        expected_profile_selection_ref=handoff.profile.profile_selection_ref,
+                    )
                     origin_source_ref_for_v3 = prior_source.origin_source_ref or origin_source_ref
         if repository is not None and self._source_run_id is not None:
             try:
@@ -12499,15 +12674,26 @@ class GenerationCycleController:
         if not isinstance(problem, DesignProblem):
             raise GenerationCycleError("generation_cycle_design_problem_untyped")
         self._ensure_selected_candidate_source_profile(problem)
-        result = self._generation_port(
-            state["problem"],
-            cycle_index=int(state["cycle_index"]),
-        )
-        if inspect.isawaitable(result):
-            result = await result
         from polisyos.runtime.quality.design_generation import (
             N4CandidateScenarioProposalRun,
         )
+
+        proposal_reissue = state.get("candidate_scenario_proposal_reissue")
+        if proposal_reissue is None:
+            result = self._generation_port(
+                state["problem"],
+                cycle_index=int(state["cycle_index"]),
+            )
+            if inspect.isawaitable(result):
+                result = await result
+        elif (
+            type(proposal_reissue) is N4CandidateScenarioProposalRun
+            and self._candidate_simulation_handoff is not None
+            and state.get("candidate_scenario_origin_source_ref") is not None
+        ):
+            result = proposal_reissue
+        else:
+            raise GenerationCycleError("acquisition_reentry_proposal_reissue_unbound")
 
         if isinstance(result, N4CandidateScenarioProposalRun):
             result = self._candidate_scenario_proposal_result(

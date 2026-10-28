@@ -69,7 +69,11 @@ from polisyos.runtime.quality.world_model_record import (
 )
 
 if TYPE_CHECKING:
+    from polisyos.foundry.contracts.state import GlobalState
+    from polisyos.ir import NCMSpec
     from polisyos.runtime.quality.candidate_simulation import (
+        CandidateScenarioN5Config,
+        CandidateScenarioSetToRule,
         CandidateSimulationContextInputs,
         CandidateSimulationScenarioProfile,
         CandidateSimulationSyntheticModelDeclarationV1,
@@ -2911,6 +2915,48 @@ class CycleSubstrateContextArtifactOwner:
 
 
 @dataclass(frozen=True)
+class AcquiredCandidateDeclaredModelValues:
+    """Actual numeric declaration inputs to the existing candidate NCM owner."""
+
+    target_world_slot: str
+    outcome_variable: str
+    target_baseline: float
+    outcome_baseline: float
+    outcome_per_target_unit: float
+    outcome_noise_stddev: float
+
+
+@dataclass(frozen=True)
+class AcquiredCandidateModelValues:
+    """Owner-recomputed model/request/context values before a new WMR exists.
+
+    These are candidate preparation values, not a synthetic WMR, declaration
+    artifact, complete basis, source admission or retention permission. Native
+    context values are deep-copied; actual context emission always resolves its
+    own configured inputs again.
+    """
+
+    n5_config: CandidateScenarioN5Config
+    rule: CandidateScenarioSetToRule
+    declared_model_values: AcquiredCandidateDeclaredModelValues
+    original_declaration: CandidateSimulationSyntheticModelDeclarationV1
+    source_context_inputs: CandidateSimulationContextInputs
+
+    @property
+    def ncm_spec(self) -> NCMSpec:
+        """Reuse the actual IR owner for the full declared candidate SCM."""
+
+        from polisyos.ir import (
+            candidate_ncm_spec_from_declaration,
+            prepare_ncm_spec_selected_values,
+        )
+
+        return prepare_ncm_spec_selected_values(
+            candidate_ncm_spec_from_declaration(self.declared_model_values)
+        ).ncm_spec
+
+
+@dataclass(frozen=True)
 class AcquiredCandidateContextPreparation:
     """Resolved acquisition profile values before declaration or NCM emission.
 
@@ -3126,6 +3172,129 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
             ) from exc
         return selected_ref
 
+    def prepare_model_values_for_acquired_state(
+        self,
+        *,
+        problem: DesignProblem,
+        profile_selection_ref: str,
+        source_world_model: WorldModelRecord,
+        state: GlobalState,
+    ) -> AcquiredCandidateModelValues:
+        """Resolve all configured N5 baselines and declared SCM inputs write-free.
+
+        This accepts prospective numerical state from the real upstream owner;
+        it does not declare that state admitted. The caller must independently
+        bind its source and reconcile its eventual actual emitted world/state.
+        The actual world-context preparation below consumes this same operation
+        after resolving its selected persisted state, never a supplied plan.
+        """
+
+        from polisyos.foundry.contracts.state import GlobalState
+        from polisyos.foundry.execute import get_state_path
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationScenarioProfile,
+            candidate_simulation_profile_ref,
+        )
+
+        if (
+            type(problem) is not DesignProblem
+            or type(source_world_model) is not WorldModelRecord
+            or type(state) is not GlobalState
+        ):
+            raise CycleSubstrateContextOwnerError("candidate_acquisition_model_values_untyped")
+        configured = self.configured_profile_for_selection_ref(profile_selection_ref)
+        if type(configured) is not CandidateSimulationScenarioProfile:
+            raise CycleSubstrateContextOwnerError("candidate_simulation_profile_untyped")
+        _require_context_evidence_refreshable(
+            candidate_levers=configured.context_inputs.candidate_levers,
+            transport_context=configured.context_inputs.transport_context,
+        )
+        original_declaration = self._model_declarations.get(
+            candidate_simulation_profile_ref(configured)
+        )
+        if original_declaration is None:
+            raise CycleSubstrateContextOwnerError(
+                "candidate_simulation_acquisition_model_declaration_missing"
+            )
+        if (
+            configured.profile_selection_ref != cycle_job_profile_selection_ref(problem)
+            or original_declaration.outcome_variable != problem.outcome_of_interest.target_variable
+            or source_world_model.region_or_jurisdiction
+            != configured.context_inputs.world_model_record.region_or_jurisdiction
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "candidate_simulation_acquisition_profile_world_mismatch"
+            )
+        world_model_record = source_world_model
+        slot_bindings = {binding.slot_id: binding for binding in world_model_record.policy_slot_map}
+        target_binding = slot_bindings.get(original_declaration.target_world_slot)
+        outcome_binding = slot_bindings.get(original_declaration.outcome_variable)
+        if (
+            target_binding is None
+            or outcome_binding is None
+            or target_binding.unit != original_declaration.target_unit_id
+            or outcome_binding.unit != original_declaration.outcome_unit_id
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "candidate_simulation_acquisition_model_slot_unit_mismatch"
+            )
+        required_baseline_slots = set(configured.n5.baseline_state)
+        if not required_baseline_slots:
+            raise CycleSubstrateContextOwnerError(
+                "candidate_simulation_acquisition_baseline_missing"
+            )
+        refreshed_baseline: dict[str, float] = {}
+        import math
+
+        for slot_id in sorted(required_baseline_slots):
+            binding = slot_bindings.get(slot_id)
+            if binding is None or not binding.state_path:
+                raise CycleSubstrateContextOwnerError(
+                    "candidate_simulation_acquisition_baseline_slot_unresolved",
+                    slot_id,
+                )
+            try:
+                value = get_state_path(state, binding.state_path)
+                scalar = float(value)
+            except (AttributeError, TypeError, ValueError) as exc:
+                raise CycleSubstrateContextOwnerError(
+                    "candidate_simulation_acquisition_baseline_not_scalar",
+                    slot_id,
+                ) from exc
+            if not math.isfinite(scalar):
+                raise CycleSubstrateContextOwnerError(
+                    "candidate_simulation_acquisition_baseline_non_finite",
+                    slot_id,
+                )
+            refreshed_baseline[slot_id] = scalar
+
+        target_slot = original_declaration.target_world_slot
+        outcome_variable = original_declaration.outcome_variable
+        if (
+            target_slot != configured.rule.target_world_slot
+            or outcome_variable not in refreshed_baseline
+            or target_slot not in refreshed_baseline
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "candidate_simulation_acquisition_declaration_baseline_unresolved"
+            )
+        return AcquiredCandidateModelValues(
+            n5_config=configured.n5.model_copy(
+                deep=True, update={"baseline_state": refreshed_baseline}
+            ),
+            rule=configured.rule.model_copy(deep=True),
+            declared_model_values=AcquiredCandidateDeclaredModelValues(
+                target_world_slot=target_slot,
+                outcome_variable=outcome_variable,
+                target_baseline=refreshed_baseline[target_slot],
+                outcome_baseline=refreshed_baseline[outcome_variable],
+                outcome_per_target_unit=original_declaration.outcome_per_target_unit,
+                outcome_noise_stddev=original_declaration.outcome_noise_stddev,
+            ),
+            original_declaration=original_declaration.model_copy(deep=True),
+            source_context_inputs=configured.context_inputs.model_copy(deep=True),
+        )
+
     def prepare_context_for_acquired_world(
         self,
         *,
@@ -3200,7 +3369,7 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
                 "candidate_simulation_acquisition_profile_world_mismatch"
             )
 
-        from polisyos.foundry.execute import get_state_path, load_state_snapshot
+        from polisyos.foundry.execute import load_state_snapshot
         from polisyos.runtime.quality.world_model_record import (
             world_model_artifact_views,
         )
@@ -3211,53 +3380,19 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
                 "candidate_simulation_acquisition_state_snapshot_unverified"
             )
         state = load_state_snapshot(self._store, snapshot_ref=state_ref)
-        slot_bindings = {binding.slot_id: binding for binding in world_model_record.policy_slot_map}
-        target_binding = slot_bindings.get(original_declaration.target_world_slot)
-        outcome_binding = slot_bindings.get(original_declaration.outcome_variable)
-        if (
-            target_binding is None
-            or outcome_binding is None
-            or target_binding.unit != original_declaration.target_unit_id
-            or outcome_binding.unit != original_declaration.outcome_unit_id
-        ):
-            raise CycleSubstrateContextOwnerError(
-                "candidate_simulation_acquisition_model_slot_unit_mismatch"
-            )
-        required_baseline_slots = set(configured.n5.baseline_state)
-        if not required_baseline_slots:
-            raise CycleSubstrateContextOwnerError(
-                "candidate_simulation_acquisition_baseline_missing"
-            )
-        refreshed_baseline: dict[str, float] = {}
-        import math
-
-        for slot_id in sorted(required_baseline_slots):
-            binding = slot_bindings.get(slot_id)
-            if binding is None or not binding.state_path:
-                raise CycleSubstrateContextOwnerError(
-                    "candidate_simulation_acquisition_baseline_slot_unresolved",
-                    slot_id,
-                )
-            try:
-                value = get_state_path(state, binding.state_path)
-                scalar = float(value)
-            except (AttributeError, TypeError, ValueError) as exc:
-                raise CycleSubstrateContextOwnerError(
-                    "candidate_simulation_acquisition_baseline_not_scalar",
-                    slot_id,
-                ) from exc
-            if not math.isfinite(scalar):
-                raise CycleSubstrateContextOwnerError(
-                    "candidate_simulation_acquisition_baseline_non_finite",
-                    slot_id,
-                )
-            refreshed_baseline[slot_id] = scalar
+        model_values = self.prepare_model_values_for_acquired_state(
+            problem=problem,
+            profile_selection_ref=profile_selection_ref,
+            source_world_model=world_model_record,
+            state=state,
+        )
+        refreshed_baseline = dict(model_values.n5_config.baseline_state)
 
         profile_payload = configured.model_dump(mode="json")
         profile_payload["context_inputs"]["world_model_record"] = world_model_record.model_dump(
             mode="json"
         )
-        profile_payload["n5"]["baseline_state"] = refreshed_baseline
+        profile_payload["n5"] = model_values.n5_config.model_dump(mode="json")
         profile_payload["content_hash"] = gy_content_hash(
             {key: value for key, value in profile_payload.items() if key != "content_hash"}
         )

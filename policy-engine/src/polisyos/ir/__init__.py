@@ -333,6 +333,7 @@ __all__ = [
     "PosteriorSamplesCarrier",
     "PosteriorSummaryRef",
     "PosteriorSummaryV11",
+    "PreparedNCMSpecSelectedValues",
     "ProblemConstraintSpec",
     "ProblemDomain",
     "ProblemFrame",
@@ -541,6 +542,7 @@ __all__ = [
     "persist_uncertainty_envelope",
     "persist_welfare_bundle",
     "persist_welfare_sample_bundle",
+    "prepare_ncm_spec_selected_values",
     "proof_bundle_from_identification_result",
     "proof_bundle_from_negative_certificate",
     "proof_bundle_from_transportability_result",
@@ -2005,6 +2007,11 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "transportability_proof_review_grade": (
         "polisyos.ir.analytics.causal",
         "transportability_proof_review_grade",
+    ),
+    "PreparedNCMSpecSelectedValues": ("polisyos.ir.analytics.ncm", "PreparedNCMSpecSelectedValues"),
+    "prepare_ncm_spec_selected_values": (
+        "polisyos.ir.analytics.ncm",
+        "prepare_ncm_spec_selected_values",
     ),
 }
 

@@ -1898,10 +1898,12 @@ def _produce_served_acquisition_history(
                 source_repository.load_candidate_scenario_source_v3,
                 origin_source_ref,
                 expected_run_id=n5_input.run_id,
-                expected_job_id=n5_input.job_id,
+                expected_job_id=seed_source.job_id,
                 expected_tenant_id=n5_input.tenant_id,
                 expected_cell_id=n5_input.cell_id,
             )
+            assert old_source_record.job_id != n5_input.job_id
+            assert source_record.job_id == n5_input.job_id
             assert type(old_source_record) is N4CandidateScenarioSourceRecordV3
             assert old_source_record.origin_source_ref is None
             old_semantic_identity = candidate_scenario_semantic_identity_hash(

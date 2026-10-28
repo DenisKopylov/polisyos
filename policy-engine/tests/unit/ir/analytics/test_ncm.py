@@ -264,3 +264,79 @@ def test_candidate_ncm_is_derived_from_declared_baseline_and_selected_view(
                 expected_cell_id=cell_id,
                 expected_declaration_ref=declaration_ref,
             )
+
+
+def _assert_complete_native_selected_values(prepared: object, actual: object) -> None:
+    """Compare every consumed typed field, preserving native float distinctions."""
+    import struct
+    from enum import Enum
+
+    from pydantic import BaseModel
+
+    assert type(prepared) is type(actual)
+    if isinstance(actual, Enum):
+        _assert_complete_native_selected_values(prepared.value, actual.value)
+    elif isinstance(actual, BaseModel):
+        for name in type(actual).model_fields:
+            _assert_complete_native_selected_values(getattr(prepared, name), getattr(actual, name))
+    elif isinstance(actual, dict):
+        assert prepared.keys() == actual.keys()
+        for key in actual:
+            _assert_complete_native_selected_values(prepared[key], actual[key])
+    elif isinstance(actual, tuple | list):
+        assert len(prepared) == len(actual)
+        for one, other in zip(prepared, actual, strict=True):
+            _assert_complete_native_selected_values(one, other)
+    elif type(actual) is float:
+        assert struct.pack("!d", prepared) == struct.pack("!d", actual)
+    else:
+        assert actual is None or type(actual) in {str, int, bool, bytes}
+        assert prepared == actual
+
+
+@pytest.mark.parametrize("baseline", [0.0, -0.0])
+def test_selected_ncm_preparation_matches_actual_persisted_codec_bytes(tmp_path, baseline) -> None:
+    from polisyos.ir.analytics.ncm import (
+        candidate_ncm_spec_from_declaration,
+        load_ncm_spec_selected_view,
+        prepare_ncm_spec_selected_values,
+    )
+
+    store = FileSystemCAS(tmp_path / "selected-codec-cas")
+    repository = GenerationSourceRepository(store)
+    values = _declaration(coefficient=0.5).model_dump(mode="python", exclude={"content_hash"})
+    values.update(target_baseline=baseline, outcome_baseline=baseline)
+    declaration = CandidateSimulationSyntheticModelDeclarationV1.model_validate(
+        {**values, "content_hash": gy_content_hash(values)}
+    )
+    spec = candidate_ncm_spec_from_declaration(declaration)
+    prepared = prepare_ncm_spec_selected_values(spec)
+    with tenant_scope(None, tenant_id="tenant-codec", cell_id="cell-codec"):
+        declaration_ref = repository.persist_candidate_model_declaration(
+            declaration=declaration,
+            job_id="job-codec",
+            run_id="run-codec",
+            tenant_id="tenant-codec",
+            cell_id="cell-codec",
+        )
+        selected = repository.persist_candidate_ncm_selected_view(
+            ncm_spec=spec,
+            declaration_ref=declaration_ref,
+            job_id="job-codec",
+            run_id="run-codec",
+            tenant_id="tenant-codec",
+            cell_id="cell-codec",
+            profile_content_hash=declaration.profile_content_hash,
+        )
+        reader = FileSystemCAS(tmp_path / "selected-codec-cas")
+        actual = load_ncm_spec_selected_view(
+            _ensure_ir_artifact_store(reader),
+            selected,
+            expected_tenant_id="tenant-codec",
+            expected_cell_id="cell-codec",
+            expected_declaration_ref=declaration_ref,
+        )
+        # Exact real selected bytes are the independent deciding quantity.
+        assert prepared.value_bytes == reader.get_bytes(selected)
+        assert prepare_ncm_spec_selected_values(actual).value_bytes == prepared.value_bytes
+        _assert_complete_native_selected_values(prepared.ncm_spec, actual)

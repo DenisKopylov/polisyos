@@ -3246,7 +3246,6 @@ def _owner_program_graph_n5_witness(
     )
     from polisyos.core.artifacts.async_store import ensure_async_artifact_store
     from polisyos.core.artifacts.manifest import (
-        ArtifactTenantContextInfo,
         SchemaInfo,
         input_ref_from_artifact_ref,
     )
@@ -3272,6 +3271,7 @@ def _owner_program_graph_n5_witness(
     from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
     from polisyos.runtime.quality.world_model_record import build_world_model_record
     from tests._helpers import world_model_record as world_fixture
+    from tests._helpers.selected_cas_ownership import assert_selected_cas_view_owned
     from tests.unit.runtime.quality.test_joint_simulation_horizon import _program_graph_plan
 
     case_root = tmp_path / "owner-program-graph-world"
@@ -3503,12 +3503,17 @@ def _owner_program_graph_n5_witness(
             )
             if data_snapshot_ref.manifest_profile_sha256 is None:
                 raise AssertionError("fixture owner snapshot lacks its selected CAS profile")
-            expected_tenant_context = ArtifactTenantContextInfo(
-                tenant_id="tenant-n5-owner",
-                cell_id="cell-n5-owner",
-            )
+
+            def assert_fixture_owner(reference: Any) -> None:
+                assert_selected_cas_view_owned(
+                    tmp_path / "owner-runtime-cas",
+                    reference,
+                    tenant_id="tenant-n5-owner",
+                    cell_id="cell-n5-owner",
+                )
+
             assert produced_manifest.artifact_id == produced_snapshot_ref.artifact_id
-            assert produced_manifest.tenant_context == expected_tenant_context
+            assert_fixture_owner(produced_snapshot_ref)
             assert produced_snapshot_ref.manifest_profile_sha256 == (
                 artifact_manifest_profile_sha256(produced_manifest)
             )
@@ -3524,7 +3529,7 @@ def _owner_program_graph_n5_witness(
                 assert input_manifest.artifact_id == input_ref.artifact_id
                 assert input_manifest.kind == input_ref.kind
                 assert input_manifest.media_type == input_ref.media_type
-                assert input_manifest.tenant_context == expected_tenant_context
+                assert_fixture_owner(input_ref)
                 assert input_ref.manifest_profile_sha256 == (
                     artifact_manifest_profile_sha256(input_manifest)
                 )
@@ -3542,7 +3547,7 @@ def _owner_program_graph_n5_witness(
                 name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
                 version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
             )
-            assert persisted_snapshot_manifest.tenant_context == expected_tenant_context
+            assert_fixture_owner(data_snapshot_ref)
             assert persisted_snapshot_manifest.inputs == produced_manifest.inputs
             assert data_snapshot_ref.manifest_profile_sha256 == persisted_snapshot_profile
             assert persisted_snapshot_manifest.byte_size == len(persisted_snapshot_bytes)
@@ -9001,6 +9006,35 @@ async def test_default_grounding_port_rejects_legacy_matrix_without_cgf_disposit
     assert run.fronts.decision.candidate_ids == ()
 
 
+def test_missing_cgf_disposition_emits_the_actual_unsatisfied_subject_requirement() -> None:
+    """Absence becomes a routed gap without becoming a grounding pass."""
+
+    result, candidate = _real_n4_generation_result_with_candidate()
+    problem = _recorded_problem_for_candidate(candidate)
+    positive = PolicyGroundingPort()(
+        candidate=candidate, problem=problem, cycle_index=0, generation_result=result
+    )
+    assert positive.grounding_source == "cgf_firewall"
+    missing = {**result, "grounding_dispositions": []}
+    observation = PolicyGroundingPort()(
+        candidate=candidate, problem=problem, cycle_index=0, generation_result=missing
+    )
+    assert observation.status == "grounding_unavailable"
+    assert observation.current_valid is False
+    assert observation.issue_codes == ("cgf_disposition_missing",)
+    requirement = observation.acquisition_requirement
+    assert requirement is not None
+    assert requirement.metadata["authority_purpose"] == "routing_only"
+    assert requirement.metadata["satisfaction_status"] == "unsatisfied"
+    assert requirement.metadata["candidate_binding"] == {
+        "candidate_id": candidate["candidate_id"],
+        "candidate_content_hash": candidate["atom"]["content_hash"],
+        "design_problem_ref": gy_content_hash(problem.model_dump(mode="json")),
+    }
+    assert requirement.producer_output_ref == observation.report_ref
+    assert candidate["candidate_id"] in requirement.missing_requirement_fields[0]
+
+
 def test_default_grounding_port_resolves_real_serialized_n4_candidate() -> None:
     result, candidate = _real_n4_generation_result_with_candidate()
     problem = _recorded_problem_for_candidate(candidate)
@@ -10215,10 +10249,12 @@ async def test_active_overlay_reentry_is_exact_direct_and_read_only(
         value_port_override: object,
         stable_design_problem_ref: str,
         candidate_scenario_origin_source_ref: object | None,
+        candidate_scenario_proposal_reissue: object | None,
     ) -> tuple[object, tuple[CandidateSummary, ...]]:
         assert received_problem is problem
         assert stable_design_problem_ref == source_run.design_problem_ref
         assert candidate_scenario_origin_source_ref is None
+        assert candidate_scenario_proposal_reissue is None
         assert cycle_index == source_cycle.cycle_index + 1
         assert previous_cycle is source_cycle
         assert isinstance(

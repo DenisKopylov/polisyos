@@ -25,7 +25,11 @@ from polisyos.foundry.methods.catalog.causal.protocols import PanelObservational
 from polisyos.foundry.methods.causal import ensure_causal_methods_registered
 from polisyos.foundry.methods.exceptions import MethodNotFoundError
 from polisyos.foundry.methods.registry import MethodRegistry
-from polisyos.ir.analytics.causal import load_causal_effect_report, persist_causal_effect_report
+from polisyos.ir.analytics.causal import (
+    EstimationStatus,
+    load_causal_effect_report,
+    persist_causal_effect_report,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -217,3 +221,118 @@ print(report.model_dump_json())
     assert report["point_estimate"] == pytest.approx(3.0)
     assert report["method_params"]["staggered"] is False
     assert report["method_params"]["covariance_procedure"] == "hc1"
+
+
+def _unit_permutation_panel():
+    data = _standard(pre=3)
+    outcome = data.outcome + np.random.default_rng(173).normal(size=data.outcome.shape)
+    return data.model_copy(update={"outcome": outcome})
+
+
+def _independent_unit_cluster_reference(data):
+    rows = [
+        (data.unit_ids[i], t, int(data.treatment[i]), float(data.outcome[i, t]))
+        for i in range(data.n_units)
+        for t in range(data.n_periods)
+    ]
+    design = np.array(
+        [
+            [
+                1.0,
+                float(t >= data.time_treatment),
+                float(treated),
+                float(t >= data.time_treatment and treated),
+            ]
+            for _, t, treated, _ in rows
+        ]
+    )
+    fit = OLS(np.array([outcome for _, _, _, outcome in rows]), design).fit()
+    covariance = cov_cluster(fit, [unit for unit, _, _, _ in rows], use_correction=False)
+    return float(fit.params[3]), float(np.sqrt(covariance[3, 3]))
+
+
+def _cluster_report_from_fresh_consumer(data, tmp_path):
+    result = MethodDispatcher.get_instance().dispatch(
+        method_class=StandardDifferenceInDifferences,
+        signature=StandardDifferenceInDifferences.signature,
+        state=data,
+        params={"cov_type": "cluster", "cluster_var": "unit_ids"},
+        seed=7,
+    )
+    report = result.output["report"]
+    store = _ensure_ir_artifact_store(FileSystemCAS(tmp_path))
+    ref = persist_causal_effect_report(store, report)
+    fresh = load_causal_effect_report(_ensure_ir_artifact_store(FileSystemCAS(tmp_path)), ref)
+    assert fresh.model_dump(mode="json") == report.model_dump(mode="json")
+    return fresh
+
+
+@pytest.mark.parametrize("order", [(3, 0, 5, 1, 6, 2, 7, 4), (7, 6, 5, 4, 3, 2, 1, 0)])
+def test_unit_cluster_report_matches_statsmodels_after_coordinated_unit_permutation(
+    order, tmp_path
+):
+    data = _unit_permutation_panel()
+    indices = np.array(order)
+    permuted = PanelObservationalData(
+        outcome=data.outcome[indices],
+        treatment=data.treatment[indices],
+        time_treatment=data.time_treatment,
+        unit_ids=data.unit_ids[indices],
+    )
+    original = _cluster_report_from_fresh_consumer(data, tmp_path / "original")
+    shuffled = _cluster_report_from_fresh_consumer(permuted, tmp_path / "permuted")
+    for panel, report in ((data, original), (permuted, shuffled)):
+        expected_att, expected_se = _independent_unit_cluster_reference(panel)
+        assert report.status is EstimationStatus.SUCCESS
+        assert report.method_params["covariance_procedure"] == "unit_cluster_cr0"
+        assert report.point_estimate == pytest.approx(expected_att, rel=1e-10, abs=1e-10)
+        assert report.standard_error == pytest.approx(expected_se, rel=1e-10, abs=1e-10)
+    assert shuffled.point_estimate == pytest.approx(original.point_estimate, rel=1e-10, abs=1e-10)
+    assert shuffled.standard_error == pytest.approx(original.standard_error, rel=1e-10, abs=1e-10)
+    assert shuffled.confidence_interval == pytest.approx(original.confidence_interval)
+
+
+def test_unit_cluster_oracle_detects_wrong_rows_and_hc1_substitution(monkeypatch, tmp_path):
+    data = _unit_permutation_panel()
+    # These observation labels interleave units within each actual panel unit.
+    wrong_rows = np.tile(data.unit_ids, data.n_periods)
+    invalid = StandardDifferenceInDifferences.pure_step(
+        data, {"cov_type": "cluster", "cluster_var": wrong_rows}
+    )["report"]
+    assert invalid.status is EstimationStatus.INPUT_INVALID
+    assert invalid.point_estimate is None
+    assert invalid.status_reason == "cluster_var must be constant within each unit"
+
+    expected_att, expected_se = _independent_unit_cluster_reference(data)
+    assert np.isfinite(expected_se) and expected_se > 0
+
+    def assert_cr0(report):
+        assert report.status is EstimationStatus.SUCCESS
+        assert report.method_params["covariance_procedure"] == "unit_cluster_cr0"
+        assert report.point_estimate == pytest.approx(expected_att, rel=1e-10, abs=1e-10)
+        assert report.standard_error == pytest.approx(expected_se, rel=1e-10, abs=1e-10)
+
+    baseline = _cluster_report_from_fresh_consumer(data, tmp_path / "baseline")
+    assert_cr0(baseline)
+    owner = sys.modules[StandardDifferenceInDifferences.__module__]
+    original_cluster = owner._ols_cluster_cr0
+
+    def hc1_as_cluster(x, y, _cluster_ids):
+        return owner._ols_hc1(x, y)
+
+    # Keep the cluster marker while substituting the actual covariance computation.
+    with monkeypatch.context() as control:
+        control.setattr(owner, "_ols_cluster_cr0", hc1_as_cluster)
+        mutant = _cluster_report_from_fresh_consumer(data, tmp_path / "mutant")
+        assert mutant.status is EstimationStatus.SUCCESS
+        assert mutant.method_params["covariance_procedure"] == "unit_cluster_cr0"
+        assert mutant.point_estimate == pytest.approx(expected_att, rel=1e-10, abs=1e-10)
+        assert mutant.standard_error is not None and np.isfinite(mutant.standard_error)
+        assert mutant.standard_error != pytest.approx(expected_se, rel=1e-8, abs=1e-10)
+        with pytest.raises(AssertionError):
+            assert_cr0(mutant)
+
+    assert owner._ols_cluster_cr0 is original_cluster
+    restored = _cluster_report_from_fresh_consumer(data, tmp_path / "restored")
+    assert_cr0(restored)
+    assert restored.confidence_interval == pytest.approx(baseline.confidence_interval)

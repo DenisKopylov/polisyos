@@ -1347,6 +1347,89 @@ def load_source_bound_build_tools(
     return helper_module, profile, lock_bytes, source_blobs, archive_members, helper_path, binding
 
 
+def measure_app_dependency_profile(
+    python: Path,
+    expected_site: Path,
+    log_dir: Path,
+) -> dict[str, Any]:
+    """Bind the one unprocessed dependency site to actual lexical app sysconfig."""
+    lexical = Path(os.path.abspath(python))
+    if not lexical.is_file() or not (lexical.parent.parent / "pyvenv.cfg").is_file():
+        raise WaveFailure("dependency exception requires an actual lexical app venv")
+    code = (
+        "import json,sys,sysconfig;print(json.dumps({"
+        "'prefix':sys.prefix,'purelib':sysconfig.get_path('purelib'),"
+        "'executable':sys.executable,'base_executable':sys._base_executable,"
+        "'version':list(sys.version_info[:3])}))"
+    )
+    result = run_command(
+        [str(lexical), "-I", "-S", "-c", code],
+        cwd=log_dir,
+        env=clean_child_env(),
+        log_stem=log_dir / "app-dependency-sysconfig",
+    )
+    info = json.loads(result.stdout)
+    prefix = lexical.parent.parent.resolve(strict=True)
+    site = Path(info["purelib"]).resolve(strict=True)
+    if (
+        info["version"][:2] != [3, 14]
+        or Path(info["prefix"]).resolve(strict=True) != prefix
+        or Path(info["executable"]) != lexical
+        or site != expected_site.resolve(strict=True)
+        or not site.is_relative_to(prefix)
+    ):
+        raise WaveFailure("dependency site is not the measured app sysconfig purelib")
+    inputs = []
+    for path in [prefix / "pyvenv.cfg", *sorted(site.glob("*.pth"))]:
+        canonical, raw = _read_regular_without_symlink_components(path, "app profile input")
+        inputs.append(
+            {
+                "path": str(canonical),
+                "bytes": len(raw),
+                "sha256": sha256_bytes(raw),
+                "hex": raw.hex(),
+            }
+        )
+    return {
+        "schema": "policyos.q2.app_dependency_profile.v1",
+        "python": str(lexical),
+        "prefix": str(prefix),
+        "purelib": str(site),
+        "sysconfig": info,
+        "inputs": inputs,
+        "pth_processing": "never; append exact measured directory only",
+    }
+
+
+def dependency_profile_guard(profile: dict[str, Any] | None) -> str:
+    """Generate the same exact measured-site predicate for both actual children."""
+    return (
+        "import hashlib as _q2_hashlib\n"
+        "_q2_dependency_profile = " + repr(profile) + "\n"
+        "def _q2_dependency_site_allowed(value):\n"
+        "    profile = _q2_dependency_profile\n"
+        "    if profile is None:\n        return False\n"
+        "    if profile.get('schema') != 'policyos.q2.app_dependency_profile.v1':\n"
+        "        raise RuntimeError('unbound dependency profile')\n"
+        "    site = Path(profile['purelib']).resolve(strict=True)\n"
+        "    prefix = Path(profile['prefix']).resolve(strict=True)\n"
+        "    if not site.is_relative_to(prefix):\n"
+        "        raise RuntimeError('dependency site escapes measured app prefix')\n"
+        "    declared = {row['path'] for row in profile['inputs']}\n"
+        "    actual = {str(prefix / 'pyvenv.cfg')} | {str(p) for p in site.glob('*.pth')}\n"
+        "    if declared != actual:\n        raise RuntimeError('app profile input set changed')\n"
+        "    for row in profile['inputs']:\n"
+        "        path = Path(row['path'])\n"
+        "        if path.is_symlink() or path.resolve(strict=True) != path:\n"
+        "            raise RuntimeError('app profile input path changed')\n"
+        "        raw = path.read_bytes()\n"
+        "        if len(raw) != row['bytes'] or _q2_hashl"
+        "ib.sha256(raw).hexdigest() != row['sha256']:\n"
+        "            raise RuntimeError('app profile input bytes changed')\n"
+        "    return Path(value).resolve() == site\n"
+    )
+
+
 def configure_installed_env(
     uv: str,
     base_python: Path,
@@ -1356,7 +1439,15 @@ def configure_installed_env(
     env: dict[str, str],
     log_dir: Path,
     origin_gate_source: bytes,
+    *,
+    app_python: Path | None = None,
 ) -> tuple[Path, Path]:
+    dependency_profile = (
+        measure_app_dependency_profile(app_python, app_dependency_site, log_dir)
+        if app_python is not None
+        else None
+    )
+    json_write(run_root / "app-dependency-profile.json", dependency_profile)
     venv = run_root / "installed-consumer-env"
     run_command(
         [uv, "venv", "--python", str(base_python), str(venv)],
@@ -1408,47 +1499,75 @@ def configure_installed_env(
     )
     (purelib / "sitecustomize.py").write_text(sitecustomize, encoding="utf-8")
     origin_plugin = (
-        "from __future__ import annotations\nimport json, os, sys, sysconfig\n"
-        "from pathlib import Path\nimport pytest\nimport "
-        "q2_installed_origin_gate\n\n_REPORTED_PURELIB = "
-        'Path(sysconfig.get_paths()["purelib"])\n_CANONICAL_PURELIB = '
-        "_REPORTED_PURELIB.resolve(strict=True)\n\ndef _under(path, root):\n    "
-        "try:\n        Path(path).resolve().relative_to(Path(root).resolve())\n "
-        "       return True\n    except (OSError, ValueError):\n        return "
-        "False\n\ndef pytest_collection_finish(session):\n    out = "
-        'Path(os.environ["E02_NODEIDS_REPORT"])\n    '
-        "out.write_text(json.dumps(sorted(item.nodeid for item in "
-        'session.items), indent=2) + "\\n")\n\ndef pytest_sessionfinish(session, '
-        "exitstatus):\n    purelib_reported = _REPORTED_PURELIB\n    purelib = "
-        "_CANONICAL_PURELIB\n    dependency_site = "
-        'Path(os.environ["E02_DEPENDENCY_SITE"]).resolve()\n    source = '
-        'Path(os.environ["E02_SOURCE_ROOT"]).resolve()\n    live_product = '
-        'Path(os.environ["E02_LIVE_PRODUCT_ROOT"]).resolve()\n    '
-        "forbidden_roots = [source, live_product]\n    forbidden_sys_path = [p "
-        "for p in sys.path if p and any(_under(p, root) for root in "
-        "forbidden_roots)]\n    origins, errors = "
-        "q2_installed_origin_gate.verify_loaded_module_origins(\n        "
-        'purelib_reported, sys.modules.copy()\n    )\n    if "polisyos" not in '
-        'origins:\n        errors.append({"module": "polisyos", "reason": '
-        '"installed package root was not imported"})\n    if '
-        'forbidden_sys_path:\n        errors.append({"sys_path": '
-        'forbidden_sys_path, "reason": "source or test path injected"})\n    '
-        "normalized_sys_path = [str(Path(path).resolve()) for path in "
-        "sys.path]\n    try:\n        installed_index = "
-        "normalized_sys_path.index(str(purelib))\n        dependency_index = "
-        "normalized_sys_path.index(str(dependency_site))\n        if "
-        "installed_index >= dependency_index:\n            "
-        'errors.append({"sys_path": normalized_sys_path, "reason": "installed '
-        'site does not precede dependency site"})\n    except ValueError:\n     '
-        '   errors.append({"sys_path": normalized_sys_path, "reason": '
-        '"installed/dependency site missing"})\n    report = {"verified": not '
-        'errors, "purelib_reported": str(purelib_reported), "purelib": '
-        'str(purelib), "sys_path": sys.path, "origins": origins, "errors": '
-        'errors}\n    Path(os.environ["E02_ORIGIN_REPORT"]).write_text(json.du'
-        'mps(report, indent=2, sort_keys=True) + "\\n")\n    if errors:\n        '
-        'print("Q2 installed-origin proof failed: " + json.dumps(errors, '
-        "sort_keys=True), file=sys.stderr)\n        session.exitstatus = "
-        "pytest.ExitCode.TESTS_FAILED\n"
+        "from __future__ import annotations\n"
+        + dependency_profile_guard(dependency_profile)
+        + (
+            "import json, os, sys, sysconfig\n"
+            "from pathlib import Path\n"
+            "import pytest\n"
+            "import q2_installed_origin_gate\n"
+            "\n"
+            '_REPORTED_PURELIB = Path(sysconfig.get_paths()["purelib"])\n'
+            "_CANONICAL_PURELIB = _REPORTED_PURELIB.resolve(strict=True)\n"
+            "\n"
+            "def _under(path, root):\n"
+            "    try:\n"
+            "        Path(path).resolve().relative_to(Path(root).resolve())\n"
+            "        return True\n"
+            "    except (OSError, ValueError):\n"
+            "        return False\n"
+            "\n"
+            "def pytest_collection_finish(session):\n"
+            '    out = Path(os.environ["E02_NODEIDS_REPORT"])\n'
+            "    out.write_text(json.dumps(sorted(item.nodeid"
+            ' for item in session.items), indent=2) + "\\n")\n'
+            "\n"
+            "def pytest_sessionfinish(session, exitstatus):\n"
+            "    purelib_reported = _REPORTED_PURELIB\n"
+            "    purelib = _CANONICAL_PURELIB\n"
+            '    dependency_site = Path(os.environ["E02_DEPENDENCY_SITE"]).resolve()\n'
+            '    source = Path(os.environ["E02_SOURCE_ROOT"]).resolve()\n'
+            '    live_product = Path(os.environ["E02_LIVE_PRODUCT_ROOT"]).resolve()\n'
+            "    forbidden_roots = [source, live_product]\n"
+            "    forbidden_sys_path = [p for p in sys.path if"
+            " p and not _q2_dependency_site_allowed(p) and an"
+            "y(_under(p, root) for root in forbidden_roots)]\n"
+            "    origins, errors = q2_installed_origin_gate.verify_loaded_module_origins(\n"
+            "        purelib_reported, sys.modules.copy()\n"
+            "    )\n"
+            '    if "polisyos" not in origins:\n'
+            '        errors.append({"module": "polisyos", "re'
+            'ason": "installed package root was not imported"'
+            "})\n"
+            "    if forbidden_sys_path:\n"
+            '        errors.append({"sys_path": forbidden_sys'
+            '_path, "reason": "source or test path injected"}'
+            ")\n"
+            "    normalized_sys_path = [str(Path(path).resolve()) for path in sys.path]\n"
+            "    try:\n"
+            "        installed_index = normalized_sys_path.index(str(purelib))\n"
+            "        dependency_index = normalized_sys_path.index(str(dependency_site))\n"
+            "        if installed_index >= dependency_index:\n"
+            '            errors.append({"sys_path": normalize'
+            'd_sys_path, "reason": "installed site does not p'
+            'recede dependency site"})\n'
+            "    except ValueError:\n"
+            '        errors.append({"sys_path": normalized_sy'
+            's_path, "reason": "installed/dependency site mis'
+            'sing"})\n'
+            '    report = {"verified": not errors, "purelib_r'
+            'eported": str(purelib_reported), "purelib": str('
+            'purelib), "sys_path": sys.path, "origins": origi'
+            'ns, "errors": errors}\n'
+            '    Path(os.environ["E02_ORIGIN_REPORT"]).write_'
+            "text(json.dumps(report, indent=2, sort_keys=True"
+            ') + "\\n")\n'
+            "    if errors:\n"
+            '        print("Q2 installed-origin proof failed:'
+            ' " + json.dumps(errors, sort_keys=True), file=sy'
+            "s.stderr)\n"
+            "        session.exitstatus = pytest.ExitCode.TESTS_FAILED\n"
+        )
     )
     (purelib / "q2_installed_origin_plugin.py").write_text(origin_plugin, encoding="utf-8")
     json_write(
@@ -1479,7 +1598,14 @@ def installed_runtime_proof(
     log_dir: Path,
     owner_inventory_path: Path,
     origin_gate_source: bytes,
+    *,
+    app_python: Path | None = None,
 ) -> dict[str, Any]:
+    dependency_profile = (
+        measure_app_dependency_profile(app_python, app_dependency_site, log_dir)
+        if app_python is not None
+        else None
+    )
     expected = {
         asset["wheel"]: {"bytes": asset["bytes"], "sha256": asset["sha256"]} for asset in assets
     }
@@ -1524,6 +1650,7 @@ def installed_runtime_proof(
             raise WaveFailure(f"importlib.resources bytes differ from source for {target}")
     code = (
         origin_gate_source.decode("utf-8")
+        + dependency_profile_guard(dependency_profile)
         + "\n"
         + (
             "import hashlib, importlib, importlib.metadata, json, os, sys, "
@@ -1537,7 +1664,8 @@ def installed_runtime_proof(
             "purelib.is_relative_to(prefix)\nassert sys.flags.isolated\nassert not "
             'os.environ.get("PYTHONPATH")\nassert not any(p and '
             "any(Path(p).resolve()==root or Path(p).resolve().is_relative_to(root"
-            ") for root in forbidden_roots) for p in sys.path)\n"
+            ") for root in forbidden_roots) for p in sys.path"
+            " if not _q2_dependency_site_allowed(p))\n"
             "normalized_sys_path=[Path(p).resolve() for p in sys.path]\nassert "
             "normalized_sys_path.index(purelib)<normalized_sys_path.index(depende"
             'ncy_site),sys.path\nassets=json.loads(Path(os.environ["E02_ASSET_EXPE'

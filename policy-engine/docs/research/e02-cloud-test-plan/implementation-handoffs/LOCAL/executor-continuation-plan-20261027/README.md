@@ -27,3 +27,12 @@ Detailed source investigations are in [source/proposals](analysis/source-proposa
 PolicyOS is the custodian of policy justification. Its capability chain is contract → producer → persisted artifact/event → bridge → consumer → verification → visible surface → semantic negative. LLM output remains candidate. Authority/status/time/provenance/profile/role identities are substantive. Reuse an existing owner first, extend it second, consolidate only a demonstrated duplicate, and build new only when the necessary owner is absent.
 
 Relevant existing failures are P01/P02 incomplete bridges; P05/P15 authority laundering; P07/P08 replay/time conflation; P29/P32/P33 marker proofs; P31/P40 instance repair; P35/P36 sampled or misattributed evidence; P37/P38 declared/proxy gates; P39 companion budget; P41 unmeasured inherited red. The target pattern is one canonical writer and a source-bound, adversarially tested producer-to-fresh-consumer chain. Queue records use registered incomplete-capability labels. Acceptance of this plan establishes routing and executable assignments, not completion of those capabilities.
+
+
+Latest append-only checkpoint: [R13 evidence index](evidence/local-execution-r13/README.md). The R12 snapshot remains historical; current source and new receipts are in R13.
+
+
+R13-R2 append-only evidence-completeness addendum: [R13 evidence index](evidence/local-execution-r13/README.md).
+
+
+Latest execution checkpoint proposal: [R13-R3 progress and evidence index](evidence/local-execution-r13/README.md). R3 corrects the time-bounded C93 status and evidence root; canonical application remains pending.

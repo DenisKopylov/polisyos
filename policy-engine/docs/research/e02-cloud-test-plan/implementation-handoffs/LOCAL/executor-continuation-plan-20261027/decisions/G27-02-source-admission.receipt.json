@@ -1,0 +1,38 @@
+{
+  "schema": "policyos.e02.g27_02_source_admission_decision_receipt.v1",
+  "decision_id": "G27-02",
+  "provenance": "G architecture answer forwarded by the user; original text preserved locally in RAW",
+  "original": {
+    "local_raw_path": "LOCAL/raw/e02-execution-20261027/decisions/G27-02-20261028-r1/original.txt",
+    "sha256": "06592ba45317dc2343a94da736672fc9f49b93a5772d840b49f2089411ac1d14",
+    "bytes": 19806,
+    "committed_or_published": false
+  },
+  "english_decision": {
+    "target": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/decisions/G27-02-source-admission.md",
+    "sha256": "59431b6b18e18f559659ab71a65c06f79fddb7b64ad2289eef5382c916c05a0f",
+    "bytes": 15706
+  },
+  "decision_source": {
+    "commit": "cb3e81aa6998cb6d0ecda91c68c9e1789d4f35b6",
+    "tree": "f848b376a36e272770baed965123327ca00f34fc"
+  },
+  "referenced_owner_choice": {
+    "local_raw_path": "LOCAL/raw/e02-execution-20261027/analysis/B13-currentness-192fc/OWNER-CHOICE.md",
+    "sha256": "3fb06aa715e8ccdb7c426d579aee829650568815d6262f84de1ace8c3fe9fa6d",
+    "bytes": 9347,
+    "source_cut": "192fc44303c63e52e4dfa8e0b4ee77790bae3394"
+  },
+  "terminal_finalization_source_correction": {
+    "commit": "d6ec80604dd044bafb649e11ca3360aaaeee674a",
+    "ancestor_of_decision_source": true,
+    "runtime_verification": "UNRUN"
+  },
+  "decision_scope": "Architecture selection for registered internal SQL materialization admission/withdrawal and a fenced current-use read; not external SQL currentness or scientific/legal admissibility",
+  "code_acceptance": false,
+  "closure_ids": [],
+  "runtime_verification": "UNRUN",
+  "historical_b13_and_b198": "unchanged",
+  "tests_run_for_this_record": [],
+  "delivery_status": "RAW sparse proposal; canonical commit and branch readback not yet performed"
+}

@@ -636,11 +636,11 @@ class ArtifactOwnershipIndex:
             self._validate_transaction_intent(document, artifact_id)
         except (OSError, UnicodeDecodeError, json.JSONDecodeError, ValueError, TypeError):
             raise ArtifactTransactionPendingError(artifact_id, surface="artifact") from None
-        return document
+        return cast("dict[str, Any]", document)
 
     def _validate_transaction_intent(
         self,
-        document: Any,
+        document: object,
         artifact_id: ArtifactID,
     ) -> None:
         if not isinstance(document, dict):
@@ -857,7 +857,7 @@ class ArtifactOwnershipIndex:
         if digest != document["request_sha256"]:
             raise ValueError("artifact_ownership_transaction_intent_digest_mismatch")
 
-    def _validate_transaction_stage_path(self, value: Any, operation_id: str) -> None:
+    def _validate_transaction_stage_path(self, value: object, operation_id: str) -> None:
         if value is None:
             return
         if not isinstance(value, str):
@@ -1121,6 +1121,7 @@ class ArtifactOwnershipIndex:
                 artifact_text = document.get("artifact_id") if isinstance(document, dict) else None
                 artifact_id = ArtifactID.model_validate(artifact_text)
                 self._validate_transaction_intent(document, artifact_id)
+                document = cast("dict[str, Any]", document)
                 if intent_path != self._transaction_intent_path(artifact_id):
                     return
                 operation_id = document["operation_id"]
@@ -1316,7 +1317,7 @@ class ArtifactOwnershipIndex:
             return True
         normalized_tenant = _normal_tenant_id(tenant_id)
         normalized_cell = _normal_cell_id(cell_id)
-        records = _blob_readers_mapping(self._load_payload()).get(str(aid), [])
+        records = self._claim_rows_for_query(aid, blob_readers=True)
         return any(
             _record_matches_owner(
                 record,
@@ -1561,11 +1562,30 @@ class ArtifactOwnershipIndex:
         )
 
     def owners_for(self, artifact_id: ArtifactID | str) -> list[dict[str, Any]]:
-        """Return ownership records for one artifact, newest index view first."""
+        """Return detached ownership records for one artifact, newest index view first."""
         aid = _coerce_artifact_id(artifact_id)
-        payload = self._load_payload()
-        records = _artifacts_mapping(payload).get(str(aid), [])
-        return [dict(record) for record in records]
+        return self._claim_rows_for_query(aid, blob_readers=False)
+
+    def _claim_rows_for_query(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        blob_readers: bool,
+    ) -> list[dict[str, Any]]:
+        """Read detached rows from a fully validated current owner generation."""
+        # Subclasses retain their existing _load_payload dispatch. The cached
+        # projection below is available only for this concrete index owner.
+        if type(self) is not ArtifactOwnershipIndex:
+            payload = self._load_payload()
+        else:
+            snapshot = self._load_snapshot_for_claim_query()
+            if isinstance(snapshot, _CachedOwnershipSnapshot):
+                field = "blob_readers" if blob_readers else "artifacts"
+                rows = snapshot.payload[field].get(str(artifact_id), ())
+                return [dict(record) for record in rows]
+            payload = snapshot.payload
+        mapping = _blob_readers_mapping(payload) if blob_readers else _artifacts_mapping(payload)
+        return [dict(record) for record in mapping.get(str(artifact_id), [])]
 
     def _transaction_claims_for(
         self,
@@ -1873,6 +1893,7 @@ class ArtifactOwnershipIndex:
                     reject_duplicate_keys=True,
                 )
                 self._parse_generation(generation)
+                generation = cast("dict[str, Any]", generation)
             except (
                 OSError,
                 UnicodeDecodeError,
@@ -1893,6 +1914,16 @@ class ArtifactOwnershipIndex:
         return self._load_snapshot().payload
 
     def _load_snapshot(self) -> _OwnershipSnapshot:
+        """Return a detached snapshot for callers that may mutate its payload."""
+        snapshot = self._load_snapshot_for_claim_query()
+        if isinstance(snapshot, _CachedOwnershipSnapshot):
+            return _detached_ownership_snapshot(snapshot)
+        return snapshot
+
+    def _load_snapshot_for_claim_query(
+        self,
+    ) -> _OwnershipSnapshot | _CachedOwnershipSnapshot:
+        """Read current owner bytes before returning a validated projection."""
         try:
             index_bytes = self.path.read_bytes()
         except FileNotFoundError:
@@ -2004,7 +2035,7 @@ class ArtifactOwnershipIndex:
             signature_sha256=_digest_payload(signature),
         )
 
-    def _load_generation_snapshot(self, pointer_bytes: bytes) -> _OwnershipSnapshot:
+    def _load_generation_snapshot(self, pointer_bytes: bytes) -> _CachedOwnershipSnapshot:
         try:
             pointer = _decode_json(pointer_bytes, reject_duplicate_keys=True)
         except (UnicodeDecodeError, json.JSONDecodeError, ValueError):
@@ -2031,7 +2062,7 @@ class ArtifactOwnershipIndex:
         cache_key = (str(self.root), pointer_sha256, generation_sha256)
         cached = self._snapshot_cache
         if cached is not None and cached.key == cache_key:
-            return _detached_ownership_snapshot(cached)
+            return cached
 
         try:
             generation = _decode_json(generation_bytes, reject_duplicate_keys=True)
@@ -2055,10 +2086,11 @@ class ArtifactOwnershipIndex:
             payload_sha256=snapshot.payload_sha256,
             signature_sha256=snapshot.signature_sha256,
         )
-        self._snapshot_cache = _cache_ownership_snapshot(cache_key, result)
-        return result
+        cached = _cache_ownership_snapshot(cache_key, result)
+        self._snapshot_cache = cached
+        return cached
 
-    def _parse_generation(self, generation: Any) -> _OwnershipSnapshot:
+    def _parse_generation(self, generation: object) -> _OwnershipSnapshot:
         expected_fields = {
             "schema_version",
             "mode",
@@ -2111,7 +2143,7 @@ class ArtifactOwnershipIndex:
             signature_sha256=_digest_payload(signature),
         )
 
-    def _validate_v2_payload(self, payload: Any) -> None:
+    def _validate_v2_payload(self, payload: object) -> None:
         required_fields = {"schema_version", "mode", "artifacts", "blob_readers"}
         if (
             not isinstance(payload, dict)
@@ -2156,7 +2188,7 @@ class ArtifactOwnershipIndex:
             return
         self._validate_v3_payload(payload)
 
-    def _validate_legacy_source(self, legacy_source: Any) -> _OwnershipSnapshot:
+    def _validate_legacy_source(self, legacy_source: object) -> _OwnershipSnapshot:
         fields = {
             "index_bytes_base64",
             "index_bytes_sha256",
@@ -2476,7 +2508,7 @@ def _copy_public_read_closure(closure: dict[str, Any]) -> dict[str, Any]:
 
 
 def _validated_claim_mapping(
-    raw: Any,
+    raw: object,
     *,
     allow_manifest_views: bool,
 ) -> dict[str, list[dict[str, Any]]]:
@@ -2534,7 +2566,7 @@ def _owner_label(tenant_id: object, cell_id: object | None = None) -> str:
     return f"{tenant}/{cell}" if cell else tenant
 
 
-def _digest_payload(payload: Any) -> str:
+def _digest_payload(payload: object) -> str:
     data = to_canonical_bytes(payload, CanonSpec(forbid_floats=False))
     return "sha256:" + hashlib.sha256(data).hexdigest()
 
@@ -2558,7 +2590,7 @@ def _file_sha256(path: Path) -> str | None:
         return None
 
 
-def _decode_json(data: bytes, *, reject_duplicate_keys: bool = False) -> Any:
+def _decode_json(data: bytes, *, reject_duplicate_keys: bool = False) -> object:
     text = data.decode("utf-8")
     if not reject_duplicate_keys:
         return json.loads(text)
@@ -2574,7 +2606,7 @@ def _decode_json(data: bytes, *, reject_duplicate_keys: bool = False) -> Any:
     return json.loads(text, object_pairs_hook=unique_object)
 
 
-def _load_json_file(path: Path) -> Any:
+def _load_json_file(path: Path) -> object:
     try:
         return _decode_json(path.read_bytes(), reject_duplicate_keys=True)
     except (FileNotFoundError, UnicodeDecodeError, json.JSONDecodeError):

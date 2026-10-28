@@ -95,6 +95,13 @@ local Python API and adds no HTTP endpoint.
   mapping profiles must include every canonical field; historical profileless reads
   retain their existing default-view behavior. This coupling describes encoder
   settings and does not establish producer authority.
+- filesystem ownership row lookups reread the current owner pointer and content-check
+  its referenced generation before using the private immutable projection. Core copies
+  only the requested artifact's claim rows; public row and mutable snapshot results
+  remain detached. Legacy, empty and unscoped indexes retain their existing paths.
+  Lineage writes still check each role and selected view in both the boundary pass and
+  the publication-lease pass. This local optimization does not establish external
+  authority or change timeout acknowledgement semantics.
 - manifests/refs: `ArtifactManifest`, `ArtifactRef`, `InputRef`, `SchemaInfo`
 - selected-view profile: `artifact_manifest_profile_projection` and
   `artifact_manifest_profile_sha256` delegate to the existing versioned CAS lifecycle

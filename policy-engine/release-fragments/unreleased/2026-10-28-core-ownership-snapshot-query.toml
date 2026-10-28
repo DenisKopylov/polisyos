@@ -1,0 +1,19 @@
+id = "2026-10-28-core-ownership-snapshot-query"
+title = "Reuse validated ownership snapshots for artifact queries"
+type = "changed"
+component = "core"
+owner = "team-polisyos"
+summary = "Core artifact ownership row lookups reuse validated immutable generation projections while checking the current owner bytes for each lookup."
+evidence = [
+  "src/polisyos/core/artifacts/ownership.py",
+  "src/polisyos/core/artifacts/README.md",
+  "tests/unit/core/artifacts/test_cas_owner_snapshot_query.py",
+  "tests/unit/core/artifacts/test_ownership_history.py",
+]
+compatibility = "Owner checks, selected manifest profiles, lineage roles, and public detached results retain their existing behavior; no artifact or index format changes."
+change_class = "internal"
+surface_classification = "internal: Core artifact ownership-index query implementation"
+migration = "No migration or reindexing is required."
+api = "Existing artifact ownership queries retain their public signatures."
+limitations = "This optimization does not establish external owner authority, guarantee a resource deadline, cancel a timed-out write, or prove whole-funnel completion."
+generated_client_compatibility = "not_applicable"

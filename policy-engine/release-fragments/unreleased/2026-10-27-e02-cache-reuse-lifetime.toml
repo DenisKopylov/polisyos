@@ -3,18 +3,18 @@ title = "Bind authorized cache reuse to exact shared-cache origins"
 type = "fixed"
 component = "runtime"
 owner = "team-polisyos"
-summary = "Keep provider hooks request-local while sharing one bounded cache owner and flight; verify exact response content and explicit wrapper registration, then retain separate zero-cost receiver events across authorized compatible runs."
-compatibility = "Existing ledger1.0–1.4 snapshots remain readable; new writes use1.5 with optional typed reuse admission. Same-run reuse retains its original contract. No HTTP request/response DTO change."
+summary = "Keep provider hooks request-local while sharing one bounded cache owner and flight; bind the whole normalized response projection to its physical origin. Admit every ordinary NL factory producer begin under the live job fence and scope lifetime, retain its intent independently in the Core trace, and reconcile fresh job costs against that reopened basis and exact terminal proposal. Keep private evidence off provider wire; freeze full caller values and exact transport before keying; refuse reuse when the successful endpoint or payload differs. The accounting-enabled provider preflight consumes the same prepared request and retains cache resources with fresh wrappers. Exact invocation binding uses lossless native Python values independently of cache/evidence normalization; opaque physical calls retain original Python values without acquiring reuse authority. Close admission independently of blocked monetary I/O and verify the actual returned/read-back begin owner before dispatch."
+compatibility = "Existing ledger1.0–1.4 snapshots remain readable; new writes use1.5 with optional typed reuse admission. Ledger monetary response digests retain text semantics. The additive Core producer guard/intent hooks do not change unscoped clients. Historical jobs lacking the new trace basis expose a limited monetary projection. Legacy unknown-scope queued NL LLM work now receives explicit nl_producer_ownership_not_established refusal with a scoped resubmission path. No HTTP request/response DTO change."
 change_class = "runtime-state-format"
 surface_classification = "public_stable: Core cache settlement and Scientist engine facade; additive registration/admission APIs."
-migration = "Upgrade ledger readers before enabling1.5 writers across processes. No source event is copied/reissued. Custom direct Core flight producers must bind the actual response digest and retention TTL before issuing a response proof."
-api = "The new cross-run bridge verifies a live Core session/response; a caller-created admission model cannot authorize a new ledger write. No-key and zero-size/TTL modes remain uncached."
-limitations = "Local accounting admission does not certify provider invoices or institutional permission. Runtime, HTTP, adversarial and removal verification for this proposal is unrun until root composition."
-evidence = ["src/polisyos/core/llm/cache_settlement.py", "src/polisyos/scientist/orchestration/engine/budget_ledger.py", "tests/unit/core/llm/test_cache_settlement.py", "tests/unit/core/llm/test_traced_client_settlement.py", "tests/unit/scientist/orchestration/llm/test_prompt_cache.py", "tests/integration/runtime/http/test_nl_pipeline_cache_reuse_authorization.py"]
+migration = "Upgrade ledger readers before enabling1.5 writers across processes. No source event is copied/reissued. Direct Core flight producers must use cache_response_digest over the allowed response projection and bind retention TTL. New proof sessions are in-process; legacy monetary snapshots remain readable. Runtime Core intent artifacts use the version2.0 actual-begin receipt schema and exact selected profile; an older proposed intent basis is not promoted to actual ownership."
+api = "The cross-run bridge verifies a live Core session/response; caller-created admission models cannot authorize ledger writes. No-key, zero-size/TTL, unknown external defaults and tool/strict-seed modes remain uncached. Closed or unavailable strict job admission refuses new work. Fresh job status joins the exact terminal proposal and typed Core attempt, reopens central producer intents, and compares their full event set/identity with the live ledger. Missing rows or source custody withhold monetary projection; dependency failures preserve typed retryable503/504."
+limitations = "Local accounting admission does not certify provider invoices or institutional permission. The independent basis covers actual scoped central producer begins, including cache reuse, rather than charges for internal transport retries or catalog requests. A cache publication race can perform physical work only under current job admission; no minimal-call guarantee is made for that race. Already-running blocking dependency threads cannot be killed by the existing guard and may retain bounded worker/dependency resources until return; factory, binding and trace close do not wait on those operations and late admissions cannot dispatch. Actual alternate-endpoint or negotiated-payload outcomes stay uncached. Runtime, HTTP, adversarial and removal verification remains unrun until root composition."
+evidence = ["src/polisyos/scientist/orchestration/llm/factory.py", "src/polisyos/runtime/http/services/control/job_nl_execution.py", "src/polisyos/core/llm/cache_settlement.py", "src/polisyos/scientist/orchestration/engine/budget_ledger.py", "tests/unit/core/llm/test_cache_settlement.py", "tests/unit/core/llm/test_traced_client_settlement.py", "tests/unit/scientist/orchestration/llm/test_prompt_cache.py", "tests/integration/runtime/http/test_nl_pipeline_cache_reuse_authorization.py"]
 generated_client_compatibility = "not_applicable"
 public_surface_inventory_reviewed = false
 migration_docs = ["src/polisyos/scientist/orchestration/engine/README.md"]
-runbook_docs = []
+runbook_docs = ["src/polisyos/scientist/orchestration/llm/README.md"]
 
 
 [[compatibility_change]]
@@ -25,7 +25,7 @@ surface = "public_stable: Core cache settlement and Scientist engine facade"
 owner = "team-polisyos"
 version_owner = "team-polisyos"
 deprecation_window = "not_applicable"
-release_note = "Add explicit exact-wrapper binding and a typed, verified local cross-run reuse admission; response proofs bind actual content."
+release_note = "Add explicit exact-wrapper binding and a typed, verified local cross-run reuse admission; response proofs bind the whole allowed response projection; the producer observer receives the actual durable begin receipt."
 generated_client_compatibility = "not_applicable"
 migration_docs = ["src/polisyos/core/llm/README.md"]
 runbook_docs = []
@@ -42,3 +42,68 @@ release_note = "Read complete1.0–1.4 snapshots; new1.5 writes freeze verified 
 generated_client_compatibility = "not_applicable"
 migration_docs = ["src/polisyos/scientist/orchestration/engine/README.md"]
 runbook_docs = ["src/polisyos/scientist/orchestration/engine/README.md"]
+
+[[compatibility_change]]
+id = "e02-cache-prepared-dispatch"
+change_class = "python-public-api"
+impact = "additive"
+surface = "Scientist gateway/fallback/cache prepared call boundary and Runtime private producer basis"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Detach complete native wire values before hashing/dispatch. Admit reuse only for the prepared successful request; failover/response-format fallback outcomes are physical-only. Verify actual durable begin ownership, close factory and binding lifetime independently of timed-out I/O, and refuse unowned legacy queued LLM work explicitly."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/runtime/http/services/README.md", "src/polisyos/scientist/orchestration/llm/README.md"]
+runbook_docs = ["src/polisyos/scientist/orchestration/llm/README.md"]
+
+[[compatibility_change]]
+id = "e02-actual-producer-begin-basis"
+change_class = "persisted-artifact-format"
+impact = "additive"
+surface = "Runtime private control-job LLM producer intent basis version2.0"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Retain the actual returned/read-back pending ledger receipt in a typed version2.0 artifact and attach its exact selected profile from the parent Core trace. Sources without a closed complete version2 basis expose limited monetary projections. No older source is copied or reattested as current ownership."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/runtime/http/services/README.md"]
+runbook_docs = ["src/polisyos/scientist/orchestration/llm/README.md"]
+
+[[compatibility_change]]
+id = "e02-unowned-queued-llm-refusal"
+change_class = "runtime-state-format"
+impact = "breaking"
+surface = "Ordinary queued NL physical LLM producer admission under legacy unknown scope"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "immediate_fail_closed_owner_admission"
+release_note = "Refuse queued NL physical LLM work when the authenticated tenant/cell producer owner is not established, with nl_producer_ownership_not_established and authenticated scoped resubmission. Preserve unknown candidate state without inventing ownership; do not silently recreate the former unowned physical route."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/runtime/http/services/README.md"]
+runbook_docs = ["src/polisyos/scientist/orchestration/llm/README.md"]
+
+[[compatibility_change]]
+id = "e02-preflight-prepared-cache-consumer"
+change_class = "python-public-api"
+impact = "additive"
+surface = "Scientist prompt_cache prepared request contract and provider preflight bridge"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Expose one immutable prepared ordinary cache request for digest and execution, bound once to one exact wrapper. Provider preflight delegates to the actual gateway preparation, retains the cache resource and origin rather than traced wrappers, and keys retention by the complete current request. Preserve real same-binding reuse, owner/origin ledger verification and cancellation-safe physical settlement. Live scoped clients keep their admission path; pre-bound ordinary plans cannot bypass it."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/scientist/orchestration/llm/README.md"]
+runbook_docs = ["src/polisyos/scientist/orchestration/llm/README.md", "src/polisyos/runtime/http/services/README.md"]
+
+[[compatibility_change]]
+id = "e02-lossless-prepared-call-values"
+change_class = "python-public-api"
+impact = "additive"
+surface = "Scientist prepared Python call values and exact ordinary cache-plan binding"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Separate exact invocation equality from cache/evidence normalization and actual Gateway JSON projection. Preserve native tuple/list/byte/scalar/dictionary distinctions; keep unfreezable or opaque Python inputs physical-only with original values and admission before dispatch. Refuse external pre-binding when immutable input identity is not established. Preserve actual preflight Gateway delegation, owner/origin readback and late physical close."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/scientist/orchestration/llm/README.md"]
+runbook_docs = ["src/polisyos/scientist/orchestration/llm/README.md"]

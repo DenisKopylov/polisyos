@@ -30,11 +30,14 @@ from polisyos.scientist.orchestration.llm.factory import (
     create_traced_gateway_client,
 )
 from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMResponse, GatewayUsage
+from polisyos.scientist.orchestration.llm.prepared_request import prepare_immutable_call
 from polisyos.scientist.orchestration.llm.prompt_cache import (
     CacheReuseDecision,
+    CacheReusePrincipal,
     CacheReuseRequest,
     CachingLLMClient,
     InMemoryPromptCache,
+    prepare_cached_request,
 )
 
 
@@ -133,6 +136,9 @@ class _PhysicalProvider:
         self.first_entered = asyncio.Event()
         self.second_entered = asyncio.Event()
         self.release = asyncio.Event()
+
+    def prepare_cache_request(self, *args, **kwargs):
+        return prepare_immutable_call(self.generate, args, kwargs, reusable=True)
 
     async def generate(self, **kwargs: Any) -> GatewayLLMResponse:
         self.calls += 1
@@ -330,3 +336,70 @@ async def test_factory_without_snapshot_authorizer_preserves_ordinary_provider_r
             assert result.content.startswith("physical-")
     assert provider.calls == len(provider.effects()) == 2
     assert len(events) == 2 and all(event["provider_call"] for event in events)
+
+
+@pytest.mark.asyncio
+async def test_prebound_snapshot_compares_raw_invocation_before_current_owner_authorization(
+    tmp_path: Path,
+) -> None:
+    owner = _LocalOwner(tmp_path / "cas")
+    provider = _PhysicalProvider(tmp_path / "provider.jsonl")
+    provider.release.set()
+    cache = InMemoryPromptCache()
+    principal = CacheReusePrincipal(
+        actor_id="spiffe://fixture/cache-owner", tenant="tenant-a", scope="scope-a"
+    )
+
+    def bound(values: dict[str, Any]) -> Any:
+        plan = prepare_cached_request(provider, model="fixture", kwargs=values)
+        return CachingLLMClient(
+            provider,
+            cache=cache,
+            model="fixture",
+            prepared_request=plan,
+            reuse_authorizer=owner,
+            reuse_principal=principal,
+        )
+
+    with _principal():
+        valid = {
+            "user": "Use https://fixture.invalid/report with uncertainty_notes",
+            "temperature": 0.0,
+            "metadata": owner.snapshot("tenant-a", "v1"),
+        }
+        first = await bound(valid).generate(**valid)
+        assert provider.calls == 1 and len(owner.decisions) == 1
+        assert owner.decisions[0].evidence[0].content == owner.snapshots[("tenant-a", "v1")][2]
+
+        second = bound(valid)
+        invalid = {**valid, "metadata": owner.snapshot("tenant-a", "v1")}
+        invalid["metadata"]["cache_reuse"]["snapshot"]["content"] = b"changed raw evidence"
+        # The declared digest and every adjacent permission/provenance value stay A.
+        assert (
+            invalid["metadata"]["cache_reuse"]["snapshot"]["content_hash"]
+            == (valid["metadata"]["cache_reuse"]["snapshot"]["content_hash"])
+        )
+        with pytest.raises(ValueError, match="call_mismatch"):
+            await second.generate(**invalid)
+        assert provider.calls == 1 and len(owner.decisions) == 1
+        hit = await second.generate(**valid)
+        assert first.content == hit.content and hit.raw["_polisyos_cache"]["status"] == "hit"
+        assert provider.calls == 1 and len(owner.decisions) == 2
+
+        reverse = bound(invalid)
+        with pytest.raises(ValueError, match="call_mismatch"):
+            await reverse.generate(**valid)
+        assert provider.calls == 1 and len(owner.decisions) == 2
+        invalid_result = await reverse.generate(**invalid)
+        assert invalid_result.content == "physical-2"
+        assert provider.calls == 2 and len(owner.decisions) == 2
+
+        changed_hash = {**valid, "metadata": owner.snapshot("tenant-a", "v1")}
+        changed_hash["metadata"]["cache_reuse"]["snapshot"]["content"] = b"changed raw evidence"
+        changed_hash["metadata"]["cache_reuse"]["snapshot"]["content_hash"] = (
+            "sha256:" + hashlib.sha256(b"changed raw evidence").hexdigest()
+        )
+        with pytest.raises(ValueError, match="call_mismatch"):
+            await bound(valid).generate(**changed_hash)
+        assert provider.calls == 2 and len(owner.decisions) == 2
+        assert len(provider.effects()) == 2

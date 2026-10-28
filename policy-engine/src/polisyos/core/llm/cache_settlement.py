@@ -6,9 +6,11 @@ import hashlib
 import threading
 import weakref
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, fields, is_dataclass
 from functools import wraps
 from typing import Literal, NoReturn
+
+from polisyos.common.serialization import stable_json_dumps
 
 from .settlement import (
     _CacheFlightOutcome,
@@ -100,6 +102,7 @@ class CacheReuseEvidence:
     origin_event_id: str
     response_digest: str
     scope_key: tuple[str, ...]
+    projection_digest: str | None = None
 
 
 class CacheSettlementSession(_OpaqueValue):
@@ -255,8 +258,11 @@ class CacheSettlementSession(_OpaqueValue):
             request_digest=provenance.request_digest,
             reuse_event_id=provenance.reuse_event_id,
             origin_event_id=provenance.origin_event_id,
-            response_digest=provenance.response_digest,
+            response_digest=hashlib.sha256(
+                getattr(response, "content", "").encode("utf-8")
+            ).hexdigest(),
             scope_key=provenance.scope_key,
+            projection_digest=provenance.response_digest,
         )
 
     @_locked_cache_operation
@@ -280,11 +286,35 @@ class CacheSettlementSession(_OpaqueValue):
             _owner_or_raise(self).forget_cached_key(cache_key)
 
 
-def _response_digest(response: object) -> str:
+def cache_response_projection_bytes(response: object) -> bytes:
+    """Freeze every public dataclass response field admitted to a cache consumer.
+
+    The producer settlement acknowledgment has its separate ledger owner. The
+    private cache marker is generated locally and is not provider evidence.
+    """
+    if isinstance(response, type) or not is_dataclass(response):
+        raise ValueError("cache response must be a declared dataclass projection")
     content = getattr(response, "content", None)
     if type(content) is not str:
         raise ValueError("cache response content must be text")
-    return hashlib.sha256(content.encode("utf-8")).hexdigest()
+    projection = {
+        item.name: getattr(response, item.name)
+        for item in fields(response)
+        if not item.name.startswith("_") and item.name != "producer_settlement"
+    }
+    raw = projection.get("raw")
+    if isinstance(raw, dict):
+        projection["raw"] = {key: value for key, value in raw.items() if key != "_polisyos_cache"}
+    return stable_json_dumps(projection, ensure_ascii=True, sort_keys=True).encode("utf-8")
+
+
+def cache_response_digest(response: object) -> str:
+    """Bind the whole allowed response projection to its physical Core origin."""
+    return hashlib.sha256(cache_response_projection_bytes(response)).hexdigest()
+
+
+def _response_digest(response: object) -> str:
+    return cache_response_digest(response)
 
 
 def bind_cache_settlement_client(

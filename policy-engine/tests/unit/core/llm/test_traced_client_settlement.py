@@ -22,6 +22,7 @@ from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetSt
 from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
 from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMResponse, GatewayUsage
+from polisyos.scientist.orchestration.llm.prepared_request import prepare_immutable_call
 from polisyos.scientist.orchestration.llm.prompt_cache import (
     CachingLLMClient,
     InMemoryPromptCache,
@@ -107,6 +108,9 @@ class _Provider:
         self.release = asyncio.Event()
         if not blocked:
             self.release.set()
+
+    def prepare_cache_request(self, *args, **kwargs):
+        return prepare_immutable_call(self.generate, args, kwargs, reusable=True)
 
     async def generate(self, *_args: object, **_kwargs: object) -> GatewayLLMResponse:
         self.calls += 1
@@ -1543,6 +1547,8 @@ async def test_authorized_shared_cache_reuse_survives_distinct_run_bindings(
             reuse_principal=CacheReusePrincipal("actor-a", "tenant-a", "tenant-a/cell-a"),
             reuse_context=context,
             require_reuse_authorization=True,
+            # This test isolates settlement mechanics; served tests use the real lease guard.
+            reuse_guard=lambda operation: operation(),
         )
         traced = TracedLLMClient(
             cached,

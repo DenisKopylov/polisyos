@@ -38,6 +38,7 @@ from polisyos.runtime.http.services.control_registry_providers import (
     ControlRegistryProviders,
 )
 from polisyos.runtime.quality.substrate_registry import CatalogServingSourceSelection
+from polisyos.scientist.orchestration.llm.prepared_request import prepare_immutable_call
 from polisyos.scientist.orchestration.llm.prompt_cache import (
     CachingLLMClient,
     InMemoryPromptCache,
@@ -309,6 +310,9 @@ class _MonetarySimulatedProvider:
         self.release = asyncio.Event()
         self._block_next = True
 
+    def prepare_cache_request(self, *args, **kwargs):
+        return prepare_immutable_call(self.generate, args, kwargs, reusable=True)
+
     async def generate(self, **kwargs: Any) -> Any:
         call_number = self.calls
         self.calls += 1
@@ -340,6 +344,8 @@ class _CancelCacheOwnerOnce(TracedLLMClient):
         self._used = False
 
     async def generate(self, *args: Any, **kwargs: Any) -> Any:
+        # The synthetic monetary provider is configured for explicit deterministic requests.
+        kwargs.setdefault("temperature", 0.0)
         metadata = kwargs.get("metadata")
         if (
             self._used

@@ -82,9 +82,65 @@ if TYPE_CHECKING:
         IterationLifecycleState,
         StopReason,
     )
+    from polisyos.scientist.orchestration.engine import BudgetLedgerProducerRecord
 
     from .run_index import IndexedRunRecord
     from .timeline import TimelineService
+
+
+def _producer_record_cost_event(record: BudgetLedgerProducerRecord) -> AgentPipelineCostEvent:
+    """Project one canonical producer ledger row without inferring absent money."""
+    return AgentPipelineCostEvent(
+        event_id=record.event_id,
+        origin_event_id=record.origin_event_id,
+        cost_origin=record.cost_origin,
+        amount=record.amount,
+        settlement_status=record.status,
+        durability="ledger",
+        receipts=(record.event_id,) if record.status == "committed" else (),
+        payload_digest=record.payload_digest,
+        model=record.model,
+        provider=record.provider,
+        control_job_attempt=record.control_job_attempt,
+        pre_admission_attempt_id=record.pre_admission_attempt_id,
+    )
+
+
+def _reconcile_producer_cost_event(
+    event: AgentPipelineCostEvent,
+    canonical_event: AgentPipelineCostEvent | None,
+    *,
+    owner_attempt: int | None,
+    owner_not_established: bool = False,
+) -> tuple[AgentPipelineCostEvent | None, bool]:
+    """Join an observed event to the exact durable payload and owning attempt."""
+    if event.durability != "ledger" and canonical_event is None:
+        return event, False
+    if canonical_event is None:
+        if event.durability == "ledger" and owner_not_established:
+            return None, False
+        raise ValueError("agent_pipeline_cost_event_ledger_reconciliation_failed")
+    if (
+        event.control_job_attempt is not None
+        and event.control_job_attempt != canonical_event.control_job_attempt
+    ) or (
+        event.pre_admission_attempt_id is not None
+        and event.pre_admission_attempt_id != canonical_event.pre_admission_attempt_id
+    ):
+        raise ValueError("agent_pipeline_cost_event_attempt_attribution_conflict")
+    normalized_event = event.model_copy(
+        update={
+            "control_job_attempt": canonical_event.control_job_attempt,
+            "pre_admission_attempt_id": canonical_event.pre_admission_attempt_id,
+        }
+    )
+    if normalized_event != canonical_event:
+        raise ValueError("agent_pipeline_cost_event_ledger_reconciliation_failed")
+    if canonical_event.control_job_attempt is None:
+        return None, False
+    if owner_attempt is None or canonical_event.control_job_attempt != owner_attempt:
+        return None, True
+    return canonical_event, False
 
 
 class _ReadOnlyControlJobStore(Protocol):
@@ -837,39 +893,15 @@ class DebugService:
         for step in steps:
             reconciled_events: list[AgentPipelineCostEvent] = []
             for event in step.cost_events:
-                canonical_event = ledger_events_by_id.get(event.event_id)
-                if event.durability != "ledger" and canonical_event is None:
-                    reconciled_events.append(event)
-                    continue
-                if canonical_event is None:
-                    if event.durability == "ledger" and producer_owner_not_established:
-                        # Raw state is not an owner witness. Without the persisted
-                        # lease-attempt selector, omit ledger claims rather than
-                        # surfacing a contradictory or unverified monetary event.
-                        continue
-                    raise ValueError("agent_pipeline_cost_event_ledger_reconciliation_failed")
-                if (
-                    event.control_job_attempt is not None
-                    and event.control_job_attempt != canonical_event.control_job_attempt
-                ) or (
-                    event.pre_admission_attempt_id is not None
-                    and event.pre_admission_attempt_id != canonical_event.pre_admission_attempt_id
-                ):
-                    raise ValueError("agent_pipeline_cost_event_attempt_attribution_conflict")
-                normalized_event = event.model_copy(
-                    update={
-                        "control_job_attempt": canonical_event.control_job_attempt,
-                        "pre_admission_attempt_id": canonical_event.pre_admission_attempt_id,
-                    }
+                reconciled, excluded_attempt = _reconcile_producer_cost_event(
+                    event,
+                    ledger_events_by_id.get(event.event_id),
+                    owner_attempt=owner_attempt,
+                    owner_not_established=producer_owner_not_established,
                 )
-                if normalized_event != canonical_event:
-                    raise ValueError("agent_pipeline_cost_event_ledger_reconciliation_failed")
-                if canonical_event.control_job_attempt is None:
-                    continue
-                if owner_attempt is None or canonical_event.control_job_attempt != owner_attempt:
-                    other_attempt_events_excluded = True
-                    continue
-                reconciled_events.append(canonical_event)
+                other_attempt_events_excluded |= excluded_attempt
+                if reconciled is not None:
+                    reconciled_events.append(reconciled)
             step_values = step.model_dump()
             step_values.update(
                 {
@@ -1068,23 +1100,7 @@ class DebugService:
         if binding is None or attempt is None:
             return [], [], {}, None, [binding_note] if binding_note is not None else []
         records = settlement_store.list_producer_events_for_run_safe(binding)
-        events_by_id = {
-            record.event_id: AgentPipelineCostEvent(
-                event_id=record.event_id,
-                origin_event_id=record.origin_event_id,
-                cost_origin=record.cost_origin,
-                amount=record.amount,
-                settlement_status=record.status,
-                durability="ledger",
-                receipts=(record.event_id,) if record.status == "committed" else (),
-                payload_digest=record.payload_digest,
-                model=record.model,
-                provider=record.provider,
-                control_job_attempt=record.control_job_attempt,
-                pre_admission_attempt_id=record.pre_admission_attempt_id,
-            )
-            for record in records
-        }
+        events_by_id = {record.event_id: _producer_record_cost_event(record) for record in records}
         current_events = [
             event
             for event in events_by_id.values()

@@ -178,6 +178,15 @@ def test_actual_nl_post_gateway_settlement_reopens_and_serves_same_run(
     monkeypatch.setattr(
         BudgetMiddleware, "settle_producer_event_safe", _lose_one_ack_after_durable_write
     )
+    actual_prepare = provider_module.prepare_cached_request
+    prepared_calls: list[Any] = []
+
+    def capture_prepared(*args: Any, **kwargs: Any) -> Any:
+        request = actual_prepare(*args, **kwargs)
+        prepared_calls.append(request)
+        return request
+
+    monkeypatch.setattr(provider_module, "prepare_cached_request", capture_prepared)
     actual_preflight = run_lifecycle.run_provider_preflight
     reports: list[Any] = []
     preflight_calls: list[dict[str, Any]] = []
@@ -188,7 +197,12 @@ def test_actual_nl_post_gateway_settlement_reopens_and_serves_same_run(
         # The first call is the ordinary POST path. The second is a same-binding
         # retry witness: the real producer/cache must append a distinct reuse event.
         preflight_calls.append(dict(kwargs))
+        before = len(prepared_calls)
         first = await actual_preflight(**kwargs)
+        assert len(prepared_calls) == before + 1
+        first_plan = prepared_calls[-1]
+        first_event = next(check for check in first.checks if check.name == "tiny_completion")
+        assert first_event.details["producer_event"]["request_digest"] == first_plan.request_digest
         reports.append(first)
         if preenqueue_failure == "cancelled":
             preenqueue_hook_entered.append("after_provider_settlement_before_enqueue")
@@ -205,6 +219,10 @@ def test_actual_nl_post_gateway_settlement_reopens_and_serves_same_run(
                 preenqueue_exception_types.append(type(exc).__name__)
                 raise
         retry = await actual_preflight(**kwargs)
+        assert prepared_calls[-1] is not first_plan
+        assert prepared_calls[-1].request_digest == first_plan.request_digest
+        retry_event = next(check for check in retry.checks if check.name == "tiny_completion")
+        assert retry_event.details["producer_event"]["request_digest"] == first_plan.request_digest
         reports.append(retry)
         return first
 

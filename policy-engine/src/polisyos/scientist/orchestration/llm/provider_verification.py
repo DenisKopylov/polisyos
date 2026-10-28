@@ -7,6 +7,7 @@ import hashlib
 import json
 import os
 import re
+import threading
 import time
 from collections.abc import Mapping
 from contextlib import nullcontext
@@ -29,9 +30,16 @@ from polisyos.scientist.orchestration.engine.budget_ledger import (
 )
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMClient
+from polisyos.scientist.orchestration.llm.prepared_request import (
+    PreparedLLMRequest,
+    PreparedLLMResult,
+    prepare_provider_call,
+)
 from polisyos.scientist.orchestration.llm.prompt_cache import (
     CachingLLMClient,
     InMemoryPromptCache,
+    PreparedCacheRequest,
+    prepare_cached_request,
 )
 
 logger = get_logger(__name__)
@@ -521,9 +529,11 @@ def _preflight_producer_event_reference(
 _PREFLIGHT_CACHE: dict[
     tuple[str, tuple[str, ...], str, str | None], tuple[float, ProviderPreflightReport]
 ] = {}
+type _PreflightCompletionCacheKey = tuple[str, tuple[str, ...], str, str | None, str]
+
 _PREFLIGHT_COMPLETION_CACHE: dict[
-    tuple[str, tuple[str, ...], str, str | None],
-    tuple[CachingLLMClient, dict[str, Any]],
+    _PreflightCompletionCacheKey,
+    tuple[InMemoryPromptCache, dict[str, Any]],
 ] = {}
 
 
@@ -554,7 +564,7 @@ def _preflight_prompt_cache_settings(ttl_s: int) -> tuple[int, float] | None:
 
 
 class _PreflightGatewayClientAdapter:
-    """Create and close the existing gateway client only when a prompt-cache miss occurs."""
+    """Own one real prepared gateway dispatch and close it after physical settlement."""
 
     def __init__(
         self,
@@ -566,66 +576,89 @@ class _PreflightGatewayClientAdapter:
         provider: str,
         timeout_s: float,
     ) -> None:
-        self._client_factory = client_factory
-        self._base_url = base_url
-        self._api_key = api_key
-        self.model = model
-        self.provider = provider
-        self.timeout_s = timeout_s
+        self.model, self.provider, self.timeout_s = model, provider, timeout_s
+        self._client = client_factory(
+            base_url=base_url,
+            api_key=api_key,
+            model=model,
+            provider_hint=provider,
+            max_retries=0,
+            timeout_s=timeout_s,
+        )
+        self._lock = threading.Lock()
+        self._prepared = False
+        self._running = False
+        self._closed = False
+        self._client_closed = False
+
+    def prepare_cache_request(self, *args: Any, **kwargs: Any) -> PreparedLLMRequest:
+        """Delegate identity and actual send to this invocation's real provider owner."""
+        with self._lock:
+            if self._closed or self._prepared:
+                raise ValueError("preflight_gateway_request_already_prepared_or_closed")
+            self._prepared = True
+        actual, _caller = prepare_provider_call(self._client, args, kwargs)
+
+        async def execute() -> PreparedLLMResult:
+            with self._lock:
+                if self._closed or self._running:
+                    raise ValueError("preflight_gateway_request_closed_or_running")
+                self._running = True
+            try:
+                return await actual.execute()
+            finally:
+                with self._lock:
+                    self._running = False
+                await self.aclose()
+
+        return PreparedLLMRequest(actual.identity, execute, actual.reusable)
 
     async def generate(self, *args: Any, **kwargs: Any) -> Any:
-        client = self._client_factory(
-            base_url=self._base_url,
-            api_key=self._api_key,
-            model=self.model,
-            provider_hint=self.provider,
-            max_retries=0,
-            timeout_s=self.timeout_s,
-        )
-        try:
-            return await client.generate(*args, **kwargs)
-        finally:
-            await client.aclose()
+        return (await self.prepare_cache_request(*args, **kwargs).execute()).response
+
+    async def aclose(self) -> None:
+        """Disable new work, deferring close while an admitted physical call settles."""
+        with self._lock:
+            self._closed = True
+            close_now = not self._running and not self._client_closed
+            if close_now:
+                self._client_closed = True
+        if close_now:
+            await self._client.aclose()
 
 
 def _new_preflight_cached_client(
     *,
-    client_factory: Any,
-    base_url: str,
-    api_key: str,
-    model: str,
-    provider: str,
-    timeout_s: float,
+    adapter: _PreflightGatewayClientAdapter,
+    prepared: PreparedCacheRequest,
     cache_settings: tuple[int, float],
+    cache: InMemoryPromptCache | None = None,
 ) -> CachingLLMClient:
     maxsize, cache_ttl = cache_settings
-    adapter = _PreflightGatewayClientAdapter(
-        client_factory=client_factory,
-        base_url=base_url,
-        api_key=api_key,
-        model=model,
-        provider=provider,
-        timeout_s=timeout_s,
-    )
     return CachingLLMClient(
         adapter,
-        cache=InMemoryPromptCache(maxsize=maxsize, default_ttl_s=cache_ttl),
-        model=model,
+        cache=cache
+        if cache is not None
+        else InMemoryPromptCache(maxsize=maxsize, default_ttl_s=cache_ttl),
+        model=prepared.model,
+        provider_route=prepared.provider_route,
         ttl_s=cache_ttl,
-        inflight_timeout_s=timeout_s,
+        inflight_timeout_s=adapter.timeout_s,
+        origin_retention_limit=maxsize,
+        prepared_request=prepared,
     )
 
 
 def _store_preflight_cached_client(
-    cache_key: tuple[str, tuple[str, ...], str, str | None],
-    client: CachingLLMClient,
+    cache_key: _PreflightCompletionCacheKey,
+    cache: InMemoryPromptCache,
     producer_event_reference: dict[str, Any],
     *,
     max_entries: int,
 ) -> None:
     _PREFLIGHT_COMPLETION_CACHE.pop(cache_key, None)
     _PREFLIGHT_COMPLETION_CACHE[cache_key] = (
-        client,
+        cache,
         json.loads(json.dumps(producer_event_reference)),
     )
     while len(_PREFLIGHT_COMPLETION_CACHE) > max_entries:
@@ -1140,23 +1173,40 @@ async def run_provider_preflight(
         if accounting_enabled and client_factory is GatewayLLMClient
         else None
     )
-    completion_cache_key = cache_key if completion_cache_settings is not None else None
+    completion_cache_key: _PreflightCompletionCacheKey | None = None
     completion_cache_client: CachingLLMClient | None = None
+    completion_cache_resource: InMemoryPromptCache | None = None
     prior_completion_reference: dict[str, Any] | None = None
     completion_request_kwargs = _preflight_completion_request_kwargs()
     expected_completion_request_digest: str | None = None
-    if completion_cache_key is not None:
+    if completion_cache_settings is not None:
+        adapter = _PreflightGatewayClientAdapter(
+            client_factory=client_factory,
+            base_url=resolved_base_url,
+            api_key=resolved_api_key,
+            model=requested_models[0],
+            provider=resolved_provider,
+            timeout_s=timeout_s,
+        )
+        prepared = prepare_cached_request(
+            adapter,
+            model=requested_models[0],
+            provider_route=resolved_provider,
+            kwargs=completion_request_kwargs,
+        )
+        expected_completion_request_digest = prepared.request_digest
+        _, completion_request_kwargs = prepared.call_values()
+        # Current transport/body identity is part of lookup, not reconstructed
+        # from a retained wrapper or a report's declaration after dispatch.
+        completion_cache_key = (*cache_key, expected_completion_request_digest)
         completion_entry = _PREFLIGHT_COMPLETION_CACHE.get(completion_cache_key)
         if completion_entry is not None:
             try:
-                completion_cache_client, prior_completion_reference = completion_entry
-                if type(completion_cache_client) is not CachingLLMClient or not isinstance(
+                completion_cache_resource, prior_completion_reference = completion_entry
+                if type(completion_cache_resource) is not InMemoryPromptCache or not isinstance(
                     prior_completion_reference, Mapping
                 ):
-                    raise TypeError("cached producer event reference is malformed")
-                expected_completion_request_digest = completion_cache_client._request_digest(
-                    (), completion_request_kwargs
-                )
+                    raise TypeError("cached producer resource/reference is malformed")
                 current_reference = _preflight_event_reference_is_current(
                     prior_completion_reference,
                     producer_settlement_store=producer_settlement_store,
@@ -1171,6 +1221,7 @@ async def run_provider_preflight(
             except Exception:
                 current_reference = False
             if not current_reference:
+                await adapter.aclose()
                 return _preflight_unknown_report(
                     provider=resolved_provider,
                     base_url=resolved_base_url,
@@ -1183,19 +1234,16 @@ async def run_provider_preflight(
                         "matches the exact durable run, request, provider, and profile scope."
                     ),
                 )
-        else:
-            completion_cache_client = _new_preflight_cached_client(
-                client_factory=client_factory,
-                base_url=resolved_base_url,
-                api_key=resolved_api_key,
-                model=requested_models[0],
-                provider=resolved_provider,
-                timeout_s=timeout_s,
-                cache_settings=completion_cache_settings,
+        if completion_cache_resource is None:
+            completion_cache_resource = InMemoryPromptCache(
+                maxsize=completion_cache_settings[0], default_ttl_s=completion_cache_settings[1]
             )
-            expected_completion_request_digest = completion_cache_client._request_digest(
-                (), completion_request_kwargs
-            )
+        completion_cache_client = _new_preflight_cached_client(
+            adapter=adapter,
+            prepared=prepared,
+            cache_settings=completion_cache_settings,
+            cache=completion_cache_resource,
+        )
 
     fetch = fetch_json or _default_fetch_json
     root_url = _provider_root_url(resolved_base_url)
@@ -1261,6 +1309,8 @@ async def run_provider_preflight(
                 model=requested_models[0] if requested_models else None,
                 retryable=retryable,
             )
+        if completion_cache_client is not None:
+            await completion_cache_client.aclose()
         return ProviderPreflightReport(
             status="failed",
             provider=resolved_provider,
@@ -1299,6 +1349,8 @@ async def run_provider_preflight(
                 error=f"missing models: {', '.join(missing_models)}",
             )
         )
+        if completion_cache_client is not None:
+            await completion_cache_client.aclose()
         return ProviderPreflightReport(
             status="failed",
             provider=resolved_provider,
@@ -1524,10 +1576,10 @@ async def run_provider_preflight(
         api_key_fingerprint=api_key_fingerprint,
     )
     if accounting_enabled:
-        if completion_cache_key is not None and completion_cache_client is not None:
+        if completion_cache_key is not None and completion_cache_resource is not None:
             _store_preflight_cached_client(
                 completion_cache_key,
-                completion_cache_client,
+                completion_cache_resource,
                 producer_event_reference,
                 max_entries=completion_cache_settings[0],
             )

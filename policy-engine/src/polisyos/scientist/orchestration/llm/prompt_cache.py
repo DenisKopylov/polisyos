@@ -6,27 +6,39 @@ import asyncio
 import hashlib
 import inspect
 import json
+import math
 import threading
 import time
 import uuid
 import weakref
 from collections import OrderedDict
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from concurrent.futures import Future
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 
 from polisyos.common.logger import get_logger
 from polisyos.common.serialization import stable_json_dumps, to_python_data
+from polisyos.core.llm import LLMSettlementOwnershipError
 from polisyos.core.llm.cache_settlement import (
     CacheFlightOutcome,
     CacheFlightRegistration,
     CacheSettlementSession,
     bind_cache_settlement_client,
+    cache_response_digest,
+    cache_response_projection_bytes,
     session_for_cache_client,
 )
 
 from .gateway_client import GatewayLLMResponse, GatewayToolCall, GatewayUsage
+from .prepared_request import (
+    PreparedCallValues,
+    PreparedLLMRequest,
+    PreparedLLMResult,
+    prepare_call_values,
+    prepare_provider_call,
+    thaw_wire_object,
+)
 
 try:
     import orjson
@@ -61,27 +73,8 @@ _VOLATILE_CACHE_METADATA_SUFFIXES = (
 
 
 @dataclass(frozen=True, slots=True)
-class _SerializedGatewayToolCall:
-    id: str
-    name: str
-    arguments_json: bytes
-    error_envelope_json: bytes | None = None
-
-
-@dataclass(frozen=True, slots=True)
 class _SerializedGatewayResponse:
-    content: str
-    usage_prompt_tokens: int
-    usage_completion_tokens: int
-    usage_total_tokens: int
-    usage_cost_usd: float | None
-    model: str
-    provider: str | None
-    request_id: str | None
-    response_headers: dict[str, str] | None
-    raw_json: bytes | None
-    tool_calls: tuple[_SerializedGatewayToolCall, ...] = ()
-    origin_event_id: str | None = None
+    payload_json: bytes
 
 
 @dataclass(frozen=True, slots=True)
@@ -146,6 +139,25 @@ class CacheReuseAuthorizer(Protocol):
     def authorize_reuse(self, request: CacheReuseRequest) -> CacheReuseDecision | None: ...
 
 
+class CacheReuseGuard(Protocol):
+    """Run one synchronous reuse operation under its live owner fence."""
+
+    def __call__[T](self, operation: Callable[[], T]) -> T: ...
+
+
+@dataclass(frozen=True, slots=True)
+class _CacheAdmission:
+    response: GatewayLLMResponse | None
+    cache_key: str
+    scope_key: tuple[str, ...]
+    request_digest: str
+    publication_revision: int
+
+
+def _unfenced_cache_operation[T](operation: Callable[[], T]) -> T:
+    return operation()
+
+
 @dataclass(slots=True)
 class _CacheFlight:
     task: asyncio.Task[Any]
@@ -167,6 +179,7 @@ class _CacheFlight:
 class _SharedCacheState:
     lock: Any = field(default_factory=threading.RLock)
     inflight: dict[str, _CacheFlight] = field(default_factory=dict)
+    publication_revision: int = 0
 
 
 _SHARED_CACHE_STATES_LOCK = threading.RLock()
@@ -392,6 +405,129 @@ class InMemoryPromptCache:
             self._telemetry.skip_reasons[reason] = self._telemetry.skip_reasons.get(reason, 0) + 1
 
 
+def _prepared_cache_request_digest(
+    *,
+    model: str,
+    provider_route: str,
+    prepared: PreparedLLMRequest,
+    caller_snapshot: bytes,
+    metadata: Any,
+) -> str:
+    payload = {
+        "model": model,
+        "provider_route": provider_route,
+        "caller_input": thaw_wire_object(caller_snapshot),
+        "prepared_dispatch": thaw_wire_object(prepared.identity),
+        # Physical-only calls have no cache equivalence claim. In particular,
+        # do not serialize/coerce an opaque Python caller's metadata for one.
+        "private_cache_scope": _sanitize_cache_metadata(metadata) if prepared.reusable else None,
+    }
+    return hashlib.sha256(stable_json_dumps(payload).encode()).hexdigest()
+
+
+@dataclass(slots=True)
+class _PreparedCacheBinding:
+    lock: Any = field(default_factory=threading.Lock)
+    owner: weakref.ReferenceType[Any] | None = None
+    used: bool = False
+
+
+@dataclass(frozen=True, slots=True, eq=False)
+class PreparedCacheRequest:
+    """One detached cache call bound to its actual provider preparation and one wrapper.
+
+    Construct through `prepare_cached_request`. Pre-bound wrappers use the ordinary
+    call contract; live scoped clients prepare internally before admission. The
+    exact native/control tree is immutable and type-preserving. Opaque calls
+    cannot be pre-bound. The provider executor and its retry nonce
+    are consumed once, including cache-hit calls that do not dispatch physically.
+    """
+
+    client: object = field(repr=False, compare=False)
+    model: str
+    provider_route: str
+    provider_request: PreparedLLMRequest = field(repr=False, compare=False)
+    caller_snapshot: bytes = field(repr=False)
+    _call: PreparedCallValues = field(repr=False, compare=False)
+    _bindable: bool = field(repr=False)
+    _binding: _PreparedCacheBinding = field(
+        default_factory=_PreparedCacheBinding, repr=False, compare=False
+    )
+
+    @property
+    def request_digest(self) -> str:
+        """Return the cache owner's exact digest for this ordinary prepared call."""
+        return _prepared_cache_request_digest(
+            model=self.model,
+            provider_route=self.provider_route,
+            prepared=self.provider_request,
+            caller_snapshot=self.caller_snapshot,
+            metadata=self.call_values()[1].get("metadata"),
+        )
+
+    def call_values(self) -> tuple[tuple[Any, ...], dict[str, Any]]:
+        """Copy exact native values or retain original opaque physical inputs."""
+        return self._call.call_values()
+
+    def _bind(self, client: object) -> None:
+        if not self._bindable:
+            raise ValueError("prepared_cache_request_input_not_bound")
+        with self._binding.lock:
+            if self._binding.owner is not None:
+                raise ValueError("prepared_cache_request_already_bound")
+            self._binding.owner = weakref.ref(client)
+
+    def _consume(self, client: object, args: tuple[Any, ...], kwargs: dict[str, Any]) -> None:
+        args, kwargs = _normalize_prompt_call(args, kwargs)
+        invoked = prepare_call_values(args, kwargs)
+        if not invoked.exact or invoked.identity != self._call.identity:
+            raise ValueError("prepared_cache_request_call_mismatch")
+        with self._binding.lock:
+            if self._binding.owner is None or self._binding.owner() is not client:
+                raise ValueError("prepared_cache_request_owner_mismatch")
+            if self._binding.used:
+                raise ValueError("prepared_cache_request_already_consumed")
+            self._binding.used = True
+
+
+def prepare_cached_request(
+    client: object,
+    *,
+    model: str,
+    provider_route: str | None = None,
+    args: tuple[Any, ...] = (),
+    kwargs: dict[str, Any],
+) -> PreparedCacheRequest:
+    """Prepare one complete cache call before choosing a shared cache resource.
+
+    Digest consumers and the cache executor use this same actual provider plan.
+    Exact input equality uses a lossless Python value snapshot, independently
+    of cache/evidence normalization. Only the actual Gateway owns JSON wire
+    projection. Opaque Python calls stay physical-only with original objects.
+    """
+    args, kwargs = _normalize_prompt_call(args, kwargs)
+    call = prepare_call_values(args, kwargs)
+    has_prepared_owner = callable(getattr(client, "prepare_cache_request", None))
+    provider_args, provider_kwargs = call.call_values() if has_prepared_owner else (args, kwargs)
+    prepared, caller_snapshot = prepare_provider_call(
+        client, provider_args, _provider_kwargs(provider_kwargs)
+    )
+    if not call.exact:
+        prepared = PreparedLLMRequest(prepared.identity, prepared.execute, False)
+    route = provider_route if provider_route is not None else getattr(client, "provider", None)
+    if route is not None and (type(route) is not str or not route or route != route.strip()):
+        raise ValueError("cache_provider_route_must_be_established_text")
+    return PreparedCacheRequest(
+        client,
+        model,
+        route or "unknown",
+        prepared,
+        caller_snapshot,
+        call,
+        call.exact and has_prepared_owner,
+    )
+
+
 class CachingLLMClient:
     """Prompt-cache wrapper for deterministic non-tool `generate()` calls."""
 
@@ -407,8 +543,10 @@ class CachingLLMClient:
         reuse_principal: CacheReusePrincipal | None = None,
         reuse_context: Mapping[str, Any] | None = None,
         require_reuse_authorization: bool = False,
+        reuse_guard: CacheReuseGuard | None = None,
         origin_retention_limit: int = 128,
         provider_route: str | None = None,
+        prepared_request: PreparedCacheRequest | None = None,
     ) -> None:
         self._client = client
         self._cache = cache
@@ -417,6 +555,19 @@ class CachingLLMClient:
         if route is not None and (type(route) is not str or not route or route != route.strip()):
             raise ValueError("cache_provider_route_must_be_established_text")
         self._provider_route = route or "unknown"
+        if prepared_request is not None:
+            # Public pre-bound plans name an ordinary call's complete identity.
+            # Scoped clients retain their live admission/injection path below.
+            if require_reuse_authorization:
+                raise ValueError("prepared_cache_request_requires_ordinary_binding")
+            if type(prepared_request) is not PreparedCacheRequest or (
+                prepared_request.client is not client
+                or prepared_request.model != model
+                or prepared_request.provider_route != self._provider_route
+            ):
+                raise ValueError("prepared_cache_request_configuration_mismatch")
+            prepared_request._bind(self)
+        self._prepared_request = prepared_request
         self._ttl_s = max(float(ttl_s), 0.0)
         configured_timeout = inflight_timeout_s
         if configured_timeout is None:
@@ -435,6 +586,7 @@ class CachingLLMClient:
         self._cache_reuse_principal = reuse_principal
         self._trusted_reuse_context = dict(reuse_context) if reuse_context is not None else None
         self._require_reuse_authorization = require_reuse_authorization
+        self._reuse_guard = reuse_guard
         # Provenance belongs to the configured cache lifetime, not to this
         # request's provider wrapper.  Wrappers sharing the exact cache can
         # therefore verify an origin retained by an earlier wrapper without
@@ -458,45 +610,22 @@ class CachingLLMClient:
         self._producer_settle_hook = settle
         self._producer_unknown_hook = unknown
 
-    def _request_digest(self, args: tuple[Any, ...], kwargs: dict[str, Any]) -> str:
-        """Bind every provider request, including calls excluded from cache reuse."""
-
-        return compute_cache_key(
-            prompt=args[0] if args else kwargs.get("prompt"),
-            system=kwargs.get("system"),
-            user=kwargs.get("user"),
-            messages=kwargs.get("messages"),
+    def _request_digest(
+        self,
+        args: tuple[Any, ...],
+        kwargs: dict[str, Any],
+        *,
+        prepared: PreparedLLMRequest,
+        caller_snapshot: bytes,
+    ) -> str:
+        """Bind the same detached call and selected dispatch that will execute."""
+        del args
+        return _prepared_cache_request_digest(
             model=self._model,
-            tools=kwargs.get("tools"),
-            tool_choice=kwargs.get("tool_choice"),
-            stream=kwargs.get("stream"),
-            temperature=kwargs.get("temperature"),
-            max_tokens=kwargs.get("max_tokens"),
-            seed=kwargs.get("seed"),
-            response_format=kwargs.get("response_format"),
+            provider_route=self._provider_route,
+            prepared=prepared,
+            caller_snapshot=caller_snapshot,
             metadata=kwargs.get("metadata"),
-            extra_payload={
-                "provider_route": self._provider_route,
-                "arguments": {
-                    key: value
-                    for key, value in kwargs.items()
-                    if key
-                    not in {
-                        "prompt",
-                        "system",
-                        "user",
-                        "messages",
-                        "tools",
-                        "tool_choice",
-                        "stream",
-                        "temperature",
-                        "max_tokens",
-                        "seed",
-                        "response_format",
-                        "metadata",
-                    }
-                },
-            },
         )
 
     async def _generate_uncached(
@@ -505,6 +634,9 @@ class CachingLLMClient:
         kwargs: dict[str, Any],
         *,
         request_digest: str | None = None,
+        provider_kwargs: dict[str, Any] | None = None,
+        prepared: PreparedLLMRequest | None = None,
+        caller_snapshot: bytes | None = None,
     ) -> Any:
         """Run a non-reusable provider call through the same settlement hooks."""
 
@@ -512,13 +644,21 @@ class CachingLLMClient:
         settle = self._producer_settle_hook
         unknown = self._producer_unknown_hook
         event_id = f"llm-provider:{uuid.uuid4().hex}"
-        digest = request_digest or self._request_digest(args, kwargs)
+        if prepared is None or caller_snapshot is None:
+            prepared, caller_snapshot = prepare_provider_call(
+                self._client,
+                args,
+                provider_kwargs if provider_kwargs is not None else _provider_kwargs(kwargs),
+            )
+        digest = request_digest or self._request_digest(
+            args, kwargs, prepared=prepared, caller_snapshot=caller_snapshot
+        )
         intent_started = False
         try:
             if begin is not None:
                 await _maybe_await(begin(event_id, digest, getattr(self._client, "provider", None)))
                 intent_started = True
-            response = await _maybe_await(self._client.generate(*args, **_provider_kwargs(kwargs)))
+            response = (await prepared.execute()).response
             if isinstance(response, GatewayLLMResponse) and intent_started:
                 response.producer_event_id = event_id
             if settle is not None and intent_started:
@@ -532,128 +672,278 @@ class CachingLLMClient:
             raise
 
     async def generate(self, *args: Any, **kwargs: Any) -> Any:
-        args, kwargs = _normalize_prompt_call(args, kwargs)
+        call = self._prepared_request
+        if call is not None:
+            call._consume(self, args, kwargs)
+        else:
+            call = prepare_cached_request(
+                self._client,
+                model=self._model,
+                provider_route=self._provider_route,
+                args=args,
+                kwargs=kwargs,
+            )
+        args, kwargs = call.call_values()
+        # Exact native controls and the provider preparation are separate from
+        # cache/evidence normalization. Opaque providers preserve original objects.
+        prepared, caller_snapshot = call.provider_request, call.caller_snapshot
+        provider_kwargs = _provider_kwargs(kwargs)
+        if self._require_reuse_authorization and self._reuse_guard is None:
+            raise LLMSettlementOwnershipError("live_reuse_owner_unavailable")
         if self._require_reuse_authorization:
+            self._reuse_guard(lambda: None)
             authorize = getattr(self._cache_reuse_authorizer, "authorize_reuse", None)
             principal = self._cache_reuse_principal
             if not callable(authorize) or principal is None or self._trusted_reuse_context is None:
                 _record_cache_skip(self._cache, "reuse_authorization_unavailable")
-                return await self._generate_uncached(args, kwargs)
+                return await self._generate_uncached(
+                    args,
+                    kwargs,
+                    provider_kwargs=provider_kwargs,
+                    prepared=prepared,
+                    caller_snapshot=caller_snapshot,
+                )
             metadata = kwargs.get("metadata")
             trusted_metadata = dict(metadata) if isinstance(metadata, Mapping) else {}
+            # Preserve every caller-selected wire metadata value in identity,
+            # including names that the private authorization metadata replaces.
+            trusted_metadata["provider_metadata"] = provider_kwargs.get("metadata")
             trusted_metadata["tenant"] = principal.tenant
             trusted_metadata["scope"] = principal.scope
             trusted_metadata["cache_reuse"] = self._trusted_reuse_context
             kwargs["metadata"] = trusted_metadata
+        if not prepared.reusable:
+            _record_cache_skip(self._cache, "prepared_dispatch_not_established")
+            return await self._generate_uncached(
+                args,
+                kwargs,
+                provider_kwargs=provider_kwargs,
+                prepared=prepared,
+                caller_snapshot=caller_snapshot,
+            )
         reason = _cache_skip_reason(
             model=self._model,
             args=args,
             kwargs=kwargs,
             strict_reuse=self._require_reuse_authorization,
+            deterministic_default=self._has_deterministic_provider_default(),
         )
         if reason is not None:
             _record_cache_skip(self._cache, reason)
-            return await self._generate_uncached(args, kwargs)
+            return await self._generate_uncached(
+                args,
+                kwargs,
+                provider_kwargs=provider_kwargs,
+                prepared=prepared,
+                caller_snapshot=caller_snapshot,
+            )
 
-        cache_key = self._request_digest(args, kwargs)
+        cache_key = self._request_digest(
+            args, kwargs, prepared=prepared, caller_snapshot=caller_snapshot
+        )
         reuse_context = _cache_reuse_context(kwargs.get("metadata"))
-        if reuse_context is not None:
-            admission = self._authorize_reuse(
-                reuse_context,
-                cache_key=cache_key,
-                metadata=kwargs.get("metadata"),
-            )
-            if admission is None:
-                _record_cache_skip(self._cache, "reuse_authorization_missing")
-                return await self._generate_uncached(args, kwargs, request_digest=cache_key)
-            scope_key, request_digest = admission
-        else:
-            scope_key = self._ordinary_scope_key()
-            request_digest = cache_key
+        guard = self._reuse_guard or _unfenced_cache_operation
 
-        internal_cache_key = hashlib.sha256(
-            json.dumps(
-                [cache_key, scope_key, request_digest], separators=(",", ":"), sort_keys=True
-            ).encode()
-        ).hexdigest()
-        flight_key = internal_cache_key
-        with self._shared_cache_state.lock:
+        def admit_lookup() -> _CacheAdmission | None:
+            if reuse_context is not None:
+                admission = self._authorize_reuse(
+                    reuse_context, cache_key=cache_key, metadata=kwargs.get("metadata")
+                )
+                if admission is None:
+                    return None
+                scope_key, request_digest = admission
+            else:
+                scope_key = self._ordinary_scope_key()
+                request_digest = cache_key
+            internal_cache_key = hashlib.sha256(
+                json.dumps(
+                    [cache_key, scope_key, request_digest], separators=(",", ":"), sort_keys=True
+                ).encode()
+            ).hexdigest()
+            with self._shared_cache_state.lock:
+                revision = self._shared_cache_state.publication_revision
             cached = self._cache.get(internal_cache_key)
-            if cached is not None:
-                logger.debug("Prompt cache hit model={} key={}", self._model, cache_key[:12])
-                if isinstance(cached, GatewayLLMResponse):
-                    try:
-                        return self._reuse_response(
-                            cached, cache_key=internal_cache_key, request_digest=request_digest
-                        )
-                    except ValueError:
-                        _record_cache_skip(self._cache, "cache_origin_mismatch")
-                else:
-                    return cached
-            self._cache_settlement_session.forget_cached_key(internal_cache_key)
-            attempt_id = f"cache-attempt:{uuid.uuid4().hex}"
-            registration = self._cache_settlement_session.register_request(
-                scope_key, request_digest, attempt_id
+            with self._shared_cache_state.lock:
+                unchanged = revision == self._shared_cache_state.publication_revision
+            if cached is not None and unchanged:
+                try:
+                    response = self._reuse_response(
+                        cached, cache_key=internal_cache_key, request_digest=request_digest
+                    )
+                    return _CacheAdmission(
+                        response, internal_cache_key, scope_key, request_digest, revision
+                    )
+                except (TypeError, ValueError):
+                    _record_cache_skip(self._cache, "cache_origin_mismatch")
+            return _CacheAdmission(None, internal_cache_key, scope_key, request_digest, revision)
+
+        # Guard errors, including actual dependency timeouts and an absent current
+        # lease, propagate. They never authorize replacement physical work.
+        admitted = guard(admit_lookup)
+        if admitted is None:
+            _record_cache_skip(self._cache, "reuse_authorization_unavailable")
+            return await self._generate_uncached(
+                args,
+                kwargs,
+                request_digest=cache_key,
+                provider_kwargs=provider_kwargs,
+                prepared=prepared,
+                caller_snapshot=caller_snapshot,
             )
-            self._cache_settlement_session.bind_request_key(registration, internal_cache_key)
-            flight = self._inflight.get(flight_key)
-            is_owner = flight is None
-            if is_owner:
-                self._cache_settlement_session.dispatch(registration, attempt_id)
-                producer_event_id = f"llm-provider:{uuid.uuid4().hex}"
-                owner_task = asyncio.create_task(
-                    self._produce(
-                        internal_cache_key,
-                        args,
-                        _provider_kwargs(kwargs),
+        if admitted.response is not None:
+            try:
+                return self._verified_reuse_response(admitted.response, request_digest=cache_key)
+            except (TypeError, ValueError):
+                _record_cache_skip(self._cache, "cache_origin_mismatch")
+                return await self._generate_uncached(
+                    args,
+                    kwargs,
+                    request_digest=cache_key,
+                    provider_kwargs=provider_kwargs,
+                    prepared=prepared,
+                    caller_snapshot=caller_snapshot,
+                )
+        try:
+            internal_cache_key = admitted.cache_key
+            scope_key = admitted.scope_key
+            request_digest = admitted.request_digest
+            flight_key = internal_cache_key
+            with self._shared_cache_state.lock:
+                if self._shared_cache_state.publication_revision != admitted.publication_revision:
+                    raise ValueError("cache_head_changed_during_admission")
+                self._cache_settlement_session.forget_cached_key(internal_cache_key)
+                attempt_id = f"cache-attempt:{uuid.uuid4().hex}"
+                registration = self._cache_settlement_session.register_request(
+                    scope_key, request_digest, attempt_id
+                )
+                self._cache_settlement_session.bind_request_key(registration, internal_cache_key)
+                flight = self._inflight.get(flight_key)
+                is_owner = flight is None
+                if is_owner:
+                    self._cache_settlement_session.dispatch(registration, attempt_id)
+                    producer_event_id = f"llm-provider:{uuid.uuid4().hex}"
+                    owner_task = asyncio.create_task(
+                        self._produce(
+                            internal_cache_key,
+                            prepared,
+                            timeout=_coerce_timeout(provider_kwargs.get("timeout")),
+                            request_digest=request_digest,
+                            scope_key=scope_key,
+                            producer_attempt_id=attempt_id,
+                            producer_event_id=producer_event_id,
+                        )
+                    )
+                    flight = _CacheFlight(
+                        task=owner_task,
+                        result=Future(),
                         request_digest=request_digest,
                         scope_key=scope_key,
+                        owner_registration=registration,
+                        registrations=[registration],
                         producer_attempt_id=attempt_id,
-                        producer_event_id=producer_event_id,
+                        origin_event_id=producer_event_id,
+                        cache_key=internal_cache_key,
                     )
-                )
-                flight = _CacheFlight(
-                    task=owner_task,
-                    result=Future(),
-                    request_digest=request_digest,
-                    scope_key=scope_key,
-                    owner_registration=registration,
-                    registrations=[registration],
-                    producer_attempt_id=attempt_id,
-                    origin_event_id=producer_event_id,
-                    cache_key=internal_cache_key,
-                )
-                self._inflight[flight_key] = flight
-                owner_task.add_done_callback(
-                    lambda task: self._settle_shared_flight_result(flight, task)
-                )
-                owner_task.add_done_callback(_consume_task_exception)
-            else:
-                self._cache_settlement_session.join(
-                    registration, scope_key, request_digest, internal_cache_key, attempt_id
-                )
-                flight.registrations.append(registration)
-            flight.waiters += 1
+                    self._inflight[flight_key] = flight
+                    owner_task.add_done_callback(
+                        lambda task: self._settle_shared_flight_result(flight, task)
+                    )
+                    owner_task.add_done_callback(_consume_task_exception)
+                else:
+                    self._cache_settlement_session.join(
+                        registration, scope_key, request_digest, internal_cache_key, attempt_id
+                    )
+                    flight.registrations.append(registration)
+                flight.waiters += 1
+
+        except (OSError, RuntimeError, TypeError, ValueError):
+            _record_cache_skip(self._cache, "reuse_admission_unavailable")
+            return await self._generate_uncached(
+                args,
+                kwargs,
+                request_digest=cache_key,
+                provider_kwargs=provider_kwargs,
+                prepared=prepared,
+                caller_snapshot=caller_snapshot,
+            )
 
         try:
             response = await asyncio.shield(asyncio.wrap_future(flight.result))
             if is_owner:
                 return response
-            # A follower consumes its exact flight snapshot, never the mutable
-            # current cache head (another event loop may have replaced it).
-            if flight.snapshot is not None:
-                return self._reuse_response(
-                    _thaw_response(flight.snapshot),
-                    cache_key=internal_cache_key,
-                    request_digest=request_digest,
-                    origin_event_id=flight.origin_event_id,
-                    outcome=flight.outcome,
-                )
-            return response
+
+            # Every follower is a new reuse emission. Re-admit on the owner
+            # worker after waiting; only that operation may issue its response.
+            def admit_follower() -> GatewayLLMResponse | None:
+                if reuse_context is not None and self._authorize_reuse(
+                    reuse_context, cache_key=cache_key, metadata=kwargs.get("metadata")
+                ) != (scope_key, request_digest):
+                    return None
+                with self._shared_cache_state.lock:
+                    if flight.snapshot is None:
+                        raise ValueError("cache_flight_response_unattested")
+                    return self._reuse_response(
+                        _thaw_response(flight.snapshot),
+                        cache_key=internal_cache_key,
+                        request_digest=request_digest,
+                        origin_event_id=flight.origin_event_id,
+                        outcome=flight.outcome,
+                    )
+
+            candidate = guard(admit_follower)
+            if candidate is not None:
+                try:
+                    return self._verified_reuse_response(candidate, request_digest=cache_key)
+                except (TypeError, ValueError):
+                    _record_cache_skip(self._cache, "cache_origin_mismatch")
         finally:
             with self._shared_cache_state.lock:
                 flight.waiters -= 1
                 self._release_completed_flight(flight)
+        return await self._generate_uncached(
+            args,
+            kwargs,
+            request_digest=cache_key,
+            provider_kwargs=provider_kwargs,
+            prepared=prepared,
+            caller_snapshot=caller_snapshot,
+        )
+
+    def _has_deterministic_provider_default(self) -> bool:
+        """Recognize only the existing exact built-in deterministic simulator."""
+        from .simulated_gateway import SimulatedGatewayLLMClient
+
+        return type(self._client) is SimulatedGatewayLLMClient
+
+    def _verified_reuse_response(
+        self, response: GatewayLLMResponse, *, request_digest: str
+    ) -> GatewayLLMResponse:
+        """Require Core's exact response proof on every hit emission."""
+        if not isinstance(response, GatewayLLMResponse):
+            raise ValueError("cache_response_untyped")
+        evidence = self._cache_settlement_session.verify_reuse_attestation(
+            getattr(response, "_polisyos_reuse_provenance", None), response
+        )
+        if evidence is None or evidence.request_digest != request_digest:
+            raise ValueError("cache_response_attestation_invalid")
+        expected_key = hashlib.sha256(
+            json.dumps(
+                [request_digest, evidence.scope_key, request_digest],
+                separators=(",", ":"),
+                sort_keys=True,
+            ).encode()
+        ).hexdigest()
+        principal = self._cache_reuse_principal
+        if evidence.cache_key != expected_key or (
+            self._require_reuse_authorization
+            and (
+                principal is None
+                or evidence.scope_key[2:5]
+                != (principal.actor_id, principal.tenant, principal.scope)
+            )
+        ):
+            raise ValueError("cache_response_scope_mismatch")
+        return response
 
     def _settle_shared_flight_result(self, flight: _CacheFlight, task: asyncio.Task[Any]) -> None:
         if task.cancelled():
@@ -801,9 +1091,12 @@ class CachingLLMClient:
         outcome: CacheFlightOutcome | None = None,
     ) -> GatewayLLMResponse:
         if not isinstance(response, GatewayLLMResponse):
-            return response
-        origin = origin_event_id or response.producer_event_id or response.request_id
-        origin = origin or f"legacy-origin:{uuid.uuid4().hex}"
+            raise ValueError("cache_response_untyped")
+        origin = origin_event_id or response.producer_event_id
+        if not origin:
+            raise ValueError("cache_response_origin_missing")
+        # Detach the entire admitted projection before minting a response proof.
+        response = _thaw_response(_freeze_response(response))
         _mark_cache_response(response, status="hit", cache_key=cache_key)
         return _CacheReuseGatewayResponse(
             response,
@@ -817,9 +1110,9 @@ class CachingLLMClient:
     async def _produce(
         self,
         cache_key: str,
-        args: tuple[Any, ...],
-        kwargs: dict[str, Any],
+        prepared: PreparedLLMRequest,
         *,
+        timeout: float | None,
         request_digest: str,
         scope_key: tuple[str, ...],
         producer_attempt_id: str,
@@ -839,16 +1132,28 @@ class CachingLLMClient:
                     )
                 )
                 intent_started = True
-            response = await self._call_provider(args, kwargs)
+            physical = await self._call_provider(prepared, timeout=timeout)
+            response = physical.response
+            cacheable = isinstance(response, GatewayLLMResponse) and prepared.admits(physical)
+            if not cacheable:
+                _record_cache_skip(self._cache, "effective_dispatch_changed")
             if isinstance(response, GatewayLLMResponse):
                 response.producer_event_id = producer_event_id
-                _mark_cache_response(response, status="miss", cache_key=cache_key)
+                _mark_cache_response(
+                    response, status="miss" if cacheable else "uncached", cache_key=cache_key
+                )
             if self._producer_settle_hook is not None:
                 settlement = await _maybe_await(
                     self._producer_settle_hook(producer_event_id, request_digest, response)
                 )
                 if isinstance(response, GatewayLLMResponse):
                     response.producer_settlement = settlement
+            frozen = _freeze_response(response) if cacheable else None
+            response_digest = (
+                cache_response_digest(response)
+                if isinstance(response, GatewayLLMResponse)
+                else None
+            )
             with self._shared_cache_state.lock:
                 if flight is not None:
                     flight.outcome = self._cache_settlement_session.settle_flight(
@@ -857,21 +1162,19 @@ class CachingLLMClient:
                         request_digest=request_digest,
                         producer_attempt_id=producer_attempt_id,
                         terminal="success",
-                        retain_for_s=self._ttl_s,
+                        retain_for_s=self._ttl_s if cacheable else 0,
                         origin_event_id=producer_event_id,
-                        response_digest=(
-                            hashlib.sha256(response.content.encode()).hexdigest()
-                            if isinstance(response, GatewayLLMResponse)
-                            else None
-                        ),
+                        response_digest=response_digest,
                     )
-                    if isinstance(response, GatewayLLMResponse):
-                        flight.snapshot = _freeze_response(response)
-                try:
+                    flight.snapshot = frozen
+            try:
+                if cacheable:
                     self._cache.put(cache_key, response, ttl_s=self._ttl_s)
-                except BaseException:
-                    self._cache_settlement_session.forget_cached_key(cache_key)
-                    raise
+                    with self._shared_cache_state.lock:
+                        self._shared_cache_state.publication_revision += 1
+            except BaseException:
+                self._cache_settlement_session.forget_cached_key(cache_key)
+                raise
             logger.debug("Prompt cache miss model={} key={}", self._model, cache_key[:12])
             return response
         except TimeoutError:
@@ -913,16 +1216,15 @@ class CachingLLMClient:
 
     async def _call_provider(
         self,
-        args: tuple[Any, ...],
-        kwargs: dict[str, Any],
-    ) -> Any:
-        """Run one provider call under the configured in-flight deadline."""
-
-        provider_call = _maybe_await(self._client.generate(*args, **kwargs))
-        timeout = _coerce_timeout(kwargs.get("timeout")) or self._inflight_timeout_s
-        if timeout is None:
-            return await provider_call
-        return await asyncio.wait_for(provider_call, timeout=timeout)
+        prepared: PreparedLLMRequest,
+        *,
+        timeout: float | None,
+    ) -> PreparedLLMResult:
+        """Run the frozen provider dispatch under its in-flight deadline."""
+        deadline = timeout or self._inflight_timeout_s
+        if deadline is None:
+            return await prepared.execute()
+        return await asyncio.wait_for(prepared.execute(), timeout=deadline)
 
 
 def _normalize_prompt_call(
@@ -960,7 +1262,7 @@ def _mark_cache_response(
         {
             "status": status,
             "cache_key": cache_key,
-            "provider_call": status == "miss",
+            "provider_call": status != "hit",
             "usage_origin": "provider",
         }
     )
@@ -972,6 +1274,7 @@ def _cache_skip_reason(
     args: tuple[Any, ...],
     kwargs: dict[str, Any],
     strict_reuse: bool = False,
+    deterministic_default: bool = False,
 ) -> str | None:
     del model
     if strict_reuse and kwargs.get("seed") is not None:
@@ -985,12 +1288,11 @@ def _cache_skip_reason(
     if bool(kwargs.get("stream")):
         return "streaming_call"
     temperature = kwargs.get("temperature")
-    if temperature is not None:
-        try:
-            if float(temperature) != 0.0:
-                return "non_deterministic_temperature"
-        except (TypeError, ValueError):
-            return "non_deterministic_temperature"
+    if temperature is None:
+        if not deterministic_default:
+            return "sampling_policy_not_established"
+    elif type(temperature) not in (int, float) or temperature != 0:
+        return "non_deterministic_temperature"
     metadata = kwargs.get("metadata")
     reuse_context = _cache_reuse_context(metadata)
     if isinstance(metadata, Mapping):
@@ -1221,56 +1523,15 @@ def _normalize_invalid_reuse_context(value: Any) -> Any:
 
 
 def _freeze_response(response: GatewayLLMResponse) -> _SerializedGatewayResponse:
-    return _SerializedGatewayResponse(
-        content=response.content,
-        usage_prompt_tokens=response.usage.prompt_tokens,
-        usage_completion_tokens=response.usage.completion_tokens,
-        usage_total_tokens=response.usage.total_tokens,
-        usage_cost_usd=response.usage.cost_usd,
-        model=response.model,
-        provider=response.provider,
-        request_id=response.request_id,
-        response_headers=dict(response.response_headers) if response.response_headers else None,
-        raw_json=_serialize_payload(response.raw),
-        tool_calls=tuple(
-            _SerializedGatewayToolCall(
-                id=tool_call.id,
-                name=tool_call.name,
-                arguments_json=_serialize_payload(tool_call.arguments) or b"{}",
-                error_envelope_json=_serialize_payload(tool_call.error_envelope),
-            )
-            for tool_call in (response.tool_calls or [])
-        ),
-        origin_event_id=response.producer_event_id,
-    )
+    return _SerializedGatewayResponse(cache_response_projection_bytes(response))
 
 
 def _thaw_response(response: _SerializedGatewayResponse) -> GatewayLLMResponse:
-    return GatewayLLMResponse(
-        content=response.content,
-        usage=GatewayUsage(
-            prompt_tokens=response.usage_prompt_tokens,
-            completion_tokens=response.usage_completion_tokens,
-            total_tokens=response.usage_total_tokens,
-            cost_usd=response.usage_cost_usd,
-        ),
-        model=response.model,
-        provider=response.provider,
-        request_id=response.request_id,
-        response_headers=dict(response.response_headers) if response.response_headers else None,
-        raw=_deserialize_payload(response.raw_json),
-        producer_event_id=response.origin_event_id,
-        tool_calls=[
-            GatewayToolCall(
-                id=tool_call.id,
-                name=tool_call.name,
-                arguments=_deserialize_payload(tool_call.arguments_json) or {},
-                error_envelope=_deserialize_payload(tool_call.error_envelope_json),
-            )
-            for tool_call in response.tool_calls
-        ]
-        or None,
-    )
+    payload = json.loads(response.payload_json)
+    payload["usage"] = GatewayUsage(**payload["usage"])
+    if payload.get("tool_calls") is not None:
+        payload["tool_calls"] = [GatewayToolCall(**item) for item in payload["tool_calls"]]
+    return GatewayLLMResponse(**payload)
 
 
 def _serialize_payload(value: object | None) -> bytes | None:
@@ -1324,7 +1585,9 @@ def _is_volatile_cache_metadata_key(key: str) -> bool:
 __all__ = [
     "CachingLLMClient",
     "InMemoryPromptCache",
+    "PreparedCacheRequest",
     "PromptCacheProtocol",
     "PromptCacheTelemetry",
     "compute_cache_key",
+    "prepare_cached_request",
 ]

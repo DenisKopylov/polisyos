@@ -3,11 +3,16 @@
 from __future__ import annotations
 
 import os
+import threading
 from collections.abc import Mapping
-from dataclasses import dataclass
+from contextlib import contextmanager
+from contextvars import ContextVar
+from dataclasses import dataclass, field
+from functools import partial
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from polisyos.core.llm import LLMProducerIntent, LLMSettlementOwnershipError
 from polisyos.core.llm.cache_settlement import session_for_cache_client
 from polisyos.core.llm.sanitization import PromptSanitizer
 from polisyos.core.llm.traced_client import TracedLLMClient
@@ -23,7 +28,174 @@ from .prompt_cache import (
 from .simulated_gateway import DEFAULT_SIMULATED_MODEL_IDS, SimulatedGatewayLLMClient
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Iterator
+
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+
+    from .prompt_cache import CacheReuseAuthorizer, CacheReuseGuard
+
+
+@dataclass(slots=True)
+class _AdmissionTicket:
+    started: bool = False
+    finished: bool = False
+    waiter_done: bool = False
+    cancelled: bool = False
+
+
+@dataclass(slots=True)
+class _AdmissionState:
+    lock: Any = field(default_factory=threading.Lock)
+    active: bool = True
+    failed: bool = False
+    tickets: dict[int, _AdmissionTicket] = field(default_factory=dict)
+
+
+@dataclass(frozen=True, slots=True)
+class _GatewayCacheReuseScope:
+    """One job's dependencies and short-lock admission state, never an I/O lock."""
+
+    authorizer: CacheReuseAuthorizer | None
+    principal: CacheReusePrincipal | None
+    context: Mapping[str, Any] | None
+    cache: PromptCacheProtocol | None
+    run_id: str
+    settlement_store: BudgetMiddleware
+    reuse_guard: CacheReuseGuard
+    validate_admission: Callable[[], None] | None
+    intent_observer: Callable[[LLMProducerIntent, object], None] | None
+    on_close: Callable[[bool], None] | None
+    state: _AdmissionState = field(default_factory=_AdmissionState)
+
+
+_GATEWAY_CACHE_REUSE_SCOPE: ContextVar[_GatewayCacheReuseScope | None] = ContextVar(
+    "gateway_cache_reuse_scope", default=None
+)
+
+
+@contextmanager
+def _gateway_cache_reuse_scope(
+    *,
+    authorizer: CacheReuseAuthorizer | None,
+    principal: CacheReusePrincipal | None,
+    context: Mapping[str, Any] | None,
+    cache: PromptCacheProtocol | None,
+    run_id: str,
+    settlement_store: BudgetMiddleware,
+    reuse_guard: CacheReuseGuard,
+    validate_admission: Callable[[], None] | None = None,
+    intent_observer: Callable[[LLMProducerIntent, object], None] | None = None,
+    on_close: Callable[[bool], None] | None = None,
+) -> Iterator[None]:
+    """Close admission without waiting for a timed-out dependency thread."""
+    scope = _GatewayCacheReuseScope(
+        authorizer,
+        principal,
+        context,
+        cache,
+        run_id,
+        settlement_store,
+        reuse_guard,
+        validate_admission,
+        intent_observer,
+        on_close,
+    )
+    token = _GATEWAY_CACHE_REUSE_SCOPE.set(scope)
+    try:
+        yield
+    finally:
+        with scope.state.lock:
+            scope.state.active = False
+            pending = any(not ticket.finished for ticket in scope.state.tickets.values())
+            complete = not scope.state.failed and not pending
+            for ticket in scope.state.tickets.values():
+                ticket.cancelled = True
+        try:
+            if scope.on_close is not None:
+                scope.on_close(complete)
+        finally:
+            _GATEWAY_CACHE_REUSE_SCOPE.reset(token)
+
+
+def _execute_scope_ticket[T](
+    scope: _GatewayCacheReuseScope,
+    operation: Callable[[], T],
+    *,
+    bounded: bool,
+) -> T:
+    state = scope.state
+    ticket = _AdmissionTicket()
+    with state.lock:
+        if not state.active:
+            raise LLMSettlementOwnershipError("producer_job_scope_closed")
+        if scope.settlement_store is None:
+            raise LLMSettlementOwnershipError("producer_job_ledger_unavailable")
+        state.tickets[id(ticket)] = ticket
+
+    def checked() -> T:
+        with state.lock:
+            if ticket.cancelled or not state.active:
+                raise LLMSettlementOwnershipError("producer_job_scope_closed")
+            ticket.started = True
+        try:
+            result = operation()
+            with state.lock:
+                if ticket.cancelled or not state.active:
+                    raise LLMSettlementOwnershipError("producer_job_scope_closed")
+            return result
+        finally:
+            with state.lock:
+                ticket.finished = True
+                if ticket.waiter_done:
+                    state.tickets.pop(id(ticket), None)
+
+    try:
+        return scope.reuse_guard(checked) if bounded else checked()
+    except BaseException:
+        with state.lock:
+            state.failed = True
+            ticket.cancelled = True
+        raise
+    finally:
+        with state.lock:
+            ticket.waiter_done = True
+            # A cancelled queued callback is permitted to run only its closed
+            # check later; do not retain one record per never-started timeout.
+            if not ticket.started:
+                ticket.finished = True
+            if ticket.finished:
+                state.tickets.pop(id(ticket), None)
+
+
+def _current_producer_admission[T](
+    scope: _GatewayCacheReuseScope,
+    operation: Callable[[], T],
+) -> T:
+    def admitted() -> T:
+        if scope.validate_admission is not None:
+            scope.validate_admission()
+        result = operation()
+        if scope.validate_admission is not None:
+            scope.validate_admission()
+        return result
+
+    return _execute_scope_ticket(scope, admitted, bounded=False)
+
+
+def _current_cache_reuse_admission[T](
+    scope: _GatewayCacheReuseScope,
+    operation: Callable[[], T],
+) -> T:
+    return _current_producer_admission(
+        scope, lambda: _execute_scope_ticket(scope, operation, bounded=True)
+    )
+
+
+def _current_producer_begin_executor[T](
+    scope: _GatewayCacheReuseScope,
+    operation: Callable[[], T],
+) -> T:
+    return _execute_scope_ticket(scope, operation, bounded=True)
 
 
 def _as_bool(value: str | None, *, default: bool) -> bool:
@@ -172,13 +344,55 @@ def create_traced_gateway_client(
     producer_budget_key: str = "run",
 ) -> TracedLLMClient | None:
     """Create traced LLM client from env-backed gateway config."""
+    reuse_scope = _GATEWAY_CACHE_REUSE_SCOPE.get()
+    reuse_guard = None
+    if reuse_scope is not None:
+        cache_reuse_authorizer = reuse_scope.authorizer
+        cache_reuse_principal = reuse_scope.principal
+        cache_reuse_context = reuse_scope.context
+        prompt_cache = reuse_scope.cache
+        require_reuse_authorization = True
+        run_id = reuse_scope.run_id
+        producer_settlement_store = reuse_scope.settlement_store
+        producer_budget_key = f"nl-run:{run_id}"
+        reuse_guard = partial(_current_cache_reuse_admission, reuse_scope)
     if _as_bool(os.getenv("POLISYOS_LLM_SIMULATION_MODE"), default=False):
         simulated_model_ids = tuple(dict.fromkeys((model_name, *DEFAULT_SIMULATED_MODEL_IDS)))
-        raw_client = SimulatedGatewayLLMClient(
+        raw_client: (
+            SimulatedGatewayLLMClient | CachingLLMClient | FallbackRouter | GatewayLLMClient
+        ) = SimulatedGatewayLLMClient(
             model=model_name,
             provider_hint=provider_hint or "simulated_gateway",
             supported_model_ids=simulated_model_ids,
         )
+        simulated_config = config
+        if simulated_config is None and reuse_scope is not None and prompt_cache is not None:
+            simulated_config = GatewayLLMConfig.from_env()
+        if (
+            simulated_config is not None
+            and simulated_config.cache_maxsize > 0
+            and simulated_config.cache_ttl_s > 0
+        ):
+            raw_client = CachingLLMClient(
+                raw_client,
+                cache=(
+                    prompt_cache
+                    if prompt_cache is not None
+                    else InMemoryPromptCache(
+                        maxsize=simulated_config.cache_maxsize,
+                        default_ttl_s=simulated_config.cache_ttl_s,
+                    )
+                ),
+                model=model_name,
+                ttl_s=simulated_config.cache_ttl_s,
+                origin_retention_limit=simulated_config.cache_maxsize,
+                provider_route="simulated_gateway",
+                reuse_authorizer=cache_reuse_authorizer,
+                reuse_principal=cache_reuse_principal,
+                reuse_context=cache_reuse_context,
+                require_reuse_authorization=require_reuse_authorization,
+                reuse_guard=reuse_guard,
+            )
         return TracedLLMClient(
             raw_client,
             model_name=model_name,
@@ -194,6 +408,20 @@ def create_traced_gateway_client(
             metrics=metrics,
             producer_settlement_store=producer_settlement_store,
             producer_budget_key=producer_budget_key,
+            cache_settlement_session=session_for_cache_client(raw_client),
+            producer_admission_guard=(
+                partial(_current_producer_admission, reuse_scope)
+                if reuse_scope is not None
+                else None
+            ),
+            producer_begin_executor=(
+                partial(_current_producer_begin_executor, reuse_scope)
+                if reuse_scope is not None
+                else None
+            ),
+            producer_intent_observer=(
+                reuse_scope.intent_observer if reuse_scope is not None else None
+            ),
         )
     cfg = config or GatewayLLMConfig.from_env()
     if cfg is None:
@@ -262,6 +490,7 @@ def create_traced_gateway_client(
             reuse_principal=cache_reuse_principal,
             reuse_context=cache_reuse_context,
             require_reuse_authorization=require_reuse_authorization,
+            reuse_guard=reuse_guard,
         )
     cache_settlement_session = getattr(raw_client, "_cache_settlement_session", None)
     if cache_settlement_session is None:
@@ -284,6 +513,15 @@ def create_traced_gateway_client(
         cache_settlement_session=cache_settlement_session,
         producer_settlement_store=producer_settlement_store,
         producer_budget_key=producer_budget_key,
+        producer_admission_guard=(
+            partial(_current_producer_admission, reuse_scope) if reuse_scope is not None else None
+        ),
+        producer_begin_executor=(
+            partial(_current_producer_begin_executor, reuse_scope)
+            if reuse_scope is not None
+            else None
+        ),
+        producer_intent_observer=(reuse_scope.intent_observer if reuse_scope is not None else None),
     )
 
 

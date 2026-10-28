@@ -38,12 +38,24 @@ from polisyos.core.llm.response import (
     normalize_llm_cost_evidence as normalize_llm_cost_evidence,
 )
 from polisyos.core.llm.settlement import (
+    LLMProducerAdmissionGuard as LLMProducerAdmissionGuard,
+)
+from polisyos.core.llm.settlement import (
     LLMProducerEvent as LLMProducerEvent,
+)
+from polisyos.core.llm.settlement import (
+    LLMProducerIntent as LLMProducerIntent,
+)
+from polisyos.core.llm.settlement import (
+    LLMSettlementOwnershipError as LLMSettlementOwnershipError,
 )
 
 __all__.extend(
     [
+        "LLMProducerAdmissionGuard",
         "LLMProducerEvent",
+        "LLMProducerIntent",
+        "LLMSettlementOwnershipError",
         "normalize_llm_cost_evidence",
     ]
 )

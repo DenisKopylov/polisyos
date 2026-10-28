@@ -37,7 +37,9 @@ from .cache_settlement import CacheSettlementSession, session_for_cache_client
 from .protocols import LLMClientProtocol
 from .response import LLMResponseData, extract_llm_response_data
 from .settlement import (
+    LLMProducerAdmissionGuard,
     LLMProducerEvent,
+    LLMProducerIntent,
     LLMProducerSettlement,
     LLMSettledResponse,
     LLMSettlementAck,
@@ -216,6 +218,9 @@ class TracedLLMClient:
         cache_settlement_session: CacheSettlementSession | None = None,
         producer_settlement_store: Any | None = None,
         producer_budget_key: str = "run",
+        producer_admission_guard: LLMProducerAdmissionGuard | None = None,
+        producer_intent_observer: Callable[[LLMProducerIntent, object], None] | None = None,
+        producer_begin_executor: LLMProducerAdmissionGuard | None = None,
     ) -> None:
         if prompt_mode not in {"auto", "native", "user"}:
             raise ValueError("prompt_mode must be 'auto', 'native', or 'user'")
@@ -230,6 +235,9 @@ class TracedLLMClient:
         self._cache_settlement_session = cache_settlement_session
         self._producer_settlement_store = producer_settlement_store
         self._producer_budget_key = producer_budget_key
+        self._producer_admission_guard = producer_admission_guard
+        self._producer_intent_observer = producer_intent_observer
+        self._producer_begin_executor = producer_begin_executor
         self._producer_intents_by_event: dict[str, Any] = {}
         self._pending_ledger_observation_ids: set[str] = set()
         self._producer_intents_lock = threading.Lock()
@@ -285,6 +293,9 @@ class TracedLLMClient:
     async def list_model_ids(self, *, timeout: float | None = None) -> list[str]:
         """Forward gateway model preflight through the tracing wrapper."""
 
+        guard = self._producer_admission_guard
+        if guard is not None:
+            guard(lambda: None)
         list_models = self._client.list_model_ids
         result = list_models(timeout=timeout)
         if inspect.isawaitable(result):
@@ -454,13 +465,37 @@ class TracedLLMClient:
             and active_route.store is not store
         ):
             raise LLMSettlementOwnershipError("producer_settlement_owner_conflict")
-        intent = begin(
-            event_id,
-            request_digest,
-            key=self._producer_budget_key,
-            model=self._model_name,
-            provider=self._provider_name or provider or self._detect_provider(),
-        )
+
+        def begin_owned() -> Any:
+            selected_provider = self._provider_name or provider or self._detect_provider()
+
+            def durable_begin() -> Any:
+                return begin(
+                    event_id,
+                    request_digest,
+                    key=self._producer_budget_key,
+                    model=self._model_name,
+                    provider=selected_provider,
+                )
+
+            executor = self._producer_begin_executor
+            intent = executor(durable_begin) if executor is not None else durable_begin()
+            observer = self._producer_intent_observer
+            if observer is not None:
+                observer(
+                    LLMProducerIntent(
+                        event_id,
+                        request_digest,
+                        self._producer_budget_key,
+                        self._model_name,
+                        selected_provider,
+                    ),
+                    intent,
+                )
+            return intent
+
+        guard = self._producer_admission_guard
+        intent = guard(begin_owned) if guard is not None else begin_owned()
         if active_route is not None and active_route.owner is self:
             active_route.intent = intent
         with self._producer_intents_lock:
@@ -537,6 +572,9 @@ class TracedLLMClient:
 
     def _resolve_producer_route(self) -> _ProducerSettlementRoute:
         """Select one real wrapper/store owner and reject ambiguous nested stores."""
+        guard = self._producer_admission_guard
+        if guard is not None:
+            guard(lambda: None)
         clients = self._traced_client_chain()
         inherited = _ACTIVE_PRODUCER_ROUTE.get()
         if inherited is not None and any(client is self for client in inherited.clients):
@@ -1092,6 +1130,8 @@ class TracedLLMClient:
                     route=route,
                 )
             except Exception:
+                if self._producer_admission_guard is not None:
+                    raise
                 logging.getLogger(__name__).warning(
                     "Unable to persist cache reuse intent", exc_info=True
                 )

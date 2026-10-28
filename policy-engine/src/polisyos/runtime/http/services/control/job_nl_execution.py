@@ -14,6 +14,9 @@ from polisyos.runtime.quality.evaluation_modes import ExecutionIntentBand
 from .job_nl_publication import _n4_proposal_progress_with_budget
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from polisyos.core.artifacts import ArtifactRef
     from polisyos.runtime.http.services.control.generation_cycle import (
         CompiledRecursiveGenerationCycleRun,
     )
@@ -152,10 +155,35 @@ class ControlNLJobExecutionMixin:
     ):
         """Run the already-admitted compiler inside its producer binding scope."""
         from polisyos.common import async_tools
+        from polisyos.core.contracts.control import DataSourceBinding
+        from polisyos.runtime.http.resilience import run_guarded_dependency_operation
+        from polisyos.runtime.http.services.control.nl_pipeline import (
+            NaturalLanguagePipelineRefusalError,
+            _nl_snapshot_cache_reuse_binding,
+        )
+        from polisyos.runtime.http.services.control.producer_basis import (
+            _ControlJobProducerIntent,
+            control_job_producer_basis_scope,
+        )
         from polisyos.runtime.quality.recursive_generation_cycle import (
             RecursiveCycleBudget,
         )
         from polisyos.scientist import BudgetState
+        from polisyos.scientist.orchestration.llm.factory import (
+            _gateway_cache_reuse_scope,
+        )
+
+        if (
+            context.execution_scope.status != "established"
+            or context.execution_scope.actor_authenticated is not True
+            or context.producer_run_binding is None
+            or context.core_run_context is None
+        ):
+            raise NaturalLanguagePipelineRefusalError(
+                "nl_producer_ownership_not_established",
+                "LLM work requires an admitted tenant/cell producer owner. "
+                "Resubmit through an authenticated scoped route.",
+            )
 
         job = context.job
         payload = context.payload
@@ -193,7 +221,73 @@ class ControlNLJobExecutionMixin:
             job=context.job,
             execution_scope=context.execution_scope,
         )
-        with producer_run_binding_scope:
+        cache_authorizer = getattr(self, "_llm_cache_reuse_authorizer", None)
+        raw_data_source = payload.get("data_source")
+        data_source = (
+            DataSourceBinding.model_validate(raw_data_source)
+            if raw_data_source is not None
+            else None
+        )
+        cache_principal, cache_context = _nl_snapshot_cache_reuse_binding(
+            data_source=data_source,
+            execution_scope=context.execution_scope,
+            artifact_store=self._artifact_store,
+            authorizer=cache_authorizer,
+        )
+
+        def bounded_operation[T](operation: Callable[[], T]) -> T:
+            return run_guarded_dependency_operation(self._control_store, operation)
+
+        def validate_current_admission() -> None:
+            bounded_operation(
+                lambda: self._control_store.verify_llm_producer_admission(
+                    expected=context.admission
+                )
+            )
+
+        def persist_producer_intent(source: _ControlJobProducerIntent) -> ArtifactRef:
+            actual_binding = source.begin_receipt.run_binding
+            if actual_binding is None:
+                raise ValueError("producer_basis_actual_binding_missing")
+            return self._put_json_artifact_ref(
+                source.model_dump(mode="json"),
+                kind=source.ARTIFACT_KIND,
+                schema_name=source.ARTIFACT_SCHEMA_NAME,
+                schema_version=source.ARTIFACT_SCHEMA_VERSION,
+                tenant_context=ArtifactTenantContextInfo(
+                    tenant_id=actual_binding.tenant_id,
+                    cell_id=actual_binding.cell_id,
+                ),
+            )
+
+        def readback_producer_intent(event_id: str) -> object:
+            return bounded_operation(
+                lambda: self._llm_producer_settlement_store.resolve_producer_event_safe(event_id)
+            )
+
+        producer_basis_scope = control_job_producer_basis_scope(
+            context=context.core_run_context,
+            run_binding=context.producer_run_binding,
+            attempt=context.admission.attempt,
+            persist=persist_producer_intent,
+            readback=readback_producer_intent,
+        )
+        with (
+            producer_run_binding_scope,
+            producer_basis_scope as producer_basis,
+            _gateway_cache_reuse_scope(
+                authorizer=cache_authorizer,
+                principal=cache_principal,
+                context=cache_context,
+                cache=getattr(self, "_llm_prompt_cache", None),
+                run_id=str(job.run_id),
+                settlement_store=self._llm_producer_settlement_store,
+                reuse_guard=bounded_operation,
+                validate_admission=validate_current_admission,
+                intent_observer=producer_basis.observe,
+                on_close=producer_basis.close_admission,
+            ),
+        ):
             compiled = async_tools.run_coro_sync(
                 self.compile_and_run_recursive_generation_cycle(
                     raw_request=str(payload.get("request") or ""),
@@ -617,6 +711,7 @@ class ControlNLJobExecutionMixin:
         from polisyos.runtime.quality.generation_source import (
             GenerationSourceRepository,
             N4CandidateProposalLocator,
+            N4CandidateProposalRecordV3,
             N4CandidateProposalSimulationDisposition,
             _generation_source_read_result,
         )
@@ -690,6 +785,8 @@ class ControlNLJobExecutionMixin:
                 cell_id=cell_id,
                 raw_request=raw_request,
             )
+        if type(proposal_record) is not N4CandidateProposalRecordV3:
+            raise RuntimeError("n4_candidate_proposal_current_cost_source_missing")
         read_result = _generation_source_read_result(proposal_record, read_trace)
         if read_result is None:
             raise RuntimeError("generation_source_read_provenance_missing")

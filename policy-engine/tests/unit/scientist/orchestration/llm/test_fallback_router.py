@@ -11,11 +11,10 @@ from polisyos.scientist.orchestration.llm.fallback_router import (
     EndpointConfig,
     FallbackRouter,
 )
-from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMResponse, GatewayUsage
 
 
-def _ok_response(content: str = "ok") -> GatewayLLMResponse:
-    return GatewayLLMResponse(content=content, usage=GatewayUsage())
+def _ok_response(content: str = "ok") -> dict[str, object]:
+    return {"model": "fixture-model", "choices": [{"message": {"content": content}}]}
 
 
 @pytest.fixture
@@ -35,7 +34,7 @@ class TestFallbackRouter:
     async def test_primary_success(self, two_endpoints):
         router = FallbackRouter(two_endpoints)
         with patch(
-            "polisyos.scientist.orchestration.llm.fallback_router.GatewayLLMClient.generate",
+            "polisyos.scientist.orchestration.llm.fallback_router.GatewayLLMClient._post_json",
             new_callable=AsyncMock,
             return_value=_ok_response("primary"),
         ):
@@ -55,7 +54,7 @@ class TestFallbackRouter:
 
         router = FallbackRouter(two_endpoints)
         with patch(
-            "polisyos.scientist.orchestration.llm.fallback_router.GatewayLLMClient.generate",
+            "polisyos.scientist.orchestration.llm.fallback_router.GatewayLLMClient._post_json",
             side_effect=_mock_generate,
         ):
             result = await router.generate(user="hi")
@@ -66,7 +65,7 @@ class TestFallbackRouter:
         router = FallbackRouter(two_endpoints)
         with (
             patch(
-                "polisyos.scientist.orchestration.llm.fallback_router.GatewayLLMClient.generate",
+                "polisyos.scientist.orchestration.llm.fallback_router.GatewayLLMClient._post_json",
                 new_callable=AsyncMock,
                 side_effect=RuntimeError("down"),
             ),
@@ -88,7 +87,7 @@ class TestFallbackRouter:
         router = FallbackRouter(two_endpoints)
         with (
             patch(
-                "polisyos.scientist.orchestration.llm.fallback_router.GatewayLLMClient.generate",
+                "polisyos.scientist.orchestration.llm.fallback_router.GatewayLLMClient._post_json",
                 side_effect=_mock_generate,
             ),
             patch(
@@ -105,7 +104,7 @@ class TestFallbackRouter:
         router = FallbackRouter(two_endpoints)
         with (
             patch(
-                "polisyos.scientist.orchestration.llm.fallback_router.GatewayLLMClient.generate",
+                "polisyos.scientist.orchestration.llm.fallback_router.GatewayLLMClient._post_json",
                 new_callable=AsyncMock,
                 side_effect=KeyboardInterrupt("stop"),
             ),

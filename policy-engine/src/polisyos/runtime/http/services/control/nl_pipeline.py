@@ -233,7 +233,11 @@ def _nl_snapshot_cache_reuse_binding(
     bytes and manifest profile; the injected reuse owner must independently
     resolve those bytes and authorize the current principal/epoch before every hit.
     """
-    from polisyos.core.artifacts import ArtifactID, artifact_manifest_profile_sha256
+    from polisyos.core.artifacts import (
+        ArtifactID,
+        artifact_manifest_profile_sha256,
+        read_core_manifest_profile,
+    )
     from polisyos.core.contracts.fabric import DataSnapshotRef
     from polisyos.runtime.http.services.control_plane_store import ControlJobExecutionScope
 
@@ -246,14 +250,17 @@ def _nl_snapshot_cache_reuse_binding(
         or not execution_scope.tenant_id
         or not execution_scope.cell_id
         or type(data_source) is not DataSourceBinding
-        or not isinstance(data_source.data_snapshot_ref, str)
-        or not data_source.data_snapshot_ref
+        or not isinstance(data_source.data_snapshot_ref, (str, DataSnapshotRef))
     ):
         return None, None
     try:
-        artifact_id = ArtifactID.model_validate(data_source.data_snapshot_ref)
-        selected_ref = DataSnapshotRef(artifact_id=artifact_id)
-        manifest = artifact_store.get_manifest(selected_ref.artifact_id)
+        raw_ref = data_source.data_snapshot_ref
+        selected_ref = (
+            raw_ref
+            if type(raw_ref) is DataSnapshotRef
+            else DataSnapshotRef(artifact_id=ArtifactID.model_validate(raw_ref))
+        )
+        manifest = read_core_manifest_profile(artifact_store, selected_ref)[0]
         content = artifact_store.get_bytes(selected_ref.artifact_id)
         version = artifact_manifest_profile_sha256(manifest)
     except Exception:

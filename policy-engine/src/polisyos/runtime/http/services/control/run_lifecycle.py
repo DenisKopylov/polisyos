@@ -8207,7 +8207,133 @@ class ControlPlaneService(
             raise KeyError(job_id)
         if record.state == "cancelled":
             record = self._control_store.get_cancelled_job_verified_record(job_id)
-        return self._current_normative_job_record(record).to_response(request_id=request_id)
+        record = self._current_normative_job_record(record)
+        return self._current_producer_cost_job_record(record).to_response(request_id=request_id)
+
+    def _current_producer_cost_job_record(self, record: ControlJobRecord) -> ControlJobRecord:
+        """Read current proposal costs through the canonical durable event join."""
+        if record.kind != "natural_language_run" or not record.progress.get(
+            "candidate_proposal_ref"
+        ):
+            return record
+        from polisyos.runtime.http.services.debug import (
+            _producer_record_cost_event,
+            _reconcile_producer_cost_event,
+        )
+        from polisyos.runtime.quality.generation_source import (
+            GenerationSourceRepository,
+            N4CandidateProposalLocator,
+            N4CandidateProposalRecordV3,
+        )
+        from polisyos.scientist.orchestration.engine import BudgetLedgerProducerRunBinding
+
+        progress = dict(record.progress)
+        for field in (
+            "cost_events",
+            "nl_preflight_cost_events",
+            "n4_generation_cost_events",
+            "producer_cost_projection_status",
+            "producer_cost_projection_limitation_code",
+            "producer_cost_basis",
+        ):
+            progress.pop(field, None)
+        try:
+            scope = self._control_store.historical_completed_job_execution_scope(
+                job_id=record.job_id, expected_run_id=str(record.run_id or "")
+            )
+            if scope.tenant_id is None or scope.cell_id is None:
+                raise ValueError("producer_cost_job_scope_not_established")
+            terminal = load_completed_control_job_core_run_source(
+                store=self._artifact_store,
+                core_runs_root=self._core_runs_root,
+                job=record,
+                expected_control_run_id=str(record.run_id or ""),
+                tenant_id=scope.tenant_id,
+                cell_id=scope.cell_id,
+            )
+            binding = BudgetLedgerProducerRunBinding(
+                run_id=str(record.run_id),
+                tenant_id=scope.tenant_id,
+                cell_id=scope.cell_id,
+                profile_id=record.effective_execution_profile,
+                control_job_id=record.job_id,
+            )
+            payload = self._load_control_nl_job_payload(record)
+            if terminal.manifest.execution_profile != record.effective_execution_profile:
+                raise ValueError("producer_cost_core_execution_profile_mismatch")
+            locator = N4CandidateProposalLocator.model_validate(progress["candidate_proposal_ref"])
+            if terminal.manifest.outputs != [locator.artifact_ref]:
+                raise ValueError("producer_cost_proposal_not_terminal_output")
+            proposal = GenerationSourceRepository(
+                self._artifact_store
+            ).load_candidate_proposal_for_served_job(
+                locator,
+                job_id=record.job_id,
+                run_id=str(record.run_id),
+                tenant_id=scope.tenant_id,
+                cell_id=scope.cell_id,
+                raw_request=str(payload.get("request") or ""),
+            )
+            if (
+                type(proposal) is not N4CandidateProposalRecordV3
+                or proposal.core_run_id != terminal.run_id
+                or type(proposal.control_job_attempt) is not int
+                or proposal.control_job_attempt != record.attempt
+            ):
+                raise ValueError("producer_cost_current_source_not_established")
+            if self._llm_producer_settlement_store is None:
+                raise ValueError("producer_cost_ledger_unavailable")
+            records = self._llm_producer_settlement_store.list_producer_events_for_run_safe(binding)
+            from polisyos.runtime.http.services.control.producer_basis import (
+                read_control_job_producer_basis,
+            )
+
+            basis = read_control_job_producer_basis(
+                store=self._artifact_store,
+                terminal=terminal,
+                run_binding=binding,
+                attempt=record.attempt,
+            )
+            current_records = {
+                row.event_id: row
+                for row in records
+                if row.control_job_attempt == record.attempt
+                and row.pre_admission_attempt_id is None
+            }
+            if set(basis) != set(current_records):
+                raise ValueError("producer_cost_dispatch_basis_incomplete")
+            for event_id, intent in basis.items():
+                actual = current_records[event_id]
+                if (intent.request_digest, intent.key, intent.model, intent.provider) != (
+                    actual.request_digest,
+                    actual.key,
+                    actual.model,
+                    actual.provider,
+                ):
+                    raise ValueError("producer_cost_dispatch_basis_identity_mismatch")
+            canonical = {row.event_id: _producer_record_cost_event(row) for row in records}
+            for event in proposal.producer_cost_events:
+                reconciled, excluded = _reconcile_producer_cost_event(
+                    event, canonical.get(event.event_id), owner_attempt=record.attempt
+                )
+                if reconciled is None or excluded or reconciled.durability != "ledger":
+                    raise ValueError("producer_cost_source_attempt_not_established")
+            events = [
+                event.model_dump(mode="json")
+                for event in canonical.values()
+                if event.control_job_attempt == record.attempt
+                and event.pre_admission_attempt_id is None
+            ]
+        except (OSError, RuntimeError, TypeError, ValueError):
+            progress["producer_cost_projection_status"] = "not_established"
+            progress["producer_cost_projection_limitation_code"] = (
+                "producer_ledger_reconciliation_failed"
+            )
+        else:
+            progress["cost_events"] = events
+            progress["producer_cost_projection_status"] = "reconciled"
+            progress["producer_cost_basis"] = "core_trace_producer_intents"
+        return replace(record, progress=progress)
 
     def cancel_job(
         self,

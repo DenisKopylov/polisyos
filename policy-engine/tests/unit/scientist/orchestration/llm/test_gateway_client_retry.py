@@ -1173,7 +1173,7 @@ class TestResponseFormatFallback:
             closed = False
 
             def post(self, *a, **kw):
-                payload = dict(kw["json"])
+                payload = json.loads(kw["data"])
                 seen_payloads.append(payload)
                 status = 400 if len(seen_payloads) == 1 else 200
                 return _AsyncCtx(_FakeResp(status))

@@ -11,6 +11,12 @@ from typing import Any
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 
 from .gateway_client import GatewayLLMClient, GatewayLLMResponse
+from .prepared_request import (
+    PreparedLLMRequest,
+    PreparedLLMResult,
+    freeze_wire_object,
+    thaw_wire_object,
+)
 
 _FALLBACK_ROUTER_RUNTIME_ERRORS = (
     OSError,
@@ -106,24 +112,18 @@ class FallbackRouter:
         self._extra_headers = dict(extra_headers or {})
         self._lock = threading.Lock()
 
-    async def generate(
-        self,
-        *,
-        model_override: str | None = None,
-        **kwargs: Any,
-    ) -> GatewayLLMResponse:
-        """Route a generate call through available endpoints.
-
-        Falls through to the next endpoint on failure.  Raises
-        ``RuntimeError`` if all endpoints are exhausted.
-        """
-        last_error: Exception | None = None
+    def prepare_cache_request(
+        self, *, model_override: str | None = None, **kwargs: Any
+    ) -> PreparedLLMRequest:
+        """Freeze the current ordered dispatch candidates; alternate success is not reused."""
+        caller = thaw_wire_object(freeze_wire_object(kwargs))
+        candidates: list[tuple[_EndpointState, GatewayLLMClient, PreparedLLMRequest]] = []
         for state in self._available_endpoints():
             cfg = state.config
             client = GatewayLLMClient(
                 base_url=cfg.url,
                 api_key=cfg.api_key,
-                model=model_override or cfg.model or kwargs.get("model", "default"),
+                model=model_override or cfg.model or caller.get("model", "default"),
                 timeout_s=cfg.timeout_s,
                 max_retries=cfg.max_retries,
                 provider_hint=cfg.provider_hint,
@@ -131,30 +131,56 @@ class FallbackRouter:
                 preset=cfg.preset,
                 default_plugins=[dict(plugin) for plugin in cfg.default_plugins],
             )
-            try:
-                response = await client.generate(**kwargs)
-                with self._lock:
-                    state.record_success()
-                return response
-            except _FALLBACK_ROUTER_RUNTIME_ERRORS as exc:
-                last_error = exc
-                with self._lock:
-                    state.record_failure()
-                emit_degraded_path(
-                    component="scientist.llm.fallback_router",
-                    operation="generate",
-                    reason="endpoint_request_failed",
-                    exc=exc,
-                    details={
-                        "endpoint_url": cfg.url,
-                        "provider_hint": cfg.provider_hint,
-                        "priority": cfg.priority,
-                    },
-                )
-            finally:
-                await client.aclose()
+            candidates.append((state, client, client.prepare_cache_request(**caller)))
+        identity = (
+            candidates[0][2].identity
+            if candidates
+            else freeze_wire_object({"no_available_endpoint": True})
+        )
 
-        raise RuntimeError("All LLM endpoints exhausted") from last_error
+        async def execute() -> PreparedLLMResult:
+            last_error: Exception | None = None
+            for index, (state, client, request) in enumerate(candidates):
+                try:
+                    result = await request.execute()
+                    with self._lock:
+                        state.record_success()
+                    # A later endpoint or negotiated gateway payload cannot be
+                    # promoted to the originally selected request's cache origin.
+                    effective = identity if index == 0 and request.admits(result) else b""
+                    return PreparedLLMResult(result.response, effective)
+                except _FALLBACK_ROUTER_RUNTIME_ERRORS as exc:
+                    last_error = exc
+                    with self._lock:
+                        state.record_failure()
+                    emit_degraded_path(
+                        component="scientist.llm.fallback_router",
+                        operation="generate",
+                        reason="endpoint_request_failed",
+                        exc=exc,
+                        details={
+                            "endpoint_url": state.config.url,
+                            "provider_hint": state.config.provider_hint,
+                            "priority": state.config.priority,
+                        },
+                    )
+                finally:
+                    await client.aclose()
+            raise RuntimeError("All LLM endpoints exhausted") from last_error
+
+        return PreparedLLMRequest(identity, execute, bool(candidates))
+
+    def cache_request_identity(self, **kwargs: Any) -> dict[str, Any]:
+        """Return the actual selected head request, including current availability."""
+        return thaw_wire_object(self.prepare_cache_request(**kwargs).identity)
+
+    async def generate(
+        self, *, model_override: str | None = None, **kwargs: Any
+    ) -> GatewayLLMResponse:
+        """Execute the frozen current dispatch plan through its actual endpoints."""
+        return (
+            await self.prepare_cache_request(model_override=model_override, **kwargs).execute()
+        ).response
 
     async def aclose(self) -> None:
         """No-op close hook for TracedLLMClient compatibility."""

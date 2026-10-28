@@ -14,6 +14,7 @@ from polisyos.scientist.orchestration.llm.gateway_client import (
     GatewayToolCall,
     GatewayUsage,
 )
+from polisyos.scientist.orchestration.llm.prepared_request import prepare_immutable_call
 from polisyos.scientist.orchestration.llm.prompt_cache import (
     CachingLLMClient,
     InMemoryPromptCache,
@@ -28,6 +29,9 @@ def _make_response(content: str = "cached") -> GatewayLLMResponse:
 class _FakeLLMClient:
     def __init__(self) -> None:
         self.calls: list[tuple[tuple[object, ...], dict[str, object]]] = []
+
+    def prepare_cache_request(self, *args, **kwargs):
+        return prepare_immutable_call(self.generate, args, kwargs, reusable=True)
 
     async def generate(self, *args, **kwargs):
         self.calls.append((args, dict(kwargs)))
@@ -277,6 +281,9 @@ class TestCachingLLMClient:
                     '{"sub_tasks":[{"task_id":"task-1","description":"Map access barriers"}]}',
                 ]
 
+            def prepare_cache_request(self, *args, **kwargs):
+                return prepare_immutable_call(self.generate, args, kwargs, reusable=True)
+
             async def generate(self, **kwargs):
                 self.calls.append(dict(kwargs))
                 return GatewayLLMResponse(
@@ -341,6 +348,7 @@ class TestCachingLLMClient:
             user="hello",
             tools=[{"type": "function", "function": {"name": "x"}}],
             temperature=0.0,
+            adapter_options=("tuple", ["nested-list"], ("nested-tuple",)),
         )
         await client.generate(
             user="Use https://example.org/fresh report",
@@ -349,6 +357,10 @@ class TestCachingLLMClient:
         )
 
         assert len(base_client.calls) == 2
+        observed = base_client.calls[0][1]["adapter_options"]
+        assert type(observed) is tuple
+        assert type(observed[1]) is list and type(observed[2]) is tuple
+        assert observed == ("tuple", ["nested-list"], ("nested-tuple",))
         assert cache.size == 0
         assert cache.stats()["skips"] == 2
         assert cache.stats()["skip_reasons"] == {
@@ -684,6 +696,9 @@ def test_shared_cache_flight_can_be_consumed_from_two_event_loops() -> None:
             self.calls = 0
             self.lock = threading.Lock()
 
+        def prepare_cache_request(self, *args, **kwargs):
+            return prepare_immutable_call(self.generate, args, kwargs, reusable=True)
+
         async def generate(self, **kwargs):
             with self.lock:
                 self.calls += 1
@@ -745,3 +760,102 @@ async def test_configured_provider_route_is_part_of_shared_cache_identity() -> N
     await changed.generate(user="same", temperature=0)
     await first.generate(user="same", temperature=0)
     assert len(first_provider.calls) == len(changed_provider.calls) == 1
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("declares_preparation", [False, True])
+@pytest.mark.parametrize(
+    "original_shape", ["object", "alias", "cycle", "view", "subclass", "nonfinite", "deep"]
+)
+async def test_opaque_python_call_preserves_original_values_after_admission(
+    declares_preparation: bool,
+    original_shape: str,
+) -> None:
+    class OriginalValue:
+        def __deepcopy__(self, _memo):
+            raise AssertionError("opaque values must not invoke copying hooks")
+
+        def __str__(self):
+            raise AssertionError("opaque values must not be stringified")
+
+    class Provider:
+        def __init__(self):
+            self.calls = []
+
+        async def generate(self, *args, **kwargs):
+            self.calls.append((args, kwargs))
+            return _make_response("opaque physical result")
+
+    class DeclaredProvider(Provider):
+        def prepare_cache_request(self, *args, **kwargs):
+            return prepare_immutable_call(self.generate, args, kwargs, reusable=True)
+
+    provider = DeclaredProvider() if declares_preparation else Provider()
+    cache = InMemoryPromptCache()
+    client = CachingLLMClient(provider, cache=cache, model="m")
+    shared = ["shared native value"]
+    cycle = []
+    cycle.append(cycle)
+
+    class ListSubclass(list):
+        pass
+
+    if original_shape == "object":
+        original = OriginalValue()
+    elif original_shape == "alias":
+        original = (shared, shared)
+    elif original_shape == "cycle":
+        original = cycle
+    elif original_shape == "view":
+        original = memoryview(b"native bytes")
+    elif original_shape == "subclass":
+        original = ListSubclass(["native subclass value"])
+    elif original_shape == "nonfinite":
+        original = float("nan")
+    else:
+        original = []
+        for _ in range(130):
+            original = [original]
+    values = {
+        "user": "same",
+        "temperature": 0.0,
+        "tools": [{"type": "function", "function": {"name": "x"}}],
+        "adapter_options": original,
+        "metadata": {
+            "caller_annotation": original if original_shape == "object" else "physical-only"
+        },
+    }
+
+    async def refuse(*_args):
+        assert not provider.calls
+        raise RuntimeError("current producer begin refused")
+
+    client.set_producer_settlement_hooks(
+        begin=refuse, settle=lambda *_args: None, unknown=lambda *_args: None
+    )
+    with pytest.raises(RuntimeError, match="current producer begin refused"):
+        await client.generate(**values)
+    assert not provider.calls and cache.size == 0
+
+    begins = []
+
+    def begin(_event, digest, _provider):
+        assert len(provider.calls) == len(begins)
+        begins.append(digest)
+
+    client.set_producer_settlement_hooks(
+        begin=begin, settle=lambda *_args: None, unknown=lambda *_args: None
+    )
+    await client.generate(**values)
+    await client.generate(**values)
+    assert len(provider.calls) == len(begins) == 2 and cache.size == 0
+    assert begins[0] != begins[1]
+    for _args, kwargs in provider.calls:
+        observed = kwargs["adapter_options"]
+        assert observed is original
+        if original_shape == "alias":
+            assert observed[0] is shared and observed[1] is shared
+        if original_shape == "cycle":
+            assert observed[0] is cycle
+        if original_shape == "object":
+            assert kwargs["metadata"]["caller_annotation"] is original

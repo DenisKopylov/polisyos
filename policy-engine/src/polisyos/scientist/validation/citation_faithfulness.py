@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import concurrent.futures
+import contextvars
 import inspect
 import json
 import os
@@ -505,7 +506,10 @@ def _run_span_support_coro_sync(
         loop = None
     if loop and loop.is_running():
         with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-            future = executor.submit(_run_span_support_coro_fresh_loop, coro, timeout_seconds)
+            context = contextvars.copy_context()
+            future = executor.submit(
+                context.run, _run_span_support_coro_fresh_loop, coro, timeout_seconds
+            )
             try:
                 return future.result(timeout=timeout_seconds + 1.0)
             except concurrent.futures.TimeoutError as exc:

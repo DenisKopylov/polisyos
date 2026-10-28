@@ -21,7 +21,7 @@ telemetry, cost estimation, response parsing, and retry logic so domain packages
   unknown, or unmanaged acknowledgment. This does not assert external billing authority.
 - **Cache settlement session** - `polisyos.core.llm.cache_settlement` owns opaque cache-flight
   and response-bound reuse capabilities. Scientist reports flight facts through typed handles;
-  Core keeps the per-client secret, HMAC, and verifier private. A cache marker alone never creates
+  Core keeps the cache-owner secret, HMAC, and verifier private. A cache marker alone never creates
   admitted reuse.
 - **Retry wrapper** - `retry_async` forwards to the shared retry layer.
 
@@ -29,6 +29,7 @@ telemetry, cost estimation, response parsing, and retry logic so domain packages
 
 - `LLMClientProtocol`
 - `TracedLLMClient`
+- `LLMProducerIntent`, `LLMProducerAdmissionGuard`
 - `LLMResponseData`
 - `extract_llm_response_data`
 - `polisyos.core.llm.cache_settlement` exact leaf: `CacheSettlementSession`, opaque handles, and
@@ -60,9 +61,14 @@ telemetry, cost estimation, response parsing, and retry logic so domain packages
 
 The exact cache owns the Core settlement session. Each request wrapper is registered
 explicitly with `bind_cache_settlement_client`; a mutable application attribute cannot
-alias another cache owner. Attestations bind the exact response object **and its content
-digest** to one settled physical origin. A different body on the same response object,
-or a later cache head paired with an earlier flight outcome, is refused.
+alias another cache owner. Attestations bind the exact response object and its whole
+public dataclass projection to one settled physical origin. `cache_response_projection_bytes`
+and `cache_response_digest` own this generic projection; direct flight producers must
+use that digest when settling a cacheable result. The separately owned producer settlement
+acknowledgment and the local raw cache marker are excluded. A changed usage/model/provider,
+raw/tool payload, or body therefore cannot borrow the original proof. Frozen cache entries
+and follower snapshots use the same projection. `CacheReuseEvidence.response_digest` retains
+the monetary event's text digest; `projection_digest` identifies the whole cache proof.
 
 Completed-flight request state is released after its last live waiter. Retained origins
 are bounded independently of a cache adapter: the wrapper's `origin_retention_limit`
@@ -76,3 +82,20 @@ Scientist's ledger owns durable cross-run admission. It verifies the live Core r
 proof and freezes the configured authorizer scope/epoch, then recomputes the cache key
 and both physical/reuse event payloads on reopen. Core does not issue external permission
 or replace the configured authorizer.
+
+An admitted runtime job can supply a producer admission guard, bounded begin executor,
+and mandatory intent observer to `TracedLLMClient`. The observer receives both the typed
+`LLMProducerIntent` and the actual durable begin receipt. Runtime reopens that receipt,
+checks its complete pending identity and actual run/attempt against the current owner,
+and persists it before dispatch. Expected owner fields cannot replace missing returned
+attribution. Current job admission is reselected before and after this operation; no SQL
+transaction or factory state mutex spans dependency callbacks.
+
+Factory closure disables admission immediately, including retained clients and model
+preflight. Already admitted provider work settles against its original durable intent;
+no old lease is reinstated. Runtime's private intent artifact version2.0 retains the actual
+begin receipt. The parent attaches the independent refs to the existing Core trace and
+closes the basis only after factory admission is disabled. A timed-out/pending observer
+leaves the basis explicitly incomplete; it cannot publish a complete monetary projection.
+This adds no ledger format or provider invoice authority. Unscoped legacy clients keep
+their existing contract.

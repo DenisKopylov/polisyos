@@ -2071,6 +2071,34 @@ class ControlPlaneStore:
             manifest_pointer_state=pointer_state,
         )
 
+    def verify_llm_producer_admission(
+        self,
+        *,
+        expected: ControlJobExecutionAdmission,
+    ) -> ControlJobExecutionAdmission:
+        """Verify a current admission in a short database-only transaction."""
+        if type(expected) is not ControlJobExecutionAdmission:
+            raise TypeError("llm_producer_job_admission_untyped")
+        with self._job_transaction():
+            current = self.current_execution_job_admission()
+            if (
+                current.job.kind != "natural_language_run"
+                or current.scope.status != "established"
+                or current.scope.actor_authenticated is not True
+                or not current.scope.actor_subject
+                or current.job.job_id != expected.job.job_id
+                or current.job.run_id != expected.job.run_id
+                or current.job.lease_owner != expected.job.lease_owner
+                or current.attempt != expected.attempt
+                or current.scope != expected.scope
+                or current.job.effective_execution_profile
+                != expected.job.effective_execution_profile
+                or current.admission_capability_manifest_ref
+                != expected.admission_capability_manifest_ref
+            ):
+                raise ControlJobLeaseLostError("llm_producer_job_admission_changed")
+            return current
+
     def _require_current_job_execution_record(
         self,
         *,

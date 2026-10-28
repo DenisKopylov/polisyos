@@ -52,6 +52,8 @@ class BudgetMiddleware:
             ledger.load_or_bootstrap(budget_state) if ledger is not None else budget_state
         )
         self._lock = threading.Lock()
+        # Registry lifetime cannot wait behind monetary dependency I/O.
+        self._producer_binding_lock = threading.Lock()
         self._alerted: set[tuple[str, int]] = set()
         self._active_producer_run_bindings: dict[str, BudgetLedgerProducerRunBinding] = {}
         self._active_producer_run_binding_counts: dict[str, int] = {}
@@ -312,7 +314,7 @@ class BudgetMiddleware:
         ):
             control_job_attempt = prior_scope.control_job_attempt
             pre_admission_attempt_id = prior_scope.pre_admission_attempt_id
-        with self._lock:
+        with self._producer_binding_lock:
             existing = self._active_producer_run_bindings.get(run_binding.run_id)
             if existing is not None and existing != run_binding:
                 raise ValueError("producer_run_binding_conflict")
@@ -331,7 +333,7 @@ class BudgetMiddleware:
             yield
         finally:
             self._producer_attempt_scope.reset(scope_token)
-            with self._lock:
+            with self._producer_binding_lock:
                 if self._active_producer_run_bindings.get(run_binding.run_id) == run_binding:
                     remaining = (
                         self._active_producer_run_binding_counts.get(run_binding.run_id, 1) - 1
@@ -378,7 +380,8 @@ class BudgetMiddleware:
         prefix = "nl-run:"
         if not key.startswith(prefix):
             return None
-        return self._active_producer_run_bindings.get(key.removeprefix(prefix))
+        with self._producer_binding_lock:
+            return self._active_producer_run_bindings.get(key.removeprefix(prefix))
 
     def _attempt_attribution_for(
         self,

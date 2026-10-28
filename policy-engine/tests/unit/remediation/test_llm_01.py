@@ -16,6 +16,7 @@ from polisyos.scientist.orchestration.llm.gateway_client import (
     GatewayLLMResponse,
     GatewayUsage,
 )
+from polisyos.scientist.orchestration.llm.prepared_request import prepare_immutable_call
 from polisyos.scientist.orchestration.llm.prompt_cache import (
     CachingLLMClient,
     InMemoryPromptCache,
@@ -72,6 +73,9 @@ class _PromptProvider:
     def __init__(self, *, raw: dict[str, Any] | None = None) -> None:
         self.calls: list[dict[str, Any]] = []
         self.raw = raw
+
+    def prepare_cache_request(self, *args, **kwargs):
+        return prepare_immutable_call(self.generate, args, kwargs, reusable=True)
 
     async def generate(self, **kwargs: Any) -> GatewayLLMResponse:
         self.calls.append(dict(kwargs))
@@ -205,9 +209,9 @@ async def test_cache_hits_emit_reuse_without_duplicate_provider_usage() -> None:
     )
     traced = _traced(cached, metrics=metrics)
 
-    first = await traced.generate(user="hello")
-    second = await traced.generate(user="hello")
-    third = await traced.generate(user="hello")
+    first = await traced.generate(user="hello", temperature=0)
+    second = await traced.generate(user="hello", temperature=0)
+    third = await traced.generate(user="hello", temperature=0)
 
     assert len(provider.calls) == 1
     assert [event["status"] for event in metrics.events] == ["success", "cache_hit", "cache_hit"]
@@ -242,10 +246,10 @@ async def test_budget_enforcer_charges_misses_not_cache_reuse_and_charges_after_
         model_name="fixture-model",
     )
 
-    await enforcer.generate(user="hello", max_tokens=2, _prompt_tokens_estimate=3)
-    await enforcer.generate(user="hello", max_tokens=2, _prompt_tokens_estimate=3)
+    await enforcer.generate(user="hello", temperature=0, max_tokens=2, _prompt_tokens_estimate=3)
+    await enforcer.generate(user="hello", temperature=0, max_tokens=2, _prompt_tokens_estimate=3)
     await asyncio.sleep(0.04)
-    await enforcer.generate(user="hello", max_tokens=2, _prompt_tokens_estimate=3)
+    await enforcer.generate(user="hello", temperature=0, max_tokens=2, _prompt_tokens_estimate=3)
 
     assert len(provider.calls) == 2
     assert budget_state.spent["run"] == Decimal("0.04")

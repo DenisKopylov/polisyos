@@ -10,9 +10,10 @@ import secrets
 import time
 import weakref
 from collections import OrderedDict
+from collections.abc import Callable
 from dataclasses import dataclass, replace
 from decimal import Decimal
-from typing import Any, Literal
+from typing import Any, Literal, Protocol
 
 CostOrigin = Literal["reported", "estimated", "reuse", "unknown"]
 SettlementStatus = Literal["committed", "unknown", "unmanaged"]
@@ -24,6 +25,23 @@ class LLMSettlementOwnershipError(RuntimeError):
 
 class LLMSettlementIntegrityError(RuntimeError):
     """A nested producer result does not match its owner-bound event and receipt."""
+
+
+class LLMProducerAdmissionGuard(Protocol):
+    """Validate and fence a producer operation under its current owner admission."""
+
+    def __call__[T](self, operation: Callable[[], T]) -> T: ...
+
+
+@dataclass(frozen=True, slots=True)
+class LLMProducerIntent:
+    """Actual central producer begin facts, before external work or reuse settlement."""
+
+    event_id: str
+    request_digest: str
+    key: str
+    model: str
+    provider: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -388,7 +406,7 @@ class _CacheReuseOwner:
             expected_response_digest = retained.response_digest
             self._published.move_to_end((cache_key, request_digest))
         if expected_response_digest is None or expected_response_digest != response_digest:
-            raise ValueError("cache reuse content does not match its successful origin")
+            raise ValueError("cache reuse projection does not match its successful origin")
         signature = self._signature(
             cache_key,
             request_digest,

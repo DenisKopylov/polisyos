@@ -4,6 +4,10 @@ from __future__ import annotations
 
 import json
 import re
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .prepared_request import PreparedLLMRequest
 
 from polisyos.scientist.orchestration.llm.gateway_client import (
     GatewayLLMResponse,
@@ -35,6 +39,47 @@ class SimulatedGatewayLLMClient:
         self.provider_name = provider_hint or self.provider
         self.supported_model_ids = tuple(supported_model_ids or DEFAULT_SIMULATED_MODEL_IDS)
         self.calls: list[dict[str, object]] = []
+
+    def prepare_cache_request(self, *args: object, **kwargs: object) -> PreparedLLMRequest:
+        """Freeze this simulator's complete call and response-producing configuration."""
+        from .prepared_request import (
+            PreparedLLMRequest,
+            PreparedLLMResult,
+            freeze_wire_object,
+            prepare_immutable_call,
+            thaw_wire_object,
+        )
+
+        configuration = freeze_wire_object(
+            {
+                "model": self.model,
+                "provider_name": self.provider_name,
+                "supported_model_ids": self.supported_model_ids,
+            }
+        )
+        values = thaw_wire_object(configuration)
+        detached = SimulatedGatewayLLMClient(
+            model=values["model"],
+            provider_hint=values["provider_name"],
+            supported_model_ids=values["supported_model_ids"],
+        )
+        call = prepare_immutable_call(detached.generate, args, kwargs, reusable=True)
+        identity = freeze_wire_object(
+            {
+                "configuration": values,
+                "call": thaw_wire_object(call.identity),
+            }
+        )
+
+        async def execute() -> PreparedLLMResult:
+            before = len(detached.calls)
+            try:
+                result = await call.execute()
+                return PreparedLLMResult(result.response, identity)
+            finally:
+                self.calls.extend(detached.calls[before:])
+
+        return PreparedLLMRequest(identity, execute, call.reusable)
 
     async def list_model_ids(self, *, timeout: float | None = None) -> list[str]:
         """Return the deterministic model catalog for offline gateway preflight."""

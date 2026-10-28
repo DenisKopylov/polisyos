@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 import uuid
 from collections.abc import AsyncIterator
@@ -18,9 +19,18 @@ from polisyos.common.logger import get_logger
 from polisyos.core.llm import normalize_llm_cost_evidence
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 
+from .prepared_request import (
+    PreparedLLMRequest,
+    PreparedLLMResult,
+    freeze_wire_object,
+    thaw_wire_object,
+)
+
 logger = get_logger(__name__)
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from .streaming import StreamChunk
 
 
@@ -178,6 +188,31 @@ def _should_retry_without_response_format(
     return "json_object" in normalized_body or "response_format" in normalized_body
 
 
+def _dispatch_identity(transport_bytes: bytes, payload_bytes: bytes) -> bytes:
+    transport = thaw_wire_object(transport_bytes)
+    headers = dict(transport["headers"])
+    if transport["generated_retry_nonce"]:
+        # Only the owner-generated transport retry nonce is neutral. Explicit
+        # caller headers and every caller payload field remain in identity.
+        headers = {
+            key: value for key, value in headers.items() if key.lower() != "x-idempotency-key"
+        }
+    projection = freeze_wire_object(
+        {
+            "url": transport["url"],
+            "headers": headers,
+            "timeout_s": transport["timeout_s"],
+            "max_retries": transport["max_retries"],
+            "payload": thaw_wire_object(payload_bytes),
+            "decode_model": transport.get("decode_model"),
+            "provider_hint": transport.get("provider_hint"),
+        }
+    )
+
+    # Public descriptors and result reprs never expose credential/header bytes.
+    return freeze_wire_object({"request_sha256": hashlib.sha256(projection).hexdigest()})
+
+
 class GatewayLLMClient:
     """Small async client for OpenAI-compatible /chat/completions gateways.
 
@@ -235,7 +270,7 @@ class GatewayLLMClient:
             await self._session.close()
             self._session = None
 
-    async def generate(
+    def completion_request_payload(
         self,
         *,
         system: str | None = None,
@@ -253,7 +288,8 @@ class GatewayLLMClient:
         plugins: list[dict[str, Any]] | None = None,
         timeout: float | None = None,
         **kwargs: Any,
-    ) -> GatewayLLMResponse:
+    ) -> dict[str, Any]:
+        """Build the exact completion payload used by the gateway transport."""
         payload: dict[str, Any] = {
             "model": self.model,
             "messages": self._build_messages(
@@ -289,12 +325,94 @@ class GatewayLLMClient:
             if value is not None:
                 payload[key] = value
 
-        raw = await self._post_json(
-            endpoint="/chat/completions",
-            payload=payload,
-            timeout_s=float(timeout) if timeout is not None else self.timeout_s,
+        return payload
+
+    def prepare_cache_request(self, **kwargs: Any) -> PreparedLLMRequest:
+        """Freeze payload and transport once; compare the actual successful dispatch."""
+        caller = thaw_wire_object(freeze_wire_object(kwargs))
+        payload = self.completion_request_payload(**caller)
+        generated_nonce = not any(
+            key.lower() == "x-idempotency-key" and str(value).strip()
+            for key, value in self.extra_headers.items()
         )
-        return self._parse_completion_payload(raw)
+        timeout = caller.get("timeout")
+        transport = freeze_wire_object(
+            {
+                "url": f"{self.base_url}/chat/completions",
+                "headers": self._build_request_headers(idempotency_key=uuid.uuid4().hex),
+                "generated_retry_nonce": generated_nonce,
+                "timeout_s": float(timeout) if timeout is not None else self.timeout_s,
+                "max_retries": self.max_retries,
+                "decode_model": self.model,
+                "provider_hint": self.provider_hint,
+            }
+        )
+        payload_bytes = freeze_wire_object(payload)
+        identity = _dispatch_identity(transport, payload_bytes)
+
+        async def execute() -> PreparedLLMResult:
+            successful: list[bytes] = []
+            raw = await self._post_json(
+                endpoint="/chat/completions",
+                payload=thaw_wire_object(payload_bytes),
+                timeout_s=thaw_wire_object(transport)["timeout_s"],
+                _prepared_transport=transport,
+                _on_success=successful.append,
+            )
+            return PreparedLLMResult(
+                self._parse_completion_payload(
+                    raw,
+                    _prepared_config=(
+                        thaw_wire_object(transport)["decode_model"],
+                        thaw_wire_object(transport)["provider_hint"],
+                    ),
+                ),
+                successful[-1] if successful else b"",
+            )
+
+        return PreparedLLMRequest(identity, execute)
+
+    def cache_request_identity(self, **kwargs: Any) -> dict[str, Any]:
+        """Expose the same detached model request descriptor used by preparation."""
+        return thaw_wire_object(self.prepare_cache_request(**kwargs).identity)
+
+    async def generate(
+        self,
+        *,
+        system: str | None = None,
+        user: str | None = None,
+        messages: list[dict[str, Any]] | None = None,
+        response_format: dict[str, Any] | None = None,
+        tools: list[dict[str, Any]] | None = None,
+        tool_choice: str | dict[str, Any] | None = None,
+        stream: bool | None = None,
+        temperature: float | None = None,
+        max_tokens: int | None = None,
+        seed: int | None = None,
+        metadata: dict[str, Any] | None = None,
+        preset: str | None = None,
+        plugins: list[dict[str, Any]] | None = None,
+        timeout: float | None = None,
+        **kwargs: Any,
+    ) -> GatewayLLMResponse:
+        prepared = self.prepare_cache_request(
+            system=system,
+            user=user,
+            messages=messages,
+            response_format=response_format,
+            tools=tools,
+            tool_choice=tool_choice,
+            stream=stream,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            seed=seed,
+            metadata=metadata,
+            preset=preset,
+            plugins=plugins,
+            timeout=timeout,
+            **kwargs,
+        )
+        return (await prepared.execute()).response
 
     async def list_model_ids(self, *, timeout: float | None = None) -> list[str]:
         """Fetch live model IDs from ``/v1/models``."""
@@ -457,17 +575,39 @@ class GatewayLLMClient:
         endpoint: str,
         payload: dict[str, Any],
         timeout_s: float,
+        _prepared_transport: bytes | None = None,
+        _on_success: Callable[[bytes], None] | None = None,
     ) -> dict[str, Any]:
-        url = f"{self.base_url}{endpoint}"
-        headers = self._build_request_headers(idempotency_key=uuid.uuid4().hex)
+        if _prepared_transport is None:
+            generated_nonce = not any(
+                key.lower() == "x-idempotency-key" and str(value).strip()
+                for key, value in self.extra_headers.items()
+            )
+            _prepared_transport = freeze_wire_object(
+                {
+                    "url": f"{self.base_url}{endpoint}",
+                    "headers": self._build_request_headers(idempotency_key=uuid.uuid4().hex),
+                    "generated_retry_nonce": generated_nonce,
+                    "timeout_s": timeout_s,
+                    "max_retries": self.max_retries,
+                    "decode_model": self.model,
+                    "provider_hint": self.provider_hint,
+                }
+            )
+        transport = thaw_wire_object(_prepared_transport)
+        url, headers = transport["url"], transport["headers"]
+        timeout_s = transport["timeout_s"]
+        payload_bytes = freeze_wire_object(payload)
+        payload = thaw_wire_object(payload_bytes)
+        max_retries = transport["max_retries"]
 
         last_error: Exception | None = None
-        for attempt in range(self.max_retries + 1):
+        for attempt in range(max_retries + 1):
             try:
                 session = await self._ensure_session(timeout_s)
                 async with session.post(
                     url,
-                    json=payload,
+                    data=payload_bytes,
                     headers=headers,
                     timeout=self._request_timeout(timeout_s),
                 ) as response:
@@ -518,6 +658,8 @@ class GatewayLLMClient:
                                 endpoint=endpoint,
                                 payload=fallback_payload,
                                 timeout_s=timeout_s,
+                                _prepared_transport=_prepared_transport,
+                                _on_success=_on_success,
                             )
                             events = fallback_response.setdefault("_gateway_degraded_events", [])
                             if isinstance(events, list):
@@ -526,6 +668,8 @@ class GatewayLLMClient:
                         if not _is_retryable_status(response.status, error_code):
                             raise err
                         raise err
+                    if _on_success is not None:
+                        _on_success(_dispatch_identity(_prepared_transport, payload_bytes))
                     if not raw_text:
                         return {}
                     decoded = json.loads(raw_text, parse_float=_parse_json_float)
@@ -547,7 +691,7 @@ class GatewayLLMClient:
                     # 4xx (except 429): fail immediately, do not retry
                     await self.aclose()
                     raise RuntimeError(str(exc)) from exc
-                if attempt >= self.max_retries:
+                if attempt >= max_retries:
                     break
                 retry_delay = (
                     exc.retry_after_s
@@ -557,7 +701,7 @@ class GatewayLLMClient:
                 await asyncio.sleep(retry_delay)
             except _TRANSPORT_ERRORS as exc:  # pragma: no cover - network errors depend on env
                 last_error = exc
-                if attempt >= self.max_retries:
+                if attempt >= max_retries:
                     break
                 await asyncio.sleep(min(0.5 * (attempt + 1), 2.0))
         await self.aclose()
@@ -581,7 +725,13 @@ class GatewayLLMClient:
             headers["x-idempotency-key"] = (idempotency_key or uuid.uuid4().hex).strip()
         return headers
 
-    def _parse_completion_payload(self, payload: dict[str, Any]) -> GatewayLLMResponse:
+    def _parse_completion_payload(
+        self,
+        payload: dict[str, Any],
+        *,
+        _prepared_config: tuple[str, str | None] | None = None,
+    ) -> GatewayLLMResponse:
+        configured_model, configured_provider = _prepared_config or (self.model, self.provider_hint)
         choices = payload.get("choices")
         first_choice = choices[0] if isinstance(choices, list) and choices else {}
         message = first_choice.get("message") if isinstance(first_choice, dict) else {}
@@ -658,8 +808,8 @@ class GatewayLLMClient:
         return GatewayLLMResponse(
             content=content,
             usage=usage,
-            model=str(payload.get("model") or self.model),
-            provider=_as_str(payload.get("provider")) or self.provider_hint,
+            model=str(payload.get("model") or configured_model),
+            provider=_as_str(payload.get("provider")) or configured_provider,
             request_id=_as_str(payload.get("_gateway_request_id")),
             response_headers=(
                 dict(payload.get("_gateway_response_headers"))

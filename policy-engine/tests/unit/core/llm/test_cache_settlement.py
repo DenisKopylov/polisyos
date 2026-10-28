@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import pickle
+from dataclasses import dataclass, field
 from types import SimpleNamespace
 from unittest.mock import Mock
 
@@ -15,6 +16,7 @@ from polisyos.core.llm.cache_settlement import (
     CacheReuseAttestation,
     CacheSettlementSession,
     bind_cache_settlement_client,
+    cache_response_digest,
     create_cache_settlement_session,
     session_for_cache_client,
 )
@@ -23,6 +25,36 @@ from polisyos.core.llm.response import extract_llm_response_data
 
 class _CacheClient:
     pass
+
+
+def test_same_content_changed_usage_cannot_reuse_an_actual_origin() -> None:
+    client = _CacheClient()
+    session = create_cache_settlement_session(client)
+    response = _ReuseResponse()
+    cache_key, request_digest, origin, outcome = _settled_success(session)
+    proof = session.issue_reuse_attestation(
+        response=response,
+        cache_key=cache_key,
+        request_digest=request_digest,
+        reuse_event_id="full-projection",
+        origin_event_id=origin,
+        outcome=outcome,
+    )
+    evidence = session.verify_reuse_attestation(proof, response)
+    assert evidence is not None
+    assert evidence.response_digest == hashlib.sha256(response.content.encode()).hexdigest()
+    assert evidence.projection_digest == cache_response_digest(response)
+    response.usage["prompt_tokens"] = 999
+    assert session.verify_reuse_attestation(proof, response) is None
+    with pytest.raises(ValueError):
+        session.issue_reuse_attestation(
+            response=response,
+            cache_key=cache_key,
+            request_digest=request_digest,
+            reuse_event_id="same-content-other-usage",
+            origin_event_id=origin,
+            outcome=outcome,
+        )
 
 
 class _RegistrationSubclass(CacheFlightRegistration):
@@ -37,15 +69,17 @@ class _AttestationSubclass(CacheReuseAttestation):
     __slots__ = ()
 
 
+@dataclass
 class _ReuseResponse:
-    def __init__(self) -> None:
-        self.content = "cached result"
-        self.usage = {
+    content: str = "cached result"
+    usage: dict[str, int | float] = field(
+        default_factory=lambda: {
             "prompt_tokens": 12,
             "completion_tokens": 4,
             "cost_usd": 0.75,
         }
-        self._polisyos_cache_hit = True
+    )
+    _polisyos_cache_hit: bool = True
 
 
 def _settled_success(
@@ -67,7 +101,7 @@ def _settled_success(
         producer_attempt_id=attempt_id,
         terminal="success",
         origin_event_id=origin_event_id,
-        response_digest=hashlib.sha256(b"cached result").hexdigest(),
+        response_digest=cache_response_digest(_ReuseResponse()),
         retain_for_s=30,
     )
     return cache_key, request_digest, origin_event_id, outcome
@@ -431,7 +465,7 @@ def test_reuse_attestation_binds_content_as_well_as_response_identity() -> None:
     assert session.verify_reuse_attestation(proof, response) is not None
     response.content = "different body on the same live response"
     assert session.verify_reuse_attestation(proof, response) is None
-    with pytest.raises(ValueError, match="content does not match"):
+    with pytest.raises(ValueError, match="projection does not match"):
         session.issue_reuse_attestation(
             response=response,
             cache_key=cache_key,
@@ -466,7 +500,7 @@ def test_real_settled_origin_reuse_has_a_fixed_producer_expiry(
         producer_attempt_id="ttl-producer",
         terminal="success",
         origin_event_id=origin_id,
-        response_digest=hashlib.sha256(response.content.encode()).hexdigest(),
+        response_digest=cache_response_digest(response),
         retain_for_s=ttl,
     )
     session.release_flight((registration,), outcome)
@@ -511,7 +545,7 @@ def test_invalid_retention_ttl_cannot_publish_a_successful_origin(
             producer_attempt_id="ttl-producer",
             terminal="success",
             origin_event_id="ttl-origin",
-            response_digest=hashlib.sha256(b"cached result").hexdigest(),
+            response_digest=cache_response_digest(_ReuseResponse()),
             retain_for_s=ttl,
         )
     owner = cache_settlement._owner_for(session)

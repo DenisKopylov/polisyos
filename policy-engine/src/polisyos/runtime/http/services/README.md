@@ -9,6 +9,37 @@ Use this package for route-adjacent runtime API behavior that needs shared
 business logic, CAS/artifact access, run lifecycle orchestration, or read-side
 projections. Route handlers should stay thin and delegate behavior here.
 
+Ordinary NL compilation binds every factory client to the live job's logical run,
+actual attempt, producer ledger and cache dependencies. `control/producer_basis.py`
+reopens each actual returned pending ledger begin before dispatch and persists its typed
+version2.0 receipt. The parent attaches those independent refs to the existing Core trace;
+only a closed, complete admission basis can support fresh monetary reconciliation.
+Closure never waits on timed-out factory callbacks, trace writers or the monetary I/O
+mutex. Dependency unavailability/timeout preserves the existing typed retryable boundary
+and cannot authorize replacement provider work.
+
+Fresh job status joins the current terminal Core source, exact selected V3 proposal ref
+and manifest profile, Core run and attempt, then compares the complete reopened begin set
+with the current ledger. This includes actual sibling factory dispatches without a
+proposal observer. Missing/extra/drifted rows or a different source withhold the cost
+projection. It preserves the selected NL queue payload reader and cancelled-job
+verification; historical jobs without the exact source basis are explicitly limited.
+
+Legacy unknown tenant/actor scope remains candidate state, but ordinary queued NL work
+that would create LLM producers now has an explicit costed refusal:
+`nl_producer_ownership_not_established`, with authenticated scoped resubmission as the
+path forward. No tenant or producer owner is synthesized from ambient context. This does
+not change an unknown target-world profile into execution authority or alter pure candidate
+calculations outside this protected physical-work route.
+
+The research NL POST's existing provider preflight is a direct consumer of the shared
+prepared-cache request. Its digest check and physical completion use the same real gateway
+plan. Preflight retains only the cache resource/origin reference and creates fresh wrappers
+per invocation; it does not share mutable tracing hooks or infer a digest from a report.
+The existing pre-admission actor/run/profile/ledger and origin checks remain in force.
+The actual research POST pre-admission replay, distinct same-binding reuse event, altered
+or missing origin controls and late physical settlement are mandatory verification inputs.
+
 ## Role in System
 
 - **Depends on:** `core.artifacts`, `core.contracts`, `core.trace`, `core.security`, and the domain packages used by control-plane calls.

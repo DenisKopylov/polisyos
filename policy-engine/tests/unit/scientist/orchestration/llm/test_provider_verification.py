@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import importlib
 import json
 from datetime import UTC, datetime
@@ -863,6 +864,32 @@ async def test_provider_preflight_records_bound_gateway_completion_and_reuses_ex
 
     expected_amount = Decimal(expected_amount_wire) if expected_amount_wire is not None else None
     module = importlib.import_module("polisyos.scientist.orchestration.llm.provider_verification")
+    gateway_module = importlib.import_module("polisyos.scientist.orchestration.llm.gateway_client")
+    plans: list[Any] = []
+    cache_clients: list[Any] = []
+    gateway_preparations: list[tuple[Any, Any]] = []
+    actual_prepare = module.prepare_cached_request
+    actual_new_client = module._new_preflight_cached_client
+    actual_gateway_prepare = gateway_module.GatewayLLMClient.prepare_cache_request
+
+    def observe_prepare(*args: Any, **kwargs: Any) -> Any:
+        request = actual_prepare(*args, **kwargs)
+        plans.append(request)
+        return request
+
+    def observe_client(**kwargs: Any) -> Any:
+        client = actual_new_client(**kwargs)
+        cache_clients.append(client)
+        return client
+
+    def observe_gateway(client: Any, **kwargs: Any) -> Any:
+        request = actual_gateway_prepare(client, **kwargs)
+        gateway_preparations.append((client, request))
+        return request
+
+    monkeypatch.setattr(module, "prepare_cached_request", observe_prepare)
+    monkeypatch.setattr(module, "_new_preflight_cached_client", observe_client)
+    monkeypatch.setattr(gateway_module.GatewayLLMClient, "prepare_cache_request", observe_gateway)
     _isolate_loopback_preflight_environment(monkeypatch)
     monkeypatch.setattr(module, "_PREFLIGHT_CACHE", {})
     monkeypatch.setattr(module, "_PREFLIGHT_COMPLETION_CACHE", {})
@@ -1024,6 +1051,26 @@ async def test_provider_preflight_records_bound_gateway_completion_and_reuses_ex
         check for check in alternate_provider_report.checks if check.name == "tiny_completion"
     )
     first_ref = first_tiny.details["producer_event"]
+    # Every invocation prepares the actual gateway once. Successful calls use
+    # fresh traced/cache wrappers, while only the exact same owner/request shares
+    # a retained cache resource. The remaining plans are denied before any send.
+    assert len(gateway_preparations) == len(plans)
+    assert len({id(client) for client, _request in gateway_preparations}) == len(plans)
+    assert len(cache_clients) == len({id(client) for client in cache_clients})
+    assert cache_clients[0]._cache is cache_clients[1]._cache
+    assert all(client._cache is not cache_clients[0]._cache for client in cache_clients[2:])
+    successful_reports = (
+        report,
+        cached_report,
+        other_report,
+        other_owner_report,
+        alternate_provider_report,
+    )
+    assert len(cache_clients) == len(successful_reports)
+    for report_item, plan in zip(successful_reports, plans[: len(successful_reports)], strict=True):
+        event_ref = next(check for check in report_item.checks if check.name == "tiny_completion")
+        assert event_ref.details["producer_event"]["request_digest"] == plan.request_digest
+    assert all(client._session is None for client, _request in gateway_preparations)
     cached_ref = cached_tiny.details["producer_event"]
     event_ids = {
         first_ref["event_id"],
@@ -1430,3 +1477,218 @@ async def test_provider_preflight_gateway_exception_preserves_unknown_settlement
         assert len(records) == 1
         assert records[0].status == "unknown"
         assert records[0].run_binding == binding
+
+
+@pytest.fixture
+async def prepared_preflight_gateway(monkeypatch, tmp_path):
+    """Use actual catalog/completion HTTP and ledger owners for bridge controls."""
+    from aiohttp import web
+
+    from polisyos.scientist.orchestration.engine.budget import BudgetState
+    from polisyos.scientist.orchestration.engine.budget_ledger import (
+        BudgetLedgerProducerRunBinding,
+        FileBudgetLedger,
+    )
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+
+    module = importlib.import_module("polisyos.scientist.orchestration.llm.provider_verification")
+    _isolate_loopback_preflight_environment(monkeypatch)
+    monkeypatch.setattr(module, "_PREFLIGHT_CACHE", {})
+    monkeypatch.setattr(module, "_PREFLIGHT_COMPLETION_CACHE", {})
+    monkeypatch.setenv("POLISYOS_LLM_CACHE_TTL_S", "300")
+    monkeypatch.setenv("POLISYOS_LLM_CACHE_MAXSIZE", "128")
+    state: dict[str, Any] = {
+        "reject_format": False,
+        "wait_for_response": False,
+        "bodies": [],
+        "gateways": [],
+        "entered": asyncio.Event(),
+        "release": asyncio.Event(),
+    }
+    actual_prepare = module.GatewayLLMClient.prepare_cache_request
+
+    def observe_gateway(client: Any, **kwargs: Any) -> Any:
+        state["gateways"].append(client)
+        return actual_prepare(client, **kwargs)
+
+    monkeypatch.setattr(module.GatewayLLMClient, "prepare_cache_request", observe_gateway)
+
+    async def catalog(request: web.Request) -> web.Response:
+        assert request.headers.get("Authorization") == "Bearer sk-preflight-prepared-local-key"
+        if request.path == "/v1/models":
+            return web.json_response({"data": [{"id": "gpt-4o"}]})
+        return web.json_response({"status": "ok"})
+
+    async def completion(request: web.Request) -> web.Response:
+        assert request.headers.get("Authorization") == "Bearer sk-preflight-prepared-local-key"
+        body = await request.json()
+        state["bodies"].append(body)
+        if "response_format" in body and state["reject_format"]:
+            return web.json_response(
+                {"error": {"message": "response_format json_object unavailable"}}, status=400
+            )
+        state["entered"].set()
+        if state["wait_for_response"]:
+            await state["release"].wait()
+        return web.json_response(
+            {
+                "model": "gpt-4o",
+                "id": f"prepared-{len(state['bodies'])}",
+                "choices": [{"message": {"content": '{"status":"ok"}'}}],
+                "usage": {"prompt_tokens": 2, "completion_tokens": 1, "cost_usd": 0.001},
+            }
+        )
+
+    app = web.Application()
+    app.router.add_get("/{tail:.*}", catalog)
+    app.router.add_post("/v1/chat/completions", completion)
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, "127.0.0.1", 0)
+    await site.start()
+    assert site._server is not None
+    port = site._server.sockets[0].getsockname()[1]
+    ledger_path = tmp_path / "prepared-preflight.json"
+    store = BudgetMiddleware(BudgetState(), ledger=FileBudgetLedger(ledger_path))
+    binding = BudgetLedgerProducerRunBinding(
+        run_id="prepared-run",
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        profile_id="research",
+        control_job_id="prepared-job",
+    )
+    kwargs = {
+        "models": ["gpt-4o"],
+        "base_url": f"http://127.0.0.1:{port}/v1",
+        "provider": "prepared-local-gateway",
+        "api_key": "sk-preflight-prepared-local-key",
+        "producer_settlement_store": store,
+        "producer_run_binding": binding,
+        "producer_budget_key": "nl-run:prepared-run",
+        "require_producer_settlement": True,
+        "pre_admission_attempt_id": "a" * 32,
+    }
+    try:
+        yield module, kwargs, state, ledger_path, binding
+    finally:
+        state["release"].set()
+        await runner.cleanup()
+
+
+def _prepared_preflight_event(report: Any) -> dict[str, Any]:
+    assert report.status == "ok"
+    return next(check for check in report.checks if check.name == "tiny_completion").details[
+        "producer_event"
+    ]
+
+
+@pytest.mark.asyncio
+async def test_preflight_uses_its_exact_prepared_request_across_catalog_waits(
+    monkeypatch,
+    prepared_preflight_gateway,
+) -> None:
+    module, kwargs, state, ledger_path, binding = prepared_preflight_gateway
+    actual_request = module._preflight_completion_request_kwargs()
+    actual_request["metadata"] = {"cache_buster": "A", "nested": {"policy_at": "A"}}
+    monkeypatch.setattr(module, "_preflight_completion_request_kwargs", lambda: actual_request)
+    fetch = module._default_fetch_json
+    changed = False
+
+    async def change_after_health(url: str, **options: Any) -> Any:
+        nonlocal changed
+        result = await fetch(url, **options)
+        if url.endswith("/health") and not changed:
+            actual_request["metadata"]["cache_buster"] = "B"
+            actual_request["metadata"]["nested"]["policy_at"] = "B"
+            changed = True
+        return result
+
+    first = await run_provider_preflight(**kwargs, fetch_json=change_after_health)
+    second = await run_provider_preflight(**kwargs)
+    third = await run_provider_preflight(**kwargs)
+    different_transport = await run_provider_preflight(**kwargs, timeout_s=11)
+    rows = [
+        _prepared_preflight_event(report) for report in (first, second, third, different_transport)
+    ]
+    assert [row["event_kind"] for row in rows] == ["provider", "provider", "reuse", "provider"]
+    assert len(state["bodies"]) == 3
+    assert state["bodies"][0]["metadata"] == {"cache_buster": "A", "nested": {"policy_at": "A"}}
+    assert all(
+        body["metadata"] == {"cache_buster": "B", "nested": {"policy_at": "B"}}
+        for body in state["bodies"][1:]
+    )
+    assert rows[0]["request_digest"] != rows[1]["request_digest"]
+    assert rows[1]["request_digest"] == rows[2]["request_digest"]
+    assert rows[3]["request_digest"] != rows[2]["request_digest"]
+    assert rows[2]["origin_event_id"] == rows[1]["event_id"]
+    from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
+
+    persisted = FileBudgetLedger(ledger_path).list_producer_events_for_run(binding)
+    assert {row.event_id for row in persisted} == {row["event_id"] for row in rows}
+    assert all(
+        row.run_binding == binding and row.pre_admission_attempt_id == "a" * 32 for row in persisted
+    )
+    assert all(client._session is None for client in state["gateways"])
+
+
+@pytest.mark.asyncio
+async def test_preflight_negotiated_success_cannot_supply_requested_format_reuse(
+    prepared_preflight_gateway,
+) -> None:
+    _module, kwargs, state, _ledger_path, _binding = prepared_preflight_gateway
+    state["reject_format"] = True
+    first = await run_provider_preflight(**kwargs)
+    state["reject_format"] = False
+    second = await run_provider_preflight(**kwargs)
+    third = await run_provider_preflight(**kwargs)
+    rows = [_prepared_preflight_event(report) for report in (first, second, third)]
+    assert [row["event_kind"] for row in rows] == ["provider", "provider", "reuse"]
+    assert rows[2]["origin_event_id"] == rows[1]["event_id"]
+    assert rows[2]["origin_event_id"] != rows[0]["event_id"]
+    assert ["response_format" in body for body in state["bodies"]] == [True, False, True]
+    assert all(client._session is None for client in state["gateways"])
+
+
+@pytest.mark.asyncio
+async def test_cancelled_preflight_waiter_preserves_admitted_gateway_settlement_and_close(
+    prepared_preflight_gateway,
+) -> None:
+    from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
+
+    _module, kwargs, state, ledger_path, binding = prepared_preflight_gateway
+    state["wait_for_response"] = True
+    pending = asyncio.create_task(run_provider_preflight(**kwargs))
+    try:
+        await asyncio.wait_for(state["entered"].wait(), timeout=3)
+        pending.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await pending
+        records = FileBudgetLedger(ledger_path).list_producer_events_for_run(binding)
+        assert len(records) == 1 and records[0].status == "pending"
+        assert records[0].pre_admission_attempt_id == "a" * 32
+        assert any(
+            client._session is not None and not client._session.closed
+            for client in state["gateways"]
+        )
+    finally:
+        state["release"].set()
+        if not pending.done():
+            pending.cancel()
+            await asyncio.gather(pending, return_exceptions=True)
+
+    async def settled_and_closed() -> Any:
+        while True:
+            records = FileBudgetLedger(ledger_path).list_producer_events_for_run(binding)
+            if (
+                records
+                and records[0].status == "committed"
+                and all(client._session is None for client in state["gateways"])
+            ):
+                return records[0]
+            await asyncio.sleep(0.01)
+
+    final = await asyncio.wait_for(settled_and_closed(), timeout=3)
+    assert final.event_id == records[0].event_id
+    assert final.run_binding == binding and final.pre_admission_attempt_id == "a" * 32
+    assert final.cost_origin == "reported" and final.amount is not None
+    assert len(state["bodies"]) == 1

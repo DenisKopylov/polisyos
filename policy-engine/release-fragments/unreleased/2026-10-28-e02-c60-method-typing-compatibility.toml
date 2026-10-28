@@ -1,0 +1,16 @@
+id = "2026-10-28-e02-c60-method-typing-compatibility"
+title = "Preserve registered and structural Foundry method compiler typing"
+type = "fixed"
+component = "foundry"
+owner = "team-policyos-foundry"
+summary = "Preserve precise fusion flow narrowing and allow both existing structural compiler methods and registered Foundry methods through the actual private compiler boundary."
+evidence = ["tests/repo_quality/tools/test_foundry_method_typing_compatibility.py", "tests/unit/foundry/methods/backends/test_fused_type_compatibility.py"]
+compatibility = "The fusion eligibility checks and fallback remain unchanged. The compiler's original structural protocol remains supported, alongside the registry's existing erased generic class return. Specialized registry registrations retain their existing contract. No generated stub, wire schema, endpoint or client changes."
+change_class = "internal"
+surface_classification = "internal Foundry fusion and compiler type boundaries; existing public behavior preserved"
+migration = "No migration. Re-run strict source and consumer checks, fusion fallback, relevant consumers and removal controls under the retained backend profile."
+limitations = "Source proposal until the real source and runtime witnesses execute. The optional Ray profile remains separately required; no G acceptance or E02 closure is assigned."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/foundry/methods/compiler/README.md"]
+runbook_docs = []

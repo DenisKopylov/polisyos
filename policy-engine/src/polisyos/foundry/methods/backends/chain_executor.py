@@ -753,7 +753,7 @@ def _execute_sequential_chain(
                 method_a = None
                 method_b = None
 
-            fused_supported = (
+            if (
                 method_a is not None
                 and method_b is not None
                 and b_binding is not None
@@ -761,9 +761,7 @@ def _execute_sequential_chain(
                 and "materialize_input" not in method_a.__dict__
                 and "dematerialize_output" not in method_a.__dict__
                 and "materialize_input" not in method_b.__dict__
-            )
-
-            if fused_supported and b_binding is not None:
+            ):
                 try:
                     method_a, materialized_state_a, _, prepared_params_a = _collect_node_inputs(
                         chain=chain,

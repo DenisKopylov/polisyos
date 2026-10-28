@@ -23,7 +23,7 @@ import jax.numpy as jnp
 import numpy as np
 
 from polisyos.foundry.methods.backends.validated import VALIDATED_EXECUTION_PARAM_NAMES
-from polisyos.foundry.methods.base import MethodSignature
+from polisyos.foundry.methods.base import FoundryMethod, MethodSignature
 from polisyos.foundry.methods.compiler.specialization import (
     BackendSpec,
     Specialization,
@@ -688,7 +688,7 @@ class MethodCompiler:
 
     def _compile_method(
         self,
-        method_class: type[FoundryMethodProtocol],
+        method_class: type[FoundryMethodProtocol] | type[FoundryMethod[Any, Any]],
         signature: MethodSignature,
         specialization: Specialization,
         static_params: dict[str, Any],

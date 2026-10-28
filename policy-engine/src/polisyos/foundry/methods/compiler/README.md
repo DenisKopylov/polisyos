@@ -36,6 +36,11 @@ sets no removal date and adds no public-stable entrypoint.
   `selection/registry.py` and catalog family bootstrap modules.
 - Optional runtime integrations must degrade gracefully when dependencies are
   unavailable.
+- Compiler methods accept registered, generically erased `FoundryMethod` classes
+  and previously supported structural `FoundryMethodProtocol` classes. The
+  registry continues to accept specialized state and parameter types. Kernel
+  compilation consumes the declared signature and the class's `pure_step`;
+  neither typing path changes the runtime method or its admission.
 
 ## Compiled chain context boundary
 

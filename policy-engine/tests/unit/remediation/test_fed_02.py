@@ -5,7 +5,9 @@ from __future__ import annotations
 import hashlib
 import json
 import sys
+import tracemalloc
 import weakref
+from dataclasses import replace
 from datetime import UTC, datetime
 
 import pandas as pd
@@ -342,9 +344,8 @@ def _event_ids_from_distinct_join_logs(
     entries: list[MergeLogEntry],
     left: pd.DataFrame,
 ) -> list[str]:
-    """Join sampled log values back to unique source event values in the fixture."""
-    event_by_value = dict(zip(left["value"].tolist(), left["event_id"].tolist(), strict=True))
-    return [str(event_by_value[entry.source_a_value]) for entry in entries]
+    """Read actual event occurrence independently of whether payload values duplicate."""
+    return [str(left.iloc[entry.row_index]["event_id"]) for entry in entries]
 
 
 def test_join_summary_is_bounded_deterministic_and_preserves_full_counters(
@@ -438,7 +439,24 @@ def test_join_summary_is_bounded_deterministic_and_preserves_full_counters(
     assert duplicate_summary is not None
     assert duplicate_summary.total_conflicts == 2
     assert len(duplicate_log) == 2
-    assert duplicate_log[0] == duplicate_log[1]
+    assert {entry.row_index for entry in duplicate_log} == {0, 1}
+    assert all(entry.source_a_occurrence and entry.source_b_occurrence for entry in duplicate_log)
+    for cap in (1, 3):
+        duplicate_request = replace(duplicate_request, audit_sample_size=cap)
+        duplicate_result, actual_log = duplicate_composer.compose(
+            [(duplicate_left, duplicate_left_meta), (duplicate_right, duplicate_right_meta)],
+            CompositionStrategy.JOIN,
+            duplicate_request,
+        )
+        assert _event_ids_from_distinct_join_logs(
+            actual_log, duplicate_left
+        ) == _reference_join_sample_ids(
+            duplicate_left,
+            duplicate_left_meta,
+            duplicate_right_meta,
+            seed=duplicate_request.audit_seed or "",
+            cap=cap,
+        )
 
     # Audit modes alter detail retention only; the numeric result is identical
     # for the same ordered inputs and request semantics.
@@ -633,3 +651,134 @@ def test_union_none_audit_never_passes_details_to_collector(
     assert len(result) == row_count
     assert result["value"].tolist() == [10] * row_count
     assert merge_log == []
+
+
+@pytest.mark.parametrize("audit_level", list(AuditLevel))
+def test_overlay_two_used_secondaries_follow_priority_and_reuse_indexes(monkeypatch, audit_level):
+    """Independent cell table covers two used secondary indexes and NONE work."""
+    primary = pd.DataFrame(
+        {"id": [1, 2], "first": [None, None], "second": [None, None], "third": [None, None]}
+    )
+    b = pd.DataFrame({"id": [1, 2], "first": [10.0, 11.0], "second": [20.0, None]})
+    c = pd.DataFrame({"id": [1, 2], "first": [30.0, None], "third": [40.0, 41.0]})
+    p_meta, b_meta, c_meta = (_source_metadata(name) for name in ["primary", "b", "c"])
+    request = _compose_request(
+        CompositionStrategy.OVERLAY,
+        audit_level=audit_level,
+        key_columns=["id"],
+        primary_source=p_meta.connector_id,
+        manual_priorities={b_meta.connector_id: 1, c_meta.connector_id: 2},
+        audit_sample_size=3,
+        audit_max_entries=10,
+    )
+    calls = {id(b): 0, id(c): 0}
+    original_set_index = pd.DataFrame.set_index
+
+    def observe(self, *args, **kwargs):
+        if id(self) in calls:
+            calls[id(self)] += 1
+        return original_set_index(self, *args, **kwargs)
+
+    monkeypatch.setattr(pd.DataFrame, "set_index", observe)
+    entries_created = 0
+    original_entry = MergeLogEntry
+
+    def counted_entry(*args, **kwargs):
+        nonlocal entries_created
+        entries_created += 1
+        return original_entry(*args, **kwargs)
+
+    monkeypatch.setattr(
+        "polisyos.fabric.connectors.federation.composer.MergeLogEntry", counted_entry
+    )
+    composer = _composer()
+    result, log = composer.compose(
+        [(primary, p_meta), (b, b_meta), (c, c_meta)], request.strategy, request
+    )
+    assert calls == {id(b): 1, id(c): 1}
+    # Derived by explicit primary -> descending secondary priority -> first
+    # non-null cell; source B still actually supplies two cells after C.
+    expected = [(1, 30.0, 20.0, 40.0), (2, 11.0, None, 41.0)]
+    actual = [
+        tuple(None if pd.isna(value) else value for value in row)
+        for row in result[["id", "first", "second", "third"]].itertuples(False, None)
+    ]
+    assert actual == expected
+    summary = composer.get_last_merge_summary()
+    assert summary is not None
+    if audit_level == AuditLevel.NONE:
+        assert entries_created == 0 and log == [] and summary.total_conflicts == 0
+    else:
+        assert entries_created == 5 and summary.total_conflicts == 5
+        assert summary.by_column == {"first": 2, "second": 1, "third": 2}
+        assert summary.by_source_pair == {
+            f"{p_meta.connector_id}->{b_meta.connector_id}": 2,
+            f"{p_meta.connector_id}->{c_meta.connector_id}": 3,
+        }
+        assert len(log) == (5 if audit_level == AuditLevel.FULL else 3)
+        if audit_level == AuditLevel.FULL:
+            events = {
+                (entry.row_key["id"], entry.column, entry.chosen_source, entry.chosen_value)
+                for entry in log
+            }
+            assert events == {
+                (1, "first", c_meta.connector_id, 30.0),
+                (2, "first", b_meta.connector_id, 11.0),
+                (1, "second", b_meta.connector_id, 20.0),
+                (1, "third", c_meta.connector_id, 40.0),
+                (2, "third", c_meta.connector_id, 41.0),
+            }
+
+
+@pytest.mark.parametrize("audit_level", list(AuditLevel))
+def test_union_live_census_has_scoped_python_allocation_measurement(monkeypatch, audit_level):
+    """Record scoped Python peak separately from detail liveness and native RSS."""
+    was_tracing = tracemalloc.is_tracing()
+    if not was_tracing:
+        tracemalloc.start()
+    try:
+        tracemalloc.reset_peak()
+        with monkeypatch.context() as scoped:
+            result, log, summary, live_counts, transient_count = _run_union_with_live_detail_census(
+                scoped, audit_level=audit_level, retain_all_transiently=False
+            )
+        current_bytes, peak_bytes = tracemalloc.get_traced_memory()
+    finally:
+        if not was_tracing:
+            tracemalloc.stop()
+    assert result["value"].tolist() == [10] * 80
+    assert transient_count == 0 and peak_bytes >= current_bytes >= 0 and peak_bytes > 0
+    if audit_level == AuditLevel.NONE:
+        assert log == [] and live_counts == [] and summary.total_conflicts == 0
+    else:
+        assert len(log) == 1 and summary.total_conflicts == 80 and max(live_counts) <= 2
+    print(
+        json.dumps(
+            {
+                "scope": "Python allocations during actual 80-conflict UNION; not pandas/native RSS",
+                "audit_level": audit_level.value,
+                "current_bytes": current_bytes,
+                "peak_bytes": peak_bytes,
+                "existing_tracer": was_tracing,
+            },
+            sort_keys=True,
+        )
+    )
+
+
+def test_real_join_summary_evicts_latest_equal_worst_priority(monkeypatch):
+    """Mixed priorities preserve earliest equal-hash events at the real JOIN surface."""
+    left, right, left_meta, right_meta = _federation_join_case([10, 10, 10, 10])
+    priorities = [5, 5, 5, 4]
+    monkeypatch.setattr(
+        MergeLogCollector, "_stable_hash", lambda self, entry: priorities[entry.row_index]
+    )
+    request = _federation_join_request(AuditLevel.SUMMARY, sample_size=3)
+    composer = _composer()
+    result, log = composer.compose(
+        [(left, left_meta), (right, right_meta)], CompositionStrategy.JOIN, request
+    )
+    assert len(result) == 4 and composer.get_last_merge_summary().total_conflicts == 4
+    assert [entry.row_index for entry in log] == [3, 0, 1]
+    assert _event_ids_from_distinct_join_logs(log, left) == ["event-3", "event-0", "event-1"]
+    assert all(entry.source_a_occurrence and entry.source_b_occurrence for entry in log)

@@ -211,3 +211,155 @@ is logged and does not establish that physical cleanup completed.
 - [Add data source](../../../../docs/how-to/add-data-source.md)
 - [Manage generated artifacts](../../../../docs/how-to/manage-generated-artifacts.md)
 - [Fabric tests map](../../../../tests/unit/fabric/README.md)
+
+## Selected federation derivations
+
+The federation owner can persist a bounded software derivation, then replay it
+from an independently selected `FederationArtifactRef`. Raw leaf identity is an
+exact supported scalar projection plus declaration and selected occurrence.
+Leaf issuer, trust, authorization, currentness, source-universe completeness,
+unit compatibility and independence remain consumer declarations. A replayed
+result has `software_derivation_candidate` assurance, never institutional authority.
+
+A derived input uses `SelectedFederationInput(root, ref, metadata, parents=...)`.
+The child source record contains a parent digest and carrier declaration, with
+no child-owned replacement frame or lineage. The fresh reader receives
+`held_parents={manifest_digest: parent_directory}` separately, resolves the
+actual parent bytes, verifies the selected digest/profile, replays recursively,
+and uses the resulting cells and immutable basis. A registry key alone is not
+admission. Retain the complete transitive held registry with a nested selection.
+
+Direct `DataComposer.compose` can continue an exact live owner-produced frame.
+Its immutable receipt is held separately from dataframe attrs and bound to the
+exact frame object and scalar contents. A copy or parquet reopening does not
+copy that receipt: attrs claiming a basis are refused, and durable continuation
+must use selected-parent replay. Deleting attrs on the same unchanged live
+carrier does not erase its owner basis. Ordinary unmarked leaf tuples remain
+candidate inputs; the software cannot infer an undisclosed history from values.
+
+All four strategies produce cell relations and complete selected-source
+declarations, including empty or noncontributing leaf occurrences. CONSENSUS
+records contributor lists and exclusions. An aggregate cell cannot be ranked as
+a single trust-bearing leaf during a conflicting JOIN; a mixed-source UNION
+row cannot be ranked as one source. Those cases refuse with a typed limitation
+until a composition rule for that quantity is explicitly supplied. Nonconflicting
+and single-parent continuations remain supported for every strategy.
+
+The shared `federation/profile.py` is a technical engineering profile: at most
+32 inputs per composition, 100,000 rows, 1,000 columns, 2,000,000 cells per frame,
+64 KiB string scalars, 8 MiB per encoded member or manifest, and 32 MiB per
+selected traversal. Traversals also cap depth at 8, nodes at 64 and decoded/replayed
+cells at 4,000,000; repeated selected occurrences count as repeated work. Dtypes
+are explicitly restricted by the reader. Scalar/profile scans precede frame
+projection/copy; incremental encoding refuses before retaining an over-budget
+chunk. Conservative pre-allocation wire/lineage bounds can refuse sparse or
+compressible results that would fit after execution. Such inputs need a tighter
+pre-allocation profile, rather than permission to allocate first. Output relation
+projection has a 4 MiB bound. JOIN always estimates actual row multiplicity,
+including normalized multi-key null equivalence and unmatched outer rows, before
+merge; explicit many-to-many also requires `join_max_rows`.
+
+The candidate protocol `/2` replaces only unapplied Cloud `/1` proposal bytes;
+there is no admitted product-v1 compatibility claim. Tagged scalar values cover
+null, bool, bounded int, float64 (including explicit infinities), string and
+nanosecond timestamp. Schema objects, custom resolvers, and source quality/coverage
+objects are refused before publication until an explicit replay profile exists.
+Per-column policy enums and the effective resolver seed round-trip as runtime types.
+A writer returns a ref only after the actual fresh reader accepts it under the
+same held selections and limits.
+
+The existing FED operational bridge route is `fabric/api.py:fabric_get_data`:
+its current single-connector fetch still needs an explicitly assigned federation
+request/storage/selected-readback extension. The kernel does not make that route
+wired by exporting helpers. Production invocation, real caller-to-persisted-readback
+and unchanged-negative call removal remain required verification. B139 retains
+its chosen bounded compose/result/summary surface; external HTTP/export is
+`surface_out_of_scope`. No original FED criterion or G acceptance is closed by
+these source descriptions.
+
+### Basis predicates, event occurrences and pre-work admission
+
+`FederationBasisStatus` is emitted in the live projection, merge summary and
+selected manifest, and as a typed field of the fresh result. `selected_bytes`
+is `consumer_asserted` on an ordinary tuple adapter and `recomputed` only after
+actual selected-byte replay. `leaf_history` remains `consumer_asserted` and the
+`limited_candidate_unverified_leaf_history` limitation survives every live and
+selected continuation. Erasing attrs on a copied frame cannot reveal its hidden
+history; that unmarked input can produce only this limited candidate. A selected
+single-source artifact can provide a held leaf-byte selection without adding a
+second leaf protocol. Recomputed selected bytes do not establish prior ancestry.
+
+Each selected parent edge namespaces its actual replayed leaf occurrences with
+the selected parent digest and child input position. Distinct selected parents
+and repeated selected occurrences cannot alias merely because their local leaf
+content/declaration/ordinal match. Cell contributors, nonnumeric/nonfinite
+exclusions and null/key absence are projected through the same physical basis.
+`merge_summary.extra.consensus[column].physical_basis` is the physical projection;
+legacy logical connector IDs remain descriptive fields. Absence identifies the
+selected input occurrence universe and reason, rather than inventing a leaf cell.
+
+JOIN audit details carry output `row_index` and `source_a_occurrence` /
+`source_b_occurrence`. Together with the selected request, key and column, these
+identify the actual conflict event even for identical payloads. This ordinal is
+an occurrence within the admitted merge, not an inferred institutional entity ID.
+SUMMARY ordering remains `(priority, input ordinal)`; its bounded heap evicts the
+latest equal worst-priority event when a better event arrives.
+
+Whole-operation JOIN key-frequency propagation invokes the existing estimator
+before the first owned-lineage decode or working dataframe copy. The late second
+estimator was removed. OVERLAY refuses duplicate keys before copy until a row
+occurrence rule is supplied, preserving cell basis instead of overwriting it in
+a key dictionary. One composer instance requires serial, non-reentrant calls;
+use separate composers for parallel operations.
+
+The reader counts encoded array values/rows, nesting and decoded UTF-8 string
+bytes before full JSON materialization, then admits exact dimensions before a
+DataFrame allocation. Nullable numpy scalars normalize to exact Python wire values;
+object-first restoration avoids silently rounding nullable large integers before
+casting. Output byte bounds cover supported numeric/timestamp widening, not just
+the largest input scalar. Request fields are admitted from the dataclass contract
+with strict key/container/enum/literal types and a 64 KiB encoded request cap.
+Unsupported schema/report objects remain explicitly `None` in this wire profile.
+
+The technical profile bounds retained audit details at 5,000, admitting historical
+FULL zero/unlimited settings only when the conservative operation bound itself
+fits. It reserves audit/physical-summary display work before composition. A durable
+writer reserves both entire 8 MiB result/manifest member caps before composition;
+the reader reserves the remaining result cap before replay. This deliberately can
+refuse a graph with large inputs and a small actual result. Input, copied parent
+and output cell work, root node and parent depth are reserved before their related
+allocations. These are bounded software work/encoding rules, not a total Python,
+pandas/native memory cap or a production representativeness claim.
+
+The writer verifies complete staging bytes through the actual fresh reader before
+creating the output root; the manifest is published last. Failed staged readback
+therefore cannot leave a returned ref or an incomplete visible derivation root.
+
+### Exact scalar carriers and output dtype projections
+
+Strategy working frames now use generic object-backed per-column carriers whose
+scalar encodings are reconciled to held source values. UNION selects tuple/dict
+rows rather than homogeneous row Series. JOIN keeps exact object columns through
+merge; OVERLAY and CONSENSUS align object Series, and their actual alignment index
+is reconciled to the complete held typed key set. Duplicate coalescing keys in
+OVERLAY/CONSENSUS and mixed key dtype declarations outside JOIN refuse until an
+explicit identity/row-occurrence profile is supplied.
+
+Every actual output column is projected through one lossless content reconciler.
+The declared common source-column dtype is preserved where possible; existing
+numeric null extension may choose float64 only when each held scalar is exactly
+representable. A candidate cast is compared to retained original scalar encodings
+before the carrier is replaced or emitted. Unrepresentable output dtypes refuse
+with a typed limitation, including large integers that would round under float64.
+The missing extension is a schema-aware lossless dtype-join profile, not another
+value-specific exception. Artifact restoration uses the same reconciler with
+strict tagged-scalar equality. Mean/median are explicitly numeric float64 programs;
+this preservation property does not assert exact real-number statistical arithmetic.
+Mode preserves observed scalars and uses the existing minimum sortable tie (first
+declared input when values are incomparable).
+
+`VerifiedFederationResult.source_declarations` is an immutable sorted tuple of
+`(physical_token, canonical_declaration_json)` pairs emitted from the actual
+replay-compared basis. Consumers can apply declared source preferences from this
+fresh projection without trusting mutable attrs or a derived carrier's metadata.
+Its declarations still establish no institutional issuer/trust/currentness truth.

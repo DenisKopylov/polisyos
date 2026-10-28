@@ -132,6 +132,17 @@ class CoverageProfile:
         return self.time_range[0] is not None or self.time_range[1] is not None
 
 
+@dataclass(frozen=True)
+class FederationBasisStatus:
+    """Bound the software predicate separately from undisclosed leaf ancestry."""
+
+    selected_bytes: Literal["consumer_asserted", "recomputed"] = "consumer_asserted"
+    leaf_history: Literal["consumer_asserted"] = "consumer_asserted"
+    limitation: Literal["limited_candidate_unverified_leaf_history"] = (
+        "limited_candidate_unverified_leaf_history"
+    )
+
+
 @dataclass
 class SourceMetadata:
     """Metadata about a source used in composition."""
@@ -173,6 +184,9 @@ class MergeLogEntry:
 
     timestamp: datetime | None = None
 
+    source_a_occurrence: str | None = None
+    source_b_occurrence: str | None = None
+
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for serialization."""
         row_key = None
@@ -187,11 +201,13 @@ class MergeLogEntry:
                 "id": self.source_a_id,
                 "value": str(self.source_a_value),
                 "trust": self.source_a_trust.name,
+                "occurrence": self.source_a_occurrence,
             },
             "source_b": {
                 "id": self.source_b_id,
                 "value": str(self.source_b_value),
                 "trust": self.source_b_trust.name,
+                "occurrence": self.source_b_occurrence,
             },
             "resolution": {
                 "chosen_source": self.chosen_source,

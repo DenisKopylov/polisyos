@@ -5,6 +5,13 @@ Provides intelligent composition of data from multiple sources with conflict
 resolution, source ranking, and provenance tracking.
 """
 
+from polisyos.fabric.connectors.federation.artifact import (
+    FederationArtifactRef,
+    SelectedFederationInput,
+    VerifiedFederationResult,
+    persist_federation_derivation,
+    read_verified_federation_derivation,
+)
 from polisyos.fabric.connectors.federation.composer import DataComposer
 from polisyos.fabric.connectors.federation.evidence_aggregation import (
     build_composite_evidence_bundle,
@@ -24,6 +31,7 @@ from polisyos.fabric.connectors.federation.types import (
     ConflictResolutionError,
     CoverageProfile,
     ExecutionPlan,
+    FederationBasisStatus,
     FederationError,
     MergeLogEntry,
     MergeLogSummary,
@@ -54,6 +62,8 @@ __all__ = [
     "DataComposer",
     # Planning
     "ExecutionPlan",
+    "FederationArtifactRef",
+    "FederationBasisStatus",
     # Exceptions
     "FederationError",
     "FederationPlanner",
@@ -64,11 +74,15 @@ __all__ = [
     "RankedSource",
     "RankingWeights",
     "SchemaIncompatibilityError",
+    "SelectedFederationInput",
     # Metadata
     "SourceMetadata",
     "SourceRanker",
+    "VerifiedFederationResult",
     # Evidence
     "build_composite_evidence_bundle",
+    "persist_federation_derivation",
+    "read_verified_federation_derivation",
 ]
 
 __version__ = "1.0.0"

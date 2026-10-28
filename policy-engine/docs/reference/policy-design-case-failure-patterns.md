@@ -552,3 +552,37 @@ a mutation nor a broken custody chain. When a hash was misattributed, preserve
 both actual artifacts and append a precise correction. A mismatch against the
 correct file remains `not_established`; never replace deciding output or infer
 missing historical bytes from the neighboring artifact.
+
+
+### P31/P32/P37/P40 instance: selected federation graph custody
+
+Diagnostic: does every fresh consumer resolve the actual held selected parent or
+leaf bytes, or does it replay a child-owned value/lineage map whose digest merely
+binds the same declaration? A coherent newly selected child can retain a true
+parent digest while changing the source-to-cell relation; rehashing the child does
+not reconcile it to the parent. Resolve and replay the complete selected graph,
+including effective rules and exact physical source occurrences, through the same
+intake before emitting a relation.
+
+Diagnostic: can an unmarked leaf adapter disclose whether its values had an
+undisclosed derivation? It cannot infer erased history. Carry that input as a typed
+limited candidate, preserve the limitation through every live/durable continuation,
+and do not promote its tokens into verified original-source history. Exact selected
+bytes and conditional software replay do not prove issuer authority or ancestry.
+
+Diagnostic: do contributors, exclusions and null absence refer to the same physical
+occurrence basis, or does one sibling summary collapse them to logical connector
+IDs? Derive these projections from one selected cell basis so duplicate declarations
+and nested carriers cannot erase which input supplied or failed to supply a value.
+
+Diagnostic: does a writer enforce only the final encoded size after allocating the
+projection/merge/manifest, and can it return a ref its own fresh reader refuses?
+Use one finite pre-allocation and read/replay engineering profile for dimensions,
+scalar/wire/member/manifest/aggregate bytes and actual row work. Conservative
+admission may refuse a compressible result; that is a declared bounded limitation,
+not permission to allocate first. Keep real mutation/restoration outputs and a
+non-test production caller/readback before claiming the operational chain wired.
+
+These are existing classes, not new pattern IDs or a FED closure decision. The
+original B138–B145 occurrences and historical ledger dispositions remain the owners;
+source proposals and static checks are not runtime or G acceptance evidence.

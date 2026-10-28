@@ -20,6 +20,7 @@ try:
         ConflictResolutionError,
         ConflictResolver,
         DataComposer,
+        FederationError,
         FederationPlanner,
         RankingWeights,
         SchemaIncompatibilityError,
@@ -269,6 +270,58 @@ def test_join_preserves_cell_lineage_across_three_sources():
     assert row_two[-1].source_b_id == meta_c.connector_id
 
 
+def test_join_refuses_unselected_parquet_lineage_before_later_join(tmp_path):
+    """A copied attrs projection is not a held selected-parent derivation."""
+    source_a = pd.DataFrame({"key": [1, 2], "value": [10, None]})
+    source_b = pd.DataFrame({"key": [1, 2], "value": [None, 20]})
+    source_c = pd.DataFrame({"key": [1, 2], "value": [100, 200]})
+    fetched_at = datetime(2024, 1, 1, tzinfo=UTC)
+    meta_a = _make_source_metadata("source_a", TrustLevel.HIGH, fetched_at)
+    meta_b = _make_source_metadata("source_b", TrustLevel.LOW, fetched_at)
+    meta_c = _make_source_metadata("source_c", TrustLevel.MEDIUM, fetched_at)
+    request = CompositionRequest(
+        dataset_pattern="test.persisted-lineage",
+        strategy=CompositionStrategy.JOIN,
+        conflict_policy=ConflictPolicy.TRUST_HIGHEST,
+        join_keys=["key"],
+        audit_level=AuditLevel.FULL,
+    )
+    composer = DataComposer(conflict_resolver=ConflictResolver(request.conflict_policy))
+
+    mixed, _ = composer.compose([(source_a, meta_a), (source_b, meta_b)], request.strategy, request)
+    output = tmp_path / "mixed.parquet"
+    mixed.to_parquet(output)
+    reopened = pd.read_parquet(output)
+    assert reopened.attrs["policyos_federation_lineage_v1"]["source_identity"] == (
+        "exact_selected_occurrence_consumer_declared_issuer"
+    )
+    with pytest.raises(FederationError, match="Unverified lineage attrs"):
+        composer.compose([(reopened, meta_a), (source_c, meta_c)], request.strategy, request)
+
+
+def test_join_refuses_lineage_sidecar_after_frame_content_changes():
+    source_a = pd.DataFrame({"key": [1], "value": [10]})
+    source_b = pd.DataFrame({"key": [1], "value": [20]})
+    fetched_at = datetime(2024, 1, 1, tzinfo=UTC)
+    meta_a = _make_source_metadata("source_a", TrustLevel.HIGH, fetched_at)
+    meta_b = _make_source_metadata("source_b", TrustLevel.LOW, fetched_at)
+    request = CompositionRequest(
+        dataset_pattern="test.tampered-lineage",
+        strategy=CompositionStrategy.JOIN,
+        conflict_policy=ConflictPolicy.TRUST_HIGHEST,
+        join_keys=["key"],
+        audit_level=AuditLevel.NONE,
+    )
+    composer = DataComposer(conflict_resolver=ConflictResolver(request.conflict_policy))
+    composed, _ = composer.compose(
+        [(source_a, meta_a), (source_b, meta_b)], request.strategy, request
+    )
+    composed.loc[0, "value"] = 999
+
+    with pytest.raises(FederationError, match="carrier changed"):
+        composer.compose([(composed, meta_a), (source_b, meta_b)], request.strategy, request)
+
+
 def test_join_rejects_undeclared_many_to_many_before_materialization():
     left = pd.DataFrame({"key": [1, 1], "left_value": [10, 20]})
     right = pd.DataFrame({"key": [1, 1], "right_value": [100, 200]})
@@ -293,6 +346,75 @@ def test_join_rejects_undeclared_many_to_many_before_materialization():
             strategy=request.strategy,
             request=request,
         )
+
+
+def test_join_admits_declared_bounded_many_to_many():
+    left = pd.DataFrame({"key": [1, 1], "left_value": [10, 20]})
+    right = pd.DataFrame({"key": [1, 1], "right_value": [100, 200]})
+    fetched_at = datetime(2024, 1, 1, tzinfo=UTC)
+    meta_left = _make_source_metadata("left", TrustLevel.HIGH, fetched_at)
+    meta_right = _make_source_metadata("right", TrustLevel.MEDIUM, fetched_at)
+    request = CompositionRequest(
+        dataset_pattern="test.bounded-many-to-many",
+        strategy=CompositionStrategy.JOIN,
+        conflict_policy=ConflictPolicy.TRUST_HIGHEST,
+        join_keys=["key"],
+        join_how="inner",
+        join_validate="many_to_many",
+        join_max_rows=4,
+        audit_level=AuditLevel.NONE,
+    )
+    composer = DataComposer(conflict_resolver=ConflictResolver(request.conflict_policy))
+
+    result, _ = composer.compose(
+        [(left, meta_left), (right, meta_right)], request.strategy, request
+    )
+
+    assert result[["left_value", "right_value"]].to_records(index=False).tolist() == [
+        (10, 100),
+        (10, 200),
+        (20, 100),
+        (20, 200),
+    ]
+
+
+def test_join_matching_null_multiplicity_is_bounded_before_merge(monkeypatch):
+    left = pd.DataFrame({"key": [None, None], "left_value": [10, 20]})
+    right = pd.DataFrame({"key": [None, None], "right_value": [30, 40]})
+    fetched_at = datetime(2024, 1, 1, tzinfo=UTC)
+    sources = [
+        (left, _make_source_metadata("left", TrustLevel.HIGH, fetched_at)),
+        (right, _make_source_metadata("right", TrustLevel.MEDIUM, fetched_at)),
+    ]
+    called = False
+    original = pd.DataFrame.merge
+
+    def observed_merge(self, *args, **kwargs):
+        nonlocal called
+        called = True
+        return original(self, *args, **kwargs)
+
+    monkeypatch.setattr(pd.DataFrame, "merge", observed_merge)
+    request = CompositionRequest(
+        dataset_pattern="test.null-many-to-many",
+        strategy=CompositionStrategy.JOIN,
+        conflict_policy=ConflictPolicy.TRUST_HIGHEST,
+        join_keys=["key"],
+        join_how="inner",
+        join_validate="many_to_many",
+        join_nulls_match=True,
+        join_max_rows=1,
+        audit_level=AuditLevel.NONE,
+    )
+    composer = DataComposer(ConflictResolver(request.conflict_policy))
+    with pytest.raises(SchemaIncompatibilityError, match="estimated=4, limit=1"):
+        composer.compose(sources, request.strategy, request)
+    assert not called
+
+    admitted = CompositionRequest(**{**request.__dict__, "join_max_rows": 4})
+    result, _ = composer.compose(sources, admitted.strategy, admitted)
+    assert called
+    assert len(result) == 4
 
 
 def test_join_does_not_match_unknown_null_keys():
@@ -320,6 +442,30 @@ def test_join_does_not_match_unknown_null_keys():
     )
 
     assert result.empty
+
+
+def test_join_matches_unknown_null_keys_only_when_explicitly_declared():
+    left = pd.DataFrame({"key": [None], "left_value": [10]})
+    right = pd.DataFrame({"key": [None], "right_value": [20]})
+    fetched_at = datetime(2024, 1, 1, tzinfo=UTC)
+    meta_left = _make_source_metadata("left", TrustLevel.HIGH, fetched_at)
+    meta_right = _make_source_metadata("right", TrustLevel.MEDIUM, fetched_at)
+    request = CompositionRequest(
+        dataset_pattern="test.explicit-null-key",
+        strategy=CompositionStrategy.JOIN,
+        conflict_policy=ConflictPolicy.TRUST_HIGHEST,
+        join_keys=["key"],
+        join_how="inner",
+        join_nulls_match=True,
+        audit_level=AuditLevel.NONE,
+    )
+    composer = DataComposer(conflict_resolver=ConflictResolver(request.conflict_policy))
+
+    result, _ = composer.compose(
+        [(left, meta_left), (right, meta_right)], request.strategy, request
+    )
+
+    assert result[["left_value", "right_value"]].iloc[0].tolist() == [10, 20]
 
 
 def test_union_preserves_user_source_id_column():
@@ -879,3 +1025,36 @@ def test_outer_join_preserves_unmatched_rows_when_lineage_sidecars_are_missing()
     assert pd.isna(ordered.loc[1, "left_value"])
     assert ordered.loc[1, "right_value"] == 20
     assert not any(column.startswith("__policyos_lineage") for column in result.columns)
+
+
+def test_many_to_many_requires_resource_admission_before_merge(monkeypatch) -> None:
+    """An explicit m:m relation cannot reach pandas merge without a row budget."""
+    left = pd.DataFrame({"key": [1, 1], "value": [10, 20]})
+    right = pd.DataFrame({"key": [1, 1], "label": ["a", "b"]})
+    fetched_at = datetime(2024, 1, 1, tzinfo=UTC)
+    sources = [
+        (left, _make_source_metadata("left", TrustLevel.HIGH, fetched_at)),
+        (right, _make_source_metadata("right", TrustLevel.MEDIUM, fetched_at)),
+    ]
+    request = CompositionRequest(
+        dataset_pattern="test.mm_admission",
+        strategy=CompositionStrategy.JOIN,
+        conflict_policy=ConflictPolicy.TRUST_HIGHEST,
+        join_keys=["key"],
+        join_validate="many_to_many",
+        join_max_rows=None,
+    )
+    called = False
+    original = pd.DataFrame.merge
+
+    def observed_merge(*args, **kwargs):
+        nonlocal called
+        called = True
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(pd.DataFrame, "merge", observed_merge)
+    with pytest.raises(SchemaIncompatibilityError, match="requires join_max_rows"):
+        DataComposer(ConflictResolver(ConflictPolicy.TRUST_HIGHEST)).compose(
+            sources, request.strategy, request
+        )
+    assert called is False

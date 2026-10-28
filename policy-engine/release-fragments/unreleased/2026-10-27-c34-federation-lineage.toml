@@ -1,0 +1,30 @@
+id = "2026-10-27-c63-federation-derivation"
+title = "Bound federation derivation replay to actual selected parent bytes"
+type = "fixed"
+component = "fabric"
+owner = "team-fabric"
+summary = "Federation source and replay use a bounded selected-input graph, exact content/occurrence leaf identities, owner-held live basis, all-mode cell/contributor relations, and effective-rule readback."
+evidence = [
+  "src/polisyos/fabric/connectors/federation/artifact.py",
+  "src/polisyos/fabric/connectors/federation/composer.py",
+  "src/polisyos/fabric/connectors/federation/profile.py",
+  "tests/unit/fabric/connectors/test_federation_artifact.py",
+  "tests/unit/fabric/connectors/test_federation_profile.py",
+  "src/polisyos/fabric/connectors/federation/types.py",
+  "tests/unit/fabric/connectors/test_federation.py",
+  "tests/unit/remediation/test_fed_02.py",
+]
+compatibility = "The compose tuple return remains. Unowned dataframe attrs cannot admit derived lineage; copied/persisted carriers must use selected parent replay. All strategies now obey a finite conservative work/wire envelope; m:m also requires join_max_rows."
+change_class = "python-runtime-behavior"
+surface_classification = "internal"
+migration = "Retain selected manifest refs and transitive digest-to-path parent selections. Pass held_parents to the fresh reader. Candidate protocol /2 replaces only unapplied Cloud /1 proposal bytes; no admitted product v1 compatibility is implied."
+api = "Adds FederationBasisStatus, FederationArtifactRef, SelectedFederationInput, VerifiedFederationResult, persist_federation_derivation and read_verified_federation_derivation to the federation facade."
+limitations = "Software derivation is conditional on declared leaf inputs, never institutional authority or live currentness. Mixed-source row ranking and conflicting aggregate-to-single-leaf ranking refuse. Conservative pre-allocation bounds may refuse compressible results. Production bridge integration and all runtime/removal evidence remain pending."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/fabric/connectors/README.md"]
+runbook_docs = []
+
+engineering_profile = "Strict typed request/key admission, nullable scalar normalization, graph-edge occurrence identity, physical audit/participant projections, predecode/aggregate/output/audit work admission, and staged manifest-last publication; runtime and removals remain UNRUN."
+
+scalar_profile = "Object-backed per-column strategy carriers and exact output reconciliation prevent row-Series coercion; unrepresentable dtype joins refuse, explicit mean/median remain float64 programs. Fresh source declarations are immutable candidate projections."

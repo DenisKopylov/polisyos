@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Callable
-from typing import Any, Protocol, TypeGuard, runtime_checkable
+from typing import Any, Protocol, TypeGuard, cast, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -486,22 +486,33 @@ class VulnerabilityFound(StoppingCriterion):
         return StoppingCondition(should_stop=False)
 
 
-def _resolve_adversarial_direction(base_objective: object) -> OptimizationDirection:
-    """Resolve the raw direction used by the adversarial severity transform.
+class StressObjectiveDirectionError(ValueError):
+    """Refuse stress evaluation when the raw objective direction is not typed."""
 
-    Typed ``CompositeObjective`` members already contribute normalized values,
-    so the composite's declared minimization direction makes high costs worse.
-    A legacy duck-typed composite remains on the established lower-tail stress
-    convention for compatibility; it is not used to define typed objective
-    semantics. Direct objective adapters retain their declared raw direction.
-    """
-    if isinstance(base_objective, CompositeObjective):
-        if all(isinstance(item, BaseObjective) for item in base_objective.objectives):
-            return base_objective.direction
-        return OptimizationDirection.MAXIMIZE
-    if isinstance(base_objective, _DirectionProvider):
-        return base_objective.direction
-    raise AttributeError(f"'{type(base_objective).__name__}' object has no attribute 'direction'")
+    code = "stress_objective_direction_not_established"
+
+
+def _admit_adversarial_directions(
+    base_objective: object,
+) -> tuple[OptimizationDirection, OptimizationDirection]:
+    """Freeze typed raw and compatibility directions at one pre-work intake."""
+    try:
+        direction = cast("_DirectionProvider", base_objective).direction
+    except (AttributeError, TypeError, ValueError) as exc:
+        raise StressObjectiveDirectionError("stress_objective_direction_not_established") from exc
+    if type(direction) is not OptimizationDirection:
+        raise StressObjectiveDirectionError("stress_objective_direction_not_established")
+    if isinstance(base_objective, CompositeObjective) and not all(
+        isinstance(item, BaseObjective) for item in base_objective.objectives
+    ):
+        # Existing duck-composite compatibility is not selected-intent authority.
+        return OptimizationDirection.MAXIMIZE, direction
+    return direction, direction
+
+
+def _resolve_adversarial_direction(base_objective: object) -> OptimizationDirection:
+    """Admit the raw direction before stress evaluation or plateau comparison."""
+    return _admit_adversarial_directions(base_objective)[0]
 
 
 def _is_worse_objective(
@@ -664,11 +675,10 @@ def run_stress_test(
     decision_packet_ref: str | None = None,
 ) -> StressTestReport:
     """Run stress test."""
+    objective_direction, source_objective_direction = _admit_adversarial_directions(base_objective)
     runtime_context = context or {}
     param_names = [item.name for item in adversarial_plan.parameter_specs]
     initial_samples = generate_adversarial_samples(adversarial_plan)
-    objective_direction = _resolve_adversarial_direction(base_objective)
-    source_objective_direction = base_objective.direction
     selected_rule_spec = configured_objective_rule_spec(base_objective)
     expected_objective_name = getattr(base_objective, "name", "")
     candidate_ref: ArtifactRef | None = None
@@ -1216,6 +1226,7 @@ def _dedupe_text(values: list[str]) -> list[str]:
 
 
 __all__ = [
+    "StressObjectiveDirectionError",
     "NegatedCompositeObjective",
     "PlatformAttackResult",
     "PlatformMetaEvaluationConfig",

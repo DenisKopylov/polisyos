@@ -80,6 +80,10 @@ from polisyos.runtime.quality.workspace.loop import (
     SearchExitDecisionInputs,
     select_search_terminal,
 )
+from polisyos.scientist.orchestration.engine.producer_budget import (
+    ProducerBudgetObserver,
+    ProducerBudgetSourceError,
+)
 
 if TYPE_CHECKING:
     from polisyos.core import contracts as core_contracts
@@ -2981,6 +2985,25 @@ class RecursiveGenerationCycleController:
     ):
         """Run N6 leaves and preserve typed checkpoints for stops or sibling failures."""
 
+        # The reusable parent controller must not retain another run's budget owner.
+        invocation_joint_controller = self._joint_simulation_controller
+        if type(_producer_budget_reconciler) is ProducerBudgetObserver:
+            try:
+                _producer_budget_reconciler.require_bound_state(budget_state)
+            except ProducerBudgetSourceError as exc:
+                raise RecursiveGenerationCycleError(
+                    "recursive_n5_budget_state_binding_mismatch"
+                ) from exc
+            if type(invocation_joint_controller) is not JointSimulationHorizonController or (
+                invocation_joint_controller._settings.authority_scope != "production"
+            ):
+                raise RecursiveGenerationCycleError("recursive_n5_budget_controller_not_canonical")
+            invocation_joint_controller = JointSimulationHorizonController(
+                method_registry=invocation_joint_controller._registry,
+                policy=invocation_joint_controller.policy,
+                producer_budget_observer=_producer_budget_reconciler,
+            )
+
         if _producer_budget_reconciler is not None:
             if not callable(_producer_budget_reconciler):
                 raise RecursiveGenerationCycleError("recursive_producer_budget_reconciler_invalid")
@@ -3760,10 +3783,10 @@ class RecursiveGenerationCycleController:
                         "recursive_n5_runtime_store_not_established",
                         "The parent N5 run cannot start without its runtime-owned result store.",
                     )
-                joint_simulation = self._joint_simulation_controller.run(request)
+                joint_simulation = invocation_joint_controller.run(request)
                 if not _joint_simulation_is_unsupported(joint_simulation):
                     try:
-                        self._joint_simulation_controller.validate_selected_result(
+                        invocation_joint_controller.validate_selected_result(
                             request=request, result=joint_simulation
                         )
                     except (JointSimulationControllerError, TypeError, ValueError) as exc:

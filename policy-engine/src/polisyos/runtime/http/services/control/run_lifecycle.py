@@ -12,7 +12,6 @@ from collections.abc import Callable, Mapping
 from contextvars import ContextVar
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
-from decimal import Decimal
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Protocol, TypeVar, cast, overload
 
@@ -258,6 +257,7 @@ from polisyos.scientist.governance.continuous import (
     PublishedSignatureCustodyResult,
 )
 from polisyos.scientist.orchestration.engine import BudgetMiddleware
+from polisyos.scientist.orchestration.engine.producer_budget import ProducerBudgetObserver
 from polisyos.scientist.orchestration.llm.provider_verification import (
     ProviderPreflightReport,
     run_provider_preflight,
@@ -444,123 +444,13 @@ def _build_control_nl_producer_budget_reconciler(
     settlement_store: BudgetMiddleware,
     producer_run_binding: BudgetLedgerProducerRunBinding,
     budget_state: BudgetState,
-) -> Callable[[BudgetState], None]:
-    """Recompute run spend from the exact committed producer-event set before N6 spend."""
-    from polisyos.runtime.quality.generation_cycle import GenerationCycleError
-    from polisyos.scientist import BudgetState as CanonicalBudgetState
-    from polisyos.scientist.orchestration.engine import (
-        BudgetLedgerProducerRecord,
-        BudgetLimit,
+) -> ProducerBudgetObserver:
+    """Bind the canonical current producer-budget owner for N5 and N6 consumers."""
+    return ProducerBudgetObserver(
+        settlement_store=settlement_store,
+        producer_run_binding=producer_run_binding,
+        budget_state=budget_state,
     )
-    from polisyos.scientist.orchestration.engine import (
-        BudgetLedgerProducerRunBinding as CanonicalProducerRunBinding,
-    )
-
-    if type(settlement_store) is not BudgetMiddleware:
-        raise TypeError("control_nl_budget_settlement_store_invalid")
-    if type(producer_run_binding) is not CanonicalProducerRunBinding:
-        raise TypeError("control_nl_budget_run_binding_invalid")
-    if type(budget_state) is not CanonicalBudgetState:
-        raise TypeError("control_nl_budget_state_invalid")
-
-    last_reconciled_total = Decimal(0)
-
-    def reconcile(current_state: BudgetState) -> None:
-        nonlocal last_reconciled_total
-        if current_state is not budget_state or type(current_state) is not CanonicalBudgetState:
-            raise GenerationCycleError("control_nl_budget_state_binding_mismatch")
-        if type(current_state.limits) is not dict:
-            raise GenerationCycleError("control_nl_budget_limits_not_established")
-        run_limit = current_state.limits.get("run")
-        if run_limit is None or type(run_limit) is not BudgetLimit:
-            raise GenerationCycleError("control_nl_budget_run_limit_not_established")
-        max_usd = run_limit.max_usd
-        if type(max_usd) is not Decimal:
-            raise GenerationCycleError("control_nl_budget_run_limit_not_established")
-        if not max_usd.is_finite():
-            raise GenerationCycleError("control_nl_budget_run_limit_invalid")
-        # A non-positive cap cannot admit the configured positive N6 stage
-        # cost. Its terminal does not depend on treating missing spend as zero.
-        if max_usd <= Decimal(0):
-            return
-        try:
-            records = settlement_store.list_producer_events_for_run_safe(producer_run_binding)
-        except Exception as exc:
-            raise GenerationCycleError("control_nl_budget_producer_events_unavailable") from exc
-        if type(records) is not tuple or not records:
-            raise GenerationCycleError("control_nl_budget_producer_events_not_established")
-
-        total = Decimal(0)
-        event_ids: set[str] = set()
-        for record in records:
-            if type(record) is not BudgetLedgerProducerRecord:
-                raise GenerationCycleError("control_nl_budget_producer_event_untyped")
-            if record.run_binding != producer_run_binding or (
-                record.key != f"nl-run:{producer_run_binding.run_id}"
-            ):
-                raise GenerationCycleError("control_nl_budget_producer_event_binding_mismatch")
-            if record.event_id in event_ids:
-                raise GenerationCycleError("control_nl_budget_producer_event_duplicate")
-            event_ids.add(record.event_id)
-            if record.status != "committed":
-                raise GenerationCycleError("control_nl_budget_producer_event_not_settled")
-            amount = record.amount
-            if type(amount) is not Decimal or not amount.is_finite() or amount < Decimal(0):
-                raise GenerationCycleError("control_nl_budget_producer_amount_not_established")
-            if record.cost_origin not in {"reported", "estimated", "reuse"}:
-                raise GenerationCycleError("control_nl_budget_producer_cost_origin_not_established")
-            if record.cost_origin == "reuse":
-                if amount != Decimal(0) or not isinstance(record.origin_event_id, str):
-                    raise GenerationCycleError("control_nl_budget_producer_reuse_basis_invalid")
-                try:
-                    origin = settlement_store.resolve_producer_event_safe(record.origin_event_id)
-                except Exception as exc:
-                    raise GenerationCycleError(
-                        "control_nl_budget_producer_reuse_origin_unavailable"
-                    ) from exc
-                if (
-                    type(origin) is not BudgetLedgerProducerRecord
-                    or origin.status != "committed"
-                    or type(origin.amount) is not Decimal
-                    or not origin.amount.is_finite()
-                    or origin.amount < Decimal(0)
-                    or origin.cost_origin not in {"reported", "estimated"}
-                    or origin.origin_event_id is not None
-                    or origin.model != record.model
-                    or origin.provider != record.provider
-                    or origin.request_digest != record.request_digest
-                    or not isinstance(origin.payload_digest, str)
-                    or len(origin.payload_digest) != 64
-                ):
-                    raise GenerationCycleError(
-                        "control_nl_budget_producer_reuse_origin_not_established"
-                    )
-                try:
-                    record.validate_reuse_origin(origin)
-                except (TypeError, ValueError) as exc:
-                    raise GenerationCycleError(
-                        "control_nl_budget_producer_reuse_origin_not_established"
-                    ) from exc
-            total += amount
-            if not total.is_finite():
-                raise GenerationCycleError("control_nl_budget_producer_total_invalid")
-
-        if type(current_state.spent) is not dict:
-            raise GenerationCycleError("control_nl_budget_state_spend_not_established")
-        current_spend = current_state.spent.get("run", Decimal(0))
-        if (
-            type(current_spend) is not Decimal
-            or not current_spend.is_finite()
-            or current_spend < Decimal(0)
-        ):
-            raise GenerationCycleError("control_nl_budget_state_spend_not_established")
-        non_producer_spend = current_spend - last_reconciled_total
-        if not non_producer_spend.is_finite() or non_producer_spend < Decimal(0):
-            raise GenerationCycleError("control_nl_budget_state_spend_basis_invalid")
-        current_state.spent["run"] = non_producer_spend + total
-        last_reconciled_total = total
-
-    return reconcile
 
 
 # These request keys can assert owner scope; the worker supplies them from its

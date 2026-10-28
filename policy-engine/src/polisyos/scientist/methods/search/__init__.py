@@ -97,6 +97,7 @@ from polisyos.scientist.methods.search.stopping import (
     ImprovementPlateau,
     MaxIterations,
     MaxWallTime,
+    PlateauToleranceProfile,
     StoppingCondition,
     StoppingCriterion,
     StoppingPresets,
@@ -115,6 +116,7 @@ from polisyos.scientist.methods.search.transfer_context import (
 )
 
 _LAZY_EXPORT_MODULES: dict[str, str] = {
+    "StressObjectiveDirectionError": "polisyos.scientist.methods.search.adversarial",
     "NegatedCompositeObjective": "polisyos.scientist.methods.search.adversarial",
     "PlatformAttackResult": "polisyos.scientist.methods.search.adversarial",
     "PlatformMetaEvaluationConfig": "polisyos.scientist.methods.search.adversarial",
@@ -155,6 +157,7 @@ _LAZY_EXPORT_MODULES: dict[str, str] = {
 }
 
 __all__ = [
+    "StressObjectiveDirectionError",
     "SENTINEL_METADATA_KEY",
     "ActionableSideInformation",
     "BaseObjective",
@@ -186,6 +189,7 @@ __all__ = [
     "ExpensiveStage",
     "GDPGrowthObjective",
     "ImprovementPlateau",
+    "PlateauToleranceProfile",
     "InequalityObjective",
     "LatentGovernanceAssessment",
     "LessonCard",

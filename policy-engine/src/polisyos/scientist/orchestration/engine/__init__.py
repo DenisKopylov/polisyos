@@ -50,6 +50,7 @@ __all__ = [
     "ConditionSyntaxError",
     "ConvergenceConfig",
     "ConvergenceDetector",
+    "ConvergenceObservation",
     "ConvergenceState",
     "ConvergenceStrategy",
     "CreatedCheckpoint",
@@ -442,6 +443,10 @@ _EXPORTS = {
     "ConvergenceDetector": (
         "polisyos.scientist.orchestration.engine.convergence",
         "ConvergenceDetector",
+    ),
+    "ConvergenceObservation": (
+        "polisyos.scientist.orchestration.engine.convergence",
+        "ConvergenceObservation",
     ),
     "ConvergenceState": (
         "polisyos.scientist.orchestration.engine.convergence",

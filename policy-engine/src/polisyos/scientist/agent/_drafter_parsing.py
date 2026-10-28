@@ -6,6 +6,7 @@ These are mixed into ``MultiPassLLMDrafter`` via the
 
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import UTC, datetime
 from json import JSONDecodeError
 
@@ -94,13 +95,12 @@ class _DrafterParsingMixin:
             return original, False
 
         return (
-            DraftResult(
+            replace(
+                original,
                 draft_id=f"{original.draft_id}_mp",
-                problem_frame_ref=original.problem_frame_ref,
                 narrative=payload.narrative or original.narrative,
                 interventions=payload.interventions or original.interventions,
                 rationale=payload.rationale or original.rationale,
-                domain_references=original.domain_references,
                 confidence=payload.confidence
                 if payload.confidence is not None
                 else original.confidence,
@@ -109,6 +109,27 @@ class _DrafterParsingMixin:
                 ),
                 raw_llm_response=raw_response,
                 created_at=datetime.now(UTC),
+                confidence_status=(
+                    "candidate_self_assessment"
+                    if payload.confidence is not None
+                    and (
+                        original.confidence_status != "not_established"
+                        or original.convergence_state is not None
+                    )
+                    else original.confidence_status
+                ),
+                confidence_request_ref=None,
+                confidence_observation=None,
+                convergence_state=(
+                    type(original.convergence_state).model_validate(
+                        {
+                            **original.convergence_state.model_dump(),
+                            "observation_status": "not_checked_after_consolidation",
+                        }
+                    )
+                    if original.convergence_state is not None
+                    else None
+                ),
             ),
             True,
         )

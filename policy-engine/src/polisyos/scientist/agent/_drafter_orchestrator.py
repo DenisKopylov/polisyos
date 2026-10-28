@@ -12,6 +12,7 @@ from __future__ import annotations
 import asyncio
 import time
 from collections.abc import Iterable
+from dataclasses import replace
 from typing import Any
 
 from polisyos.common.logger import get_logger
@@ -34,12 +35,24 @@ from polisyos.scientist.agent.protocols import (
     ProblemFrame,
 )
 from polisyos.scientist.agent.rag import CASRAGIndex, RAGConfig, format_few_shot_block
-from polisyos.scientist.orchestration.engine.convergence import ConvergenceDetector
+from polisyos.scientist.orchestration.engine.budget import BudgetState
+from polisyos.scientist.orchestration.engine.convergence import (
+    ConvergenceDetector,
+    ConvergenceObservation,
+    ConvergenceState,
+    ConvergenceValidationError,
+)
 
 from ._drafter_formatting import _DrafterFormattingMixin
 from ._drafter_llm import _DrafterLLMMixin
+from ._drafter_observations import (
+    confidence_request_ref,
+    confidence_subject_ref,
+    observe_candidate_confidence,
+)
 from ._drafter_parsing import _DrafterParsingMixin
 from ._drafter_passes import _DrafterPassesMixin
+from .drafter_clients import LLMDrafterAgent
 from .drafter_models import (
     _SEVERITY_ORDER,
     FindingSeverity,
@@ -94,11 +107,14 @@ class MultiPassLLMDrafter(
         constitution_model_spec: ModelSpec | None = None,
         tracer: Any | None = None,
         metrics: Any | None = None,
+        convergence_budget_state: BudgetState | None = None,
     ) -> None:
-        self._inner = inner
         self._config = config or MultiPassConfig()
+        if self._config.convergence is not None and type(inner) is LLMDrafterAgent:
+            inner = inner._with_convergence_observations()
+        self._inner = inner
         self._memory = memory
-        self._llm = self._resolve_llm(llm_client, inner)
+        self._llm = self._resolve_llm(llm_client, self._inner)
         self._rag_index = rag_index
         self._rag_config = rag_config or RAGConfig(
             enabled=self._config.rag_enabled,
@@ -129,6 +145,7 @@ class MultiPassLLMDrafter(
         self._last_constitution_hash: str | None = None
         self._tracer = tracer
         self._metrics = metrics
+        self._convergence_budget_state = convergence_budget_state
 
     # ------------------------------------------------------------------
     # Public API
@@ -149,6 +166,9 @@ class MultiPassLLMDrafter(
                 hints=hints,
                 prior_drafts=prior_drafts,
             )
+        except ConvergenceValidationError:
+            # Invalid configured stopping/resource inputs must not trigger another LLM call.
+            raise
         except Exception as exc:
             logger.exception("Multipass drafter failed; fallback to single-pass: %s", exc)
             return await self._inner.draft_policy(
@@ -190,7 +210,9 @@ class MultiPassLLMDrafter(
         stop_reason = ""
         convergence_detector: ConvergenceDetector | None = None
         if self._config.convergence is not None:
-            convergence_detector = ConvergenceDetector(self._config.convergence)
+            convergence_detector = ConvergenceDetector(
+                self._config.convergence, budget_state=self._convergence_budget_state
+            )
 
         with tracer.start_as_current_span(
             "drafter.multi_pass",
@@ -223,9 +245,30 @@ class MultiPassLLMDrafter(
 
             all_findings: list[PassFinding] = list(deterministic.findings)
 
-            # Feed convergence detector with initial confidence
             if convergence_detector is not None:
-                convergence_detector.check(current_draft.confidence)
+                current_draft, conv_state = self._record_current_convergence(
+                    convergence_detector, problem_frame, pass1, current_draft
+                )
+                if conv_state.should_stop:
+                    stop_reason = self._convergence_stop_reason(conv_state)
+                    for number, name in (
+                        (2, "side_effects_check"),
+                        (3, "constraint_verify"),
+                        (4, "consolidation"),
+                    ):
+                        if number <= self._config.max_passes:
+                            pass_results.append(self._skipped_pass(name, number, stop_reason))
+                    return self._finalize(
+                        problem_frame=problem_frame,
+                        draft=current_draft,
+                        pass_results=pass_results,
+                        cumulative_cost_usd=cumulative_cost_usd,
+                        extra_llm_calls=extra_llm_calls,
+                        early_exit=True,
+                        stop_reason=stop_reason,
+                        parent_span=parent_span,
+                        metrics=metrics,
+                    )
 
             if self._config.max_passes <= 1:
                 return self._finalize(
@@ -281,12 +324,14 @@ class MultiPassLLMDrafter(
                     confidence_adjustment=pass2.confidence_adjustment,
                 )
 
-            # Convergence check after pass 2
+            # Consume only this executed, parsed producer observation.
             if convergence_detector is not None:
-                conv_state = convergence_detector.check(current_draft.confidence)
-                if conv_state.converged:
+                current_draft, conv_state = self._record_current_convergence(
+                    convergence_detector, problem_frame, pass2, current_draft
+                )
+                if conv_state.should_stop:
                     early_exit = True
-                    stop_reason = f"convergence:{conv_state.reason}"
+                    stop_reason = self._convergence_stop_reason(conv_state)
                     remaining = list(range(3, self._config.max_passes + 1))
                     pass_names = {3: "constraint_verify", 4: "consolidation"}
                     for pn in remaining:
@@ -380,12 +425,14 @@ class MultiPassLLMDrafter(
                     confidence_adjustment=pass3.confidence_adjustment,
                 )
 
-            # Convergence check after pass 3
+            # Consume only this executed, parsed producer observation.
             if convergence_detector is not None:
-                conv_state = convergence_detector.check(current_draft.confidence)
-                if conv_state.converged:
+                current_draft, conv_state = self._record_current_convergence(
+                    convergence_detector, problem_frame, pass3, current_draft
+                )
+                if conv_state.should_stop:
                     early_exit = True
-                    stop_reason = f"convergence:{conv_state.reason}"
+                    stop_reason = self._convergence_stop_reason(conv_state)
                     pass_results.append(self._skipped_pass("consolidation", 4, stop_reason))
                     return self._finalize(
                         problem_frame=problem_frame,
@@ -568,6 +615,8 @@ class MultiPassLLMDrafter(
                 raw_llm_response=raw,
                 cost_usd=cost,
                 duration_ms=int((time.perf_counter() - started) * 1000),
+                confidence_request_ref=draft.confidence_request_ref,
+                confidence_observation=draft.confidence_observation,
             )
 
     # ------------------------------------------------------------------
@@ -608,13 +657,19 @@ class MultiPassLLMDrafter(
             last_error: Exception | None = None
 
             async def _invoke_once() -> PassExecution:
+                user_message = (
+                    "Review the draft and return strict JSON with findings. "
+                    "Do not include markdown."
+                )
+                request_ref = (
+                    confidence_request_ref(system=prompt, user=user_message)
+                    if self._config.convergence is not None
+                    else None
+                )
                 response = await asyncio.wait_for(
                     self._llm.generate(
                         system=prompt,
-                        user=(
-                            "Review the draft and return strict JSON with findings. "
-                            "Do not include markdown."
-                        ),
+                        user=user_message,
                         response_format={"type": "json_object"},
                     ),
                     timeout=self._config.pass_timeout_s,
@@ -633,6 +688,23 @@ class MultiPassLLMDrafter(
                     raw_response=content,
                 )
                 span.set_attribute("polisyos.drafter.findings_count", len(findings))
+                observation = None
+                if (
+                    self._config.convergence is not None
+                    and parse_ok
+                    and draft.confidence_status != "not_established"
+                    and (confidence_adjustment is not None or findings)
+                ):
+                    assessed = self._update_confidence(draft, findings, confidence_adjustment)
+                    assert request_ref is not None
+                    observation = observe_candidate_confidence(
+                        response=response,
+                        source_text=content,
+                        subject_ref=confidence_subject_ref(problem_frame),
+                        request_ref=request_ref,
+                        pass_number=pass_number,
+                        value=assessed.confidence,
+                    )
                 return PassExecution(
                     pass_name=pass_name,
                     pass_number=pass_number,
@@ -646,6 +718,8 @@ class MultiPassLLMDrafter(
                     parse_ok=parse_ok,
                     confidence_adjustment=confidence_adjustment,
                     verification_code=verification_code,
+                    confidence_request_ref=request_ref,
+                    confidence_observation=observation,
                 )
 
             def _on_error(exc: Exception, _attempt: int, _total: int) -> None:
@@ -803,18 +877,74 @@ class MultiPassLLMDrafter(
         updated_confidence = min(0.99, max(0.05, draft.confidence + adjustment))
         if updated_confidence == draft.confidence:
             return draft
-        return DraftResult(
-            draft_id=draft.draft_id,
-            problem_frame_ref=draft.problem_frame_ref,
-            narrative=draft.narrative,
-            interventions=draft.interventions,
-            rationale=draft.rationale,
-            domain_references=draft.domain_references,
+        return replace(
+            draft,
             confidence=updated_confidence,
-            alternatives_considered=draft.alternatives_considered,
-            raw_llm_response=draft.raw_llm_response,
-            created_at=draft.created_at,
+            confidence_status=(
+                "candidate_after_checks"
+                if draft.confidence_status != "not_established"
+                else "not_established"
+            ),
         )
+
+    @staticmethod
+    def _convergence_stop_reason(state: ConvergenceState) -> str:
+        prefix = "resource_limit" if state.stop_kind == "resource_limit" else "candidate_stability"
+        return f"{prefix}:{state.reason}"
+
+    def _record_current_convergence(
+        self,
+        detector: ConvergenceDetector,
+        problem_frame: ProblemFrame,
+        current_pass: PassExecution,
+        draft: DraftResult,
+    ) -> tuple[DraftResult, ConvergenceState]:
+        """Join the actual pass/parser result with its current candidate value."""
+        subject_ref = confidence_subject_ref(problem_frame)
+        observation = current_pass.confidence_observation
+        eligible = (
+            current_pass.executed
+            and current_pass.parse_ok
+            and observation is not None
+            and draft.confidence_status != "not_established"
+            and subject_ref is not None
+        )
+        if eligible:
+            assert observation is not None
+            # Code verification/deterministic checks may adjust the candidate,
+            # without pretending the model itself emitted that derived value.
+            observation = ConvergenceObservation.model_validate(
+                {
+                    **observation.model_dump(),
+                    "value": draft.confidence,
+                    "value_derivation": "candidate_after_checks",
+                }
+            )
+        else:
+            observation = None
+        state = detector.check_candidate_observation(
+            observation,
+            subject_ref=subject_ref,
+            request_ref=current_pass.confidence_request_ref,
+            source_text=current_pass.raw_llm_response,
+            value=draft.confidence if eligible else None,
+            pass_number=current_pass.pass_number,
+            unavailable_reason=(
+                "pass_not_executed"
+                if not current_pass.executed
+                else "pass_parse_failed"
+                if not current_pass.parse_ok
+                else "semantic_subject_not_established"
+                if subject_ref is None
+                else "candidate_assessment_not_supplied"
+            ),
+        )
+        return replace(
+            draft,
+            confidence_request_ref=current_pass.confidence_request_ref,
+            confidence_observation=observation,
+            convergence_state=state,
+        ), state
 
     def _skipped_pass(self, pass_name: str, pass_number: int, reason: str) -> PassExecution:
         return PassExecution(
@@ -845,11 +975,31 @@ class MultiPassLLMDrafter(
         if self._config.shadow_mode and pass_results:
             pass1 = pass_results[0]
             if pass1.executed and pass1.draft is not None:
-                draft = pass1.draft
+                checked_state = draft.convergence_state
+                if checked_state is not None:
+                    checked_state = ConvergenceState.model_validate(
+                        {
+                            **checked_state.model_dump(),
+                            "observation_status": "last_checked_in_shadow_run",
+                        }
+                    )
+                draft = replace(pass1.draft, convergence_state=checked_state)
 
         findings_total = sum(len(p.findings) for p in pass_results)
         executed_passes = sum(1 for p in pass_results if p.executed)
-        budget_stop = stop_reason in {"budget_usd_exceeded", "max_extra_calls_exceeded"}
+        budget_stop = stop_reason in {
+            "budget_usd_exceeded",
+            "max_extra_calls_exceeded",
+            "resource_limit:budget_pressure",
+        }
+        if draft.convergence_state is not None:
+            parent_span.set_attribute(
+                "polisyos.drafter.stop_kind", draft.convergence_state.stop_kind
+            )
+            parent_span.set_attribute("polisyos.drafter.scientific_converged", False)
+            parent_span.set_attribute(
+                "polisyos.drafter.observation_status", draft.convergence_state.observation_status
+            )
 
         parent_span.set_attribute("polisyos.drafter.total_passes", len(pass_results))
         parent_span.set_attribute("polisyos.drafter.executed_passes", executed_passes)

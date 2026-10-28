@@ -238,6 +238,10 @@ from polisyos.scientist.methods.search.voi_scheduler import (
     SchedulingDecision,
     SimpleVOIScheduler,
 )
+from polisyos.scientist.orchestration.engine.producer_budget import (
+    ProducerBudgetObserver,
+    ProducerBudgetSourceError,
+)
 from polisyos.scientist.orchestration.workflows.engine_simple import SimpleLoopEngine
 
 if TYPE_CHECKING:
@@ -3830,6 +3834,7 @@ class JointSimulationPort:
         controller: JointSimulationHorizonController | None = None,
         *,
         repo_root: Path | None = None,
+        producer_budget_observer: ProducerBudgetObserver | None = None,
         cycle_substrate_context: CycleSubstrateContext | None = None,
         artifact_store: ArtifactStore | None = None,
         candidate_simulation_handoff: CandidateSimulationContextHandoff | None = None,
@@ -3840,7 +3845,19 @@ class JointSimulationPort:
         | None = None,
         generic_n4_child_profile_set_ref: CASArtifactRef | None = None,
     ) -> None:
-        self._controller = controller or JointSimulationHorizonController()
+        if producer_budget_observer is not None and (
+            type(producer_budget_observer) is not ProducerBudgetObserver
+        ):
+            raise TypeError("generation_cycle_producer_budget_observer_invalid")
+        if (
+            controller is not None
+            and producer_budget_observer is not None
+            and (controller._producer_budget_observer is not producer_budget_observer)
+        ):
+            raise ValueError("generation_cycle_n5_budget_owner_mismatch")
+        self._controller = controller or JointSimulationHorizonController(
+            producer_budget_observer=producer_budget_observer,
+        )
         self._repo_root = repo_root
         self._artifact_store = artifact_store
         self._candidate_simulation_handoff = candidate_simulation_handoff
@@ -7174,6 +7191,35 @@ def _consume_parent_joint_candidate_n8(
     return observation
 
 
+def _canonical_n5_budget_binding_issue(
+    port: object,
+    *,
+    expected_observer: ProducerBudgetObserver | None,
+    budget_state: BudgetState | None = None,
+) -> str | None:
+    """Join the one invocation budget owner for default and supplied canonical ports.
+
+    This is identity/configuration admission, not a substitute for the fresh
+    per-seed ledger read. Explicit custom contract-testing ports retain their
+    separate non-canonical boundary.
+    """
+    if expected_observer is not None:
+        if type(expected_observer) is not ProducerBudgetObserver:
+            return "n5_producer_budget_observer_not_canonical"
+        if budget_state is not None:
+            try:
+                expected_observer.require_bound_state(budget_state)
+            except ProducerBudgetSourceError:
+                return "n5_producer_budget_state_binding_mismatch"
+    if type(port) is not JointSimulationPort:
+        return None
+    if type(port._controller) is not JointSimulationHorizonController:
+        return "n5_budget_controller_not_canonical" if expected_observer is not None else None
+    if port._controller._producer_budget_observer is not expected_observer:
+        return "n5_producer_budget_owner_mismatch"
+    return None
+
+
 def _generic_n5_canonical_port_issue(
     port: object,
     *,
@@ -7183,10 +7229,17 @@ def _generic_n5_canonical_port_issue(
     child_set_ref: CASArtifactRef | None,
     artifact_store: ArtifactStore | None,
     cycle_substrate_context: CycleSubstrateContext | None,
+    expected_producer_budget_observer: ProducerBudgetObserver | None = None,
 ) -> str | None:
     """Require the real default N5 port and default production controller configuration."""
     if type(port) is not JointSimulationPort:
         return "generic_cycle_simulation_canonical_n5_port_required"
+    budget_issue = _canonical_n5_budget_binding_issue(
+        port,
+        expected_observer=expected_producer_budget_observer,
+    )
+    if budget_issue is not None:
+        return budget_issue
     if any(
         name in vars(port)
         for name in (
@@ -7200,7 +7253,12 @@ def _generic_n5_canonical_port_issue(
     if (
         type(port._controller) is not JointSimulationHorizonController
         or "run" in vars(port._controller)
-        or set(vars(port._controller)) != {"_registry", "policy", "_settings"}
+        or set(vars(port._controller))
+        != {"_registry", "policy", "_settings", "_producer_budget_observer"}
+        or (
+            port._controller._producer_budget_observer is not None
+            and type(port._controller._producer_budget_observer) is not ProducerBudgetObserver
+        )
     ):
         return "generic_cycle_simulation_canonical_n5_controller_required"
     from polisyos.foundry.methods import MethodRegistry
@@ -7711,6 +7769,11 @@ class GenerationCycleController:
         self._grounding_port = grounding_port or PolicyGroundingPort()
         self._simulation_port = simulation_port or JointSimulationPort(
             repo_root=repo_root,
+            producer_budget_observer=(
+                _producer_budget_reconciler
+                if type(_producer_budget_reconciler) is ProducerBudgetObserver
+                else None
+            ),
             cycle_substrate_context=cycle_substrate_context,
             artifact_store=artifact_store,
             candidate_simulation_handoff=candidate_simulation_handoff,
@@ -7719,6 +7782,16 @@ class GenerationCycleController:
             generic_cycle_simulation_child_selection=(generic_cycle_simulation_child_selection),
             generic_n4_child_profile_set_ref=generic_n4_child_profile_set_ref,
         )
+        budget_issue = _canonical_n5_budget_binding_issue(
+            self._simulation_port,
+            expected_observer=(
+                _producer_budget_reconciler
+                if type(_producer_budget_reconciler) is ProducerBudgetObserver
+                else None
+            ),
+        )
+        if budget_issue is not None:
+            raise GenerationCycleError(budget_issue)
         from polisyos.runtime.quality.substrate_registry import (
             current_catalog_serving_source,
         )
@@ -8092,6 +8165,17 @@ class GenerationCycleController:
 
         if max_cycles < 1:
             raise GenerationCycleError("max_cycles_must_be_positive")
+        budget_issue = _canonical_n5_budget_binding_issue(
+            self._simulation_port,
+            expected_observer=(
+                self._producer_budget_reconciler
+                if type(self._producer_budget_reconciler) is ProducerBudgetObserver
+                else None
+            ),
+            budget_state=budget_state,
+        )
+        if budget_issue is not None:
+            raise GenerationCycleError(budget_issue)
         design_problem_ref = _problem_ref(problem)
         subject_ref = stable_design_problem_ref or design_problem_ref
         if subject_ref != design_problem_ref:
@@ -8884,7 +8968,10 @@ class GenerationCycleController:
         """Ask the existing VOI owner whether the next stage may spend budget."""
 
         if self._producer_budget_reconciler is not None:
-            self._producer_budget_reconciler(budget_state)
+            try:
+                self._producer_budget_reconciler(budget_state)
+            except ProducerBudgetSourceError as exc:
+                raise GenerationCycleError(str(exc)) from exc
         stage_result = _StageResult(
             cheap_signal=_CheapSignal(
                 expected_value_proxy=max(float(proxy_score), 0.0),
@@ -12777,6 +12864,11 @@ class GenerationCycleController:
                 child_set_ref=self._generic_n4_child_profile_set_ref,
                 artifact_store=self._artifact_store,
                 cycle_substrate_context=self._cycle_substrate_context,
+                expected_producer_budget_observer=(
+                    self._producer_budget_reconciler
+                    if type(self._producer_budget_reconciler) is ProducerBudgetObserver
+                    else None
+                ),
             )
             if type(owner) is GenericCycleSimulationAdmissionOwner
             and type(handoff) is GenericCycleSimulationContextHandoffV1

@@ -12,7 +12,14 @@ from abc import abstractmethod
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Literal, Protocol, runtime_checkable
+
+from pydantic import SerializerFunctionWrapHandler, model_serializer
+
+from polisyos.scientist.orchestration.engine.convergence import (
+    ConvergenceObservation,
+    ConvergenceState,
+)
 
 if TYPE_CHECKING:
     from polisyos.ir.trinity import TrinityBundle
@@ -148,6 +155,28 @@ class DraftResult:
     alternatives_considered: list[str] = field(default_factory=list)
     raw_llm_response: str | None = None
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    confidence_status: Literal[
+        "candidate_self_assessment", "candidate_after_checks", "not_established"
+    ] = "not_established"
+    confidence_request_ref: str | None = None
+    confidence_observation: ConvergenceObservation | None = None
+    convergence_state: ConvergenceState | None = None
+
+    @model_serializer(mode="wrap")
+    def _serialize_optional_observation(
+        self,
+        handler: SerializerFunctionWrapHandler,
+    ) -> dict[str, Any]:
+        """Retain historical draft bytes when no new signal was produced."""
+        payload = handler(self)
+        if not isinstance(payload, dict):
+            raise TypeError("draft_serializer_must_return_object")
+        if self.confidence_status == "not_established":
+            payload.pop("confidence_status", None)
+        for name in ("confidence_request_ref", "confidence_observation", "convergence_state"):
+            if getattr(self, name) is None:
+                payload.pop(name, None)
+        return payload
 
 
 @dataclass(frozen=True, slots=True)

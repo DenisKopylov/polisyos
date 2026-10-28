@@ -13,7 +13,10 @@ import math
 from collections.abc import Callable, Mapping, Sequence
 from copy import deepcopy
 from dataclasses import dataclass
+from datetime import UTC, datetime
+from time import perf_counter
 from typing import Any, Literal, Protocol
+from uuid import uuid4
 
 import numpy as np
 from pydantic import (
@@ -56,6 +59,12 @@ from polisyos.runtime.quality.world_model_record import (
     WorldModelRecord,
     consume_world_model_record_for_simulation,
     resolve_intervention_atom_world_binding,
+)
+from polisyos.scientist.orchestration.engine.budget import BudgetExhaustedError
+from polisyos.scientist.orchestration.engine.producer_budget import (
+    ProducerBudgetObservation,
+    ProducerBudgetObserver,
+    ProducerBudgetSourceError,
 )
 
 JOINT_SIMULATION_HORIZON_V1_SCHEMA_VERSION = "policyos.runtime.joint_simulation_horizon.v1"
@@ -945,27 +954,192 @@ def _aggregate_replicated_trajectory(
     return first.model_copy(update={"points": tuple(points), "diagnostics": diagnostics})
 
 
+class PhysicalSimulationWorkObservation(_StrictModel):
+    """One observed physical invocation, separately from money and scientific proof."""
+
+    schema_version: Literal["policyos.runtime.physical_simulation_work.v1"] = (
+        "policyos.runtime.physical_simulation_work.v1"
+    )
+    invocation_id: str = Field(pattern=r"^[a-f0-9]{32}$")
+    event_id: str = Field(pattern=r"^[a-f0-9]{32}$")
+    physical_spec_ref: str = Field(pattern=r"^[a-f0-9]{64}$")
+    effective_seed: int = Field(strict=True)
+    status: Literal["completed", "failed"]
+    started_at: datetime
+    completed_at: datetime
+    duration_seconds: float = Field(ge=0.0, allow_inf_nan=False)
+    work_units: Literal[1] = 1
+    work_unit: Literal["physical_simulation_invocation"] = "physical_simulation_invocation"
+    observation_basis: Literal["in_process_call_boundary"] = "in_process_call_boundary"
+    scientific_authenticity: Literal["not_established"] = "not_established"
+    usd_cost: None = None
+    usd_cost_status: Literal["not_established"] = "not_established"
+    budget_status: Literal["current_owner_checked", "not_established"]
+    budget_source_basis_digest: str | None = Field(default=None, pattern=r"^[a-f0-9]{64}$")
+    error_type: str | None = None
+
+    @model_validator(mode="after")
+    def _work_observation_binding(self) -> PhysicalSimulationWorkObservation:
+        if (self.budget_status == "current_owner_checked") != (
+            self.budget_source_basis_digest is not None
+        ):
+            raise ValueError("physical_work_budget_source_mismatch")
+        if (self.status == "failed") != (self.error_type is not None):
+            raise ValueError("physical_work_error_binding_mismatch")
+        return self
+
+
+class _PhysicalRunOutput(list[SimulationTrajectory]):
+    """Invocation-local capture; repeated roles reference one shared event/basis set."""
+
+    def __init__(
+        self,
+        trajectories: Sequence[SimulationTrajectory],
+        observations: Sequence[PhysicalSimulationWorkObservation],
+        budget_observations: Sequence[ProducerBudgetObservation],
+    ) -> None:
+        super().__init__(trajectories)
+        self.observations = tuple(observations)
+        self.budget_observations = tuple(budget_observations)
+
+
+class _PhysicalWorkInterruptedError(JointSimulationControllerError):
+    """Retain actual completed roles and work facts across a bounded interruption."""
+
+    def __init__(
+        self,
+        code: str,
+        trajectories: Sequence[SimulationTrajectory],
+        observations: Sequence[PhysicalSimulationWorkObservation],
+        budget_observations: Sequence[ProducerBudgetObservation],
+        *,
+        budget_refusal_basis: dict[str, Any] | None = None,
+    ) -> None:
+        super().__init__(code)
+        self.trajectories = tuple(trajectories)
+        self.observations = tuple(observations)
+        self.budget_observations = tuple(budget_observations)
+        self.budget_refusal_basis = budget_refusal_basis
+
+
 def _run_cached_replicates(
     request: JointSimulationRequest,
     plan: EnginePlan,
     decision: EngineDecision,
     run_once: Callable[[RunLevel, tuple[InterventionAtomBinding, ...], int], SimulationTrajectory],
+    *,
+    producer_budget_observer: ProducerBudgetObserver | None = None,
 ) -> list[SimulationTrajectory]:
-    """Run each physical specification once and project it to all requested roles."""
+    """Admit each physical seed once; role projections do not create new work.
 
+    The budget read is current at the actual call boundary. The work unit is a
+    physical invocation and does not establish a USD price or numerical producer
+    authenticity. An interruption retains only fully completed role trajectories.
+    """
+    if producer_budget_observer is not None and (
+        type(producer_budget_observer) is not ProducerBudgetObserver
+        or "admit" in vars(producer_budget_observer)
+        or "observe" in vars(producer_budget_observer)
+    ):
+        raise JointSimulationControllerError("n5_budget_observer_not_canonical")
     cache: dict[str, SimulationTrajectory] = {}
     output: list[SimulationTrajectory] = []
+    observations: list[PhysicalSimulationWorkObservation] = []
+    budget_bases: dict[str, ProducerBudgetObservation] = {}
+    invocation_id = uuid4().hex
     seeds = _replication_seeds(request)
     for run_level, raw_subset in _atom_subsets(request.intervention_atoms):
         subset = tuple(raw_subset)
         physical_ref = _physical_run_ref(request, plan, decision, subset)
         reused = physical_ref in cache
         if not reused:
-            replicated = tuple(run_once(run_level, subset, seed) for seed in seeds)
-            cache[physical_ref] = _aggregate_replicated_trajectory(
-                replicated,
-                seeds,
-                physical_ref,
+            replicated: list[SimulationTrajectory] = []
+            physical_observations: list[PhysicalSimulationWorkObservation] = []
+            for seed in seeds:
+                budget_observation = None
+                if producer_budget_observer is not None:
+                    try:
+                        budget_observation = producer_budget_observer.admit()
+                    except (BudgetExhaustedError, ProducerBudgetSourceError) as exc:
+                        last_checked = producer_budget_observer.last_checked
+                        if last_checked is not None:
+                            budget_bases[last_checked.source_basis_digest] = last_checked
+                        exhausted = isinstance(exc, BudgetExhaustedError)
+                        status = (
+                            "configured_limit_only"
+                            if producer_budget_observer.configured_limit_usd == 0
+                            else "current_owner_checked"
+                            if exhausted
+                            else "last_checked_not_current"
+                        )
+                        raise _PhysicalWorkInterruptedError(
+                            "n5_current_budget_exhausted"
+                            if exhausted
+                            else "n5_current_budget_source_not_established",
+                            output,
+                            observations,
+                            tuple(budget_bases.values()),
+                            budget_refusal_basis={
+                                "status": status,
+                                "configured_limit_usd": str(
+                                    producer_budget_observer.configured_limit_usd
+                                ),
+                                "last_checked_observation_ref": (
+                                    last_checked.source_basis_digest
+                                    if last_checked is not None
+                                    else None
+                                ),
+                            },
+                        ) from exc
+                    budget_bases[budget_observation.source_basis_digest] = budget_observation
+                started_monotonic = perf_counter()
+                started_at = datetime.now(UTC)
+                error: Exception | None = None
+                try:
+                    trajectory = run_once(run_level, subset, seed)
+                except Exception as exc:
+                    error = exc
+                work = PhysicalSimulationWorkObservation(
+                    invocation_id=invocation_id,
+                    event_id=uuid4().hex,
+                    physical_spec_ref=physical_ref,
+                    effective_seed=seed,
+                    status="completed" if error is None else "failed",
+                    started_at=started_at,
+                    completed_at=datetime.now(UTC),
+                    duration_seconds=max(0.0, perf_counter() - started_monotonic),
+                    budget_status=(
+                        "current_owner_checked"
+                        if budget_observation is not None
+                        else "not_established"
+                    ),
+                    budget_source_basis_digest=(
+                        budget_observation.source_basis_digest
+                        if budget_observation is not None
+                        else None
+                    ),
+                    error_type=type(error).__name__ if error is not None else None,
+                )
+                observations.append(work)
+                physical_observations.append(work)
+                if error is not None:
+                    raise _PhysicalWorkInterruptedError(
+                        "n5_physical_work_failed",
+                        output,
+                        observations,
+                        tuple(budget_bases.values()),
+                    ) from error
+                replicated.append(trajectory)
+            aggregate = _aggregate_replicated_trajectory(replicated, seeds, physical_ref)
+            cache[physical_ref] = aggregate.model_copy(
+                update={
+                    "diagnostics": {
+                        **aggregate.diagnostics,
+                        "physical_work_event_ids": [
+                            item.event_id for item in physical_observations
+                        ],
+                    }
+                }
             )
         cached = cache[physical_ref]
         output.append(
@@ -982,7 +1156,7 @@ def _run_cached_replicates(
                 }
             )
         )
-    return output
+    return _PhysicalRunOutput(output, observations, tuple(budget_bases.values()))
 
 
 class InteractionTerm(_StrictModel):
@@ -1125,8 +1299,66 @@ class JointSimulationResult(_StrictModel):
 
     _content_payload: dict[str, Any] = PrivateAttr(default_factory=dict)
 
+    @property
+    def physical_work_observations(self) -> tuple[PhysicalSimulationWorkObservation, ...]:
+        """Reconcile persisted work/event references, not a self-reported count."""
+        raw = self.diagnostics.get("physical_work_observations")
+        if raw is None:
+            return ()
+        if type(raw) is not list:
+            raise ValueError("n5_physical_work_observations_not_a_sequence")
+        observations = tuple(PhysicalSimulationWorkObservation.model_validate(item) for item in raw)
+        ids = [item.event_id for item in observations]
+        if len(ids) != len(set(ids)):
+            raise ValueError("n5_physical_work_observation_duplicate")
+        if self.diagnostics.get("physical_work_units") != len(observations):
+            raise ValueError("n5_physical_work_unit_count_mismatch")
+        if self.diagnostics.get("physical_work_unit") != "physical_simulation_invocation":
+            raise ValueError("n5_physical_work_unit_invalid")
+        if self.diagnostics.get("physical_work_usd_cost_status") != "not_established":
+            raise ValueError("n5_physical_work_usd_not_established")
+        bases = self.diagnostics.get("producer_budget_observations", {})
+        if type(bases) is not dict:
+            raise ValueError("n5_producer_budget_basis_set_invalid")
+        for ref, basis in bases.items():
+            parsed_basis = ProducerBudgetObservation.model_validate(basis)
+            if ref != parsed_basis.source_basis_digest:
+                raise ValueError("n5_producer_budget_basis_ref_mismatch")
+        known = {item.event_id: item for item in observations}
+        calls: set[tuple[str, str, int]] = set()
+        for item in observations:
+            call = (item.invocation_id, item.physical_spec_ref, item.effective_seed)
+            if call in calls:
+                raise ValueError("n5_physical_work_call_duplicate")
+            calls.add(call)
+            if item.budget_source_basis_digest is not None and (
+                item.budget_source_basis_digest not in bases
+            ):
+                raise ValueError("n5_physical_work_budget_source_missing")
+        if self.diagnostics.get("physical_work_capture_status") != "observed":
+            if observations or bases:
+                raise ValueError("n5_unknown_capture_cannot_claim_observations")
+            return ()
+        for trajectory in self.trajectories:
+            physical_ref = trajectory.diagnostics.get("physical_run_ref")
+            event_refs = trajectory.diagnostics.get("physical_work_event_ids", ())
+            expected_seeds = tuple(trajectory.diagnostics.get("replication_seeds", ()))
+            actual_seeds = []
+            for ref in event_refs:
+                parsed = known.get(ref)
+                if parsed is None or parsed.status != "completed":
+                    raise ValueError("n5_physical_work_trajectory_binding_mismatch")
+                if parsed.physical_spec_ref != physical_ref:
+                    raise ValueError("n5_physical_work_spec_binding_mismatch")
+                actual_seeds.append(parsed.effective_seed)
+            if tuple(actual_seeds) != expected_seeds:
+                raise ValueError("n5_physical_work_replication_binding_mismatch")
+        return observations
+
     @model_validator(mode="after")
     def _versioned_state_consumption(self) -> JointSimulationResult:
+        if "physical_work_observations" in self.diagnostics:
+            _ = self.physical_work_observations
         if self.receipt.schema_version != self.schema_version:
             raise ValueError("joint_simulation_receipt_schema_mismatch")
         if self.schema_version == JOINT_SIMULATION_HORIZON_V1_SCHEMA_VERSION:
@@ -1425,6 +1657,7 @@ class JointSimulationHorizonController:
         *,
         method_registry: MethodRegistry | None = None,
         policy: JointSimulationControllerPolicy | None = None,
+        producer_budget_observer: ProducerBudgetObserver | None = None,
     ) -> None:
         if policy is not None and not isinstance(policy, JointSimulationControllerPolicy):
             raise TypeError("policy must be a JointSimulationControllerPolicy")
@@ -1432,6 +1665,11 @@ class JointSimulationHorizonController:
             method_registry if method_registry is not None else MethodRegistry.get_instance()
         )
         self.policy = policy or JointSimulationControllerPolicy()
+        if producer_budget_observer is not None and (
+            type(producer_budget_observer) is not ProducerBudgetObserver
+        ):
+            raise TypeError("n5_budget_observer_not_canonical")
+        self._producer_budget_observer = producer_budget_observer
         self._settings = _RuntimeSettings()
 
     @classmethod
@@ -1541,7 +1779,31 @@ class JointSimulationHorizonController:
             if runner is None:
                 diagnostics["unsupported_objectives"].append(decision.objective_ref)
             else:
-                trajectories = tuple(runner(request, selected_plan, decision))
+                try:
+                    produced = runner(request, selected_plan, decision)
+                    trajectories = tuple(produced)
+                    if type(produced) is _PhysicalRunOutput:
+                        diagnostics["physical_work_capture_status"] = "observed"
+                        diagnostics["physical_work_observations"] = [
+                            item.model_dump(mode="json") for item in produced.observations
+                        ]
+                        diagnostics["producer_budget_observations"] = {
+                            item.source_basis_digest: item.model_dump(mode="json")
+                            for item in produced.budget_observations
+                        }
+                except _PhysicalWorkInterruptedError as exc:
+                    trajectories = exc.trajectories
+                    diagnostics["physical_work_capture_status"] = "observed"
+                    diagnostics["physical_work_interruption"] = exc.code
+                    diagnostics["physical_work_observations"] = [
+                        item.model_dump(mode="json") for item in exc.observations
+                    ]
+                    diagnostics["producer_budget_observations"] = {
+                        item.source_basis_digest: item.model_dump(mode="json")
+                        for item in exc.budget_observations
+                    }
+                    if exc.budget_refusal_basis is not None:
+                        diagnostics["budget_interruption_basis"] = exc.budget_refusal_basis
                 diagnostics["engine_run_claimed"] = bool(trajectories)
                 if trajectories:
                     self._validate_selected_trajectories(
@@ -1564,6 +1826,23 @@ class JointSimulationHorizonController:
                 for item in unsupported_decisions
             )
 
+        work_events = tuple(
+            PhysicalSimulationWorkObservation.model_validate(raw)
+            for raw in diagnostics.get("physical_work_observations", ())
+        )
+        diagnostics.setdefault("physical_work_capture_status", "not_established")
+        diagnostics.setdefault("physical_work_observations", [])
+        diagnostics.setdefault("producer_budget_observations", {})
+        diagnostics["physical_work_units"] = len(work_events)
+        diagnostics["physical_work_unit"] = "physical_simulation_invocation"
+        diagnostics["physical_work_usd_cost_status"] = "not_established"
+        diagnostics["budget_admission_status"] = (
+            "current_owner_checked"
+            if self._producer_budget_observer is not None
+            and "physical_work_interruption" not in diagnostics
+            and work_events
+            else "not_established"
+        )
         if trajectories:
             marginal_effects = _marginal_effects(trajectories)
             coverage = _interaction_coverage(
@@ -1636,6 +1915,8 @@ class JointSimulationHorizonController:
             interaction_sampling_issues=interaction_sampling_issues,
         )
         authority_blockers = ["simulation_only_k_sim_not_world_evidence"]
+        if "physical_work_interruption" in diagnostics:
+            authority_blockers.append(str(diagnostics["physical_work_interruption"]))
         if trajectories:
             authority_blockers.append("simulation_effect_basis_not_established")
             if decision.temporal_capability == "multi_period":
@@ -2414,7 +2695,13 @@ class JointSimulationHorizonController:
                 },
             )
 
-        return _run_cached_replicates(request, plan, decision, run_once)
+        return _run_cached_replicates(
+            request,
+            plan,
+            decision,
+            run_once,
+            producer_budget_observer=self._producer_budget_observer,
+        )
 
     def _run_ncm_horizon(
         self,
@@ -2476,7 +2763,13 @@ class JointSimulationHorizonController:
                 },
             )
 
-        return _run_cached_replicates(request, plan, decision, run_once)
+        return _run_cached_replicates(
+            request,
+            plan,
+            decision,
+            run_once,
+            producer_budget_observer=self._producer_budget_observer,
+        )
 
     def _run_coupled_horizon(
         self,
@@ -2597,7 +2890,13 @@ class JointSimulationHorizonController:
                 },
             )
 
-        return _run_cached_replicates(request, plan, decision, run_once)
+        return _run_cached_replicates(
+            request,
+            plan,
+            decision,
+            run_once,
+            producer_budget_observer=self._producer_budget_observer,
+        )
 
     def _run_system_dynamics_horizon(
         self,
@@ -2699,7 +2998,13 @@ class JointSimulationHorizonController:
                 },
             )
 
-        return _run_cached_replicates(request, plan, decision, run_once)
+        return _run_cached_replicates(
+            request,
+            plan,
+            decision,
+            run_once,
+            producer_budget_observer=self._producer_budget_observer,
+        )
 
     def _run_registry_method_horizon(
         self,
@@ -2798,7 +3103,13 @@ class JointSimulationHorizonController:
                 },
             )
 
-        return _run_cached_replicates(request, plan, decision, run_once)
+        return _run_cached_replicates(
+            request,
+            plan,
+            decision,
+            run_once,
+            producer_budget_observer=self._producer_budget_observer,
+        )
 
 
 def _unsupported(

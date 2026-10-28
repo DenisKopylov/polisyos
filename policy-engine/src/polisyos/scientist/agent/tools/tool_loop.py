@@ -7,7 +7,7 @@ import copy
 import json
 import random
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 from polisyos.common.logger import get_logger
 from polisyos.scientist.agent.reflexion_evaluator import (
@@ -43,6 +43,8 @@ class ToolLoopResult:
     evaluation_history: list[dict[str, Any]] = field(default_factory=list)
     retrieved_memories: list[str] = field(default_factory=list)
     degraded_events: list[dict[str, Any]] = field(default_factory=list)
+    stop_kind: Literal["none", "resource_limit", "heuristic_stability"] = "none"
+    scientific_converged: Literal[False] = False
 
 
 def project_tool_loop_result_to_research_dag(
@@ -764,14 +766,20 @@ async def run_tool_loop(
                 evaluation_history.append(scorecard.model_dump(mode="json"))
                 previous_scorecard = scorecard
             conv_state = detector.check(score)
-            if conv_state.converged:
+            if conv_state.should_stop:
                 return ToolLoopResult(
                     content=content,
                     tool_calls_made=all_tool_calls,
                     iterations=completed_iterations,
                     total_tokens=total_tokens,
-                    converged=True,
-                    convergence_reason=stop_reason or conv_state.reason,
+                    converged=conv_state.stop_kind == "heuristic_stability",
+                    convergence_reason=(
+                        conv_state.reason
+                        if conv_state.stop_kind == "resource_limit"
+                        else stop_reason or conv_state.reason
+                    ),
+                    stop_kind=conv_state.stop_kind,
+                    scientific_converged=False,
                     final_score=score,
                     evaluation_history=evaluation_history,
                     retrieved_memories=retrieved_memories,

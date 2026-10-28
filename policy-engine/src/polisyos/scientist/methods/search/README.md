@@ -400,3 +400,23 @@ identity filter. Its known-key bindings do not prove that omitted timestamps or
 object-valued context are neutral to every evaluator. A complete evaluated-input
 projection requires the separately owned strict payload/context bridge; this
 result-reuse repair does not establish that broader compatibility.
+
+## Explicit plateau profiles and stress direction
+
+`StoppingPresets.default(tolerance_profile=PlateauToleranceProfile(...))` extends
+the existing lifecycle stopping owner. The caller supplies a typed direction,
+nonempty declared objective scale and finite nonnegative absolute/relative
+tolerances. Signed gain is compared in that configured scale; no implicit
+direction or unit conversion is supplied. Historical profile-free behavior is
+retained. The source-reconciled lifecycle history still decides whether an
+objective value exists; a missing/invalid source value cannot become a plateau.
+The profile unit labels the explicitly configured scalar scale, not a new
+measurement authority or a globally selected tolerance.
+
+Stress evaluation freezes its typed raw direction before sampling or evaluator
+work. `StressObjectiveDirectionError` refuses unresolved values instead of
+letting them fall through to minimization. The existing duck-composite lower-tail
+compatibility convention remains candidate-only. Full stress occurrence counts
+and bounded examples remain distinct. The current selected-objective-intent
+limitation stays explicit until an independent selected input owner is joined;
+changing a presentation cap or adding a direction label cannot establish it.

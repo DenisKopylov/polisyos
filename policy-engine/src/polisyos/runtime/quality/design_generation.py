@@ -100,6 +100,10 @@ from polisyos.scientist.agent.formalizer import (
     LLMFormalizerAgent,
     trinity_bundle_formalizer_generator_path,
 )
+from polisyos.scientist.orchestration.engine.convergence import (
+    ConvergenceConfig,
+    ConvergenceState,
+)
 
 if TYPE_CHECKING:
     from polisyos.data_forge.read_api.academic import (
@@ -551,6 +555,12 @@ class EffectiveGenerationRuntimeConfig(_StrictModel):
 
     drafter_pass_timeout_s: float = Field(..., gt=0.0)
     drafter_pass_retry_count: int = Field(..., ge=0)
+    drafter_convergence_profile: ConvergenceConfig | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    drafter_convergence_state: ConvergenceState | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     formalizer_timeout_s: float = Field(..., gt=0.0)
     formalizer_retry_count: int = Field(..., ge=0)
     critic_timeout_s: float = Field(..., gt=0.0)
@@ -1653,6 +1663,7 @@ async def _generate_design_candidate_bundle_under_a(
         max_extra_llm_calls=3,
         pass_timeout_s=multipass_config.pass_timeout_s,
         pass_retry_count=multipass_config.pass_retry_count,
+        convergence=multipass_config.convergence,
         constitution_enabled=False,
         code_verification_enabled=False,
         rag_enabled=False,
@@ -1745,6 +1756,12 @@ async def _generate_design_candidate_bundle_under_a(
             lever_space_prompt_slice=lever_space_prompt_slice,
             effective_runtime_config=effective_runtime_config,
         ).as_organ_run()
+    effective_runtime_config = EffectiveGenerationRuntimeConfig.model_validate(
+        {
+            **effective_runtime_config.model_dump(),
+            "drafter_convergence_state": getattr(draft, "convergence_state", None),
+        }
+    )
     draft_path = _draft_generator_path(recording_client.calls[draft_call_start:], draft)
     if draft_path != _REAL_GENERATOR_PATH:
         return _terminal_result(
@@ -2164,6 +2181,7 @@ def _effective_runtime_config(
     return EffectiveGenerationRuntimeConfig(
         drafter_pass_timeout_s=float(multipass_config.pass_timeout_s),
         drafter_pass_retry_count=int(multipass_config.pass_retry_count),
+        drafter_convergence_profile=multipass_config.convergence,
         formalizer_timeout_s=float(
             getattr(
                 formalizer,

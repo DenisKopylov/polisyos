@@ -126,3 +126,45 @@ uv run pytest tests/unit/scientist/agent/test_drafter_factory.py tests/unit/scie
 ## Last Updated
 
 - Last updated: 2026-10-14
+
+## Optional current-observation stopping
+
+`MultiPassConfig.convergence` remains opt-in. The runtime N4 path preserves the
+explicit `POLISYOS_DRAFTER_CONVERGENCE_JSON` profile through its factory and stores
+the actual `ConvergenceState` on the returned draft. Missing configuration keeps
+the established pass policy. Invalid configured resource inputs are typed
+refusals before another fallback call. A direct factory caller may provide
+`convergence_budget_state` for its configured resource key; N4 does not invent a
+budget owner when none was supplied.
+
+The real traced LLM response produces a candidate observation; parser acceptance
+and the actual current pass join it to the detector. Unknown confidence is
+`confidence_status=not_established` and cannot seed relative critique stability.
+Provider versions are not manufactured. LLM confidence, cosine similarity and
+numerical stability never grant scientific, grounding or publication authority.
+The last checked observation is preserved as such after consolidation/shadow
+projection; it is not relabeled as a fresh measurement.
+
+Draft updates preserve citations, claim support and grounding limitations. The
+worker encoder/decoder carries the nested typed views. Unproduced optional
+fields are omitted from historical draft projections so existing content hashes
+remain reproducible. The tool-loop detector consumer returns resource exhaustion
+with `converged=false`, its actual reason, and `stop_kind=resource_limit`. A
+`stop_kind` of `none` means no detector terminal was recorded; existing rubric
+exit reasons retain their own semantics.
+
+Observation capture is explicitly configured. With `convergence=None`, the
+ordinary factory keeps the established scalar/wire behavior and does not emit
+new per-call observation IDs. A configured MultiPass wrapper opts the existing
+LLMDrafter into capture by using the same traced client owner; it does not mutate
+a reusable inner drafter. An unavailable semantic subject digest limits the
+measurement and preserves the useful candidate without a fallback LLM call.
+The caller prompt ref and Core's scoped/sanitized producer request ref are
+distinct provenance fields; neither is substituted for the other.
+
+Core's producer-response digest is captured before sanitizer restoration. The
+consumed response has its own content digest. If they differ and the envelope
+provides no producer-owned restoration attestation, the supplied grade remains
+a candidate with `producer_consumer_response_relation_not_established`; it does
+not fill a stability window. Two hashes alone are not that attestation. Useful
+content and independent resource limits remain active.

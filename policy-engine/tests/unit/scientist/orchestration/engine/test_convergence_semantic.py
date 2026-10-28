@@ -22,6 +22,9 @@ from polisyos.scientist.orchestration.engine.convergence import (
 class MockEmbedder:
     """Returns a fixed embedding or an echo of the input text."""
 
+    model_id = "fixture-MockEmbedder"
+    model_version = "fixture-v1"
+
     def __init__(self, dim: int = 32):
         self._dim = dim
         self._call_count = 0
@@ -49,6 +52,9 @@ class MockEmbedder:
 class ConstantEmbedder:
     """Always returns the same vector."""
 
+    model_id = "fixture-ConstantEmbedder"
+    model_version = "fixture-v1"
+
     def embed(self, texts: list[str]) -> list[list[float]]:
         return [[0.5, 0.5, 0.5, 0.5]] * len(texts)
 
@@ -59,6 +65,9 @@ class ConstantEmbedder:
 
 class FailOnThirdEmbedder:
     """Return the same vector twice, then fail the current measurement."""
+
+    model_id = "fixture-FailOnThirdEmbedder"
+    model_version = "fixture-v1"
 
     def __init__(self) -> None:
         self._call_count = 0
@@ -77,6 +86,9 @@ class FailOnThirdEmbedder:
 class DimensionChangingEmbedder:
     """Return compatible data once, then a vector with another dimension."""
 
+    model_id = "fixture-DimensionChangingEmbedder"
+    model_version = "fixture-v1"
+
     def __init__(self) -> None:
         self._call_count = 0
 
@@ -88,6 +100,9 @@ class DimensionChangingEmbedder:
 
 class VersionedEmbedder:
     """Return a stable vector while exposing mutable model provenance."""
+
+    model_id = "fixture-VersionedEmbedder"
+    model_version = "fixture-v1"
 
     def __init__(self) -> None:
         self.model_version = "v1"

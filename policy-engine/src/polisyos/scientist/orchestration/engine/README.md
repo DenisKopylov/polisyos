@@ -542,3 +542,44 @@ The synchronous and asynchronous workflow finalizers persist a `scientist.workfl
 
 The source basis is intentionally complete for the actual consumer boundary. RunGovernance exposes the full `inputs`, `artifacts_index`, `reports_index`, and `params` maps to its selected validation passes and also reads `run_id`, `execution_profile`, and the selected policy projection/report refs. The verified-policy builder uses the same complete maps plus its request, option-set, source-verification, and selected-report refs. A cache hit is reusable only if the report remains selected and its exact successful producer and source basis still match. A changed or removed input clears the cached current ref before rebuilding or skipping. `current` means source-current for this selected in-process producer; it does not establish law, issuer authority, scientific adequacy, permission, or external custody.
 
+
+## Current stopping observations and producer budgets
+
+`ConvergenceDetector.check_candidate_observation(...)` consumes one content-bound
+current candidate assessment: actual response bytes, caller request, semantic problem,
+pass number, producer event, model and version must agree. A skipped/failed pass,
+response reuse, replayed event, unknown version or incompatible measurement
+cannot renew an old comparison window. Unknown embedding identity may retain a
+raw cosine diagnostic; it does not establish comparable current measurements.
+
+`ConvergenceState.should_stop` and `stop_kind` separate a resource ceiling from
+heuristic candidate stability. `scientific_converged` is always false. The old
+`converged` flag retains its terminal meaning for scalar compatibility; consumers
+that distinguish convergence from exhaustion must use the new fields. An
+explicit resource ceiling may occur before a comparison window exists.
+
+`producer_budget.ProducerBudgetObserver` consolidates the existing Control NL
+reconciler over `BudgetMiddleware.snapshot_safe()`. Every admission reopens the
+canonical ledger snapshot, selects the exact run binding/key, validates committed
+amounts and reuse origins, and reconciles the same runtime `BudgetState`. Unknown
+or pending positive-cap spend never becomes zero. A configured zero cap refuses
+independently without inventing a spend result. Cap or settlement-owner drift is
+a typed refusal; repeated reads of an unchanged selected basis retain its digest.
+
+The observation's unit is USD. Its runtime allocation includes existing stage
+estimates and is explicitly distinct from measured N5 cost. Native N5 records
+actual physical invocation units separately, reads this owner before every
+physical seed, and reuses role projections without additional work events. These
+work observations establish neither a USD price nor scientific producer
+authenticity. A serialized observation is an audit view, never a reusable permit.
+
+The observation also retains the existing Core producer request digest as
+`producer_request_ref`. The caller-input hash names another quantity and is not
+a claim to recompute Core's tenant/sanitizer/caching contract. The canonical Core
+producer remains the owner of that request/event binding.
+
+N6 binds the exact expected observer and invocation budget-state identity at one
+canonical N5 intake, covering both default and supplied canonical ports. A
+foreign or absent observer refuses before work; object type alone is not the
+run-owner binding. The same intake is rechecked at the run/generic-consumer path.
+Custom contract-testing ports retain their explicit non-canonical scope.

@@ -6,13 +6,13 @@ import inspect
 import time
 import urllib.parse
 from collections.abc import Awaitable, Callable, Mapping, Sequence
-from dataclasses import asdict
+from dataclasses import asdict, fields
 from datetime import UTC, datetime
 from decimal import Decimal
 from enum import StrEnum
 from typing import TYPE_CHECKING, Any
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, field_validator
 
 from polisyos.scholar.search.models import SearchBudgetControls, SearchConstraints
 from polisyos.scientist.agent.protocols import (
@@ -699,7 +699,11 @@ def _domain_matches(domain: str, rule: str) -> bool:
 
 
 def _draft_to_payload(draft: DraftResult) -> dict[str, Any]:
-    return asdict(draft)
+    """Project nested current observations through their typed wire serializers."""
+    payload = TypeAdapter(DraftResult).dump_python(draft, mode="python")
+    if not isinstance(payload, dict):
+        raise TypeError("draft_worker_serializer_must_return_object")
+    return payload
 
 
 def _critique_to_payload(report: CritiqueReport) -> dict[str, Any]:
@@ -709,8 +713,11 @@ def _critique_to_payload(report: CritiqueReport) -> dict[str, Any]:
 def draft_from_payload(payload: Mapping[str, Any]) -> DraftResult:
     """Rehydrate ``DraftResult`` from a worker payload."""
     normalized = dict(payload)
+    unexpected = set(normalized).difference(field.name for field in fields(DraftResult))
+    if unexpected:
+        raise TypeError(f"unexpected draft fields: {sorted(unexpected)}")
     normalized["created_at"] = _coerce_datetime(normalized.get("created_at"))
-    return DraftResult(**normalized)
+    return TypeAdapter(DraftResult).validate_python(normalized)
 
 
 def critique_from_payload(payload: Mapping[str, Any]) -> CritiqueReport:

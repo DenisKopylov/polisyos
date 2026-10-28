@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from decimal import Decimal
 from math import isfinite
-from typing import Any
+from typing import Any, Literal
 
 
 @dataclass(frozen=True)
@@ -54,6 +54,38 @@ class StoppingCriterion(ABC):
     def state_keys(self) -> tuple[str, ...]:
         """Return externally-owned state keys required by this criterion."""
         return ()
+
+
+@dataclass(frozen=True)
+class PlateauToleranceProfile:
+    """Declared objective-scale contract for plateau evidence.
+
+    The unit is deliberately mandatory: tolerances without an objective unit
+    are not portable evidence.  This profile is opt-in so legacy callers keep
+    their existing minimization/relative-threshold behaviour.
+    """
+
+    direction: Literal["minimize", "maximize"]
+    unit: str
+    abs_tol: float
+    rel_tol: float
+
+    def __post_init__(self) -> None:
+        if type(self.direction) is not str or self.direction not in {"minimize", "maximize"}:
+            raise ValueError("direction must be minimize or maximize")
+        if type(self.unit) is not str or not self.unit.strip():
+            raise ValueError("unit must be declared")
+        for name in ("abs_tol", "rel_tol"):
+            value = getattr(self, name)
+            if isinstance(value, bool) or not isinstance(value, (int, float, Decimal)):
+                raise ValueError(f"{name} must be finite and non-negative")
+            try:
+                number = float(value)
+            except (OverflowError, TypeError, ValueError) as exc:
+                raise ValueError(f"{name} must be finite and non-negative") from exc
+            if not isfinite(number) or number < 0:
+                raise ValueError(f"{name} must be finite and non-negative")
+            object.__setattr__(self, name, number)
 
 
 class MaxIterations(StoppingCriterion):
@@ -123,12 +155,16 @@ class ImprovementPlateau(StoppingCriterion):
         patience: int = 3,
         min_improvement: float = 0.01,
         objective_key: str = "objective_value",
+        tolerance_profile: PlateauToleranceProfile | None = None,
     ):
         if patience < 1:
             raise ValueError("patience must be >= 1")
         self._patience = patience
         self._min_improvement = min_improvement
         self._objective_key = objective_key
+        if tolerance_profile is not None and type(tolerance_profile) is not PlateauToleranceProfile:
+            raise TypeError("tolerance_profile must be a validated PlateauToleranceProfile")
+        self._tolerance_profile = tolerance_profile
 
     @property
     def name(self) -> str:
@@ -159,8 +195,41 @@ class ImprovementPlateau(StoppingCriterion):
         recent_values = values[-self._patience :]
         historical_values = values[: -self._patience]
 
-        best_recent = min(recent_values)
-        best_historical = min(historical_values)
+        profile = self._tolerance_profile
+        select_best = max if profile is not None and profile.direction == "maximize" else min
+        best_recent = select_best(recent_values)
+        best_historical = select_best(historical_values)
+        if profile is not None:
+            signed_improvement = (
+                best_recent - best_historical
+                if profile.direction == "maximize"
+                else best_historical - best_recent
+            )
+            threshold = max(profile.abs_tol, profile.rel_tol * abs(best_historical))
+            if signed_improvement <= threshold:
+                return StoppingCondition(
+                    should_stop=True,
+                    reason=f"Improvement plateau in declared {profile.unit} objective scale",
+                    details={
+                        "best_recent": best_recent,
+                        "best_historical": best_historical,
+                        "signed_gain": signed_improvement,
+                        "threshold": threshold,
+                        "direction": profile.direction,
+                        "unit": profile.unit,
+                        "patience": self._patience,
+                    },
+                )
+            return StoppingCondition(
+                should_stop=False,
+                details={
+                    "signed_gain": signed_improvement,
+                    "threshold": threshold,
+                    "direction": profile.direction,
+                    "unit": profile.unit,
+                },
+            )
+
         signed_improvement = best_historical - best_recent
 
         if abs(best_historical) < 1e-10:
@@ -366,13 +435,14 @@ class StoppingPresets:
         max_iter: int = 10,
         max_seconds: float = 300.0,
         patience: int = 3,
+        tolerance_profile: PlateauToleranceProfile | None = None,
     ) -> CompositeStoppingCriterion:
-        """Standard stopping: iterations OR time OR plateau."""
+        """Build the existing lifecycle preset with an explicit optional metric profile."""
         return CompositeStoppingCriterion(
             [
                 MaxIterations(max_iter),
                 MaxWallTime(max_seconds),
-                ImprovementPlateau(patience=patience),
+                ImprovementPlateau(patience=patience, tolerance_profile=tolerance_profile),
             ]
         )
 

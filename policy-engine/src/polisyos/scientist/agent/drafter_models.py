@@ -10,7 +10,10 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from polisyos.scientist.agent.protocols import DraftResult
-from polisyos.scientist.orchestration.engine.convergence import ConvergenceConfig
+from polisyos.scientist.orchestration.engine.convergence import (
+    ConvergenceConfig,
+    ConvergenceObservation,
+)
 
 
 def _as_bool(raw: str | None, default: bool = False) -> bool:
@@ -92,6 +95,8 @@ class PassExecution:
     parse_ok: bool = True
     confidence_adjustment: float | None = None
     verification_code: str | None = None
+    confidence_request_ref: str | None = None
+    confidence_observation: ConvergenceObservation | None = None
 
 
 class MultiPassConfig(BaseModel):
@@ -139,6 +144,10 @@ class MultiPassConfig(BaseModel):
     @classmethod
     def from_env(cls) -> MultiPassConfig:
         kwargs: dict[str, Any] = {}
+        raw_convergence = os.getenv("POLISYOS_DRAFTER_CONVERGENCE_JSON")
+        if raw_convergence:
+            # Explicit typed opt-in; no default confidence/convergence authority.
+            kwargs["convergence"] = ConvergenceConfig.model_validate_json(raw_convergence)
         raw_max_passes = os.getenv("POLISYOS_DRAFTER_MAX_PASSES")
         if raw_max_passes:
             kwargs["max_passes"] = int(raw_max_passes)
@@ -255,7 +264,9 @@ class _CritiquePayload(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
     findings: list[_FindingPayload] = Field(default_factory=list)
-    confidence_adjustment: float | None = None
+    confidence_adjustment: float | None = Field(
+        default=None, ge=-1.0, le=1.0, allow_inf_nan=False, strict=True
+    )
     verification_code: str | None = None
 
 
@@ -266,7 +277,7 @@ class _ConsolidationPayload(BaseModel):
     interventions: list[dict[str, Any]] = Field(default_factory=list)
     rationale: str = ""
     alternatives_considered: list[str] = Field(default_factory=list)
-    confidence: float | None = Field(default=None, ge=0.0, le=1.0)
+    confidence: float | None = Field(default=None, ge=0.0, le=1.0, allow_inf_nan=False, strict=True)
 
 
 __all__ = [

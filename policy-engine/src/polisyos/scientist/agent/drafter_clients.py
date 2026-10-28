@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import uuid
+from dataclasses import replace
 from datetime import UTC, datetime
 from typing import Any
 
@@ -12,6 +13,13 @@ from polisyos.core.canon import truncated_hash
 from polisyos.scientist.agent.prompts import get_drafter_prompt
 from polisyos.scientist.agent.protocols import CritiqueReport, DraftResult, ProblemFrame
 from polisyos.scientist.orchestration.llm import TracedLLMClient
+
+from ._drafter_observations import (
+    confidence_request_ref,
+    confidence_subject_ref,
+    finite_candidate_confidence,
+    observe_candidate_confidence,
+)
 
 
 class MockLLM:
@@ -325,11 +333,29 @@ class MockDrafterAgent:
 class LLMDrafterAgent:
     """LLM-powered drafter agent for producing DraftResult artifacts."""
 
-    def __init__(self, llm_client: Any, model_name: str | None = None) -> None:
+    def __init__(
+        self,
+        llm_client: Any,
+        model_name: str | None = None,
+        *,
+        capture_convergence_observations: bool = False,
+    ) -> None:
+        if type(capture_convergence_observations) is not bool:
+            raise TypeError("capture_convergence_observations_must_be_bool")
+        self._capture_convergence_observations = capture_convergence_observations
         if llm_client is not None and not isinstance(llm_client, TracedLLMClient):
             self._llm = TracedLLMClient(llm_client, model_name=model_name)
         else:
             self._llm = llm_client
+
+    def _with_convergence_observations(self) -> LLMDrafterAgent:
+        """Return an opt-in wrapper over the same canonical traced client owner."""
+        if self._capture_convergence_observations:
+            return self
+        return LLMDrafterAgent(
+            self._llm,
+            capture_convergence_observations=True,
+        )
 
     async def draft_policy(
         self,
@@ -396,6 +422,37 @@ Generate a draft JSON object.
                 hints=hints,
                 prior_drafts=prior_drafts,
             )
+        capture = self._capture_convergence_observations
+        observed_confidence = (
+            finite_candidate_confidence(data.get("confidence"))
+            if capture
+            else float(data.get("confidence", 0.6))
+        )
+        request_ref = confidence_request_ref(system=prompt, user=user_message) if capture else None
+        subject_ref = confidence_subject_ref(problem_frame) if capture else None
+        response_subject = data.get("problem_frame_ref", problem_frame.frame_id)
+        observation = None
+        if (
+            capture
+            and observed_confidence is not None
+            and response_subject == problem_frame.frame_id
+        ):
+            assert request_ref is not None
+            observation = observe_candidate_confidence(
+                response=response,
+                source_text=content,
+                subject_ref=subject_ref,
+                request_ref=request_ref,
+                pass_number=1,
+                value=observed_confidence,
+            )
+        grounding_notes = _context_grounding_notes(problem_frame)
+        if capture and observed_confidence is None:
+            grounding_notes.append("candidate_confidence_not_established")
+        if capture and subject_ref is None:
+            grounding_notes.append("candidate_convergence_subject_not_established")
+        if capture and response_subject != problem_frame.frame_id:
+            grounding_notes.append("candidate_confidence_problem_frame_mismatch")
         return DraftResult(
             draft_id=data.get("draft_id", f"draft_{uuid.uuid4().hex[:8]}"),
             problem_frame_ref=data.get("problem_frame_ref", problem_frame.frame_id),
@@ -409,11 +466,20 @@ Generate a draft JSON object.
             ),
             citations=_context_citations(problem_frame),
             claim_supports=_context_claim_supports(problem_frame),
-            grounding_notes=_context_grounding_notes(problem_frame),
+            grounding_notes=grounding_notes,
             alternatives_considered=data.get("alternatives_considered", []),
-            confidence=float(data.get("confidence", 0.6)),
+            confidence=observed_confidence if observed_confidence is not None else 0.0,
             raw_llm_response=content,
             created_at=datetime.now(UTC),
+            confidence_status=(
+                "candidate_self_assessment"
+                if capture
+                and observed_confidence is not None
+                and response_subject == problem_frame.frame_id
+                else "not_established"
+            ),
+            confidence_request_ref=request_ref,
+            confidence_observation=observation,
         )
 
     async def refine_draft(
@@ -426,20 +492,16 @@ Generate a draft JSON object.
             if issue.suggestion:
                 hints.append(f"Addressing: {issue.suggestion}")
         refined_narrative = draft.narrative + "\n\n[REFINED]\n" + "\n".join(hints)
-        return DraftResult(
+        return replace(
+            draft,
             draft_id=f"{draft.draft_id}_refined",
-            problem_frame_ref=draft.problem_frame_ref,
             narrative=refined_narrative,
-            interventions=draft.interventions,
             rationale=f"{draft.rationale} [Refined based on critique]",
-            domain_references=draft.domain_references,
-            citations=list(draft.citations),
-            claim_supports=list(draft.claim_supports),
-            grounding_notes=list(draft.grounding_notes),
             confidence=min(0.95, draft.confidence + 0.05),
-            alternatives_considered=draft.alternatives_considered,
-            raw_llm_response=draft.raw_llm_response,
             created_at=datetime.now(UTC),
+            confidence_request_ref=None,
+            confidence_observation=None,
+            convergence_state=None,
         )
 
     @staticmethod

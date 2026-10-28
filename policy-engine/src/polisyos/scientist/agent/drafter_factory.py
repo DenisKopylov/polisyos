@@ -16,6 +16,7 @@ from polisyos.scientist.agent.rag import (
     build_default_embedder,
     build_or_load_rag_index,
 )
+from polisyos.scientist.orchestration.engine.budget import BudgetState
 
 from .drafter_clients import LLMDrafterAgent, MockDrafterAgent
 from .drafter_models import MultiPassConfig
@@ -61,6 +62,7 @@ def create_drafter_agent(
     constitution_model_spec: ModelSpec | None = None,
     rag_store_factory: Callable[[Path], FileSystemCAS] | None = None,
     multipass_mode: Literal["off", "active", "shadow"] | None = None,
+    convergence_budget_state: BudgetState | None = None,
 ) -> DrafterAgent:
     """
     Build a drafter from an explicit mode or `POLISYOS_DRAFTER_MULTIPASS_MODE`.
@@ -119,6 +121,7 @@ def create_drafter_agent(
     return MultiPassLLMDrafter(
         inner,
         config=effective_config,
+        convergence_budget_state=convergence_budget_state,
         memory=memory,
         rag_index=rag_index,
         rag_config=rag_config,

@@ -1,0 +1,22 @@
+id = "2026-10-28-e02-candidate-stopping-budget"
+title = "Bind optional stopping to current observations and budget sources"
+type = "fixed"
+component = "scientist-runtime"
+owner = "team-polisyos"
+summary = "Optional drafter stopping consumes the actual current producer observation, and configured native N5 checks the current run budget owner before every physical seed while preserving typed candidate limitations."
+evidence = [
+  "tests/unit/scientist/orchestration/engine/test_convergence_c49.py",
+  "tests/unit/scientist/orchestration/engine/test_producer_budget_c49.py",
+  "tests/unit/runtime/quality/test_c49_native_stopping_budget.py",
+  "tests/unit/scientist/search/test_plateau_lifecycle_c49.py",
+]
+compatibility = "Existing profile-free stopping and legacy scalar terminal flags remain. New consumers use should_stop/stop_kind. Historical draft wire projections omit absent observation fields. For configured capture, malformed confidence retains a candidate with explicit not_established status and no fresh observation. Profile-free caller behavior remains compatible and emits no new observation IDs."
+change_class = "internal"
+surface_classification = "public_stable: Scientist candidate runtime audit and worker result projections"
+migration = "No stored ledger version, HTTP request or generated-client migration is introduced. Root-owned public/generated inventory checks must qualify the additive Python DTO fields."
+api = "Adds content-bound candidate ConvergenceObservation and current ConvergenceState views, an optional plateau profile and typed stress direction refusal, and a read-only ProducerBudgetObserver over the existing durable ledger."
+limitations = "LLM/embedding stability is never scientific authority. N5 work uses physical invocation units; its USD price and scientific authenticity remain not_established. Selected stress objective intent remains unbound until the independent owner is available. A differing producer/consumed response layer remains explicitly unestablished without a Core restoration attestation. Canonical supplied N5 ports require the exact N6 observer and invocation state. Composed runtime evidence is required before acceptance."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = ["src/polisyos/scientist/orchestration/engine/README.md"]

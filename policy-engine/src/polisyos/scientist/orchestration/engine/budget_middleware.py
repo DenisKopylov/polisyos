@@ -22,6 +22,7 @@ from polisyos.scientist.orchestration.engine.budget_ledger import (
     BudgetLedgerProducerRecord,
     BudgetLedgerProducerRunBinding,
     BudgetLedgerSettlementOutcomeUnknownError,
+    BudgetLedgerSnapshot,
     BudgetLedgerSpendReceipt,
 )
 
@@ -354,6 +355,21 @@ class BudgetMiddleware:
             records = self._ledger.list_producer_events_for_run(run_binding)
             self._budget = self._ledger.load()
             return records
+
+    def snapshot_safe(self) -> BudgetLedgerSnapshot:
+        """Read one detached canonical snapshot for cross-event reconciliation.
+
+        Selection and reuse-origin validation must read the same source revision.
+        The returned view is not an authorization token or a new ledger writer.
+        """
+        with self._lock:
+            if self._ledger is None:
+                raise RuntimeError("durable budget settlement requires a configured ledger")
+            snapshot = self._ledger.snapshot()
+            if type(snapshot) is not BudgetLedgerSnapshot:
+                raise TypeError("budget_ledger_snapshot_must_be_typed")
+            self._budget = snapshot.state.model_copy(deep=True)
+            return snapshot.model_copy(deep=True)
 
     def _active_run_binding_for_key(
         self,

@@ -3206,9 +3206,8 @@ def _admit_method_metric_observations(
                     read_budget=read_budget,
                 )
             else:
-                # Retain every selected environment field, including future
-                # fields ignored by the typed adapter; only the capture instant
-                # is run-specific for this explicitly bounded comparison.
+                # Read raw fields as well as the typed model: the environment
+                # adapter ignores extras, but this bounded comparison must not.
                 environment_read = _read_bounded_method_metric_artifact(
                     store,
                     ref=environment_ref,
@@ -3224,13 +3223,11 @@ def _admit_method_metric_observations(
                     expected_schema_versions={"1.0"},
                 )
                 raw_environment = json.loads(environment_read.raw_payload_bytes)
-                if type(raw_environment) is not dict or "captured_at" not in raw_environment:
-                    raise _UnestablishedProjectionError(
-                        "ranking_environment_payload_not_established"
-                    )
-                comparison_environment = {
-                    key: value for key, value in raw_environment.items() if key != "captured_at"
-                }
+                comparison_environment = _ex_ante_comparison_environment(
+                    raw_environment,
+                    manifest=environment_manifest,
+                    plan_ref=plan_ref,
+                )
             environment_schema = environment_manifest.artifact_schema
             if environment_schema is None:
                 raise _InvalidProjectionError("environment_manifest_artifact_schema_missing")
@@ -4638,6 +4635,58 @@ class CompletedExAnteRankProjection:
             or not self.limitations
         ):
             raise ValueError("limited_ex_ante_rank_projection_requires_reason_only")
+
+
+def _ex_ante_comparison_environment(
+    raw_environment: Any,
+    *,
+    manifest: ArtifactManifest,
+    plan_ref: SelectedMethodMetricArtifactRef,
+) -> dict[str, Any]:
+    """Reconcile the selected producer plan before projecting run-specific identity.
+
+    The caller has bounded-read the environment and validated the selected plan,
+    its graph and the actual execution chain. Keep that complete source evidence;
+    omit only the capture instant and this independently reconciled plan ID from
+    the candidate comparison. Unknown producer metadata has no admitted meaning
+    in this narrow profile and therefore cannot establish comparability.
+    """
+    from polisyos.core.artifacts.environment import EnvironmentManifest
+
+    known_fields = set(EnvironmentManifest.model_fields) | set(
+        EnvironmentManifest.model_computed_fields
+    )
+    known_fields.update(
+        field.alias for field in EnvironmentManifest.model_computed_fields.values() if field.alias
+    )
+    if (
+        type(raw_environment) is not dict
+        or "captured_at" not in raw_environment
+        or set(raw_environment) - known_fields
+    ):
+        raise _UnestablishedProjectionError("ranking_environment_payload_not_established")
+    metadata = raw_environment.get("custom_metadata")
+    if type(metadata) is not dict or set(metadata) != {
+        "seed",
+        "seed_source",
+        "randomization_profile",
+        "exec_plan_id",
+        "loaded_method_identities",
+        "environment_fingerprint_excludes_loaded_method_identity",
+        "environment_identity_scope",
+    }:
+        raise _UnestablishedProjectionError("ranking_environment_metadata_not_supported")
+    # A matching ID alone cannot distinguish two selected profiles of the same
+    # plan bytes. Require the exact sidecar edge as well as its payload identity.
+    _require_exact_manifest_edge(manifest, role="exec_plan", ref=plan_ref)
+    if type(metadata["exec_plan_id"]) is not str or metadata["exec_plan_id"] != str(
+        plan_ref.artifact_id
+    ):
+        raise _InvalidProjectionError("ranking_environment_selected_plan_id_mismatch")
+    return {
+        **{key: value for key, value in raw_environment.items() if key != "captured_at"},
+        "custom_metadata": {key: value for key, value in metadata.items() if key != "exec_plan_id"},
+    }
 
 
 def _ex_ante_rank_comparison_contract(

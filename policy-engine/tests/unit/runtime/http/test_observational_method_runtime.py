@@ -4403,11 +4403,11 @@ def test_meta_learner_v2_refuses_unexposed_parallelism_knobs_before_enqueue(
     assert queued == []
 
 
-def test_two_real_completed_ex_ante_sources_are_reselected_by_fresh_planner(
+def _exercise_two_real_completed_ex_ante_sources_and_fresh_planner(
     runtime_api_env: dict[str, Any],
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
-) -> None:
+) -> dict[str, Any]:
     """Real Runtime/Scientist/Foundry path; input fixture does not execute or finalize."""
     from _helpers.control_worker import dispatch_one_control_job, stop_embedded_control_worker
     from unit.scientist.nodes.builtins.decide.test_policy_runtime_method_metrics import (
@@ -4425,13 +4425,12 @@ def test_two_real_completed_ex_ante_sources_are_reselected_by_fresh_planner(
     stop_embedded_control_worker(service)
     store = service._artifact_store
     tenant_id, cell_id = runtime_api_env["tenant_a"], runtime_api_env["cell_a"]
-    principal = RuntimePrincipal(
-        subject="completed-ex-ante-reader",
-        tenant_id=tenant_id,
-        cell_id=cell_id,
-        roles=frozenset({"analyst"}),
-        authenticated=True,
-    )
+    from polisyos.runtime.http.security import build_fixture_identity_claims
+
+    claims = build_fixture_identity_claims()
+    principal = RuntimePrincipal.from_user_claims(claims)
+    assert principal.authenticated and principal.fixture_identity
+    assert (principal.tenant_id, principal.cell_id) == (tenant_id, cell_id)
     sources = []
     source_job_ids = []
     prepared_sources = []
@@ -4590,6 +4589,255 @@ def test_two_real_completed_ex_ante_sources_are_reselected_by_fresh_planner(
         prepared_sources[1]["candidate"].candidate_hash()
     ]
 
+    # Independent oracle and source-custody checks over the two real completed
+    # jobs.  The expected means use the explicit integer paired differences:
+    # A: (1 - 2 + 4) / 3 = 1; B: (2 + 0 + 4) / 3 = 2.
+    from polisyos.core.contracts.foundry import MethodExecutionBundle
+    from polisyos.scientist.nodes.builtins.decide import policy_runtime_method_metrics
+
+    assert len(set(source_job_ids)) == len({source["source_run_id"] for source in sources}) == 2
+    assert sources[0]["candidate_ref"] != sources[1]["candidate_ref"]
+    expected_values = (1.0, 2.0)
+    scores = []
+    observed_sources = []
+    dispatch_profiles = []
+    environment_plan_refs = []
+    for index, expected in enumerate(expected_values):
+        source = sources[index]
+        job = service._control_store.get_job(source_job_ids[index])
+        assert job is not None and job.state == "completed"
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            selected = service.get_method_execution_selection(
+                run_id=source["source_run_id"], tenant_id=tenant_id, cell_id=cell_id
+            )
+            score = service.read_current_completed_ex_ante_candidate_score(
+                run_id=source["source_run_id"], tenant_id=tenant_id, cell_id=cell_id
+            )
+            projection = service.read_current_admitted_method_metric_projection(
+                run_id=source["source_run_id"], tenant_id=tenant_id, cell_id=cell_id
+            )
+            assert isinstance(selected, GraphMethodExecutionSelection)
+            bundle = validate_core_model_json_artifact(
+                MethodExecutionBundle, store, selected.method_execution_bundle_ref
+            )
+            environment_ref = bundle.environment_manifest_ref
+            assert environment_ref is not None
+            environment_manifest = store.get_manifest(environment_ref)
+            environment_payload = json.loads(store.get_bytes(environment_ref))
+            plan_edges = [edge for edge in environment_manifest.inputs if edge.role == "exec_plan"]
+            assert len(plan_edges) == 1
+            assert plan_edges[0].artifact_id == bundle.exec_plan_ref.artifact_id
+            assert (
+                plan_edges[0].manifest_profile_sha256
+                == bundle.exec_plan_ref.manifest_profile_sha256
+            )
+            assert environment_payload["custom_metadata"]["exec_plan_id"] == str(
+                bundle.exec_plan_ref.artifact_id
+            )
+            environment_plan_refs.append(bundle.exec_plan_ref.model_dump(mode="json"))
+        assert selected.job_id == source_job_ids[index]
+        assert selected.run_id == source["source_run_id"] and selected.attempt == job.attempt
+        assert selected.metric_verification_status == "verified"
+        assert selected.source_candidate_ref == source["candidate_ref"]
+        assert selected.method_metric_projection is not None
+        assert selected.method_metric_projection.verifier_revision == "1.0"
+        verifier_bytes = Path(policy_runtime_method_metrics.__file__).read_bytes()
+        verifier_digest = "sha256:" + hashlib.sha256(verifier_bytes).hexdigest()
+        assert selected.method_metric_projection.verifier_implementation_sha256 == verifier_digest
+        assert score.status == "selected" and score.authority_status == "candidate_only"
+        assert score.revalidation_required is True
+        assert score.candidate_ref == source["candidate_ref"]
+        assert score.source_vector_ref == selected.method_metric_projection.vector_ref
+        assert score.minimized_score == pytest.approx(-expected)
+        assert score.maximizing_coordinate == pytest.approx(expected)
+        assert projection.status == "selected" and len(projection.observations) == 1
+        assert projection.vector_ref is not None
+        assert projection.vector_ref.model_dump(mode="json") == score.source_vector_ref.model_dump(
+            mode="json"
+        )
+        observation = projection.observations[0]
+        assert observation.source_status == "observed"
+        assert observation.objective_id == "objective_ex_ante_mean_change"
+        assert observation.metric_id == "metric_ex_ante_mean_change"
+        assert observation.value == pytest.approx(expected)
+        assert observation.input_capture_ref is not None
+        assert observation.environment_manifest_ref is not None
+        assert observation.verifier_code_digest == verifier_digest
+        assert bundle.environment_manifest_ref is not None
+        assert len(bundle.occurrences) == 1
+        occurrence = bundle.occurrences[0]
+        assert occurrence.node_id == "ex_ante_node" and occurrence.status == "succeeded"
+        assert occurrence.method_fqn == "policy.evaluation.ex_ante_simulation@1.0.0"
+        assert occurrence.method_version == "1.0.0"
+        assert occurrence.method_build_digest_scope == "class_source_only"
+        assert occurrence.method_build_digest is not None
+        dispatch = occurrence.dispatch
+        assert dispatch is not None and dispatch.outcome == "succeeded"
+        assert dispatch.method_metric_input_capture_status == "captured"
+        assert dispatch.parameter_resolution_status == "captured"
+        assert [(p.name, p.status, p.value) for p in dispatch.parameter_values] == [
+            ("poverty_line", "captured", None)
+        ]
+        assert set(dispatch.signature_input_slot_ids) == {"baseline", "scenario"}
+        assert dispatch.seed_status == "reconciled"
+        assert dispatch.backend_identity_status == "reconciled"
+        assert dispatch.backend_trace_status == "captured"
+        assert dispatch.fallback_status == "not_fell_back"
+        assert dispatch.selected_backend == dispatch.actual_backend == "numpy"
+        scores.append(score)
+        observed_sources.append(
+            {
+                "source_run_id": source["source_run_id"],
+                "selection": selected.model_dump(mode="json"),
+                "candidate_score": score.model_dump(mode="json"),
+                "observation": observation.model_dump(mode="json"),
+                "dispatch": dispatch.model_dump(mode="json"),
+                "environment_ref": bundle.environment_manifest_ref.model_dump(mode="json"),
+            }
+        )
+        dispatch_profiles.append(
+            (
+                dispatch.root_seed,
+                dispatch.step,
+                dispatch.method_key_words,
+                dispatch.method_seed,
+                dispatch.reproducibility_seed,
+                dispatch.requested_backend,
+                dispatch.selected_backend,
+                dispatch.actual_backend,
+                tuple(p.model_dump_json() for p in dispatch.parameter_values),
+            )
+        )
+    assert environment_plan_refs[0] != environment_plan_refs[1]
+    assert dispatch_profiles[0] == dispatch_profiles[1]
+    assert scores[0].comparison_contract_sha256 == scores[1].comparison_contract_sha256
+    assert scores[0].comparison_contract_sha256 is not None
+    expected_sources = [
+        {
+            "source_run_id": source["source_run_id"],
+            "candidate_ref": source["candidate_ref"].model_dump(mode="json"),
+        }
+        for source in sources
+    ]
+    expected_hashes = [prepared["candidate"].candidate_hash() for prepared in prepared_sources]
+    for current_comparison in (comparison, fresh.json()["candidate_comparison"]):
+        assert current_comparison["status"] == "complete"
+        assert current_comparison["authority_status"] == "candidate_only"
+        assert current_comparison["revalidation_required"] is True
+        assert (
+            current_comparison["comparison_contract_sha256"] == scores[0].comparison_contract_sha256
+        )
+        assert [row["source"] for row in current_comparison["observations"]] == expected_sources
+        assert [
+            row["candidate_hash"] for row in current_comparison["observations"]
+        ] == expected_hashes
+        assert [
+            row["minimized_score"] for row in current_comparison["observations"]
+        ] == pytest.approx([-1.0, -2.0])
+        assert [
+            row["maximizing_coordinate"] for row in current_comparison["observations"]
+        ] == pytest.approx([1.0, 2.0])
+        assert current_comparison["frontier_candidate_hashes"] == [expected_hashes[1]]
+
+    # This test-local index helps locate retained real CAS/owner records. It is
+    # diagnostic data, not an issuer or substitute for reopening those records.
+    observed = {
+        "schema": "c48.real_completed_sources_pilot.observed.v1",
+        "identity": {
+            "subject": principal.subject,
+            "tenant_id": tenant_id,
+            "cell_id": cell_id,
+            "roles": sorted(principal.roles),
+            "fixture_identity": principal.fixture_identity,
+        },
+        "sources": observed_sources,
+        "planner_run_id": planner.run_id,
+        "planner_job_id": planner.job_id,
+        "planner_final_state_ref": state_ref.model_dump(mode="json"),
+        "fresh_comparison": fresh.json()["candidate_comparison"],
+    }
+    (tmp_path / "c48-pilot-observed.json").write_text(json.dumps(observed, indent=2) + "\n")
+
+    return {
+        "service": service,
+        "store": store,
+        "tenant_id": tenant_id,
+        "cell_id": cell_id,
+        "principal": principal,
+        "source_job_ids": source_job_ids,
+        "planner_request": planner_request,
+        "planner": planner,
+    }
+
+
+@pytest.fixture
+def c48_isolated_runtime_api_env(tmp_path: Path):
+    """Use only the existing test-owned selected Catalog and synthetic owner roots."""
+    from _helpers.runtime_http import build_runtime_api_env, close_runtime_api_env
+    from unit.runtime.quality.test_catalog_source_identity import _selected_fixture
+
+    from polisyos.runtime.quality.substrate_registry import CatalogServingSourceSelection
+
+    code_root, owner_root, selected = _selected_fixture(tmp_path / "c48-catalog")
+    selection = CatalogServingSourceSelection(
+        snapshot_root=selected.snapshot_root,
+        source_owner_root=owner_root,
+        database_relative_path=selected.database_relative_path,
+        catalog_run_profile="prod_full",
+    )
+    env = build_runtime_api_env(
+        tmp_path / "c48-runtime",
+        include_test_client=True,
+        app_kwargs={"repo_root": code_root, "catalog_source_selection": selection},
+    )
+    try:
+        service = env["app"].state._control_service
+        source = service._catalog_serving_source
+        assert source.selection_basis == "explicit_path_candidate_only"
+        assert source.repo_root == code_root.resolve()
+        assert source.source_owner_root == owner_root.resolve()
+        assert source.snapshot_root == selected.snapshot_root
+        assert source.database_path == selected.database_path
+        assert source.substrate_paths.production_root.is_relative_to(owner_root.resolve())
+        yield env
+    finally:
+        close_runtime_api_env(env)
+
+
+def test_two_real_completed_ex_ante_sources_produce_fresh_candidate_comparison(
+    c48_isolated_runtime_api_env: dict[str, Any],
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Run only two source workflows and one separate real planner plus fresh GET."""
+    _exercise_two_real_completed_ex_ante_sources_and_fresh_planner(
+        c48_isolated_runtime_api_env, tmp_path, monkeypatch
+    )
+
+
+def test_two_real_completed_ex_ante_sources_are_reselected_by_fresh_planner(
+    runtime_api_env: dict[str, Any],
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Retain the original post-search and later fresh-GET revocation witness."""
+    from _helpers.control_worker import dispatch_one_control_job
+
+    from polisyos.core.artifacts import validate_core_model_json_artifact
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
+
+    completed = _exercise_two_real_completed_ex_ante_sources_and_fresh_planner(
+        runtime_api_env, tmp_path, monkeypatch
+    )
+    service = completed["service"]
+    store = completed["store"]
+    tenant_id = completed["tenant_id"]
+    cell_id = completed["cell_id"]
+    principal = completed["principal"]
+    source_job_ids = completed["source_job_ids"]
+    planner_request = completed["planner_request"]
+    planner = completed["planner"]
     # Revoke the real source while a second actual planner executes; do not
     # replace its search or result with a fake. The post-search emission must
     # reselect rather than keeping a pre-search complete comparison.

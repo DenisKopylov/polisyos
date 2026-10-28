@@ -1,0 +1,14 @@
+id = "2026-10-28-e02-comparison-environment-lineage"
+title = "Reconcile selected environment plan before candidate comparison"
+type = "changed"
+component = "scientist-search"
+owner = "team-policyos-runtime"
+summary = "The bounded ex-ante candidate comparison reconciles each captured environment against its exact selected plan before omitting the run-specific plan ID. Other environment semantics remain part of comparability."
+evidence = ["tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_comparison_environment.py", "tests/unit/runtime/http/test_observational_method_runtime.py"]
+change_class = "internal reader behavior"
+surface_classification = "internal: completed ex-ante candidate comparison; public_experimental: existing Runtime method-metric-comparison projection"
+compatibility = "No DTO, schema, endpoint or client shape changes. Comparison digests and the verifier implementation digest change; old selected projections require fresh owner replay. Unsupported environment metadata or unresolved plan identity remains limited."
+migration = "Reissue method-metric projections through the current producer and current verifier, then replay candidate comparisons. Preserve original environment and plan artifacts."
+limitations = "Candidate-only paired model-input contrast; generic calibration, observation-unit/same-ticket, lesson/VOI and C53 authority remain open. Authored controls are not runtime or closure evidence."
+generated_client_compatibility = "unchanged_wire_shape; verify existing generated contracts separately"
+public_surface_inventory_reviewed = false

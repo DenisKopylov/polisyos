@@ -927,6 +927,26 @@ def _merge_design_problem_runtime_context(
                 source_context.pop(key, None)
             else:
                 source_context[key] = value
+    temporal_owner_keys = (
+        "temporal_scope",
+        "temporal_scope_artifact_ref",
+        "temporal_scope_request_binding",
+        "nl_request_payload_ref",
+        "nl_request_snapshot_content_hash",
+    )
+    for key in temporal_owner_keys:
+        source_context.pop(key, None)
+    source_context.pop("temporal_scope_intent", None)
+    if trusted_source_context is not None:
+        binding = trusted_source_context.get("temporal_scope_request_binding")
+        if isinstance(binding, Mapping):
+            source_context["temporal_scope_intent"] = {
+                "binding": deepcopy(dict(binding)),
+                "verification_status": "not_established",
+                "requested_view_only": True,
+                "authority_role": "diagnostic_only",
+                "limitation_code": "temporal_scope_consumed_view_not_established",
+            }
     provenance["source_context"] = source_context
     merged["nl_provenance"] = provenance
 
@@ -3926,6 +3946,9 @@ class NaturalLanguageRunMixin:
             from polisyos.runtime.quality.design_generation import (
                 generate_design_candidate_bundle_under_a,
             )
+            from polisyos.runtime.quality.diagnostic_events import (
+                RuntimeQualitySelectedReadObservation,
+            )
             from polisyos.runtime.quality.policy_design_case import (
                 compile_policy_design_case_runtime_record_families,
             )
@@ -4002,6 +4025,7 @@ class NaturalLanguageRunMixin:
             runtime_quality_cost_events: list[dict[str, Any]] = []
             selected_final_claims_refusal_codes: list[str] = []
             runtime_quality_diagnostic_events: list[dict[str, Any]] = []
+            runtime_quality_selected_reads: list[RuntimeQualitySelectedReadObservation] = []
             diagnostic_event_log_ref: str | None = None
 
             def _progress_json(value: object) -> object:
@@ -4126,6 +4150,11 @@ class NaturalLanguageRunMixin:
                     snapshot["diagnostic_events"] = _progress_json(
                         runtime_quality_diagnostic_events
                     )
+                if runtime_quality_selected_reads:
+                    snapshot["selected_read_observations"] = [
+                        observation.model_dump(mode="json")
+                        for observation in runtime_quality_selected_reads
+                    ]
                 if scientist_workflow_progress.get("event_count"):
                     snapshot["scientist_workflow"] = _progress_json(scientist_workflow_progress)
                 if step is not None:
@@ -4173,6 +4202,10 @@ class NaturalLanguageRunMixin:
                                 "selected_variant_id": selected_variant_id,
                                 "details": _progress_json(details or {}),
                                 "progress_authority": "progress_reference_only",
+                                "selected_read_observations": [
+                                    observation.model_dump(mode="json")
+                                    for observation in runtime_quality_selected_reads
+                                ],
                             },
                             artifact_refs=list(runtime_quality_refs.values()),
                             execution_scope=diagnostic_execution_scope,
@@ -4331,11 +4364,84 @@ class NaturalLanguageRunMixin:
                     artifact_id = ref_value.strip()
                 if not artifact_id:
                     return None
+                from polisyos.core.artifacts import (
+                    artifact_manifest_profile_sha256,
+                    artifact_ref_for_manifest,
+                    read_core_manifest_profile,
+                )
+
+                selector: object = artifact_id
+                selection_origin: Literal["explicit_selected_ref", "default_view_at_read"] = (
+                    "default_view_at_read"
+                )
+                if isinstance(ref_value, ArtifactRef) and ref_value.manifest_profile_sha256:
+                    selector = ref_value
+                    selection_origin = "explicit_selected_ref"
+                elif isinstance(ref_value, Mapping) and ref_value.get("manifest_profile_sha256"):
+                    try:
+                        selector = ArtifactRef.model_validate(dict(ref_value))
+                    except ValueError:
+                        return None
+                    selection_origin = "explicit_selected_ref"
                 try:
-                    payload = read_core_json_artifact(store, artifact_id).value
+                    read = read_core_json_artifact(store, selector)
+                    payload = read.value
+                    if not isinstance(payload, Mapping):
+                        return None
+                    manifest, declaration = read_core_manifest_profile(
+                        store,
+                        artifact_id,
+                        manifest_profile_sha256=read.selected_manifest_profile_sha256,
+                    )
+                    selected_ref = artifact_ref_for_manifest(manifest)
+                    payload_digest = "sha256:" + hashlib.sha256(read.raw_payload_bytes).hexdigest()
+                    if (
+                        declaration.status != "declared"
+                        or selected_ref.manifest_profile_sha256 is None
+                        or read.selected_artifact_id != str(selected_ref.artifact_id)
+                        or read.selected_manifest_profile_sha256
+                        != artifact_manifest_profile_sha256(manifest)
+                        or payload_digest != str(selected_ref.artifact_id)
+                        or manifest.canon is None
+                    ):
+                        return None
+                    matching_owner = None
+                    for report_key, ref_key in QUALITY_REPORT_RUNTIME_REFS.items():
+                        contract = runtime_quality_report_owner_contract(report_key, ref_key)
+                        if (
+                            contract is not None
+                            and selected_ref.kind == contract.artifact_kind
+                            and selected_ref.media_type == contract.media_type
+                            and manifest.artifact_schema is not None
+                            and manifest.artifact_schema.name == contract.schema_name
+                            and manifest.artifact_schema.version == contract.schema_version
+                            and manifest.producer is not None
+                            and manifest.producer.component == contract.producer_component
+                            and manifest.producer.version == contract.producer_version
+                        ):
+                            matching_owner = report_key
+                            break
+                    observation = RuntimeQualitySelectedReadObservation(
+                        run_id=run_id,
+                        job_id=_runtime_quality_job_id(),
+                        tenant_id=_runtime_quality_identity_value("tenant_id"),
+                        cell_id=_runtime_quality_identity_value("cell_id"),
+                        ordinal=len(runtime_quality_selected_reads),
+                        selected_ref=selected_ref,
+                        selection_origin=selection_origin,
+                        payload_sha256=payload_digest,
+                        canonical_profile=manifest.canon,
+                        manifest_schema=manifest.artifact_schema,
+                        manifest_producer=manifest.producer,
+                        manifest_inputs=tuple(manifest.inputs),
+                        matching_registered_output_owner=matching_owner,
+                    )
                 except (OSError, RuntimeError, TypeError, ValueError):
                     return None
-                return dict(payload) if isinstance(payload, Mapping) else None
+                # Capture only after the real selected reader returned bytes.
+                # This helper is not the complete NL producer read denominator.
+                runtime_quality_selected_reads.append(observation)
+                return dict(payload)
 
             def _runtime_quality_selected_report_input_ref(
                 *,
@@ -6594,6 +6700,10 @@ class NaturalLanguageRunMixin:
                         "run_id": run_id,
                         "job_id": _runtime_quality_job_id(),
                         "events": list(runtime_quality_diagnostic_events),
+                        "selected_read_observations": [
+                            observation.model_dump(mode="json")
+                            for observation in runtime_quality_selected_reads
+                        ],
                     },
                     ArtifactWriteOptions(
                         kind="runtime.diagnostic_event_log_projection",
@@ -6953,6 +7063,10 @@ class NaturalLanguageRunMixin:
                         "run_id": run_id,
                         "job_id": _runtime_quality_job_id(),
                         "events": list(runtime_quality_diagnostic_events),
+                        "selected_read_observations": [
+                            observation.model_dump(mode="json")
+                            for observation in runtime_quality_selected_reads
+                        ],
                     },
                     ArtifactWriteOptions(
                         kind="runtime.diagnostic_event_log_projection",

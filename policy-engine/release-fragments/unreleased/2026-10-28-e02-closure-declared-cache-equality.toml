@@ -1,0 +1,22 @@
+id = "2026-10-28-e02-closure-declared-cache-equality"
+title = "Separate declared cache equality from protected input authority"
+type = "fixed"
+component = "runtime"
+owner = "team-runtime"
+summary = "Protected seal/reuse calls keep refusing unverified authority. The explicit declared_basis_cache_equality purpose returns a distinct diagnostic cache seal and preserves the existing tools owner's before/after membership fence without claiming a complete producer or authority-purpose input denominator."
+evidence = [
+  "src/polisyos/runtime/quality/authority.py",
+  "tools/quality/validation/layer3_gy_confidence_ledger_contract.py",
+  "tools/quality/validation/check_layer3_gy_confidence_ledger.py",
+  "tests/unit/runtime/quality/test_declared_basis_cache_seal.py",
+  "tests/repo_quality/tools/test_layer3_gy_confidence_ledger_contract.py",
+]
+compatibility = "The default seal/reuse purpose remains protected. Legacy envelope/seal readers remain available, but legacy and caller-declared closure facts do not gain new authority. The existing non-authorizing tool cache opts into a distinct declared-basis-only seal type; its new serialized cache key does not collide with a former authority-shaped key."
+change_class = "internal"
+surface_classification = "internal: runtime closure and mechanical tool-cache boundary; no HTTP, generated client or Core/IR contract change."
+migration = "The tool recomputes its existing declared cache fence under the explicit non-authorizing purpose and parses that distinct cache type. Historical GY/B198 records are not rewritten or reopened. A declared cache seal cannot be supplied to protected reuse, role admission, purpose admission or publication gates."
+limitations = "Mechanical equality covers only declared members. It establishes neither completeness of the producer input denominator nor policy/legal authority. Positive NL closure authority and full temporal consumption remain disabled/unestablished. Runtime and removal checks must be executed against the composed source; source/test proposals alone are not PASS evidence."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

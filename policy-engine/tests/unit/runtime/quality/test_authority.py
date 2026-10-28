@@ -28,6 +28,7 @@ from polisyos.runtime.quality.authority import (
     OutputCASManifestProfileRefusalError,
     ProducerIdentity,
     SameInputClosure,
+    SealedConsumedInputSet,
     assert_authority_bearing,
     assert_consumed_input_reuse,
     assert_runtime_emitted,
@@ -50,7 +51,7 @@ FIXTURE_PATH = (
     REPO_ROOT
     / "tests/fixtures/runtime_quality/authority_envelopes/serious_runtime_emitted_pass.json"
 )
-SCHEMA_PATH = REPO_ROOT / "schemas/runtime_quality/evidence_authority_envelope_v1.schema.json"
+SCHEMA_PATH = REPO_ROOT / "schemas/runtime_quality/evidence_authority_envelope_v2.schema.json"
 _TIME_SOURCE_PROJECTION_KIND = "time_source_consistency_audit_projection"
 _TIME_SOURCE_PRODUCER_REF = (
     "polisyos.runtime.http.services.temporal.build_time_source_consistency_audit_projection"
@@ -590,147 +591,92 @@ def _consumed_member(
     )
 
 
-def test_consumed_input_set_seals_sorted_membership_and_closure_identity() -> None:
-    sealed = seal_consumed_input_set(
-        closure=_closed_input_closure(),
-        members=[_consumed_member("z"), _consumed_member("a", kind="environment")],
-    )
-
-    assert [member.member_id for member in sealed.members] == ["a", "z"]
-    assert sealed.same_input_closure == _closed_input_closure()
-    assert sealed.membership_sha256.startswith("sha256:")
-
-
 @pytest.mark.parametrize(
     "predicate_class",
-    ["consumer_asserted", "institutionally_supplied", "not_established"],
+    [
+        "recomputed",
+        "independently_reconciled",
+        "consumer_asserted",
+        "institutionally_supplied",
+        "not_established",
+    ],
 )
-def test_consumed_input_set_rejects_untrusted_decisive_predicate(
+def test_legacy_seal_refuses_declared_predicates_before_new_authority(
     predicate_class: str,
 ) -> None:
-    with pytest.raises(
-        AuthorityEnvelopeError,
-        match=r"consumed_input_decisive_predicate_untrusted.*member=environment:runtime",
-    ):
+    """A declared resolved string cannot manufacture a new consumed-input seal."""
+    with pytest.raises(AuthorityEnvelopeError, match="legacy_not_authoritative"):
         seal_consumed_input_set(
             closure=_closed_input_closure(),
-            members=[
-                _consumed_member(
-                    "runtime",
-                    kind="environment",
-                    predicate_class=predicate_class,
-                )
-            ],
+            members=[_consumed_member("runtime", predicate_class=predicate_class)],
         )
 
 
-def test_consumed_input_reuse_exercises_identity_not_seal_marker() -> None:
-    sealed = seal_consumed_input_set(
-        closure=_closed_input_closure(),
-        members=[_consumed_member("owner-source")],
-    )
-    substituted = _consumed_member(
-        "owner-source",
-        resolved_identity="sha256:substituted",
-    )
-
-    with pytest.raises(
-        AuthorityEnvelopeError,
-        match=r"consumed_input_member_substituted.*member=source:owner-source",
-    ):
-        assert_consumed_input_reuse(
-            sealed,
-            closure=_closed_input_closure(),
-            fresh_members=[substituted],
-        )
+@pytest.mark.parametrize("variant", ["valid", "unresolved", "substituted", "duplicate"])
+def test_legacy_seal_refusal_is_not_conditional_on_member_shape(variant: str) -> None:
+    member = _consumed_member("source")
+    members = [member]
+    if variant == "unresolved":
+        members = [member.model_copy(update={"resolved_identity": None})]
+    elif variant == "substituted":
+        members = [member.model_copy(update={"resolved_identity": "sha256:other"})]
+    elif variant == "duplicate":
+        members.append(member)
+    with pytest.raises(AuthorityEnvelopeError, match="legacy_not_authoritative"):
+        seal_consumed_input_set(closure=_closed_input_closure(), members=members)
 
 
-def test_consumed_input_set_names_an_unresolved_member() -> None:
-    with pytest.raises(
-        AuthorityEnvelopeError,
-        match=r"consumed_input_member_unresolved.*member=artifact:ledger",
-    ):
-        seal_consumed_input_set(
-            closure=_closed_input_closure(),
-            members=[
-                ConsumedInputMember(
-                    member_id="ledger",
-                    member_kind="artifact",
-                    declared_identity="sha256:ledger",
-                    predicate_class="recomputed",
-                )
-            ],
-        )
+def test_parsed_legacy_seal_stays_readable_but_cannot_authorize_reuse() -> None:
+    # This is a historical wire fixture, not a new authority admission. Compute
+    # its content digest with the documented legacy canonical projection solely
+    # to exercise the actual decoder and protected reuse boundary.
+    from polisyos.core import canon
+
+    closure = _closed_input_closure()
+    member = _consumed_member("source")
+    payload = {
+        "same_input_closure": closure.model_dump(mode="json"),
+        "members": [member.model_dump(mode="json")],
+        "membership_sha256": canon.fingerprint(
+            {
+                "same_input_closure": closure.identity_tuple(),
+                "members": [member.model_dump(mode="json")],
+            },
+            prefix=True,
+        ),
+    }
+    sealed = SealedConsumedInputSet.model_validate_json(json.dumps(payload))
+    assert sealed.same_input_closure == closure
+    for fresh_members in ([member], [], [member, member]):
+        with pytest.raises(AuthorityEnvelopeError, match="legacy_not_authoritative"):
+            assert_consumed_input_reuse(
+                sealed,
+                closure=closure,
+                fresh_members=fresh_members,
+            )
 
 
-def test_consumed_input_reuse_rejects_duplicate_missing_and_extra_members() -> None:
-    sealed = seal_consumed_input_set(
-        closure=_closed_input_closure(),
-        members=[_consumed_member("source-a"), _consumed_member("source-b")],
-    )
-
-    with pytest.raises(AuthorityEnvelopeError, match="consumed_input_member_duplicate"):
-        assert_consumed_input_reuse(
-            sealed,
-            closure=_closed_input_closure(),
-            fresh_members=[_consumed_member("source-a"), _consumed_member("source-a")],
-        )
-    with pytest.raises(
-        AuthorityEnvelopeError,
-        match=r"consumed_input_member_missing.*member=source:source-b",
-    ):
-        assert_consumed_input_reuse(
-            sealed,
-            closure=_closed_input_closure(),
-            fresh_members=[_consumed_member("source-a")],
-        )
-    with pytest.raises(
-        AuthorityEnvelopeError,
-        match=r"consumed_input_member_extra.*member=source:source-c",
-    ):
-        assert_consumed_input_reuse(
-            sealed,
-            closure=_closed_input_closure(),
-            fresh_members=[
-                _consumed_member("source-a"),
-                _consumed_member("source-b"),
-                _consumed_member("source-c"),
-            ],
-        )
-
-
-def test_consumed_input_reuse_is_order_independent() -> None:
-    source = _consumed_member("source")
-    environment = _consumed_member("environment", kind="environment")
-    sealed = seal_consumed_input_set(
-        closure=_closed_input_closure(),
-        members=[source, environment],
-    )
-
-    assert (
-        assert_consumed_input_reuse(
-            sealed,
-            closure=_closed_input_closure(),
-            fresh_members=[environment, source],
-        )
-        == sealed
-    )
-
-
-def test_valid_runtime_emitted_envelope_round_trips_and_asserts_authority() -> None:
+def test_runtime_envelope_round_trips_as_legacy_without_new_authority() -> None:
     envelope = deserialize_authority_envelope(_valid_payload())
-
     assert isinstance(envelope, EvidenceAuthorityEnvelope)
     assert envelope.producer_identity == ProducerIdentity(
         component="polisyos.lex.normpack.applicability_report",
         version="2026.05.14+hds-phase02",
         owner="team-runtime-quality",
     )
-    assert classify_authority_role(envelope) == "producer_authority"
-    assert_authority_bearing(envelope)
-    assert_runtime_emitted(envelope)
-    assert_same_input_closure([envelope, deserialize_authority_envelope(_valid_payload())])
-
+    assert classify_authority_role(envelope) == "not_authoritative"
+    for consumer in (assert_authority_bearing, assert_runtime_emitted):
+        with pytest.raises(AuthorityEnvelopeError, match="legacy_not_authoritative"):
+            consumer(envelope)
+    with pytest.raises(AuthorityEnvelopeError, match="legacy_not_authoritative"):
+        assert_same_input_closure([envelope, deserialize_authority_envelope(_valid_payload())])
+    assert (
+        assert_same_input_closure(
+            [envelope, deserialize_authority_envelope(_valid_payload())],
+            historical_advisory=True,
+        )
+        == envelope.same_input_closure
+    )
     encoded = serialize_authority_envelope(envelope)
     assert deserialize_authority_envelope(encoded) == envelope
 
@@ -797,7 +743,7 @@ def test_fixture_input_envelope_is_blocked_for_serious_profiles() -> None:
         assert_authority_bearing(envelope)
 
 
-def test_runtime_emitted_envelope_rejects_runtime_ref_mismatch() -> None:
+def test_runtime_ref_tampering_cannot_promote_legacy_evidence() -> None:
     payload = _valid_payload()
     payload["cas_ref"] = (
         "cas://sha256/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
@@ -805,7 +751,7 @@ def test_runtime_emitted_envelope_rejects_runtime_ref_mismatch() -> None:
 
     envelope = deserialize_authority_envelope(payload)
 
-    with pytest.raises(AuthorityEnvelopeError, match="authority_runtime_ref_mismatch"):
+    with pytest.raises(AuthorityEnvelopeError, match="legacy_not_authoritative"):
         assert_runtime_emitted(envelope)
 
 
@@ -821,7 +767,8 @@ def test_same_input_closure_rejects_mixed_closure_identities() -> None:
             [
                 deserialize_authority_envelope(_valid_payload()),
                 deserialize_authority_envelope(mismatched_payload),
-            ]
+            ],
+            historical_advisory=True,
         )
 
 

@@ -27,7 +27,7 @@ from decimal import ROUND_FLOOR, Decimal, localcontext
 from fractions import Fraction
 from multiprocessing.connection import Connection
 from pathlib import Path
-from typing import Annotated, Any, Literal
+from typing import Annotated, Any, Literal, cast
 
 from pydantic import (
     BaseModel,
@@ -40,6 +40,7 @@ from pydantic import (
     StrictStr,
     TypeAdapter,
     ValidationError,
+    field_validator,
 )
 
 from polisyos.core.artifacts import FileSystemCAS
@@ -49,7 +50,10 @@ from polisyos.pdc import (
     gy_content_hash,
     reconcile_gy_operational_leaves,
 )
-from polisyos.runtime.quality.authority import SealedConsumedInputSet  # noqa: TC001
+from polisyos.runtime.quality.authority import (
+    DeclaredBasisCacheSeal,
+    SealedConsumedInputSet,
+)
 from polisyos.runtime.quality.confidence_ledger import (
     CONDITIONAL_VALIDITY_CLAUSE,
     CONFIDENCE_LEDGER_REGISTRY_SCHEMA_VERSION,
@@ -569,7 +573,36 @@ class OwnerBundleProjection(_StrictModel):
     projection_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     n10: N10OwnerProjection
     n13b: N13bOwnerProjection
-    consumed_inputs: SealedConsumedInputSet
+    consumed_inputs: DeclaredBasisCacheSeal | SealedConsumedInputSet
+
+    @field_validator("consumed_inputs", mode="before")
+    @classmethod
+    def _read_versioned_declared_cache_or_legacy_snapshot(
+        cls, value: object
+    ) -> DeclaredBasisCacheSeal | SealedConsumedInputSet:
+        """Read historical bytes without promoting them to a new cache or authority.
+
+        The exact legacy shape retains its original checksum/representation.
+        New cache wire must name its own version; malformed or unknown versions
+        never fall back to the legacy branch. Neither read is authority admission.
+        """
+        if type(value) is DeclaredBasisCacheSeal:
+            value = DeclaredBasisCacheSeal.model_dump(
+                cast("DeclaredBasisCacheSeal", value), mode="json"
+            )
+        elif type(value) is SealedConsumedInputSet:
+            value = SealedConsumedInputSet.model_dump(
+                cast("SealedConsumedInputSet", value), mode="json"
+            )
+        if not isinstance(value, Mapping):
+            raise ValueError("owner_consumed_input_wire_invalid")
+        payload = dict(value)
+        cache_version = DeclaredBasisCacheSeal.model_fields["schema_version"].default
+        if payload.get("schema_version") == cache_version:
+            return DeclaredBasisCacheSeal.model_validate(payload)
+        if set(payload) == set(SealedConsumedInputSet.model_fields):
+            return SealedConsumedInputSet.model_validate(payload)
+        raise ValueError("owner_consumed_input_wire_version_unknown")
 
 
 class ProjectionEdge(_StrictModel):

@@ -24,8 +24,8 @@ from typing import Any
 from polisyos.runtime.quality.authority import (
     AuthorityEnvelopeError,
     ConsumedInputMember,
+    DeclaredBasisCacheSeal,
     SameInputClosure,
-    SealedConsumedInputSet,
     assert_consumed_input_reuse,
     seal_consumed_input_set,
 )
@@ -195,7 +195,7 @@ class OwnerEvidenceBundle:
 
     n10: N10OwnerProjection
     n13b: N13bOwnerProjection
-    consumed_inputs: SealedConsumedInputSet
+    consumed_inputs: DeclaredBasisCacheSeal
     projection_sha256: str
 
 
@@ -280,6 +280,7 @@ def load_owner_bundle(
                     consumed_inputs,
                     closure=post_derivation_inputs.same_input_closure,
                     fresh_members=post_derivation_inputs.members,
+                    purpose="declared_basis_cache_equality",
                 )
             except AuthorityEnvelopeError as exc:
                 raise OwnerProjectionError(exc.code, str(exc)) from exc
@@ -343,7 +344,7 @@ def _load_owner_bundle_cached(
     )
     _report_owner_progress("n13b_owner_projection_complete")
     try:
-        consumed_inputs = SealedConsumedInputSet.model_validate_json(consumed_input_cache_key)
+        consumed_inputs = DeclaredBasisCacheSeal.model_validate_json(consumed_input_cache_key)
     except ValueError as exc:
         raise OwnerProjectionError("owner_consumed_input_cache_key_invalid", str(exc)) from exc
     values = {
@@ -929,7 +930,7 @@ def _temporary_owner_environment(values: Mapping[str, str]) -> Iterator[None]:
 
 
 def _owner_same_input_closure() -> SameInputClosure:
-    """Return the stable closure declaration for one N11 owner derivation."""
+    """Return the declared closure for non-authorizing mechanical cache equality."""
 
     closure_identity = _content_sha256(
         {
@@ -954,7 +955,7 @@ def _owner_same_input_closure() -> SameInputClosure:
     )
 
 
-def _consumed_input_cache_key(inputs: SealedConsumedInputSet) -> str:
+def _consumed_input_cache_key(inputs: DeclaredBasisCacheSeal) -> str:
     """Return the canonical full-set cache key consumed by the fast path."""
 
     return json.dumps(
@@ -970,8 +971,8 @@ def _owner_consumed_input_set(
     *,
     catalog_path: Path,
     l5_path: Path,
-) -> SealedConsumedInputSet:
-    """Resolve and seal every input class consumed by the N11 owner graph."""
+) -> DeclaredBasisCacheSeal:
+    """Resolve declared cache-fence members without claiming complete purpose authority."""
 
     from polisyos.runtime.quality import confidence_ledger
 
@@ -1098,7 +1099,9 @@ def _owner_consumed_input_set(
         )
     )
     try:
-        return seal_consumed_input_set(closure=closure, members=members)
+        return seal_consumed_input_set(
+            closure=closure, members=members, purpose="declared_basis_cache_equality"
+        )
     except AuthorityEnvelopeError as exc:
         raise OwnerProjectionError(exc.code, str(exc)) from exc
 

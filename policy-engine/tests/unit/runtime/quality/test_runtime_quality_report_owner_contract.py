@@ -5,7 +5,7 @@ from copy import deepcopy
 from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import pytest
 
@@ -71,7 +71,13 @@ def _persist_report(
     derive_closure: bool = False,
     closure_inputs: list[InputRef] | None = None,
     closure_refs: dict[str, str] | None = None,
+    authority_role: Literal["runtime_blocker", "producer_authority"] = "runtime_blocker",
 ) -> tuple[FileSystemCAS, Any, dict[str, Any], dict[str, Any]]:
+    """Persist real CAS ownership as blocked evidence by default.
+
+    A producer claim is used only by explicit refusal probes; this fixture never
+    establishes complete same-input purpose admission or issues a verifier token.
+    """
     ref_key = QUALITY_REPORT_RUNTIME_REFS[report_key]
     contract = runtime_quality_report_owner_contract(report_key, ref_key)
     assert contract is not None
@@ -125,8 +131,10 @@ def _persist_report(
         ),
         evidence_id=f"runtime_quality_ref#{ref_key}",
         evidence_class="authority_bearing",
-        authority_role="producer_authority",
-        provenance_kind="runtime_emitted",
+        authority_role=authority_role,
+        provenance_kind="runtime_emitted"
+        if authority_role == "producer_authority"
+        else "runtime_blocker",
         owner="team-runtime",
         reader_contract=f"runtime_quality.{report_key}.v1",
         reader_contract_version="1.0",
@@ -154,7 +162,7 @@ def _persist_report(
         effective_mode_ref="sha256:" + "2" * 64,
         degradation_ledger_ref="sha256:" + "3" * 64,
         validation_status="pass",
-        blocking_status="non_blocking",
+        blocking_status="non_blocking" if authority_role == "producer_authority" else "blocking",
         canon_spec=CanonSpec(forbid_floats=False) if derive_closure else None,
         governance=GovernanceMetadata(
             classification="internal",
@@ -296,7 +304,7 @@ def _test_same_input_closure(
     derive: bool,
     closure_refs: dict[str, str] | None = None,
 ) -> dict[str, Any]:
-    """Build the fixture closure from the current owner scope and complete inputs."""
+    """Build declared writer metadata; no complete input-purpose admission is claimed."""
     closure: dict[str, Any] = {
         "closure_id": f"closure-owner-{run_suffix}",
         "status": "closed",
@@ -402,8 +410,8 @@ def test_publication_reentry_uses_fresh_cas_reader_and_rebuilt_current_identity(
     current_identity_fields: dict[str, Any] = {
         "evidence_id": f"runtime_quality_ref#{ref_key}",
         "evidence_class": "authority_bearing",
-        "authority_role": "producer_authority",
-        "provenance_kind": "runtime_emitted",
+        "authority_role": "runtime_blocker",
+        "provenance_kind": "runtime_blocker",
         "owner": "team-runtime",
         "reader_contract": f"runtime_quality.{report_key}.v1",
         "reader_contract_version": "1.0",
@@ -423,7 +431,7 @@ def test_publication_reentry_uses_fresh_cas_reader_and_rebuilt_current_identity(
         "input_refs": [str(item.artifact_id) for item in current_inputs],
         "effective_mode_ref": "sha256:" + "2" * 64,
         "validation_status": "pass",
-        "blocking_status": "non_blocking",
+        "blocking_status": "blocking",
         "governance": GovernanceMetadata(
             classification="internal",
             authority_boundary="runtime",
@@ -1100,6 +1108,7 @@ def test_shared_owner_identity_validator_rejects_each_changed_dimension(
 def test_selected_report_cas_is_content_bound_before_scorecard_authority(
     tmp_path: Path,
 ) -> None:
+    """CAS ownership/content may verify for blocked evidence; authority remains refused."""
     payload = {
         "schema_version": "1.0",
         "status": "pass",
@@ -1140,6 +1149,8 @@ def test_selected_report_cas_is_content_bound_before_scorecard_authority(
     )
     assert not any(gate["code"].startswith("runtime_quality_") for gate in gates)
     assert "hds_borrowed_authority_envelope" not in {gate["code"] for gate in gates}
+    assert envelope["authority_role"] == "runtime_blocker"
+    assert any(gate["status"] == "fail" and gate["blocking"] for gate in gates)
 
     wrong_owner_evidence = deepcopy(evidence)
     wrong_owner_report = wrong_owner_evidence["fabric_retrieval_trace"]
@@ -1580,3 +1591,61 @@ def test_publisher_refuses_caller_supplied_publication_basis() -> None:
             report_key=contract.report_key,
             ref_key=contract.ref_key,
         )
+
+
+def test_public_authority_refusal_and_actual_cas_corruption_are_separate_planes(
+    tmp_path: Path,
+) -> None:
+    """A public missing-input-owner refusal is never reported as verified CAS data."""
+    from polisyos.runtime.quality.authority import AuthorityEnvelopeError, assert_runtime_emitted
+
+    cases = []
+    roles: tuple[Literal["runtime_blocker", "producer_authority"], ...] = (
+        "runtime_blocker",
+        "producer_authority",
+    )
+    for role in roles:
+        store, result, report, envelope = _persist_report(
+            tmp_path,
+            report_key="fabric_retrieval_trace",
+            run_suffix=f"planes-{role}",
+            payload={"schema_version": "1.0", "status": "pass", "claims": []},
+            authority_role=role,
+        )
+        fresh = FileSystemCAS(tmp_path / f"cas-planes-{role}").for_tenant(
+            "tenant-1", cell_id="cell-a"
+        )
+        args = {
+            "artifact_store": fresh,
+            "selected_ref": result.cas_ref,
+            "runtime_ref": str(result.cas_ref.artifact_id),
+            "report_key": "fabric_retrieval_trace",
+            "ref_key": "fabric_retrieval_trace_ref",
+            "report": report,
+            "envelope": envelope,
+        }
+        assert fresh.verify(result.cas_ref).ok
+        before = {
+            str(issue["code"]) for issue in runtime_quality_report_cas_admission_issues(**args)
+        }
+        if role == "runtime_blocker":
+            assert before == set()  # Ownership/read result, explicitly not authority.
+        else:
+            assert before == {"same_input_closure_owner_not_established"}
+        with pytest.raises(AuthorityEnvelopeError):
+            assert_runtime_emitted(envelope)
+        cases.append((role, store, result, fresh, args))
+    for role, store, result, fresh, args in cases:
+        blob = store._paths(result.cas_ref.artifact_id)[0]
+        blob.write_bytes(blob.read_bytes() + b" ")
+        assert not fresh.verify(result.cas_ref).ok
+        after = {
+            str(issue["code"]) for issue in runtime_quality_report_cas_admission_issues(**args)
+        }
+        if role == "runtime_blocker":
+            assert after == {"runtime_quality_selected_cas_resolution_failed"}
+        else:
+            # The public authority guard deliberately dominates. Independent
+            # actual Core verification above proves this is corrupt, not empty
+            # or owner-verified, even though the public refusal stays unchanged.
+            assert after == {"same_input_closure_owner_not_established"}

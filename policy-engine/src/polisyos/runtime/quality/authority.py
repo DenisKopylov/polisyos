@@ -2,20 +2,23 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from collections.abc import Iterable, Mapping
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Final, Literal, Protocol, cast
+from typing import TYPE_CHECKING, Any, Final, Literal, Protocol, cast, overload
 
 from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
+    SerializerFunctionWrapHandler,
     StrictStr,
     ValidationError,
     field_validator,
+    model_serializer,
     model_validator,
 )
 
@@ -80,6 +83,7 @@ ProvenanceKind = Literal[
     "legacy_rejected",
 ]
 SameInputClosureStatus = Literal["closed", "not_closed", "mismatched", "blocked"]
+ClosureIdentityDomain = Literal["cas", "owner_value", "null"]
 ConsumedInputMemberKind = Literal[
     "source",
     "artifact",
@@ -128,11 +132,11 @@ AuthorityRootCauseClass = Literal[
 AUTHORITY_ENVELOPE_CONTRACT_NAME = core_artifacts.AUTHORITY_ENVELOPE_SCHEMA_NAME
 AUTHORITY_ENVELOPE_CONTRACT_VERSION = core_artifacts.AUTHORITY_ENVELOPE_SCHEMA_VERSION
 EVIDENCE_AUTHORITY_ENVELOPE_SCHEMA_ID = (
-    "https://schemas.policyos.local/runtime_quality/evidence_authority_envelope_v1.schema.json"
+    "https://schemas.policyos.local/runtime_quality/evidence_authority_envelope_v2.schema.json"
 )
 DEFAULT_AUTHORITY_ENVELOPE_SCHEMA_PATH = (
     Path(__file__).resolve().parents[4]
-    / "schemas/runtime_quality/evidence_authority_envelope_v1.schema.json"
+    / "schemas/runtime_quality/evidence_authority_envelope_v2.schema.json"
 )
 TIME_SOURCE_CONSISTENCY_PRODUCER_REF: Final[TimeSourceConsistencyProducerRef] = (
     "polisyos.runtime.http.services.temporal.build_time_source_consistency_audit_projection"
@@ -1098,11 +1102,59 @@ class GovernanceMetadata(BaseModel):
         return _non_empty(value)
 
 
+class ClosureCasIdentity(BaseModel):
+    """Exact selected CAS view named by a v2 closure member."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    identity_domain: Literal["cas"] = "cas"
+    name: str = Field(min_length=1)
+    role: str = Field(min_length=1)
+    artifact_ref: core_artifacts.ArtifactRef
+    schema_name: str = Field(min_length=1)
+    schema_version: str = Field(min_length=1)
+    producer_component: str = Field(min_length=1)
+    producer_version: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _require_selected_profile(self) -> ClosureCasIdentity:
+        if self.artifact_ref.manifest_profile_sha256 is None:
+            raise ValueError("closure_cas_manifest_profile_missing")
+        return self
+
+
+class ClosureOwnerValueIdentity(BaseModel):
+    """Registered non-CAS value selected by an existing runtime owner."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    identity_domain: Literal["owner_value"] = "owner_value"
+    name: str = Field(min_length=1)
+    role: str = Field(min_length=1)
+    owner: str = Field(min_length=1)
+    rule_version: str = Field(min_length=1)
+    value: dict[str, Any]
+
+
+class ClosureNullIdentity(BaseModel):
+    """Explicit absence of one optional member."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    identity_domain: Literal["null"] = "null"
+    name: str = Field(min_length=1)
+    role: str = Field(min_length=1)
+
+
+ClosureMemberIdentity = ClosureCasIdentity | ClosureOwnerValueIdentity | ClosureNullIdentity
+
+
 class SameInputClosure(BaseModel):
     """Identity of the input context shared by authority-bearing evidence."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
+    schema_version: Literal["1.0", "2.0"] = "1.0"
     closure_id: str = Field(min_length=1)
     status: SameInputClosureStatus
     policy_intent_ref: str | None = None
@@ -1118,6 +1170,7 @@ class SameInputClosure(BaseModel):
     effective_mode_ref: str | None = None
     degradation_ledger_ref: str | None = None
     evidence_input_refs: tuple[str, ...] = Field(default=())
+    members: tuple[ClosureMemberIdentity, ...] = Field(default=())
     closure_sha256: str | None = None
 
     @field_validator("closure_id", "run_id", "job_id", "tenant_id")
@@ -1146,10 +1199,21 @@ class SameInputClosure(BaseModel):
     def _strip_ref_tuple(cls, values: tuple[str, ...]) -> tuple[str, ...]:
         return tuple(_non_empty(value) for value in values)
 
+    @model_serializer(mode="wrap")
+    def _serialize_versioned_closure(
+        self, handler: SerializerFunctionWrapHandler
+    ) -> dict[str, Any]:
+        """Keep the original strict v1 wire shape when reading legacy records."""
+        payload = handler(self)
+        if self.schema_version == "1.0":
+            payload.pop("schema_version", None)
+            payload.pop("members", None)
+        return payload
+
     def identity_tuple(self) -> tuple[str | None, ...]:
         """Stable same-input identity used by closeout consumers."""
 
-        return (
+        identity = (
             self.closure_sha256,
             self.run_id,
             self.job_id,
@@ -1164,6 +1228,244 @@ class SameInputClosure(BaseModel):
             self.effective_mode_ref,
             self.degradation_ledger_ref,
         )
+
+        # V1 is a historical read law. Extending its tuple would invalidate
+        # already-persisted seal checksums; protected admission refuses v1.
+        if self.schema_version == "1.0":
+            return identity
+        return (*identity, *self.evidence_input_refs)
+
+    @model_validator(mode="after")
+    def _validate_versioned_shape(self) -> SameInputClosure:
+        if self.schema_version == "2.0" and not self.members:
+            raise ValueError("closure_v2_members_missing")
+        names = [member.name for member in self.members]
+        if len(names) != len(set(names)):
+            raise ValueError("closure_member_duplicate")
+        if self.schema_version == "1.0" and self.members:
+            raise ValueError("closure_legacy_members_forbidden")
+        if self.schema_version == "2.0":
+            # V2 uses typed members as its single identity. Legacy aliases may be
+            # read only when they name the same CAS member or explicit absence.
+            by_name = {member.name: member for member in self.members}
+            for field in (
+                "policy_intent_ref",
+                "time_context_ref",
+                "production_data_manifest_ref",
+                "legal_snapshot_ref",
+                "method_plan_ref",
+                "provider_mode_ref",
+                "effective_mode_ref",
+                "degradation_ledger_ref",
+            ):
+                alias = getattr(self, field)
+                if alias is None:
+                    continue
+                member = by_name.get(field)
+                if not isinstance(member, ClosureCasIdentity) or alias != str(
+                    member.artifact_ref.artifact_id
+                ):
+                    raise ValueError("closure_v2_legacy_alias_not_bound")
+        return self
+
+
+class ClosureMemberContract(BaseModel):
+    """Trusted owner rule for one complete closure member."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    name: str = Field(min_length=1)
+    role: str = Field(min_length=1)
+    identity_domain: ClosureIdentityDomain
+    required: bool = True
+
+
+class SameInputClosureContract(BaseModel):
+    """Candidate inventory; caller construction does not establish owner authority."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    owner: str = Field(min_length=1)
+    purpose: str = Field(min_length=1)
+    rule_version: str = Field(min_length=1)
+    members: tuple[ClosureMemberContract, ...]
+
+
+class SameInputClosureResolver(Protocol):
+    """Candidate comparison adapter; implementing this protocol confers no authority."""
+
+    def resolve_member(
+        self, member: ClosureMemberIdentity, *, tenant_id: str, purpose: str
+    ) -> ClosureMemberIdentity:
+        """Return the independently resolved exact identity after current access checks."""
+
+    def consumed_input_refs(self, *, run_id: str, job_id: str) -> tuple[str, ...]:
+        """Return ordered role-qualified input edges observed at the producer boundary."""
+
+
+_VERIFIED_CLOSURE_KEY = object()
+
+
+class VerifiedSameInputClosure:
+    """Process-local result of resolving and recomputing a v2 closure."""
+
+    __slots__ = ("_closure", "_contract", "_identity", "_resolver", "_sealed")
+
+    def __init__(
+        self,
+        key: object,
+        closure: SameInputClosure,
+        identity: tuple[str | None, ...],
+        contract: SameInputClosureContract,
+        resolver: SameInputClosureResolver,
+    ) -> None:
+        if key is not _VERIFIED_CLOSURE_KEY:
+            raise TypeError("verified closure results can only be created by the verifier")
+        object.__setattr__(self, "_closure", closure)
+        object.__setattr__(self, "_identity", identity)
+        object.__setattr__(self, "_contract", contract)
+        object.__setattr__(self, "_resolver", resolver)
+        object.__setattr__(self, "_sealed", True)
+
+    def __setattr__(self, name: str, value: object) -> None:
+        """Keep an issued admission result non-rebindable."""
+
+        if getattr(self, "_sealed", False):
+            raise AttributeError("verified closure results are immutable")
+        object.__setattr__(self, name, value)
+
+    @property
+    def closure(self) -> SameInputClosure:
+        """Return the immutable admitted closure."""
+
+        return self._closure
+
+    @property
+    def identity(self) -> tuple[str | None, ...]:
+        """Return the identity admitted by the issuing owner."""
+
+        return self._identity
+
+    def _revalidate(self, closure: SameInputClosure) -> bool:
+        """Re-enter the issuing owner and current-access resolver."""
+
+        if type(self) is not VerifiedSameInputClosure or closure != self._closure:
+            return False
+        try:
+            refreshed = verify_same_input_closure(
+                closure,
+                contract=self._contract,
+                resolver=self._resolver,
+                expected_run_id=closure.run_id,
+                expected_job_id=closure.job_id,
+                expected_tenant_id=closure.tenant_id,
+                expected_cell_id=closure.cell_id,
+            )
+        except (AuthorityEnvelopeError, PermissionError, TypeError, ValueError):
+            return False
+        return refreshed.identity == self._identity
+
+
+def verify_same_input_closure(
+    closure: SameInputClosure,
+    *,
+    contract: SameInputClosureContract,
+    resolver: SameInputClosureResolver,
+    expected_run_id: str,
+    expected_job_id: str,
+    expected_tenant_id: str,
+    expected_cell_id: str | None,
+) -> VerifiedSameInputClosure:
+    """Refuse protected admission from caller-supplied contracts and callbacks.
+
+    The current registered report owners define output identities, but no owner
+    establishes a complete, purpose-specific consumed-input law. Successful
+    candidate comparison is therefore not an authority admission. The retained
+    v2 reader is available before any v2 authority writer is enabled.
+    """
+    compare_same_input_closure_candidate(
+        closure,
+        contract=contract,
+        resolver=resolver,
+        expected_run_id=expected_run_id,
+        expected_job_id=expected_job_id,
+        expected_tenant_id=expected_tenant_id,
+        expected_cell_id=expected_cell_id,
+    )
+    raise AuthorityEnvelopeError("same_input_closure_owner_not_established")
+
+
+def compare_same_input_closure_candidate(
+    closure: SameInputClosure,
+    *,
+    contract: SameInputClosureContract,
+    resolver: SameInputClosureResolver,
+    expected_run_id: str,
+    expected_job_id: str,
+    expected_tenant_id: str,
+    expected_cell_id: str | None,
+) -> SameInputClosure:
+    """Check caller-basis coherence for diagnostics without issuing authority.
+
+    A matching callback result does not prove owner provenance or completeness.
+    This function intentionally returns an ordinary candidate closure.
+    """
+
+    if closure.schema_version != "2.0":
+        raise AuthorityEnvelopeError("same_input_closure_legacy_not_authoritative")
+    expected_scope = (expected_run_id, expected_job_id, expected_tenant_id, expected_cell_id)
+    if (closure.run_id, closure.job_id, closure.tenant_id, closure.cell_id) != expected_scope:
+        raise AuthorityEnvelopeError("same_input_closure_scope_mismatch")
+    declared = {member.name: member for member in closure.members}
+    specifications = {member.name: member for member in contract.members}
+    if len(specifications) != len(contract.members) or set(declared) != set(specifications):
+        raise AuthorityEnvelopeError("same_input_closure_inventory_mismatch")
+    resolved: list[ClosureMemberIdentity] = []
+    for name, specification in specifications.items():
+        member = declared[name]
+        if member.role != specification.role or (
+            member.identity_domain != specification.identity_domain
+            and not (not specification.required and isinstance(member, ClosureNullIdentity))
+        ):
+            raise AuthorityEnvelopeError("same_input_closure_member_contract_mismatch", name)
+        if specification.required and isinstance(member, ClosureNullIdentity):
+            raise AuthorityEnvelopeError("same_input_closure_required_member_absent", name)
+        actual = resolver.resolve_member(
+            member, tenant_id=closure.tenant_id, purpose=contract.purpose
+        )
+        if actual != member:
+            raise AuthorityEnvelopeError("same_input_closure_member_resolution_mismatch", name)
+        resolved.append(actual)
+    observed_refs = resolver.consumed_input_refs(run_id=closure.run_id, job_id=closure.job_id)
+    if observed_refs != closure.evidence_input_refs:
+        raise AuthorityEnvelopeError("same_input_closure_consumption_mismatch")
+    projection = {
+        "domain": "polisyos.runtime.same_input_closure",
+        "schema_version": "2.0",
+        "identity_law_version": contract.rule_version,
+        "canonical_spec": core_artifacts.CanonInfo.from_spec(
+            canon.CanonSpec(exclude_none=False)
+        ).model_dump(mode="json"),
+        "owner": contract.owner,
+        "purpose": contract.purpose,
+        "scope": {
+            "run_id": closure.run_id,
+            "job_id": closure.job_id,
+            "tenant_id": closure.tenant_id,
+            "cell_id": closure.cell_id,
+        },
+        "members": [member.model_dump(mode="json") for member in resolved],
+        "evidence_input_refs": list(observed_refs),
+    }
+    actual_digest = (
+        "sha256:"
+        + hashlib.sha256(
+            canon.to_canonical_bytes(projection, canon.CanonSpec(exclude_none=False))
+        ).hexdigest()
+    )
+    if closure.status != "closed" or closure.closure_sha256 != actual_digest:
+        raise AuthorityEnvelopeError("same_input_closure_digest_mismatch")
+    return closure
 
 
 class ConsumedInputMember(BaseModel):
@@ -1189,6 +1491,43 @@ class ConsumedInputMember(BaseModel):
         return (self.member_kind, self.member_id)
 
 
+ConsumedInputSealPurpose = Literal["authority", "declared_basis_cache_equality"]
+
+
+class DeclaredBasisCacheSeal(BaseModel):
+    """Content-bound equality of declared cache members, never authority admission.
+
+    This type makes no claim that the member denominator is complete for any
+    producer or purpose. It cannot satisfy protected sealing/reuse, envelope
+    roles, purpose checks or public authority surfaces.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["policyos.runtime.declared_basis_cache_seal.v1"] = (
+        "policyos.runtime.declared_basis_cache_seal.v1"
+    )
+    purpose: Literal["declared_basis_cache_equality"] = "declared_basis_cache_equality"
+    authority_role: Literal["diagnostic_only"] = "diagnostic_only"
+    basis_scope: Literal["declared_members_only"] = "declared_members_only"
+    purpose_completeness_basis: Literal["not_established"] = "not_established"
+    same_input_closure: SameInputClosure
+    members: tuple[ConsumedInputMember, ...]
+    membership_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _validate_declared_equality(self) -> DeclaredBasisCacheSeal:
+        """Recompute only the declared membership snapshot's mechanical identity."""
+        members = _normalise_consumed_input_members(self.members)
+        if members != self.members:
+            raise ValueError("declared_basis_cache_members_not_sorted")
+        if self.membership_sha256 != _declared_basis_cache_membership_sha256(
+            self.same_input_closure, members
+        ):
+            raise ValueError("declared_basis_cache_membership_mismatch")
+        return self
+
+
 class SealedConsumedInputSet(BaseModel):
     """Closed consumed-input membership bound to an existing input closure."""
 
@@ -1202,7 +1541,8 @@ class SealedConsumedInputSet(BaseModel):
     def _validate_resolved_membership(self) -> SealedConsumedInputSet:
         """Prevent construction of a seal that did not resolve its members."""
 
-        _assert_closed_consumed_input_closure(self.same_input_closure)
+        if self.same_input_closure.status != "closed" or not self.same_input_closure.closure_sha256:
+            raise ValueError("same_input_closure_not_closed")
         resolved_members = _normalise_consumed_input_members(self.members)
         if resolved_members != self.members:
             raise ValueError("consumed_input_members_not_sorted")
@@ -1400,6 +1740,8 @@ def serialize_authority_envelope(
 
 def assert_authority_bearing(
     envelope: AuthorityEnvelopeInput,
+    *,
+    verified_closure: VerifiedSameInputClosure | None = None,
 ) -> EvidenceAuthorityEnvelope:
     """Assert that an envelope may be consumed as serious authority evidence."""
 
@@ -1430,15 +1772,21 @@ def assert_authority_bearing(
             validated,
             f"provenance_kind={validated.provenance_kind!r}",
         )
+    if validated.authority_role == "producer_authority":
+        _assert_closed_consumed_input_closure(
+            validated.same_input_closure, verified_closure=verified_closure
+        )
     return validated
 
 
 def assert_runtime_emitted(
     envelope: AuthorityEnvelopeInput,
+    *,
+    verified_closure: VerifiedSameInputClosure | None = None,
 ) -> EvidenceAuthorityEnvelope:
     """Assert that an envelope is runtime-emitted CAS-backed authority."""
 
-    validated = assert_authority_bearing(envelope)
+    validated = assert_authority_bearing(envelope, verified_closure=verified_closure)
     if validated.provenance_kind != "runtime_emitted":
         _raise(
             "authority_not_runtime_emitted",
@@ -1472,6 +1820,9 @@ def assert_runtime_emitted(
 
 def assert_same_input_closure(
     envelopes: Iterable[AuthorityEnvelopeInput],
+    *,
+    verified: Iterable[VerifiedSameInputClosure] = (),
+    historical_advisory: bool = False,
 ) -> SameInputClosure:
     """Assert all envelopes carry the same closed input-context identity."""
 
@@ -1483,6 +1834,19 @@ def assert_same_input_closure(
         )
 
     first = validated[0].same_input_closure
+    if not historical_advisory and any(
+        envelope.same_input_closure.schema_version != "2.0" for envelope in validated
+    ):
+        raise AuthorityEnvelopeError("same_input_closure_legacy_not_authoritative")
+    verified_items = tuple(verified)
+    if any(envelope.same_input_closure.schema_version == "2.0" for envelope in validated):
+        if len(verified_items) != len(validated):
+            raise AuthorityEnvelopeError("same_input_closure_verification_missing")
+        for envelope, result in zip(validated, verified_items, strict=True):
+            if type(result) is not VerifiedSameInputClosure or not result._revalidate(
+                envelope.same_input_closure
+            ):
+                raise AuthorityEnvelopeError("same_input_closure_verification_mismatch")
     if first.status != "closed" or not first.closure_sha256:
         raise AuthorityEnvelopeError(
             "same_input_closure_not_closed",
@@ -1507,14 +1871,49 @@ def assert_same_input_closure(
     return first
 
 
+@overload
 def seal_consumed_input_set(
     *,
     closure: SameInputClosure,
     members: Iterable[ConsumedInputMember | Mapping[str, Any]],
-) -> SealedConsumedInputSet:
-    """Resolve, sort, and content-bind the complete authority input set."""
+    verified_closure: VerifiedSameInputClosure | None = None,
+    purpose: Literal["authority"] = "authority",
+) -> SealedConsumedInputSet: ...
 
-    _assert_closed_consumed_input_closure(closure)
+
+@overload
+def seal_consumed_input_set(
+    *,
+    closure: SameInputClosure,
+    members: Iterable[ConsumedInputMember | Mapping[str, Any]],
+    verified_closure: VerifiedSameInputClosure | None = None,
+    purpose: Literal["declared_basis_cache_equality"],
+) -> DeclaredBasisCacheSeal: ...
+
+
+def seal_consumed_input_set(
+    *,
+    closure: SameInputClosure,
+    members: Iterable[ConsumedInputMember | Mapping[str, Any]],
+    verified_closure: VerifiedSameInputClosure | None = None,
+    purpose: ConsumedInputSealPurpose = "authority",
+) -> SealedConsumedInputSet | DeclaredBasisCacheSeal:
+    """Seal admitted authority, or explicitly compare a non-authorizing cache basis.
+
+    The default remains protected and refuses unverified closure input. The
+    explicit cache purpose returns a distinct diagnostic type and proves only
+    equality of the declared members, not complete producer/purpose admission.
+    """
+    if purpose == "declared_basis_cache_equality":
+        resolved_members = _normalise_consumed_input_members(members)
+        return DeclaredBasisCacheSeal(
+            same_input_closure=closure,
+            members=resolved_members,
+            membership_sha256=_declared_basis_cache_membership_sha256(closure, resolved_members),
+        )
+    if purpose != "authority":
+        raise AuthorityEnvelopeError("consumed_input_seal_purpose_unknown")
+    _assert_closed_consumed_input_closure(closure, verified_closure=verified_closure)
     resolved_members = _normalise_consumed_input_members(members)
     membership_sha256 = _consumed_input_membership_sha256(closure, resolved_members)
     return SealedConsumedInputSet(
@@ -1524,20 +1923,57 @@ def seal_consumed_input_set(
     )
 
 
+@overload
 def assert_consumed_input_reuse(
     sealed: SealedConsumedInputSet,
     *,
     closure: SameInputClosure,
     fresh_members: Iterable[ConsumedInputMember | Mapping[str, Any]],
-) -> SealedConsumedInputSet:
-    """Fail closed unless a fresh complete input set exactly matches its seal."""
+    verified_closure: VerifiedSameInputClosure | None = None,
+    purpose: Literal["authority"] = "authority",
+) -> SealedConsumedInputSet: ...
 
-    _assert_closed_consumed_input_closure(closure)
-    if closure.identity_tuple() != sealed.same_input_closure.identity_tuple():
-        raise AuthorityEnvelopeError(
-            "consumed_input_closure_mismatch",
-            f"closure_id={closure.closure_id}",
-        )
+
+@overload
+def assert_consumed_input_reuse(
+    sealed: DeclaredBasisCacheSeal,
+    *,
+    closure: SameInputClosure,
+    fresh_members: Iterable[ConsumedInputMember | Mapping[str, Any]],
+    verified_closure: VerifiedSameInputClosure | None = None,
+    purpose: Literal["declared_basis_cache_equality"],
+) -> DeclaredBasisCacheSeal: ...
+
+
+def assert_consumed_input_reuse(
+    sealed: SealedConsumedInputSet | DeclaredBasisCacheSeal,
+    *,
+    closure: SameInputClosure,
+    fresh_members: Iterable[ConsumedInputMember | Mapping[str, Any]],
+    verified_closure: VerifiedSameInputClosure | None = None,
+    purpose: ConsumedInputSealPurpose = "authority",
+) -> SealedConsumedInputSet | DeclaredBasisCacheSeal:
+    """Recheck protected admission, or explicit declared-basis cache equality only."""
+    if purpose == "declared_basis_cache_equality":
+        if type(sealed) is not DeclaredBasisCacheSeal:
+            raise AuthorityEnvelopeError("declared_basis_cache_seal_required")
+        try:
+            sealed = DeclaredBasisCacheSeal.model_validate_json(sealed.model_dump_json())
+        except (TypeError, ValueError) as exc:
+            raise AuthorityEnvelopeError("declared_basis_cache_seal_invalid") from exc
+        # Bind the entire declared closure record here, including any v2 members.
+        if closure.model_dump(mode="json") != sealed.same_input_closure.model_dump(mode="json"):
+            raise AuthorityEnvelopeError("consumed_input_closure_mismatch")
+    elif purpose == "authority":
+        if type(sealed) is not SealedConsumedInputSet:
+            raise AuthorityEnvelopeError("declared_basis_cache_seal_not_authoritative")
+        _assert_closed_consumed_input_closure(closure, verified_closure=verified_closure)
+        if closure.identity_tuple() != sealed.same_input_closure.identity_tuple():
+            raise AuthorityEnvelopeError(
+                "consumed_input_closure_mismatch", f"closure_id={closure.closure_id}"
+            )
+    else:
+        raise AuthorityEnvelopeError("consumed_input_seal_purpose_unknown")
     resolved_members = _normalise_consumed_input_members(fresh_members)
     expected_by_key = {member.membership_key(): member for member in sealed.members}
     actual_by_key = {member.membership_key(): member for member in resolved_members}
@@ -1548,7 +1984,11 @@ def assert_consumed_input_reuse(
     for key in sorted(expected_by_key):
         if actual_by_key[key] != expected_by_key[key]:
             _raise_consumed_input_error("consumed_input_member_substituted", key)
-    actual_sha256 = _consumed_input_membership_sha256(closure, resolved_members)
+    actual_sha256 = (
+        _declared_basis_cache_membership_sha256(closure, resolved_members)
+        if purpose == "declared_basis_cache_equality"
+        else _consumed_input_membership_sha256(closure, resolved_members)
+    )
     if actual_sha256 != sealed.membership_sha256:
         raise AuthorityEnvelopeError(
             "consumed_input_membership_mismatch",
@@ -1581,6 +2021,31 @@ def _normalise_consumed_input_members(
     return tuple(by_key[key] for key in sorted(by_key))
 
 
+def _declared_basis_cache_membership_sha256(
+    closure: SameInputClosure,
+    members: tuple[ConsumedInputMember, ...],
+) -> str:
+    """Hash a fully declared cache record without inferring producer completeness."""
+    spec = canon.CanonSpec(exclude_none=False)
+    return (
+        "sha256:"
+        + hashlib.sha256(
+            canon.to_canonical_bytes(
+                {
+                    "domain": "polisyos.runtime.declared_basis_cache_equality",
+                    "schema_version": "1.0",
+                    "canonical_spec": core_artifacts.CanonInfo.from_spec(spec).model_dump(
+                        mode="json"
+                    ),
+                    "same_input_closure": closure.model_dump(mode="json"),
+                    "members": [member.model_dump(mode="json") for member in members],
+                },
+                spec,
+            )
+        ).hexdigest()
+    )
+
+
 def _consumed_input_membership_sha256(
     closure: SameInputClosure,
     members: tuple[ConsumedInputMember, ...],
@@ -1596,7 +2061,11 @@ def _consumed_input_membership_sha256(
     )
 
 
-def _assert_closed_consumed_input_closure(closure: SameInputClosure) -> None:
+def _assert_closed_consumed_input_closure(
+    closure: SameInputClosure,
+    *,
+    verified_closure: VerifiedSameInputClosure | None = None,
+) -> None:
     """Require the existing closure owner to have a closed content identity."""
 
     if closure.status != "closed" or not closure.closure_sha256:
@@ -1604,6 +2073,12 @@ def _assert_closed_consumed_input_closure(closure: SameInputClosure) -> None:
             "same_input_closure_not_closed",
             f"closure_id={closure.closure_id}",
         )
+    if closure.schema_version != "2.0":
+        raise AuthorityEnvelopeError("same_input_closure_legacy_not_authoritative")
+    if type(verified_closure) is not VerifiedSameInputClosure or not verified_closure._revalidate(
+        closure
+    ):
+        raise AuthorityEnvelopeError("same_input_closure_verification_missing")
 
 
 def _raise_consumed_input_error(code: str, key: tuple[str, str]) -> None:
@@ -1613,10 +2088,43 @@ def _raise_consumed_input_error(code: str, key: tuple[str, str]) -> None:
     raise AuthorityEnvelopeError(code, f"member={member_kind}:{member_id}")
 
 
-def classify_authority_role(envelope: AuthorityEnvelopeInput) -> AuthorityRole:
+def classify_authority_role(
+    envelope: AuthorityEnvelopeInput,
+    *,
+    verified_closure: VerifiedSameInputClosure | None = None,
+) -> AuthorityRole:
     """Return the validated authority role for an envelope."""
 
-    return deserialize_authority_envelope(envelope).authority_role
+    validated = deserialize_authority_envelope(envelope)
+    if validated.authority_role == "producer_authority":
+        try:
+            _assert_closed_consumed_input_closure(
+                validated.same_input_closure, verified_closure=verified_closure
+            )
+        except AuthorityEnvelopeError:
+            return "not_authoritative"
+    return validated.authority_role
+
+
+def _envelope_authority_admission_blockers(payload: Mapping[str, Any]) -> tuple[str, ...]:
+    """Compose an envelope's role with any requested positive authority use.
+
+    A purpose list or positive boundary cannot turn a diagnostic, blocker,
+    malformed or unadmitted producer envelope into positive authority. Plain
+    AuthorityBoundary records keep their existing independent contract.
+    """
+    if not any(
+        field in payload for field in ("authority_role", "evidence_class", "same_input_closure")
+    ):
+        return ()
+    role = (_authority_payload_text(payload, "authority_role") or "").casefold()
+    if role != "producer_authority":
+        return ("authority_envelope_cannot_authorize_purpose",)
+    try:
+        assert_authority_bearing(payload)
+    except (AuthorityEnvelopeError, TypeError, ValueError):
+        return ("same_input_closure_owner_not_established",)
+    return ()
 
 
 def authority_purpose_blockers(
@@ -1626,6 +2134,9 @@ def authority_purpose_blockers(
     """Return purpose-boundary blockers from authoritative_for/may_not_use_for fields."""
 
     payload = _authority_payload(envelope)
+    envelope_blockers = _envelope_authority_admission_blockers(payload)
+    if envelope_blockers:
+        return envelope_blockers
     requested = _optional_text(str(purpose))
     if requested is None:
         return ("authority_purpose_missing",)
@@ -2179,6 +2690,27 @@ def _authority_boundary_surface_decision(
             blocking=False,
             visible_downgrade=True,
         )
+    # Candidate and blocked dispositions above remain honest negative/limited
+    # diagnostics. A positive boundary additionally needs the role's admission.
+    envelope_blockers = tuple(
+        blocker
+        for candidate in (carrier, surface_packet)
+        for blocker in _envelope_authority_admission_blockers(candidate)
+    )
+    if envelope_blockers:
+        return AuthoritySurfaceDecision(
+            surface=surface_name,
+            purpose=requested_purpose,
+            status="blocked",
+            authority_result=authority_result,
+            transition_disposition=transition_disposition,
+            authority_boundary_ref=boundary_ref,
+            consumed_authority_boundary=True,
+            may_not_use_for=may_not_use_for,
+            reason=envelope_blockers[0],
+            blocking=True,
+            visible_downgrade=True,
+        )
     if blockers:
         return AuthoritySurfaceDecision(
             surface=surface_name,
@@ -2280,6 +2812,23 @@ def runtime_quality_report_cas_admission_issues(
     writer owner. A valid historical publication cannot stand in for a
     different current invocation.
     """
+    if (
+        envelope is not None
+        and (_authority_payload_text(envelope, "authority_role") or "").casefold()
+        == "producer_authority"
+    ):
+        try:
+            assert_authority_bearing(envelope)
+        except (AuthorityEnvelopeError, TypeError, ValueError):
+            return [
+                _ownership_issue(
+                    "same_input_closure_owner_not_established",
+                    "A parsed producer claim has no complete owner-established input admission.",
+                    expected="owner-established purpose-specific consumed-input admission",
+                    observed="not_established",
+                    field="same_input_closure",
+                )
+            ]
     contract = runtime_quality_report_owner_contract(report_key, ref_key)
     if contract is None:
         return [
@@ -3100,7 +3649,7 @@ def authority_envelope_ownership_issues(
 
 
 def authority_envelope_json_schema() -> dict[str, Any]:
-    """Return the JSON Schema snapshot for the v1 authority envelope."""
+    """Return the JSON Schema snapshot for the versioned authority envelope."""
 
     return EvidenceAuthorityEnvelope.model_json_schema(mode="validation")
 
@@ -3108,7 +3657,7 @@ def authority_envelope_json_schema() -> dict[str, Any]:
 def write_authority_envelope_json_schema(
     path: Path | str = DEFAULT_AUTHORITY_ENVELOPE_SCHEMA_PATH,
 ) -> Path:
-    """Write the v1 authority envelope JSON Schema snapshot."""
+    """Write the versioned authority envelope JSON Schema snapshot."""
 
     schema_path = Path(path)
     schema_path.parent.mkdir(parents=True, exist_ok=True)
@@ -3853,8 +4402,14 @@ __all__ = [
     "AuthoritySurfaceContributor",
     "AuthoritySurfaceDecision",
     "BlockingStatus",
+    "ClosureCasIdentity",
+    "ClosureMemberContract",
+    "ClosureNullIdentity",
+    "ClosureOwnerValueIdentity",
     "ConsumedInputMember",
     "ConsumedInputMemberKind",
+    "ConsumedInputSealPurpose",
+    "DeclaredBasisCacheSeal",
     "EvidenceAuthorityEnvelope",
     "EvidenceClass",
     "GovernanceMetadata",
@@ -3867,6 +4422,7 @@ __all__ = [
     "ProductionLoopRunProof",
     "ProvenanceKind",
     "SameInputClosure",
+    "SameInputClosureContract",
     "SameInputClosureStatus",
     "SealedConsumedInputSet",
     "TimeSourceConsistencyAuditProjection",
@@ -3875,6 +4431,7 @@ __all__ = [
     "TimeSourceConsistencyProjectionKind",
     "TimeSourceConsistencyProjectionScope",
     "ValidationStatus",
+    "VerifiedSameInputClosure",
     "assert_authority_bearing",
     "assert_authority_purpose_allowed",
     "assert_capability_binding_purpose_allowed",
@@ -3889,6 +4446,7 @@ __all__ = [
     "capability_binding_purpose_blockers",
     "classify_authority_failure",
     "classify_authority_role",
+    "compare_same_input_closure_candidate",
     "declared_output_envelopes_from_contract",
     "deserialize_authority_envelope",
     "output_cas_manifest_profiles_from_contract",
@@ -3896,5 +4454,6 @@ __all__ = [
     "resolve_time_source_consistency_disposition",
     "seal_consumed_input_set",
     "serialize_authority_envelope",
+    "verify_same_input_closure",
     "write_authority_envelope_json_schema",
 ]

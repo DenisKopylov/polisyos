@@ -11,6 +11,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from polisyos.core.artifacts import ArtifactRef, CanonInfo, InputRef, ProducerInfo, SchemaInfo
+
 DIAGNOSTIC_EVENT_SCHEMA_NAME = "polisyos.runtime.quality.diagnostic_event"
 DIAGNOSTIC_EVENT_SCHEMA_VERSION = "1.0"
 DIAGNOSTIC_EVENT_ARTIFACT_KIND = "runtime_quality.diagnostic_event"
@@ -55,6 +57,43 @@ DuplicateStatus = Literal[
     "authority_event_collision",
     "retry_replay_candidate",
 ]
+
+
+class RuntimeQualitySelectedReadObservation(BaseModel):
+    """Mechanical read facts, explicitly insufficient for input completeness.
+
+    This record covers only the named NL helper invocation. It neither claims
+    that all producer reads passed through that helper nor that requested scope
+    was honoured by a data owner. Registry metadata matching is not authenticity.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["policyos.runtime.selected_read_observation.v1"] = (
+        "policyos.runtime.selected_read_observation.v1"
+    )
+    reader: Literal["runtime.control.nl_pipeline._load_json_artifact_payload"] = (
+        "runtime.control.nl_pipeline._load_json_artifact_payload"
+    )
+    run_id: str = Field(min_length=1)
+    job_id: str = Field(min_length=1)
+    tenant_id: str = Field(min_length=1)
+    cell_id: str | None
+    ordinal: int = Field(ge=0)
+    selected_ref: ArtifactRef
+    selection_origin: Literal["explicit_selected_ref", "default_view_at_read"]
+    payload_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    canonical_profile: CanonInfo
+    manifest_schema: SchemaInfo | None
+    manifest_producer: ProducerInfo | None
+    manifest_inputs: tuple[InputRef, ...]
+    matching_registered_output_owner: str | None
+    read_fact_basis: Literal["recomputed"] = "recomputed"
+    purpose_completeness_basis: Literal["not_established"] = "not_established"
+    authority_role: Literal["diagnostic_only"] = "diagnostic_only"
+    limitation_code: Literal["nl_helper_read_is_not_complete_producer_consumption"] = (
+        "nl_helper_read_is_not_complete_producer_consumption"
+    )
 
 
 class DiagnosticEventContractError(ValueError):

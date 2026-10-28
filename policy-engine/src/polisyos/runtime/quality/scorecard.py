@@ -2282,7 +2282,9 @@ def _authority_contract_gates(
         if cas_admitted:
             validated_envelopes.append(validated)
 
-    if len(validated_envelopes) > 1:
+    # A single v2 envelope is still authority-bearing and must not bypass closure
+    # admission merely because there is no sibling with which to compare it.
+    if validated_envelopes:
         try:
             assert_same_input_closure(validated_envelopes)
         except AuthorityEnvelopeError:

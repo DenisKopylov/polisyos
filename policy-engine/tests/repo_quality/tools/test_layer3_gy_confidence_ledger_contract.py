@@ -317,6 +317,7 @@ def _sealed_owner_inputs(
     member_id: str = "outside-old-context-key",
     member_kind: str = "environment",
 ) -> object:
+    """Create only a declared-basis cache fixture, never purpose-authority admission."""
     from polisyos.runtime.quality.authority import (
         ConsumedInputMember,
         SameInputClosure,
@@ -333,6 +334,7 @@ def _sealed_owner_inputs(
     )
     return seal_consumed_input_set(
         closure=closure,
+        purpose="declared_basis_cache_equality",
         members=(
             ConsumedInputMember(
                 member_id=member_id,
@@ -2838,3 +2840,57 @@ def test_retained_root_is_bound_to_owner_bundle_cache_key(
         first_root.as_posix(),
         second_root.as_posix(),
     ]
+
+
+def test_recorded_legacy_cache_projection_remains_byte_readable_without_authority() -> None:
+    """Read the actual tracked legacy record, never reissue it as a cache/authority."""
+    from polisyos.runtime.quality.authority import (
+        AuthorityEnvelopeError,
+        SealedConsumedInputSet,
+        assert_consumed_input_reuse,
+    )
+
+    path = (
+        POLICY_ENGINE_ROOT
+        / "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json"
+    )
+    original = path.read_bytes()
+    parsed = checker._parse_contract_bytes(original)
+    snapshot = parsed.owner_bundle_projection.consumed_inputs
+    assert type(snapshot) is SealedConsumedInputSet
+    assert checker.contract_bytes(parsed) == original
+    with pytest.raises(AuthorityEnvelopeError, match="legacy_not_authoritative"):
+        assert_consumed_input_reuse(
+            snapshot,
+            closure=snapshot.same_input_closure,
+            fresh_members=snapshot.members,
+        )
+
+
+@pytest.mark.parametrize("version", ["unknown", None])
+def test_recorded_cache_projection_never_falls_back_from_an_unknown_new_version(
+    version: object,
+) -> None:
+    path = (
+        POLICY_ENGINE_ROOT
+        / "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json"
+    )
+    payload = json.loads(path.read_bytes())
+    payload["owner_bundle_projection"]["consumed_inputs"]["schema_version"] = version
+    with pytest.raises(RuntimeError, match="schema_invalid"):
+        checker._parse_contract_bytes(json.dumps(payload).encode())
+
+
+def test_new_declared_cache_projection_has_an_explicit_versioned_reader() -> None:
+    from polisyos.runtime.quality.authority import DeclaredBasisCacheSeal
+
+    path = (
+        POLICY_ENGINE_ROOT
+        / "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json"
+    )
+    payload = json.loads(path.read_bytes())["owner_bundle_projection"]
+    payload["consumed_inputs"] = _sealed_owner_inputs("sha256:" + "1" * 64).model_dump(mode="json")
+    parsed = checker.OwnerBundleProjection.model_validate(payload)
+    assert type(parsed.consumed_inputs) is DeclaredBasisCacheSeal
+    assert parsed.consumed_inputs.authority_role == "diagnostic_only"
+    assert parsed.consumed_inputs.purpose_completeness_basis == "not_established"

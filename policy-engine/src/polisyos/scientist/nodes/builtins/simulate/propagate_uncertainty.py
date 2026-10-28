@@ -621,7 +621,13 @@ def _load_response_projection(
     if not isinstance(raw, Mapping):
         raise _InvalidResponseBasis("propagation_response_basis must be a mapping")
     try:
-        return _ResponseProjectionSpec.model_validate(raw)
+        import json
+
+        # ExperimentState.params carries JSON values. Use the DTO's strict
+        # JSON wire law; internal tuple shape is not a Python-input demand.
+        return _ResponseProjectionSpec.model_validate_json(
+            json.dumps(dict(raw), allow_nan=False), strict=True
+        )
     except _PROPAGATION_VALIDATION_ERRORS as exc:
         raise _InvalidResponseBasis("propagation_response_basis is invalid") from exc
 

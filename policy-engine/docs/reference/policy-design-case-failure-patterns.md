@@ -703,3 +703,22 @@ Establish the same selected positive in the actual consumers before mutation and
 require the intended refusal reason. A whole compound test remains FAIL even if
 an earlier assertion was reached. Exit zero of an observation-only diagnostic
 is not a property PASS; keep errors, source versions and unavailable stages typed.
+
+
+### P38/P40 instance: JSON params are not strict Python-native inputs
+
+A tuple-valued DTO may correctly emit and accept a JSON array while strict
+`model_validate` rejects that same array in a JSON-compatible workflow params
+plane. Diagnostic: reconstruct the actual workflow state, expose the original
+validation cause before any source reader, and record later stages as UNRUN.
+Closure move: reuse the DTO's strict JSON validation owner for the complete
+mapping, keep its internal tuple and terminal validators, and exercise the real
+node before private model assertions. Preserve numeric/boolean/extra/empty/missing
+refusals; do not rewrite the fixture as a Python tuple or introduce field casts.
+Remove only JSON wire-mode admission and require the same public-node positive
+to fail for the intended tuple-domain reason, then restore exact bytes.
+
+Do not promote a saved-artifact read failure into a claim that an earlier node
+reached that reader. A source-invalid negative is distinguished only after its
+unchanged selected positive passes and the intended refusal reason is observed.
+An observation-only diagnostic and a source GO never replace runtime or G proof.

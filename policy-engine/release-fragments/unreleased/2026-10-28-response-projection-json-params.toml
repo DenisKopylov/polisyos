@@ -1,0 +1,30 @@
+id = "2026-10-28-response-projection-json-params"
+title = "Read response projection params through their strict JSON wire contract"
+type = "fixed"
+component = "scientist"
+owner = "team-scientist"
+summary = "The response projection ingress accepts JSON arrays from ExperimentState.params and preserves internal tuple values and all strict DTO constraints."
+evidence = ["src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py", "tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py", "tests/unit/foundry/calibration/test_identifiability_response_basis.py"]
+compatibility = "Valid JSON params now use the existing Pydantic JSON shape law. Required/nonempty/unique string IDs, literal version and extra-field refusals stay strict; numeric values are not converted to IDs. No DTO field, public signature, artifact wire bytes or source-grounding law changes."
+change_class = "python-public-api"
+surface_classification = "internal: polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty; workflow node input behavior"
+migration = "Keep JSON arrays in workflow params. Do not change clients or fixtures to Python tuples. Qualified syntax still requires the existing selected source and response mapping before consumption."
+api = "The existing projection DTO is admitted with model_validate_json(..., strict=True) from standard JSON serialization of the supplied mapping; tuple internals and semantic validators are unchanged."
+limitations = "Phase0 params admission alone does not establish later intake/join, numerical propagation, source authority, calibration/noise law or G acceptance."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/scientist/nodes/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "response-projection-json-params"
+change_class = "python-public-api"
+impact = "additive"
+surface = "PropagateUncertaintyNode params.propagation_response_basis"
+owner = "team-scientist"
+version_owner = "team-scientist"
+deprecation_window = "not_applicable"
+release_note = "Valid JSON arrays reach the existing strict response-projection DTO without Python tuple rewrites; no grounding or inference guard is bypassed."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/scientist/nodes/README.md"]
+runbook_docs = []

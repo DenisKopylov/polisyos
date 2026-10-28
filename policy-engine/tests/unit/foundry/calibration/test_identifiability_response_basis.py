@@ -1636,7 +1636,7 @@ def test_native_response_calibration_report_reaches_fresh_state_slot_consumer(
         return PropagateUncertaintyNode().execute(context, state), state
 
     outcome, input_state = execute_node(selected_report_ref=report_ref, run_id="b190-positive")
-    assert outcome.status == "ok"
+    assert outcome.status == "ok", outcome.error
     output_simulation_ref = outcome.state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF]
     output_simulation = SimulationResult.model_validate(
         get_json_artifact(ensure_ir_artifact_store(store), output_simulation_ref)

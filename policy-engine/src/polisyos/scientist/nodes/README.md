@@ -223,3 +223,19 @@ controls use supported explicit inputs; the captured rows and independent mean
 remain checked. Constructor-forwarding tests use selected policy/typed-plan refs
 and CompileRequest1.2; a mock forwarding result is not real compiler or Runtime
 completion evidence. These test repairs do not widen production admission.
+
+### Response projection JSON params
+
+`simulate/propagate_uncertainty.py` reads `propagation_response_basis` from the
+JSON-compatible `ExperimentState.params` plane. The existing strict projection DTO
+is validated through Pydantic's public strict JSON method, so a JSON array becomes
+its declared internal tuple without number-to-text coercion or manual field casts.
+Literal version, extra-field, required/nonempty/unique ID and StrictStr constraints
+remain the same. An absent projection remains optional; an invalid supplied one
+returns a typed response-basis failure before a simulation skip or artifact I/O.
+
+This validates syntax only. Nonempty text IDs, including numeric text, still need
+the existing selected execute-response source and slot mapping; no source/issuer,
+causal law or publication authority is inferred. The real scalar response test
+supplies that later path. A phase0 admission fix does not establish that the later
+source intake, join or MC consumer has succeeded until its actual execution.

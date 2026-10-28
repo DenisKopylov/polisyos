@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import json
+from unittest.mock import patch
+
 import jax
 import jax.numpy as jnp
 import pytest
@@ -16,6 +19,7 @@ from polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty import (
     _collect_input_envelopes,
     _extract_numeric_metrics,
     _load_config,
+    _load_response_projection,
 )
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_SIMULATION_RESULT_REF,
@@ -314,3 +318,133 @@ def test_build_propagation_fn_preserves_zero_baseline_effect():
 
     assert response(x=3.0)["y"] == pytest.approx(1.0)
     assert response(x=1.0)["y"] == pytest.approx(-1.0)
+
+
+def _state_with_json_projection(minimal_state, projection, *, present=True):
+    payload = minimal_state.model_dump(mode="json")
+    payload["params"] = {"propagation_response_basis": projection} if present else {}
+    return type(minimal_state).model_validate_json(json.dumps(payload, allow_nan=False))
+
+
+@pytest.mark.parametrize(
+    "projection",
+    [
+        pytest.param(
+            {"schema_version": "1.0", "state_slot_ids": ["government.balance"]},
+            id="explicit-version-array",
+        ),
+        pytest.param(
+            {"state_slot_ids": ["17"]},
+            id="default-version-identifiers-stay-text",
+        ),
+    ],
+)
+def test_response_projection_json_wire_reaches_public_node_and_keeps_tuple_internals(
+    execution_context, minimal_state, projection
+) -> None:
+    state = _state_with_json_projection(minimal_state, projection)
+    assert isinstance(state.params["propagation_response_basis"]["state_slot_ids"], list)
+    with (
+        patch.object(
+            execution_context.store, "get_bytes", wraps=execution_context.store.get_bytes
+        ) as reader,
+        patch.object(
+            execution_context.store, "put_json", wraps=execution_context.store.put_json
+        ) as json_writer,
+        patch.object(
+            execution_context.store, "put_bytes", wraps=execution_context.store.put_bytes
+        ) as bytes_writer,
+    ):
+        outcome = PropagateUncertaintyNode().execute(execution_context, state)
+        reader.assert_not_called()
+        json_writer.assert_not_called()
+        bytes_writer.assert_not_called()
+    assert outcome.status == "skip", outcome.error
+    assert any("No simulation_result_ref" in event.message for event in outcome.events)
+    assert outcome.artifacts == []
+    assert outcome.state.artifacts_index == state.artifacts_index
+
+    selected = _load_response_projection(state.params)
+    assert selected is not None
+    assert selected.state_slot_ids == tuple(projection["state_slot_ids"])
+    assert isinstance(selected.state_slot_ids, tuple)
+    assert selected.schema_version == "1.0"
+    assert selected.model_dump(mode="json")["state_slot_ids"] == projection["state_slot_ids"]
+
+    # Syntactic admission of an ID, including numeric text, is not slot grounding
+    # or publication. The real scalar integration test supplies the actual source.
+
+
+def test_response_projection_native_tuple_uses_the_same_strict_wire_owner() -> None:
+    selected = _load_response_projection(
+        {"propagation_response_basis": {"state_slot_ids": ("government.balance",)}}
+    )
+    assert selected is not None
+    assert selected.state_slot_ids == ("government.balance",)
+    assert isinstance(selected.state_slot_ids, tuple)
+
+
+def test_absent_response_projection_remains_optional_before_public_skip(
+    execution_context, minimal_state
+) -> None:
+    state = _state_with_json_projection(minimal_state, None, present=False)
+    assert _load_response_projection(state.params) is None
+    outcome = PropagateUncertaintyNode().execute(execution_context, state)
+    assert outcome.status == "skip"
+    assert outcome.artifacts == []
+    assert outcome.state.artifacts_index == state.artifacts_index
+
+
+@pytest.mark.parametrize(
+    "projection",
+    [
+        pytest.param(None, id="present-null"),
+        pytest.param([], id="wrong-object-shape"),
+        pytest.param({}, id="missing-ids"),
+        pytest.param({"state_slot_ids": []}, id="empty-ids"),
+        pytest.param({"state_slot_ids": "17"}, id="numeric-text-is-not-an-array"),
+        pytest.param({"state_slot_ids": [True]}, id="boolean-id"),
+        pytest.param({"state_slot_ids": [17]}, id="numeric-id"),
+        pytest.param({"state_slot_ids": [None]}, id="null-id"),
+        pytest.param({"state_slot_ids": [{"id": "government.balance"}]}, id="object-id"),
+        pytest.param({"state_slot_ids": [" \t"]}, id="blank-id"),
+        pytest.param(
+            {"state_slot_ids": ["government.balance", "government.balance"]}, id="duplicate-ids"
+        ),
+        pytest.param(
+            {"schema_version": 1.0, "state_slot_ids": ["government.balance"]}, id="numeric-version"
+        ),
+        pytest.param(
+            {"schema_version": "1", "state_slot_ids": ["government.balance"]},
+            id="unknown-numeric-text-version",
+        ),
+        pytest.param(
+            {"state_slot_ids": ["government.balance"], "unexpected": True}, id="extra-field"
+        ),
+    ],
+)
+def test_invalid_json_response_projection_is_typed_before_skip_read_or_publication(
+    execution_context, minimal_state, projection
+) -> None:
+    state = _state_with_json_projection(minimal_state, projection)
+    with (
+        patch.object(
+            execution_context.store, "get_bytes", wraps=execution_context.store.get_bytes
+        ) as reader,
+        patch.object(
+            execution_context.store, "put_json", wraps=execution_context.store.put_json
+        ) as json_writer,
+        patch.object(
+            execution_context.store, "put_bytes", wraps=execution_context.store.put_bytes
+        ) as bytes_writer,
+    ):
+        outcome = PropagateUncertaintyNode().execute(execution_context, state)
+        reader.assert_not_called()
+        json_writer.assert_not_called()
+        bytes_writer.assert_not_called()
+    assert outcome.status == "fail"
+    assert outcome.error is not None
+    assert outcome.error.code == "propagation_response_basis_invalid"
+    assert outcome.error.details["input"] == "params.propagation_response_basis"
+    assert outcome.artifacts == []
+    assert outcome.state.artifacts_index == state.artifacts_index

@@ -495,7 +495,7 @@ def test_artifact_batch_problem_examples_match_actual_conflict(
 
 
 def test_model_dispatched_success_examples_match_schema_and_reject_field_drift(
-    runtime_api_env,
+    runtime_openapi_app,
 ) -> None:
     """Registered examples agree with the actual schema and strict response DTOs."""
     from copy import deepcopy
@@ -508,7 +508,7 @@ def test_model_dispatched_success_examples_match_schema_and_reject_field_drift(
     from polisyos.runtime.http.routes import lineage as lineage_routes
     from polisyos.runtime.http.routes import runs as runs_routes
 
-    schema = export_runtime_openapi_schema(app=runtime_api_env["app"])
+    schema = export_runtime_openapi_schema(app=runtime_openapi_app)
     assert validate_runtime_openapi_contract(schema) == []
     response_models = openapi_contract._success_example_response_models()
     adapters = openapi_contract._success_example_response_adapters()

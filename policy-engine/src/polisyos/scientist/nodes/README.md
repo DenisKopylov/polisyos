@@ -132,6 +132,13 @@ The node returns the CAS writer's selected manifest profile in its
 than rebuilding it from an artifact ID, so profile-bound readers can select the
 same persisted view.
 
+`data/bind_foundry_inputs.py` requests the existing Foundry binding writer's
+selected profiles for ordinary DataSnapshot inputs and registered SQL inputs.
+It forwards the complete input-bindings, bound-state and binding-report refs
+returned by that writer. The selected execution-basis consumer still rejects
+profileless sources and incomplete selected lineage; this bridge does not infer
+a profile from a default manifest or grant governance authority.
+
 ## Extension Points
 
 - External nodes use the `polisyos.scientist_nodes` entry-point group declared

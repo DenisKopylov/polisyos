@@ -1,0 +1,16 @@
+id = "2026-10-29-e02-regular-binding-selected-profile"
+title = "Preserve producer-selected Foundry binding profiles for ordinary snapshots"
+type = "fixed"
+component = "scientist"
+owner = "team-scientist"
+summary = "The ordinary binding node now asks the existing Foundry writer to emit selected input-bindings, bound-state and report references, matching the method execution input-basis contract."
+evidence = ["tests/unit/scientist/nodes/test_bind_foundry_inputs_node.py", "tests/unit/runtime/http/test_completed_ex_ante_runtime_contract.py"]
+compatibility = "Source payload and registry selection remain owned by their existing producers. Typed references forward the exact selected CAS profiles; input-binding and state identities may change because selected nested references are now persisted. Existing prebound inputs remain unchanged."
+change_class = "internal"
+surface_classification = "internal: Scientist ordinary Foundry binding producer bridge"
+migration = "Reproduce fresh workflow bindings through the node. Do not attach a default profile to previously profileless references."
+limitations = "Proposal only; focused tests and actual Runtime A/A rerun are pending Root qualification. No G, closure, currentness or authority acceptance is claimed."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/scientist/nodes/README.md"]
+runbook_docs = []

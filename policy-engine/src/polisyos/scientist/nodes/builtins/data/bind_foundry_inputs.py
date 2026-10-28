@@ -231,7 +231,7 @@ class BindFoundryInputsNode:
                 rules=rules,
                 notes=["scientist.node_bind_foundry_inputs"],
                 registered_sql_admission_ref=source_ref,
-                return_selected_profile=source_ref is not None,
+                return_selected_profile=True,
             )
         except _BINDING_VALIDATION_ERRORS as exc:
             error = NodeError(

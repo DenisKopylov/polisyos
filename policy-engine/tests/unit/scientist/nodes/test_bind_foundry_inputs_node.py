@@ -6,7 +6,9 @@ from unittest.mock import patch
 
 import pytest
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.common.serialization import to_python_data
+from polisyos.core.artifacts import artifact_ref_identity_key, resolve_manifest_by_profile
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
@@ -15,8 +17,8 @@ from polisyos.core.contracts.foundry import FoundryInputBindings, StateSnapshotR
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.foundry.contracts.state import GlobalState
-from polisyos.foundry.data_plane import UkraineFoundryIntakeResult
-from polisyos.foundry.execute.executor import put_state_snapshot
+from polisyos.foundry.data_plane import UkraineFoundryIntakeResult, load_input_bindings
+from polisyos.foundry.execute.executor import load_state_snapshot, put_state_snapshot
 from polisyos.foundry.methods.catalog.causal.protocols import (
     DynamicTreatmentData,
     PanelObservationalData,
@@ -89,8 +91,10 @@ def _put_trinity_bundle(
     )
 
 
-def _setup_ctx(store: FileSystemCAS):
-    registry_bundle = build_default_registry_bundle(store).bundle_ref
+def _setup_ctx(store: FileSystemCAS, *, return_selected_profile: bool = False):
+    registry_bundle = build_default_registry_bundle(
+        store, return_selected_profile=return_selected_profile
+    ).bundle_ref
     run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="R_bind")
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.bind"))
     return ctx, registry_bundle
@@ -100,12 +104,15 @@ def _put_data_snapshot(
     store: FileSystemCAS,
     *,
     stats: dict[str, int | str] | None = None,
+    return_selected_profile: bool = False,
 ) -> DataSnapshotRef:
     base_state = GlobalState.empty(n_agents=5, n_firms=2)
-    state_snapshot_ref = put_state_snapshot(store, state=base_state, step=0)
+    state_snapshot_ref = put_state_snapshot(
+        store, state=base_state, step=0, return_selected_profile=return_selected_profile
+    )
     snapshot_ref = store.put_json(
         DataSnapshot(
-            data_ref=StateSnapshotRef(artifact_id=state_snapshot_ref.artifact_id),
+            data_ref=state_snapshot_ref,
             stats=stats or {},
         ),
         PutOptions(
@@ -113,8 +120,9 @@ def _put_data_snapshot(
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
         ),
+        return_selected_profile=return_selected_profile,
     )
-    return DataSnapshotRef(artifact_id=snapshot_ref.artifact_id)
+    return DataSnapshotRef.model_validate(snapshot_ref.model_dump(mode="python"))
 
 
 def _verified_ukraine_intake(
@@ -463,6 +471,102 @@ def test_bind_foundry_inputs_node_builds_bindings_and_report(tmp_path) -> None:
     assert (
         bindings.bound_state_snapshot_ref.artifact_id
         == outcome.state.artifacts_index[ARTIFACT_STATE_SNAPSHOT_REF].artifact_id
+    )
+
+
+def _produce_selected_regular_bindings(tmp_path):
+    store = FileSystemCAS(tmp_path)
+    ctx, registry_ref = _setup_ctx(store, return_selected_profile=True)
+    snapshot_ref = _put_data_snapshot(store, return_selected_profile=True)
+    outcome = BindFoundryInputsNode().execute(
+        ctx,
+        ExperimentState(
+            run_id="R_selected_regular_bindings",
+            inputs={
+                INPUT_REGISTRY_BUNDLE_REF: registry_ref,
+                INPUT_DATA_SNAPSHOT_REF: snapshot_ref,
+            },
+        ),
+    )
+    assert outcome.status == "ok", outcome.error
+    return store, outcome.state, snapshot_ref, registry_ref
+
+
+def test_regular_binding_node_emits_selected_profiles_for_fresh_consumers(tmp_path) -> None:
+    """Ordinary snapshots reach fresh Foundry readers with producer-selected refs."""
+    _, state, snapshot_ref, registry_ref = _produce_selected_regular_bindings(tmp_path)
+    fresh = FileSystemCAS(tmp_path)
+    bindings_ref = state.inputs[INPUT_INPUT_BINDINGS_REF]
+    bound_ref = state.artifacts_index[ARTIFACT_STATE_SNAPSHOT_REF]
+    report_ref = state.artifacts_index[ARTIFACT_INPUT_BINDING_REPORT_REF]
+    for ref in (bindings_ref, bound_ref, report_ref):
+        assert ref.manifest_profile_sha256 is not None
+        manifest = resolve_manifest_by_profile(fresh, ref.artifact_id, ref.manifest_profile_sha256)
+        assert manifest.kind == ref.kind and manifest.media_type == ref.media_type
+
+    bindings = load_input_bindings(fresh, bindings_ref)
+    assert bindings.registered_sql_admission_ref is None
+    assert artifact_ref_identity_key(bindings.data_snapshot_ref) == artifact_ref_identity_key(
+        snapshot_ref
+    )
+    assert artifact_ref_identity_key(bindings.registry_bundle_ref) == artifact_ref_identity_key(
+        registry_ref
+    )
+    assert artifact_ref_identity_key(bindings.bound_state_snapshot_ref) == (
+        artifact_ref_identity_key(bound_ref)
+    )
+    manifest = resolve_manifest_by_profile(
+        fresh, bindings_ref.artifact_id, bindings_ref.manifest_profile_sha256
+    )
+    expected = {
+        "input.data_snapshot_ref": snapshot_ref,
+        "input.registry_bundle_ref": registry_ref,
+        "artifact.bound_state_snapshot_ref": bound_ref,
+    }
+    assert {edge.role for edge in manifest.inputs} == set(expected)
+    for edge in manifest.inputs:
+        source_ref = expected[edge.role]
+        assert (edge.artifact_id, edge.manifest_profile_sha256) == (
+            source_ref.artifact_id,
+            source_ref.manifest_profile_sha256,
+        )
+    # Run the real state consumer; selected wrapper and NPZ blob must both resolve.
+    loaded = load_state_snapshot(fresh, snapshot_ref=bound_ref)
+    assert int(loaded.step) == 0
+    report = from_canonical_bytes(fresh.get_bytes(report_ref))
+    report_bound_ref = StateSnapshotRef.model_validate(report["bound_state_snapshot_ref"])
+    assert artifact_ref_identity_key(report_bound_ref) == artifact_ref_identity_key(bound_ref)
+
+
+def test_regular_binding_fresh_reader_refuses_wrong_selected_profile(tmp_path) -> None:
+    """The same payload under another persisted schema cannot replace the owner view."""
+    store, state, _, _ = _produce_selected_regular_bindings(tmp_path)
+    bindings_ref = state.inputs[INPUT_INPUT_BINDINGS_REF]
+    manifest = resolve_manifest_by_profile(
+        store, bindings_ref.artifact_id, bindings_ref.manifest_profile_sha256
+    )
+    wrong_ref = store.put_bytes(
+        store.get_bytes(bindings_ref),
+        PutOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=SchemaInfo(name="polisyos.test.WrongInputBindingsOwner", version="1.0"),
+            canon=manifest.canon,
+            inputs=manifest.inputs,
+        ),
+        return_selected_profile=True,
+    )
+    assert wrong_ref.artifact_id == bindings_ref.artifact_id
+    assert wrong_ref.manifest_profile_sha256 != bindings_ref.manifest_profile_sha256
+    fresh = FileSystemCAS(tmp_path)
+    with pytest.raises(
+        CanonicalProfileRefusalError, match="canon_profile_typed_artifact_schema_name_mismatch"
+    ):
+        load_input_bindings(fresh, wrong_ref)
+    # The producer's original view remains independently readable.
+    admitted = load_input_bindings(fresh, bindings_ref)
+    assert artifact_ref_identity_key(admitted.bound_state_snapshot_ref) == (
+        artifact_ref_identity_key(state.artifacts_index[ARTIFACT_STATE_SNAPSHOT_REF])
     )
 
 

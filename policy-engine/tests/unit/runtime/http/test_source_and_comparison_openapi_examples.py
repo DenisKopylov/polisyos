@@ -58,10 +58,10 @@ def _success_example(schema: dict, path: str, method: str) -> dict:
 
 
 def test_source_and_comparison_examples_are_typed_limited_and_validator_bound(
-    runtime_api_env,
+    runtime_openapi_app,
 ) -> None:
     """Actual exported metadata, DTOs, limit semantics and validator agree."""
-    app = runtime_api_env["app"]
+    app = runtime_openapi_app
     schema = export_runtime_openapi_schema(app=app)
     assert validate_runtime_openapi_contract(schema) == []
     models = _success_example_response_models()

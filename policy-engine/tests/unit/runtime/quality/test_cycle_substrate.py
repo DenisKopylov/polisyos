@@ -1886,7 +1886,7 @@ def test_configured_candidate_owner_persists_declared_model_in_exact_context(
     assert type(selected_registry_ref) is ArtifactRef
     assert selected_registry_ref.kind == SUBSTRATE_REGISTRY_ARTIFACT_KIND
     assert selected_registry_ref.media_type == "application/json"
-    assert selected_registry_ref.manifest_profile_sha256 is None
+    assert selected_registry_ref.manifest_profile_sha256 is not None
     assert candidate_world.substrate_registry_ref.registry_artifact_ref == str(
         selected_registry_ref.artifact_id
     )
@@ -2082,7 +2082,7 @@ def test_configured_candidate_owner_preserves_profiled_registry_sibling_view(
     default_ref, bound_world = _fixture_world_with_persisted_substrate_registry(
         store, registry, declared_world
     )
-    assert default_ref.manifest_profile_sha256 is None
+    assert default_ref.manifest_profile_sha256 is not None
     source_world_ref = persist_world_model_record(store, bound_world)
     assert store.verify(source_world_ref).ok
     sibling_inputs = (
@@ -2475,6 +2475,8 @@ def test_acquired_world_admission_reads_the_selected_state_snapshot_view(
 ) -> None:
     """The N5 owner resolves a WMRv2 state view and keeps the WMRv1 default."""
 
+    from functools import wraps
+
     import jax.numpy as jnp
 
     from polisyos.core.artifacts import ProducerInfo, PutOptions
@@ -2539,9 +2541,26 @@ def test_acquired_world_admission_reads_the_selected_state_snapshot_view(
         region_or_jurisdiction="UA",
         policy_slot_ids=("education.teaching_method", "learning_outcomes"),
     )
-    substrate_registry_artifact_ref, base_world = _fixture_world_with_persisted_substrate_registry(
-        store, registry, base_world
-    )
+    substrate_registry_artifact_ref: ArtifactRef | None = None
+    if schema_version == WORLD_MODEL_RECORD_SCHEMA_V2_VERSION:
+        substrate_registry_artifact_ref, base_world = (
+            _fixture_world_with_persisted_substrate_registry(store, registry, base_world)
+        )
+    else:
+        # WMRv1 can name the declared registry but cannot carry its selected
+        # manifest profile. Let the real context owner persist/select it;
+        # dropping a persisted selector into an artifact-ID-only field is not
+        # equivalent to this admission path.
+        declared_registry_locator = (
+            f"substrate-registry://{registry.substrate_version_id}/"
+            f"{registry.content_hash.removeprefix('sha256:')}"
+        )
+        base_world = _rehash_world_record_fixture(
+            base_world,
+            substrate_registry_ref=base_world.substrate_registry_ref.model_copy(
+                update={"registry_artifact_ref": declared_registry_locator}
+            ),
+        )
     slots = tuple(
         binding.model_copy(
             update={
@@ -2750,6 +2769,52 @@ def test_acquired_world_admission_reads_the_selected_state_snapshot_view(
     assert type(prepared_bundle.knob_dictionary["lane0_knob"]["default"]) is type(knob_default)
     # The public preparation must not expose a mutable alias of configuration.
     prepared_bundle.knob_dictionary["lane0_knob"]["default"] = "caller-mutated"
+    if schema_version == "policyos.runtime.world_model_record.v1":
+        # Keep the actual registry payload, content hash and valid WMR while
+        # removing only the selected custody view. The ordinary owner must
+        # refuse this carrier before emitting a candidate declaration or NCM.
+        selected_registry_ref = persist_substrate_registry(store, registry)
+        unselected_registry_world = _rehash_world_record_fixture(
+            acquired_world,
+            substrate_registry_ref=acquired_world.substrate_registry_ref.model_copy(
+                update={"registry_artifact_ref": str(selected_registry_ref.artifact_id)}
+            ),
+        )
+        candidate_artifact_writes: list[str] = []
+        write_json = store.put_json
+        write_bytes = store.put_bytes
+
+        @wraps(write_json)
+        def record_candidate_json_write(*args: Any, **kwargs: Any) -> ArtifactRef:
+            candidate_artifact_writes.append("put_json")
+            return write_json(*args, **kwargs)
+
+        @wraps(write_bytes)
+        def record_candidate_bytes_write(*args: Any, **kwargs: Any) -> ArtifactRef:
+            candidate_artifact_writes.append("put_bytes")
+            return write_bytes(*args, **kwargs)
+
+        with monkeypatch.context() as rejection_probe:
+            rejection_probe.setattr(store, "put_json", record_candidate_json_write)
+            rejection_probe.setattr(store, "put_bytes", record_candidate_bytes_write)
+            with pytest.raises(CycleSubstrateContextOwnerError) as unselected_error:
+                owner.admit_context_for_acquired_world(
+                    problem=problem,
+                    profile_selection_ref=profile.profile_selection_ref,
+                    world_model_record=unselected_registry_world,
+                    job_id="job-selected-state-view",
+                    run_id="run-selected-state-view",
+                    tenant_id="tenant-selected-state-view",
+                    cell_id="cell-selected-state-view",
+                )
+        assert (
+            unselected_error.value.code
+            == "candidate_simulation_substrate_registry_custody_unverified"
+        )
+        assert getattr(unselected_error.value.__cause__, "code", None) == (
+            "substrate_registry_profile_selector_missing"
+        )
+        assert candidate_artifact_writes == []
     state_reads.clear()
     offer = owner.admit_context_for_acquired_world(
         problem=problem,
@@ -2774,6 +2839,10 @@ def test_acquired_world_admission_reads_the_selected_state_snapshot_view(
     }.issubset(offer.context.may_not_use_for)
     assert offer.context.world_model_record.artifact_views is not None
     assert offer.context.world_model_record.artifact_views.bound_state_snapshot_ref == state_view
+    admitted_registry_ref = offer.context.world_model_record.artifact_views.substrate_registry_ref
+    assert type(admitted_registry_ref) is ArtifactRef
+    assert admitted_registry_ref.manifest_profile_sha256 is not None
+    assert load_substrate_registry(store, admitted_registry_ref) == registry
     actual_bundle = offer.context.intervention_substrate
     assert actual_bundle is not None
     actual_knob = actual_bundle.knob_dictionary["lane0_knob"]

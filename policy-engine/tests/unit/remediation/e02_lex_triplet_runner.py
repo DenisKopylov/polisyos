@@ -24,6 +24,7 @@ ROOT = PRODUCT.parent
 PYTHON = PRODUCT / ".venv/bin/python"
 TEST = "tests/unit/remediation/test_e02_lex_impact_controls.py"
 SELECTORS = (
+    ("code-identity", "tests/unit/remediation/test_e02_lex_code_identity.py"),
     (
         "f17-01",
         "tests/unit/remediation/test_lex_impact_semantics.py::test_real_impact_report_reopens_its_diff_and_preserves_issue_and_topic_semantics",
@@ -68,6 +69,8 @@ OWNER_INPUTS = (
     "tests/unit/lex/simulator/test_diff.py",
     TEST,
     "tests/unit/remediation/e02_lex_triplet_runner.py",
+    "tests/unit/remediation/test_e02_lex_code_identity.py",
+    "tests/_helpers/code_identity.py",
     "pytest.ini",
     "pyproject.toml",
     "uv.lock",
@@ -423,7 +426,12 @@ def run_one(
     )
     if abort_reason or not sources_ok or not phase_ok or not cases:
         status = "ERROR"
-    elif code == 0 and counts == {"tests": 1, "failures": 0, "errors": 0, "skipped": 0}:
+    elif code == 0 and counts == {
+        "tests": 5 if label == "code-identity" else 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+    }:
         status = "PASS"
     elif counts["skipped"]:
         status = "SKIP"
@@ -533,19 +541,24 @@ def main() -> None:
     ]
     records = []
     stopped = False
+    witness_ready = False
     for label, selector in nodes:
-        if stopped:
+        if stopped or (label.startswith("triplet-") and not witness_ready):
             records.append(
                 {
                     "label": label,
                     "selector": selector,
                     "status": "UNRUN",
-                    "reason": "prior resource abort",
+                    "reason": "prior resource abort"
+                    if stopped
+                    else "code identity witness did not pass",
                 }
             )
             continue
         record = run_one(label, selector, output, tree, head, source_tree, pins, rss_cap)
         records.append(record)
+        if label == "code-identity":
+            witness_ready = record["status"] == "PASS"
         stopped = bool(record.get("abort_reason"))
     write_json(
         output / "batch.json",

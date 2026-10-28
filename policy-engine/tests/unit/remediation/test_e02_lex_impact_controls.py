@@ -11,7 +11,6 @@ import ast
 import hashlib
 import inspect
 import json
-import marshal
 import os
 import platform
 import sys
@@ -20,9 +19,11 @@ import traceback
 from dataclasses import asdict, dataclass, field
 from itertools import pairwise
 from pathlib import Path
+from types import CodeType
 from typing import Any
 
 import pytest
+from _helpers.code_identity import CODE_FINGERPRINT_SCHEME, code_fingerprint
 
 from polisyos.core.artifacts import (
     FileSystemCAS,
@@ -77,6 +78,8 @@ class Phase:
     input_sha256: str
     observed_calls: list[dict[str, Any]]
     code_sha256: str
+    code_id: int
+    code_fingerprint_scheme: str
     harness_errors: list[str] = field(default_factory=list)
 
 
@@ -170,11 +173,9 @@ def _observe(mode: str, phase: str, root: Path, request: pytest.FixtureRequest) 
     fn = getattr(owner, attr)
     fn_hash = _callable_hash(fn)
     code = getattr(fn, "__code__", None)
-    code_hash = (
-        hashlib.sha256(marshal.dumps(code)).hexdigest()
-        if code is not None
-        else hashlib.sha256(repr(fn).encode()).hexdigest()
-    )
+    if not isinstance(code, CodeType):
+        raise TypeError("observed owner must have a Python code object")
+    code_hash = code_fingerprint(code)
     calls: list[dict[str, Any]] = []
     old_profiler = sys.getprofile()
 
@@ -186,7 +187,9 @@ def _observe(mode: str, phase: str, root: Path, request: pytest.FixtureRequest) 
                 "function": frame.f_code.co_name,
                 "source": str(Path(frame.f_code.co_filename).resolve()),
                 "first_line": frame.f_code.co_firstlineno,
-                "code_sha256": hashlib.sha256(marshal.dumps(frame.f_code)).hexdigest(),
+                "code_sha256": code_fingerprint(frame.f_code),
+                "code_id": id(frame.f_code),
+                "code_fingerprint_scheme": CODE_FINGERPRINT_SCHEME,
             }
             if mode == "scope_guard":
                 old, new = frame.f_locals.get("old_pack"), frame.f_locals.get("new_pack")
@@ -281,6 +284,8 @@ def _observe(mode: str, phase: str, root: Path, request: pytest.FixtureRequest) 
         hashlib.sha256(input_bytes).hexdigest(),
         calls,
         code_hash,
+        id(code),
+        CODE_FINGERPRINT_SCHEME,
     )
 
 
@@ -696,8 +701,15 @@ def test_exact_same_process_removal_triplet(
         "phase-local mutation/restore lifecycle failed"
     )
     assert all(
-        p.observed_calls and all(call["pid"] == p.pid for call in p.observed_calls) for p in phases
-    ), "profile observer did not see the real phase callable execute"
+        p.observed_calls
+        and all(
+            call["pid"] == p.pid
+            and call["code_id"] == p.code_id
+            and call["code_sha256"] == p.code_sha256
+            for call in p.observed_calls
+        )
+        for p in phases
+    ), "profile observer did not see the real phase callable execute with unchanged fields"
     property_results = [_property_holds(mode, p) for p in phases]
     assert property_results == [True, False, True], (
         "same property did not pass, fail under removal, and pass on restore"
@@ -718,6 +730,8 @@ def test_exact_same_process_removal_triplet(
                 "legacy setup and target mismatch call were not both observed"
             )
     assert phases[0].owner == phases[1].owner == phases[2].owner
+    assert phases[0].code_id == phases[2].code_id, "original code object was not restored"
+    assert phases[0].code_id != phases[1].code_id, "removal did not replace the code object"
     assert (
         phases[0].callable_sha256 != phases[1].callable_sha256
         and phases[1].code_sha256 != phases[0].code_sha256

@@ -368,3 +368,154 @@ def test_escaped_scalar_budget_refuses_before_json_decode(tmp_path, monkeypatch)
     monkeypatch.setattr(artifact.json, "loads", forbidden)
     with pytest.raises(FederationError, match="pre-decode scalar"):
         artifact._read_json(root, "manifest.json", artifact._Budget())
+
+
+@pytest.mark.parametrize(
+    ("left_value", "right_value"),
+    [
+        (1, 1.0),
+        (True, 1),
+        (False, -0.0),
+        (0.0, -0.0),
+        (2**53, float(2**53)),
+        (2**53 + 1, float(2**53)),
+        (float("inf"), float("inf")),
+        (float("-inf"), float("inf")),
+        ("1", 1),
+        (pd.Timestamp("2026-01-01T00:00:00Z"), pd.Timestamp("2026-01-01T01:00:00+01:00")),
+        (pd.Timestamp("2026-01-01"), pd.Timestamp("2026-01-01T00:00:00Z")),
+    ],
+)
+@pytest.mark.parametrize("how", ["inner", "left", "outer"])
+@pytest.mark.parametrize("match_nulls", [False, True])
+@pytest.mark.parametrize("composite", [False, True])
+def test_join_equivalence_matches_independent_pairs_before_actual_allocation(
+    monkeypatch, left_value, right_value, how, match_nulls, composite
+):
+    """One actual relation must govern estimation, merge and every later stage."""
+    from polisyos.fabric.connectors.federation import composer as owner
+
+    left_keys = [(left_value, None)] if composite else [(left_value,)]
+    right_keys = [(right_value, None)] if composite else [(right_value,)]
+    keys = [f"key{position}" for position in range(len(left_keys[0]))]
+    expected = _pairs(left_keys, right_keys, how, match_nulls)
+    left = pd.DataFrame(left_keys, columns=keys, dtype=object)
+    right = pd.DataFrame(right_keys, columns=keys, dtype=object)
+    left["left_event"], right["right_event"] = ["L0"], ["R0"]
+    request = CompositionRequest(
+        dataset_pattern="profile_test.equivalence",
+        strategy=CompositionStrategy.JOIN,
+        conflict_policy=ConflictPolicy.TRUST_HIGHEST,
+        join_keys=keys,
+        join_how=how,
+        join_validate="one_to_one",
+        join_max_rows=len(expected),
+        join_nulls_match=match_nulls,
+        audit_level=AuditLevel.NONE,
+    )
+    calls = Counter()
+    actual_merge = pd.DataFrame.merge
+    actual_lineage = owner._input_lineage
+
+    def merge(frame, *args, **kwargs):
+        calls["merge"] += 1
+        return actual_merge(frame, *args, **kwargs)
+
+    def lineage(*args, **kwargs):
+        calls["lineage"] += 1
+        return actual_lineage(*args, **kwargs)
+
+    monkeypatch.setattr(pd.DataFrame, "merge", merge)
+    monkeypatch.setattr(owner, "_input_lineage", lineage)
+    sources = [(left, _metadata("left")), (right, _metadata("right"))]
+    result, _ = DataComposer(ConflictResolver(request.conflict_policy)).compose(
+        sources, request.strategy, request
+    )
+    actual = [
+        tuple(None if pd.isna(value) else value for value in row)
+        for row in result[["left_event", "right_event"]].itertuples(False, None)
+    ]
+    assert Counter(actual) == Counter(expected)
+    assert len(result) == len(expected)
+    assert calls["merge"] == 1
+    if expected:
+        calls.clear()
+        with pytest.raises(FederationError, match="before materialization"):
+            DataComposer(ConflictResolver(request.conflict_policy)).compose(
+                sources, request.strategy, replace(request, join_max_rows=len(expected) - 1)
+            )
+        assert calls == Counter()
+
+
+@pytest.mark.parametrize("how", ["inner", "left", "outer"])
+@pytest.mark.parametrize("match_nulls", [False, True])
+def test_join_equivalent_duplicates_and_intermediate_relation_use_same_capacity(
+    monkeypatch, how, match_nulls
+):
+    """Equivalent values count as duplicates and remain equivalent after a merge."""
+    first = pd.DataFrame({"id": pd.Series([1, 1.0], dtype=object), "left_event": ["L0", "L1"]})
+    second = pd.DataFrame({"id": pd.Series([True], dtype=object), "right_event": ["R0"]})
+    third = pd.DataFrame({"id": pd.Series([1.0], dtype=object), "third_event": ["T0"]})
+    request = CompositionRequest(
+        dataset_pattern="profile_test.stages",
+        strategy=CompositionStrategy.JOIN,
+        conflict_policy=ConflictPolicy.TRUST_HIGHEST,
+        join_keys=["id"],
+        join_how=how,
+        join_validate="many_to_one",
+        join_max_rows=2,
+        join_nulls_match=match_nulls,
+        audit_level=AuditLevel.NONE,
+    )
+    sources = [
+        (frame, _metadata(name)) for frame, name in [(first, "a"), (second, "b"), (third, "c")]
+    ]
+    result, _ = DataComposer(ConflictResolver(request.conflict_policy)).compose(
+        sources, request.strategy, request
+    )
+    assert Counter(
+        result[["left_event", "right_event", "third_event"]].itertuples(False, None)
+    ) == Counter([("L0", "R0", "T0"), ("L1", "R0", "T0")])
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("equivalent duplicate/cardinality overflow reached real merge")
+
+    monkeypatch.setattr(pd.DataFrame, "merge", forbidden)
+    for invalid in [
+        replace(request, join_validate="one_to_one"),
+        replace(request, join_max_rows=1),
+    ]:
+        with pytest.raises(FederationError, match="before materialization"):
+            DataComposer(ConflictResolver(invalid.conflict_policy)).compose(
+                sources, invalid.strategy, invalid
+            )
+
+
+def test_outer_join_preserves_large_key_for_third_source():
+    """Unmatched integral identity survives null extension before the next merge."""
+    value = 2**53 + 1
+    sources = [
+        (pd.DataFrame({"id": pd.Series([value], dtype=object), "a": ["A"]}), _metadata("a")),
+        (pd.DataFrame({"id": pd.Series([1.0], dtype=object), "b": ["B"]}), _metadata("b")),
+        (pd.DataFrame({"id": pd.Series([value], dtype=object), "c": ["C"]}), _metadata("c")),
+    ]
+    request = CompositionRequest(
+        dataset_pattern="profile_test.intermediate",
+        strategy=CompositionStrategy.JOIN,
+        conflict_policy=ConflictPolicy.TRUST_HIGHEST,
+        join_keys=["id"],
+        join_how="outer",
+        join_validate="one_to_one",
+        join_max_rows=2,
+        join_nulls_match=False,
+        audit_level=AuditLevel.NONE,
+    )
+    result, _ = DataComposer(ConflictResolver(request.conflict_policy)).compose(
+        sources, request.strategy, request
+    )
+    rows = [
+        (a if pd.notna(a) else None, c if pd.notna(c) else None)
+        for a, c in result[["a", "c"]].itertuples(False, None)
+    ]
+    assert Counter(rows) == Counter([("A", "C"), (None, None)])
+    assert value in result["id"].tolist()

@@ -237,7 +237,9 @@ def _read_json(root: Path, name: str, budget: _Budget) -> tuple[dict[str, Any], 
         elif character == 34:
             values += 1
             quoted = True
-        if values > MAX_GRAPH_CELLS:
+        # Syntax work belongs to this encoded member; graph cells are charged
+        # from decoded dimensions by _Budget.frame, independently of this scan.
+        if values > MAX_CELLS:
             raise FederationError("Federation JSON exceeds pre-decode container profile")
     value = json.loads(payload)
     if not isinstance(value, dict):

@@ -138,7 +138,7 @@ def test_selected_ref_rejects_coherent_or_partial_forgery(tmp_path, attack):
     # An attacker may coherently rewrite every mutable digest and marker.  They
     # cannot rewrite the separately selected manifest digest.
     (root / "manifest.json").write_text(json.dumps(manifest, sort_keys=True, separators=(",", ":")))
-    with pytest.raises(FederationError, match="selected ref|content mismatch|format"):
+    with pytest.raises(FederationError, match="selected ref|content mismatch|format|differs"):
         read_verified_federation_derivation(root, selected)
 
 
@@ -398,7 +398,10 @@ def test_typed_empty_union_is_durable_and_queryable(tmp_path):
 def test_consensus_records_exact_participants_exclusions_and_aggregate_limit(tmp_path):
     values = [10.0, 14.0, float("inf"), "malformed", None]
     sources = [
-        (pd.DataFrame({"id": [1], "value": [value]}), _metadata(str(position), TrustLevel.HIGH))
+        (
+            pd.DataFrame({"id": [1], "value": [value]}),
+            _metadata(f"source_{position}", TrustLevel.HIGH),
+        )
         for position, value in enumerate(values)
     ]
     request = _request()
@@ -828,3 +831,73 @@ def test_unrepresentable_common_dtype_is_a_typed_refusal_before_publication(tmp_
             request,
         )
     assert not (tmp_path / "cannot-represent").exists()
+
+
+def test_restored_policy_changes_actual_conflicting_value_and_summary():
+    """Resolve the declared policy after wire restoration, not its label alone."""
+    from datetime import timedelta
+
+    from polisyos.fabric.connectors.federation import artifact
+
+    a = (pd.DataFrame({"id": [1], "value": [10.0]}), _metadata("a", TrustLevel.HIGH))
+    b = (pd.DataFrame({"id": [1], "value": [20.0]}), _metadata("b", TrustLevel.LOW))
+    b[1].fetched_at += timedelta(days=1)
+    declared = replace(_request(), column_policies={"value": ConflictPolicy.MOST_RECENT})
+    restored = artifact._restore_request(artifact._request_projection(declared))
+    composer = DataComposer(ConflictResolver(restored.conflict_policy))
+    result, _ = composer.compose([a, b], restored.strategy, restored)
+    assert result["value"].tolist() == [20.0]
+    assert composer.get_last_merge_summary().by_policy == {"most_recent": 1}
+
+
+def test_distinct_content_same_declaration_and_local_occurrence_has_distinct_identity(tmp_path):
+    """Actual fresh reads distinguish content even when metadata and ordinal agree."""
+    metadata = _metadata("same", TrustLevel.HIGH)
+    composer = DataComposer(ConflictResolver(ConflictPolicy.TRUST_HIGHEST))
+    observed = []
+    for label, value in (("first", 10.0), ("second", 20.0)):
+        root = tmp_path / label
+        ref = persist_federation_derivation(
+            root, composer, [(pd.DataFrame({"id": [1], "value": [value]}), metadata)], _request()
+        )
+        result = read_verified_federation_derivation(root, ref)
+        assert result.data["value"].tolist() == [value]
+        observed.append(result.source_ids_by_cell[0]["value"])
+    assert observed[0] != observed[1]
+
+
+def test_selected_graph_node_limit_counts_repeated_edges_before_publication(tmp_path, monkeypatch):
+    """A small repeated-edge DAG exceeds nodes independently of depth and registry size."""
+    from polisyos.fabric.connectors.federation import artifact
+
+    metadata = _metadata("a", TrustLevel.HIGH)
+    composer = DataComposer(ConflictResolver(ConflictPolicy.TRUST_HIGHEST))
+    leaf = tmp_path / "node-leaf"
+    leaf_ref = persist_federation_derivation(
+        leaf, composer, [(pd.DataFrame({"id": [1], "value": [10.0]}), metadata)], _request()
+    )
+    selected_leaf = SelectedFederationInput(leaf, leaf_ref, metadata)
+    child = tmp_path / "node-child"
+    child_ref = persist_federation_derivation(
+        child, composer, [selected_leaf, selected_leaf], _request()
+    )
+    selected_child = SelectedFederationInput(
+        child, child_ref, metadata, {leaf_ref.manifest_sha256: leaf}
+    )
+    calls = 0
+    original = artifact._read
+
+    def observe(*args, **kwargs):
+        nonlocal calls
+        calls += 1
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(artifact, "_read", observe)
+    monkeypatch.setattr(artifact, "MAX_GRAPH_NODES", 5)
+    target = tmp_path / "node-overflow"
+    with pytest.raises(FederationError, match="cycle/depth/node profile"):
+        persist_federation_derivation(
+            target, composer, [selected_child, selected_child], _request()
+        )
+    assert calls == 5
+    assert not target.exists()

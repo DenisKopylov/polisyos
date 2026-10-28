@@ -14,6 +14,7 @@ import weakref
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass
 from datetime import datetime
+from fractions import Fraction
 from typing import TYPE_CHECKING, Any
 
 import pandas as pd
@@ -35,6 +36,7 @@ from polisyos.fabric.connectors.federation.profile import (
     align_scalar_series,
     bounded_encode,
     cast_series_losslessly,
+    encode_scalar,
     frame_digest,
     scalar_frame,
     scalar_rows,
@@ -910,6 +912,12 @@ class DataComposer:
             left_work = result_df.copy()
             merge_keys: list[str] = []
             for key in join_keys:
+                # Prevent pandas outer null-extension from rounding an integral key
+                # before the exact-value reconstitution below.
+                left_work[key] = left_work[key].astype(object)
+                right_work[right_key_aliases[key]] = right_work[right_key_aliases[key]].astype(
+                    object
+                )
                 merge_key = _fresh_internal_name(
                     [*left_work.columns, *right_work.columns], "__policyos_join_key"
                 )
@@ -934,7 +942,16 @@ class DataComposer:
             # Reconstitute the user key without allowing a temporary name to
             # leak into the result.
             for key, right_key in right_key_aliases.items():
-                result_df[key] = result_df[key].combine_first(result_df[right_key])
+                # Keep admitted scalar identity across later JOIN stages: pandas
+                # nullable reconstitution may coerce a large integer to float.
+                result_df[key] = pd.Series(
+                    [
+                        right if _is_missing_scalar(left) else left
+                        for left, right in zip(result_df[key], result_df[right_key], strict=True)
+                    ],
+                    index=result_df.index,
+                    dtype=object,
+                )
 
             right_only_columns = [
                 column
@@ -1080,23 +1097,52 @@ class DataComposer:
         return sum(left.values())
 
     @staticmethod
+    def _join_key_component(value: Any) -> tuple[object, ...] | None:  # noqa: ANN401
+        """Normalize the admitted key equivalence used by counts AND real merges.
+
+        Exact numeric equality unifies booleans, integers and finite floats without
+        rounding: Fraction also preserves numeric ordering for pandas outer merges.
+        Null is an explicit unknown; only materialization namespaces its occurrence
+        when matching unknown identities was not requested. Timestamp instants match
+        within the aware/naive band, and strings never become numeric identities.
+        """
+        encoded = encode_scalar(value)
+        kind = encoded["t"]
+        if kind == "null":
+            return None
+        if kind in {"bool", "int", "float64"}:
+            if kind == "float64":
+                number = float.fromhex(encoded["v"])
+                if number == float("-inf"):
+                    return (1, -1, 0)
+                if number == float("inf"):
+                    return (1, 1, 0)
+            else:
+                number = int(encoded["v"])
+            return (1, 0, Fraction(number))
+        if kind == "str":
+            return (2, encoded["v"])
+        if kind == "timestamp":
+            stamp = pd.Timestamp(encoded["v"])
+            return (3, stamp.tzinfo is not None, int(encoded["ns"]))
+        raise SchemaIncompatibilityError("Unsupported JOIN key equivalence profile")
+
+    @staticmethod
     def _join_key_values(
         values: pd.Series,
         *,
         side: str,
         match_nulls: bool,
     ) -> pd.Series:
-        if match_nulls:
-            return values.copy()
-        # Distinct per-side sentinels preserve the pandas merge path while
-        # ensuring two unknown identities never become the same entity.
-        sentinel = object()
-        return pd.Series(
-            [sentinel if _is_missing_scalar(value) else value for value in values],
-            index=values.index,
-            dtype=object,
-            name=f"{side}_join_key",
-        )
+        normalized = []
+        for position, value in enumerate(values):
+            component = DataComposer._join_key_component(value)
+            normalized.append(
+                (0, "" if match_nulls else side, 0 if match_nulls else position)
+                if component is None
+                else component
+            )
+        return pd.Series(normalized, index=values.index, dtype=object, name=f"{side}_join_key")
 
     @staticmethod
     def _join_key_counts(frame: pd.DataFrame, keys: list[str]) -> dict[tuple[object, ...], int]:
@@ -1105,7 +1151,7 @@ class DataComposer:
         if any(key not in frame.columns for key in keys):
             raise SchemaIncompatibilityError("Join keys missing before materialization")
         return Counter(
-            tuple(None if _is_missing_scalar(value) else value for value in row)
+            tuple(DataComposer._join_key_component(value) for value in row)
             for row in zip(*(frame[key] for key in keys), strict=True)
         )
 

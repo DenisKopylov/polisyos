@@ -606,3 +606,7 @@ including literal values and an actual private callable. Removing semantic
 preservation while keeping names, formatting and measurement markers must fail
 that checker. A repair proposal or source review does not establish runtime PASS;
 its real generator/type/removal checks remain separately bound evidence.
+
+### P38/P40 instance: federation JOIN resource key relation
+
+Diagnostic: do cardinality and resource preflight, intermediate relation propagation, and materialization use the same equivalence over admitted keys? Tagged scalar bytes distinguish integer 1 from float 1.0 and positive from negative zero although numeric equality matches them; an outer JOIN can materialize two rows after preflight admitted one. Use one internal relation throughout, preserve exact carried keys, and test the real merge and allocation boundary against an independent row-occurrence oracle.

@@ -345,6 +345,10 @@ def _event_ids_from_distinct_join_logs(
     left: pd.DataFrame,
 ) -> list[str]:
     """Read actual event occurrence independently of whether payload values duplicate."""
+    for entry in entries:
+        assert type(entry.row_index) is int and 0 <= entry.row_index < len(left)
+        assert isinstance(entry.source_a_occurrence, str) and entry.source_a_occurrence
+        assert isinstance(entry.source_b_occurrence, str) and entry.source_b_occurrence
     return [str(left.iloc[entry.row_index]["event_id"]) for entry in entries]
 
 

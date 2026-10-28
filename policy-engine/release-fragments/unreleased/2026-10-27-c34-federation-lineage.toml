@@ -28,3 +28,5 @@ runbook_docs = []
 engineering_profile = "Strict typed request/key admission, nullable scalar normalization, graph-edge occurrence identity, physical audit/participant projections, predecode/aggregate/output/audit work admission, and staged manifest-last publication; runtime and removals remain UNRUN."
 
 scalar_profile = "Object-backed per-column strategy carriers and exact output reconciliation prevent row-Series coercion; unrepresentable dtype joins refuse, explicit mean/median remain float64 programs. Fresh source declarations are immutable candidate projections."
+
+join_equivalence = "JOIN resource admission and materialization share exact numeric key equivalence, including boolean, integral, finite float and signed zero; null matching remains request-controlled. Internal keys do not enter the wire artifact."

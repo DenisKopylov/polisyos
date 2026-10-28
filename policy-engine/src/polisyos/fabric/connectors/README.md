@@ -363,3 +363,5 @@ declared input when values are incomparable).
 replay-compared basis. Consumers can apply declared source preferences from this
 fresh projection without trusting mutable attrs or a derived carrier's metadata.
 Its declarations still establish no institutional issuer/trust/currentness truth.
+
+JOIN preflight and materialization use a common internal key relation; numeric equality is exact and null matching follows the request. The relation is internal, not a wire format.

@@ -5951,6 +5951,7 @@ class ControlPlaneStore:
             terminal_progress["run_intent_binding"] = current_intent_binding.model_dump(mode="json")
 
         current_projection_keys = (
+            "temporal_scope_request_binding",
             "runtime_quality_refs",
             "runtime_quality_artifact_refs",
             "runtime_quality_projection",
@@ -6551,6 +6552,29 @@ class ControlPlaneStore:
         with self._job_transaction():
             progress = _progress_with_quality_scorecard_summary(progress)
             existing = self.get_job(job_id)
+            if existing is not None and "temporal_scope_request_binding" in existing.progress:
+                source_binding = existing.progress["temporal_scope_request_binding"]
+                if (
+                    "temporal_scope_request_binding" in progress
+                    and progress["temporal_scope_request_binding"] != source_binding
+                ):
+                    raise ControlJobLeaseLostError("nl_temporal_scope_progress_binding_conflict")
+                progress = {**progress, "temporal_scope_request_binding": source_binding}
+                source_refs = existing.progress.get("runtime_quality_artifact_refs")
+                if not isinstance(source_refs, Mapping) or "time_context_ref" not in source_refs:
+                    raise ControlJobLeaseLostError("nl_temporal_scope_progress_ref_missing")
+                updated_refs = progress.get("runtime_quality_artifact_refs", {})
+                if not isinstance(updated_refs, Mapping):
+                    raise ControlJobLeaseLostError("nl_temporal_scope_progress_ref_invalid")
+                if (
+                    "time_context_ref" in updated_refs
+                    and updated_refs["time_context_ref"] != source_refs["time_context_ref"]
+                ):
+                    raise ControlJobLeaseLostError("nl_temporal_scope_progress_ref_conflict")
+                progress["runtime_quality_artifact_refs"] = {
+                    **updated_refs,
+                    "time_context_ref": source_refs["time_context_ref"],
+                }
             progress = append_evidence_spine_handoff(
                 progress,
                 control_plane_handoff(

@@ -11,7 +11,15 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Annotated, Any, Literal, Self, cast, final
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    SerializerFunctionWrapHandler,
+    field_validator,
+    model_serializer,
+    model_validator,
+)
 
 from ..artifacts.manifest import ArtifactRef
 from .decision_validity import (
@@ -25,7 +33,7 @@ from .decision_validity import (
 )
 from .fabric import DataSnapshotRef, DataViewRequestRef
 from .policy_design_case_projection import PolicyDesignCaseProjection
-from .runtime import ApiMeta
+from .runtime import ApiMeta, TemporalScope
 
 # ---------------------------------------------------------------------------
 # Type aliases
@@ -755,12 +763,29 @@ class WorkflowRunRequest(BaseModel):
 # ---------------------------------------------------------------------------
 
 
+def _natural_language_request_schema(schema: dict[str, Any]) -> None:
+    """Describe temporal scope as optional, but never nullable when supplied."""
+    temporal = schema.get("properties", {}).get("temporal_scope")
+    if not isinstance(temporal, dict):
+        return
+    alternatives = temporal.get("anyOf")
+    if isinstance(alternatives, list):
+        non_null = [item for item in alternatives if item != {"type": "null"}]
+        if len(non_null) == 1 and isinstance(non_null[0], dict):
+            title = temporal.get("title")
+            temporal.clear()
+            temporal.update(non_null[0])
+            if title is not None:
+                temporal["title"] = title
+
+
 class NaturalLanguageRunRequest(BaseModel):
     """POST /api/v1/control/runs/nl — NL request triggering agent circuit."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", json_schema_extra=_natural_language_request_schema)
 
     request: str = Field(..., min_length=1, max_length=10_000)
+    temporal_scope: TemporalScope | None = None
     joint_interaction_candidate_intent: Literal["n4_unique_parent_source_members.v1"] | None = None
     context: dict[str, Any] = Field(default_factory=dict)
     domain_hint: str | None = None
@@ -790,6 +815,79 @@ class NaturalLanguageRunRequest(BaseModel):
     model_spec_ref: ArtifactRef | None = None
     policy_spec_ref: ArtifactRef | None = None
     calibration_rule_ref: ArtifactRef | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unselected_temporal_scope(  # type: ignore[no-untyped-def]  # noqa: ANN202
+        self, handler: SerializerFunctionWrapHandler
+    ):
+        """Preserve cursor presence without replacing the typed model's JSON schema.
+
+        Pydantic interprets a serializer return annotation as a replacement schema.
+        This private wrapper delegates typed projection to the existing handler;
+        leaving its return unannotated retains that same model schema in both modes.
+        The targeted typing/lint exceptions are intentional on this private hook.
+        """
+        serialized = handler(self)
+        if "temporal_scope" not in self.model_fields_set:
+            serialized.pop("temporal_scope", None)
+        elif self.temporal_scope is not None and isinstance(serialized.get("temporal_scope"), dict):
+            scope_values = serialized["temporal_scope"]
+            for name in tuple(scope_values):
+                if name not in self.temporal_scope.model_fields_set:
+                    scope_values.pop(name)
+        return serialized
+
+    @model_validator(mode="before")
+    @classmethod
+    def _validate_temporal_scope_selection(cls, value: object) -> object:
+        """Apply the strict NL cursor wire law before shared-model coercion."""
+        if not isinstance(value, Mapping) or "temporal_scope" not in value:
+            return value
+        raw_scope = value["temporal_scope"]
+        if raw_scope is None:
+            raise ValueError("natural_language_temporal_scope_explicit_null")
+        if isinstance(raw_scope, TemporalScope):
+            raw_values = {name: getattr(raw_scope, name) for name in raw_scope.model_fields_set}
+        elif isinstance(raw_scope, Mapping):
+            raw_values = dict(raw_scope)
+        else:
+            raise ValueError("natural_language_temporal_scope_invalid")
+        allowed = {"valid_at", "tx_at", "branch", "snapshot_id", "scenario_id"}
+        if set(raw_values) - allowed:
+            raise ValueError("natural_language_temporal_scope_extra_fields")
+        normalized = dict(raw_values)
+        for name in ("branch", "snapshot_id", "scenario_id"):
+            if name not in raw_values or raw_values[name] is None:
+                continue
+            selector = raw_values[name]
+            if not isinstance(selector, str) or not selector.strip():
+                raise ValueError("natural_language_temporal_scope_selector_invalid")
+        timestamp_pattern = re.compile(
+            r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:(?:[0-5]\d)"
+            r"(?:\.\d{1,6})?(?:Z|[+-]\d{2}:\d{2})$"
+        )
+        for name in ("valid_at", "tx_at"):
+            if name not in raw_values or raw_values[name] is None:
+                continue
+            timestamp = raw_values[name]
+            try:
+                if isinstance(timestamp, datetime):
+                    if timestamp.tzinfo is None or timestamp.utcoffset() is None:
+                        raise ValueError("natural_language_temporal_scope_timestamp_naive")
+                elif isinstance(timestamp, str) and timestamp_pattern.fullmatch(timestamp):
+                    timestamp = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+                else:
+                    raise ValueError("natural_language_temporal_scope_timestamp_invalid")
+                normalized[name] = timestamp.astimezone(UTC)
+            except (OverflowError, TypeError, ValueError) as exc:
+                if str(exc) == "natural_language_temporal_scope_timestamp_naive":
+                    raise
+                raise ValueError("natural_language_temporal_scope_timestamp_invalid") from exc
+        if not normalized or all(item is None for item in normalized.values()):
+            raise ValueError("natural_language_temporal_scope_empty")
+        result = dict(value)
+        result["temporal_scope"] = normalized
+        return result
 
     @model_validator(mode="after")
     def _validate_value_data_profile_selection(self) -> Self:

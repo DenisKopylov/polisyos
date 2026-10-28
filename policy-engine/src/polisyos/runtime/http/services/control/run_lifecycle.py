@@ -10309,9 +10309,13 @@ class ControlPlaneService(
 
         try:
             payload_ref = self._require_control_job_payload_ref(job)
-            payload = self._load_payload_ref(
-                payload_ref,
-                kind=f"runtime.control_job_payload.{job.kind}",
+            payload = (
+                self._load_control_nl_job_payload(job)
+                if job.kind == "natural_language_run"
+                else self._load_payload_ref(
+                    payload_ref,
+                    kind=f"runtime.control_job_payload.{job.kind}",
+                )
             )
             if self._has_observational_method_job_selection(job=job, payload=payload):
                 self._read_validated_observational_method_job_intent(
@@ -11777,6 +11781,8 @@ class ControlPlaneService(
             "expected_outputs": request.expected_outputs,
             "provider_preflight": provider_preflight_payload,
         }
+        if request.temporal_scope is not None:
+            nl_payload["temporal_scope"] = request.model_dump(mode="json")["temporal_scope"]
         if request.value_data_profile_ref is not None:
             for field_name in (
                 "value_data_profile_ref",

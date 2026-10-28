@@ -198,6 +198,7 @@ class ControlNLJobAdmissionMixin:
         )
         if context is None:
             return None
+        self._prepare_control_nl_temporal_context(context)
         self._prepare_control_nl_candidate_context(context)
         self._prepare_control_nl_budget_context(context)
         return context
@@ -305,6 +306,73 @@ class ControlNLJobAdmissionMixin:
             core_run_context=core_run_context,
         )
         return context
+
+    def _prepare_control_nl_temporal_context(self, context: _ControlNLJobContext) -> None:
+        """Materialize selected caller intent under the current admitted worker lease."""
+        if "temporal_scope" not in context.payload:
+            return
+        from .temporal_scope import materialize_temporal_scope_for_job
+
+        self._require_current_generation_job_attempt(context.job)
+        admission = self._control_store.current_execution_job_admission()
+        if admission.scope != context.execution_scope:
+            raise ControlJobLeaseLostError("nl_temporal_scope_execution_scope_changed")
+        if context.execution_scope.status != "established":
+            # Unknown owner scope can support unclaimed candidate work only.
+            context.compiler_context["temporal_scope_limitation"] = (
+                "nl_temporal_scope_execution_scope_not_established"
+            )
+            return
+        created = self._control_store.get_job_created_event_payload(context.job.job_id)
+        binding = materialize_temporal_scope_for_job(
+            store=self._artifact_store,
+            job=admission.job,
+            scope=admission.scope,
+            created=created,
+            payload=context.payload,
+            persisted_binding=admission.job.progress.get("temporal_scope_request_binding"),
+        )
+        self._require_current_generation_job_attempt(context.job)
+        current = self._control_store.current_execution_job_admission()
+        if current.scope != admission.scope:
+            raise ControlJobLeaseLostError("nl_temporal_scope_execution_scope_changed")
+        refs = dict(current.job.progress.get("runtime_quality_artifact_refs") or {})
+        ref_values = binding.temporal_scope_ref.model_dump(mode="json")
+        if "time_context_ref" in refs and refs["time_context_ref"] != ref_values:
+            raise ValueError("nl_temporal_scope_progress_ref_conflict")
+        refs["time_context_ref"] = ref_values
+        binding_values = binding.model_dump(mode="json")
+        progress = {
+            **current.job.progress,
+            "state": "running",
+            "temporal_scope_request_binding": binding_values,
+            "runtime_quality_artifact_refs": refs,
+        }
+        # The existing transaction emits the real job_progress event and outbox
+        # together with the binding; interrupted CAS writes remain unlinked.
+        self._control_store.update_progress_state(
+            job_id=context.job.job_id,
+            state="running",
+            progress=progress,
+            expected_lease_owner=current.job.lease_owner,
+            expected_attempt=current.attempt,
+        )
+        readback = self._control_store.current_execution_job_admission()
+        if (
+            readback.job.progress.get("temporal_scope_request_binding") != binding_values
+            or readback.job.progress.get("runtime_quality_artifact_refs", {}).get(
+                "time_context_ref"
+            )
+            != ref_values
+        ):
+            raise ValueError("nl_temporal_scope_linkage_readback_mismatch")
+        selected_context = {
+            "temporal_scope": dict(context.payload["temporal_scope"]),
+            "temporal_scope_artifact_ref": ref_values,
+            "temporal_scope_request_binding": binding_values,
+        }
+        context.trusted_source_context.update(selected_context)
+        context.compiler_context.update(selected_context)
 
     def _prepare_control_nl_candidate_context(self, context: _ControlNLJobContext) -> None:
         """Bind candidate simulation callbacks to the admitted job and scope."""

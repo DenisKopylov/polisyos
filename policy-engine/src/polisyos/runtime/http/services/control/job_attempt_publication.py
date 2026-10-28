@@ -57,6 +57,7 @@ _NL_AUTHORIZATION_RECEIPT_KEY = "nl_authorization_receipt"
 _NL_REQUEST_SNAPSHOT_KEY = "nl_request_snapshot"
 _NL_REQUEST_SNAPSHOT_SCHEMA_V1 = "polisyos.runtime.control_nl_request_snapshot.v1"
 _NL_REQUEST_SNAPSHOT_SCHEMA_V2 = "polisyos.runtime.control_nl_request_snapshot.v2"
+_NL_REQUEST_SNAPSHOT_SCHEMA_V3 = "polisyos.runtime.control_nl_request_snapshot.v3"
 _NL_REQUEST_SNAPSHOT_NEW_FIELDS = (
     "value_data_profile_ref",
     "value_data_unit_id",
@@ -81,6 +82,8 @@ _NL_ROUTE_ACTION = "control.launch_nl_run"
 
 def _nl_request_snapshot_schema(request: NaturalLanguageRunRequest) -> str:
     """Choose the request snapshot version from executable intent and selected inputs."""
+    if "temporal_scope" in request.model_fields_set:
+        return _NL_REQUEST_SNAPSHOT_SCHEMA_V3
     if request.joint_interaction_candidate_intent is not None or any(
         getattr(request, field_name) is not None for field_name in _NL_REQUEST_SNAPSHOT_NEW_FIELDS
     ):
@@ -103,6 +106,10 @@ def _nl_request_snapshot_request_values(
         for field_name in _NL_REQUEST_SNAPSHOT_NEW_FIELDS:
             if field_name not in request.model_fields_set:
                 values.pop(field_name, None)
+    if selected_schema != _NL_REQUEST_SNAPSHOT_SCHEMA_V3:
+        values.pop("temporal_scope", None)
+    elif request.temporal_scope is not None:
+        values["temporal_scope"] = request.model_dump(mode="json")["temporal_scope"]
     return values
 
 
@@ -127,7 +134,11 @@ def _nl_request_snapshot_content_hash(snapshot: Mapping[str, Any]) -> str:
     """Hash the pinned JSON request snapshot profile, including finite numbers."""
     if (
         snapshot.get("schema_version")
-        not in {_NL_REQUEST_SNAPSHOT_SCHEMA_V1, _NL_REQUEST_SNAPSHOT_SCHEMA_V2}
+        not in {
+            _NL_REQUEST_SNAPSHOT_SCHEMA_V1,
+            _NL_REQUEST_SNAPSHOT_SCHEMA_V2,
+            _NL_REQUEST_SNAPSHOT_SCHEMA_V3,
+        }
         or snapshot.get("digest_profile") != _NL_REQUEST_SNAPSHOT_DIGEST_PROFILE
     ):
         raise ValueError("nl_authorized_request_snapshot_digest_profile_invalid")
@@ -568,6 +579,7 @@ def _validate_nl_request_snapshot(
     if snapshot_schema not in {
         _NL_REQUEST_SNAPSHOT_SCHEMA_V1,
         _NL_REQUEST_SNAPSHOT_SCHEMA_V2,
+        _NL_REQUEST_SNAPSHOT_SCHEMA_V3,
     }:
         raise ValueError("nl_authorized_request_snapshot_schema_invalid")
     if raw_snapshot.get("digest_profile") != _NL_REQUEST_SNAPSHOT_DIGEST_PROFILE:
@@ -627,6 +639,8 @@ def _validate_nl_request_snapshot(
             raise ValueError("nl_authorized_request_snapshot_v1_contains_v2_fields")
         if any(field_name in payload for field_name in _NL_REQUEST_SNAPSHOT_NEW_FIELDS):
             raise ValueError("nl_authorized_request_payload_mismatch")
+        if "temporal_scope" in raw_request or "temporal_scope" in payload:
+            raise ValueError("nl_authorized_request_payload_mismatch")
         # v1 launch payloads predate the explicit N4 intent bridge and must
         # remain replayable with their original profileless request bytes.
         expected_payload.pop("joint_interaction_candidate_intent")
@@ -650,6 +664,14 @@ def _validate_nl_request_snapshot(
             expected_payload[field_name] = (
                 selected.model_dump(mode="json") if isinstance(selected, ArtifactRef) else selected
             )
+        scope_in_request = "temporal_scope" in raw_request
+        scope_in_payload = "temporal_scope" in payload
+        if snapshot_schema == _NL_REQUEST_SNAPSHOT_SCHEMA_V3:
+            if not scope_in_request or not scope_in_payload or request.temporal_scope is None:
+                raise ValueError("nl_authorized_request_payload_mismatch")
+            expected_payload["temporal_scope"] = request.model_dump(mode="json")["temporal_scope"]
+        elif scope_in_request or scope_in_payload:
+            raise ValueError("nl_authorized_request_payload_mismatch")
     _validate_nl_snapshot_payload_fields(payload, expected_payload)
 
 

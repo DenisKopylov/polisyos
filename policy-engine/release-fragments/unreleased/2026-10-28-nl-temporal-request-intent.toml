@@ -1,0 +1,21 @@
+id = "2026-10-28-nl-temporal-request-intent"
+title = "Preserve selected NL temporal intent through the durable worker"
+type = "changed"
+component = "runtime-api"
+owner = "team-runtime"
+summary = "NL temporal selection preserves all five cursor axes and unset/null presence through request serialization, authorization, snapshot v3, selected queue readback, and a requested-view Runtime artifact."
+evidence = [
+  "src/polisyos/core/contracts/control.py",
+  "src/polisyos/runtime/http/services/control/temporal_scope.py",
+  "src/polisyos/runtime/http/services/control/job_nl_admission.py",
+]
+compatibility = "Omitted temporal selection retains the legacy request serialization and snapshot projections. Explicit top-level null is refused; meaningful partial selection preserves explicit inner null."
+change_class = "schema-openapi-abi"
+surface_classification = "public_stable: polisyos.runtime HTTP API"
+migration = "Regenerate the Runtime API OpenAPI snapshot and typed consumers from the source model before public readiness. Existing clients may omit temporal_scope."
+api = "POST /api/v1/control/runs/nl accepts an optional non-null temporal_scope selection. Fresh job progress retains its selected Runtime artifact reference and requested-view limitation."
+limitations = "The selected cursor records authorized requested intent only. It does not establish actual temporal data-view consumption, legal admissibility, or publication authority. Native verification and generated consumer regeneration are required before acceptance."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/http/services/README.md"]
+runbook_docs = []

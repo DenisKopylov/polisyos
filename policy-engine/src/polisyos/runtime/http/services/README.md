@@ -15,6 +15,17 @@ projections. Route handlers should stay thin and delegate behavior here.
 - **Used by:** `runtime.http.routes` and the FastAPI app.
 - **Boundary function:** keeps request handlers thin while centralizing runtime business logic.
 
+## Selected NL temporal intent
+
+`control/temporal_scope.py` owns materialization and exact-profile replay of a caller-selected
+NL request cursor. The existing intake, durable `job_created` record, admitted worker, and fenced
+`job_progress` transaction carry its queue identity and typed request binding. Scope payloads
+preserve unset axes and explicit nulls under Core canonical JSON 0.2; the selected manifest carries
+Runtime producer, request-payload input, tenant/cell, and candidate-only job/run provenance.
+`runtime_quality_artifact_refs.time_context_ref` exposes the selected cursor view through the
+existing job response. This is requested-view identity only; actual data-view consumption and
+policy/legal admissibility require their independent owners and remain limited until admitted.
+
 ## Key Concepts
 
 - **Run index** - caches run records from `core_runs_root` and handles pagination/filtering.

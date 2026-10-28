@@ -99,7 +99,17 @@ class _ControlJobExecutionScopeLimitation(BaseModel):
 
 
 _NL_JOB_OWNER_CONTEXT_KEYS = frozenset(
-    {"tenant_id", "cell_id", "job_id", "run_id", "runtime_identity"}
+    {
+        "tenant_id",
+        "cell_id",
+        "job_id",
+        "run_id",
+        "runtime_identity",
+        "temporal_scope",
+        "temporal_scope_artifact_ref",
+        "temporal_scope_request_binding",
+        "time_context_ref",
+    }
 )
 
 
@@ -197,6 +207,18 @@ class ControlJobScopeAdmissionMixin:
             uuid.NAMESPACE_URL,
             _decision_validity_dedupe_payload(request, dependency_keys=dependency_keys),
         ).hex
+
+    def _load_control_nl_job_payload(self, job: ControlJobRecord) -> dict[str, Any]:
+        """Read a selected NL queue profile from its durable admission event."""
+        from .temporal_scope import read_nl_job_payload
+
+        created = self._control_store.get_job_created_event_payload(job.job_id)
+        return read_nl_job_payload(
+            store=self._artifact_store,
+            job=job,
+            created=created,
+            legacy_reader=self._load_payload_ref,
+        )
 
     def _load_payload_ref(self, payload_ref: str, *, kind: str) -> dict[str, Any]:
         from polisyos.core.artifacts import (

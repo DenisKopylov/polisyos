@@ -753,7 +753,17 @@ class ControlJobDiagnosticsMixin:
                 payload[_EXECUTION_INTENT_BINDING_KEY]["admission_status"] != "established"
             )
         try:
-            payload_ref = self._persist_job_payload(job_kind=job_kind, payload=payload)
+            selected_nl_payload_ref = None
+            if job_kind == "natural_language_run" and "temporal_scope" in payload:
+                selected_nl_payload_ref = self._put_json_artifact_ref(
+                    payload,
+                    kind="runtime.control_job_payload.natural_language_run",
+                    schema_name="polisyos.runtime.ControlJobPayload",
+                    schema_version="1.1",
+                )
+                payload_ref = str(selected_nl_payload_ref.artifact_id)
+            else:
+                payload_ref = self._persist_job_payload(job_kind=job_kind, payload=payload)
             capability_manifest_ref = self._persist_capability_manifest(
                 policy=policy,
                 job_id=job_id,
@@ -781,6 +791,15 @@ class ControlJobDiagnosticsMixin:
                         "intent_digest": payload[_EXECUTION_INTENT_BINDING_KEY]["intent_digest"],
                     }
                     if job_kind == "natural_language_run"
+                    else {}
+                ),
+                **(
+                    {
+                        "nl_request_payload_artifact_ref": selected_nl_payload_ref.model_dump(
+                            mode="json"
+                        )
+                    }
+                    if selected_nl_payload_ref is not None
                     else {}
                 ),
                 **(

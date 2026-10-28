@@ -1829,9 +1829,10 @@ def test_method_metric_surface_checks_owner_scope_before_selection_lookup(
 
 @pytest.mark.parametrize("final", ["unchanged", "replaced_profile", "revoked"])
 def test_method_metric_score_follows_the_final_selected_projection(
-    runtime_api_env: dict[str, Any], monkeypatch: pytest.MonkeyPatch, final: str
+    c48_isolated_runtime_api_env: dict[str, Any], monkeypatch: pytest.MonkeyPatch, final: str
 ) -> None:
     """A route seam can change while score replay is in flight; stale rows do not escape."""
+    runtime_api_env = c48_isolated_runtime_api_env
     from polisyos.core.contracts.runtime import MethodMetricCandidateScore
 
     service = runtime_api_env["app"].state._control_service
@@ -4851,11 +4852,12 @@ def test_two_real_completed_ex_ante_sources_produce_fresh_candidate_comparison(
 
 
 def test_two_real_completed_ex_ante_sources_are_reselected_by_fresh_planner(
-    runtime_api_env: dict[str, Any],
+    c48_isolated_runtime_api_env: dict[str, Any],
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Retain the original post-search and later fresh-GET revocation witness."""
+    runtime_api_env = c48_isolated_runtime_api_env
     from _helpers.control_worker import dispatch_one_control_job
 
     from polisyos.core.artifacts import validate_core_model_json_artifact

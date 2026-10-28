@@ -1,0 +1,14 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+__ test_two_real_completed_ex_ante_sources_produce_fresh_candidate_comparison __
+tests/unit/runtime/http/test_observational_method_runtime.py:4849: in test_two_real_completed_ex_ante_sources_produce_fresh_candidate_comparison
+    _exercise_two_real_completed_ex_ante_sources_and_fresh_planner(
+tests/unit/runtime/http/test_observational_method_runtime.py:4528: in _exercise_two_real_completed_ex_ante_sources_and_fresh_planner
+    assert job is not None and job.state == "completed", job
+E   AssertionError: ControlJobRecord(job_id='2d327301cd204d1f8dbafc5f37f5fce1', kind='workflow_run', state='failed', run_id='R_93e53de228c...kflow failed and cannot produce authority.', 'status': 'blocked', 'surface': 'run'}}}, method_execution_selection=None)
+E   assert (ControlJobRecord(job_id='2d327301cd204d1f8dbafc5f37f5fce1', kind='workflow_run', state='failed', run_id='R_93e53de228c...kflow failed and cannot produce authority.', 'status': 'blocked', 'surface': 'run'}}}, method_execution_selection=None) is not None and 'failed' == 'completed'
+E     
+E     - completed
+E     + failed)
+=========================== short test summary info ============================
+FAILED tests/unit/runtime/http/test_observational_method_runtime.py::test_two_real_completed_ex_ante_sources_produce_fresh_candidate_comparison

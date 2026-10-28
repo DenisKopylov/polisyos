@@ -1,0 +1,11 @@
+SQLite same-case readback:
+job_id=2d327301cd204d1f8dbafc5f37f5fce1
+run_id=R_93e53de228c0c5d2
+state=failed
+attempt=1
+error_message=Unknown node_id: scientist.node_build_data_snapshot@1.0.0
+
+Fresh registry discovery:
+registered_nodes=0
+contains_scientist.node_build_data_snapshot@1.0.0=false
+discovery_error=builtin_loader:polisyos.scientist.nodes.components:__polisyos_components__: No module named 'sklearn'

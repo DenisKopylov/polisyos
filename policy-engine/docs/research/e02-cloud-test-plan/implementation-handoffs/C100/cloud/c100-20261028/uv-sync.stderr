@@ -1,0 +1,13 @@
+warning: Found both a `uv.toml` file and a `[tool.uv]` section in an adjacent `pyproject.toml`. The `[tool.uv]` section will be ignored in favor of the `uv.toml` file.
+   Building policy-engine @ file:///workspace/polisyos/policy-engine
+  × Failed to download `threadpoolctl==3.6.0`
+  ├─▶ Failed to fetch:
+  │   `https://files.pythonhosted.org/packages/32/d5/f9a850d79b0851d1d4ef6456097579a9005b31fea68726a4ae5f2d82ddd9/threadpoolctl-3.6.0-py3-none-any.whl`
+  ├─▶ Request failed after 3 retries
+  ├─▶ error sending request for url
+  │   (https://files.pythonhosted.org/packages/32/d5/f9a850d79b0851d1d4ef6456097579a9005b31fea68726a4ae5f2d82ddd9/threadpoolctl-3.6.0-py3-none-any.whl)
+  ├─▶ client error (Connect)
+  ╰─▶ tunnel error: unsuccessful
+  help: `threadpoolctl` (v3.6.0) was included because `policy-engine[ml]`
+        (v0.1.0) depends on `scikit-learn` (v1.8.0) which depends on
+        `threadpoolctl`

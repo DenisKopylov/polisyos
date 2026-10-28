@@ -59,3 +59,31 @@ chain result API. A new raw-state diagnostic envelope and full DAG slot-routing
 adaptation for compiled kernels are `surface_out_of_scope` for this compatible
 companion; no such capability or custody claim is made. Compiler validation
 proves current mechanical checks, not scientific or institutional authority.
+
+## Selected executable and cache scope
+
+The JAX runner compiles the actual method class selected by its caller, including
+when the caller explicitly supplies an isolated registry. Ambient `registry_scope()`
+default selection is a separate concern. The compiler and fused runtime caches
+bind an in-process entry to that class, the admitted signature digest and its
+captured `pure_step` callable (including a Python code-object identity). Strong references prevent a reused
+object address from reviving an unrelated entry. Opaque non-Python callables are
+not reused. These bindings are process-local; they do not alter the deterministic
+`Specialization.cache_key` or claim source provenance. Mutable globals, closure
+cells and externally mutable dependencies are not frozen by this identity.
+
+An unqualified `CompilationCache.get(spec)` returns the sole matching entry,
+or `None` when several implementations match. Public `put` preserves a bound
+handle's implementation identity; `invalidate(spec)` clears all matching
+implementation variants. Compiler code requests its exact variant.
+An unqualified sole-entry lookup is an inspection result, not proof of which
+method a caller selected. The binding does not freeze a previously returned
+handle against concurrent in-place code, global, or closure mutation.
+Callers supplying a custom compiler remain responsible for its implementation;
+an unbound returned handle refuses at the JAX runner, but a self-attested field
+is not independent proof against a malicious compiler override.
+
+Before a fused pair, both selected classes must match the compiled signatures;
+the already selected first class is passed to input preparation rather than
+re-resolved. Async preparation and Ray submission use the same signature
+predicate. Ray runtime verification is separately required.

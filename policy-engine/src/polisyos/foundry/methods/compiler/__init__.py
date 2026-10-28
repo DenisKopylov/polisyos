@@ -13,7 +13,8 @@ import math
 import threading
 import time
 from collections import OrderedDict
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Hashable, Mapping
+from contextvars import ContextVar
 from dataclasses import dataclass, field
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Any, Protocol, TypeVar
@@ -22,6 +23,11 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 
+from polisyos.foundry.methods._internal.executable_identity import (
+    _ExecutableIdentity,
+    _signature_binding,
+    _signature_matches,
+)
 from polisyos.foundry.methods.backends.validated import VALIDATED_EXECUTION_PARAM_NAMES
 from polisyos.foundry.methods.base import FoundryMethod, MethodSignature
 from polisyos.foundry.methods.compiler.specialization import (
@@ -89,6 +95,9 @@ class CompiledMethod:
     lowered_hlo: str | None = None
     compile_time_ms: float = 0.0
     _kernel: _CompiledKernel | None = field(default=None, repr=False, compare=False)
+    _implementation_identity: _ExecutableIdentity | None = field(
+        default=None, repr=False, compare=False
+    )
 
     def __call__(self, state: Any, params: Mapping[str, Any]) -> Any:
         return self.step_fn(state, params)
@@ -134,11 +143,13 @@ class CompilationCache:
     """
 
     def __init__(self, max_size: int = 1000):
-        self._cache: OrderedDict[tuple[int, str], CacheEntry] = OrderedDict()
+        self._cache: OrderedDict[tuple[int, str, _ExecutableIdentity | None], CacheEntry] = (
+            OrderedDict()
+        )
         self._max_size = max_size
         self._lock = threading.RLock()
         self._flight_lock = threading.Lock()
-        self._flights: dict[str, _InFlight] = {}
+        self._flights: dict[Hashable, _InFlight] = {}
         self._hits = 0
         self._misses = 0
         self._evictions = 0
@@ -148,7 +159,7 @@ class CompilationCache:
         with self._lock:
             return CacheToken(self._generation)
 
-    def claim_flight(self, key: str) -> tuple[_InFlight, bool]:
+    def claim_flight(self, key: Hashable) -> tuple[_InFlight, bool]:
         """Claim one compilation flight for every compiler sharing this cache."""
         with self._flight_lock:
             flight = self._flights.get(key)
@@ -160,7 +171,7 @@ class CompilationCache:
 
     def complete_flight(
         self,
-        key: str,
+        key: Hashable,
         flight: _InFlight,
         *,
         error: BaseException | None = None,
@@ -176,18 +187,24 @@ class CompilationCache:
 
     def publish_flight(
         self,
-        key: str,
+        key: Hashable,
         flight: _InFlight,
         spec: Specialization,
         compiled: CompiledMethod,
         *,
         token: CacheToken,
+        _identity: _ExecutableIdentity | None = None,
     ) -> bool:
         """Publish cache result and follower notification as one generation step."""
         with self._lock:
             if token.generation != self._generation:
                 return False
-            self._put_unlocked(spec, compiled, generation=token.generation)
+            effective_identity = (
+                compiled._implementation_identity if _identity is None else _identity
+            )
+            self._put_unlocked(
+                spec, compiled, generation=token.generation, _identity=effective_identity
+            )
             with self._flight_lock:
                 flight.result = compiled
                 self._flights.pop(key, None)
@@ -199,10 +216,16 @@ class CompilationCache:
         spec: Specialization,
         *,
         token: CacheToken | None = None,
+        _identity: _ExecutableIdentity | None = None,
     ) -> CompiledMethod | None:
+        """Return one bound implementation, or no unambiguous unbound lookup."""
         with self._lock:
-            key = self._cache_key(spec, token)
-            if key in self._cache:
+            if _identity is None:
+                keys = self._matching_keys(spec, token)
+                key = keys[0] if len(keys) == 1 else None
+            else:
+                key = self._cache_key(spec, token, _identity)
+            if key is not None and key in self._cache:
                 self._hits += 1
                 entry = self._cache[key]
                 entry.last_access = time.monotonic()
@@ -223,7 +246,12 @@ class CompilationCache:
             generation = self._resolve_generation(token)
             if generation != self._generation:
                 return False
-            self._put_unlocked(spec, compiled, generation=generation)
+            self._put_unlocked(
+                spec,
+                compiled,
+                generation=generation,
+                _identity=compiled._implementation_identity,
+            )
             return True
 
     def _put_unlocked(
@@ -232,8 +260,9 @@ class CompilationCache:
         compiled: CompiledMethod,
         *,
         generation: int,
+        _identity: _ExecutableIdentity | None = None,
     ) -> None:
-        key = (generation, spec.cache_key)
+        key = (generation, spec.cache_key, _identity)
         if key in self._cache:
             self._cache[key] = CacheEntry(
                 compiled=compiled,
@@ -259,8 +288,9 @@ class CompilationCache:
         *,
         token: CacheToken | None = None,
     ) -> bool:
+        """Return whether at least one implementation matches this specialization."""
         with self._lock:
-            return self._cache_key(spec, token) in self._cache
+            return bool(self._matching_keys(spec, token))
 
     def invalidate(
         self,
@@ -268,12 +298,12 @@ class CompilationCache:
         *,
         token: CacheToken | None = None,
     ) -> bool:
+        """Invalidate every implementation variant for this specialization."""
         with self._lock:
-            key = self._cache_key(spec, token)
-            if key in self._cache:
+            keys = self._matching_keys(spec, token)
+            for key in keys:
                 del self._cache[key]
-                return True
-            return False
+            return bool(keys)
 
     def clear(self) -> int:
         with self._lock:
@@ -324,8 +354,15 @@ class CompilationCache:
         self,
         spec: Specialization,
         token: CacheToken | None,
-    ) -> tuple[int, str]:
-        return self._resolve_generation(token), spec.cache_key
+        identity: _ExecutableIdentity | None,
+    ) -> tuple[int, str, _ExecutableIdentity | None]:
+        return self._resolve_generation(token), spec.cache_key, identity
+
+    def _matching_keys(
+        self, spec: Specialization, token: CacheToken | None
+    ) -> list[tuple[int, str, _ExecutableIdentity | None]]:
+        generation = self._resolve_generation(token)
+        return [key for key in self._cache if key[0] == generation and key[1] == spec.cache_key]
 
     def _resolve_generation(self, token: CacheToken | None) -> int:
         return self._generation if token is None else token.generation
@@ -485,6 +522,7 @@ def _bind_compiled_method(
         lowered_hlo=compiled.lowered_hlo,
         compile_time_ms=compiled.compile_time_ms,
         _kernel=kernel,
+        _implementation_identity=compiled._implementation_identity,
     )
 
 
@@ -504,6 +542,21 @@ def _wait_for_flight(
             return "timeout"
         flight.event.wait(min(remaining, 0.05))
     return "completed"
+
+
+@dataclass(frozen=True, slots=True)
+class _ResolvedImplementation:
+    compiler: object
+    method_fqn: str
+    method_class: type[FoundryMethodProtocol] | type[FoundryMethod[Any, Any]]
+    signature: MethodSignature
+    pure_step: Callable[..., Any]
+    identity: _ExecutableIdentity
+
+
+_resolved_implementation: ContextVar[_ResolvedImplementation | None] = ContextVar(
+    "foundry_compiler_resolved_implementation", default=None
+)
 
 
 class MethodCompiler:
@@ -555,8 +608,17 @@ class MethodCompiler:
 
         while True:
             token = self._cache.current_token()
-            method_class = self._registry.get(method_name)
-            sig = method_class.signature
+            bound = _resolved_implementation.get()
+            if bound is not None and bound.compiler is self and bound.method_fqn == method_name:
+                method_class = bound.method_class
+                sig = bound.signature
+                pure_step = bound.pure_step
+                identity = bound.identity
+            else:
+                method_class = self._registry.get(method_name)
+                sig = method_class.signature
+                pure_step = method_class.pure_step
+                identity = _ExecutableIdentity(method_class, pure_step, _signature_binding(sig))
 
             combined_params: dict[str, Any] = {}
             if params:
@@ -578,13 +640,13 @@ class MethodCompiler:
                 donate_argnums=donate_argnums,
             )
 
-            cached = self._cache.get(spec, token=token)
+            cached = self._cache.get(spec, token=token, _identity=identity)
             if cached is not None:
                 if _dynamic_defaults_equal(cached.dynamic_defaults, dynamic_defaults):
                     return cached
                 return _bind_compiled_method(cached, dynamic_defaults)
 
-            flight_key = f"{token.generation}:{spec.cache_key}"
+            flight_key = (token.generation, spec.cache_key, identity)
             flight, leader = self._cache.claim_flight(flight_key)
 
             if not leader:
@@ -614,7 +676,7 @@ class MethodCompiler:
                         return flight.result
                     return _bind_compiled_method(flight.result, dynamic_defaults)
                 if not flight.invalidated:
-                    cached = self._cache.get(spec, token=token)
+                    cached = self._cache.get(spec, token=token, _identity=identity)
                     if cached is not None:
                         if _dynamic_defaults_equal(cached.dynamic_defaults, dynamic_defaults):
                             return cached
@@ -629,18 +691,25 @@ class MethodCompiler:
 
             start_time = time.monotonic()
             try:
-                kernel = self._compile_method(
-                    method_class=method_class,
-                    signature=sig,
-                    specialization=spec,
-                    static_params=dict(static_values),
-                    dynamic_defaults=dict(dynamic_defaults),
-                    dynamic_names=dynamic_names,
-                    jit=jit,
-                    capture_hlo=capture_hlo,
-                    vmap_axis=vmap_axis,
-                    donate_argnums=donate_argnums,
+                selected = _ResolvedImplementation(
+                    self, sig.fqn, method_class, sig, pure_step, identity
                 )
+                context_token = _resolved_implementation.set(selected)
+                try:
+                    kernel = self._compile_method(
+                        method_class=method_class,
+                        signature=sig,
+                        specialization=spec,
+                        static_params=dict(static_values),
+                        dynamic_defaults=dict(dynamic_defaults),
+                        dynamic_names=dynamic_names,
+                        jit=jit,
+                        capture_hlo=capture_hlo,
+                        vmap_axis=vmap_axis,
+                        donate_argnums=donate_argnums,
+                    )
+                finally:
+                    _resolved_implementation.reset(context_token)
                 compile_time_ms = (time.monotonic() - start_time) * 1000
                 template = CompiledMethod(
                     method_fqn=sig.fqn,
@@ -651,6 +720,7 @@ class MethodCompiler:
                     lowered_hlo=None,
                     compile_time_ms=compile_time_ms,
                     _kernel=kernel,
+                    _implementation_identity=identity,
                 )
                 compiled = _bind_compiled_method(template, dynamic_defaults)
                 published = self._cache.publish_flight(
@@ -659,6 +729,7 @@ class MethodCompiler:
                     spec,
                     compiled,
                     token=token,
+                    _identity=identity,
                 )
             except BaseException as exc:
                 self._cache.complete_flight(flight_key, flight, error=exc)
@@ -686,6 +757,38 @@ class MethodCompiler:
                     "Compilation invalidated by concurrent cache generation change",
                 )
 
+    def _compile_resolved(
+        self,
+        *,
+        method_class: type[FoundryMethodProtocol] | type[FoundryMethod[Any, Any]],
+        signature: MethodSignature,
+        params: Mapping[str, Any],
+        jit: bool,
+    ) -> CompiledMethod:
+        """Compile the implementation selected by the caller without re-resolving its FQN."""
+        if not _signature_matches(method_class, signature):
+            raise CompilationError(
+                signature.fqn, "Selected method signature differs from the declared signature"
+            )
+        pure_step = method_class.pure_step
+        identity = _ExecutableIdentity(method_class, pure_step, _signature_binding(signature))
+        selected = _ResolvedImplementation(
+            self, signature.fqn, method_class, signature, pure_step, identity
+        )
+        token = _resolved_implementation.set(selected)
+        try:
+            compiled = self.compile(method_name=signature.fqn, params=params, jit=jit)
+        finally:
+            _resolved_implementation.reset(token)
+        if (
+            not isinstance(compiled, CompiledMethod)
+            or compiled._implementation_identity != identity
+        ):
+            raise CompilationError(
+                signature.fqn, "Compiler did not bind the selected implementation"
+            )
+        return compiled
+
     def _compile_method(
         self,
         method_class: type[FoundryMethodProtocol] | type[FoundryMethod[Any, Any]],
@@ -703,7 +806,11 @@ class MethodCompiler:
         Internal compilation logic.
         """
         del dynamic_defaults
-        pure_step = method_class.pure_step
+        bound = _resolved_implementation.get()
+        if bound is not None and bound.compiler is self and bound.method_class is method_class:
+            pure_step = bound.pure_step
+        else:
+            pure_step = method_class.pure_step
 
         @functools.wraps(pure_step)
         def step_with_statics(

@@ -58,8 +58,9 @@ class JaxRunner(MethodRunner):
         import jax
 
         compile_started = time.perf_counter()
-        compiled = self._compiler.compile(
-            method_name=signature.fqn,
+        compiled = self._compiler._compile_resolved(
+            method_class=method_class,
+            signature=signature,
             params=params,
             jit=signature.supports_jit,
         )

@@ -215,10 +215,10 @@ class BackendSpec:
 class Specialization:
     """Key one compiled method variant by FQN, static params, input shape, and backend.
 
-    Two invocations with identical `Specialization` values should resolve to
-    the same cache entry; changing static params, JIT/vmap flags, donation
-    settings, input shapes, or backend fingerprint intentionally creates a new
-    compilation variant.
+    Identical `Specialization` values describe the same deterministic variant,
+    but distinct selected implementations may occupy separate process-local
+    executable cache entries. Changing static params, JIT/vmap flags, donation
+    settings, input shapes, or backend fingerprint creates a different variant.
     """
 
     method_fqn: str

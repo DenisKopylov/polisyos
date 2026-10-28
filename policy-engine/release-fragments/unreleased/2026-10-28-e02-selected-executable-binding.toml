@@ -1,0 +1,16 @@
+id = "2026-10-28-e02-selected-executable-binding"
+title = "Bind JAX execution to the selected method implementation"
+type = "fixed"
+component = "foundry"
+owner = "team-policyos-foundry"
+summary = "Reuse the selected method class through the JAX runner and bind both compiler and fused cache entries to the actual in-process implementation and admitted signature, keeping scoped registries distinct."
+evidence = ["tests/unit/foundry/methods/backends/test_fused_type_compatibility.py", "tests/unit/foundry/methods/backends/test_selected_implementation_cache.py", "tests/unit/remediation/test_jit_01.py"]
+change_class = "python-public-api"
+surface_classification = "public_experimental Foundry method execution and CompilationCache; internal process-local identity"
+compatibility = "Deterministic Specialization and persisted MethodArtifact identities are unchanged. A cache lookup without an implementation identity returns None when several implementation variants share one specialization; callers already must handle a miss. Public put preserves a bound handle identity. Invalidating a specialization clears its variants. A custom compiler returning an unbound handle refuses at JAX dispatch."
+migration = "No persisted artifact migration. Recompute executable caches after deployment, retain normal cache-miss handling, and review any custom JAX compiler override that returns a hand-constructed compiled handle."
+limitations = "Process-local object/code identity does not prove immutable closure cells, global state or external dependencies, and does not independently verify a malicious caller-supplied compiler. Selected JAX methods and compiled-chain inputs with a changed signature now refuse at the covered entry paths. Scoped Ray execution, adversarial controls, full native profile and G acceptance remain separate."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/foundry/methods/compiler/README.md"]
+runbook_docs = []

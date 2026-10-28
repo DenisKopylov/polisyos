@@ -15,6 +15,11 @@ from uuid import UUID
 import numpy as np
 
 from polisyos.core.observability import DeterminismTier
+from polisyos.foundry.methods._internal.executable_identity import (
+    _ExecutableIdentity,
+    _signature_binding,
+    _signature_matches,
+)
 from polisyos.foundry.methods._internal.logging import get_foundry_logger
 from polisyos.foundry.methods.backends.adapters import adapt_state
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
@@ -292,16 +297,18 @@ class _FusedJitCache:
 
     def __init__(self, max_size: int = 64):
         self._max_size = max_size
-        self._entries: OrderedDict[str, _FusedKernelCacheEntry] = OrderedDict()
+        self._entries: OrderedDict[
+            tuple[str, _ExecutableIdentity, _ExecutableIdentity], _FusedKernelCacheEntry
+        ] = OrderedDict()
         self._lock = threading.Lock()
 
-    def _touch(self, key: str) -> None:
+    def _touch(self, key: tuple[str, _ExecutableIdentity, _ExecutableIdentity]) -> None:
         if key in self._entries:
             self._entries.move_to_end(key)
 
     def get_or_build(
         self,
-        key: str,
+        key: tuple[str, _ExecutableIdentity, _ExecutableIdentity],
         builder: Callable[[], _FusedKernelCacheEntry],
     ) -> tuple[_FusedKernelCacheEntry, bool]:
         with self._lock:
@@ -415,8 +422,14 @@ def _collect_node_inputs(
     signature: MethodSignature,
     current_context: Any,
     params_per_node: Mapping[UUID, Mapping[str, Any]] | None,
+    method_class: type[FoundryMethod[Any, Any]] | None = None,
 ) -> tuple[type[FoundryMethod[Any, Mapping[str, Any]]], Any, MethodSignature, dict[str, Any]]:
-    method_class = reg.get(signature.fqn)
+    if method_class is None:
+        method_class = reg.get(signature.fqn)
+    if not _signature_matches(method_class, signature):
+        raise MethodContractError(
+            signature.fqn, "Selected method signature differs from the compiled chain"
+        )
     node = chain.get_node(node_id)
     combined_params = _build_node_param_payload(node, params_per_node)
 
@@ -598,7 +611,10 @@ def _compile_fused_pair_kernel(
     b_input_slot: str,
     params_a: Mapping[str, Any],
     params_b: Mapping[str, Any],
+    *,
+    _selected_steps: tuple[Callable[..., Any], Callable[..., Any]] | None = None,
 ) -> _FusedKernelCacheEntry:
+    step_a, step_b = _selected_steps or (method_class_a.pure_step, method_class_b.pure_step)
     static_a, dynamic_defaults_a, dynamic_names_a = _resolve_dynamic_payload(signature_a, params_a)
     static_b, dynamic_defaults_b, dynamic_names_b = _resolve_dynamic_payload(signature_b, params_b)
     static_a_map = dict(static_a)
@@ -626,7 +642,7 @@ def _compile_fused_pair_kernel(
         for index, name in enumerate(dynamic_names_a_tuple):
             params_a_internal[name] = packed_a[index]
 
-        out_a = method_class_a.pure_step(input_state, params_a_internal)
+        out_a = step_a(input_state, params_a_internal)
         if isinstance(out_a, Mapping) and b_input_slot in out_a:
             input_for_b = out_a[b_input_slot]
         else:
@@ -636,7 +652,7 @@ def _compile_fused_pair_kernel(
         for index, name in enumerate(dynamic_names_b_tuple):
             params_b_internal[name] = packed_b[index]
 
-        out_b = method_class_b.pure_step(input_for_b, params_b_internal)
+        out_b = step_b(input_for_b, params_b_internal)
         return out_a, out_b
 
     compile_ms = (_time.perf_counter() - compile_started) * 1000
@@ -762,6 +778,14 @@ def _execute_sequential_chain(
                 and "dematerialize_output" not in method_a.__dict__
                 and "materialize_input" not in method_b.__dict__
             ):
+                if not _signature_matches(method_a, signature_a):
+                    raise MethodContractError(
+                        signature_a.fqn, "Selected method signature differs from the compiled chain"
+                    )
+                if not _signature_matches(method_b, signature_b):
+                    raise MethodContractError(
+                        signature_b.fqn, "Selected method signature differs from the compiled chain"
+                    )
                 try:
                     method_a, materialized_state_a, _, prepared_params_a = _collect_node_inputs(
                         chain=chain,
@@ -773,6 +797,7 @@ def _execute_sequential_chain(
                         signature=signature_a,
                         current_context=current_context,
                         params_per_node=params_per_node,
+                        method_class=method_a,
                     )
                     static_a, dynamic_defaults_a, dynamic_names_a = _resolve_dynamic_payload(
                         signature_a,
@@ -784,7 +809,8 @@ def _execute_sequential_chain(
                     )
 
                     b_input_slot = b_binding.source_slot
-                    kernel_key = _make_fused_kernel_key(
+                    step_a, step_b = method_a.pure_step, method_b.pure_step
+                    specialization_key = _make_fused_kernel_key(
                         signature_a=signature_a,
                         signature_b=signature_b,
                         static_params_a=static_a,
@@ -792,6 +818,11 @@ def _execute_sequential_chain(
                         dynamic_names_a=dynamic_names_a,
                         dynamic_names_b=dynamic_names_b,
                         b_input_slot=b_input_slot,
+                    )
+                    kernel_key = (
+                        specialization_key,
+                        _ExecutableIdentity(method_a, step_a, _signature_binding(signature_a)),
+                        _ExecutableIdentity(method_b, step_b, _signature_binding(signature_b)),
                     )
                     kernel_entry, _cache_hit = _FUSED_JIT_CACHE.get_or_build(
                         key=kernel_key,
@@ -803,6 +834,7 @@ def _execute_sequential_chain(
                             b_input_slot,
                             params_a,
                             params_b,
+                            _selected_steps=(step_a, step_b),
                         ),
                     )
 

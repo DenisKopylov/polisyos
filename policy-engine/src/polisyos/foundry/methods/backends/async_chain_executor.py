@@ -48,6 +48,7 @@ from dataclasses import dataclass
 from typing import Any
 from uuid import UUID
 
+from polisyos.foundry.methods._internal.executable_identity import _signature_matches
 from polisyos.foundry.methods._internal.logging import get_foundry_logger
 from polisyos.foundry.methods.backends.adapters import adapt_state
 from polisyos.foundry.methods.backends.chain_executor import (
@@ -382,6 +383,10 @@ class AsyncChainExecutor:
         node = chain.get_node(node_id)
         method_class = registry.get(node.method_fqn)
         signature = chain.get_signature(node_id)
+        if not _signature_matches(method_class, signature):
+            raise MethodContractError(
+                signature.fqn, "Selected method signature differs from the compiled chain"
+            )
 
         # Reuse the sequential static -> dynamic -> override payload contract.
         node_params = _build_node_param_payload(node, {node_id: params})

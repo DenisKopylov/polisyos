@@ -46,6 +46,7 @@ from typing import Any
 from uuid import UUID
 
 from polisyos.core.observability import DeterminismTier
+from polisyos.foundry.methods._internal.executable_identity import _signature_matches
 from polisyos.foundry.methods._internal.logging import get_foundry_logger
 from polisyos.foundry.methods.backends.chain_executor import (
     ChainExecutionResult,
@@ -65,6 +66,7 @@ from polisyos.foundry.methods.backends.runtime_fingerprint import (
     capture_backend_runtime_fingerprint,
     resolve_route_determinism_tier,
 )
+from polisyos.foundry.methods.exceptions import MethodContractError
 from polisyos.foundry.methods.selection.registry import MethodRegistry
 
 _log = get_foundry_logger("foundry.backends.ray_chain")
@@ -220,6 +222,10 @@ class RayChainExecutor:
                     combined_params.update(params_per_node[node_id])
 
                 method_class = reg.get(sig.fqn)
+                if not _signature_matches(method_class, sig):
+                    raise MethodContractError(
+                        sig.fqn, "Selected method signature differs from the compiled chain"
+                    )
                 method_classes[node_id] = method_class
 
                 try:

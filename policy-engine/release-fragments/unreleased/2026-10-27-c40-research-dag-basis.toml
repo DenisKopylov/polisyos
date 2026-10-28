@@ -1,2 +1,14 @@
+id = "2026-10-27-c40-research-dag-basis"
+title = "Preserve selected Research DAG basis and manifest views"
+type = "fixed"
+owner = "team-polisyos"
+summary = "Research DAG projections retain selected manifest views and project the chosen workflow's declared prerequisites, with explicit limits on partial records and currentness."
+evidence = [
+  "src/polisyos/scientist/methods/research_dag/projections.py",
+  "tests/unit/scientist/methods/research_dag/test_projections.py",
+  "tests/unit/scientist/orchestration/engine/test_research_dag_workflow_producer.py",
+  "docs/research/e02-cloud-test-plan/implementation-handoffs/C40/cloud/e02-c40-20261027-r1/reconciliation.md",
+]
+
 category = "fixed"
 description = "Preserve selected Research DAG manifest views and project recorded workflow scheduling prerequisites, with explicit partial-record coverage."

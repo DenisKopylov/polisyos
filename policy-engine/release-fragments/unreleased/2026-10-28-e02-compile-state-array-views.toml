@@ -10,7 +10,7 @@ surface_classification = "public additive Foundry read-only replay facade; inter
 compatibility = "No DTO, schema, endpoint or generated client shape changes. A valid JSON array remains admissible after the existing engine wraps it in its state view. Arbitrary sequences, booleans, extra binding fields and oversized inventories remain refused."
 migration = "Rerun affected workflow sources and read back actual compiled binding artifacts; do not synthesize selections or metric values for older failed runs."
 limitations = "Source proposal only until focused real engine/compiler and negative checks run. The first R5 source failed at compile intake before simulation, source B or planner; C48 comparison and broader C05/C71/G authority remain unqualified."
-generated_client_compatibility = "unchanged_wire_shape; no generated Foundry method stub is owned by this compile facade"
+generated_client_compatibility = "not_applicable"
 public_surface_inventory_reviewed = true
 
 [[compatibility_change]]

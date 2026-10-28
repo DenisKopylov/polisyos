@@ -10,5 +10,5 @@ surface_classification = "internal: completed ex-ante candidate comparison; publ
 compatibility = "No DTO, schema, endpoint or client shape changes. Comparison digests and the verifier implementation digest change; old selected projections require fresh owner replay. Unsupported environment metadata or unresolved plan identity remains limited."
 migration = "Reissue method-metric projections through the current producer and current verifier, then replay candidate comparisons. Preserve original environment and plan artifacts."
 limitations = "Candidate-only paired model-input contrast; generic calibration, observation-unit/same-ticket, lesson/VOI and C53 authority remain open. Authored controls are not runtime or closure evidence."
-generated_client_compatibility = "unchanged_wire_shape; verify existing generated contracts separately"
+generated_client_compatibility = "not_applicable"
 public_surface_inventory_reviewed = false

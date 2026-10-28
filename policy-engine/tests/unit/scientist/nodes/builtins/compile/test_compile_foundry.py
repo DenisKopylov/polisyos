@@ -135,36 +135,71 @@ def test_compile_node_passes_explicit_metric_binding_and_stores_derived_ref(
     execution_context,
     minimal_state,
     artifact_ref_factory,
+    cas_store,
+    tmp_path,
+    monkeypatch,
 ):
-    trinity_ref = artifact_ref_factory(kind="ir.trinity_bundle")
+    """Real selected inputs reach the constructor-forwarding seam; no execution is claimed."""
+    from unit.scientist.nodes.builtins.decide.test_policy_runtime_method_metrics import (
+        _exercise_public_execute_method_metric_source,
+    )
+
+    from polisyos.core.contracts.execution_plan import ExecutionPlan, MethodDagNode
+    from polisyos.scientist.nodes.builtins.state_keys import INPUT_REGISTRY_BUNDLE_REF
+    from polisyos.scientist.orchestration.llm.cycle import persist_candidate_execution_plan
+
+    prepared = _exercise_public_execute_method_metric_source(
+        tmp_path / "selected-inputs", monkeypatch, artifact_store=cas_store, prepare_only=True
+    )
+    selected_plan = ExecutionPlan(
+        plan_id="constructor_forwarding_plan",
+        run_id=minimal_state.run_id,
+        method_dag=[
+            MethodDagNode(
+                node_id="ex_ante_node",
+                method_fqn=prepared["method_fqn"],
+                method_version=prepared["method_version"],
+                backend=prepared["method_backend"],
+                params={"poverty_line": None},
+                reads_slots=["baseline", "scenario"],
+                writes_slots=["result"],
+            )
+        ],
+    )
+    selected_plan_ref, trinity_ref = persist_candidate_execution_plan(
+        cas_store, selected_plan, prepared["trinity_ref"]
+    )
     compile_report_ref = artifact_ref_factory(kind="foundry.compile_report")
     exec_plan_ref = artifact_ref_factory(kind="foundry.exec_plan")
     binding_set_ref = artifact_ref_factory(kind="foundry.method_metric_binding_set")
     selection = MethodMetricBindingRequest(
-        objective_id="objective.employment",
-        node_id="method.outcome",
-        output_slot_id="employment_rate",
+        objective_id="objective_ex_ante_mean_change",
+        node_id="ex_ante_node",
+        output_slot_id="result",
     )
-
     mock_foundry = MagicMock()
-    mock_result = MagicMock()
-    mock_result.ok = True
-    mock_result.compile_report_ref = compile_report_ref
-    mock_result.exec_plan_ref = exec_plan_ref
-    mock_result.derived_refs = [
-        DerivedArtifact(role="method_metric_binding_set", ref=binding_set_ref)
-    ]
-    mock_foundry.compile.return_value = mock_result
-
+    mock_foundry.compile.return_value = MagicMock(
+        ok=True,
+        compile_report_ref=compile_report_ref,
+        exec_plan_ref=exec_plan_ref,
+        derived_refs=[DerivedArtifact(role="method_metric_binding_set", ref=binding_set_ref)],
+    )
     ctx = replace(execution_context, foundry=mock_foundry)
     state = minimal_state.model_copy(deep=True)
     state.inputs[INPUT_TRINITY_BUNDLE_REF] = trinity_ref
+    state.inputs[INPUT_REGISTRY_BUNDLE_REF] = prepared["registry_ref"]
+    state.execution_plan_ref = selected_plan_ref
 
     outcome = CompileFoundryNode(method_metric_bindings=(selection,)).execute(ctx, state)
 
-    assert outcome.status == "ok"
+    assert outcome.status == "ok", outcome.error
+    mock_foundry.compile.assert_called_once()
     request = mock_foundry.compile.call_args.args[1]
-    assert request.schema_version == "1.1"
+    assert request.schema_version == "1.2"
+    assert request.policy_ref == trinity_ref
+    assert request.method_execution_plan_ref == selected_plan_ref
+    assert request.policy_ref.manifest_profile_sha256 is not None
+    assert request.method_execution_plan_ref.manifest_profile_sha256 is not None
     assert request.method_metric_bindings == [selection]
     assert outcome.state.artifacts_index[ARTIFACT_METHOD_METRIC_BINDING_SET_REF] == binding_set_ref
     assert ARTIFACT_METHOD_METRIC_BINDING_SET_REF not in state.artifacts_index

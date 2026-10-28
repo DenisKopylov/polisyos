@@ -1747,6 +1747,46 @@ def _exercise_public_execute_method_metric_source(
     captured_occurrence = next(
         item for item in captured_bundle.occurrences if item.node_id == "ex_ante_node"
     )
+    # Derive the expected scalar independently from the actual selected dispatch
+    # inputs, including deliberate source-snapshot swaps. Requested arrays and
+    # a caller-supplied expected number cannot establish the producer arithmetic.
+    from fractions import Fraction
+
+    from polisyos.foundry.execute import read_state_snapshot_inputs_bounded
+
+    dispatch = captured_occurrence.dispatch
+    assert dispatch is not None and dispatch.input_state_ref is not None
+    captured_inputs = read_state_snapshot_inputs_bounded(
+        store,
+        snapshot_ref=dispatch.input_state_ref,
+        slot_ids=("baseline", "scenario"),
+        max_manifest_bytes=16 * 1024 * 1024,
+        max_snapshot_payload_bytes=16 * 1024 * 1024,
+        max_state_blob_bytes=16 * 1024 * 1024,
+        max_entries=32,
+        max_elements=1_000_000,
+    )
+    captured_arrays = dict(captured_inputs.arrays)
+    captured_baseline = captured_arrays["baseline"].tolist()
+    captured_scenario = captured_arrays["scenario"].tolist()
+    assert captured_baseline and len(captured_baseline) == len(captured_scenario)
+    exact_mean = sum(
+        (
+            Fraction(right) - Fraction(left)
+            for left, right in zip(captured_baseline, captured_scenario, strict=True)
+        ),
+        Fraction(),
+    ) / len(captured_baseline)
+    expected_from_capture = float(exact_mean)
+    assert Fraction(expected_from_capture) == exact_mean, (
+        "Observed-source fixture must stay inside the exact-float mean profile; "
+        f"actual selected rows produce {exact_mean}"
+    )
+    if execution_data_snapshot_ref is None:
+        assert captured_baseline == baseline.tolist()
+        assert captured_scenario == scenario.tolist()
+    if expected_executed_mean is not None:
+        assert expected_executed_mean == expected_from_capture
     returned_inventory = [
         {
             "slot_id": item.slot_id,
@@ -1764,11 +1804,7 @@ def _exercise_public_execute_method_metric_source(
         f"{observation.source_status}:{','.join(observation.limitations)}; "
         f"returned_inventory={returned_inventory!r}"
     )
-    assert observation.value == pytest.approx(
-        float(np.mean(scenario - baseline))
-        if expected_executed_mean is None
-        else expected_executed_mean
-    )
+    assert observation.value == expected_from_capture
     assert "external_causal_validity_not_established" in observation.limitations
     assert "external_empirical_calibration_not_established" in observation.limitations
     assert "external_legal_permission_not_established" in observation.limitations
@@ -4118,7 +4154,8 @@ def test_ex_ante_rank_comparison_detects_changed_baseline(
         monkeypatch,
         job_id="job-baseline-b",
         run_id="run-baseline-b",
-        baseline_values=(10.0, 20.0, 41.0),
+        # Mean0 is exactly representable; mean2/3 belongs to the law's honest precision refusal.
+        baseline_values=(10.0, 20.0, 43.0),
         canonical_compile=True,
     )
     a, b = (
@@ -4130,6 +4167,7 @@ def test_ex_ante_rank_comparison_detects_changed_baseline(
         for source in (first, second)
     )
     assert a.status == b.status == "selected"
+    assert (a.maximizing_coordinate, b.maximizing_coordinate) == (1.0, 0.0)
     assert a.comparison_contract_sha256 != b.comparison_contract_sha256
 
 

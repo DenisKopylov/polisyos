@@ -213,3 +213,13 @@ candidate comparison reads the exact source plan, lowering and constraint regist
 and replays the complete compiler graph/order through the public Foundry facade;
 method-only graph counts cannot replace the mandatory operator closure. The state-view compatibility fix grants no metric value,
 completed-source selection, calibration or publication authority.
+
+Observed ex-ante source fixtures derive their arithmetic oracle from the actual
+selected pre-dispatch baseline/scenario rows, independently of producer output
+and any caller-provided expected number. A positive fixture must remain inside
+the existing exact-float mean profile: the rational mean 2/3 is honestly
+unavailable rather than rounded into admissibility. Baseline-comparability
+controls use supported explicit inputs; the captured rows and independent mean
+remain checked. Constructor-forwarding tests use selected policy/typed-plan refs
+and CompileRequest1.2; a mock forwarding result is not real compiler or Runtime
+completion evidence. These test repairs do not widen production admission.

@@ -901,7 +901,7 @@ def _checkpoint_write_lock(path: Path) -> Iterator[None]:
             fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
 
 
-def _iter_array_paths(value: Any, path: tuple[str, ...] = ()):
+def _iter_array_paths(value: Any, path: tuple[str, ...] = ()) -> Iterator[tuple[str, ...]]:
     if isinstance(value, np.ndarray):
         yield path
         return

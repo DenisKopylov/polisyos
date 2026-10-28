@@ -111,6 +111,118 @@ def test_actual_stub_owner_staging_and_check_detect_complete_byte_drift(tmp_path
                 + checked.stderr
             )
 
+    # Static consumers must see real Enum members, including every runtime alias.
+    # Attribute-presence/AST markers alone cannot prove the generated typing ABI.
+    from enum import Enum
+
+    client_lines = [
+        "from typing import Literal, assert_type",
+        "from polisyos.foundry.methods.base import _stable_digest",
+        "assert_type(_stable_digest({}), str)",
+    ]
+    enum_count = 0
+    member_count = 0
+    for module in generate_stubs.OUTPUT_MAP:
+        runtime_owner = import_module(module)
+        alias = "owner_" + str(enum_count)
+        declarations = []
+        for name, actual in vars(runtime_owner).items():
+            if (
+                isinstance(actual, type)
+                and issubclass(actual, Enum)
+                and actual.__module__ == module
+            ):
+                for member_name, member in actual.__members__.items():
+                    ref = f"{alias}.{name}.{member_name}"
+                    declarations.append(f"assert_type({ref}, Literal[{ref}])")
+                    if type(member.value) in {str, int, float, bool, bytes}:
+                        declarations.append(
+                            f"value_{member_count}: {type(member.value).__name__} = {ref}.value"
+                        )
+                    if type(member.value) in {str, int, bool, bytes}:
+                        declarations.append(
+                            f"literal_{member_count}: Literal[{member.value!r}] = {ref}.value"
+                        )
+                    member_count += 1
+        if declarations:
+            client_lines.append(f"import {module} as {alias}")
+            client_lines.extend(declarations)
+            enum_count += 1
+    assert enum_count and member_count, "the actual canonical family must supply Enum witnesses"
+    enum_client = tmp_path / "enum_consumer.py"
+    enum_client.write_text("\n".join(client_lines) + "\n")
+    type_command = [
+        sys.executable,
+        "-m",
+        "mypy",
+        "--no-fast-exit",
+        "--config-file",
+        str(owner_root / "mypy.ini"),
+        "--strict",
+        "--cache-dir",
+        str(tmp_path / "enum-mypy-cache"),
+    ]
+    for stage, canonical in outputs.items():
+        type_command.extend(["--shadow-file", str(canonical), str(stage)])
+    type_command.extend([str(canonical) for canonical in outputs.values()])
+    type_command.append(str(enum_client))
+    type_output = tmp_path / "enum-mypy-output"
+    type_output.mkdir()
+
+    def retain_type_output(
+        stdout: bytes,
+        stderr: bytes,
+        returncode: int | None,
+        error: str | None = None,
+    ) -> None:
+        streams = {}
+        for name, payload in (("stdout", stdout), ("stderr", stderr)):
+            path = type_output / f"{name}.txt"
+            path.write_bytes(payload)
+            streams[name] = {
+                "path": str(path.resolve()),
+                "bytes": len(payload),
+                "sha256": hashlib.sha256(payload).hexdigest(),
+            }
+        invocation = {
+            "argv": type_command,
+            "cwd": str(owner_root),
+            "returncode": returncode,
+            "status": "COMPLETE" if error is None else "ERROR",
+            "capture_complete": error is None,
+            "error": error,
+            "streams": streams,
+            "consumer": {
+                "path": str(enum_client.resolve()),
+                "sha256": hashlib.sha256(enum_client.read_bytes()).hexdigest(),
+            },
+            "staged_inputs": {
+                str(path): hashlib.sha256(payload).hexdigest() for path, payload in expected.items()
+            },
+        }
+        (type_output / "invocation.json").write_text(json.dumps(invocation, indent=2) + "\n")
+
+    try:
+        typed = subprocess.run(
+            type_command,
+            cwd=owner_root,
+            capture_output=True,
+            check=False,
+            timeout=180,
+        )
+    except subprocess.TimeoutExpired as exc:
+        retain_type_output(exc.stdout or b"", exc.stderr or b"", None, repr(exc))
+        raise
+    except OSError as exc:
+        retain_type_output(b"", b"", None, repr(exc))
+        raise
+    retain_type_output(typed.stdout, typed.stderr, typed.returncode)
+    assert typed.returncode == 0, (
+        "actual generated Enum ABI must pass strict member/value consumers\n"
+        + typed.stdout.decode("utf-8", errors="replace")
+        + typed.stderr.decode("utf-8", errors="replace")
+    )
+
     # Runtime facades, not a second symbol list or the generator's own mapping,
     # independently supply the public names and canonical route for each reexport.
     actual_facade_routes = {}

@@ -4,12 +4,14 @@ from __future__ import annotations
 
 import argparse
 import ast
+import copy
 import json
 import re
 import subprocess
 import sys
 import tempfile
 from collections.abc import Sequence
+from enum import Enum
 from importlib import import_module
 from pathlib import Path
 
@@ -64,6 +66,7 @@ def _run_stubgen(module: str, out_dir: Path, *, verbose: bool) -> Path | None:
         "-o",
         str(out_dir),
         "--no-analysis",
+        "--include-private",
         "--export-less",
     )
     try:
@@ -100,6 +103,82 @@ def _remove_private_exports(content: str) -> str:
             continue
         cleaned.append(line)
     return "\n".join(cleaned) + "\n"
+
+
+def _preserve_source_contract(module: str, content: str) -> str:
+    """Preserve runtime Enum membership and explicit free-function annotations.
+
+    Parse-only stubgen does not classify Enum members and treats every first
+    argument named ``cls`` as implicit, including module-level functions.
+    Derive members from actual runtime Enum classes; preserve source annotations
+    on existing functions rather than curating symbol-specific corrections.
+    ``--include-private`` also retains typed internal callables used by consumers.
+    """
+    source, error = resolve_polisyos_source_module_file(REPO_ROOT, module, is_file=measured_is_file)
+    if source is None or error is not None:
+        raise ValueError(f"Unable to resolve stub source {module}: {error}")
+    source_tree = ast.parse(measured_read_text(source), filename=str(source))
+    tree = ast.parse(content)
+    runtime = import_module(module)
+    functions = {
+        node.name: node
+        for node in source_tree.body
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    }
+    for node in tree.body:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            original = functions.get(node.name)
+            if original is None:
+                continue
+            original_args = {
+                arg.arg: arg
+                for arg in (
+                    *original.args.posonlyargs,
+                    *original.args.args,
+                    *original.args.kwonlyargs,
+                )
+            }
+            for arg in (*node.args.posonlyargs, *node.args.args, *node.args.kwonlyargs):
+                original_arg = original_args.get(arg.arg)
+                if arg.annotation is None and original_arg is not None:
+                    arg.annotation = copy.deepcopy(original_arg.annotation)
+        elif isinstance(node, ast.ClassDef):
+            actual = getattr(runtime, node.name, None)
+            if not isinstance(actual, type) or not issubclass(actual, Enum):
+                continue
+            members = actual.__members__
+            retained = [
+                item
+                for item in node.body
+                if not (
+                    isinstance(item, ast.AnnAssign)
+                    and isinstance(item.target, ast.Name)
+                    and item.target.id in members
+                )
+                and not (
+                    isinstance(item, ast.Assign)
+                    and any(
+                        isinstance(target, ast.Name) and target.id in members
+                        for target in item.targets
+                    )
+                )
+            ]
+            assignments = []
+            for name, member in members.items():
+                value = member.value
+                # Primitive values retain their precise ABI; other Enum values
+                # still require an assignment, and ellipsis is valid in stubs.
+                literal = (
+                    value if type(value) in {str, int, float, bool, bytes, type(None)} else Ellipsis
+                )
+                assignments.append(
+                    ast.Assign(
+                        targets=[ast.Name(id=name, ctx=ast.Store())],
+                        value=ast.Constant(value=literal),
+                    )
+                )
+            node.body = [*assignments, *retained]
+    return ast.unparse(ast.fix_missing_locations(tree)) + "\n"
 
 
 def _render_reexport(owner: str) -> str:
@@ -173,7 +252,9 @@ def _render_stubs(out_dir: Path, *, verbose: bool) -> dict[Path, str] | None:
                 if stub_path is None:
                     failed.append(module)
                     continue
-                cleaned = _remove_private_exports(measured_read_text(stub_path))
+                cleaned = _preserve_source_contract(
+                    module, _remove_private_exports(measured_read_text(stub_path))
+                )
             else:
                 cleaned = _render_reexport(owner)
             cleaned = _canonicalize_stub(target, cleaned)

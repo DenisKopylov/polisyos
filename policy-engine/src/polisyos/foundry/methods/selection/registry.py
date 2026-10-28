@@ -67,7 +67,9 @@ from polisyos.foundry.methods.exceptions import (
 from polisyos.foundry.methods.lifecycle import (
     LifecycleLog,
     LifecycleManager,
-    MethodLifecycle,
+)
+from polisyos.foundry.methods.lifecycle import (
+    MethodLifecycle as MethodLifecycle,
 )
 
 # ---------------------------------------------------------------------------

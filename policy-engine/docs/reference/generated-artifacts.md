@@ -3421,7 +3421,7 @@ uv run python -m tools.quality.validation.check_grounding_refusal_sensitivity --
 
 - Family id: `foundry-method-stubs`
 - Lifecycle: `generated_committed`
-- Source of truth: tools/devx/foundry/generate_stubs.py OUTPUT_MAP and REEXPORT_OWNERS derived canonical owner __all__, the canonical Ruff import/format/full-check pipeline, and ruff.toml/ruff.generated.toml; src/polisyos/foundry/methods/base.py, components/composer.py, and canonical registry/composer facade owners, including transitive imported type contracts
+- Source of truth: tools/devx/foundry/generate_stubs.py OUTPUT_MAP and REEXPORT_OWNERS derived canonical owner __all__, parse-only stubgen with private callable inclusion, source-derived free-function annotations, actual runtime Enum membership/value assignments, the canonical Ruff import/format/full-check pipeline, and ruff.toml/ruff.generated.toml; src/polisyos/foundry/methods/base.py, components/composer.py, and canonical registry/composer facade owners, including transitive imported type contracts
 - Generator: tools/devx/foundry/generate_stubs.py through polisyos-tools foundry generate-stubs
 - Verifier: The same generator regenerates and byte-compares its complete OUTPUT_MAP with --check
 - Promotion target: committed Foundry Python ABI stubs; no runtime or scientific authority

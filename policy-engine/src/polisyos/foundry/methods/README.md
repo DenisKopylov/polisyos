@@ -214,3 +214,27 @@ Catalog-family tests should mirror the package layout under
 - [docs/reference/foundry/frontier-methods.md](../../../../docs/reference/foundry/frontier-methods.md)
 - [docs/reference/foundry/observability-reproducibility.md](../../../../docs/reference/foundry/observability-reproducibility.md)
 - [docs/plans/active/FOUNDRY_REMEDIATION_PLAN.md](../../../../docs/plans/active/FOUNDRY_REMEDIATION_PLAN.md)
+
+## Generated ABI semantics
+
+The four committed method stubs are produced together by `polisyos-tools foundry generate-stubs`. The owner uses
+parse-only stubgen with private callable inclusion, restores explicit source
+annotations that stubgen treats as implicit receiver annotations, and emits
+actual runtime Enum members as assignments. This preserves typed internal
+consumers such as `_stable_digest` and Enum attribute/value semantics; canonical
+Ruff formatting alone does not establish a valid typing ABI.
+
+Regenerate into a new `--output-root`, inspect all four genuine outputs, and then
+run the same owner with `--check`. The defining staged-owner test also invokes
+strict mypy with all four canonical paths shadowed by the staged bytes and a
+consumer derived from every Enum declared by the canonical owners. Member names
+and expected value types come from runtime Enum objects, independently of the
+producer transform. The type client also consumes the real private digest ABI.
+No generated file should be corrected manually or by weakening `mypy.ini`.
+
+`ParamsT` is contravariant because the method protocol only consumes it; this
+corrects the static protocol declaration without changing the runtime call ABI.
+Collection helpers accept the iterable contracts they actually traverse, and
+executor helpers retain typed signatures through dispatch and cache composition.
+Ray's optional backend must be available in a profile claiming its strict import
+check; an absent Ray installation is an environment limitation, not a product PASS.

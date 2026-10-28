@@ -1006,7 +1006,7 @@ class MethodMetadata:
 # ---------------------------------------------------------------------------
 
 StateT = TypeVar("StateT")
-ParamsT = TypeVar("ParamsT", bound=Mapping[str, Any])
+ParamsT = TypeVar("ParamsT", bound=Mapping[str, Any], contravariant=True)
 
 
 @runtime_checkable

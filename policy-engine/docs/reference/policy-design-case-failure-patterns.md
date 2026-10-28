@@ -586,3 +586,23 @@ non-test production caller/readback before claiming the operational chain wired.
 These are existing classes, not new pattern IDs or a FED closure decision. The
 original B138–B145 occurrences and historical ledger dispositions remain the owners;
 source proposals and static checks are not runtime or G acceptance evidence.
+
+### P38 instance: formatted generated stubs can lose the typing ABI
+
+The C60 four-output renderer passed genuine byte freshness and canonical Ruff
+checks at its recorded source, while strict mypy 1.19.1 subsequently rejected
+parse-only stubgen's annotated Enum attributes as zero-member Enums. The same
+parse-only route drops explicit annotations on a module-level first parameter
+named `cls`; excluding private callables also hides an ABI used by real consumers.
+Formatting/freshness and semantic typing are distinct properties. A valid Python
+stub with all member names present can still expose no enum members to a type
+consumer. This is an existing P38 proxy class, not a new status or authority rule.
+
+The repair derives assignment-style members and values from actual runtime Enum
+objects, retains typed private definitions, and restores explicit source
+free-function annotations. The independent staged-byte oracle invokes the real
+strict checker on the complete generated family and Enum/member/value consumers,
+including literal values and an actual private callable. Removing semantic
+preservation while keeping names, formatting and measurement markers must fail
+that checker. A repair proposal or source review does not establish runtime PASS;
+its real generator/type/removal checks remain separately bound evidence.

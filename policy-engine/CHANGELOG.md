@@ -20,6 +20,11 @@ commits filtered out.
 
 ### Changed
 
+- Preserve actual Enum members, explicit free-function annotations and typed internal
+  callables in generated Foundry method ABI stubs; carry concrete signature and
+  collection types through compilation, dispatch and checkpoint consumers. Strict
+  generated-ABI verification uses staged bytes and actual Enum consumers.
+
 - Change packaging extras by adding umbrella `all` and MkDocs tooling to the `dev` extra.
 - Change the `polisyos` CLI to expose `--version` for installation verification.
 - Route Scientist method dispatch through the canonical process-shared executor and allow Runtime

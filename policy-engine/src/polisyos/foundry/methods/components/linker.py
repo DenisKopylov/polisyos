@@ -6,7 +6,7 @@ All validation happens at link time (Python layer) before any JAX compilation.
 
 from __future__ import annotations
 
-from collections.abc import Iterator, Mapping, Sequence
+from collections.abc import Iterable, Iterator, Mapping, Sequence
 from dataclasses import dataclass, replace
 from typing import Literal
 from uuid import UUID
@@ -395,18 +395,18 @@ class SlotLinker:
         bindings: list[SlotBinding] = []
 
         for tgt_name, tgt_slot in target_inputs.items():
-            src_name = matched_targets.get(tgt_name)
-            if src_name is None:
+            matched_source = matched_targets.get(tgt_name)
+            if matched_source is None:
                 continue
 
             src_slot, compat = next(
                 (slot, edge_compat)
                 for slot, edge_compat in candidate_edges[tgt_name]
-                if slot.name == src_name
+                if slot.name == matched_source
             )
             binding = SlotBinding(
                 source_method=source_sig.fqn,
-                source_slot=src_name,
+                source_slot=matched_source,
                 target_method=target_sig.fqn,
                 target_slot=tgt_name,
                 compatibility=compat,
@@ -574,7 +574,7 @@ def check_linkable(
 # -----------------------------------------------------------------------------
 
 
-def _slots_by_name(slots: Sequence[SlotSpec]) -> dict[str, SlotSpec]:
+def _slots_by_name(slots: Iterable[SlotSpec]) -> dict[str, SlotSpec]:
     return {slot.name: slot for slot in sorted(slots, key=lambda s: s.name)}
 
 

@@ -86,7 +86,7 @@ class AsyncNodeError:
 
     node_id: UUID
     method_fqn: str
-    error: Exception
+    error: BaseException
 
     def __str__(self) -> str:
         return f"[{self.method_fqn}] {type(self.error).__name__}: {self.error}"

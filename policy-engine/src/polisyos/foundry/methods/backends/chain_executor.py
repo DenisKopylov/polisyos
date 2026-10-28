@@ -7,9 +7,9 @@ import re
 import threading
 import time as _time
 from collections import OrderedDict
-from collections.abc import Callable, Mapping
+from collections.abc import Buffer, Callable, Mapping
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Literal, Protocol
+from typing import TYPE_CHECKING, Any, Literal, Protocol, SupportsFloat, SupportsIndex
 from uuid import UUID
 
 import numpy as np
@@ -31,7 +31,12 @@ from polisyos.foundry.methods.backends.runtime_fingerprint import (
     runtime_stack_for,
     safe_version,
 )
-from polisyos.foundry.methods.base import ComputeBackend, _stable_digest
+from polisyos.foundry.methods.base import (
+    ComputeBackend,
+    FoundryMethod,
+    MethodSignature,
+    _stable_digest,
+)
 from polisyos.foundry.methods.components.io import (
     _validate_materialized_input_slots,
     dematerialize_method_output,
@@ -43,7 +48,7 @@ from polisyos.foundry.methods.selection.registry import MethodRegistry
 from polisyos.foundry.methods.types.checker import ShapeAdapterKind
 
 if TYPE_CHECKING:
-    from polisyos.foundry.methods.components.composer import ValidationContext
+    from polisyos.foundry.methods.components.composer import CompiledMethodChain, ValidationContext
 
 _log = get_foundry_logger("foundry.backends.chain")
 
@@ -71,6 +76,8 @@ class StaticFxRateProvider:
     @staticmethod
     def _coerce_rate_value(value: object) -> float:
         try:
+            if not isinstance(value, (str, Buffer, SupportsFloat, SupportsIndex)):
+                raise TypeError("FX rate does not support numeric conversion")
             return float(value)
         except (TypeError, ValueError) as exc:
             raise MethodContractError(
@@ -198,17 +205,20 @@ def _build_chain_reproducibility_contract(
     *,
     composition_kind: str,
 ) -> dict[str, Any]:
-    budgets = [
+    budgets: list[Mapping[str, Any]] = [
         dict(result.reproducibility.observed_tolerance_budget or {}) for _, result in node_results
     ]
-    tiers = [result.reproducibility.determinism_tier for _, result in node_results]
+    tiers: list[DeterminismTier | None] = [
+        result.reproducibility.determinism_tier for _, result in node_results
+    ]
     composed_budget = compose_observed_tolerance_budgets(
         budgets,
         determinism_tiers=tiers,
         composition_kind=composition_kind,
     )
+    met_tier = meet_determinism_tiers(tiers)
     observed_tier = composed_budget.get("downgraded_to") or (
-        None if meet_determinism_tiers(tiers) is None else meet_determinism_tiers(tiers).value
+        None if met_tier is None else met_tier.value
     )
     executed_backends = list(
         dict.fromkeys(result.reproducibility.backend.value for _, result in node_results)
@@ -250,10 +260,9 @@ def _build_level_parallel_reproducibility_contract(
         determinism_tiers=level_tiers,
         composition_kind="serial",
     )
+    met_tier = meet_determinism_tiers(level_tiers)
     observed_tier = composed_budget.get("downgraded_to") or (
-        None
-        if meet_determinism_tiers(level_tiers) is None
-        else meet_determinism_tiers(level_tiers).value
+        None if met_tier is None else met_tier.value
     )
     executed_backends = list(
         dict.fromkeys(result.reproducibility.backend.value for _, result in node_results)
@@ -352,7 +361,7 @@ def _build_node_param_payload(
 
 
 def _resolve_dynamic_payload(
-    signature,
+    signature: MethodSignature,
     params: Mapping[str, Any],
 ) -> tuple[dict[str, Any], dict[str, Any], tuple[str, ...]]:
     from polisyos.foundry.methods.compiler import _resolve_params  # lazy: compiler imports jax
@@ -375,8 +384,8 @@ def _pack_dynamic_values(
 
 
 def _make_fused_kernel_key(
-    signature_a,
-    signature_b,
+    signature_a: MethodSignature,
+    signature_b: MethodSignature,
     static_params_a: Mapping[str, Any],
     static_params_b: Mapping[str, Any],
     dynamic_names_a: tuple[str, ...],
@@ -397,16 +406,16 @@ def _make_fused_kernel_key(
 
 
 def _collect_node_inputs(
-    chain,
+    chain: CompiledMethodChain,
     node_id: UUID,
-    reg,
+    reg: MethodRegistry,
     node_slot_outputs: Mapping[UUID, Mapping[str, Any]],
     fx_rate_provider: FxRateProvider | None,
     current_state: Any,
-    signature,
+    signature: MethodSignature,
     current_context: Any,
     params_per_node: Mapping[UUID, Mapping[str, Any]] | None,
-) -> tuple[Any, Any, Mapping[str, Any], dict[str, Any]]:
+) -> tuple[type[FoundryMethod[Any, Mapping[str, Any]]], Any, MethodSignature, dict[str, Any]]:
     method_class = reg.get(signature.fqn)
     node = chain.get_node(node_id)
     combined_params = _build_node_param_payload(node, params_per_node)
@@ -477,7 +486,7 @@ def _collect_node_inputs(
     return method_class, materialized_state, signature, combined_params
 
 
-def _can_fuse_pair(chain, node_a_id: UUID, node_b_id: UUID) -> bool:
+def _can_fuse_pair(chain: CompiledMethodChain, node_a_id: UUID, node_b_id: UUID) -> bool:
     signature_a = chain.get_signature(node_a_id)
     signature_b = chain.get_signature(node_b_id)
     if signature_a.backend != ComputeBackend.JAX or signature_b.backend != ComputeBackend.JAX:
@@ -524,8 +533,8 @@ def _can_fuse_pair(chain, node_a_id: UUID, node_b_id: UUID) -> bool:
 
 def _build_fused_result(
     *,
-    method_class,
-    signature,
+    method_class: type[FoundryMethod[Any, Mapping[str, Any]]],
+    signature: MethodSignature,
     output: Any,
     wall_time_ms: float,
     compile_time_ms: float,
@@ -545,7 +554,7 @@ def _build_fused_result(
         runtime_stack=runtime_stack_for(method_class),
     )
     try:
-        import jax  # type: ignore[import-not-found]
+        import jax
 
         versions.setdefault("jax", str(getattr(jax, "__version__", "")))
         jaxlib_version = safe_version("jaxlib")
@@ -582,10 +591,10 @@ def _build_fused_result(
 
 
 def _compile_fused_pair_kernel(
-    method_class_a,
-    method_class_b,
-    signature_a,
-    signature_b,
+    method_class_a: type[FoundryMethod[Any, Mapping[str, Any]]],
+    method_class_b: type[FoundryMethod[Any, Mapping[str, Any]]],
+    signature_a: MethodSignature,
+    signature_b: MethodSignature,
     b_input_slot: str,
     params_a: Mapping[str, Any],
     params_b: Mapping[str, Any],
@@ -754,7 +763,7 @@ def _execute_sequential_chain(
                 and "materialize_input" not in method_b.__dict__
             )
 
-            if fused_supported:
+            if fused_supported and b_binding is not None:
                 try:
                     method_a, materialized_state_a, _, prepared_params_a = _collect_node_inputs(
                         chain=chain,
@@ -776,6 +785,7 @@ def _execute_sequential_chain(
                         params_b,
                     )
 
+                    b_input_slot = b_binding.source_slot
                     kernel_key = _make_fused_kernel_key(
                         signature_a=signature_a,
                         signature_b=signature_b,
@@ -783,7 +793,7 @@ def _execute_sequential_chain(
                         static_params_b=static_b,
                         dynamic_names_a=dynamic_names_a,
                         dynamic_names_b=dynamic_names_b,
-                        b_input_slot=b_binding.source_slot,
+                        b_input_slot=b_input_slot,
                     )
                     kernel_entry, _cache_hit = _FUSED_JIT_CACHE.get_or_build(
                         key=kernel_key,
@@ -792,7 +802,7 @@ def _execute_sequential_chain(
                             method_b,
                             signature_a,
                             signature_b,
-                            b_binding.source_slot,
+                            b_input_slot,
                             params_a,
                             params_b,
                         ),

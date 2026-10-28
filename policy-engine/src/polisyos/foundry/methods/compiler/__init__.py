@@ -32,7 +32,7 @@ from polisyos.foundry.methods.compiler.specialization import (
 from polisyos.foundry.methods.exceptions import CompilationError, ParameterValidationError
 
 if TYPE_CHECKING:
-    from polisyos.foundry.methods.components.composer import ValidationContext
+    from polisyos.foundry.methods.components.composer import CompiledMethodChain, ValidationContext
 
 __all__ = [
     "CompilationCache",
@@ -688,7 +688,7 @@ class MethodCompiler:
 
     def _compile_method(
         self,
-        method_class: type,
+        method_class: type[FoundryMethodProtocol],
         signature: MethodSignature,
         specialization: Specialization,
         static_params: dict[str, Any],
@@ -721,6 +721,7 @@ class MethodCompiler:
                 in_axes=(vmap_axis, None, None),
             )
 
+        step_core: KernelStepFn
         if jit:
             jit_kwargs: dict[str, Any] = {}
             if donate_argnums:
@@ -949,7 +950,7 @@ class CompiledChainExecutor:
     Executor for a compiled method chain.
     """
 
-    chain: Any
+    chain: CompiledMethodChain
     compiled_methods: tuple[tuple[Any, CompiledMethod], ...]
 
     def __call__(

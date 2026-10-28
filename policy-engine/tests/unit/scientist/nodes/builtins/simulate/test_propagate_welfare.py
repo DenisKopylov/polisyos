@@ -5499,8 +5499,18 @@ def test_typed_batch_report_missing_basis_cannot_take_legacy_inference_fallback(
         for edge in store.get_manifest(report_ref).inputs
         if edge.role != "calibration_execution_input_basis"
     ]
-    with pytest.raises(ValueError, match="exact_config_and_basis_edges"):
-        put_calibration_report(store, report, inputs=inputs)
+    from unittest.mock import patch
+
+    from polisyos.foundry.calibration import CalibrationSourceReadRefusal
+
+    assert not any(edge.role == "calibration_execution_input_basis" for edge in inputs)
+    assert any(edge.role == "calibration_config" for edge in inputs)
+    with patch.object(store, "put_json", wraps=store.put_json) as publisher:
+        with pytest.raises(CalibrationSourceReadRefusal) as refusal:
+            put_calibration_report(store, report, inputs=inputs)
+        publisher.assert_not_called()
+    assert refusal.value.result.status == "not_established"
+    assert refusal.value.result.code == "calibration_execution_input_basis:selection_missing"
     manifest = store.get_manifest(report_ref)
     # A direct CAS writer can still present an untrusted selected view. The fresh consumer refuses inference.
     missing_basis = store.put_json(
@@ -5667,6 +5677,45 @@ def test_autotune_actual_consumer_admits_only_replayed_new_batch_metrics(
         ),
     )
     candidate_ref = persist_mutation_artifact(store, CalibrationMetaSearchConfig())
+    if mode != "selected":
+        # Qualify the unmodified report before any adversarial view is produced.
+        # A shared earlier refusal must never make the intended negative green.
+        baseline_result = CalibrationMetaEvaluator(store=FileSystemCAS(path)).evaluate(
+            candidate_ref,
+            suite_ref,
+            {"calibration_runner": lambda *_args: (report, report_ref)},
+        )
+        baseline_evaluation_ref = persist_benchmark_evaluation(store, baseline_result)
+        baseline_payload = from_canonical_bytes(
+            FileSystemCAS(path).get_bytes(baseline_evaluation_ref)
+        )
+        baseline_admission = baseline_payload["metadata"]["calibration_metric_sources"]["holdout"][
+            0
+        ]
+        baseline_join = _calibration_execution_source_join(
+            _b197_execution_context(
+                FileSystemCAS(path),
+                source["registry"].bundle_ref,
+                f"R_ordered_baseline_cross_consumer_{mode}",
+            ),
+            _b197_execution_state(simulation_ref, report_ref),
+            report_ref=report_ref,
+            report=report,
+        )
+        # Both real consumer observations are collected before admission assertions.
+        baseline_sources = {
+            "welfare": baseline_join[0],
+            "autotune": baseline_admission["metric_source_status"],
+        }
+        assert baseline_sources == dict.fromkeys(baseline_sources, "matched"), (
+            "ordered_metric_negative_requires_qualified_selected_positive",
+            baseline_sources,
+            baseline_join,
+            baseline_admission,
+        )
+        assert baseline_result.status == "ok"
+        assert baseline_result.guardrails["calibration_metric_sources_ready"] is True
+        assert baseline_result.sample_counts == {"selection": 1, "holdout": 1}
     returned = report
     if mode in {
         "missing_basis",
@@ -5773,6 +5822,11 @@ def test_autotune_actual_consumer_admits_only_replayed_new_batch_metrics(
         )
     else:
         assert admission["metric_source_status"] == expected_source_status
+    if mode == "changed_metrics":
+        assert (
+            "ordered_report_metrics_do_not_match_selected_projection"
+            in admission["limitation_codes"]
+        ), admission
     if mode == "selected":
         assert result.status == "ok"
         assert result.guardrails["calibration_metric_sources_ready"] is True

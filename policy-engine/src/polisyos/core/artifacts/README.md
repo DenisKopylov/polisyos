@@ -446,3 +446,24 @@ For a resource-bounded read, call `read_core_json_artifact_bounded` with explici
 The confidence-ledger loaded-deployment identity follows source-declared lazy facade providers before it admits the source closure. Literal PEP 562 dictionaries and guarded name-set branches that import a literal module and return the requested attribute contribute provider edges. Dynamic or ambiguous provider expressions fail closed. After the facade API is frozen, from the repository root run `cd policy-engine && uv run polisyos-tools architecture guardrails sync --skip-deep-import-baseline`, then run `cd policy-engine && uv run polisyos-tools architecture guardrails check`. Generated snapshots remain separate from this contract until that review is complete.
 
 The exact same-owner no-op witness binds the producer and receiver to the same tenant and cell and verifies that every selected manifest carries that context; an unscoped same-byte cache intake does not establish this owner no-op case.
+
+### Nullable typed model containers
+
+The strict Core model reader treats a present nullable value with exactly one
+non-None union arm as that arm and recursively uses its existing typed owner.
+This includes optional Mapping/List/Tuple containers of models and further nested
+nullable values. It reifies enum/date/tuple wire values before the single terminal
+strict model validation; it does not replace strict validation with model coercion.
+Explicit null remains allowed only by the declared model, and a required nullable
+field remains required. Competing non-null union branches retain their existing
+schema/discriminator admission and refusal behavior.
+
+Both full selected JSON reads and verified bounded model reads use this common
+adaptation. The bounded byte/profile/receipt admission kernel is unchanged. A real
+calibration report with optional mapped uncertainty envelopes exposed the missing
+container recursion; the canonical bytes conformed, while terminal strict validation
+still saw raw enum strings. Native report-read diagnostics and consumer checks,
+not source review alone, qualify a composed correction. Generic tests cover fresh
+selected full/bounded reads, nested model containers, malformed values, required/null
+fields and terminal validator counts. No schema, wire enum, authority or source
+currentness is introduced.

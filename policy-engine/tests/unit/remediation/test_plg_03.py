@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
+import math
+import shutil
 from dataclasses import replace as dataclass_replace
 from decimal import Decimal
 from pathlib import Path
@@ -11,6 +14,7 @@ from pathlib import Path
 import equinox as eqx
 import jax
 import jax.numpy as jnp
+import optax
 import pytest
 
 from polisyos.core.artifacts.ids import ArtifactID
@@ -250,11 +254,13 @@ def test_economics_conditional_outputs_match_complete_native_pytree_abi(
 def test_economics_training_updates_policy_and_produces_readable_artifact(
     simulator: PolisySimulator,
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """The bridge must use the native optimizer and expose a learned artifact."""
 
     simulator.initialize(seed=7)
     _set_supported_nonnegative_active_wealth(simulator, 1_000_000.0)
+    initial_composite = simulator.get_state()
     config = _small_config()
     adapter = EconomicsTrainingAdapter.from_composite(
         simulator.get_state(),
@@ -270,13 +276,37 @@ def test_economics_training_updates_policy_and_produces_readable_artifact(
         action_dim=1,
     )
 
-    result = simulator.train(
-        n_episodes=config.n_episodes,
-        training_config=config,
-        seed=7,
-        output_dir=tmp_path / "training-output",
-    )
+    # Observe real, pre-clipping gradients at the existing optimizer boundary.
+    # The wrapper delegates the actual update unchanged; the same-seed replay
+    # below runs without it and checks that the observer did not alter results.
+    gradient_norms: list[float] = []
+    native_chain = optax.chain
 
+    def observing_chain(*transforms):
+        native_optimizer = native_chain(*transforms)
+
+        def observing_update(gradients, state, params=None):
+            jax.debug.callback(
+                lambda value: gradient_norms.append(float(value)),
+                optax.global_norm(gradients),
+                ordered=True,
+            )
+            return native_optimizer.update(gradients, state, params)
+
+        return optax.GradientTransformation(native_optimizer.init, observing_update)
+
+    with monkeypatch.context() as observing:
+        observing.setattr(optax, "chain", observing_chain)
+        result = simulator.train(
+            n_episodes=config.n_episodes,
+            training_config=config,
+            seed=7,
+            output_dir=tmp_path / "training-output",
+        )
+
+    assert gradient_norms, "the executing native optimizer did not emit a raw gradient"
+    assert all(math.isfinite(value) for value in gradient_norms)
+    assert any(value > 0.0 for value in gradient_norms)
     assert isinstance(result, TrainingResult)
     assert result.status == "trained"
     assert result.trained_policy is not None
@@ -322,16 +352,181 @@ def test_economics_training_updates_policy_and_produces_readable_artifact(
     assert isinstance(manifest_payload["metrics"]["learning_rate"], Decimal)
 
     initial_action, _ = initial_policy(obs, deterministic=True)
-    trained_action, _ = result.trained_policy(obs, deterministic=True)
+
+    # Reopen the CAS and reconstruct the model independently rather than using
+    # either policy object retained by the producer.  This is the consumer
+    # oracle: a success-shaped result cannot satisfy it with in-memory weights.
+    fresh_store = FileSystemCAS(tmp_path / "training-output" / "artifacts")
+    fresh_skeleton = ActorCritic(
+        jax.random.PRNGKey(7),
+        obs_dim=obs.shape[-1],
+        hidden_dims=(64, 64),
+        action_dim=1,
+    )
+    fresh_policy, fresh_warnings = load_policy_artifact(
+        fresh_store,
+        result.artifact_refs[1],
+        fresh_skeleton,
+        DeterminismTier.STRICT_CPU,
+        7,
+        strict=True,
+    )
+    assert fresh_warnings == []
+    assert _tree_delta(fresh_skeleton, fresh_policy) > 0.0
+    assert _tree_delta(result.trained_policy, fresh_policy) == 0.0
+
+    trained_action, _ = fresh_policy(obs, deterministic=True)
     assert bool(jnp.all(jnp.isfinite(trained_action)))
     assert float(jnp.max(jnp.abs(trained_action - initial_action))) > 0.0
+
+    # Exercise the real policy-bearing executor at the same state.  The
+    # persisted learned action must be consumed by a real next transition.
+    initial_next, _ = adapter.make_executor(initial_policy, config).step(initial_state)
+    learned_next, _ = adapter.make_executor(fresh_policy, config).step(initial_state)
+    assert (
+        float(jnp.max(jnp.abs(initial_next.agents.consumption - learned_next.agents.consumption)))
+        > 0.0
+    )
     assert result.artifact.load_weights(result.trained_policy) is not None
 
+    # The persisted actor must be consumed by the public continuation at an
+    # actual post-training state.  Compare against the native executor directly
+    # from that same state/key, then against the untrained actor on that state.
     final_state = simulator.get_state()
-    assert int(final_state.time_step) > 0
+    assert int(final_state.time_step) > int(initial_composite.time_step)
+    later_native = adapter.to_native_state(seed=7, state=final_state)
+    later_obs = build_temporal_observations(
+        later_native,
+        horizon=config.horizon,
+        include_expectations=config.include_expectations,
+    )
+    old_later_action, _ = initial_policy(later_obs, deterministic=True)
+    new_later_action, _ = fresh_policy(later_obs, deterministic=True)
+    assert float(jnp.max(jnp.abs(new_later_action - old_later_action))) > 0.0
+    expected_learned, _ = adapter.make_executor(fresh_policy, config).step(
+        later_native, fidelity=config.fidelity
+    )
+    expected_initial, _ = adapter.make_executor(initial_policy, config).step(
+        later_native, fidelity=config.fidelity
+    )
+    assert (
+        float(
+            jnp.max(
+                jnp.abs(expected_learned.agents.consumption - expected_initial.agents.consumption)
+            )
+        )
+        > 0.0
+    )
+
+    # A changed seed must affect the stochastic path, with every non-RNG
+    # native-state leaf, source state, actor, and configuration held fixed.
+    alternate_native = adapter.to_native_state(seed=19, state=final_state)
+    first_leaves, first_structure = jax.tree_util.tree_flatten(
+        later_native.replace(rng_key=alternate_native.rng_key)
+    )
+    alternate_leaves, alternate_structure = jax.tree_util.tree_flatten(alternate_native)
+    assert first_structure == alternate_structure
+    for first_leaf, alternate_leaf in zip(first_leaves, alternate_leaves, strict=True):
+        assert bool(jnp.array_equal(jnp.asarray(first_leaf), jnp.asarray(alternate_leaf)))
+    assert not bool(jnp.array_equal(later_native.rng_key, alternate_native.rng_key))
+
+    from polisyos.foundry.plugins import training_adapter as training_adapter_module
+
+    cas_root = tmp_path / "training-output" / "artifacts"
+
+    def cas_snapshot() -> dict[str, str]:
+        return {
+            str(path.relative_to(cas_root)): hashlib.sha256(path.read_bytes()).hexdigest()
+            for path in cas_root.rglob("*")
+            if path.is_file()
+        }
+
+    def unexpected_training_or_store(*_args, **_kwargs):
+        raise AssertionError("public evaluation invoked the training or policy-storage owner")
+
+    before_evaluation = cas_snapshot()
+    with monkeypatch.context() as evaluating:
+        evaluating.setattr(
+            training_adapter_module,
+            "train_actor_critic_with_artifact",
+            unexpected_training_or_store,
+        )
+        evaluating.setattr(
+            training_adapter_module, "store_policy_artifact", unexpected_training_or_store
+        )
+        simulator._state = final_state
+        simulator._agent_policy = fresh_policy
+        learned_run = simulator.run(n_steps=1, seed=7)
+        assert simulator._agent_policy is fresh_policy
+        assert _tree_delta(result.trained_policy, simulator._agent_policy) == 0.0
+
+        simulator._state = final_state
+        simulator._agent_policy = initial_policy
+        initial_run = simulator.run(n_steps=1, seed=7)
+
+        simulator._state = final_state
+        simulator._agent_policy = fresh_policy
+        repeat_run = simulator.run(n_steps=1, seed=7)
+
+        simulator._state = final_state
+        simulator._agent_policy = fresh_policy
+        changed_seed_run = simulator.run(n_steps=1, seed=19)
+
+    assert cas_snapshot() == before_evaluation
+    learned_consumption = learned_run.final_state.get_domain("economics").agents.consumption
+    initial_consumption = initial_run.final_state.get_domain("economics").agents.consumption
+    repeat_consumption = repeat_run.final_state.get_domain("economics").agents.consumption
+    changed_seed_consumption = changed_seed_run.final_state.get_domain(
+        "economics"
+    ).agents.consumption
+    assert int(learned_run.final_state.time_step) == int(final_state.time_step) + 1
+    assert int(initial_run.final_state.time_step) == int(final_state.time_step) + 1
+    assert bool(jnp.array_equal(learned_consumption, expected_learned.agents.consumption))
+    assert bool(jnp.array_equal(initial_consumption, expected_initial.agents.consumption))
+    assert float(jnp.max(jnp.abs(learned_consumption - initial_consumption))) > 0.0
+    assert bool(jnp.array_equal(learned_consumption, repeat_consumption))
+    assert float(jnp.max(jnp.abs(learned_consumption - changed_seed_consumption))) > 0.0
+
+    # A fresh reader must not silently reuse the producer's in-memory actor if
+    # the separately persisted weight blob is missing in an isolated CAS copy.
+    copied_cas_root = tmp_path / "missing-weights-cas"
+    shutil.copytree(cas_root, copied_cas_root)
+    weight_id = result.artifact_refs[0].artifact_id
+    copied_weight_blobs = list(copied_cas_root.rglob(f"{weight_id.hex}.blob"))
+    assert len(copied_weight_blobs) == 1
+    copied_weight_blobs[0].unlink()
+    with pytest.raises(FileNotFoundError):
+        load_policy_artifact(
+            FileSystemCAS(copied_cas_root),
+            result.artifact_refs[1],
+            fresh_skeleton,
+            DeterminismTier.STRICT_CPU,
+            7,
+            strict=True,
+        )
+    intact_policy, _ = load_policy_artifact(
+        FileSystemCAS(cas_root),
+        result.artifact_refs[1],
+        fresh_skeleton,
+        DeterminismTier.STRICT_CPU,
+        7,
+        strict=True,
+    )
+    assert _tree_delta(fresh_policy, intact_policy) == 0.0
 
     simulator.initialize(seed=7)
+    assert simulator._agent_policy is None
+    assert simulator._training_config is None
     _set_supported_nonnegative_active_wealth(simulator, 1_000_000.0)
+    reset_domain = simulator.get_state().get_domain("economics")
+    original_domain = initial_composite.get_domain("economics")
+    assert int(simulator.get_state().time_step) == int(initial_composite.time_step)
+    for field in ("active", "age", "income", "wealth", "wage"):
+        assert bool(
+            jnp.array_equal(
+                getattr(reset_domain.agents, field), getattr(original_domain.agents, field)
+            )
+        )
     reset_result = simulator.train(
         n_episodes=config.n_episodes,
         training_config=config,
@@ -349,6 +544,66 @@ def test_economics_training_updates_policy_and_produces_readable_artifact(
     assert int(continuation.final_state.time_step) > reset_step
     assert simulator.get_state() is continuation.final_state
     assert simulator._agent_policy is reset_result.trained_policy
+
+
+@pytest.mark.parametrize("signal", ["parameters", "action"], ids=["parameters", "action"])
+def test_fresh_policy_independent_oracle_rejects_success_shaped_no_update(
+    simulator: PolisySimulator,
+    tmp_path: Path,
+    signal: str,
+) -> None:
+    """Each selector detects an unchanged persisted actor before checking status."""
+    simulator.initialize(seed=7)
+    _set_supported_nonnegative_active_wealth(simulator, 1_000_000.0)
+    config = _small_config()
+    adapter = EconomicsTrainingAdapter.from_composite(simulator.get_state(), simulator._executor)
+    assert adapter is not None
+    initial_state = adapter.to_native_state(seed=7)
+    initial_obs = build_temporal_observations(
+        initial_state,
+        horizon=config.horizon,
+        include_expectations=config.include_expectations,
+    )
+    initial_actor = ActorCritic(
+        jax.random.PRNGKey(7),
+        obs_dim=initial_obs.shape[-1],
+        hidden_dims=(64, 64),
+        action_dim=1,
+    )
+    cas_root = tmp_path / "independent-policy-cas"
+    result = simulator.train(
+        n_episodes=config.n_episodes,
+        training_config=config,
+        seed=7,
+        artifact_store=FileSystemCAS(cas_root),
+    )
+    # Required to reach the actual fresh-reader assertion; status is checked
+    # only after the independent numerical signal has been evaluated.
+    assert result.artifact_refs is not None, "the fresh-reader branch was not reached"
+    fresh_actor, warnings = load_policy_artifact(
+        FileSystemCAS(cas_root),
+        result.artifact_refs[1],
+        initial_actor,
+        DeterminismTier.STRICT_CPU,
+        7,
+        strict=True,
+    )
+    assert warnings == []
+    if signal == "parameters":
+        assert _tree_delta(initial_actor, fresh_actor) > 0.0, "fresh parameters did not change"
+    else:
+        later_state = adapter.to_native_state(seed=7, state=result.final_state)
+        assert int(later_state.time_step) > int(initial_state.time_step)
+        later_obs = build_temporal_observations(
+            later_state,
+            horizon=config.horizon,
+            include_expectations=config.include_expectations,
+        )
+        old_action, _ = initial_actor(later_obs, deterministic=True)
+        new_action, _ = fresh_actor(later_obs, deterministic=True)
+        assert bool(jnp.all(jnp.isfinite(new_action)))
+        assert float(jnp.max(jnp.abs(new_action - old_action))) > 0.0, "fresh action did not change"
+    assert result.status == "trained"
 
 
 def test_economics_training_supports_nonnegative_active_wealth_profile(

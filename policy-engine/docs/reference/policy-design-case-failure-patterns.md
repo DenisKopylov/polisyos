@@ -645,3 +645,61 @@ readset. Verify the actual call and source-removal behavior, not field markers.
 stability class relative to the earlier C95 discrimination findings. `C101-I2`
 is the same affected-consumer class for that stability finding; `C101-I1` is
 the existing project-readset and installed-origin classification class.
+
+
+### P38/P40 instance: a payload reader is not a universal source verifier
+
+A JSON canonical-profile reader cannot verify a genuine binary NPZ state blob:
+its producer deliberately emits no JSON canon declaration. Conversely, generic
+CAS integrity does not provide schema-directed strict model validation for JSON.
+Reusing a model constructor can coerce a numeric string that the actual strict
+wire reader rejects. A shared status helper also cannot classify a failure if
+the public node loads the provider through a legacy path before reaching it.
+
+Diagnostic: does each real consumed media/contract use its existing content owner,
+and does the public node classify a missing selector/view/blob before any dependent
+evaluator or publication? Closure move: reuse Core strict JSON model adaptation,
+media-neutral CAS integrity plus the actual binary decoder, and one selected-source
+classification at the real consumer intake. Keep optional provider absence distinct
+from an explicitly selected unavailable provider; legacy display is not qualified
+evidence. The discriminator must run a genuine JSON+NPZ positive and actual-node
+missing/corrupt inputs; cross-consumer observations must both be collected before
+asserting a shared result. Source proposals and static checks are not runtime proof.
+
+An optional model keyword is not a typed-consumer contract: a reference-only call
+can silently discard the payload. Keep a required-model selected JSON entrypoint
+and explicit raw/ref/binary boundaries; pair domain readers with their actual
+producer schema/version owner. Walk the complete current caller set for routing,
+then exercise real consumers. A helper invoked manually with a model does not
+prove that a scalar node supplied that model. The caller census is navigation,
+not a keyword/count acceptance gate.
+
+A raw result exemption must not depend on JSON media: the same unqualified model
+can be returned by a binary decoder. Derive the consumed raw projections from the
+complete caller set, use one media-independent result owner, and bind metadata
+exemptions to the actual selected ref/manifest. Preserve Core native value law and
+actual binary bytes; refuse direct/nested domain DTOs and altered raw payloads.
+Reuse the real NPZ positive for the decoder counterexample and property-removal
+red, rather than introducing another optimizer fixture or codec.
+
+
+### P38/P40 instance: a nullable model is not only a direct model
+
+A sole non-null branch may be a Mapping/List/Tuple containing models. Skipping
+all model-containing union arms leaves valid enum strings and tuple wire shapes
+unadapted at terminal strict validation. Canonical byte conformance does not
+prove that this typed adaptation ran. Diagnostic: expose the original typed error
+before classifying it as a generic source mismatch. Closure move: recursively
+use the existing owner for a nullable type with one non-null arm, preserve strict
+terminal validation and competing branch admission, and mirror full/bounded
+selected reads with nested containers, explicit null/required fields and malformed
+values. A correct writer must not be changed to evade the reader's missing path.
+
+### P33/P38 instance: an earlier refusal can mask the negative property
+
+A changed-metric source can return mismatch because an unchanged valid report
+already fails to load. The negative is then green before reaching metric replay.
+Establish the same selected positive in the actual consumers before mutation and
+require the intended refusal reason. A whole compound test remains FAIL even if
+an earlier assertion was reached. Exit zero of an observation-only diagnostic
+is not a property PASS; keep errors, source versions and unavailable stages typed.

@@ -2341,6 +2341,14 @@ def _core_typed_value(
     if origin in (Union, types.UnionType):
         if value is None:
             return None
+        non_null_options = tuple(option for option in args if option is not type(None))
+        if len(non_null_options) == 1 and len(non_null_options) < len(args):
+            # Null adds no competing shape for a present value. Recurse through
+            # its existing owner, including containers of nested models, before
+            # the single terminal strict model validation.
+            return _core_typed_value(
+                non_null_options[0], value, model_config, discriminator=discriminator
+            )
         schema = adapter.core_schema
         model_options = _core_schema_union_model_types(schema)
         if isinstance(value, Mapping):

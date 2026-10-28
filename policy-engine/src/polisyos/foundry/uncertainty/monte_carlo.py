@@ -8,8 +8,11 @@ import math
 import struct
 import warnings
 from collections.abc import Callable, Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
+from datetime import datetime, timezone
+from decimal import Decimal
 from enum import StrEnum
+from fractions import Fraction
 from numbers import Real
 from typing import Any, Literal
 
@@ -29,6 +32,8 @@ from polisyos.ir import (
 from polisyos.ir.analytics.uncertainty import (
     CertificateKind,
     ComposedFlavour,
+    CompositionProvenance,
+    CompositionStep,
     DistributionFamily,
     ExactnessKind,
     IntervalSemantics,
@@ -485,8 +490,10 @@ def _sampled_input_digest(params: Mapping[str, Any]) -> str:
     return digest.hexdigest()
 
 
-def _envelope_content_digest(envelope: UncertaintyEnvelope) -> str | None:
-    """Return a stable content binding, or None when the payload is not JSON-safe."""
+def _envelope_identity_and_context_wires(
+    envelope: UncertaintyEnvelope,
+) -> tuple[str | None, str | None, str | None]:
+    """Capture the digest and context wires from the same serialization."""
     try:
         payload = json.dumps(
             envelope.model_dump(mode="json"),
@@ -496,8 +503,34 @@ def _envelope_content_digest(envelope: UncertaintyEnvelope) -> str | None:
             allow_nan=False,
         ).encode("utf-8")
     except (TypeError, ValueError):
-        return None
-    return hashlib.sha256(payload).hexdigest()
+        return None, None, None
+    digest = hashlib.sha256(payload).hexdigest()
+    try:
+        # Read context from those exact bytes, not by serializing behavioral
+        # caller objects for a second time.
+        decoded = json.loads(payload)
+        provenance_wire = json.dumps(
+            decoded["composition_provenance"],
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        )
+        metadata_wire = json.dumps(
+            decoded["metadata"],
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        )
+    except (TypeError, ValueError, KeyError):
+        return digest, None, None
+    return digest, provenance_wire, metadata_wire
+
+
+def _envelope_content_digest(envelope: UncertaintyEnvelope) -> str | None:
+    """Return the existing content binding, or None when it is not JSON-safe."""
+    return _envelope_identity_and_context_wires(envelope)[0]
 
 
 def _normal_parametric_fit(env: UncertaintyEnvelope) -> tuple[float, float] | None:
@@ -672,7 +705,9 @@ def _build_empirical_joint_spec(
             sample_axis=axis,
             sample_count=sample_count,
             samples={
-                name: np.asarray(carrier.samples, dtype=np.float64)
+                # An unvalidated model-copy update can retain a caller-owned
+                # float64 ndarray.  The cached law must not alias that buffer.
+                name: np.asarray(carrier.samples, dtype=np.float64).copy()
                 for name, carrier in carriers.items()
             },
             probabilities=probabilities,
@@ -745,6 +780,459 @@ def _empirical_indices_from_uniform(
     return np.minimum(indices, len(probabilities) - 1)
 
 
+_NATIVE_NUMPY_SCALAR_TYPES = frozenset(np.sctypeDict.values())
+
+
+@dataclass(frozen=True)
+class _PreparedPropagationInputs:
+    """One invocation's owned numerical interpretation and original wire identity.
+
+    This is not a generic Python graph snapshot. Fixed scalar objects keep
+    their callback-visible types; callable defaults/closures and opaque inert
+    sidecars remain outside the numerical-data ownership claim.
+    """
+
+    nominal_params: dict[str, float]
+    input_envelopes: dict[str, UncertaintyEnvelope]
+    output_metric_ids: list[str]
+    input_envelope_digests: dict[str, str | None]
+    weights: dict[str, float] | None
+    unknown_dependency: bool
+    empirical_spec: _EmpiricalJointSpec | None = None
+    empirical_failure: str | None = None
+    gaussian_spec: _GaussianJointSpec | None = None
+    gaussian_failure: str | None = None
+    execution_context_prepared: bool = False
+    context_error: Exception | None = None
+    fixed_scalar_values_owned: bool = True
+    analytical_weight_error: Exception | None = None
+    covariance_context_error: Exception | None = None
+    input_provenance_wires: dict[str, str | None] | None = None
+    provenance_context_owned: bool = True
+    metadata_context_owned: bool = True
+
+
+def _fixed_scalar_value_is_owned(value: Any) -> bool:
+    """Qualify immutable scalar value semantics, not an arbitrary object graph.
+
+    Other fixed objects keep their legacy borrowed callback behavior, with
+    identity not established and no gate. They are not newly refused.
+    """
+    if any(type(value) is scalar for scalar in (bool, int, float, complex, Decimal, Fraction)):
+        return True
+    return (
+        isinstance(value, np.generic)
+        and any(type(value) is scalar for scalar in _NATIVE_NUMPY_SCALAR_TYPES)
+        and value.dtype.kind in "biufc"
+        and value.dtype.metadata is None
+        and value.dtype.fields is None
+        and value.dtype.subdtype is None
+    )
+
+
+def _check_legacy_posterior_profile(
+    input_envelopes: Mapping[str, UncertaintyEnvelope],
+) -> None:
+    if isinstance(input_envelopes, PosteriorSummaryV11):
+        raise ValueError(
+            "legacy propagate cannot consume a v1.1 posterior summary; "
+            "use propagate_posterior_summary"
+        )
+    if any(
+        envelope.metadata.get("profile_id")
+        == "urn:policyos:ir:bayesian-posterior-summary-profile:1"
+        and envelope.metadata.get("profile_version") == "1.1"
+        for envelope in input_envelopes.values()
+    ):
+        raise ValueError(
+            "legacy propagate cannot consume a v1.1 posterior summary profile; "
+            "use propagate_posterior_summary"
+        )
+
+
+def _own_json_metadata(value: Any, active: set[int]) -> tuple[Any, bool]:
+    """Copy the exact JSON metadata domain; mark all other values borrowed.
+
+    This is a qualification for the existing metadata owner, not a generic
+    object codec. It deliberately excludes tuples, subclasses, Enum members,
+    datetime and custom objects even when they happen to serialize as JSON.
+    """
+    kind = type(value)
+    if value is None or kind in (bool, int, float, str):
+        return value, True
+    if kind not in (dict, list):
+        return value, False
+    identity = id(value)
+    if identity in active:
+        return value, False
+    active.add(identity)
+    try:
+        if kind is dict:
+            copied = {key: _own_json_metadata(item, active) for key, item in value.items()}
+            return (
+                {key: item[0] for key, item in copied.items()},
+                all(type(key) is str and item[1] for key, item in copied.items()),
+            )
+        copied_values = [_own_json_metadata(item, active) for item in value]
+        return [item[0] for item in copied_values], all(item[1] for item in copied_values)
+    finally:
+        active.remove(identity)
+
+
+def _metadata_wire_matches(metadata: Any, original_wire: str | None) -> bool:
+    """Compare owned metadata to the exact original digest's JSON metadata."""
+    if original_wire is None:
+        return False
+    try:
+        return (
+            json.dumps(
+                metadata,
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=False,
+                allow_nan=False,
+            )
+            == original_wire
+        )
+    except (TypeError, ValueError):
+        return False
+
+
+def _prepare_propagation_inputs(
+    nominal_params: Mapping[str, float],
+    input_envelopes: Mapping[str, UncertaintyEnvelope],
+    output_metric_ids: list[str],
+    *,
+    covariance_jitter: float,
+    weights: Mapping[str, float] | None = None,
+) -> _PreparedPropagationInputs:
+    """Resolve existing law owners before an evaluator can change their inputs.
+
+    Metadata strings are resolved by the same consuming interpretation, not
+    by an Enum's wire value. Original content identity is independently kept
+    as the existing digest or None. Unsupported/incompatible laws need no
+    unrelated provenance conversion or evaluator binding.
+    """
+    _check_legacy_posterior_profile(input_envelopes)
+    nominal = dict(nominal_params)
+    source = dict(input_envelopes)
+    metrics = list(output_metric_ids)
+    route_weights = None if weights is None else dict(weights)
+    identities = {name: _envelope_identity_and_context_wires(env) for name, env in source.items()}
+    digests = {name: identity[0] for name, identity in identities.items()}
+    provenance_wires = {name: identity[1] for name, identity in identities.items()}
+    metadata_wires = {name: identity[2] for name, identity in identities.items()}
+    metadata_snapshots: dict[str, tuple[Any, bool]] = {}
+    for name, envelope in source.items():
+        try:
+            metadata_snapshots[name] = _own_json_metadata(envelope.metadata, set())
+        except RecursionError:
+            metadata_snapshots[name] = (envelope.metadata, False)
+    metadata_owned = all(
+        type(snapshot[0]) is dict
+        and snapshot[1]
+        and _metadata_wire_matches(snapshot[0], metadata_wires[name])
+        for name, snapshot in metadata_snapshots.items()
+    )
+    envelopes = dict(source)
+    for name, envelope in source.items():
+        # Unsupported entries stay available to legacy candidate computation,
+        # but the common finalizer never promotes their identity to a gate.
+        metadata = dict(metadata_snapshots[name][0])
+        dependency_key = "dependency"
+        raw = metadata.get(dependency_key)
+        if raw is None:
+            dependency_key = "dependence"
+            raw = metadata.get(dependency_key)
+        if raw is not None:
+            # Resolve the actual owner's entire consumed predicate once.
+            # Keep its primitive meaning, never a behavioral string alias.
+            unknown = has_unknown_dependency(
+                {name: envelope.model_copy(update={"metadata": metadata})}
+            )
+            metadata[dependency_key] = "unknown" if unknown else "known"
+        else:
+            unknown = False
+        envelopes[name] = envelope.model_copy(update={"metadata": metadata})
+        if unknown:
+            return _PreparedPropagationInputs(
+                nominal,
+                envelopes,
+                metrics,
+                digests,
+                route_weights,
+                True,
+                metadata_context_owned=metadata_owned,
+            )
+    names = sorted(envelopes)
+    empirical, empirical_failure = _build_empirical_joint_spec(names, envelopes)
+    gaussian: _GaussianJointSpec | None = None
+    gaussian_failure: str | None = None
+    if empirical_failure is None:
+        gaussian, gaussian_failure = _build_gaussian_joint_spec(
+            names, envelopes, covariance_jitter=covariance_jitter
+        )
+    return _PreparedPropagationInputs(
+        nominal,
+        envelopes,
+        metrics,
+        digests,
+        route_weights,
+        False,
+        empirical,
+        empirical_failure,
+        gaussian,
+        gaussian_failure,
+        fixed_scalar_values_owned=all(_fixed_scalar_value_is_owned(v) for v in nominal.values()),
+        input_provenance_wires=provenance_wires,
+        metadata_context_owned=metadata_owned,
+    )
+
+
+def _own_provenance_value(value: Any, active: set[int]) -> tuple[Any, bool]:
+    """Own the closed, type-preserving provenance data domain; cap the rest.
+
+    This is not a general object copier. Exact builtin containers are copied
+    recursively; exact scalar values and the IR's declared enum types are
+    stable. Aware datetimes retain their wire offset without retaining the
+    caller's timezone object. Other values, subclasses, cycles and behaviors
+    are retained as borrowed, with the enclosing context unqualified.
+    """
+    kind = type(value)
+    if value is None or kind in (bool, int, float, str, bytes):
+        return value, True
+    if kind in (ComposedFlavour, ExactnessKind, CertificateKind):
+        return value, type(value.value) is str
+    if kind is datetime:
+        try:
+            if value.tzinfo is None:
+                return value, True
+            offset = value.utcoffset()
+            if offset is not None:
+                return value.replace(tzinfo=timezone(offset)), True
+        except (TypeError, ValueError, OverflowError):
+            pass
+        return value, False
+    if kind not in (dict, list, tuple, CompositionStep, CompositionProvenance):
+        return value, False
+    identity = id(value)
+    if identity in active:
+        return value, False
+    active.add(identity)
+    try:
+        if kind in (CompositionStep, CompositionProvenance):
+            copied_fields = {
+                name: _own_provenance_value(getattr(value, name), active)
+                for name in kind.model_fields
+            }
+            return (
+                value.model_copy(update={name: item[0] for name, item in copied_fields.items()}),
+                all(item[1] for item in copied_fields.values()),
+            )
+        if kind is dict:
+            copied_items = {key: _own_provenance_value(item, active) for key, item in value.items()}
+            return (
+                {key: item[0] for key, item in copied_items.items()},
+                all(type(key) is str and item[1] for key, item in copied_items.items()),
+            )
+        copied_values = [_own_provenance_value(item, active) for item in value]
+        result = [item[0] for item in copied_values]
+        return (tuple(result) if kind is tuple else result, all(item[1] for item in copied_values))
+    finally:
+        active.remove(identity)
+
+
+def _provenance_wire_matches(envelope: UncertaintyEnvelope, original_wire: str | None) -> bool:
+    """Bind the prepared history to the provenance in the original envelope digest."""
+    if original_wire is None:
+        return False
+    try:
+        provenance = envelope.composition_provenance
+        wire = json.dumps(
+            None if provenance is None else provenance.model_dump(mode="json"),
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        )
+    except (TypeError, ValueError):
+        return False
+    return wire == original_wire
+
+
+def _finalize_prepared_results(
+    results: list[PropagationResult], prepared: _PreparedPropagationInputs
+) -> list[PropagationResult]:
+    """Apply the shared invocation and context qualification to every route."""
+    fixed_names = set(prepared.nominal_params) - set(prepared.input_envelopes)
+    identity_established = (
+        not fixed_names
+        and prepared.fixed_scalar_values_owned
+        and prepared.provenance_context_owned
+        and prepared.metadata_context_owned
+        and all(value is not None for value in prepared.input_envelope_digests.values())
+    )
+    if identity_established:
+        return results
+    finalized: list[PropagationResult] = []
+    for result in results:
+        metadata = dict(result.envelope.metadata)
+        metadata["invocation_identity_status"] = "not_established"
+        diagnostics = dict(result.diagnostics)
+        diagnostics["input_identity_status"] = "not_established"
+        if not prepared.provenance_context_owned:
+            metadata["provenance_context_status"] = "not_established"
+            diagnostics["provenance_context_status"] = "not_established"
+        if not prepared.metadata_context_owned:
+            metadata["metadata_context_status"] = "not_established"
+            diagnostics["metadata_context_status"] = "not_established"
+        finalized.append(
+            replace(
+                result,
+                envelope=result.envelope.model_copy(
+                    update={"gate_eligible": False, "metadata": metadata}
+                ),
+                diagnostics=diagnostics,
+            )
+        )
+    return finalized
+
+
+def _prepare_execution_envelope(
+    envelope: UncertaintyEnvelope, *, prepare_covariance: bool
+) -> tuple[UncertaintyEnvelope, Exception | None, bool]:
+    """Own the typed sampling/provenance data actually read after binding.
+
+    An unsupported metadata sidecar is retained as borrowed candidate data;
+    it is neither graph-copied nor newly rejected. The earlier metadata-domain
+    qualification independently caps the result even when its original digest
+    exists. No later consumer may use the sidecar as verified authority evidence.
+    """
+    data = envelope.model_dump(
+        mode="python", exclude={"metadata", "composition_provenance", "distribution_payload"}
+    )
+    metadata = dict(envelope.metadata)
+    covariance_error: Exception | None = None
+    if prepare_covariance:
+        try:
+            # Covariance's declared lists retain their original admission shape.
+            row = metadata.get("covariance_row")
+            if isinstance(row, list):
+                metadata["covariance_row"] = [
+                    float(value)
+                    if isinstance(value, (int, float)) and not isinstance(value, bool)
+                    else value
+                    for value in row
+                ]
+            columns = metadata.get("covariance_params")
+            if isinstance(columns, list):
+                metadata["covariance_params"] = [
+                    str.__str__(value) if isinstance(value, str) else value for value in columns
+                ]
+            declared_std = metadata.get("std")
+            if isinstance(declared_std, (int, float)):
+                metadata["std"] = float(declared_std)
+        except Exception as exc:
+            # Only a consumer of the moment covariance sees this error.
+            # An MC fallback that ignores std keeps its existing behavior.
+            covariance_error = exc
+
+    provenance = envelope.composition_provenance
+    if provenance is None:
+        # These are the existing IR provenance owner's consumed meanings.
+        # Keep wire identity separate; no new metadata encoding is invented.
+        for key in ("envelope_id", "artifact_id", "ref_id"):
+            raw_id = metadata.get(key)
+            if isinstance(raw_id, str):
+                metadata[key] = str.__str__(raw_id) if raw_id else None
+        is_qmc_source = str(metadata.get("mc_sampling_method", "")).lower() in {"sobol", "halton"}
+        # The existing provenance owner consumes the QMC category, not the
+        # original spelling or a behavioral string object. Wire identity is
+        # retained separately and still distinguishes sobol from halton.
+        sampling_method = "sobol" if is_qmc_source else ""
+        metadata["mc_sampling_method"] = sampling_method
+        if sampling_method.lower() in {"sobol", "halton"} and envelope.sample_size is not None:
+            metadata["qmc_replicates"] = float(metadata.get("qmc_replicates", 1))
+        if envelope.propagation_method is PropagationMethod.DELTA_METHOD:
+            for key in ("taylor_remainder", "output_std"):
+                raw_radius = metadata.get(key)
+                if isinstance(raw_radius, (int, float)):
+                    metadata[key] = float(raw_radius)
+    else:
+        try:
+            provenance, provenance_owned = _own_provenance_value(provenance, set())
+        except RecursionError:
+            # Excessively deep or cyclic objects do not acquire authority.
+            provenance_owned = False
+    if provenance is None:
+        provenance_owned = True
+
+    payload = envelope.distribution_payload
+    if isinstance(payload, PosteriorSamplesCarrier):
+        payload = PosteriorSamplesCarrier.model_validate(payload.model_dump(mode="python"))
+    elif isinstance(payload, ParametricFitCarrier):
+        payload = ParametricFitCarrier.model_validate(payload.model_dump(mode="python"))
+    data.update(metadata=metadata, composition_provenance=provenance, distribution_payload=payload)
+    return UncertaintyEnvelope.model_validate(data), covariance_error, provenance_owned
+
+
+def _prepare_execution_inputs(
+    prepared: _PreparedPropagationInputs,
+    *,
+    prepare_weights: bool = False,
+    prepare_covariance: bool = False,
+) -> _PreparedPropagationInputs:
+    """Finish one shared preparation without changing supported fixed scalars."""
+    if prepared.execution_context_prepared:
+        return prepared
+    try:
+        snapshots = {
+            name: _prepare_execution_envelope(envelope, prepare_covariance=prepare_covariance)
+            for name, envelope in prepared.input_envelopes.items()
+        }
+        envelopes = {name: snapshot[0] for name, snapshot in snapshots.items()}
+        covariance_error = next(
+            (snapshot[1] for snapshot in snapshots.values() if snapshot[1] is not None), None
+        )
+        original_wires = prepared.input_provenance_wires or {}
+        provenance_owned = all(
+            snapshot[2]
+            and (
+                snapshot[0].composition_provenance is None
+                or _provenance_wire_matches(snapshot[0], original_wires.get(name))
+            )
+            for name, snapshot in snapshots.items()
+        )
+    except Exception as exc:
+        # Preserve binding-error precedence for an otherwise executable law.
+        # No evaluator is run with a context that could not be prepared.
+        return replace(prepared, execution_context_prepared=True, context_error=exc)
+    weights = prepared.weights
+    weight_error: Exception | None = None
+    if prepare_weights and weights:
+        # Analytical's existing consuming interpretation is float(weight).
+        # Resolve it before signature effects; retain its existing fallback
+        # on invalid weights, after complete evaluator binding.
+        converted: dict[str, float] = {}
+        for name, weight in weights.items():
+            try:
+                converted[name] = float(weight)
+            except Exception as exc:
+                converted[name] = 0.0
+                if weight_error is None:
+                    weight_error = exc
+        weights = converted
+    return replace(
+        prepared,
+        input_envelopes=envelopes,
+        weights=weights,
+        execution_context_prepared=True,
+        analytical_weight_error=weight_error,
+        covariance_context_error=covariance_error,
+        provenance_context_owned=provenance_owned,
+    )
+
+
 class MonteCarloPropagator:
     """Monte carlo propagator public type."""
 
@@ -762,53 +1250,45 @@ class MonteCarloPropagator:
         input_envelopes: Mapping[str, UncertaintyEnvelope],
         output_metric_ids: list[str],
     ) -> list[PropagationResult]:
-        if isinstance(input_envelopes, PosteriorSummaryV11):
-            raise ValueError(
-                "legacy propagate cannot consume a v1.1 posterior summary; "
-                "use propagate_posterior_summary"
-            )
-        if any(
-            envelope.metadata.get("profile_id")
-            == "urn:policyos:ir:bayesian-posterior-summary-profile:1"
-            and envelope.metadata.get("profile_version") == "1.1"
-            for envelope in input_envelopes.values()
-        ):
-            raise ValueError(
-                "legacy propagate cannot consume a v1.1 posterior summary profile; "
-                "use propagate_posterior_summary"
-            )
         if not output_metric_ids:
+            _check_legacy_posterior_profile(input_envelopes)
             return []
-
-        param_names = sorted(input_envelopes.keys())
-        _validate_effective_inputs(simulation_fn, nominal_params, param_names)
-        if has_unknown_dependency(input_envelopes):
-            return _unknown_joint_results(
-                output_metric_ids,
-                input_param_names=param_names,
-                failure="unknown_dependency",
-            )
-        empirical_spec, empirical_failure = _build_empirical_joint_spec(
-            param_names,
+        prepared = _prepare_propagation_inputs(
+            nominal_params,
             input_envelopes,
-        )
-        if empirical_failure is not None:
-            return _unknown_joint_results(
-                output_metric_ids,
-                input_param_names=param_names,
-                failure=empirical_failure,
-            )
-        gaussian_spec, gaussian_failure = _build_gaussian_joint_spec(
-            param_names,
-            input_envelopes,
+            output_metric_ids,
             covariance_jitter=self._config.delta_covariance_jitter,
         )
-        if gaussian_failure is not None:
-            return _unknown_joint_results(
-                output_metric_ids,
-                input_param_names=param_names,
-                failure=gaussian_failure,
+        return self._propagate_prepared(simulation_fn, prepared)
+
+    def _propagate_prepared(
+        self,
+        simulation_fn: Callable[..., Mapping[str, float]],
+        prepared: _PreparedPropagationInputs,
+    ) -> list[PropagationResult]:
+        """Consume the same prepared law from direct and dispatched execution."""
+        param_names = sorted(prepared.input_envelopes)
+        failure = (
+            "unknown_dependency"
+            if prepared.unknown_dependency
+            else prepared.empirical_failure or prepared.gaussian_failure
+        )
+        if failure is not None:
+            return _finalize_prepared_results(
+                _unknown_joint_results(
+                    prepared.output_metric_ids, input_param_names=param_names, failure=failure
+                ),
+                prepared,
             )
+        prepared = _prepare_execution_inputs(prepared)
+        nominal_params = prepared.nominal_params
+        input_envelopes = prepared.input_envelopes
+        output_metric_ids = prepared.output_metric_ids
+        _validate_effective_inputs(simulation_fn, nominal_params, param_names)
+        if prepared.context_error is not None:
+            raise prepared.context_error
+        empirical_spec = prepared.empirical_spec
+        gaussian_spec = prepared.gaussian_spec
         level = self._config.confidence_level
         alpha = 1.0 - level
 
@@ -876,7 +1356,7 @@ class MonteCarloPropagator:
             )
             stopped_early = adaptive.enabled and actual_n_samples < n_samples
 
-        return self._build_results(
+        results = self._build_results(
             sample_buffers.values,
             sample_buffers.input_samples,
             input_envelopes,
@@ -894,6 +1374,10 @@ class MonteCarloPropagator:
             evaluation_attempts=evaluation_attempts,
             requested_n_samples=n_samples,
             qmc_summary=qmc_summary,
+            input_envelope_digests=prepared.input_envelope_digests,
+            fixed_scalar_values_owned=prepared.fixed_scalar_values_owned,
+            provenance_context_owned=prepared.provenance_context_owned,
+            metadata_context_owned=prepared.metadata_context_owned,
             sample_axis=(empirical_spec.sample_axis if empirical_spec is not None else "draw"),
             joint_sample_id=(
                 empirical_spec.joint_sample_id if empirical_spec is not None else None
@@ -904,6 +1388,7 @@ class MonteCarloPropagator:
                 len(param_names) > 1 and empirical_spec is None and gaussian_spec is None
             ),
         )
+        return _finalize_prepared_results(results, prepared)
 
     def propagate_posterior_summary(
         self,
@@ -1484,6 +1969,10 @@ class MonteCarloPropagator:
         joint_sample_id: str | None = None,
         parametric_fit_names: tuple[str, ...] = (),
         declared_gaussian_joint: bool = False,
+        input_envelope_digests: Mapping[str, str | None] | None = None,
+        fixed_scalar_values_owned: bool = True,
+        provenance_context_owned: bool = True,
+        metadata_context_owned: bool = True,
         unestablished_independence: bool = False,
     ) -> list[PropagationResult]:
         from .sensitivity import compute_first_order_indices
@@ -1508,11 +1997,21 @@ class MonteCarloPropagator:
             )
         )
         qmc_has_full_certificate = qmc_method is not None and qmc_scrambled and qmc_replicates >= 2
-        input_envelope_digests = {
-            name: _envelope_content_digest(envelope) for name, envelope in input_envelopes.items()
-        }
-        input_identity_complete = all(
-            value is not None for value in input_envelope_digests.values()
+        if input_envelope_digests is None:
+            input_envelope_digests = {
+                name: _envelope_content_digest(envelope)
+                for name, envelope in input_envelopes.items()
+            }
+        # Recipe 1.0 binds envelopes/configuration, not fixed invocation
+        # values.  Never describe an invocation with unbound fixed inputs as
+        # content hashed, even when those values are immutable scalars.
+        has_unbound_fixed_inputs = bool(set(nominal_params) - set(param_names))
+        input_identity_complete = (
+            fixed_scalar_values_owned
+            and provenance_context_owned
+            and metadata_context_owned
+            and not has_unbound_fixed_inputs
+            and all(value is not None for value in input_envelope_digests.values())
         )
         metric_failure_draw_counts = dict.fromkeys(output_metric_ids, 0)
         for draw_outcome in draw_outcomes:

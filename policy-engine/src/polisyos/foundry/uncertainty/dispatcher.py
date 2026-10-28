@@ -20,9 +20,15 @@ from polisyos.ir.analytics.uncertainty import (
 
 from .analytical import AnalyticalPropagator
 from .config import PropagationConfig
-from .covariance import build_covariance_matrix, has_unknown_dependency
+from .covariance import build_covariance_matrix
 from .delta import DeltaMethodPropagator
-from .monte_carlo import MonteCarloPropagator
+from .monte_carlo import (
+    MonteCarloPropagator,
+    _finalize_prepared_results,
+    _prepare_execution_inputs,
+    _prepare_propagation_inputs,
+    _PreparedPropagationInputs,
+)
 from .protocol import PropagationResult, _validate_effective_inputs
 
 logger = get_logger(__name__)
@@ -50,21 +56,31 @@ class PropagationDispatcher:
         if not input_envelopes or not output_metric_ids:
             return []
 
+        prepared = _prepare_propagation_inputs(
+            nominal_params,
+            input_envelopes,
+            output_metric_ids,
+            covariance_jitter=self._config.delta_covariance_jitter,
+            weights=weights,
+        )
+        nominal_params = prepared.nominal_params
+        input_envelopes = prepared.input_envelopes
+        output_metric_ids = prepared.output_metric_ids
+        weights = prepared.weights
         param_names = sorted(input_envelopes)
-        _validate_effective_inputs(simulation_fn, nominal_params, param_names)
-        if has_unknown_dependency(input_envelopes):
-            return _blocked_dependency_results(
-                output_metric_ids,
-                input_param_names=param_names,
-                failure="unknown_dependency",
+        if prepared.unknown_dependency:
+            return _finalize_prepared_results(
+                _blocked_dependency_results(
+                    output_metric_ids,
+                    input_param_names=param_names,
+                    failure="unknown_dependency",
+                ),
+                prepared,
             )
 
         if _requires_monte_carlo_sampling(input_envelopes):
-            return self._mc.propagate(
-                simulation_fn,
-                nominal_params,
-                input_envelopes,
-                output_metric_ids,
+            return _finalize_prepared_results(
+                self._mc._propagate_prepared(simulation_fn, prepared), prepared
             )
 
         if (
@@ -87,12 +103,37 @@ class PropagationDispatcher:
                     preserve_singular=True,
                 )
             except ValueError:
-                return _blocked_dependency_results(
-                    output_metric_ids,
-                    input_param_names=param_names,
-                    failure="incompatible_dependency",
+                return _finalize_prepared_results(
+                    _blocked_dependency_results(
+                        output_metric_ids,
+                        input_param_names=param_names,
+                        failure="incompatible_dependency",
+                    ),
+                    prepared,
                 )
 
+        # Pure MC routes share the MC owner's complete law admission. A refused
+        # law must not require an evaluator binding that will never be used.
+        declared_method = self._resolve_method_without_probe(
+            input_envelopes, is_jax_differentiable, weights=weights
+        )
+        if declared_method == PropagationMethod.MONTE_CARLO:
+            return _finalize_prepared_results(
+                self._mc._propagate_prepared(simulation_fn, prepared), prepared
+            )
+
+        # The remaining automatic route may probe the real evaluator. Preserve
+        # complete binding validation before that probe or any backend execution.
+        prepared = _prepare_execution_inputs(
+            prepared,
+            prepare_weights=declared_method == PropagationMethod.ANALYTICAL,
+            prepare_covariance=True,
+        )
+        input_envelopes = prepared.input_envelopes
+        weights = prepared.weights
+        _validate_effective_inputs(simulation_fn, nominal_params, param_names)
+        if prepared.context_error is not None:
+            raise prepared.context_error
         method = self._resolve_method(
             simulation_fn,
             nominal_params,
@@ -105,6 +146,10 @@ class PropagationDispatcher:
         if method == PropagationMethod.ANALYTICAL:
             if weights and AnalyticalPropagator.is_applicable(input_envelopes):
                 try:
+                    if prepared.covariance_context_error is not None:
+                        raise prepared.covariance_context_error
+                    if prepared.analytical_weight_error is not None:
+                        raise prepared.analytical_weight_error
                     param_names = sorted(input_envelopes)
                     covariance = build_covariance_matrix(
                         param_names,
@@ -113,44 +158,52 @@ class PropagationDispatcher:
                         jitter=self._config.delta_covariance_jitter,
                         preserve_singular=True,
                     )
-                    return [
-                        self._analytical.propagate_linear_combination(
-                            weights=weights,
-                            input_envelopes=input_envelopes,
-                            output_metric_id=mid,
-                            confidence_level=self._config.confidence_level,
-                            covariance=covariance,
-                            use_full_covariance=self._config.delta_use_full_covariance,
-                            covariance_jitter=self._config.delta_covariance_jitter,
-                        )
-                        for mid in output_metric_ids
-                    ]
+                    return _finalize_prepared_results(
+                        [
+                            self._analytical.propagate_linear_combination(
+                                weights=weights,
+                                input_envelopes=input_envelopes,
+                                output_metric_id=mid,
+                                confidence_level=self._config.confidence_level,
+                                covariance=covariance,
+                                use_full_covariance=self._config.delta_use_full_covariance,
+                                covariance_jitter=self._config.delta_covariance_jitter,
+                            )
+                            for mid in output_metric_ids
+                        ],
+                        prepared,
+                    )
                 except Exception as exc:
                     logger.warning(
                         "Analytical propagation failed (%s). Falling back to delta method.",
                         exc,
                     )
             # Fallback: try delta, then MC
-            return self._propagate_delta_with_mc_fallback(
-                simulation_fn,
-                nominal_params,
-                input_envelopes,
-                output_metric_ids,
+            return _finalize_prepared_results(
+                self._propagate_delta_with_mc_fallback(
+                    simulation_fn,
+                    nominal_params,
+                    input_envelopes,
+                    output_metric_ids,
+                    prepared=prepared,
+                ),
+                prepared,
             )
 
         if method == PropagationMethod.DELTA_METHOD:
-            return self._propagate_delta_with_mc_fallback(
-                simulation_fn,
-                nominal_params,
-                input_envelopes,
-                output_metric_ids,
+            return _finalize_prepared_results(
+                self._propagate_delta_with_mc_fallback(
+                    simulation_fn,
+                    nominal_params,
+                    input_envelopes,
+                    output_metric_ids,
+                    prepared=prepared,
+                ),
+                prepared,
             )
 
-        return self._mc.propagate(
-            simulation_fn,
-            nominal_params,
-            input_envelopes,
-            output_metric_ids,
+        return _finalize_prepared_results(
+            self._mc._propagate_prepared(simulation_fn, prepared), prepared
         )
 
     def _propagate_delta_with_mc_fallback(
@@ -159,8 +212,12 @@ class PropagationDispatcher:
         nominal_params: Mapping[str, float],
         input_envelopes: Mapping[str, UncertaintyEnvelope],
         output_metric_ids: list[str],
+        *,
+        prepared: _PreparedPropagationInputs,
     ) -> list[PropagationResult]:
         try:
+            if prepared.covariance_context_error is not None:
+                raise prepared.covariance_context_error
             return self._delta.propagate(
                 simulation_fn,
                 nominal_params,
@@ -169,12 +226,7 @@ class PropagationDispatcher:
             )
         except Exception as exc:
             logger.warning("Delta propagation failed (%s). Falling back to Monte Carlo.", exc)
-            return self._mc.propagate(
-                simulation_fn,
-                nominal_params,
-                input_envelopes,
-                output_metric_ids,
-            )
+            return self._mc._propagate_prepared(simulation_fn, prepared)
 
     def _resolve_method(
         self,
@@ -186,6 +238,27 @@ class PropagationDispatcher:
         *,
         weights: Mapping[str, float] | None = None,
     ) -> PropagationMethod:
+        method = self._resolve_method_without_probe(
+            input_envelopes, is_jax_differentiable, weights=weights
+        )
+        if method is not None:
+            return method
+        if self._can_use_delta(simulation_fn, nominal_params, input_envelopes, output_metric_ids):
+            return PropagationMethod.DELTA_METHOD
+        return PropagationMethod.MONTE_CARLO
+
+    def _resolve_method_without_probe(
+        self,
+        input_envelopes: Mapping[str, UncertaintyEnvelope],
+        is_jax_differentiable: bool,
+        *,
+        weights: Mapping[str, float] | None = None,
+    ) -> PropagationMethod | None:
+        """Resolve declared routes without inspecting or calling an evaluator.
+
+        ``None`` reserves the automatic all-normal differentiable case for the
+        existing applicability probe, after the caller validates its binding.
+        """
         preferred = (self._config.preferred_method or "auto").lower()
         if preferred == "delta":
             return PropagationMethod.DELTA_METHOD
@@ -208,9 +281,7 @@ class PropagationDispatcher:
         if not is_jax_differentiable:
             return PropagationMethod.MONTE_CARLO
 
-        if self._can_use_delta(simulation_fn, nominal_params, input_envelopes, output_metric_ids):
-            return PropagationMethod.DELTA_METHOD
-        return PropagationMethod.MONTE_CARLO
+        return None
 
     def _can_use_delta(
         self,

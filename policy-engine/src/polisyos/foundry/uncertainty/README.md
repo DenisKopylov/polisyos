@@ -185,3 +185,82 @@ ref/profile before consumption; or change credible mass from 0.9 to 0.8 for sour
 evidence diagnostic. The wrapper must refuse or re-resolve those changes before
 any effect and consume only that independently revalidated selection. This route
 has not established S3/B31, E-M1, G acceptance or closure.
+
+
+### One prepared legacy numerical invocation
+
+Legacy MC and dispatcher now share a private preparation built by the existing
+empirical and Gaussian law owners. Unknown, incompatible or unsupported sampling
+laws return their existing typed refusal before an irrelevant evaluator binding.
+An executable law still binds complete effective inputs before any evaluator call
+or evaluator-driven automatic delta probe. Explicit delta/analytical moment routes
+keep their existing mixed-family covariance semantics.
+
+The preparation captures the nominal mapping associations, output IDs, route
+weights, numerical carrier/fit data and load-bearing input/provenance meanings.
+The actual dependency string interpretation is resolved at preparation, including
+custom Enum strings; it is not replaced by an Enum's wire value. Every numerical
+consumer and finalizer uses that same interpretation. The private views carry
+owner-resolved categorical predicates, not replicas of
+the original source payload; the separate original digest retains wire identity.
+Fixed Fraction, Decimal and other existing supported scalar arguments keep their
+callback-visible type/value;
+there is no new global `Real` precheck or silent float coercion of fixed arguments.
+Analytical weights are resolved through that owner's existing `float(weight)`
+interpretation before signature effects; invalid values keep the existing
+post-binding analytical-to-delta fallback. Unconsumed MC weights are not resolved.
+Covariance-only metadata conversions/errors are consumed only on moment routes;
+an ordinary MC fallback keeps the prior ability to ignore unused std metadata.
+
+Arbitrary mutable fixed objects retain their legacy borrowed callback behavior.
+They are not represented as owned numerical scalar data. More generally, the
+schema-1.0 sampling recipe does not bind *any* fixed invocation value, so a
+fixed argument keeps `input_identity_status="not_established"` and every
+dispatcher backend is non-gating even when the callback-compatible value is an
+immutable scalar. No undeclared ledger field is emitted. This qualification is
+not source authenticity, scientific validity or policy authority.
+
+Original envelope JSON identity is captured separately, before callbacks, as the
+existing digest or `None`. Metadata is copied before interpretation through a
+closed, exact JSON-value domain: string-keyed dictionaries, lists, primitive
+strings, numbers, booleans and null. The owned snapshot must match metadata in
+the exact original digest serialization. Behavioral values, tuples, container
+subclasses, enums, datetimes and opaque sidecars are retained for candidate
+computation where supported, but do not establish context identity or a gate;
+results disclose `metadata_context_status="not_established"`. This conservative
+qualification also covers inert extensions and future metadata consumers without
+assuming that a serializable custom object has the same meaning as its JSON wire.
+The existing dependency owner still consumes its established `str(raw)` meaning;
+the cap prevents a divergent Enum wire value from authorizing it. The preparation walks
+the actual `CompositionProvenance` and `CompositionStep` fields, recursively
+owning exact built-in lists, tuples and string-keyed dictionaries and exact
+primitive values. Exact datetimes retain their Python type; an aware datetime's
+wire offset is fixed without retaining the caller's timezone object. The three
+IR composition enum classes are trusted as product-defined constants. Other
+values (including arbitrary Enum values, container subclasses and datetime.time)
+are borrowed, not silently coerced: all actual routes set
+`provenance_context_status="not_established"`, make invocation identity
+`not_established`, and return non-gating results. Existing non-gating results
+also disclose the limitation. A comparison with the provenance embedded in the
+original digest catches changes while the view is being prepared. Unsupported
+cycles or values that the existing model cannot serialize or validate may still
+refuse rather than produce a result; neither path grants authority.
+
+Owned nested containers are separate from caller inputs, but remain mutable to a
+recipient of the output itself. This boundary assumes ordinary product enum class
+definitions and no process-wide monkeypatching. It does not freeze consumer-held
+outputs or provide an atomic snapshot under concurrent mutation; persist and
+revalidate as required by the consuming authority boundary.
+
+This is numerical-data ownership, not a generic Python graph copier or a sandbox.
+Callable defaults/closures, external world state, private owner mutation and
+simultaneous caller mutation during preparation remain execution boundaries.
+There is no new wire schema, public method, carrier, CAN.3 dependency, issuer or
+source-quality/authority claim. The separate profile-1.1 posterior-summary route,
+its selected-read versus standalone provenance limits, historical E profile 1.0,
+S3/B31, E-M1 and G acceptance retain their existing boundaries.
+
+The accompanying refusal, mutation, sidecar, scalar and consumer tests are source
+companions. Runtime and semantic removal evidence must be bound to the composed
+source and actual profile; the older C90 Cloud source mismatch and incomplete
+removal witnesses do not qualify this preparation.

@@ -486,3 +486,19 @@ date/Decimal/bytes positive and changed-raw-payload negative exercise the JSON o
 Both the positive and the property-removal red remain UNRUN until composed execution.
 The contract concerns the complete current selected-source intake, not a sandbox
 for arbitrary decoder code or proof about every future Python serialization type.
+
+### Strict report reads through nullable Core containers
+
+Calibration reports retain their original selected bytes and envelope enums. The
+Core typed owner recursively adapts a present optional model container before
+terminal strict validation, including the mapped uncertainty envelopes shared by
+scalar2.0 and ordered2.1 reports. This is a Core JSON wire-shape correction; report
+producer predicates, raw/NPZ result admission, strict numeric checks and both scalar
+config edges stay in force.
+
+A negative metric-source test first admits its unchanged selected report through
+actual welfare/autotune consumers, then requires the changed-metric replay reason.
+A generic earlier report-read mismatch cannot qualify that negative. Missing basis
+publication asserts the actual typed missing-selection result and absence of a
+writer call before probing an untrusted selected view at the consumer. Source
+proposals/static checks are not runtime qualification, acceptance or closure.

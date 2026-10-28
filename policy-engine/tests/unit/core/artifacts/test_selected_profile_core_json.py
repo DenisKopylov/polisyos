@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+from collections.abc import Mapping
 from datetime import UTC, date, datetime
 from decimal import Decimal
 from enum import Enum
@@ -22,6 +23,7 @@ from pydantic import (
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts import (
     CanonInfo,
+    CoreJsonReadLimits,
     FileSystemCAS,
     PutOptions,
     SchemaInfo,
@@ -30,7 +32,9 @@ from polisyos.core.artifacts import (
     load_core_json_artifact,
     load_core_json_frame_records,
     read_core_json_artifact,
+    read_core_json_artifact_bounded,
     read_core_json_artifact_bytes,
+    validate_core_model_bounded_read,
     validate_core_model_json_artifact,
 )
 from polisyos.core.artifacts.async_store import AsyncArtifactStoreAdapter
@@ -712,7 +716,7 @@ class _TypedCorePayload(BaseModel):
     opaque_tags: dict[str, object]
 
 
-def _profiled_core_json_store(tmp_path, payload: object):
+def _profiled_core_json_store(tmp_path, payload: object, *, return_selected_profile: bool = False):
     store = FileSystemCAS(tmp_path / "typed-cas")
     spec = CanonSpec(forbid_floats=False, exclude_none=False)
     ref = store.put_json(
@@ -723,6 +727,7 @@ def _profiled_core_json_store(tmp_path, payload: object):
             canon=CanonInfo.from_spec(spec),
         ),
         canon_spec=spec,
+        return_selected_profile=return_selected_profile,
     )
     return store, ref, store.get_bytes(ref)
 
@@ -1381,3 +1386,208 @@ def test_data_snapshot_schema_030_requires_owner_lineage(tmp_path) -> None:
     )
     with pytest.raises(CanonicalProfileRefusalError, match="required_field_missing"):
         validate_core_model_json_artifact(DataSnapshot, store, incomplete_ref)
+
+
+_NULLABLE_CONTAINER_TERMINAL_VALIDATIONS = 0
+
+
+class _NullableContainerWireKind(str, Enum):
+    OBSERVED = "observed"
+    ESTIMATED = "estimated"
+
+
+class _NullableContainerWireLeaf(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    kind: _NullableContainerWireKind
+    row_index: int
+    coordinates: tuple[float, float]
+
+    @model_validator(mode="after")
+    def validate_terminal(self) -> _NullableContainerWireLeaf:
+        global _NULLABLE_CONTAINER_TERMINAL_VALIDATIONS
+        _NULLABLE_CONTAINER_TERMINAL_VALIDATIONS += 1
+        if self.row_index < 0:
+            raise ValueError("nullable container row index must be nonnegative")
+        return self
+
+
+class _NullableModelContainerEnvelope(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    mapped: Mapping[str, _NullableContainerWireLeaf] | None
+    listed: list[_NullableContainerWireLeaf] | None
+    tupled: tuple[_NullableContainerWireLeaf, ...] | None
+    nested: Mapping[str, list[tuple[_NullableContainerWireLeaf | None, ...]]] | None
+
+
+def _nullable_model_container_envelope() -> _NullableModelContainerEnvelope:
+    def leaf(index: int) -> _NullableContainerWireLeaf:
+        return _NullableContainerWireLeaf(
+            kind=_NullableContainerWireKind.OBSERVED,
+            row_index=index,
+            coordinates=(float(index), float(index + 1)),
+        )
+
+    return _NullableModelContainerEnvelope(
+        mapped={"a": leaf(0)},
+        listed=[leaf(1)],
+        tupled=(leaf(2),),
+        nested={"group": [(leaf(3), None)]},
+    )
+
+
+def _nullable_container_leaf_occurrences(value: object) -> int:
+    """Count actual fixture model occurrences, independently of wire markers."""
+    if isinstance(value, _NullableContainerWireLeaf):
+        return 1
+    if isinstance(value, BaseModel):
+        return sum(
+            _nullable_container_leaf_occurrences(getattr(value, name))
+            for name in type(value).model_fields
+        )
+    if isinstance(value, Mapping):
+        return sum(_nullable_container_leaf_occurrences(item) for item in value.values())
+    if isinstance(value, (tuple, list)):
+        return sum(_nullable_container_leaf_occurrences(item) for item in value)
+    return 0
+
+
+def _read_nullable_container_model(model, store, ref, raw, reader_route):
+    if reader_route == "bounded":
+        bounded = read_core_json_artifact_bounded(
+            store,
+            ref,
+            limits=CoreJsonReadLimits(
+                max_bytes=len(raw),
+                max_depth=16,
+                max_elements=512,
+                max_manifest_bytes=4096,
+            ),
+        )
+        return validate_core_model_bounded_read(model, bounded)
+    return validate_core_model_json_artifact(model, store, ref)
+
+
+@pytest.mark.parametrize(
+    ("writer_form", "reader_route"),
+    [
+        pytest.param("python-model", "full", id="full-python-model"),
+        pytest.param("json-model-dump", "full", id="full-json-model-dump"),
+        pytest.param("python-model", "bounded", id="bounded-python-model"),
+        pytest.param("json-model-dump", "bounded", id="bounded-json-model-dump"),
+    ],
+)
+def test_nullable_model_containers_reify_native_types_once_through_selected_core(
+    tmp_path, writer_form, reader_route
+) -> None:
+    global _NULLABLE_CONTAINER_TERMINAL_VALIDATIONS
+    source = _nullable_model_container_envelope()
+    expected_terminal_validations = _nullable_container_leaf_occurrences(source)
+    payload = source if writer_form == "python-model" else source.model_dump(mode="json")
+    _store, ref, raw = _profiled_core_json_store(tmp_path, payload, return_selected_profile=True)
+    fresh = FileSystemCAS(tmp_path / "typed-cas")
+    _NULLABLE_CONTAINER_TERMINAL_VALIDATIONS = 0
+
+    assert ref.manifest_profile_sha256 is not None
+    assert read_core_json_artifact_bytes(fresh, ref) == raw
+    restored = _read_nullable_container_model(
+        _NullableModelContainerEnvelope, fresh, ref, raw, reader_route
+    )
+
+    assert restored == source
+    assert isinstance(restored.mapped["a"].kind, _NullableContainerWireKind)
+    assert isinstance(restored.listed[0].coordinates, tuple)
+    assert isinstance(restored.tupled, tuple)
+    assert isinstance(restored.nested["group"][0], tuple)
+    assert restored.nested["group"][0][1] is None
+    assert expected_terminal_validations == _NULLABLE_CONTAINER_TERMINAL_VALIDATIONS
+
+
+@pytest.mark.parametrize("reader_route", ["full", "bounded"])
+def test_nullable_model_containers_keep_required_fields_and_explicit_nulls(
+    tmp_path, reader_route
+) -> None:
+    payload = _nullable_model_container_envelope().model_dump(mode="json")
+    for field in _NullableModelContainerEnvelope.model_fields:
+        missing = {key: value for key, value in payload.items() if key != field}
+        _store, ref, raw = _profiled_core_json_store(
+            tmp_path / field, missing, return_selected_profile=True
+        )
+        with pytest.raises(ValidationError):
+            _read_nullable_container_model(
+                _NullableModelContainerEnvelope,
+                FileSystemCAS(tmp_path / field / "typed-cas"),
+                ref,
+                raw,
+                reader_route,
+            )
+    nulls = dict.fromkeys(_NullableModelContainerEnvelope.model_fields)
+    _store, ref, raw = _profiled_core_json_store(
+        tmp_path / "nulls", nulls, return_selected_profile=True
+    )
+    restored = _read_nullable_container_model(
+        _NullableModelContainerEnvelope,
+        FileSystemCAS(tmp_path / "nulls" / "typed-cas"),
+        ref,
+        raw,
+        reader_route,
+    )
+    assert all(getattr(restored, name) is None for name in type(restored).model_fields)
+
+
+@pytest.mark.parametrize("reader_route", ["full", "bounded"])
+@pytest.mark.parametrize(
+    "mutation",
+    ["enum", "numeric_string", "boolean_index", "tuple_shape", "extra_field", "terminal_rule"],
+)
+def test_nullable_model_containers_refuse_invalid_present_content(
+    tmp_path, mutation, reader_route
+) -> None:
+    payload = _nullable_model_container_envelope().model_dump(mode="json")
+    if mutation == "enum":
+        payload["mapped"]["a"]["kind"] = "future_kind"
+    elif mutation == "numeric_string":
+        payload["nested"]["group"][0][0]["coordinates"][0] = "3.0"
+    elif mutation == "boolean_index":
+        payload["listed"][0]["row_index"] = True
+    elif mutation == "tuple_shape":
+        payload["tupled"][0]["coordinates"] = [2.0]
+    elif mutation == "extra_field":
+        payload["mapped"]["a"]["unexpected"] = "not admitted"
+    else:
+        payload["nested"]["group"][0][0]["row_index"] = -1
+    _store, ref, raw = _profiled_core_json_store(tmp_path, payload, return_selected_profile=True)
+
+    with pytest.raises(ValidationError):
+        _read_nullable_container_model(
+            _NullableModelContainerEnvelope,
+            FileSystemCAS(tmp_path / "typed-cas"),
+            ref,
+            raw,
+            reader_route,
+        )
+
+
+class _NullableAmbiguousModelContainer(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    rows: Mapping[str, _SchemaAmbiguousUnionPayload] | None
+
+
+@pytest.mark.parametrize("reader_route", ["full", "bounded"])
+def test_nullable_model_container_keeps_existing_same_shape_union_refusal(
+    tmp_path, reader_route
+) -> None:
+    # The existing ambiguous Decimal-wire case now sits inside a nullable mapping.
+    # Null unwrapping must not choose a competing non-null model on its behalf.
+    payload = {"rows": {"one": {"selected": {"amount": "7.50"}}}}
+    _store, ref, raw = _profiled_core_json_store(tmp_path, payload, return_selected_profile=True)
+    with pytest.raises(ValidationError):
+        _read_nullable_container_model(
+            _NullableAmbiguousModelContainer,
+            FileSystemCAS(tmp_path / "typed-cas"),
+            ref,
+            raw,
+            reader_route,
+        )

@@ -1,0 +1,30 @@
+id = "2026-10-28-core-nullable-model-container-read"
+title = "Reify nullable model containers through the existing strict Core JSON owner"
+type = "fixed"
+component = "core"
+owner = "team-runtime"
+summary = "Strict Core JSON reads recursively adapt the sole non-null arm of nullable model containers, preserving enum and tuple wire values in selected calibration reports."
+evidence = ["src/polisyos/core/artifacts/canonical_profile.py", "tests/unit/core/artifacts/test_selected_profile_core_json.py", "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py"]
+compatibility = "Valid selected Optional Mapping/List/Tuple model values now reach terminal strict validation through their existing field owners. Required nullable fields, malformed enum/numeric/tuple/extra-field refusals and existing competing union admission remain. No stored bytes, schema, signature or public API signature changes."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.core.artifacts.validate_core_model_json_artifact; public_stable: polisyos.core.artifacts.validate_core_model_bounded_read"
+migration = "No CAS rewrite. Re-read retained report bytes and execute affected consumers on the composed source. Negative replay evidence requires a valid selected positive and the intended replay refusal, not an earlier generic read failure."
+api = "The private Core typed-value adapter recurses into the single non-None union arm; full and verified bounded typed reads retain their existing interfaces and single terminal strict validation."
+limitations = "This changes no bounded admission kernel, raw/NPZ result law, report producer predicate, scalar config check, external authority or inferential qualification. Product/native/removal evidence remains separate from this source proposal."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/core/artifacts/README.md", "src/polisyos/foundry/calibration/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "core-nullable-model-container-read"
+change_class = "python-public-api"
+impact = "additive"
+surface = "polisyos.core.artifacts.validate_core_model_json_artifact and validate_core_model_bounded_read"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "Present nullable model containers reuse Core typed adaptation before terminal strict validation; no bytes or declarations are rewritten."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/core/artifacts/README.md", "src/polisyos/foundry/calibration/README.md"]
+runbook_docs = []

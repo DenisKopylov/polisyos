@@ -71,6 +71,7 @@ from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.methods.backends.chain_executor import (
     ChainExecutionResult,
     _build_chain_reproducibility_contract,
+    _collect_node_inputs,
 )
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.backends.protocol import (
@@ -85,6 +86,7 @@ from polisyos.foundry.methods.backends.validated import (
     ValidatedStatus,
 )
 from polisyos.foundry.methods.base import ComputeBackend, _stable_digest
+from polisyos.foundry.methods.exceptions import FoundryMethodError
 from polisyos.foundry.methods.selection.registry import MethodRegistry, get_registry
 
 __all__ = [
@@ -176,6 +178,8 @@ class ChainCheckpoint:
     execution_digest: str | None = None
     node_results: list[dict[str, Any]] = field(default_factory=list)
     history_complete: bool = False
+    validation_context: dict[str, Any] | None = None
+    composition_warnings: list[str] = field(default_factory=list)
     checkpoint_path: Path | None = field(default=None, compare=False, repr=False)
 
     # ------------------------------------------------------------------
@@ -214,6 +218,8 @@ class ChainCheckpoint:
                     "created_at": self.created_at,
                     "execution_digest": self.execution_digest,
                     "history_complete": self.history_complete,
+                    "validation_context": self.validation_context,
+                    "composition_warnings": self.composition_warnings,
                 }
                 if history_payload is not None:
                     data["node_results"] = history_payload["node_results"]
@@ -260,6 +266,8 @@ class ChainCheckpoint:
                 execution_digest=data.get("execution_digest"),
                 node_results=node_results,
                 history_complete=bool(data.get("history_complete", False)),
+                validation_context=data.get("validation_context"),
+                composition_warnings=list(data.get("composition_warnings", [])),
                 checkpoint_path=path,
             )
         except (
@@ -355,6 +363,7 @@ class CheckpointingChainExecutor:
         -------
         ChainExecutionResult
         """
+        _validation_context_payload(chain)
         reg = self._registry if self._registry is not None else get_registry()
         disp = self._dispatcher or MethodDispatcher.get_instance()
         params_per_node = params_per_node or {}
@@ -374,6 +383,7 @@ class CheckpointingChainExecutor:
         skip_until: int = 0
         state = dict(initial_state)
         all_node_results: list[tuple[UUID, MethodResult]] = []
+        node_slot_outputs: dict[UUID, Mapping[str, Any]] = {}
 
         if checkpoint is not None:
             if checkpoint.chain_digest != chain_digest:
@@ -387,6 +397,19 @@ class CheckpointingChainExecutor:
                 raise CheckpointDigestMismatchError(
                     "Checkpoint lacks execution identity; legacy checkpoints cannot "
                     "be resumed safely."
+                )
+            expected_context = _validation_context_payload(chain)
+            if checkpoint.validation_context is None:
+                raise CheckpointDigestMismatchError(
+                    "Checkpoint lacks compiled validation context; its limitations cannot be resumed safely."
+                )
+            if checkpoint.validation_context != expected_context:
+                raise CheckpointDigestMismatchError(
+                    "Checkpoint validation mode, ruleset, or diagnostic content does not match the compiled plan."
+                )
+            if checkpoint.composition_warnings != list(getattr(chain, "warnings", ())):
+                raise CheckpointDigestMismatchError(
+                    "Checkpoint composition diagnostics do not match the compiled plan."
                 )
             if checkpoint.execution_digest != execution_digest:
                 raise CheckpointDigestMismatchError(
@@ -413,6 +436,12 @@ class CheckpointingChainExecutor:
                             "Checkpoint per-node history does not match the execution prefix."
                         )
                     all_node_results.append(restored)
+                    node_slot_outputs[restored[0]] = dict(restored[1].slot_outputs)
+
+        if checkpoint is not None and skip_until and not checkpoint.history_complete:
+            raise CheckpointLoadError(
+                "Checkpoint lacks completed slot-output history; bound inputs cannot be resumed safely."
+            )
 
         # Execute remaining nodes
         for idx, node_id in enumerate(execution_order):
@@ -420,18 +449,25 @@ class CheckpointingChainExecutor:
                 continue
 
             node = chain.get_node(node_id)
-            node_params = dict(node.params)
-            node_params.update(params_per_node.get(node_id, {}))
-            node_params.setdefault("seed", seed)
-
-            method_class = reg.get(node.method_fqn)
+            method_class, materialized_state, signature, node_params = _collect_node_inputs(
+                chain=chain,
+                node_id=node_id,
+                reg=reg,
+                node_slot_outputs=node_slot_outputs,
+                fx_rate_provider=None,
+                current_state=state,
+                signature=chain.get_signature(node_id),
+                current_context=state,
+                params_per_node=params_per_node,
+            )
             result = disp.dispatch(
                 method_class=method_class,
-                signature=method_class.signature,
-                state=state,
+                signature=signature,
+                state=materialized_state,
                 params=node_params,
                 seed=seed,
             )
+            node_slot_outputs[node_id] = dict(result.slot_outputs)
             if isinstance(result.output, dict):
                 state.update(result.output)
             all_node_results.append((node_id, result))
@@ -459,6 +495,8 @@ class CheckpointingChainExecutor:
                 all_node_results,
                 composition_kind="serial",
             ),
+            warnings=tuple(getattr(chain, "warnings", ())),
+            validation_context=getattr(chain, "validation_context", None),
         )
 
     def find_latest_checkpoint(self, chain: Any) -> ChainCheckpoint | None:
@@ -530,6 +568,8 @@ class CheckpointingChainExecutor:
             execution_digest=execution_digest,
             node_results=node_results,
             history_complete=history_complete,
+            validation_context=_validation_context_payload(chain),
+            composition_warnings=list(getattr(chain, "warnings", ())),
         )
         try:
             chk.save(path)
@@ -570,6 +610,26 @@ def _compute_chain_digest(chain: Any) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
+def _validation_context_payload(chain: Any) -> dict[str, Any]:
+    """Project and independently reconcile compiler-owned validation provenance."""
+    from polisyos.foundry.methods.components.composer import reconcile_validation_context
+
+    try:
+        context = reconcile_validation_context(chain)
+    except (ValueError, TypeError, KeyError, FoundryMethodError) as exc:
+        raise CheckpointDigestMismatchError(
+            f"Compiled validation context cannot be reconciled: {exc}"
+        ) from exc
+    expected_digest = context.diagnostics_digest
+
+    return {
+        "schema_version": context.schema_version,
+        "mode": context.mode.value,
+        "ruleset": context.ruleset,
+        "diagnostics_digest": expected_digest,
+    }
+
+
 def _compute_execution_digest(
     chain: Any,
     *,
@@ -600,7 +660,7 @@ def _compute_execution_digest(
                 "node_id": str(node_id),
                 "method_fqn": node.method_fqn,
                 "params": effective_params,
-                "static_params": dict(getattr(node, "static_params", {})),
+                "static_params": dict(node.static_params),
                 "signature_digest": signature,
                 "cache_key": str(getattr(chain, "cache_keys", {}).get(node_id, "")),
             }
@@ -655,6 +715,8 @@ def _compute_execution_digest(
             "execution_order": [str(node_id) for node_id in chain.execution_order],
             "nodes": nodes,
             "bindings": bindings,
+            "validation_context": _validation_context_payload(chain),
+            "composition_warnings": list(getattr(chain, "warnings", ())),
             "predecessors": {
                 str(node_id): sorted(
                     str(predecessor) for predecessor in predecessor_map.get(node_id, ())

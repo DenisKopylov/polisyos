@@ -13,6 +13,7 @@ from typing import Any, ClassVar
 
 import pytest
 
+from polisyos.foundry.methods.backends.chain_executor import _build_node_param_payload
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,
@@ -86,6 +87,14 @@ def _register(*method_classes: type) -> MethodRegistry:
     return registry
 
 
+def test_incomplete_node_projection_cannot_erase_static_parameters() -> None:
+    """Missing static_params is not an empty declaration or a default request."""
+    projected = type("ProjectedNode", (), {"id": object(), "params": {"window": 7}})()
+
+    with pytest.raises(TypeError, match="compiled MethodNode with static_params"):
+        _build_node_param_payload(projected, None)
+
+
 def test_async_wrapper_survives_both_fresh_import_orders() -> None:
     """The common async wrapper must work after either module import order."""
     repo_root = Path(__file__).parents[3]
@@ -116,17 +125,30 @@ def test_async_wrapper_survives_both_fresh_import_orders() -> None:
             FidelityLevel,
             MethodMetadata,
             MethodSignature,
+            SlotSpec,
+            SlotType,
+            Unit,
         )
         from polisyos.foundry.methods.composer import MethodComposer
         from polisyos.foundry.methods.registry import MethodRegistry
 
-        def make_method(name, requires=()):
+        def make_method(name, requires=(), operation=None, output_name=None):
             method_signature = MethodSignature(
                 name=name,
                 namespace="tests.cmp01",
                 version="1.0.0",
                 input_slots=frozenset(),
-                output_slots=frozenset(),
+                output_slots=frozenset(
+                    {
+                        SlotSpec(
+                            name=output_name,
+                            slot_type=SlotType.SCALAR,
+                            unit=Unit(dimension="cmp01", symbol="unit"),
+                        )
+                    }
+                    if output_name
+                    else ()
+                ),
                 parameters=(),
                 fidelity=FidelityLevel.LOW,
                 complexity=ComplexityClass.O_N,
@@ -146,14 +168,20 @@ def test_async_wrapper_survives_both_fresh_import_orders() -> None:
 
                 @staticmethod
                 def pure_step(state, params):
-                    return None
+                    return operation(state, params)
 
             return TestMethod
 
-        required = make_method("required")
+        required = make_method(
+            "required",
+            operation=lambda state, params: {"value": state["sentinel"] + 5},
+            output_name="value",
+        )
         dependent = make_method(
             "dependent",
             requires=("tests.cmp01.required@1.0.0",),
+            operation=lambda state, params: {"answer": state["value"] * 3},
+            output_name="answer",
         )
         registry = MethodRegistry.get_instance()
         registry.register(required, override=True)
@@ -175,6 +203,7 @@ def test_async_wrapper_survives_both_fresh_import_orders() -> None:
             required_node.id,
             dependent_node.id,
         ]
+        assert result.final_state["answer"] == 36
         """
     )
     env = os.environ.copy()

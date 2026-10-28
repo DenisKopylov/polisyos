@@ -4173,3 +4173,49 @@ drift_gate = "automated"
 workflow = "tools/quality/validation/check_grounding_refusal_sensitivity.py"
 check_cwd = "."
 check_command = ["uv", "run", "python", "-m", "tools.quality.validation.check_grounding_refusal_sensitivity", "--check", "--world-cas", ".tmp/gy-s-composed-wmr-cas", "--world-ref", "sha256:e96949676a6f0c9278cc8a82bf083d34f982e90b1c071097e953b2ffbb585bb5", "--declarations", "architecture/policy_design_case/corr/grounding-2026-09-08"]
+
+[[family]]
+id = "foundry-method-stubs"
+label = "Foundry method ABI type stubs"
+owner = "team-policyos-foundry"
+approval_owner = "team-policyos-foundry"
+lifecycle = "generated_committed"
+generator = "tools/devx/foundry/generate_stubs.py through polisyos-tools foundry generate-stubs"
+verifier = "The same generator regenerates and byte-compares its complete OUTPUT_MAP with --check"
+promotion_target = "committed Foundry Python ABI stubs; no runtime or scientific authority"
+stale_output_behavior = "fail"
+source_of_truth = "tools/devx/foundry/generate_stubs.py OUTPUT_MAP and REEXPORT_STUBS; src/polisyos/foundry/methods/base.py, components/composer.py, and canonical registry/composer facade owners, including transitive imported type contracts"
+probe_input_roots = ["src", "tools", "architecture"]
+probe_required_paths = [
+  "pyproject.toml",
+  "uv.lock",
+  "hatch.toml",
+  "architecture/generated_artifacts.toml",
+  "architecture/policies/directory_contracts.toml",
+]
+outputs = [
+  "src/polisyos/foundry/methods/base.pyi",
+  "src/polisyos/foundry/methods/registry.pyi",
+  "src/polisyos/foundry/methods/composer.pyi",
+  "src/polisyos/foundry/methods/components/composer.pyi",
+]
+regenerate_commands = [
+  "PYTHONDONTWRITEBYTECODE=1 PYTHONNOUSERSITE=1 PYTHONHASHSEED=0 JAX_PLATFORMS=cpu PYTHONPATH=src:. uv run --extra lint polisyos-tools foundry generate-stubs",
+]
+commit_policy = "committed"
+freshness_rule = "Regenerate all four outputs whenever the canonical method ABI, composition validation context, public facade ownership or stub generator changes; missing or unreadable output is not a clean comparison."
+drift_gate = "automated"
+workflow = "tools/devx/foundry/generate_stubs.py"
+check_cwd = "."
+check_command = [
+  "env", "PYTHONDONTWRITEBYTECODE=1", "PYTHONNOUSERSITE=1", "PYTHONHASHSEED=0",
+  "JAX_PLATFORMS=cpu", "PYTHONPATH=src:.",
+  "uv", "run", "--extra", "lint", "polisyos-tools", "foundry", "generate-stubs", "--check",
+]
+default_freshness_check = true
+output_probe_command = [
+  "env", "PYTHONDONTWRITEBYTECODE=1", "PYTHONNOUSERSITE=1", "PYTHONHASHSEED=0",
+  "JAX_PLATFORMS=cpu", "PYTHONPATH=src:.",
+  "uv", "run", "--extra", "lint", "polisyos-tools", "foundry", "generate-stubs",
+  "--output-root", "{output_root}",
+]

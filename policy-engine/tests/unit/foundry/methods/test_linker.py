@@ -859,3 +859,28 @@ class TestErrorMessages:
         assert "b" in str(exc.value)
         assert "(10, 20)" in str(exc.value)
         assert "(5, 5)" in str(exc.value)
+
+
+def test_sequence_signatures_reconcile_uuid_annotated_links_without_losing_occurrences():
+    """A Sequence resolves signature identity by FQN and collision identity by UUID."""
+    from uuid import uuid4
+
+    source = make_signature("uuid_source", outputs=[make_slot("value")])
+    target = make_signature("uuid_target", inputs=[make_slot("value")])
+    linker = SlotLinker(LinkerConfig.strict())
+    first_source, second_source, first_target, second_target = (uuid4() for _ in range(4))
+    plain = linker.link(source, target, {"value": "value"})
+    first = plain.with_node_ids(first_source, first_target)
+    sibling = plain.with_node_ids(second_source, second_target)
+    assert linker.validate_chain([source, target], [first]) == [], (
+        "UUID Sequence signature compatibility"
+    )
+    assert linker.validate_chain([source, target], [first, sibling]) == [], (
+        "separate UUID target occurrences"
+    )
+    duplicate = plain.with_node_ids(second_source, first_target)
+    assert any(
+        "connected multiple times" in issue
+        for issue in linker.validate_chain([source, target], [first, duplicate])
+    )
+    assert linker.validate_chain({first_source: source, first_target: target}, [first]) == []

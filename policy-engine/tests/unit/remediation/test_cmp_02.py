@@ -15,18 +15,29 @@ executor or backend.
 
 from __future__ import annotations
 
+from dataclasses import replace
 from types import SimpleNamespace
 from typing import Any, ClassVar
 from uuid import UUID, uuid4
 
 import pytest
 
+from polisyos.foundry.methods.backends.chain_executor import (
+    execute_heterogeneous_chain,
+    execute_heterogeneous_chain_async,
+)
+from polisyos.foundry.methods.backends.checkpointing import (
+    ChainCheckpoint,
+    CheckpointDigestMismatchError,
+    CheckpointingChainExecutor,
+)
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,
     FidelityLevel,
     MethodMetadata,
     MethodSignature,
+    ParameterSpec,
     SlotSpec,
     SlotType,
     Unit,
@@ -69,7 +80,7 @@ def _method_class(
         version="1.0.0",
         input_slots=input_slots,
         output_slots=output_slots,
-        parameters=(),
+        parameters=(ParameterSpec(name="seed", default=0),),
         fidelity=FidelityLevel.LOW,
         complexity=ComplexityClass.O_N,
         backend=ComputeBackend.NUMPY,
@@ -87,7 +98,7 @@ def _method_class(
 
         @staticmethod
         def pure_step(state: Any, params: dict[str, Any]) -> Any:
-            return state
+            return {slot.name: state[slot.name] for slot in method_signature.output_slots}
 
     TestMethod.__name__ = name.replace("_", " ").title().replace(" ", "")
     return TestMethod
@@ -119,6 +130,67 @@ def test_duplicate_producers_are_visible_in_warn_mode() -> None:
     chain = composer.build(validate_semantics=SemanticValidationLevel.WARN)
 
     assert any("connected multiple times" in warning for warning in chain.warnings)
+
+
+@pytest.mark.parametrize("executor", ["sequential", "async"])
+def test_duplicate_producer_warning_reaches_execution_consumer(executor: str) -> None:
+    """B45: an executed result must retain the WARN-mode limitation."""
+    value = _slot("value")
+    producer_one = _method_class("producer_one", output_slots=frozenset({value}))
+    producer_two = _method_class("producer_two", output_slots=frozenset({value}))
+    consumer = _method_class("consumer", input_slots=frozenset({value}))
+    registry = _register(producer_one, producer_two, consumer)
+
+    composer = MethodComposer(registry=registry)
+    first = composer.add("tests.cmp02.producer_one@1.0.0")
+    second = composer.add("tests.cmp02.producer_two@1.0.0")
+    target = composer.add("tests.cmp02.consumer@1.0.0")
+    composer.connect(first, target, {"value": "value"})
+    composer.connect(second, target, {"value": "value"})
+    chain = composer.build(validate_semantics=SemanticValidationLevel.WARN)
+
+    if executor == "async":
+        import asyncio
+
+        result = asyncio.run(
+            execute_heterogeneous_chain_async(chain, state={"value": 4}, registry=registry)
+        )
+    else:
+        result = execute_heterogeneous_chain(chain, state={"value": 4}, registry=registry)
+
+    assert any("connected multiple times" in warning for warning in result.warnings)
+
+
+def test_checkpoint_binds_warn_mode_diagnostics_across_fresh_load(tmp_path) -> None:
+    """A replacement live chain cannot erase a persisted WARN limitation."""
+    value = _slot("value")
+    producer_one = _method_class("producer_one", output_slots=frozenset({value}))
+    producer_two = _method_class("producer_two", output_slots=frozenset({value}))
+    consumer = _method_class("consumer", input_slots=frozenset({value}))
+    registry = _register(producer_one, producer_two, consumer)
+    composer = MethodComposer(registry=registry)
+    first = composer.add("tests.cmp02.producer_one@1.0.0")
+    second = composer.add("tests.cmp02.producer_two@1.0.0")
+    target = composer.add("tests.cmp02.consumer@1.0.0")
+    composer.connect(first, target, {"value": "value"})
+    composer.connect(second, target, {"value": "value"})
+    chain = composer.build(validate_semantics=SemanticValidationLevel.WARN)
+
+    executor = CheckpointingChainExecutor(checkpoint_dir=tmp_path, registry=registry)
+    executor.execute(chain, initial_state={"value": 4})
+    checkpoint = ChainCheckpoint.load(sorted(tmp_path.glob("*.json"))[-1])
+    resumed = executor.execute(chain, initial_state={"value": 4}, checkpoint=checkpoint)
+    assert resumed.warnings == chain.warnings
+    assert resumed.validation_context == chain.validation_context
+
+    stripped = replace(chain, warnings=())
+    with pytest.raises(CheckpointDigestMismatchError, match=r"validation|diagnostic"):
+        executor.execute(stripped, initial_state={"value": 4}, checkpoint=checkpoint)
+
+    assert checkpoint.validation_context is not None
+    checkpoint.validation_context["diagnostics_digest"] = "0" * 64
+    with pytest.raises(CheckpointDigestMismatchError, match="validation"):
+        executor.execute(chain, initial_state={"value": 4}, checkpoint=checkpoint)
 
 
 def test_duplicate_producers_fail_closed_in_strict_mode() -> None:

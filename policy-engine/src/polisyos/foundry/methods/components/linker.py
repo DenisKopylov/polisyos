@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass, replace
+from typing import Literal
 from uuid import UUID
 
 from polisyos.foundry.methods.base import MethodSignature, SlotSpec
@@ -95,6 +96,7 @@ class LinkResult:
     unconnected_inputs: tuple[str, ...] = ()
     source_id: UUID | None = None
     target_id: UUID | None = None
+    link_mode: Literal["explicit", "auto"] = "explicit"
 
     @property
     def requires_conversions(self) -> bool:
@@ -210,6 +212,20 @@ class SlotLinker:
         if explicit_mapping is not None:
             return self._link_explicit(source_sig, target_sig, explicit_mapping)
         return self._link_auto(source_sig, target_sig)
+
+    def _link_composition_edge(
+        self,
+        source_sig: MethodSignature,
+        target_sig: MethodSignature,
+        explicit_mapping: Mapping[str, str] | None = None,
+    ) -> LinkResult:
+        """Check an edge while deferring whole-target completeness to finalization.
+
+        Public ``link`` retains its strict pairwise contract. Only the composer
+        uses this builder seam; all type/unit/shape/contract/semantic checks run.
+        """
+        builder = SlotLinker(replace(self._config, allow_partial_links=True))
+        return builder.link(source_sig, target_sig, explicit_mapping)
 
     def _link_explicit(
         self,
@@ -430,31 +446,92 @@ class SlotLinker:
             bindings=tuple(bindings),
             warnings=tuple(warnings),
             unconnected_inputs=unconnected,
+            link_mode="auto",
         )
+
+    def _unconnected_chain_inputs(
+        self,
+        signatures: Mapping[UUID, MethodSignature],
+        links: Sequence[LinkResult],
+    ) -> dict[UUID, tuple[str, ...]]:
+        """Return joint missing slots for data-flow targets, without a status decision."""
+        connected: dict[UUID, set[str]] = {}
+        for link in links:
+            if link.target_id is None or link.target_id not in signatures:
+                continue
+            supplied = connected.setdefault(link.target_id, set())
+            supplied.update(binding.target_slot for binding in link.bindings)
+        return {
+            target_id: tuple(sorted(signatures[target_id].input_slot_names - supplied))
+            for target_id, supplied in connected.items()
+            if signatures[target_id].input_slot_names - supplied
+        }
 
     def validate_chain(
         self,
-        signatures: Sequence[MethodSignature],
+        signatures: Sequence[MethodSignature] | Mapping[UUID, MethodSignature],
         links: Sequence[LinkResult],
     ) -> list[str]:
+        """Recheck actual bindings and joint completeness per target occurrence.
+
+        A mapping retains repeated-FQN occurrence identity. Sequence callers keep
+        their legacy FQN identity. Roots consume external input; a target with
+        incoming data-flow edges must obtain its declared inputs from their union
+        when partial links are disabled. SlotSpec defines no optional/default or
+        input-alias exemption, so no such exemption is inferred here.
+        """
         issues: list[str] = []
-        all_connected: set[tuple[UUID | str, str]] = set()
-
+        occurrence_signatures = isinstance(signatures, Mapping)
+        by_id: dict[UUID | str, MethodSignature] = (
+            {node_id: signature for node_id, signature in signatures.items()}
+            if isinstance(signatures, Mapping)
+            else {signature.fqn: signature for signature in signatures}
+        )
+        target_signatures: dict[UUID | str, MethodSignature] = {}
+        connected: dict[UUID | str, set[str]] = {}
         for link in links:
+            target_id = link.target_id if link.target_id is not None else link.target_fqn
+            source_id = link.source_id if link.source_id is not None else link.source_fqn
+            target_sig = by_id.get(target_id if occurrence_signatures else link.target_fqn)
+            source_sig = by_id.get(source_id if occurrence_signatures else link.source_fqn)
+            if target_sig is None or source_sig is None:
+                issues.append("Binding endpoint is absent from chain signatures")
+                continue
+            target_signatures[target_id] = target_sig
+            target_inputs = connected.setdefault(target_id, set())
             for binding in link.bindings:
-                key = (
-                    binding.target_node_id
-                    if binding.target_node_id is not None
-                    else binding.target_method,
-                    binding.target_slot,
-                )
-                if key in all_connected:
+                if (
+                    binding.target_method != target_sig.fqn
+                    or binding.source_method != source_sig.fqn
+                    or binding.target_node_id != link.target_id
+                    or binding.source_node_id != link.source_id
+                ):
+                    issues.append("Binding endpoint differs from its owning edge")
+                    continue
+                if binding.target_slot in target_inputs:
                     issues.append(
-                        f"Slot {binding.target_slot} in {binding.target_method} "
-                        "connected multiple times"
+                        f"Slot {binding.target_slot} in {target_sig.fqn} connected multiple times"
                     )
-                all_connected.add(key)
-
+                target_inputs.add(binding.target_slot)
+                try:
+                    self._link_composition_edge(
+                        source_sig,
+                        target_sig,
+                        {binding.source_slot: binding.target_slot},
+                    )
+                except (
+                    SlotConnectionError,
+                    SemanticCompatibilityError,
+                    ShapeMismatchError,
+                    UnitMismatchError,
+                ) as exc:
+                    issues.append(f"Invalid binding in {target_sig.fqn}: {exc}")
+        if not self._config.allow_partial_links:
+            for target_id, supplied in connected.items():
+                target_sig = target_signatures[target_id]
+                missing = sorted(target_sig.input_slot_names - supplied)
+                if missing:
+                    issues.append(f"Unconnected required inputs in {target_sig.fqn}: {missing}")
         return issues
 
 

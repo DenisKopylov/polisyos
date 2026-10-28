@@ -16,7 +16,7 @@ from collections import OrderedDict
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from types import MappingProxyType
-from typing import Any, Protocol, TypeVar
+from typing import TYPE_CHECKING, Any, Protocol, TypeVar
 
 import jax
 import jax.numpy as jnp
@@ -30,6 +30,9 @@ from polisyos.foundry.methods.compiler.specialization import (
     build_specialization,
 )
 from polisyos.foundry.methods.exceptions import CompilationError, ParameterValidationError
+
+if TYPE_CHECKING:
+    from polisyos.foundry.methods.components.composer import ValidationContext
 
 __all__ = [
     "CompilationCache",
@@ -744,10 +747,15 @@ class MethodCompiler:
         """
         Compile an entire method chain.
         """
-        from polisyos.foundry.methods.components.composer import CompiledMethodChain, MethodNode
+        from polisyos.foundry.methods.components.composer import (
+            CompiledMethodChain,
+            MethodNode,
+            reconcile_validation_context,
+        )
 
         if not isinstance(chain, CompiledMethodChain):
             raise TypeError(f"Expected CompiledMethodChain, got {type(chain)}")
+        reconcile_validation_context(chain)
 
         compiled_methods: list[tuple[MethodNode, CompiledMethod]] = []
         if infer_shapes:
@@ -949,6 +957,7 @@ class CompiledChainExecutor:
         state: Any,
         params: Mapping[str, Mapping[str, Any]] | None = None,
     ) -> Any:
+        self._reconcile_plan()
         params = params or {}
         current_state = state
 
@@ -968,6 +977,41 @@ class CompiledChainExecutor:
             current_state = compiled.step_fn(current_state, method_params)
 
         return current_state
+
+    def _reconcile_plan(self) -> ValidationContext:
+        """Reconcile the compiler plan and its bound compiled method occurrences."""
+        from polisyos.foundry.methods.base import _stable_digest
+        from polisyos.foundry.methods.compiler.specialization import compute_static_params_hash
+        from polisyos.foundry.methods.components.composer import reconcile_validation_context
+
+        context = reconcile_validation_context(self.chain)
+        if tuple(node.id for node, _ in self.compiled_methods) != self.chain.execution_order:
+            raise ValueError("Compiled executor occurrences differ from validated plan")
+        for node, compiled in self.compiled_methods:
+            original = self.chain.get_node(node.id)
+            signature = self.chain.get_signature(node.id)
+            if (
+                node.method_fqn != original.method_fqn
+                or _stable_digest(dict(node.params)) != _stable_digest(dict(original.params))
+                or _stable_digest(dict(node.static_params))
+                != _stable_digest(dict(original.static_params))
+                or compiled.signature.stable_digest() != signature.stable_digest()
+                or compiled.specialization.static_params_hash
+                != compute_static_params_hash(original.static_params)
+            ):
+                raise ValueError("Compiled executor method differs from validated occurrence")
+        return context
+
+    @property
+    def warnings(self) -> tuple[str, ...]:
+        """Expose aggregate diagnostics on this reusable executor handle."""
+        self._reconcile_plan()
+        return self.chain.warnings
+
+    @property
+    def validation_context(self) -> ValidationContext:
+        """Expose current compiler validation; OFF remains an explicit limitation."""
+        return self._reconcile_plan()
 
     def __len__(self) -> int:
         return len(self.compiled_methods)

@@ -1,0 +1,11 @@
+id = "2026-10-27-e02-c35-composition-execution"
+title = "Validate whole Foundry compositions and preserve checkpoint custody"
+type = "fixed"
+component = "foundry-methods"
+owner = "team-policyos-foundry"
+surface_classification = "public_experimental"
+change_class = "compatible"
+summary = "Validate strict multi-source compositions jointly, replay current compiler validation before execution, retain exact ordering occurrences, and preserve bound inputs, static parameters and diagnostic context through fresh checkpoint resume."
+evidence = ["tests/unit/remediation/test_cmp_01.py", "tests/unit/remediation/test_cmp_02.py", "tests/unit/remediation/test_res_04.py", "tests/unit/foundry/methods/backends/test_checkpointing.py", "tests/unit/foundry/methods/components/test_composition_custody.py"]
+compatibility = "ChainExecutionResult gains additive warning and validation-context fields. Newly written checkpoints persist schema-v1 validation provenance; checkpoints without execution identity, supported validation provenance or completed slot-output history remain deliberately unsafe to resume. SlotLinker.link retains its pairwise strict behavior; builder edges defer only joint completeness. UUID-annotated Sequence validation remains compatible. CompiledChainExecutor retains raw-state return and exposes diagnostics on its validated reusable handle. The existing stub generator adds complete-map byte freshness checking and staged output, with all four Foundry stubs registered under one generated family."
+limitations = "Compiler replay establishes current validation rather than historical issuer authenticity. Composition diagnostics remain candidate limitations rather than scientific authority. This local source proposal has no runtime receipt; required backend, type, generated-family and root-composed verification remain UNRUN, with no G acceptance or formal closure."

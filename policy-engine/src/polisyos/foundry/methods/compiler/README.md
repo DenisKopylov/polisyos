@@ -36,3 +36,21 @@ sets no removal date and adds no public-stable entrypoint.
   `selection/registry.py` and catalog family bootstrap modules.
 - Optional runtime integrations must degrade gracefully when dependencies are
   unavailable.
+
+## Compiled chain context boundary
+
+`MethodCompiler.compile_chain()` replays the canonical composer validation before
+compilation. `CompiledChainExecutor.__call__()` replays it again and reconciles
+the bound compiled method occurrences, signatures and static specialization with
+that plan before executing. Unknown, erased or inconsistent validation refuses.
+The executor exposes `warnings` and typed `validation_context` properties, so a
+reusable handle retains the actual compiler limitations, including mode OFF.
+
+The existing call contract still returns raw state. That raw value has no
+`ChainExecutionResult` diagnostic envelope and must not be described as carrying
+warnings or compiler provenance. Consumers needing a transferable contextual
+result must retain the executor's diagnostic surface or use the heterogeneous
+chain result API. A new raw-state diagnostic envelope and full DAG slot-routing
+adaptation for compiled kernels are `surface_out_of_scope` for this compatible
+companion; no such capability or custody claim is made. Compiler validation
+proves current mechanical checks, not scientific or institutional authority.

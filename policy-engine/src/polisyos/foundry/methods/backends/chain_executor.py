@@ -9,7 +9,7 @@ import time as _time
 from collections import OrderedDict
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
-from typing import Any, Literal, Protocol
+from typing import TYPE_CHECKING, Any, Literal, Protocol
 from uuid import UUID
 
 import numpy as np
@@ -41,6 +41,9 @@ from polisyos.foundry.methods.components.io import (
 from polisyos.foundry.methods.exceptions import MethodContractError
 from polisyos.foundry.methods.selection.registry import MethodRegistry
 from polisyos.foundry.methods.types.checker import ShapeAdapterKind
+
+if TYPE_CHECKING:
+    from polisyos.foundry.methods.components.composer import ValidationContext
 
 _log = get_foundry_logger("foundry.backends.chain")
 
@@ -172,11 +175,18 @@ class LevelAwareExecutor:
 
 @dataclass(frozen=True, slots=True)
 class ChainExecutionResult:
-    """Collect the final composed state plus per-node backend results."""
+    """Collect execution output and composition diagnostics consumed with it.
+
+    ``warnings`` are copied from the compiled chain.  Keeping them on the
+    executable result prevents WARN-mode composition limitations from being
+    lost when callers retain the result but not the intermediate plan.
+    """
 
     final_state: Any
     node_results: tuple[tuple[UUID, MethodResult], ...]
     reproducibility_contract: Mapping[str, Any] = field(default_factory=dict)
+    warnings: tuple[str, ...] = ()
+    validation_context: ValidationContext | None = None
 
     @property
     def total_wall_time_ms(self) -> float:
@@ -308,10 +318,32 @@ class _FusedJitCache:
 _FUSED_JIT_CACHE = _FusedJitCache()
 
 
+def _validate_compiled_execution_plan(chain: Any) -> None:
+    """Reconcile owned compiled plans before any execution consumer dispatches.
+
+    Legacy protocol-only callers carry no compiler validation context; they do
+    not gain one here. A typed plan with unknown context is refused, so removing
+    the context cannot turn failed validation into an executable owned plan.
+    """
+    from polisyos.foundry.methods.components.composer import (
+        CompiledMethodChain,
+        reconcile_validation_context,
+    )
+
+    if isinstance(chain, CompiledMethodChain):
+        reconcile_validation_context(chain)
+    elif getattr(chain, "validation_context", None) is not None:
+        raise TypeError("Compiler validation context requires a typed compiled plan")
+
+
 def _build_node_param_payload(
-    node,
+    node: Any,
     params_per_node: Mapping[UUID, Mapping[str, Any]] | None,
 ) -> dict[str, Any]:
+    from polisyos.foundry.methods.components.composer import MethodNode
+
+    if not isinstance(node, MethodNode):
+        raise TypeError("chain execution requires a compiled MethodNode with static_params")
     combined_params = dict(node.static_params)
     combined_params.update(node.params)
     if params_per_node and node.id in params_per_node:
@@ -622,6 +654,8 @@ def execute_heterogeneous_chain(
     async_node_timeout_sec: float | None = None,
 ) -> ChainExecutionResult:
     """Execute heterogeneous chain."""
+    _validate_compiled_execution_plan(chain)
+
     if executor_mode == "auto":
         executor_mode = LevelAwareExecutor().choose_mode(chain)
 
@@ -916,6 +950,8 @@ def _execute_sequential_chain(
             node_results,
             composition_kind="serial",
         ),
+        warnings=tuple(getattr(chain, "warnings", ())),
+        validation_context=getattr(chain, "validation_context", None),
     )
 
 

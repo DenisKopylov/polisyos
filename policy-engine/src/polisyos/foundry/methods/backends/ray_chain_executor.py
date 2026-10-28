@@ -50,6 +50,7 @@ from polisyos.foundry.methods._internal.logging import get_foundry_logger
 from polisyos.foundry.methods.backends.chain_executor import (
     ChainExecutionResult,
     _build_level_parallel_reproducibility_contract,
+    _validate_compiled_execution_plan,
 )
 from polisyos.foundry.methods.backends.protocol import (
     MethodResult,
@@ -166,6 +167,7 @@ class RayChainExecutor:
         RayChainExecutionError
             If one or more nodes raise during execution.
         """
+        _validate_compiled_execution_plan(chain)
         if not self.is_available():
             raise RayNotAvailableError(
                 "Ray is not available. Install with 'pip install ray[default]' "
@@ -313,6 +315,8 @@ class RayChainExecutor:
                 levels,
                 node_results,
             ),
+            warnings=tuple(getattr(chain, "warnings", ())),
+            validation_context=getattr(chain, "validation_context", None),
         )
 
     def __repr__(self) -> str:

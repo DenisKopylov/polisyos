@@ -14,14 +14,19 @@ from __future__ import annotations
 
 import graphlib
 from collections.abc import Iterator, Mapping, Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from enum import Enum
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
 from polisyos.foundry.methods.base import MethodSignature, _stable_digest
-from polisyos.foundry.methods.components.linker import LinkResult, SlotBinding, SlotLinker
+from polisyos.foundry.methods.components.linker import (
+    LinkerConfig,
+    LinkResult,
+    SlotBinding,
+    SlotLinker,
+)
 from polisyos.foundry.methods.exceptions import CyclicDependencyError, MissingRequirementError
 from polisyos.foundry.methods.selection.registry import MethodRegistry
 
@@ -34,6 +39,8 @@ __all__ = [
     "MethodComposer",
     "MethodNode",
     "SemanticValidationLevel",
+    "ValidationContext",
+    "reconcile_validation_context",
 ]
 
 
@@ -43,6 +50,33 @@ class SemanticValidationLevel(Enum):
     OFF = "off"
     WARN = "warn"
     STRICT = "strict"
+
+
+_VALIDATION_RULESET = "polisyos.foundry.composition@1"
+
+
+@dataclass(frozen=True, slots=True)
+class ValidationContext:
+    """Content-bound provenance for the validation performed during compilation."""
+
+    schema_version: int
+    mode: SemanticValidationLevel
+    ruleset: str
+    diagnostics_digest: str
+
+    @classmethod
+    def create(
+        cls,
+        *,
+        mode: SemanticValidationLevel,
+        warnings: Sequence[str],
+    ) -> ValidationContext:
+        return cls(
+            schema_version=1,
+            mode=mode,
+            ruleset=_VALIDATION_RULESET,
+            diagnostics_digest=_stable_digest(list(warnings)),
+        )
 
 
 # =============================================================================
@@ -555,7 +589,22 @@ class MethodComposer:
         source_sig = self._signatures[source.id]
         target_sig = self._signatures[target.id]
 
-        link_result = self._linker.link(
+        if slot_mapping is None:
+            # An automatic builder edge fills still-unbound targets. Explicit
+            # collisions are retained for the final shared collision gate.
+            supplied = {
+                binding.target_slot
+                for edge in self._dag.edges.values()
+                for binding in edge.bindings
+                if binding.target_node_id == target.id
+            }
+            target_sig = replace(
+                target_sig,
+                input_slots=frozenset(
+                    slot for slot in target_sig.input_slots if slot.name not in supplied
+                ),
+            )
+        link_result = self._linker._link_composition_edge(
             source_sig,
             target_sig,
             explicit_mapping=slot_mapping,
@@ -613,12 +662,23 @@ class MethodComposer:
         # sequential and async executors consume the same validated chain and
         # cannot silently fall back to last-write-wins for one input slot.
         link_issues = self._linker.validate_chain(
-            tuple(self._signatures.values()),
+            self._signatures,
             tuple(self._dag.edges.values()),
         )
-        if link_issues and level == SemanticValidationLevel.STRICT:
+        if link_issues and (
+            level == SemanticValidationLevel.STRICT or not self._linker.config.allow_partial_links
+        ):
             raise ValueError("Chain failed slot validation:\n  " + "\n  ".join(link_issues))
         warnings.extend(f"[slot] {issue}" for issue in link_issues)
+        if self._linker.config.allow_partial_links:
+            for node_id, missing in self._linker._unconnected_chain_inputs(
+                self._signatures,
+                tuple(self._dag.edges.values()),
+            ).items():
+                warnings.append(
+                    f"Unconnected inputs in {self._signatures[node_id].fqn} "
+                    f"({str(node_id)[:8]}): {list(missing)}"
+                )
 
         try:
             self._dag.topological_order(extra_predecessors=req_predecessors)
@@ -636,14 +696,12 @@ class MethodComposer:
                     )
 
         for link_result in self._dag.edges.values():
-            warnings.extend(link_result.warnings)
-            if link_result.unconnected_inputs:
-                target_label = link_result.target_fqn
-                if link_result.target_id is not None:
-                    target_label = f"{target_label} ({str(link_result.target_id)[:8]})"
-                warnings.append(
-                    f"Unconnected inputs in {target_label}: {list(link_result.unconnected_inputs)}"
-                )
+            warnings.extend(
+                warning
+                for warning in link_result.warnings
+                if not warning.startswith("Input slot '")
+                or not warning.endswith("remains unconnected")
+            )
 
         return warnings
 
@@ -703,6 +761,7 @@ class MethodComposer:
             bindings=tuple(all_bindings),
             warnings=tuple(w for w in warnings if not w.startswith("CRITICAL:")),
             cache_keys=cache_keys,
+            linker_config=self._linker.config,
         )
 
         if validate_semantics != SemanticValidationLevel.OFF:
@@ -721,6 +780,16 @@ class MethodComposer:
                 from dataclasses import replace as _replace
 
                 chain = _replace(chain, warnings=chain.warnings + semantic_warnings)
+
+        from dataclasses import replace as _replace
+
+        chain = _replace(
+            chain,
+            validation_context=ValidationContext.create(
+                mode=validate_semantics,
+                warnings=chain.warnings,
+            ),
+        )
 
         return chain
 
@@ -781,6 +850,8 @@ class CompiledMethodChain:
     bindings: tuple[SlotBinding, ...]
     warnings: tuple[str, ...]
     cache_keys: Mapping[UUID, str] = field(default_factory=lambda: MappingProxyType({}))
+    validation_context: ValidationContext | None = None
+    linker_config: LinkerConfig = field(default_factory=LinkerConfig)
 
     def __len__(self) -> int:
         return len(self.execution_order)
@@ -844,3 +915,65 @@ class CompiledMethodChain:
             async_node_timeout_sec=async_node_timeout_sec,
             fx_rate_provider=fx_rate_provider,
         )
+
+
+def reconcile_validation_context(chain: CompiledMethodChain) -> ValidationContext:
+    """Replay the current compiler owner and reconcile its performed checks.
+
+    This establishes current validation, not historical issuer authenticity.
+    OFF remains an explicit mode limitation. Unknown contexts fail closed; no
+    warning hash or caller-supplied mode is accepted as proof of a performed check.
+    """
+    if not isinstance(chain, CompiledMethodChain):
+        raise ValueError("Compiler validation requires an actual CompiledMethodChain")
+    context = chain.validation_context
+    if (
+        not isinstance(context, ValidationContext)
+        or type(context.schema_version) is not int
+        or context.schema_version != 1
+        or context.ruleset != _VALIDATION_RULESET
+        or not isinstance(context.mode, SemanticValidationLevel)
+        or not isinstance(chain.linker_config, LinkerConfig)
+    ):
+        raise ValueError("Unsupported compiler validation context")
+    composer = MethodComposer(linker=SlotLinker(chain.linker_config))
+    # Reconstruct authored data edges. freeze() recomputes requires-only edges.
+    composer._dag = CompositionDAG()
+    for node_id in chain.execution_order:
+        node = chain.dag.nodes[node_id]
+        signature = chain.signatures[node_id]
+        if not isinstance(node, MethodNode) or not isinstance(signature, MethodSignature):
+            raise ValueError("Untyped compiler validation input")
+        composer._dag.add_node(node)
+        composer._signatures[node_id] = signature
+    if set(chain.dag.nodes) != set(chain.execution_order) or set(chain.signatures) != set(
+        chain.execution_order
+    ):
+        raise ValueError("Compiler validation node set is inconsistent")
+    for (source_id, target_id), edge in chain.dag.edges.items():
+        if edge.link_mode not in {"explicit", "auto"}:
+            raise ValueError("Unsupported compiler link route")
+        mapping = (
+            None
+            if edge.link_mode == "auto"
+            else {binding.source_slot: binding.target_slot for binding in edge.bindings}
+        )
+        replayed_edge = composer.connect(
+            composer._dag.nodes[source_id],
+            composer._dag.nodes[target_id],
+            mapping,
+        )
+        if replayed_edge != edge:
+            raise ValueError("Compiler edge replay differs from stored binding evidence")
+    replayed = composer.build(validate_semantics=context.mode)
+    if (
+        replayed.validation_context != context
+        or replayed.warnings != chain.warnings
+        or replayed.execution_order != chain.execution_order
+        or replayed.bindings != chain.bindings
+        or replayed.dag.predecessors != chain.dag.predecessors
+        or replayed.dag.successors != chain.dag.successors
+    ):
+        raise ValueError("Compiler validation replay differs from compiled plan or diagnostics")
+    assert replayed.validation_context is not None
+    return replayed.validation_context

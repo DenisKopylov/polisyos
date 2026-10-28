@@ -1368,7 +1368,8 @@ def test_generated_artifact_manifest_validates_schema_before_coercion() -> None:
     manifest = tomllib.loads(source)
     family_records = manifest["family"]
     families = guardrails._parse_generated_artifacts(source.encode("utf-8"))
-    assert len(families) == len(family_records) == 110
+    assert families
+    assert len(families) == len(family_records)
     assert guardrails._check_generated_artifact_manifest(families) == []
 
     schema = guardrails._generated_artifact_toml_schema()

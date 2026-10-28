@@ -9,7 +9,8 @@
 - Stub generation: `tools/devx/foundry/generate_stubs.py`.
 - Signature baseline refresh: `tools/devx/foundry/update_signature_baseline.py`.
 - Written outputs:
-  `src/polisyos/foundry/methods/{base,registry,composer}.pyi`.
+  `src/polisyos/foundry/methods/{base,registry,composer}.pyi` and
+  `src/polisyos/foundry/methods/components/composer.pyi`.
 
 - Baseline artifact:
   `tests/_golden/foundry/signature_baseline.json`.
@@ -18,7 +19,7 @@
 
 | Entrypoint                                                            | Purpose                                                     |
 | --------------------------------------------------------------------- | ----------------------------------------------------------- |
-| `uv run polisyos-tools foundry generate-stubs [--dry-run]`            | Regenerate public method stubs for the Foundry facade.      |
+| `uv run --extra lint polisyos-tools foundry generate-stubs [--check | --dry-run] [--output-root PATH]`            | Regenerate public method stubs for the Foundry facade.      |
 | `uv run polisyos-tools foundry update-signature-baseline [--dry-run]` | Recompute stable digests and update the signature baseline. |
 
 ## Depends On / Depended On By
@@ -31,14 +32,33 @@
 
 ## Common Commands
 
-The commands below were smoke-tested on `2026-04-17` unless explicitly marked as `conceptual`.
+The generator renders the complete `OUTPUT_MAP` before writing or comparing.
+`--dry-run` invokes stubgen and validates generated syntax but performs no byte
+comparison; it is not a freshness receipt. `--check` regenerates into temporary
+scratch and compares every declared output byte-for-byte without writing output
+files. Missing or unreadable outputs are ERROR, drift is FAIL, and a complete
+identical comparison is PASS. `--output-root PATH` writes product-relative output
+paths beneath a staged root; with `--check`, it compares that staged tree.
 
-| Command                                                             | Purpose                                                                | Status                                                                                                         |
-| ------------------------------------------------------------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `uv run polisyos-tools foundry generate-stubs --dry-run`            | Check stub generation without writing `.pyi` files.                    | `smoke-tested` (the command starts, but the current environment configuration does not execute `mypy.stubgen`) |
-| `uv run polisyos-tools foundry update-signature-baseline --dry-run` | Check the signature diff without rewriting the baseline fixture.       | `smoke-tested` (currently fails on a `RegistrySnapshot`/`.items()` mismatch)                                   |
-| `uv run polisyos-tools foundry generate-stubs`                      | Write the regenerated `.pyi` stubs to `src/polisyos/foundry/methods/`. | `conceptual` (modifies checked-in artifacts)                                                                   |
-| `uv run polisyos-tools foundry update-signature-baseline`           | Update `tests/_golden/foundry/signature_baseline.json`.                | `conceptual` (modifies a checked-in artifact)                                                                  |
+```bash
+uv run --extra lint polisyos-tools foundry generate-stubs --check
+uv run --extra lint polisyos-tools foundry generate-stubs --output-root LOCAL/foundry-stubs-stage
+uv run --extra lint polisyos-tools foundry generate-stubs --check --output-root LOCAL/foundry-stubs-stage
+```
+
+These commands are source-backed interfaces, not execution receipts for a future
+candidate. Keep Python, lockfile, mypy/stubgen and the actual source tree pinned
+when generating and comparing. The canonical composer output comes from
+`components.composer`; the compatibility `composer.pyi` stays a canonical-owner
+reexport. `architecture/generated_artifacts.toml` registers all four outputs as
+one generated-committed family using this owner for checking and staged probing.
+
+Each invocation prints its explicit read measurement, selected modules/output
+paths and the named boundaries it cannot decide. Stubgen's transitive imports
+and subprocess source reads are not observed by that explicit reader. Equality
+covers the declared map, not unlisted stubs or semantic type correctness. Run the
+real type/import consumers after generation; no snapshot grants runtime or
+scientific authority.
 
 ## Test And Verification
 
@@ -56,8 +76,9 @@ The commands below were smoke-tested on `2026-04-17` unless explicitly marked as
 
 ## Current State
 
-- Stub generation currently covers `polisyos.foundry.methods.base`,
-  `registry`, and `composer`.
+- Stub generation covers `polisyos.foundry.methods.base`, `registry`,
+  `composer`, and the canonical `components.composer`; the map is the enumerated
+  source of truth for both checking and staging.
 
 - The signature baseline is stored in test fixtures for deliberate ABI
   review and to prevent silent drift.
@@ -65,4 +86,4 @@ The commands below were smoke-tested on `2026-04-17` unless explicitly marked as
 - The canonical surface is `polisyos-tools foundry ...`; product-root
   `scripts/` were retired during the Repository SOTA closeout.
 
-- Last updated: 2026-04-17
+- Last updated: 2026-10-28

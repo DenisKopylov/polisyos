@@ -68,6 +68,14 @@ _EXPORTS: dict[str, tuple[str, str]] = {
         "CompiledChainExecutor",
     ),
     "CompiledMethod": ("polisyos.foundry.methods.compiler", "CompiledMethod"),
+    "SemanticValidationLevel": (
+        "polisyos.foundry.methods.components.composer",
+        "SemanticValidationLevel",
+    ),
+    "ValidationContext": (
+        "polisyos.foundry.methods.components.composer",
+        "ValidationContext",
+    ),
     "CompiledMethodChain": (
         "polisyos.foundry.methods.components.composer",
         "CompiledMethodChain",

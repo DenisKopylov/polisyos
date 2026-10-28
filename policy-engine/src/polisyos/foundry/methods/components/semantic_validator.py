@@ -65,6 +65,8 @@ class ValidationIssue:
     message: str
     source_fqn: str = ""
     target_fqn: str = ""
+    target_node_id: UUID | None = None
+    target_index: int | None = None
 
 
 @dataclass
@@ -271,13 +273,15 @@ class CrossMethodValidator:
             ]
             if not prerequisite_nodes:
                 # No prerequisite exists at all.
-                for _dep_index, _dep_node_id, dep_fqn in dependent_nodes:
+                for dep_index, dep_node_id, dep_fqn in dependent_nodes:
                     report.issues.append(
                         ValidationIssue(
                             severity=severity,
                             category="ordering",
-                            message=f"{dep_fqn}: {message}",
+                            message=f"{dep_fqn} (node={dep_node_id}, index={dep_index}): {message}",
                             target_fqn=dep_fqn,
+                            target_node_id=dep_node_id,
+                            target_index=dep_index,
                         )
                     )
                 continue
@@ -286,7 +290,7 @@ class CrossMethodValidator:
             # dependent node, not merely some later node with the same FQN.
             prereq_indices = [index for index, _node_id, _fqn in prerequisite_nodes]
             prereq_fqns = [fqn for _index, _node_id, fqn in prerequisite_nodes]
-            for dep_idx, _dep_node_id, dep_fqn in dependent_nodes:
+            for dep_idx, dep_node_id, dep_fqn in dependent_nodes:
                 any_prereq_before = any(index < dep_idx for index in prereq_indices)
                 if not any_prereq_before:
                     report.issues.append(
@@ -294,12 +298,14 @@ class CrossMethodValidator:
                             severity=severity,
                             category="ordering",
                             message=(
-                                f"{dep_fqn}: {message} "
+                                f"{dep_fqn} (node={dep_node_id}, index={dep_idx}): {message} "
                                 f"(prerequisite methods found: "
                                 f"{', '.join(prereq_fqns[:3])}{'...' if len(prereq_fqns) > 3 else ''}, "
                                 f"but none precede it in execution order)"
                             ),
                             target_fqn=dep_fqn,
+                            target_node_id=dep_node_id,
+                            target_index=dep_idx,
                         )
                     )
 

@@ -1047,3 +1047,47 @@ class TestCompiledChainExecutor:
         compiled_b = executor.compiled_methods[1][1]
         input_shapes = dict(compiled_b.specialization.input_shapes)
         assert input_shapes["total_tax"].shape == ()
+
+
+def test_compiled_executor_reconciles_context_and_exposes_handle_diagnostics():
+    """A real eager compiled handle retains limitations without changing raw-state API."""
+    from dataclasses import replace
+
+    from polisyos.foundry.methods.components.composer import (
+        SemanticValidationLevel,
+        ValidationContext,
+    )
+
+    method = create_test_method(
+        name="sensitivity",
+        namespace="tests.c60.compiler",
+        version="1.0.0",
+        input_slots=frozenset(),
+        output_slots=frozenset(),
+        parameters=(ParameterSpec("window", 7, is_static=True), ParameterSpec("scale", 2)),
+        compute_fn=lambda state, params: {
+            "value": state["value"] + params["window"] * params["scale"]
+        },
+    )
+    registry = MethodRegistry.get_instance()
+    registry.register(method)
+    composer = MethodComposer(registry=registry)
+    composer.add(method.signature.fqn, window=20)
+    chain = composer.build(validate_semantics=SemanticValidationLevel.WARN)
+    assert chain.warnings
+    compiler = MethodCompiler(registry=registry)
+    executor = compiler.compile_chain(chain, {"value": 3}, jit=False)
+    assert executor({"value": 3}) == {"value": 43}, "compiled executor actual static value"
+    assert executor.warnings == chain.warnings
+    assert executor.validation_context == chain.validation_context
+    forged = replace(
+        chain,
+        warnings=(),
+        validation_context=ValidationContext.create(mode=SemanticValidationLevel.WARN, warnings=()),
+    )
+    with pytest.raises(ValueError, match="validation replay"):
+        compiler.compile_chain(forged, {"value": 3}, jit=False)
+    with pytest.raises(ValueError, match="validation replay"):
+        replace(executor, chain=forged)({"value": 3})
+    with pytest.raises(ValueError, match="occurrences differ"):
+        replace(executor, compiled_methods=())({"value": 3})

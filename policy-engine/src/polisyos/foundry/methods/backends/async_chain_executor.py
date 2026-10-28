@@ -54,6 +54,7 @@ from polisyos.foundry.methods.backends.chain_executor import (
     ChainExecutionResult,
     _build_level_parallel_reproducibility_contract,
     _build_node_param_payload,
+    _validate_compiled_execution_plan,
 )
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.backends.protocol import MethodResult
@@ -194,6 +195,7 @@ class AsyncChainExecutor:
             completed ``ChainExecutionResult`` in ``partial_result`` while
             preserving the terminal failure and exact ``node_errors``.
         """
+        _validate_compiled_execution_plan(chain)
         reg = self._registry if self._registry is not None else get_registry()
         disp = self._dispatcher or MethodDispatcher.get_instance()
         params_map = params_map or {}
@@ -240,6 +242,8 @@ class AsyncChainExecutor:
                         levels,
                         all_node_results,
                     ),
+                    warnings=tuple(getattr(chain, "warnings", ())),
+                    validation_context=getattr(chain, "validation_context", None),
                 )
                 blocked_node_ids = tuple(
                     node_id
@@ -276,6 +280,8 @@ class AsyncChainExecutor:
                 levels,
                 all_node_results,
             ),
+            warnings=tuple(getattr(chain, "warnings", ())),
+            validation_context=getattr(chain, "validation_context", None),
         )
 
     # ------------------------------------------------------------------

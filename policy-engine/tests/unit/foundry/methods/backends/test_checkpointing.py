@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import time
+from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
 from uuid import UUID, uuid4
@@ -18,15 +19,72 @@ from polisyos.foundry.methods.backends.checkpointing import (
     CheckpointSaveError,
     _compute_chain_digest,
 )
+from polisyos.foundry.methods.base import _stable_digest
+from polisyos.foundry.methods.components.composer import (
+    CompiledMethodChain,
+    MethodNode,
+    SemanticValidationLevel,
+    ValidationContext,
+)
 
 
-class _FakeChain:
+def _validation_context() -> ValidationContext:
+    return ValidationContext(
+        schema_version=1,
+        mode=SemanticValidationLevel.WARN,
+        ruleset="polisyos.foundry.composition@1",
+        diagnostics_digest=_stable_digest([]),
+    )
+
+
+class _FakeChain(CompiledMethodChain):
+    """Typed compiler-built fixture; runtime behavior stays in the test dispatcher."""
+
     def __init__(self, fqns: list[str]) -> None:
-        self.execution_order = [uuid4() for _ in fqns]
-        self._nodes = {
-            node_id: SimpleNamespace(method_fqn=fqn, params={})
-            for node_id, fqn in zip(self.execution_order, fqns, strict=True)
-        }
+        from types import MappingProxyType
+
+        from polisyos.foundry.methods.base import (
+            ComplexityClass,
+            ComputeBackend,
+            FidelityLevel,
+            MethodSignature,
+        )
+        from polisyos.foundry.methods.components.composer import MethodComposer
+
+        composer = MethodComposer()
+        nodes = {}
+        for index, fqn in enumerate(fqns):
+            path, version = fqn.rsplit("@", 1)
+            namespace, name = path.rsplit(".", 1)
+            node = MethodNode(uuid4(), fqn, params={}, static_params={}, _insertion_order=index)
+            nodes[node.id] = node
+            composer._dag.add_node(node)
+            composer._signatures[node.id] = MethodSignature(
+                name=name,
+                namespace=namespace,
+                version=version,
+                input_slots=frozenset(),
+                output_slots=frozenset(),
+                parameters=(),
+                fidelity=FidelityLevel.LOW,
+                complexity=ComplexityClass.O_1,
+                backend=ComputeBackend.NUMPY,
+                supports_jit=False,
+                supports_vmap=False,
+                supports_grad=False,
+            )
+        compiled = composer.build(validate_semantics=SemanticValidationLevel.WARN)
+        super().__init__(
+            dag=replace(compiled.dag, nodes=MappingProxyType(nodes)),
+            signatures=compiled.signatures,
+            execution_order=compiled.execution_order,
+            bindings=compiled.bindings,
+            warnings=compiled.warnings,
+            cache_keys=compiled.cache_keys,
+            validation_context=compiled.validation_context,
+            linker_config=compiled.linker_config,
+        )
+        object.__setattr__(self, "_nodes", nodes)
 
     def get_node(self, node_id):
         return self._nodes[node_id]
@@ -240,69 +298,86 @@ def test_execute_resumes_fully_bound_checkpoint_with_native_results(tmp_path) ->
     assert result.reproducibility_contract["composition_kind"] == "serial"
 
 
-class _BoundExecutionChain:
-    """Minimal compiled-chain shape with stable occurrence identities for resume probes."""
+class _BoundExecutionChain(CompiledMethodChain):
+    """Real typed compiler artifact with distinguishing request identities."""
 
     def __init__(
         self,
         *,
-        factor: int = 2,
-        static_params: dict[str, object] | None = None,
-        signature_digest: str = "signature-v1",
-        cache_key: str = "cache-v1",
-        target_slot: str = "value",
-        has_dependency: bool = True,
-        second_node_value: int = 0xB74002,
-        compatibility_digest: str = "compat-v1",
+        factor=2,
+        static_params=None,
+        signature_digest="signature-v1",
+        cache_key="cache-v1",
+        target_slot="value",
+        has_dependency=True,
+        second_node_value=0xB74002,
+        compatibility_digest="compat-v1",
     ) -> None:
-        self.execution_order = [UUID(int=0xB74001), UUID(int=second_node_value)]
-        first_id, second_id = self.execution_order
-        self._nodes = {
-            first_id: SimpleNamespace(
-                method_fqn="demo.scale@1.0.0",
-                params={"factor": factor},
-                static_params=static_params or {"precision": "float64"},
-            ),
-            second_id: SimpleNamespace(
-                method_fqn="demo.finish@1.0.0",
-                params={},
-                static_params={},
-            ),
-        }
-        self._signatures = {
-            first_id: SimpleNamespace(stable_digest=lambda value=signature_digest: value),
-            second_id: SimpleNamespace(stable_digest=lambda: "finish-signature-v1"),
-        }
-        self.cache_keys = {first_id: cache_key, second_id: "finish-cache-v1"}
-        self.bindings = (
-            SimpleNamespace(
-                source_method="demo.scale@1.0.0",
-                source_slot="value",
-                target_method="demo.finish@1.0.0",
-                target_slot=target_slot,
-                source_node_id=first_id,
-                target_node_id=second_id,
-                compatibility=SimpleNamespace(
-                    compatible=True,
-                    source_slot=SimpleNamespace(
-                        stable_digest=lambda value=compatibility_digest: value
-                    ),
-                    target_slot=SimpleNamespace(
-                        stable_digest=lambda value=compatibility_digest: f"{value}-target"
-                    ),
-                    warnings=(),
-                    reason=None,
-                ),
-            ),
+        from polisyos.foundry.methods.base import (
+            ComplexityClass,
+            ComputeBackend,
+            FidelityLevel,
+            MethodSignature,
+            SlotSpec,
+            SlotType,
+            Unit,
         )
-        second_predecessors = {first_id} if has_dependency else set()
-        self.dag = SimpleNamespace(predecessors={first_id: set(), second_id: second_predecessors})
+        from polisyos.foundry.methods.components.composer import MethodComposer
 
-    def get_node(self, node_id):
-        return self._nodes[node_id]
+        first_id, second_id = UUID(int=0xB74001), UUID(int=second_node_value)
+        slot = lambda name: SlotSpec(name, SlotType.SCALAR, Unit("bound", compatibility_digest))
 
-    def get_signature(self, node_id):
-        return self._signatures[node_id]
+        def signature(name, *, inputs=(), outputs=(), family="fixture"):
+            return MethodSignature(
+                name=name,
+                namespace="demo",
+                version="1.0.0",
+                input_slots=frozenset(inputs),
+                output_slots=frozenset(outputs),
+                parameters=(),
+                fidelity=FidelityLevel.LOW,
+                complexity=ComplexityClass.O_1,
+                backend=ComputeBackend.NUMPY,
+                supports_jit=False,
+                supports_vmap=False,
+                supports_grad=False,
+                family=family,
+            )
+
+        composer = MethodComposer()
+        first = MethodNode(
+            first_id,
+            "demo.scale@1.0.0",
+            params={"factor": factor},
+            static_params={"precision": "float64"} if static_params is None else static_params,
+            _insertion_order=0,
+        )
+        second = MethodNode(
+            second_id, "demo.finish@1.0.0", params={}, static_params={}, _insertion_order=1
+        )
+        for node, sig in (
+            (first, signature("scale", outputs=(slot("value"),), family=signature_digest)),
+            (second, signature("finish", inputs=(slot(target_slot),))),
+        ):
+            composer._dag.add_node(node)
+            composer._signatures[node.id] = sig
+        composer.connect(first, second, {"value": target_slot})
+        compiled = composer.build(validate_semantics=SemanticValidationLevel.WARN)
+        dag = compiled.dag
+        if not has_dependency:
+            dag = replace(dag, predecessors={first_id: frozenset(), second_id: frozenset()})
+        super().__init__(
+            dag=dag,
+            signatures=compiled.signatures,
+            execution_order=compiled.execution_order,
+            bindings=compiled.bindings,
+            warnings=compiled.warnings,
+            cache_keys={first_id: cache_key, second_id: "finish-cache-v1"},
+            validation_context=compiled.validation_context,
+            linker_config=compiled.linker_config,
+        )
+        object.__setattr__(self, "_nodes", dict(dag.nodes))
+        object.__setattr__(self, "_signatures", dict(compiled.signatures))
 
 
 def _arithmetic_executor(checkpoint_dir, *, calls=None):
@@ -326,13 +401,14 @@ def _arithmetic_executor(checkpoint_dir, *, calls=None):
         def dispatch(self, *, method_class, signature, state, params, seed):
             if calls is not None:
                 calls.append(method_class.operation)
-            value = int(state["value"])
+            value = int(state["value"] if isinstance(state, dict) else state)
             if method_class.operation == "scale":
                 result_value = value * int(params["factor"]) + seed
             else:
                 result_value = value + 1
             return MethodResult(
                 output={"value": result_value},
+                slot_outputs={"value": result_value},
                 timing=MethodTiming(wall_time_ms=1.0),
                 reproducibility=ReproducibilityInfo(
                     backend=signature.backend,
@@ -429,7 +505,7 @@ def test_execute_rejects_checkpoint_after_effective_request_change(tmp_path, cha
     calls = []
     consumer = _arithmetic_executor(None, calls=calls)
 
-    with pytest.raises(CheckpointDigestMismatchError, match="execution identity"):
+    with pytest.raises(CheckpointDigestMismatchError, match="execution identity|validation"):
         consumer.execute(
             current_chain,
             initial_state=current_state,

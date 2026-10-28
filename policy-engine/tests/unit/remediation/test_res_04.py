@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import json
 from concurrent.futures import ThreadPoolExecutor
+from dataclasses import replace
 from types import SimpleNamespace
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 import numpy as np
 import pytest
@@ -35,30 +36,86 @@ from polisyos.foundry.methods.base import (
     ComputeBackend,
     FidelityLevel,
     MethodSignature,
+    _stable_digest,
 )
 from polisyos.foundry.methods.components.composer import (
     CompiledMethodChain,
     CompositionDAG,
     MethodNode,
+    SemanticValidationLevel,
+    ValidationContext,
 )
 
 
-class _FakeChain:
-    def __init__(self, fqns: list[str]) -> None:
-        self.execution_order = [uuid4() for _ in fqns]
-        self._nodes = {
-            node_id: SimpleNamespace(method_fqn=fqn, params={})
-            for node_id, fqn in zip(self.execution_order, fqns, strict=True)
-        }
+class _FakeChain(CompiledMethodChain):
+    """Typed compiler-built fixture; runtime behavior stays in the test dispatcher."""
 
-    def get_node(self, node_id: UUID):
+    def __init__(self, fqns: list[str]) -> None:
+        from types import MappingProxyType
+
+        from polisyos.foundry.methods.base import (
+            ComplexityClass,
+            ComputeBackend,
+            FidelityLevel,
+            MethodSignature,
+        )
+        from polisyos.foundry.methods.components.composer import MethodComposer
+
+        composer = MethodComposer()
+        nodes = {}
+        for index, fqn in enumerate(fqns):
+            path, version = fqn.rsplit("@", 1)
+            namespace, name = path.rsplit(".", 1)
+            node = MethodNode(uuid4(), fqn, params={}, static_params={}, _insertion_order=index)
+            nodes[node.id] = node
+            composer._dag.add_node(node)
+            composer._signatures[node.id] = MethodSignature(
+                name=name,
+                namespace=namespace,
+                version=version,
+                input_slots=frozenset(),
+                output_slots=frozenset(),
+                parameters=(),
+                fidelity=FidelityLevel.LOW,
+                complexity=ComplexityClass.O_1,
+                backend=ComputeBackend.NUMPY,
+                supports_jit=False,
+                supports_vmap=False,
+                supports_grad=False,
+            )
+        compiled = composer.build(validate_semantics=SemanticValidationLevel.WARN)
+        super().__init__(
+            dag=replace(compiled.dag, nodes=MappingProxyType(nodes)),
+            signatures=compiled.signatures,
+            execution_order=compiled.execution_order,
+            bindings=compiled.bindings,
+            warnings=compiled.warnings,
+            cache_keys=compiled.cache_keys,
+            validation_context=compiled.validation_context,
+            linker_config=compiled.linker_config,
+        )
+        object.__setattr__(self, "_nodes", nodes)
+
+    def get_node(self, node_id):
         return self._nodes[node_id]
 
 
 def _chain() -> _FakeChain:
     chain = _FakeChain(["demo.multiply@1.0.0", "demo.add@1.0.0"])
-    chain.get_node(chain.execution_order[0]).params = {"factor": 2}
-    chain.get_node(chain.execution_order[1]).params = {"delta": 1}
+    chain._nodes[chain.execution_order[0]] = MethodNode(
+        chain.execution_order[0],
+        "demo.multiply@1.0.0",
+        params={"factor": 2},
+        static_params={},
+        _insertion_order=0,
+    )
+    chain._nodes[chain.execution_order[1]] = MethodNode(
+        chain.execution_order[1],
+        "demo.add@1.0.0",
+        params={"delta": 1},
+        static_params={},
+        _insertion_order=1,
+    )
     return chain
 
 
@@ -253,6 +310,12 @@ def test_real_compiled_chain_round_trips_native_result_and_validated_bound(tmp_p
         execution_order=(node_id,),
         bindings=(),
         warnings=(),
+        validation_context=ValidationContext(
+            schema_version=1,
+            mode=SemanticValidationLevel.WARN,
+            ruleset="polisyos.foundry.composition@1",
+            diagnostics_digest=_stable_digest([]),
+        ),
     )
     method_class = type("RealFakeMethod", (), {"method_fqn": method_fqn, "signature": signature})
     registry = SimpleNamespace(get=lambda _fqn: method_class)

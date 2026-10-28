@@ -167,6 +167,18 @@ remain operational candidate paths and do not grant promotion or publication
 authority. External institution signatures and source truth remain outside this
 contract.
 
+## Bounded numeric NPZ inputs
+
+The existing `polisyos.foundry.execute` facade exposes `read_numeric_npz_bounded`
+and `BoundedNumericNPZError`. The decoder accepts a bounded immutable NPZ member,
+an exact ordered member inventory, explicit entry/element/byte limits and numeric
+array shape; it preflights the central directory and NPY headers, refuses object
+arrays and compressed members, and returns owned read-only arrays. It does not
+select or authenticate a CAS artifact: consumers must use a bounded selected-view
+reader and their own typed lineage and input policy. The existing
+`read_state_snapshot_inputs_bounded` keeps its selected-snapshot contract and
+one-dimensional semantics through the same decoder. Runtime verification is pending.
+
 ## Execution-source admission
 
 `polisyos.foundry.execute.admit_execution_source()` reopens the selected

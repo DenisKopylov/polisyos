@@ -8,6 +8,7 @@ import types
 from typing import Any
 
 __all__ = [
+    "BoundedNumericNPZError",
     "BoundedStateSnapshotInputs",
     "ExecutionSourceAdmission",
     "ExecutionSourceAdmissionRefusal",
@@ -23,11 +24,20 @@ __all__ = [
     "execute",
     "get_state_path",
     "load_state_snapshot",
+    "read_numeric_npz_bounded",
     "read_state_snapshot_inputs_bounded",
     "resolve_execution_posture",
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "BoundedNumericNPZError": (
+        "polisyos.foundry.execute._internal.snapshots",
+        "BoundedNumericNPZError",
+    ),
+    "read_numeric_npz_bounded": (
+        "polisyos.foundry.execute._internal.snapshots",
+        "read_numeric_npz_bounded",
+    ),
     "BoundedStateSnapshotInputs": (
         "polisyos.foundry.execute._internal.snapshots",
         "BoundedStateSnapshotInputs",

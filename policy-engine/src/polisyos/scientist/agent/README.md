@@ -26,6 +26,48 @@ The stable `polisyos.scientist.agent` facade also owns the five workflow protoco
 - Reasoning surface in [`reasoning.py`](reasoning.py): `ReasoningPolicyGate`, `TreeOfThoughtPlanner`, `LATSAgentSearch`, and trajectory reports
 - Supporting tools in [`rag.py`](rag.py), [`code_verifier.py`](code_verifier.py), [`feasibility_duckdb.py`](feasibility_duckdb.py), and [`failure_index.py`](failure_index.py)
 
+## Vector-memory snapshot compatibility
+
+`VectorMemoryStore` admits metadata as owned built-in JSON objects (finite numbers,
+string keys, no arbitrary objects or cycles). The reserved Core 0.2 key
+`_type` is refused at every metadata nesting depth before mutation, because the
+current artifact writer does not admit the escaping 0.3 grammar. The transfer-history writer serializes
+its artifact ID into that JSON before indexing. Query, add, save, and load share a
+same-object generation barrier; if native mutation and rollback both fail, reads
+and writes refuse until a valid fresh bundle is loaded. This is not a distributed
+lock, production-currentness proof, or issuer authorization.
+
+Vector bundle writes default to the legacy unversioned payload for existing
+readers. `emit_v2=True` writes an exact native-index profile; `emit_rows=True`
+selects version 3, whose exact profiled, bounded JSON metadata and NPZ vector
+member carry one row order and matching Core input edge. Flags are mutually
+exclusive. New ordinary reads and the candidate-transfer route admit v3 rows,
+validate bounded numeric contents and rebuild a fresh index; they do not load
+external native graph bytes. `from_portable_artifact` validates the bundle before
+constructing any native index. A legacy or native-v2 read requires explicit
+`allow_trusted_native=True` **and separately established trusted producer and
+ABI**; the flag is a caller declaration, not evidence of trust. Consequently a
+new reader does not automatically load the default legacy writer's output.
+
+For the initial v3 engineering profile, JSON is limited to 256 KiB, selected
+manifests to 64 KiB, NPZ bytes to 5 MiB, matrix entries to 1,000,000, rows to
+25,000, dimensions to 4,096, capacity to 100,000, M to 64 and construction ef
+to 1,000. The lower-level native record-size estimate is limited to 64 MiB and
+the admission proxy `rows * M * ef` to 16,000,000; these do not bound all native
+graph, lock, temporary or process overhead or prove a wall-time cap. These are
+resource refusals, not G-law thresholds. Inputs and metadata must remain stable
+while admitted. Float32 rounding and rebuilt approximate-neighbor ordering may
+differ from the original graph; row identity and metadata remain aligned.
+
+Reader-first migration: keep legacy emission or pause while readers are upgraded,
+then enable v3 where bounded rows are retained. Without a verifiable retained row
+basis, an untrusted legacy native bundle is refused; policy search continues cold
+with a persisted typed limitation. Roll writers back to legacy if needed, retaining
+v3-capable readers for artifacts already emitted. Old readers cannot consume v3;
+historical read compatibility and old-reader/new-writer behavior require actual
+native execution before promotion. Exact CAS bytes and row association do not
+authenticate producer provenance, the original world or scientific validity.
+
 ## Legal retrieval result compatibility
 
 Direct Python callers of `KnowledgeToolkit.search_legal_facts()` retain its list return. The

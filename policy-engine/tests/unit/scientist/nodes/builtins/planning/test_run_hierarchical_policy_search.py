@@ -1036,3 +1036,84 @@ def test_hierarchical_trinity_persistence_refuses_job_without_owner_scope_before
             writer.assert_not_called()
     finally:
         run.finalize(status="failed")
+
+
+def test_legacy_candidate_transfer_continues_cold_with_persisted_limitation(
+    execution_context, minimal_state, artifact_ref_factory, monkeypatch
+) -> None:
+    pytest.importorskip("hnswlib")
+    import polisyos.scientist.agent.vector_memory as vector_module
+
+    source = VectorMemoryStore(dim=2, max_elements=4)
+    source.add("source", [1.0, 0.0], {"source": "fixture"})
+    legacy = source.save_to_artifact(execution_context.store)
+    candidate = PolicyCandidateSchema.from_trinity_bundle(_bundle(), candidate_id="cold-target")
+    spec = HierarchicalSearchCoordinator().build_optimizer_objective_spec(candidate)
+    execution_context.run.tenant_id = "controlled-tenant"
+    state = minimal_state.model_copy(deep=True)
+    loop_id = str(state.params.get("policy_loop_id") or f"{state.run_id}:policy_search")
+    state.params["policy_search_candidate_transfer"] = {
+        "index_ref": legacy.model_dump(mode="json"),
+        "query_fingerprint": {
+            "run_id": loop_id,
+            "space_hash": "controlled-space",
+            "objective_names": spec.objective_names,
+            "objective_directions": dict(
+                zip(spec.objective_names, [d.value for d in spec.directions], strict=True)
+            ),
+            "objective_rule_specs": spec.objective_rule_specs,
+            "embedding": [1.0, 0.0],
+            "tenant_id": "controlled-tenant",
+        },
+    }
+    candidate_hash = candidate.candidate_hash()
+    search_result = SimpleNamespace(
+        state=SimpleNamespace(
+            structure_candidates=[
+                SimpleNamespace(
+                    structure_id="cold",
+                    candidate=candidate,
+                    accepted=True,
+                    candidate_hash=candidate_hash,
+                    metadata={},
+                )
+            ],
+            parameter_search_results={},
+        ),
+        model_dump=lambda mode="json": {"status": "candidate_only"},
+    )
+
+    def forbidden_index(*_args, **_kwargs):
+        raise AssertionError("legacy transfer must not construct or load a native index")
+
+    class NoNativeModule:
+        Index = staticmethod(forbidden_index)
+
+    monkeypatch.setattr(vector_module, "hnswlib", NoNativeModule())
+    with (
+        patch(
+            "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search._resolve_search_candidate",
+            return_value=candidate,
+        ),
+        patch(
+            "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search.HierarchicalPolicySearchAdapter.run_search",
+            return_value=search_result,
+        ) as run_search,
+        patch(
+            "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search._persist_trinity_bundle",
+            return_value=artifact_ref_factory(kind="ir.trinity_bundle"),
+        ),
+    ):
+        outcome = RunHierarchicalPolicySearchNode().execute(execution_context, state)
+    assert outcome.status == "ok"
+    assert run_search.call_args.kwargs["candidate_only_seed_evaluations"] is None
+    limitation = {
+        "status": "limited",
+        "reason": "unversioned_bundle_not_admitted",
+        "continuation": "cold_search",
+    }
+    assert outcome.state.params["policy_search_result"]["transfer_limitation"] == limitation
+    assert [event.code for event in outcome.events] == ["policy_search.transfer_limited"]
+    report_ref = outcome.state.artifacts_index[ARTIFACT_POLICY_FRONTIER_REPORT_REF]
+    report = load_policy_frontier_report(FileSystemCAS(execution_context.store.root), report_ref)
+    assert report.metadata["transfer_limitation"] == limitation

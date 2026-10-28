@@ -45,6 +45,7 @@ from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.execute._internal.models import artifact_input_ref, load_model
 
 __all__ = [
+    "BoundedNumericNPZError",
     "BoundedStateSnapshotInputs",
     "StateSnapshotInputReadUsage",
     "StateSnapshotInputReadRefusal",
@@ -52,6 +53,7 @@ __all__ = [
     "import_seed_state_npz",
     "load_state_snapshot",
     "put_state_snapshot",
+    "read_numeric_npz_bounded",
     "read_state_snapshot_inputs_bounded",
 ]
 
@@ -200,12 +202,24 @@ class StateSnapshotInputReadRefusal(ValueError):
         self.payload_integrity_verified = self.usage.payload_integrity_verified
 
 
-def _read_npz_entry_count(blob: bytes) -> int:
-    """Read the ZIP central-directory count from a size-bounded NPZ trailer."""
+class BoundedNumericNPZError(ValueError):
+    """One bounded numeric NPZ refusal with observed and allowed extents."""
+
+    def __init__(
+        self, reason: str, *, observed_bytes: int | None = None, limit_bytes: int = 0
+    ) -> None:
+        super().__init__(reason)
+        self.reason = reason
+        self.observed_bytes = observed_bytes
+        self.limit_bytes = limit_bytes
+
+
+def _read_npz_entry_count(blob: bytes, *, max_entries: int) -> int:
+    """Count central-directory entries before constructing an allocating ZIP reader."""
     start = max(0, len(blob) - 65_557)
     end_record = blob.rfind(b"PK\x05\x06", start)
     if end_record < 0 or end_record + 22 > len(blob):
-        raise StateSnapshotInputReadRefusal("state_snapshot_npz_end_record_missing")
+        raise BoundedNumericNPZError("npz_end_record_missing")
     (
         signature,
         disk,
@@ -227,8 +241,157 @@ def _read_npz_entry_count(blob: bytes) -> int:
         or end_record + 22 + comment != len(blob)
         or central_offset + central_size > end_record
     ):
-        raise StateSnapshotInputReadRefusal("state_snapshot_npz_layout_unsupported")
-    return total_entries
+        raise BoundedNumericNPZError("npz_layout_unsupported")
+    if total_entries > max_entries:
+        raise BoundedNumericNPZError(
+            "npz_entry_limit_exceeded", observed_bytes=total_entries, limit_bytes=max_entries
+        )
+    cursor = central_offset
+    central_end = central_offset + central_size
+    actual_entries = 0
+    while cursor < central_end:
+        if cursor + 46 > central_end:
+            raise BoundedNumericNPZError("npz_layout_unsupported")
+        fields = struct.unpack_from("<4s6H3I5H2I", blob, cursor)
+        if (
+            fields[0] != b"PK\x01\x02"
+            or fields[8] == 0xFFFFFFFF
+            or fields[9] == 0xFFFFFFFF
+            or fields[13] != 0
+            or fields[16] == 0xFFFFFFFF
+        ):
+            raise BoundedNumericNPZError("npz_layout_unsupported")
+        cursor += 46 + fields[10] + fields[11] + fields[12]
+        if cursor > central_end:
+            raise BoundedNumericNPZError("npz_layout_unsupported")
+        actual_entries += 1
+        if actual_entries > max_entries:
+            raise BoundedNumericNPZError(
+                "npz_entry_limit_exceeded", observed_bytes=actual_entries, limit_bytes=max_entries
+            )
+    if cursor != central_end or actual_entries != total_entries:
+        raise BoundedNumericNPZError("npz_slot_inventory_mismatch")
+    return actual_entries
+
+
+def read_numeric_npz_bounded(
+    blob: bytes,
+    *,
+    names: tuple[str, ...],
+    max_entries: int,
+    max_elements: int,
+    max_member_bytes: int,
+    ndim: int,
+    allow_empty: bool = False,
+    exact_dtype: str | None = None,
+) -> tuple[np.ndarray, ...]:
+    """Decode exactly named stored numeric arrays under input and allocation bounds.
+
+    Args:
+        blob: Complete already-bounded immutable NPZ bytes.
+        names: Exact ordered array basenames, without extensions.
+        max_entries: Maximum archive members.
+        max_elements: Maximum total numeric values across arrays.
+        max_member_bytes: Maximum archive and each uncompressed member length.
+        ndim: Required number of dimensions for all arrays.
+        allow_empty: Permit zero rows only for a two-dimensional matrix.
+        exact_dtype: Optional exact NumPy dtype string, such as ``<f4``.
+
+    Returns:
+        Read-only arrays in the supplied name order.
+
+    Raises:
+        BoundedNumericNPZError: When any count, format or content is unsupported.
+    """
+    if (
+        type(blob) is not bytes
+        or type(names) is not tuple
+        or not names
+        or any(not _is_snapshot_slot_id(name) for name in names)
+        or len(set(names)) != len(names)
+        or any(
+            type(v) is not int or v < 1 for v in (max_entries, max_elements, max_member_bytes, ndim)
+        )
+        or type(allow_empty) is not bool
+        or (allow_empty and ndim != 2)
+        or (exact_dtype is not None and type(exact_dtype) is not str)
+    ):
+        raise BoundedNumericNPZError("npz_contract_invalid")
+    if len(blob) > max_member_bytes:
+        raise BoundedNumericNPZError(
+            "npz_entry_codec_or_size_unsupported",
+            observed_bytes=len(blob),
+            limit_bytes=max_member_bytes,
+        )
+    entry_count = _read_npz_entry_count(blob, max_entries=max_entries)
+    elements = 0
+    arrays_by_name: dict[str, np.ndarray] = {}
+    try:
+        with ZipFile(BytesIO(blob)) as archive:
+            infos = archive.infolist()
+            archive_names = tuple(info.filename for info in infos)
+            expected = {f"{name}.npy" for name in names}
+            if (
+                len(infos) != entry_count
+                or len(set(archive_names)) != len(archive_names)
+                or set(archive_names) != expected
+            ):
+                raise BoundedNumericNPZError("npz_slot_inventory_mismatch")
+            for info in infos:
+                if info.compress_type != ZIP_STORED or info.file_size > max_member_bytes:
+                    raise BoundedNumericNPZError(
+                        "npz_entry_codec_or_size_unsupported",
+                        observed_bytes=info.file_size,
+                        limit_bytes=max_member_bytes,
+                    )
+                with archive.open(info) as entry:
+                    version = np.lib.format.read_magic(entry)
+                    if version == (1, 0):
+                        shape, fortran_order, dtype = np.lib.format.read_array_header_1_0(
+                            entry, max_header_size=10_000
+                        )
+                    elif version == (2, 0):
+                        shape, fortran_order, dtype = np.lib.format.read_array_header_2_0(
+                            entry, max_header_size=10_000
+                        )
+                    else:
+                        raise BoundedNumericNPZError("npz_npy_version_unsupported")
+                    shape = tuple(int(size) for size in shape)
+                    dtype = np.dtype(dtype)
+                    count = math.prod(shape) if shape else 1
+                    raw_size = count * dtype.itemsize
+                    empty_ok = allow_empty and len(shape) == 2 and shape[0] == 0 and shape[1] > 0
+                    if (
+                        len(shape) != ndim
+                        or any(size < 0 for size in shape)
+                        or (count <= 0 and not empty_ok)
+                        or dtype.hasobject
+                        or dtype.kind not in {"i", "u", "f"}
+                        or fortran_order
+                        or (exact_dtype is not None and dtype.str != exact_dtype)
+                        or count > max_elements - elements
+                        or raw_size > max_member_bytes
+                        or entry.tell() + raw_size != info.file_size
+                    ):
+                        raise BoundedNumericNPZError(
+                            "npz_array_shape_or_byte_limit_exceeded",
+                            observed_bytes=raw_size,
+                            limit_bytes=max_member_bytes,
+                        )
+                    raw = entry.read(raw_size + 1)
+                    if len(raw) != raw_size:
+                        raise BoundedNumericNPZError("npz_array_length_mismatch")
+                    array = np.frombuffer(raw, dtype=dtype).reshape(shape).copy(order="C")
+                    if dtype.kind == "f" and not np.isfinite(array).all():
+                        raise BoundedNumericNPZError("npz_array_non_finite")
+                    array.setflags(write=False)
+                    arrays_by_name[info.filename[:-4]] = array
+                    elements += count
+    except BoundedNumericNPZError:
+        raise
+    except (BadZipFile, OSError, EOFError, ValueError, TypeError) as exc:
+        raise BoundedNumericNPZError("npz_decode_failed") from exc
+    return tuple(arrays_by_name[name] for name in names)
 
 
 def read_state_snapshot_inputs_bounded(
@@ -524,81 +687,31 @@ def read_state_snapshot_inputs_bounded(
         refuse(f"state_snapshot_blob_read_failed:{type(exc).__name__}")
 
     try:
-        entry_count = _read_npz_entry_count(bytes(blob_bytes))
-    except StateSnapshotInputReadRefusal as exc:
-        raise StateSnapshotInputReadRefusal(exc.reason, usage=current_usage()) from exc
-    if entry_count > max_entries:
-        refuse(
-            "state_snapshot_npz_entry_limit_exceeded",
-            observed_bytes=entry_count,
-            limit_bytes=max_entries,
+        decoded = read_numeric_npz_bounded(
+            bytes(blob_bytes),
+            names=slot_ids,
+            max_entries=max_entries,
+            max_elements=max_elements,
+            max_member_bytes=max_state_blob_bytes,
+            ndim=1,
         )
-    arrays: list[tuple[str, np.ndarray]] = []
-    elements = 0
-    try:
-        with ZipFile(BytesIO(blob_bytes)) as archive:
-            infos = archive.infolist()
-            names = tuple(info.filename for info in infos)
-            expected_names = {f"{slot_id}.npy" for slot_id in slot_ids}
-            if (
-                len(infos) != entry_count
-                or len(set(names)) != len(names)
-                or set(names) != expected_names
-            ):
-                refuse("state_snapshot_npz_slot_inventory_mismatch")
-            arrays_by_name: dict[str, np.ndarray] = {}
-            for info in infos:
-                if info.compress_type != ZIP_STORED or info.file_size > max_state_blob_bytes:
-                    refuse(
-                        "state_snapshot_npz_entry_codec_or_size_unsupported",
-                        observed_bytes=info.file_size,
-                        limit_bytes=max_state_blob_bytes,
-                    )
-                with archive.open(info) as entry:
-                    version = np.lib.format.read_magic(entry)
-                    if version == (1, 0):
-                        shape, fortran_order, dtype = np.lib.format.read_array_header_1_0(
-                            entry, max_header_size=10_000
-                        )
-                    elif version == (2, 0):
-                        shape, fortran_order, dtype = np.lib.format.read_array_header_2_0(
-                            entry, max_header_size=10_000
-                        )
-                    else:
-                        refuse("state_snapshot_npz_npy_version_unsupported")
-                    shape = tuple(int(size) for size in shape)
-                    dtype = np.dtype(dtype)
-                    count = math.prod(shape) if shape else 1
-                    raw_size = count * dtype.itemsize
-                    if (
-                        len(shape) != 1
-                        or count <= 0
-                        or dtype.hasobject
-                        or dtype.kind not in {"i", "u", "f"}
-                        or fortran_order
-                        or count > max_elements - elements
-                        or raw_size > max_state_blob_bytes
-                        or entry.tell() + raw_size != info.file_size
-                    ):
-                        refuse(
-                            "state_snapshot_npz_array_shape_or_byte_limit_exceeded",
-                            observed_bytes=raw_size,
-                            limit_bytes=max_state_blob_bytes,
-                        )
-                    raw = entry.read(raw_size + 1)
-                    if len(raw) != raw_size:
-                        refuse("state_snapshot_npz_array_length_mismatch")
-                    array = np.frombuffer(raw, dtype=dtype).reshape(shape).copy(order="C")
-                    if dtype.kind == "f" and not np.isfinite(array).all():
-                        raise StateSnapshotInputReadRefusal("state_snapshot_npz_array_non_finite")
-                    array.setflags(write=False)
-                    arrays_by_name[info.filename[:-4]] = array
-                    elements += count
-            arrays = [(slot_id, arrays_by_name[slot_id]) for slot_id in slot_ids]
-    except (BadZipFile, OSError, EOFError, ValueError, TypeError) as exc:
-        if isinstance(exc, StateSnapshotInputReadRefusal):
-            raise StateSnapshotInputReadRefusal(exc.reason, usage=current_usage()) from exc
-        refuse("state_snapshot_npz_decode_failed")
+    except BoundedNumericNPZError as exc:
+        if exc.reason in {
+            "npz_end_record_missing",
+            "npz_layout_unsupported",
+            "npz_array_non_finite",
+        }:
+            raise StateSnapshotInputReadRefusal(
+                f"state_snapshot_{exc.reason}", usage=current_usage()
+            ) from exc
+        refuse(
+            f"state_snapshot_{exc.reason}",
+            observed_bytes=exc.observed_bytes,
+            limit_bytes=exc.limit_bytes,
+        )
+    entry_count = len(decoded)
+    arrays = list(zip(slot_ids, decoded, strict=True))
+    elements = sum(array.size for array in decoded)
     usage = current_usage()
     if usage.observed_source_bytes is None or usage.payload_integrity_verified is not True:
         refuse("state_snapshot_input_read_measurement_or_integrity_not_established")

@@ -820,14 +820,25 @@ class RunHierarchicalPolicySearchNode:
         adapter = HierarchicalPolicySearchAdapter()
         loop_id = str(state.params.get("policy_loop_id") or f"{state.run_id}:policy_search")
 
+        from polisyos.scientist.agent.vector_memory import UntrustedNativeVectorBundleError
+
+        transfer_limitation: dict[str, str] | None = None
         try:
             search_config = _runtime_search_config_from_state(state)
-            candidate_only_seed_evaluations = _load_candidate_only_transfer_evaluations(
-                ctx,
-                loop_id=loop_id,
-                intent=transfer_intent,
-                candidate=candidate,
-            )
+            try:
+                candidate_only_seed_evaluations = _load_candidate_only_transfer_evaluations(
+                    ctx,
+                    loop_id=loop_id,
+                    intent=transfer_intent,
+                    candidate=candidate,
+                )
+            except UntrustedNativeVectorBundleError as exc:
+                transfer_limitation = {
+                    "status": "limited",
+                    "reason": exc.reason,
+                    "continuation": "cold_search",
+                }
+                candidate_only_seed_evaluations = None
             search_result = adapter.run_search(
                 candidate,
                 loop_id=loop_id,
@@ -861,6 +872,7 @@ class RunHierarchicalPolicySearchNode:
             state=state,
             loop_id=loop_id,
             search_result=search_result,
+            transfer_limitation=transfer_limitation,
         )
 
         new_state = branch_state(
@@ -875,6 +887,7 @@ class RunHierarchicalPolicySearchNode:
         new_state.params["policy_candidate_schema"] = champion
         new_state.params["policy_search_result"] = {
             **search_result.model_dump(mode="json"),
+            **({"transfer_limitation": transfer_limitation} if transfer_limitation else {}),
             "champion_candidate_id": (
                 None if selected_champion is None else selected_champion.candidate_id
             ),
@@ -890,7 +903,19 @@ class RunHierarchicalPolicySearchNode:
         artifacts = [champion_trinity_ref]
         if frontier_ref is not None:
             artifacts.append(frontier_ref)
-        return NodeOutcome(status="ok", state=new_state, artifacts=artifacts)
+        events = (
+            []
+            if transfer_limitation is None
+            else [
+                NodeEvent(
+                    level="warn",
+                    code="policy_search.transfer_limited",
+                    message="Transfer index had no admitted portable rows; search continued cold.",
+                    attrs=transfer_limitation,
+                )
+            ]
+        )
+        return NodeOutcome(status="ok", state=new_state, artifacts=artifacts, events=events)
 
 
 def _candidate_only_transfer_intent_from_state(
@@ -944,8 +969,7 @@ def _load_candidate_only_transfer_evaluations(
         TransferLearningManager,
     )
 
-    index = VectorMemoryStore()
-    index.load_from_artifact(ctx.store, intent.index_ref)
+    index = VectorMemoryStore.from_portable_artifact(ctx.store, intent.index_ref)
     manager = TransferLearningManager(ctx.store, index)
     similar_runs = manager.find_similar_runs(
         fingerprint,
@@ -1447,6 +1471,7 @@ def _persist_frontier_report(
     state: ExperimentState,
     loop_id: str,
     search_result: Any,
+    transfer_limitation: dict[str, str] | None = None,
 ) -> Any | None:
     records = _iter_candidate_records(search_result)
     if not records:
@@ -1570,6 +1595,7 @@ def _persist_frontier_report(
         metadata={
             "source": "c6c_hierarchical_policy_search",
             "source_run_id": state.run_id,
+            **({"transfer_limitation": transfer_limitation} if transfer_limitation else {}),
         },
     )
     inputs = [InputRef(artifact_id=ref.artifact_id, role=key) for key, ref in state.inputs.items()]

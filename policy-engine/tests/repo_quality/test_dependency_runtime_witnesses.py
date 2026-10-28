@@ -99,7 +99,7 @@ class DependencyRuntimeTests(unittest.TestCase):
         assert updated[0][2] == {"source": "updated"}
         with tempfile.TemporaryDirectory() as temp:
             cas = FileSystemCAS(Path(temp))
-            reference = memory.save_to_artifact(cas)
+            reference = memory.save_to_artifact(cas, emit_rows=True)
             restored = VectorMemoryStore(dim=3, max_elements=20)
             restored.load_from_artifact(cas, reference)
             assert restored.query([1.0, 0.0, 0.0], top_k=3) == memory.query(

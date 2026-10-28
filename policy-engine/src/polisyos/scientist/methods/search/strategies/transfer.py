@@ -174,7 +174,7 @@ class TransferLearningManager:
                     "objective_directions": fingerprint.objective_directions,
                     "objective_rule_specs": fingerprint.objective_rule_specs,
                     "best_score": fingerprint.best_score,
-                    "artifact_id": ref.artifact_id,
+                    "artifact_id": str(ref.artifact_id),
                     "manifest_profile_sha256": ref.manifest_profile_sha256,
                 },
             )
@@ -776,45 +776,36 @@ class TransferLearningManager:
             self._remember_history_bytes(cache_key, raw_payload_bytes)
             return rows
 
-        # Legacy callers may only have a run id. Resolve the selected ref and apply
-        # the complete binding and Core profile checks before serving any cached bytes.
-        results = self._index.query([0.0] * self._index.dim, top_k=1000)
-        for key, _, meta in results:
-            if key != run_id:
-                continue
-            selected_ref = self._history_ref_from_metadata(meta)
-            if selected_ref is None:
-                continue
+        # Exact key lookup is independent of ANN ranking and binds this generation's
+        # owned metadata to the selected ref; missing keys do not become nearest hits.
+        meta = self._index.lookup_metadata(run_id)
+        if meta is None:
+            return []
+        selected_ref = self._history_ref_from_metadata(meta)
+        if selected_ref is None:
+            raise ValueError(f"Indexed transfer history for {run_id} has no valid reference")
+        try:
+            indexed_fingerprint = self._fingerprint_from_index_metadata(run_id, meta, selected_ref)
+        except (TypeError, ValueError) as exc:
+            raise ValueError(f"Invalid indexed transfer history for {run_id}: {exc}") from exc
+        if expected_fingerprint is not None and not self._binding_matches(
+            expected_fingerprint, indexed_fingerprint
+        ):
+            return []
+        cache_key = self._history_cache_key(selected_ref, indexed_fingerprint)
+        cached_bytes = self._cached_history_bytes(cache_key)
+        if cached_bytes is not None:
             try:
-                indexed_fingerprint = self._fingerprint_from_index_metadata(
-                    key,
-                    meta,
-                    selected_ref,
+                rows, _ = self._read_history(
+                    selected_ref, indexed_fingerprint, raw_payload_bytes=cached_bytes
                 )
-            except (TypeError, ValueError) as exc:
-                raise ValueError(f"Invalid indexed transfer history for {run_id}: {exc}") from exc
-            if expected_fingerprint is not None and not self._binding_matches(
-                expected_fingerprint,
-                indexed_fingerprint,
-            ):
-                continue
-            cache_key = self._history_cache_key(selected_ref, indexed_fingerprint)
-            cached_bytes = self._cached_history_bytes(cache_key)
-            if cached_bytes is not None:
-                try:
-                    rows, _ = self._read_history(
-                        selected_ref,
-                        indexed_fingerprint,
-                        raw_payload_bytes=cached_bytes,
-                    )
-                except ValueError:
-                    self._discard_cached_history(cache_key)
-                    raise
-                return rows
-            rows, raw_payload_bytes = self._read_history(selected_ref, indexed_fingerprint)
-            self._remember_history_bytes(cache_key, raw_payload_bytes)
+            except ValueError:
+                self._discard_cached_history(cache_key)
+                raise
             return rows
-        return []
+        rows, raw_payload_bytes = self._read_history(selected_ref, indexed_fingerprint)
+        self._remember_history_bytes(cache_key, raw_payload_bytes)
+        return rows
 
     def _cached_history_bytes(self, key: str) -> bytes | None:
         """Return one immutable LRU payload without exposing cached decoded objects."""

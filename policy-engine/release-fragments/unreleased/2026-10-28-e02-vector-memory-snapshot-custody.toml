@@ -1,0 +1,55 @@
+id = "2026-10-28-e02-vector-memory-snapshot-custody"
+title = "Rebuild vector-memory generations from bounded selected rows"
+type = "changed"
+component = "scientist"
+owner = "team-scientist"
+summary = "Vector-memory generations can be persisted as selected bounded numeric rows and rebuilt without admitting external native graph bytes; unsafe legacy candidate transfer continues cold with a limitation."
+evidence = ["src/polisyos/scientist/agent/vector_memory.py", "src/polisyos/foundry/execute/_internal/snapshots/__init__.py", "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py", "tests/unit/foundry/runtime/test_bounded_numeric_npz.py", "tests/unit/scientist/agent/test_vector_memory_snapshot_consistency.py", "tests/unit/scientist/agent/test_vector_memory_native_custody.py", "tests/unit/remediation/test_trn_02.py"]
+compatibility = "Legacy remains the default writer format for older readers; new default readers refuse external native graphs. New row version 3 is opt-in and requires reader-first rollout. Trusted legacy input requires explicit allow_trusted_native and externally verified trust; the flag is not proof."
+change_class = "persisted-artifact-format; python-public-api"
+surface_classification = "public_stable: polisyos.foundry.execute numeric decoder; internal: Scientist vector-memory and candidate-transfer owner"
+migration = "Upgrade and verify readers before emitting row version 3. Until retained safe rows exist, unsafe legacy candidate transfer declines and cold search continues with a typed limitation. Keep v3 readers when rolling writers back."
+limitations = "Metadata refuses the reserved canonical _type key at every depth before mutation. Candidate rows do not prove issuer authorization, producer provenance, historical key origin or scientific transfer validity. Native peak process memory exceeds the checked base-record estimate; pilot/resource policy remains necessary. Native, fresh-process, compatibility and removal verification remain pending."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/scientist/agent/README.md", "src/polisyos/foundry/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "vector-memory-bounded-row-v3"
+change_class = "persisted-artifact-format"
+impact = "breaking"
+surface = "internal: vector_memory.bundle version 3"
+owner = "team-scientist"
+version_owner = "team-scientist"
+deprecation_window = "No legacy deletion is scheduled; reader-first rollout and explicit trusted-native opt-in are required."
+release_note = "Version 3 writes selected numeric rows instead of external native graph bytes and is opt-in until reader rollout."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/scientist/agent/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "vector-memory-native-read-default"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "internal: VectorMemoryStore.load_from_artifact"
+owner = "team-scientist"
+version_owner = "team-scientist"
+deprecation_window = "Legacy native input requires explicit trusted opt-in after independent admission."
+release_note = "Default vector-memory reads decline native graph bundles; portable row bundles remain readable."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/scientist/agent/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "foundry-bounded-numeric-npz-decoder"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.foundry.execute.read_numeric_npz_bounded"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Expose one bounded numeric NPZ decoder through the existing Foundry execute facade; state snapshot inputs retain their existing adapter."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/foundry/README.md"]
+runbook_docs = []

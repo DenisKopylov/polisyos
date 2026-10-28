@@ -24,7 +24,7 @@ def test_vector_memory_cas_round_trip_preserves_float_fingerprint_metadata(tmp_p
 
     source = VectorMemoryStore(dim=2)
     source.add("source-run", [1.0, 0.0], metadata=source_identity)
-    bundle_ref = source.save_to_artifact(store)
+    bundle_ref = source.save_to_artifact(store, emit_rows=True)
 
     restored = VectorMemoryStore(dim=2)
     restored.load_from_artifact(store, bundle_ref)

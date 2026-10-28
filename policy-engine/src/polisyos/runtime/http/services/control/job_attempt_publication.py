@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, Protocol
+from typing import TYPE_CHECKING, Any, Literal, Protocol, get_args
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -123,11 +123,58 @@ def _nl_request_body_bytes(request: NaturalLanguageRunRequest) -> bytes:
     ).encode("utf-8")
 
 
-def _validate_nl_request_json_values(request: NaturalLanguageRunRequest) -> None:
-    """Reject values the runtime's canonical JSON owner cannot represent."""
+def _nl_annotation_projection_owner(
+    annotation: object,
+    *,
+    visited_models: frozenset[type[BaseModel]] = frozenset(),
+) -> tuple[bool, bool]:
+    """Identify declared model ownership and open candidate leaves in its contract."""
+    if annotation is Any or annotation is object:
+        return False, True
+    if isinstance(annotation, type) and issubclass(annotation, BaseModel):
+        if annotation in visited_models:
+            return True, False
+        nested_models = visited_models | {annotation}
+        traits = [
+            _nl_annotation_projection_owner(field.annotation, visited_models=nested_models)
+            for field in annotation.model_fields.values()
+        ]
+        return True, annotation.model_config.get("extra") == "allow" or any(
+            open_leaf for _, open_leaf in traits
+        )
+    traits = [
+        _nl_annotation_projection_owner(argument, visited_models=visited_models)
+        for argument in get_args(annotation)
+    ]
+    return any(model_owner for model_owner, _ in traits), any(open_leaf for _, open_leaf in traits)
+
+
+def _nl_request_json_admission_values(request: NaturalLanguageRunRequest) -> dict[str, Any]:
+    """Validate raw candidate JSON before projecting closed typed request subtrees.
+
+    Open candidate fields retain their previous Python-mode JSON law. Only closed
+    nested DTOs use the canonical request serializer for native wire values; this
+    permits typed cursor instants without converting raw Any datetimes/bytes into
+    strings or silently replacing unsupported/non-finite candidate values.
+    """
     from polisyos.runtime.http.resource_binding import _digest_payload
 
-    _digest_payload(request.model_dump(mode="python"))
+    typed_fields = {
+        name
+        for name, field in NaturalLanguageRunRequest.model_fields.items()
+        if _nl_annotation_projection_owner(field.annotation) == (True, False)
+    }
+    candidate_values = request.model_dump(mode="python", exclude=typed_fields)
+    _digest_payload(candidate_values)
+    typed_values = request.model_dump(mode="json", include=typed_fields)
+    values = {**candidate_values, **typed_values}
+    _digest_payload(values)
+    return values
+
+
+def _validate_nl_request_json_values(request: NaturalLanguageRunRequest) -> None:
+    """Reject unsupported raw JSON while admitting declared typed wire projections."""
+    _nl_request_json_admission_values(request)
 
 
 def _nl_request_snapshot_content_hash(snapshot: Mapping[str, Any]) -> str:

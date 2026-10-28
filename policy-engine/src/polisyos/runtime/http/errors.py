@@ -307,9 +307,14 @@ def problem_response(
     return _response_for_problem(payload, status_code=status_code)
 
 
-@dataclass(frozen=True)
+@dataclass
 class RuntimeHTTPError(Exception):
-    """Carry a typed HTTP error that is converted to `RuntimeApiProblem`."""
+    """Carry a typed HTTP problem while preserving normal mutable exception state.
+
+    Python context managers and traceback/chaining APIs assign exception state.
+    Freezing an Exception replaces its intended HTTP status with FrozenInstanceError
+    during ordinary propagation; the structured problem projection stays unchanged.
+    """
 
     status_code: int
     error: str

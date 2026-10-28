@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from contextlib import contextmanager
+
 import pytest
 
 from polisyos.core.contracts.runtime import RuntimeApiProblem
@@ -20,6 +22,11 @@ except ModuleNotFoundError:  # pragma: no cover
 pytestmark = pytest.mark.skipif(TestClient is None, reason="fastapi is not installed")
 
 
+@contextmanager
+def _forward_runtime_error():
+    yield
+
+
 def _client_for(exc: BaseException) -> TestClient:
     assert FastAPI is not None
     app = FastAPI()
@@ -33,7 +40,8 @@ def _client_for(exc: BaseException) -> TestClient:
 
     @app.get("/runs/{run_id}/artifacts/{artifact_id}")
     def _raise() -> None:
-        raise exc
+        with _forward_runtime_error():
+            raise exc
 
     return TestClient(app, raise_server_exceptions=False)
 

@@ -15,6 +15,17 @@ projections. Route handlers should stay thin and delegate behavior here.
 - **Used by:** `runtime.http.routes` and the FastAPI app.
 - **Boundary function:** keeps request handlers thin while centralizing runtime business logic.
 
+## NL JSON admission
+
+The NL request owner separates raw candidate JSON from declared closed nested DTOs before
+snapshot/body serialization. Open `Any` fields retain Python-mode finite/representability
+validation; only closed model subtrees use their existing typed JSON serializers. This admits
+normalized typed temporal instants without laundering raw candidate datetime, byte, decimal,
+unknown or non-finite values. Authorization digest and snapshot profile rules stay unchanged.
+Runtime HTTP errors remain structured problems, but their exception state is mutable so ordinary
+context-manager and middleware propagation cannot replace the intended status/code with a frozen
+instance error.
+
 ## Selected NL temporal intent
 
 `control/temporal_scope.py` owns materialization and exact-profile replay of a caller-selected

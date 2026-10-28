@@ -1,0 +1,35 @@
+id = "2026-10-28-nl-json-admission-and-http-error-state"
+title = "Admit typed NL cursor wire values without laundering raw candidate JSON"
+type = "fixed"
+component = "runtime-api"
+owner = "team-runtime"
+summary = "NL preflight validates raw candidate fields unchanged before delegating closed nested DTOs to their typed serializer. RuntimeHTTPError supports normal mutable traceback state so context-manager propagation preserves its intended status and problem envelope."
+evidence = [
+  "src/polisyos/runtime/http/services/control/job_attempt_publication.py",
+  "src/polisyos/runtime/http/errors.py",
+  "tests/unit/runtime/http/test_nl_request_json_admission.py",
+  "tests/unit/runtime/http/test_runtime_http_error_state.py",
+  "tests/unit/runtime/http/test_error_semantics.py",
+]
+compatibility = "Raw unsupported and non-finite candidate values keep their existing typed refusal. Existing authorization digest profile, snapshot versions, serializer bytes and HTTP problem status/code/projection fields stay unchanged."
+change_class = "internal"
+surface_classification = "internal: NL admission and HTTP exception transport"
+migration = "No request or problem-envelope migration is required. RuntimeHTTPError is no longer a frozen/hash-oriented record; callers should use its existing structured problem projection rather than exception immutability or hashing."
+limitations = "Native verification of this source candidate remains required. The cursor still records requested intent only, with actual data consumption and policy/legal authority admitted separately."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/runtime/http/services/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "nl-json-admission-and-http-error-state"
+change_class = "internal"
+impact = "compatible"
+surface = "internal: NL JSON representability guard and RuntimeHTTPError transport"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "Closed nested request DTOs use their typed wire serializer after raw candidate validation, and HTTP problem errors support normal traceback propagation."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/runtime/http/services/README.md"]
+runbook_docs = []

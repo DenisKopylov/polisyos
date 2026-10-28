@@ -2202,6 +2202,29 @@ def _profile_data_forge_alignment_rows(
 def _read_data_forge_catalog_source(
     repo_root: Path,
 ) -> Iterator[_PreparedDataForgeCatalogSource | None]:
+    """Keep selected K_ref source rows inside the canonical read-source guard."""
+
+    active_source = current_catalog_serving_source()
+    if (
+        active_source is not None
+        and active_source.selection_basis == "explicit_path_candidate_only"
+    ):
+        from polisyos.runtime.quality.substrate_registry import catalog_source_reader
+
+        with (
+            catalog_source_reader(repo_root, overlay_path=active_source.overlay_path),
+            _prepare_data_forge_catalog_source_in_scope(repo_root) as prepared,
+        ):
+            yield prepared
+    else:
+        with _prepare_data_forge_catalog_source_in_scope(repo_root) as prepared:
+            yield prepared
+
+
+@contextmanager
+def _prepare_data_forge_catalog_source_in_scope(
+    repo_root: Path,
+) -> Iterator[_PreparedDataForgeCatalogSource | None]:
     """Prepare the selected catalog profile before replaying rows in one owner txn."""
 
     root = repo_root.resolve()

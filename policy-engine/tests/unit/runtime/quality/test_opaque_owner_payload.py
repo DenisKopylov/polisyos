@@ -9,6 +9,8 @@ from types import ModuleType
 import pytest
 from pydantic import ValidationError
 
+from tests._helpers.catalog_source_admission import admit_fixture_catalog_source
+
 MODULE_NAME = "polisyos.runtime.quality.generation_cycle"
 _METHOD_FQN = "causal.treatment_effects.aipw@1.0.0"
 _ROLE_BINDINGS = (
@@ -83,7 +85,6 @@ def _test_helpers() -> ModuleType:
 
 def _catalog_source(source: object):
     from polisyos.runtime.quality.substrate_registry import (
-        CatalogServingSourcePaths,
         default_substrate_catalog_paths,
     )
 
@@ -91,15 +92,8 @@ def _catalog_source(source: object):
         default_substrate_catalog_paths(source.repo_root),
         l1_dcat_path=source.baseline_path,
     )
-    return CatalogServingSourcePaths(
-        repo_root=source.repo_root,
-        snapshot_root=source.baseline_path.parent,
-        database_path=source.baseline_path,
-        index_dir=source.repo_root / "index",
-        overlay_path=source.overlay_path,
-        catalog_run_profile=None,
-        selection_basis="explicit_path_candidate_only",
-        substrate_paths=substrate_paths,
+    return admit_fixture_catalog_source(
+        repo_root=source.repo_root, database_path=source.baseline_path
     )
 
 

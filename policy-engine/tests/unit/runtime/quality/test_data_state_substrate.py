@@ -154,14 +154,16 @@ def test_split_data_state_paths_bind_code_overlay_and_selected_l1_owner(
         }
 
     data_before = tree_hashes(data_root)
-    original_open = read_api.catalog.open_catalog_read_session
+    from polisyos.data_forge.domains.catalog.knowledge import store as catalog_store_module
+
+    original_open = catalog_store_module.open_catalog_read_session
     opened: list[tuple[Path, Path | None]] = []
 
     def record_open(path: Path, *, overlay_path: Path | None = None) -> Any:
         opened.append((Path(path), overlay_path))
         return original_open(path, overlay_path=overlay_path)
 
-    monkeypatch.setattr(read_api.catalog, "open_catalog_read_session", record_open)
+    monkeypatch.setattr(catalog_store_module, "open_catalog_read_session", record_open)
     selected = l1_dcat_variable_availability(
         code_root,
         "selected-only",
@@ -346,10 +348,13 @@ def test_l1_dcat_scalar_consumer_fails_closed_on_absent_or_malformed_rows(
 
     catalog_path = default_substrate_catalog_paths(tmp_path).l1_dcat_path
     catalog_path.parent.mkdir(parents=True)
-    catalog_path.touch()
+    # A nonempty controlled backing file lets the real store bind its byte identity.
+    catalog_path.write_bytes(b"controlled malformed backend fixture")
     connection = _ControlledConnection()
+    from polisyos.data_forge.domains.catalog.knowledge import store as catalog_store_module
+
     monkeypatch.setattr(
-        data_state_substrate_module.data_forge_read_api.catalog,
+        catalog_store_module,
         "open_catalog_read_session",
         lambda *_args, **_kwargs: connection,
     )

@@ -54,14 +54,23 @@ app = create_runtime_api_app(
 )
 ```
 
-The selected database must exist at
-snapshot_root/datasets/graph/dataset_catalog.duckdb. Its profile must agree
+The selected database defaults to
+snapshot_root/datasets/graph/dataset_catalog.duckdb. A strictly relative
+`database_relative_path` may name another existing native member below the
+same snapshot root; no traversal, absolute member or member symlink is
+admitted. `source_owner_root` optionally separates physical production-data
+ownership from the code/epoch root. Its profile must agree
 with catalog_run_profile; when the app option is omitted, the repository
 default and existing behavior remain in force. A selected path is candidate
 input only. It does not establish source provenance, publisher lineage,
 profile coverage, freshness/currentness, or publication authority. This is
 deployment configuration, not a client request or generated-client migration;
-no persisted-data migration is required.
+no client field changes are required. Historical registry artifacts stay
+readable. Live explicit contexts without the complete baseline/overlay read
+identity require a new selection and registry admission; they are not silently
+upgraded or rewritten. A source change or uncheckpointed native WAL is a
+source-state refusal, not evidence that the selected variable is absent.
+The reader does not checkpoint or delete a caller's native files.
 
 ## Required Client Updates
 
@@ -240,3 +249,20 @@ Client-facing behavior is also covered by:
 ### Shared operation identity migration
 
 `runtime_operation_intents` now uses typed scope as part of its primary key, so a route intent is distinct even when its candidate run id matches another route claim. The SQLite migration transaction rebuilds the table when the old primary key still includes `run_id`; PostgreSQL replaces that primary-key constraint in its migration transaction. Both preserve stored claim rows and values. Only recognized `run.predictive_calibration.v1` rows are backfilled from their stored `run_id`, and only recognized `control.nl_pre_admission.v1` rows receive the fixed `control.runs.nl` route scope. Unclassified rows, duplicate identities after rekeying, or malformed scopes abort migration rather than inventing identity. The R3 NL attempt handle continues to derive from owner purpose/route, authenticated tenant/cell/subject, and the hashed idempotency key; its actual candidate `run_id` remains separate provenance, and raw keys are not stored. The event-observation response adds the `no_call` literal for a producer-attested refusal before provider completion. Regenerate OpenAPI and generated clients after source freeze; no generated artifacts are hand-authored in this source proposal.
+
+
+Catalog read-source exceptions now use the experimental
+`data_forge.read_api.catalog.CatalogReadSourceError` subtype. Existing
+`CatalogSelectionError` handlers remain valid. Code that relied on the private
+raw open-change `ValueError` must handle this typed family instead; the exact
+`catalog_read_source_changed_while_opening` code and old diagnostic detail are
+retained. Runtime acquisition converts an actual source fault into its existing
+`AcquisitionPlannerBindingError` with optional `source_refusal_code`; N7
+persists the corresponding source-refusal diagnostic. This is a refusal
+carrier, not admission, currentness, acquisition success or a new HTTP DTO.
+
+Escaped native Catalog query errors, including a closed DuckDB backend, now
+propagate as `CatalogReadSourceError` with
+`catalog_read_native_query_unavailable` and the original driver cause. A caller
+that handled raw driver exceptions should handle the typed owner family; no
+empty-source observation is manufactured.

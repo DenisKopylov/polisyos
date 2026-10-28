@@ -176,3 +176,16 @@ Run from the repository root (`policy-engine/`).
 - [Fabric data-plane reference](../../../../docs/reference/fabric/data-plane.md)
 - [Catalog README](../catalog/README.md)
 - [Fabric tests map](../../../../tests/unit/fabric/README.md)
+
+
+## Catalog read-source failures
+
+Catalog's public read API exposes `CatalogReadSourceError`, a subtype of the
+existing `CatalogSelectionError`. Retrieval preserves that whole owner-issued
+family across publish identity, metric binding, dataset lookup and fetch-target
+lookup. A changed/missing native source or visible WAL is an error, never an
+empty catalog or optional-provider fallback. Unrelated provider exceptions keep
+the existing limited fallback behavior, even if they carry a code-looking field.
+This changes no source truth/currentness or fetch permission. The Runtime
+acquisition adapter maps these failures into its existing binding error and
+retains the exact cause for a persisted N7 refusal.

@@ -1,11 +1,10 @@
 """Production-data substrate registry lifted from existing L5/L1 catalogs.
 
-The registry is an index over production-data metadata, not a data loader. It
-names source/family coverage, trust, identification, schema regime, version,
-and provenance so runtime consumers can resolve the world they are using
-without reading the heavy production payloads. L5 and L1 remain the authority:
-this module surfaces their records and validates registrations against their
-declared caps; it does not create a second coverage or trust source.
+The registry projects existing L5/L1 metadata and validates registrations
+against their declared caps. Explicit source selection additionally streams
+baseline and overlay bytes through the existing Catalog identity owner; it
+does not load or retain those row payloads. A byte identity is not source
+authority, empirical quality, or production currentness.
 """
 
 from __future__ import annotations
@@ -29,6 +28,7 @@ from polisyos.pdc import SubstrateLayer, gy_content_hash
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactStore, CoreJSONArtifactStore
+    from polisyos.data_forge.read_api.catalog import CatalogContentIdentity, DatasetCatalogStore
     from polisyos.runtime.quality.data_forge_binding import (
         MeasurementRootExecutionBinding,
         ResolvedMeasurementRootEvidence,
@@ -272,11 +272,33 @@ class SubstrateCatalogPaths:
     epoch_schema_regime_scope_registry_path: Path | None = None
 
 
+def _catalog_member_relative_path(value: Path) -> Path:
+    """Validate the same declared member rule at configuration and fresh read."""
+
+    if not isinstance(value, Path) or value.is_absolute() or not value.parts or ".." in value.parts:
+        raise SubstrateRegistryError("catalog_source_database_relative_path_invalid")
+    return value
+
+
 class CatalogServingSourceSelection(_StrictModel):
     """Immutable app configuration selecting a candidate catalog snapshot."""
 
     snapshot_root: Path
     catalog_run_profile: core.contracts.CatalogRunProfile
+    source_owner_root: Path | None = None
+    database_relative_path: Path = Path("datasets/graph/dataset_catalog.duckdb")
+
+    @field_validator("database_relative_path")
+    @classmethod
+    def _database_relative_path_must_stay_within_snapshot(cls, value: Path) -> Path:
+        return _catalog_member_relative_path(value)
+
+    @field_validator("source_owner_root")
+    @classmethod
+    def _source_owner_root_must_be_absolute(cls, value: Path | None) -> Path | None:
+        if value is not None and not value.is_absolute():
+            raise ValueError("catalog_source_owner_root_must_be_absolute")
+        return value
 
     @field_validator("snapshot_root")
     @classmethod
@@ -298,6 +320,11 @@ class CatalogServingSourcePaths:
     catalog_run_profile: core.contracts.CatalogRunProfile | None
     selection_basis: Literal["legacy_default_candidate_only", "explicit_path_candidate_only"]
     substrate_paths: SubstrateCatalogPaths
+    source_owner_root: Path | None = None
+    database_relative_path: Path = Path("datasets/graph/dataset_catalog.duckdb")
+    read_source_identity: (
+        tuple[CatalogContentIdentity, str | None, CatalogContentIdentity | None] | None
+    ) = None
 
 
 _ACTIVE_CATALOG_SOURCE: ContextVar[CatalogServingSourcePaths | None] = ContextVar(
@@ -359,13 +386,129 @@ def run_catalog_source_call[**CatalogCallParameters, CatalogCallResult](
         return call(*args, **kwargs)
 
 
+def _catalog_read_source_identity(
+    source: CatalogServingSourcePaths,
+) -> tuple[CatalogContentIdentity, str | None, CatalogContentIdentity | None]:
+    """Recompute the exact deciding baseline/overlay tuple at its Catalog owner."""
+
+    from polisyos.data_forge.read_api import catalog as data_forge_catalog
+    from polisyos.data_forge.read_api.catalog import DatasetCatalogStore
+
+    expected = source.snapshot_root / _catalog_member_relative_path(source.database_relative_path)
+    try:
+        resolved = expected.resolve(strict=True)
+        if resolved != expected or resolved != source.database_path or not resolved.is_file():
+            raise SubstrateRegistryError("catalog_source_database_path_unbound")
+        if source.source_owner_root is not None:
+            _require_catalog_path_within_owner(resolved, source.source_owner_root)
+        return DatasetCatalogStore.identify_read_sources(resolved, overlay_path=source.overlay_path)
+    except SubstrateRegistryError:
+        raise
+    except data_forge_catalog.CatalogSelectionError as exc:
+        raise SubstrateRegistryError(exc.code, str(exc)) from exc
+    except (OSError, RuntimeError, ValueError) as exc:
+        raise SubstrateRegistryError("catalog_source_database_unavailable", str(exc)) from exc
+
+
+def require_catalog_serving_source_unchanged(source: CatalogServingSourcePaths) -> None:
+    """Refuse a missing admission or changed explicit catalog before consumption."""
+
+    if source.selection_basis == "legacy_default_candidate_only":
+        return
+    if source.selection_basis != "explicit_path_candidate_only":
+        raise SubstrateRegistryError("catalog_source_context_invalid")
+    if source.read_source_identity is None:
+        raise SubstrateRegistryError("catalog_source_readmission_required")
+    if _catalog_read_source_identity(source) != source.read_source_identity:
+        raise SubstrateRegistryError("catalog_source_content_changed_readmission_required")
+
+
+def _catalog_content_ref(source: CatalogServingSourcePaths) -> str:
+    """Name exact selected read sources without granting their bytes authority."""
+
+    require_catalog_serving_source_unchanged(source)
+    identity = source.read_source_identity
+    if identity is None:
+        raise SubstrateRegistryError("catalog_source_readmission_required")
+    baseline, overlay_path, overlay = identity
+    payload = {
+        "baseline": baseline.model_dump(mode="json"),
+        "overlay_path": overlay_path,
+        "overlay": None if overlay is None else overlay.model_dump(mode="json"),
+    }
+    return f"catalog_read_source_content://{gy_content_hash(payload)}"
+
+
 def require_catalog_serving_graph_binding(graph: object, source: CatalogServingSourcePaths) -> None:
     """Reject an injected graph that does not use the explicitly selected database."""
 
+    require_catalog_serving_source_unchanged(source)
     if source.selection_basis == "explicit_path_candidate_only":
+        from polisyos.data_forge.read_api.catalog import DatasetCatalogGraph, DatasetCatalogStore
+
+        if type(graph) not in (DatasetCatalogGraph, DatasetCatalogStore):
+            raise SubstrateRegistryError("catalog_source_graph_owner_unverified")
         observed = getattr(graph, "database_path", None)
-        if observed is None or Path(observed).resolve() != source.database_path:
+        identity = getattr(graph, "read_source_identity", None)
+        if (
+            observed is None
+            or Path(observed).resolve() != source.database_path
+            or identity is None
+            or source.read_source_identity is None
+            or identity != source.read_source_identity
+        ):
             raise SubstrateRegistryError("catalog_source_graph_binding_mismatch")
+
+
+@contextmanager
+def catalog_source_reader(
+    repo_root: Path,
+    *,
+    overlay_path: Path | None = None,
+    production_data_root: Path | None = None,
+) -> Iterator[DatasetCatalogStore]:
+    """Guard a complete Runtime read through the canonical Catalog owner.
+
+    The scope spans profile reconstruction as well as native row reads.
+    Count semantics remain owned by Store; source-state failures retain their
+    exact codes and are never interpreted as a missing variable's zero count.
+    """
+
+    from polisyos.data_forge.read_api import catalog as catalog_api
+
+    source = current_catalog_serving_source()
+    paths = default_substrate_catalog_paths(repo_root, source_owner_root=production_data_root)
+    selected_overlay = (
+        overlay_path
+        if overlay_path is not None
+        else (
+            source.overlay_path
+            if source is not None
+            else catalog_api.default_acquisition_overlay_path(repo_root)
+        )
+    )
+    try:
+        reader = catalog_api.DatasetCatalogStore(
+            paths.l1_dcat_path, paths.l1_dcat_path.parent, overlay_path=selected_overlay
+        )
+    except catalog_api.CatalogSelectionError as exc:
+        raise SubstrateRegistryError(exc.code, str(exc)) from exc
+    except (catalog_api.BaselineMutationError, catalog_api.OverlayAdmissionError) as exc:
+        raise SubstrateRegistryError(exc.code, str(exc)) from exc
+    except (OSError, ValueError, duckdb.Error) as exc:
+        raise SubstrateRegistryError("catalog_read_session_unavailable", str(exc)) from exc
+    try:
+        try:
+            with reader.read_session():
+                if source is not None:
+                    require_catalog_serving_graph_binding(reader, source)
+                yield reader
+        except catalog_api.CatalogSelectionError as exc:
+            if isinstance(exc, catalog_api.CatalogReadSourceError):
+                raise SubstrateRegistryError(exc.code, str(exc)) from exc
+            raise
+    finally:
+        reader.close()
 
 
 def require_catalog_source_registry_binding(
@@ -375,8 +518,19 @@ def require_catalog_source_registry_binding(
 ) -> None:
     """Reconcile a pre-bound registry against the source selected for this run."""
 
-    if source is None or source.selection_basis != "explicit_path_candidate_only":
+    if source is None:
         return
+    require_catalog_serving_source_unchanged(source)
+    if source.selection_basis != "explicit_path_candidate_only":
+        return
+    require_active_catalog_source(source)
+    selected_ref = _catalog_content_ref(source)
+    if not any(
+        ref.startswith("catalog_read_source_content://") for ref in registry.source_catalog_refs
+    ):
+        raise SubstrateRegistryError("catalog_source_registry_readmission_required")
+    if selected_ref not in registry.source_catalog_refs:
+        raise SubstrateRegistryError("catalog_source_registry_binding_mismatch")
     selected = build_substrate_registry_from_existing_catalogs(repo_root)
     if selected.content_hash != registry.content_hash:
         raise SubstrateRegistryError("catalog_source_registry_binding_mismatch")
@@ -416,7 +570,7 @@ def resolve_catalog_serving_source(
         raise SubstrateRegistryError("catalog_source_snapshot_missing") from exc
     if not snapshot_root.is_dir():
         raise SubstrateRegistryError("catalog_source_snapshot_not_directory")
-    expected = snapshot_root / "datasets" / "graph" / "dataset_catalog.duckdb"
+    expected = snapshot_root / selection.database_relative_path
     try:
         database_path = expected.resolve(strict=True)
     except (OSError, RuntimeError) as exc:
@@ -424,8 +578,20 @@ def resolve_catalog_serving_source(
     # Canonicalize a declared root symlink; reject a database member that redirects below it.
     if database_path != expected or not database_path.is_file():
         raise SubstrateRegistryError("catalog_source_database_path_unbound")
-    paths = replace(defaults, l1_dcat_path=database_path)
-    return CatalogServingSourcePaths(
+    source_owner_root = None
+    if selection.source_owner_root is not None:
+        try:
+            source_owner_root = selection.source_owner_root.resolve(strict=True)
+        except (OSError, RuntimeError) as exc:
+            raise SubstrateRegistryError("substrate_source_owner_root_unavailable") from exc
+        if not source_owner_root.is_dir():
+            raise SubstrateRegistryError("substrate_source_owner_root_not_directory")
+        owner_defaults = default_substrate_catalog_paths(root, source_owner_root=source_owner_root)
+        _require_catalog_path_within_owner(snapshot_root, source_owner_root)
+        paths = replace(owner_defaults, l1_dcat_path=database_path)
+    else:
+        paths = replace(defaults, l1_dcat_path=database_path)
+    source = CatalogServingSourcePaths(
         repo_root=root,
         snapshot_root=snapshot_root,
         database_path=database_path,
@@ -434,7 +600,10 @@ def resolve_catalog_serving_source(
         catalog_run_profile=selection.catalog_run_profile,
         selection_basis="explicit_path_candidate_only",
         substrate_paths=paths,
+        source_owner_root=source_owner_root,
+        database_relative_path=selection.database_relative_path,
     )
+    return replace(source, read_source_identity=_catalog_read_source_identity(source))
 
 
 @dataclass(frozen=True)
@@ -961,6 +1130,7 @@ def default_substrate_catalog_paths(
     if source_owner_root is None and active_source is not None:
         if active_source.repo_root != root:
             raise SubstrateRegistryError("catalog_source_repo_root_mismatch")
+        require_catalog_serving_source_unchanged(active_source)
         return active_source.substrate_paths
 
     data_root = root
@@ -986,6 +1156,7 @@ def default_substrate_catalog_paths(
         return expected
     if active_source.repo_root != root:
         raise SubstrateRegistryError("catalog_source_repo_root_mismatch")
+    require_catalog_serving_source_unchanged(active_source)
     active_paths = active_source.substrate_paths
     if active_paths.root_manifest_path.resolve() != expected.root_manifest_path.resolve():
         raise SubstrateRegistryError("catalog_source_split_root_mismatch")
@@ -1186,6 +1357,11 @@ def build_substrate_registry_from_existing_catalogs(
     """Lift the current production-data substrate metadata from L5 and L1 catalogs."""
 
     repo_root = Path(repo_root).resolve()
+    active_source = current_catalog_serving_source()
+    if source_owner_root is None and active_source is not None:
+        if active_source.repo_root != repo_root:
+            raise SubstrateRegistryError("catalog_source_repo_root_mismatch")
+        source_owner_root = active_source.source_owner_root
     data_root = Path(source_owner_root).resolve() if source_owner_root is not None else repo_root
     paths = default_substrate_catalog_paths(
         repo_root,
@@ -1253,6 +1429,12 @@ def build_substrate_registry_from_existing_catalogs(
         root_manifest_path=paths.root_manifest_path,
         source_owner_root=data_root if source_owner_root is not None else None,
     )
+    selected_content_refs = (
+        (_catalog_content_ref(active_source),)
+        if active_source is not None
+        and active_source.selection_basis == "explicit_path_candidate_only"
+        else ()
+    )
     return build_substrate_registry(
         entries,
         producer_ref="polisyos.runtime.quality.substrate_registry.build_substrate_registry_from_existing_catalogs",
@@ -1274,6 +1456,7 @@ def build_substrate_registry_from_existing_catalogs(
             ),
             *knowledge_source_refs,
             *l6_source_refs,
+            *selected_content_refs,
         ),
     )
 

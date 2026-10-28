@@ -64,3 +64,22 @@ bytes read after reopen. A safe successful full-read profile, immutable or
 otherwise read-bound restart, and the replacement-after-check control remain to
 be established. These results alone do not establish source authority,
 currentness, or promotion eligibility.
+
+
+## Catalog source failure family
+
+`catalog.CatalogReadSourceError` extends `CatalogSelectionError` for actual
+native read-source failures. It carries the exact existing code/detail, while
+consumers classify by ancestry rather than an enumerated reason prefix. Store
+source identity/session operations use this family for unavailable/changed
+bytes and uncheckpointed WAL. Existing selection-error catches remain valid.
+The formerly raw open-change ValueError is now this typed failure with
+`catalog_read_source_changed_while_opening`; its legacy detail is retained.
+Source failures must not become absence or best-effort provider fallback.
+This experimental facade addition needs root's ordinary public inventory and
+installed-reader qualification; it grants no source authority or currentness.
+
+Escaped native DuckDB query/backend errors also use this typed read-source
+family (`catalog_read_native_query_unavailable`); a closed backend is ERROR,
+not evidence of zero observations. The original driver exception is retained
+as the cause.

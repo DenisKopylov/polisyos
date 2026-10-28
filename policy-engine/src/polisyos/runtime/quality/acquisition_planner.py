@@ -173,6 +173,19 @@ DATA_REQUIREMENT_COMPILATION_ARTIFACT_SCHEMA = (
 class AcquisitionPlannerBindingError(ValueError):
     """Fail-closed mismatch between one N7 plan, its complete input and CAS readback."""
 
+    def __init__(self, *args: object, source_refusal_code: str | None = None) -> None:
+        """Keep existing ValueError arguments and an optional actual source cause."""
+        self.source_refusal_code = source_refusal_code
+        super().__init__(*args)
+
+
+class _FabricCaptureError(Exception):
+    """Carry an internal capture error to the gateway's sole failure classifier."""
+
+    def __init__(self, failure: Exception) -> None:
+        self.failure = failure
+        super().__init__(str(failure))
+
 
 ACQUISITION_FAMILY_DENOMINATOR = (
     "ID",
@@ -1578,6 +1591,46 @@ class RealAcquisitionOwnerGateway:
     ) -> AcquisitionOwnerArtifact | None:
         """Call the real owner boundary and journal the raw response."""
 
+        from polisyos.data_forge.read_api import catalog as catalog_read_api
+        from polisyos.runtime.quality.substrate_registry import SubstrateRegistryError
+
+        try:
+            return self._acquire_from_owner(
+                record=record, compiled_requirement_spec=compiled_requirement_spec
+            )
+        except Exception as exc:
+            failure = exc.failure if isinstance(exc, _FabricCaptureError) else exc
+            if isinstance(
+                failure,
+                (
+                    catalog_read_api.CatalogReadSourceError,
+                    catalog_read_api.BaselineMutationError,
+                    catalog_read_api.OverlayAdmissionError,
+                    SubstrateRegistryError,
+                ),
+            ):
+                raise AcquisitionPlannerBindingError(
+                    str(failure), source_refusal_code=failure.code
+                ) from failure
+            if isinstance(failure, AcquisitionPlannerBindingError) and (
+                failure.source_refusal_code is not None
+            ):
+                if failure is exc:
+                    raise
+                raise failure from exc
+            if isinstance(exc, _FabricCaptureError):
+                _LOGGER.warning("Fabric fetch capture refused: %s", failure)
+                return None
+            raise
+
+    def _acquire_from_owner(
+        self,
+        *,
+        record: AcquisitionActionRecord,
+        compiled_requirement_spec: Mapping[str, Any],
+    ) -> AcquisitionOwnerArtifact | None:
+        """Dispatch the actual owner only inside the typed source-failure adapter."""
+
         owner_component = _owner_component_for_record(record, compiled_requirement_spec)
         if owner_component == "data_forge.openalex":
             if not self._allow_openalex_network:
@@ -1635,6 +1688,12 @@ class RealAcquisitionOwnerGateway:
                 overlay_path=catalog_read_api.default_acquisition_overlay_path(self._repo_root),
             )
         try:
+            if self._catalog_serving_source is not None:
+                from polisyos.runtime.quality.substrate_registry import (
+                    require_catalog_serving_graph_binding,
+                )
+
+                require_catalog_serving_graph_binding(graph, self._catalog_serving_source)
             request = DataResolveRequest(
                 data_needs=list(data_needs),
                 mode="hybrid",
@@ -1747,8 +1806,10 @@ class RealAcquisitionOwnerGateway:
                     TypeError,
                     ValueError,
                 ) as exc:
-                    _LOGGER.warning("Fabric fetch capture refused: %s", exc)
-                    return None
+                    # Preserve every failure here. The public owner boundary
+                    # alone decides typed source refusal versus the existing
+                    # optional non-source capture fallback.
+                    raise _FabricCaptureError(exc) from exc
             else:
                 service = RetrievalService(
                     curated_dir=curated_dir,

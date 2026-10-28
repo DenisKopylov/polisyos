@@ -1560,6 +1560,9 @@ def _validate_selected_value_data_profile(
     store: ArtifactStore, reference: ArtifactRef
 ) -> ResolvedValueProfileProjection:
     """Resolve canonical EMP-01 bytes and the exact activated source projection."""
+    from polisyos.runtime.quality.generation_cycle import ValueOwnerAccessError
+    from polisyos.runtime.quality.substrate_registry import SubstrateRegistryError
+
     _require_selected_ref(store, reference, expected_kind=VALUE_DATA_PROFILE_KIND)
     from polisyos.runtime.quality.substrate_registry import (
         current_catalog_serving_source,
@@ -1640,6 +1643,12 @@ def _validate_selected_value_data_profile(
             projection=projection,
             source_passport=owner_passport,
         )
+    except SubstrateRegistryError as exc:
+        raise PredictiveCalibrationError(exc.code) from exc
+    except ValueOwnerAccessError as exc:
+        if exc.source_refusal_code is not None:
+            raise PredictiveCalibrationError(exc.source_refusal_code) from exc
+        raise PredictiveCalibrationError("predictive_calibration_value_profile_invalid") from exc
     except Exception as exc:
         raise PredictiveCalibrationError("predictive_calibration_value_profile_invalid") from exc
 

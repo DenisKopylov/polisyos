@@ -1664,7 +1664,7 @@ class RetrievalService:
             )
             receipt = resolver(path, run_profile=run_profile)
         except Exception as exc:
-            if str(getattr(exc, "code", "")).startswith("catalog_read_session_"):
+            if isinstance(exc, catalog_read_api.CatalogReadSourceError):
                 raise
             return "not_established", "catalog_publish_receipt_unavailable", None
         state = str(receipt.get("state") or "not_established")
@@ -1764,7 +1764,7 @@ class RetrievalService:
                 try:
                     bindings = binding_fn(need.metric, top_k=3)
                 except Exception as exc:
-                    if str(getattr(exc, "code", "")).startswith("catalog_read_session_"):
+                    if isinstance(exc, catalog_read_api.CatalogReadSourceError):
                         raise
                     logger.debug(
                         "Catalog binding lookup failed for metric %s",
@@ -1816,7 +1816,7 @@ class RetrievalService:
                 try:
                     results = find_fn(need.metric, top_k=3)
                 except Exception as exc:
-                    if str(getattr(exc, "code", "")).startswith("catalog_read_session_"):
+                    if isinstance(exc, catalog_read_api.CatalogReadSourceError):
                         raise
                     logger.debug(
                         "Catalog lookup failed for metric %s",
@@ -1831,7 +1831,7 @@ class RetrievalService:
                     try:
                         target = resolve_target_fn(result.id)
                     except Exception as exc:
-                        if str(getattr(exc, "code", "")).startswith("catalog_read_session_"):
+                        if isinstance(exc, catalog_read_api.CatalogReadSourceError):
                             raise
                         logger.debug(
                             "Catalog fetch target resolution failed for %s",

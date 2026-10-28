@@ -413,6 +413,7 @@ _N7_ROUTING_FAILURE_CODES = frozenset(
         "n7_acquisition_request_invalid",
         "n7_substrate_registry_invalid",
         "n7_substrate_registry_unresolved",
+        "n7_catalog_source_refused",
     }
 )
 
@@ -519,8 +520,11 @@ TerminalStatus = Literal["completed", "blocked"]
 class GenerationCycleError(ValueError):
     """Fail-closed generation-cycle error."""
 
-    def __init__(self, code: str, message: str | None = None) -> None:
+    def __init__(
+        self, code: str, message: str | None = None, *, source_refusal_code: str | None = None
+    ) -> None:
         self.code = code
+        self.source_refusal_code = source_refusal_code
         super().__init__(f"{code}: {message or code}")
 
 
@@ -5747,8 +5751,10 @@ class ValueOwnerAccessError(ValueError):
         *,
         owner_access_ref: str | None = None,
         owner_gap_evidence: L1VariableAvailability | None = None,
+        source_refusal_code: str | None = None,
     ) -> None:
         self.code = code
+        self.source_refusal_code = source_refusal_code
         self.owner_access_ref = owner_access_ref
         self.owner_gap_evidence = owner_gap_evidence
         detail = message or code
@@ -5856,6 +5862,27 @@ class RealValueOwnerGateway:
         problem: DesignProblem,
         world_record: WorldModelRecord,
     ) -> ValueDataProfile:
+        """Preserve precise source refusals across the complete owner read."""
+
+        try:
+            return self._load_value_data_profile_from_source(
+                candidate=candidate, problem=problem, world_record=world_record
+            )
+        except SubstrateRegistryError as exc:
+            raise ValueOwnerAccessError(
+                exc.code,
+                str(exc),
+                owner_access_ref=f"substrate_owner://catalog_source_refused/{exc.code}",
+                source_refusal_code=exc.code,
+            ) from exc
+
+    def _load_value_data_profile_from_source(
+        self,
+        *,
+        candidate: object,
+        problem: DesignProblem,
+        world_record: WorldModelRecord,
+    ) -> ValueDataProfile:
         """Load method-neutral rows through the real substrate owner."""
 
         del world_record
@@ -5887,6 +5914,8 @@ class RealValueOwnerGateway:
                 outcome,
                 overlay_path=selected_overlay_path,
             )
+        except SubstrateRegistryError:
+            raise
         except Exception as exc:
             raise ValueOwnerAccessError(
                 "acquire_data:value_panel_data_missing",
@@ -8301,7 +8330,10 @@ class GenerationCycleController:
                 except GenerationCycleError as exc:
                     if exc.code not in _N7_ROUTING_FAILURE_CODES:
                         raise
-                    cycle = _cycle_with_n7_route_failure(cycle, reason=exc.code)
+                    reason = exc.code
+                    if exc.source_refusal_code is not None:
+                        reason = f"{reason}.{exc.source_refusal_code}"
+                    cycle = _cycle_with_n7_route_failure(cycle, reason=reason)
             if acquisition_receipt is not None:
                 try:
                     cycle, cycle_summaries = self._reenter_cycle_after_n7_acquisition(
@@ -9188,6 +9220,12 @@ class GenerationCycleController:
                 require_persisted_planner_report=planner_report is not None,
             )
         except AcquisitionPlannerBindingError as exc:
+            if exc.source_refusal_code is not None:
+                raise GenerationCycleError(
+                    "n7_catalog_source_refused",
+                    str(exc),
+                    source_refusal_code=exc.source_refusal_code,
+                ) from exc
             error_code = (
                 "n7_compiler_report_binding_refused"
                 if "compiler_report" in str(exc)
@@ -14910,6 +14948,30 @@ def _n7_substrate_registry(
     cycle_substrate_context: CycleSubstrateContext | None = None,
     catalog_serving_source: CatalogServingSourcePaths | None = None,
 ) -> SubstrateRegistry:
+    """Resolve a source-bound registry and preserve typed N7 source refusals."""
+
+    try:
+        return _resolve_n7_substrate_registry(
+            problem,
+            families=families,
+            repo_root=repo_root,
+            cycle_substrate_context=cycle_substrate_context,
+            catalog_serving_source=catalog_serving_source,
+        )
+    except SubstrateRegistryError as exc:
+        raise GenerationCycleError(
+            "n7_catalog_source_refused", str(exc), source_refusal_code=exc.code
+        ) from exc
+
+
+def _resolve_n7_substrate_registry(
+    problem: DesignProblem,
+    *,
+    families: Sequence[str],
+    repo_root: Path,
+    cycle_substrate_context: CycleSubstrateContext | None = None,
+    catalog_serving_source: CatalogServingSourcePaths | None = None,
+) -> SubstrateRegistry:
     del families
     if cycle_substrate_context is not None:
         from polisyos.runtime.quality.cycle_substrate import (
@@ -14948,6 +15010,8 @@ def _n7_substrate_registry(
 
                 require_catalog_source_registry_binding(repo_root, registry, catalog_serving_source)
                 return registry
+            except SubstrateRegistryError:
+                raise
             except ValueError as exc:
                 raise GenerationCycleError(
                     "n7_substrate_registry_invalid",
@@ -14955,7 +15019,9 @@ def _n7_substrate_registry(
                 ) from exc
     try:
         return build_substrate_registry_from_existing_catalogs(repo_root)
-    except (SubstrateRegistryError, FileNotFoundError, ValueError) as exc:
+    except SubstrateRegistryError:
+        raise
+    except (FileNotFoundError, ValueError) as exc:
         raise GenerationCycleError(
             "n7_substrate_registry_unresolved",
             str(exc),
@@ -15128,6 +15194,38 @@ def _read_canonical_active_source_projection(
     AdmissionPassport,
     str,
 ]:
+    """Read the exact active owner projection within the shared source guard."""
+
+    from polisyos.runtime.quality.substrate_registry import catalog_source_reader
+
+    try:
+        with catalog_source_reader(repo_root, overlay_path=overlay_path):
+            return _read_active_source_projection_in_catalog_scope(
+                repo_root=repo_root,
+                overlay_path=overlay_path,
+                artifact_store=artifact_store,
+                supplied_projection=supplied_projection,
+            )
+    except SubstrateRegistryError as exc:
+        raise ValueOwnerAccessError(
+            exc.code,
+            str(exc),
+            owner_access_ref=f"substrate_owner://catalog_source_refused/{exc.code}",
+            source_refusal_code=exc.code,
+        ) from exc
+
+
+def _read_active_source_projection_in_catalog_scope(
+    *,
+    repo_root: Path,
+    overlay_path: Path | None,
+    artifact_store: ArtifactStore,
+    supplied_projection: data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection,
+) -> tuple[
+    data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection,
+    AdmissionPassport,
+    str,
+]:
     """Reopen a projection through its selected provision and active owner.
 
     A valid projection digest proves internal consistency only. This intake
@@ -15202,6 +15300,41 @@ def _load_value_data_profile_from_l1_dcat(
         data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection | None
     ) = None,
 ) -> ValueDataProfile | None:
+    """Reconstruct a complete profile inside one guarded Catalog read scope."""
+
+    from polisyos.runtime.quality.substrate_registry import catalog_source_reader
+
+    try:
+        with catalog_source_reader(repo_root, overlay_path=overlay_path) as reader:
+            return _load_value_data_profile_from_catalog_reader(
+                reader=reader,
+                repo_root=repo_root,
+                outcome=outcome,
+                owner_access_ref=owner_access_ref,
+                overlay_path=overlay_path,
+                scope_region=scope_region,
+                artifact_store=artifact_store,
+                activated_observation_projection=activated_observation_projection,
+            )
+    except SubstrateRegistryError as exc:
+        raise ValueOwnerAccessError(
+            exc.code, str(exc), owner_access_ref=owner_access_ref, source_refusal_code=exc.code
+        ) from exc
+
+
+def _load_value_data_profile_from_catalog_reader(
+    *,
+    reader: data_forge_read_api.catalog.DatasetCatalogStore,
+    repo_root: Path,
+    outcome: str,
+    owner_access_ref: str,
+    overlay_path: Path | None = None,
+    scope_region: str | None = None,
+    artifact_store: ArtifactStore | None = None,
+    activated_observation_projection: (
+        data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection | None
+    ) = None,
+) -> ValueDataProfile | None:
     """Load deterministic owner rows without deriving an exposure assignment."""
 
     normalized_scope_region = _optional_text(scope_region)
@@ -15244,6 +15377,8 @@ def _load_value_data_profile_from_l1_dcat(
                 artifact_store=artifact_store,
                 supplied_projection=observation_projection,
             )
+        except ValueOwnerAccessError:
+            raise
         except Exception as exc:
             raise ValueOwnerAccessError(
                 "acquire_data:active_observation_owner_readback_failed",
@@ -15351,32 +15486,7 @@ def _load_value_data_profile_from_l1_dcat(
             owner_row_limit + 1,
         )
     )
-    try:
-        from polisyos.runtime.quality.substrate_registry import (
-            default_substrate_catalog_paths,
-        )
-    except Exception as exc:  # pragma: no cover - local dependency surface.
-        raise ValueOwnerAccessError(
-            "acquire_data:value_owner_rows_missing",
-            f"substrate row loader dependencies unavailable: {exc}",
-            owner_access_ref="substrate_owner://row_loader_dependency_missing",
-        ) from exc
-
-    dcat_path = default_substrate_catalog_paths(repo_root).l1_dcat_path
-    if not dcat_path.exists():
-        raise ValueOwnerAccessError(
-            "acquire_data:value_owner_rows_missing",
-            f"L1 DCAT catalog missing at {dcat_path}",
-            owner_access_ref="substrate_owner://l1_dcat_missing",
-        )
-    selected_overlay = overlay_path or (
-        data_forge_read_api.catalog.default_acquisition_overlay_path(repo_root)
-    )
-    con = data_forge_read_api.catalog.open_catalog_read_session(
-        dcat_path,
-        overlay_path=selected_overlay,
-    )
-    try:
+    with reader.read_session() as con:
         raw_rows = con.execute(
             """
             SELECT
@@ -15413,8 +15523,6 @@ def _load_value_data_profile_from_l1_dcat(
             """,
             parameters,
         ).fetchall()
-    finally:
-        con.close()
     if len(raw_rows) > owner_row_limit:
         raise ValueOwnerAccessError(
             "acquire_data:value_owner_rows_truncated",

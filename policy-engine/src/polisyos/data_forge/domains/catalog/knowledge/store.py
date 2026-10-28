@@ -20,6 +20,7 @@ from polisyos.data_forge.domains.catalog.embedding_projection import (
     project_catalog_dataset_embedding,
 )
 from polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection import (
+    CatalogReadSourceError,
     CatalogSelectionError,
 )
 from polisyos.data_forge.domains.catalog.knowledge.overlay import (
@@ -177,10 +178,21 @@ class DatasetCatalogStore:
         self._index_dir = index_dir
         self._overlay_path = overlay_path
         self._session_source_identities = self._fetch_source_identities()
-        self._con = open_catalog_read_session(db_path, overlay_path=overlay_path)
-        if self._session_source_identities != self._fetch_source_identities():
+        try:
+            self._con = open_catalog_read_session(db_path, overlay_path=overlay_path)
+        except duckdb.Error as exc:
+            raise CatalogReadSourceError(
+                "catalog_read_native_open_unavailable", type(exc).__name__
+            ) from exc
+        try:
+            if self._session_source_identities != self._fetch_source_identities():
+                raise CatalogReadSourceError(
+                    "catalog_read_source_changed_while_opening",
+                    "catalog_fetch_source_changed_while_opening",
+                )
+        except BaseException:
             self._con.close()
-            raise ValueError("catalog_fetch_source_changed_while_opening")
+            raise
 
         self._dataset_index = None
         self._dataset_ids: list[str] | None = None
@@ -210,31 +222,66 @@ class DatasetCatalogStore:
     ) -> tuple[CatalogContentIdentity, str | None, CatalogContentIdentity | None]:
         try:
             current = self._fetch_source_identities()
+        except CatalogSelectionError:
+            raise
         except (OSError, TypeError, ValueError) as exc:
-            raise CatalogSelectionError("catalog_read_session_unavailable") from exc
+            raise CatalogReadSourceError("catalog_read_session_unavailable") from exc
         if current != self._session_source_identities:
-            raise CatalogSelectionError("catalog_read_session_stale")
+            raise CatalogReadSourceError("catalog_read_session_stale")
         return current
 
     @contextmanager
-    def read_session(self) -> Iterator[None]:
+    def read_session(self) -> Iterator[duckdb.DuckDBPyConnection]:
         """Check byte identity around one complete logical catalog read."""
         active = _ACTIVE_CATALOG_READS.get()
         key = id(self)
         if key in active:
-            yield
+            yield self._con
             return
         self._require_current_read_session()
         token = _ACTIVE_CATALOG_READS.set(active | {key})
         try:
             try:
-                yield
-            except BaseException:
+                yield self._con
+            except BaseException as exc:
                 self._require_current_read_session()
+                if isinstance(exc, duckdb.Error):
+                    raise CatalogReadSourceError(
+                        "catalog_read_native_query_unavailable", type(exc).__name__
+                    ) from exc
                 raise
             self._require_current_read_session()
         finally:
             _ACTIVE_CATALOG_READS.reset(token)
+
+    @_guarded_catalog_read
+    def variable_availability_counts(self, variable_id: str) -> tuple[int, int, int]:
+        """Read metric, observation and dataset counts from one guarded source.
+
+        Null/empty source labels do not remove a variable from this owner query.
+        The counts describe catalog presence only, never admissible effect data.
+        Missing tables, malformed rows and source drift refuse instead of
+        manufacturing an unavailable zero.
+        """
+
+        variable = variable_id.strip()
+        if not variable:
+            raise CatalogSelectionError("catalog_variable_empty")
+        counts = []
+        for query in (
+            "SELECT count(*) FROM ds_metric_bindings WHERE metric_id = ?",
+            "SELECT count(*) FROM ds_observations WHERE canonical_var = ?",
+            "SELECT count(*) FROM ds_datasets WHERE list_contains(polisyos_metrics, ?)",
+        ):
+            row = self._con.execute(query, [variable]).fetchone()
+            if row is None:
+                raise CatalogSelectionError("catalog_variable_count_row_missing")
+            if len(row) != 1:
+                raise CatalogSelectionError("catalog_variable_count_row_shape_invalid")
+            if isinstance(row[0], bool) or not isinstance(row[0], int) or row[0] < 0:
+                raise CatalogSelectionError("catalog_variable_count_value_invalid")
+            counts.append(row[0])
+        return counts[0], counts[1], counts[2]
 
     @property
     def vector_index_refusal_reason(self) -> str | None:
@@ -1161,31 +1208,67 @@ class DatasetCatalogStore:
             raise ValueError("catalog_fetch_binding_mismatch")
         return expected
 
-    def _fetch_source_identities(
-        self,
+    @staticmethod
+    def identify_read_sources(
+        database_path: Path,
+        *,
+        overlay_path: Path | None = None,
     ) -> tuple[CatalogContentIdentity, str | None, CatalogContentIdentity | None]:
+        """Stream exact checkpointed read-source identities with bounded memory.
+
+        A live native WAL is part of the database state, not an ignorable
+        neighboring file. This byte-identity protocol refuses it until its
+        owner checkpoints/closes the writer; it never deletes native files.
+        The scan does not claim an atomic filesystem custody transaction.
+        """
+
         def identify(path: Path) -> CatalogContentIdentity:
             if not path.is_file():
-                raise ValueError("catalog_fetch_source_unreadable")
+                raise CatalogReadSourceError("catalog_read_source_unavailable")
+            wal = path.with_name(path.name + ".wal")
+            if wal.exists() or wal.is_symlink():
+                raise CatalogReadSourceError("catalog_read_source_checkpoint_required")
             digest = hashlib.sha256()
             byte_size = 0
             with path.open("rb") as handle:
                 for chunk in iter(lambda: handle.read(1024 * 1024), b""):
                     digest.update(chunk)
                     byte_size += len(chunk)
+            if wal.exists() or wal.is_symlink():
+                raise CatalogReadSourceError("catalog_read_source_checkpoint_required")
             return CatalogContentIdentity(
                 source_path=str(path.resolve()),
                 content_sha256=f"sha256:{digest.hexdigest()}",
                 byte_size=byte_size,
             )
 
-        overlay = self._overlay_path
-        present = overlay is not None and (overlay.exists() or overlay.is_symlink())
-        return (
-            identify(self._db_path),
-            str(overlay.resolve()) if overlay is not None else None,
-            identify(overlay) if present else None,
-        )
+        try:
+            overlay = overlay_path
+            present = overlay is not None and (overlay.exists() or overlay.is_symlink())
+            return (
+                identify(database_path),
+                str(overlay.resolve()) if overlay is not None else None,
+                identify(overlay) if present else None,
+            )
+        except CatalogReadSourceError:
+            raise
+        except (OSError, RuntimeError, ValueError) as exc:
+            raise CatalogReadSourceError(
+                "catalog_read_source_unavailable", type(exc).__name__
+            ) from exc
+
+    @property
+    def read_source_identity(
+        self,
+    ) -> tuple[CatalogContentIdentity, str | None, CatalogContentIdentity | None]:
+        """Return the immutable baseline/overlay tuple captured by this reader."""
+
+        return self._session_source_identities
+
+    def _fetch_source_identities(
+        self,
+    ) -> tuple[CatalogContentIdentity, str | None, CatalogContentIdentity | None]:
+        return self.identify_read_sources(self._db_path, overlay_path=self._overlay_path)
 
     @_guarded_catalog_read
     def get_connector_params(self, dataset_id: str) -> dict | None:

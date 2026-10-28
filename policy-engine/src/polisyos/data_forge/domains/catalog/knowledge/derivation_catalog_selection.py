@@ -32,6 +32,15 @@ class CatalogSelectionError(RuntimeError):
         super().__init__(f"{code}: {self.detail}")
 
 
+class CatalogReadSourceError(CatalogSelectionError):
+    """Typed unavailable or changed native read source; never an empty result.
+
+    This remains a CatalogSelectionError for existing callers. Consumers
+    propagate the complete subtype rather than enumerating reason prefixes;
+    code/detail preserve the exact owner failure and do not grant authority.
+    """
+
+
 class _StrictModel(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -466,6 +475,7 @@ def catalog_selection_candidate_rank(
 
 
 __all__ = [
+    "CatalogReadSourceError",
     "CatalogSelectionCandidateEvaluation",
     "CatalogSelectionCandidateEvidence",
     "CatalogSelectionError",

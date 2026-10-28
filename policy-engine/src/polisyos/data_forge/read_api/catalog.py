@@ -259,6 +259,9 @@ if TYPE_CHECKING:
         normalize_country_code as normalize_country_code,
     )
     from polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection import (
+        CatalogReadSourceError as CatalogReadSourceError,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection import (
         CatalogSelectionCandidateEvaluation as CatalogSelectionCandidateEvaluation,
     )
     from polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection import (
@@ -509,6 +512,9 @@ _EXPORTS = {
         "polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection"
     ),
     "CatalogSelectionCandidateEvidence": (
+        "polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection"
+    ),
+    "CatalogReadSourceError": (
         "polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection"
     ),
     "CatalogSelectionError": (

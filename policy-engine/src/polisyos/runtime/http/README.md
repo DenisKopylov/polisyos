@@ -96,9 +96,13 @@ currentness.
 
 Deployments may pass a typed CatalogServingSourceSelection to
 create_runtime_api_app(catalog_source_selection=...) to choose the candidate
-L1 catalog at the fixed path
-snapshot_root/datasets/graph/dataset_catalog.duckdb. If omitted, the
-existing repository-default input remains in use. The selector's
+L1 catalog below its declared snapshot owner. The default member is
+snapshot_root/datasets/graph/dataset_catalog.duckdb. The optional
+`database_relative_path` admits an existing native layout without moving or
+copying its bytes; absolute/traversing paths and redirected member symlinks
+refuse. Optional `source_owner_root` selects the physical production-data
+owner while code-owned epoch registries remain rooted at `repo_root`.
+If the selector is omitted, the repository-default input remains in use. The selector's
 catalog_run_profile must match the app's catalog_run_profile; when the latter
 is omitted, the selector supplies it.
 
@@ -384,3 +388,10 @@ proof history remains parseable but cannot establish a current selected-profile 
 This CAS profile binds the selected bytes and manifest view only; it does not establish
 producer authority, custody outside this CAS, legal authority, freshness, or production
 currentness.
+
+
+Selected Catalog checkpoint/unavailable/readmission errors retain their actual
+source cause at predictive-calibration admission. A ValueOwner source refusal
+is carried by its typed error field rather than inferred from a code prefix.
+No HTTP request or persisted response DTO changes; the existing error surface
+continues to refuse rather than fabricate an empty/available source.

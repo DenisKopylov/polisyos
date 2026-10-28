@@ -384,6 +384,14 @@ class DatasetCatalogGraph:
         return self._store.database_identity
 
     @property
+    def read_source_identity(
+        self,
+    ) -> tuple[CatalogContentIdentity, str | None, CatalogContentIdentity | None]:
+        """Return the baseline/overlay identity captured by this graph reader."""
+
+        return self._store.read_source_identity
+
+    @property
     def overlay_path(self) -> Path | None:
         """Return the configured overlay locator, if any."""
         return self._store.overlay_path

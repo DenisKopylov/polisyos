@@ -54,6 +54,7 @@ from polisyos.runtime.quality.credal_reference import (
     replace_reference_edge,
 )
 from polisyos.runtime.quality.substrate_registry import CatalogServingSourcePaths
+from tests._helpers.catalog_source_admission import admit_fixture_catalog_source
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 _MISSING_FIXTURE_MARKER = object()
@@ -3523,26 +3524,11 @@ def _write_n4_catalog(path: Path, rows: tuple[tuple[object, ...], ...]) -> None:
 
 
 def _selected_n4_catalog_source(repo_root: Path, snapshot_root: Path) -> CatalogServingSourcePaths:
-    from dataclasses import replace
-
-    from polisyos.runtime.quality.substrate_registry import (
-        CatalogServingSourcePaths,
-        default_substrate_catalog_paths,
-    )
-
     root = repo_root.resolve()
     snapshot = snapshot_root.resolve()
     database = snapshot / "datasets" / "graph" / "dataset_catalog.duckdb"
-    base_paths = default_substrate_catalog_paths(root)
-    return CatalogServingSourcePaths(
-        repo_root=root,
-        snapshot_root=snapshot,
-        database_path=database,
-        index_dir=database.parent,
-        overlay_path=root / "production_data" / "acquisition-overlay.json",
-        catalog_run_profile="prod_core_blocking",
-        selection_basis="explicit_path_candidate_only",
-        substrate_paths=replace(base_paths, l1_dcat_path=database),
+    return admit_fixture_catalog_source(
+        repo_root=root, database_path=database, catalog_run_profile="prod_core_blocking"
     )
 
 
@@ -3873,15 +3859,9 @@ def test_empty_selected_catalog_profile_survives_replay_and_present_source_never
     assert replay.data_forge_catalog_source_profile == empty_profile
     assert replay.to_reference() == empty_reference
 
-    missing_source = _selected_n4_catalog_source(
-        root,
-        root / "snapshots" / "missing",
-    )
-    with pytest.raises(
-        ValueError,
-        match="credal_reference_data_forge_catalog_source_missing",
-    ):
-        _build_n4_reference_from_selected_catalog(monkeypatch, root, missing_source)
+    # Missing bytes fail at the actual selector, before a source context exists.
+    with pytest.raises(ValueError, match="catalog_source_database_missing"):
+        _selected_n4_catalog_source(root, root / "snapshots" / "missing")
 
     malformed_path = (
         root / "snapshots" / "malformed" / "datasets" / "graph" / "dataset_catalog.duckdb"

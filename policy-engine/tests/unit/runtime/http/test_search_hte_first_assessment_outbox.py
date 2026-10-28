@@ -280,18 +280,15 @@ def _put_profile_bound_v2_hte_source(
     alternate_unit_scope_profile: bool = False,
 ) -> tuple[ArtifactRef, ArtifactRef, ArtifactRef]:
     """Persist candidate source roles from DataForge and matching HTE arrays."""
-    from dataclasses import replace
-
     from polisyos.core.artifacts.manifest import (
         ArtifactTenantContextInfo,
         input_ref_from_artifact_ref,
     )
     from polisyos.runtime.quality import generation_cycle as gc
     from polisyos.runtime.quality.substrate_registry import (
-        CatalogServingSourcePaths,
         catalog_serving_source_scope,
-        default_substrate_catalog_paths,
     )
+    from tests._helpers.catalog_source_admission import admit_fixture_catalog_source
     from tests._helpers.semantic_epoch_native import make_native_multivariable_active_projections
 
     row_count = 40
@@ -340,19 +337,9 @@ def _put_profile_bound_v2_hte_source(
         },
         artifact_store=store,
     )
-    substrate_paths = replace(
-        default_substrate_catalog_paths(fixture.repo_root),
-        l1_dcat_path=fixture.baseline_path,
-    )
-    catalog_source = CatalogServingSourcePaths(
+    catalog_source = admit_fixture_catalog_source(
         repo_root=fixture.repo_root,
-        snapshot_root=fixture.baseline_path.parent,
         database_path=fixture.baseline_path,
-        index_dir=fixture.repo_root / "index",
-        overlay_path=fixture.overlay_path,
-        catalog_run_profile=None,
-        selection_basis="explicit_path_candidate_only",
-        substrate_paths=substrate_paths,
     )
     governance = ArtifactGovernanceInfo(classification="public")
     tenant_context = ArtifactTenantContextInfo(tenant_id=tenant_id, cell_id=cell_id)

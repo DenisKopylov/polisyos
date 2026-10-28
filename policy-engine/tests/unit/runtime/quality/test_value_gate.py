@@ -153,6 +153,7 @@ from polisyos.runtime.quality.world_model_record import (
     WorldModelRecord,
     world_model_record_content_hash,
 )
+from tests._helpers.catalog_source_admission import admit_fixture_catalog_source
 from tools.quality.validation import check_layer3_gy_second_domain_pack as second_domain_pack
 from tools.quality.validation import check_layer3_gy_value_gate_contract as value_contract
 
@@ -2935,7 +2936,6 @@ def test_value_port_surfaces_typed_owner_measurement_unit_refusal(
         default_acquisition_overlay_path,
     )
     from polisyos.runtime.quality.substrate_registry import (
-        CatalogServingSourcePaths,
         catalog_serving_source_scope,
         default_substrate_catalog_paths,
     )
@@ -2971,15 +2971,8 @@ def test_value_port_surfaces_typed_owner_measurement_unit_refusal(
                 for index, condition_json in enumerate(condition_json_values)
             ],
         )
-    catalog_source = CatalogServingSourcePaths(
-        repo_root=repo_root,
-        snapshot_root=substrate_paths.l1_dcat_path.parent,
-        database_path=substrate_paths.l1_dcat_path,
-        index_dir=repo_root / "index",
-        overlay_path=default_acquisition_overlay_path(repo_root),
-        catalog_run_profile=None,
-        selection_basis="explicit_path_candidate_only",
-        substrate_paths=substrate_paths,
+    catalog_source = admit_fixture_catalog_source(
+        repo_root=repo_root, database_path=substrate_paths.l1_dcat_path
     )
     gateway = RealValueOwnerGateway(
         repo_root=repo_root,
@@ -3011,7 +3004,7 @@ def test_value_port_surfaces_typed_owner_measurement_unit_refusal(
     assert observation.value_data_profile_content_hash is None
     assert observation.acquisition_requirement is None
     assert "#measurement-unit-binding" in str(observation.reason)
-    assert str(substrate_paths.l1_dcat_path) in str(observation.reason)
+    assert str(catalog_source.database_path) in str(observation.reason)
     assert expected_next_input in str(observation.reason)
 
 
@@ -3119,7 +3112,6 @@ def test_shaped_owner_assignment_attestation_is_not_authority(tmp_path: Path) ->
         default_acquisition_overlay_path,
     )
     from polisyos.runtime.quality.substrate_registry import (
-        CatalogServingSourcePaths,
         catalog_serving_source_scope,
         default_substrate_catalog_paths,
     )
@@ -3177,15 +3169,8 @@ def test_shaped_owner_assignment_attestation_is_not_authority(tmp_path: Path) ->
             ],
         )
     overlay_path = default_acquisition_overlay_path(repo_root)
-    catalog_source = CatalogServingSourcePaths(
-        repo_root=repo_root,
-        snapshot_root=substrate_paths.l1_dcat_path.parent,
-        database_path=substrate_paths.l1_dcat_path,
-        index_dir=repo_root / "index",
-        overlay_path=overlay_path,
-        catalog_run_profile=None,
-        selection_basis="explicit_path_candidate_only",
-        substrate_paths=substrate_paths,
+    catalog_source = admit_fixture_catalog_source(
+        repo_root=repo_root, database_path=substrate_paths.l1_dcat_path
     )
     gateway = RealValueOwnerGateway(
         repo_root=repo_root,
@@ -6639,7 +6624,6 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
     )
     from polisyos.runtime.quality import generation_cycle as gc
     from polisyos.runtime.quality.substrate_registry import (
-        CatalogServingSourcePaths,
         catalog_serving_source_scope,
         default_substrate_catalog_paths,
     )
@@ -6740,15 +6724,8 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
         default_substrate_catalog_paths(source_fixture.repo_root),
         l1_dcat_path=source_fixture.baseline_path,
     )
-    catalog_source = CatalogServingSourcePaths(
-        repo_root=source_fixture.repo_root,
-        snapshot_root=source_fixture.baseline_path.parent,
-        database_path=source_fixture.baseline_path,
-        index_dir=source_fixture.repo_root / "index",
-        overlay_path=source_fixture.overlay_path,
-        catalog_run_profile=None,
-        selection_basis="explicit_path_candidate_only",
-        substrate_paths=substrate_paths,
+    catalog_source = admit_fixture_catalog_source(
+        repo_root=source_fixture.repo_root, database_path=source_fixture.baseline_path
     )
     gateway = RealValueOwnerGateway(
         repo_root=source_fixture.repo_root,
@@ -7291,7 +7268,6 @@ def test_n8_source_profile_selects_exact_active_projection_before_row_cap(
 
     from polisyos.runtime.quality import generation_cycle as gc
     from polisyos.runtime.quality.substrate_registry import (
-        CatalogServingSourcePaths,
         catalog_serving_source_scope,
         default_substrate_catalog_paths,
     )
@@ -7381,15 +7357,8 @@ def test_n8_source_profile_selects_exact_active_projection_before_row_cap(
         default_substrate_catalog_paths(fixture.repo_root),
         l1_dcat_path=fixture.baseline_path,
     )
-    catalog_source = CatalogServingSourcePaths(
-        repo_root=fixture.repo_root,
-        snapshot_root=fixture.baseline_path.parent,
-        database_path=fixture.baseline_path,
-        index_dir=fixture.repo_root / "index",
-        overlay_path=fixture.overlay_path,
-        catalog_run_profile=None,
-        selection_basis="explicit_path_candidate_only",
-        substrate_paths=substrate_paths,
+    catalog_source = admit_fixture_catalog_source(
+        repo_root=fixture.repo_root, database_path=fixture.baseline_path
     )
     with catalog_serving_source_scope(catalog_source):
         profile = gc._load_value_data_profile_from_l1_dcat(
@@ -7435,7 +7404,6 @@ def test_n8_active_projection_rows_are_selected_before_large_owner_row_cap(
     from polisyos.runtime.quality import data_state_substrate, substrate_registry
     from polisyos.runtime.quality.generation_cycle import RealValueOwnerGateway
     from polisyos.runtime.quality.substrate_registry import (
-        CatalogServingSourcePaths,
         catalog_serving_source_scope,
         default_substrate_catalog_paths,
     )
@@ -7497,15 +7465,8 @@ def test_n8_active_projection_rows_are_selected_before_large_owner_row_cap(
         default_substrate_catalog_paths(fixture.repo_root),
         l1_dcat_path=fixture.baseline_path,
     )
-    catalog_source = CatalogServingSourcePaths(
-        repo_root=fixture.repo_root,
-        snapshot_root=fixture.baseline_path.parent,
-        database_path=fixture.baseline_path,
-        index_dir=fixture.repo_root / "index",
-        overlay_path=fixture.overlay_path,
-        catalog_run_profile=None,
-        selection_basis="explicit_path_candidate_only",
-        substrate_paths=substrate_paths,
+    catalog_source = admit_fixture_catalog_source(
+        repo_root=fixture.repo_root, database_path=fixture.baseline_path
     )
     gateway = RealValueOwnerGateway(
         repo_root=fixture.repo_root,
@@ -7669,7 +7630,6 @@ def _run_n8_source_projection_case(
     )
     from polisyos.runtime.quality import generation_cycle as gc
     from polisyos.runtime.quality.substrate_registry import (
-        CatalogServingSourcePaths,
         catalog_serving_source_scope,
         default_substrate_catalog_paths,
     )
@@ -7793,15 +7753,8 @@ def _run_n8_source_projection_case(
         default_substrate_catalog_paths(source_fixture.repo_root),
         l1_dcat_path=source_fixture.baseline_path,
     )
-    catalog_source = CatalogServingSourcePaths(
-        repo_root=source_fixture.repo_root,
-        snapshot_root=source_fixture.baseline_path.parent,
-        database_path=source_fixture.baseline_path,
-        index_dir=source_fixture.repo_root / "index",
-        overlay_path=source_fixture.overlay_path,
-        catalog_run_profile=None,
-        selection_basis="explicit_path_candidate_only",
-        substrate_paths=substrate_paths,
+    catalog_source = admit_fixture_catalog_source(
+        repo_root=source_fixture.repo_root, database_path=source_fixture.baseline_path
     )
     gateway = RealValueOwnerGateway(
         repo_root=source_fixture.repo_root,
@@ -8137,7 +8090,6 @@ def test_n8_fresh_consumer_reads_recomputed_fixed_unit_owner_projection(
 
     from polisyos.runtime.quality import generation_cycle as gc
     from polisyos.runtime.quality.substrate_registry import (
-        CatalogServingSourcePaths,
         catalog_serving_source_scope,
         default_substrate_catalog_paths,
     )
@@ -8184,15 +8136,8 @@ def test_n8_fresh_consumer_reads_recomputed_fixed_unit_owner_projection(
         default_substrate_catalog_paths(fixture.repo_root),
         l1_dcat_path=fixture.baseline_path,
     )
-    catalog_source = CatalogServingSourcePaths(
-        repo_root=fixture.repo_root,
-        snapshot_root=fixture.baseline_path.parent,
-        database_path=fixture.baseline_path,
-        index_dir=fixture.repo_root / "index",
-        overlay_path=fixture.overlay_path,
-        catalog_run_profile=None,
-        selection_basis="explicit_path_candidate_only",
-        substrate_paths=substrate_paths,
+    catalog_source = admit_fixture_catalog_source(
+        repo_root=fixture.repo_root, database_path=fixture.baseline_path
     )
     with catalog_serving_source_scope(catalog_source):
         profile = gc._load_value_data_profile_from_l1_dcat(

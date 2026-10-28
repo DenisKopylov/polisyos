@@ -126,3 +126,42 @@ IR law, denominator validity, currentness, or epoch authority.
 ### Fixed static measurement-unit conversions
 
 The acquisition overlay can recompute a non-identity field lift only when the binding names `fixed_multiplicative` with `fabric://units/fixed-multiplicative/v1`. It reuses Fabric's existing `Unit` parser and fixed unit definitions, records the executor version, exact raw/canonical units, resolved multiplier, binding identity, and a digest of the used definitions plus the complete pinned v1 basis in the content-bound admission projection and in a nullable JSON column on the existing observation-provenance owner table. The v1 parser snapshots Fabric's existing 60 standard units, 33 prefixes, and 11 exponent glyphs into immutable maps; any current-map drift from that full basis fails closed before conversion. A fresh owner read recomputes the definition evidence and compares every persisted row before exposing the projection. It rewrites the consumer condition unit to the canonical unit before persistence. The executor refuses dimensionless, incompatible, currency/rate, population, offset, unknown, unregistered, and factor-one semantically distinct pairs. Identity bindings retain their existing path. This local arithmetic records no owner assignment, population, source-time, or institutional measurement authority.
+
+
+### Guarded variable availability
+
+`DatasetCatalogStore.variable_availability_counts` reads the actual metric-binding,
+observation and dataset-metrics predicates inside the existing content-identity
+`read_session`. The context yields its actual read-only connection so Runtime
+consumers can keep a complete profile reconstruction inside the same guard.
+It includes bindings with absent source labels. The returned
+counts establish catalog presence only; they do not ground an effect, license
+acquisition, or confer source authority. The identity guard scans baseline and
+configured overlay bytes in 1 MiB chunks before and after a logical read. Its
+CPU/I/O cost is linear in those files and needs profile-specific admission.
+`identify_read_sources` and `read_source_identity` expose the same immutable
+baseline/overlay tuple to selected-source consumers. A visible `.wal` sidecar
+refuses with `catalog_read_source_checkpoint_required`; checkpoint/close its
+native owner before retrying. The reader never deletes or repairs the sidecar.
+The existing before/after guard is not an atomic filesystem custody transaction;
+a hostile writer that substitutes and restores bytes between all checks is
+not excluded. Such writers require an immutable snapshot/transaction owner.
+
+
+The guarded source/session failures are `CatalogReadSourceError`, preserving
+`CatalogSelectionError` ancestry and exact code/detail. Consumers propagate
+this whole family, including future owner codes, instead of testing only the
+old `catalog_read_session_` spelling. A constructor source swap is typed
+`catalog_read_source_changed_while_opening` with its old detail retained.
+The reader closes an opened connection if its post-open identity check fails.
+
+Escaped native DuckDB query/backend errors also use this typed read-source
+family (`catalog_read_native_query_unavailable`); a closed backend is ERROR,
+not evidence of zero observations. The original driver exception is retained
+as the cause.
+
+Selected Catalog source failures retain their typed cause at initial content
+identity construction and throughout persisted Fabric capture. The public
+acquisition owner alone classifies the forwarded failure; unrelated optional
+capture failures retain their prior fallback. Empty native sources are errors,
+not unavailable variable counts. This does not establish atomic file custody.

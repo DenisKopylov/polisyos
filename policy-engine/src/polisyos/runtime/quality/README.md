@@ -1235,3 +1235,58 @@ The existing read-before-write boundary is preserved; a transaction spanning
 native owner eligibility and later CAS writes is not established. Full
 evaluation-plan equivalence, retention, lifecycle and frontier fencing remain
 separate consumers and cannot be inferred from this data-owner seam.
+
+
+### Explicit catalog source identity and readmission
+
+Explicit `CatalogServingSourceSelection` may separate the physical data owner
+from the code root that supplies epoch registries. Its optional
+`database_relative_path` selects an existing native member within the snapshot;
+the default remains `datasets/graph/dataset_catalog.duckdb`. Selection and fresh
+reads reject absolute/traversing member paths, redirected members, absent owners,
+and an unknown selection basis. Existing native layouts need no byte copy.
+
+Selection captures the complete baseline/overlay identity from the existing
+DataForge `DatasetCatalogStore`; explicit registries carry the corresponding
+`catalog_read_source_content://` reference. The Runtime `catalog_source_reader`
+reuses that owner for the complete availability, available value-profile,
+active-projection and selected K_ref read. Injected acquisition graphs must be
+actual Store/Graph owners with the selected full read identity. Neither a metric
+summary nor a caller's digest/path declaration substitutes for this read owner.
+
+Legacy default registry identity and historical artifact loading remain
+compatible. Old explicit contexts without the content reference require live
+re-admission; retain historical artifacts rather than rewriting them. Re-admit
+after any intentional baseline/overlay change. N7 records source refusal and
+its exact cause instead of losing it as a generic routing failure. Value-owner
+and predictive-calibration consumers retain checkpoint/readmission causes;
+source failure is distinct from an actual unavailable variable.
+
+The guard streams full baseline/overlay bytes before and after a logical read,
+with bounded Python memory and linear file I/O. It is not an atomic filesystem
+custody transaction: a writer that substitutes a foreign native file only during
+open and restores the admitted file between checks is not excluded. The retained
+ABA diagnostic reports whether that attack is observed on the actual backend;
+its completion alone proves no custody property. Immutable snapshot or
+connection-bound custody is a separate missing capability. This seam grants no
+source authority, currentness, calibration, empirical grounding or E02/G closure.
+
+
+Catalog's typed read-source family crosses the acquisition gateway through
+`AcquisitionPlannerBindingError.source_refusal_code`. Ordinary binding errors
+keep their existing behavior; source failures retain the exact cause through
+`n7_catalog_source_refused.<source code>` in the persisted cycle diagnostic.
+ValueOwner's compatible optional source-cause carrier and the calibration
+adapter retain the same distinction without checking a reason prefix. This
+failure transport supplies neither a successful acquisition nor a data gap.
+
+Escaped native DuckDB query/backend errors also use this typed read-source
+family (`catalog_read_native_query_unavailable`); a closed backend is ERROR,
+not evidence of zero observations. The original driver exception is retained
+as the cause.
+
+Selected Catalog source failures retain their typed cause at initial content
+identity construction and throughout persisted Fabric capture. The public
+acquisition owner alone classifies the forwarded failure; unrelated optional
+capture failures retain their prior fallback. Empty native sources are errors,
+not unavailable variable counts. This does not establish atomic file custody.

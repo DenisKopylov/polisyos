@@ -162,26 +162,6 @@ def _data_forge_snapshot_role() -> str:
     return role_surface[0]
 
 
-def _required_l1_scalar_count(
-    row: tuple[object, ...] | None,
-    *,
-    query_id: str,
-) -> int:
-    """Require one non-negative integer count row from the L1 owner query.
-
-    Missing and malformed rows fail closed; they are never interpreted as a
-    zero count. A real SQL COUNT(*) row containing zero remains valid.
-    """
-    if row is None:
-        raise DataStateSubstrateError("l1_dcat_scalar_row_missing", query_id)
-    if len(row) != 1:
-        raise DataStateSubstrateError("l1_dcat_scalar_row_shape_invalid", query_id)
-    value = row[0]
-    if isinstance(value, bool) or not isinstance(value, int) or value < 0:
-        raise DataStateSubstrateError("l1_dcat_scalar_value_invalid", query_id)
-    return value
-
-
 class _StrictModel(BaseModel):
     """Strict immutable base for data-state substrate DTOs."""
 
@@ -462,34 +442,26 @@ def l1_dcat_variable_availability(
     selected_overlay = overlay_path or (
         data_forge_read_api.catalog.default_acquisition_overlay_path(code_root)
     )
-    con = data_forge_read_api.catalog.open_catalog_read_session(
-        dcat_path,
-        overlay_path=selected_overlay,
-    )
+    from polisyos.runtime.quality.substrate_registry import catalog_source_reader
+
     try:
-        metric_binding_count = _required_l1_scalar_count(
-            con.execute(
-                "SELECT count(*) FROM ds_metric_bindings WHERE metric_id = ?",
-                [variable],
-            ).fetchone(),
-            query_id="ds_metric_bindings",
-        )
-        observation_count = _required_l1_scalar_count(
-            con.execute(
-                "SELECT count(*) FROM ds_observations WHERE canonical_var = ?",
-                [variable],
-            ).fetchone(),
-            query_id="ds_observations",
-        )
-        dataset_count = _required_l1_scalar_count(
-            con.execute(
-                "SELECT count(*) FROM ds_datasets WHERE list_contains(polisyos_metrics, ?)",
-                [variable],
-            ).fetchone(),
-            query_id="ds_datasets",
-        )
-    finally:
-        con.close()
+        with catalog_source_reader(
+            code_root,
+            overlay_path=selected_overlay,
+            production_data_root=data_root if production_data_root is not None else None,
+        ) as reader:
+            metric_binding_count, observation_count, dataset_count = (
+                reader.variable_availability_counts(variable)
+            )
+    except data_forge_read_api.catalog.CatalogSelectionError as exc:
+        count_errors = {
+            "catalog_variable_count_row_missing": "l1_dcat_scalar_row_missing",
+            "catalog_variable_count_row_shape_invalid": "l1_dcat_scalar_row_shape_invalid",
+            "catalog_variable_count_value_invalid": "l1_dcat_scalar_value_invalid",
+        }
+        raise DataStateSubstrateError(
+            count_errors.get(exc.code, "l1_dcat_read_session_invalid"), str(exc)
+        ) from exc
 
     return L1VariableAvailability(
         variable_id=variable,

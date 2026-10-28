@@ -55,6 +55,68 @@ view withholds the packet claim while retaining an otherwise valid score-only ro
 This manifest-view binding establishes no external authority, unit, calibration, or
 scientific adequacy.
 
+## Candidate identity and evaluated input
+
+A bare candidate is its full JSON-native dictionary: key spelling alone never
+removes a value. Non-string keys, non-finite numbers, Decimal objects and other
+native objects are refused because their JSON projection would not preserve the
+value seen by an evaluator after restart. Unknown candidate semantics, including
+seeds and input versions, belong in the payload. Unbound proposal metadata is
+refused instead of silently omitted.
+
+`StrategyAdapter` retains producer-only fields in a typed
+`CandidateStrategyContext`; these fields do not enter either the evaluated
+candidate or the unrestricted evaluator context. Only an exact funnel-owned
+callable receives the proposal separately, and only the same funnel owner can
+link the actual Stage A ticket to Stage B. User-provided context keys, including
+underscore-prefixed keys, remain evaluator input. Independent funnel requests
+run the current stages; no prior aggregate routing, warning, or grant decision is
+cached. A matching live Stage A/B split keeps the same ticket but runs its gates
+again, with both physical attempts retained in its trace. An opaque or changed
+context uses a fresh linked ticket and preserves the preceding attempt's trace.
+These measures do not authenticate arbitrary callback behavior.
+
+Policy producers reconstruct `PolicyCandidateSchema`, use its existing hash,
+and deliver its JSON projection to the evaluator. Evaluators needing native
+Decimal/Value objects need a separately established lossless typed contract.
+The current policy node drops strategy-supplied semantic metadata, so such a
+suggestion is refused before Stage A. In particular, native Bayesian suggestions
+that supply `acquisition_type` remain unsupported by this path until the
+consumer meaning and transport are wired; this boundary does not claim full
+B124 closure.
+
+Pareto 3.1 retains subject, proposal, and evaluation references and recomputes
+identity on fresh read. A matching digest or a caller-writable CAS edge is
+consistency, not proof that a producer executed that candidate. Generic
+policy-vector entries therefore stay candidate-only and do not establish a
+feasible-policy ranked view. Nonempty old snapshots lack an independently bound
+evaluation-to-subject relation and are refused without rewriting; re-evaluate
+or provide a separately verified migration.
+
+A separate bounded comparison supports one candidate-grade objective from the
+registered `policy.evaluation.ex_ante_simulation@1.0.0` method. Runtime resolves
+each completed source in the authorized tenant/cell, replays the selected
+Foundry/AD01 inputs and whole-objective rule, and compares only sources with the
+same complete method, input layout, baseline, environment, registry, execution
+settings, and objective contract. The selected candidate's model source and
+actual binding must agree. Only the candidate and verified scenario input may
+vary. The planner emits a candidate-only, revalidation-required snapshot; the
+method-metric-comparison API reopens the completed scoped run and both source selections on
+each authorized read. This one-axis model-input contrast does not install a
+champion or establish external representativeness, causality, calibration,
+feasibility, legal permission, or publication authority. Unsupported or stale
+sources are limited rather than ranked.
+
+Current-run transfer history can use the existing manager when a complete
+`transfer_fingerprint` matches the actual space and objective rules. Replica
+metadata and proposal are retained. Fingerprint tenant and origin are declared,
+not independently authenticated; a semantic digest is not a Core artifact ID.
+The persisted funnel projection retains the selected source and actual traces,
+but arbitrary stages without selected source binding remain candidate-only.
+Authentication of a transfer-index producer, durable ticket serialization, a
+resolved candidate artifact for downstream artifact-only warm-start consumers,
+and external authority remain separate capabilities.
+
 ## Pareto Basis Declaration
 
 SearchConfig may receive caller-owned ParetoBasisScope values by view through
@@ -65,13 +127,13 @@ comparison basis and does not prove that the basis is complete or authoritative.
 
 ## Transfer source-scope binding
 
-LessonCard advances to schema 2.0, LessonIndexSnapshot and ParetoRegistrySnapshot to 3.0, and TransferSourceScope to 2.0. New lesson and Pareto transfer records use v3 namespaces whose full scope digest includes authenticated, unknown, or explicitly unscoped status. The persisted typed body carries the same status and fresh readers recompute the path/body binding before transfer. Existing v2 namespaces lack that status and remain legacy-unbound; they are not reinterpreted or rewritten. A missing binding is never inferred to mean unscoped. The locator binds bytes and scope fields but does not establish independent source authority.
+LessonCard advances to schema 2.0, LessonIndexSnapshot to 3.0, ParetoRegistrySnapshot to 3.1, and TransferSourceScope to 2.0. New lesson and Pareto transfer records use v3 namespaces whose full scope digest includes authenticated, unknown, or explicitly unscoped status. The persisted typed body carries the same status and fresh readers recompute the path/body binding before transfer. Existing v2 namespaces lack that status and remain legacy-unbound; they are not reinterpreted or rewritten. A missing binding is never inferred to mean unscoped. The locator binds bytes and scope fields but does not establish independent source authority.
 
 A live request AccessScope is reconciled with every supplied tenant hash at producer and fresh-consumer boundaries. A routed tenant without AccessScope, and an omitted tenant, remain unknown. Only an explicit tenant_scope_status=declared_unscoped declaration represents an unscoped source. Unknown-to-unknown matches remain candidate-only and carry the unknown status on both the source row and returned artifact; unknown cannot join an authenticated or declared-unscoped source, and cannot authorize cross-tenant opt-in. A lesson card's origin_tenant_hash is data, not owner proof: writers bind records to the explicit source TransferContext or active caller context.
 
 ## Transfer schema and request-scope admission
 
-New LessonCard writes use payload and manifest schema 2.0; exact historical 1.0 cards remain readable, and a later write emits 2.0. LessonIndexSnapshot and ParetoRegistrySnapshot new writes use schema 3.0. The Pareto parser recognizes historical 1.0, 2.0, and 2.1 forms plus current 3.0; an unknown version is a typed invalid-source refusal. Recognition does not establish source identity: active get_snapshot reads refuse unbound historical snapshots with SOURCE_BINDING_MISSING, and catalog transfer withholds them before returning seeds. LessonIndex 1.0 is also schema-recognized, but its active reader refuses a snapshot without source_scope. No reader infers source identity from a locator or unbound body. CAS lesson readers resolve the selected manifest profile, then require its kind, media type, schema name, and version to match the typed payload. A declaration/body mismatch is refused before transfer use.
+New LessonCard writes use payload and manifest schema 2.0; exact historical 1.0 cards remain readable, and a later write emits 2.0. LessonIndexSnapshot writes use schema 3.0; ParetoRegistrySnapshot writes use schema 3.1 and candidate identity rule `candidate_subject_v2`. The Pareto parser recognizes historical 1.0, 2.0, 2.1, and 3.0 forms plus current 3.1; an unknown version is a typed invalid-source refusal. A nonempty historical Pareto snapshot lacks a verified evaluation-to-subject binding and the active reader refuses it: its bytes remain unchanged for a separately verified migration or re-evaluation. Recognition does not establish source identity: active get_snapshot reads refuse unbound historical snapshots with SOURCE_BINDING_MISSING, and catalog transfer withholds them before returning seeds. LessonIndex 1.0 is also schema-recognized, but its active reader refuses a snapshot without source_scope. No reader infers source identity from a locator or unbound body. CAS lesson readers resolve the selected manifest profile, then require its kind, media type, schema name, and version to match the typed payload. A declaration/body mismatch is refused before transfer use.
 
 Only an absent context or an explicit null nested transfer_context means no nested scope was supplied. A malformed present context, nested scope, status, or cross-tenant flag is refused as INVALID_REQUEST_SCOPE; string truthiness and fallback defaults do not turn malformed data into an unknown candidate scope. Unknown remains candidate-only and does not establish ownership or cross-tenant authority. The shared intake reconciles every supplied task family, domain, run identifier, tenant hash, scope status, cross-tenant opt-in, and timestamp across outer mappings, nested/typed contexts, and explicit caller keywords before selecting a context or candidate fallback. Typed-context defaults that are absent from model_fields_set are fallback values, not declarations; contradictory present values and malformed present values are refused.
 

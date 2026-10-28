@@ -39,6 +39,7 @@ from polisyos.core.components import (
     ComponentKind,
     ComponentMetadata,
 )
+from polisyos.core.contracts.runtime import CompletedExAnteComparisonRequest
 from polisyos.core.contracts.trinity import TrinityBundleRef
 from polisyos.data_forge.read_api.academic import SKGQuery
 from polisyos.ir.trinity import TrinityBundle
@@ -47,10 +48,22 @@ from polisyos.lex.interventions import HierarchicalPolicySearchPlan
 from polisyos.pdc import WorldModelRecord
 from polisyos.scientist.evidence.sources import normalize_evidence_sources_config
 from polisyos.scientist.methods.search.contracts import (
+    CandidateProposal,
+    CandidateStrategyContext,
     ParetoBasisScope,
     ParetoViewAssessment,
     ParetoViewProjection,
 )
+from polisyos.scientist.methods.search.frontier import (
+    invoke_candidate_evaluator,
+    strategy_candidate_payload,
+)
+from polisyos.scientist.methods.search.pareto_registry import (
+    ParetoRegistry,
+    verify_policy_evaluation_source,
+)
+
+# isort: split
 from polisyos.scientist.methods.search.controller import (
     SearchIteration,
     SearchResult,
@@ -164,6 +177,7 @@ _SPEC = NodeSpec(
         "params.policy_loop_id",
         "params.policy_search_config",
         "params.policy_search_candidate_transfer",
+        "params.policy_search_completed_ex_ante_comparison",
         "params.hierarchical_policy_search_config",
         "params.cross_graph_evidence_config",
         "params.evidence_sources",
@@ -495,6 +509,7 @@ class HierarchicalPolicySearchAdapter:
         metadata: Mapping[str, Any] | None = None,
         initial_context: Mapping[str, Any] | None = None,
         candidate_only_seed_evaluations: list[Evaluation] | None = None,
+        source_store: Any | None = None,
     ) -> Any:
         resolved_candidate = self._resolve_candidate_payload(
             candidate,
@@ -502,7 +517,7 @@ class HierarchicalPolicySearchAdapter:
             metadata=metadata,
         )
         coordinator = HierarchicalSearchCoordinator(
-            config=self.instantiate_search_config(search_config)
+            config=self.instantiate_search_config(search_config), source_store=source_store
         )
         runtime_context = self.build_runtime_context(
             resolved_candidate,
@@ -589,7 +604,18 @@ class HierarchicalPolicySearchAdapter:
             state.current_level = PolicySearchLevel.PARAMETER
             base_context = dict(initial_context or {})
             for structure in accepted_structures:
-                candidate_payload = structure.candidate.as_search_payload()
+                proposal_context = CandidateStrategyContext(
+                    producer="policy_design",
+                    subject=structure.candidate.model_dump(mode="json", exclude_none=True),
+                    policy_schema=True,
+                    policy_transport=True,
+                )
+                candidate_payload = strategy_candidate_payload(proposal_context)
+                proposal = CandidateProposal(
+                    candidate_id=structure.candidate.candidate_id,
+                    payload=candidate_payload,
+                    strategy_context=proposal_context,
+                )
                 context = {
                     **base_context,
                     "loop_id": loop_id,
@@ -605,10 +631,17 @@ class HierarchicalPolicySearchAdapter:
                         ),
                     },
                 }
-                stage_b_result = stage_b_evaluator(candidate_payload, context)
+                stage_b_result = invoke_candidate_evaluator(
+                    stage_b_evaluator, candidate_payload, context, proposal
+                )
                 evaluation = _coerce_policy_evaluation(stage_b_result)
+                candidate_ref = _candidate_source_ref(stage_b_result.get("candidate_ref"))
+                evaluation_ref = _candidate_source_ref(stage_b_result.get("policy_evaluation_ref"))
+                source_verified = verify_policy_evaluation_source(
+                    coordinator._source_store, proposal, evaluation, candidate_ref, evaluation_ref
+                )
                 source_results = stage_b_result.get("simulation_results")
-                if evaluation is not None:
+                if evaluation is not None and source_verified:
                     objective_value, score_status = evaluation.legacy_scalar_proxy_for_search(
                         source_results if isinstance(source_results, dict) else None
                     )
@@ -653,7 +686,8 @@ class HierarchicalPolicySearchAdapter:
                                 float(objective_value) if objective_value is not None else None
                             ),
                             objective_details=[],
-                            is_promising=bool(stage_b_result.get("feasible", True)),
+                            is_promising=has_usable_score
+                            and bool(stage_b_result.get("feasible", True)),
                             stage_a_passed=True,
                             stage_b_result=stage_b_result,
                             duration_seconds=0.0,
@@ -661,6 +695,9 @@ class HierarchicalPolicySearchAdapter:
                             score_status=score_status,
                             score_assessment=score_assessment,
                             score_admission=score_admission,
+                            candidate_proposal=proposal,
+                            candidate_ref=candidate_ref,
+                            evaluation_ref=evaluation_ref,
                         )
                     ],
                     stopping_reason="parameter_search_not_required",
@@ -771,6 +808,12 @@ class RunHierarchicalPolicySearchNode:
         """
         try:
             transfer_intent = _candidate_only_transfer_intent_from_state(state)
+            raw_comparison = state.params.get("policy_search_completed_ex_ante_comparison")
+            comparison_request = (
+                CompletedExAnteComparisonRequest.model_validate(raw_comparison)
+                if "policy_search_completed_ex_ante_comparison" in state.params
+                else None
+            )
         except _POLICY_SEARCH_VALIDATION_ERRORS as exc:
             return NodeOutcome(
                 status="fail",
@@ -845,6 +888,7 @@ class RunHierarchicalPolicySearchNode:
                 search_config=search_config,
                 initial_context={"run_id": loop_id, "workflow_run_id": state.run_id},
                 candidate_only_seed_evaluations=candidate_only_seed_evaluations,
+                source_store=ctx.store,
                 stage_b_evaluator=lambda candidate_payload, context: _evaluate_candidate_payload(
                     ctx,
                     state,
@@ -859,7 +903,7 @@ class RunHierarchicalPolicySearchNode:
             )
             return NodeOutcome(status="fail", state=state, error=error)
 
-        selected_champion = _select_champion_candidate(search_result)
+        selected_champion = _select_champion_candidate(search_result, source_store=ctx.store)
         champion = selected_champion or candidate
 
         champion_trinity_ref = _persist_trinity_bundle(
@@ -875,6 +919,15 @@ class RunHierarchicalPolicySearchNode:
             transfer_limitation=transfer_limitation,
         )
 
+        # Search may have taken long enough for an earlier source selection to
+        # be replaced or revoked. Resolve both sources at final emission.
+        candidate_comparison = (
+            ParetoRegistry.rank_completed_ex_ante_candidates(
+                ctx=ctx, sources=comparison_request.sources
+            )
+            if comparison_request is not None
+            else None
+        )
         new_state = branch_state(
             state,
             write_paths=(
@@ -895,6 +948,11 @@ class RunHierarchicalPolicySearchNode:
                 None if selected_champion is None else selected_champion.candidate_hash()
             ),
             "champion_status": ("not_established" if selected_champion is None else "selected"),
+            "completed_ex_ante_candidate_comparison": (
+                candidate_comparison.model_dump(mode="json")
+                if candidate_comparison is not None
+                else None
+            ),
         }
         new_state.inputs[INPUT_TRINITY_BUNDLE_REF] = champion_trinity_ref
         if frontier_ref is not None:
@@ -1207,7 +1265,27 @@ def _evaluate_candidate_payload(
     )
     simulation_results = dict(evaluation_artifact.simulation_results)
     objective_value, score_status = evaluation.legacy_scalar_proxy_for_search(simulation_results)
+    candidate_ref = evaluation_ref = None
+    try:
+        from polisyos.core.artifacts import ensure_ir_artifact_store
+        from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
+            persist_policy_evaluation_vector,
+        )
+        from polisyos.scientist.policy_design.schema import persist_policy_candidate_schema
+
+        candidate_ref = persist_policy_candidate_schema(
+            ensure_ir_artifact_store(ctx.store), candidate, return_selected_profile=True
+        )
+        evaluation_ref = persist_policy_evaluation_vector(
+            ctx, candidate_ref=candidate_ref, evaluation_vector=evaluation
+        )
+    except (AttributeError, ImportError, OSError, RuntimeError, TypeError, ValueError):
+        # The computation remains a candidate observation. Missing selected
+        # source refs cannot establish rank or authority.
+        candidate_ref = evaluation_ref = None
     return {
+        "candidate_ref": candidate_ref.model_dump(mode="json") if candidate_ref else None,
+        "policy_evaluation_ref": evaluation_ref.model_dump(mode="json") if evaluation_ref else None,
         "status": "ok",
         "feasible": bool(evaluation.feasible),
         "objective_value": objective_value,
@@ -1270,10 +1348,21 @@ def _rejected_stage_b_result(
     }
 
 
-def _select_champion_candidate(search_result: Any) -> PolicyCandidateSchema | None:
+def _candidate_source_ref(value: Any) -> ArtifactRef | None:
+    if value is None:
+        return None
+    try:
+        return ArtifactRef.model_validate(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _select_champion_candidate(
+    search_result: Any, *, source_store: Any | None = None
+) -> PolicyCandidateSchema | None:
     ranked = [
         (record, rank_key)
-        for record in _iter_candidate_records(search_result)
+        for record in _iter_candidate_records(search_result, source_store=source_store)
         if (rank_key := _candidate_rank_key(record)) is not None
     ]
     ranked.sort(key=lambda item: item[1], reverse=True)
@@ -1282,7 +1371,9 @@ def _select_champion_candidate(search_result: Any) -> PolicyCandidateSchema | No
     return None
 
 
-def _iter_candidate_records(search_result: Any) -> list[_CandidateEvaluationRecord]:
+def _iter_candidate_records(
+    search_result: Any, *, source_store: Any | None = None
+) -> list[_CandidateEvaluationRecord]:
     records: list[_CandidateEvaluationRecord] = []
     for structure_id, result in search_result.state.parameter_search_results.items():
         for iteration in result.history:
@@ -1294,6 +1385,14 @@ def _iter_candidate_records(search_result: Any) -> list[_CandidateEvaluationReco
             )
             assessment = getattr(iteration, "score_assessment", None)
             evaluation = _coerce_policy_evaluation(getattr(iteration, "policy_evaluation", None))
+            if not verify_policy_evaluation_source(
+                source_store,
+                getattr(iteration, "candidate_proposal", None),
+                evaluation,
+                getattr(iteration, "candidate_ref", None),
+                getattr(iteration, "evaluation_ref", None),
+            ):
+                continue
             source_is_valid = (
                 evaluation.score_assessment_matches_channels(
                     source_results if isinstance(source_results, dict) else None
@@ -1473,7 +1572,7 @@ def _persist_frontier_report(
     search_result: Any,
     transfer_limitation: dict[str, str] | None = None,
 ) -> Any | None:
-    records = _iter_candidate_records(search_result)
+    records = _iter_candidate_records(search_result, source_store=ctx.store)
     if not records:
         return None
     entries_by_hash: dict[str, PolicyFrontierEntry] = {}

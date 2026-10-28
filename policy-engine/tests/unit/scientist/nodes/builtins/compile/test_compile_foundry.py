@@ -168,3 +168,68 @@ def test_compile_node_passes_explicit_metric_binding_and_stores_derived_ref(
     assert request.method_metric_bindings == [selection]
     assert outcome.state.artifacts_index[ARTIFACT_METHOD_METRIC_BINDING_SET_REF] == binding_set_ref
     assert ARTIFACT_METHOD_METRIC_BINDING_SET_REF not in state.artifacts_index
+
+
+def test_compile_node_threads_request_selected_metric_binding(
+    execution_context, minimal_state, cas_store, artifact_ref_factory
+):
+    """The workflow-state selection reaches the real compiler request contract."""
+    from polisyos.core.artifacts.store import PutOptions
+
+    trinity = cas_store.put_json(
+        {"fixture": "trinity"},
+        PutOptions(kind="ir.trinity_bundle", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    plan = cas_store.put_json(
+        {"fixture": "plan"},
+        PutOptions(kind="scientist.execution_plan", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    foundry = MagicMock()
+    foundry.compile.return_value = MagicMock(
+        ok=True,
+        compile_report_ref=artifact_ref_factory(kind="foundry.compile_report"),
+        exec_plan_ref=artifact_ref_factory(kind="foundry.exec_plan"),
+        derived_refs=[],
+    )
+    state = minimal_state.model_copy(deep=True)
+    state.inputs[INPUT_TRINITY_BUNDLE_REF] = trinity
+    state.execution_plan_ref = plan
+    selected = {"objective_id": "objective", "node_id": "method", "output_slot_id": "result"}
+    state.params["method_metric_bindings"] = [selected]
+    outcome = CompileFoundryNode().execute(replace(execution_context, foundry=foundry), state)
+    assert outcome.status == "ok", outcome.error
+    request = foundry.compile.call_args.args[1]
+    assert request.schema_version == "1.2"
+    assert request.method_metric_bindings == [MethodMetricBindingRequest.model_validate(selected)]
+    assert "params.method_metric_bindings" in CompileFoundryNode().spec.state_reads
+
+
+def test_compile_node_rejects_malformed_or_conflicting_metric_binding_before_foundry(
+    execution_context, minimal_state, artifact_ref_factory
+):
+    """Malformed request or competing selected sets cannot reach the compiler."""
+    foundry = MagicMock()
+    ctx = replace(execution_context, foundry=foundry)
+    state = minimal_state.model_copy(deep=True)
+    state.inputs[INPUT_TRINITY_BUNDLE_REF] = artifact_ref_factory(kind="ir.trinity_bundle")
+    selection = MethodMetricBindingRequest(objective_id="a", node_id="n", output_slot_id="result")
+    for raw in (
+        None,
+        "unexpected",
+        [{"objective_id": "a", "node_id": "n", "output_slot_id": "result", "extra": True}],
+        [selection.model_dump()] * 129,
+    ):
+        state.params["method_metric_bindings"] = raw
+        outcome = CompileFoundryNode().execute(ctx, state)
+        assert outcome.status == "fail", raw
+        assert outcome.error is not None and outcome.error.code == "node.invalid_state"
+        foundry.compile.assert_not_called()
+    state.params["method_metric_bindings"] = [
+        {"objective_id": "b", "node_id": "n", "output_slot_id": "result"}
+    ]
+    conflict = CompileFoundryNode(method_metric_bindings=(selection,)).execute(ctx, state)
+    assert conflict.status == "fail"
+    assert conflict.error is not None and "Conflicting" in conflict.error.message
+    foundry.compile.assert_not_called()

@@ -23,6 +23,7 @@ from polisyos.scientist.methods.search.contracts import (
     _EvaluationDisposition,
     _NativeSearchControllerPort,
 )
+from polisyos.scientist.methods.search.frontier import materialize_candidate_proposal
 
 logger = common_logger.get_logger(__name__)
 
@@ -38,7 +39,7 @@ class _NativeSearchServiceDriver:
 
     def __init__(self, lifecycle_owner: _NativeSearchControllerPort) -> None:
         self.owner = lifecycle_owner
-        self._pending_candidates: dict[str, dict[str, Any]] = {}
+        self._pending_candidates: dict[str, CandidateProposal] = {}
         self._completed_candidate_ids: set[str] = set()
         self._ask_iteration = 0
 
@@ -58,8 +59,26 @@ class _NativeSearchServiceDriver:
         )
 
         proposals: list[CandidateProposal] = []
-        pending: dict[str, dict[str, Any]] = {}
+        pending: dict[str, CandidateProposal] = {}
         for index, payload in enumerate(payloads):
+            if isinstance(payload, CandidateProposal):
+                proposal = deepcopy(payload)
+                candidate_id = proposal.candidate_id
+                materialize_candidate_proposal(proposal)
+                if proposal.metadata or proposal.service_iteration is not None:
+                    raise ValueError("candidate_service_context_already_present")
+                proposal.metadata = {"iteration": self._ask_iteration}
+                proposal.service_iteration = self._ask_iteration
+                materialize_candidate_proposal(proposal)
+                if (
+                    candidate_id in pending
+                    or candidate_id in self._pending_candidates
+                    or candidate_id in self._completed_candidate_ids
+                ):
+                    raise ValueError(f"duplicate search candidate id: {candidate_id}")
+                pending[candidate_id] = proposal
+                proposals.append(deepcopy(proposal))
+                continue
             if not isinstance(payload, dict):
                 raise TypeError("search candidate generators must return mappings")
             if "candidate_id" not in payload:
@@ -75,15 +94,15 @@ class _NativeSearchServiceDriver:
                 or candidate_id in self._completed_candidate_ids
             ):
                 raise ValueError(f"duplicate search candidate id: {candidate_id}")
-            candidate = deepcopy(payload)
-            pending[candidate_id] = candidate
-            proposals.append(
-                CandidateProposal(
-                    candidate_id=candidate_id,
-                    payload=deepcopy(candidate),
-                    metadata={"iteration": self._ask_iteration},
-                )
+            proposal = CandidateProposal(
+                candidate_id=candidate_id,
+                payload=deepcopy(payload),
+                metadata={"iteration": self._ask_iteration},
+                service_iteration=self._ask_iteration,
             )
+            materialize_candidate_proposal(proposal)
+            pending[candidate_id] = proposal
+            proposals.append(deepcopy(proposal))
 
         self._pending_candidates.update(pending)
         self._ask_iteration += 1
@@ -102,7 +121,8 @@ class _NativeSearchServiceDriver:
         if candidate_id not in self._pending_candidates:
             raise KeyError(candidate_id)
 
-        candidate = deepcopy(self._pending_candidates[candidate_id])
+        proposal = deepcopy(self._pending_candidates[candidate_id])
+        candidate = materialize_candidate_proposal(proposal)
         stage_b_result = self._stage_b_result(evaluation)
         self.owner._accept_tell(
             candidate=candidate,
@@ -113,6 +133,7 @@ class _NativeSearchServiceDriver:
             stage_a_passed=bool(evaluation.stage_a_passed),
             stage_b_result=stage_b_result,
             duration_seconds=float(evaluation.duration_seconds),
+            candidate_proposal=proposal,
         )
 
         del self._pending_candidates[candidate_id]
@@ -236,7 +257,7 @@ class _NativeSearchServiceDriver:
         *,
         initial_context: dict[str, Any],
         initial_candidate: dict[str, Any] | None,
-    ) -> tuple[list[dict[str, Any]], bool, str | None]:
+    ) -> tuple[list[dict[str, Any] | CandidateProposal], bool, str | None]:
         generated = initial_candidate is None
         batch = self.owner._generate_candidates(
             iteration=self.owner._run_state.evaluation_iterations,
@@ -269,7 +290,7 @@ class _NativeSearchServiceDriver:
     def _evaluate_batch(
         self,
         *,
-        batch: list[dict[str, Any]],
+        batch: list[dict[str, Any] | CandidateProposal],
         generated: bool,
         initial_context: dict[str, Any],
     ) -> str | None:

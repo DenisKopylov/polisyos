@@ -4948,6 +4948,136 @@ class ContentAdmittedObservationalRunIntent(BaseModel):
         return payload
 
 
+class CompletedExAnteCandidateSource(BaseModel):
+    """Lookup keys for a completed candidate source, never an authority claim."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    source_run_id: str = Field(min_length=1, max_length=128, strict=True)
+    candidate_ref: ArtifactRef
+
+    @model_validator(mode="after")
+    def _validate_source_selector(self) -> CompletedExAnteCandidateSource:
+        if (
+            self.candidate_ref.kind != "scientist.policy_design.candidate"
+            or self.candidate_ref.media_type != "application/json"
+            or self.candidate_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("completed_candidate_source_selected_ref_invalid")
+        return self
+
+
+class CompletedExAnteComparisonRequest(BaseModel):
+    """An explicit bounded set of selected-source lookup keys."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    sources: tuple[CompletedExAnteCandidateSource, ...] = Field(min_length=2, max_length=20)
+
+
+class CompletedExAnteCandidateObservation(BaseModel):
+    """One owner-recomputed candidate score; no feasibility claim is made."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    source: CompletedExAnteCandidateSource
+    candidate_hash: str = Field(strict=True, pattern=r"^sha256:[0-9a-f]{64}$")
+    minimized_score: float = Field(strict=True, allow_inf_nan=False)
+    maximizing_coordinate: float = Field(strict=True, allow_inf_nan=False)
+
+    @model_validator(mode="after")
+    def _validate_coordinate(self) -> CompletedExAnteCandidateObservation:
+        if self.maximizing_coordinate != -self.minimized_score:
+            raise ValueError("candidate_coordinate_does_not_match_score")
+        return self
+
+
+class CompletedExAnteCandidateRanking(BaseModel):
+    """One candidate-only comparison at a scoped live owner read."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    status: Literal["complete", "verification_missing", "invalid"]
+    authority_status: Literal["candidate_only"] = "candidate_only"
+    revalidation_required: Literal[True] = True
+    comparison_contract_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    observations: tuple[CompletedExAnteCandidateObservation, ...] = Field(default=(), max_length=20)
+    frontier_candidate_hashes: tuple[str, ...] = Field(default=(), max_length=20)
+    limitations: tuple[str, ...] = Field(default=(), max_length=32)
+
+    @model_validator(mode="after")
+    def _validate_candidate_only_shape(self) -> CompletedExAnteCandidateRanking:
+        if self.status == "complete":
+            if (
+                len(self.observations) < 2
+                or not self.comparison_contract_sha256
+                or not self.frontier_candidate_hashes
+                or self.limitations
+            ):
+                raise ValueError("completed_candidate_rank_requires_recomputed_sources")
+            ids = [item.candidate_hash for item in self.observations]
+            if (
+                len(ids) != len(set(ids))
+                or len(self.frontier_candidate_hashes) != len(set(self.frontier_candidate_hashes))
+                or not set(self.frontier_candidate_hashes) <= set(ids)
+            ):
+                raise ValueError("completed_candidate_rank_identity_mismatch")
+        elif (
+            self.comparison_contract_sha256 is not None
+            or self.observations
+            or self.frontier_candidate_hashes
+            or not self.limitations
+        ):
+            raise ValueError("limited_candidate_rank_requires_reason_only")
+        return self
+
+
+class MethodMetricCandidateScore(BaseModel):
+    """Current candidate-only score replayed from one completed Runtime source."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    status: Literal["selected", "verification_missing", "invalid"]
+    authority_status: Literal["candidate_only"] = "candidate_only"
+    revalidation_required: Literal[True] = True
+    candidate_ref: ArtifactRef | None = None
+    source_vector_ref: ArtifactRef | None = None
+    minimized_score: float | None = Field(default=None, strict=True, allow_inf_nan=False)
+    maximizing_coordinate: float | None = Field(default=None, strict=True, allow_inf_nan=False)
+    comparison_contract_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    limitations: tuple[str, ...] = Field(default_factory=tuple, max_length=32)
+
+    @model_validator(mode="after")
+    def _require_candidate_score_shape(self) -> MethodMetricCandidateScore:
+        if self.status == "selected":
+            if (
+                self.candidate_ref is None
+                or self.candidate_ref.kind != "scientist.policy_design.candidate"
+                or self.candidate_ref.media_type != "application/json"
+                or self.candidate_ref.manifest_profile_sha256 is None
+                or self.source_vector_ref is None
+                or self.source_vector_ref.kind != "scientist.policy_evaluation_vector"
+                or self.source_vector_ref.media_type != "application/json"
+                or self.source_vector_ref.manifest_profile_sha256 is None
+                or self.minimized_score is None
+                or not math.isfinite(self.minimized_score)
+                or self.maximizing_coordinate != -self.minimized_score
+                or not self.comparison_contract_sha256
+                or self.limitations
+            ):
+                raise ValueError("selected_method_metric_candidate_score_requires_source")
+        elif (
+            self.candidate_ref is not None
+            or self.source_vector_ref is not None
+            or self.minimized_score is not None
+            or self.maximizing_coordinate is not None
+            or self.comparison_contract_sha256 is not None
+            or not self.limitations
+        ):
+            raise ValueError("limited_method_metric_candidate_score_requires_reason_only")
+        return self
+
+
 class MethodMetricProjectionResponse(BaseModel):
     """Bounded API projection of owner-selected method metric rows."""
 
@@ -4959,6 +5089,7 @@ class MethodMetricProjectionResponse(BaseModel):
     vector_ref: ArtifactRef | None = None
     observations: tuple[JsonValue, ...] = Field(default_factory=tuple, max_length=8192)
     limitations: tuple[str, ...] = Field(default_factory=tuple, max_length=32)
+    candidate_score: MethodMetricCandidateScore | None = None
 
     @model_validator(mode="after")
     def _require_projection_shape(self) -> MethodMetricProjectionResponse:
@@ -4973,7 +5104,26 @@ class MethodMetricProjectionResponse(BaseModel):
                 raise ValueError("method_metric_projection_response_vector_required")
         elif self.vector_ref is not None or self.observations:
             raise ValueError("method_metric_projection_response_limited_shape_invalid")
+        if (
+            self.candidate_score is not None
+            and self.candidate_score.status == "selected"
+            and (
+                self.status != "selected"
+                or self.candidate_score.source_vector_ref != self.vector_ref
+            )
+        ):
+            raise ValueError("candidate_score_requires_current_method_projection")
         return self
+
+
+class CompletedExAnteCandidateComparisonResponse(BaseModel):
+    """Fresh scoped comparison; absence means no comparison was requested."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    meta: ApiMeta
+    run_id: str = Field(min_length=1, max_length=128)
+    candidate_comparison: CompletedExAnteCandidateRanking | None = None
 
 
 class MethodMetricProjectionSelection(BaseModel):
@@ -8575,6 +8725,11 @@ __all__ = [
     "CompareResponseStatus",
     "CompareRunResponse",
     "ComparisonFrame",
+    "CompletedExAnteCandidateComparisonResponse",
+    "CompletedExAnteCandidateObservation",
+    "CompletedExAnteCandidateRanking",
+    "CompletedExAnteCandidateSource",
+    "CompletedExAnteComparisonRequest",
     "CompletedMethodHTESource",
     "ContentAdmittedObservationalRunIntent",
     "CounterfactualMetric",
@@ -8655,6 +8810,7 @@ __all__ = [
     "MethodExecutionProducerDiagnostic",
     "MethodExecutionProducerEmissionDiagnostic",
     "MethodExecutionSelection",
+    "MethodMetricCandidateScore",
     "MethodMetricProjectionResponse",
     "MethodMetricProjectionSelection",
     "MobilityBoundsRequest",

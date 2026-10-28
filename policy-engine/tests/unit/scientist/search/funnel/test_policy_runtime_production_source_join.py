@@ -760,3 +760,80 @@ def test_production_backend_fiscal_source_survives_cas_packet_and_fresh_consumer
         assert fiscal_value is None
         assert fiscal_status is ObjectiveScoreStatus.INVALID
         _assert_fresh_consumer_rejects(consumer, selected_ticket, false_availability)
+
+
+def test_c48_public_vector_writer_does_not_establish_candidate_producer(
+    tmp_path: Path,
+) -> None:
+    """A public vector writer cannot prove which candidate produced its values."""
+    from polisyos.scientist.methods.search.contracts import (
+        CandidateProposal,
+        CandidateStrategyContext,
+        ParetoBasisScope,
+    )
+    from polisyos.scientist.methods.search.frontier import strategy_candidate_payload
+    from polisyos.scientist.methods.search.pareto_registry import (
+        ParetoRegistry,
+        ParetoView,
+        verify_policy_evaluation_source,
+    )
+    from polisyos.scientist.methods.search.transfer_context import TransferContext
+
+    # isort: split
+    from unit.scientist.search.test_pareto_transfer import _evaluation_vector
+
+    store = FileSystemCAS(tmp_path / "cas")
+    candidate = _policy_candidate()
+    candidate_ref = persist_policy_candidate_schema(store, candidate, return_selected_profile=True)
+    other = candidate.model_copy(update={"candidate_id": "other-candidate"})
+    other_vector = _evaluation_vector(other, employment=0.8)
+    vector = other_vector.model_copy(
+        update={
+            "candidate_id": candidate.candidate_id,
+            "metadata": {**other_vector.metadata, "candidate_hash": candidate.candidate_hash()},
+        }
+    )
+    vector_ref = policy_runtime_support.persist_policy_evaluation_vector_to_store(
+        store, candidate_ref=candidate_ref, evaluation_vector=vector
+    )
+    subject = CandidateStrategyContext(
+        producer="policy_design",
+        subject=candidate.model_dump(mode="json", exclude_none=True),
+        policy_schema=True,
+        policy_transport=True,
+    )
+    proposal = CandidateProposal(
+        candidate_id=candidate.candidate_id,
+        payload=strategy_candidate_payload(subject),
+        strategy_context=subject,
+    )
+    assert not verify_policy_evaluation_source(store, proposal, vector, candidate_ref, vector_ref)
+    altered = vector.model_copy(update={"candidate_id": "other-candidate"})
+    assert not verify_policy_evaluation_source(store, proposal, altered, candidate_ref, vector_ref)
+    scope = TransferContext(
+        task_family="policy", domain="fiscal", run_id="c48-source", tenant_hash="tenant-test"
+    )
+    registry = ParetoRegistry(tmp_path / "registry", source_store=store)
+    axes = sorted(vector.frontier_objectives("global_feasible"))
+    basis = ParetoBasisScope(scope="declared" if axes else "not_established", coordinate_ids=axes)
+    registry.update(
+        "c48-source",
+        candidate_hash=candidate.candidate_hash(),
+        evaluation=vector,
+        candidate_proposal=proposal,
+        seed_payload=proposal.payload,
+        candidate_ref=candidate_ref,
+        evaluation_ref=vector_ref,
+        transfer_context=scope,
+        seed_only=True,
+        objective_basis_by_view={"global_feasible": basis},
+    )
+    fresh_store = FileSystemCAS(tmp_path / "cas")
+    fresh = ParetoRegistry(tmp_path / "registry", source_store=fresh_store).get_snapshot(
+        "c48-source", transfer_context=scope
+    )
+    assert fresh.entries[candidate.candidate_hash()].evaluation_ref == vector_ref
+    assert not verify_policy_evaluation_source(
+        fresh_store, proposal, vector, candidate_ref, vector_ref
+    )
+    assert not fresh.project_view(ParetoView.GLOBAL_FEASIBLE).ranked_frontier_hashes

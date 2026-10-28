@@ -1,0 +1,15 @@
+id = "2026-10-28-e02-search-subject-identity"
+title = "Bind search identity to the evaluated subject"
+type = "changed"
+component = "scientist-search"
+owner = "team-policyos-runtime"
+summary = "Preserve evaluated candidate identity, retain current funnel gates, and add an owner-replayed candidate-only comparison for a bounded ex-ante method profile."
+evidence = ["tests/unit/scientist/search/test_candidate_identity_semantics.py"]
+compatibility = "Generic search candidates must be JSON-native; unknown semantic inputs move into payload. Policy-design evaluators receive the PolicyCandidateSchema JSON projection. Supplied hashes must match the evaluated subject. Pareto 3.1 refuses nonempty historical snapshots whose evaluation/subject binding cannot be independently established."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.scientist.methods.search candidate and Pareto contracts"
+migration = "Use CandidateStrategyContext only for the declared producer boundary; retain semantic fields in payload, re-evaluate or separately verify old unbound records, provide a complete producer-reconciled transfer fingerprint for history persistence, and regenerate any consumers of the changed DTO."
+api = "CandidateProposal carries the evaluator payload and typed strategy context; ParetoRegistrySnapshot schema 3.1 records candidate_subject_v2. A typed comparison request accepts selected completed-source pairs; the Runtime method-metric-comparison read replays the current candidate-only comparison."
+limitations = "Candidate-only model-input comparison; no policy feasibility, external causal validity, calibration, legal permission, or publication authority. Generic vectors do not establish producer provenance. Source proposition only until composed source, real Runtime workflows, fresh consumer, adversarial, removal, schema and client checks pass. Independent funnel requests execute fresh and live splits recheck gates. Durable ticket serialization, resolved warm-start artifact binding, and upstream index authentication remain separate. Policy suggestions with metadata ignored by the current policy consumer, including Bayesian acquisition_type, are refused before Stage A. A fingerprint does not authenticate tenant or origin."
+generated_client_compatibility = "requires_owner_review"
+public_surface_inventory_reviewed = false

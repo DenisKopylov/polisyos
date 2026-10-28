@@ -9,18 +9,18 @@ from copy import deepcopy
 from dataclasses import replace
 from datetime import UTC, datetime
 from decimal import Decimal
-from enum import Enum
 from typing import Any, Literal, Protocol, TypeGuard, runtime_checkable
 from uuid import uuid4
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.ir import TypedFailureCard
 from polisyos.scientist.methods.search.contracts import EvaluationBundle
 from polisyos.scientist.methods.search.funnel.types import (
     CheapSignalVector,
     DegradationMode,
+    FunnelAttemptHistory,
     FunnelCostOrigin,
     FunnelEvaluationStatus,
     FunnelExecutedWorkPacket,
@@ -50,10 +50,15 @@ from polisyos.scientist.methods.search.objective import (
     reconcile_objective_score_assessment,
     source_observation_input_refs,
 )
-from polisyos.scientist.methods.search.sentinels import (
-    extract_sentinel_metadata,
-    strip_internal_candidate_metadata,
+
+# isort: split
+from polisyos.scientist.methods.search.contracts import CandidateProposal
+from polisyos.scientist.methods.search.frontier import (
+    candidate_payloads_equal,
+    materialize_candidate_proposal,
+    policy_candidate_hash,
 )
+from polisyos.scientist.methods.search.sentinels import extract_sentinel_metadata
 from polisyos.scientist.methods.search.stages import CorrelationTracker
 from polisyos.scientist.methods.search.transfer_context import resolve_transfer_context
 from polisyos.scientist.methods.search.uncertainty import (
@@ -118,55 +123,6 @@ class _VOICalibrationStateUpdater(Protocol):
 
 AdvancePolicy = Literal["stage_a", "full", "burn_in"]
 _CONTINUABLE_ACTIONS = frozenset({"defer", "retry_cheaper"})
-_CACHE_VOLATILE_CONTEXT_KEYS = frozenset(
-    {
-        "attempt",
-        "created_at",
-        "fetched_at",
-        "generated_at",
-        "ingested_at",
-        "iteration",
-        "evaluation_iteration",
-        "generation_attempts",
-        "request_id",
-        "retrieved_at",
-        "retry",
-        "run_id",
-        "session_id",
-        "source_run_id",
-        "span_id",
-        "ticket_id",
-        "timestamp",
-        "trace_id",
-        "updated_at",
-    }
-)
-_CACHE_CONTEXT_IDENTITY_FRAGMENTS = (
-    "access",
-    "calibration",
-    "config",
-    "data",
-    "dataset",
-    "domain",
-    "effective",
-    "evaluation",
-    "method_metric",
-    "mode",
-    "model",
-    "purpose",
-    "replica",
-    "replicate",
-    "role",
-    "schema",
-    "scope",
-    "seed",
-    "settings",
-    "signature",
-    "task_family",
-    "tenant",
-    "transfer",
-)
-_UNSERIALIZABLE_CACHE_VALUE = object()
 _DEGRADATION_MODES: frozenset[DegradationMode] = frozenset(
     {
         "normal",
@@ -188,98 +144,54 @@ def _is_degradation_mode(value: object) -> TypeGuard[DegradationMode]:
 def _stable_payload_hash(payload: Any) -> str:
     """Return a deterministic short hash for orchestrator-local identities."""
 
-    try:
-        serialized = json.dumps(
-            payload,
-            sort_keys=True,
-            separators=(",", ":"),
-            default=str,
-        )
-    except TypeError:
-        serialized = repr(payload)
-    return hashlib.sha256(serialized.encode("utf-8")).hexdigest()[:16]
+    serialized = json.dumps(payload, sort_keys=True, separators=(",", ":"), allow_nan=False)
+    return hashlib.sha256(serialized.encode("utf-8")).hexdigest()
 
 
 def _stable_candidate_hash(candidate: dict[str, Any]) -> str:
     """Return a deterministic subject hash for orchestrator-local accounting."""
 
-    return _stable_payload_hash(strip_internal_candidate_metadata(candidate))
+    return policy_candidate_hash(candidate)
 
 
-def _is_volatile_cache_key(key: str) -> bool:
-    normalized = key.casefold()
-    return normalized in _CACHE_VOLATILE_CONTEXT_KEYS or normalized.endswith(
-        ("_at", "_ts", "_timestamp")
-    )
+class _BoundFunnelStageCallable:
+    """Carry producer and attempt context to this funnel owner, not to a stage."""
+
+    def __init__(
+        self, owner: FunnelOrchestrator, owner_call: Callable[..., Any], stage: str
+    ) -> None:
+        self._owner = owner
+        self._owner_call = owner_call
+        self._stage = stage
+
+    def __call__(self, candidate: dict[str, Any], context: dict[str, Any]) -> Any:
+        return self._owner_call(candidate, context, None, None)
+
+    def with_proposal(
+        self,
+        candidate: dict[str, Any],
+        context: dict[str, Any],
+        proposal: CandidateProposal | None,
+        prior_ticket_id: str | None,
+    ) -> Any:
+        return self._owner_call(candidate, context, proposal, prior_ticket_id)
 
 
-def _cache_identity_value(value: Any) -> Any:
-    """Project stable context identity while excluding runtime handles and timestamps."""
-
-    if isinstance(value, ArtifactRef):
-        return artifact_ref_identity_key(value)
-    if value is None or isinstance(value, (str, int, float, bool)):
-        return value
-    if isinstance(value, Enum):
-        return _cache_identity_value(value.value)
-    if isinstance(value, Mapping):
-        projected: dict[str, Any] = {}
-        for raw_key, raw_value in value.items():
-            key = str(raw_key)
-            if _is_volatile_cache_key(key):
-                continue
-            item = _cache_identity_value(raw_value)
-            if item is not _UNSERIALIZABLE_CACHE_VALUE:
-                projected[key] = item
-        return projected
-    if isinstance(value, (list, tuple)):
-        projected_items = []
-        for item in value:
-            projected = _cache_identity_value(item)
-            if projected is _UNSERIALIZABLE_CACHE_VALUE:
-                return _UNSERIALIZABLE_CACHE_VALUE
-            projected_items.append(projected)
-        return projected_items
-    if isinstance(value, (set, frozenset)):
-        projected_items = []
-        for item in value:
-            projected = _cache_identity_value(item)
-            if projected is _UNSERIALIZABLE_CACHE_VALUE:
-                return _UNSERIALIZABLE_CACHE_VALUE
-            projected_items.append(projected)
-        return sorted(projected_items, key=lambda item: repr(item))
-
-    artifact_id = getattr(value, "artifact_id", None)
-    if artifact_id is not None:
-        return str(artifact_id)
-    model_dump = getattr(value, "model_dump", None)
-    if callable(model_dump):
-        try:
-            return _cache_identity_value(model_dump(mode="json"))
-        except (AttributeError, RuntimeError, TypeError, ValueError):
-            return _UNSERIALIZABLE_CACHE_VALUE
-    return _UNSERIALIZABLE_CACHE_VALUE
+def _candidate_identity(candidate: dict[str, Any], proposal: CandidateProposal | None) -> str:
+    if proposal is not None:
+        if not candidate_payloads_equal(materialize_candidate_proposal(proposal), candidate):
+            raise ValueError("funnel_candidate_proposal_mismatch")
+        return policy_candidate_hash(proposal)
+    return policy_candidate_hash(candidate)
 
 
 def _stable_context_identity(context: Mapping[str, Any]) -> dict[str, Any]:
-    identity: dict[str, Any] = {}
-    for raw_key, raw_value in context.items():
-        key = str(raw_key)
-        normalized = key.casefold()
-        if _is_volatile_cache_key(key):
-            continue
-        is_identity_key = any(
-            fragment in normalized for fragment in _CACHE_CONTEXT_IDENTITY_FRAGMENTS
-        ) or normalized.endswith(("_ref", "_refs", "_version", "_versions"))
-        if not is_identity_key and not isinstance(
-            raw_value,
-            (str, int, float, bool, type(None)),
-        ):
-            continue
-        projected = _cache_identity_value(raw_value)
-        if projected is not _UNSERIALIZABLE_CACHE_VALUE:
-            identity[key] = projected
-    return identity
+    """Keep every JSON-native context input; opaque inputs disable reuse."""
+    value = dict(context)
+    # The same strict JSON-native owner is used for candidate and context.
+    # Its return value is not authority; this call validates lossless encoding.
+    policy_candidate_hash(value)
+    return deepcopy(value)
 
 
 def _funnel_score_admission(
@@ -554,14 +466,31 @@ class FunnelOrchestrator:
         context: dict[str, Any],
         *,
         search_uncertainty_owner_context: SearchUncertaintyOwnerTaskContext | None = None,
+        candidate_proposal: CandidateProposal | None = None,
+        _prior_attempt_id: str | None = None,
     ) -> FunnelTicket:
         """Submit a candidate to the orchestrator and return a reusable ticket."""
 
-        candidate_hash = _stable_candidate_hash(candidate)
+        candidate_hash = _candidate_identity(candidate, candidate_proposal)
         sentinel_meta = extract_sentinel_metadata(candidate) or {}
         ticket_context = dict(context)
+        prior_attempt_id = _prior_attempt_id
+        prior_attempt = None
+        if prior_attempt_id is not None:
+            if not isinstance(prior_attempt_id, str) or prior_attempt_id not in self._tickets:
+                raise ValueError("funnel_prior_attempt_unresolved")
+            prior_attempt = self._tickets[prior_attempt_id]
+            if not candidate_payloads_equal(prior_attempt.candidate, candidate):
+                raise ValueError("funnel_prior_attempt_candidate_mismatch")
+            if (
+                _candidate_identity(prior_attempt.candidate, prior_attempt.candidate_proposal)
+                != candidate_hash
+            ):
+                raise ValueError("funnel_prior_attempt_subject_mismatch")
         metric_projection_basis = ticket_context.pop("_funnel_method_metric_projection_basis", None)
         cache_context = dict(ticket_context)
+        if metric_projection_basis is not None:
+            cache_context["_funnel_method_metric_projection_basis"] = metric_projection_basis
         if search_uncertainty_owner_context is not None:
             cache_context["search_uncertainty_owner_context"] = (
                 search_uncertainty_owner_context.model_dump(mode="json", exclude_none=False)
@@ -569,37 +498,43 @@ class FunnelOrchestrator:
         if sentinel_meta:
             ticket_context.update(sentinel_meta)
             ticket_context["is_sentinel"] = True
-        continuation_key = self._continuation_context_key(candidate, cache_context)
         routing_mode = self._routing_mode(ticket_context)
-        cache_key = self._ticket_cache_key(
-            candidate,
-            cache_context,
-            sentinel_meta=sentinel_meta,
-            routing_mode=routing_mode,
-        )
-        cached_ticket = self._cached_ticket_for_key(cache_key, routing_mode=routing_mode)
-        reusable_result = (
-            cached_ticket
-            if cached_ticket is not None
-            and cached_ticket.is_terminal
-            and cached_ticket.final_action not in _CONTINUABLE_ACTIONS
-            else None
-        )
-        if cached_ticket is not None and reusable_result is None:
-            ticket = cached_ticket
-            ticket._set_method_metric_projection_basis(metric_projection_basis)
-            ticket.submitted_via_cache = True
-            for key, value in ticket_context.items():
-                ticket.context.setdefault(key, value)
-            for key, value in sentinel_meta.items():
-                ticket.context.setdefault(key, value)
-            if sentinel_meta:
-                ticket.context["is_sentinel"] = True
-            return ticket
-
-        previous_ticket = reusable_result or self._latest_ticket(
-            candidate_hash, continuation_key=continuation_key
-        )
+        try:
+            cache_key = self._ticket_cache_key(
+                candidate,
+                cache_context,
+                sentinel_meta=sentinel_meta,
+                routing_mode=routing_mode,
+            )
+        except (TypeError, ValueError):
+            # Opaque source handles cannot establish a reusable input basis.
+            cache_key = f"uncacheable:{uuid4()}"
+        # Reuse only the explicit live Stage A attempt handed back by this
+        # owner to its matching Stage B call. A separate request must run the
+        # current stage, lesson, correlation, uncertainty and access gates.
+        # Immutable selected Foundry/AD01 source computation remains reusable
+        # through its owner; a whole prior funnel result is not that source.
+        if prior_attempt is not None and search_uncertainty_owner_context is None:
+            try:
+                same_context = _stable_context_identity(
+                    self._ticket_effective_context(prior_attempt)
+                ) == _stable_context_identity(cache_context)
+            except (TypeError, ValueError):
+                same_context = False
+            if same_context:
+                # The ticket is the same live split, but mutable lessons,
+                # correlation, access and routing owners may have changed since
+                # Stage A. Rerun the gates instead of carrying their old results.
+                # Keep the physical trace and already-recorded attribution.
+                prior_attempt.stage_results.clear()
+                prior_attempt.current_level = None
+                prior_attempt.next_level = self._first_level()
+                prior_attempt.final_action = "advance"
+                prior_attempt.is_terminal = False
+                prior_attempt.last_scheduling_decision = None
+                prior_attempt.terminal_basis = None
+                prior_attempt.continuation_reason = "live_split_gates_rechecked"
+                return prior_attempt
         ticket_id = str(uuid4())
         uncertainty_ticket_id: str | None = None
         uncertainty_generation: int | None = None
@@ -625,8 +560,9 @@ class FunnelOrchestrator:
         ticket = FunnelTicket(
             ticket_id=ticket_id,
             candidate_hash=candidate_hash,
-            candidate=dict(candidate),
+            candidate=deepcopy(candidate),
             context=ticket_context,
+            candidate_proposal=deepcopy(candidate_proposal),
             next_level=self._first_level(),
             cache_key=cache_key,
             lineage=(ticket_id,),
@@ -637,29 +573,16 @@ class FunnelOrchestrator:
         if uncertainty_admission_failure is not None:
             ticket.context["search_uncertainty_admission_failure"] = uncertainty_admission_failure
         ticket._set_method_metric_projection_basis(metric_projection_basis)
-        if previous_ticket is not None:
-            ticket.parent_ticket_id = previous_ticket.ticket_id
-            ticket.lineage = (*previous_ticket.lineage, ticket_id)
-            if reusable_result is not None:
-                self._carry_forward_completed_result(reusable_result, ticket)
-            elif self._can_reuse_continuation(
-                previous_ticket,
-                continuation_key,
-                routing_mode=routing_mode,
-            ):
-                self._carry_forward_continuation(previous_ticket, ticket)
-            elif (
-                previous_ticket.is_terminal and previous_ticket.final_action in _CONTINUABLE_ACTIONS
-            ):
-                ticket.continuation_reason = "effective_context_changed"
+        if prior_attempt is not None:
+            # This is a distinct physical attempt. Retain the actual preceding
+            # ticket's trace regardless of unrelated cache/continuation lookup.
+            ticket.parent_ticket_id = prior_attempt.ticket_id
+            ticket.prior_attempt_ticket_id = prior_attempt.ticket_id
+            ticket.lineage = (*prior_attempt.lineage, ticket_id)
         store = ticket.context.get("store")
         candidate_ref = ticket.context.get("policy_candidate_ref")
         welfare_ref = ticket.context.get("welfare_bundle_ref")
-        if reusable_result is not None:
-            retained_risk_ref = reusable_result.context.get("welfare_candidate_observation_ref")
-            if isinstance(retained_risk_ref, ArtifactRef):
-                ticket.context["welfare_candidate_observation_ref"] = retained_risk_ref
-        elif (
+        if (
             store is not None
             and isinstance(candidate_ref, ArtifactRef)
             and isinstance(welfare_ref, ArtifactRef)
@@ -681,9 +604,8 @@ class FunnelOrchestrator:
             ) as exc:
                 logger.info("Candidate welfare observation withheld: %s", type(exc).__name__)
         self._tickets[ticket.ticket_id] = ticket
-        self._latest_ticket_by_candidate[candidate_hash] = ticket.ticket_id
-        self._latest_ticket_by_context[continuation_key] = ticket.ticket_id
-        self._ticket_cache[cache_key] = ticket.ticket_id
+        # The current request retains its ticket, but does not publish a
+        # reusable aggregate decision for a later independent request.
         return ticket
 
     @staticmethod
@@ -753,12 +675,34 @@ class FunnelOrchestrator:
                     break
 
             stage = self._stages_by_level[next_level]
-            result = _reconcile_funnel_score(
-                stage.evaluate(
-                    resolved_ticket.candidate,
-                    self._build_stage_context(resolved_ticket),
+            stage_candidate = deepcopy(resolved_ticket.candidate)
+            result = stage.evaluate(stage_candidate, self._build_stage_context(resolved_ticket))
+            try:
+                subject_unchanged = candidate_payloads_equal(
+                    stage_candidate, resolved_ticket.candidate
                 )
-            )
+            except (TypeError, ValueError):
+                subject_unchanged = False
+            if not subject_unchanged:
+                # Preserve the physical attempt and cost, but admit no score,
+                # work packet, routing decision or changed subject as the input.
+                resolved_ticket.trace.append(
+                    FunnelTraceStep(
+                        fidelity_level=next_level,
+                        stage_name=result.stage_name,
+                        objective_value=None,
+                        is_promising=False,
+                        duration_seconds=result.duration_seconds,
+                        compute_cost_usd=result.compute_cost_usd,
+                        compute_cost_origin=result.compute_cost_origin,
+                        score_status=ObjectiveScoreStatus.INVALID,
+                    )
+                )
+                resolved_ticket.final_action = "defer"
+                resolved_ticket.is_terminal = True
+                resolved_ticket.continuation_reason = "evaluated_subject_mutated"
+                break
+            result = _reconcile_funnel_score(result)
             work_packet_claim = self._admit_executed_work_packet(
                 resolved_ticket, result, next_level
             )
@@ -1076,6 +1020,25 @@ class FunnelOrchestrator:
             outcome_trace = deepcopy(resolved_ticket.trace)
             if any(result.executed_work_packet_status == "rejected" for result in ordered_results):
                 final_action, evaluation_status = "defer", "partial"
+        prior_history: list[FunnelAttemptHistory] = []
+        history_status: Literal["complete", "verification_missing"] = "complete"
+        seen_attempts = {resolved_ticket.ticket_id}
+        previous_id = resolved_ticket.prior_attempt_ticket_id
+        while previous_id is not None:
+            previous = self._tickets.get(previous_id)
+            if (
+                previous_id in seen_attempts
+                or previous is None
+                or previous.candidate_hash != resolved_ticket.candidate_hash
+            ):
+                history_status = "verification_missing"
+                break
+            seen_attempts.add(previous_id)
+            prior_history.append(
+                FunnelAttemptHistory(ticket_id=previous_id, trace=deepcopy(previous.trace))
+            )
+            previous_id = previous.prior_attempt_ticket_id
+        prior_history.reverse()
         return FunnelOutcome(
             ticket_id=resolved_ticket.ticket_id,
             candidate_hash=resolved_ticket.candidate_hash,
@@ -1099,6 +1062,14 @@ class FunnelOrchestrator:
             lineage=resolved_ticket.lineage,
             continuation_reason=resolved_ticket.continuation_reason,
             result_reuse_source_ticket_id=resolved_ticket.result_reuse_source_ticket_id,
+            prior_attempt_ticket_id=resolved_ticket.prior_attempt_ticket_id,
+            prior_attempt_trace=(
+                deepcopy(self._tickets[resolved_ticket.prior_attempt_ticket_id].trace)
+                if resolved_ticket.prior_attempt_ticket_id in self._tickets
+                else []
+            ),
+            prior_attempt_history=prior_history,
+            prior_attempt_history_status=history_status,
             evaluation_status=evaluation_status,
             current_uncertainty_envelope=current_uncertainty,
             uncertainty_observation_refs=_dedupe_artifact_refs(observation_refs),
@@ -1126,8 +1097,15 @@ class FunnelOrchestrator:
         def _stage_a(
             candidate: dict[str, Any],
             context: dict[str, Any],
+            proposal: CandidateProposal | None,
+            prior_ticket_id: str | None,
         ) -> EvaluationBundle:
-            ticket = self.submit(candidate, context)
+            ticket = self.submit(
+                candidate,
+                context,
+                candidate_proposal=proposal,
+                _prior_attempt_id=prior_ticket_id,
+            )
             outcome = self.advance(ticket, policy="stage_a")
             result = self._result_for_level(outcome, self._stage_a_execution_target())
             if result is None:
@@ -1168,6 +1146,7 @@ class FunnelOrchestrator:
                 score_admission=score_admission,
                 stage_a_passed=stage_a_passed,
                 metadata={
+                    "funnel_ticket_id": ticket.ticket_id,
                     "funnel_action": outcome.final_action,
                     "funnel_evaluation_status": outcome.evaluation_status,
                     "candidate_continuation": candidate_continuation,
@@ -1181,7 +1160,7 @@ class FunnelOrchestrator:
                 },
             )
 
-        return _stage_a
+        return _BoundFunnelStageCallable(self, _stage_a, "stage_a")
 
     def as_stage_b_callable(
         self,
@@ -1191,30 +1170,26 @@ class FunnelOrchestrator:
         def _stage_b(
             candidate: dict[str, Any],
             context: dict[str, Any],
+            proposal: CandidateProposal | None,
+            prior_ticket_id: str | None,
         ) -> dict[str, Any]:
-            sentinel_meta = extract_sentinel_metadata(candidate) or {}
-            routing_mode = self._routing_mode(context)
-            cache_key = self._ticket_cache_key(
+            ticket = self.submit(
                 candidate,
                 context,
-                sentinel_meta=sentinel_meta,
-                routing_mode=routing_mode,
+                candidate_proposal=proposal,
+                _prior_attempt_id=prior_ticket_id,
             )
-            cache_hit = (
-                self._cached_ticket_for_key(
-                    cache_key,
-                    routing_mode=routing_mode,
-                )
-                is not None
-            )
-            ticket = self.submit(candidate, context)
             outcome = self.advance(ticket, policy="full")
             stage_result = outcome.final_result or self._empty_result(candidate)
             result = self._compatibility_result(outcome, stage_result)
             feedback = dict(result.feedback)
             feedback["funnel_action"] = outcome.final_action
             feedback["funnel_degradation_mode"] = outcome.degradation_mode
-            feedback["funnel_cache"] = "hit" if cache_hit else "miss"
+            feedback["funnel_cache"] = (
+                "hit"
+                if prior_ticket_id is not None and ticket.ticket_id == prior_ticket_id
+                else "miss"
+            )
             return {
                 "simulation_results": result.simulation_results,
                 "feedback": feedback,
@@ -1224,7 +1199,7 @@ class FunnelOrchestrator:
                 "_funnel_outcome": outcome,
             }
 
-        return _stage_b
+        return _BoundFunnelStageCallable(self, _stage_b, "stage_b")
 
     def _ticket_cache_key(
         self,
@@ -1233,10 +1208,11 @@ class FunnelOrchestrator:
         *,
         sentinel_meta: Mapping[str, Any],
         routing_mode: DegradationMode,
+        candidate_proposal: CandidateProposal | None = None,
     ) -> str:
         return _stable_payload_hash(
             {
-                "candidate": strip_internal_candidate_metadata(candidate),
+                "candidate": policy_candidate_hash(candidate),
                 "context": _stable_context_identity(context),
                 "routing_mode": routing_mode,
                 "sentinel": _stable_context_identity(sentinel_meta),
@@ -1247,15 +1223,25 @@ class FunnelOrchestrator:
     def _continuation_context_key(
         candidate: dict[str, Any],
         context: Mapping[str, Any],
+        *,
+        candidate_proposal: CandidateProposal | None = None,
     ) -> str:
         """Identify the effective evaluation context independently of routing mode."""
 
         return _stable_payload_hash(
             {
-                "candidate": strip_internal_candidate_metadata(candidate),
+                "candidate": policy_candidate_hash(candidate),
                 "context": _stable_context_identity(context),
             }
         )
+
+    @staticmethod
+    def _ticket_effective_context(ticket: FunnelTicket) -> dict[str, Any]:
+        context = dict(ticket.context)
+        basis = getattr(ticket, "_method_metric_projection_basis", None)
+        if basis is not None:
+            context["_funnel_method_metric_projection_basis"] = basis
+        return context
 
     def _cached_ticket_for_key(
         self,
@@ -1267,6 +1253,18 @@ class FunnelOrchestrator:
         if cached_ticket_id is None:
             return None
         ticket = self._tickets[cached_ticket_id]
+        try:
+            current_key = self._ticket_cache_key(
+                ticket.candidate,
+                self._ticket_effective_context(ticket),
+                sentinel_meta=extract_sentinel_metadata(ticket.candidate) or {},
+                routing_mode=routing_mode,
+                candidate_proposal=ticket.candidate_proposal,
+            )
+        except (TypeError, ValueError):
+            return None
+        if current_key != cache_key:
+            return None
         if (
             ticket.is_terminal
             and ticket.final_action in _CONTINUABLE_ACTIONS
@@ -1303,7 +1301,12 @@ class FunnelOrchestrator:
         return bool(
             ticket.is_terminal
             and ticket.final_action in _CONTINUABLE_ACTIONS
-            and self._continuation_context_key(ticket.candidate, ticket.context) == continuation_key
+            and self._continuation_context_key(
+                ticket.candidate,
+                self._ticket_effective_context(ticket),
+                candidate_proposal=ticket.candidate_proposal,
+            )
+            == continuation_key
             and ticket.terminal_basis is not None
             and ticket.terminal_basis != self._continuation_basis(ticket, routing_mode=routing_mode)
         )

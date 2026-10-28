@@ -14,6 +14,7 @@ from uuid import uuid4
 
 from polisyos.scientist.methods.search.contracts import (
     CandidatePayload,
+    CandidateProposal,
     EvaluationBundle,
     SearchIteration,
     SearchResult,
@@ -29,7 +30,11 @@ from polisyos.scientist.methods.search.contracts import (
     _SearchCandidateGenerator as CandidateGenerator,
 )
 from polisyos.scientist.methods.search.frontier import (
+    candidate_payloads_equal,
     dominates,
+    funnel_prior_ticket_id,
+    invoke_candidate_evaluator,
+    materialize_candidate_proposal,
     policy_candidate_hash,
     update_legacy_pareto_front,
 )
@@ -257,6 +262,7 @@ class _SearchLifecycleOwner:
         stage_a_passed: bool,
         stage_b_result: dict[str, Any],
         duration_seconds: float,
+        candidate_proposal: CandidateProposal | None = None,
     ) -> SearchIteration:
         """Accept one ask/tell result through the lifecycle-owner transition.
 
@@ -266,12 +272,24 @@ class _SearchLifecycleOwner:
         malformed typed results (B123) without exposing private fields to the
         adapter.
         """
-        self._prepare_service_run()
+        if candidate_proposal is not None:
+            if not candidate_payloads_equal(
+                materialize_candidate_proposal(candidate_proposal), candidate
+            ):
+                raise ValueError("candidate_proposal_payload_mismatch")
         policy_resolution = self._resolve_policy_evaluation_with_status(
             candidate,
             stage_b_result,
+            candidate_proposal=candidate_proposal,
         )
         policy_evaluation = policy_resolution.value
+        self._validate_result_candidate_identity(
+            candidate, candidate_proposal, policy_evaluation, stage_b_result
+        )
+        candidate_ref, evaluation_ref, source_verified = self._resolve_policy_source(
+            candidate_proposal, policy_evaluation, stage_b_result
+        )
+        self._prepare_service_run()
         effective_objective = None
         effective_score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
         effective_assessment: ObjectiveScoreAssessment | None = None
@@ -309,6 +327,26 @@ class _SearchLifecycleOwner:
             reported_value=effective_objective,
         )
         is_sentinel = extract_sentinel_metadata(candidate) is not None
+        policy_subject = (
+            candidate_proposal is not None
+            and candidate_proposal.strategy_context is not None
+            and candidate_proposal.strategy_context.policy_schema
+        )
+        if (policy_subject or policy_evaluation is not None) and not source_verified:
+            effective_objective = None
+            effective_score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
+            effective_assessment = None
+            effective_details = []
+            effective_admission = reconcile_objective_score_assessment(
+                None,
+                source_results,
+                reported_status=effective_score_status,
+                reported_value=None,
+            )
+            if not is_sentinel and policy_evaluation is not None:
+                self._record_candidate_only_evaluation(
+                    candidate, candidate_proposal, policy_evaluation, candidate_ref, evaluation_ref
+                )
         feedback = stage_b_result.get("feedback")
         verdict = feedback.get("verdict") if isinstance(feedback, dict) else None
         accepted = (
@@ -329,16 +367,17 @@ class _SearchLifecycleOwner:
             and effective_score_status is ObjectiveScoreStatus.AVAILABLE
             and effective_objective is not None
         ):
-            if effective_objective < self._best_objective:
-                self._best_objective = effective_objective
-                self._best_candidate = deepcopy(candidate)
             if effective_details:
                 self._update_policy_or_legacy_frontier(
                     candidate=candidate,
                     objective_details=effective_details,
                     policy_evaluation=policy_evaluation,
                     stage_b_result=stage_b_result,
+                    candidate_proposal=candidate_proposal,
                 )
+            if effective_objective < self._best_objective:
+                self._best_objective = effective_objective
+                self._best_candidate = deepcopy(candidate)
 
         record = SearchIteration(
             iteration=self._run_state.evaluation_iterations,
@@ -350,11 +389,22 @@ class _SearchLifecycleOwner:
             stage_b_result=deepcopy(stage_b_result),
             duration_seconds=float(duration_seconds),
             policy_evaluation=deepcopy(policy_evaluation),
-            policy_evaluation_status=policy_resolution.status,
-            policy_evaluation_error=policy_resolution.reason,
+            policy_evaluation_status=(
+                "source_unverified"
+                if (policy_subject or policy_evaluation is not None) and not source_verified
+                else policy_resolution.status
+            ),
+            policy_evaluation_error=(
+                "policy_evaluation_source_unverified"
+                if (policy_subject or policy_evaluation is not None) and not source_verified
+                else policy_resolution.reason
+            ),
+            candidate_ref=candidate_ref,
+            evaluation_ref=evaluation_ref,
             score_status=effective_admission.status,
             score_assessment=effective_assessment,
             score_admission=effective_admission,
+            candidate_proposal=deepcopy(candidate_proposal),
         )
         transition = _EvaluationTransition(
             disposition=(
@@ -386,6 +436,7 @@ class _SearchLifecycleOwner:
 
     def _begin_native_run(self, initial_context: dict[str, Any]) -> datetime:
         """Initialize one native service run and seed its warm history."""
+        self._validate_transfer_basis()
         start_time = datetime.now(UTC)
         search_id = str(uuid4())[:8]
         self._reset_diversity_tracker(operation="reset_diversity_tracker")
@@ -426,18 +477,60 @@ class _SearchLifecycleOwner:
                 reported_status=score_status,
                 reported_value=obj_value,
             )
+            warm_candidate = deepcopy(eval_dict.get("candidate", {}))
+            proposal_data = eval_dict.get("candidate_proposal")
+            warm_proposal = (
+                CandidateProposal.model_validate(proposal_data)
+                if proposal_data is not None
+                else None
+            )
+            if warm_proposal is not None and not candidate_payloads_equal(
+                materialize_candidate_proposal(warm_proposal), warm_candidate
+            ):
+                raise ValueError("warm_start_candidate_subject_mismatch")
+            warm_resolution = self._resolve_policy_evaluation_with_status(
+                warm_candidate, stage_b_result or {}, candidate_proposal=warm_proposal
+            )
+            warm_vector = warm_resolution.value
+            warm_candidate_ref, warm_evaluation_ref, warm_verified = self._resolve_policy_source(
+                warm_proposal, warm_vector, stage_b_result or {}
+            )
+            warm_policy_subject = (
+                warm_proposal is not None
+                and warm_proposal.strategy_context is not None
+                and warm_proposal.strategy_context.policy_schema
+            )
+            if warm_resolution.status == "invalid" or (
+                (warm_policy_subject or warm_vector is not None) and not warm_verified
+            ):
+                score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
+                obj_value = None
+                assessment = None
+                admission = reconcile_objective_score_assessment(
+                    None, source_results, reported_status=score_status, reported_value=None
+                )
             record = SearchIteration(
                 iteration=-1,
-                candidate=deepcopy(eval_dict.get("candidate", {})),
+                candidate=warm_candidate,
                 objective_value=obj_value,
                 objective_details=[],
-                is_promising=eval_dict.get("is_promising", False),
+                is_promising=eval_dict.get("is_promising", False)
+                and admission.status is ObjectiveScoreStatus.AVAILABLE,
                 stage_a_passed=True,
                 stage_b_result=stage_b_result,
                 duration_seconds=0.0,
+                policy_evaluation=warm_vector,
+                policy_evaluation_status=(
+                    "source_unverified"
+                    if warm_policy_subject and not warm_verified
+                    else warm_resolution.status
+                ),
+                candidate_ref=warm_candidate_ref,
+                evaluation_ref=warm_evaluation_ref,
                 score_status=admission.status,
                 score_assessment=assessment,
                 score_admission=admission,
+                candidate_proposal=warm_proposal,
             )
             self._history.append(record)
             if (
@@ -456,6 +549,51 @@ class _SearchLifecycleOwner:
 
         controller_logger.info(f"Starting search {search_id}")
         return start_time
+
+    def _validate_transfer_basis(self) -> None:
+        """Reconcile transferable numeric history against the actual producer."""
+        fingerprint = self._config.transfer_fingerprint
+        if fingerprint is None:
+            return
+        from polisyos.scientist.methods.search.objective import (
+            configured_objective_rule_spec,
+            configured_objective_unit,
+        )
+        from polisyos.scientist.methods.search.strategies.adapter import StrategyAdapter
+        from polisyos.scientist.methods.search.strategies.transfer import (
+            RunFingerprint,
+            TransferLearningManager,
+        )
+
+        if (
+            type(self._generator) is not StrategyAdapter
+            or type(self._config.transfer_manager) is not TransferLearningManager
+        ):
+            raise ValueError("transfer_history_owner_or_producer_missing")
+        if type(fingerprint) is not RunFingerprint:
+            raise TypeError("transfer_history_fingerprint_required")
+        space = self._generator.search_space
+        for bound in space.bounds:
+            policy_candidate_hash({"categories": list(bound.categories or ())})
+        actual_bounds = {bound.name: [bound.lower, bound.upper] for bound in space.bounds}
+        objectives = self._config.objective.objectives
+        names = [item.name for item in objectives]
+        rules = {item.name: configured_objective_rule_spec(item) for item in objectives}
+        units = {
+            name: configured_objective_unit(rule)
+            for name, rule in rules.items()
+            if rule is not None
+        }
+        directions = {item.name: item.direction.value for item in objectives}
+        if (
+            fingerprint.space_hash != space.sobol_space_fingerprint()
+            or fingerprint.bounds != actual_bounds
+            or fingerprint.objective_names != names
+            or fingerprint.objective_rule_specs != rules
+            or fingerprint.units != units
+            or fingerprint.objective_directions != directions
+        ):
+            raise ValueError("transfer_history_fingerprint_producer_mismatch")
 
     def _finish_native_run(
         self,
@@ -493,6 +631,18 @@ class _SearchLifecycleOwner:
                 self._diversity_tracker.unique_mechanisms_total
             )
             telemetry["diversity_ratio"] = self._diversity_tracker.diversity_ratio
+        if self._config.transfer_manager is not None and self._config.transfer_fingerprint is None:
+            telemetry["transfer_history"] = {"status": "fingerprint_missing"}
+        if self._config.transfer_fingerprint is not None:
+            try:
+                telemetry["transfer_history"] = self._persist_transfer_history(snapshot)
+            except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                # The search result remains useful. A failed history write may
+                # have left an orphan artifact, so its publication is unconfirmed.
+                telemetry["transfer_history"] = {
+                    "status": "not_confirmed",
+                    "reason": type(exc).__name__,
+                }
         transition_payload = snapshot.generation_transition_payload()
         if transition_payload is not None:
             telemetry["generation_transition"] = transition_payload
@@ -512,6 +662,41 @@ class _SearchLifecycleOwner:
             pareto_projection=snapshot.pareto_projection,
             telemetry=deepcopy(telemetry),
         )
+
+    def _persist_transfer_history(self, snapshot: Any) -> dict[str, Any]:
+        self._validate_transfer_basis()
+        from polisyos.scientist.methods.search.strategies.adapter import StrategyAdapter
+        from polisyos.scientist.methods.search.strategies.transfer import (
+            RunFingerprint,
+            TransferLearningManager,
+        )
+
+        manager = self._config.transfer_manager
+        if (
+            type(manager) is not TransferLearningManager
+            or type(self._generator) is not StrategyAdapter
+        ):
+            raise ValueError("transfer_history_owner_or_producer_missing")
+        if type(self._config.transfer_fingerprint) is not RunFingerprint:
+            raise TypeError("transfer_history_fingerprint_required")
+        evaluations = self._generator.completed_run_evaluations(snapshot.history)
+        fingerprint = self._config.transfer_fingerprint.model_copy(
+            update={"run_id": snapshot.search_id}
+        )
+        if not manager._has_complete_binding_basis(fingerprint):
+            raise ValueError("transfer_history_fingerprint_incomplete")
+        admitted = [
+            item
+            for item in evaluations
+            if manager._evaluation_matches_fingerprint(item, fingerprint)
+        ]
+        fingerprint = fingerprint.model_copy(update={"num_evaluations": len(admitted)})
+        history_ref = manager.register_run(fingerprint, admitted)
+        return {
+            "status": "persisted" if history_ref is not None else "no_eligible_evaluations",
+            "history_ref": history_ref.model_dump(mode="json") if history_ref is not None else None,
+            "fingerprint": fingerprint.model_dump(mode="json"),
+        }
 
     def run(
         self,
@@ -680,7 +865,7 @@ class _SearchLifecycleOwner:
         iteration: int,
         initial_candidate: dict[str, Any] | None,
         context: dict[str, Any],
-    ) -> list[dict[str, Any]]:
+    ) -> list[dict[str, Any] | CandidateProposal]:
         if iteration == 0 and initial_candidate is not None:
             return [initial_candidate]
 
@@ -721,6 +906,22 @@ class _SearchLifecycleOwner:
                     batch_size = min(batch_size * 2, 16)
                 elif avg_duration > 30.0:
                     batch_size = max(1, batch_size // 2)
+        generate_proposal = getattr(self._generator, "generate_proposal", None)
+        generate_batch_proposals = getattr(self._generator, "generate_batch_proposals", None)
+        if batch_size > 1 and callable(generate_batch_proposals):
+            proposals = generate_batch_proposals(
+                self._history, self._best_candidate, effective_context, batch_size
+            )
+            if not all(isinstance(item, CandidateProposal) for item in proposals):
+                raise TypeError("search_candidate_proposal_required")
+            self._admit_generated_proposals(proposals)
+            return proposals
+        if callable(generate_proposal):
+            proposal = generate_proposal(self._history, self._best_candidate, effective_context)
+            if not isinstance(proposal, CandidateProposal):
+                raise TypeError("search_candidate_proposal_required")
+            self._admit_generated_proposals([proposal])
+            return [proposal]
         generate_batch = None
         if hasattr(self._generator, "generate_batch"):
             generate_batch = self._generator.generate_batch
@@ -739,13 +940,36 @@ class _SearchLifecycleOwner:
             )
         ]
 
+    def _admit_generated_proposals(self, proposals: list[CandidateProposal]) -> None:
+        """Admit producer context only from the actual StrategyAdapter boundary."""
+        from polisyos.scientist.methods.search.strategies.adapter import StrategyAdapter
+
+        for proposal in proposals:
+            if (
+                proposal.strategy_context is not None
+                and type(self._generator) is not StrategyAdapter
+            ):
+                raise ValueError("candidate_strategy_producer_unestablished")
+            if proposal.metadata or proposal.service_iteration is not None:
+                raise ValueError("candidate_service_context_already_present")
+            materialize_candidate_proposal(proposal)
+
     def _evaluate_candidate(
         self,
-        candidate: dict[str, Any],
+        candidate: dict[str, Any] | CandidateProposal,
         iteration: int,
         context: dict[str, Any],
     ) -> _EvaluationTransition:
-        candidate = deepcopy(candidate)
+        candidate_proposal = (
+            deepcopy(candidate) if isinstance(candidate, CandidateProposal) else None
+        )
+        candidate = (
+            materialize_candidate_proposal(candidate_proposal)
+            if candidate_proposal is not None
+            else deepcopy(candidate)
+        )
+        policy_candidate_hash(candidate_proposal or candidate)
+        stage_a_ticket: str | None = None
         iter_start = datetime.now(UTC)
         is_sentinel = extract_sentinel_metadata(candidate) is not None
 
@@ -754,10 +978,15 @@ class _SearchLifecycleOwner:
 
         if self._config.enable_stage_a:
             self._stage_a_count += 1
-            stage_a_result = self._stage_a(candidate, context)
+            stage_a_result = invoke_candidate_evaluator(
+                self._stage_a, deepcopy(candidate), context, candidate_proposal
+            )
             if isinstance(stage_a_result, EvaluationBundle):
                 stage_a_score = stage_a_result.objective_value
                 stage_a_passed = stage_a_result.stage_a_passed
+                stage_a_ticket = funnel_prior_ticket_id(
+                    self._stage_a, self._stage_b, stage_a_result
+                )
             else:
                 stage_a_score, stage_a_passed = stage_a_result
             if not stage_a_passed:
@@ -774,6 +1003,14 @@ class _SearchLifecycleOwner:
         objective_details: list[ObjectiveValue] = []
         policy_evaluation = None
         policy_resolution = _PolicyEvaluationResolution(value=None, status="missing")
+        policy_subject = (
+            candidate_proposal is not None
+            and candidate_proposal.strategy_context is not None
+            and candidate_proposal.strategy_context.policy_schema
+        )
+        candidate_ref = evaluation_ref = None
+        source_verified = False
+        sim_results: dict[str, Any] | None = None
         iter_duration = 0.0
 
         if stage_a_passed:
@@ -781,19 +1018,75 @@ class _SearchLifecycleOwner:
             arbiter = self._config.resource_arbiter
             if arbiter is not None:
                 with arbiter.acquire("jax"):
-                    stage_b_result = self._stage_b(candidate, context)
+                    stage_b_result = invoke_candidate_evaluator(
+                        self._stage_b,
+                        deepcopy(candidate),
+                        context,
+                        candidate_proposal,
+                        prior_ticket_id=stage_a_ticket,
+                    )
             else:
-                stage_b_result = self._stage_b(candidate, context)
+                stage_b_result = invoke_candidate_evaluator(
+                    self._stage_b,
+                    deepcopy(candidate),
+                    context,
+                    candidate_proposal,
+                    prior_ticket_id=stage_a_ticket,
+                )
 
             sim_results = stage_b_result.get("simulation_results", {})
             policy_resolution = self._resolve_policy_evaluation_with_status(
                 candidate,
                 stage_b_result,
+                candidate_proposal=candidate_proposal,
             )
             policy_evaluation = policy_resolution.value
+            try:
+                self._validate_result_candidate_identity(
+                    candidate, candidate_proposal, policy_evaluation, stage_b_result
+                )
+            except (TypeError, ValueError):
+                # Evaluation happened: retain its failure and the real stage
+                # counts, but do not update best, ranking or registry.
+                self._run_state.policy_evaluation_errors += 1
+                record = SearchIteration(
+                    iteration=iteration,
+                    candidate=deepcopy(candidate),
+                    objective_value=None,
+                    objective_details=[],
+                    is_promising=False,
+                    stage_a_passed=stage_a_passed,
+                    stage_b_result=deepcopy(stage_b_result),
+                    duration_seconds=(datetime.now(UTC) - iter_start).total_seconds(),
+                    policy_evaluation_status="invalid",
+                    policy_evaluation_error="candidate_identity_mismatch",
+                    score_status=ObjectiveScoreStatus.INVALID,
+                    candidate_proposal=candidate_proposal,
+                )
+                return _EvaluationTransition(
+                    disposition=(
+                        _EvaluationDisposition.SENTINEL
+                        if is_sentinel
+                        else _EvaluationDisposition.ORDINARY
+                    ),
+                    record=record,
+                )
+            candidate_ref, evaluation_ref, source_verified = self._resolve_policy_source(
+                candidate_proposal, policy_evaluation, stage_b_result
+            )
             if policy_resolution.status == "invalid":
                 self._run_state.policy_evaluation_errors += 1
                 score_status = ObjectiveScoreStatus.INVALID
+            elif (policy_subject or policy_evaluation is not None) and not source_verified:
+                score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
+                if not is_sentinel and policy_evaluation is not None:
+                    self._record_candidate_only_evaluation(
+                        candidate,
+                        candidate_proposal,
+                        policy_evaluation,
+                        candidate_ref,
+                        evaluation_ref,
+                    )
             elif policy_evaluation is not None:
                 selected = self._config.objective.evaluate(sim_results)
                 score_status = selected.score_status
@@ -822,19 +1115,6 @@ class _SearchLifecycleOwner:
                     objective_value = None
 
             if (
-                policy_resolution.status != "invalid"
-                and not is_sentinel
-                and score_status is ObjectiveScoreStatus.AVAILABLE
-                and objective_value is not None
-                and objective_value < self._best_objective
-            ):
-                self._best_objective = objective_value
-                self._best_candidate = deepcopy(candidate)
-                controller_logger.info(
-                    f"Iteration {iteration}: New best objective = {objective_value:.6f}"
-                )
-
-            if (
                 not is_sentinel
                 and policy_resolution.status != "invalid"
                 and score_status is ObjectiveScoreStatus.AVAILABLE
@@ -845,7 +1125,14 @@ class _SearchLifecycleOwner:
                     objective_details=objective_details,
                     policy_evaluation=policy_evaluation,
                     stage_b_result=stage_b_result,
+                    candidate_proposal=candidate_proposal,
                 )
+                if objective_value < self._best_objective:
+                    self._best_objective = objective_value
+                    self._best_candidate = deepcopy(candidate)
+                    controller_logger.info(
+                        f"Iteration {iteration}: New best objective = {objective_value:.6f}"
+                    )
 
         score_admission = reconcile_objective_score_assessment(
             score_assessment,
@@ -871,11 +1158,22 @@ class _SearchLifecycleOwner:
             stage_b_result=deepcopy(stage_b_result),
             duration_seconds=iter_duration,
             policy_evaluation=deepcopy(policy_evaluation),
-            policy_evaluation_status=policy_resolution.status,
-            policy_evaluation_error=policy_resolution.reason,
+            policy_evaluation_status=(
+                "source_unverified"
+                if (policy_subject or policy_evaluation is not None) and not source_verified
+                else policy_resolution.status
+            ),
+            policy_evaluation_error=(
+                "policy_evaluation_source_unverified"
+                if (policy_subject or policy_evaluation is not None) and not source_verified
+                else policy_resolution.reason
+            ),
             score_status=score_status,
             score_assessment=score_assessment,
             score_admission=score_admission,
+            candidate_proposal=candidate_proposal,
+            candidate_ref=candidate_ref,
+            evaluation_ref=evaluation_ref,
         )
         if not is_sentinel and self._diversity_tracker is not None:
             self._diversity_tracker.record_iteration(candidate)
@@ -1002,6 +1300,8 @@ class _SearchLifecycleOwner:
         self,
         candidate: dict[str, Any],
         stage_b_result: dict[str, Any] | None,
+        *,
+        candidate_proposal: CandidateProposal | None = None,
     ) -> _PolicyEvaluationResolution:
         """Resolve typed evaluation input without conflating absent and invalid data."""
         if not stage_b_result:
@@ -1085,6 +1385,26 @@ class _SearchLifecycleOwner:
                 reason="policy_evaluation_bundle_parse_failed",
             )
 
+        bound_policy_candidate = None
+        if (
+            candidate_proposal is not None
+            and candidate_proposal.strategy_context is not None
+            and candidate_proposal.strategy_context.policy_schema
+        ):
+            materialize_candidate_proposal(candidate_proposal)
+            bound_policy_candidate = PolicyCandidateSchema.model_validate(
+                candidate_proposal.strategy_context.subject
+            )
+            if (
+                bundle.candidate is not None
+                and bundle.candidate.candidate_hash() != bound_policy_candidate.candidate_hash()
+            ):
+                return _PolicyEvaluationResolution(
+                    value=None, status="invalid", reason="policy_bundle_candidate_mismatch"
+                )
+            if bundle.candidate is None:
+                bundle = bundle.model_copy(update={"candidate": bound_policy_candidate})
+
         if bundle.candidate is None:
             candidate_schema = stage_b_result.get("_policy_candidate_schema") or stage_b_result.get(
                 "policy_candidate"
@@ -1125,6 +1445,19 @@ class _SearchLifecycleOwner:
                         exc=exc,
                     )
 
+        if (
+            bound_policy_candidate is None
+            and bundle.candidate is not None
+            and candidate_proposal is None
+        ):
+            try:
+                if candidate_payloads_equal(
+                    candidate, bundle.candidate.model_dump(mode="json", exclude_none=True)
+                ):
+                    bound_policy_candidate = bundle.candidate
+            except (TypeError, ValueError):
+                pass
+
         try:
             evaluation = objective_stack.evaluate(bundle)
             try:
@@ -1151,6 +1484,19 @@ class _SearchLifecycleOwner:
                     status="invalid",
                     reason="objective_stack_returned_invalid_vector",
                 )
+            if bound_policy_candidate is None:
+                return _PolicyEvaluationResolution(
+                    value=None, status="invalid", reason="policy_bundle_subject_unbound"
+                )
+            identity = policy_candidate_hash(candidate_proposal or candidate)
+            supplied = normalized.metadata.get("candidate_hash")
+            if supplied not in (None, "", identity):
+                return _PolicyEvaluationResolution(
+                    value=None, status="invalid", reason="policy_bundle_candidate_mismatch"
+                )
+            normalized = normalized.model_copy(
+                update={"metadata": {**normalized.metadata, "candidate_hash": identity}}
+            )
             return _PolicyEvaluationResolution(value=normalized, status="valid")
         except _SEARCH_DEGRADED_ERRORS as exc:
             _search_degraded(
@@ -1164,6 +1510,64 @@ class _SearchLifecycleOwner:
                 reason="objective_stack_evaluation_failed",
             )
 
+    def _resolve_policy_source(
+        self,
+        proposal: CandidateProposal | None,
+        evaluation: PolicyEvaluationVector | None,
+        stage_b_result: dict[str, Any],
+    ) -> tuple[Any | None, Any | None, bool]:
+        from polisyos.core.artifacts.manifest import ArtifactRef
+        from polisyos.scientist.methods.search.pareto_registry import (
+            verify_policy_evaluation_source,
+        )
+
+        def ref(value: Any) -> ArtifactRef | None:
+            if value is None:
+                return None
+            try:
+                return ArtifactRef.model_validate(value)
+            except (TypeError, ValueError):
+                return None
+
+        candidate_ref = ref(stage_b_result.get("candidate_ref"))
+        evaluation_ref = ref(stage_b_result.get("policy_evaluation_ref"))
+        store = self._config.policy_source_store
+        if store is None and self._config.pareto_registry is not None:
+            store = self._config.pareto_registry._source_store
+        return (
+            candidate_ref,
+            evaluation_ref,
+            verify_policy_evaluation_source(
+                store, proposal, evaluation, candidate_ref, evaluation_ref
+            ),
+        )
+
+    def _record_candidate_only_evaluation(
+        self,
+        candidate: dict[str, Any],
+        proposal: CandidateProposal | None,
+        evaluation: PolicyEvaluationVector,
+        candidate_ref: Any | None,
+        evaluation_ref: Any | None,
+    ) -> None:
+        registry = self._config.pareto_registry
+        if registry is None:
+            return
+        from polisyos.scientist.methods.search.transfer_context import resolve_transfer_context
+
+        transfer = resolve_transfer_context(candidate=candidate, fallback_run_id=self._search_id)
+        registry.update(
+            self._search_id,
+            candidate_hash=policy_candidate_hash(proposal or candidate),
+            evaluation=evaluation,
+            candidate_ref=candidate_ref,
+            evaluation_ref=evaluation_ref,
+            seed_payload=dict(candidate),
+            candidate_proposal=proposal,
+            seed_only=True,
+            transfer_context=transfer,
+        )
+
     def _update_policy_or_legacy_frontier(
         self,
         *,
@@ -1171,6 +1575,7 @@ class _SearchLifecycleOwner:
         objective_details: list[ObjectiveValue],
         policy_evaluation: PolicyEvaluationVector | None,
         stage_b_result: dict[str, Any] | None,
+        candidate_proposal: CandidateProposal | None = None,
     ) -> None:
         registry = self._config.pareto_registry
         source_results = (
@@ -1202,6 +1607,7 @@ class _SearchLifecycleOwner:
                 candidate=candidate,
                 policy_evaluation=policy_evaluation,
                 stage_b_result=stage_b_result or {},
+                candidate_proposal=candidate_proposal,
             )
             registry.update(
                 self._search_id,
@@ -1209,12 +1615,14 @@ class _SearchLifecycleOwner:
                 evaluation=policy_evaluation,
                 candidate_id=policy_evaluation.candidate_id,
                 candidate_ref=(stage_b_result or {}).get("candidate_ref"),
+                evaluation_ref=(stage_b_result or {}).get("policy_evaluation_ref"),
                 policy_family=(str(policy_evaluation.metadata.get("policy_family") or "") or None),
                 promotion_metadata={
                     "iteration": len(self._history),
                     "feedback": dict((stage_b_result or {}).get("feedback", {})),
                 },
                 seed_payload=dict(candidate),
+                candidate_proposal=candidate_proposal,
                 task_family=(
                     transfer_context.task_family if transfer_context is not None else None
                 ),
@@ -1233,7 +1641,24 @@ class _SearchLifecycleOwner:
             return
 
         if objective_details:
-            self._update_pareto_front(candidate, objective_details)
+            self._update_pareto_front(candidate, objective_details, candidate_proposal)
+
+    @staticmethod
+    def _validate_result_candidate_identity(
+        candidate: dict[str, Any],
+        candidate_proposal: CandidateProposal | None,
+        policy_evaluation: PolicyEvaluationVector | None,
+        stage_b_result: dict[str, Any],
+    ) -> str:
+        metadata_hash = (
+            policy_evaluation.metadata.get("candidate_hash") if policy_evaluation else None
+        )
+        explicit_hash = stage_b_result.get("candidate_hash")
+        return policy_candidate_hash(
+            candidate_proposal or candidate,
+            metadata_hash=metadata_hash,
+            explicit_hash=explicit_hash,
+        )
 
     @staticmethod
     def _policy_candidate_hash(
@@ -1241,19 +1666,25 @@ class _SearchLifecycleOwner:
         candidate: dict[str, Any],
         policy_evaluation: PolicyEvaluationVector,
         stage_b_result: dict[str, Any],
+        candidate_proposal: CandidateProposal | None = None,
     ) -> str:
-        metadata_hash = str(policy_evaluation.metadata.get("candidate_hash", "")).strip()
+        metadata_hash = policy_evaluation.metadata.get("candidate_hash")
+        if metadata_hash is not None and not isinstance(metadata_hash, str):
+            raise ValueError("candidate_identity_supplied_hash_invalid")
         explicit = stage_b_result.get("candidate_hash")
+        if explicit is not None and not isinstance(explicit, str):
+            raise ValueError("candidate_identity_supplied_hash_invalid")
         return policy_candidate_hash(
-            candidate,
+            candidate_proposal or candidate,
             metadata_hash=metadata_hash,
-            explicit_hash=explicit if isinstance(explicit, str) else None,
+            explicit_hash=explicit,
         )
 
     def _update_pareto_front(
         self,
         candidate: dict[str, Any],
         objectives: list[ObjectiveValue],
+        candidate_proposal: CandidateProposal | None = None,
     ) -> None:
         """Update the Pareto front with a new candidate if non-dominated."""
         self._pareto_points = update_legacy_pareto_front(
@@ -1261,6 +1692,7 @@ class _SearchLifecycleOwner:
             candidate=candidate,
             objectives=objectives,
             cap=100,
+            proposal=candidate_proposal,
         )
         self._pareto_front = [point.as_payload() for point in self._pareto_points]
 

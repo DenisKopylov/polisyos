@@ -1977,6 +1977,13 @@ if TYPE_CHECKING:
         OwnedHTERequestContextV1 as _OwnedHTERequestContextV1,
     )
     from polisyos.core.contracts.runtime import (
+        CompletedExAnteCandidateRanking,
+        MethodExecutionProducerDiagnostic,
+        MethodExecutionSelection,
+        MethodMetricCandidateScore,
+        SearchUncertaintyTaskAdmissionSnapshot,
+    )
+    from polisyos.core.contracts.runtime import (
         ContentAdmittedObservationalRunIntent as _ContentAdmittedObservationalRunIntent,
     )
     from polisyos.core.contracts.runtime import (
@@ -1987,11 +1994,6 @@ if TYPE_CHECKING:
     )
     from polisyos.core.contracts.runtime import (
         GraphMethodExecutionSelection as _GraphMethodExecutionSelection,
-    )
-    from polisyos.core.contracts.runtime import (
-        MethodExecutionProducerDiagnostic,
-        MethodExecutionSelection,
-        SearchUncertaintyTaskAdmissionSnapshot,
     )
     from polisyos.core.contracts.runtime import (
         ObservationalInputResourcePolicy as _ObservationalInputResourcePolicy,
@@ -9008,6 +9010,204 @@ class ControlPlaneService(
             tenant_id=tenant_id,
             cell_id=cell_id,
         )
+
+    def read_current_completed_ex_ante_candidate_score(
+        self,
+        *,
+        run_id: str,
+        tenant_id: str,
+        cell_id: str,
+    ) -> MethodMetricCandidateScore:
+        """Reopen one authorized completed source and recompute a candidate score."""
+        from polisyos.core.contracts.runtime import MethodMetricCandidateScore
+        from polisyos.scientist.nodes.builtins.decide.policy_runtime_method_metrics import (
+            _MethodMetricProjectionArtifactStore,
+            read_completed_admitted_method_metric_projection,
+            recompute_completed_ex_ante_rank_projection,
+        )
+
+        def limited(reason: str) -> MethodMetricCandidateScore:
+            return MethodMetricCandidateScore(status="verification_missing", limitations=(reason,))
+
+        try:
+            selection = self.get_method_execution_selection(
+                run_id=run_id, tenant_id=tenant_id, cell_id=cell_id
+            )
+            candidate_ref = getattr(selection, "source_candidate_ref", None)
+            if not isinstance(candidate_ref, ArtifactRef):
+                return limited("completed_candidate_selection_not_established")
+            store = _require_bounded_store_protocol(
+                self._artifact_store,
+                _MethodMetricProjectionArtifactStore,
+                limits=self._observational_read_limits(),
+                refusal_code="canon_profile_bounded_stream_unavailable",
+                failure_stage="completed_ex_ante_rank_reader_preflight",
+            )
+            read = read_completed_admitted_method_metric_projection(
+                store,
+                owner=self,
+                source_run_id=run_id,
+                candidate_ref=candidate_ref,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+            )
+            if read.status != "selected" or read.basis is None:
+                return limited("completed_candidate_selection_not_established")
+            basis = read.basis
+            identity = (
+                basis.cache_source_identity(),
+                basis.candidate_ref,
+                basis.source_state_ref,
+                basis.vector_ref,
+                basis.verifier_revision,
+                basis.verifier_implementation_sha256,
+            )
+            score = recompute_completed_ex_ante_rank_projection(
+                store, basis=basis, candidate_ref=candidate_ref
+            )
+            if score.status != "selected":
+                return limited("completed_ex_ante_profile_not_established")
+            # The source may have been revoked or replaced while the bounded
+            # replay was running. Reselect through Runtime before emission.
+            current = read_completed_admitted_method_metric_projection(
+                store,
+                owner=self,
+                source_run_id=run_id,
+                candidate_ref=candidate_ref,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+            )
+            if current.status != "selected" or current.basis is None:
+                return limited("completed_candidate_selection_no_longer_current")
+            basis = current.basis
+            if (
+                basis.cache_source_identity(),
+                basis.candidate_ref,
+                basis.source_state_ref,
+                basis.vector_ref,
+                basis.verifier_revision,
+                basis.verifier_implementation_sha256,
+            ) != identity:
+                return limited("completed_candidate_selection_changed_during_replay")
+            return MethodMetricCandidateScore(
+                status="selected",
+                candidate_ref=candidate_ref,
+                source_vector_ref=basis.vector_ref,
+                minimized_score=score.minimized_score,
+                maximizing_coordinate=score.maximizing_coordinate,
+                comparison_contract_sha256=score.comparison_contract_sha256,
+            )
+        except (AttributeError, OSError, RuntimeError, TypeError, ValueError):
+            return limited("completed_candidate_source_replay_unavailable")
+
+    def read_current_completed_ex_ante_comparison(
+        self,
+        *,
+        run_id: str,
+        tenant_id: str,
+        cell_id: str,
+    ) -> CompletedExAnteCandidateRanking | None:
+        """Replay a completed run's bounded candidate comparison under live scope."""
+        from types import SimpleNamespace
+
+        from polisyos.core.artifacts import read_core_json_artifact_bounded
+        from polisyos.core.artifacts.canonical_profile import validate_core_model_bounded_read
+        from polisyos.core.contracts.runtime import (
+            CompletedExAnteCandidateRanking,
+            CompletedExAnteComparisonRequest,
+        )
+        from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry
+        from polisyos.scientist.nodes.builtins.decide.policy_runtime_method_metrics import (
+            _MethodMetricProjectionArtifactStore,
+        )
+        from polisyos.scientist.orchestration.engine.state import ExperimentState
+
+        def limited(reason: str) -> CompletedExAnteCandidateRanking:
+            return CompletedExAnteCandidateRanking(
+                status="verification_missing", limitations=(reason,)
+            )
+
+        try:
+            record = self._control_store.get_unique_completed_job_by_run_and_kind(
+                run_id=run_id, kind="workflow_run"
+            )
+            if record is None:
+                return limited("completed_comparison_run_not_established")
+            created = self._control_store.get_job_created_event_payload(record.job_id)
+            scope = created.get("execution_scope")
+            if (
+                created.get("job_id") != record.job_id
+                or created.get("run_id") != run_id
+                or created.get("job_kind") != "workflow_run"
+                or not isinstance(scope, Mapping)
+                or scope.get("tenant_id") != tenant_id
+                or scope.get("cell_id") != cell_id
+            ):
+                return limited("completed_comparison_run_scope_not_established")
+            state_ref = self._terminal_experiment_state_ref_for_control_job(
+                job_id=record.job_id, run_id=run_id, tenant_id=tenant_id, cell_id=cell_id
+            )
+            if state_ref is None:
+                return limited("completed_comparison_run_state_not_established")
+            store = _require_bounded_store_protocol(
+                self._artifact_store,
+                _MethodMetricProjectionArtifactStore,
+                limits=self._observational_read_limits(),
+                refusal_code="canon_profile_bounded_stream_unavailable",
+                failure_stage="completed_ex_ante_comparison_reader_preflight",
+            )
+            read = read_core_json_artifact_bounded(
+                store, state_ref, limits=self._observational_read_limits()
+            )
+            schema = read.manifest.artifact_schema
+            if (
+                read.manifest.kind != "scientist.experiment_state"
+                or read.manifest.media_type != "application/json"
+                or schema is None
+                or schema.name != "polisyos.scientist.orchestration.engine.ExperimentState"
+            ):
+                return limited("completed_comparison_run_state_contract_invalid")
+            state = validate_core_model_bounded_read(ExperimentState, read)
+            if state.run_id != run_id or state.schema_version != schema.version:
+                return limited("completed_comparison_run_state_binding_invalid")
+            if "policy_search_completed_ex_ante_comparison" not in state.params:
+                return None
+            try:
+                request = CompletedExAnteComparisonRequest.model_validate(
+                    state.params["policy_search_completed_ex_ante_comparison"]
+                )
+            except (TypeError, ValueError):
+                return CompletedExAnteCandidateRanking(
+                    status="invalid",
+                    limitations=("completed_comparison_run_comparison_request_invalid",),
+                )
+            # This context is constructed by the actual Runtime service only
+            # after the completed job and scoped terminal receipt have been read.
+            # The service itself is the existing Runtime selection owner.
+            context = SimpleNamespace(
+                store=store,
+                method_metric_selection_owner=self,
+                run=SimpleNamespace(tenant_id=tenant_id, cell_id=cell_id),
+            )
+            result = ParetoRegistry.rank_completed_ex_ante_candidates(
+                ctx=context, sources=request.sources
+            )
+            current = self._control_store.get_unique_completed_job_by_run_and_kind(
+                run_id=run_id, kind="workflow_run"
+            )
+            if (
+                current is None
+                or current.job_id != record.job_id
+                or current.attempt != record.attempt
+                or self._terminal_experiment_state_ref_for_control_job(
+                    job_id=current.job_id, run_id=run_id, tenant_id=tenant_id, cell_id=cell_id
+                )
+                != state_ref
+            ):
+                return limited("completed_comparison_run_changed_during_comparison")
+            return result
+        except (AttributeError, OSError, RuntimeError, TypeError, ValueError):
+            return limited("completed_comparison_run_comparison_read_unavailable")
 
     def resolve_completed_method_metric_selection(
         self,

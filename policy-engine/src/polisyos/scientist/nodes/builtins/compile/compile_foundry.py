@@ -15,6 +15,7 @@ from polisyos.core.components import (
 )
 from polisyos.core.contracts.execution_plan import ExecutionPlan, ExecutionPlanRef
 from polisyos.core.contracts.foundry import (
+    METHOD_METRIC_BINDING_LIMIT,
     CompileRequest,
     FoundryCompileConfig,
     FoundryValidationFlags,
@@ -67,6 +68,7 @@ _SPEC = NodeSpec(
         f"inputs.{INPUT_TRINITY_BUNDLE_REF}",
         f"inputs.{INPUT_REGISTRY_BUNDLE_REF}",
         "execution_plan_ref",
+        "params.method_metric_bindings",
     ],
     state_writes=[
         f"reports_index.{REPORT_COMPILE_REPORT_REF}",
@@ -164,10 +166,50 @@ class CompileFoundryNode:
 
         registry_ref = state.inputs.get(INPUT_REGISTRY_BUNDLE_REF)
 
+        # A workflow request may select the same bounded typed compiler inputs
+        # as a configured node. The compiler still reconciles these selections
+        # against the actual policy, plan, method ABI and registry.
+        effective_bindings = self.method_metric_bindings
+        if "method_metric_bindings" in state.params:
+            raw_bindings = state.params["method_metric_bindings"]
+            if type(raw_bindings) is not list or len(raw_bindings) > METHOD_METRIC_BINDING_LIMIT:
+                return NodeOutcome(
+                    status="fail",
+                    state=state,
+                    error=NodeError(
+                        code=node_errors.ERROR_INVALID_STATE,
+                        message="Invalid method_metric_bindings request",
+                    ),
+                )
+            try:
+                requested_bindings = tuple(
+                    MethodMetricBindingRequest.model_validate(item, strict=True)
+                    for item in raw_bindings
+                )
+            except (TypeError, ValueError, ValidationError):
+                return NodeOutcome(
+                    status="fail",
+                    state=state,
+                    error=NodeError(
+                        code=node_errors.ERROR_INVALID_STATE,
+                        message="Invalid method_metric_bindings request",
+                    ),
+                )
+            if effective_bindings and requested_bindings != effective_bindings:
+                return NodeOutcome(
+                    status="fail",
+                    state=state,
+                    error=NodeError(
+                        code=node_errors.ERROR_INVALID_STATE,
+                        message="Conflicting method_metric_bindings selections",
+                    ),
+                )
+            effective_bindings = requested_bindings
+
         method_execution_plan_ref: ExecutionPlanRef | None = None
         schema_version = "1.0"
         selected_plan_ref = state.execution_plan_ref
-        if not self.method_metric_bindings and selected_plan_ref is not None:
+        if not effective_bindings and selected_plan_ref is not None:
             try:
                 from polisyos.core.artifacts import load_core_json_artifact
 
@@ -209,7 +251,7 @@ class CompileFoundryNode:
                 )
                 return NodeOutcome(status="fail", state=state, error=error)
 
-        if self.method_metric_bindings:
+        if effective_bindings:
             selected_plan_ref = state.execution_plan_ref
             if selected_plan_ref is None:
                 error = NodeError(
@@ -249,7 +291,7 @@ class CompileFoundryNode:
             registry_bundle_ref=registry_ref,
             compile_config=self.compile_config,
             validation_flags=self.validation_flags,
-            method_metric_bindings=list(self.method_metric_bindings),
+            method_metric_bindings=list(effective_bindings),
             return_selected_profile=True,
         )
 

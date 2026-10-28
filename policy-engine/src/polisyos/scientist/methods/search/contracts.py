@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol, get_type_hints
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.methods.search.objective import (
     ObjectiveScoreAdmission,
     ObjectiveScoreAssessment,
@@ -37,14 +38,39 @@ if TYPE_CHECKING:
     OrchestratorFunnelService: type[Any]
 
 
-class CandidateProposal(BaseModel):
-    """Carry one candidate proposal and metadata across service boundaries."""
+class CandidateStrategyContext(BaseModel):
+    """Bind a strategy producer's subject to the payload sent to evaluators.
 
-    model_config = ConfigDict(extra="forbid")
+    Only the five fields produced by StrategyAdapter are transport fields.
+    Other producer data belongs in ``subject`` and is never dropped by name.
+    """
+
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    producer: Literal["strategy_adapter", "policy_design"] = "strategy_adapter"
+    subject: dict[str, Any]
+    strategy_fields: dict[
+        Literal["candidate_id", "acquisition_value", "predicted_mean", "predicted_std", "source"],
+        Any,
+    ] = Field(default_factory=dict)
+    policy_schema: bool = False
+    policy_transport: bool = False
+
+
+class CandidateProposal(BaseModel):
+    """Carry the exact evaluated payload with an optional typed strategy binding.
+
+    Unknown semantic inputs belong in ``payload``. Metadata other than the
+    explicitly bound service iteration is refused at the evaluation boundary.
+    """
+
+    model_config = ConfigDict(extra="forbid", strict=True)
 
     candidate_id: str = Field(min_length=1)
     payload: dict[str, Any] = Field(default_factory=dict)
     metadata: dict[str, Any] = Field(default_factory=dict)
+    strategy_context: CandidateStrategyContext | None = None
+    service_iteration: int | None = Field(default=None, ge=0)
 
 
 class EvaluationBundle(BaseModel):
@@ -320,6 +346,10 @@ class SearchIteration:
     score_status: ObjectiveScoreStatus = ObjectiveScoreStatus.NOT_ESTABLISHED
     score_assessment: ObjectiveScoreAssessment | None = None
     score_admission: ObjectiveScoreAdmission | None = None
+    candidate_proposal: CandidateProposal | None = None
+    candidate_ref: ArtifactRef | None = None
+    evaluation_ref: ArtifactRef | None = None
+    current_policy_reevaluation: bool = False
 
     def __post_init__(self) -> None:
         if self.score_admission is not None:
@@ -378,9 +408,11 @@ class _SearchLifecycleConfig(Protocol):
     batch_size: int
     resource_arbiter: Any | None
     transfer_manager: Any | None
+    transfer_fingerprint: Any | None
     initial_evaluations: list[dict[str, Any]]
     policy_objective_stack: Any | None
     pareto_registry: Any | None
+    policy_source_store: Any | None
     pareto_objective_basis_by_view: dict[str, ParetoBasisScope]
     max_empty_generation_attempts: int
     producer_settlement_store: Any | None
@@ -501,7 +533,7 @@ class _NativeSearchControllerPort(Protocol):
         iteration: int,
         initial_candidate: dict[str, Any] | None,
         context: dict[str, Any],
-    ) -> list[dict[str, Any]]: ...
+    ) -> list[dict[str, Any] | CandidateProposal]: ...
 
     def _accept_tell(
         self,
@@ -514,6 +546,7 @@ class _NativeSearchControllerPort(Protocol):
         stage_a_passed: bool,
         stage_b_result: dict[str, Any],
         duration_seconds: float,
+        candidate_proposal: CandidateProposal | None = None,
     ) -> SearchIteration: ...
 
     def _service_tell_snapshot(self) -> dict[str, Any]: ...
@@ -535,7 +568,7 @@ class _NativeSearchControllerPort(Protocol):
 
     def _evaluate_candidate(
         self,
-        candidate: dict[str, Any],
+        candidate: dict[str, Any] | CandidateProposal,
         iteration: int,
         context: dict[str, Any],
     ) -> _EvaluationTransition: ...
@@ -585,6 +618,7 @@ def __getattr__(name: str) -> Any:
 
 __all__ = [
     "CandidateProposal",
+    "CandidateStrategyContext",
     "EvaluationBundle",
     "FunnelService",
     "LegacySearchServiceAdapter",

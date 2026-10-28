@@ -38,8 +38,11 @@ from polisyos.core.contracts.runtime import (
     ArtifactLineageView,
     CompareCandidatesResponse,
     CompareRunResponse,
+    CompletedExAnteCandidateComparisonResponse,
+    CompletedExAnteCandidateRanking,
     DirectMethodExecutionRunProjection,
     MethodExecutionProducerDiagnostic,
+    MethodMetricCandidateScore,
     MethodMetricProjectionResponse,
     RunCandidateSimulationAcquisitionHistoryEntry,
     RunCandidateSimulationChildProfileBinding,
@@ -5446,41 +5449,85 @@ if router is not None:
             "read_current_admitted_method_metric_projection",
             None,
         )
-        projection_status: Literal["selected", "verification_missing", "invalid"] = (
-            "verification_missing"
-        )
-        projection_vector_ref: ArtifactRef | None = None
-        projection_observations: tuple[Any, ...] = ()
-        projection_limitations: tuple[str, ...] = ("current_method_metric_owner_unavailable",)
-        if callable(read_projection):
+
+        def read_selected_projection() -> tuple[
+            Literal["selected", "verification_missing", "invalid"],
+            ArtifactRef | None,
+            tuple[Any, ...],
+            tuple[str, ...],
+        ]:
+            if not callable(read_projection):
+                return (
+                    "verification_missing",
+                    None,
+                    (),
+                    ("current_method_metric_owner_unavailable",),
+                )
             projection = read_projection(
                 run_id=run_id,
                 tenant_id=run.details.tenant_id,
                 cell_id=run.details.cell_id,
             )
-            projection_status = getattr(projection, "status", None)
-            projection_vector_ref = getattr(projection, "vector_ref", None)
-            projection_observations = tuple(getattr(projection, "observations", ()))
-            projection_limitations = tuple(getattr(projection, "limitations", ()))
-        if projection_status not in {"selected", "verification_missing", "invalid"}:
-            raise service_unavailable(
-                "The current method metric projection is unavailable",
-                code="method_metric_projection_read_unavailable",
-            )
-        if projection_vector_ref is not None and type(projection_vector_ref) is not ArtifactRef:
-            dump = getattr(projection_vector_ref, "model_dump", None)
-            if not callable(dump):
+            status = getattr(projection, "status", None)
+            vector_ref = getattr(projection, "vector_ref", None)
+            observations = tuple(getattr(projection, "observations", ()))
+            limitations = tuple(getattr(projection, "limitations", ()))
+            if status not in {"selected", "verification_missing", "invalid"}:
                 raise service_unavailable(
-                    "The current method metric projection has an invalid selected ref",
-                    code="method_metric_projection_read_invalid",
+                    "The current method metric projection is unavailable",
+                    code="method_metric_projection_read_unavailable",
                 )
-            try:
-                projection_vector_ref = ArtifactRef.model_validate(dump(mode="json"))
-            except (TypeError, ValueError) as exc:
+            if vector_ref is not None and type(vector_ref) is not ArtifactRef:
+                dump = getattr(vector_ref, "model_dump", None)
+                if not callable(dump):
+                    raise service_unavailable(
+                        "The current method metric projection has an invalid selected ref",
+                        code="method_metric_projection_read_invalid",
+                    )
+                try:
+                    vector_ref = ArtifactRef.model_validate(dump(mode="json"))
+                except (TypeError, ValueError) as exc:
+                    raise service_unavailable(
+                        "The current method metric projection has an invalid selected ref",
+                        code="method_metric_projection_read_invalid",
+                    ) from exc
+            return status, vector_ref, observations, limitations
+
+        (
+            projection_status,
+            projection_vector_ref,
+            projection_observations,
+            projection_limitations,
+        ) = read_selected_projection()
+        candidate_score = None
+        read_candidate_score = getattr(
+            control_service, "read_current_completed_ex_ante_candidate_score", None
+        )
+        if projection_status == "selected" and callable(read_candidate_score):
+            candidate_score = read_candidate_score(
+                run_id=run_id, tenant_id=run.details.tenant_id, cell_id=run.details.cell_id
+            )
+            if not isinstance(candidate_score, MethodMetricCandidateScore):
                 raise service_unavailable(
-                    "The current method metric projection has an invalid selected ref",
-                    code="method_metric_projection_read_invalid",
-                ) from exc
+                    "The current candidate score projection is unavailable",
+                    code="method_metric_candidate_score_invalid",
+                )
+            # Score replay can be long. Re-read the current projection after it,
+            # and never join a score to a different selected vector profile.
+            (
+                projection_status,
+                projection_vector_ref,
+                projection_observations,
+                projection_limitations,
+            ) = read_selected_projection()
+            if candidate_score.status == "selected" and (
+                projection_status != "selected"
+                or candidate_score.source_vector_ref != projection_vector_ref
+            ):
+                candidate_score = MethodMetricCandidateScore(
+                    status="verification_missing",
+                    limitations=("candidate_score_selection_changed_during_read",),
+                )
         record_data_access_audit(
             request,
             resource_id=run_id,
@@ -5499,6 +5546,79 @@ if router is not None:
             vector_ref=projection_vector_ref,
             observations=observations,
             limitations=projection_limitations,
+            candidate_score=candidate_score,
+        )
+
+    @router.get(
+        "/{run_id}/method-metric-comparison",
+        response_model=CompletedExAnteCandidateComparisonResponse,
+        operation_id="get_run_method_metric_comparison",
+        dependencies=[Depends(_GET_RUN_METHOD_METRICS_AUTHZ)],
+    )
+    def get_run_method_metric_comparison(
+        run_id: str,
+        request: Request,
+        ctx: Annotated[RuntimeApiContext, Depends(get_runtime_api_context)],
+    ) -> CompletedExAnteCandidateComparisonResponse:
+        """Recompute a completed run's candidate-only comparison under current scope."""
+        run = ctx.run_index.get_run(run_id)
+        enforce_run_tenant_access(request, ctx=ctx, run=run)
+        scope = require_access_scope(request)
+        if (
+            not run.details.tenant_id
+            or scope.tenant_id != run.details.tenant_id
+            or not run.details.cell_id
+            or scope.cell_id != run.details.cell_id
+        ):
+            raise forbidden(
+                "Method metric comparisons require the verified run tenant and cell scope",
+                code="method_metric_projection_scope_mismatch",
+            )
+        set_authz_resource(
+            request,
+            tenant_id=run.details.tenant_id,
+            kind="runtime.run.method_metrics",
+            artifact_id=(
+                str(run.details.manifest_ref.artifact_id)
+                if run.details.manifest_ref is not None
+                else None
+            ),
+        )
+        control_service = _control_service_from_request(request)
+        read_comparison = getattr(
+            control_service, "read_current_completed_ex_ante_comparison", None
+        )
+        if callable(read_comparison):
+            comparison = read_comparison(
+                run_id=run_id, tenant_id=run.details.tenant_id, cell_id=run.details.cell_id
+            )
+            if comparison is not None and not isinstance(
+                comparison, CompletedExAnteCandidateRanking
+            ):
+                raise service_unavailable(
+                    "The current candidate comparison is unavailable",
+                    code="method_metric_candidate_comparison_invalid",
+                )
+        else:
+            comparison = CompletedExAnteCandidateRanking(
+                status="verification_missing",
+                limitations=("current_candidate_comparison_owner_unavailable",),
+            )
+        record_data_access_audit(
+            request,
+            resource_id=run_id,
+            resource_kind="runtime.run.method_metrics",
+            tenant_id=run.details.tenant_id,
+            outcome=(
+                f"method_metric_comparison_{comparison.status}"
+                if comparison
+                else "method_metric_comparison_not_requested"
+            ),
+        )
+        return CompletedExAnteCandidateComparisonResponse(
+            meta=build_meta(request, source_kinds=[_as_source_kind(run.source_kind)]),
+            run_id=run_id,
+            candidate_comparison=comparison,
         )
 
     @router.post(

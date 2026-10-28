@@ -16,11 +16,24 @@ from pydantic import BaseModel, ConfigDict, Field
 from polisyos.core.artifacts import ArtifactRef
 from polisyos.ir.governance.policy_spec import PolicySearchLevel
 from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
-from polisyos.scientist.methods.search.contracts import ParetoViewProjection
+from polisyos.scientist.methods.search.contracts import (
+    CandidateProposal,
+    CandidateStrategyContext,
+    EvaluationBundle,
+    ParetoViewProjection,
+)
 from polisyos.scientist.methods.search.controller import (
     SearchIteration,
     SearchResult,
     SearchStatus,
+)
+from polisyos.scientist.methods.search.frontier import (
+    candidate_payloads_equal,
+    funnel_prior_ticket_id,
+    invoke_candidate_evaluator,
+    materialize_candidate_proposal,
+    policy_candidate_hash,
+    strategy_candidate_payload,
 )
 from polisyos.scientist.methods.search.lessons import (
     LessonCard,
@@ -36,7 +49,11 @@ from polisyos.scientist.methods.search.objective import (
     _unestablished_score_assessment,
     objective_value_matches_rule,
 )
-from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry, ParetoView
+from polisyos.scientist.methods.search.pareto_registry import (
+    ParetoRegistry,
+    ParetoView,
+    verify_policy_evaluation_source,
+)
 from polisyos.scientist.methods.search.stopping import MaxIterations
 from polisyos.scientist.methods.search.strategies.adapter import StrategyAdapter
 from polisyos.scientist.methods.search.strategies.codec import _get_path, _set_path
@@ -225,10 +242,16 @@ class PolicyParameterCodec:
     template_values: dict[str, Any]
 
     def encode(self, candidate: dict[str, Any]) -> dict[str, Any]:
-        return {
-            name: _normalize_value_like(_get_path(candidate, path))
-            for name, path in self.parameter_paths.items()
-        }
+        encoded: dict[str, Any] = {}
+        for name, path in self.parameter_paths.items():
+            value = _get_path(candidate, path)
+            exemplar = self.template_values.get(name)
+            if isinstance(value, dict) and isinstance(
+                exemplar, (MoneyValue, RateValue, CountValue, DurationValue)
+            ):
+                value = type(exemplar).model_validate(value)
+            encoded[name] = _normalize_value_like(value)
+        return encoded
 
     def decode(
         self,
@@ -253,6 +276,7 @@ class HierarchicalSearchCoordinator:
         self,
         *,
         pareto_registry: ParetoRegistry | None = None,
+        source_store: Any | None = None,
         lesson_registry: LessonRegistry | None = None,
         translator_worker: PolicyTranslatorWorker | None = None,
         translator_compliance: TranslatorCompliancePass | None = None,
@@ -260,6 +284,7 @@ class HierarchicalSearchCoordinator:
         config: HierarchicalSearchConfig | None = None,
     ) -> None:
         self._pareto_registry = pareto_registry
+        self._source_store = source_store
         self._lesson_registry = lesson_registry
         self._translator_worker = translator_worker or PolicyTranslatorWorker()
         self._translator_compliance = translator_compliance or TranslatorCompliancePass()
@@ -540,6 +565,7 @@ class HierarchicalSearchCoordinator:
             strategy,
             spec.search_space,
             codec=codec,
+            canonical_template=structure.candidate,
             objective_extractor=lambda iteration: _optimizer_objectives_for_iteration(
                 iteration,
                 objective_spec,
@@ -592,6 +618,7 @@ class HierarchicalSearchCoordinator:
             stage_a_evaluator=effective_stage_a,
             stage_b_evaluator=stage_b_evaluator,
             constraint_critic=self._constraint_critic,
+            source_store=self._source_store,
         )
         initial_evaluations.extend(transfer_initials)
         result = _run_blueprint_parameter_search(
@@ -602,6 +629,7 @@ class HierarchicalSearchCoordinator:
             stage_a_evaluator=effective_stage_a,
             context=context,
             initial_evaluations=initial_evaluations,
+            source_store=self._source_store,
         )
         result.stage_a_evaluations += transfer_stage_a_count
         result.stage_b_evaluations += transfer_stage_b_count
@@ -623,16 +651,20 @@ class HierarchicalSearchCoordinator:
             for iteration in result.history:
                 if iteration.policy_evaluation is None:
                     continue
+                if iteration.iteration < 0 and not iteration.current_policy_reevaluation:
+                    continue
                 self._pareto_registry.update(
                     loop_id,
-                    candidate_hash=str(
-                        iteration.policy_evaluation.metadata.get("candidate_hash")
-                        or structure.candidate_hash
+                    candidate_hash=policy_candidate_hash(
+                        iteration.candidate_proposal or iteration.candidate
                     ),
                     evaluation=iteration.policy_evaluation,
                     candidate_id=iteration.policy_evaluation.candidate_id,
+                    candidate_ref=iteration.candidate_ref,
+                    evaluation_ref=iteration.evaluation_ref,
                     policy_family=structure.policy_family,
                     seed_payload=dict(iteration.candidate),
+                    candidate_proposal=iteration.candidate_proposal,
                     task_family=transfer_context.task_family,
                     domain=transfer_context.domain,
                     transfer_context=transfer_context,
@@ -819,7 +851,15 @@ class HierarchicalSearchCoordinator:
             if not entry.seed_payload:
                 continue
             try:
-                seeded_candidate = PolicyCandidateSchema.model_validate(entry.seed_payload)
+                proposal = entry.candidate_proposal
+                source = (
+                    proposal.strategy_context.subject
+                    if proposal is not None
+                    and proposal.strategy_context is not None
+                    and proposal.strategy_context.policy_schema
+                    else entry.seed_payload
+                )
+                seeded_candidate = PolicyCandidateSchema.model_validate(source)
             except Exception:
                 continue
             seeded_candidate = seeded_candidate.model_copy(
@@ -1036,6 +1076,15 @@ class HierarchicalSearchCoordinator:
         return lessons
 
 
+def _optional_artifact_ref(value: Any) -> ArtifactRef | None:
+    if value is None:
+        return None
+    try:
+        return ArtifactRef.model_validate(value)
+    except (TypeError, ValueError):
+        return None
+
+
 def _run_blueprint_parameter_search(
     *,
     loop_id: str,
@@ -1045,6 +1094,7 @@ def _run_blueprint_parameter_search(
     stage_a_evaluator: Callable[[dict[str, Any], dict[str, Any]], tuple[float, bool]],
     context: dict[str, Any],
     initial_evaluations: list[dict[str, Any]],
+    source_store: Any | None = None,
 ) -> SearchResult:
     start = datetime.now(UTC)
     stopping = MaxIterations(max_iterations)
@@ -1063,12 +1113,30 @@ def _run_blueprint_parameter_search(
             source_payload.get("simulation_results") if isinstance(source_payload, dict) else None
         )
         policy_evaluation = _coerce_policy_evaluation(source_payload)
+        warm_metadata = warm_start.get("metadata")
+        proposal_data = warm_start.get("candidate_proposal")
+        proposal = (
+            CandidateProposal.model_validate(proposal_data) if proposal_data is not None else None
+        )
+        warm_candidate = dict(warm_start.get("candidate", {}))
+        if proposal is not None and not candidate_payloads_equal(
+            materialize_candidate_proposal(proposal), warm_candidate
+        ):
+            raise ValueError("warm_start_candidate_subject_mismatch")
+        warm_candidate_ref = _optional_artifact_ref(warm_start.get("candidate_ref"))
+        warm_evaluation_ref = _optional_artifact_ref(warm_start.get("evaluation_ref"))
+        source_verified = verify_policy_evaluation_source(
+            source_store, proposal, policy_evaluation, warm_candidate_ref, warm_evaluation_ref
+        )
+        seed_only = (
+            isinstance(warm_metadata, dict) and warm_metadata.get("seed_only") is True
+        ) or not source_verified
         objective_value: float | None = None
         score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
         score_assessment = None
         objective_details: list[ObjectiveValue] = []
         rank_key = None
-        if policy_evaluation is not None:
+        if policy_evaluation is not None and not seed_only:
             objective_value, score_status = policy_evaluation.legacy_scalar_proxy_for_search(
                 source_results if isinstance(source_results, dict) else None
             )
@@ -1082,20 +1150,28 @@ def _run_blueprint_parameter_search(
             )
         record = SearchIteration(
             iteration=-1,
-            candidate=dict(warm_start.get("candidate", {})),
+            candidate=warm_candidate,
             objective_value=(
                 objective_value
                 if score_status is ObjectiveScoreStatus.AVAILABLE
+                else None
+                if seed_only
                 else warm_start.get("objective_value")
             ),
             objective_details=objective_details,
-            is_promising=bool(warm_start.get("is_promising", False)),
+            is_promising=not seed_only and bool(warm_start.get("is_promising", False)),
             stage_a_passed=True,
             stage_b_result=source_payload,
             duration_seconds=0.0,
             policy_evaluation=policy_evaluation,
             score_status=score_status,
             score_assessment=score_assessment,
+            candidate_proposal=proposal,
+            candidate_ref=warm_candidate_ref,
+            evaluation_ref=warm_evaluation_ref,
+            current_policy_reevaluation=(
+                warm_start.get("current_policy_reevaluation") is True and source_verified
+            ),
         )
         history.append(record)
         if rank_key is not None:
@@ -1118,10 +1194,21 @@ def _run_blueprint_parameter_search(
             stopping_reason = stop_check.reason
             break
 
-        candidate = adapter.generate(history, best_candidate, context)
+        proposal = adapter.generate_proposal(history, best_candidate, context)
+        candidate = materialize_candidate_proposal(proposal)
         iter_start = datetime.now(UTC)
         stage_a_count += 1
-        _, stage_a_passed = stage_a_evaluator(candidate, context)
+        stage_a_result = invoke_candidate_evaluator(
+            stage_a_evaluator, copy.deepcopy(candidate), context, proposal
+        )
+        if isinstance(stage_a_result, EvaluationBundle):
+            stage_a_passed = stage_a_result.stage_a_passed
+            stage_a_ticket = funnel_prior_ticket_id(
+                stage_a_evaluator, stage_b_evaluator, stage_a_result
+            )
+        else:
+            _, stage_a_passed = stage_a_result
+            stage_a_ticket = None
         stage_b_result: dict[str, Any] | None = None
         policy_evaluation: PolicyEvaluationVector | None = None
         objective_value: float | None = None
@@ -1129,11 +1216,44 @@ def _run_blueprint_parameter_search(
         score_assessment = None
         objective_details: list[Any] = []
         is_promising = False
+        candidate_ref: ArtifactRef | None = None
+        evaluation_ref: ArtifactRef | None = None
+        source_verified = False
         if stage_a_passed:
             stage_b_count += 1
-            stage_b_result = stage_b_evaluator(candidate, context)
+            stage_b_result = invoke_candidate_evaluator(
+                stage_b_evaluator,
+                copy.deepcopy(candidate),
+                context,
+                proposal,
+                prior_ticket_id=stage_a_ticket,
+            )
             policy_evaluation = _coerce_policy_evaluation(stage_b_result)
+            try:
+                policy_candidate_hash(
+                    proposal,
+                    metadata_hash=(
+                        policy_evaluation.metadata.get("candidate_hash")
+                        if policy_evaluation
+                        else None
+                    ),
+                    explicit_hash=(
+                        stage_b_result.get("candidate_hash")
+                        if isinstance(stage_b_result, dict)
+                        else None
+                    ),
+                )
+            except (TypeError, ValueError):
+                policy_evaluation = None
+                score_status = ObjectiveScoreStatus.INVALID
+                stage_b_result = {**(stage_b_result or {}), "candidate_identity_error": "mismatch"}
             if policy_evaluation is not None:
+                candidate_ref = _optional_artifact_ref(stage_b_result.get("candidate_ref"))
+                evaluation_ref = _optional_artifact_ref(stage_b_result.get("policy_evaluation_ref"))
+                source_verified = verify_policy_evaluation_source(
+                    source_store, proposal, policy_evaluation, candidate_ref, evaluation_ref
+                )
+            if policy_evaluation is not None and source_verified:
                 objective_details = policy_evaluation.as_legacy_objectives(
                     stage_b_result.get("simulation_results")
                     if isinstance(stage_b_result.get("simulation_results"), dict)
@@ -1158,7 +1278,9 @@ def _run_blueprint_parameter_search(
                     if diagnostic_score is not None:
                         best_objective = diagnostic_score
             is_promising = (
-                bool(stage_b_result)
+                policy_evaluation is not None
+                and source_verified
+                and bool(stage_b_result)
                 and str((stage_b_result or {}).get("feedback", {}).get("verdict", "")).upper()
                 == "APPROVE"
             )
@@ -1176,6 +1298,9 @@ def _run_blueprint_parameter_search(
                 policy_evaluation=policy_evaluation,
                 score_status=score_status,
                 score_assessment=score_assessment,
+                candidate_proposal=proposal,
+                candidate_ref=candidate_ref,
+                evaluation_ref=evaluation_ref,
             )
         )
         iteration += 1
@@ -1380,6 +1505,7 @@ def _reevaluate_candidate_only_transfer_seeds(
     stage_a_evaluator: Callable[[dict[str, Any], dict[str, Any]], tuple[float, bool]],
     stage_b_evaluator: Callable[[dict[str, Any], dict[str, Any]], dict[str, Any]],
     constraint_critic: ConstraintCritic,
+    source_store: Any | None = None,
 ) -> tuple[list[dict[str, Any]], dict[str, Any], int, int]:
     """Turn exact-space V5 rows into policy candidates, never into policy scores."""
     from polisyos.scientist.methods.autotune.models import BayesianSourceProfile
@@ -1489,19 +1615,35 @@ def _reevaluate_candidate_only_transfer_seeds(
         except (TypeError, ValueError):
             reject("source_parameters_do_not_form_policy_candidate")
             continue
-        candidate_payload = policy_candidate.as_search_payload()
-        candidate_runtime_payload = codec.decode(
-            dict(params),
-            template=candidate_payload,
+        candidate_context = CandidateStrategyContext(
+            producer="policy_design",
+            subject=policy_candidate.model_dump(mode="json", exclude_none=True),
+            policy_schema=True,
+            policy_transport=True,
         )
-        candidate_hash = policy_candidate.candidate_hash()
+        candidate_payload = strategy_candidate_payload(candidate_context)
+        proposal = CandidateProposal(
+            candidate_id=policy_candidate.candidate_id,
+            payload=candidate_payload,
+            strategy_context=candidate_context,
+        )
+        candidate_hash = policy_candidate_hash(proposal)
         critique = constraint_critic.evaluate(ConstraintCriticInput(candidate=policy_candidate))
         stage_a_count += 1
         if not critique.passed:
             reject("policy_constraint_critic_rejected")
             continue
-        stage_a_score, stage_a_passed = stage_a_evaluator(candidate_payload, dict(context))
-        del stage_a_score
+        stage_a_result = invoke_candidate_evaluator(
+            stage_a_evaluator, copy.deepcopy(candidate_payload), dict(context), proposal
+        )
+        if isinstance(stage_a_result, EvaluationBundle):
+            stage_a_passed = stage_a_result.stage_a_passed
+            stage_a_ticket = funnel_prior_ticket_id(
+                stage_a_evaluator, stage_b_evaluator, stage_a_result
+            )
+        else:
+            _, stage_a_passed = stage_a_result
+            stage_a_ticket = None
         if not stage_a_passed:
             reject("policy_stage_a_rejected")
             continue
@@ -1527,7 +1669,13 @@ def _reevaluate_candidate_only_transfer_seeds(
             **dict(context),
             "candidate_only_transfer": transfer_record,
         }
-        stage_b_result = stage_b_evaluator(candidate_payload, stage_context)
+        stage_b_result = invoke_candidate_evaluator(
+            stage_b_evaluator,
+            copy.deepcopy(candidate_payload),
+            stage_context,
+            proposal,
+            prior_ticket_id=stage_a_ticket,
+        )
         if not isinstance(stage_b_result, dict) or stage_b_result.get("status") != "ok":
             reject("policy_stage_b_did_not_complete")
             continue
@@ -1538,14 +1686,13 @@ def _reevaluate_candidate_only_transfer_seeds(
         ):
             reject("policy_stage_b_vector_not_bound_to_candidate")
             continue
-        policy_evaluation = policy_evaluation.model_copy(
-            update={
-                "metadata": {
-                    **dict(policy_evaluation.metadata),
-                    "candidate_only_transfer": transfer_record,
-                }
-            }
-        )
+        candidate_ref = _optional_artifact_ref(stage_b_result.get("candidate_ref"))
+        evaluation_ref = _optional_artifact_ref(stage_b_result.get("policy_evaluation_ref"))
+        if not verify_policy_evaluation_source(
+            source_store, proposal, policy_evaluation, candidate_ref, evaluation_ref
+        ):
+            reject("policy_stage_b_source_unverified")
+            continue
         current_stage_b_result = {
             **stage_b_result,
             "policy_evaluation": policy_evaluation.model_dump(mode="json"),
@@ -1553,7 +1700,13 @@ def _reevaluate_candidate_only_transfer_seeds(
         }
         accepted.append(
             {
-                "candidate": candidate_runtime_payload,
+                "candidate": candidate_payload,
+                "candidate_proposal": proposal.model_dump(mode="json"),
+                "current_policy_reevaluation": True,
+                "candidate_ref": candidate_ref.model_dump(mode="json") if candidate_ref else None,
+                "evaluation_ref": evaluation_ref.model_dump(mode="json")
+                if evaluation_ref
+                else None,
                 "stage_b_result": current_stage_b_result,
                 "objective_value": _diagnostic_policy_score(
                     policy_evaluation,

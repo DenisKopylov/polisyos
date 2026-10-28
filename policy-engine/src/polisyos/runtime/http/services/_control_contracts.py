@@ -103,6 +103,7 @@ _DATA_SOURCE_KEYS = {
 
 _OPTIONAL_INPUT_KEYS = {
     "trinity_bundle_ref": "ir.trinity_bundle",
+    "registry_bundle_ref": "core.registry_bundle",
     "policy_spec_ref": "ir.policy_spec",
     "model_spec_ref": "ir.model_spec",
     "research_intent_ref": "scholar.research_intent",

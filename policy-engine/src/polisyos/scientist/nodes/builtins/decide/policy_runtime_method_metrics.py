@@ -476,6 +476,26 @@ def read_completed_admitted_method_metric_projection(
             status="invalid",
             limitations=("completed_method_metric_basis_construction_failed",),
         )
+    # The bounded CAS read can outlive the completed selection. Re-resolve the
+    # complete owner tuple after the read; selected bytes are not a currentness
+    # receipt by themselves. Runtime returns immutable typed source selections.
+    try:
+        current = owner.resolve_completed_method_metric_selection(
+            source_run_id=source_run_id,
+            candidate_ref=_core_artifact_ref(requested_candidate),
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
+    except (AttributeError, OSError, RuntimeError, TypeError, ValueError):
+        return CompletedMethodMetricProjectionReadResult(
+            status="verification_missing",
+            limitations=("completed_method_metric_owner_reselection_unavailable",),
+        )
+    if current != source:
+        return CompletedMethodMetricProjectionReadResult(
+            status="verification_missing",
+            limitations=("completed_method_metric_source_changed_during_read",),
+        )
     return CompletedMethodMetricProjectionReadResult(status="selected", basis=basis)
 
 
@@ -960,7 +980,24 @@ def read_current_admitted_method_metric_projection(
             status="verification_missing",
             limitations=("runtime_owner_has_no_verified_method_metric_projection",),
         )
-    return _read_owned_method_metric_projection(store, selection=selection)
+    projection = _read_owned_method_metric_projection(store, selection=selection)
+    if projection.status != "selected":
+        return projection
+    try:
+        current = owner.get_method_execution_selection(
+            run_id=run_id, tenant_id=tenant_id, cell_id=cell_id
+        )
+    except (AttributeError, OSError, RuntimeError, TypeError, ValueError):
+        return MethodMetricProjectionReadResult(
+            status="verification_missing",
+            limitations=("current_method_execution_reselection_unavailable",),
+        )
+    if current != selection:
+        return MethodMetricProjectionReadResult(
+            status="verification_missing",
+            limitations=("current_method_execution_selection_changed_during_read",),
+        )
+    return projection
 
 
 def _read_owned_method_metric_projection(
@@ -2538,6 +2575,7 @@ def _admit_execution_source_candidate(
     *,
     source_tuple: _MethodMetricSourceTuple,
     read_budget: _ProjectionReadBudget,
+    comparison_basis_collector: list[Any] | None = None,
 ) -> SelectedMethodMetricArtifactRef:
     """Derive the source candidate from Foundry's complete bounded basis admission."""
     from polisyos.core.contracts.foundry import SimulationResultRef
@@ -2595,6 +2633,8 @@ def _admit_execution_source_candidate(
         raise _UnestablishedProjectionError(
             "foundry_execution_source_has_no_single_step_candidate_basis"
         )
+    if comparison_basis_collector is not None:
+        comparison_basis_collector.append(admission.basis)
     try:
         return _selected_ref(
             admission.basis.candidate_ref,
@@ -2609,6 +2649,8 @@ def _admit_method_metric_observations(
     *,
     source_tuple: _MethodMetricSourceTuple,
     read_budget: _ProjectionReadBudget,
+    comparison_collector: list[dict[str, Any]] | None = None,
+    comparison_candidate: Any | None = None,
 ) -> tuple[MethodMetricObservation, ...]:
     """Resolve and reconcile the whole selected graph → bundle → binding source chain."""
     from polisyos.core.artifacts.environment import EnvironmentManifest
@@ -2869,6 +2911,17 @@ def _admit_method_metric_observations(
     if not graph.nodes:
         raise _UnestablishedProjectionError("selected_program_graph_has_no_method_nodes")
     _validate_execution_capture_order(graph=graph, plan=plan, bundle=bundle)
+    comparison_graph: dict[str, Any] | None = None
+    if comparison_collector is not None and comparison_candidate is not None:
+        if comparison_candidate.trinity_bundle != policy:
+            raise _InvalidProjectionError("completed_rank_candidate_trinity_mismatch")
+        # This first profile admits a single, explicit method invocation only.
+        # Graph and plan contents remain comparable; only selected source refs vary.
+        if len(graph.nodes) == 1 and not graph.edges and len(plan.order) == 1:
+            comparison_graph = {
+                "graph": graph.model_dump(mode="json", exclude={"ir_ref", "lowered_ir_ref"}),
+                "plan": plan.model_dump(mode="json", exclude={"program_ref"}),
+            }
 
     if len(binding_set.bindings) > MAX_METHOD_METRIC_BINDINGS:
         raise _InvalidProjectionError("method_metric_binding_count_exceeds_bounded_admission")
@@ -2883,6 +2936,7 @@ def _admit_method_metric_observations(
     verifier_code_digest = _verifier_implementation_sha256()
     registry: MethodRegistry | None = None
     environment_loaded = False
+    comparison_environment: dict[str, Any] | None = None
     observations: list[MethodMetricObservation] = []
     for binding in binding_set.bindings:
         objective_rows = [
@@ -3140,16 +3194,43 @@ def _admit_method_metric_observations(
             )
             continue
         if not environment_loaded:
-            environment_manifest, environment = _load_method_metric_model(
-                store,
-                ref=environment_ref,
-                model=EnvironmentManifest,
-                expected_kind="foundry.environment_manifest",
-                expected_schema_name="polisyos.core.artifacts.environment.EnvironmentManifest",
-                expected_schema_versions={"1.0"},
-                max_bytes=MAX_METHOD_METRIC_SOURCE_BYTES,
-                read_budget=read_budget,
-            )
+            if comparison_collector is None:
+                environment_manifest, environment = _load_method_metric_model(
+                    store,
+                    ref=environment_ref,
+                    model=EnvironmentManifest,
+                    expected_kind="foundry.environment_manifest",
+                    expected_schema_name="polisyos.core.artifacts.environment.EnvironmentManifest",
+                    expected_schema_versions={"1.0"},
+                    max_bytes=MAX_METHOD_METRIC_SOURCE_BYTES,
+                    read_budget=read_budget,
+                )
+            else:
+                # Retain every selected environment field, including future
+                # fields ignored by the typed adapter; only the capture instant
+                # is run-specific for this explicitly bounded comparison.
+                environment_read = _read_bounded_method_metric_artifact(
+                    store,
+                    ref=environment_ref,
+                    max_bytes=MAX_METHOD_METRIC_SOURCE_BYTES,
+                    read_budget=read_budget,
+                )
+                environment_manifest = environment_read.manifest
+                environment = _validate_bounded_method_metric_model(
+                    EnvironmentManifest,
+                    environment_read,
+                    expected_kind="foundry.environment_manifest",
+                    expected_schema_name="polisyos.core.artifacts.environment.EnvironmentManifest",
+                    expected_schema_versions={"1.0"},
+                )
+                raw_environment = json.loads(environment_read.raw_payload_bytes)
+                if type(raw_environment) is not dict or "captured_at" not in raw_environment:
+                    raise _UnestablishedProjectionError(
+                        "ranking_environment_payload_not_established"
+                    )
+                comparison_environment = {
+                    key: value for key, value in raw_environment.items() if key != "captured_at"
+                }
             environment_schema = environment_manifest.artifact_schema
             if environment_schema is None:
                 raise _InvalidProjectionError("environment_manifest_artifact_schema_missing")
@@ -3209,6 +3290,9 @@ def _admit_method_metric_observations(
                         law_identity=law_identity,
                         adapter_identity=adapter_identity,
                         verifier_code_digest=verifier_code_digest,
+                        comparison_collector=comparison_collector,
+                        comparison_environment=comparison_environment,
+                        comparison_graph=comparison_graph,
                     )
                 )
         else:
@@ -3925,6 +4009,9 @@ def _observe_binding_occurrence(
     law_identity: tuple[str, str, str],
     adapter_identity: tuple[str, str, str],
     verifier_code_digest: str,
+    comparison_collector: list[dict[str, Any]] | None = None,
+    comparison_environment: dict[str, Any] | None = None,
+    comparison_graph: dict[str, Any] | None = None,
 ) -> MethodMetricObservation:
     """Build one occurrence row, retaining typed non-observation reasons."""
     from polisyos.core.contracts.foundry import (
@@ -4446,7 +4533,7 @@ def _observe_binding_occurrence(
             _ref_key(input_state_ref),
         ],
     }
-    return MethodMetricObservation(
+    observation = MethodMetricObservation(
         source_status="observed",
         binding_set_ref=binding_set_ref,
         execution_bundle_ref=execution_bundle_ref,
@@ -4503,6 +4590,329 @@ def _observe_binding_occurrence(
             "external_legal_permission_not_established",
         ),
     )
+    if comparison_collector is not None:
+        contract = _ex_ante_rank_comparison_contract(
+            observation=observation,
+            execution_context=execution_context,
+            capture=input_capture,
+            environment=comparison_environment,
+            graph=comparison_graph,
+        )
+        if contract is not None:
+            comparison_collector.append(contract)
+    return observation
+
+
+@dataclass(frozen=True, slots=True)
+class CompletedExAnteRankProjection:
+    """One recomputed candidate-grade scalar and its exact comparison contract.
+
+    This result is not an issuer or a persistent capability. A Runtime-owned
+    consumer must resolve the completed source again at every action/read.
+    """
+
+    status: Literal["selected", "verification_missing", "invalid"]
+    candidate_hash: str | None = None
+    minimized_score: float | None = None
+    maximizing_coordinate: float | None = None
+    comparison_contract_sha256: str | None = None
+    limitations: tuple[str, ...] = ()
+    authority_status: Literal["candidate_only"] = "candidate_only"
+
+    def __post_init__(self) -> None:
+        if self.status == "selected":
+            if (
+                not self.candidate_hash
+                or self.minimized_score is None
+                or not math.isfinite(self.minimized_score)
+                or self.maximizing_coordinate != -self.minimized_score
+                or not self.comparison_contract_sha256
+                or self.limitations
+            ):
+                raise ValueError("selected_ex_ante_rank_projection_requires_recomputed_basis")
+        elif (
+            self.candidate_hash is not None
+            or self.minimized_score is not None
+            or self.maximizing_coordinate is not None
+            or self.comparison_contract_sha256 is not None
+            or not self.limitations
+        ):
+            raise ValueError("limited_ex_ante_rank_projection_requires_reason_only")
+
+
+def _ex_ante_rank_comparison_contract(
+    *,
+    observation: MethodMetricObservation,
+    execution_context: Any,
+    capture: Any,
+    environment: dict[str, Any] | None,
+    graph: dict[str, Any] | None,
+) -> dict[str, Any] | None:
+    """Partition only the registered paired-array profile after full AD01 replay.
+
+    Actual baseline bytes, both array layouts, complete resolved parameters,
+    backend/seed contract, source environment and objective/measurement rules
+    remain in the comparison. The verified scenario bytes may differ between
+    candidates. This helper does not authenticate a caller or issue authority.
+    """
+    from polisyos.ir.kernel.method_metrics import METHOD_METRIC_EX_ANTE_MEAN_CHANGE_LAW_ID
+
+    if (
+        observation.source_status != "observed"
+        or observation.method_fqn != "policy.evaluation.ex_ante_simulation@1.0.0"
+        or observation.method_version != "1.0.0"
+        or observation.law_id != METHOD_METRIC_EX_ANTE_MEAN_CHANGE_LAW_ID
+        or observation.configured_objective_count != 1
+        or observation.objective_spec_sha256 is None
+        or observation.objective_direction not in {"minimize", "maximize"}
+        or observation.objective_target_present is not False
+        or observation.method_build_digest_scope != "class_source_only"
+        or observation.method_build_digest is None
+        or environment is None
+        or graph is None
+        or execution_context.parameter_resolution_status != "captured"
+        or any(row.status != "captured" for row in execution_context.parameter_values)
+        or execution_context.prestate_identity_status != "captured"
+        or execution_context.backend_identity_status != "reconciled"
+        or execution_context.backend_trace_status != "captured"
+        or execution_context.fallback_status != "not_fell_back"
+        or execution_context.seed_status != "reconciled"
+        or set(execution_context.signature_input_slot_ids) != {"baseline", "scenario"}
+        or set(execution_context.signature_parameter_names) != {"poverty_line"}
+    ):
+        return None
+    slots = {slot.slot_id: slot for slot in capture.slots}
+    if set(slots) != {"baseline", "scenario"} or len(capture.slots) != 2:
+        return None
+    if slots["baseline"].shape != slots["scenario"].shape:
+        return None
+    role_values = {
+        (item.role_id, item.method_input_slot_id): item.value_sha256
+        for item in execution_context.input_role_values
+    }
+    if role_values != {
+        ("baseline", "baseline"): slots["baseline"].value_sha256,
+        ("scenario", "scenario"): slots["scenario"].value_sha256,
+    }:
+        return None
+    # Retain the complete typed observation except selected run-specific refs,
+    # values and execution digest, which the AD01 owner has just revalidated.
+    observation_contract = observation.model_dump(
+        mode="json",
+        exclude={
+            "binding_set_ref",
+            "execution_bundle_ref",
+            "simulation_result_ref",
+            "environment_manifest_ref",
+            "output_ref",
+            "input_capture_ref",
+            "occurrence_id",
+            "invocation_id",
+            "value",
+            "checked_context_sha256",
+            "predicate_evidence",
+        },
+    )
+    # Reconciled predicate classes and limitations remain part of the contract;
+    # source-specific evidence refs/digests were independently replayed above.
+    observation_contract["predicate_evidence"] = [
+        {
+            "predicate_id": row.predicate_id,
+            "classification": row.classification,
+            "limitation": row.limitation,
+        }
+        for row in observation.predicate_evidence
+    ]
+    execution = execution_context.model_dump(
+        mode="json",
+        exclude={
+            "started_at",
+            "completed_at",
+            "dispatch_elapsed_ms",
+            "runner_wall_time_ms",
+            "runner_cpu_time_ms",
+            "runner_compile_time_ms",
+            "prestate_identity_sha256",
+            "input_slot_values",
+            "input_role_values",
+        },
+    )
+    baseline = slots["baseline"].model_dump(mode="json")
+    scenario = slots["scenario"].model_dump(mode="json", exclude={"value_sha256"})
+    return {
+        "profile": "completed_ex_ante_single_objective_v1",
+        "observation": observation_contract,
+        "execution": execution,
+        "environment": environment,
+        "graph_and_plan": graph,
+        "baseline": baseline,
+        "scenario_layout": scenario,
+    }
+
+
+def recompute_completed_ex_ante_rank_projection(
+    store: _MethodMetricProjectionArtifactStore,
+    *,
+    basis: object | None,
+    candidate_ref: ArtifactRef | None,
+) -> CompletedExAnteRankProjection:
+    """Replay a freshly selected owner basis for one candidate-only rank coordinate.
+
+    ``basis`` must come from the completed Runtime owner read in the same
+    authorized consumer. This helper accepts no persisted source/profile claim.
+    It does not authenticate a structural owner passed to that earlier read.
+    """
+    from polisyos.scientist.methods.search.objective import ObjectiveScoreStatus
+
+    if type(basis) is not _CompletedMethodMetricProjectionBasis:
+        return CompletedExAnteRankProjection(
+            status="verification_missing", limitations=("completed_method_metric_basis_missing",)
+        )
+    score = admit_completed_method_metric_objective_score(
+        basis, candidate_ref=candidate_ref, request_status="requested"
+    )
+    if (
+        score is None
+        or score.status is not ObjectiveScoreStatus.AVAILABLE
+        or score.predicate_status != "recomputed"
+        or score.reported_assessment != score.recomputed_assessment
+        or score.recomputed_assessment is None
+        or score.recomputed_assessment.value is None
+    ):
+        return CompletedExAnteRankProjection(
+            status="verification_missing", limitations=("completed_whole_objective_not_available",)
+        )
+    try:
+        selected_candidate = _selected_ref(candidate_ref, kind="scientist.policy_design.candidate")
+        if not _same_selected_ref(selected_candidate, basis.candidate_ref):
+            raise _InvalidProjectionError("completed_rank_candidate_mismatch")
+        source_tuple = _MethodMetricSourceTuple(
+            job_id=basis.source_job_id,
+            run_id=basis.source_run_id,
+            attempt=basis.source_attempt,
+            method_result_ref=None,
+            simulation_result_ref=basis.simulation_result_ref.materialize(),
+            method_execution_bundle_ref=basis.method_execution_bundle_ref.materialize(),
+            method_metric_binding_set_ref=basis.method_metric_binding_set_ref.materialize(),
+        )
+        budget = _ProjectionReadBudget()
+        execution_bases: list[Any] = []
+        replay_candidate = _admit_execution_source_candidate(
+            store,
+            source_tuple=source_tuple,
+            read_budget=budget,
+            comparison_basis_collector=execution_bases,
+        )
+        if (
+            not _same_selected_ref(replay_candidate, selected_candidate)
+            or len(execution_bases) != 1
+        ):
+            raise _InvalidProjectionError("completed_rank_candidate_replay_mismatch")
+        source = execution_bases[0]
+        if (
+            not _same_selected_ref(source.candidate_data_snapshot_ref, source.data_snapshot_ref)
+            or not all(
+                _same_selected_ref(source.candidate_registry_bundle_ref, ref)
+                for ref in (
+                    source.binding_registry_ref,
+                    source.compile_registry_ref,
+                    source.runtime_registry_ref,
+                )
+            )
+            or source.parameter_override_bundle_ref is not None
+            or source.observed_range_bundle_ref is not None
+            or source.request.feedback_config_ref is not None
+        ):
+            return CompletedExAnteRankProjection(
+                status="verification_missing",
+                limitations=("completed_ex_ante_source_inputs_not_comparable",),
+            )
+        from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
+
+        candidate_manifest, candidate = _load_method_metric_model(
+            store,
+            ref=selected_candidate,
+            model=PolicyCandidateSchema,
+            expected_kind=PolicyCandidateSchema.ARTIFACT_KIND,
+            expected_schema_name=PolicyCandidateSchema.ARTIFACT_SCHEMA_NAME,
+            expected_schema_versions={PolicyCandidateSchema.ARTIFACT_SCHEMA_VERSION},
+            max_bytes=MAX_METHOD_METRIC_SOURCE_BYTES,
+            read_budget=budget,
+        )
+        _require_exact_manifest_edge(
+            candidate_manifest,
+            role="world_model_data_snapshot",
+            ref=source.candidate_data_snapshot_ref,
+        )
+        _require_exact_manifest_edge(
+            candidate_manifest,
+            role="world_model_registry",
+            ref=source.candidate_registry_bundle_ref,
+        )
+        model_spec = candidate.trinity_bundle.model_spec
+        if str(model_spec.data_snapshot_ref) != str(source.data_snapshot_ref.artifact_id) or str(
+            model_spec.registry_bundle_ref
+        ) != str(source.candidate_registry_bundle_ref.artifact_id):
+            return CompletedExAnteRankProjection(
+                status="verification_missing",
+                limitations=("completed_ex_ante_candidate_model_source_mismatch",),
+            )
+        contracts: list[dict[str, Any]] = []
+        replayed = _admit_method_metric_observations(
+            store,
+            source_tuple=source_tuple,
+            read_budget=budget,
+            comparison_collector=contracts,
+            comparison_candidate=candidate,
+        )
+        if replayed != basis.observations:
+            raise _InvalidProjectionError("completed_rank_selected_observation_replay_mismatch")
+        if len(replayed) != 1 or len(contracts) != 1:
+            return CompletedExAnteRankProjection(
+                status="verification_missing",
+                limitations=("completed_ex_ante_profile_not_supported",),
+            )
+        minimized = float(score.recomputed_assessment.value)
+        if not math.isfinite(minimized):
+            raise _InvalidProjectionError("completed_rank_score_not_finite")
+        return CompletedExAnteRankProjection(
+            status="selected",
+            candidate_hash=candidate.candidate_hash(),
+            minimized_score=minimized,
+            maximizing_coordinate=-minimized,
+            comparison_contract_sha256=_canonical_sha256(
+                {
+                    "method": contracts[0],
+                    "registry": source.candidate_registry_bundle_ref.model_dump(mode="json"),
+                    "request": source.request.model_dump(
+                        mode="json",
+                        exclude={"exec_plan_ref", "input_bindings_ref", "registry_bundle_ref"},
+                    ),
+                    "request_fields_set": source.request_fields_set,
+                    "request_exec_config_fields_set": source.request_exec_config_fields_set,
+                    "effective_execution": {
+                        key: getattr(source, key)
+                        for key in (
+                            "effective_step",
+                            "effective_seed",
+                            "effective_seed_source",
+                            "effective_mode",
+                            "effective_max_steps",
+                            "effective_determinism_tier",
+                            "effective_nan_guard_enabled",
+                            "effective_jit",
+                            "effective_capture_env",
+                        )
+                    },
+                }
+            ),
+        )
+    except _UnestablishedProjectionError as exc:
+        return CompletedExAnteRankProjection(status="verification_missing", limitations=(str(exc),))
+    except (AttributeError, KeyError, OSError, RuntimeError, TypeError, ValueError):
+        return CompletedExAnteRankProjection(
+            status="invalid", limitations=("completed_rank_source_replay_invalid",)
+        )
 
 
 def _build_unobserved_method_metric_observation(

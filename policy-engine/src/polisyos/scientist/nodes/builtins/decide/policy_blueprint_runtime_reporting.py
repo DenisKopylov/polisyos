@@ -606,6 +606,72 @@ def _serialize_funnel_outcome(outcome: FunnelOutcome) -> dict[str, Any]:
             }
             for step in outcome.trace
         ],
+        "prior_attempt_ticket_id": getattr(outcome, "prior_attempt_ticket_id", None),
+        "prior_attempt_trace": [
+            {
+                "fidelity_level": step.fidelity_level,
+                "stage_name": step.stage_name,
+                "objective_value": step.objective_value,
+                "is_promising": step.is_promising,
+                "score_status": step.score_status.value,
+                "score_admission": (
+                    None
+                    if step.score_admission is None
+                    else step.score_admission.to_surface_payload()
+                ),
+                "duration_seconds": step.duration_seconds,
+                "compute_cost_usd": step.compute_cost_usd,
+                "compute_cost_origin": step.compute_cost_origin,
+                "executed_work_packet_status": step.executed_work_packet_status,
+                "executed_work_packet_ref": (
+                    None
+                    if step.executed_work_packet_ref is None
+                    else step.executed_work_packet_ref.model_dump(mode="json")
+                ),
+                "routing_decision": step.routing_decision,
+                "voi_action": step.voi_action,
+                "voi_priority": step.voi_priority,
+                "failure_count": step.failure_count,
+                "blocker_count": step.blocker_count,
+            }
+            for step in getattr(outcome, "prior_attempt_trace", ())
+        ],
+        "prior_attempt_history_status": outcome.prior_attempt_history_status,
+        "prior_attempt_history": [
+            {
+                "ticket_id": attempt.ticket_id,
+                "trace": [
+                    {
+                        "fidelity_level": step.fidelity_level,
+                        "stage_name": step.stage_name,
+                        "objective_value": step.objective_value,
+                        "is_promising": step.is_promising,
+                        "score_status": step.score_status.value,
+                        "score_admission": (
+                            None
+                            if step.score_admission is None
+                            else step.score_admission.to_surface_payload()
+                        ),
+                        "duration_seconds": step.duration_seconds,
+                        "compute_cost_usd": step.compute_cost_usd,
+                        "compute_cost_origin": step.compute_cost_origin,
+                        "executed_work_packet_status": step.executed_work_packet_status,
+                        "executed_work_packet_ref": (
+                            None
+                            if step.executed_work_packet_ref is None
+                            else step.executed_work_packet_ref.model_dump(mode="json")
+                        ),
+                        "routing_decision": step.routing_decision,
+                        "voi_action": step.voi_action,
+                        "voi_priority": step.voi_priority,
+                        "failure_count": step.failure_count,
+                        "blocker_count": step.blocker_count,
+                    }
+                    for step in attempt.trace
+                ],
+            }
+            for attempt in outcome.prior_attempt_history
+        ],
         "stage_results": {
             str(level): {
                 "stage_name": result.stage_name,

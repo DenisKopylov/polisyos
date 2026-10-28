@@ -747,3 +747,121 @@ def test_method_metric_owner_port_returns_one_typed_completed_source() -> None:
         get_type_hints(CompletedMethodMetricSource)["selection"]
         is CompletedOwnedMethodExecutionSelection
     )
+
+
+def test_workflow_selected_registry_and_trinity_require_full_profile_identity() -> None:
+    """Profiled inputs are kept exact; historical string Trinity selectors remain valid."""
+    from pydantic import ValidationError
+
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.contracts.control import WorkflowRunRequest
+
+    snapshot = {"data_snapshot_ref": "sha256:" + "a" * 64}
+
+    def selected(kind: str) -> ArtifactRef:
+        return ArtifactRef(
+            artifact_id="sha256:" + "b" * 64,
+            kind=kind,
+            media_type="application/json",
+            manifest_profile_sha256="sha256:" + "c" * 64,
+        )
+
+    trinity, registry = selected("ir.trinity_bundle"), selected("core.registry_bundle")
+    accepted = WorkflowRunRequest(
+        data_source=snapshot, trinity_bundle_ref=trinity, registry_bundle_ref=registry
+    )
+    assert accepted.trinity_bundle_ref == trinity
+    assert accepted.registry_bundle_ref == registry
+    assert WorkflowRunRequest(data_source=snapshot, trinity_bundle_ref=str(trinity.artifact_id))
+    for field, ref in (("trinity_bundle_ref", trinity), ("registry_bundle_ref", registry)):
+        for invalid in (
+            ref.model_copy(update={"kind": "wrong.kind"}),
+            ref.model_copy(update={"media_type": "text/plain"}),
+            ref.model_copy(update={"manifest_profile_sha256": None}),
+        ):
+            with pytest.raises(ValidationError, match="selected_identity_invalid"):
+                WorkflowRunRequest(data_source=snapshot, **{field: invalid})
+    with pytest.raises(ValidationError, match="workflow_registry_bundle_ref_explicit_null"):
+        WorkflowRunRequest(data_source=snapshot, registry_bundle_ref=None)
+
+
+def test_candidate_comparison_contract_rejects_incomplete_or_forged_shape() -> None:
+    """A caller cannot turn a limited or mismatched row into a complete result."""
+    from pydantic import ValidationError
+
+    from polisyos.core.contracts.runtime import (
+        ApiMeta,
+        CompletedExAnteCandidateObservation,
+        CompletedExAnteCandidateRanking,
+        CompletedExAnteComparisonRequest,
+        MethodMetricCandidateScore,
+        MethodMetricProjectionResponse,
+    )
+
+    candidate = {
+        "artifact_id": "sha256:" + "a" * 64,
+        "kind": "scientist.policy_design.candidate",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:" + "b" * 64,
+    }
+    source = {"source_run_id": "run-a", "candidate_ref": candidate}
+    row = {
+        "source": source,
+        "candidate_hash": "sha256:" + "c" * 64,
+        "minimized_score": -1.0,
+        "maximizing_coordinate": 1.0,
+    }
+    with pytest.raises(ValidationError):
+        CompletedExAnteComparisonRequest.model_validate({"sources": [source]})
+    with pytest.raises(ValidationError):
+        CompletedExAnteComparisonRequest.model_validate(
+            {
+                "sources": [
+                    source,
+                    {**source, "candidate_ref": {**candidate, "manifest_profile_sha256": None}},
+                ]
+            }
+        )
+    with pytest.raises(ValidationError):
+        CompletedExAnteCandidateObservation.model_validate({**row, "maximizing_coordinate": 2.0})
+    with pytest.raises(ValidationError):
+        CompletedExAnteCandidateObservation.model_validate({**row, "extra": "authority"})
+    with pytest.raises(ValidationError):
+        CompletedExAnteCandidateRanking.model_validate(
+            {"status": "verification_missing", "limitations": ["revoked"], "observations": [row]}
+        )
+    with pytest.raises(ValidationError):
+        MethodMetricCandidateScore.model_validate(
+            {"status": "verification_missing", "limitations": ["revoked"], "minimized_score": 1.0}
+        )
+    vector = {
+        "artifact_id": "sha256:" + "d" * 64,
+        "kind": "scientist.policy_evaluation_vector",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:" + "e" * 64,
+    }
+    score = MethodMetricCandidateScore.model_validate(
+        {
+            "status": "selected",
+            "candidate_ref": candidate,
+            "source_vector_ref": vector,
+            "minimized_score": -1.0,
+            "maximizing_coordinate": 1.0,
+            "comparison_contract_sha256": "f" * 64,
+        }
+    )
+    MethodMetricProjectionResponse(
+        meta=ApiMeta(request_id="test"),
+        run_id="run-a",
+        status="selected",
+        vector_ref=vector,
+        candidate_score=score,
+    )
+    with pytest.raises(ValidationError, match="candidate_score_requires_current_method_projection"):
+        MethodMetricProjectionResponse(
+            meta=ApiMeta(request_id="test"),
+            run_id="run-a",
+            status="selected",
+            vector_ref={**vector, "manifest_profile_sha256": "sha256:" + "f" * 64},
+            candidate_score=score,
+        )

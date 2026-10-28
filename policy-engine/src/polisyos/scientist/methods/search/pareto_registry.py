@@ -4,22 +4,38 @@ from __future__ import annotations
 
 import json
 import math
+from copy import deepcopy
 from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, ValidationError, model_validator
 
-from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.scientist.methods.autotune.models import BenchmarkEvaluation, PromotionPolicy
+from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
+from polisyos.core.contracts.runtime import (
+    CompletedExAnteCandidateObservation,
+    CompletedExAnteCandidateRanking,
+    CompletedExAnteCandidateSource,
+)
+from polisyos.scientist.methods.autotune.models import (
+    BenchmarkEvaluation,
+    BenchmarkSplit,
+    PromotionPolicy,
+)
 from polisyos.scientist.methods.autotune.pareto import ParetoPromoter
 from polisyos.scientist.methods.autotune.registry import default_search_registry_root
 from polisyos.scientist.methods.search.contracts import (
+    CandidateProposal,
     ParetoBasisScope,
     ParetoViewAssessment,
     ParetoViewProjection,
+)
+from polisyos.scientist.methods.search.frontier import (
+    candidate_payloads_equal,
+    materialize_candidate_proposal,
+    policy_candidate_hash,
 )
 from polisyos.scientist.methods.search.transfer_context import (
     TransferAuditHop,
@@ -67,6 +83,10 @@ class FrontierDelta(BaseModel):
     current_view_membership: list[str] = Field(default_factory=list)
 
 
+class CandidateIdentityUnavailableError(ValueError):
+    """A persisted candidate cannot be reconciled without inventing identity."""
+
+
 class ParetoRegistryEntry(BaseModel):
     """Single persisted registry entry."""
 
@@ -75,12 +95,15 @@ class ParetoRegistryEntry(BaseModel):
     candidate_hash: str = Field(min_length=1)
     candidate_id: str | None = None
     candidate_ref: ArtifactRef | None = None
+    evaluation_ref: ArtifactRef | None = None
     policy_family: str | None = None
     evaluation: PolicyEvaluationVector
     task_family: str = Field(default="policy", min_length=1)
     domain: str = Field(default="general", min_length=1)
     source_scope_status: TransferTenantScopeStatus = TransferTenantScopeStatus.UNKNOWN
     seed_payload: dict[str, Any] | None = None
+    candidate_proposal: CandidateProposal | None = None
+    identity_origin: Literal["proposal", "payload", "legacy"] | None = None
     seed_only: bool = False
     provenance_weight: float = Field(default=1.0, ge=0.0, le=1.0)
     transfer_chain: list[TransferAuditHop] = Field(default_factory=list)
@@ -97,7 +120,9 @@ class ParetoRegistrySnapshot(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: Literal["1.0", "2.0", "2.1", "3.0"] = "3.0"
+    _source_store: Any = PrivateAttr(default=None)
+    schema_version: Literal["1.0", "2.0", "2.1", "3.0", "3.1"] = "3.0"
+    identity_rule: Literal["candidate_subject_v2"] | None = None
     loop_id: str = Field(min_length=1)
     task_family: str = Field(default="policy", min_length=1)
     domain: str = Field(default="general", min_length=1)
@@ -108,6 +133,12 @@ class ParetoRegistrySnapshot(BaseModel):
     hypervolume_by_view: dict[str, float] = Field(default_factory=dict)
     view_assessments: dict[str, ParetoViewAssessment] = Field(default_factory=dict)
     objective_basis_by_view: dict[str, ParetoBasisScope] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_identity_version(self) -> ParetoRegistrySnapshot:
+        if (self.schema_version == "3.1") != (self.identity_rule == "candidate_subject_v2"):
+            raise ValueError("pareto_identity_rule_version_mismatch")
+        return self
 
     def project_view(
         self,
@@ -209,7 +240,7 @@ class ParetoRegistrySnapshot(BaseModel):
             unassessed_uses_occurrences = False
             if normalized_unassessed is not None:
                 normalized_unassessed_hashes, unassessed_uses_occurrences = normalized_unassessed
-                if self.schema_version in {"2.0", "3.0"} and (
+                if self.schema_version in {"2.0", "3.0", "3.1"} and (
                     catalog_frontier_uses_occurrences or unassessed_uses_occurrences
                 ):
                     accepted_input_counts.add(eligible_occurrence_count)
@@ -239,6 +270,17 @@ class ParetoRegistrySnapshot(BaseModel):
                         "unassessed_candidate_hashes": list(normalized_unassessed_hashes),
                     }
                 )
+        identity_mismatch = (
+            identity_mismatch
+            or self.schema_version != "3.1"
+            or self.identity_rule != "candidate_subject_v2"
+        )
+        if not identity_mismatch:
+            try:
+                for entry in self.entries.values():
+                    _verified_entry_identity(entry)
+            except (TypeError, ValueError):
+                identity_mismatch = True
         if stored_assessment is None:
             assessment = ParetoViewAssessment(
                 status="legacy_limited",
@@ -248,6 +290,8 @@ class ParetoRegistrySnapshot(BaseModel):
                 assessed_count=0,
                 unassessed_candidate_hashes=eligible_hashes,
             )
+            if identity_mismatch:
+                candidate_frontier_hashes = ()
         elif (
             identity_mismatch
             or malformed_frontier
@@ -273,6 +317,29 @@ class ParetoRegistrySnapshot(BaseModel):
             candidate_frontier_hashes = ()
         else:
             assessment = catalog_assessment if is_catalog else stored_assessment
+
+        # A matching digest or caller-writable selected CAS edge provides
+        # consistency only; neither establishes execution-to-candidate binding.
+        if (
+            not is_catalog
+            and eligible_hashes
+            and not all(
+                _verified_entry_source(self._source_store, self.entries[key])
+                for key in eligible_hashes
+            )
+        ):
+            assessment = ParetoViewAssessment(
+                status=(
+                    "no_usable_inputs"
+                    if assessment.basis_scope.scope == "declared"
+                    else "basis_limited"
+                ),
+                coverage_status="no_usable_inputs",
+                basis_scope=assessment.basis_scope,
+                input_count=len(eligible_hashes),
+                assessed_count=0,
+                unassessed_candidate_hashes=eligible_hashes,
+            )
 
         if assessment.status == "complete":
             unassessed_hashes: tuple[str, ...] = ()
@@ -300,7 +367,14 @@ class ParetoRegistrySnapshot(BaseModel):
         """Serialize the original persisted projection without v2 assessments."""
         if self.schema_version != "1.0":
             raise ValueError("historical v1 serialization requires a v1 snapshot")
-        payload = self.model_dump(mode="json", exclude_none=True)
+        payload = self.model_dump(
+            mode="json",
+            exclude_none=True,
+            exclude={
+                "identity_rule": True,
+                "entries": {"__all__": {"candidate_proposal", "identity_origin", "evaluation_ref"}},
+            },
+        )
         payload.pop("view_assessments", None)
         payload.pop("objective_basis_by_view", None)
         return payload
@@ -322,6 +396,65 @@ def _scope_refusal(path: Path, reason: TransferScopeRefusalReason) -> TransferSc
     return make_transfer_scope_refusal(path, reason)
 
 
+def _verified_entry_identity(entry: ParetoRegistryEntry) -> str:
+    if entry.seed_payload is None or entry.identity_origin is None:
+        raise CandidateIdentityUnavailableError("candidate_identity_subject_missing")
+    proposal = entry.candidate_proposal
+    if (entry.identity_origin == "proposal") != (proposal is not None):
+        raise CandidateIdentityUnavailableError("candidate_identity_origin_mismatch")
+    if proposal is not None:
+        if not candidate_payloads_equal(
+            materialize_candidate_proposal(proposal), entry.seed_payload
+        ):
+            raise CandidateIdentityUnavailableError("candidate_identity_payload_mismatch")
+        actual = policy_candidate_hash(proposal)
+    else:
+        actual = policy_candidate_hash(entry.seed_payload)
+    if actual != entry.candidate_hash:
+        raise CandidateIdentityUnavailableError("candidate_identity_hash_mismatch")
+    reported_hash = entry.evaluation.metadata.get("candidate_hash")
+    if reported_hash not in (None, "") and reported_hash != actual:
+        raise CandidateIdentityUnavailableError("candidate_evaluation_hash_mismatch")
+    return actual
+
+
+def _verified_entry_source(store: Any, entry: ParetoRegistryEntry) -> bool:
+    """A public vector writer's CAS edge is not execution-to-candidate proof.
+
+    Ordinary registry vectors stay candidate-only. Runtime-selected AD01
+    observations have a separate bounded, freshly reselected candidate profile;
+    they do not upgrade arbitrary vectors or a feasible-policy view.
+    """
+    del store, entry
+    return False
+
+
+def verify_policy_evaluation_source(
+    store: Any,
+    proposal: CandidateProposal | None,
+    evaluation: PolicyEvaluationVector | None,
+    candidate_ref: ArtifactRef | None,
+    evaluation_ref: ArtifactRef | None,
+) -> bool:
+    """Reconcile one policy evaluation against selected candidate/source CAS."""
+    if proposal is None or evaluation is None:
+        return False
+    try:
+        subject_hash = policy_candidate_hash(proposal)
+        entry = ParetoRegistryEntry(
+            candidate_hash=subject_hash,
+            candidate_ref=candidate_ref,
+            evaluation_ref=evaluation_ref,
+            evaluation=evaluation,
+            seed_payload=proposal.payload,
+            candidate_proposal=proposal,
+            identity_origin="proposal",
+        )
+        return _verified_entry_source(store, entry)
+    except (TypeError, ValueError):
+        return False
+
+
 class ParetoRegistry:
     """Persistent multi-view Pareto registry for policy-mode search."""
 
@@ -330,9 +463,207 @@ class ParetoRegistry:
         root: Path | None = None,
         *,
         transfer_policy: TransferPolicy | None = None,
+        source_store: Any | None = None,
     ) -> None:
         self._root = (root or default_search_registry_root() / "policy_pareto").resolve()
         self._transfer_policy = transfer_policy or TransferPolicy()
+        self._source_store = source_store
+
+    @staticmethod
+    def rank_completed_ex_ante_candidates(
+        *,
+        ctx: Any,
+        sources: tuple[CompletedExAnteCandidateSource, ...],
+    ) -> CompletedExAnteCandidateRanking:
+        """Recompute candidate-only one-axis rank via the installed Runtime owner.
+
+        Caller-supplied sources are lookup keys. The planner must pass its
+        server-injected execution context, and served readers must call this
+        method again under current authorized scope. This method does not grant
+        feasible-policy, scientific, legal, or publication authority.
+        """
+        from polisyos.scientist.nodes.builtins.decide.policy_runtime_method_metrics import (
+            read_completed_admitted_method_metric_projection,
+            recompute_completed_ex_ante_rank_projection,
+        )
+
+        if len(sources) < 2 or len(sources) > 20:
+            return CompletedExAnteCandidateRanking(
+                status="invalid", limitations=("completed_candidate_source_count_invalid",)
+            )
+        try:
+            owner = ctx.method_metric_selection_owner
+            tenant_id = ctx.run.tenant_id
+            cell_id = ctx.run.cell_id
+            store = ctx.store
+            if owner is None or not tenant_id or not cell_id:
+                return CompletedExAnteCandidateRanking(
+                    status="verification_missing", limitations=("runtime_owner_scope_missing",)
+                )
+            observations: list[CompletedExAnteCandidateObservation] = []
+            selected_identities: list[tuple[Any, ...]] = []
+            contracts: set[str] = set()
+            for source in sources:
+                ref = source.candidate_ref
+                selection = read_completed_admitted_method_metric_projection(
+                    store,
+                    owner=owner,
+                    source_run_id=source.source_run_id,
+                    candidate_ref=ref,
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                )
+                if selection.status != "selected" or selection.basis is None:
+                    return CompletedExAnteCandidateRanking(
+                        status="verification_missing",
+                        limitations=("completed_source_not_selected",),
+                    )
+                basis = selection.basis
+                selected_identities.append(
+                    (
+                        basis.cache_source_identity(),
+                        basis.candidate_ref,
+                        basis.source_state_ref,
+                        basis.vector_ref,
+                        basis.verifier_revision,
+                        basis.verifier_implementation_sha256,
+                    )
+                )
+                rank = recompute_completed_ex_ante_rank_projection(
+                    store, basis=basis, candidate_ref=ref
+                )
+                if rank.status != "selected" or rank.comparison_contract_sha256 is None:
+                    return CompletedExAnteCandidateRanking(
+                        status="verification_missing",
+                        limitations=("completed_source_profile_not_established",),
+                    )
+                if (
+                    rank.minimized_score is None
+                    or rank.maximizing_coordinate is None
+                    or rank.candidate_hash is None
+                ):
+                    return CompletedExAnteCandidateRanking(
+                        status="invalid", limitations=("completed_source_score_missing",)
+                    )
+                contracts.add(rank.comparison_contract_sha256)
+                observations.append(
+                    CompletedExAnteCandidateObservation(
+                        source=source,
+                        candidate_hash=rank.candidate_hash,
+                        minimized_score=rank.minimized_score,
+                        maximizing_coordinate=rank.maximizing_coordinate,
+                    )
+                )
+            if len(contracts) != 1:
+                return CompletedExAnteCandidateRanking(
+                    status="verification_missing", limitations=("completed_sources_not_comparable",)
+                )
+            if len({item.candidate_hash for item in observations}) != len(observations):
+                return CompletedExAnteCandidateRanking(
+                    status="invalid", limitations=("completed_candidate_identity_duplicated",)
+                )
+            evaluations = [
+                BenchmarkEvaluation(
+                    loop_id="candidate_ex_ante",
+                    suite_id="candidate_ex_ante",
+                    candidate_ref=item.source.candidate_ref,
+                    promotable=False,
+                    selection_metrics={"completed_objective": item.maximizing_coordinate},
+                )
+                for item in observations
+            ]
+            front = ParetoPromoter(
+                [
+                    PromotionPolicy(
+                        loop_id="candidate_ex_ante",
+                        primary_metric="completed_objective",
+                        compare_split=BenchmarkSplit.SELECTION,
+                    )
+                ]
+            ).compute_front(evaluations)
+            if front.input_assessment is None or front.input_assessment.status != "complete":
+                return CompletedExAnteCandidateRanking(
+                    status="verification_missing",
+                    limitations=("candidate_coordinate_not_assessed",),
+                )
+            identities = {
+                artifact_ref_identity_key(evaluation.candidate_ref): row.candidate_hash
+                for evaluation, row in zip(evaluations, observations, strict=True)
+            }
+            frontier = tuple(
+                sorted(
+                    identities[artifact_ref_identity_key(member.evaluation.candidate_ref)]
+                    for member in front.members
+                )
+            )
+            # Long source replay must not turn a revoked or replaced selection
+            # into a current projection. Reselect every source before emission.
+            for source, expected in zip(sources, selected_identities, strict=True):
+                current = read_completed_admitted_method_metric_projection(
+                    store,
+                    owner=owner,
+                    source_run_id=source.source_run_id,
+                    candidate_ref=source.candidate_ref,
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                )
+                if current.status != "selected" or current.basis is None:
+                    return CompletedExAnteCandidateRanking(
+                        status="verification_missing",
+                        limitations=("completed_source_no_longer_current",),
+                    )
+                basis = current.basis
+                if (
+                    basis.cache_source_identity(),
+                    basis.candidate_ref,
+                    basis.source_state_ref,
+                    basis.vector_ref,
+                    basis.verifier_revision,
+                    basis.verifier_implementation_sha256,
+                ) != expected:
+                    return CompletedExAnteCandidateRanking(
+                        status="verification_missing",
+                        limitations=("completed_source_changed_during_comparison",),
+                    )
+            return CompletedExAnteCandidateRanking(
+                status="complete",
+                comparison_contract_sha256=next(iter(contracts)),
+                observations=tuple(observations),
+                frontier_candidate_hashes=frontier,
+            )
+        except (AttributeError, KeyError, OSError, RuntimeError, TypeError, ValueError):
+            return CompletedExAnteCandidateRanking(
+                status="verification_missing",
+                limitations=("completed_candidate_owner_read_failed",),
+            )
+
+    def _reconcile_candidate_identities(
+        self, snapshot: ParetoRegistrySnapshot
+    ) -> ParetoRegistrySnapshot:
+        """Recompute old keys from retained payloads; refuse irrecoverable ambiguity."""
+        is_catalog = snapshot.loop_id.startswith("catalog::")
+        if snapshot.schema_version == "3.1":
+            if snapshot.identity_rule != "candidate_subject_v2":
+                raise CandidateIdentityUnavailableError("candidate_identity_rule_missing")
+            for key, entry in snapshot.entries.items():
+                _verified_entry_identity(entry)
+                if is_catalog:
+                    if _catalog_entry_identity(snapshot, key, entry) is None:
+                        raise CandidateIdentityUnavailableError("candidate_catalog_key_mismatch")
+                elif key != entry.candidate_hash:
+                    raise CandidateIdentityUnavailableError("candidate_registry_key_mismatch")
+            return snapshot
+
+        # Historical entries do not bind their evaluation to a recoverable
+        # subject with an independently verified producer envelope. Re-keying
+        # their old score would attach an observation to an unproven subject.
+        # Preserve bytes and require re-evaluation or a separately verified
+        # historical binding; only an empty historical registry is migrated.
+        if snapshot.entries:
+            raise CandidateIdentityUnavailableError("legacy_evaluation_subject_unbound")
+        return snapshot.model_copy(
+            update={"schema_version": "3.1", "identity_rule": "candidate_subject_v2"}
+        )
 
     def get_snapshot(
         self,
@@ -346,6 +677,8 @@ class ParetoRegistry:
                 transfer_context=transfer_context, run_id=loop_id
             )
             return ParetoRegistrySnapshot(
+                schema_version="3.1",
+                identity_rule="candidate_subject_v2",
                 loop_id=loop_id,
                 task_family=active_context.task_family,
                 domain=active_context.domain,
@@ -389,7 +722,11 @@ class ParetoRegistry:
                 else TransferScopeRefusalReason.PATH_BODY_MISMATCH
             )
             raise TransferScopeRefusedError([_scope_refusal(path, reason)])
-        return snapshot
+        snapshot = self._reconcile_candidate_identities(snapshot)
+        snapshot._source_store = self._source_store
+        refreshed = self._recompute(snapshot).model_copy(update={"updated_at": snapshot.updated_at})
+        refreshed._source_store = self._source_store
+        return refreshed
 
     def get_frontier(
         self,
@@ -400,10 +737,10 @@ class ParetoRegistry:
         transfer_context: TransferContext | None = None,
     ) -> list[ParetoRegistryEntry]:
         snapshot = self.get_snapshot(loop_id, transfer_context=transfer_context)
-        view_key = _view_key(view, policy_family=policy_family)
+        projection = snapshot.project_view(view, policy_family=policy_family)
         return [
             snapshot.entries[candidate_hash]
-            for candidate_hash in snapshot.frontiers.get(view_key, [])
+            for candidate_hash in projection.ranked_frontier_hashes
             if candidate_hash in snapshot.entries
         ]
 
@@ -415,12 +752,14 @@ class ParetoRegistry:
         evaluation: PolicyEvaluationVector,
         candidate_id: str | None = None,
         candidate_ref: ArtifactRef | None = None,
+        evaluation_ref: ArtifactRef | None = None,
         policy_family: str | None = None,
         promotion_metadata: dict[str, Any] | None = None,
         metadata: dict[str, Any] | None = None,
         task_family: str | None = None,
         domain: str | None = None,
         seed_payload: dict[str, Any] | None = None,
+        candidate_proposal: CandidateProposal | None = None,
         seed_only: bool = False,
         provenance_weight: float = 1.0,
         transfer_chain: list[TransferAuditHop] | None = None,
@@ -429,6 +768,29 @@ class ParetoRegistry:
         objective_basis_by_view: dict[str, ParetoBasisScope] | None = None,
     ) -> FrontierDelta:
         evaluation = _normalize_policy_evaluation_vector(evaluation)
+        seed_payload = deepcopy(seed_payload)
+        candidate_proposal = deepcopy(candidate_proposal)
+        if seed_payload is None:
+            raise CandidateIdentityUnavailableError("candidate_identity_subject_missing")
+        if candidate_proposal is not None:
+            if not candidate_payloads_equal(
+                materialize_candidate_proposal(candidate_proposal), seed_payload
+            ):
+                raise CandidateIdentityUnavailableError("candidate_identity_payload_mismatch")
+            actual_hash = policy_candidate_hash(candidate_proposal, explicit_hash=candidate_hash)
+        else:
+            actual_hash = policy_candidate_hash(seed_payload, explicit_hash=candidate_hash)
+        reported_hash = evaluation.metadata.get("candidate_hash")
+        if reported_hash in (None, ""):
+            if not seed_only and not verify_policy_evaluation_source(
+                self._source_store, candidate_proposal, evaluation, candidate_ref, evaluation_ref
+            ):
+                raise CandidateIdentityUnavailableError(
+                    "candidate_evaluation_subject_binding_missing"
+                )
+        elif reported_hash != actual_hash:
+            raise CandidateIdentityUnavailableError("candidate_evaluation_hash_mismatch")
+        candidate_hash = actual_hash
         active_context = resolve_transfer_context(
             transfer_context=transfer_context,
             candidate=seed_payload,
@@ -437,6 +799,27 @@ class ParetoRegistry:
             run_id=loop_id,
         )
         snapshot = self.get_snapshot(loop_id, transfer_context=active_context)
+        if candidate_proposal is not None and candidate_proposal.strategy_context is not None:
+            if any(
+                entry.identity_origin == "legacy"
+                and entry.seed_payload is not None
+                and "_strategy_metadata" in entry.seed_payload
+                for entry in snapshot.entries.values()
+            ):
+                raise CandidateIdentityUnavailableError("legacy_producer_envelope_unestablished")
+        # Check an existing catalog before mutating the loop snapshot. This
+        # does not add a multi-file transaction or a distributed lock.
+        catalog_path = self._catalog_path(active_context)
+        if catalog_path.exists():
+            catalog = self._load_snapshot(catalog_path)
+            expected_catalog_scope = TransferSourceScope.from_context(active_context)
+            if catalog.source_scope != expected_catalog_scope and (
+                catalog.entries or catalog.source_scope is not None
+            ):
+                raise TransferScopeRefusedError(
+                    [_scope_refusal(catalog_path, TransferScopeRefusalReason.PATH_BODY_MISMATCH)]
+                )
+            self._reconcile_candidate_identities(catalog)
         if objective_basis_by_view:
             snapshot.objective_basis_by_view.update(objective_basis_by_view)
         expected_scope = TransferSourceScope.from_context(active_context)
@@ -447,7 +830,8 @@ class ParetoRegistry:
                 else TransferScopeRefusalReason.PATH_BODY_MISMATCH
             )
             raise TransferScopeRefusedError([_scope_refusal(self._snapshot_path(loop_id), reason)])
-        snapshot.schema_version = "3.0"
+        snapshot.schema_version = "3.1"
+        snapshot.identity_rule = "candidate_subject_v2"
         snapshot.source_scope = expected_scope
         snapshot.task_family = active_context.task_family
         snapshot.domain = active_context.domain
@@ -464,6 +848,7 @@ class ParetoRegistry:
             candidate_hash=candidate_hash,
             candidate_id=candidate_id or evaluation.candidate_id,
             candidate_ref=candidate_ref,
+            evaluation_ref=evaluation_ref,
             policy_family=policy_family
             or str(evaluation.metadata.get("policy_family") or "")
             or None,
@@ -472,6 +857,8 @@ class ParetoRegistry:
             domain=active_context.domain,
             source_scope_status=active_context.tenant_scope_status,
             seed_payload=seed_payload,
+            candidate_proposal=candidate_proposal,
+            identity_origin="proposal" if candidate_proposal is not None else "payload",
             seed_only=seed_only,
             provenance_weight=provenance_weight,
             transfer_chain=list(transfer_chain or []),
@@ -550,14 +937,15 @@ class ParetoRegistry:
                     )
                 ]
             )
+        local_snapshot = self._reconcile_candidate_identities(local_snapshot)
         local_snapshot.source_scope = expected_scope
-        local_snapshot.schema_version = "3.0"
         catalog_path = self._catalog_path(active_context)
         existing_catalog = (
             self._load_snapshot(catalog_path)
             if catalog_path.exists()
             else ParetoRegistrySnapshot(
-                schema_version="3.0",
+                schema_version="3.1",
+                identity_rule="candidate_subject_v2",
                 loop_id=f"catalog::{active_context.task_family}:{active_context.domain}",
                 task_family=active_context.task_family,
                 domain=active_context.domain,
@@ -575,6 +963,7 @@ class ParetoRegistry:
             raise TransferScopeRefusedError(
                 [_scope_refusal(catalog_path, TransferScopeRefusalReason.PATH_BODY_MISMATCH)]
             )
+        existing_catalog = self._reconcile_candidate_identities(existing_catalog)
         frontier_hashes = local_snapshot.frontiers.get(ParetoView.GLOBAL_FEASIBLE.value, [])
         catalog_entries = {
             key: value
@@ -634,7 +1023,8 @@ class ParetoRegistry:
             unassessed_candidate_hashes=catalog_candidate_hashes,
         )
         catalog = ParetoRegistrySnapshot(
-            schema_version="3.0",
+            schema_version="3.1",
+            identity_rule="candidate_subject_v2",
             loop_id=existing_catalog.loop_id,
             task_family=active_context.task_family,
             domain=active_context.domain,
@@ -694,6 +1084,13 @@ class ParetoRegistry:
             ):
                 scope_refusals.append(
                     _scope_refusal(path, TransferScopeRefusalReason.ENTRY_SCOPE_MISMATCH)
+                )
+                continue
+            try:
+                snapshot = self._reconcile_candidate_identities(snapshot)
+            except (TypeError, ValueError):
+                scope_refusals.append(
+                    _scope_refusal(path, TransferScopeRefusalReason.INVALID_SOURCE_BODY)
                 )
                 continue
             catalog_identities = {
@@ -818,6 +1215,11 @@ class ParetoRegistry:
             warm_starts.append(
                 {
                     "candidate": dict(entry.seed_payload or {}),
+                    "candidate_proposal": (
+                        entry.candidate_proposal.model_dump(mode="json")
+                        if entry.candidate_proposal is not None
+                        else None
+                    ),
                     "objective_value": _diagnostic_policy_objective(entry.evaluation),
                     "is_promising": bool(entry.evaluation.feasible),
                     "stage_b_result": {
@@ -987,6 +1389,35 @@ class ParetoRegistry:
                 snapshot.objective_basis_by_view.get(view_key),
             )
 
+        source_verified = {
+            entry.candidate_hash: _verified_entry_source(self._source_store, entry)
+            for entry in feasible_entries
+        }
+        view_source_bound: dict[str, bool] = {}
+        for key, prior in list(view_assessments.items()):
+            family = key.split(":", 1)[1] if key.startswith("policy_family:") else None
+            eligible = sorted(
+                entry.candidate_hash
+                for entry in feasible_entries
+                if family is None or entry.policy_family == family
+            )
+            view_source_bound[key] = all(source_verified[item] for item in eligible)
+            if not view_source_bound[key]:
+                # The stored assessment is itself a public surface: do not
+                # persist a complete label or hypervolume on unverified input.
+                hypervolume.pop(key, None)
+                view_assessments[key] = ParetoViewAssessment(
+                    status=(
+                        "no_usable_inputs"
+                        if prior.basis_scope.scope == "declared"
+                        else "basis_limited"
+                    ),
+                    coverage_status="no_usable_inputs",
+                    basis_scope=prior.basis_scope,
+                    input_count=len(eligible),
+                    assessed_count=0,
+                    unassessed_candidate_hashes=eligible,
+                )
         updated_entries: dict[str, ParetoRegistryEntry] = {}
         for candidate_hash, entry in entries.items():
             membership = (
@@ -995,7 +1426,9 @@ class ParetoRegistry:
                 else sorted(
                     view_name
                     for view_name, hashes in frontiers.items()
-                    if candidate_hash in hashes and view_assessments[view_name].status == "complete"
+                    if candidate_hash in hashes
+                    and view_source_bound[view_name]
+                    and view_assessments[view_name].status == "complete"
                 )
             )
             updated_entries[candidate_hash] = entry.model_copy(
@@ -1020,7 +1453,8 @@ class ParetoRegistry:
             available_hypervolume[view_key] = value
 
         return ParetoRegistrySnapshot(
-            schema_version="3.0",
+            schema_version="3.1",
+            identity_rule="candidate_subject_v2",
             loop_id=snapshot.loop_id,
             task_family=snapshot.task_family,
             domain=snapshot.domain,
@@ -1164,6 +1598,16 @@ class ParetoRegistry:
 
     @staticmethod
     def _write_json(path: Path, snapshot: ParetoRegistrySnapshot) -> None:
+        if snapshot.schema_version == "3.1":
+            if snapshot.identity_rule != "candidate_subject_v2":
+                raise CandidateIdentityUnavailableError("candidate_identity_rule_missing")
+            for key, entry in snapshot.entries.items():
+                _verified_entry_identity(entry)
+                if snapshot.loop_id.startswith("catalog::"):
+                    if _catalog_entry_identity(snapshot, key, entry) is None:
+                        raise CandidateIdentityUnavailableError("candidate_catalog_key_mismatch")
+                elif key != entry.candidate_hash:
+                    raise CandidateIdentityUnavailableError("candidate_registry_key_mismatch")
         for candidate_hash, entry in snapshot.entries.items():
             for channel_group in ("primary", "hard_constraints", "secondary", "penalties"):
                 channels = getattr(entry.evaluation, channel_group)
@@ -1185,6 +1629,16 @@ class ParetoRegistry:
                 snapshot.historical_v1_payload(),
                 indent=2,
                 ensure_ascii=False,
+            ).encode("utf-8")
+        elif snapshot.schema_version != "3.1":
+            payload = snapshot.model_dump_json(
+                indent=2,
+                exclude={
+                    "identity_rule": True,
+                    "entries": {
+                        "__all__": {"candidate_proposal", "identity_origin", "evaluation_ref"}
+                    },
+                },
             ).encode("utf-8")
         else:
             payload = snapshot.model_dump_json(indent=2).encode("utf-8")
@@ -1308,7 +1762,11 @@ def _catalog_projection_hashes(
         if candidate_hash not in eligible:
             return None
         normalized.append(candidate_hash)
-    if len(set(normalized)) != len(normalized) and snapshot.schema_version not in {"2.0", "3.0"}:
+    if len(set(normalized)) != len(normalized) and snapshot.schema_version not in {
+        "2.0",
+        "3.0",
+        "3.1",
+    }:
         return None
     return tuple(sorted(set(normalized))), used_occurrence_keys
 

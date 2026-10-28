@@ -650,7 +650,8 @@ class WorkflowRunRequest(BaseModel):
     mode: RunMode = "workflow"
     data_source: WorkflowDataSourceBinding | None = None
     observational_input: ObservationalRunInput | None = None
-    trinity_bundle_ref: str | None = None
+    trinity_bundle_ref: ArtifactRef | str | None = None
+    registry_bundle_ref: ArtifactRef | None = None
     policy_spec_ref: str | None = None
     model_spec_ref: str | None = None
     research_intent_ref: str | None = None
@@ -672,6 +673,24 @@ class WorkflowRunRequest(BaseModel):
         default_factory=dict,
         json_schema_extra=_conditional_transport_request_schema,
     )
+
+    @model_validator(mode="after")
+    def _validate_selected_workflow_inputs(self) -> Self:
+        """Keep profiled workflow inputs exact without changing legacy Trinity IDs."""
+        if "registry_bundle_ref" in self.model_fields_set and self.registry_bundle_ref is None:
+            raise ValueError("workflow_registry_bundle_ref_explicit_null")
+        for name, expected_kind in (
+            ("trinity_bundle_ref", "ir.trinity_bundle"),
+            ("registry_bundle_ref", "core.registry_bundle"),
+        ):
+            value = getattr(self, name)
+            if isinstance(value, ArtifactRef) and (
+                value.kind != expected_kind
+                or value.media_type != "application/json"
+                or value.manifest_profile_sha256 is None
+            ):
+                raise ValueError(f"workflow_{name}_selected_identity_invalid")
+        return self
 
     @field_validator("params", mode="before")
     @classmethod

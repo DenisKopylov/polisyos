@@ -617,6 +617,31 @@ def test_reader_integrity_reads_only_vector_blob_and_checks_selected_source_chai
     assert recorder.read_blob_ids == [str(vector_ref.artifact_id)], recorder.read_blob_ids
 
 
+def test_reader_reselects_after_read_and_withholds_revoked_selection(
+    cas_store, public_method_metric_source: dict[str, Any]
+) -> None:
+    """A current selection revoked while vector bytes are read cannot be emitted."""
+    source = public_method_metric_source
+    vector_ref = _persist_vector(cas_store, source)
+    selection = _selection(source, vector_ref)
+
+    class Owner:
+        calls = 0
+
+        def get_method_execution_selection(self, **kwargs):
+            self.calls += 1
+            return selection if self.calls == 1 else None
+
+    owner = Owner()
+    result = read_current_admitted_method_metric_projection(
+        cas_store, owner=owner, run_id="run-1", tenant_id="tenant-1", cell_id="cell-1"
+    )
+    assert result.status == "verification_missing"
+    assert result.vector_ref is None and result.observations == ()
+    assert result.limitations == ("current_method_execution_selection_changed_during_read",)
+    assert owner.calls == 2
+
+
 def test_reader_integrity_fails_closed_when_bundle_output_edge_is_removed(
     cas_store,
     public_method_metric_source: dict[str, Any],
@@ -950,11 +975,18 @@ def _exercise_public_execute_method_metric_source(
     *,
     artifact_store: ArtifactStore | None = None,
     foundry_port: object | None = None,
+    execution_data_snapshot_ref: ArtifactRef | None = None,
+    candidate_data_snapshot_edge_ref: ArtifactRef | None = None,
+    expected_executed_mean: float | None = None,
+    execution_seed: int = 41,
     job_id: str = "job-public-execute",
     run_id: str = "run-public-execute",
     attempt: int = 1,
     capture_only: bool = False,
+    prepare_only: bool = False,
     request: pytest.FixtureRequest | None = None,
+    scenario_values: tuple[float, ...] | None = None,
+    baseline_values: tuple[float, ...] | None = None,
 ) -> dict[str, Any]:
     """Exercise compiler-backed capture or explicit scalar projection through Foundry."""
     import hashlib
@@ -1072,8 +1104,14 @@ def _exercise_public_execute_method_metric_source(
             return_selected_profile=True,
         )
 
-    baseline = np.asarray([10.0, 20.0, 40.0], dtype=np.float64)
-    scenario = np.asarray([11.0, 18.0, 44.0], dtype=np.float64)
+    baseline = np.asarray(
+        baseline_values if baseline_values is not None else [10.0, 20.0, 40.0],
+        dtype=np.float64,
+    )
+    scenario = np.asarray(
+        scenario_values if scenario_values is not None else [11.0, 18.0, 44.0],
+        dtype=np.float64,
+    )
 
     semantics = MethodMetricSemanticContract(
         quantity_kind="value",
@@ -1197,7 +1235,7 @@ def _exercise_public_execute_method_metric_source(
     )
     input_bindings = build_input_bindings(
         store,
-        data_snapshot_ref=data_snapshot_ref,
+        data_snapshot_ref=execution_data_snapshot_ref or data_snapshot_ref,
         registry_bundle_ref=registry.bundle_ref,
         return_selected_profile=True,
     )
@@ -1237,7 +1275,7 @@ def _exercise_public_execute_method_metric_source(
         candidate,
         inputs=[
             input_ref_from_artifact_ref(
-                data_snapshot_ref,
+                candidate_data_snapshot_edge_ref or data_snapshot_ref,
                 role="world_model_data_snapshot",
             ),
             input_ref_from_artifact_ref(registry.bundle_ref, role="world_model_registry"),
@@ -1251,6 +1289,19 @@ def _exercise_public_execute_method_metric_source(
         schema_version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
         inputs=[input_ref_from_artifact_ref(candidate_ref, role="policy_candidate")],
     )
+    if prepare_only:
+        # Inputs only: no Foundry execute, owner selection, or fabricated finalization.
+        return {
+            "store": store,
+            "data_snapshot_ref": data_snapshot_ref,
+            "registry_ref": registry.bundle_ref,
+            "trinity_ref": trinity_ref,
+            "candidate_ref": candidate_ref,
+            "candidate": candidate,
+            "method_fqn": method_signature.fqn,
+            "method_version": method_signature.version,
+            "method_backend": method_signature.execution_backend.value,
+        }
     if capture_only:
         unseen_signature = replace(
             method_signature,
@@ -1369,7 +1420,7 @@ def _exercise_public_execute_method_metric_source(
             exec_plan_ref=compiled_exec_plan_ref,
             input_bindings_ref=input_bindings.input_bindings_ref,
             registry_bundle_ref=registry.bundle_ref,
-            exec_config=FoundryExecConfig(seed=41, mode="dev", capture_env=True),
+            exec_config=FoundryExecConfig(seed=execution_seed, mode="dev", capture_env=True),
             return_selected_profile=True,
         )
         execute = getattr(active_foundry, "execute", None)
@@ -1395,7 +1446,7 @@ def _exercise_public_execute_method_metric_source(
         assert returned_result.runtime_type == "builtins.dict"
         assert len(method_execution_outputs) == 1
         computed_result = method_execution_outputs[0]["result"]
-        assert computed_result["mean_change"] == pytest.approx(1.0)
+        assert computed_result["mean_change"] == pytest.approx(float(np.mean(scenario - baseline)))
         assert computed_result["n_agents"] == len(baseline)
         derived_binding_refs = [
             item.ref for item in result.derived_refs if item.role == "method_metric_binding_set"
@@ -1565,7 +1616,7 @@ def _exercise_public_execute_method_metric_source(
         exec_plan_ref=plan_ref,
         input_bindings_ref=input_bindings.input_bindings_ref,
         registry_bundle_ref=registry.bundle_ref,
-        exec_config=FoundryExecConfig(seed=41, mode="dev", capture_env=True),
+        exec_config=FoundryExecConfig(seed=execution_seed, mode="dev", capture_env=True),
         return_selected_profile=True,
     )
 
@@ -1654,7 +1705,11 @@ def _exercise_public_execute_method_metric_source(
         f"{observation.source_status}:{','.join(observation.limitations)}; "
         f"returned_inventory={returned_inventory!r}"
     )
-    assert observation.value == pytest.approx(1.0)
+    assert observation.value == pytest.approx(
+        float(np.mean(scenario - baseline))
+        if expected_executed_mean is None
+        else expected_executed_mean
+    )
     assert "external_causal_validity_not_established" in observation.limitations
     assert "external_empirical_calibration_not_established" in observation.limitations
     assert "external_legal_permission_not_established" in observation.limitations
@@ -2130,6 +2185,7 @@ def _exercise_public_execute_method_metric_source(
         "bundle_ref": bundle_ref,
         "projection_admission": outcome.admission,
         "projection": completed_projection,
+        "completed_source": completed_source,
         "observation": observation,
     }
 
@@ -3841,3 +3897,330 @@ def test_voi_refuses_real_producer_13_method_observation_vector(
     assert not _policy_evaluation_vector_source_chain_matches_store(
         cas_store, rich_ref, candidate_ref, candidate_id
     )
+
+
+def test_completed_ex_ante_rank_projection_replays_selected_source_and_refuses_swap(
+    tmp_path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Actual Foundry source plus test-double owner exercises only the C06 seam."""
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.scientist.nodes.builtins.decide.policy_runtime_method_metrics import (
+        recompute_completed_ex_ante_rank_projection,
+    )
+
+    artifacts = _exercise_public_execute_method_metric_source(tmp_path, monkeypatch)
+    basis = artifacts["projection"].basis
+    candidate_ref = artifacts["candidate_ref"]
+    projection = recompute_completed_ex_ante_rank_projection(
+        artifacts["store"], basis=basis, candidate_ref=candidate_ref
+    )
+    assert projection.status == "selected", projection.limitations
+    assert projection.authority_status == "candidate_only"
+    assert projection.minimized_score == pytest.approx(-1.0)
+    assert projection.maximizing_coordinate == pytest.approx(1.0)
+    assert projection.comparison_contract_sha256
+
+    changed = ArtifactRef.model_validate(
+        {
+            **candidate_ref.model_dump(mode="json"),
+            "manifest_profile_sha256": "sha256:" + "f" * 64,
+        }
+    )
+    wrong = recompute_completed_ex_ante_rank_projection(
+        artifacts["store"], basis=basis, candidate_ref=changed
+    )
+    assert wrong.status != "selected"
+    assert wrong.minimized_score is None
+    assert wrong.maximizing_coordinate is None
+    # Persist the same candidate bytes under a genuinely different selected
+    # manifest profile. An artifact ID alone does not identify the selected source.
+    store = artifacts["store"]
+    manifest = store.get_manifest(candidate_ref)
+    alternate = store.put_bytes(
+        store.get_bytes(candidate_ref),
+        PutOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=manifest.artifact_schema,
+            producer=manifest.producer,
+            env=manifest.env,
+            inputs=[
+                *manifest.inputs,
+                input_ref_from_artifact_ref(candidate_ref, role="profile_variant_source"),
+            ],
+            canon=manifest.canon,
+            governance=manifest.governance,
+            tenant_context=manifest.tenant_context,
+            same_input_closure=manifest.same_input_closure,
+            authority=manifest.authority,
+            warnings=manifest.warnings,
+        ),
+        return_selected_profile=True,
+    )
+    assert alternate.artifact_id == candidate_ref.artifact_id
+    assert alternate.manifest_profile_sha256 != candidate_ref.manifest_profile_sha256
+    selected_sibling = recompute_completed_ex_ante_rank_projection(
+        store, basis=basis, candidate_ref=alternate
+    )
+    assert selected_sibling.status != "selected"
+    assert selected_sibling.minimized_score is None
+    missing = recompute_completed_ex_ante_rank_projection(
+        artifacts["store"], basis=None, candidate_ref=candidate_ref
+    )
+    assert missing.status == "verification_missing"
+    assert missing.comparison_contract_sha256 is None
+
+
+def test_completed_reader_reselects_after_bounded_source_read(
+    tmp_path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """An owner revoked during source CAS read cannot yield a selected basis."""
+    artifacts = _exercise_public_execute_method_metric_source(tmp_path, monkeypatch)
+
+    class Owner:
+        calls = 0
+
+        def resolve_completed_method_metric_selection(self, **kwargs):
+            self.calls += 1
+            return artifacts["completed_source"] if self.calls == 1 else None
+
+    owner = Owner()
+    read = read_completed_admitted_method_metric_projection(
+        artifacts["store"],
+        owner=owner,
+        source_run_id=artifacts["work"].run_id,
+        candidate_ref=artifacts["candidate_ref"],
+        tenant_id="tenant-public-execute",
+        cell_id="cell-public-execute",
+    )
+    assert read.status == "verification_missing"
+    assert read.basis is None
+    assert read.limitations == ("completed_method_metric_source_changed_during_read",)
+    assert owner.calls == 2
+
+
+def test_two_ex_ante_sources_require_same_complete_comparison_basis(
+    tmp_path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Real paired-array law; its completed-owner doubles establish only this unit seam."""
+    from polisyos.scientist.nodes.builtins.decide.policy_runtime_method_metrics import (
+        recompute_completed_ex_ante_rank_projection,
+    )
+
+    sources = [
+        _exercise_public_execute_method_metric_source(
+            tmp_path / name,
+            monkeypatch,
+            job_id=f"job-{name}",
+            run_id=f"run-{name}",
+            scenario_values=values,
+        )
+        for name, values in (
+            ("a", (11.0, 18.0, 44.0)),
+            ("b", (12.0, 20.0, 44.0)),
+        )
+    ]
+    projections = [
+        recompute_completed_ex_ante_rank_projection(
+            source["store"],
+            basis=source["projection"].basis,
+            candidate_ref=source["candidate_ref"],
+        )
+        for source in sources
+    ]
+    assert all(item.status == "selected" for item in projections)
+    assert projections[0].comparison_contract_sha256 == projections[1].comparison_contract_sha256
+    assert [item.maximizing_coordinate for item in projections] == pytest.approx([1.0, 2.0])
+
+
+def test_ex_ante_rank_comparison_detects_changed_baseline(
+    tmp_path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """An independently executed different baseline is not the same comparison basis."""
+    from polisyos.scientist.nodes.builtins.decide.policy_runtime_method_metrics import (
+        recompute_completed_ex_ante_rank_projection,
+    )
+
+    first = _exercise_public_execute_method_metric_source(
+        tmp_path / "a", monkeypatch, job_id="job-baseline-a", run_id="run-baseline-a"
+    )
+    second = _exercise_public_execute_method_metric_source(
+        tmp_path / "b",
+        monkeypatch,
+        job_id="job-baseline-b",
+        run_id="run-baseline-b",
+        baseline_values=(10.0, 20.0, 41.0),
+    )
+    a, b = (
+        recompute_completed_ex_ante_rank_projection(
+            source["store"],
+            basis=source["projection"].basis,
+            candidate_ref=source["candidate_ref"],
+        )
+        for source in (first, second)
+    )
+    assert a.status == b.status == "selected"
+    assert a.comparison_contract_sha256 != b.comparison_contract_sha256
+
+
+def test_ex_ante_rank_refuses_actual_snapshot_different_from_candidate(
+    tmp_path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A real Foundry execution on B cannot be ranked as candidate A's source."""
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.scientist.nodes.builtins.decide.policy_runtime_method_metrics import (
+        recompute_completed_ex_ante_rank_projection,
+    )
+
+    store = FileSystemCAS(tmp_path / "shared-cas")
+    b = _exercise_public_execute_method_metric_source(
+        tmp_path / "b",
+        monkeypatch,
+        artifact_store=store,
+        scenario_values=(12.0, 20.0, 44.0),
+        prepare_only=True,
+    )
+    mismatched = _exercise_public_execute_method_metric_source(
+        tmp_path / "a",
+        monkeypatch,
+        artifact_store=store,
+        execution_data_snapshot_ref=b["data_snapshot_ref"],
+        expected_executed_mean=2.0,
+    )
+    # The seam uses the existing test-double owner; it establishes a real
+    # Foundry source join, not an actual completed Runtime-job receipt.
+    assert mismatched["projection"].status == "selected"
+    result = recompute_completed_ex_ante_rank_projection(
+        store,
+        basis=mismatched["projection"].basis,
+        candidate_ref=mismatched["candidate_ref"],
+    )
+    assert result.status == "verification_missing"
+    assert result.limitations == ("completed_ex_ante_source_inputs_not_comparable",)
+    assert result.maximizing_coordinate is None
+
+
+def test_ex_ante_rank_refuses_body_to_selected_snapshot_edge_mismatch(
+    tmp_path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A candidate declaring A cannot acquire B by changing only its manifest edge."""
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.scientist.nodes.builtins.decide.policy_runtime_method_metrics import (
+        recompute_completed_ex_ante_rank_projection,
+    )
+
+    store = FileSystemCAS(tmp_path / "shared-cas")
+    b = _exercise_public_execute_method_metric_source(
+        tmp_path / "b",
+        monkeypatch,
+        artifact_store=store,
+        scenario_values=(12.0, 20.0, 44.0),
+        prepare_only=True,
+    )
+    mismatch = _exercise_public_execute_method_metric_source(
+        tmp_path / "a",
+        monkeypatch,
+        artifact_store=store,
+        candidate_data_snapshot_edge_ref=b["data_snapshot_ref"],
+        execution_data_snapshot_ref=b["data_snapshot_ref"],
+        expected_executed_mean=2.0,
+    )
+    assert mismatch["projection"].status == "selected"
+    result = recompute_completed_ex_ante_rank_projection(
+        store, basis=mismatch["projection"].basis, candidate_ref=mismatch["candidate_ref"]
+    )
+    assert result.status == "verification_missing"
+    assert result.limitations == ("completed_ex_ante_candidate_model_source_mismatch",)
+    assert result.maximizing_coordinate is None
+
+
+def test_candidate_comparison_reselects_each_source_before_return(
+    tmp_path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Test-double scope exercises the reselect seam, never Runtime authority."""
+    from types import SimpleNamespace
+
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.core.contracts.runtime import CompletedExAnteCandidateSource
+    from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry
+
+    store = FileSystemCAS(tmp_path / "shared-cas")
+    results = [
+        _exercise_public_execute_method_metric_source(
+            tmp_path / name,
+            monkeypatch,
+            artifact_store=store,
+            job_id=f"job-{name}",
+            run_id=f"run-{name}",
+            scenario_values=values,
+        )
+        for name, values in (("a", (11.0, 18.0, 44.0)), ("b", (12.0, 20.0, 44.0)))
+    ]
+    source_rows = tuple(
+        CompletedExAnteCandidateSource(
+            source_run_id=item["work"].run_id, candidate_ref=item["candidate_ref"]
+        )
+        for item in results
+    )
+
+    class ScopedOwnerDouble:
+        def __init__(self, revoke_during_final_read: bool) -> None:
+            self.calls = 0
+            self.revoke_during_final_read = revoke_during_final_read
+
+        def resolve_completed_method_metric_selection(
+            self, *, source_run_id, candidate_ref, tenant_id, cell_id
+        ):
+            assert (tenant_id, cell_id) == ("tenant-public-execute", "cell-public-execute")
+            self.calls += 1
+            # Two owner lookups per source in initial replay; revoke on the
+            # post-read lookup of source A during the final re-selection.
+            if self.revoke_during_final_read and self.calls >= 6:
+                return None
+            for item in results:
+                if item["work"].run_id == source_run_id and item["candidate_ref"] == candidate_ref:
+                    return item["completed_source"]
+            return None
+
+    def compare(owner):
+        context = SimpleNamespace(
+            store=store,
+            method_metric_selection_owner=owner,
+            run=SimpleNamespace(tenant_id="tenant-public-execute", cell_id="cell-public-execute"),
+        )
+        return ParetoRegistry.rank_completed_ex_ante_candidates(ctx=context, sources=source_rows)
+
+    positive = compare(ScopedOwnerDouble(False))
+    assert positive.status == "complete", positive.limitations
+    assert positive.authority_status == "candidate_only"
+    assert [item.maximizing_coordinate for item in positive.observations] == pytest.approx(
+        [1.0, 2.0]
+    )
+    revoked = compare(ScopedOwnerDouble(True))
+    assert revoked.status == "verification_missing"
+    assert revoked.frontier_candidate_hashes == ()
+
+
+def test_ex_ante_rank_comparison_detects_actual_seed_drift(
+    tmp_path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Even an unchanged observed mean cannot erase the actual execution seed."""
+    from polisyos.scientist.nodes.builtins.decide.policy_runtime_method_metrics import (
+        recompute_completed_ex_ante_rank_projection,
+    )
+
+    first = _exercise_public_execute_method_metric_source(
+        tmp_path / "a", monkeypatch, job_id="job-seed-a", run_id="run-seed-a", execution_seed=41
+    )
+    second = _exercise_public_execute_method_metric_source(
+        tmp_path / "b", monkeypatch, job_id="job-seed-b", run_id="run-seed-b", execution_seed=42
+    )
+    a, b = (
+        recompute_completed_ex_ante_rank_projection(
+            source["store"], basis=source["projection"].basis, candidate_ref=source["candidate_ref"]
+        )
+        for source in (first, second)
+    )
+    assert a.status == b.status == "selected"
+    assert a.maximizing_coordinate == b.maximizing_coordinate == pytest.approx(1.0)
+    assert a.comparison_contract_sha256 != b.comparison_contract_sha256

@@ -89,6 +89,7 @@ if TYPE_CHECKING:
     from polisyos.scientist.methods.search.lifecycle import _SearchLifecycleOwner
     from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry
     from polisyos.scientist.methods.search.strategies.transfer import (
+        RunFingerprint,
         TransferLearningManager,
     )
     from polisyos.scientist.orchestration.engine.budget_ledger import (
@@ -1387,9 +1388,11 @@ class SearchConfig:
     batch_size: int = 1
     resource_arbiter: Any | None = None
     transfer_manager: TransferLearningManager | None = None
+    transfer_fingerprint: RunFingerprint | None = None
     initial_evaluations: list[dict[str, Any]] = field(default_factory=list)
     policy_objective_stack: ObjectiveStack | None = None
     pareto_registry: ParetoRegistry | None = None
+    policy_source_store: Any | None = None
     pareto_objective_basis_by_view: dict[str, ParetoBasisScope] = field(default_factory=dict)
     max_empty_generation_attempts: int = 3
     producer_settlement_store: BudgetMiddleware | None = None
@@ -1403,6 +1406,18 @@ class SearchConfig:
         ):
             raise TypeError("pareto_objective_basis_by_view values must be ParetoBasisScope")
         self.pareto_objective_basis_by_view = deepcopy(self.pareto_objective_basis_by_view)
+        if self.transfer_fingerprint is not None:
+            from polisyos.scientist.methods.search.strategies.transfer import (
+                RunFingerprint,
+                TransferLearningManager,
+            )
+
+            if type(self.transfer_manager) is not TransferLearningManager:
+                raise TypeError("transfer_history_owner_required")
+            if type(self.transfer_fingerprint) is not RunFingerprint:
+                raise TypeError("transfer_history_fingerprint_required")
+            if not self.transfer_manager._has_complete_binding_basis(self.transfer_fingerprint):
+                raise ValueError("transfer_history_fingerprint_incomplete")
         if self.max_iterations_hard_limit < 1:
             raise ValueError("max_iterations_hard_limit must be >= 1")
         if self.max_empty_generation_attempts < 1:

@@ -38,6 +38,7 @@ from polisyos.scientist.methods.search.uncertainty import (
 )
 
 if TYPE_CHECKING:
+    from polisyos.scientist.methods.search.contracts import CandidateProposal
     from polisyos.scientist.methods.search.voi_scheduler import SchedulingDecision
 
 FunnelEvaluationStatus = Literal["not_evaluated", "partial", "evaluated"]
@@ -477,6 +478,8 @@ class FunnelTicket(_FunnelTicketMethodMetricCapabilitySlot):
     search_uncertainty_task_binding_ref: ArtifactRef | None = None
     # The retained result history owner; the parent may itself be a reuse request.
     result_reuse_source_ticket_id: str | None = None
+    candidate_proposal: CandidateProposal | None = None
+    prior_attempt_ticket_id: str | None = None
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "_method_metric_projection_basis", None)
@@ -489,8 +492,9 @@ class FunnelTicket(_FunnelTicketMethodMetricCapabilitySlot):
         """Copy public state while dropping the ephemeral admission capability."""
         return replace(
             self,
-            candidate=dict(self.candidate),
+            candidate=deepcopy(self.candidate),
             context=dict(self.context),
+            candidate_proposal=deepcopy(self.candidate_proposal),
             stage_results=deepcopy(self.stage_results),
             trace=deepcopy(self.trace),
             lesson_refs=list(self.lesson_refs),
@@ -513,6 +517,14 @@ class FunnelTicket(_FunnelTicketMethodMetricCapabilitySlot):
         if not self.stage_results:
             return None
         return self.stage_results[max(self.stage_results)]
+
+
+@dataclass(slots=True)
+class FunnelAttemptHistory:
+    """Actual trace retained under the organizational attempt that ran it."""
+
+    ticket_id: str
+    trace: list[FunnelTraceStep] = field(default_factory=list)
 
 
 @dataclass(slots=True)
@@ -544,6 +556,10 @@ class FunnelOutcome:
     uncertainty_intake_failures: list[str] = field(default_factory=list)
     search_uncertainty_current_read: SearchUncertaintyCurrentRead | None = None
     result_reuse_source_ticket_id: str | None = None
+    prior_attempt_ticket_id: str | None = None
+    prior_attempt_trace: list[FunnelTraceStep] = field(default_factory=list)
+    prior_attempt_history: list[FunnelAttemptHistory] = field(default_factory=list)
+    prior_attempt_history_status: Literal["complete", "verification_missing"] = "complete"
 
     def __post_init__(self) -> None:
         _validate_funnel_cost(self.compute_cost_usd, self.compute_cost_origin)
@@ -552,6 +568,7 @@ class FunnelOutcome:
 # Keep import, repr, and pickle resolution at the historical owner module.
 _HISTORICAL_FUNNEL_MODULE = "polisyos.scientist.methods.search.funnel.orchestrator"
 FunnelTraceStep.__module__ = _HISTORICAL_FUNNEL_MODULE
+FunnelAttemptHistory.__module__ = _HISTORICAL_FUNNEL_MODULE
 FunnelTicket.__module__ = _HISTORICAL_FUNNEL_MODULE
 FunnelOutcome.__module__ = _HISTORICAL_FUNNEL_MODULE
 

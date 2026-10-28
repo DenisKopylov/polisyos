@@ -13,6 +13,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 from polisyos.scientist.methods.search.contracts import CandidateProposal
+from polisyos.scientist.methods.search.frontier import materialize_candidate_proposal
 from polisyos.scientist.methods.search.funnel.orchestrator import (
     FunnelOrchestrator,
     FunnelOutcome,
@@ -45,7 +46,9 @@ class OrchestratorFunnelService:
         context: dict[str, Any] | None = None,
     ) -> FunnelTicket:
         """Submit one proposal to the existing multi-fidelity orchestrator."""
-        return self.orchestrator.submit(candidate.payload, context or {})
+        return self.orchestrator.submit(
+            materialize_candidate_proposal(candidate), context or {}, candidate_proposal=candidate
+        )
 
     def get_result(self, ticket: FunnelTicket | str) -> FunnelOutcome:
         """Return a completed outcome, advancing the existing ticket if needed."""

@@ -848,6 +848,11 @@ def _unconsumed_observational_http_field_cases() -> tuple[tuple[str, object], ..
     cases: list[tuple[str, object]] = []
     for name in sorted(fields):
         model_field = WorkflowRunRequest.model_fields[name]
+        if name == "registry_bundle_ref":
+            cases.append(
+                (name, _selected_ref("core.registry_bundle", "c", "d").model_dump(mode="json"))
+            )
+            continue
         if name == "checkpoint_policy":
             cases.append((name, model_field.default))
             continue
@@ -1776,17 +1781,90 @@ def test_method_metric_surface_checks_owner_scope_before_selection_lookup(
         raise AssertionError("unauthorized request reached the owner reader")
 
     monkeypatch.setattr(service, "read_current_admitted_method_metric_projection", read_projection)
-    run_id = runtime_api_env["cross_tenant_run_id"]
-    response = runtime_api_env["client"].get(f"/api/v1/runs/{run_id}/method-metrics")
-    assert response.status_code in {403, 404}
-    assert lookups == []
+    monkeypatch.setattr(service, "read_current_completed_ex_ante_candidate_score", read_projection)
+    monkeypatch.setattr(service, "read_current_completed_ex_ante_comparison", read_projection)
+    for suffix in ("method-metrics", "method-metric-comparison"):
+        run_id = runtime_api_env["cross_tenant_run_id"]
+        response = runtime_api_env["client"].get(f"/api/v1/runs/{run_id}/{suffix}")
+        assert response.status_code in {403, 404}
+        assert lookups == []
 
-    with fixture_identity_cell(monkeypatch, cell_id="cell-not-owned-by-run"):
-        cell_mismatch = runtime_api_env["client"].get(
-            f"/api/v1/runs/{runtime_api_env['core_run_id']}/method-metrics"
+        with fixture_identity_cell(monkeypatch, cell_id="cell-not-owned-by-run"):
+            cell_mismatch = runtime_api_env["client"].get(
+                f"/api/v1/runs/{runtime_api_env['core_run_id']}/{suffix}"
+            )
+        assert cell_mismatch.status_code == 403
+        assert lookups == []
+
+
+@pytest.mark.parametrize("final", ["unchanged", "replaced_profile", "revoked"])
+def test_method_metric_score_follows_the_final_selected_projection(
+    runtime_api_env: dict[str, Any], monkeypatch: pytest.MonkeyPatch, final: str
+) -> None:
+    """A route seam can change while score replay is in flight; stale rows do not escape."""
+    from polisyos.core.contracts.runtime import MethodMetricCandidateScore
+
+    service = runtime_api_env["app"].state._control_service
+    vector = _selected_ref("scientist.policy_evaluation_vector", "a", "b")
+    replacement = _selected_ref("scientist.policy_evaluation_vector", "a", "c")
+    candidate = _selected_ref("scientist.policy_design.candidate", "d", "e")
+    assert vector.artifact_id == replacement.artifact_id and vector != replacement
+    calls = []
+
+    def read_projection(**kwargs: Any) -> object:
+        calls.append(kwargs)
+        if len(calls) == 1 or final == "unchanged":
+            return SimpleNamespace(
+                status="selected", vector_ref=vector, observations=({"value": 1},), limitations=()
+            )
+        if final == "replaced_profile":
+            return SimpleNamespace(
+                status="selected",
+                vector_ref=replacement,
+                observations=({"value": 2},),
+                limitations=(),
+            )
+        return SimpleNamespace(
+            status="verification_missing",
+            vector_ref=None,
+            observations=(),
+            limitations=("revoked",),
         )
-    assert cell_mismatch.status_code == 403
-    assert lookups == []
+
+    def read_score(**kwargs: Any) -> MethodMetricCandidateScore:
+        return MethodMetricCandidateScore(
+            status="selected",
+            candidate_ref=candidate,
+            source_vector_ref=vector,
+            minimized_score=-1.0,
+            maximizing_coordinate=1.0,
+            comparison_contract_sha256="f" * 64,
+        )
+
+    def no_comparison(**kwargs: Any) -> object:
+        raise AssertionError("single-source GET must not execute the separate comparison")
+
+    monkeypatch.setattr(service, "read_current_admitted_method_metric_projection", read_projection)
+    monkeypatch.setattr(service, "read_current_completed_ex_ante_candidate_score", read_score)
+    monkeypatch.setattr(service, "read_current_completed_ex_ante_comparison", no_comparison)
+    response = runtime_api_env["client"].get(
+        f"/api/v1/runs/{runtime_api_env['core_run_id']}/method-metrics"
+    )
+    assert response.status_code == 200, response.text
+    payload = response.json()
+    if final == "unchanged":
+        assert payload["status"] == "selected"
+        assert payload["candidate_score"]["status"] == "selected"
+    elif final == "replaced_profile":
+        assert payload["status"] == "selected"
+        assert payload["vector_ref"] == replacement.model_dump(mode="json")
+        assert payload["observations"] == [{"value": 2}]
+        assert payload["candidate_score"]["status"] == "verification_missing"
+    else:
+        assert payload["status"] == "verification_missing"
+        assert payload["vector_ref"] is None and payload["observations"] == []
+        assert payload["candidate_score"]["status"] == "verification_missing"
+    assert len(calls) == 2
 
 
 def test_run_details_withholds_method_projection_for_wrong_cell_scope(
@@ -4023,6 +4101,14 @@ def test_registered_public_graph_execute_reaches_runtime_owner_and_cold_metric_g
         assert surfaced_observation["law_id"] == METHOD_METRIC_EX_ANTE_MEAN_CHANGE_LAW_ID
         assert surfaced_observation["objective_id"] == "objective_ex_ante_mean_change"
         assert surfaced_observation["metric_unit_id"] == "value"
+        # This is the existing test-built Core-owner scaffold. It witnesses the
+        # authorized current GET and score replay, not a full engine execution.
+        candidate_score = payload["candidate_score"]
+        assert candidate_score["status"] == "selected"
+        assert candidate_score["authority_status"] == "candidate_only"
+        assert candidate_score["revalidation_required"] is True
+        assert candidate_score["maximizing_coordinate"] == pytest.approx(1.0)
+        assert candidate_score["candidate_ref"] == candidate_ref.model_dump(mode="json")
 
     with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
         consumer_projection = read_completed_admitted_method_metric_projection(
@@ -4065,6 +4151,7 @@ def test_registered_public_graph_execute_reaches_runtime_owner_and_cold_metric_g
         revoked = runtime_api_env["client"].get(f"/api/v1/runs/{run_id}/method-metrics")
     assert revoked.status_code == 200, revoked.text
     assert revoked.json()["status"] == "verification_missing"
+    assert revoked.json()["candidate_score"] is None
     assert revoked.json()["vector_ref"] is None
     assert revoked.json()["observations"] == []
     assert revoked.json()["limitations"] == ["current_method_execution_selection_not_established"]
@@ -4314,3 +4401,238 @@ def test_meta_learner_v2_refuses_unexposed_parallelism_knobs_before_enqueue(
     assert response.status_code == 422
     assert response.json()["code"] == "observational_method_parameters_invalid"
     assert queued == []
+
+
+def test_two_real_completed_ex_ante_sources_are_reselected_by_fresh_planner(
+    runtime_api_env: dict[str, Any],
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Real Runtime/Scientist/Foundry path; input fixture does not execute or finalize."""
+    from _helpers.control_worker import dispatch_one_control_job, stop_embedded_control_worker
+    from unit.scientist.nodes.builtins.decide.test_policy_runtime_method_metrics import (
+        _exercise_public_execute_method_metric_source,
+    )
+
+    from polisyos.core.artifacts import validate_core_model_json_artifact
+    from polisyos.core.contracts.control import WorkflowRunRequest
+    from polisyos.core.contracts.execution_plan import ExecutionPlan, MethodDagNode
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.http.execution_policy import RuntimePrincipal
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
+
+    service = runtime_api_env["app"].state._control_service
+    stop_embedded_control_worker(service)
+    store = service._artifact_store
+    tenant_id, cell_id = runtime_api_env["tenant_a"], runtime_api_env["cell_a"]
+    principal = RuntimePrincipal(
+        subject="completed-ex-ante-reader",
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        roles=frozenset({"analyst"}),
+        authenticated=True,
+    )
+    sources = []
+    source_job_ids = []
+    prepared_sources = []
+    for name, scenario in (("a", (11.0, 18.0, 44.0)), ("b", (12.0, 20.0, 44.0))):
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            prepared = _exercise_public_execute_method_metric_source(
+                tmp_path / name,
+                monkeypatch,
+                artifact_store=store,
+                scenario_values=scenario,
+                prepare_only=True,
+            )
+            plan = ExecutionPlan(
+                plan_id="completed_ex_ante_comparison",
+                run_id="pending",
+                method_dag=[
+                    MethodDagNode(
+                        node_id="ex_ante_node",
+                        method_fqn=prepared["method_fqn"],
+                        method_version=prepared["method_version"],
+                        backend=prepared["method_backend"],
+                        params={"poverty_line": None},
+                        reads_slots=["baseline", "scenario"],
+                        writes_slots=["result"],
+                    )
+                ],
+            )
+            launch = service.launch_workflow_run(
+                WorkflowRunRequest(
+                    data_source={
+                        "data_snapshot_ref": prepared["data_snapshot_ref"].model_dump(mode="json")
+                    },
+                    trinity_bundle_ref=prepared["trinity_ref"],
+                    registry_bundle_ref=prepared["registry_ref"],
+                    params={
+                        "control_plane_transition": "legacy_shadow",
+                        "capture_method_metric_environment": True,
+                        "method_metric_bindings": [
+                            {
+                                "objective_id": "objective_ex_ante_mean_change",
+                                "node_id": "ex_ante_node",
+                                "output_slot_id": "result",
+                            }
+                        ],
+                        "execution_plan": plan.model_dump(mode="json"),
+                    },
+                ),
+                principal=principal,
+            )
+        assert (
+            dispatch_one_control_job(
+                store=service._control_store,
+                handler=service._process_control_job,
+                expected_job_id=launch.job_id,
+            )
+            == launch.job_id
+        )
+        job = service._control_store.get_job(launch.job_id)
+        assert job is not None and job.state == "completed", job
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            selected = service.get_method_execution_selection(
+                run_id=launch.run_id, tenant_id=tenant_id, cell_id=cell_id
+            )
+            score = service.read_current_completed_ex_ante_candidate_score(
+                run_id=launch.run_id, tenant_id=tenant_id, cell_id=cell_id
+            )
+        assert isinstance(selected, GraphMethodExecutionSelection), selected
+        assert selected.metric_verification_status == "verified", selected
+        assert selected.source_candidate_ref == prepared["candidate_ref"]
+        assert score.status == "selected", score.limitations
+        assert score.authority_status == "candidate_only"
+        sources.append({"source_run_id": launch.run_id, "candidate_ref": prepared["candidate_ref"]})
+        source_job_ids.append(launch.job_id)
+        prepared_sources.append(prepared)
+
+    # Deliberately relabel B's source with A's candidate; the real Runtime owner
+    # must not admit this as a score for A.
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        assert (
+            service.resolve_completed_method_metric_selection(
+                source_run_id=sources[1]["source_run_id"],
+                candidate_ref=sources[0]["candidate_ref"],
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+            )
+            is None
+        )
+        assert (
+            service.resolve_completed_method_metric_selection(
+                source_run_id=sources[0]["source_run_id"],
+                candidate_ref=sources[0]["candidate_ref"],
+                tenant_id=tenant_id,
+                cell_id="different-cell",
+            )
+            is None
+        )
+
+    first = prepared_sources[0]
+    planner_request = WorkflowRunRequest(
+        data_source={"data_snapshot_ref": first["data_snapshot_ref"].model_dump(mode="json")},
+        trinity_bundle_ref=first["trinity_ref"],
+        registry_bundle_ref=first["registry_ref"],
+        params={
+            "control_plane_transition": "legacy_shadow",
+            "workflow_id": "scientist_policy_design",
+            "policy_candidate_schema": first["candidate"].model_dump(mode="json"),
+            "policy_search_completed_ex_ante_comparison": {
+                "sources": [
+                    {
+                        "source_run_id": source["source_run_id"],
+                        "candidate_ref": source["candidate_ref"].model_dump(mode="json"),
+                    }
+                    for source in sources
+                ]
+            },
+        },
+    )
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        planner = service.launch_workflow_run(planner_request, principal=principal)
+    assert (
+        dispatch_one_control_job(
+            store=service._control_store,
+            handler=service._process_control_job,
+            expected_job_id=planner.job_id,
+        )
+        == planner.job_id
+    )
+    planner_job = service._control_store.get_job(planner.job_id)
+    assert planner_job is not None and planner_job.state == "completed", planner_job
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        state_ref = service._legacy_scientist_final_state_ref(job=planner_job)
+        assert state_ref is not None
+        state = validate_core_model_json_artifact(ExperimentState, store, state_ref)
+    comparison = state.params["policy_search_result"]["completed_ex_ante_candidate_comparison"]
+    assert comparison["status"] == "complete", comparison
+    assert comparison["authority_status"] == "candidate_only"
+    assert comparison["revalidation_required"] is True
+    assert [row["maximizing_coordinate"] for row in comparison["observations"]] == pytest.approx(
+        [1.0, 2.0]
+    )
+    assert comparison["frontier_candidate_hashes"] == [
+        prepared_sources[1]["candidate"].candidate_hash()
+    ]
+
+    runtime_context = getattr(runtime_api_env["app"].state, "runtime_api_ctx", None)
+    if runtime_context is None:
+        runtime_context = runtime_api_env["app"].state.runtime_container.runtime_api_context
+    runtime_context.run_index.refresh(force=True)
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        fresh = runtime_api_env["client"].get(
+            f"/api/v1/runs/{planner.run_id}/method-metric-comparison"
+        )
+    assert fresh.status_code == 200, fresh.text
+    assert fresh.json()["candidate_comparison"]["status"] == "complete"
+    assert fresh.json()["candidate_comparison"]["frontier_candidate_hashes"] == [
+        prepared_sources[1]["candidate"].candidate_hash()
+    ]
+
+    # Revoke the real source while a second actual planner executes; do not
+    # replace its search or result with a fake. The post-search emission must
+    # reselect rather than keeping a pre-search complete comparison.
+    from polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search import (
+        HierarchicalPolicySearchAdapter,
+    )
+
+    original_run_search = HierarchicalPolicySearchAdapter.run_search
+    revoked_during_search = []
+
+    def revoke_then_run(adapter, *args, **kwargs):
+        service._control_store.mark_running(
+            job_id=source_job_ids[0], worker_id="candidate-comparison-revocation", lease_seconds=120
+        )
+        revoked_during_search.append(True)
+        return original_run_search(adapter, *args, **kwargs)
+
+    monkeypatch.setattr(HierarchicalPolicySearchAdapter, "run_search", revoke_then_run)
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        second_planner = service.launch_workflow_run(planner_request, principal=principal)
+    assert (
+        dispatch_one_control_job(
+            store=service._control_store,
+            handler=service._process_control_job,
+            expected_job_id=second_planner.job_id,
+        )
+        == second_planner.job_id
+    )
+    second_job = service._control_store.get_job(second_planner.job_id)
+    assert revoked_during_search == [True]
+    assert second_job is not None and second_job.state == "completed", second_job
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        second_ref = service._legacy_scientist_final_state_ref(job=second_job)
+        assert second_ref is not None
+        second_state = validate_core_model_json_artifact(ExperimentState, store, second_ref)
+        second_comparison = second_state.params["policy_search_result"][
+            "completed_ex_ante_candidate_comparison"
+        ]
+        revoked = runtime_api_env["client"].get(
+            f"/api/v1/runs/{planner.run_id}/method-metric-comparison"
+        )
+    assert second_comparison["status"] == "verification_missing"
+    assert second_comparison["frontier_candidate_hashes"] == []
+    assert revoked.status_code == 200, revoked.text
+    assert revoked.json()["candidate_comparison"]["status"] == "verification_missing"
+    assert revoked.json()["candidate_comparison"]["frontier_candidate_hashes"] == []

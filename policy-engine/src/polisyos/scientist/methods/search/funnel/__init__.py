@@ -11,6 +11,7 @@ from typing import Any
 
 from polisyos.scientist.methods.search.funnel.types import (
     CheapSignalVector,
+    FunnelAttemptHistory,
     FunnelStage,
     FunnelStageResult,
     TypedFailureCard,
@@ -22,6 +23,7 @@ from polisyos.scientist.methods.search.funnel.types import (
 __all__ = [
     # Core types (A.1)
     "CheapSignalVector",
+    "FunnelAttemptHistory",
     "FunnelStage",
     "FunnelStageResult",
     "FunnelOutcome",

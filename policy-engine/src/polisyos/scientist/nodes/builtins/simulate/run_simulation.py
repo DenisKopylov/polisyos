@@ -135,6 +135,7 @@ _SPEC = NodeSpec(
         f"inputs.{INPUT_TRINITY_BUNDLE_REF}",
         "params.policy_candidate_schema",
         "params.lex_policy_bundle_input",
+        "params.capture_method_metric_environment",
         "params.simulation_method",
         "params.simulation_horizon",
         "params.horizon",
@@ -332,6 +333,19 @@ class RunSimulationNode:
             metrics.record_slo_simulation_run("error", method=method)
             return NodeOutcome(status="fail", state=new_state, error=error)
 
+        capture_environment = state.params.get("capture_method_metric_environment", False)
+        if type(capture_environment) is not bool:
+            return NodeOutcome(
+                status="fail",
+                state=new_state,
+                error=NodeError(
+                    code=node_errors.ERROR_INVALID_STATE,
+                    message="capture_method_metric_environment must be a boolean",
+                ),
+            )
+        exec_config = self.exec_config.model_copy(
+            update={"capture_env": True} if capture_environment else {}
+        )
         try:
             request = ExecuteRequest(
                 exec_plan_ref=ExecPlanRef.model_validate(exec_plan_ref.model_dump(mode="json")),
@@ -346,7 +360,7 @@ class RunSimulationNode:
                     if parameter_override_bundle_ref is not None
                     else None
                 ),
-                exec_config=self.exec_config,
+                exec_config=exec_config,
             )
         except _SIMULATION_VALIDATION_ERRORS as exc:
             error = NodeError(

@@ -167,6 +167,7 @@ __all__ = [
     "BenchmarkRegistrySnapshot",
     "BudgetDeficitObjective",
     "CandidateProposal",
+    "CandidateStrategyContext",
     "ChampionRegistryContract",
     "CheapStage",
     "ComplianceAuditEntry",
@@ -314,6 +315,7 @@ def __getattr__(name: str) -> Any:
         return value
     if name in {
         "CandidateProposal",
+        "CandidateStrategyContext",
         "EvaluationBundle",
         "OrchestratorFunnelService",
         "SearchService",

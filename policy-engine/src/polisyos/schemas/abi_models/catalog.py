@@ -769,6 +769,15 @@ IR_ABI_MODELS: tuple[ABIModelEntry, ...] = (
 
 FABRIC_ABI_MODELS: tuple[ABIModelEntry, ...] = (
     ABIModelEntry(
+        abi_key="federation_fetch_audit",
+        fqn="polisyos.fabric.federated_fetch.FederationFetchAudit",
+        module="fabric",
+        schema_file="federation_fetch_audit.schema.json",
+        priority=Priority.P1,
+        version_field=None,
+        schema_mode=SchemaMode.SERIALIZATION,
+    ),
+    ABIModelEntry(
         abi_key="edge_kind",
         fqn="polisyos.ir.world.abi.EdgeKind",
         module="fabric",

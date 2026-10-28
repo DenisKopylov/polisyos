@@ -170,7 +170,7 @@ def render_schema_reference(catalog: IRSchemaCatalog) -> str:
             )
         if fabric_manifest is not None:
             lines.append(
-                f"- Fabric world ABI snapshot: "
+                f"- Fabric ABI snapshot: "
                 f"`{len(fabric_manifest.get('models', {}))}` schemas, generated "
                 f"`{fabric_manifest.get('generated_at', 'unknown')}`."
             )

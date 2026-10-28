@@ -133,6 +133,7 @@ def test_pre_move_abi_pickle_loads_before_the_live_catalog_consumer() -> None:
     )
     assert entry in ABI_MODELS
     additive_abi_keys = {
+        "federation_fetch_audit",
         "ate_inference_basis",
         "hte_outcome",
         "hte_point_result",

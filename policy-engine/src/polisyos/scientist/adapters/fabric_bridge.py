@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, cast, runtime_checkable
 
 from polisyos.common import serialization as common_serialization
 from polisyos.common.logger import get_logger
@@ -34,7 +34,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from polisyos.core.artifacts.protocol import ArtifactStore
-    from polisyos.fabric.api import ConnectorRegistryLike
+    from polisyos.fabric.api import ConnectorRegistryLike, FederationFetchRequest
 
 logger = get_logger(__name__)
 
@@ -67,6 +67,20 @@ class FabricFetchDataFn(Protocol):
         connector_id: str | None = None,
         constraints: dict[str, Any] | None = None,
         registry: ConnectorRegistryLike | None = None,
+    ) -> FetchResult[Any]: ...
+
+
+class _FederatedFabricFetchDataFn(FabricFetchDataFn, Protocol):
+    """Optional extended callback; legacy callback protocol stays compatible."""
+
+    def __call__(
+        self,
+        *,
+        dataset_id: str,
+        connector_id: str | None = None,
+        constraints: dict[str, Any] | None = None,
+        registry: ConnectorRegistryLike | None = None,
+        federation: FederationFetchRequest | None = None,
     ) -> FetchResult[Any]: ...
 
 
@@ -106,10 +120,12 @@ class DefaultFabricPort:
         fetch_data: FabricFetchDataFn = fabric_get_data,
         connector_registry: ConnectorRegistryLike | None = None,
         catalog_store: DatasetCatalogStoreLike | None = None,
+        federation: FederationFetchRequest | None = None,
     ) -> None:
         self._fetch_data = fetch_data
         self._connector_registry = connector_registry
         self._catalog_store = catalog_store
+        self._federation = federation
 
     def snapshot(self, store: ArtifactStore, request_ref: DataViewRequestRef) -> DataSnapshotRef:
         """Resolve a request artifact into a persisted `DataSnapshotRef`.
@@ -125,46 +141,122 @@ class DefaultFabricPort:
         payload = load_core_json_artifact(store, request_ref)
         query_request = _parse_query_request(payload)
 
-        dataset_id = _resolve_dataset_id(query_request)
-        constraints = _build_fetch_constraints(query_request)
+        if self._federation is None:
+            dataset_id = _resolve_dataset_id(query_request)
+            constraints = _build_fetch_constraints(query_request)
+        else:
+            # The explicit opt-in request is admitted as a whole before any
+            # legacy fallback, registry tier check or producer callback.
+            dataset_id, constraints = _admit_federation_query_request(query_request)
 
         _enforce_execution_tier(dataset_id, catalog_store=self._catalog_store)
 
-        fetch_result = self._fetch_data(
-            dataset_id=dataset_id,
-            constraints=constraints,
-            registry=self._connector_registry,
-        )
+        federation_audit: dict[str, Any] | None = None
+        if self._federation is None:
+            fetch_result = self._fetch_data(
+                dataset_id=dataset_id,
+                constraints=constraints,
+                registry=self._connector_registry,
+            )
+        else:
+            from polisyos.fabric import (
+                freeze_federation_request,
+                prepare_federation_core_payload,
+                reopen_federated_fetch_result,
+                verify_federation_core_payload,
+            )
+
+            expected_context = freeze_federation_request(
+                dataset_id=dataset_id,
+                federation=self._federation,
+                constraints=constraints,
+                registry=self._connector_registry,
+            )
+            expected_root = self._federation.output_root
+            fetch_federated = cast("_FederatedFabricFetchDataFn", self._fetch_data)
+            fetched = fetch_federated(
+                dataset_id=dataset_id,
+                constraints=constraints,
+                registry=self._connector_registry,
+                federation=self._federation,
+            )
+            # This consumer reopens actual selected bytes; caller data/attrs and
+            # audit summaries cannot substitute for this second fresh replay.
+            fetch_result = reopen_federated_fetch_result(
+                fetched, expected_context=expected_context, expected_root=expected_root
+            )
+            # Admission uses the exact frozen page bound, not result.row_count
+            # or unknown-completeness markers. No rows are silently sliced.
+            if len(fetch_result.data) > query_request.pagination.limit:
+                raise ValueError("Composed capture exceeds the independent query output bound")
+            federation_audit = fetch_result.federation_audit.model_dump(mode="json")
+            federation_audit["consumer_request_ref"] = request_ref.model_dump(mode="json")
         quality_payload = _build_quality_report_payload(
             result=fetch_result,
             dataset_id=dataset_id,
         )
+        if federation_audit is not None:
+            quality_payload["freshness_status"] = {
+                "is_fresh": False,
+                "level": "unknown",
+                "data_age_seconds": None,
+                "message": "Federation replay does not establish source currentness",
+                "fetched_at": fetch_result.fetched_at.isoformat(),
+            }
         evidence_ref = _coerce_evidence_ref(fetch_result)
 
+        schema_payload: dict[str, Any] = {
+            "schema_id": fetch_result.schema_id,
+            "schema_version": fetch_result.schema_version,
+        }
+        federation_warnings: dict[str, Any] | None = None
+        data_payload = _jsonable(fetch_result.data) if federation_audit is None else None
+        data_spec = CanonSpec(forbid_floats=False)
+        if federation_audit is not None:
+            # Every FED payload is admitted against the actual Core decoder
+            # before the first Core publication. Values/status/hash alone are
+            # not a semantic round-trip. Null equivalence is R4's, not ours.
+            schema_payload["federation_columns"] = federation_audit["columns"]
+            data_payload = prepare_federation_core_payload(None, frame=fetch_result.data)
+            schema_payload = cast("dict[str, Any]", prepare_federation_core_payload(schema_payload))
+            quality_payload = cast(
+                "dict[str, Any]", prepare_federation_core_payload(quality_payload)
+            )
+            warning_bundle = _build_warnings_bundle(fetch_result, federation_audit=federation_audit)
+            federation_warnings = cast(
+                "dict[str, Any]", prepare_federation_core_payload(warning_bundle)
+            )
+            data_spec = CanonSpec(forbid_floats=False, exclude_none=False)
+
         data_ref = store.put_json(
-            _jsonable(fetch_result.data),
+            data_payload,
             ArtifactWriteOptions(
                 kind="fabric.tabular_payload",
                 media_type="application/json",
                 schema=SchemaInfo(name="polisyos.fabric.TabularPayload", version="1.0"),
                 inputs=[input_ref_from_artifact_ref(request_ref, role="data_view_request_ref")],
             ),
-            canon_spec=CanonSpec(forbid_floats=False),
+            canon_spec=data_spec,
             return_selected_profile=True,
         )
         _require_selected_profile(data_ref, "fabric_bridge_data_profile_unverified")
-        schema_ref = store.put_json(
-            {
-                "schema_id": fetch_result.schema_id,
-                "schema_version": fetch_result.schema_version,
-            },
-            ArtifactWriteOptions(
-                kind="fabric.data_schema",
-                media_type="application/json",
-                schema=SchemaInfo(name="polisyos.fabric.DataSchema", version="1.0"),
-            ),
-            return_selected_profile=True,
+        if federation_audit is not None:
+            verify_federation_core_payload(
+                load_core_json_artifact(store, data_ref), data_payload, frame=fetch_result.data
+            )
+        schema_options = ArtifactWriteOptions(
+            kind="fabric.data_schema",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.fabric.DataSchema", version="1.0"),
         )
+        if federation_audit is None:
+            schema_ref = store.put_json(
+                schema_payload, schema_options, return_selected_profile=True
+            )
+        else:
+            schema_ref = store.put_json(
+                schema_payload, schema_options, canon_spec=data_spec, return_selected_profile=True
+            )
         _require_selected_profile(schema_ref, "fabric_bridge_schema_profile_unverified")
         quality_report_ref = store.put_json(
             quality_payload,
@@ -173,7 +265,7 @@ class DefaultFabricPort:
                 media_type="application/json",
                 schema=SchemaInfo(name="polisyos.fabric.DataQualityReport", version="1.0"),
             ),
-            canon_spec=CanonSpec(forbid_floats=False),
+            canon_spec=data_spec,
             return_selected_profile=True,
         )
         _require_selected_profile(
@@ -181,7 +273,24 @@ class DefaultFabricPort:
             "fabric_bridge_quality_report_profile_unverified",
         )
 
-        warnings_ref = _persist_warnings(store, fetch_result)
+        warnings_ref = _persist_warnings(
+            store,
+            fetch_result,
+            federation_audit=federation_audit,
+            prepared_federation_payload=federation_warnings,
+        )
+        if federation_audit is not None:
+            verify_federation_core_payload(
+                load_core_json_artifact(store, schema_ref), schema_payload
+            )
+            verify_federation_core_payload(
+                load_core_json_artifact(store, quality_report_ref), quality_payload
+            )
+            if warnings_ref is None:
+                raise ValueError("Federation acquisition audit was not persisted")
+            verify_federation_core_payload(
+                load_core_json_artifact(store, warnings_ref), federation_warnings
+            )
         pii_scan_summary = (
             fetch_result.pii_scan.model_dump(mode="json")
             if fetch_result.pii_scan is not None
@@ -209,9 +318,30 @@ class DefaultFabricPort:
             "scientist.adapter.fabric_bridge",
             "source=fabric_get_data",
         ]
-        semantic_stats, semantic_notes = _collect_snapshot_semantics(fetch_result.data)
-        snapshot_stats.update(semantic_stats)
-        snapshot_notes.extend(semantic_notes)
+        if federation_audit is not None:
+            snapshot_notes.remove("source=fabric_get_data")
+            snapshot_notes.append("source=federation_receipt_consumer_asserted")
+            snapshot_stats["federation_manifest_sha256"] = str(federation_audit["manifest_sha256"])
+            snapshot_notes.extend(
+                [
+                    "federation.assurance=software_derivation_candidate",
+                    "federation.leaf_history=consumer_asserted",
+                    "federation.currentness=not_established",
+                    "federation.capture_scope=captured_rows_only",
+                    "federation.query_fulfillment=not_established",
+                    f"federation.parent_history={federation_audit['parent_history']}",
+                ]
+            )
+        if federation_audit is None:
+            semantic_stats, semantic_notes = _collect_snapshot_semantics(fetch_result.data)
+            snapshot_stats.update(semantic_stats)
+            snapshot_notes.extend(semantic_notes)
+        else:
+            # Column names establish schema, not dataset shape or workflow
+            # suitability. This route has no independently admitted shape basis.
+            snapshot_stats["federation_data_shape_basis"] = "not_established"
+            snapshot_stats["federation_workflow_compatibility_basis"] = "not_established"
+            snapshot_notes.append("federation.shape_and_workflow_basis=not_established")
 
         snapshot = DataSnapshotOwnerBound(
             data_ref=data_ref,
@@ -226,17 +356,24 @@ class DefaultFabricPort:
             stats=snapshot_stats,
             notes=snapshot_notes,
         )
+        snapshot_payload: object = snapshot
+        if federation_audit is not None:
+            snapshot_payload = prepare_federation_core_payload(snapshot)
         snapshot_ref = store.put_json(
-            snapshot,
+            snapshot_payload,
             ArtifactWriteOptions(
                 kind="fabric.data_snapshot",
                 media_type="application/json",
                 schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.3.0"),
                 inputs=snapshot_inputs,
             ),
-            canon_spec=CanonSpec(forbid_floats=False),
+            canon_spec=data_spec,
             return_selected_profile=True,
         )
+        if federation_audit is not None:
+            verify_federation_core_payload(
+                load_core_json_artifact(store, snapshot_ref), snapshot_payload
+            )
         _require_selected_profile(snapshot_ref, "fabric_bridge_snapshot_profile_unverified")
         return DataSnapshotRef.model_validate(snapshot_ref.model_dump(mode="python"))
 
@@ -249,6 +386,33 @@ def _parse_query_request(
     except Exception as exc:
         logger.debug("Ignored exception: %s", exc)
     return AnalyticsDataViewRequest.model_validate(payload)
+
+
+def _admit_federation_query_request(
+    request: QueryDataViewRequest | AnalyticsDataViewRequest,
+) -> tuple[str, dict[str, Any]]:
+    """Compile the whole supported opt-in profile without a dataset fallback.
+
+    A request ID identifies a request, never a missing dataset metric. Only the
+    actual sole nonblank metric selects the dataset for this bounded route.
+    """
+    if not isinstance(request, QueryDataViewRequest):
+        raise ValueError("Federation capture supports the explicit table-query profile only")
+    if len(request.metrics) != 1 or not request.metrics[0].strip():
+        raise ValueError("Federation capture requires exactly one nonblank explicit metric")
+    if (
+        request.schema_version != "1.0"
+        or request.view_type != "table"
+        or request.filters
+        or request.aggregation is not None
+        or request.access_tier is not None
+        or request.scope.jurisdiction is not None
+        or request.scope.valid_time is not None
+        or request.scope.as_of is not None
+        or request.pagination.cursor is not None
+    ):
+        raise ValueError("Federation capture does not establish this requested query scope")
+    return request.metrics[0].strip(), {"page_size": request.pagination.limit}
 
 
 def _resolve_dataset_id(
@@ -370,7 +534,11 @@ def _quality_grade(tier: QualityTier) -> str:
     return "F"
 
 
-def _persist_warnings(store: ArtifactStore, result: FetchResult[Any]) -> WarningsRef | None:
+def _build_warnings_bundle(
+    result: FetchResult[Any],
+    *,
+    federation_audit: dict[str, Any] | None = None,
+) -> WarningsBundle | None:
     warnings: list[WarningRecord] = []
     for flag in sorted(result.quality_flags):
         warnings.append(
@@ -386,17 +554,50 @@ def _persist_warnings(store: ArtifactStore, result: FetchResult[Any]) -> Warning
                 msg="Source responded with not_modified",
             )
         )
+    if federation_audit is not None:
+        warnings.append(
+            WarningRecord(
+                code="fabric.federation.candidate_derivation",
+                msg="Selected software replay; source history and currentness remain unknown",
+                data=federation_audit,
+            )
+        )
     if not warnings:
         return None
-    warnings_ref = store.put_json(
-        WarningsBundle(warnings=warnings),
-        ArtifactWriteOptions(
-            kind="fabric.warnings",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.WarningsBundle", version="1.0"),
-        ),
-        return_selected_profile=True,
+    return WarningsBundle(warnings=warnings)
+
+
+def _persist_warnings(
+    store: ArtifactStore,
+    result: FetchResult[Any],
+    *,
+    federation_audit: dict[str, Any] | None = None,
+    prepared_federation_payload: dict[str, Any] | None = None,
+) -> WarningsRef | None:
+    payload: object = (
+        prepared_federation_payload
+        if federation_audit is not None
+        else _build_warnings_bundle(result)
     )
+    if payload is None:
+        return None
+    options = ArtifactWriteOptions(
+        kind="fabric.warnings",
+        media_type="application/json",
+        schema=SchemaInfo(name="polisyos.core.WarningsBundle", version="1.0"),
+    )
+    if federation_audit is None:
+        # Preserve the existing default store/canonical profile exactly.
+        warnings_ref = store.put_json(payload, options, return_selected_profile=True)
+    else:
+        # Reported quality/transfer observations include finite numeric fields;
+        # use the same supported Core float profile as data and quality writes.
+        warnings_ref = store.put_json(
+            payload,
+            options,
+            canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
+            return_selected_profile=True,
+        )
     _require_selected_profile(warnings_ref, "fabric_bridge_warnings_profile_unverified")
     return WarningsRef.model_validate(warnings_ref.model_dump(mode="python"))
 

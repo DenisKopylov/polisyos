@@ -1,0 +1,56 @@
+id = "2026-10-28-federation-fetch-bridge"
+title = "Add bounded captured-row Federation fetch bridge"
+type = "added"
+component = "fabric"
+owner = "team-fabric"
+summary = "Add explicit captured-row Federation with one fresh scope intake, honest capture-origin basis and exact supported snapshot projection."
+evidence = [
+  "tests/unit/fabric/test_federated_fetch.py",
+  "src/polisyos/fabric/README.md",
+  "src/polisyos/scientist/adapters/README.md",
+]
+compatibility = "Additive keyword-only opt-in; default single-connector behavior retained. Unsupported source/query/Core projection scope refuses explicitly."
+change_class = "python-public-api"
+surface_classification = "public_stable"
+public_surface_inventory_reviewed = false
+generated_client_compatibility = "declared_compatible"
+migration_owner = "team-fabric"
+migration = "Keep acquisition and selected-parent bytes with independently frozen expected context/root. Captures never establish EOF/filter/currentness or authenticated connector origin. No CAN.3 or new IR wire family is introduced."
+api = "Existing polisyos.core.canon, polisyos.fabric and polisyos.fabric.api entrypoints gain typed exports and opt-in request behavior. federated_fetch remains an internal implementation owner behind those facades."
+limitations = "Capture and observation origins remain consumer_asserted; completeness, authority and workflow/shape adequacy remain not_established without their separate basis. A DataFrame-valued Python FetchResult and in-process request are not JSON/OpenAPI contracts."
+validation = "Actual source-derived inventory/reference/schema generation, readback, native facade identity and runtime semantic qualification are pending. The public review flag must remain false until actual qualified results exist."
+migration_docs = ["src/polisyos/fabric/README.md", "src/polisyos/scientist/adapters/README.md"]
+
+[[compatibility_change]]
+id = "federation-fetch-python-facades"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.core.canon, polisyos.fabric, polisyos.fabric.api"
+owner = "team-fabric"
+version_owner = "team-architecture"
+deprecation_window = "2 minor releases for public_stable removals; this change is additive"
+release_note = "Expose bounded Core encoding and explicit opt-in Federation fetch contracts through existing governed Python facades."
+public_surface_inventory_reviewed = false
+generated_client_compatibility = "declared_compatible"
+
+[[compatibility_change]]
+id = "federation-fetch-audit-schema"
+change_class = "schema-openapi-abi"
+impact = "additive"
+surface = "public_stable: FederationFetchAudit serialization ABI and its nested strict DTO definitions"
+owner = "team-fabric"
+version_owner = "team-fabric"
+deprecation_window = "2 minor releases"
+release_note = "Register the serializable captured-row audit contract using the existing Fabric ABI schema owner; no HTTP/OpenAPI or generated TypeScript surface changes."
+generated_client_compatibility = "declared_compatible"
+
+[[compatibility_change]]
+id = "federation-acquisition-selected-bytes"
+change_class = "persisted-artifact-format"
+impact = "additive"
+surface = "internal: policyos.fabric.federation-acquisition/2 selected capture bytes"
+owner = "team-fabric"
+version_owner = "team-fabric"
+deprecation_window = "New selected format; no legacy capture decode or authority-promotion promise"
+release_note = "Preserve independently selected acquisition context and captured-row software basis without turning captures into source completeness or authority."
+generated_client_compatibility = "not_applicable"

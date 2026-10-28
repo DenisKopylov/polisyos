@@ -213,3 +213,96 @@ The non-data acquisition consumer requires a persisted receipt ref before
 readback, and the registered ceiling relation resource is parsed through its
 strict owner shape. These checks do not establish institutional authority or
 source currentness.
+
+## Explicit selected Federation capture
+
+`fabric_get_data(..., federation=FederationFetchRequest(...))` opts into the
+existing Federation owner using explicit ordered connector/dataset or held-parent
+selections. Default None keeps the ordinary single-connector route. The existing
+planner can prepare selections; no hidden ranking or authority is introduced.
+
+The first supported profile is **captured rows only**. Source EOF/completeness,
+currentness and query fulfillment are not established. False has_more, no token
+and a matching row_count do not prove EOF. A page_size is a hard bound on every actual source capture and the final
+composed output, never an EOF assertion. A connector may treat it as a hint or
+per-page setting; an over-bound returned frame is refused rather than silently
+sliced. An actual SQL LIMIT may still capture one row from a larger table. Nonempty filters/date scope and max_staleness are refused
+before fetch for every source kind. Held parents are exact whole captures; a
+parent exceeding a new page bound is refused rather than silently re-sliced.
+The upper-layer opt-in supports one unfiltered table metric with no additional
+query scope/aggregation/access/cursor request. Other scopes need an actual
+reconciliation owner, not a request-key or marker proof.
+
+The producer persists the kernel derivation and a bounded selected
+`acquisition.json` receipt in its new owned output directory. The receipt binds
+frozen request/source/order/root context, selected kernel member digests and
+typed consumer-asserted observation/capture claims. `freeze_federation_request` freezes independent
+intent before callbacks. The real `DefaultFabricPort` consumer passes that
+context and independently held root to `reopen_federated_fetch_result`; it does
+not select from the returned root/ref/observations alone. It reconciles the fresh
+selected kernel request/source members and receipt against the independent
+constructor and current DataViewRequest. A different valid derivation Q cannot
+be labeled as requested P; mutable return data or observations are ignored.
+One shared fresh capture intake replays actual kernel bytes and rechecks every
+source row bound, aggregate output bound and all immutable declared leaf trust
+preferences against frozen intent. A callback cannot bypass those predicates by
+constructing a valid artifact directly.
+Receipt provenance, capture origin and observation claims remain
+consumer_asserted; matching self-selected hashes does not authenticate a
+connector fetch. Selected stored bytes/counts and software replay are recomputed.
+The aggregate verification time/duration describe the actual software readback,
+not an authenticated connector-capture time. No institutional evidence follows.
+
+Kernel parents do not carry the bridge's separately selected fetch/warning
+history. Bare selected-parent inputs therefore have explicit unavailable
+observation/quality history, `fetches_scope=fresh_connector_fetches_only`, and
+warning flags that persist to the snapshot. An empty fresh-fetch list is not a
+claim of zero parent warnings. The kernel's immutable fresh whole-leaf declared
+trust projection is reused; a carrier's metadata/attrs cannot replace it.
+
+All opt-in Core data/schema/quality/warning/snapshot emissions receive a bounded
+actual CAN.2 encode/decode semantic preflight and fresh selected readback. The
+data comparator checks every row/key/scalar, while schema keeps column order and
+dtypes, including zero rows. Null normalization uses exactly R4's encode_scalar
+equivalence and preserves null keys (`exclude_none=False`). A byte roundtrip is
+not the equality oracle. Data outside the exact supported row profile raises
+`FederationSnapshotProjectionError` before Core data publication: signed zero,
+native-tag-like row mappings and nanosecond timestamp loss are counterexamples,
+not a reserved-name blacklist. Ordinary finite primitive rows/nulls remain
+useful; datetime values require a separately admitted bounded owner projection
+and reader, rather than hand-written native tags. No CAN.3 dependency or writer-fence bypass is
+introduced. Full-range lossless snapshot support requires an agreed versioned
+row envelope/reader across existing consumers or another accepted Core profile;
+this proposal does not invent that wire rollout. The public selected kernel
+route itself can retain these values even when this snapshot profile refuses.
+
+The existing selected WarningsBundle carries the request-bound candidate audit;
+DataSnapshot input edges bind warnings_ref. Quality remains UNVERIFIED,
+completeness0 is only a lower bound, and freshness/query fulfillment stay unknown.
+No aggregate evidence_ref is fabricated from incompatible Federation refs.
+Keep actual output/held-parent/acquisition bytes available; hashes alone do not
+deliver them. No HTTP/export endpoint, sovereign subsystem or new IR family is
+introduced. Root owns composition, public/generated companions and runtime
+qualification; this RAW proposal supplies no G acceptance or criterion closure.
+
+A same-intent synthetic selected capture can still be constructed without any
+connector call. This profile admits only its conditional captured-row candidate,
+labels the origin/observations consumer_asserted, and keeps quality UNVERIFIED;
+it never stamps such content independently reconciled or connector-reported.
+A stronger origin handshake should reuse the existing catalog-bound
+FabricFetchReceipt/resolve_persisted_fetch owner with separately held request,
+payload and receipt selectors. That integration is not established on this
+explicit direct-registry path and is not invented here.
+
+The Federation opt-in compiles its complete supported query profile before the
+legacy dataset resolver or any callback. A request ID is never a substitute for
+the single explicit nonblank metric on this route. Every fresh source and held
+parent is admitted against frozen captured-row bounds even when an inner JOIN
+produces fewer rows.
+
+No admitted dataset-shape/workflow basis exists in this captured-candidate
+profile. Column names remain schema, not repeated-survey evidence. The FED
+snapshot/audit therefore carry shape and workflow basis `not_established`;
+legacy name-derived definite shape and routing notes are withheld on this route.
+The default single-connector behavior is unchanged. A future shape projection
+requires an independently admitted typed design basis, not a column-name rule.

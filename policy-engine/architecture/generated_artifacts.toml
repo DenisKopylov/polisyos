@@ -665,6 +665,7 @@ outputs = [
   "docs/reference/schemas.md",
   "schemas/snapshots/fabric/edge_kind.schema.json",
   "schemas/snapshots/fabric/node_kind.schema.json",
+  "schemas/snapshots/fabric/federation_fetch_audit.schema.json",
   "schemas/snapshots/fabric/_manifest.json",
   "schemas/snapshots/scientist/calibration_validation_bundle_v1_1.schema.json",
   "schemas/snapshots/scientist/_manifest.json",

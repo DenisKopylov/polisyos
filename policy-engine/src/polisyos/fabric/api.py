@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, Protocol, cast
 
@@ -14,7 +15,10 @@ from . import __getattr__ as __getattr__
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterable, Callable, Iterable
+    from pathlib import Path
 
+    from polisyos.fabric.connectors.federation.artifact import SelectedFederationInput
+    from polisyos.fabric.connectors.federation.types import CompositionRequest
     from polisyos.ir.connectors import FetchRequest, FetchResult
 
 logger = get_logger(__name__)
@@ -87,12 +91,36 @@ def _default_connector_registry() -> ConnectorRegistryLike:
     return cast("ConnectorRegistryLike", ConnectorRegistry.get_instance())
 
 
+@dataclass(frozen=True)
+class FederationFetchSource:
+    """One explicitly selected connector/dataset pair, preserving caller order."""
+
+    connector_id: str
+    dataset_id: str
+
+
+@dataclass(frozen=True)
+class FederationFetchRequest:
+    """Opt-in bounded composition; the output directory must not already exist.
+
+    Sources may be selected by the existing FederationPlanner or explicitly by
+    the caller. This object grants no source-selection authority. Only an
+    explicit per-source/final-output row bound is supported; filter/date scope
+    is unsupported. No capture-origin authentication is implied.
+    """
+
+    composition: CompositionRequest
+    sources: tuple[FederationFetchSource | SelectedFederationInput, ...]
+    output_root: Path
+
+
 def fabric_get_data(
     *,
     dataset_id: str,
     connector_id: str | None = None,
     constraints: dict[str, Any] | None = None,
     registry: ConnectorRegistryLike | None = None,
+    federation: FederationFetchRequest | None = None,
 ) -> FetchResult[Any]:
     """
     High-level data acquisition for the Scientist layer.
@@ -112,12 +140,30 @@ def fabric_get_data(
         - ``filters``: ``{field: [values]}`` dimension filters.
         - ``page_size``: int, for paginated fetches.
 
+    federation : FederationFetchRequest | None
+        Explicit opt-in ordered composition and new selected-output directory.
+        Default None preserves the single-connector path.
+
     Returns
     -------
     FetchResult
         The canonical result envelope.
     """
     from polisyos.ir.connectors import FetchRequest
+
+    if federation is not None:
+        from polisyos.fabric.federated_fetch import fetch_federated
+
+        if connector_id is not None:
+            raise ValueError(
+                "connector_id and explicit federation selections are mutually exclusive"
+            )
+        return fetch_federated(
+            dataset_id=dataset_id,
+            federation=federation,
+            constraints=constraints,
+            registry=resolve_connector_registry(registry),
+        )
 
     constraints = constraints or {}
     resolved_registry = resolve_connector_registry(registry)

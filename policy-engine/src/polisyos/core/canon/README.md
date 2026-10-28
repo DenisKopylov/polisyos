@@ -11,11 +11,13 @@ rewritten or reinterpreted.
 The module-level `to_bounded_canonical_bytes(value, spec, limits)` snapshots the
 selected `CanonSpec`, encodes supported values under the supplied
 `CanonicalResourceLimits`, and checks that the resulting bytes round-trip
-under the same Core profile. Import this entry point and the three representation
-carrier classes from `polisyos.core.canon.canon_json`; their addition to that
-module's `__all__` does not itself re-export them from the `polisyos.core.canon`
-package facade. The leaf module is an internal implementation surface under the
-current public-surface contract. Public-surface inventory review remains pending.
+under the same Core profile. The package facade now re-exports the existing
+`to_bounded_canonical_bytes` and `CanonicalResourceLimits` for owner-admitted
+primitive projections, including the bounded Fabric capture consumer. This is
+an additive facade export of existing mechanics, not a codec/profile change.
+The three representation carriers remain leaf-module surfaces; no persisted
+`.3` writer or caller authority follows. Root must regenerate/review the public
+inventory and reference companions before marking that review complete.
 
 The vector counts actual encoded bytes, JSON lexical elements and physical
 container depth, including native envelopes and `.3` raw-mapping wrappers.

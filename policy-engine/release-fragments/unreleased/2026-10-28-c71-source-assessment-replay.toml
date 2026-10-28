@@ -1,0 +1,16 @@
+id = "2026-10-28-c71-source-assessment-replay"
+title = "Reconcile bound-source HTE assessments through the configured source owner"
+type = "fixed"
+component = "scientist"
+owner = "team-polisyos-runtime"
+summary = "Fresh source-bound assessment replay invokes the real source join through the Runtime-owned verifier and compares the complete recomputed assessment, including honest unavailable outcomes."
+evidence = ["tests/unit/runtime/http/test_search_hte_retained_assessment_replay.py", "tests/unit/foundry/methods/catalog/causal/test_hte_v2_row_identity.py", "tests/unit/runtime/quality/test_hte_source_projection_selected_snapshot.py"]
+change_class = "python-in-process-dependency-extension"
+surface_classification = "internal"
+compatibility = "Optional in-process verifier wiring; persisted DTOs, HTTP shapes, schema versions and digests remain unchanged. Bound-source fresh readers require the actual owner verifier; absent wiring is limited."
+migration = "Wire the existing configured Runtime verifier through the existing workflow context and Funnel dependency. Do not trust a declared-negative assessment when the bridge is missing."
+limitations = "Runtime, native and removal checks remain UNRUN at source composition. Selected fixture Catalog is candidate test data. No source issuance, access grant, semantic equivalence, production currentness, G acceptance or closure is claimed."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["docs/how-to/search-hte-source-replay.md"]
+runbook_docs = []

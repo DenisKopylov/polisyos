@@ -771,13 +771,15 @@ def test_shared_source_native_result_is_owned_by_job_and_reopened_by_fresh_servi
 ) -> None:
     """Run the real supported backend; source A never becomes writer B by metadata."""
     pytest.importorskip("econml")
+    from dataclasses import replace
+
     from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
     from polisyos.foundry.methods.selection.history import SelectionHistoryStore
     from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
     from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
     from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
     from tests._helpers.control_worker import dispatch_one_control_job
-    from tests._helpers.runtime_http import _build_registry_providers, _NoOpRetrievalService
+    from tests._helpers.runtime_http import _build_registry_providers
     from tests.unit.runtime.http.test_observational_method_runtime import _put_selected_json
     from tests.unit.runtime.http.test_search_hte_first_assessment_outbox import _put_v2_hte_source
 
@@ -851,7 +853,7 @@ def test_shared_source_native_result_is_owned_by_job_and_reopened_by_fresh_servi
     fresh = ControlPlaneService(
         cas_root=case["cas_root"],
         core_runs_root=case["cas_root"] / "runs",
-        repo_root=Path(request.config.rootpath),
+        repo_root=case["catalog_code_root"],
         artifact_store=fresh_owner,
         control_store=fresh_control,
         policy_resolver=RuntimeExecutionPolicyResolver(
@@ -861,8 +863,10 @@ def test_shared_source_native_result_is_owned_by_job_and_reopened_by_fresh_servi
             sqlite_path=sqlite_path,
             postgres_dsn=None,
         ),
-        retrieval_service=_NoOpRetrievalService(),
-        registry_providers=_build_registry_providers(),
+        registry_providers=replace(
+            _build_registry_providers(catalog_run_profile="prod_full"),
+            catalog_source_selection=case["catalog_selection"],
+        ),
     )
     try:
         with tenant_scope(None, tenant_id=case["tenant_b"], cell_id=case["cell"]):

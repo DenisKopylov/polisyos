@@ -5667,7 +5667,7 @@ validate_source_bound_gcm_spec
 | `polisyos.scientist.governance.continuous` | `src/polisyos/scientist/governance/continuous/__init__.py` | `lazy_facade` | 87 |
 | `polisyos.scientist.methods.backtesting` | `src/polisyos/scientist/methods/backtesting/__init__.py` | `lazy_facade` | 34 |
 | `polisyos.scientist.methods.research_dag` | `src/polisyos/scientist/methods/research_dag/__init__.py` | `eager_exports` | 44 |
-| `polisyos.scientist.orchestration.engine` | `src/polisyos/scientist/orchestration/engine/__init__.py` | `lazy_facade` | 113 |
+| `polisyos.scientist.orchestration.engine` | `src/polisyos/scientist/orchestration/engine/__init__.py` | `lazy_facade` | 115 |
 | `polisyos.scientist.replay` | `src/polisyos/scientist/replay/__init__.py` | `lazy_facade` | 25 |
 | `polisyos.scientist.replay.deterministic` | `src/polisyos/scientist/replay/deterministic.py` | `eager_exports` | 20 |
 | `polisyos.scientist.validation.policy_verified` | `src/polisyos/scientist/validation/policy_verified/__init__.py` | `eager_exports` | 28 |
@@ -5938,7 +5938,7 @@ validate_source_invalidation_event
 - Facade: `lazy_facade`
 - Summary: Scientist workflow engine public facade with lazy exports.
 
-<details><summary>Entrypoint exports (113)</summary>
+<details><summary>Entrypoint exports (115)</summary>
 
 ```text
 ATTR_CACHE_HIT
@@ -5961,6 +5961,7 @@ AsyncWorkflowExecutor
 BudgetExhaustedError
 BudgetLedger
 BudgetLedgerMutation
+BudgetLedgerCacheReuseAdmission
 BudgetLedgerProducerRecord
 BudgetLedgerProducerRunBinding
 BudgetLedgerSnapshot
@@ -5985,6 +5986,7 @@ CircuitBreakerOpenError
 ConditionSyntaxError
 ConvergenceConfig
 ConvergenceDetector
+ConvergenceObservation
 ConvergenceState
 ConvergenceStrategy
 CreatedCheckpoint

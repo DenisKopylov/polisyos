@@ -11,10 +11,15 @@ import time
 from collections.abc import Callable, Iterator
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
+from pathlib import Path
 from types import SimpleNamespace
-from typing import Any, Protocol, TypeGuard, cast
+from typing import TYPE_CHECKING, Any, Protocol, TypeGuard, cast
 
 import pytest
+
+if TYPE_CHECKING:
+    from polisyos.runtime.quality.substrate_registry import CatalogServingSourceSelection
+
 
 try:  # pragma: no cover - optional dependency guard
     from fastapi import Depends, FastAPI, Request
@@ -1170,6 +1175,8 @@ def _build_secure_client(
     trusted_delegators: frozenset[str] = frozenset(),
     service_spiffe_id: str | None = None,
     container_overrides=None,
+    repo_root: Path | None = None,
+    catalog_source_selection: CatalogServingSourceSelection | None = None,
 ):
     registry = CellRegistry()
     cell = CellSpec(tier=CellTier.SHARED, region="us-gov-west-1", max_tenants=50)
@@ -1199,6 +1206,8 @@ def _build_secure_client(
         trusted_delegators=trusted_delegators,
         service_spiffe_id=service_spiffe_id,
         container_overrides=container_overrides,
+        repo_root=repo_root,
+        catalog_source_selection=catalog_source_selection,
     )
     return TestClient(app, raise_server_exceptions=raise_server_exceptions), cell, provider
 

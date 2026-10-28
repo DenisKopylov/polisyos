@@ -4078,6 +4078,7 @@ def resolve_admitted_search_uncertainty_task_binding(
     owned_historical_attempt_association_resolver: (
         SearchOwnedHistoricalAttemptAssociationResolver | None
     ) = None,
+    source_projection_verifier: SearchHTESourceProjectionVerifier | None = None,
 ) -> SearchUncertaintyTaskBindingResolution:
     """Recompute a previously admitted binding against the same live task epoch.
 
@@ -4113,6 +4114,7 @@ def resolve_admitted_search_uncertainty_task_binding(
         owned_historical_attempt_association_resolver=(
             owned_historical_attempt_association_resolver
         ),
+        source_projection_verifier=source_projection_verifier,
     )
     with state._locked(binding.ticket_id):
         row = state._read_row(binding.ticket_id)
@@ -4854,6 +4856,7 @@ class SearchUncertaintyTicketState:
         completion_owner: SearchHTECompletionOwner | None = None,
         owned_attempt_projection_resolver: SearchOwnedAttemptProjectionResolver | None = None,
         owned_hte_summary_resolver: SearchOwnedHTESummaryResolver | None = None,
+        source_projection_verifier: SearchHTESourceProjectionVerifier | None = None,
     ) -> None:
         self._store = store
         self._root = Path(store.root) / "scientist-funnel" / "ticket-owner-state"
@@ -4865,6 +4868,7 @@ class SearchUncertaintyTicketState:
         self._completion_owner = completion_owner
         self._owned_attempt_projection_resolver = owned_attempt_projection_resolver
         self._owned_hte_summary_resolver = owned_hte_summary_resolver
+        self._source_projection_verifier = source_projection_verifier
 
     def initialize(self, ticket_id: str) -> SearchUncertaintyTicketIndexRow:
         """Create an initial ticket row, preserving any already-owned row."""
@@ -6028,7 +6032,7 @@ class SearchUncertaintyTicketState:
                         "current successor projection differs from its CAS observation or basis"
                     )
                 if self._completion_owner is not None:
-                    self._verify_owned_attempt_association(
+                    association = self._verify_owned_attempt_association(
                         successor,
                         completion_owner=self._completion_owner,
                         tenant_id=basis.tenant_id,
@@ -6057,12 +6061,12 @@ class SearchUncertaintyTicketState:
                             "exact historical Runtime completion could not be resolved",
                             reason_code="runtime_attempt_association_unavailable",
                         ) from exc
-                    self._verify_owned_attempt_association(
+                    association = self._verify_owned_attempt_association(
                         successor,
                         owner_association=association,
                     )
                 else:
-                    self._verify_owned_attempt_association(successor)
+                    association = self._verify_owned_attempt_association(successor)
                 if successor.outcome_kind == "interval_estimate":
                     if (
                         successor.lower_bound is None
@@ -6075,15 +6079,26 @@ class SearchUncertaintyTicketState:
                         raise ValueError(
                             "current interval assessment omitted its compared routing inputs"
                         )
-                    expected_score = compute_relative_interval_halfwidth_routing(
-                        profile_ref=contender.routing_score.profile_ref,
-                        theta=successor.theta,
-                        lower_bound=successor.lower_bound,
-                        upper_bound=successor.upper_bound,
-                        confidence_level=successor.confidence_level,
-                        comparison_key=contender.routing_score.comparison_key,
-                        unit_binding_status=successor.unit_binding_status,
-                    )
+                    if basis.unit_binding_status == "bound":
+                        replayed = self._replay_source_bound_assessment(
+                            successor=successor,
+                            association=association,
+                            basis=basis,
+                            predecessor=predecessor,
+                            predecessor_ref=obligation.predecessor_ref,
+                            routing_profile_ref=contender.routing_score.profile_ref,
+                        )
+                        expected_score = replayed.routing_score
+                    else:
+                        expected_score = compute_relative_interval_halfwidth_routing(
+                            profile_ref=contender.routing_score.profile_ref,
+                            theta=successor.theta,
+                            lower_bound=successor.lower_bound,
+                            upper_bound=successor.upper_bound,
+                            confidence_level=successor.confidence_level,
+                            comparison_key=contender.routing_score.comparison_key,
+                            unit_binding_status=successor.unit_binding_status,
+                        )
                     if contender.routing_score != expected_score:
                         raise ValueError(
                             "current routing score is not recomputed from its native interval"
@@ -6114,6 +6129,44 @@ class SearchUncertaintyTicketState:
             raise ValueError("active unknown obligations differ from current admitted observations")
         if set(projection.incomplete_obligation_ids) != contested_ids:
             raise ValueError("incomplete obligations differ from contested current selections")
+
+    def _replay_source_bound_assessment(
+        self,
+        *,
+        successor: SearchAssessedObservationV2,
+        association: SearchOwnedAttemptAssociation,
+        basis: SearchUncertaintyBasisV2,
+        predecessor: SearchUnassessedObservationV2,
+        predecessor_ref: ArtifactRef,
+        routing_profile_ref: ArtifactRef,
+    ) -> SearchAssessedObservationV2:
+        """Re-enter the real source join even for an allegedly unavailable score."""
+        if self._source_projection_verifier is None:
+            raise SearchUncertaintyAdmissionError(
+                "bound source comparability replay requires its wired verifier",
+                reason_code="search_projection_mismatch",
+            )
+        binding = load_search_uncertainty_task_binding(
+            self._store, successor.search_uncertainty_task_binding_ref
+        )
+        # Reuse the selected source/physical-policy producer in read-only mode;
+        # its limits come from the exact admitted anchor/resource-policy bytes.
+        replayed = _build_hte_assessment_candidate(
+            store=self._store,
+            association=association,
+            binding_ref=successor.search_uncertainty_task_binding_ref,
+            binding=binding,
+            basis=basis,
+            predecessor=predecessor,
+            predecessor_ref=predecessor_ref,
+            completed_at=association.job_completed_event.created_at,
+            source_projection_verifier=self._source_projection_verifier,
+            replay_routing_profile_ref=routing_profile_ref,
+            replay_admitted_at=successor.admitted_at,
+        )
+        if replayed != successor:
+            raise ValueError("current assessment differs from its recomputed source join")
+        return replayed
 
     def _verify_owned_attempt_association(
         self,
@@ -6590,7 +6643,9 @@ def consume_owned_hte_completion(
             next_check="Resolve the owner-bound Search tenant scope for this completion.",
         )
 
-    state = SearchUncertaintyTicketState(store, completion_owner=owner)
+    state = SearchUncertaintyTicketState(
+        store, completion_owner=owner, source_projection_verifier=source_projection_verifier
+    )
     try:
         predecessor_ref, predecessor, basis = _find_completion_predecessor(state, binding)
         successor = _build_hte_assessment_candidate(
@@ -6907,6 +6962,8 @@ def _build_hte_assessment_candidate(
     predecessor_ref: ArtifactRef,
     completed_at: datetime,
     source_projection_verifier: SearchHTESourceProjectionVerifier | None = None,
+    replay_routing_profile_ref: ArtifactRef | None = None,
+    replay_admitted_at: AwareDatetime | None = None,
 ) -> SearchAssessedObservationV2:
     """Load and content-join the selected HTE output without promoting its status."""
     from polisyos.ir.analytics import (
@@ -7566,7 +7623,11 @@ def _build_hte_assessment_candidate(
         guarantee_disposition=guarantee_disposition,
         overall_disposition=overall_disposition,
     )
-    routing_profile_ref = persist_search_uncertainty_routing_profile(store)
+    routing_profile_ref = (
+        replay_routing_profile_ref
+        if replay_routing_profile_ref is not None
+        else persist_search_uncertainty_routing_profile(store)
+    )
     if hte_result is None:
         routing_score = SearchUncertaintyRoutingScore(
             status="unavailable",
@@ -7615,7 +7676,7 @@ def _build_hte_assessment_candidate(
             "Runtime completion event does not carry its canonical typed digest",
             reason_code="runtime_attempt_association_mismatch",
         )
-    now = datetime.now(UTC)
+    now = replay_admitted_at if replay_admitted_at is not None else datetime.now(UTC)
     return SearchAssessedObservationV2(
         basis_ref=binding.basis_ref,
         obligation_id=basis.obligation_id,

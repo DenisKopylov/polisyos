@@ -183,7 +183,7 @@ def _install_prepared_input(
     input_ref: ArtifactRef,
     payload_integrity_verified: bool = True,
 ) -> dict[str, object]:
-    from polisyos.foundry.data_plane import bindings
+    from polisyos.foundry import data_plane
 
     prepared = type(
         "PreparedFixture",
@@ -223,7 +223,9 @@ def _install_prepared_input(
         assert kwargs["method_fqn"] == ForestDRLearnerEstimator.signature.fqn
         return holder["prepared"]
 
-    monkeypatch.setattr(bindings, "prepare_hte_observational_input", prepare, raising=False)
+    # The worker imports this public facade at its call boundary; patch the
+    # consumed name rather than the implementation module's already-copied alias.
+    monkeypatch.setattr(data_plane, "prepare_hte_observational_input", prepare)
     return holder
 
 

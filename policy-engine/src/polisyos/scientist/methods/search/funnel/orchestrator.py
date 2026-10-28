@@ -62,6 +62,7 @@ from polisyos.scientist.methods.search.sentinels import extract_sentinel_metadat
 from polisyos.scientist.methods.search.stages import CorrelationTracker
 from polisyos.scientist.methods.search.transfer_context import resolve_transfer_context
 from polisyos.scientist.methods.search.uncertainty import (
+    SearchHTESourceProjectionVerifier,
     SearchOwnedAttemptAssociationResolver,
     SearchOwnedHistoricalAttemptAssociationResolver,
     SearchUncertaintyCurrentRead,
@@ -347,6 +348,7 @@ def _admit_search_uncertainty_task(
     owned_historical_attempt_association_resolver: (
         SearchOwnedHistoricalAttemptAssociationResolver | None
     ),
+    source_projection_verifier: SearchHTESourceProjectionVerifier | None,
 ) -> tuple[str | None, int | None, ArtifactRef | None, str | None]:
     """Persist the actual pre-dispatch Search owner context and numeric-free obligation."""
     raw_store = context.get("store")
@@ -362,6 +364,7 @@ def _admit_search_uncertainty_task(
             owned_historical_attempt_association_resolver=(
                 owned_historical_attempt_association_resolver
             ),
+            source_projection_verifier=source_projection_verifier,
         )
         ticket_id = funnel_ticket_id
         owner_context_ref = persist_search_uncertainty_v2(store, owner_context)
@@ -428,6 +431,8 @@ class FunnelOrchestrator:
         search_uncertainty_historical_attempt_association_resolver: (
             SearchOwnedHistoricalAttemptAssociationResolver | None
         ) = None,
+        search_uncertainty_source_projection_verifier: SearchHTESourceProjectionVerifier
+        | None = None,
     ) -> None:
         self._stages = sorted(stages, key=lambda stage: stage.fidelity_level)
         self._max_level = max_level
@@ -445,6 +450,9 @@ class FunnelOrchestrator:
         )
         self._search_uncertainty_historical_attempt_association_resolver = (
             search_uncertainty_historical_attempt_association_resolver
+        )
+        self._search_uncertainty_source_projection_verifier = (
+            search_uncertainty_source_projection_verifier
         )
         stage_costs = {
             stage.fidelity_level: self._decimal_from_float(stage.estimated_cost_usd)
@@ -556,6 +564,7 @@ class FunnelOrchestrator:
                 owned_historical_attempt_association_resolver=(
                     self._search_uncertainty_historical_attempt_association_resolver
                 ),
+                source_projection_verifier=self._search_uncertainty_source_projection_verifier,
             )
         ticket = FunnelTicket(
             ticket_id=ticket_id,
@@ -926,6 +935,9 @@ class FunnelOrchestrator:
                         ),
                         owned_historical_attempt_association_resolver=(
                             self._search_uncertainty_historical_attempt_association_resolver
+                        ),
+                        source_projection_verifier=(
+                            self._search_uncertainty_source_projection_verifier
                         ),
                     ).read_current_snapshot(search_ticket_id)
                 except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:

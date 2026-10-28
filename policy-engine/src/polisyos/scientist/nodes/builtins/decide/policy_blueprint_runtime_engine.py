@@ -7,7 +7,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from types import ModuleType
-from typing import Any, Literal
+from typing import Any, Literal, cast
 
 from polisyos.core.artifacts import ArtifactRef, InputRef
 from polisyos.core.contracts.owned_attempt_anchor import (
@@ -27,6 +27,7 @@ from polisyos.scientist.methods.search.objective import (
 from polisyos.scientist.methods.search.promotion_evidence import PromotionEvidenceBundle
 from polisyos.scientist.methods.search.uncertainty import (
     _OWNER_SCOPE_UNSET,
+    SearchHTESourceProjectionVerifier,
     SearchInputDependency,
     SearchOwnedAttemptAssociation,
     SearchOwnedHistoricalAttemptAssociationResolver,
@@ -742,6 +743,12 @@ def run_runtime_funnel(session: _RuntimeSession) -> None:
     historical_resolver: SearchOwnedHistoricalAttemptAssociationResolver = (
         resolve_search_historical_attempt_association
     )
+    source_verifier: SearchHTESourceProjectionVerifier | None = None
+    configured_source_verifier = getattr(
+        ctx.method_metric_selection_owner, "verify_search_hte_source_projection_join", None
+    )
+    if callable(configured_source_verifier):
+        source_verifier = cast("SearchHTESourceProjectionVerifier", configured_source_verifier)
     orchestrator = owner.FunnelOrchestrator(
         stages=stages,
         correlation_tracker=owner._resolve_runtime_correlation_tracker(calibration_report),
@@ -752,6 +759,7 @@ def run_runtime_funnel(session: _RuntimeSession) -> None:
         voi_scheduler=predictive_voi,
         search_uncertainty_attempt_association_resolver=resolve_search_attempt_association,
         search_uncertainty_historical_attempt_association_resolver=historical_resolver,
+        search_uncertainty_source_projection_verifier=source_verifier,
     )
     ticket = orchestrator.submit(
         owner._candidate_search_payload(candidate, state),

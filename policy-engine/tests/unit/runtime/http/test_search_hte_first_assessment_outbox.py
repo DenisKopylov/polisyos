@@ -1224,9 +1224,10 @@ def test_owned_hte_outbox_records_first_assessment_without_authority_promotion(
 ) -> None:
     """A real v2 Runtime completion first assesses the selected basis; replay contests it."""
     pytest.importorskip("econml")
-
     from _helpers.control_worker import dispatch_one_control_job, stop_embedded_control_worker
 
+    from polisyos.common.canonical_profile import require_declared_profile
+    from polisyos.core.artifacts import read_core_json_artifact_bounded
     from tests.unit.runtime.http.test_runtime_api_authz import (
         _AllowOPA,
         _build_secure_client,
@@ -1650,6 +1651,7 @@ def test_owned_hte_outbox_records_first_assessment_without_authority_promotion(
                 current = SearchUncertaintyTicketState(
                     store,
                     completion_owner=service,
+                    source_projection_verifier=source_projection_owner.verify_hte_source_projection_join,
                 ).read_current_snapshot(ticket_id)
             assert current is not None
             snapshots.append(current)
@@ -1701,6 +1703,7 @@ def test_owned_hte_outbox_records_first_assessment_without_authority_promotion(
             current = SearchUncertaintyTicketState(
                 store,
                 completion_owner=service,
+                source_projection_verifier=source_projection_owner.verify_hte_source_projection_join,
             ).read_current_snapshot(ticket_id)
         assert current is not None
         assert current.status == "available_as_of_task_epoch"
@@ -1764,7 +1767,35 @@ def test_owned_hte_outbox_records_first_assessment_without_authority_promotion(
         assert inference_basis.fit_eval_relation == "same_selected_rows"
         assert inference_basis.fit_rows_sha256 == outcome.selected_row_order_sha256
         assert inference_basis.eval_rows_sha256 == outcome.selected_row_order_sha256
-        assert inference_basis.fit_rows_sha256 != outcome.selected_rows_sha256
+        # Ordered identities and their canonical set may have identical hashes
+        # when this fixture is already in canonical order. Check the actual
+        # quantities; a separate permutation witness distinguishes the roles.
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            selected_input = read_core_json_artifact_bounded(
+                service._artifact_store, source_ref, limits=service._observational_read_limits()
+            )
+        row_keys = require_declared_profile(selected_input.profile_read)["contract_payload"][
+            "sample_ids"
+        ]
+
+        def canonical(value: object) -> bytes:
+            return json.dumps(
+                value, ensure_ascii=False, allow_nan=False, sort_keys=True, separators=(",", ":")
+            ).encode("utf-8")
+
+        expected_order = hashlib.sha256(canonical(row_keys)).hexdigest()
+        expected_set = hashlib.sha256(
+            canonical(
+                sorted(
+                    row_keys,
+                    key=lambda value: json.dumps(
+                        value, ensure_ascii=False, allow_nan=False, sort_keys=True
+                    ),
+                )
+            )
+        ).hexdigest()
+        assert inference_basis.fit_rows_sha256 == expected_order
+        assert outcome.selected_rows_sha256 == expected_set
 
     first = snapshots[0]
     assert first.projection is not None and first.resolved_projection is not None
@@ -1901,6 +1932,7 @@ def test_owned_hte_outbox_records_first_assessment_without_authority_promotion(
         SearchUncertaintyTicketState(
             store,
             completion_owner=service,
+            source_projection_verifier=source_projection_owner.verify_hte_source_projection_join,
         ).record_first_assessment(
             ticket_id=ticket_id,
             expected_generation=first.ticket_generation,

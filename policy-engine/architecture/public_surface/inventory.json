@@ -13251,8 +13251,8 @@
         {
           "module": "polisyos.scientist.orchestration.engine",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 113,
-          "known_export_count": 113,
+          "export_count": 115,
+          "known_export_count": 115,
           "exports": [
             "ATTR_CACHE_HIT",
             "ATTR_CELL_ID",
@@ -13274,6 +13274,7 @@
             "BudgetExhaustedError",
             "BudgetLedger",
             "BudgetLedgerMutation",
+            "BudgetLedgerCacheReuseAdmission",
             "BudgetLedgerProducerRecord",
             "BudgetLedgerProducerRunBinding",
             "BudgetLedgerSnapshot",
@@ -13298,6 +13299,7 @@
             "ConditionSyntaxError",
             "ConvergenceConfig",
             "ConvergenceDetector",
+            "ConvergenceObservation",
             "ConvergenceState",
             "ConvergenceStrategy",
             "CreatedCheckpoint",
@@ -13392,8 +13394,8 @@
                 "path": "src/polisyos/scientist/orchestration/engine/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 17482,
-                "sha256": "d3f6f62c4ae513efff01778a917d6c491d278b93825103cd9bed5248fabf9c33"
+                "bytes": 17843,
+                "sha256": "b6c29d5c10fff361cb8139c846c68d6220284ef58b0c07b62d29052980dde47a"
               },
               {
                 "path": "src/polisyos/scientist/orchestration/engine",
@@ -13631,6 +13633,12 @@
               },
               {
                 "path": "src/polisyos/scientist/orchestration/engine/metrics_otel.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/scientist/orchestration/engine/producer_budget.py",
                 "operation": "is_file",
                 "status": "present",
                 "result": true
@@ -14358,6 +14366,12 @@
               },
               {
                 "path": "src/polisyos/scientist/agent/_drafter_llm.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/scientist/agent/_drafter_observations.py",
                 "operation": "is_file",
                 "status": "present",
                 "result": true

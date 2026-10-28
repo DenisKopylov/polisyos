@@ -2078,7 +2078,10 @@ if TYPE_CHECKING:
         PublishedSignatureCustodyResult,
     )
     from polisyos.scientist.methods.search.uncertainty import (
+        SearchHTESourceProjectionBasis,
+        SearchHTESourceProjectionJoin,
         SearchOwnedAttemptAssociation,
+        SearchUncertaintyHTERequestProjection,
         SearchUncertaintyStore,
         SearchUncertaintyTaskBindingResolution,
     )
@@ -4495,9 +4498,6 @@ class ControlPlaneService(
                 OwnedAttemptAnchorAssociation,
             )
             from polisyos.core.security import tenant_scope
-            from polisyos.runtime.quality.hte_source_projection import (
-                verify_hte_source_projection_join,
-            )
             from polisyos.scientist.methods.search.uncertainty import (
                 SearchUncertaintyCompletionReceipt,
                 consume_owned_hte_completion,
@@ -4540,7 +4540,7 @@ class ControlPlaneService(
                             owner=self,
                             binding_ref=binding_ref,
                             owner_association=owner_association,
-                            source_projection_verifier=verify_hte_source_projection_join,
+                            source_projection_verifier=self.verify_search_hte_source_projection_join,
                         )
             if owner_failure_reason is not None:
                 return leave_pending(owner_failure_reason)
@@ -5734,6 +5734,39 @@ class ControlPlaneService(
         )
         return bounded, typed_governance, tenant_context, manifest_sha256
 
+    def verify_search_hte_source_projection_join(
+        self,
+        *,
+        store: SearchUncertaintyStore,
+        selected_method_input_ref: ArtifactRef,
+        basis: SearchHTESourceProjectionBasis,
+        request_projection: SearchUncertaintyHTERequestProjection,
+        limits: CoreJsonReadLimits,
+    ) -> SearchHTESourceProjectionJoin:
+        """Re-enter the configured Core owner before its real source-content join.
+
+        The caller store selects no permission or issuer. The actual configured
+        Runtime store supplies every byte read, under the active owner scope.
+        """
+        from polisyos.runtime.quality.hte_source_projection import (
+            verify_hte_source_projection_join,
+        )
+        from polisyos.scientist.methods.search.uncertainty import (
+            SearchHTESourceProjectionError,
+        )
+
+        _require_source_read_owner(self._artifact_store, _current_source_read_scope())
+        configured = self._require_search_uncertainty_store()
+        if Path(store.root).resolve() != Path(configured.root).resolve():
+            raise SearchHTESourceProjectionError("source_projection_store_owner_mismatch")
+        return verify_hte_source_projection_join(
+            store=configured,
+            selected_method_input_ref=selected_method_input_ref,
+            basis=basis,
+            request_projection=request_projection,
+            limits=limits,
+        )
+
     def _resolve_search_uncertainty_binding(
         self,
         *,
@@ -5868,6 +5901,7 @@ class ControlPlaneService(
                 admitted_snapshot.binding_ref, binding_ref
             ):
                 raise ValueError("search_task_binding_admitted_snapshot_ref_mismatch")
+
             resolution = resolve_admitted_search_uncertainty_task_binding(
                 store=search_store,
                 binding_ref=binding_ref,
@@ -5884,6 +5918,7 @@ class ControlPlaneService(
                 owned_historical_attempt_association_resolver=(
                     self.resolve_owned_attempt_anchor_association
                 ),
+                source_projection_verifier=self.verify_search_hte_source_projection_join,
             )
         if type(resolution) is not SearchUncertaintyTaskBindingResolution:
             raise TypeError("search_task_binding_resolution_type_invalid")

@@ -70,6 +70,9 @@ from polisyos.runtime.http.services.control.workspace_loop_transition import (
 from tests._helpers.observational_source_runtime import (
     scoped_source_runtime as scoped_source_runtime,
 )
+from tests._helpers.observational_source_runtime import (
+    selected_source_runtime_api_env as selected_source_runtime_api_env,
+)
 
 
 def _selected_ref(kind: str, artifact_char: str, profile_char: str) -> ArtifactRef:
@@ -1186,10 +1189,11 @@ def test_graph_projection_timeout_keeps_exact_source_and_withholds_admission(
     ["restricted", "foreign_tenant_scoped"],
 )
 def test_http_post_refuses_restricted_or_foreign_tenant_source_before_enqueue(
-    runtime_api_env: dict[str, Any],
+    request: pytest.FixtureRequest,
     monkeypatch: pytest.MonkeyPatch,
     scope_kind: str,
 ) -> None:
+    runtime_api_env = request.getfixturevalue("selected_source_runtime_api_env")
     service = runtime_api_env["app"].state._control_service
     queued: list[object] = []
     monkeypatch.setattr(service, "_enqueue_job", lambda **kwargs: queued.append(kwargs))
@@ -1251,9 +1255,10 @@ def test_http_post_accepts_currently_owned_public_tenant_scoped_source(
 
 
 def test_http_post_refuses_source_without_owner_claim_before_enqueue(
-    runtime_api_env: dict[str, Any],
+    request: pytest.FixtureRequest,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    runtime_api_env = request.getfixturevalue("selected_source_runtime_api_env")
     service = runtime_api_env["app"].state._control_service
     queued: list[object] = []
     monkeypatch.setattr(service, "_enqueue_job", lambda **kwargs: queued.append(kwargs))

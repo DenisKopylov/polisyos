@@ -1,0 +1,601 @@
+{
+  "authority": "unapplied public source input proposal; no source GO, runtime acceptance or closure",
+  "basis_commit_before_carrier": "aaefd17075b84ef45fbac6a56e04e29148e7e724",
+  "basis_tree_before_carrier": "41cdce069a4107b3796a8410de17c15c814be76e",
+  "candidate_manifest": {
+    "audit_reference_only": "LOCAL/raw/e02-execution-20261027/cloud/C68/candidate-manifest.json",
+    "required_as_cloud_input": false,
+    "sha256": "6949909fed08535c8b637becd1c8503d37afb286dbb24267761e4999075b934e"
+  },
+  "closure_ids": [],
+  "complete_footprint": [
+    {
+      "content_class": "D/evidence: historical delivered evidence; excluded, noninput",
+      "current_local_preimage": null,
+      "current_preimage_matches_source_base": true,
+      "included_as_input": false,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C68/cloud/c68-20261028-a/focused.exit-status.txt",
+      "postimage": {
+        "bytes": 2,
+        "git_blob": "573541ac9702dd3969c9bc859d2b91ec1f7e6e56",
+        "mode": "100644",
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      "preimage": null
+    },
+    {
+      "content_class": "D/evidence: historical delivered evidence; excluded, noninput",
+      "current_local_preimage": null,
+      "current_preimage_matches_source_base": true,
+      "included_as_input": false,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C68/cloud/c68-20261028-a/focused.junit.xml",
+      "postimage": {
+        "bytes": 7908,
+        "git_blob": "d74d92347d05ae6e1e7e6f2e1dc2230f2bd22245",
+        "mode": "100644",
+        "sha256": "7b5f0aaf2fdd95e4dd73dc06cc0450b2e0bda53ddf97bf23ba885c6d324d2f3b"
+      },
+      "preimage": null
+    },
+    {
+      "content_class": "D/evidence: historical delivered evidence; excluded, noninput",
+      "current_local_preimage": null,
+      "current_preimage_matches_source_base": true,
+      "included_as_input": false,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C68/cloud/c68-20261028-a/focused.stderr.txt",
+      "postimage": {
+        "bytes": 0,
+        "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "mode": "100644",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "preimage": null
+    },
+    {
+      "content_class": "D/evidence: historical delivered evidence; excluded, noninput",
+      "current_local_preimage": null,
+      "current_preimage_matches_source_base": true,
+      "included_as_input": false,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C68/cloud/c68-20261028-a/focused.stdout.txt",
+      "postimage": {
+        "bytes": 80,
+        "git_blob": "89c99862e6a28a93120da528ad5e6339963f1175",
+        "mode": "100644",
+        "sha256": "2fdbfd8ca4b1f03517583a95c9d797258bdf9116d64cf90fbdaa175b61869611"
+      },
+      "preimage": null
+    },
+    {
+      "content_class": "D/evidence: historical delivered evidence; excluded, noninput",
+      "current_local_preimage": null,
+      "current_preimage_matches_source_base": true,
+      "included_as_input": false,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C68/cloud/c68-20261028-a/receipt.md",
+      "postimage": {
+        "bytes": 2876,
+        "git_blob": "ae45b46e82b487e13d50d21a8f1e5b9dbd760bf2",
+        "mode": "100644",
+        "sha256": "c94f37b561782e081227e7b9254a4d5eaee38cf3ff72a81a02cf6abee3860db7"
+      },
+      "preimage": null
+    },
+    {
+      "content_class": "B/code: public source, test or release text",
+      "current_local_preimage": null,
+      "current_preimage_matches_source_base": true,
+      "included_as_input": true,
+      "path": "policy-engine/release-fragments/unreleased/2026-10-28-cal05-selector-batch-executor.toml",
+      "postimage": {
+        "bytes": 1912,
+        "git_blob": "99b062f8f60514fcd8f92c286bde7c6b0f45e125",
+        "mode": "100644",
+        "sha256": "2800bc04eff1e50a9f76eac22caba646fe286b3b269acf5915e2aa0f8de5c66c"
+      },
+      "preimage": null
+    },
+    {
+      "content_class": "B/code: public source, test or release text",
+      "current_local_preimage": {
+        "bytes": 14596,
+        "git_blob": "e343b7dd8215bcf66755a0dbcd8d9aa1fe425a6c",
+        "mode": "100644",
+        "sha256": "8670248c6fa5ce50c110e3a8f99fa3640f987cf8d7c57cc4fb1c813738c3068b"
+      },
+      "current_preimage_matches_source_base": true,
+      "included_as_input": true,
+      "path": "policy-engine/src/polisyos/foundry/calibration/README.md",
+      "postimage": {
+        "bytes": 15710,
+        "git_blob": "1ec3db4ba4197be940253e2dc796839a7f00dd3f",
+        "mode": "100644",
+        "sha256": "3727174183a973137eeea9c775754ed359e69768486f392d37ad2851af8d934f"
+      },
+      "preimage": {
+        "bytes": 14596,
+        "git_blob": "e343b7dd8215bcf66755a0dbcd8d9aa1fe425a6c",
+        "mode": "100644",
+        "sha256": "8670248c6fa5ce50c110e3a8f99fa3640f987cf8d7c57cc4fb1c813738c3068b"
+      }
+    },
+    {
+      "content_class": "B/code: public source, test or release text",
+      "current_local_preimage": {
+        "bytes": 8007,
+        "git_blob": "03be7150535d127c495c9283eebdf3b86200701b",
+        "mode": "100644",
+        "sha256": "d35b47884de786ff5865c73820c299dcbabc3dc050fa0fbd0fedc9e8c3f73fc4"
+      },
+      "current_preimage_matches_source_base": true,
+      "included_as_input": true,
+      "path": "policy-engine/src/polisyos/foundry/calibration/__init__.py",
+      "postimage": {
+        "bytes": 8592,
+        "git_blob": "aa045d34504e80a904af8cc6aa77042b8847c06f",
+        "mode": "100644",
+        "sha256": "d64d3c778c08ebe3ec4bba086e8377489ba1a616f4f4d81b44e866eb9fe5689b"
+      },
+      "preimage": {
+        "bytes": 8007,
+        "git_blob": "03be7150535d127c495c9283eebdf3b86200701b",
+        "mode": "100644",
+        "sha256": "d35b47884de786ff5865c73820c299dcbabc3dc050fa0fbd0fedc9e8c3f73fc4"
+      }
+    },
+    {
+      "content_class": "B/code: public source, test or release text",
+      "current_local_preimage": {
+        "bytes": 137054,
+        "git_blob": "ca8e195db254e3535765959315ea2437e9e46759",
+        "mode": "100644",
+        "sha256": "5e202732857243d015ce37dabaf2b6dd5f5a6586e94f34105c65c80a53c3cb31"
+      },
+      "current_preimage_matches_source_base": true,
+      "included_as_input": true,
+      "path": "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+      "postimage": {
+        "bytes": 140429,
+        "git_blob": "8dfc0442447dc4cc9ef114e549065882f37d5682",
+        "mode": "100644",
+        "sha256": "f290027cacce9a7f6c50d554cafa1c1592c84b61da3f355a8e680bf564d53c09"
+      },
+      "preimage": {
+        "bytes": 137054,
+        "git_blob": "ca8e195db254e3535765959315ea2437e9e46759",
+        "mode": "100644",
+        "sha256": "5e202732857243d015ce37dabaf2b6dd5f5a6586e94f34105c65c80a53c3cb31"
+      }
+    },
+    {
+      "content_class": "B/code: public source, test or release text",
+      "current_local_preimage": {
+        "bytes": 29832,
+        "git_blob": "fd22f4376944fc29fd8ccb88dd0de0e2ceeebfc8",
+        "mode": "100644",
+        "sha256": "b3c7700afdd4eb2b67d5144cc64750e496e04bc56ffd1e9230b8e1028a17f6e4"
+      },
+      "current_preimage_matches_source_base": true,
+      "included_as_input": true,
+      "path": "policy-engine/src/polisyos/foundry/calibration/measurement.py",
+      "postimage": {
+        "bytes": 28892,
+        "git_blob": "872828461d04ddce98febd8a620a00ff8df78625",
+        "mode": "100644",
+        "sha256": "be1de99f1764725d501ddaf2f1136ed40c39d02df456aef4478a497138ace350"
+      },
+      "preimage": {
+        "bytes": 29832,
+        "git_blob": "fd22f4376944fc29fd8ccb88dd0de0e2ceeebfc8",
+        "mode": "100644",
+        "sha256": "b3c7700afdd4eb2b67d5144cc64750e496e04bc56ffd1e9230b8e1028a17f6e4"
+      }
+    },
+    {
+      "content_class": "B/code: public source, test or release text",
+      "current_local_preimage": {
+        "bytes": 33989,
+        "git_blob": "3f5dcea6511b1e39e91f59df1bb96bd21434d658",
+        "mode": "100644",
+        "sha256": "c9fff02d23b6b07a954c8a2819295343d63c209e55895e0384ab917e06d1f966"
+      },
+      "current_preimage_matches_source_base": true,
+      "included_as_input": true,
+      "path": "policy-engine/src/polisyos/foundry/calibration/pure_executor.py",
+      "postimage": {
+        "bytes": 39227,
+        "git_blob": "6fe2448c3293a3a14c432998f485440e7e608b14",
+        "mode": "100644",
+        "sha256": "764b3bad9953d90278412de272505163c6339574556f4cc076c955dae015a8f3"
+      },
+      "preimage": {
+        "bytes": 33989,
+        "git_blob": "3f5dcea6511b1e39e91f59df1bb96bd21434d658",
+        "mode": "100644",
+        "sha256": "c9fff02d23b6b07a954c8a2819295343d63c209e55895e0384ab917e06d1f966"
+      }
+    },
+    {
+      "content_class": "B/code: public source, test or release text",
+      "current_local_preimage": {
+        "bytes": 26557,
+        "git_blob": "013f2b7d85e28b723cae17a964e95f7f9789b715",
+        "mode": "100644",
+        "sha256": "3d95c04edc8c3dc2aa7dce04f68f76d91c6ed1f99d16de89884b52fa9a213ce2"
+      },
+      "current_preimage_matches_source_base": true,
+      "included_as_input": true,
+      "path": "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+      "postimage": {
+        "bytes": 29745,
+        "git_blob": "1b62d852a354db106fe11f3b1c77469c03b01c38",
+        "mode": "100644",
+        "sha256": "1be87a10a7cc784684f1552f5c79d3e4f43c0fc7f2f2671363864c94f2c12047"
+      },
+      "preimage": {
+        "bytes": 26557,
+        "git_blob": "013f2b7d85e28b723cae17a964e95f7f9789b715",
+        "mode": "100644",
+        "sha256": "3d95c04edc8c3dc2aa7dce04f68f76d91c6ed1f99d16de89884b52fa9a213ce2"
+      }
+    },
+    {
+      "content_class": "B/code: public source, test or release text",
+      "current_local_preimage": {
+        "bytes": 10016,
+        "git_blob": "bade523dcce39fe00b2c77c2bf627675e69a1eb1",
+        "mode": "100644",
+        "sha256": "6d0b0508e24d8499bc7c2ec68893c9b7290caae733f8618a5b769bfba2601001"
+      },
+      "current_preimage_matches_source_base": true,
+      "included_as_input": true,
+      "path": "policy-engine/tests/unit/remediation/test_cal_01.py",
+      "postimage": {
+        "bytes": 11416,
+        "git_blob": "593daa22292e0da7f5da8475a9104b20212274de",
+        "mode": "100644",
+        "sha256": "8c343db6ca5d1003606156e47cc9fd47da3c484dd2a5b946a8527bc785628441"
+      },
+      "preimage": {
+        "bytes": 10016,
+        "git_blob": "bade523dcce39fe00b2c77c2bf627675e69a1eb1",
+        "mode": "100644",
+        "sha256": "6d0b0508e24d8499bc7c2ec68893c9b7290caae733f8618a5b769bfba2601001"
+      }
+    }
+  ],
+  "delivery_classification": {
+    "A_execution_input": [],
+    "B_code": [
+      "policy-engine/release-fragments/unreleased/2026-10-28-cal05-selector-batch-executor.toml",
+      "policy-engine/src/polisyos/foundry/calibration/README.md",
+      "policy-engine/src/polisyos/foundry/calibration/__init__.py",
+      "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+      "policy-engine/src/polisyos/foundry/calibration/measurement.py",
+      "policy-engine/src/polisyos/foundry/calibration/pure_executor.py",
+      "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+      "policy-engine/tests/unit/remediation/test_cal_01.py"
+    ],
+    "C_excluded": [],
+    "D_evidence": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C68/cloud/c68-20261028-a/focused.exit-status.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C68/cloud/c68-20261028-a/focused.junit.xml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C68/cloud/c68-20261028-a/focused.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C68/cloud/c68-20261028-a/focused.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C68/cloud/c68-20261028-a/receipt.md"
+    ]
+  },
+  "excluded_evidence": {
+    "files": [
+      {
+        "input_required": false,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C68/cloud/c68-20261028-a/focused.exit-status.txt",
+        "postimage": {
+          "bytes": 2,
+          "git_blob": "573541ac9702dd3969c9bc859d2b91ec1f7e6e56",
+          "mode": "100644",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        },
+        "reason": "historical delivered evidence; excluded from public source input and not required for patch replay"
+      },
+      {
+        "input_required": false,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C68/cloud/c68-20261028-a/focused.junit.xml",
+        "postimage": {
+          "bytes": 7908,
+          "git_blob": "d74d92347d05ae6e1e7e6f2e1dc2230f2bd22245",
+          "mode": "100644",
+          "sha256": "7b5f0aaf2fdd95e4dd73dc06cc0450b2e0bda53ddf97bf23ba885c6d324d2f3b"
+        },
+        "reason": "historical delivered evidence; excluded from public source input and not required for patch replay"
+      },
+      {
+        "input_required": false,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C68/cloud/c68-20261028-a/focused.stderr.txt",
+        "postimage": {
+          "bytes": 0,
+          "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "mode": "100644",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "reason": "historical delivered evidence; excluded from public source input and not required for patch replay"
+      },
+      {
+        "input_required": false,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C68/cloud/c68-20261028-a/focused.stdout.txt",
+        "postimage": {
+          "bytes": 80,
+          "git_blob": "89c99862e6a28a93120da528ad5e6339963f1175",
+          "mode": "100644",
+          "sha256": "2fdbfd8ca4b1f03517583a95c9d797258bdf9116d64cf90fbdaa175b61869611"
+        },
+        "reason": "historical delivered evidence; excluded from public source input and not required for patch replay"
+      },
+      {
+        "input_required": false,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C68/cloud/c68-20261028-a/receipt.md",
+        "postimage": {
+          "bytes": 2876,
+          "git_blob": "ae45b46e82b487e13d50d21a8f1e5b9dbd760bf2",
+          "mode": "100644",
+          "sha256": "c94f37b561782e081227e7b9254a4d5eaee38cf3ff72a81a02cf6abee3860db7"
+        },
+        "reason": "historical delivered evidence; excluded from public source input and not required for patch replay"
+      }
+    ],
+    "path_count": 5,
+    "selection": "all delivered receipt/log/JUnit/exit outputs excluded as historical noninputs"
+  },
+  "execution": "Consume only after the parent publishes and reads back these exact bytes. Bind the actual Cloud input base/tree, verify every listed preimage, decompress and compare patch hash, apply this single standalone overlay at source_base_commit, then verify every postimage. Run fresh property/oracle/removal and exact final selectors in the designated Cloud execution environment; do not infer source acceptance from this input or the excluded historical evidence.",
+  "full_received_diff": {
+    "bytes": 70612,
+    "paths": 13,
+    "qualification": "complete candidate manifest path set was reconciled to base-to-candidate Git diff; source.diff remains an audit reference and is not a Cloud input",
+    "sha256": "042ee079f338070cfb526bbe3a02ab81f6d0d562b4df7c285732e8d50f139e80"
+  },
+  "limitations": [
+    "The candidate is reconstructed from received bytes and is not a verified final Cloud commit.",
+    "The independent source review remains HOLD; this carrier does not grant source GO or G acceptance.",
+    "No local RAW evidence, execution output, private data, environment, credential, production payload, or test result is included in the patch.",
+    "Historical delivery evidence listed above is metadata-only noninput and cannot qualify a fresh run.",
+    "The standalone patch is valid only at the pinned source base and listed preimages; any changed preimage requires fresh diff/replay."
+  ],
+  "preparer_no_canonical_source_index_refs_mutated": true,
+  "prior_input_overlap": {
+    "composition_rule": "This is a complete standalone overlay from source_base_commit to the candidate tree. Do not apply this carrier after the prior overlapping carrier in the same worktree; consume this candidate as the full postimage for the listed overlapping paths, or rebase/diff against the actual composed tree first.",
+    "overlapping_paths": [
+      "policy-engine/release-fragments/unreleased/2026-10-28-cal05-selector-batch-executor.toml",
+      "policy-engine/src/polisyos/foundry/calibration/README.md",
+      "policy-engine/src/polisyos/foundry/calibration/__init__.py",
+      "policy-engine/src/polisyos/foundry/calibration/pure_executor.py",
+      "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py"
+    ],
+    "prior_published_manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/cloud-inputs/C65-manifest.json",
+    "prior_published_manifest_sha256": "8593eb6061c99a3d463bc0ad8259eb6130ad63324ca1ea243e55fe9dc4b32ff1",
+    "prior_published_patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/cloud-inputs/C65.patch.gz"
+  },
+  "proposed_published_manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/cloud-inputs/C68-return-source.manifest.json",
+  "proposed_published_patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/cloud-inputs/C68-return-source.patch.gz",
+  "publication_status": "proposal only; requires root publication followed by branch readback and remote verification",
+  "received_candidate_tree_reconstructed_from_diff": "60b744314497403e4255a2776ac32e044ffd7a45",
+  "schema": "policyos.e02.cloud_source_patch_input.v1",
+  "selected_patch": {
+    "compressed_bytes": 9278,
+    "compressed_sha256": "bfb0bcf7e2bc2794a454ad4b764b506c5117e5a68bba3a76bea84f5b64288537",
+    "compression": "gzip (mtime=0, empty filename, level=9)",
+    "decompressed_bytes": 31966,
+    "decompressed_sha256": "2ba6574ed99d0f0663e2fb086f80eb0044dd1c9ce7eeea2701edf992933463df",
+    "paths": [
+      {
+        "content_class": "B/code: public source, test or release text",
+        "current_local_preimage": null,
+        "current_preimage_matches_source_base": true,
+        "included_as_input": true,
+        "path": "policy-engine/release-fragments/unreleased/2026-10-28-cal05-selector-batch-executor.toml",
+        "postimage": {
+          "bytes": 1912,
+          "git_blob": "99b062f8f60514fcd8f92c286bde7c6b0f45e125",
+          "mode": "100644",
+          "sha256": "2800bc04eff1e50a9f76eac22caba646fe286b3b269acf5915e2aa0f8de5c66c"
+        },
+        "preimage": null
+      },
+      {
+        "content_class": "B/code: public source, test or release text",
+        "current_local_preimage": {
+          "bytes": 14596,
+          "git_blob": "e343b7dd8215bcf66755a0dbcd8d9aa1fe425a6c",
+          "mode": "100644",
+          "sha256": "8670248c6fa5ce50c110e3a8f99fa3640f987cf8d7c57cc4fb1c813738c3068b"
+        },
+        "current_preimage_matches_source_base": true,
+        "included_as_input": true,
+        "path": "policy-engine/src/polisyos/foundry/calibration/README.md",
+        "postimage": {
+          "bytes": 15710,
+          "git_blob": "1ec3db4ba4197be940253e2dc796839a7f00dd3f",
+          "mode": "100644",
+          "sha256": "3727174183a973137eeea9c775754ed359e69768486f392d37ad2851af8d934f"
+        },
+        "preimage": {
+          "bytes": 14596,
+          "git_blob": "e343b7dd8215bcf66755a0dbcd8d9aa1fe425a6c",
+          "mode": "100644",
+          "sha256": "8670248c6fa5ce50c110e3a8f99fa3640f987cf8d7c57cc4fb1c813738c3068b"
+        }
+      },
+      {
+        "content_class": "B/code: public source, test or release text",
+        "current_local_preimage": {
+          "bytes": 8007,
+          "git_blob": "03be7150535d127c495c9283eebdf3b86200701b",
+          "mode": "100644",
+          "sha256": "d35b47884de786ff5865c73820c299dcbabc3dc050fa0fbd0fedc9e8c3f73fc4"
+        },
+        "current_preimage_matches_source_base": true,
+        "included_as_input": true,
+        "path": "policy-engine/src/polisyos/foundry/calibration/__init__.py",
+        "postimage": {
+          "bytes": 8592,
+          "git_blob": "aa045d34504e80a904af8cc6aa77042b8847c06f",
+          "mode": "100644",
+          "sha256": "d64d3c778c08ebe3ec4bba086e8377489ba1a616f4f4d81b44e866eb9fe5689b"
+        },
+        "preimage": {
+          "bytes": 8007,
+          "git_blob": "03be7150535d127c495c9283eebdf3b86200701b",
+          "mode": "100644",
+          "sha256": "d35b47884de786ff5865c73820c299dcbabc3dc050fa0fbd0fedc9e8c3f73fc4"
+        }
+      },
+      {
+        "content_class": "B/code: public source, test or release text",
+        "current_local_preimage": {
+          "bytes": 137054,
+          "git_blob": "ca8e195db254e3535765959315ea2437e9e46759",
+          "mode": "100644",
+          "sha256": "5e202732857243d015ce37dabaf2b6dd5f5a6586e94f34105c65c80a53c3cb31"
+        },
+        "current_preimage_matches_source_base": true,
+        "included_as_input": true,
+        "path": "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+        "postimage": {
+          "bytes": 140429,
+          "git_blob": "8dfc0442447dc4cc9ef114e549065882f37d5682",
+          "mode": "100644",
+          "sha256": "f290027cacce9a7f6c50d554cafa1c1592c84b61da3f355a8e680bf564d53c09"
+        },
+        "preimage": {
+          "bytes": 137054,
+          "git_blob": "ca8e195db254e3535765959315ea2437e9e46759",
+          "mode": "100644",
+          "sha256": "5e202732857243d015ce37dabaf2b6dd5f5a6586e94f34105c65c80a53c3cb31"
+        }
+      },
+      {
+        "content_class": "B/code: public source, test or release text",
+        "current_local_preimage": {
+          "bytes": 29832,
+          "git_blob": "fd22f4376944fc29fd8ccb88dd0de0e2ceeebfc8",
+          "mode": "100644",
+          "sha256": "b3c7700afdd4eb2b67d5144cc64750e496e04bc56ffd1e9230b8e1028a17f6e4"
+        },
+        "current_preimage_matches_source_base": true,
+        "included_as_input": true,
+        "path": "policy-engine/src/polisyos/foundry/calibration/measurement.py",
+        "postimage": {
+          "bytes": 28892,
+          "git_blob": "872828461d04ddce98febd8a620a00ff8df78625",
+          "mode": "100644",
+          "sha256": "be1de99f1764725d501ddaf2f1136ed40c39d02df456aef4478a497138ace350"
+        },
+        "preimage": {
+          "bytes": 29832,
+          "git_blob": "fd22f4376944fc29fd8ccb88dd0de0e2ceeebfc8",
+          "mode": "100644",
+          "sha256": "b3c7700afdd4eb2b67d5144cc64750e496e04bc56ffd1e9230b8e1028a17f6e4"
+        }
+      },
+      {
+        "content_class": "B/code: public source, test or release text",
+        "current_local_preimage": {
+          "bytes": 33989,
+          "git_blob": "3f5dcea6511b1e39e91f59df1bb96bd21434d658",
+          "mode": "100644",
+          "sha256": "c9fff02d23b6b07a954c8a2819295343d63c209e55895e0384ab917e06d1f966"
+        },
+        "current_preimage_matches_source_base": true,
+        "included_as_input": true,
+        "path": "policy-engine/src/polisyos/foundry/calibration/pure_executor.py",
+        "postimage": {
+          "bytes": 39227,
+          "git_blob": "6fe2448c3293a3a14c432998f485440e7e608b14",
+          "mode": "100644",
+          "sha256": "764b3bad9953d90278412de272505163c6339574556f4cc076c955dae015a8f3"
+        },
+        "preimage": {
+          "bytes": 33989,
+          "git_blob": "3f5dcea6511b1e39e91f59df1bb96bd21434d658",
+          "mode": "100644",
+          "sha256": "c9fff02d23b6b07a954c8a2819295343d63c209e55895e0384ab917e06d1f966"
+        }
+      },
+      {
+        "content_class": "B/code: public source, test or release text",
+        "current_local_preimage": {
+          "bytes": 26557,
+          "git_blob": "013f2b7d85e28b723cae17a964e95f7f9789b715",
+          "mode": "100644",
+          "sha256": "3d95c04edc8c3dc2aa7dce04f68f76d91c6ed1f99d16de89884b52fa9a213ce2"
+        },
+        "current_preimage_matches_source_base": true,
+        "included_as_input": true,
+        "path": "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+        "postimage": {
+          "bytes": 29745,
+          "git_blob": "1b62d852a354db106fe11f3b1c77469c03b01c38",
+          "mode": "100644",
+          "sha256": "1be87a10a7cc784684f1552f5c79d3e4f43c0fc7f2f2671363864c94f2c12047"
+        },
+        "preimage": {
+          "bytes": 26557,
+          "git_blob": "013f2b7d85e28b723cae17a964e95f7f9789b715",
+          "mode": "100644",
+          "sha256": "3d95c04edc8c3dc2aa7dce04f68f76d91c6ed1f99d16de89884b52fa9a213ce2"
+        }
+      },
+      {
+        "content_class": "B/code: public source, test or release text",
+        "current_local_preimage": {
+          "bytes": 10016,
+          "git_blob": "bade523dcce39fe00b2c77c2bf627675e69a1eb1",
+          "mode": "100644",
+          "sha256": "6d0b0508e24d8499bc7c2ec68893c9b7290caae733f8618a5b769bfba2601001"
+        },
+        "current_preimage_matches_source_base": true,
+        "included_as_input": true,
+        "path": "policy-engine/tests/unit/remediation/test_cal_01.py",
+        "postimage": {
+          "bytes": 11416,
+          "git_blob": "593daa22292e0da7f5da8475a9104b20212274de",
+          "mode": "100644",
+          "sha256": "8c343db6ca5d1003606156e47cc9fd47da3c484dd2a5b946a8527bc785628441"
+        },
+        "preimage": {
+          "bytes": 10016,
+          "git_blob": "bade523dcce39fe00b2c77c2bf627675e69a1eb1",
+          "mode": "100644",
+          "sha256": "6d0b0508e24d8499bc7c2ec68893c9b7290caae733f8618a5b769bfba2601001"
+        }
+      }
+    ],
+    "selection": "Complete public source/test/release footprint from the reconstructed candidate, excluding delivered receipt/log evidence. Standalone base-to-candidate overlay.",
+    "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/cloud-inputs/C68-return-source.patch.gz",
+    "verification": {
+      "all_candidate_blobs_sha256_rechecked": true,
+      "all_selected_candidate_blobs_sha256_rechecked": true,
+      "full_candidate_manifest_footprint_reconciled": true,
+      "read_only_git_apply_check": "PASS against current local paths proven identical to source base"
+    }
+  },
+  "self_reference_rule": "The final published commit/tree and any overlay tree are bound only after root publication/readback; this proposal makes no claim about its own future commit.",
+  "source_base_commit": "45fe14d8fe6f6822efab491495886501158d4b45",
+  "source_base_tree": "930552b76801e1a295a17e2bbc48a7177693b0f6",
+  "source_review": {
+    "disposition": "HOLD for the new exported objective and the commissioned CAL-05 chain",
+    "evidence_verdict": "not_adjudicated_by_source_input",
+    "finding": "The new ordered objective is disconnected from Calibrator and untested in the returned tree; its numerical-domain checks are bypassed under JAX tracing. No source-qualified batch report, versioned batch basis, fresh welfare reconciliation, or meaningful new property-removal proof was delivered.",
+    "historical_focused_suite": "46 author-reported cases are historical evidence, excluded from this input and not source acceptance.",
+    "references": [
+      {
+        "path": "LOCAL/raw/e02-execution-20261027/reviews/C68-return-independent.md",
+        "reference_role": "audit_only_not_a_cloud_patch_input",
+        "required_as_cloud_input": false,
+        "sha256": "19ed80833b53234eaa00a23fa520896bd33565465cb5d8b89a6453f3514fd0f8"
+      }
+    ],
+    "review_is_patch_input": false,
+    "source_G_acceptance": false,
+    "source_verdict": "HOLD for the new exported objective and the commissioned CAL-05 chain"
+  },
+  "source_task": "C68",
+  "source_task_id": "task_e_6ae154a5e234832590490d03c1200bd0"
+}

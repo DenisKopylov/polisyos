@@ -1,0 +1,341 @@
+{
+  "authority": "unapplied public source input proposal; no source GO, runtime acceptance or closure",
+  "basis_commit_before_carrier": "aaefd17075b84ef45fbac6a56e04e29148e7e724",
+  "basis_tree_before_carrier": "41cdce069a4107b3796a8410de17c15c814be76e",
+  "candidate_manifest": {
+    "audit_reference_only": "LOCAL/raw/e02-execution-20261027/cloud/C67/candidate-manifest.json",
+    "required_as_cloud_input": false,
+    "sha256": "771a9d857072e7e13af11f13939bbafa155584ecb681d0e1bac7fac776021b7a"
+  },
+  "closure_ids": [],
+  "complete_footprint": [
+    {
+      "content_class": "D/evidence: historical delivered evidence; excluded, noninput",
+      "current_local_preimage": null,
+      "current_preimage_matches_source_base": true,
+      "included_as_input": false,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/Q0/cloud/e02-c67-bkt-full-chain/focused-pytest.log",
+      "postimage": {
+        "bytes": 80,
+        "git_blob": "188512f5c1fddcf6cb1f73a3b4f5dd357d03d17c",
+        "mode": "100644",
+        "sha256": "08faea39fd19189f6544839f505d91d76ecb1367e219f5db362cdf22916ef869"
+      },
+      "preimage": null
+    },
+    {
+      "content_class": "D/evidence: historical delivered evidence; excluded, noninput",
+      "current_local_preimage": null,
+      "current_preimage_matches_source_base": true,
+      "included_as_input": false,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/Q0/cloud/e02-c67-bkt-full-chain/receipt.md",
+      "postimage": {
+        "bytes": 4105,
+        "git_blob": "9c54a9f3435f3aea0b3fb8854ffc990aaaac3537",
+        "mode": "100644",
+        "sha256": "d24f15af9808d1dc6ab5e70b645b9bb848ec64529c4fa36c17c67aad997a0931"
+      },
+      "preimage": null
+    },
+    {
+      "content_class": "B/code: public source, test or release text",
+      "current_local_preimage": null,
+      "current_preimage_matches_source_base": true,
+      "included_as_input": true,
+      "path": "policy-engine/release-fragments/unreleased/2026-10-28-e02-c67-backtest-cohort-lineage.toml",
+      "postimage": {
+        "bytes": 1058,
+        "git_blob": "d512d7819c6fe14e79c65b31502498d8ec28654f",
+        "mode": "100644",
+        "sha256": "9d2369157f72778e42ce51cd68d6e42aa73fa0d9317734a98d850354ea6c57fd"
+      },
+      "preimage": null
+    },
+    {
+      "content_class": "B/code: public source, test or release text",
+      "current_local_preimage": {
+        "bytes": 77972,
+        "git_blob": "bcf32f0beab30a28c36979fac4f79a5c12bca037",
+        "mode": "100644",
+        "sha256": "b8da4c1aa45c6cd22576c34e6360fc2c34de29a4a6cfaaa9fa85cace9d51a46c"
+      },
+      "current_preimage_matches_source_base": true,
+      "included_as_input": true,
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "postimage": {
+        "bytes": 78009,
+        "git_blob": "6aeec778273b89fc7a5ef9326ac73345f34288a6",
+        "mode": "100644",
+        "sha256": "d7bc08a0ca45768c7b29bd1e9e668c44ea41c5fc2cd1a20d74597e5a07d4714c"
+      },
+      "preimage": {
+        "bytes": 77972,
+        "git_blob": "bcf32f0beab30a28c36979fac4f79a5c12bca037",
+        "mode": "100644",
+        "sha256": "b8da4c1aa45c6cd22576c34e6360fc2c34de29a4a6cfaaa9fa85cace9d51a46c"
+      }
+    },
+    {
+      "content_class": "B/code: public source, test or release text",
+      "current_local_preimage": null,
+      "current_preimage_matches_source_base": true,
+      "included_as_input": true,
+      "path": "policy-engine/tests/integration/scientist/methods/backtesting/test_backtest_fresh_report_semantics.py",
+      "postimage": {
+        "bytes": 5530,
+        "git_blob": "4158946fa79abf65855a637ce17e6b81a315a500",
+        "mode": "100644",
+        "sha256": "e1168a7e63e1e95f2e676bd922bc3a1f10b0dd4e5e6d2679d0819a35ac1dbd99"
+      },
+      "preimage": null
+    },
+    {
+      "content_class": "B/code: public source, test or release text",
+      "current_local_preimage": {
+        "bytes": 68523,
+        "git_blob": "b1873f09a460b5587d077b21bd6f8f3a0eb56d8f",
+        "mode": "100644",
+        "sha256": "5052ded2db80238d69360ce390b1fdc0499a66473c2e61e1ae4691554e1e53cb"
+      },
+      "current_preimage_matches_source_base": true,
+      "included_as_input": true,
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py",
+      "postimage": {
+        "bytes": 70610,
+        "git_blob": "fbc819aff50a1b2a276e3fcbb0b4bbea2f1a6ef3",
+        "mode": "100644",
+        "sha256": "a10b3259d1b14e9399dbbc1135bce2db4341fd08b820f6957d23cc28d18c2fbd"
+      },
+      "preimage": {
+        "bytes": 68523,
+        "git_blob": "b1873f09a460b5587d077b21bd6f8f3a0eb56d8f",
+        "mode": "100644",
+        "sha256": "5052ded2db80238d69360ce390b1fdc0499a66473c2e61e1ae4691554e1e53cb"
+      }
+    },
+    {
+      "content_class": "B/code: public source, test or release text",
+      "current_local_preimage": null,
+      "current_preimage_matches_source_base": true,
+      "included_as_input": true,
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap_statistic_semantics.py",
+      "postimage": {
+        "bytes": 2792,
+        "git_blob": "56dff74459dfced963de5ce989fa9071a98b98c6",
+        "mode": "100644",
+        "sha256": "282b4a86edc145d9f48223f23712656faea6c68549fb3f4b795e84981276151c"
+      },
+      "preimage": null
+    }
+  ],
+  "delivery_classification": {
+    "A_execution_input": [],
+    "B_code": [
+      "policy-engine/release-fragments/unreleased/2026-10-28-e02-c67-backtest-cohort-lineage.toml",
+      "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "policy-engine/tests/integration/scientist/methods/backtesting/test_backtest_fresh_report_semantics.py",
+      "policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py",
+      "policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap_statistic_semantics.py"
+    ],
+    "C_excluded": [],
+    "D_evidence": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/Q0/cloud/e02-c67-bkt-full-chain/focused-pytest.log",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/Q0/cloud/e02-c67-bkt-full-chain/receipt.md"
+    ]
+  },
+  "excluded_evidence": {
+    "files": [
+      {
+        "input_required": false,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/Q0/cloud/e02-c67-bkt-full-chain/focused-pytest.log",
+        "postimage": {
+          "bytes": 80,
+          "git_blob": "188512f5c1fddcf6cb1f73a3b4f5dd357d03d17c",
+          "mode": "100644",
+          "sha256": "08faea39fd19189f6544839f505d91d76ecb1367e219f5db362cdf22916ef869"
+        },
+        "reason": "historical delivered evidence; excluded from public source input and not required for patch replay"
+      },
+      {
+        "input_required": false,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/Q0/cloud/e02-c67-bkt-full-chain/receipt.md",
+        "postimage": {
+          "bytes": 4105,
+          "git_blob": "9c54a9f3435f3aea0b3fb8854ffc990aaaac3537",
+          "mode": "100644",
+          "sha256": "d24f15af9808d1dc6ab5e70b645b9bb848ec64529c4fa36c17c67aad997a0931"
+        },
+        "reason": "historical delivered evidence; excluded from public source input and not required for patch replay"
+      }
+    ],
+    "path_count": 2,
+    "selection": "all delivered receipt/log/JUnit/exit outputs excluded as historical noninputs"
+  },
+  "execution": "Consume only after the parent publishes and reads back these exact bytes. Bind the actual Cloud input base/tree, verify every listed preimage, decompress and compare patch hash, apply this single standalone overlay at source_base_commit, then verify every postimage. Run fresh property/oracle/removal and exact final selectors in the designated Cloud execution environment; do not infer source acceptance from this input or the excluded historical evidence.",
+  "full_received_diff": {
+    "bytes": 32908,
+    "paths": 7,
+    "qualification": "complete candidate manifest path set was reconciled to base-to-candidate Git diff; source.diff remains an audit reference and is not a Cloud input",
+    "sha256": "e10f9f3b85323aa17ed927dd3b3ed9c489aae1a8c83b81082869b90212fb2614"
+  },
+  "limitations": [
+    "The candidate is reconstructed from received bytes and is not a verified final Cloud commit.",
+    "The independent source review remains HOLD; this carrier does not grant source GO or G acceptance.",
+    "No local RAW evidence, execution output, private data, environment, credential, production payload, or test result is included in the patch.",
+    "Historical delivery evidence listed above is metadata-only noninput and cannot qualify a fresh run.",
+    "The standalone patch is valid only at the pinned source base and listed preimages; any changed preimage requires fresh diff/replay."
+  ],
+  "preparer_no_canonical_source_index_refs_mutated": true,
+  "prior_input_overlap": {
+    "composition_rule": "This is a complete standalone overlay from source_base_commit to the candidate tree. Do not apply this carrier after the prior overlapping carrier in the same worktree; consume this candidate as the full postimage for the listed overlapping paths, or rebase/diff against the actual composed tree first.",
+    "overlapping_paths": [
+      "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py"
+    ],
+    "prior_published_manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/cloud-inputs/C64-source.manifest.json",
+    "prior_published_manifest_sha256": "a78e83e918cf660e6f004498b92acce3d2f7ed785c47b4504b5dae880413bf44",
+    "prior_published_patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/cloud-inputs/C64-source.patch.gz"
+  },
+  "proposed_published_manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/cloud-inputs/C67-return-source.manifest.json",
+  "proposed_published_patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/cloud-inputs/C67-return-source.patch.gz",
+  "publication_status": "proposal only; requires root publication followed by branch readback and remote verification",
+  "received_candidate_tree_reconstructed_from_diff": "9ea8450e2cdea9bd53ec50ea55b6689ae10384b4",
+  "schema": "policyos.e02.cloud_source_patch_input.v1",
+  "selected_patch": {
+    "compressed_bytes": 5030,
+    "compressed_sha256": "dc2a9d4c46a79063f6967c4bab054a4a2e5d3e80a0a1aa7984471add6f73c677",
+    "compression": "gzip (mtime=0, empty filename, level=9)",
+    "decompressed_bytes": 17929,
+    "decompressed_sha256": "e5ae7a58567479fc21f52ba523c8c174762945f22faf9887bb55813c6ace0f8e",
+    "paths": [
+      {
+        "content_class": "B/code: public source, test or release text",
+        "current_local_preimage": null,
+        "current_preimage_matches_source_base": true,
+        "included_as_input": true,
+        "path": "policy-engine/release-fragments/unreleased/2026-10-28-e02-c67-backtest-cohort-lineage.toml",
+        "postimage": {
+          "bytes": 1058,
+          "git_blob": "d512d7819c6fe14e79c65b31502498d8ec28654f",
+          "mode": "100644",
+          "sha256": "9d2369157f72778e42ce51cd68d6e42aa73fa0d9317734a98d850354ea6c57fd"
+        },
+        "preimage": null
+      },
+      {
+        "content_class": "B/code: public source, test or release text",
+        "current_local_preimage": {
+          "bytes": 77972,
+          "git_blob": "bcf32f0beab30a28c36979fac4f79a5c12bca037",
+          "mode": "100644",
+          "sha256": "b8da4c1aa45c6cd22576c34e6360fc2c34de29a4a6cfaaa9fa85cace9d51a46c"
+        },
+        "current_preimage_matches_source_base": true,
+        "included_as_input": true,
+        "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+        "postimage": {
+          "bytes": 78009,
+          "git_blob": "6aeec778273b89fc7a5ef9326ac73345f34288a6",
+          "mode": "100644",
+          "sha256": "d7bc08a0ca45768c7b29bd1e9e668c44ea41c5fc2cd1a20d74597e5a07d4714c"
+        },
+        "preimage": {
+          "bytes": 77972,
+          "git_blob": "bcf32f0beab30a28c36979fac4f79a5c12bca037",
+          "mode": "100644",
+          "sha256": "b8da4c1aa45c6cd22576c34e6360fc2c34de29a4a6cfaaa9fa85cace9d51a46c"
+        }
+      },
+      {
+        "content_class": "B/code: public source, test or release text",
+        "current_local_preimage": null,
+        "current_preimage_matches_source_base": true,
+        "included_as_input": true,
+        "path": "policy-engine/tests/integration/scientist/methods/backtesting/test_backtest_fresh_report_semantics.py",
+        "postimage": {
+          "bytes": 5530,
+          "git_blob": "4158946fa79abf65855a637ce17e6b81a315a500",
+          "mode": "100644",
+          "sha256": "e1168a7e63e1e95f2e676bd922bc3a1f10b0dd4e5e6d2679d0819a35ac1dbd99"
+        },
+        "preimage": null
+      },
+      {
+        "content_class": "B/code: public source, test or release text",
+        "current_local_preimage": {
+          "bytes": 68523,
+          "git_blob": "b1873f09a460b5587d077b21bd6f8f3a0eb56d8f",
+          "mode": "100644",
+          "sha256": "5052ded2db80238d69360ce390b1fdc0499a66473c2e61e1ae4691554e1e53cb"
+        },
+        "current_preimage_matches_source_base": true,
+        "included_as_input": true,
+        "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py",
+        "postimage": {
+          "bytes": 70610,
+          "git_blob": "fbc819aff50a1b2a276e3fcbb0b4bbea2f1a6ef3",
+          "mode": "100644",
+          "sha256": "a10b3259d1b14e9399dbbc1135bce2db4341fd08b820f6957d23cc28d18c2fbd"
+        },
+        "preimage": {
+          "bytes": 68523,
+          "git_blob": "b1873f09a460b5587d077b21bd6f8f3a0eb56d8f",
+          "mode": "100644",
+          "sha256": "5052ded2db80238d69360ce390b1fdc0499a66473c2e61e1ae4691554e1e53cb"
+        }
+      },
+      {
+        "content_class": "B/code: public source, test or release text",
+        "current_local_preimage": null,
+        "current_preimage_matches_source_base": true,
+        "included_as_input": true,
+        "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap_statistic_semantics.py",
+        "postimage": {
+          "bytes": 2792,
+          "git_blob": "56dff74459dfced963de5ce989fa9071a98b98c6",
+          "mode": "100644",
+          "sha256": "282b4a86edc145d9f48223f23712656faea6c68549fb3f4b795e84981276151c"
+        },
+        "preimage": null
+      }
+    ],
+    "selection": "Complete public source/test/release footprint from the reconstructed candidate, excluding delivered receipt/log evidence. Standalone base-to-candidate overlay.",
+    "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/cloud-inputs/C67-return-source.patch.gz",
+    "verification": {
+      "all_candidate_blobs_sha256_rechecked": true,
+      "all_selected_candidate_blobs_sha256_rechecked": true,
+      "full_candidate_manifest_footprint_reconciled": true,
+      "read_only_git_apply_check": "PASS against current local paths proven identical to source base"
+    }
+  },
+  "self_reference_rule": "The final published commit/tree and any overlay tree are bound only after root publication/readback; this proposal makes no claim about its own future commit.",
+  "source_base_commit": "45fe14d8fe6f6822efab491495886501158d4b45",
+  "source_base_tree": "930552b76801e1a295a17e2bbc48a7177693b0f6",
+  "source_review": {
+    "disposition": "bounded code WIP only; HOLD exact-selected cohort lineage/full C67 capability",
+    "evidence_verdict": "not_adjudicated_by_source_input",
+    "finding": "Same existing lineage class deeper: first FileSystemCAS cohort write may return profileless ref, copied into report edge; exact selected profile not established.",
+    "finding_bucket": "same P01/P02/P29/P31/P38 selected-lineage and actual-consumer class, not a new backend FAIL",
+    "references": [
+      {
+        "path": "LOCAL/raw/e02-execution-20261027/reviews/C67-return-independent.md",
+        "reference_role": "audit_only_not_a_cloud_patch_input",
+        "required_as_cloud_input": false,
+        "sha256": "6f043a1f30f294b5c5fb43116080682b88c34e4e08198e7da008ec32e6b660c4"
+      },
+      {
+        "path": "LOCAL/raw/e02-execution-20261027/reviews/C67-return-independent.json",
+        "reference_role": "audit_only_not_a_cloud_patch_input",
+        "required_as_cloud_input": false,
+        "sha256": "585ae08c500a575b46eb4152254b1bb4d24b018fd3459338cf440a9ed5ac4c68"
+      }
+    ],
+    "review_is_patch_input": false,
+    "reviewer_product_imports": "UNRUN",
+    "reviewer_runtime": "UNRUN",
+    "source_G_acceptance": false,
+    "source_verdict": "bounded code WIP only; HOLD exact-selected cohort lineage/full C67 capability"
+  },
+  "source_task": "C67",
+  "source_task_id": "task_e_6ae1570c3cf883258b9d78da688a7033"
+}

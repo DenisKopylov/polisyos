@@ -1,0 +1,393 @@
+{
+  "authority": "unapplied public source input proposal; no source GO, runtime acceptance or closure",
+  "basis_commit_before_carrier": "aaefd17075b84ef45fbac6a56e04e29148e7e724",
+  "basis_tree_before_carrier": "41cdce069a4107b3796a8410de17c15c814be76e",
+  "candidate_manifest": {
+    "audit_reference_only": "LOCAL/raw/e02-execution-20261027/cloud/C66/candidate-manifest.json",
+    "required_as_cloud_input": false,
+    "sha256": "924b69b56e71300f884a60dc19a62ee478eeca72a1f7051f83a338566d8ecd77"
+  },
+  "closure_ids": [],
+  "complete_footprint": [
+    {
+      "content_class": "B/code: public source, test or release text",
+      "current_local_preimage": null,
+      "current_preimage_matches_source_base": true,
+      "included_as_input": true,
+      "path": "policy-engine/release-fragments/unreleased/2026-10-27-c34-federation-lineage.toml",
+      "postimage": {
+        "bytes": 1925,
+        "git_blob": "eec9cde14cde620b0dd6e6794c6a6bb1c0c0117d",
+        "mode": "100644",
+        "sha256": "e29b735947b5257e294e0c1763a7e7d8623abb558125e5584e5099df27c4ae78"
+      },
+      "preimage": null
+    },
+    {
+      "content_class": "B/code: public source, test or release text",
+      "current_local_preimage": {
+        "bytes": 12231,
+        "git_blob": "7d2bf37e7616c3937da75e5989b87eb046b9b998",
+        "mode": "100644",
+        "sha256": "a967c5f82eff467334f1bfcba747ea5a0a175b70ef6dcaec423854e0b3de765c"
+      },
+      "current_preimage_matches_source_base": true,
+      "included_as_input": true,
+      "path": "policy-engine/src/polisyos/fabric/connectors/README.md",
+      "postimage": {
+        "bytes": 13258,
+        "git_blob": "d3365bca7aa8b06e65ca9a021af0db548f8cf6ef",
+        "mode": "100644",
+        "sha256": "4def81be75860b455bea6f6acdcaf8a7fe523fd7867175d54fb86c7f5e13cb7d"
+      },
+      "preimage": {
+        "bytes": 12231,
+        "git_blob": "7d2bf37e7616c3937da75e5989b87eb046b9b998",
+        "mode": "100644",
+        "sha256": "a967c5f82eff467334f1bfcba747ea5a0a175b70ef6dcaec423854e0b3de765c"
+      }
+    },
+    {
+      "content_class": "B/code: public source, test or release text",
+      "current_local_preimage": {
+        "bytes": 1897,
+        "git_blob": "cd542436e7232125f2b6db4521fb389c2924953c",
+        "mode": "100644",
+        "sha256": "5c7b6fd5f98bfa643099af2909cfd28c445dbea9b39886544c82df0c2c9914ef"
+      },
+      "current_preimage_matches_source_base": true,
+      "included_as_input": true,
+      "path": "policy-engine/src/polisyos/fabric/connectors/federation/__init__.py",
+      "postimage": {
+        "bytes": 2234,
+        "git_blob": "76d277f5964a90f93d9bf1a8128794bd0878ec05",
+        "mode": "100644",
+        "sha256": "6329351aa9b31709c11eefbaf0dfb0b864f7779d6b1b076c9a6b64e14c82cc97"
+      },
+      "preimage": {
+        "bytes": 1897,
+        "git_blob": "cd542436e7232125f2b6db4521fb389c2924953c",
+        "mode": "100644",
+        "sha256": "5c7b6fd5f98bfa643099af2909cfd28c445dbea9b39886544c82df0c2c9914ef"
+      }
+    },
+    {
+      "content_class": "B/code: public source, test or release text",
+      "current_local_preimage": null,
+      "current_preimage_matches_source_base": true,
+      "included_as_input": true,
+      "path": "policy-engine/src/polisyos/fabric/connectors/federation/artifact.py",
+      "postimage": {
+        "bytes": 13664,
+        "git_blob": "cae1610a884dbcf01e83fc47d55ef9bbebbf1ca5",
+        "mode": "100644",
+        "sha256": "2ab2d404c4e561cffeb757ad3c317a14c8491d741963be697224ef1c03e2e970"
+      },
+      "preimage": null
+    },
+    {
+      "content_class": "B/code: public source, test or release text",
+      "current_local_preimage": {
+        "bytes": 48375,
+        "git_blob": "def3f64a2ab1f3331bc90f35144520411f6c72ac",
+        "mode": "100644",
+        "sha256": "e4c6451b23544b97eac588934aacaa8b2f54bc1bc87583a906718f5c5808aa76"
+      },
+      "current_preimage_matches_source_base": true,
+      "included_as_input": true,
+      "path": "policy-engine/src/polisyos/fabric/connectors/federation/composer.py",
+      "postimage": {
+        "bytes": 53657,
+        "git_blob": "e44263d9894744c2ff66b97af423afa258a98e0c",
+        "mode": "100644",
+        "sha256": "253764d3072d041f4368394f1b4ae2cbae45b3cae968b208644994c3c075b212"
+      },
+      "preimage": {
+        "bytes": 48375,
+        "git_blob": "def3f64a2ab1f3331bc90f35144520411f6c72ac",
+        "mode": "100644",
+        "sha256": "e4c6451b23544b97eac588934aacaa8b2f54bc1bc87583a906718f5c5808aa76"
+      }
+    },
+    {
+      "content_class": "B/code: public source, test or release text",
+      "current_local_preimage": {
+        "bytes": 29512,
+        "git_blob": "bd7f6c92bda6a11392e706079e7ec4a70a99783b",
+        "mode": "100644",
+        "sha256": "03918aa01fecb51aeaf6048eb1c46c2b1562d3f4a05a4006d781139080026aef"
+      },
+      "current_preimage_matches_source_base": true,
+      "included_as_input": true,
+      "path": "policy-engine/tests/unit/fabric/connectors/test_federation.py",
+      "postimage": {
+        "bytes": 35722,
+        "git_blob": "c86fdead7991b36a1539851d2549671494463743",
+        "mode": "100644",
+        "sha256": "ee8f3fdba2e6ce65652110929a9aa6a09df83a184fcd724ee5e568984081136f"
+      },
+      "preimage": {
+        "bytes": 29512,
+        "git_blob": "bd7f6c92bda6a11392e706079e7ec4a70a99783b",
+        "mode": "100644",
+        "sha256": "03918aa01fecb51aeaf6048eb1c46c2b1562d3f4a05a4006d781139080026aef"
+      }
+    },
+    {
+      "content_class": "B/code: public source, test or release text",
+      "current_local_preimage": null,
+      "current_preimage_matches_source_base": true,
+      "included_as_input": true,
+      "path": "policy-engine/tests/unit/fabric/connectors/test_federation_artifact.py",
+      "postimage": {
+        "bytes": 7652,
+        "git_blob": "d936280d13f12fb09f75932332eb8b310e89af51",
+        "mode": "100644",
+        "sha256": "999e3745494566c367a5dbfbd71c10a32f6eec0e712354374f929a682b1f2a8f"
+      },
+      "preimage": null
+    }
+  ],
+  "delivery_classification": {
+    "A_execution_input": [],
+    "B_code": [
+      "policy-engine/release-fragments/unreleased/2026-10-27-c34-federation-lineage.toml",
+      "policy-engine/src/polisyos/fabric/connectors/README.md",
+      "policy-engine/src/polisyos/fabric/connectors/federation/__init__.py",
+      "policy-engine/src/polisyos/fabric/connectors/federation/artifact.py",
+      "policy-engine/src/polisyos/fabric/connectors/federation/composer.py",
+      "policy-engine/tests/unit/fabric/connectors/test_federation.py",
+      "policy-engine/tests/unit/fabric/connectors/test_federation_artifact.py"
+    ],
+    "C_excluded": [],
+    "D_evidence": []
+  },
+  "excluded_evidence": {
+    "files": [],
+    "path_count": 0,
+    "selection": "all delivered receipt/log/JUnit/exit outputs excluded as historical noninputs"
+  },
+  "execution": "Consume only after the parent publishes and reads back these exact bytes. Bind the actual Cloud input base/tree, verify every listed preimage, decompress and compare patch hash, apply this single standalone overlay at source_base_commit, then verify every postimage. Run fresh property/oracle/removal and exact final selectors in the designated Cloud execution environment; do not infer source acceptance from this input or the excluded historical evidence.",
+  "full_received_diff": {
+    "bytes": 72224,
+    "paths": 7,
+    "qualification": "complete candidate manifest path set was reconciled to base-to-candidate Git diff; source.diff remains an audit reference and is not a Cloud input",
+    "sha256": "5bc2acfa40dbbb722254ad7720f4b9cd7cb906048937e1dc6c4031f3b1b6b8b2"
+  },
+  "limitations": [
+    "The candidate is reconstructed from received bytes and is not a verified final Cloud commit.",
+    "The independent source review remains HOLD; this carrier does not grant source GO or G acceptance.",
+    "No local RAW evidence, execution output, private data, environment, credential, production payload, or test result is included in the patch.",
+    "Historical delivery evidence listed above is metadata-only noninput and cannot qualify a fresh run.",
+    "The standalone patch is valid only at the pinned source base and listed preimages; any changed preimage requires fresh diff/replay."
+  ],
+  "preparer_no_canonical_source_index_refs_mutated": true,
+  "prior_input_overlap": {
+    "composition_rule": "This is a complete standalone overlay from source_base_commit to the candidate tree. Do not apply this carrier after the prior overlapping carrier in the same worktree; consume this candidate as the full postimage for the listed overlapping paths, or rebase/diff against the actual composed tree first.",
+    "overlapping_paths": [
+      "policy-engine/release-fragments/unreleased/2026-10-27-c34-federation-lineage.toml",
+      "policy-engine/src/polisyos/fabric/connectors/federation/__init__.py",
+      "policy-engine/src/polisyos/fabric/connectors/federation/artifact.py",
+      "policy-engine/src/polisyos/fabric/connectors/federation/composer.py",
+      "policy-engine/tests/unit/fabric/connectors/test_federation.py",
+      "policy-engine/tests/unit/fabric/connectors/test_federation_artifact.py"
+    ],
+    "prior_published_manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/cloud-inputs/C63-federation-manifest.json",
+    "prior_published_manifest_sha256": "bc34e6ea29ee4d995ef6637d63096b2e9d4d7bd574c88562d15e078b53ef91ba",
+    "prior_published_patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/cloud-inputs/C63-federation.patch.gz"
+  },
+  "proposed_published_manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/cloud-inputs/C66-return-source.manifest.json",
+  "proposed_published_patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/cloud-inputs/C66-return-source.patch.gz",
+  "publication_status": "proposal only; requires root publication followed by branch readback and remote verification",
+  "received_candidate_tree_reconstructed_from_diff": "8e2577a016c15c3a318edd7f327376cb8adc1116",
+  "schema": "policyos.e02.cloud_source_patch_input.v1",
+  "selected_patch": {
+    "compressed_bytes": 11979,
+    "compressed_sha256": "5487a2d38cf2d6dd7399922e29f1c3b430557187dda937ecde18ca4642190874",
+    "compression": "gzip (mtime=0, empty filename, level=9)",
+    "decompressed_bytes": 48773,
+    "decompressed_sha256": "0623589b35ae49e1db2bd234d5031e405c28ffdd2e2edbb499a7aa8d4b4daff5",
+    "paths": [
+      {
+        "content_class": "B/code: public source, test or release text",
+        "current_local_preimage": null,
+        "current_preimage_matches_source_base": true,
+        "included_as_input": true,
+        "path": "policy-engine/release-fragments/unreleased/2026-10-27-c34-federation-lineage.toml",
+        "postimage": {
+          "bytes": 1925,
+          "git_blob": "eec9cde14cde620b0dd6e6794c6a6bb1c0c0117d",
+          "mode": "100644",
+          "sha256": "e29b735947b5257e294e0c1763a7e7d8623abb558125e5584e5099df27c4ae78"
+        },
+        "preimage": null
+      },
+      {
+        "content_class": "B/code: public source, test or release text",
+        "current_local_preimage": {
+          "bytes": 12231,
+          "git_blob": "7d2bf37e7616c3937da75e5989b87eb046b9b998",
+          "mode": "100644",
+          "sha256": "a967c5f82eff467334f1bfcba747ea5a0a175b70ef6dcaec423854e0b3de765c"
+        },
+        "current_preimage_matches_source_base": true,
+        "included_as_input": true,
+        "path": "policy-engine/src/polisyos/fabric/connectors/README.md",
+        "postimage": {
+          "bytes": 13258,
+          "git_blob": "d3365bca7aa8b06e65ca9a021af0db548f8cf6ef",
+          "mode": "100644",
+          "sha256": "4def81be75860b455bea6f6acdcaf8a7fe523fd7867175d54fb86c7f5e13cb7d"
+        },
+        "preimage": {
+          "bytes": 12231,
+          "git_blob": "7d2bf37e7616c3937da75e5989b87eb046b9b998",
+          "mode": "100644",
+          "sha256": "a967c5f82eff467334f1bfcba747ea5a0a175b70ef6dcaec423854e0b3de765c"
+        }
+      },
+      {
+        "content_class": "B/code: public source, test or release text",
+        "current_local_preimage": {
+          "bytes": 1897,
+          "git_blob": "cd542436e7232125f2b6db4521fb389c2924953c",
+          "mode": "100644",
+          "sha256": "5c7b6fd5f98bfa643099af2909cfd28c445dbea9b39886544c82df0c2c9914ef"
+        },
+        "current_preimage_matches_source_base": true,
+        "included_as_input": true,
+        "path": "policy-engine/src/polisyos/fabric/connectors/federation/__init__.py",
+        "postimage": {
+          "bytes": 2234,
+          "git_blob": "76d277f5964a90f93d9bf1a8128794bd0878ec05",
+          "mode": "100644",
+          "sha256": "6329351aa9b31709c11eefbaf0dfb0b864f7779d6b1b076c9a6b64e14c82cc97"
+        },
+        "preimage": {
+          "bytes": 1897,
+          "git_blob": "cd542436e7232125f2b6db4521fb389c2924953c",
+          "mode": "100644",
+          "sha256": "5c7b6fd5f98bfa643099af2909cfd28c445dbea9b39886544c82df0c2c9914ef"
+        }
+      },
+      {
+        "content_class": "B/code: public source, test or release text",
+        "current_local_preimage": null,
+        "current_preimage_matches_source_base": true,
+        "included_as_input": true,
+        "path": "policy-engine/src/polisyos/fabric/connectors/federation/artifact.py",
+        "postimage": {
+          "bytes": 13664,
+          "git_blob": "cae1610a884dbcf01e83fc47d55ef9bbebbf1ca5",
+          "mode": "100644",
+          "sha256": "2ab2d404c4e561cffeb757ad3c317a14c8491d741963be697224ef1c03e2e970"
+        },
+        "preimage": null
+      },
+      {
+        "content_class": "B/code: public source, test or release text",
+        "current_local_preimage": {
+          "bytes": 48375,
+          "git_blob": "def3f64a2ab1f3331bc90f35144520411f6c72ac",
+          "mode": "100644",
+          "sha256": "e4c6451b23544b97eac588934aacaa8b2f54bc1bc87583a906718f5c5808aa76"
+        },
+        "current_preimage_matches_source_base": true,
+        "included_as_input": true,
+        "path": "policy-engine/src/polisyos/fabric/connectors/federation/composer.py",
+        "postimage": {
+          "bytes": 53657,
+          "git_blob": "e44263d9894744c2ff66b97af423afa258a98e0c",
+          "mode": "100644",
+          "sha256": "253764d3072d041f4368394f1b4ae2cbae45b3cae968b208644994c3c075b212"
+        },
+        "preimage": {
+          "bytes": 48375,
+          "git_blob": "def3f64a2ab1f3331bc90f35144520411f6c72ac",
+          "mode": "100644",
+          "sha256": "e4c6451b23544b97eac588934aacaa8b2f54bc1bc87583a906718f5c5808aa76"
+        }
+      },
+      {
+        "content_class": "B/code: public source, test or release text",
+        "current_local_preimage": {
+          "bytes": 29512,
+          "git_blob": "bd7f6c92bda6a11392e706079e7ec4a70a99783b",
+          "mode": "100644",
+          "sha256": "03918aa01fecb51aeaf6048eb1c46c2b1562d3f4a05a4006d781139080026aef"
+        },
+        "current_preimage_matches_source_base": true,
+        "included_as_input": true,
+        "path": "policy-engine/tests/unit/fabric/connectors/test_federation.py",
+        "postimage": {
+          "bytes": 35722,
+          "git_blob": "c86fdead7991b36a1539851d2549671494463743",
+          "mode": "100644",
+          "sha256": "ee8f3fdba2e6ce65652110929a9aa6a09df83a184fcd724ee5e568984081136f"
+        },
+        "preimage": {
+          "bytes": 29512,
+          "git_blob": "bd7f6c92bda6a11392e706079e7ec4a70a99783b",
+          "mode": "100644",
+          "sha256": "03918aa01fecb51aeaf6048eb1c46c2b1562d3f4a05a4006d781139080026aef"
+        }
+      },
+      {
+        "content_class": "B/code: public source, test or release text",
+        "current_local_preimage": null,
+        "current_preimage_matches_source_base": true,
+        "included_as_input": true,
+        "path": "policy-engine/tests/unit/fabric/connectors/test_federation_artifact.py",
+        "postimage": {
+          "bytes": 7652,
+          "git_blob": "d936280d13f12fb09f75932332eb8b310e89af51",
+          "mode": "100644",
+          "sha256": "999e3745494566c367a5dbfbd71c10a32f6eec0e712354374f929a682b1f2a8f"
+        },
+        "preimage": null
+      }
+    ],
+    "selection": "Complete public source/test/release footprint from the reconstructed candidate, excluding delivered receipt/log evidence. Standalone base-to-candidate overlay.",
+    "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/cloud-inputs/C66-return-source.patch.gz",
+    "verification": {
+      "all_candidate_blobs_sha256_rechecked": true,
+      "all_selected_candidate_blobs_sha256_rechecked": true,
+      "full_candidate_manifest_footprint_reconciled": true,
+      "read_only_git_apply_check": "PASS against current local paths proven identical to source base"
+    }
+  },
+  "self_reference_rule": "The final published commit/tree and any overlay tree are bound only after root publication/readback; this proposal makes no claim about its own future commit.",
+  "source_base_commit": "45fe14d8fe6f6822efab491495886501158d4b45",
+  "source_base_tree": "930552b76801e1a295a17e2bbc48a7177693b0f6",
+  "source_review": {
+    "disposition": "HOLD",
+    "evidence_verdict": "not_established",
+    "finding": "The returned candidate retains the central C63 selected-parent gap, has a concrete null-key escape from JOIN row cap, and does not enforce its advertised replay envelope before the work or ensure its writer output is readable.",
+    "references": [
+      {
+        "path": "LOCAL/raw/e02-execution-20261027/reviews/C66-return-independent.md",
+        "reference_role": "audit_only_not_a_cloud_patch_input",
+        "required_as_cloud_input": false,
+        "sha256": "ea4dc08a4719d83bec8e3930d8af7282f3ee9fed1b5912bfb3379514c9d76a7c"
+      },
+      {
+        "path": "LOCAL/raw/e02-execution-20261027/reviews/C66-return-independent.json",
+        "reference_role": "audit_only_not_a_cloud_patch_input",
+        "required_as_cloud_input": false,
+        "sha256": "13c98db7d24d28efed552a04de1f9ee54db8427c0a983b0f1cad3d463975f21d"
+      },
+      {
+        "path": "LOCAL/raw/e02-execution-20261027/reviews/C66-return-independent-identity.json",
+        "reference_role": "audit_only_not_a_cloud_patch_input",
+        "required_as_cloud_input": false,
+        "sha256": "86b5128e9e18ec5cd48ae1f00a8c342743ba7e8b3d804abbc8c6834418ab3b01"
+      }
+    ],
+    "review_is_patch_input": false,
+    "reviewer_product_imports_tests_native_runs_removals": "UNRUN",
+    "source_G_acceptance": false,
+    "source_verdict": "HOLD"
+  },
+  "source_task": "C66",
+  "source_task_id": "task_e_6ae154adbec48325a31f7392ca89ce55"
+}

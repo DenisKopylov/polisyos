@@ -686,12 +686,12 @@
       ],
       "current_source": "ad81c5b826bdfdda6aa2295b8641e9ae2a68b21a",
       "mechanism_owner": "provenance only",
-      "current_implementation_proof_and_acceptance_boundary": "G27-06 reports B87/B89 satisfied at65ac853; source qualification preserved.",
+      "current_implementation_proof_and_acceptance_boundary": "G27-06 reports B87/B89 satisfied at candidate 65ac853 under the packet's five candidate-bound source pins; any later source delta requires affected-path qualification (see analysis/runtime-routes.md).",
       "incomplete_capability_label": "verification_missing",
-      "remaining": "Correct four related-history refs without reopening accepted behavior.",
+      "remaining": "All four historical-commit roles are already corrected in the R2 packet (author commit 1810a1858); no product rewrite remains. G's review of the corrected packet and formal status/closure remain separate.",
       "engineering_path": "wire-existing -> extend-existing; consolidate only demonstrated duplicate; build-new requires absent owner evidence",
-      "first_actions": "Recompute ancestry and five selected path hashes; surgically fix bindings and dependent prose.",
-      "distinguishing_readiness_signal": "Committed packet agrees with ancestry and selected source; defining property unchanged; G closure separate.",
+      "first_actions": "Read back the corrected R2 packet roles and verify their ancestry against candidate 65ac853 and slice base 76691bd; preserve the five candidate-bound pins. Requalify any later affected source delta and leave G adjudication to G.",
+      "distinguishing_readiness_signal": "Packet roles agree with candidate/base ancestry; all five pins match candidate 65ac853. Later source deltas receive affected-path qualification; accepted candidate properties and G closure boundary stay separate.",
       "execution_location": "local",
       "planned_slices": [
         "L01"

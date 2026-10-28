@@ -2,6 +2,7 @@ import type { QuantityValueOutput } from "@polisyos/runtime-api-client";
 import type { z } from "zod";
 
 import type { components } from "./types";
+import { c41JointParentObservation } from "@/test/fixtures/c41JointParent";
 import { runN5InteractionEvidenceFixture as n5InteractionEvidenceFixture } from "@/test/fixtures/runN5InteractionEvidence";
 import {
   artifactContentSchema,
@@ -658,7 +659,212 @@ function runsListPayload(runTerminality: string | undefined) {
   };
 }
 
+function c41V5Payload() {
+  const payload = runDetailsPayload("projection only");
+  const projection = mutableRecord(
+    genericCycleSimulationProjection("run-projection-mask"),
+  );
+  const first = firstMutableRecord(
+    projection.n5_observations,
+    "n5_observations",
+  );
+  first.n5_owner_join_status = "resolved";
+  const limited = structuredClone(first);
+  limited.candidate_id = "candidate-limited";
+  limited.cycle_index = 1;
+  limited.design_problem_ref = `sha256:${"8".repeat(64)}`;
+  limited.node_ref = `design-problem://${"8".repeat(64)}`;
+  limited.n5_execution_ref = null;
+  limited.n5_owner_join_status = "unavailable";
+  limited.n5_owner_join_limitation_code = "generic_n5_owner_view_absent";
+  limited.n5_request_binding_status = "not_established";
+  limited.n5_request_content_hash = null;
+  limited.n8_lineage_status = "not_established";
+  limited.n8_value_ref = null;
+  limited.n8_limitation_code =
+    "n5_execution_request_provenance_not_established";
+  limited.n8_authority_blockers = [
+    ...((limited.n8_authority_blockers as string[]) ?? []),
+    "n5_execution_request_provenance_not_established",
+  ];
+  limited.authority_blockers = [
+    ...((limited.authority_blockers as string[]) ?? []),
+    "n5_execution_request_provenance_not_established",
+  ];
+  limited.simulation_result_body = null;
+  limited.simulation_result_body_status = "not_established";
+  limited.simulation_result_body_limitation_code =
+    "generic_n5_result_body_request_binding_not_established";
+  projection.n5_observations = [first, limited];
+  projection.schema_version =
+    "policyos.runtime.run_generic_cycle_simulation_projection.v5";
+  projection.joint_parent_status = "resolved";
+  projection.joint_parent_observations = [c41JointParentObservation()];
+  mutableRecord(payload.run).generic_cycle_simulation = projection;
+  return payload;
+}
+
 describe("runtime API validators", () => {
+  it("parses a v5 parent assessment separately from mixed child owner outcomes", () => {
+    const parsed = runDetailsSchema.parse(c41V5Payload());
+    const projection = parsed.run.generic_cycle_simulation;
+    expect(projection?.schema_version).toBe(
+      "policyos.runtime.run_generic_cycle_simulation_projection.v5",
+    );
+    expect(
+      projection?.n5_observations.map((row) => row.n5_owner_join_status),
+    ).toEqual(["resolved", "unavailable"]);
+    expect(projection?.n5_observations[1]?.status).toBe("joint_simulated");
+    expect(projection?.n5_observations[1]?.authority_blockers).toContain(
+      "n5_execution_request_provenance_not_established",
+    );
+    expect(projection?.joint_parent_status).toBe("resolved");
+    expect(projection?.joint_parent_observations?.[0]).toMatchObject({
+      n8_status: "value_conditional",
+      n8_candidate_decision_grade: "low",
+      n8_joint_scope_status: "not_established",
+      n8_source_candidate_relationship: "alternatives",
+      n8_policy_composition_status: "not_established",
+    });
+    expect(
+      projection?.joint_parent_observations?.[0]?.n5_interaction_evidence
+        ?.higher_order_residuals["outcome-a"]?.["0"],
+    ).toBe(1);
+    expect(projection?.publication_authority).toBe(false);
+  });
+
+  it("retains v5 parent unavailability with its limitation and successful child", () => {
+    const payload = c41V5Payload();
+    const projection = mutableRecord(
+      mutableRecord(payload.run).generic_cycle_simulation,
+    );
+    projection.joint_parent_status = "not_established";
+    projection.joint_parent_observations = [];
+    projection.joint_parent_limitation_code =
+      "generic_joint_parent_result_not_established";
+    const parsed = runDetailsSchema.parse(payload).run.generic_cycle_simulation;
+    expect(parsed?.joint_parent_status).toBe("not_established");
+    expect(parsed?.joint_parent_limitation_code).toBe(
+      "generic_joint_parent_result_not_established",
+    );
+    expect(parsed?.n5_observations[0]?.n5_owner_join_status).toBe("resolved");
+  });
+
+  it("retains a refused owner-conflict row alongside a resolved sibling", () => {
+    const payload = c41V5Payload();
+    const projection = mutableRecord(
+      mutableRecord(payload.run).generic_cycle_simulation,
+    );
+    const rows = projection.n5_observations as Record<string, unknown>[];
+    const conflict = rows[1]!;
+    conflict.n5_execution_ref = rows[0]!.n5_execution_ref;
+    conflict.n5_owner_join_status = "mismatch";
+    conflict.n5_owner_join_limitation_code =
+      "generic_n5_execution_cycle_join_mismatch";
+    conflict.status = "simulation_blocked";
+    conflict.n8_status = "value_blocked";
+    conflict.n8_limitation_code = "n5_execution_request_provenance_conflict";
+    conflict.n5_interaction_evidence = null;
+    conflict.n8_numeric_interaction = null;
+    conflict.n8_numeric_interaction_basis = null;
+    conflict.n8_interaction_sampling_status = null;
+    conflict.atom_ids = [];
+    conflict.selected_outcomes = [];
+    conflict.executed_steps = [];
+    conflict.replication_seeds = [];
+    const parsed = runDetailsSchema.parse(payload).run.generic_cycle_simulation;
+    expect(
+      parsed?.n5_observations.map((row) => row.n5_owner_join_status),
+    ).toEqual(["resolved", "mismatch"]);
+    expect(parsed?.n5_observations[1]?.status).toBe("simulation_blocked");
+    expect(parsed?.n5_observations[1]?.n8_status).toBe("value_blocked");
+  });
+
+  it("accepts the v5 owner-join extension even without a parent joint row", () => {
+    const payload = c41V5Payload();
+    const projection = mutableRecord(
+      mutableRecord(payload.run).generic_cycle_simulation,
+    );
+    delete projection.joint_parent_status;
+    delete projection.joint_parent_observations;
+    const parsed = runDetailsSchema.parse(payload).run.generic_cycle_simulation;
+    expect(parsed?.schema_version).toBe(
+      "policyos.runtime.run_generic_cycle_simulation_projection.v5",
+    );
+    expect(parsed?.n5_observations[0]?.n5_owner_join_status).toBe("resolved");
+    expect(parsed?.joint_parent_status).toBeUndefined();
+  });
+
+  it.each([
+    "v1_with_new_extension",
+    "v5_without_extension",
+    "resolved_owner_missing_execution",
+    "limited_owner_missing_reason",
+    "mismatch_with_unblocked_row",
+    "resolved_parent_blocked",
+    "resolved_parent_missing_result",
+    "parent_missing_selection",
+    "conditional_parent_missing_grade",
+    "conditional_parent_wrong_ref",
+    "conditional_parent_missing_provenance",
+    "parent_claims_authority",
+    "parent_residual_removed_with_markers",
+  ])("refuses contradictory v5 candidate status or evidence: %s", (control) => {
+    const payload = c41V5Payload();
+    const projection = mutableRecord(
+      mutableRecord(payload.run).generic_cycle_simulation,
+    );
+    const children = projection.n5_observations as Record<string, unknown>[];
+    const first = children[0]!;
+    const limited = children[1]!;
+    const parent = firstMutableRecord(
+      projection.joint_parent_observations,
+      "joint_parent_observations",
+    );
+    if (control === "v1_with_new_extension") {
+      projection.schema_version =
+        "policyos.runtime.run_generic_cycle_simulation_projection.v1";
+    } else if (control === "v5_without_extension") {
+      delete projection.joint_parent_status;
+      delete projection.joint_parent_observations;
+      limited.n5_execution_ref = first.n5_execution_ref;
+      for (const child of children) {
+        delete child.n5_owner_join_status;
+        delete child.n5_owner_join_limitation_code;
+      }
+    } else if (control === "resolved_owner_missing_execution") {
+      first.n5_execution_ref = null;
+    } else if (control === "limited_owner_missing_reason") {
+      delete limited.n5_owner_join_limitation_code;
+    } else if (control === "mismatch_with_unblocked_row") {
+      limited.n5_execution_ref = first.n5_execution_ref;
+      limited.n5_owner_join_status = "mismatch";
+    } else if (control === "resolved_parent_blocked") {
+      parent.status = "simulation_blocked";
+    } else if (control === "resolved_parent_missing_result") {
+      parent.simulation_result_ref = null;
+    } else if (control === "parent_missing_selection") {
+      delete parent.n8_candidate_joint_selection_status;
+    } else if (control === "conditional_parent_missing_grade") {
+      delete parent.n8_candidate_decision_grade;
+    } else if (control === "conditional_parent_wrong_ref") {
+      parent.n8_candidate_value_ref = `sha256:${"0".repeat(64)}`;
+    } else if (control === "conditional_parent_missing_provenance") {
+      parent.n8_authority_blockers = (
+        parent.n8_authority_blockers as string[]
+      ).filter(
+        (code) => code !== "n5_execution_request_provenance_not_established",
+      );
+    } else if (control === "parent_claims_authority") {
+      projection.publication_authority = true;
+    } else {
+      const evidence = mutableRecord(parent.n5_interaction_evidence);
+      evidence.higher_order_residuals = {};
+      evidence.higher_order_residual_sampling = {};
+    }
+    expect(runDetailsSchema.safeParse(payload).success).toBe(false);
+  });
+
   it("preserves typed profile-selection provenance and rejects unknown statuses", () => {
     const base = {
       meta: {

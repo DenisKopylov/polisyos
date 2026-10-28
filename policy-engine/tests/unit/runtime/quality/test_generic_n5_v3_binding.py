@@ -804,3 +804,118 @@ def test_generic_profile_join_refuses_v5_context_without_exact_selected_ncm_view
         declared_profile,
         revised_problem,
     )
+
+
+def test_generic_owner_join_distinguishes_selected_mismatch_from_unknown_replay(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A selected record cannot be paired with another cycle or result reference."""
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericN5ExecutionJoinExpectation,
+    )
+
+    binding = GenericCycleSimulationN5RequestBindingV2.from_request(_request())
+    original = _execution_v3_record(binding)
+    selected_input = original.input_ref.model_copy(
+        update={"manifest_profile_sha256": "sha256:" + "a" * 64}
+    )
+    assert original.result_ref is not None
+    selected_result = original.result_ref.model_copy(
+        update={"manifest_profile_sha256": "sha256:" + "b" * 64}
+    )
+    draft = original.model_copy(update={"input_ref": selected_input, "result_ref": selected_result})
+    record = GenericCycleSimulationN5ExecutionV3.model_validate(
+        {
+            **draft.model_dump(mode="python", exclude={"content_hash"}),
+            "content_hash": _n5_typed_execution_content_hash(draft),
+        }
+    )
+    store = FileSystemCAS(tmp_path / "typed-owner-join")
+    owner = GenericCycleSimulationAdmissionOwner(profiles=(), store=store)
+    ref = store.put_json(
+        record.model_dump(mode="python"),
+        owner._n5_execution_write_options(record),
+        canon_spec=_N5_TYPED_CANON,
+        return_selected_profile=True,
+    )
+    expectation = GenericN5ExecutionJoinExpectation(
+        input_ref=record.input_ref,
+        result_ref=record.result_ref,
+        status=record.status,
+        n4_source_ref=record.n4_source_ref,
+        context_job_ref=record.context_job_ref,
+        profile_ref=record.profile_ref,
+        child_family_ref=record.n4_child_profile_family_ref,
+        child_set_ref=record.n4_child_profile_set_ref,
+        profile_selection_ref=record.profile_selection_ref,
+        design_problem_ref="sha256:" + "f" * 64,
+        outcome_variable=record.outcome_variable,
+        cycle_index=0,
+        candidate_id=record.candidate_id,
+        candidate_atom_hash=record.candidate_atom_hash,
+        world_model_record_content_hash=record.world_model_record_content_hash,
+        job_id=record.job_id,
+        run_id=record.run_id,
+        source_run_id=record.source_run_id,
+        tenant_id=record.tenant_id,
+        cell_id=record.cell_id,
+    )
+    for change in (
+        {"job_id": "foreign-job"},
+        {"run_id": "foreign-run"},
+        {"candidate_id": "foreign-candidate"},
+        {"tenant_id": "foreign-tenant"},
+        {
+            "input_ref": ArtifactRef.model_validate(
+                {**selected_input.model_dump(mode="json"), "artifact_id": "sha256:" + "c" * 64}
+            )
+        },
+        {
+            "result_ref": ArtifactRef.model_validate(
+                {**selected_result.model_dump(mode="json"), "artifact_id": "sha256:" + "d" * 64}
+            )
+        },
+    ):
+        outcome = owner.resolve_n5_execution_join(
+            ref, expected=expectation.model_copy(update=change)
+        )
+        assert outcome.status == "mismatch"
+        assert outcome.execution is None
+
+    missing = ArtifactRef.model_validate(
+        {**ref.model_dump(mode="json"), "artifact_id": "sha256:" + "e" * 64}
+    )
+    assert owner.resolve_n5_execution_join(missing, expected=expectation).status == "unavailable"
+    # A structurally correct record with unavailable dependencies is not proof
+    # that the full owner replay succeeded.
+    unknown = owner.resolve_n5_execution_join(ref, expected=expectation)
+    assert unknown.status in {"unavailable", "not_established"}
+    assert unknown.execution is None
+
+    from polisyos.core.artifacts import ArtifactOwnershipError
+    from polisyos.core.artifacts.ownership import (
+        ArtifactPublicReadClosureUnavailableError,
+        ArtifactReadOnlyUnavailableError,
+        ArtifactTransactionPendingError,
+    )
+
+    errors = (
+        (ArtifactReadOnlyUnavailableError("source unavailable"), "unavailable"),
+        (
+            ArtifactTransactionPendingError(record.input_ref.artifact_id, surface="manifest"),
+            "unavailable",
+        ),
+        (ArtifactPublicReadClosureUnavailableError("record", operation="read"), "unavailable"),
+        (ArtifactOwnershipError("foreign tenant"), "invalid"),
+    )
+    for error, expected_status in errors:
+
+        def refuse_manifest(*args: Any, _error: Exception = error, **kwargs: Any) -> bytes:
+            del args, kwargs
+            raise _error
+
+        with monkeypatch.context() as scope:
+            scope.setattr(store, "get_raw_manifest_bytes", refuse_manifest)
+            observed = owner.resolve_n5_execution_join(ref, expected=expectation)
+        assert observed.status == expected_status
+        assert observed.execution is None

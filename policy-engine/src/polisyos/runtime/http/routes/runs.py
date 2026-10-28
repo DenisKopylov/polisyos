@@ -2733,7 +2733,7 @@ def _parent_joint_candidate_selection_projection(
     children = derive_n4_candidate_child_problems(
         compiled.design_problem,
         source_result,
-        model_id=compiled.model_id,
+        model_id=source_result.model_id,
     )
     expected_child_refs = tuple(
         "design-problem://" + cycle_job_design_problem_ref(child.problem).removeprefix("sha256:")
@@ -2936,13 +2936,15 @@ def _generic_cycle_simulation_projection(
     from polisyos.runtime.quality.cycle_substrate import (
         CycleSubstrateContextArtifactOwner,
         cycle_job_design_problem_ref,
-        generic_n4_child_profile_selection_ref,
     )
     from polisyos.runtime.quality.design_generation import (
         derive_n4_candidate_child_problems,
     )
     from polisyos.runtime.quality.generation_cycle import (
+        _consume_parent_joint_candidate_n8,
+        _generation_source_run_id,
         _joint_simulation_port_outcome,
+        _value_outcome_variable,
         load_joint_simulation_result,
         resolve_generation_cycle_run_context_history,
     )
@@ -2950,9 +2952,8 @@ def _generic_cycle_simulation_projection(
     from polisyos.runtime.quality.generic_simulation_admission import (
         GenericCycleSimulationAdmissionOwner,
         GenericCycleSimulationN5ExecutionV3,
-        GenericCycleSimulationN5InputV1,
         GenericCycleSimulationN5RequestBindingV2,
-        parse_generic_cycle_simulation_n5_execution,
+        GenericN5ExecutionJoinExpectation,
     )
     from polisyos.runtime.quality.recursive_generation_cycle import (
         RecursiveCycleNode,
@@ -3382,6 +3383,9 @@ def _generic_cycle_simulation_projection(
                 n5_limitation = "generic_n5_sibling_checkpoint_not_established"
                 continue
             binding = child_rows[node_ref]
+            child_source_run_id = _generation_source_run_id(binding.problem)
+            if node.cycle_run.run_id != child_source_run_id:
+                raise ValueError("generic_n5_child_source_run_identity_mismatch")
             history_projection = resolve_generation_cycle_run_context_history(
                 node.cycle_run,
                 context_owner=context_owner,
@@ -3410,7 +3414,7 @@ def _generic_cycle_simulation_projection(
                 if not any(value is not None for value in generic_refs):
                     n5_limitation = "generic_n5_observation_not_emitted"
                     continue
-                if any(value is None for value in generic_refs):
+                if any(value is None for index, value in enumerate(generic_refs) if index != 6):
                     raise ValueError("generic_n5_compiled_lineage_incomplete")
                 (
                     cycle_source_ref,
@@ -3446,13 +3450,14 @@ def _generic_cycle_simulation_projection(
                     history_binding.problem
                 ):
                     raise ValueError("generic_n5_cycle_problem_basis_mismatch")
-                input_record = GenericCycleSimulationN5InputV1.model_validate(
-                    read_core_json_artifact(store, input_ref).value
+                expected_child_selection = generic_owner._rebind_child_selection_for_problem(
+                    child_selection=binding.selection,
+                    problem=history_binding.problem,
+                    profile=binding.handoff.profile,
                 )
-                generic_owner.resolve_n5_input(input_ref, expected=input_record)
                 cycle_source = source_repository.load(
                     cycle_source_ref,
-                    run_id=family.source_run_id,
+                    run_id=child_source_run_id,
                     expected_run_id=family.run_id,
                     expected_job_id=family.job_id,
                     expected_tenant_id=family.tenant_id,
@@ -3469,7 +3474,7 @@ def _generic_cycle_simulation_projection(
                     != history_binding.context.content_hash
                     or not generic_owner.context_matches_profile(
                         history_binding.context,
-                        input_record.profile,
+                        binding.handoff.profile,
                         history_binding.problem,
                     )
                 ):
@@ -3477,16 +3482,182 @@ def _generic_cycle_simulation_projection(
                 source_candidates = tuple(
                     candidate
                     for candidate in cycle_source.generation_result.candidates
-                    if candidate.candidate_id == input_record.candidate_id
-                    and getattr(getattr(candidate, "atom", None), "content_hash", None)
-                    == input_record.candidate_atom_hash
+                    if candidate.candidate_id == simulation.candidate_id
                 )
                 if len(source_candidates) != 1:
                     raise ValueError("generic_n5_cycle_candidate_source_mismatch")
-                execution = parse_generic_cycle_simulation_n5_execution(
-                    read_core_json_artifact(store, execution_ref).value
+                outcome_variable = _value_outcome_variable(
+                    source_candidates[0], history_binding.problem
                 )
-                generic_owner.resolve_n5_execution(execution_ref, expected=execution)
+                if outcome_variable is None or simulation.status not in {
+                    "joint_simulated",
+                    "simulation_blocked",
+                }:
+                    raise ValueError("generic_n5_cycle_candidate_outcome_not_established")
+                join = generic_owner.resolve_n5_execution_join(
+                    execution_ref,
+                    expected=GenericN5ExecutionJoinExpectation(
+                        input_ref=input_ref,
+                        result_ref=simulation.simulation_result_ref,
+                        status=simulation.status,
+                        n4_source_ref=cycle_source_ref,
+                        context_job_ref=history_binding.context_job_ref,
+                        profile_ref=binding.handoff.profile_ref,
+                        child_family_ref=family.n4_child_profile_family_ref,
+                        child_set_ref=set_ref,
+                        profile_selection_ref=selection_ref,
+                        profile=binding.handoff.profile,
+                        child_selection=expected_child_selection,
+                        design_problem_ref=cycle.design_problem_basis_ref,
+                        outcome_variable=outcome_variable,
+                        cycle_index=cycle.cycle_index,
+                        candidate_id=simulation.candidate_id,
+                        candidate_atom_hash=source_candidates[0].atom.content_hash,
+                        world_model_record_content_hash=(
+                            history_binding.context.world_model_record.content_hash
+                        ),
+                        job_id=family.job_id,
+                        run_id=family.run_id,
+                        source_run_id=child_source_run_id,
+                        tenant_id=family.tenant_id,
+                        cell_id=family.cell_id,
+                    ),
+                )
+                if join.status != "resolved":
+                    # Preserve only the independently checked candidate result;
+                    # a known invalid or mismatching join refuses that row alone.
+                    conflict = join.status in {"invalid", "mismatch"}
+                    result_ref = simulation.simulation_result_ref
+                    candidate_result = None
+                    candidate_blockers: tuple[str, ...] = ()
+                    if not conflict and result_ref is not None:
+                        candidate_manifest = read_core_manifest_profile(store, result_ref)[0]
+                        candidate_scope = candidate_manifest.tenant_context
+                        if (
+                            candidate_scope is None
+                            or candidate_scope.tenant_id != tenant_id
+                            or candidate_scope.cell_id != cell_id
+                            or not store.verify(result_ref).ok
+                        ):
+                            raise ValueError("generic_n5_candidate_result_scope_invalid")
+                        source_candidate = source_candidates[0]
+                        atoms = tuple(getattr(source_candidate, "intervention_atoms", ()) or ())
+                        if not atoms:
+                            atoms = (source_candidate.atom,)
+                        candidate_result = load_joint_simulation_result(
+                            result_ref,
+                            store=store,
+                            expected_world_model_record_content_hash=(
+                                history_binding.context.world_model_record.content_hash
+                            ),
+                            expected_atom_ids=tuple(atom.intervention_id for atom in atoms),
+                            expected_selected_outcomes=(outcome_variable,),
+                        )
+                        if candidate_result.receipt.payload_hash != simulation.simulation_ref:
+                            raise ValueError("generic_n5_candidate_receipt_binding_mismatch")
+                        candidate_status, candidate_blockers = _joint_simulation_port_outcome(
+                            candidate_result
+                        )
+                        if candidate_status != simulation.status:
+                            raise ValueError("generic_n5_candidate_status_binding_mismatch")
+                    if (
+                        not conflict
+                        and simulation.status == "joint_simulated"
+                        and candidate_result is None
+                    ):
+                        raise ValueError("generic_n5_candidate_result_unavailable")
+                    limitation = (
+                        "n5_execution_request_provenance_conflict"
+                        if conflict
+                        else "n5_execution_request_provenance_not_established"
+                    )
+                    row_status = "simulation_blocked" if conflict else simulation.status
+                    value_port = cycle.value_port
+                    n8_status = (
+                        "value_blocked"
+                        if conflict
+                        else value_port.status
+                        if value_port.status == "value_conditional"
+                        else "value_pending_n8"
+                    )
+                    n8_fields = (
+                        _n8_interaction_qualification_fields(value_port, include_status=False)
+                        if n8_status == "value_conditional"
+                        else {}
+                    )
+                    result_body_status = (
+                        "not_established" if result_ref is not None else "not_applicable"
+                    )
+                    observations.append(
+                        RunGenericCycleSimulationN5Observation(
+                            node_ref=node_ref,
+                            design_problem_ref=cycle.design_problem_ref,
+                            cycle_index=cycle.cycle_index,
+                            candidate_id=simulation.candidate_id,
+                            status=row_status,
+                            simulation_result_ref=result_ref,
+                            simulation_result_body_status=result_body_status,
+                            simulation_result_body_limitation_code=(
+                                "generic_n5_result_body_request_binding_not_established"
+                                if result_ref is not None
+                                else None
+                            ),
+                            n4_source_ref=cycle_source_ref,
+                            context_job_ref=history_binding.context_job_ref,
+                            profile_ref=binding.handoff.profile_ref,
+                            child_profile_family_ref=family.n4_child_profile_family_ref,
+                            child_profile_set_ref=set_ref,
+                            n5_input_ref=input_ref,
+                            n5_execution_ref=execution_ref,
+                            n5_owner_join_status=join.status,
+                            n5_owner_join_limitation_code=join.code,
+                            n5_request_binding_status="not_established",
+                            profile_selection_ref=selection_ref,
+                            atom_ids=tuple(candidate_result.atom_ids) if candidate_result else (),
+                            selected_outcomes=(
+                                tuple(candidate_result.selected_outcomes)
+                                if candidate_result
+                                else ()
+                            ),
+                            world_model_record_content_hash=(
+                                history_binding.context.world_model_record.content_hash
+                            ),
+                            authority_blockers=tuple(
+                                dict.fromkeys(
+                                    (
+                                        *simulation.authority_blockers,
+                                        *candidate_blockers,
+                                        limitation,
+                                    )
+                                )
+                            ),
+                            n8_status=n8_status,
+                            n8_lineage_status="not_established",
+                            n8_authority_blockers=tuple(
+                                dict.fromkeys(
+                                    (
+                                        *value_port.authority_blockers,
+                                        *candidate_blockers,
+                                        limitation,
+                                    )
+                                )
+                            ),
+                            n8_limitation_code=limitation,
+                            n5_interaction_evidence=(
+                                _n5_interaction_evidence_projection(candidate_result)
+                            ),
+                            **_n5_interaction_scope_fields(candidate_result),
+                            **n8_fields,
+                        )
+                    )
+                    n5_limitation = limitation
+                    continue
+                execution = join.execution
+                input_record = join.input_record
+                if execution is None or input_record is None:
+                    raise ValueError("generic_n5_execution_join_resolved_without_record")
+                if input_record.child_selection != expected_child_selection:
+                    raise ValueError("generic_n5_cycle_child_selection_rebind_mismatch")
                 request_binding_status = (
                     "resolved"
                     if type(execution) is GenericCycleSimulationN5ExecutionV3
@@ -3499,74 +3670,6 @@ def _generic_cycle_simulation_projection(
                     and type(execution.request_binding) is GenericCycleSimulationN5RequestBindingV2
                     else None
                 )
-                input_selection = input_record.child_selection
-                expected_selection_ref = generic_n4_child_profile_selection_ref(
-                    history_binding.problem,
-                    parent_problem_ref=binding.selection.parent_problem_ref,
-                    source_result_ref=binding.selection.source_result_ref,
-                    source_atom_refs=binding.selection.source_atom_refs,
-                    semantic_ref=binding.selection.semantic_ref,
-                )
-                if (
-                    input_selection is None
-                    or input_selection.problem != history_binding.problem
-                    or input_selection.full_child_problem_ref
-                    != cycle_job_design_problem_ref(history_binding.problem)
-                    or input_selection.profile_selection_ref != expected_selection_ref
-                    or input_selection.profile_selection_ref
-                    != binding.selection.profile_selection_ref
-                    or input_selection.node_ref != binding.selection.node_ref
-                    or input_selection.parent_ref != binding.selection.parent_ref
-                    or input_selection.parent_problem != binding.selection.parent_problem
-                    or input_selection.parent_handoff != binding.selection.parent_handoff
-                    or input_selection.parent_problem_ref != binding.selection.parent_problem_ref
-                    or input_selection.source_result_ref != binding.selection.source_result_ref
-                    or input_selection.source_atom_refs != binding.selection.source_atom_refs
-                    or input_selection.semantic_ref != binding.selection.semantic_ref
-                    or input_selection.n4_child_profile_family_ref
-                    != family.n4_child_profile_family_ref
-                ):
-                    raise ValueError("generic_n5_cycle_child_selection_rebind_mismatch")
-                if (
-                    input_record.job_id != family.job_id
-                    or input_record.run_id != family.run_id
-                    or input_record.source_run_id != family.source_run_id
-                    or input_record.tenant_id != family.tenant_id
-                    or input_record.cell_id != family.cell_id
-                    or input_record.cycle_index != cycle.cycle_index
-                    or input_record.n4_source_ref != cycle_source_ref
-                    or input_record.n4_child_profile_family_ref
-                    != family.n4_child_profile_family_ref
-                    or input_record.n4_child_profile_set_ref != set_ref
-                    or input_record.child_selection != execution.child_selection
-                    or artifact_ref_identity_key(input_record.context_job_ref)
-                    != artifact_ref_identity_key(history_binding.context_job_ref)
-                    or input_record.profile_ref != binding.handoff.profile_ref
-                    or input_record.profile != binding.handoff.profile
-                    or input_record.design_problem_ref != cycle.design_problem_basis_ref
-                    or input_record.candidate_id != simulation.candidate_id
-                    or input_record.candidate_id != source_candidates[0].candidate_id
-                    or input_record.candidate_atom_hash != source_candidates[0].atom.content_hash
-                    or input_record.profile.profile_selection_ref != selection_ref
-                    or execution.input_ref != input_ref
-                    or execution.result_ref != simulation.simulation_result_ref
-                    or execution.job_id != family.job_id
-                    or execution.run_id != family.run_id
-                    or execution.source_run_id != family.source_run_id
-                    or execution.tenant_id != family.tenant_id
-                    or execution.cell_id != family.cell_id
-                    or execution.n4_source_ref != cycle_source_ref
-                    or execution.n4_child_profile_family_ref != family.n4_child_profile_family_ref
-                    or execution.n4_child_profile_set_ref != set_ref
-                    or artifact_ref_identity_key(execution.context_job_ref)
-                    != artifact_ref_identity_key(history_binding.context_job_ref)
-                    or execution.profile_ref != binding.handoff.profile_ref
-                    or execution.profile_selection_ref != selection_ref
-                    or execution.status != simulation.status
-                    or execution.world_model_record_content_hash
-                    != input_record.profile.context_inputs.world_model_record.content_hash
-                ):
-                    raise ValueError("generic_n5_persisted_input_execution_join_mismatch")
                 resolved_result = None
                 result_manifest = None
                 result_body = None
@@ -3611,6 +3714,7 @@ def _generic_cycle_simulation_projection(
                         ),
                         expected_atom_ids=expected_atom_ids,
                         expected_selected_outcomes=(input_record.outcome_variable,),
+                        expected_request=execution.request_binding.request,
                     )
                     if execution.status != "joint_simulated":
                         result_body_limitation_code = (
@@ -3676,7 +3780,9 @@ def _generic_cycle_simulation_projection(
                             result_body_limitation_code = "generic_n5_result_body_content_refused"
                         else:
                             result_body_status = "resolved"
-                    result_status, result_blockers = _joint_simulation_port_outcome(resolved_result)
+                    result_status, result_blockers = _joint_simulation_port_outcome(
+                        resolved_result, request=execution.request_binding.request
+                    )
                     if (
                         execution.status == "joint_simulated" and result_status != "joint_simulated"
                     ) or not set(result_blockers).issubset(blockers):
@@ -3727,6 +3833,7 @@ def _generic_cycle_simulation_projection(
                         child_profile_set_ref=set_ref,
                         n5_input_ref=input_ref,
                         n5_execution_ref=execution_ref,
+                        n5_owner_join_status="resolved",
                         n5_request_binding_status=request_binding_status,
                         n5_request_content_hash=request_content_hash,
                         profile_selection_ref=selection_ref,
@@ -3755,8 +3862,18 @@ def _generic_cycle_simulation_projection(
                         ),
                     )
                 )
-        except CanonicalProfileRefusalError:
-            raise
+        except CanonicalProfileRefusalError as exc:
+            n5_limitation = (
+                "generic_n5_persisted_lineage_not_established"
+                if exc.code
+                in {
+                    "canon_profile_raw_manifest_unavailable",
+                    "canon_profile_typed_manifest_unavailable",
+                    "canon_profile_payload_unavailable",
+                }
+                else "generic_n5_persisted_lineage_invalid"
+            )
+            continue
         except ValidationError as exc:
             # Keep a source-resolved but structurally incoherent current scope
             # distinct from an absent/unreadable N5 lineage.
@@ -3772,8 +3889,114 @@ def _generic_cycle_simulation_projection(
             n5_limitation = "generic_n5_persisted_lineage_not_established"
             continue
 
+    parent_fields: dict[str, Any] = {}
+    parent_node = nodes_by_ref.get(root_node_ref)
+    if isinstance(parent_node, RecursiveCycleNode) and parent_node.joint_simulation is not None:
+        parent_fields = {
+            "joint_parent_status": "not_established",
+            "joint_parent_limitation_code": "generic_joint_parent_result_not_established",
+        }
+        try:
+            parent_result_ref = parent_node.joint_simulation_ref
+            if parent_result_ref is None:
+                raise ValueError("generic_joint_parent_result_missing")
+            parent_manifest = read_core_manifest_profile(store, parent_result_ref)[0]
+            parent_scope = parent_manifest.tenant_context
+            if (
+                parent_scope is None
+                or parent_scope.tenant_id != tenant_id
+                or parent_scope.cell_id != cell_id
+                or not store.verify(parent_result_ref).ok
+            ):
+                raise ValueError("generic_joint_parent_result_scope_invalid")
+            parent_result = load_joint_simulation_result(
+                parent_result_ref,
+                store=store,
+                expected_world_model_record_content_hash=(
+                    parent_handoff.profile.context_inputs.world_model_record.content_hash
+                ),
+                expected_atom_ids=tuple(parent_node.joint_simulation.atom_ids),
+                expected_selected_outcomes=tuple(parent_node.joint_simulation.selected_outcomes),
+            )
+            if parent_result.model_dump(mode="json") != parent_node.joint_simulation.model_dump(
+                mode="json"
+            ):
+                raise ValueError("generic_joint_parent_compiled_result_mismatch")
+            parent_status, parent_blockers = _joint_simulation_port_outcome(parent_result)
+            selection_fields = _parent_joint_candidate_selection_projection(
+                compiled=compiled,
+                node=parent_node,
+                request=parent_node.joint_simulation_request,
+                root_n4_source=source,
+            )
+            # This scoped selection is a numerical candidate; the serialized
+            # parent request is not independent execution-producer provenance.
+            scope_limitation = (
+                "parent_joint_coupling_evidence_not_established"
+                if parent_node.joint_simulation_request is not None
+                and parent_node.joint_simulation_request.coupling_graph is None
+                else "parent_joint_request_binding_not_established"
+            )
+            if parent_node.joint_simulation_request is None:
+                raise ValueError("generic_joint_parent_request_missing")
+            candidate_value = _consume_parent_joint_candidate_n8(
+                candidate_id="joint-candidate:"
+                + parent_node.joint_candidate_selection.content_hash,
+                request=parent_node.joint_simulation_request,
+                result_ref=parent_result_ref,
+                result=parent_result,
+                problem=compiled.design_problem,
+                artifact_store=store,
+            )
+            if candidate_value.status != "value_conditional":
+                raise ValueError("generic_joint_parent_n8_candidate_not_established")
+            parent_row = RunCandidateSimulationN5Observation(
+                node_ref=parent_node.node_ref,
+                design_problem_ref=parent_node.design_problem_ref,
+                candidate_id=candidate_value.candidate_id,
+                atom_ids=tuple(parent_result.atom_ids),
+                selected_outcomes=tuple(parent_result.selected_outcomes),
+                status=parent_status,
+                simulation_ref=parent_result.receipt.payload_hash,
+                simulation_result_ref=parent_result_ref,
+                world_model_record_content_hash=parent_result.world_model_record_content_hash,
+                k_world_ref_before=parent_result.world_model_record_content_hash,
+                k_world_ref_after=parent_result.world_model_record_content_hash,
+                authority_blockers=parent_blockers,
+                n5_interaction_evidence=_n5_interaction_evidence_projection(parent_result),
+                n8_status=candidate_value.status,
+                n8_candidate_value_ref=candidate_value.value_ref,
+                n8_candidate_decision_grade=candidate_value.decision_grade,
+                n8_numeric_interaction=candidate_value.numeric_interaction,
+                n8_numeric_interaction_basis=candidate_value.numeric_interaction_basis,
+                n8_interaction_sampling_status=candidate_value.interaction_sampling_status,
+                n8_joint_scope_status="not_established",
+                n8_joint_scope_limitation_code=scope_limitation,
+                n8_authority_blockers=tuple(
+                    dict.fromkeys((*candidate_value.authority_blockers, scope_limitation))
+                ),
+                **_n5_interaction_scope_fields(parent_result),
+                **selection_fields,
+            )
+        except CanonicalProfileRefusalError:
+            raise
+        except Exception:
+            parent_fields = {
+                "joint_parent_status": "not_established",
+                "joint_parent_limitation_code": "generic_joint_parent_result_not_established",
+            }
+        else:
+            parent_fields = {
+                "joint_parent_status": "resolved",
+                "joint_parent_observations": (parent_row,),
+            }
+
     return RunGenericCycleSimulationProjection(
-        schema_version="policyos.runtime.run_generic_cycle_simulation_projection.v3",
+        schema_version=(
+            "policyos.runtime.run_generic_cycle_simulation_projection.v5"
+            if parent_fields or any(row.n5_owner_join_status is not None for row in observations)
+            else "policyos.runtime.run_generic_cycle_simulation_projection.v3"
+        ),
         run_id=run_id,
         artifact_status="resolved",
         source_ref=ref,
@@ -3788,6 +4011,7 @@ def _generic_cycle_simulation_projection(
         child_profile_status="resolved",
         child_profile_bindings=resolved_child_bindings,
         n5_observations=tuple(observations),
+        **parent_fields,
         n5_limitation_code=(
             n5_limitation or (None if observations else "generic_n5_observation_not_emitted")
         ),

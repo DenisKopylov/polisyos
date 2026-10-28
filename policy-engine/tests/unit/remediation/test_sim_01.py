@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import cast, get_args
+from typing import Any, cast, get_args
 
 import pytest
 
@@ -15,9 +15,11 @@ from polisyos.runtime.quality.joint_simulation_horizon import (
     HorizonSpec,
     JointSimulationControllerError,
     JointSimulationHorizonController,
+    JointSimulationResult,
     SimulationTrajectory,
     TemporalCapability,
     TrajectoryPoint,
+    build_content_bound_simulation_receipt,
 )
 from polisyos.runtime.quality.recursive_generation_cycle import _joint_simulation_is_unsupported
 from tests.unit.runtime.quality.test_joint_simulation_horizon import (
@@ -104,7 +106,7 @@ def test_unsupported_first_engine_falls_back_to_supported_second() -> None:
     assert result.engine_decisions[1].decision == "selected"
     assert result.trajectories
     assert all(trajectory.engine_kind == "coupled_des_abm" for trajectory in result.trajectories)
-    status, blockers = _joint_simulation_port_outcome(result)
+    status, blockers = _joint_simulation_port_outcome(result, request=request)
     assert status == "joint_simulated"
     assert _joint_simulation_is_unsupported(result) is False
     assert "n5_coupling_blocked" not in blockers
@@ -494,3 +496,154 @@ def test_foreign_trajectory_cannot_satisfy_selected_plan(
         match="selected_trajectory_binding_mismatch",
     ):
         controller.run(_single_step_request())
+
+
+def _reissue_result_with_trajectory_ref(
+    result: JointSimulationResult, ref: object
+) -> JointSimulationResult:
+    """Produce a self-consistent forged receipt so the physical join, not a stale hash, is tested."""
+    payload = result.model_dump(mode="json", exclude={"receipt"})
+    payload["trajectories"][0]["diagnostics"]["physical_run_ref"] = ref
+    receipt = build_content_bound_simulation_receipt(
+        engine_kind=result.receipt.engine_kind, payload=payload, diagnostics=payload["diagnostics"]
+    )
+    forged = JointSimulationResult.model_validate({**payload, "receipt": receipt})
+    forged._content_payload = payload
+    return forged
+
+
+@pytest.mark.parametrize("foreign_ref", [None, "sha256:" + "f" * 64], ids=["absent", "foreign"])
+def test_generation_consumer_refuses_same_triple_foreign_physical_run(foreign_ref: object) -> None:
+    """B06: identical selected engine/method/objective cannot authorize a different run."""
+    request = _single_step_request()
+    result = JointSimulationHorizonController().run(request)
+    assert result.trajectories
+    forged = _reissue_result_with_trajectory_ref(result, foreign_ref)
+    assert forged.engine_decisions == result.engine_decisions
+    assert forged.trajectories[0].engine_kind == result.trajectories[0].engine_kind
+    assert forged.trajectories[0].method_fqn == result.trajectories[0].method_fqn
+    assert forged.trajectories[0].objective_ref == result.trajectories[0].objective_ref
+    status, blockers = _joint_simulation_port_outcome(forged, request=request)
+    assert status == "simulation_blocked"
+    assert "selected_plan_execution_binding_missing" in blockers
+
+
+def test_generation_consumer_refuses_changed_request_seed_without_changing_marker() -> None:
+    """B06: an otherwise matching selected decision cannot carry another seed's run."""
+    request = _single_step_request()
+    result = JointSimulationHorizonController().run(request)
+    changed = request.model_copy(update={"seed": request.seed + 1})
+    status, blockers = _joint_simulation_port_outcome(result, request=changed)
+    assert status == "simulation_blocked"
+    assert "selected_plan_execution_binding_missing" in blockers
+
+
+def test_generation_consumer_fallback_preserves_real_second_engine_numeric_result(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """B06: a rejected alternative cannot suppress an independently calculable fallback."""
+
+    def fixed_output(state: Any, params: Any) -> dict[str, Any]:
+        del state, params
+        return {"counterfactual_result": {"world_summaries": [{"firm_survival": {"mean": 7.0}}]}}
+
+    monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(fixed_output))
+    base = _single_step_request()
+    first = base.engine_plan[0].model_copy(update={"eligibility_conditions": ("multi_period",)})
+    second = base.engine_plan[0].model_copy(
+        update={"objective_ref": "objective://numeric-fallback"}
+    )
+    request = base.model_copy(update={"engine_plan": (first, second)})
+    result = JointSimulationHorizonController().run(request)
+    assert [row.decision for row in result.engine_decisions] == ["unsupported", "selected"]
+    assert result.engine_decisions[0].reason == "static_engine_cannot_ground_dynamic_horizon"
+    joint = result.trajectory_for("joint", ("income_subsidy", "balance_grant"))
+    assert joint.points[0].outcomes == {"firm_survival": 7.0}
+    assert joint.points[0].effect == {"firm_survival": 6.0}
+    status, _ = _joint_simulation_port_outcome(result, request=request)
+    assert status == "joint_simulated"
+
+
+def test_generation_consumer_refuses_changed_plan_with_same_selection_triple() -> None:
+    """B06: equal engine, method and objective do not make two plans the same physical run."""
+    request = _single_step_request()
+    result = JointSimulationHorizonController().run(request)
+    selected = request.engine_plan[0]
+    changed_plan = selected.model_copy(
+        update={"variable_map": {**selected.variable_map, "agents.income": "another_input"}}
+    )
+    changed_request = request.model_copy(update={"engine_plan": (changed_plan,)})
+    status, blockers = _joint_simulation_port_outcome(result, request=changed_request)
+    assert status == "simulation_blocked"
+    assert "selected_plan_execution_binding_missing" in blockers
+
+
+def test_generation_consumer_retains_candidate_without_owner_request() -> None:
+    """Historical N5 remains candidate-only with the missing provenance declared."""
+    result = JointSimulationHorizonController().run(_single_step_request())
+    status, blockers = _joint_simulation_port_outcome(result)
+    assert status == "joint_simulated"
+    assert "n5_execution_request_provenance_not_established" in blockers
+
+
+def test_fresh_selected_cas_refuses_foreign_physical_ref_with_valid_receipt(tmp_path: Any) -> None:
+    """A self-consistent foreign trajectory remains refused at the fresh CAS reader."""
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleError,
+        load_joint_simulation_result,
+        persist_joint_simulation_result,
+    )
+
+    request = _single_step_request()
+    result = JointSimulationHorizonController().run(request)
+    forged = _reissue_result_with_trajectory_ref(result, "sha256:" + "f" * 64)
+    store = FileSystemCAS(tmp_path / "cas")
+    ref = persist_joint_simulation_result(forged, store=store)
+    assert ref.manifest_profile_sha256 is not None
+    profileless = ref.model_copy(update={"manifest_profile_sha256": None})
+    with pytest.raises(
+        GenerationCycleError, match="joint_simulation_result_selected_view_binding_missing"
+    ):
+        load_joint_simulation_result(profileless, store=store, expected_request=request)
+    with pytest.raises(
+        GenerationCycleError, match="joint_simulation_result_execution_binding_invalid"
+    ):
+        load_joint_simulation_result(ref, store=store, expected_request=request)
+
+
+def test_n8_refuses_other_atom_when_candidate_has_only_canonical_atom(tmp_path: Any) -> None:
+    """N8 compares the real single-atom shape even when no execution owner is available."""
+    from types import SimpleNamespace
+
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.runtime.quality.generation_cycle import (
+        SimulationPortObservation,
+        _conditional_simulation_value_observation,
+        persist_joint_simulation_result,
+    )
+
+    request = _single_step_request()
+    result = JointSimulationHorizonController().run(request)
+    store = FileSystemCAS(tmp_path / "wrong-atom-n8")
+    result_ref = persist_joint_simulation_result(result, store=store)
+    candidate = SimpleNamespace(candidate_id="candidate-one", atom=request.intervention_atoms[0])
+    problem = SimpleNamespace(
+        outcome_of_interest=SimpleNamespace(target_variable=request.selected_outcomes[0])
+    )
+    observation = SimulationPortObservation(
+        candidate_id=candidate.candidate_id,
+        status="joint_simulated",
+        simulation_ref=result.receipt.payload_hash,
+        simulation_result_ref=result_ref,
+        world_model_record=request.world_model_record,
+        k_world_ref_before=request.world_model_record.content_hash,
+        k_world_ref_after=request.world_model_record.content_hash,
+        authority_blockers=("simulation_only_k_sim_not_world_evidence",),
+    )
+    value = _conditional_simulation_value_observation(
+        candidate=candidate, simulation=observation, problem=problem, artifact_store=store
+    )
+    assert value is not None
+    assert value.status == "value_blocked"
+    assert "joint_simulation_result_atom_binding_mismatch" in value.authority_blockers

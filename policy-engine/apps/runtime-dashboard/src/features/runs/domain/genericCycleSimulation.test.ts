@@ -1,5 +1,6 @@
 import { runDetailsSchema } from "../../../api/validators";
 
+import { c41JointParentObservation } from "@/test/fixtures/c41JointParent";
 import {
   normalizeGenericCycleSimulation,
   type RunGenericCycleSimulationProjection,
@@ -210,10 +211,53 @@ describe("normalizeGenericCycleSimulation", () => {
     const malformed = {
       ...projection,
       schema_version:
-        "policyos.runtime.run_generic_cycle_simulation_projection.v5",
+        "policyos.runtime.run_generic_cycle_simulation_projection.v6",
     } as unknown as RunGenericCycleSimulationProjection;
 
     expect(normalizeGenericCycleSimulation("run-1", malformed)).toEqual({
+      kind: "refused",
+      reason: "projection_version_binding_invalid",
+    });
+  });
+
+  it("accepts v5 parent assessment only with a valid candidate extension", () => {
+    const projection = parsedResolvedHistoryProjection("v3");
+    if (!projection) throw new Error("expected a parsed projection");
+    const v5 = {
+      ...projection,
+      schema_version:
+        "policyos.runtime.run_generic_cycle_simulation_projection.v5",
+      joint_parent_status: "resolved",
+      joint_parent_observations: [c41JointParentObservation()],
+    };
+    const parsed = runDetailsSchema.parse({
+      meta: {
+        request_id: "req-v5",
+        generated_at: "2026-10-11T10:00:00Z",
+        source_kinds: ["core_run"],
+      },
+      run: {
+        run_id: "run-1",
+        source_kind: "core_run",
+        status: "completed",
+        generic_cycle_simulation: v5,
+      },
+      temporal_scope: null,
+    }).run.generic_cycle_simulation;
+    expect(normalizeGenericCycleSimulation("run-1", parsed)).toMatchObject({
+      kind: "candidate_only",
+    });
+    const corrupted = {
+      ...parsed!,
+      joint_parent_status: "resolved",
+      joint_parent_observations: [],
+    };
+    expect(
+      normalizeGenericCycleSimulation(
+        "run-1",
+        corrupted as RunGenericCycleSimulationProjection,
+      ),
+    ).toEqual({
       kind: "refused",
       reason: "projection_version_binding_invalid",
     });

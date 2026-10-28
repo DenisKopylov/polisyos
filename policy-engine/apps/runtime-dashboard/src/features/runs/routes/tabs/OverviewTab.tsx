@@ -1,4 +1,4 @@
-import { useEffect, useState, type SubmitEvent } from "react";
+import { useEffect, useMemo, useState, type SubmitEvent } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import { useSuspenseArtifactContent } from "@/api/hooks/useArtifactContent";
@@ -1026,6 +1026,110 @@ function GenericCycleSimulationPanel({
         </p>
       ) : null}
 
+      {projection.joint_parent_status ? (
+        <section
+          className="space-y-2 border-t pt-3"
+          data-testid="overview-generic-cycle-joint-parent"
+        >
+          <h5>{t("pages.runs.genericCycleSimulation.jointParentTitle")}</h5>
+          <p>{t("pages.runs.genericCycleSimulation.jointParentAuthority")}</p>
+          <p>
+            {t("pages.runs.genericCycleSimulation.jointParentStatus", {
+              status: projection.joint_parent_status,
+            })}
+          </p>
+          {projection.joint_parent_limitation_code ? (
+            <p data-testid="overview-generic-cycle-joint-parent-limitation">
+              {projection.joint_parent_limitation_code}
+            </p>
+          ) : null}
+          {(projection.joint_parent_observations ?? []).map((parent) => (
+            <article
+              className="space-y-1 rounded border p-3"
+              key={parent.node_ref}
+              data-testid="overview-generic-cycle-joint-parent-row"
+            >
+              <p>{parent.node_ref}</p>
+              <p>{parent.status}</p>
+              <p>
+                {t("pages.runs.genericCycleSimulation.jointParentValue", {
+                  status: parent.n8_status ?? "not_established",
+                  grade:
+                    parent.n8_candidate_decision_grade ?? "not_established",
+                })}
+              </p>
+              <p>
+                {t("pages.runs.genericCycleSimulation.jointParentSelection", {
+                  status:
+                    parent.n8_candidate_joint_selection_status ??
+                    "not_established",
+                  relationship:
+                    parent.n8_source_candidate_relationship ??
+                    "not_established",
+                })}
+              </p>
+              {parent.simulation_result_ref ? (
+                <p
+                  className="text-xs break-all"
+                  data-testid="overview-generic-cycle-joint-parent-ref"
+                >
+                  {parent.simulation_result_ref.artifact_id}
+                </p>
+              ) : null}
+              {parent.n5_interaction_evidence ? (
+                <div data-testid="overview-generic-cycle-joint-parent-evidence">
+                  <p>
+                    {t(
+                      "pages.runs.genericCycleSimulation.jointParentInteraction",
+                      {
+                        classification:
+                          parent.n5_interaction_evidence.numeric_interaction,
+                        basis:
+                          parent.n5_interaction_evidence
+                            .numeric_interaction_basis,
+                        sampling:
+                          parent.n5_interaction_evidence
+                            .interaction_sampling_status,
+                      },
+                    )}
+                  </p>
+                  <p>
+                    {t("pages.runs.genericCycleSimulation.jointParentOrders", {
+                      orders:
+                        parent.n5_interaction_evidence.checked_interaction_orders.join(
+                          ", ",
+                        ),
+                    })}
+                  </p>
+                  {Object.entries(
+                    parent.n5_interaction_evidence.higher_order_residuals,
+                  ).flatMap(([outcome, byStep]) =>
+                    Object.entries(byStep).map(([step, value]) => (
+                      <p key={`${outcome}:${step}`}>
+                        {t(
+                          "pages.runs.genericCycleSimulation.jointParentResidual",
+                          {
+                            outcome,
+                            step,
+                            value: formatNumber(value),
+                          },
+                        )}
+                      </p>
+                    )),
+                  )}
+                </div>
+              ) : null}
+              {parent.authority_blockers.map((blocker) => (
+                <p key={`n5:${blocker}`}>{blocker}</p>
+              ))}
+              {parent.n8_authority_blockers.map((blocker) => (
+                <p key={`n8:${blocker}`}>{blocker}</p>
+              ))}
+            </article>
+          ))}
+        </section>
+      ) : null}
+
       {projection.artifact_status === "resolved" ? (
         <section
           className="space-y-2 border-t pt-3"
@@ -1046,6 +1150,16 @@ function GenericCycleSimulationPanel({
                 <p>{observation.node_ref}</p>
                 <p>{observation.status}</p>
                 <p>{observation.n5_request_binding_status}</p>
+                {observation.n5_owner_join_status ? (
+                  <p data-testid="overview-generic-cycle-n5-owner-join">
+                    {t("pages.runs.genericCycleSimulation.ownerJoinStatus", {
+                      status: observation.n5_owner_join_status,
+                    })}
+                  </p>
+                ) : null}
+                {observation.n5_owner_join_limitation_code ? (
+                  <p>{observation.n5_owner_join_limitation_code}</p>
+                ) : null}
                 {observation.n5_request_content_hash ? (
                   <p>{observation.n5_request_content_hash}</p>
                 ) : null}
@@ -1954,9 +2068,13 @@ export default function OverviewTab() {
   const { runId } = useParams();
   const summary = useRunInspector();
   const coreRunId = coreRunIdFromDetails(summary.run);
-  const genericCycleSimulation = normalizeGenericCycleSimulation(
-    summary.run?.run_id ?? runId ?? "unknown-run",
-    summary.run?.generic_cycle_simulation,
+  const genericCycleSimulation = useMemo(
+    () =>
+      normalizeGenericCycleSimulation(
+        summary.run?.run_id ?? runId ?? "unknown-run",
+        summary.run?.generic_cycle_simulation,
+      ),
+    [runId, summary.run?.run_id, summary.run?.generic_cycle_simulation],
   );
 
   if (!summary.run || !coreRunId || !runId) {

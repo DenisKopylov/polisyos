@@ -191,7 +191,11 @@ class ArtifactOwnershipError(PermissionError):
     """Raised when a tenant attempts to access an artifact it does not own."""
 
 
-class ArtifactReadOnlyUnavailableError(ArtifactOwnershipError):
+class ArtifactUnavailableError(ArtifactOwnershipError):
+    """An ownership or selected-view operation cannot currently be established."""
+
+
+class ArtifactReadOnlyUnavailableError(ArtifactUnavailableError):
     """Raised when a read-only CAS cannot use its already-existing filesystem state."""
 
     code = "artifact_read_only_unavailable"
@@ -201,7 +205,7 @@ class ArtifactReadOnlyUnavailableError(ArtifactOwnershipError):
         super().__init__(f"{self.code}: {reason}")
 
 
-class ArtifactTransactionPendingError(ArtifactOwnershipError):
+class ArtifactTransactionPendingError(ArtifactUnavailableError):
     """A requested artifact surface has an unresolved publication transaction."""
 
     code = "artifact_transaction_pending"
@@ -215,7 +219,7 @@ class ArtifactTransactionPendingError(ArtifactOwnershipError):
         )
 
 
-class ArtifactPublicReadClosureUnavailableError(ArtifactOwnershipError):
+class ArtifactPublicReadClosureUnavailableError(ArtifactUnavailableError):
     """An owner-scoped public read lacks a current exact closure."""
 
     code = "public_read_closure_not_established"

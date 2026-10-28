@@ -70,6 +70,7 @@ from polisyos.runtime.quality.generic_simulation_admission import (
     GenericCycleSimulationContextHandoffV1,
 )
 from polisyos.runtime.quality.joint_simulation_horizon import (
+    JointSimulationControllerError,
     JointSimulationHorizonController,
     JointSimulationRequest,
     JointSimulationResult,
@@ -3120,6 +3121,7 @@ class RecursiveGenerationCycleController:
                 capsule,
             )
         generic_handoffs = dict(generic_simulation_handoffs_by_node or {})
+        generic_child_selections: dict[str, GenericCycleSimulationChildSelectionV1] = {}
         generic_currentness_resolvers: dict[str, Callable[[], bool]] = {}
         generic_leaf_capsule_refs: dict[str, CASArtifactRef] = {}
         if generic_handoffs:
@@ -3174,6 +3176,7 @@ class RecursiveGenerationCycleController:
                     raise RecursiveGenerationCycleError(
                         "recursive_generic_child_family_binding_mismatch"
                     )
+                generic_child_selections[node_ref] = row.selection
                 capsule_payload: dict[str, object] = {
                     "schema_version": "policyos.runtime.recursive_leaf_context.v2",
                     "authority_purpose": "cycle_input_candidate_only",
@@ -3490,6 +3493,9 @@ class RecursiveGenerationCycleController:
                             currentness_resolvers.get(node_ref)
                         ),
                         generic_cycle_simulation_handoff=generic_handoffs.get(node_ref),
+                        generic_cycle_simulation_child_selection=generic_child_selections.get(
+                            node_ref
+                        ),
                         generic_cycle_simulation_admission_owner=(
                             leaf_context_owner._generic_admission_owner
                             if leaf_context_owner is not None
@@ -3755,10 +3761,29 @@ class RecursiveGenerationCycleController:
                         "The parent N5 run cannot start without its runtime-owned result store.",
                     )
                 joint_simulation = self._joint_simulation_controller.run(request)
+                if not _joint_simulation_is_unsupported(joint_simulation):
+                    try:
+                        self._joint_simulation_controller.validate_selected_result(
+                            request=request, result=joint_simulation
+                        )
+                    except (JointSimulationControllerError, TypeError, ValueError) as exc:
+                        raise RecursiveGenerationCycleError(
+                            "recursive_n5_execution_binding_not_established", str(exc)
+                        ) from exc
                 try:
+                    from polisyos.core.artifacts import ArtifactTenantContextInfo
+
                     joint_simulation_ref = persist_joint_simulation_result(
                         joint_simulation,
                         store=self._artifact_store,
+                        tenant_context=(
+                            ArtifactTenantContextInfo(
+                                tenant_id=generic_parent_handoff.tenant_id,
+                                cell_id=generic_parent_handoff.cell_id,
+                            )
+                            if generic_parent_handoff is not None
+                            else None
+                        ),
                     )
                 except GenerationCycleError as exc:
                     raise RecursiveGenerationCycleError(

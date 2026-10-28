@@ -434,26 +434,51 @@ def _recursive_parent_request(
 
 
 def test_k_sim_limitation_remains_a_usable_simulation_input(tmp_path: Path) -> None:
-    """A complete static N5 result remains an input despite K_sim limits."""
+    """Missing selected request provenance limits authority, not K_sim candidate use."""
 
-    _problem, _context, _candidate, simulation, _produced, store = _real_n5_observation(
+    problem, context, candidate, simulation, _produced, store = _real_n5_observation(
         tmp_path,
         single_step_horizon=True,
     )
 
+    assert simulation.status == "joint_simulated"
     assert set(simulation.authority_blockers) == {
         "simulation_only_k_sim_not_world_evidence",
         "simulation_effect_basis_not_established",
         "standard_error_not_estimated",
         "interaction_sampling_not_established",
         "interaction_numeric_classification_unsupported",
+        "n5_execution_request_provenance_not_established",
     }
-    assert simulation_evaluation_input_ref(simulation) is None
-    input_ref = simulation_evaluation_input_ref(simulation, artifact_store=store)
-
-    assert input_ref is not None
     assert simulation.simulation_result_ref is not None
-    assert input_ref.content_hash == str(simulation.simulation_result_ref.artifact_id)
+    assert simulation_evaluation_input_ref(simulation) is None
+    assert simulation_evaluation_input_ref(simulation, artifact_store=store) is None
+
+    port = _DefaultSimulationBoundFoundryValuePort(
+        repo_root=tmp_path,
+        cycle_substrate_context=context,
+        artifact_store=store,
+    )
+    # Exercise the real result consumer for both a new declared limitation and
+    # a historical observation that did not persist that marker.
+    historical = simulation.model_copy(
+        update={
+            "authority_blockers": tuple(
+                code
+                for code in simulation.authority_blockers
+                if code != "n5_execution_request_provenance_not_established"
+            )
+        }
+    )
+    for observation in (simulation, historical):
+        value = port(candidate=candidate, simulation=observation, problem=problem, cycle_index=0)
+        assert value.status == "value_conditional", value.model_dump(mode="json")
+        assert value.decision_grade == "low"
+        assert value.value_ref == str(simulation.simulation_result_ref.artifact_id)
+        assert "simulation_only_k_sim_not_world_evidence" in value.authority_blockers
+        assert "n5_execution_request_provenance_not_established" in value.authority_blockers
+        assert value.value_receipt is None
+        assert value.method_selection_receipt is None
 
 
 def test_static_ncm_refuses_multistep_horizon_without_trajectory(tmp_path: Path) -> None:

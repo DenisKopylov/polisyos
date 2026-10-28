@@ -84,6 +84,10 @@ class _StrictModel(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
 
+class _GenericN5VerifiedMismatchError(CycleSubstrateContextOwnerError):
+    """An independently compared N5 owner binding is demonstrably unequal."""
+
+
 class GenericCycleN5RequestProfileV1(_StrictModel):
     """Server-owned N5 request settings for one exact generic profile."""
 
@@ -755,6 +759,52 @@ GenericCycleSimulationN5ExecutionRecord = (
 )
 
 
+class GenericN5ExecutionJoinExpectation(_StrictModel):
+    """Cycle-owned identities that a reopened generic execution must match."""
+
+    input_ref: ArtifactRef
+    result_ref: ArtifactRef | None
+    status: Literal["joint_simulated", "simulation_blocked"]
+    n4_source_ref: ArtifactRef
+    context_job_ref: ArtifactRef
+    profile_ref: ArtifactRef
+    child_family_ref: ArtifactRef | None
+    child_set_ref: ArtifactRef | None
+    profile_selection_ref: str
+    profile: GenericCycleSimulationProfileV1 | None = None
+    child_selection: GenericCycleSimulationChildSelectionV1 | None = None
+    design_problem_ref: str
+    outcome_variable: str
+    cycle_index: int
+    candidate_id: str
+    candidate_atom_hash: str
+    world_model_record_content_hash: str
+    job_id: str
+    run_id: str
+    source_run_id: str
+    tenant_id: str
+    cell_id: str
+
+
+class GenericN5ExecutionJoinOutcome(_StrictModel):
+    """Candidate-only evidence for one independently reopened execution join."""
+
+    status: Literal["resolved", "unavailable", "invalid", "mismatch", "not_established"]
+    code: str | None = None
+    execution: GenericCycleSimulationN5ExecutionV3 | None = None
+    input_record: GenericCycleSimulationN5InputV1 | None = None
+    authority_purpose: Literal["cycle_input_candidate_only"] = "cycle_input_candidate_only"
+
+    @model_validator(mode="after")
+    def _consistent_outcome(self) -> GenericN5ExecutionJoinOutcome:
+        if self.status == "resolved":
+            if self.execution is None or self.input_record is None or self.code is not None:
+                raise ValueError("generic_n5_join_resolved_shape_invalid")
+        elif self.execution is not None or self.input_record is not None or not self.code:
+            raise ValueError("generic_n5_join_refusal_shape_invalid")
+        return self
+
+
 def parse_generic_cycle_simulation_n5_execution(
     payload: object,
 ) -> GenericCycleSimulationN5ExecutionRecord:
@@ -869,6 +919,40 @@ class GenericCycleSimulationAdmissionOwner:
             verified_nl_job_scope=verified_nl_job_scope,
         )
 
+    @staticmethod
+    def _rebind_child_selection_for_problem(
+        *,
+        child_selection: GenericCycleSimulationChildSelectionV1 | None,
+        problem: DesignProblem,
+        profile: GenericCycleSimulationProfileV1,
+    ) -> GenericCycleSimulationChildSelectionV1:
+        """Derive the current full selection from verified initial child lineage."""
+
+        if type(child_selection) is not GenericCycleSimulationChildSelectionV1:
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_simulation_child_handoff_selection_missing"
+            )
+        selection_payload = child_selection.model_dump(mode="python")
+        selection_payload.update(
+            {
+                "problem": problem,
+                "full_child_problem_ref": cycle_job_design_problem_ref(problem),
+                "profile_selection_ref": generic_n4_child_profile_selection_ref(
+                    problem,
+                    parent_problem_ref=child_selection.parent_problem_ref,
+                    source_result_ref=child_selection.source_result_ref,
+                    source_atom_refs=child_selection.source_atom_refs,
+                    semantic_ref=child_selection.semantic_ref,
+                ),
+            }
+        )
+        rebound = GenericCycleSimulationChildSelectionV1.model_validate(selection_payload)
+        if rebound.profile_selection_ref != profile.profile_selection_ref:
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_simulation_child_profile_problem_mismatch"
+            )
+        return rebound
+
     def reissue_handoff_for_problem(
         self,
         *,
@@ -937,31 +1021,11 @@ class GenericCycleSimulationAdmissionOwner:
             )
             rebound_child_selection = None
         else:
-            if type(child_selection) is not GenericCycleSimulationChildSelectionV1:
-                raise CycleSubstrateContextOwnerError(
-                    "generic_cycle_simulation_child_handoff_selection_missing"
-                )
-            selection_payload = child_selection.model_dump(mode="python")
-            selection_payload.update(
-                {
-                    "problem": problem,
-                    "full_child_problem_ref": cycle_job_design_problem_ref(problem),
-                    "profile_selection_ref": generic_n4_child_profile_selection_ref(
-                        problem,
-                        parent_problem_ref=child_selection.parent_problem_ref,
-                        source_result_ref=child_selection.source_result_ref,
-                        source_atom_refs=child_selection.source_atom_refs,
-                        semantic_ref=child_selection.semantic_ref,
-                    ),
-                }
+            rebound_child_selection = self._rebind_child_selection_for_problem(
+                child_selection=child_selection,
+                problem=problem,
+                profile=profile,
             )
-            rebound_child_selection = GenericCycleSimulationChildSelectionV1.model_validate(
-                selection_payload
-            )
-            if rebound_child_selection.profile_selection_ref != profile.profile_selection_ref:
-                raise CycleSubstrateContextOwnerError(
-                    "generic_cycle_simulation_child_profile_problem_mismatch"
-                )
             offer = self.admit_child_context(
                 selection=rebound_child_selection,
                 job_id=current_handoff.job_id,
@@ -2099,6 +2163,7 @@ class GenericCycleSimulationAdmissionOwner:
             record.model_dump(mode="json"),
             self._n5_input_write_options(record),
             canon_spec=_PROFILE_CANON,
+            return_selected_profile=True,
         )
         self.resolve_n5_input(ref, expected=record)
         return ref
@@ -2117,14 +2182,14 @@ class GenericCycleSimulationAdmissionOwner:
         self._verify_json_artifact(ref, expected_kind=_N5_INPUT_KIND)
         manifest = self._store.get_manifest(ref)
         if not self._manifest_matches_record(manifest, ref, self._n5_input_write_options(expected)):
-            raise CycleSubstrateContextOwnerError(
+            raise _GenericN5VerifiedMismatchError(
                 "generic_cycle_simulation_n5_input_manifest_mismatch"
             )
         record = GenericCycleSimulationN5InputV1.model_validate(
             load_core_json_artifact(self._store, ref)
         )
         if record != expected:
-            raise CycleSubstrateContextOwnerError(
+            raise _GenericN5VerifiedMismatchError(
                 "generic_cycle_simulation_n5_input_content_mismatch"
             )
         return record
@@ -2223,7 +2288,10 @@ class GenericCycleSimulationAdmissionOwner:
         payload_mode = "python" if is_typed_binding else "json"
         canon_spec = _N5_TYPED_CANON if is_typed_binding else _PROFILE_CANON
         ref = self._store.put_json(
-            record.model_dump(mode=payload_mode), options, canon_spec=canon_spec
+            record.model_dump(mode=payload_mode),
+            options,
+            canon_spec=canon_spec,
+            return_selected_profile=True,
         )
         self._verify_json_artifact(ref, expected_kind=_N5_EXECUTION_KIND)
         manifest = self._store.get_manifest(ref)
@@ -2257,7 +2325,7 @@ class GenericCycleSimulationAdmissionOwner:
         if not self._manifest_matches_record(
             manifest, ref, self._n5_execution_write_options(expected)
         ):
-            raise CycleSubstrateContextOwnerError(
+            raise _GenericN5VerifiedMismatchError(
                 "generic_cycle_simulation_n5_execution_manifest_mismatch"
             )
         record = parse_generic_cycle_simulation_n5_execution(
@@ -2285,7 +2353,7 @@ class GenericCycleSimulationAdmissionOwner:
             or record.candidate_atom_hash != input_record.candidate_atom_hash
             or record.outcome_variable != input_record.outcome_variable
         ):
-            raise CycleSubstrateContextOwnerError(
+            raise _GenericN5VerifiedMismatchError(
                 "generic_cycle_simulation_n5_execution_content_mismatch"
             )
         if type(record) in {
@@ -2306,10 +2374,9 @@ class GenericCycleSimulationAdmissionOwner:
                 port=port,
             )
             if not _same_typed_public_value(request, expected_request):
-                raise CycleSubstrateContextOwnerError(
+                raise _GenericN5VerifiedMismatchError(
                     "generic_cycle_simulation_n5_execution_request_profile_mismatch"
                 )
-            plan = request.engine_plan
             if record.status == "joint_simulated":
                 if record.result_ref is None:
                     raise CycleSubstrateContextOwnerError(
@@ -2329,6 +2396,11 @@ class GenericCycleSimulationAdmissionOwner:
                         atom.intervention_id for atom in request.intervention_atoms
                     ),
                     expected_selected_outcomes=request.selected_outcomes,
+                    # Old results can lack a selected profile. They remain
+                    # candidate inputs, but cannot carry a verified join.
+                    expected_request=(
+                        request if record.result_ref.manifest_profile_sha256 is not None else None
+                    ),
                 )
                 if (
                     result.horizon != request.horizon
@@ -2341,17 +2413,208 @@ class GenericCycleSimulationAdmissionOwner:
                     != [request.seed + offset for offset in range(request.replications)]
                     or result.world_credal_state_before != request.world_credal_state_before
                     or result.world_credal_state_after != request.world_credal_state_before
-                    or not any(
-                        decision.decision == "selected"
-                        and decision.engine_kind == plan[0].engine_kind
-                        and decision.objective_ref == plan[0].objective_ref
-                        for decision in result.engine_decisions
-                    )
                 ):
-                    raise CycleSubstrateContextOwnerError(
+                    raise _GenericN5VerifiedMismatchError(
                         "generic_cycle_simulation_n5_execution_result_request_mismatch"
                     )
         return record
+
+    def resolve_n5_execution_join(
+        self,
+        ref: ArtifactRef | None,
+        *,
+        expected: GenericN5ExecutionJoinExpectation,
+    ) -> GenericN5ExecutionJoinOutcome:
+        """Resolve and classify the exact cycle/result join without an existence proxy.
+
+        This proves only the scoped candidate input consistency provided by the
+        existing owner. It does not authenticate an external numerical producer.
+        """
+        from pydantic import ValidationError
+
+        from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+        from polisyos.core.artifacts import (
+            ArtifactIntegrityError,
+            ArtifactOwnershipError,
+            ArtifactUnavailableError,
+            read_core_json_artifact,
+        )
+        from polisyos.runtime.http.errors import RuntimeDependencyError
+        from polisyos.runtime.quality.generation_cycle import (
+            GenerationCycleError,
+            _JointSimulationBindingMismatchError,
+            _JointSimulationInvalidError,
+        )
+
+        def refused(
+            status: Literal["unavailable", "invalid", "mismatch", "not_established"], code: str
+        ) -> GenericN5ExecutionJoinOutcome:
+            return GenericN5ExecutionJoinOutcome(status=status, code=code)
+
+        # Establish every independently available input binding before an
+        # unavailable execution can reduce assurance to candidate-only.
+        input_problem: GenericN5ExecutionJoinOutcome | None = None
+        input_record: GenericCycleSimulationN5InputV1 | None = None
+        if expected.input_ref.manifest_profile_sha256 is None:
+            input_problem = refused("not_established", "generic_n5_selected_input_view_missing")
+        else:
+            try:
+                input_record = GenericCycleSimulationN5InputV1.model_validate(
+                    read_core_json_artifact(self._store, expected.input_ref).value
+                )
+                self.resolve_n5_input(expected.input_ref, expected=input_record)
+            except FileNotFoundError:
+                input_problem = refused("unavailable", "generic_n5_input_view_absent")
+            except CanonicalProfileRefusalError as exc:
+                if exc.code in {
+                    "canon_profile_raw_manifest_unavailable",
+                    "canon_profile_typed_manifest_unavailable",
+                    "canon_profile_payload_unavailable",
+                }:
+                    input_problem = refused("unavailable", exc.code)
+                else:
+                    return refused("invalid", exc.code)
+            except ArtifactUnavailableError:
+                input_problem = refused("unavailable", "generic_n5_input_owner_unavailable")
+            except ArtifactOwnershipError:
+                return refused("invalid", "generic_n5_input_scope_refused")
+            except (TimeoutError, ConnectionError, RuntimeDependencyError):
+                input_problem = refused("unavailable", "generic_n5_input_backend_unavailable")
+            except (ArtifactIntegrityError, ValidationError):
+                return refused("invalid", "generic_n5_input_integrity_invalid")
+            except _GenericN5VerifiedMismatchError as exc:
+                return refused("mismatch", exc.code)
+            except (CycleSubstrateContextOwnerError, TypeError, ValueError):
+                input_problem = refused(
+                    "not_established", "generic_n5_input_replay_not_established"
+                )
+            else:
+                if (
+                    input_record.n4_source_ref != expected.n4_source_ref
+                    or input_record.context_job_ref != expected.context_job_ref
+                    or input_record.profile_ref != expected.profile_ref
+                    or input_record.n4_child_profile_family_ref != expected.child_family_ref
+                    or input_record.n4_child_profile_set_ref != expected.child_set_ref
+                    or input_record.profile.profile_selection_ref != expected.profile_selection_ref
+                    or (
+                        expected.profile is not None
+                        and (
+                            input_record.profile != expected.profile
+                            or input_record.child_selection != expected.child_selection
+                        )
+                    )
+                    or input_record.design_problem_ref != expected.design_problem_ref
+                    or input_record.outcome_variable != expected.outcome_variable
+                    or input_record.cycle_index != expected.cycle_index
+                    or input_record.candidate_id != expected.candidate_id
+                    or input_record.candidate_atom_hash != expected.candidate_atom_hash
+                    or input_record.profile.context_inputs.world_model_record.content_hash
+                    != expected.world_model_record_content_hash
+                    or input_record.job_id != expected.job_id
+                    or input_record.run_id != expected.run_id
+                    or input_record.source_run_id != expected.source_run_id
+                    or input_record.tenant_id != expected.tenant_id
+                    or input_record.cell_id != expected.cell_id
+                ):
+                    return refused("mismatch", "generic_n5_input_cycle_join_mismatch")
+                if expected.profile is None:
+                    input_problem = refused(
+                        "not_established", "generic_n5_expected_profile_not_established"
+                    )
+        if ref is None:
+            return input_problem or refused(
+                "not_established", "generic_n5_owner_ref_not_established"
+            )
+        if type(ref) is not ArtifactRef or ref.kind != _N5_EXECUTION_KIND:
+            return refused("invalid", "generic_n5_owner_ref_invalid")
+        if ref.manifest_profile_sha256 is None or (
+            expected.result_ref is not None and expected.result_ref.manifest_profile_sha256 is None
+        ):
+            return input_problem or refused(
+                "not_established", "generic_n5_selected_owner_view_not_established"
+            )
+        try:
+            payload = read_core_json_artifact(self._store, ref).value
+            record = parse_generic_cycle_simulation_n5_execution(payload)
+        except FileNotFoundError:
+            return refused("unavailable", "generic_n5_owner_view_absent")
+        except CanonicalProfileRefusalError as exc:
+            if exc.code in {
+                "canon_profile_raw_manifest_unavailable",
+                "canon_profile_typed_manifest_unavailable",
+                "canon_profile_payload_unavailable",
+            }:
+                return refused("unavailable", exc.code)
+            return refused("invalid", exc.code)
+        except ArtifactUnavailableError:
+            return refused("unavailable", "generic_n5_owner_unavailable")
+        except ArtifactOwnershipError:
+            return refused("invalid", "generic_n5_owner_scope_refused")
+        except (TimeoutError, ConnectionError, RuntimeDependencyError):
+            return refused("unavailable", "generic_n5_owner_backend_unavailable")
+        except (ArtifactIntegrityError, TypeError, ValueError):
+            return refused("invalid", "generic_n5_owner_artifact_invalid")
+        if type(record) is not GenericCycleSimulationN5ExecutionV3:
+            return refused("not_established", "generic_n5_typed_request_not_established")
+        if (
+            record.status != expected.status
+            or record.input_ref != expected.input_ref
+            or record.result_ref != expected.result_ref
+            or record.n4_source_ref != expected.n4_source_ref
+            or record.context_job_ref != expected.context_job_ref
+            or record.profile_ref != expected.profile_ref
+            or record.n4_child_profile_family_ref != expected.child_family_ref
+            or record.n4_child_profile_set_ref != expected.child_set_ref
+            or record.profile_selection_ref != expected.profile_selection_ref
+            or record.candidate_id != expected.candidate_id
+            or record.candidate_atom_hash != expected.candidate_atom_hash
+            or record.world_model_record_content_hash != expected.world_model_record_content_hash
+            or record.job_id != expected.job_id
+            or record.run_id != expected.run_id
+            or record.source_run_id != expected.source_run_id
+            or record.tenant_id != expected.tenant_id
+            or record.cell_id != expected.cell_id
+        ):
+            return refused("mismatch", "generic_n5_execution_cycle_join_mismatch")
+        if input_problem is not None:
+            return input_problem
+        try:
+            verified = self.resolve_n5_execution(ref, expected=record)
+        except FileNotFoundError:
+            return refused("unavailable", "generic_n5_execution_dependency_absent")
+        except CanonicalProfileRefusalError as exc:
+            if exc.code in {
+                "canon_profile_raw_manifest_unavailable",
+                "canon_profile_typed_manifest_unavailable",
+                "canon_profile_payload_unavailable",
+            }:
+                return refused("unavailable", exc.code)
+            return refused("invalid", exc.code)
+        except ArtifactUnavailableError:
+            return refused("unavailable", "generic_n5_execution_owner_unavailable")
+        except ArtifactOwnershipError:
+            return refused("invalid", "generic_n5_execution_scope_refused")
+        except (TimeoutError, ConnectionError, RuntimeDependencyError):
+            return refused("unavailable", "generic_n5_execution_backend_unavailable")
+        except ArtifactIntegrityError:
+            return refused("invalid", "generic_n5_execution_integrity_invalid")
+        except _JointSimulationBindingMismatchError as exc:
+            return refused("mismatch", exc.code)
+        except _JointSimulationInvalidError as exc:
+            return refused("invalid", exc.code)
+        except GenerationCycleError as exc:
+            return refused("not_established", exc.code)
+        except _GenericN5VerifiedMismatchError as exc:
+            return refused("mismatch", exc.code)
+        except (CycleSubstrateContextOwnerError, TypeError, ValueError):
+            # Some old owner failures collapse missing, invalid, and conflicting
+            # dependencies. Do not re-label their ambiguous cause as absence.
+            return refused("not_established", "generic_n5_execution_replay_not_established")
+        if type(verified) is not GenericCycleSimulationN5ExecutionV3 or input_record is None:
+            return refused("not_established", "generic_n5_typed_request_not_established")
+        return GenericN5ExecutionJoinOutcome(
+            status="resolved", execution=verified, input_record=input_record
+        )
 
     def _replay_n5_execution_sources(
         self,
@@ -2390,7 +2653,7 @@ class GenericCycleSimulationAdmissionOwner:
                 input_record.cell_id,
             )
         ):
-            raise CycleSubstrateContextOwnerError(
+            raise _GenericN5VerifiedMismatchError(
                 "generic_cycle_simulation_n5_source_scope_mismatch"
             )
         source = GenerationSourceRepository(self._store).load(
@@ -2411,7 +2674,7 @@ class GenericCycleSimulationAdmissionOwner:
             or cycle_job_design_problem_ref(problem) != input_record.design_problem_ref
             or source.cycle_substrate_context is None
         ):
-            raise CycleSubstrateContextOwnerError(
+            raise _GenericN5VerifiedMismatchError(
                 "generic_cycle_simulation_n5_source_problem_mismatch"
             )
         profile = self.resolve_profile_historical(
@@ -2437,7 +2700,7 @@ class GenericCycleSimulationAdmissionOwner:
             or source.cycle_substrate_context.content_hash != source_context.content_hash
             or not self.context_matches_profile(source_context, profile, problem)
         ):
-            raise CycleSubstrateContextOwnerError(
+            raise _GenericN5VerifiedMismatchError(
                 "generic_cycle_simulation_n5_context_source_mismatch"
             )
         expected_context = source_context
@@ -2449,7 +2712,7 @@ class GenericCycleSimulationAdmissionOwner:
             == input_record.candidate_atom_hash
         )
         if len(candidates) != 1 or type(candidates[0]) is not ShadowGeneratedCandidate:
-            raise CycleSubstrateContextOwnerError(
+            raise _GenericN5VerifiedMismatchError(
                 "generic_cycle_simulation_n5_candidate_source_mismatch"
             )
         candidate = candidates[0]
@@ -2459,7 +2722,7 @@ class GenericCycleSimulationAdmissionOwner:
                 selection.problem != problem
                 or selection.n4_child_profile_family_ref != input_record.n4_child_profile_family_ref
             ):
-                raise CycleSubstrateContextOwnerError(
+                raise _GenericN5VerifiedMismatchError(
                     "generic_cycle_simulation_n5_child_selection_source_mismatch"
                 )
             family = self.resolve_child_profile_family_historical(
@@ -2473,7 +2736,7 @@ class GenericCycleSimulationAdmissionOwner:
                 and member.profile_selection_ref == profile.profile_selection_ref
                 for member in family.children
             ):
-                raise CycleSubstrateContextOwnerError(
+                raise _GenericN5VerifiedMismatchError(
                     "generic_cycle_simulation_n5_child_profile_not_in_family"
                 )
         elif profile.profile_selection_kind != "problem":
@@ -2499,7 +2762,7 @@ class GenericCycleSimulationAdmissionOwner:
             profile.profile_selection_ref != expected_selection
             or record.profile_selection_ref != expected_selection
         ):
-            raise CycleSubstrateContextOwnerError(
+            raise _GenericN5VerifiedMismatchError(
                 "generic_cycle_simulation_n5_profile_selection_mismatch"
             )
         self._verify_json_artifact(
@@ -2517,7 +2780,7 @@ class GenericCycleSimulationAdmissionOwner:
             or artifact_ref_identity_key(views.ncm_refs[0])
             != artifact_ref_identity_key(profile.selected_ncm_ref)
         ):
-            raise CycleSubstrateContextOwnerError(
+            raise _GenericN5VerifiedMismatchError(
                 "generic_cycle_simulation_n5_wmr_profile_mismatch"
             )
         self._verify_json_artifact(
@@ -2526,7 +2789,7 @@ class GenericCycleSimulationAdmissionOwner:
         )
         registry = load_substrate_registry(self._store, profile.substrate_registry_ref)
         if registry != profile.context_inputs.substrate_registry:
-            raise CycleSubstrateContextOwnerError(
+            raise _GenericN5VerifiedMismatchError(
                 "generic_cycle_simulation_n5_registry_profile_mismatch"
             )
         self._verify_json_artifact(profile.selected_ncm_ref, expected_kind="ir.ncm_spec")
@@ -2591,7 +2854,7 @@ class GenericCycleSimulationAdmissionOwner:
             outcome != input_record.outcome_variable
             or outcome not in input_record.n5.baseline_state
         ):
-            raise CycleSubstrateContextOwnerError(
+            raise _GenericN5VerifiedMismatchError(
                 "generic_cycle_simulation_n5_request_outcome_mismatch"
             )
         world_record = port._context_world_model_record(
@@ -2601,7 +2864,7 @@ class GenericCycleSimulationAdmissionOwner:
             source_context != port._cycle_substrate_context
             or world_record != input_record.profile.context_inputs.world_model_record
         ):
-            raise CycleSubstrateContextOwnerError(
+            raise _GenericN5VerifiedMismatchError(
                 "generic_cycle_simulation_n5_request_world_model_mismatch"
             )
         variable_map = port._joint_simulation_variable_map(

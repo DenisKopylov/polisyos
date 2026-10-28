@@ -2862,7 +2862,11 @@ async def test_served_generic_cycle_reissues_owner_context_for_second_n5(
         GenericCycleSimulationN5InputV1,
         parse_generic_cycle_simulation_n5_execution,
     )
+    from tests._helpers.candidate_cycle_source_profile import (
+        build_candidate_cycle_substrate_route_inputs,
+    )
 
+    source_inputs = build_candidate_cycle_substrate_route_inputs(tmp_path / "two-cycle-source-root")
     tenant_id = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
     cell_id = "cell-v8-generic-cycle-rebind"
     prepared = await prepare_generic_n4_served_replay(
@@ -2873,7 +2877,9 @@ async def test_served_generic_cycle_reissues_owner_context_for_second_n5(
         cell_id=cell_id,
         child_count=3,
         phase_callback=served_worker_phase_probe,
+        source_root=source_inputs.root,
     )
+    assert prepared.source_root == source_inputs.root
     prepared = replace(
         prepared,
         request_json={
@@ -2932,6 +2938,8 @@ async def test_served_generic_cycle_reissues_owner_context_for_second_n5(
         )
         assert len(matching) == 1
         first, second = matching[0]
+        assert first["n5_owner_join_status"] == "resolved"
+        assert second["n5_owner_join_status"] == "resolved"
         assert first["context_job_ref"] != second["context_job_ref"]
         assert first["n4_source_ref"] != second["n4_source_ref"]
         assert first["profile_ref"] == second["profile_ref"]
@@ -3001,6 +3009,8 @@ async def test_served_generic_cycle_reissues_owner_context_for_second_n5(
                 )
             cycle = cycles[observation["cycle_index"]]
             assert input_record.cycle_index == cycle.cycle_index
+            assert input_record.child_selection is not None
+            assert input_record.child_selection.problem == source.problem
             assert input_record.design_problem_ref == cycle.design_problem_basis_ref
             assert input_record.context_job_ref == ArtifactRef.model_validate(
                 observation["context_job_ref"]

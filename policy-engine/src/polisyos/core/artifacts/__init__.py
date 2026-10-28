@@ -87,6 +87,7 @@ from .ownership import (
     ArtifactOwnershipError,
     ArtifactOwnershipIndex,
     ArtifactReadOnlyUnavailableError,
+    ArtifactUnavailableError,
 )
 from .protocol import (
     AUTHORITY_ENVELOPE_ARTIFACT_KIND,
@@ -336,6 +337,7 @@ __all__ = [
     "ArtifactStoreConfig",
     "ArtifactStoreReadUsage",
     "ArtifactTenantContextInfo",
+    "ArtifactUnavailableError",
     "ArtifactVerifier",
     "ArtifactWriteOptions",
     "AsyncArtifactStore",

@@ -1120,3 +1120,83 @@ def test_checked_interaction_orders_do_not_invent_pairwise_order_for_one_atom() 
     coverage = _interaction_coverage(request, trajectories)
 
     assert _checked_interaction_orders(request, coverage) == (1,)
+
+
+def test_one_atom_roles_share_one_physical_execution(monkeypatch: pytest.MonkeyPatch) -> None:
+    """B23: an individual and joint role retain one shared physical run."""
+    calls = []
+
+    def fixed_output(state: Any, params: Any) -> dict[str, Any]:
+        calls.append(int(params["__seed__"]))
+        return {"counterfactual_result": {"world_summaries": [{"firm_survival": {"mean": 7.0}}]}}
+
+    monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(fixed_output))
+    original = _single_step_ncm_request()
+    request = original.model_copy(update={"intervention_atoms": original.intervention_atoms[:1]})
+    result = JointSimulationHorizonController().run(request)
+    individual = result.trajectory_for("individual", ("income_subsidy",))
+    joint = result.trajectory_for("joint", ("income_subsidy",))
+    assert calls == [request.seed]
+    assert individual.diagnostics["physical_run_ref"] == joint.diagnostics["physical_run_ref"]
+    assert individual.diagnostics["role"] == "individual"
+    assert joint.diagnostics["role"] == "joint"
+    assert individual.points[0].outcomes == {"firm_survival": 7.0}
+    assert joint.points[0].effect == {"firm_survival": 6.0}
+
+
+def test_fixed_evidence_changed_baseline_rebinds_effect_on_fresh_cas(
+    tmp_path: Any, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """B23: equal raw inputs can share physical identity, never a stale projected effect."""
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleError,
+        load_joint_simulation_result,
+        persist_joint_simulation_result,
+    )
+
+    calls = []
+
+    def fixed_output(state: Any, params: Any) -> dict[str, Any]:
+        calls.append(dict(state["ncm_query_data"].evidence))
+        return {"counterfactual_result": {"world_summaries": [{"firm_survival": {"mean": 7.0}}]}}
+
+    monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(fixed_output))
+    base = _single_step_ncm_request().model_copy(update={"evidence_state": {"firm_survival": 3.0}})
+    changed_baseline = base.model_copy(
+        update={"baseline_state": {**base.baseline_state, "firm_survival": 2.0}}
+    )
+    changed_evidence = base.model_copy(update={"evidence_state": {"firm_survival": 4.0}})
+    controller = JointSimulationHorizonController()
+    results = tuple(
+        controller.run(request) for request in (base, changed_baseline, changed_evidence)
+    )
+    first, second, third = [
+        r.trajectory_for("joint", ("income_subsidy", "balance_grant")) for r in results
+    ]
+    assert len(calls) == 9
+    assert first.points[0].outcomes == second.points[0].outcomes == {"firm_survival": 7.0}
+    assert first.points[0].effect == {"firm_survival": 6.0}
+    assert second.points[0].effect == {"firm_survival": 5.0}
+    assert first.diagnostics["physical_run_ref"] == second.diagnostics["physical_run_ref"]
+    assert first.diagnostics["physical_run_ref"] != third.diagnostics["physical_run_ref"]
+    assert results[0].receipt.payload_hash != results[1].receipt.payload_hash
+    store = FileSystemCAS(tmp_path / "cas")
+    first_ref = persist_joint_simulation_result(results[0], store=store)
+    second_ref = persist_joint_simulation_result(results[1], store=store)
+    assert first_ref.manifest_profile_sha256 and second_ref.manifest_profile_sha256
+    assert first_ref.artifact_id != second_ref.artifact_id
+    reopened_first = load_joint_simulation_result(first_ref, store=store, expected_request=base)
+    reopened_second = load_joint_simulation_result(
+        second_ref, store=store, expected_request=changed_baseline
+    )
+    assert reopened_first.trajectory_for("joint", ("income_subsidy", "balance_grant")).points[
+        0
+    ].effect == {"firm_survival": 6.0}
+    assert reopened_second.trajectory_for("joint", ("income_subsidy", "balance_grant")).points[
+        0
+    ].effect == {"firm_survival": 5.0}
+    with pytest.raises(
+        GenerationCycleError, match="joint_simulation_result_execution_binding_invalid"
+    ):
+        load_joint_simulation_result(first_ref, store=store, expected_request=changed_baseline)

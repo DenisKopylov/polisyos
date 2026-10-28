@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import { runDetailsSchema } from "../../../../api/validators";
 import { runN5InteractionEvidenceFixture } from "@/test/fixtures/runN5InteractionEvidence";
+import { c41JointParentObservation } from "@/test/fixtures/c41JointParent";
 import * as performanceTelemetry from "@/shared/telemetry/performance";
 import { renderWithProviders } from "@/test/render";
 
@@ -1014,6 +1015,96 @@ describe("OverviewTab", () => {
       screen.getByTestId("overview-generic-cycle-n5-result-body"),
     ).toHaveTextContent("Intervention atoms: atom-b");
     expect(panel).not.toHaveTextContent("publication_ready");
+  });
+
+  it("renders the v5 parent joint candidate separately from child rows", () => {
+    const projection = genericCycleSimulationProjection("run-1");
+    const v5 = {
+      ...projection,
+      schema_version:
+        "policyos.runtime.run_generic_cycle_simulation_projection.v5",
+      joint_parent_status: "resolved",
+      joint_parent_observations: [c41JointParentObservation()],
+      n5_observations: projection.n5_observations.map((row, index) =>
+        index === 0
+          ? { ...row, n5_owner_join_status: "resolved" }
+          : {
+              ...row,
+              n5_owner_join_status: "not_established",
+              n5_owner_join_limitation_code:
+                "generic_n5_owner_ref_not_established",
+            },
+      ),
+    };
+    overviewState.run = runDetailsSchema.parse({
+      meta: {
+        request_id: "req-v5",
+        generated_at: "2026-10-11T10:00:00Z",
+        source_kinds: ["core_run"],
+      },
+      run: {
+        run_id: "run-1",
+        source_kind: "core_run",
+        status: "completed",
+        generic_cycle_simulation: v5,
+      },
+      temporal_scope: null,
+    }).run;
+    renderWithProviders(<OverviewTab />);
+    const parent = screen.getByTestId("overview-generic-cycle-joint-parent");
+    expect(parent).toHaveTextContent("Parent joint candidate assessment");
+    expect(parent).toHaveTextContent("value_conditional");
+    expect(parent).toHaveTextContent("low");
+    expect(parent).toHaveTextContent("non_additive");
+    expect(parent).toHaveTextContent(
+      "Higher-order residual for outcome-a, step 0: 1",
+    );
+    expect(parent).toHaveTextContent("alternatives");
+    expect(parent).toHaveTextContent(
+      "n5_execution_request_provenance_not_established",
+    );
+    expect(screen.getAllByTestId("overview-generic-cycle-n5-row")).toHaveLength(
+      2,
+    );
+    expect(
+      screen.getAllByTestId("overview-generic-cycle-n5-owner-join"),
+    ).toHaveLength(2);
+    expect(parent).not.toHaveTextContent("publication_ready");
+  });
+
+  it("shows a withheld parent assessment without hiding child observations", () => {
+    const projection = {
+      ...genericCycleSimulationProjection("run-1"),
+      schema_version:
+        "policyos.runtime.run_generic_cycle_simulation_projection.v5",
+      joint_parent_status: "not_established",
+      joint_parent_limitation_code:
+        "generic_joint_parent_result_not_established",
+    };
+    overviewState.run = runDetailsSchema.parse({
+      meta: {
+        request_id: "req-v5-missing",
+        generated_at: "2026-10-11T10:00:00Z",
+        source_kinds: ["core_run"],
+      },
+      run: {
+        run_id: "run-1",
+        source_kind: "core_run",
+        status: "completed",
+        generic_cycle_simulation: projection,
+      },
+      temporal_scope: null,
+    }).run;
+    renderWithProviders(<OverviewTab />);
+    expect(
+      screen.getByTestId("overview-generic-cycle-joint-parent-limitation"),
+    ).toHaveTextContent("generic_joint_parent_result_not_established");
+    expect(
+      screen.queryByTestId("overview-generic-cycle-joint-parent-row"),
+    ).not.toBeInTheDocument();
+    expect(screen.getAllByTestId("overview-generic-cycle-n5-row")).toHaveLength(
+      2,
+    );
   });
 
   it("renders generic leaf outcomes separately from the pending frontier", () => {

@@ -63,3 +63,38 @@ not_established. Generic artifact content remains blocked by its closeout-author
 
 The runs router exposes POST and GET predictive-calibration operations under exact owned-run bindings. POST reuses the existing RUNS_FEEDBACK_EVALUATE permission for an owner-bound candidate diagnostic write; GET uses RUNS_REVIEW for the same run ownership. Both permission/resource pairs are explicit Rego contracts and default deny remains in force. POST appends an immutable association ref only after the ForecastOwner, empirical bridge, and S10 paths complete. GET verifies the event payload hash, reopens the association and evidence, and recomputes S10. Neither endpoint promotes prediction evidence into causal credibility.
 
+## Generic N5 candidate and joint-parent readback
+
+`GET /api/v1/runs/{run_id}` can expose the typed `generic_cycle_simulation` projection from the
+persisted recursive run. Version v5 separates `n5_observations` for individual child cycles from
+`joint_parent_observations` for the parent's joint candidate assessment. A resolved parent row
+carries the selected N5 result reference, checked-model interaction evidence, and the candidate
+selection's source relationship. When the N8 consumer can read the parent result, its
+`value_conditional` observation has decision grade `low`; missing coupling scope, hypothetical
+composition and child-to-parent refinement remain explicit limitations. When a parent read returns
+a `not_established` projection, its limitation is reported separately from readable children.
+A `CanonicalProfileRefusalError` during the parent result read can instead escape the projection
+and abort the GET, so independently readable child rows are not guaranteed to be returned in that
+case. These observations do not establish an authored compound policy, world evidence, currentness
+or publication authority.
+
+For a generic child, the selected execution owner reconciles the selected input, request and
+result with the source, profile, problem, candidate and run scope. `n5_owner_join_status`
+distinguishes `resolved`, `unavailable`, `invalid`, `mismatch` and `not_established`. An
+independently readable result can remain a candidate with a provenance limitation when the owner
+view is unavailable; an established invalid or mismatched join blocks that row. Other independently
+replayed child rows remain in the projection for those child-owner outcomes. This does not cover the
+parent profile-read exception described above. A selected artifact reference locates bytes for a separately
+authorized reader; a request/result consistency check or content-bound receipt does not
+independently authenticate the numerical producer.
+
+Historical generic v1–v4 payloads remain readable by the updated dashboard validator. An older
+strict client that only accepts v1–v4 cannot consume a v5 response; regenerate the OpenAPI and
+runtime client/dashboard types and verify installed consumers before rollout. Historical
+non-generic candidate-simulation execution records V2–V5 do not provide a complete selected request
+join. Their K_sim results can remain usable as limited candidates, while the older unmarked
+EvalSafety input path and authority-grade physical-run/producer provenance require separate owner
+verification. ProgramGraph request references that are excluded from serialized request bytes also
+require an actual selected-owner rehydration path; no missing reference or producer attestation is
+inferred here. The synthetic fresh POST, worker, selected-result, GET and N8 tests and dashboard
+semantic tests are authored; runtime and removal evidence must be obtained on the composed tree.

@@ -2406,6 +2406,10 @@ class RunCandidateSimulationN5Observation(BaseModel):
         Literal["value_ready", "value_conditional", "value_blocked", "value_pending_n8"] | None
     ) = None
     n8_authority_blockers: tuple[str, ...] = ()
+    n8_candidate_value_ref: str | None = Field(default=None, exclude_if=lambda value: value is None)
+    n8_candidate_decision_grade: Literal["low"] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     n8_joint_request_content_hash: str | None = Field(
         default=None,
         pattern=r"^sha256:[0-9a-f]{64}$",
@@ -2548,8 +2552,8 @@ class RunCandidateSimulationN5Observation(BaseModel):
         if self.n8_joint_scope_status is None:
             if joint_fields_present:
                 raise ValueError("run_n8_joint_scope_status_missing")
-        elif self.n8_status != "value_pending_n8":
-            raise ValueError("run_n8_joint_scope_must_remain_pending")
+        elif self.n8_status not in {"value_pending_n8", "value_conditional"}:
+            raise ValueError("run_n8_joint_scope_must_remain_candidate_only")
         elif self.n8_joint_scope_status == "not_established":
             if (
                 self.n8_joint_scope_limitation_code is None
@@ -2603,6 +2607,27 @@ class RunCandidateSimulationN5Observation(BaseModel):
             )
         ):
             raise ValueError("run_n8_joint_scope_binding_incomplete")
+        if (
+            self.n8_candidate_value_ref is not None or self.n8_candidate_decision_grade is not None
+        ) and (
+            self.n8_status != "value_conditional"
+            or self.n8_candidate_decision_grade != "low"
+            or self.simulation_result_ref is None
+            or self.n8_candidate_value_ref != str(self.simulation_result_ref.artifact_id)
+            or self.n8_joint_scope_status != "not_established"
+            or not {
+                "n5_execution_request_provenance_not_established",
+                "n4_source_candidates_are_alternatives_not_authored_compound_design",
+                "child_to_parent_refinement_rule_not_established",
+            }.issubset(self.n8_authority_blockers)
+        ):
+            raise ValueError("run_n8_joint_candidate_conditional_binding_invalid")
+        if (
+            self.n8_status == "value_conditional"
+            and self.n8_joint_scope_status is not None
+            and (self.n8_candidate_value_ref is None or self.n8_candidate_decision_grade is None)
+        ):
+            raise ValueError("run_n8_joint_candidate_conditional_value_missing")
         candidate_selection_fields_present = any(
             (
                 self.n8_candidate_joint_selection_status is not None,
@@ -2656,7 +2681,7 @@ class RunCandidateSimulationN5Observation(BaseModel):
             or len(set(self.n8_candidate_parent_child_refs))
             != len(self.n8_candidate_parent_child_refs)
             or self.n8_joint_scope_status != "not_established"
-            or self.n8_status != "value_pending_n8"
+            or self.n8_status not in {"value_pending_n8", "value_conditional"}
             or self.n8_candidate_member_basis is None
             or self.n8_source_candidate_relationship is None
             or self.n8_policy_composition_status != "not_established"
@@ -3505,6 +3530,12 @@ class RunGenericCycleSimulationN5Observation(BaseModel):
     child_profile_set_ref: ArtifactRef | None = None
     n5_input_ref: ArtifactRef
     n5_execution_ref: ArtifactRef | None = None
+    n5_owner_join_status: (
+        Literal["resolved", "unavailable", "invalid", "mismatch", "not_established"] | None
+    ) = Field(default=None, exclude_if=lambda value: value is None)
+    n5_owner_join_limitation_code: str | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     n5_request_binding_status: Literal["resolved", "not_established"] = "not_established"
     n5_request_content_hash: str | None = Field(
         default=None,
@@ -3606,10 +3637,30 @@ class RunGenericCycleSimulationN5Observation(BaseModel):
                 or self.simulation_result_body_limitation_code is not None
             ):
                 raise ValueError("run_generic_n5_result_body_parent_binding_invalid")
-        if self.status == "joint_simulated" and (
-            self.simulation_result_ref is None or self.n5_execution_ref is None
-        ):
+        if self.status == "joint_simulated" and self.simulation_result_ref is None:
             raise ValueError("run_generic_n5_success_result_missing")
+        if (
+            self.status == "joint_simulated"
+            and self.n5_execution_ref is None
+            and self.n5_owner_join_status not in {"unavailable", "not_established"}
+        ):
+            raise ValueError("run_generic_n5_success_owner_missing_without_limitation")
+        if self.n5_owner_join_status == "resolved":
+            if (
+                self.n5_owner_join_limitation_code is not None
+                or self.n5_request_binding_status != "resolved"
+                or self.n5_execution_ref is None
+            ):
+                raise ValueError("run_generic_n5_owner_join_resolved_invalid")
+        elif self.n5_owner_join_status is not None:
+            if not self.n5_owner_join_limitation_code:
+                raise ValueError("run_generic_n5_owner_join_limitation_missing")
+            if self.n5_owner_join_status in {"invalid", "mismatch"} and (
+                self.status != "simulation_blocked" or self.n8_status != "value_blocked"
+            ):
+                raise ValueError("run_generic_n5_owner_conflict_not_refused")
+        elif self.n5_owner_join_limitation_code is not None:
+            raise ValueError("run_generic_n5_owner_join_status_missing")
         if (self.n5_request_binding_status == "resolved") != (
             self.n5_request_content_hash is not None
         ):
@@ -3755,6 +3806,7 @@ class RunGenericCycleSimulationProjection(BaseModel):
         "policyos.runtime.run_generic_cycle_simulation_projection.v2",
         "policyos.runtime.run_generic_cycle_simulation_projection.v3",
         "policyos.runtime.run_generic_cycle_simulation_projection.v4",
+        "policyos.runtime.run_generic_cycle_simulation_projection.v5",
     ] = "policyos.runtime.run_generic_cycle_simulation_projection.v1"
     run_id: str = Field(min_length=1)
     artifact_status: Literal["resolved", "not_established"]
@@ -3784,6 +3836,15 @@ class RunGenericCycleSimulationProjection(BaseModel):
     child_profile_limitation_code: str | None = Field(default=None, min_length=1)
     child_profile_bindings: tuple[RunGenericCycleSimulationChildProfileBinding, ...] = ()
     n5_observations: tuple[RunGenericCycleSimulationN5Observation, ...] = ()
+    joint_parent_observations: tuple[RunCandidateSimulationN5Observation, ...] = Field(
+        default=(), exclude_if=lambda value: not value
+    )
+    joint_parent_status: Literal["resolved", "not_established"] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    joint_parent_limitation_code: str | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     n5_limitation_code: str | None = Field(default=None, min_length=1)
     recursive_cycle_checkpoint: RunRecursiveCycleCheckpoint | None = None
     n6_cycle_history_status: Literal["resolved", "not_established"] | None = None
@@ -3817,6 +3878,37 @@ class RunGenericCycleSimulationProjection(BaseModel):
         elif self.n6_cycle_history or self.n6_cycle_history_limitation_code is not None:
             raise ValueError("run_generic_projection_n6_history_status_missing")
 
+        has_joint_parent_extension = self.joint_parent_status is not None
+        has_owner_join_extension = any(
+            row.n5_owner_join_status is not None for row in self.n5_observations
+        )
+        has_v5_extension = has_joint_parent_extension or has_owner_join_extension
+        if has_v5_extension and self.schema_version != (
+            "policyos.runtime.run_generic_cycle_simulation_projection.v5"
+        ):
+            raise ValueError("run_generic_projection_v5_schema_invalid")
+        if has_joint_parent_extension:
+            if has_credal_attempt_projection:
+                raise ValueError("run_generic_projection_parent_credal_conflict")
+            if self.joint_parent_status == "resolved":
+                if (
+                    len(self.joint_parent_observations) != 1
+                    or self.joint_parent_limitation_code is not None
+                    or self.joint_parent_observations[0].status != "joint_simulated"
+                    or self.joint_parent_observations[0].simulation_result_ref is None
+                    or self.joint_parent_observations[0].simulation_ref is None
+                    or self.joint_parent_observations[0].n5_interaction_evidence is None
+                    or self.joint_parent_observations[0].n8_candidate_joint_selection_status
+                    != "resolved"
+                    or self.joint_parent_observations[0].n8_status
+                    not in {"value_pending_n8", "value_conditional"}
+                    or self.joint_parent_observations[0].n8_joint_scope_status != "not_established"
+                ):
+                    raise ValueError("run_generic_projection_parent_binding_invalid")
+            elif self.joint_parent_observations or not self.joint_parent_limitation_code:
+                raise ValueError("run_generic_projection_parent_limitation_missing")
+        elif self.joint_parent_observations or self.joint_parent_limitation_code is not None:
+            raise ValueError("run_generic_projection_parent_status_missing")
         if has_credal_attempt_projection:
             expected_schema = (
                 "policyos.runtime.run_generic_cycle_simulation_projection.v4"
@@ -3845,7 +3937,7 @@ class RunGenericCycleSimulationProjection(BaseModel):
                 if has_n6_cycle_history_extension
                 else "policyos.runtime.run_generic_cycle_simulation_projection.v1"
             )
-            if self.schema_version != expected_schema:
+            if not has_v5_extension and self.schema_version != expected_schema:
                 raise ValueError("run_generic_projection_schema_extension_invalid")
         if self.artifact_status == "resolved":
             if self.source_ref is None or self.source_content_hash is None:
@@ -3879,6 +3971,9 @@ class RunGenericCycleSimulationProjection(BaseModel):
             or self.n4_source_status is not None
             or self.child_profile_bindings
             or self.n5_observations
+            or self.joint_parent_status is not None
+            or self.joint_parent_observations
+            or self.joint_parent_limitation_code is not None
             or self.n6_cycle_history_status is not None
             or self.n6_cycle_history_limitation_code is not None
             or self.n6_cycle_history

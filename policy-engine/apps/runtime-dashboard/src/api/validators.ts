@@ -888,6 +888,8 @@ const runCandidateSimulationN5ObservationSchema = z
       .nullable()
       .optional(),
     n8_authority_blockers: z.array(z.string()).default([]),
+    n8_candidate_value_ref: z.string().nullable().optional(),
+    n8_candidate_decision_grade: z.literal("low").nullable().optional(),
     n8_joint_request_content_hash: z
       .string()
       .regex(/^sha256:[0-9a-f]{64}$/)
@@ -1074,7 +1076,9 @@ const runCandidateSimulationN5ObservationSchema = z
         candidateChildRefs.length !== observation.atom_ids.length ||
         !unique(candidateChildRefs) ||
         observation.n8_joint_scope_status !== "not_established" ||
-        observation.n8_status !== "value_pending_n8" ||
+        !["value_pending_n8", "value_conditional"].includes(
+          observation.n8_status ?? "",
+        ) ||
         compositionStatus !== "not_established" ||
         refinementStatus !== "not_established" ||
         !(validHypotheticalBasis || validLegacyBasis)
@@ -1111,6 +1115,18 @@ const runCandidateSimulationN5ObservationSchema = z
     }
     if (observation.n8_status === "value_conditional") {
       if (
+        observation.n5_interaction_evidence == null ||
+        observation.n8_numeric_interaction == null ||
+        observation.n8_numeric_interaction_basis == null ||
+        observation.n8_interaction_sampling_status == null
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["n5_interaction_evidence"],
+          message: "run_n5_n8_conditional_interaction_missing",
+        });
+      }
+      if (
         observation.n8_numeric_interaction === "unsupported" &&
         !(observation.n8_authority_blockers ?? []).includes(
           "interaction_numeric_classification_unsupported",
@@ -1141,6 +1157,44 @@ const runCandidateSimulationN5ObservationSchema = z
       }
     }
     const jointScope = observation.n8_joint_scope_status;
+    const candidateValuePresent =
+      observation.n8_candidate_value_ref != null ||
+      observation.n8_candidate_decision_grade != null;
+    const requiredCandidateBlockers = [
+      "n5_execution_request_provenance_not_established",
+      "n4_source_candidates_are_alternatives_not_authored_compound_design",
+      "child_to_parent_refinement_rule_not_established",
+    ];
+    if (
+      candidateValuePresent &&
+      (observation.n8_status !== "value_conditional" ||
+        observation.n8_candidate_decision_grade !== "low" ||
+        observation.simulation_result_ref == null ||
+        observation.n8_candidate_value_ref !==
+          observation.simulation_result_ref.artifact_id ||
+        jointScope !== "not_established" ||
+        requiredCandidateBlockers.some(
+          (blocker) => !observation.n8_authority_blockers.includes(blocker),
+        ))
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["n8_candidate_value_ref"],
+        message: "run_n8_joint_candidate_conditional_binding_invalid",
+      });
+    }
+    if (
+      observation.n8_status === "value_conditional" &&
+      jointScope != null &&
+      (observation.n8_candidate_value_ref == null ||
+        observation.n8_candidate_decision_grade == null)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["n8_candidate_value_ref"],
+        message: "run_n8_joint_candidate_conditional_value_missing",
+      });
+    }
     if (jointScope == null) {
       const jointFieldsPresent =
         observation.n8_joint_request_content_hash != null ||
@@ -1169,11 +1223,14 @@ const runCandidateSimulationN5ObservationSchema = z
     const childRefs = observation.n8_parent_child_refs ?? [];
     const childBindings = observation.n8_parent_child_source_bindings ?? [];
     const outcomeUnits = observation.n8_joint_outcome_units ?? {};
-    if (observation.n8_status !== "value_pending_n8") {
+    if (
+      observation.n8_status !== "value_pending_n8" &&
+      observation.n8_status !== "value_conditional"
+    ) {
       context.addIssue({
         code: "custom",
         path: ["n8_status"],
-        message: "run_n8_joint_scope_must_remain_pending",
+        message: "run_n8_joint_scope_must_remain_candidate_only",
       });
     }
     if (jointScope === "not_established") {
@@ -2123,6 +2180,17 @@ const runGenericCycleSimulationN5ObservationSchema = z
       .nullable()
       .optional(),
     n5_input_ref: runGenericCycleSimulationArtifactRefSchema,
+    n5_owner_join_status: z
+      .enum([
+        "resolved",
+        "unavailable",
+        "invalid",
+        "mismatch",
+        "not_established",
+      ])
+      .nullable()
+      .optional(),
+    n5_owner_join_limitation_code: z.string().min(1).nullable().optional(),
     n5_request_binding_status: z.enum(["resolved", "not_established"]),
     n5_request_content_hash: z
       .string()
@@ -2334,13 +2402,58 @@ const runGenericCycleSimulationN5ObservationSchema = z
     }
     if (
       observation.status === "joint_simulated" &&
-      (observation.simulation_result_ref == null ||
-        observation.n5_execution_ref == null)
+      observation.simulation_result_ref == null
     ) {
       context.addIssue({
         code: "custom",
         path: ["simulation_result_ref"],
         message: "generic_cycle_n5_success_result_missing",
+      });
+    }
+    if (
+      observation.status === "joint_simulated" &&
+      observation.n5_execution_ref == null &&
+      !["unavailable", "not_established"].includes(
+        observation.n5_owner_join_status ?? "",
+      )
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["n5_execution_ref"],
+        message: "generic_cycle_n5_success_owner_missing_without_limitation",
+      });
+    }
+    const ownerStatus = observation.n5_owner_join_status;
+    if (ownerStatus === "resolved") {
+      if (
+        observation.n5_owner_join_limitation_code != null ||
+        observation.n5_request_binding_status !== "resolved" ||
+        observation.n5_execution_ref == null
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["n5_owner_join_status"],
+          message: "generic_cycle_n5_owner_join_resolved_invalid",
+        });
+      }
+    } else if (ownerStatus != null) {
+      if (
+        observation.n5_owner_join_limitation_code == null ||
+        ((ownerStatus === "invalid" || ownerStatus === "mismatch") &&
+          (observation.status !== "simulation_blocked" ||
+            observation.n8_status !== "value_blocked"))
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["n5_owner_join_status"],
+          message: "generic_cycle_n5_owner_join_refusal_invalid",
+        });
+      }
+    } else if (observation.n5_owner_join_limitation_code != null) {
+      context.addIssue({
+        code: "custom",
+        path: ["n5_owner_join_status"],
+        message: "generic_cycle_n5_owner_join_status_missing",
       });
     }
     if (
@@ -2565,6 +2678,14 @@ const runGenericCycleSimulationProjectionFields = {
   n5_observations: z
     .array(runGenericCycleSimulationN5ObservationSchema)
     .default([]),
+  joint_parent_observations: z
+    .array(runCandidateSimulationN5ObservationSchema)
+    .optional(),
+  joint_parent_status: z
+    .enum(["resolved", "not_established"])
+    .nullable()
+    .optional(),
+  joint_parent_limitation_code: z.string().min(1).nullable().optional(),
   n6_cycle_history: z
     .array(runGenericCycleSimulationN6CycleHistoryEntrySchema)
     .optional(),
@@ -2596,7 +2717,7 @@ const runGenericCycleSimulationProjectionFields = {
   source_ref: runGenericCycleSimulationArtifactRefSchema.nullable().optional(),
 };
 
-const runGenericCycleSimulationProjectionSchema = z
+export const runGenericCycleSimulationProjectionSchema = z
   .discriminatedUnion("schema_version", [
     z
       .object({
@@ -2674,9 +2795,75 @@ const runGenericCycleSimulationProjectionSchema = z
         ),
       })
       .strict(),
+    z
+      .object({
+        ...runGenericCycleSimulationProjectionFields,
+        schema_version: z.literal(
+          "policyos.runtime.run_generic_cycle_simulation_projection.v5",
+        ),
+      })
+      .strict(),
   ])
   .superRefine((projection, context) => {
     const version = projection.schema_version;
+    const hasJointParentExtension = projection.joint_parent_status != null;
+    const hasOwnerJoinExtension = projection.n5_observations.some(
+      (row) => row.n5_owner_join_status != null,
+    );
+    const hasV5Extension = hasJointParentExtension || hasOwnerJoinExtension;
+    const isV5 =
+      version === "policyos.runtime.run_generic_cycle_simulation_projection.v5";
+    if (hasV5Extension !== isV5) {
+      context.addIssue({
+        code: "custom",
+        path: ["schema_version"],
+        message: "generic_projection_v5_schema_invalid",
+      });
+    }
+    const parentRows = projection.joint_parent_observations ?? [];
+    if (projection.joint_parent_status === "resolved") {
+      const parent = parentRows[0];
+      if (
+        parentRows.length !== 1 ||
+        projection.joint_parent_limitation_code != null ||
+        parent == null ||
+        parent.status !== "joint_simulated" ||
+        parent.simulation_result_ref == null ||
+        parent.simulation_ref == null ||
+        parent.n5_interaction_evidence == null ||
+        parent.n8_candidate_joint_selection_status !== "resolved" ||
+        !["value_pending_n8", "value_conditional"].includes(
+          parent.n8_status ?? "",
+        ) ||
+        parent.n8_joint_scope_status !== "not_established"
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["joint_parent_status"],
+          message: "generic_projection_parent_binding_invalid",
+        });
+      }
+    } else if (projection.joint_parent_status === "not_established") {
+      if (
+        parentRows.length > 0 ||
+        projection.joint_parent_limitation_code == null
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["joint_parent_limitation_code"],
+          message: "generic_projection_parent_limitation_missing",
+        });
+      }
+    } else if (
+      parentRows.length > 0 ||
+      projection.joint_parent_limitation_code != null
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["joint_parent_status"],
+        message: "generic_projection_parent_status_missing",
+      });
+    }
     const hasCredalAttemptProjection =
       projection.credal_source_attempt_ref != null ||
       projection.credal_source_status != null ||
@@ -2719,7 +2906,9 @@ const runGenericCycleSimulationProjectionSchema = z
     const n6CycleHistoryExpected =
       version ===
         "policyos.runtime.run_generic_cycle_simulation_projection.v3" ||
-      version === "policyos.runtime.run_generic_cycle_simulation_projection.v4";
+      version ===
+        "policyos.runtime.run_generic_cycle_simulation_projection.v4" ||
+      (isV5 && hasN6CycleHistoryExtension);
     if (hasN6CycleHistoryExtension !== n6CycleHistoryExpected) {
       context.addIssue({
         code: "custom",
@@ -2816,6 +3005,9 @@ const runGenericCycleSimulationProjectionSchema = z
       projection.n4_source_status != null ||
       projection.child_profile_bindings.length > 0 ||
       projection.n5_observations.length > 0 ||
+      hasJointParentExtension ||
+      parentRows.length > 0 ||
+      projection.joint_parent_limitation_code != null ||
       hasN6CycleHistoryExtension ||
       projection.limitation_code == null
     ) {

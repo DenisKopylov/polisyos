@@ -1794,6 +1794,81 @@ class JointSimulationHorizonController:
             decisions=tuple(decisions),
         )
 
+    def validate_selected_result(
+        self, *, request: JointSimulationRequest, result: JointSimulationResult
+    ) -> None:
+        """Recompute the selected physical-plan binding for a produced N5 result.
+
+        This is a candidate-only consistency check against the actual request and
+        the same engine-selection and physical-ref owners used by ``run``. It
+        does not establish scientific truth or authenticate a foreign producer.
+        """
+        if type(request) is not JointSimulationRequest or type(result) is not JointSimulationResult:
+            raise JointSimulationControllerError("selected_plan_execution_binding_missing")
+        try:
+            actual = result.model_dump(mode="json", exclude={"receipt"})
+            payload = result.content_bound_payload()
+            if not payload:
+                # Freshly decoded nested results have no private payload cache.
+                # Reconstruct and verify their complete serialized projection.
+                payload = actual
+            verify_simulation_receipt(result.receipt, payload)
+            if gy_content_hash(payload) != gy_content_hash(actual):
+                raise ValueError("result_model_receipt_payload_mismatch")
+            if (
+                result.world_model_record_ref != request.world_model_record_ref
+                or result.world_model_record_content_hash != request.world_model_record.content_hash
+                or result.atom_ids
+                != tuple(atom.intervention_id for atom in request.intervention_atoms)
+                or result.selected_outcomes != request.selected_outcomes
+                or result.horizon != request.horizon
+                or result.diagnostics.get("requested_replications") != request.replications
+                or result.diagnostics.get("replication_seeds") != list(_replication_seeds(request))
+                or not result.trajectories
+            ):
+                raise ValueError("result_request_binding_mismatch")
+            selected = self._select_engine(request)
+            if (
+                selected.decision.decision != "selected"
+                or selected.decisions != result.engine_decisions
+                or result.receipt.engine_kind != selected.decision.engine_kind
+            ):
+                raise ValueError("selected_engine_owner_mismatch")
+            self._validate_selected_trajectories(
+                request=request,
+                plan=selected.plan,
+                decision=selected.decision,
+                trajectories=result.trajectories,
+            )
+            for trajectory in result.trajectories:
+                for point in trajectory.points:
+                    for outcome in request.selected_outcomes:
+                        expected = _effect_for_outcome(request, outcome, point.outcomes[outcome])
+                        if not math.isclose(
+                            point.effect[outcome], expected, rel_tol=1e-12, abs_tol=1e-12
+                        ):
+                            raise ValueError("selected_effect_basis_mismatch")
+                    if point.replication_sampling is not None:
+                        for sample in point.replication_sampling.samples:
+                            for outcome in request.selected_outcomes:
+                                expected = _effect_for_outcome(
+                                    request, outcome, sample.outcomes[outcome]
+                                )
+                                if not math.isclose(
+                                    sample.effects[outcome], expected, rel_tol=1e-12, abs_tol=1e-12
+                                ):
+                                    raise ValueError("selected_sample_effect_basis_mismatch")
+        except (
+            ProofReceiptError,
+            JointSimulationControllerError,
+            TypeError,
+            ValueError,
+            KeyError,
+        ) as exc:
+            raise JointSimulationControllerError(
+                "selected_plan_execution_binding_missing", str(exc)
+            ) from exc
+
     def _validate_selected_trajectories(
         self,
         *,

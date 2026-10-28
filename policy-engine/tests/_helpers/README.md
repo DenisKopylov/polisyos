@@ -69,3 +69,27 @@ invalid source owners retain native refusal; the binder default is unchanged.
 ## Known Shims/Deprecations
 
 Remove helpers when their final consumer moves away.
+
+## Completed ex-ante Runtime source witnesses
+
+`completed_ex_ante_runtime.py` launches and dispatches real authenticated Runtime
+workflows from selected prepared inputs; it never registers a fake owner, completes
+a job manually, or substitutes a metric. The HTTP A/B/planner witness and the
+identical-input A/A witness share this producer path. A/A prepares once, executes
+two distinct jobs, checks captured rows and independent exact mean1/1, and keeps
+the normal duplicate-candidate ranking refusal. A/B, revocation and controls remain
+separate qualifications.
+
+`scientist_runtime_profile.py` is a fresh-process diagnostic. It calls the actual
+public node discovery with `include_dev_scan=False`, resolves required nodes,
+calls the installed sklearn native hash extension and the NumPy Ex-Ante method,
+and retains actual tracebacks/report/PID/loaded Python hashes. It does not install
+dependencies, replace nodes, establish a Runtime chain, or measure process-tree
+resources. Run it with the admitted Python/profile and retain stdout/stderr plus
+its `--output` JSON before the genuine Runtime witness.
+
+The capture oracle derives every invocation's complete position/ID/kind/status
+inventory from the actual selected graph and ExecPlan, retaining operator rows,
+then joins the method by the current observation's occurrence ID. Both Runtime
+A/A and A/B use it. The profile diagnostic retains every loaded polisyos Python
+origin and refuses an import outside the selected checkout source root.

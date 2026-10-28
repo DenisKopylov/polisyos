@@ -4445,6 +4445,10 @@ def _exercise_two_real_completed_ex_ante_sources_and_fresh_planner(
     monkeypatch: pytest.MonkeyPatch,
 ) -> dict[str, Any]:
     """Real Runtime/Scientist/Foundry path; input fixture does not execute or finalize."""
+    from _helpers.completed_ex_ante_runtime import (
+        launch_completed_ex_ante_source,
+        reconcile_observed_method_occurrence,
+    )
     from _helpers.control_worker import dispatch_one_control_job, stop_embedded_control_worker
     from unit.scientist.nodes.builtins.decide.test_policy_runtime_method_metrics import (
         _exercise_public_execute_method_metric_source,
@@ -4452,7 +4456,6 @@ def _exercise_two_real_completed_ex_ante_sources_and_fresh_planner(
 
     from polisyos.core.artifacts import validate_core_model_json_artifact
     from polisyos.core.contracts.control import WorkflowRunRequest
-    from polisyos.core.contracts.execution_plan import ExecutionPlan, MethodDagNode
     from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.runtime.http.execution_policy import RuntimePrincipal
     from polisyos.scientist.orchestration.engine.state import ExperimentState
@@ -4479,65 +4482,8 @@ def _exercise_two_real_completed_ex_ante_sources_and_fresh_planner(
                 scenario_values=scenario,
                 prepare_only=True,
             )
-            plan = ExecutionPlan(
-                plan_id="completed_ex_ante_comparison",
-                run_id="pending",
-                method_dag=[
-                    MethodDagNode(
-                        node_id="ex_ante_node",
-                        method_fqn=prepared["method_fqn"],
-                        method_version=prepared["method_version"],
-                        backend=prepared["method_backend"],
-                        params={"poverty_line": None},
-                        reads_slots=["baseline", "scenario"],
-                        writes_slots=["result"],
-                    )
-                ],
-            )
-            launch = service.launch_workflow_run(
-                WorkflowRunRequest(
-                    data_source={
-                        "data_snapshot_ref": prepared["data_snapshot_ref"].model_dump(mode="json")
-                    },
-                    trinity_bundle_ref=prepared["trinity_ref"],
-                    registry_bundle_ref=prepared["registry_ref"],
-                    params={
-                        "control_plane_transition": "legacy_shadow",
-                        "capture_method_metric_environment": True,
-                        "method_metric_bindings": [
-                            {
-                                "objective_id": "objective_ex_ante_mean_change",
-                                "node_id": "ex_ante_node",
-                                "output_slot_id": "result",
-                            }
-                        ],
-                        "execution_plan": plan.model_dump(mode="json"),
-                    },
-                ),
-                principal=principal,
-            )
-        assert (
-            dispatch_one_control_job(
-                store=service._control_store,
-                handler=service._process_control_job,
-                expected_job_id=launch.job_id,
-            )
-            == launch.job_id
-        )
-        job = service._control_store.get_job(launch.job_id)
-        assert job is not None and job.state == "completed", job
-        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
-            selected = service.get_method_execution_selection(
-                run_id=launch.run_id, tenant_id=tenant_id, cell_id=cell_id
-            )
-            score = service.read_current_completed_ex_ante_candidate_score(
-                run_id=launch.run_id, tenant_id=tenant_id, cell_id=cell_id
-            )
-        assert isinstance(selected, GraphMethodExecutionSelection), selected
-        assert selected.metric_verification_status == "verified", selected
-        assert selected.source_candidate_ref == prepared["candidate_ref"]
-        assert score.status == "selected", score.limitations
-        assert score.authority_status == "candidate_only"
+        completed = launch_completed_ex_ante_source(service, prepared, principal)
+        launch = completed["launch"]
         sources.append({"source_run_id": launch.run_id, "candidate_ref": prepared["candidate_ref"]})
         source_job_ids.append(launch.job_id)
         prepared_sources.append(prepared)
@@ -4700,8 +4646,9 @@ def _exercise_two_real_completed_ex_ante_sources_and_fresh_planner(
         assert observation.environment_manifest_ref is not None
         assert observation.verifier_code_digest == verifier_digest
         assert bundle.environment_manifest_ref is not None
-        assert len(bundle.occurrences) == 1
-        occurrence = bundle.occurrences[0]
+        occurrence = reconcile_observed_method_occurrence(
+            store, bundle, occurrence_id=observation.occurrence_id
+        )
         assert occurrence.node_id == "ex_ante_node" and occurrence.status == "succeeded"
         assert occurrence.method_fqn == "policy.evaluation.ex_ante_simulation@1.0.0"
         assert occurrence.method_version == "1.0.0"

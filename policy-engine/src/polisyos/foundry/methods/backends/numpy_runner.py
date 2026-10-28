@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import time
 from collections.abc import Mapping
+from dataclasses import replace
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
@@ -61,15 +62,35 @@ class NumpyRunner(MethodRunner):
         params: Mapping[str, Any],
         seed: int,
         runtime_context: OwnedAttemptAnchorDispatchContext | None = None,
+        _captured_dispatch_execute: Any | None = None,
     ) -> MethodResult:
+        pure_step = getattr(method_class, "pure_step", None)
+        postprocess = getattr(method_class, "postprocess_output", None)
         resolved = _resolve_params(signature, params)
         rng = np.random.default_rng(seed)
         resolved["__rng__"] = rng
         resolved["__seed__"] = seed
 
         started = time.perf_counter()
+        restricted_invocation = None
         if runtime_context is None:
-            output = method_class.pure_step(state, resolved)
+            from polisyos.foundry.methods.catalog.policy.restricted_executable_profile import (
+                run_restricted_exante_if_selected,
+            )
+
+            profile_selected, output, restricted_invocation = run_restricted_exante_if_selected(
+                runner=self,
+                captured_runner_execute=_captured_dispatch_execute,
+                method_class=method_class,
+                signature=signature,
+                pure_step=pure_step,
+                postprocessor=postprocess,
+                state=state,
+                resolved_params=resolved,
+                original_params=params,
+            )
+            if not profile_selected:
+                output = pure_step(state, resolved)
         else:
             from polisyos.core.contracts.owned_attempt_anchor import (
                 OwnedAttemptAnchorDispatchContext,
@@ -96,7 +117,6 @@ class NumpyRunner(MethodRunner):
             if not callable(context_entry):
                 raise RuntimeContextDispatchError("method_not_supported")
             output = context_entry(state, resolved, runtime_context=runtime_context)
-        postprocess = getattr(method_class, "postprocess_output", None)
         if callable(postprocess):
             output = postprocess(output=output, state=state, params=resolved)
         wall_ms = (time.perf_counter() - started) * 1000
@@ -135,6 +155,10 @@ class NumpyRunner(MethodRunner):
             seed=seed,
             extra_versions=versions,
         )
+        if restricted_invocation is not None:
+            restricted_invocation = replace(
+                restricted_invocation, backend_runtime_fingerprint=posture.compute_hash()
+            )
         fp_payload = {
             "backend": ComputeBackend.NUMPY.value,
             "seed": seed,
@@ -167,4 +191,5 @@ class NumpyRunner(MethodRunner):
             slot_outputs=slot_outputs,
             artifacts={**artifacts, "backend_runtime_fingerprint": posture.as_dict()},
             warnings=tuple(dict.fromkeys(warnings)),
+            restricted_invocation=restricted_invocation,
         )

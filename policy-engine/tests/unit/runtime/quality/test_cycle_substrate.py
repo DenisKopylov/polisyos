@@ -4,6 +4,7 @@ import hashlib
 from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
+from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
@@ -2465,12 +2466,16 @@ def test_cycle_substrate_context_job_v4_persists_profile_selected_graph_ref(
     "schema_version",
     ["policyos.runtime.world_model_record.v1", WORLD_MODEL_RECORD_SCHEMA_V2_VERSION],
 )
+@pytest.mark.parametrize("knob_default", [1, Decimal("1")], ids=["int", "decimal"])
 def test_acquired_world_admission_reads_the_selected_state_snapshot_view(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     schema_version: str,
+    knob_default: int | Decimal,
 ) -> None:
     """The N5 owner resolves a WMRv2 state view and keeps the WMRv1 default."""
+
+    import jax.numpy as jnp
 
     from polisyos.core.artifacts import ProducerInfo, PutOptions
     from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
@@ -2491,6 +2496,10 @@ def test_acquired_world_admission_reads_the_selected_state_snapshot_view(
         _cycle_job_v1_design_problem_ref,
         _cycle_job_v1_profile_selection_ref,
     )
+    from polisyos.runtime.quality.intervention_substrate import (
+        _knob_default,
+        intervention_substrate_bundle_content_hash,
+    )
     from polisyos.runtime.quality.joint_simulation_horizon import HorizonSpec
     from polisyos.runtime.quality.world_model_record import (
         world_model_artifact_views,
@@ -2499,10 +2508,11 @@ def test_acquired_world_admission_reads_the_selected_state_snapshot_view(
     problem = _design_problem()
     registry = _registry("education")
     store = FileSystemCAS(tmp_path / "selected-state-view-cas")
-    default_state_ref = put_state_snapshot(
-        store,
-        state=GlobalState.empty(n_agents=1, n_firms=1),
+    state = GlobalState.empty(n_agents=1, n_firms=1).replace(
+        government_balance=jnp.asarray(37.0),
+        gdp=jnp.asarray(91.0),
     )
+    default_state_ref = put_state_snapshot(store, state=state)
     default_manifest = store.get_manifest(default_state_ref)
     selected_state_ref = store.put_bytes(
         store.get_bytes(default_state_ref),
@@ -2569,11 +2579,15 @@ def test_acquired_world_admission_reads_the_selected_state_snapshot_view(
         world_model_record=world,
         design_problem_ref=_cycle_job_v1_design_problem_ref(problem),
     )
+    bundle_payload = _intervention_bundle().model_dump(mode="python")
+    bundle_payload["knob_dictionary"]["lane0_knob"]["default"] = knob_default
+    bundle_payload["content_hash"] = intervention_substrate_bundle_content_hash(bundle_payload)
+    native_bundle = InterventionSubstrateBundle.model_validate(bundle_payload)
     context_inputs = CandidateSimulationContextInputs(
         substrate_registry=context.substrate_registry,
         selected_registry_entry_hashes=context.selected_registry_entry_hashes,
         world_model_record=world,
-        intervention_substrate=context.intervention_substrate,
+        intervention_substrate=native_bundle,
         candidate_levers=(),
         transport_context=None,
         source_pack_content_hash=context.source_pack_content_hash,
@@ -2678,6 +2692,38 @@ def test_acquired_world_admission_reads_the_selected_state_snapshot_view(
         return verify(ref)
 
     monkeypatch.setattr(store, "verify", record_state_view)
+
+    def refuse_preparation_write(*args: object, **kwargs: object) -> None:
+        del args, kwargs
+        pytest.fail("acquired context preparation emitted a CAS artifact")
+
+    # This is the actual owner plan, with the real selected state. The caller
+    # can inspect it before the declaration, NCM or candidate world is emitted.
+    with monkeypatch.context() as patch:
+        patch.setattr(store, "put_json", refuse_preparation_write)
+        patch.setattr(store, "put_bytes", refuse_preparation_write)
+        prepared = owner.prepare_context_for_acquired_world(
+            problem=problem,
+            profile_selection_ref=profile.profile_selection_ref,
+            world_model_record=acquired_world,
+            job_id="job-selected-state-view",
+            run_id="run-selected-state-view",
+            tenant_id="tenant-selected-state-view",
+            cell_id="cell-selected-state-view",
+        )
+    assert state_reads == [expected_manifest_profile]
+    assert prepared.profile.n5.baseline_state == {
+        "education.teaching_method": 37.0,
+        "learning_outcomes": 91.0,
+    }
+    assert prepared.model_declaration.target_baseline == 37.0
+    assert prepared.model_declaration.outcome_baseline == 91.0
+    prepared_bundle = prepared.source_context_inputs.intervention_substrate
+    assert prepared_bundle is not None
+    assert type(prepared_bundle.knob_dictionary["lane0_knob"]["default"]) is type(knob_default)
+    # The public preparation must not expose a mutable alias of configuration.
+    prepared_bundle.knob_dictionary["lane0_knob"]["default"] = "caller-mutated"
+    state_reads.clear()
     offer = owner.admit_context_for_acquired_world(
         problem=problem,
         profile_selection_ref=profile.profile_selection_ref,
@@ -2689,6 +2735,9 @@ def test_acquired_world_admission_reads_the_selected_state_snapshot_view(
     )
 
     assert type(offer) is CandidateSimulationContextOffer
+    assert offer.profile == prepared.profile
+    assert offer.profile_config_ref == prepared.profile_config_ref
+    assert offer.model_declaration == prepared.model_declaration
     assert state_reads == [expected_manifest_profile]
     assert offer.context.world_model_record.authority_status == "limited"
     assert {
@@ -2698,6 +2747,18 @@ def test_acquired_world_admission_reads_the_selected_state_snapshot_view(
     }.issubset(offer.context.may_not_use_for)
     assert offer.context.world_model_record.artifact_views is not None
     assert offer.context.world_model_record.artifact_views.bound_state_snapshot_ref == state_view
+    actual_bundle = offer.context.intervention_substrate
+    assert actual_bundle is not None
+    actual_knob = actual_bundle.knob_dictionary["lane0_knob"]
+    assert type(actual_knob["default"]) is type(knob_default)
+    assert actual_knob["default"] == knob_default
+    # This is the real knob consumer's native predicate. JSON conversion of a
+    # Decimal to a string would change its refusal while leaving the hash valid.
+    if isinstance(knob_default, Decimal):
+        with pytest.raises(InterventionSubstrateError, match="knob_owner_default_unsupported"):
+            _knob_default(actual_knob, knob_id="lane0_knob")
+    else:
+        assert _knob_default(actual_knob, knob_id="lane0_knob") == knob_default
 
 
 def _fixture_world_with_persisted_substrate_registry(

@@ -63,6 +63,7 @@ from polisyos.runtime.http.routes.human_decisions import router as human_decisio
 from polisyos.runtime.http.routes.lineage import router as lineage_router
 from polisyos.runtime.http.routes.mobility import router as mobility_router
 from polisyos.runtime.http.routes.public_decisions import router as public_decisions_router
+from polisyos.runtime.http.routes.registered_sql import router as registered_sql_router
 from polisyos.runtime.http.routes.review import router as review_router
 from polisyos.runtime.http.routes.runs import router as runs_router
 from polisyos.runtime.http.routes.scenarios import router as scenarios_router
@@ -315,6 +316,12 @@ def create_runtime_api_app(
         )
         await runtime_container.startup(app)
         try:
+            if deployment_security is not None:
+                from polisyos.runtime.http.services.registered_sql_live_grant import (
+                    install_registered_sql_live_grant_verifier,
+                )
+
+                install_registered_sql_live_grant_verifier(app)
             yield
         finally:
             await runtime_container.shutdown(app)
@@ -464,6 +471,8 @@ def create_runtime_api_app(
         app.include_router(mobility_router)
     if control_router is not None:
         app.include_router(control_router)
+    if registered_sql_router is not None:
+        app.include_router(registered_sql_router)
     if review_router is not None:
         app.include_router(review_router)
     if governed_projections_router is not None:
@@ -573,8 +582,11 @@ def _install_request_telemetry_middleware(
         request_method = str(getattr(request, "method", "")).upper()
         if request_path.startswith("/api/v1/"):
             set_versioning_headers(response)
-        if request_method == "GET" and request_path.startswith(
-            "/api/v1/control/admission-attempts/"
+        matched_route = request.scope.get("route")
+        if request_method == "GET" and (
+            request_path.startswith("/api/v1/control/admission-attempts/")
+            or getattr(matched_route, "path", None)
+            == "/api/v1/debug/runs/{run_id}/nodes/{alias}/simulation-result"
         ):
             response.headers["Cache-Control"] = "no-store"
         attempt_id = getattr(request.state, "control_pre_admission_attempt_id", None)

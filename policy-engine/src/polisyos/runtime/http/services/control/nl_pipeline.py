@@ -31,7 +31,6 @@ from polisyos.core.contracts.control import (
     DataResolveRequest,
     DataSourceBinding,
 )
-from polisyos.core.contracts.fabric import DataSnapshotRef
 from polisyos.data_forge.read_api import build_privacy_compliance_report
 from polisyos.foundry.validation.causal_validity import (
     build_causal_statistical_validity_report,
@@ -10824,7 +10823,7 @@ class NaturalLanguageRunMixin:
                 ds_key, ds_value = _resolve_data_source(data_source)
                 inputs[ds_key] = (
                     ds_value
-                    if isinstance(ds_value, DataSnapshotRef)
+                    if isinstance(ds_value, ArtifactRef)
                     else _make_artifact_ref(ds_value, kind=_DATA_SOURCE_KEYS[ds_key])
                 )
             else:

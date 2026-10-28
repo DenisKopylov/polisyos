@@ -72,6 +72,7 @@ from polisyos.core.contracts.foundry import (
     ProgramGraph,
     ProgramGraphRef,
     ProgramNode,
+    RestrictedMethodCallWitness,
     StateDelta,
     StateSnapshotRef,
 )
@@ -2268,6 +2269,7 @@ def _replace_capture_occurrence(
     artifact_inventory_limit: int | None = None,
     dispatch: MethodExecutionDispatchRecord | None = None,
     artifacts: list[MethodExecutionArtifact] | None = None,
+    restricted_call_witness: RestrictedMethodCallWitness | None = None,
 ) -> None:
     """Finish one predeclared occurrence without losing its actual identity."""
     if capture is None:
@@ -2327,6 +2329,11 @@ def _replace_capture_occurrence(
                     ),
                     "dispatch": dispatch if dispatch is not None else occurrence.dispatch,
                     "artifacts": artifacts if artifacts is not None else occurrence.artifacts,
+                    "restricted_call_witness": (
+                        restricted_call_witness
+                        if restricted_call_witness is not None
+                        else occurrence.restricted_call_witness
+                    ),
                 }
             )
         )
@@ -2465,6 +2472,9 @@ def persist_method_execution_capture(
                 )
             )
     bundle = MethodExecutionBundle(
+        schema_version=(
+            "1.2" if any(row.restricted_call_witness is not None for row in occurrences) else "1.1"
+        ),
         program_graph_ref=capture.program_graph_ref,
         exec_plan_ref=capture.exec_plan_ref,
         method_metric_binding_set_ref=capture.method_metric_binding_set_ref,
@@ -2490,7 +2500,7 @@ def persist_method_execution_capture(
             media_type=MethodExecutionBundle.ARTIFACT_MEDIA_TYPE,
             schema=SchemaInfo(
                 name=MethodExecutionBundle.ARTIFACT_SCHEMA_NAME,
-                version=MethodExecutionBundle.ARTIFACT_SCHEMA_VERSION,
+                version=bundle.schema_version,
             ),
             inputs=inputs,
         ),
@@ -2887,6 +2897,7 @@ def execute_program_graph(
         occurrence_inventory_limit: int | None = None
         occurrence_dispatch: MethodExecutionDispatchRecord | None = None
         occurrence_artifacts: list[MethodExecutionArtifact] | None = None
+        occurrence_restricted_call_witness: RestrictedMethodCallWitness | None = None
         occurrence_artifact_inventory_status: (
             Literal["captured", "not_established", "not_started"] | None
         ) = None
@@ -3194,6 +3205,17 @@ def execute_program_graph(
                         metric_input_capture_status=metric_input_capture_status,
                         metric_input_capture_limitation=metric_input_capture_limitation,
                     )
+                    if signature.fqn == "policy.evaluation.ex_ante_simulation@1.0.0":
+                        from polisyos.foundry.methods.catalog.policy.restricted_executable_profile import (
+                            bind_occurrence_call_witness,
+                        )
+
+                        occurrence_restricted_call_witness = bind_occurrence_call_witness(
+                            evidence=getattr(method_result, "restricted_invocation", None),
+                            occurrence=occurrence,
+                            input_capture_ref=metric_input_capture_ref,
+                            input_capture_status=metric_input_capture_status,
+                        )
                     (
                         occurrence_output_slots,
                         occurrence_returned_slots,
@@ -3275,6 +3297,7 @@ def execute_program_graph(
                     artifact_inventory_limit=occurrence_artifact_inventory_limit,
                     dispatch=occurrence_dispatch,
                     artifacts=occurrence_artifacts,
+                    restricted_call_witness=occurrence_restricted_call_witness,
                 )
         if abort_error is not None:
             _mark_unfinished_capture_occurrences_skipped(

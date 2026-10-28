@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
+from threading import RLock
 from typing import TYPE_CHECKING, Any, Protocol, cast
+from weakref import WeakKeyDictionary
 
 from polisyos.common.async_tools import run_coro_sync
 from polisyos.common.logger import get_logger
@@ -17,8 +19,12 @@ if TYPE_CHECKING:
     from collections.abc import AsyncIterable, Callable, Iterable
     from pathlib import Path
 
+    from polisyos.fabric.connectors._registry_models import _ConnectorRegistrationBinding
+    from polisyos.fabric.connectors.base import ConnectionConfig
     from polisyos.fabric.connectors.federation.artifact import SelectedFederationInput
     from polisyos.fabric.connectors.federation.types import CompositionRequest
+    from polisyos.fabric.connectors.registry import ConnectorRegistry
+    from polisyos.fabric.connectors.sources.sql_query import SQLQueryExecution
     from polisyos.ir.connectors import FetchRequest, FetchResult
 
 logger = get_logger(__name__)
@@ -200,6 +206,235 @@ def fabric_get_data(
         dataset_id,
     )
     return result
+
+
+def fabric_get_fresh_registered_sql_data(
+    *,
+    dataset_id: str,
+    connector_id: str,
+    constraints: dict[str, Any] | None = None,
+    registry: ConnectorRegistry,
+) -> FetchResult[Any]:
+    """Fetch an explicitly registered SQL query without cache or fallback.
+
+    This compatibility view returns only data; it does not confer source
+    admission. The canonical execution function binds the config and output.
+    """
+    return _execute_registered_sql(
+        dataset_id=dataset_id, connector_id=connector_id, constraints=constraints, registry=registry
+    ).result
+
+
+@dataclass(frozen=True, slots=True)
+class _RegisteredSQLExecution:
+    registry: ConnectorRegistry
+    connector_id: str
+    binding: _ConnectorRegistrationBinding
+    config: ConnectionConfig
+
+
+_REGISTERED_SQL_EXECUTIONS: WeakKeyDictionary[SQLQueryExecution, _RegisteredSQLExecution] = (
+    WeakKeyDictionary()
+)
+_REGISTERED_SQL_EXECUTIONS_LOCK = RLock()
+
+
+def _require_registered_sql_execution(observed: SQLQueryExecution) -> _RegisteredSQLExecution:
+    """Reconcile the live registered owner with a real driver observation.
+
+    This is still candidate producer evidence, never an issuer or admission.
+    """
+    from polisyos.fabric.connectors.sources.sql_query import _require_sql_execution
+
+    record = _require_sql_execution(observed)
+    with _REGISTERED_SQL_EXECUTIONS_LOCK:
+        selected = _REGISTERED_SQL_EXECUTIONS.get(observed)
+    if selected is None:
+        raise ValueError("registered_sql_execution_not_observed")
+    current = selected.registry._require_registration_binding(
+        selected.connector_id, selected.binding
+    )
+    if current.instance is not record.connector or record.config != selected.config:
+        raise ValueError("registered_sql_execution_origin_not_established")
+    if selected.registry.get_default_config(selected.connector_id) != selected.config:
+        raise ValueError("registered_sql_effective_config_changed")
+    return selected
+
+
+def _execute_registered_sql(
+    *,
+    dataset_id: str,
+    connector_id: str,
+    constraints: dict[str, Any] | None = None,
+    registry: ConnectorRegistry,
+    expected_config_fingerprint: str | None = None,
+    expected_dataset_id: str | None = None,
+    expected_page_size: int | None = None,
+    expected_query: str | None = None,
+) -> SQLQueryExecution:
+    """Execute the selected registered SQL owner with one frozen effective config.
+
+    The returned observation is candidate data, not authorization. It includes
+    sensitive query and result material and must stay in protected custody.
+    Cache, discovery, resilience/fallback and retry are not used on this path.
+
+    Raises:
+        ValueError: If the selected owner, profile, or observed execution cannot
+            be established.
+    """
+    import asyncio
+
+    # A nested running event loop makes run_coro_sync hand SQL to a shared
+    # thread which can outlive its caller after timeout. This narrow profile
+    # requires a synchronous acquisition worker to retain its event fence.
+    try:
+        asyncio.get_running_loop()
+    except RuntimeError:
+        pass
+    else:
+        raise ValueError("registered_sql_async_caller_not_supported")
+
+    from polisyos.fabric.connectors.base import ConnectionConfig, ConnectionHandle
+    from polisyos.fabric.connectors.registry import ConnectorRegistry
+    from polisyos.fabric.connectors.sources.sql_query import SQLQueryConnector
+    from polisyos.ir.connectors import FetchRequest
+
+    if type(registry) is not ConnectorRegistry:
+        raise ValueError("registered_sql_registry_owner_not_established")
+    binding = registry._capture_registration_binding(connector_id)
+    if binding.connector_class is not SQLQueryConnector:
+        raise ValueError("registered_sql_connector_owner_not_established")
+    configured = registry.get_default_config(connector_id)
+    if type(configured) is not ConnectionConfig:
+        raise ValueError("registered_sql_effective_config_not_established")
+    # Do not retain the registry's object as the execution profile. Even a
+    # frozen dataclass can be modified by code holding that same object via
+    # object.__setattr__. The selected profile is an independent frozen copy
+    # with primitive, immutable values and independently copied mappings.
+    if (
+        type(configured.url) is not str
+        or any(
+            type(key) is not str or type(value) is not str
+            for key, value in configured.headers.items()
+        )
+        or (
+            configured.source_profile_fingerprint is not None
+            and type(configured.source_profile_fingerprint) is not str
+        )
+    ):
+        raise ValueError("registered_sql_connection_profile_not_supported")
+    config = replace(configured)
+    if (
+        expected_config_fingerprint is not None
+        and expected_config_fingerprint != config.cache_scope_fingerprint
+    ):
+        raise ValueError("registered_sql_view_not_executed")
+    if expected_dataset_id is not None and expected_dataset_id != dataset_id:
+        raise ValueError("registered_sql_view_not_executed")
+    values = constraints or {}
+    if set(values) - {"page_size"}:
+        raise ValueError("registered_sql_requested_scope_not_executed")
+    page_size = values.get("page_size")
+    if type(page_size) is not int or page_size <= 0 or page_size > 10000:
+        raise ValueError("registered_sql_page_size_invalid")
+    if expected_page_size is not None and expected_page_size != page_size:
+        raise ValueError("registered_sql_view_not_executed")
+    if type(dataset_id) is not str or not dataset_id.strip():
+        raise ValueError("registered_sql_requested_dataset_not_executed")
+    configured_table = str(config.headers.get("X-SQL-Table", "")).strip()
+    if configured_table and configured_table != dataset_id.strip():
+        raise ValueError("registered_sql_requested_dataset_not_executed")
+    configured_query = str(config.headers.get("X-SQL-Query", "")).strip()
+    if configured_query and page_size is not None:
+        raise ValueError("registered_sql_configured_query_ignores_page_size")
+    if configured_query:
+        raise ValueError("registered_sql_configured_query_not_supported")
+
+    from os.path import isabs
+    from urllib.parse import urlparse
+
+    parsed = urlparse(config.url)
+    if (
+        not str(config.url).strip()
+        or parsed.scheme.lower() not in {"", "sqlite"}
+        or parsed.netloc
+        or parsed.query
+        or parsed.fragment
+        or not isabs(parsed.path)
+        or parsed.path in {":memory:", "/:memory:"}
+        or set(config.headers) - {"X-SQL-Table"}
+        or config.auth_method is not None
+        or bool(config.auth_credentials)
+        or type(config.timeout_seconds) is not int
+        or config.timeout_seconds <= 0
+        or type(config.max_connections) is not int
+        or config.max_connections <= 0
+        or type(config.max_retries) is not int
+        or config.max_retries != 3
+        or type(config.retry_delay_seconds) is not float
+        or config.retry_delay_seconds != 1.0
+        or config.rate_limit_rps is not None
+        or type(config.keepalive_seconds) is not int
+        or config.keepalive_seconds != 30
+        or config.verify_ssl is not True
+        or config.ca_bundle_path is not None
+    ):
+        raise ValueError("registered_sql_connection_profile_not_supported")
+    if binding.entry.metadata.resilience_config is not None:
+        raise ValueError("registered_sql_execution_origin_not_established")
+    connector = registry.get(connector_id, enable_cache=False, _registration_binding=binding)
+    if (
+        type(connector) is not SQLQueryConnector
+        or getattr(connector, "resilience_config", None) is not None
+        or getattr(connector, "_resilience_wrapped", False)
+    ):
+        raise ValueError("registered_sql_execution_origin_not_established")
+    request = FetchRequest(
+        dataset_id=dataset_id,
+        page_size=page_size,
+        include_metadata=True,
+        include_schema=True,
+        retryable=False,
+    )
+    query = SQLQueryConnector._query(connector, config, request)
+    if expected_query is not None and expected_query != query:
+        raise ValueError("registered_sql_view_not_executed")
+
+    async def _execute() -> SQLQueryExecution:
+        # Passing this exact frozen config prevents an A -> B -> A registry
+        # default replacement from changing which SQL the driver executes.
+        handle = await registry.get_connection(connector_id, config, _registration_binding=binding)
+        try:
+            if type(handle) is not ConnectionHandle or handle.config != config:
+                raise ValueError("registered_sql_connection_config_not_established")
+            observed = await SQLQueryConnector._execute_observed(
+                connector, handle, request, canonical=True, canonical_query=query
+            )
+            if observed.config_fingerprint != config.cache_scope_fingerprint:
+                raise ValueError("registered_sql_execution_config_mismatch")
+            return observed
+        finally:
+            await registry.release_connection(connector_id, handle)
+
+    observed = run_coro_sync(_execute())
+    registry._require_registration_binding(connector_id, binding)
+    if registry.get_default_config(connector_id) != config:
+        raise ValueError("registered_sql_effective_config_changed")
+    from polisyos.fabric.connectors.sources.sql_query import _require_sql_execution
+
+    record = _require_sql_execution(observed)
+    if (
+        record.connector is not connector
+        or record.config != config
+        or record.request is not request
+    ):
+        raise ValueError("registered_sql_execution_origin_not_established")
+    with _REGISTERED_SQL_EXECUTIONS_LOCK:
+        _REGISTERED_SQL_EXECUTIONS[observed] = _RegisteredSQLExecution(
+            registry=registry, connector_id=connector_id, binding=binding, config=config
+        )
+    _require_registered_sql_execution(observed)
+    return observed
 
 
 def _resolve_connector_for_dataset(

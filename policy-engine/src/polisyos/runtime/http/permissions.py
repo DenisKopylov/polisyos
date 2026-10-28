@@ -51,6 +51,9 @@ class RuntimePermission(StrEnum):
     RUNS_REVIEW = "runs.review"
     RUNS_VIEW = "runs.view"
     SCENARIOS_CREATE = "scenarios.create"
+    REGISTERED_SQL_ADMIT = "sources.registered_sql.admit"
+    REGISTERED_SQL_REGISTER = "sources.registered_sql.register"
+    REGISTERED_SQL_WITHDRAW = "sources.registered_sql.withdraw"
 
 
 ROLE_PERMISSION_GRANTS: Final[Mapping[PolicyOSRole, frozenset[RuntimePermission]]] = (

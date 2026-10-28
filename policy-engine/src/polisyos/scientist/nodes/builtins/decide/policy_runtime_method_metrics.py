@@ -1289,7 +1289,7 @@ def _validate_small_source_manifests(
         raise _InvalidProjectionError("selected_simulation_result_schema_invalid")
     if bundle_manifest.artifact_schema is None or (
         bundle_manifest.artifact_schema.name != "polisyos.core.MethodExecutionBundle"
-        or bundle_manifest.artifact_schema.version not in {"1.0", "1.1"}
+        or bundle_manifest.artifact_schema.version not in {"1.0", "1.1", "1.2"}
     ):
         raise _InvalidProjectionError("selected_method_execution_bundle_schema_invalid")
     if binding_manifest.artifact_schema is None or (
@@ -2204,6 +2204,20 @@ class _SelectedArtifactRefSnapshot:
         )
 
 
+@dataclass(frozen=True, slots=True)
+class _VerifiedRestrictedExAnteCall:
+    """Ephemeral bounded result exposing the exact verified call inputs to Runtime."""
+
+    occurrence: Any
+    witness: Any
+    input_capture_ref: SelectedMethodMetricArtifactRef
+    input_capture: Any
+    input_values: tuple[Any, ...]
+    output_ref: SelectedMethodMetricArtifactRef
+    output_payload: Any
+    observation: MethodMetricObservation
+
+
 @dataclass(frozen=True, slots=True, init=False)
 class _MethodMetricSourceTuple:
     """Immutable current-job tuple that binds a projection receipt to its producer refs."""
@@ -2653,8 +2667,16 @@ def _admit_method_metric_observations(
     read_budget: _ProjectionReadBudget,
     comparison_collector: list[dict[str, Any]] | None = None,
     comparison_candidate: Any | None = None,
+    require_restricted_exante_call_witness: bool = False,
+    restricted_exante_call_collector: list[_VerifiedRestrictedExAnteCall] | None = None,
 ) -> tuple[MethodMetricObservation, ...]:
     """Resolve and reconcile the whole selected graph → bundle → binding source chain."""
+    require_restricted_exante_call_witness = (
+        require_restricted_exante_call_witness or restricted_exante_call_collector is not None
+    )
+    restricted_call_start = (
+        len(restricted_exante_call_collector) if restricted_exante_call_collector is not None else 0
+    )
     from polisyos.core.artifacts.environment import EnvironmentManifest
     from polisyos.core.artifacts.registry import RegistryBundlePayload
     from polisyos.core.contracts.foundry import (
@@ -2726,7 +2748,7 @@ def _admit_method_metric_observations(
         or bundle_manifest.media_type != "application/json"
         or bundle_schema is None
         or bundle_schema.name != "polisyos.core.MethodExecutionBundle"
-        or bundle_schema.version not in {"1.0", "1.1"}
+        or bundle_schema.version not in {"1.0", "1.1", "1.2"}
     ):
         raise _InvalidProjectionError("selected_method_execution_bundle_schema_invalid")
     if bundle_schema.version == "1.0":
@@ -2736,12 +2758,16 @@ def _admit_method_metric_observations(
         raise _UnestablishedProjectionError(
             "legacy_method_execution_bundle_v1_0_lacks_current_prestate_contract"
         )
+    if require_restricted_exante_call_witness and bundle_schema.version != "1.2":
+        raise _UnestablishedProjectionError(
+            "restricted_exante_call_witness_requires_method_execution_bundle_v1_2"
+        )
     bundle = _validate_bounded_method_metric_model(
         MethodExecutionBundle,
         bundle_read,
         expected_kind="foundry.method_execution_bundle",
         expected_schema_name="polisyos.core.MethodExecutionBundle",
-        expected_schema_versions={"1.1"},
+        expected_schema_versions={"1.1", "1.2"},
     )
     _require_exact_payload_ref(bundle.program_graph_ref, kind="foundry.program_graph")
     _require_payload_ref_match(
@@ -3297,6 +3323,11 @@ def _admit_method_metric_observations(
                         comparison_collector=comparison_collector,
                         comparison_environment=comparison_environment,
                         comparison_graph=comparison_graph,
+                        bundle_schema_version=bundle.schema_version,
+                        require_restricted_exante_call_witness=(
+                            require_restricted_exante_call_witness
+                        ),
+                        restricted_exante_call_collector=(restricted_exante_call_collector),
                     )
                 )
         else:
@@ -3318,6 +3349,17 @@ def _admit_method_metric_observations(
                     adapter_identity=adapter_identity,
                     verifier_code_digest=verifier_code_digest,
                 )
+            )
+    if require_restricted_exante_call_witness:
+        if len(observations) != 1 or observations[0].source_status != "observed":
+            raise _UnestablishedProjectionError(
+                "restricted_exante_single_observation_not_established"
+            )
+        if restricted_exante_call_collector is not None and (
+            len(restricted_exante_call_collector) - restricted_call_start != 1
+        ):
+            raise _UnestablishedProjectionError(
+                "restricted_exante_verified_call_inventory_not_single"
             )
     return tuple(observations)
 
@@ -4123,6 +4165,9 @@ def _observe_binding_occurrence(
     comparison_collector: list[dict[str, Any]] | None = None,
     comparison_environment: dict[str, Any] | None = None,
     comparison_graph: dict[str, Any] | None = None,
+    bundle_schema_version: str = "1.1",
+    require_restricted_exante_call_witness: bool = False,
+    restricted_exante_call_collector: list[_VerifiedRestrictedExAnteCall] | None = None,
 ) -> MethodMetricObservation:
     """Build one occurrence row, retaining typed non-observation reasons."""
     from polisyos.core.contracts.foundry import (
@@ -4152,6 +4197,17 @@ def _observe_binding_occurrence(
     dispatch = occurrence.dispatch
     if dispatch is None or dispatch.outcome != "succeeded":
         raise _InvalidProjectionError("successful_method_occurrence_dispatch_mismatch")
+    restricted_witness = None
+    if require_restricted_exante_call_witness:
+        if (
+            bundle_schema_version != "1.2"
+            or binding.method_fqn != "policy.evaluation.ex_ante_simulation@1.0.0"
+            or occurrence.method_fqn != binding.method_fqn
+            or occurrence.restricted_call_witness is None
+            or occurrence.restricted_call_witness.status != "verified"
+        ):
+            raise _UnestablishedProjectionError("actual_exante_call_witness_not_established")
+        restricted_witness = occurrence.restricted_call_witness
     prestate_source_ref: ArtifactRef | None = None
     if dispatch.input_state_source_ref is not None:
         prestate_source_ref = _selected_ref(
@@ -4477,6 +4533,48 @@ def _observe_binding_occurrence(
         )
     )
 
+    if require_restricted_exante_call_witness:
+        # MethodOutputPayload stores the already selected numeric scalar; the
+        # slot/path were separately reconciled against the actual occurrence.
+        selected_output_value = output_payload.value
+        if type(graph_node.method_params) is not dict or set(graph_node.method_params) - {
+            "poverty_line"
+        }:
+            raise _InvalidProjectionError("restricted_exante_graph_parameter_basis_not_supported")
+        parameter_rows = [row for row in dispatch.parameter_values if row.name == "poverty_line"]
+        expected_source = (
+            "requested" if "poverty_line" in graph_node.method_params else "signature_default"
+        )
+        if (
+            len(parameter_rows) != 1
+            or parameter_rows[0].status != "captured"
+            or parameter_rows[0].source != expected_source
+            or parameter_rows[0].value is not None
+        ):
+            raise _InvalidProjectionError("restricted_exante_literal_parameter_origin_mismatch")
+        expected_parameter_origin = (
+            "explicit_parameter" if expected_source == "requested" else "signature_default"
+        )
+        from polisyos.foundry.methods.catalog.policy.restricted_executable_profile import (
+            current_restricted_backend_fingerprint,
+            verify_persisted_restricted_call_witness,
+        )
+
+        if type(dispatch.method_seed) is not int:
+            raise _UnestablishedProjectionError("restricted_exante_runtime_seed_not_established")
+        runtime_fingerprint = current_restricted_backend_fingerprint(seed=dispatch.method_seed)
+        if not verify_persisted_restricted_call_witness(
+            restricted_witness,
+            occurrence=occurrence,
+            expected_input_capture_ref=input_capture_ref,
+            selected_output_slot_id=binding.output_slot_id,
+            selected_output_value_path=binding.output_value_path,
+            selected_output_value=selected_output_value,
+            expected_parameter_origin=expected_parameter_origin,
+            expected_backend_runtime_fingerprint=runtime_fingerprint,
+        ):
+            raise _UnestablishedProjectionError("actual_exante_call_witness_recomputation_failed")
+
     from polisyos.ir.kernel.method_metrics import (
         apply_registered_ex_ante_mean_change_law,
         apply_registered_method_metric_unit_adapter,
@@ -4711,6 +4809,23 @@ def _observe_binding_occurrence(
         )
         if contract is not None:
             comparison_collector.append(contract)
+    if restricted_exante_call_collector is not None:
+        if not require_restricted_exante_call_witness or restricted_witness is None:
+            raise _UnestablishedProjectionError(
+                "restricted_exante_call_collector_requires_verified_witness"
+            )
+        restricted_exante_call_collector.append(
+            _VerifiedRestrictedExAnteCall(
+                occurrence=occurrence,
+                witness=restricted_witness,
+                input_capture_ref=input_capture_ref,
+                input_capture=input_capture,
+                input_values=captured_input_values,
+                output_ref=output_ref,
+                output_payload=output_payload,
+                observation=observation,
+            )
+        )
     return observation
 
 
@@ -4918,6 +5033,8 @@ def recompute_completed_ex_ante_rank_projection(
     *,
     basis: object | None,
     candidate_ref: ArtifactRef | None,
+    require_restricted_exante_call_witness: bool = False,
+    restricted_exante_call_collector: list[_VerifiedRestrictedExAnteCall] | None = None,
 ) -> CompletedExAnteRankProjection:
     """Replay a freshly selected owner basis for one candidate-only rank coordinate.
 
@@ -5027,6 +5144,8 @@ def recompute_completed_ex_ante_rank_projection(
             read_budget=budget,
             comparison_collector=contracts,
             comparison_candidate=candidate,
+            require_restricted_exante_call_witness=(require_restricted_exante_call_witness),
+            restricted_exante_call_collector=(restricted_exante_call_collector),
         )
         if replayed != basis.observations:
             raise _InvalidProjectionError("completed_rank_selected_observation_replay_mismatch")

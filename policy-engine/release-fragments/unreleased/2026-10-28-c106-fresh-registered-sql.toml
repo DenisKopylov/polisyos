@@ -1,0 +1,16 @@
+id = "2026-10-28-c106-fresh-registered-sql"
+title = "Add bounded registered SQL source custody"
+type = "added"
+component = "fabric"
+owner = "team-polisyos"
+summary = "A configured source service can capture an exact SQLite execution, commit it through the existing validity owner, and expose bounded fresh source-use status for a restricted Foundry execution."
+evidence = ["tests/unit/fabric/test_registered_sql_capture.py", "tests/unit/scientist/adapters/test_registered_sql_snapshot.py", "tests/integration/runtime/http/test_registered_sql_live_grant.py", "tests/unit/foundry/methods/backends/test_restricted_executable_profile.py"]
+compatibility = "Additive selected profile; legacy connector behavior and unsupported execution profiles retain their previous behavior. Historical results remain candidate records."
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.fabric and Runtime Debug"
+migration = "Configure distinct source-service grants and selected view/use contracts. Use the selected registered-SQL transport for the supported Foundry basis; regenerate API clients for the added response and routes."
+limitations = "Local SQLite and one trusted built-in execution profile only. Unknown or unsupported basis, missing grant and unverified executable fail closed. The source service and job commit separately, so cancellation can leave a source orphan. No external database currentness, source completeness, rights, causal validity or calibration is asserted. Native tests and controls remain unrun pending review."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/scientist/adapters/README.md"]
+runbook_docs = []

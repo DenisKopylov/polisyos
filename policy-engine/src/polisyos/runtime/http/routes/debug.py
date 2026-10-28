@@ -30,14 +30,15 @@ from polisyos.runtime.http.errors import (
 from polisyos.runtime.http.services.debug import SimulationResultProjectionError
 
 if TYPE_CHECKING:
-    from fastapi import APIRouter, Depends, Request
+    from fastapi import APIRouter, Depends, Request, Response
 else:
     try:  # pragma: no cover - optional runtime dependency
-        from fastapi import APIRouter, Depends, Request
+        from fastapi import APIRouter, Depends, Request, Response
     except ModuleNotFoundError:  # pragma: no cover
         APIRouter = cast("Any", None)
         Depends = cast("Any", None)
         Request = cast("Any", Any)
+        Response = cast("Any", Any)
 
 
 def _build_router() -> APIRouter:
@@ -86,10 +87,12 @@ if router is not None:
         run_id: str,
         alias: str,
         request: Request,
+        response: Response,
         artifact_id: str | None = None,
         ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> SimulationResultCandidateResponse:
         """Read a verified candidate result without opening generic authority surfaces."""
+        response.headers["Cache-Control"] = "no-store"
         run = ctx.run_index.get_run(run_id)
         enforce_run_tenant_access(request, ctx=ctx, run=run)
         set_authz_resource(

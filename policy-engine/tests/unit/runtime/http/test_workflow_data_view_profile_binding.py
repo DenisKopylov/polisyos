@@ -13,10 +13,18 @@ from polisyos.core.artifacts.manifest import ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.contracts import WorkflowDataSourceBinding as PublicWorkflowDataSourceBinding
-from polisyos.core.contracts.control import WorkflowDataSourceBinding
+from polisyos.core.contracts.control import (
+    DataSourceBinding,
+    WorkflowDataSourceBinding,
+    WorkflowRunRequest,
+)
 from polisyos.core.contracts.fabric import DataViewRequestRef
+from polisyos.core.contracts.foundry import FoundryInputBindingsRef
 from polisyos.ir.model_layer.queries import DataViewRequest
-from polisyos.runtime.http.services._control_contracts import _resolve_workflow_data_source
+from polisyos.runtime.http.services._control_contracts import (
+    _resolve_data_source,
+    _resolve_workflow_data_source,
+)
 from polisyos.runtime.http.services.debug import _workflow_data_view_request_profile_origin
 
 _SHA_A = "sha256:" + "a" * 64
@@ -73,6 +81,102 @@ def test_workflow_source_preserves_typed_profile_and_marks_legacy_as_default_lim
     assert legacy_ref.kind == "ir.data_view_request"
     assert legacy_ref.manifest_profile_sha256 is None
     assert legacy_intent.profile_origin == "worker_default"
+
+
+def test_workflow_source_preserves_selected_foundry_binding_profile() -> None:
+    """A selected input binding must retain its exact source carrier edge."""
+    selected = FoundryInputBindingsRef(
+        artifact_id=_SHA_A,
+        kind="foundry.input_bindings",
+        media_type="application/json",
+        manifest_profile_sha256=_SHA_B,
+    )
+    key, ref, intent = _resolve_workflow_data_source(
+        WorkflowDataSourceBinding.model_validate(
+            {"input_bindings_ref": selected.model_dump(mode="json")}
+        )
+    )
+    assert key == "input_bindings_ref"
+    assert ref.model_dump(mode="json") == selected.model_dump(mode="json")
+    assert intent is None
+    nl_key, nl_ref = _resolve_data_source(DataSourceBinding(input_bindings_ref=selected))
+    assert nl_key == "input_bindings_ref" and nl_ref == selected
+
+    legacy_key, legacy_ref, _ = _resolve_workflow_data_source(
+        WorkflowDataSourceBinding(input_bindings_ref=_SHA_A)
+    )
+    assert legacy_key == "input_bindings_ref"
+    assert legacy_ref.manifest_profile_sha256 is None
+    assert "registered_sql_admission_ref" not in WorkflowDataSourceBinding(
+        input_bindings_ref=_SHA_A
+    ).model_dump(mode="json")
+
+
+def test_selected_foundry_profile_survives_real_job_creation(runtime_api_env) -> None:
+    """The real job payload and creation records retain the complete selector."""
+    service = runtime_api_env["app"].state._control_service
+    selected = FoundryInputBindingsRef(
+        artifact_id=_SHA_A,
+        kind="foundry.input_bindings",
+        media_type="application/json",
+        manifest_profile_sha256=_SHA_B,
+    )
+    launched = service.launch_workflow_run(
+        WorkflowRunRequest(data_source=WorkflowDataSourceBinding(input_bindings_ref=selected))
+    )
+    job = service._control_store.get_job(launched.job_id)
+    assert job is not None
+    event = service._control_store.get_job_created_event_payload(job.job_id)
+    outbox = service._control_store.get_job_created_outbox_event(job.job_id)
+    assert event["payload_ref"] == job.payload_ref == outbox.payload["payload_ref"]
+    payload = service._load_payload_ref(
+        job.payload_ref, kind="runtime.control_job_payload.workflow_run"
+    )
+    assert payload["state_payload"]["inputs"]["input_bindings_ref"] == selected.model_dump(
+        mode="json"
+    )
+
+
+def test_workflow_source_preserves_exact_registered_sql_transport() -> None:
+    selected = {
+        "artifact_id": _SHA_A,
+        "kind": "fabric.registered_sql_admission_binding",
+        "media_type": "application/json",
+        "manifest_profile_sha256": _SHA_B,
+    }
+    source = WorkflowDataSourceBinding.model_validate({"registered_sql_admission_ref": selected})
+    key, ref, intent = _resolve_workflow_data_source(source)
+    assert key == "registered_sql_admission_ref"
+    assert ref.model_dump(mode="json") == selected
+    assert intent is None
+    with pytest.raises(ValidationError):
+        WorkflowDataSourceBinding.model_validate(
+            {"registered_sql_admission_ref": selected, "data_snapshot_ref": _SHA_A}
+        )
+    with pytest.raises(ValidationError):
+        WorkflowDataSourceBinding.model_validate(
+            {"registered_sql_admission_ref": {**selected, "manifest_profile_sha256": None}}
+        )
+
+
+def test_workflow_source_rejects_unselected_or_wrong_foundry_binding() -> None:
+    for ref in (
+        {"artifact_id": _SHA_A, "kind": "foundry.input_bindings", "media_type": "application/json"},
+        {
+            "artifact_id": _SHA_A,
+            "kind": "other",
+            "media_type": "application/json",
+            "manifest_profile_sha256": _SHA_B,
+        },
+        {
+            "artifact_id": _SHA_A,
+            "kind": "foundry.input_bindings",
+            "media_type": "text/plain",
+            "manifest_profile_sha256": _SHA_B,
+        },
+    ):
+        with pytest.raises(ValidationError):
+            WorkflowDataSourceBinding.model_validate({"input_bindings_ref": ref})
 
 
 @pytest.mark.parametrize(

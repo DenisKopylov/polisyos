@@ -83,12 +83,21 @@ boundaries.
 | `SentenceTransformerEmbedder` | Optional sentence-transformers adapter whose dependency loads only on construction.                        |
 | `MethodRouteConstraint`       | Stable candidate route constraint contract, implemented by the existing method-selection owner. |
 | `method_accepts_input_contract()` | Stable relation predicate over a method's actual input slots and executable type hints. |
+| `data_plane.prepare_input_bindings()` | Resolve a selected Fabric snapshot and registry, apply the real binding rules, and inspect the complete candidate state without writing CAS artifacts. |
+| `data_plane.InputBindingsPreparation` | Worker-local computed state, effective rules, applied IDs and warnings. It is neither an authority receipt nor an admitted evaluation-retention basis. |
 | `data_plane.prepare_hte_observational_input()` | Prepare a bounded, selected-profile HTE input for candidate method execution. |
 | `data_plane.PreparedHTEObservationalInput` | Worker-local prepared data plus source/effective refs and typed input metadata. |
 | `data_plane.HTEInputPreparationRefusal` | Typed refusal from selected-profile HTE input preparation. |
 | `data_plane.HTEPhysicalSourceMaterializationBinding` | Strict physical slot-to-selected-payload binding; carries no semantic variable, query, unit, causal, population, law, currentness, or publication authority. |
 | `data_plane.load_hte_physical_source_materialization_binding()` | Resolve and recompute an opt-in profile-bound physical binding against the consumer's exact submitted and effective input refs. |
 | `data_plane.HTEInputLimits` | Type alias for Core's four-field `CoreJsonReadLimits`; construct limits with `CoreJsonReadLimits(max_bytes=payload_byte_limit, max_depth=depth_limit, max_elements=element_limit, max_manifest_bytes=manifest_byte_limit)` using explicit field names. |
+
+`prepare_input_bindings()` and `build_input_bindings()` use the same maintained
+rule and state-materialization owner. The writer recomputes the preparation from
+its selected input refs; it does not accept a caller's prepared state or digest
+as authority. This preparation only establishes the actual effective numerical
+input to the existing writer. It does not decide equivalence of evaluations,
+currentness, native acquisition admission, or permission to skip a later stage.
 
 The HTE input exports are an additive public-stable API through the existing
 `polisyos.foundry.data_plane` entrypoint; see the [release fragment](../../../release-fragments/unreleased/2026-10-21-e02-hte-physical-source-binding.toml).

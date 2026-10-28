@@ -654,3 +654,35 @@ def test_fresh_unscoped_owner_reuses_exact_core_tenant_view_ownership(tmp_path):
     fresh = DecisionValidityService(FileSystemCAS(store.root))
     with pytest.raises(PermissionError):
         fresh._source_admission._verify_ref(ref, tenant_id="tenant-a", cell_id="cell-a")
+
+
+def test_original_materialization_replay_uses_the_committed_event_and_scope(tmp_path):
+    """Storage-unit fixture only: this is not Runtime factory authority."""
+    from polisyos.scientist.validation.source_admission_port import (
+        _bind_source_admission_authority,
+    )
+
+    _store, owner, original, admitted = _case(tmp_path)
+    registration = original.registration
+    authority = _bind_source_admission_authority(
+        **_AUTHORITY,
+        registration_key=registration.registration_key,
+        effective_view_contract_ref=registration.effective_view_contract_ref,
+        use_contract_ref=registration.use_contract_ref,
+        permitted_operations=frozenset({"read_event"}),
+        validate_issuer=lambda: None,
+    )
+    replayed = owner.resolve_source_materialization_event(authority, event_id=admitted.event_id)
+    assert replayed == (admitted, original, registration.event_ref)
+    assert owner.current_source_admission_head(authority, registration) == admitted.event_ref
+    assert owner.resolve_source_materialization_event(authority, event_id="missing") is None
+    withdrawn = _transition(owner, admitted.carrier, admitted.event_ref, "withdraw", "withdraw-a")
+    assert withdrawn.carrier is not None
+    assert owner.current_source_admission_head(authority, registration) == withdrawn.event_ref
+    assert owner.resolve_source_materialization_event(authority, event_id=admitted.event_id) == (
+        admitted,
+        original,
+        registration.event_ref,
+    )
+    with pytest.raises(ValueError, match="source_admission_authority_not_established"):
+        owner.resolve_source_materialization_event(object(), event_id=admitted.event_id)

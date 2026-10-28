@@ -61,6 +61,7 @@ from polisyos.core.contracts.decision_validity import (
     PersistedDecisionValidityEpochImpactSnapshot,
     PersistedEpochTransitionDenominatorReconciliation,
     PersistedEpochValidityBatchEvidence,
+    RegisteredMaterialization,
     SourceAdmissionCarrier,
     SourceAdmissionReceipt,
     SourceCurrentUseProjection,
@@ -711,6 +712,19 @@ class DecisionValidityService:
         if epoch_transition_verifier is None and epoch_denominator_reconciliation_reader is None:
             self._epoch_denominator_reconciliation_reader = NoEpochDenominatorReconciliationReader()
 
+    def _install_registered_sql_issuer_verifier(self, verifier: object) -> None:
+        """Install once via the already bound Runtime composition root."""
+        if getattr(self, "_registered_sql_issuer_verifier", None) is not None:
+            raise ValueError("source_admission_issuer_already_pinned")
+        self._source_admission.install_issuer_verifier(owner=self, verifier=verifier)
+        self._registered_sql_issuer_verifier = verifier
+
+    def _require_registered_sql_issuer_verifier(self, verifier: object) -> None:
+        """Reconcile the owner and guarded source-owner copies of the pin."""
+        if getattr(self, "_registered_sql_issuer_verifier", None) is not verifier:
+            raise ValueError("source_admission_issuer_not_pinned")
+        self._source_admission.require_issuer_verifier(owner=self, verifier=verifier)
+
     def register_materialization_source(
         self,
         authority: SourceAdmissionAuthority,
@@ -767,6 +781,43 @@ class DecisionValidityService:
     ) -> SourceAdmissionReceipt | None:
         """Read a protected original receipt after uncertain delivery; never re-admit."""
         return self._source_admission.event_receipt(authority, event_id=event_id)
+
+    def _run_source_acquisition_serialized[T](
+        self,
+        authority: SourceAdmissionAuthority,
+        *,
+        event_id: str,
+        action: Callable[[], T],
+    ) -> T:
+        """Coordinate duplicate acquisition, never mint source authority."""
+        return self._source_admission.run_serialized_acquisition(
+            authority, event_id=event_id, action=action
+        )
+
+    def current_source_admission_head(
+        self, authority: SourceAdmissionAuthority, registration: SourceRegistrationReceipt
+    ) -> str:
+        """Read the scoped committed predecessor for an optimistic owner command."""
+        return self._source_admission.scope_head(authority, registration)
+
+    def resolve_source_materialization_event(
+        self,
+        authority: SourceAdmissionAuthority,
+        *,
+        event_id: str,
+    ) -> tuple[SourceAdmissionReceipt, RegisteredMaterialization, str] | None:
+        """Recover a committed original receipt and materialization as history.
+
+        The returned value does not establish current use: consumers must query
+        this owner's fresh admission projection for the exact carrier vector.
+        """
+        return self._source_admission.materialization_event(authority, event_id=event_id)
+
+    def resolve_source_materialization_history(
+        self, carrier: SourceAdmissionCarrier, *, event_id: str
+    ) -> tuple[SourceAdmissionReceipt, RegisteredMaterialization, str]:
+        """Resolve one exact original event; this is not current-use authority."""
+        return self._source_admission.carrier_history(carrier, event_id=event_id)
 
     def read_source_current_use(
         self,

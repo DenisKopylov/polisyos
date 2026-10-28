@@ -10,6 +10,7 @@ from __future__ import annotations
 import hashlib
 import re
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Protocol, cast
 
@@ -68,6 +69,11 @@ from polisyos.runtime.quality.world_model_record import (
 )
 
 if TYPE_CHECKING:
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateSimulationContextInputs,
+        CandidateSimulationScenarioProfile,
+        CandidateSimulationSyntheticModelDeclarationV1,
+    )
     from polisyos.runtime.quality.credal_reference import (
         CredalReference,
         CredalReferenceEdge,
@@ -2904,6 +2910,22 @@ class CycleSubstrateContextArtifactOwner:
         return artifact
 
 
+@dataclass(frozen=True)
+class AcquiredCandidateContextPreparation:
+    """Resolved acquisition profile values before declaration or NCM emission.
+
+    This worker-local value is candidate preparation, not an admitted evaluation
+    basis or retention decision. The admission owner always recomputes it from
+    its configured profile, exact world/state selection, and declared model.
+    Mutable nested values supplied to a caller are never accepted back as proof.
+    """
+
+    profile: CandidateSimulationScenarioProfile
+    profile_config_ref: str
+    model_declaration: CandidateSimulationSyntheticModelDeclarationV1
+    source_context_inputs: CandidateSimulationContextInputs
+
+
 class ConfiguredCandidateSimulationContextAdmissionOwner:
     """Compose a candidate context only for an exact server-configured problem."""
 
@@ -3104,7 +3126,7 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
             ) from exc
         return selected_ref
 
-    def admit_context_for_acquired_world(
+    def prepare_context_for_acquired_world(
         self,
         *,
         problem: DesignProblem,
@@ -3114,28 +3136,20 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
         run_id: str,
         tenant_id: str,
         cell_id: str,
-    ) -> object:
-        """Rebind an exact configured candidate profile to an owner-built world.
+    ) -> AcquiredCandidateContextPreparation:
+        """Resolve the actual selected baseline and model without CAS writes.
 
-        This reissues the existing candidate model declaration and NCM views
-        through GenerationSourceRepository, then persists no context itself.
-        Caller-owned world construction is accepted only as a limited WMR with
-        explicit acquisition, measurement, and causal-coupling blockers. Source
-        time remains unresolved. Profiles with candidate-lever or transport
-        evidence are refused until a source-backed owner can revalidate them for
-        the new world.
+        The same preparation is recomputed by admission before its first write.
+        Every configured N5 baseline slot is refreshed from the selected bound
+        state. No supplied hash, caller plan, or scalar proxy can replace the
+        existing state, slot/unit, profile, problem and limitation checks.
+        This method does not establish equality, currentness, or permission to
+        retain an earlier evaluation.
         """
 
         from polisyos.runtime.quality.candidate_simulation import (
-            CandidateSimulationContextOffer,
             CandidateSimulationScenarioProfile,
             candidate_simulation_profile_ref,
-        )
-        from polisyos.runtime.quality.generation_source import (
-            GenerationSourceRepository,
-        )
-        from polisyos.runtime.quality.world_model_record import (
-            derive_candidate_scenario_world_model_record,
         )
 
         if type(problem) is not DesignProblem or type(world_model_record) is not WorldModelRecord:
@@ -3272,9 +3286,66 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
             {key: value for key, value in declaration_payload.items() if key != "content_hash"}
         )
         declaration = type(original_declaration).model_validate(declaration_payload)
+        return AcquiredCandidateContextPreparation(
+            profile=profile,
+            profile_config_ref=profile_config_ref,
+            model_declaration=declaration,
+            # Preserve native Any values consumed by the original context owner,
+            # while keeping the inspectable plan detached from configuration.
+            source_context_inputs=configured.context_inputs.model_copy(deep=True),
+        )
+
+    def admit_context_for_acquired_world(
+        self,
+        *,
+        problem: DesignProblem,
+        profile_selection_ref: str,
+        world_model_record: WorldModelRecord,
+        job_id: str,
+        run_id: str,
+        tenant_id: str,
+        cell_id: str,
+    ) -> object:
+        """Rebind an exact configured candidate profile to an owner-built world.
+
+        This reissues the existing candidate model declaration and NCM views
+        through GenerationSourceRepository, then persists no context itself.
+        Caller-owned world construction is accepted only as a limited WMR with
+        explicit acquisition, measurement, and causal-coupling blockers. Source
+        time remains unresolved. Profiles with candidate-lever or transport
+        evidence are refused until a source-backed owner can revalidate them for
+        the new world.
+        """
+
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationContextOffer,
+        )
+        from polisyos.runtime.quality.generation_source import (
+            GenerationSourceRepository,
+        )
+        from polisyos.runtime.quality.world_model_record import (
+            derive_candidate_scenario_world_model_record,
+        )
+
+        preparation = self.prepare_context_for_acquired_world(
+            problem=problem,
+            profile_selection_ref=profile_selection_ref,
+            world_model_record=world_model_record,
+            job_id=job_id,
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
+        # prepare_context_for_acquired_world has validated the configured store.
+        if self._store is None:
+            raise CycleSubstrateContextOwnerError("candidate_simulation_model_store_not_supplied")
+        profile = preparation.profile
+        profile_config_ref = preparation.profile_config_ref
+        declaration = preparation.model_declaration
+        inputs = preparation.source_context_inputs
         substrate_registry_view_ref = self._candidate_world_model_substrate_registry_view(
             world_model_record=world_model_record,
-            substrate_registry=configured.context_inputs.substrate_registry,
+            substrate_registry=inputs.substrate_registry,
         )
         repository = GenerationSourceRepository(store=self._store)
         declaration_ref = repository.persist_candidate_model_declaration(
@@ -3301,7 +3372,6 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
             declaration_content_hash=declaration.content_hash,
             substrate_registry_view_ref=substrate_registry_view_ref,
         )
-        inputs = configured.context_inputs
         selected_hashes = tuple(inputs.selected_registry_entry_hashes)
         context = build_cycle_substrate_context(
             design_problem_ref=cycle_job_design_problem_ref(problem),

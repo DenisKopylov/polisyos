@@ -243,7 +243,7 @@ AgentStepStatus = Literal["ok", "warn", "fail", "info"]
 _SIMULATION_RESULT_KIND = "foundry.simulation_result"
 _SIMULATION_RESULT_MEDIA_TYPE = "application/json"
 _SIMULATION_RESULT_SCHEMA_NAME = "polisyos.core.SimulationResult"
-_SIMULATION_RESULT_SCHEMA_VERSIONS = frozenset({"1.1", "1.2", "1.3"})
+_SIMULATION_RESULT_SCHEMA_VERSIONS = frozenset({"1.1", "1.2", "1.3", "1.4"})
 _SIMULATION_RESULT_STATE_KEY = "simulation_result_ref"
 _EXPERIMENT_STATE_SCHEMA_NAME = "polisyos.scientist.orchestration.engine.ExperimentState"
 _EXPERIMENT_STATE_SCHEMA_VERSIONS = frozenset({"1.3"})
@@ -273,12 +273,45 @@ class DebugService:
     ) -> None:
         self._store = store
         self._timeline_service = timeline_service
-        self._decision_validity_service = DecisionValidityService(store)
+        self._decision_validity_service: DecisionValidityService | None = None
+        self._source_use_control_service: Any | None = None
         self._sensitive_keys = tuple(key.lower() for key in sensitive_keys)
         self._producer_settlement_store: BudgetMiddleware | None = None
         self._producer_control_job_store: _ReadOnlyControlJobStore | None = None
         if producer_settlement_store is not None:
             self.bind_producer_settlement_store(producer_settlement_store)
+
+    @property
+    def bound_decision_validity_owner(self) -> DecisionValidityService | None:
+        """Return the already-bound owner without manufacturing one."""
+        return self._decision_validity_service
+
+    def bind_decision_validity_owner(self, owner: DecisionValidityService) -> None:
+        """Bind the installed Runtime's existing validity owner, once."""
+        if not isinstance(owner, DecisionValidityService) or owner._store is not self._store:
+            raise ValueError("debug_decision_validity_owner_mismatch")
+        if (
+            self._decision_validity_service is not None
+            and self._decision_validity_service is not owner
+        ):
+            raise ValueError("debug_decision_validity_owner_already_bound")
+        self._decision_validity_service = owner
+
+    def bind_source_use_control_service(self, control: Any) -> None:
+        """Bind the Runtime's actual completed-job owner for fresh source reads."""
+        from polisyos.runtime.http.services.control import ControlPlaneService
+
+        if (
+            type(control) is not ControlPlaneService
+            or control._artifact_store is not self._store
+            or control._decision_validity_service is not self._decision_validity_service
+            or (
+                self._source_use_control_service is not None
+                and self._source_use_control_service is not control
+            )
+        ):
+            raise ValueError("debug_source_use_control_owner_mismatch")
+        self._source_use_control_service = control
 
     def bind_producer_settlement_store(self, store: BudgetMiddleware) -> None:
         """Bind the durable ledger used to reconcile one run owner's events."""
@@ -563,7 +596,27 @@ class DebugService:
                 "The manifest schema version is not bound to the SimulationResult payload",
             )
 
+        from polisyos.core.contracts.runtime import ExAnteSourceUseDebugView
+        from polisyos.runtime.http.services.debug_registered_sql import (
+            read_registered_sql_source_use,
+        )
+
+        source_use = (
+            read_registered_sql_source_use(
+                store=self._store,
+                control=self._source_use_control_service,
+                run=run,
+                simulation_ref=state_ref,
+            )
+            if self._source_use_control_service is not None
+            else ExAnteSourceUseDebugView(
+                status="unknown",
+                method_replay_status="verification_missing",
+                limitations=("registered_sql_runtime_owner_not_established",),
+            )
+        )
         return SimulationResultCandidateView(
+            exante_source_use=source_use,
             run_id=run.run_id,
             node_alias=alias,
             node_id=record.node_id,
@@ -700,9 +753,15 @@ class DebugService:
     ) -> dict[str, Any] | None:
         if ref is None:
             return None
+        owner = self._decision_validity_service
+        if owner is None:
+            # Standalone DebugService keeps its historical lazy local owner;
+            # the installed Runtime binds its canonical owner before serving.
+            owner = DecisionValidityService(self._store)
+            self._decision_validity_service = owner
         return cast(
             "dict[str, Any] | None",
-            self._decision_validity_service.get_summary(
+            owner.get_summary(
                 str(ref.artifact_id),
                 packet_payload=packet_payload,
             ),

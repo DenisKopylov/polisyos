@@ -8,6 +8,7 @@ INPUT_POLICY_SPEC_REF = "policy_spec_ref"
 INPUT_MODEL_SPEC_REF = "model_spec_ref"
 INPUT_REGISTRY_BUNDLE_REF = "registry_bundle_ref"
 INPUT_DATA_SNAPSHOT_REF = "data_snapshot_ref"
+INPUT_REGISTERED_SQL_ADMISSION_REF = "registered_sql_admission_ref"
 INPUT_STATE_SNAPSHOT_REF = "state_snapshot_ref"
 INPUT_INPUT_BINDINGS_REF = "input_bindings_ref"
 INPUT_UKRAINE_FOUNDRY_METHOD_BUNDLE_REF = "ukraine_foundry_method_input_bundle_ref"
@@ -281,6 +282,7 @@ __all__ = [
     "ARTIFACT_WITHDRAWAL_RECORD_REF",
     "INPUT_CALIBRATION_REPORT_REF",
     "INPUT_DATA_SNAPSHOT_REF",
+    "INPUT_REGISTERED_SQL_ADMISSION_REF",
     "INPUT_DATA_VIEW_REQUEST_REF",
     "INPUT_EXECUTION_PLAN_REF",
     "INPUT_GRAPH_PRIOR_BUNDLE_REF",

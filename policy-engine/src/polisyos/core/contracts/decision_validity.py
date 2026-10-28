@@ -11,11 +11,11 @@ import hashlib
 import json
 from datetime import UTC, datetime
 from enum import Enum
-from typing import Any, Literal, Protocol
+from typing import Any, ClassVar, Literal, Protocol
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
 from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 
 Digest = str
@@ -1285,6 +1285,69 @@ class SourceAdmissionReceipt(BaseModel):
         return self
 
 
+class RegisteredSQLUseContract(BaseModel):
+    """One bounded internal use; this does not establish external rights."""
+
+    ARTIFACT_KIND: ClassVar[str] = "fabric.registered_sql_use"
+    ARTIFACT_MEDIA_TYPE: ClassVar[str] = "application/json"
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.RegisteredSQLUseContract"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+    FOUNDRY_SELECTED_BASIS_USE_KEY: ClassVar[str] = "foundry.selected_basis"
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal["1.0"] = "1.0"
+    use_key: str = Field(min_length=1, max_length=256)
+    selection_mode: Literal["any_active"] = "any_active"
+
+
+class RegisteredSQLAdmissionBinding(BaseModel):
+    """Immutable transport for one committed source occurrence, not authority.
+
+    A consumer must still resolve this selected artifact and query the existing
+    validity owner for the actual complete execution basis at a fresh read.
+    """
+
+    ARTIFACT_KIND: ClassVar[str] = "fabric.registered_sql_admission_binding"
+    ARTIFACT_MEDIA_TYPE: ClassVar[str] = "application/json"
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.RegisteredSQLAdmissionBinding"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal["1.0"] = "1.0"
+    receipt: SourceAdmissionReceipt
+    materialization: RegisteredMaterialization
+    expected_predecessor: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _bind_receipt(self) -> RegisteredSQLAdmissionBinding:
+        receipt = self.receipt
+        carrier = receipt.carrier
+        registration = self.materialization.registration
+        serialized = json.dumps(
+            self.materialization.model_dump(mode="json"),
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=True,
+        ).encode("utf-8")
+        if (
+            receipt.operation != "admit"
+            or carrier is None
+            or carrier.admission_event_ref != receipt.event_ref
+            or carrier.revision_digest != "sha256:" + hashlib.sha256(serialized).hexdigest()
+            or carrier.tenant_id != registration.tenant_id
+            or carrier.cell_id != registration.cell_id
+            or carrier.source_incarnation_id != registration.source_incarnation_id
+            or carrier.admission_scope_digest != registration.admission_scope_digest
+            or carrier.occurrence_id != self.materialization.occurrence_id
+            or artifact_ref_identity_key(carrier.snapshot_ref)
+            != artifact_ref_identity_key(self.materialization.snapshot_ref)
+            or artifact_ref_identity_key(carrier.use_contract_ref)
+            != artifact_ref_identity_key(registration.use_contract_ref)
+        ):
+            raise ValueError("registered_sql_binding_receipt_mismatch")
+        return self
+
+
 class SourceCurrentUseProjection(BaseModel):
     """Bounded source admission at one fenced read, never scientific validity."""
 
@@ -1396,6 +1459,8 @@ __all__ = [
     "PreN9AdmittedCandidate",
     "PreN9EpochValiditySubjectStatement",
     "RegisteredMaterialization",
+    "RegisteredSQLAdmissionBinding",
+    "RegisteredSQLUseContract",
     "SourceAdmissionCarrier",
     "SourceAdmissionReceipt",
     "SourceCurrentUseProjection",

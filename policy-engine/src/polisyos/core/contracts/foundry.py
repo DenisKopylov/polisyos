@@ -844,6 +844,55 @@ class MethodExecutionArtifact(BaseModel):
         return self
 
 
+class RestrictedMethodCallWitness(BaseModel):
+    """Bounded actual-call evidence nested in its existing graph occurrence."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    status: Literal["verified", "unavailable"]
+    limitation: StrictStr | None = Field(default=None, max_length=512)
+    profile_id: StrictStr = Field(min_length=1, max_length=128)
+    profile_revision_sha256: StrictStr = Field(pattern=r"^[0-9a-f]{64}$")
+    method_fqn: StrictStr = Field(min_length=1, max_length=512)
+    method_version: StrictStr | None = Field(default=None, max_length=128)
+    method_abi_digest: StrictStr | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    method_callable_sha256: StrictStr | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    runner_callable_sha256: StrictStr | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    backend_runtime_fingerprint: StrictStr | None = None
+    state_reads: tuple[StrictStr, ...] = Field(default=(), max_length=32)
+    parameter_reads: tuple[StrictStr, ...] = Field(default=(), max_length=32)
+    parameter_origin: Literal["signature_default", "explicit_parameter", "not_established"]
+    poverty_line_value: None = None
+    output_slot_id: StrictStr = Field(min_length=1, max_length=256)
+    output_value_path: tuple[StrictStr, ...] = Field(min_length=1, max_length=16)
+    output_value_sha256: StrictStr | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    occurrence_id: StrictStr = Field(min_length=1, max_length=512)
+    invocation_id: StrictStr = Field(min_length=1, max_length=64)
+    node_id: StrictStr = Field(min_length=1, max_length=256)
+    input_capture_ref: MethodMetricInputCaptureRef | None = None
+
+    @model_validator(mode="after")
+    def validate_witness(self) -> RestrictedMethodCallWitness:
+        if self.status == "verified":
+            if (
+                self.limitation is not None
+                or self.method_version is None
+                or self.method_abi_digest is None
+                or self.method_callable_sha256 is None
+                or self.runner_callable_sha256 is None
+                or self.backend_runtime_fingerprint is None
+                or self.state_reads != ("baseline", "scenario")
+                or self.parameter_reads != ("poverty_line",)
+                or self.parameter_origin not in {"signature_default", "explicit_parameter"}
+                or self.input_capture_ref is None
+                or self.output_value_sha256 is None
+            ):
+                raise ValueError("verified_restricted_call_witness_is_incomplete")
+        elif not self.limitation:
+            raise ValueError("unavailable_restricted_call_witness_requires_limitation")
+        return self
+
+
 class MethodExecutionOccurrence(BaseModel):
     """One planned or actual node occurrence in one graph invocation."""
 
@@ -877,6 +926,9 @@ class MethodExecutionOccurrence(BaseModel):
     artifact_inventory_observed_count: StrictInt | None = Field(default=None, ge=0)
     artifact_inventory_limit: StrictInt | None = Field(default=None, ge=1)
     dispatch: MethodExecutionDispatchRecord | None = None
+    restricted_call_witness: RestrictedMethodCallWitness | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     artifacts: list[MethodExecutionArtifact] = Field(default_factory=list, max_length=32)
     limitations: tuple[StrictStr, ...] = Field(default_factory=tuple, max_length=32)
 
@@ -897,6 +949,26 @@ class MethodExecutionOccurrence(BaseModel):
                 raise ValueError("method_occurrence_requires_method_fqn")
             if self.dispatch is None:
                 raise ValueError("method_occurrence_requires_dispatch_record")
+            witness = self.restricted_call_witness
+            if witness is not None and (
+                witness.occurrence_id != self.occurrence_id
+                or witness.invocation_id != self.invocation_id
+                or witness.node_id != self.node_id
+                or witness.method_fqn != self.method_fqn
+                or witness.method_version != self.method_version
+                or witness.method_abi_digest != self.method_abi_digest
+                or witness.input_capture_ref != self.dispatch.method_metric_input_capture_ref
+            ):
+                raise ValueError("restricted_call_witness_occurrence_binding_mismatch")
+            if (
+                witness is not None
+                and witness.status == "verified"
+                and (
+                    self.status != "succeeded"
+                    or self.dispatch.method_metric_input_capture_status != "captured"
+                )
+            ):
+                raise ValueError("verified_call_witness_requires_succeeded_bound_input_capture")
             if (
                 self.returned_slot_inventory_status == "not_established"
                 and not self.returned_slot_inventory_limitation
@@ -941,6 +1013,7 @@ class MethodExecutionOccurrence(BaseModel):
             or self.returned_slot_inventory_observed_count is not None
             or self.returned_slot_inventory_limit is not None
             or self.dispatch is not None
+            or self.restricted_call_witness is not None
             or self.artifacts
             or self.artifact_inventory_status != "not_started"
             or self.artifact_inventory_limitation is not None
@@ -964,7 +1037,12 @@ class MethodExecutionBundle(BaseModel):
     """Selected actual execution capture with complete occurrence inventory."""
 
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.MethodExecutionBundle"
-    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.1"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.2"
+    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.1", "1.2")
+    ARTIFACT_PAYLOAD_SCHEMA_VERSION_BY_MANIFEST: ClassVar[dict[str, str]] = {
+        "1.1": "1.1",
+        "1.2": "1.2",
+    }
     ARTIFACT_KIND: ClassVar[Literal["foundry.method_execution_bundle"]] = (
         "foundry.method_execution_bundle"
     )
@@ -972,7 +1050,7 @@ class MethodExecutionBundle(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal["1.1"] = "1.1"
+    schema_version: Literal["1.1", "1.2"] = "1.1"
     captured_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     program_graph_ref: ProgramGraphRef
     exec_plan_ref: ExecPlanRef
@@ -996,6 +1074,17 @@ class MethodExecutionBundle(BaseModel):
             raise ValueError("duplicate_method_execution_occurrence_id")
         if len(positions) != len(set(positions)):
             raise ValueError("duplicate_method_execution_plan_position")
+        if self.schema_version == "1.1" and any(
+            item.restricted_call_witness is not None for item in self.occurrences
+        ):
+            raise ValueError("legacy_method_execution_bundle_cannot_claim_call_witness")
+        if self.schema_version == "1.2" and any(
+            item.status == "succeeded"
+            and item.method_fqn == "policy.evaluation.ex_ante_simulation@1.0.0"
+            and item.restricted_call_witness is None
+            for item in self.occurrences
+        ):
+            raise ValueError("succeeded_exante_occurrence_requires_call_witness_or_refusal")
         return self
 
 
@@ -1444,6 +1533,10 @@ class FoundryInputBindings(BaseModel):
 
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.FoundryInputBindings"
     ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "1.1")
+    ARTIFACT_REQUIRED_FIELDS_BY_SCHEMA_VERSION: ClassVar[dict[str, tuple[str, ...]]] = {
+        "1.1": ("registered_sql_admission_ref",),
+    }
     ARTIFACT_KIND: ClassVar[Literal["foundry.input_bindings"]] = "foundry.input_bindings"
     ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
 
@@ -1455,7 +1548,16 @@ class FoundryInputBindings(BaseModel):
     rules: list[FoundryInputBindingRule] = Field(default_factory=list)
     bound_state_snapshot_ref: StateSnapshotRef
     quality_report_ref: ArtifactRef | None = None
+    registered_sql_admission_ref: ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     notes: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _validate_registered_sql_transport(self) -> FoundryInputBindings:
+        if (self.registered_sql_admission_ref is not None) != (self.schema_version == "1.1"):
+            raise ValueError("foundry_input_bindings_registered_sql_version_mismatch")
+        return self
 
 
 class FeedbackObservationSpec(BaseModel):
@@ -2364,6 +2466,10 @@ class FoundryExecutionInputBasis(BaseModel):
 
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.FoundryExecutionInputBasis"
     ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "1.1")
+    ARTIFACT_REQUIRED_FIELDS_BY_SCHEMA_VERSION: ClassVar[dict[str, tuple[str, ...]]] = {
+        "1.1": ("registered_sql_admission_ref",),
+    }
     ARTIFACT_KIND: ClassVar[Literal["foundry.execution_input_basis"]] = (
         "foundry.execution_input_basis"
     )
@@ -2371,7 +2477,7 @@ class FoundryExecutionInputBasis(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal["1.0"] = "1.0"
+    schema_version: Literal["1.0", "1.1"] = "1.0"
     authority_purpose: Literal["execution_input_identity_only"] = "execution_input_identity_only"
     execution_mode: Literal["single_step"] = "single_step"
     request: ExecuteRequest
@@ -2385,6 +2491,9 @@ class FoundryExecutionInputBasis(BaseModel):
     candidate_registry_bundle_ref: ArtifactRef
     input_bindings_ref: FoundryInputBindingsRef
     data_snapshot_ref: ArtifactRef
+    registered_sql_admission_ref: ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     bound_state_snapshot_ref: StateSnapshotRef
     binding_registry_ref: ArtifactRef
     compile_registry_ref: ArtifactRef
@@ -2405,6 +2514,12 @@ class FoundryExecutionInputBasis(BaseModel):
     effective_nan_guard_enabled: bool
     effective_jit: bool
     effective_capture_env: bool
+
+    @model_validator(mode="after")
+    def _validate_registered_sql_transport(self) -> FoundryExecutionInputBasis:
+        if (self.registered_sql_admission_ref is not None) != (self.schema_version == "1.1"):
+            raise ValueError("execution_input_basis_registered_sql_version_mismatch")
+        return self
 
 
 class ExecuteResult(BaseModel):

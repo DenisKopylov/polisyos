@@ -114,6 +114,23 @@ class TestQualityGatePassWithQualityReport:
         assert len(staleness_issues) == 1
         assert staleness_issues[0].severity is IssueSeverity.BLOCKER
 
+    def test_unknown_freshness_is_not_reported_as_known_staleness(
+        self, pass_context_factory, mvp_profile, strict_profile
+    ):
+        report = _make_quality_report(is_fresh=False, data_age_seconds=None)
+        report.freshness_status.level = "unknown"
+        report.freshness_status.message = "Source currentness not established"
+        for profile, expected in (
+            (mvp_profile, IssueSeverity.WARNING),
+            (strict_profile, IssueSeverity.BLOCKER),
+        ):
+            ctx = pass_context_factory(state={"data_quality_report": report}, profile=profile)
+            issues = QualityGatePass(force_run=True).validate(ctx)
+            unknown = [issue for issue in issues if issue.code == "DATA_FRESHNESS_UNKNOWN"]
+            assert len(unknown) == 1 and unknown[0].severity is expected
+            assert "0 days" not in unknown[0].suggestion
+            assert all(issue.code != "DATA_STALENESS" for issue in issues)
+
     def test_critical_violations_strict_blocker(self, pass_context_factory, strict_profile):
         violation = _make_violation(severity="error", rule_type="range")
         report = _make_quality_report(violations=[violation])

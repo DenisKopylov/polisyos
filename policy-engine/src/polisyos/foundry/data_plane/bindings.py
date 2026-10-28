@@ -11,9 +11,11 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections import Counter
 from collections.abc import Mapping
 from dataclasses import dataclass, replace
 from decimal import ROUND_HALF_EVEN, Decimal, InvalidOperation
+from io import BytesIO
 from pathlib import Path
 from typing import Any, Literal, Protocol
 
@@ -43,6 +45,7 @@ from polisyos.core.artifacts.manifest import (
     InputRef,
     ProducerInfo,
     SchemaInfo,
+    artifact_ref_identity_key,
     input_ref_from_artifact_ref,
 )
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -65,6 +68,7 @@ from polisyos.core.contracts.foundry import (
     FoundryInputBindingRule,
     FoundryInputBindings,
     FoundryInputBindingsRef,
+    StateSnapshot,
     StateSnapshotRef,
 )
 from polisyos.core.registry import load_registry_bundle_content
@@ -1264,6 +1268,23 @@ def materialize_method_contract(
 
 
 @dataclass(frozen=True)
+class InputBindingsPreparation:
+    """Computed candidate state before any input-binding artifacts are written.
+
+    The tuple fields identify the exact effective binding operations. The state
+    is a freshly materialized numerical value, not an authority or retention
+    receipt. A caller may inspect it; ``build_input_bindings`` always resolves
+    its own source and constructs a new preparation before writing.
+    """
+
+    snapshot: DataSnapshot
+    effective_rules: tuple[FoundryInputBindingRule, ...]
+    materialized_state: GlobalState
+    applied_binding_ids: tuple[str, ...]
+    warnings: tuple[str, ...]
+
+
+@dataclass(frozen=True)
 class InputBindingsBuildResult:
     """Collect the CAS refs emitted by `build_input_bindings()`.
 
@@ -1735,6 +1756,167 @@ def _load_verified_json_output(
     return value
 
 
+def _verify_registered_sql_transport(
+    store: CoreJSONArtifactStore,
+    *,
+    snapshot: DataSnapshot,
+    snapshot_ref: ArtifactRef,
+    admission_ref: ArtifactRef,
+) -> None:
+    """Bind one selected transport to the actual snapshot; this is not authority."""
+    from polisyos.core.artifacts import validate_core_model_json_artifact
+    from polisyos.core.contracts.decision_validity import RegisteredSQLAdmissionBinding
+
+    binding = validate_core_model_json_artifact(RegisteredSQLAdmissionBinding, store, admission_ref)
+    materialization = binding.materialization
+    if artifact_ref_identity_key(materialization.snapshot_ref) != artifact_ref_identity_key(
+        snapshot_ref
+    ):
+        raise ValueError("registered_sql_binding_snapshot_mismatch")
+    refs = [
+        input_ref_from_artifact_ref(snapshot_ref, role="source.snapshot"),
+        input_ref_from_artifact_ref(
+            materialization.registration.effective_view_contract_ref, role="source.view"
+        ),
+        input_ref_from_artifact_ref(
+            materialization.registration.use_contract_ref, role="source.use"
+        ),
+        *(
+            input_ref_from_artifact_ref(ref, role="snapshot." + role)
+            for ref, role in data_snapshot_owner_input_requirements(snapshot)
+        ),
+        input_ref_from_artifact_ref(materialization.producer_capture_ref, role="source.capture"),
+    ]
+    manifest = store.get_manifest(admission_ref)
+
+    def key(edge: InputRef) -> tuple[str, str, str | None]:
+        return (str(edge.artifact_id), edge.role, edge.manifest_profile_sha256)
+
+    if (
+        any(edge.manifest_profile_sha256 is None for edge in refs)
+        or Counter(map(key, manifest.inputs)) != Counter(map(key, refs))
+        or not store.verify(admission_ref).ok
+    ):
+        raise ValueError("registered_sql_binding_edges_not_established")
+
+
+def _prepare_input_binding_values(
+    store: CoreJSONArtifactStore,
+    *,
+    snapshot: DataSnapshot,
+    slot_registry: SlotRegistry,
+    binding_payload: Any,
+    rules: list[FoundryInputBindingRule] | None,
+) -> InputBindingsPreparation:
+    """Run the same pure rule/state owner for persisted and prospective inputs.
+
+    This internal numerical operation does not resolve or admit the supplied
+    payload. The public preparation resolves its CAS source first; a prospective
+    caller must separately own its payload and revalidate it before emission.
+    """
+    effective_rules = _prepare_rules(
+        rules=rules,
+        slot_registry=slot_registry,
+        payload=binding_payload,
+    )
+    _validate_rules(effective_rules, slot_registry)
+
+    base_state = _build_base_state(
+        store=store,
+        snapshot=snapshot,
+        payload=binding_payload,
+        slot_registry=slot_registry,
+        rules=effective_rules,
+    )
+
+    materialized_state, applied_ids, errors, warnings = _materialize_state(
+        base_state=base_state,
+        rules=effective_rules,
+        slot_registry=slot_registry,
+        payload=binding_payload,
+    )
+    if errors:
+        raise ValueError("; ".join(errors))
+
+    return InputBindingsPreparation(
+        snapshot=snapshot,
+        effective_rules=tuple(effective_rules),
+        materialized_state=materialized_state,
+        applied_binding_ids=tuple(applied_ids),
+        warnings=tuple(warnings),
+    )
+
+
+def prepare_input_bindings(
+    store: CoreJSONArtifactStore,
+    *,
+    data_snapshot_ref: ArtifactRef,
+    registry_bundle_ref: ArtifactRef,
+    rules: list[FoundryInputBindingRule] | None = None,
+    registered_sql_admission_ref: ArtifactRef | None = None,
+) -> InputBindingsPreparation:
+    """Resolve real input owners and compute bindings without CAS writes.
+
+    Args:
+        store: Existing store containing the selected snapshot and registry.
+        data_snapshot_ref: Exact snapshot resolved by the maintained reader.
+        registry_bundle_ref: Exact registry resolved by its canonical owner.
+        rules: Explicit rules, or None for the existing inference behavior.
+        registered_sql_admission_ref: Optional selected SQL transport, rechecked
+            before numerical preparation; it does not itself grant authority.
+
+    Returns:
+        The freshly resolved snapshot, complete effective rule tuple and actual
+        materialized state, applied IDs and warnings used by the writer.
+
+    Raises:
+        ValueError: If existing source, rule or state owner validation refuses.
+    """
+    snapshot = _load_data_snapshot(store, data_snapshot_ref)
+    if registered_sql_admission_ref is not None:
+        if (
+            data_snapshot_ref.manifest_profile_sha256 is None
+            or registry_bundle_ref.manifest_profile_sha256 is None
+            or registered_sql_admission_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("registered_sql_binding_selected_profile_required")
+        _verify_registered_sql_transport(
+            store,
+            snapshot=snapshot,
+            snapshot_ref=data_snapshot_ref,
+            admission_ref=registered_sql_admission_ref,
+        )
+    registry = load_registry_bundle_content(store, registry_bundle_ref)
+    binding_payload = _load_binding_payload(store, snapshot)
+    replayed: bytes | None = None
+    if registered_sql_admission_ref is not None:
+        effective_rules = _prepare_rules(
+            rules=rules, slot_registry=registry.slot_registry, payload=binding_payload
+        )
+        replayed, _ = _recompute_registered_sql_state(
+            store,
+            snapshot=snapshot,
+            payload=binding_payload,
+            slot_registry=registry.slot_registry,
+            rules=effective_rules,
+        )
+    preparation = _prepare_input_binding_values(
+        store,
+        snapshot=snapshot,
+        slot_registry=registry.slot_registry,
+        binding_payload=binding_payload,
+        rules=rules,
+    )
+    if registered_sql_admission_ref is not None:
+        from polisyos.foundry.execute._internal.snapshots import _flatten_state
+
+        expected = BytesIO()
+        np.savez(expected, **dict(_flatten_state(preparation.materialized_state)))
+        if replayed is None or expected.getvalue() != replayed:
+            raise ValueError("registered_sql_binding_preparation_replay_mismatch")
+    return preparation
+
+
 def build_input_bindings(
     store: CoreJSONArtifactStore,
     *,
@@ -1744,6 +1926,7 @@ def build_input_bindings(
     quality_report_ref: ArtifactRef | None = None,
     notes: list[str] | None = None,
     return_selected_profile: bool = False,
+    registered_sql_admission_ref: ArtifactRef | None = None,
 ) -> InputBindingsBuildResult:
     """Bind a Fabric snapshot into a concrete `GlobalState` runtime snapshot.
 
@@ -1790,33 +1973,20 @@ def build_input_bindings(
         ```
     """
 
-    snapshot = _load_data_snapshot(store, data_snapshot_ref)
-    registry = load_registry_bundle_content(store, registry_bundle_ref)
-    binding_payload = _load_binding_payload(store, snapshot)
-
-    effective_rules = _prepare_rules(
+    if registered_sql_admission_ref is not None and not return_selected_profile:
+        raise ValueError("registered_sql_binding_selected_profile_required")
+    preparation = prepare_input_bindings(
+        store,
+        data_snapshot_ref=data_snapshot_ref,
+        registry_bundle_ref=registry_bundle_ref,
         rules=rules,
-        slot_registry=registry.slot_registry,
-        payload=binding_payload,
+        registered_sql_admission_ref=registered_sql_admission_ref,
     )
-    _validate_rules(effective_rules, registry.slot_registry)
-
-    base_state = _build_base_state(
-        store=store,
-        snapshot=snapshot,
-        payload=binding_payload,
-        slot_registry=registry.slot_registry,
-        rules=effective_rules,
-    )
-
-    materialized_state, applied_ids, errors, warnings = _materialize_state(
-        base_state=base_state,
-        rules=effective_rules,
-        slot_registry=registry.slot_registry,
-        payload=binding_payload,
-    )
-    if errors:
-        raise ValueError("; ".join(errors))
+    snapshot = preparation.snapshot
+    effective_rules = list(preparation.effective_rules)
+    materialized_state = preparation.materialized_state
+    applied_ids = preparation.applied_binding_ids
+    warnings = list(preparation.warnings)
 
     snapshot_inputs = [
         input_ref_from_artifact_ref(data_snapshot_ref, role="input.data_snapshot_ref"),
@@ -1832,6 +2002,18 @@ def build_input_bindings(
     bound_state_snapshot_ref = StateSnapshotRef.model_validate(
         bound_snapshot_ref.model_dump(mode="python")
     )
+    if registered_sql_admission_ref is not None:
+        registry = load_registry_bundle_content(store, registry_bundle_ref)
+        binding_payload = _load_binding_payload(store, snapshot)
+        _reconcile_registered_sql_bound_state(
+            store,
+            snapshot=snapshot,
+            payload=binding_payload,
+            slot_registry=registry.slot_registry,
+            rules=effective_rules,
+            bound_state_ref=bound_state_snapshot_ref,
+            lineage_inputs=snapshot_inputs,
+        )
 
     bindings_notes = list(notes or [])
     if snapshot.data_ref.kind == "foundry.state_snapshot":
@@ -1842,7 +2024,9 @@ def build_input_bindings(
         bindings_notes.extend([f"warning:{msg}" for msg in warnings])
 
     bindings = FoundryInputBindings(
+        schema_version="1.1" if registered_sql_admission_ref is not None else "1.0",
         data_snapshot_ref=data_snapshot_ref,
+        registered_sql_admission_ref=registered_sql_admission_ref,
         registry_bundle_ref=registry_bundle_ref,
         rules=effective_rules,
         bound_state_snapshot_ref=bound_state_snapshot_ref,
@@ -1856,7 +2040,7 @@ def build_input_bindings(
             media_type=FoundryInputBindings.ARTIFACT_MEDIA_TYPE,
             schema=SchemaInfo(
                 name=FoundryInputBindings.ARTIFACT_SCHEMA_NAME,
-                version=FoundryInputBindings.ARTIFACT_SCHEMA_VERSION,
+                version=bindings.schema_version,
             ),
             inputs=[
                 input_ref_from_artifact_ref(data_snapshot_ref, role="input.data_snapshot_ref"),
@@ -1867,6 +2051,16 @@ def build_input_bindings(
                 input_ref_from_artifact_ref(
                     bound_state_snapshot_ref,
                     role="artifact.bound_state_snapshot_ref",
+                ),
+                *(
+                    [
+                        input_ref_from_artifact_ref(
+                            registered_sql_admission_ref,
+                            role="input.registered_sql_admission_ref",
+                        )
+                    ]
+                    if registered_sql_admission_ref is not None
+                    else []
                 ),
                 *(
                     [
@@ -2419,6 +2613,96 @@ def _prepare_rules(
         return sorted(parsed, key=lambda item: item.binding_id)
     auto = _auto_rules_from_payload(slot_registry=slot_registry, payload=payload)
     return sorted(auto, key=lambda item: item.binding_id)
+
+
+def _recompute_registered_sql_state(
+    store: CoreJSONArtifactStore,
+    *,
+    snapshot: DataSnapshot,
+    payload: Any,
+    slot_registry: SlotRegistry,
+    rules: list[FoundryInputBindingRule],
+) -> tuple[bytes, int]:
+    """Recompute the bounded first-profile state without asserting authority.
+
+    Callers must independently verify and bound the selected input bytes before
+    supplying them. For this tabular profile, base-state construction does not
+    read from the store. The emitted bytes are the existing NPZ codec, not a new
+    wire profile.
+    """
+    from polisyos.foundry.execute._internal.snapshots import _flatten_state
+
+    if (
+        snapshot.data_ref.kind != "fabric.tabular_payload"
+        or not isinstance(payload, list)
+        or not payload
+        or not rules
+        or rules != sorted(rules, key=lambda rule: rule.binding_id)
+    ):
+        raise ValueError("registered_sql_binding_replay_profile_not_established")
+    _validate_rules(rules, slot_registry)
+    if any(
+        _resolve_source_path(payload, rule.source_path, missing=_MISSING) is _MISSING
+        for rule in rules
+    ):
+        raise ValueError("registered_sql_binding_source_read_not_established")
+    replayed_base = _build_base_state(
+        store=store, snapshot=snapshot, payload=payload, slot_registry=slot_registry, rules=rules
+    )
+    state, applied, errors, warnings = _materialize_state(
+        base_state=replayed_base, rules=rules, slot_registry=slot_registry, payload=payload
+    )
+    if errors or warnings or applied != tuple(rule.binding_id for rule in rules):
+        raise ValueError("registered_sql_binding_rule_replay_not_established")
+
+    flat = dict(_flatten_state(state))
+    encoded = BytesIO()
+    np.savez(encoded, **flat)
+    return encoded.getvalue(), len(flat)
+
+
+def _reconcile_registered_sql_bound_state(
+    store: CoreJSONArtifactStore,
+    *,
+    snapshot: DataSnapshot,
+    payload: Any,
+    slot_registry: SlotRegistry,
+    rules: list[FoundryInputBindingRule],
+    bound_state_ref: StateSnapshotRef,
+    lineage_inputs: list[InputRef],
+) -> None:
+    """Compare build-time replay with the actual selected persisted state.
+
+    This establishes candidate derivation at build time, not issuer authority
+    or a current-use decision. A served consumer must boundedly reopen and replay
+    its own selected input and state bytes.
+    """
+    from polisyos.core.artifacts import load_core_json_artifact
+
+    encoded, entry_count = _recompute_registered_sql_state(
+        store, snapshot=snapshot, payload=payload, slot_registry=slot_registry, rules=rules
+    )
+    expected_digest = hashlib.sha256(encoded).hexdigest()
+    actual = StateSnapshot.model_validate(load_core_json_artifact(store, bound_state_ref))
+    expected_inputs = [
+        *lineage_inputs,
+        input_ref_from_artifact_ref(actual.state_ref, role="state_blob"),
+    ]
+    manifest = store.get_manifest(bound_state_ref)
+    if (
+        actual.schema_version != "2.2"
+        or actual.checksum_sha256 != expected_digest
+        or str(actual.state_ref.artifact_id.hex) != expected_digest
+        or actual.state_ref.kind != "foundry.state_blob"
+        or actual.state_ref.media_type != "application/x-npz"
+        or actual.state_ref.manifest_profile_sha256 is None
+        or actual.entry_count != entry_count
+        or actual.lineage_inputs != expected_inputs
+        or manifest.inputs != expected_inputs
+        or not store.verify(bound_state_ref).ok
+        or not store.verify(actual.state_ref).ok
+    ):
+        raise ValueError("registered_sql_binding_state_replay_mismatch")
 
 
 def _auto_rules_from_payload(

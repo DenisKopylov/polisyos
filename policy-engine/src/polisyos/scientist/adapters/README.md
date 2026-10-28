@@ -82,3 +82,53 @@ snapshot/audit therefore carry shape and workflow basis `not_established`;
 legacy name-derived definite shape and routing notes are withheld on this route.
 The default single-connector behavior is unchanged. A future shape projection
 requires an independently admitted typed design basis, not a column-name rule.
+
+An explicitly injected port may opt into a narrower registered-SQL acquisition
+by supplying the actual registry, connector id, and
+`require_fresh_registered_sql=True`. It captures one frozen configuration for the
+connection and actual SQLite driver call, applies the configured SQLite
+connection timeout, checks the registration, and refuses configured SQL,
+unapplied connection settings, relative database paths, active event-loop
+callers, other dialects, unsupported request scopes, table mismatch, and full limited
+pages whose continuation cannot be established. It uses no result cache, retry,
+or fallback. The bounded JSON-scalar result is the produced pandas view after
+SQLite/driver conversion; it is not a claim about raw database representation.
+The SQLite connection timeout does not bound an executing query.
+It checks selected stored rows and schema against that observation and keeps
+unknown source freshness/completeness and unsupported workflow shape explicit.
+
+The installed Runtime can register, admit and withdraw an occurrence only for a
+configured service principal with the corresponding distinct source permission.
+It re-verifies the bearer, source slot and command through a verifier pinned to
+the existing C105 owner; a role, source key or caller callback is not a grant.
+The actual producer binds its driver observation and selected CAS edges to that
+owner. Admission is a separately authorized source act: a cancelled job can
+leave an admitted source orphan. Job adoption and publication remain subject to
+the existing ControlJob lease; no cross-store atomic transaction is claimed.
+
+The Foundry workflow accepts the exact `foundry.selected_basis` use with its
+`any_active` mode. Its immutable transport carries the original receipt and
+materialization, not permission or currentness. The identity-only execution
+basis carries the selected source, and the consumer independently reopens and
+replays the rows, actual binding rules and persisted state bytes. For the
+restricted single-step Ex-Ante NumPy builtin, the existing method occurrence
+records the actual selected callable, runner, bounded input-map reads, literal
+parameter origin and output. Fresh Debug reads reverify the supported profile,
+recompute its mean-change law, resolve the original source event, and query the
+same C105 owner. Default and exact result selection share the no-store current-use
+projection; unsupported or legacy calls remain unknown. Historical result bytes
+are not rewritten. This is bounded internal custody only, not a claim about
+external SQL currentness, completeness, rights, causal validity or calibration.
+
+Same-event acquisitions use a fixed owner-local lock stripe around the original
+event lookup, actual capture, and owner commit. Overlapping retries fail busy;
+a later retry can recover an already committed occurrence without rereading SQL.
+If a guarded store/owner operation times out while still running, the stripe is
+retained until it completes. A never-completing operation can hold that stripe
+and any colliding event until process exit, so eventual recovery is not assured.
+A different command still conflicts under the existing event owner. The bounded
+lock probe and proposed tests do not establish
+production concurrency behavior.
+This lock is coordination, not a new authority or ledger. A guard timeout can
+leave an already-running action in flight; caller acknowledgement and recovery
+semantics must be specified by the installed source service.

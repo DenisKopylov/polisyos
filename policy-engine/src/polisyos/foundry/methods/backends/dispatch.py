@@ -380,6 +380,7 @@ def _apply_dispatch_contract_overlay(
         artifacts=updated_artifacts,
         warnings=result.warnings,
         validated_bound=result.validated_bound,
+        restricted_invocation=result.restricted_invocation,
     )
 
 
@@ -410,6 +411,7 @@ def _merge_dispatch_result(
         artifacts=merged_artifacts,
         warnings=tuple(dict.fromkeys((*result.warnings, *warnings))),
         validated_bound=result.validated_bound,
+        restricted_invocation=result.restricted_invocation,
     )
 
 
@@ -782,6 +784,7 @@ class MethodDispatcher:
                     artifacts=result.artifacts,
                     warnings=result.warnings,
                     validated_bound=validated_bound,
+                    restricted_invocation=result.restricted_invocation,
                 )
             _log.info(
                 "method_dispatch_complete",
@@ -976,33 +979,56 @@ class MethodDispatcher:
         runtime_context: OwnedAttemptAnchorDispatchContext | None = None,
     ) -> MethodResult:
         runner = self._resolve_runner(backend)
+        # Capture the dispatcher-selected bound callable exactly once. The same
+        # local is passed through the breaker and to the restricted NumPy witness.
+        runner_execute: Any = runner.execute
+        from polisyos.foundry.methods.backends.numpy_runner import NumpyRunner
+
         breaker = get_circuit_breaker_registry().get(backend.value)
 
         def _execute() -> MethodResult:
             if runtime_context is not None:
                 if backend is not ComputeBackend.NUMPY:
                     raise RuntimeContextDispatchError("backend_not_supported")
-                from polisyos.foundry.methods.backends.numpy_runner import NumpyRunner
-
                 if not isinstance(runner, NumpyRunner):
                     raise RuntimeContextDispatchError("backend_not_supported")
-                return runner.execute(
-                    method_class=method_class,
-                    signature=signature,
-                    state=state,
-                    params=params,
-                    seed=seed,
-                    runtime_context=runtime_context,
-                )
-            return runner.execute(
-                method_class=method_class,
-                signature=signature,
-                state=state,
-                params=params,
-                seed=seed,
-            )
+                kwargs = {
+                    "method_class": method_class,
+                    "signature": signature,
+                    "state": state,
+                    "params": params,
+                    "seed": seed,
+                    "runtime_context": runtime_context,
+                }
+            else:
+                kwargs = {
+                    "method_class": method_class,
+                    "signature": signature,
+                    "state": state,
+                    "params": params,
+                    "seed": seed,
+                }
+            if type(runner) is NumpyRunner:
+                kwargs["_captured_dispatch_execute"] = runner_execute
+            return runner_execute(**kwargs)
 
-        return breaker.call(_execute)
+        result = breaker.call(_execute)
+        from polisyos.foundry.methods.catalog.policy.restricted_executable_profile import (
+            bind_dispatch_runner_identity,
+            profile_for_method_fqn,
+        )
+
+        if profile_for_method_fqn(signature.fqn) is not None:
+            result = replace(
+                result,
+                restricted_invocation=bind_dispatch_runner_identity(
+                    method_fqn=signature.fqn,
+                    runner=runner,
+                    captured_execute=runner_execute,
+                    evidence=getattr(result, "restricted_invocation", None),
+                ),
+            )
+        return result
 
     def _select_backend(
         self,

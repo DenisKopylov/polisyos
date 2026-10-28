@@ -540,10 +540,24 @@ class RuntimeServiceContainer:
             raise ValueError("decision_validity_owner_invalid")
         decision_validity_service = (
             overrides.decision_validity_service
+            or runtime_api_context.debug.bound_decision_validity_owner
             or ControlPlaneService.build_decision_validity_owner(runtime_api_context.store)
         )
         if decision_validity_service._store is not runtime_api_context.store:
             raise ValueError("decision_validity_owner_store_mismatch")
+        from polisyos.runtime.http.resilience import (
+            _bind_registered_source_owner,
+            _has_runtime_filesystem_guard,
+        )
+        from polisyos.scientist.validation.decision_validity import DecisionValidityService
+
+        if type(
+            decision_validity_service
+        ) is DecisionValidityService and _has_runtime_filesystem_guard(runtime_api_context.store):
+            _bind_registered_source_owner(
+                owner=decision_validity_service, guarded_store=runtime_api_context.store
+            )
+        runtime_api_context.debug.bind_decision_validity_owner(decision_validity_service)
         if overrides.control_service is not None and not isinstance(
             overrides.control_service, ControlPlaneService
         ):
@@ -820,6 +834,12 @@ class RuntimeServiceContainer:
             self.runtime_api_context.debug.bind_producer_control_job_store(
                 control_service._control_store
             )
+            if (
+                type(control_service) is ControlPlaneService
+                and control_service._artifact_store is self.runtime_api_context.store
+                and control_service._decision_validity_service is self.decision_validity_service
+            ):
+                self.runtime_api_context.debug.bind_source_use_control_service(control_service)
             control_service.bind_legal_query_encoder_provider(self.legal_query_encoder_provider)
             custody = self._resolve_human_decision_custody(app)
             from polisyos.runtime.http.services.human_decision_contracts import (

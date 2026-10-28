@@ -147,8 +147,8 @@ _OPTIONAL_INPUT_KEYS = {
 }
 
 
-def _resolve_data_source(binding: DataSourceBinding) -> tuple[str, str | DataSnapshotRef]:
-    """Return the selected source while retaining a typed snapshot view."""
+def _resolve_data_source(binding: DataSourceBinding) -> tuple[str, str | ArtifactRef]:
+    """Return the selected source while retaining an exact typed artifact view."""
     for field_name, _kind in _DATA_SOURCE_KEYS.items():
         value = getattr(binding, field_name, None)
         if value:
@@ -163,6 +163,8 @@ def _resolve_workflow_data_source(
     binding: WorkflowDataSourceBinding,
 ) -> tuple[str, ArtifactRef, WorkflowDataViewRequestIntent | None]:
     """Preserve the exact typed request through workflow job creation."""
+    if binding.registered_sql_admission_ref is not None:
+        return "registered_sql_admission_ref", binding.registered_sql_admission_ref, None
     if binding.data_snapshot_ref is not None:
         reference = binding.data_snapshot_ref
         return (
@@ -178,7 +180,9 @@ def _resolve_workflow_data_source(
     if binding.input_bindings_ref is not None:
         return (
             "input_bindings_ref",
-            _make_artifact_ref(
+            binding.input_bindings_ref
+            if isinstance(binding.input_bindings_ref, ArtifactRef)
+            else _make_artifact_ref(
                 binding.input_bindings_ref,
                 kind=_DATA_SOURCE_KEYS["input_bindings_ref"],
             ),

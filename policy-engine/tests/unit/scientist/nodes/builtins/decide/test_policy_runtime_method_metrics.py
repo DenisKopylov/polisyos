@@ -976,6 +976,7 @@ def _exercise_public_execute_method_metric_source(
     artifact_store: ArtifactStore | None = None,
     foundry_port: object | None = None,
     execution_data_snapshot_ref: ArtifactRef | None = None,
+    registered_sql_admission_ref: ArtifactRef | None = None,
     candidate_data_snapshot_edge_ref: ArtifactRef | None = None,
     expected_executed_mean: float | None = None,
     execution_seed: int = 41,
@@ -1010,6 +1011,7 @@ def _exercise_public_execute_method_metric_source(
         ExecuteRequest,
         FoundryExecConfig,
         FoundryExecutionInputBasis,
+        FoundryInputBindingRule,
         LoweredIR,
         LoweredIRRef,
         MethodExecutionBundle,
@@ -1234,10 +1236,25 @@ def _exercise_public_execute_method_metric_source(
         and edge.manifest_profile_sha256 == source_payload_ref.manifest_profile_sha256
         for edge in snapshot_manifest.inputs
     )
+    if registered_sql_admission_ref is not None:
+        assert execution_data_snapshot_ref is not None
+        data_snapshot_ref = execution_data_snapshot_ref
+        sql_rules = [
+            FoundryInputBindingRule(
+                binding_id="baseline", source_path="baseline", target_slot_id="baseline"
+            ),
+            FoundryInputBindingRule(
+                binding_id="scenario", source_path="scenario", target_slot_id="scenario"
+            ),
+        ]
+    else:
+        sql_rules = None
     input_bindings = build_input_bindings(
         store,
         data_snapshot_ref=execution_data_snapshot_ref or data_snapshot_ref,
         registry_bundle_ref=registry.bundle_ref,
+        rules=sql_rules,
+        registered_sql_admission_ref=registered_sql_admission_ref,
         return_selected_profile=True,
     )
     assert input_bindings.input_bindings_ref.manifest_profile_sha256 is not None
@@ -1295,6 +1312,7 @@ def _exercise_public_execute_method_metric_source(
         return {
             "store": store,
             "data_snapshot_ref": data_snapshot_ref,
+            "registered_sql_admission_ref": registered_sql_admission_ref,
             "registry_ref": registry.bundle_ref,
             "trinity_ref": trinity_ref,
             "candidate_ref": candidate_ref,

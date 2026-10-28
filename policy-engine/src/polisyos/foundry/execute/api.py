@@ -9,6 +9,7 @@
 
 from __future__ import annotations
 
+from collections import Counter
 from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Literal, Protocol, TypeVar, cast
@@ -37,7 +38,8 @@ from polisyos.core.artifacts.manifest import (
 from polisyos.core.artifacts.protocol import ArtifactStore, CoreJSONArtifactStore
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec
-from polisyos.core.contracts import DataSnapshot
+from polisyos.core.contracts import DataSnapshot, data_snapshot_owner_input_requirements
+from polisyos.core.contracts.decision_validity import RegisteredSQLAdmissionBinding
 from polisyos.core.contracts.foundry import (
     DerivedArtifact,
     EquilibriumMultiplicityReport,
@@ -447,6 +449,8 @@ def _execution_input_basis_sources(
                         ArtifactRef.model_validate(member_ref),
                     )
                 )
+    if basis.registered_sql_admission_ref is not None:
+        sources.append(("registered_sql_admission", basis.registered_sql_admission_ref))
     if basis.parameter_override_bundle_ref is not None:
         sources.append(("parameter_override_bundle", basis.parameter_override_bundle_ref))
     if basis.observed_range_bundle_ref is not None:
@@ -671,11 +675,12 @@ def _admit_execution_source(
     ):
         raise ValueError("execution_source_basis_ref_differs_from_exact_result_edge")
     basis_manifest = _selected_manifest(store, basis_ref, read_session=read_session)
-    expected_basis_schema = SchemaInfo(
-        name=FoundryExecutionInputBasis.ARTIFACT_SCHEMA_NAME,
-        version=FoundryExecutionInputBasis.ARTIFACT_SCHEMA_VERSION,
-    )
-    if basis_manifest.artifact_schema != expected_basis_schema:
+    basis_schema = basis_manifest.artifact_schema
+    if (
+        basis_schema is None
+        or basis_schema.name != FoundryExecutionInputBasis.ARTIFACT_SCHEMA_NAME
+        or basis_schema.version not in FoundryExecutionInputBasis.ARTIFACT_SCHEMA_VERSIONS
+    ):
         raise ValueError("execution_source_basis_schema_mismatch")
     basis = _read_typed_model(
         FoundryExecutionInputBasis,
@@ -683,6 +688,8 @@ def _admit_execution_source(
         basis_ref,
         read_session=read_session,
     )
+    if basis.schema_version != basis_schema.version:
+        raise ValueError("execution_source_basis_schema_mismatch")
 
     fields_set = basis.request_fields_set
     if fields_set != tuple(sorted(set(fields_set))) or set(fields_set) - set(
@@ -830,6 +837,51 @@ def _admit_execution_source(
         != _execution_ref_key(bindings.bound_state_snapshot_ref)
     ):
         raise ValueError("execution_source_basis_bindings_disagree")
+    source_binding: RegisteredSQLAdmissionBinding | None = None
+    binding_manifest = _selected_manifest(
+        store, basis.input_bindings_ref, read_session=read_session
+    )
+    transport_edges = [
+        edge
+        for edge in binding_manifest.inputs
+        if edge.role == "input.registered_sql_admission_ref"
+    ]
+    if (basis.registered_sql_admission_ref is None) != (
+        bindings.registered_sql_admission_ref is None
+    ):
+        raise ValueError("execution_source_registered_sql_binding_disagrees")
+    if basis.registered_sql_admission_ref is None:
+        if transport_edges:
+            raise ValueError("execution_source_unrequested_registered_sql_edge")
+    else:
+        source_ref = basis.registered_sql_admission_ref
+        if bindings.registered_sql_admission_ref is None or _execution_ref_key(
+            source_ref
+        ) != _execution_ref_key(bindings.registered_sql_admission_ref):
+            raise ValueError("execution_source_registered_sql_binding_disagrees")
+        _require_execution_edge_ref(
+            store,
+            basis.input_bindings_ref,
+            "input.registered_sql_admission_ref",
+            source_ref,
+            expected_kind=RegisteredSQLAdmissionBinding.ARTIFACT_KIND,
+            read_session=read_session,
+        )
+        source_binding = _read_typed_model(
+            RegisteredSQLAdmissionBinding, store, source_ref, read_session=read_session
+        )
+        if _execution_ref_key(source_binding.materialization.snapshot_ref) != _execution_ref_key(
+            basis.data_snapshot_ref
+        ):
+            raise ValueError("execution_source_registered_sql_snapshot_disagrees")
+        _require_execution_edge_ref(
+            store,
+            source_ref,
+            "source.snapshot",
+            basis.data_snapshot_ref,
+            expected_kind=DataSnapshot.ARTIFACT_KIND,
+            read_session=read_session,
+        )
     _require_execution_edge_ref(
         store,
         basis.input_bindings_ref,
@@ -929,6 +981,39 @@ def _admit_execution_source(
     )
     if data_snapshot.data_ref.manifest_profile_sha256 is None:
         raise ValueError("execution_source_data_snapshot_state_profile_missing")
+
+    if basis.registered_sql_admission_ref is not None:
+        source_ref = basis.registered_sql_admission_ref
+        if source_binding is None:
+            raise ValueError("execution_source_registered_sql_binding_missing")
+        registration = source_binding.materialization.registration
+        expected_source_edges = [
+            (basis.data_snapshot_ref, "source.snapshot"),
+            (registration.effective_view_contract_ref, "source.view"),
+            (registration.use_contract_ref, "source.use"),
+            *(
+                (ref, "snapshot." + role)
+                for ref, role in data_snapshot_owner_input_requirements(data_snapshot)
+            ),
+            (source_binding.materialization.producer_capture_ref, "source.capture"),
+        ]
+        source_manifest = _selected_manifest(store, source_ref, read_session=read_session)
+        expected_inputs = [
+            input_ref_from_artifact_ref(ref, role=role) for ref, role in expected_source_edges
+        ]
+        if Counter(_execution_input_inventory_key(source_manifest.inputs)) != Counter(
+            _execution_input_inventory_key(expected_inputs)
+        ):
+            raise ValueError("execution_source_registered_sql_edges_disagree")
+        for expected_ref, role in expected_source_edges:
+            _require_execution_edge_ref(
+                store,
+                source_ref,
+                role,
+                expected_ref,
+                expected_kind=expected_ref.kind,
+                read_session=read_session,
+            )
 
     if basis.parameter_override_bundle_ref is None:
         expected_overrides = None
@@ -1136,6 +1221,8 @@ def _build_execution_input_basis(
         ("compile_registry_bundle", compile_registry_ref),
         ("runtime_registry_bundle", runtime_registry_ref),
     ]
+    if bindings.registered_sql_admission_ref is not None:
+        source_refs.append(("registered_sql_admission", bindings.registered_sql_admission_ref))
     registry_payloads: dict[str, RegistryBundlePayload] = {}
     for role, ref in (
         ("binding", binding_registry_ref),
@@ -1156,6 +1243,8 @@ def _build_execution_input_basis(
         source_refs.append(("feedback_config", request.feedback_config_ref))
     inventory = _execution_source_inventory(store, source_refs)
     basis = FoundryExecutionInputBasis(
+        schema_version="1.1" if bindings.registered_sql_admission_ref is not None else "1.0",
+        registered_sql_admission_ref=bindings.registered_sql_admission_ref,
         request=request,
         request_fields_set=tuple(sorted(request.model_fields_set)),
         request_exec_config_fields_set=tuple(sorted(request.exec_config.model_fields_set)),
@@ -1195,7 +1284,7 @@ def _build_execution_input_basis(
             media_type=FoundryExecutionInputBasis.ARTIFACT_MEDIA_TYPE,
             schema=SchemaInfo(
                 name=FoundryExecutionInputBasis.ARTIFACT_SCHEMA_NAME,
-                version=FoundryExecutionInputBasis.ARTIFACT_SCHEMA_VERSION,
+                version=basis.schema_version,
             ),
             inputs=inventory,
         ),

@@ -40,7 +40,7 @@ from .decision_packet_hte import (
     DecisionPacketLegacyHTEFeaturePreview,
     DecisionPacketLegacyHTEPreview,
 )
-from .decision_validity import DecisionValidityStatus
+from .decision_validity import DecisionValidityStatus, SourceCurrentUseProjection
 from .execution_plan import (
     EvaluatorVerdict,
     IterationLifecycleState,
@@ -6948,6 +6948,57 @@ class NodeDebugView(BaseModel):
     notes: list[str] = Field(default_factory=list)
 
 
+class ExAnteSourceUseDebugView(BaseModel):
+    """Fresh, bounded SQL source-use outcome for one profiled execution.
+
+    This says only whether the internally admitted materialization remains
+    available for its registered use at the owner read point. It is not legal,
+    scientific, or external-database-currentness authority.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    status: Literal["current", "withdrawn", "unknown"]
+    method_replay_status: Literal["verified", "verification_missing", "invalid"]
+    source_basis_ref: ArtifactRef | None = None
+    method_execution_bundle_ref: ArtifactRef | None = None
+    input_capture_ref: ArtifactRef | None = None
+    recomputed_mean_change: float | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    owner_current_use: SourceCurrentUseProjection | None = None
+    limitations: tuple[str, ...] = Field(default_factory=tuple, max_length=16)
+    projection_class: Literal["candidate_reference_only"] = "candidate_reference_only"
+    authority_status: Literal["non_authority"] = "non_authority"
+
+    @model_validator(mode="after")
+    def _bind_owner_outcome(self) -> ExAnteSourceUseDebugView:
+        if self.status in {"current", "withdrawn"}:
+            refs = (self.source_basis_ref, self.method_execution_bundle_ref, self.input_capture_ref)
+            if (
+                self.method_replay_status != "verified"
+                or self.owner_current_use is None
+                or self.owner_current_use.status != self.status
+                or self.owner_current_use.selection_checked
+                or self.owner_current_use.basis_digest is None
+                or self.owner_current_use.committed_root is None
+                or self.owner_current_use.generation < 1
+                or self.limitations
+                or any(ref is None or ref.manifest_profile_sha256 is None for ref in refs)
+            ):
+                raise ValueError("debug_source_use_requires_verified_replay_and_owner")
+        elif not self.limitations:
+            raise ValueError("debug_source_use_unknown_requires_limitation")
+        if self.status == "current":
+            if self.recomputed_mean_change is None or not math.isfinite(
+                self.recomputed_mean_change
+            ):
+                raise ValueError("debug_current_source_use_requires_recomputed_mean_change")
+        elif self.recomputed_mean_change is not None:
+            raise ValueError("debug_noncurrent_source_use_cannot_authorize_score")
+        return self
+
+
 class SimulationResultCandidateView(BaseModel):
     """Candidate-only simulation result bound to one persisted run node.
 
@@ -6967,6 +7018,9 @@ class SimulationResultCandidateView(BaseModel):
     projection_class: Literal["candidate_reference_only"] = "candidate_reference_only"
     authority_status: Literal["non_authority"] = "non_authority"
     integrity_status: Literal["verified"] = "verified"
+    exante_source_use: ExAnteSourceUseDebugView | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     notes: list[str] = Field(default_factory=list)
 
 

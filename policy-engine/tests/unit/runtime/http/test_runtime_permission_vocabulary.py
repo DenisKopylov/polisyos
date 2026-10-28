@@ -41,15 +41,30 @@ _EXPECTED_RUNTIME_PERMISSION_VALUES = (
     "runs.batch.read",
     "runs.feedback.evaluate",
     "runs.human_decisions.create",
+    "jobs.cancel",
     "runs.launch",
     "runs.production_approval.create",
     "runs.reissue",
     "runs.review",
     "runs.view",
     "scenarios.create",
+    "sources.registered_sql.admit",
+    "sources.registered_sql.register",
+    "sources.registered_sql.withdraw",
 )
 
 _ALL_RUNTIME_PERMISSION_VALUES: frozenset[str] = frozenset(_EXPECTED_RUNTIME_PERMISSION_VALUES)
+_DEPLOYMENT_ONLY_PERMISSION_VALUES = frozenset(
+    {
+        "jobs.cancel",
+        "sources.registered_sql.admit",
+        "sources.registered_sql.register",
+        "sources.registered_sql.withdraw",
+    }
+)
+_ROLE_GRANTABLE_PERMISSION_VALUES = (
+    _ALL_RUNTIME_PERMISSION_VALUES - _DEPLOYMENT_ONLY_PERMISSION_VALUES
+)
 _ADMIN_ONLY_PERMISSION_VALUES: frozenset[str] = frozenset(
     {
         "decisions.validity.publish",
@@ -59,8 +74,8 @@ _ADMIN_ONLY_PERMISSION_VALUES: frozenset[str] = frozenset(
 )
 _HUMAN_DECISION_PERMISSION_VALUE = "runs.human_decisions.create"
 _EXPECTED_ROLE_PERMISSION_VALUES: dict[PolicyOSRole, frozenset[str]] = {
-    PolicyOSRole.ADMIN: _ALL_RUNTIME_PERMISSION_VALUES,
-    PolicyOSRole.ANALYST: _ALL_RUNTIME_PERMISSION_VALUES
+    PolicyOSRole.ADMIN: _ROLE_GRANTABLE_PERMISSION_VALUES,
+    PolicyOSRole.ANALYST: _ROLE_GRANTABLE_PERMISSION_VALUES
     - _ADMIN_ONLY_PERMISSION_VALUES
     - {"platform.admin"},
     PolicyOSRole.VIEWER: frozenset(
@@ -78,10 +93,10 @@ _EXPECTED_ROLE_PERMISSION_VALUES: dict[PolicyOSRole, frozenset[str]] = {
             "runs.view",
         }
     ),
-    PolicyOSRole.SERVICE: _ALL_RUNTIME_PERMISSION_VALUES
+    PolicyOSRole.SERVICE: _ROLE_GRANTABLE_PERMISSION_VALUES
     - _ADMIN_ONLY_PERMISSION_VALUES
     - {"evidence.acquire", "scenarios.create", _HUMAN_DECISION_PERMISSION_VALUE},
-    PolicyOSRole.SYSTEM: _ALL_RUNTIME_PERMISSION_VALUES
+    PolicyOSRole.SYSTEM: _ROLE_GRANTABLE_PERMISSION_VALUES
     - _ADMIN_ONLY_PERMISSION_VALUES
     - {"evidence.acquire", "scenarios.create", _HUMAN_DECISION_PERMISSION_VALUE},
 }
@@ -102,7 +117,21 @@ def test_role_grants_only_contain_runtime_permission_members() -> None:
         for grants in ROLE_PERMISSION_GRANTS.values()
         for permission in grants
     )
-    assert ROLE_PERMISSION_GRANTS[PolicyOSRole.ADMIN] == frozenset(RuntimePermission)
+    assert ROLE_PERMISSION_GRANTS[PolicyOSRole.ADMIN] == frozenset(
+        RuntimePermission(value) for value in _ROLE_GRANTABLE_PERMISSION_VALUES
+    )
+
+
+def test_registered_sql_admission_is_only_a_deployment_service_grant() -> None:
+    assert all(
+        permission not in ROLE_PERMISSION_GRANTS[role]
+        for permission in (
+            RuntimePermission.REGISTERED_SQL_ADMIT,
+            RuntimePermission.REGISTERED_SQL_REGISTER,
+            RuntimePermission.REGISTERED_SQL_WITHDRAW,
+        )
+        for role in PolicyOSRole
+    )
 
 
 @pytest.mark.parametrize("role", list(PolicyOSRole))

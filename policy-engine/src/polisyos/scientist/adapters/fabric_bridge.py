@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, Protocol, cast, runtime_checkable
 
@@ -35,6 +36,7 @@ if TYPE_CHECKING:
 
     from polisyos.core.artifacts.protocol import ArtifactStore
     from polisyos.fabric.api import ConnectorRegistryLike, FederationFetchRequest
+    from polisyos.fabric.connectors.sources.sql_query import SQLQueryExecution
 
 logger = get_logger(__name__)
 
@@ -121,13 +123,35 @@ class DefaultFabricPort:
         connector_registry: ConnectorRegistryLike | None = None,
         catalog_store: DatasetCatalogStoreLike | None = None,
         federation: FederationFetchRequest | None = None,
+        connector_id: str | None = None,
+        require_fresh_registered_sql: bool = False,
     ) -> None:
         self._fetch_data = fetch_data
         self._connector_registry = connector_registry
         self._catalog_store = catalog_store
         self._federation = federation
+        self._connector_id = connector_id
+        self._require_fresh_registered_sql = require_fresh_registered_sql
+        if require_fresh_registered_sql and (connector_id is None or connector_registry is None):
+            raise ValueError("fresh registered SQL requires an exact connector and registry")
+        if require_fresh_registered_sql and federation is not None:
+            raise ValueError("fresh registered SQL and federation are mutually exclusive")
 
     def snapshot(self, store: ArtifactStore, request_ref: DataViewRequestRef) -> DataSnapshotRef:
+        """Resolve a request into the ordinary persisted snapshot reference."""
+        snapshot_ref, _ = self._snapshot_with_execution(store, request_ref)
+        return snapshot_ref
+
+    def _snapshot_with_execution(
+        self,
+        store: ArtifactStore,
+        request_ref: DataViewRequestRef,
+        *,
+        expected_config_fingerprint: str | None = None,
+        expected_dataset_id: str | None = None,
+        expected_page_size: int | None = None,
+        expected_query: str | None = None,
+    ) -> tuple[DataSnapshotRef, SQLQueryExecution | None]:
         """Resolve a request artifact into a persisted `DataSnapshotRef`.
 
         Raises:
@@ -141,7 +165,14 @@ class DefaultFabricPort:
         payload = load_core_json_artifact(store, request_ref)
         query_request = _parse_query_request(payload)
 
-        if self._federation is None:
+        if self._require_fresh_registered_sql:
+            # The general request-to-constraints conversion discards unsupported
+            # operators/scope. Authority-selected SQL must reject that intent.
+            try:
+                dataset_id, constraints = _admit_federation_query_request(query_request)
+            except ValueError as exc:
+                raise ValueError("registered_sql_requested_scope_not_executed") from exc
+        elif self._federation is None:
             dataset_id = _resolve_dataset_id(query_request)
             constraints = _build_fetch_constraints(query_request)
         else:
@@ -152,12 +183,29 @@ class DefaultFabricPort:
         _enforce_execution_tier(dataset_id, catalog_store=self._catalog_store)
 
         federation_audit: dict[str, Any] | None = None
+        sql_execution: SQLQueryExecution | None = None
         if self._federation is None:
-            fetch_result = self._fetch_data(
-                dataset_id=dataset_id,
-                constraints=constraints,
-                registry=self._connector_registry,
-            )
+            if self._require_fresh_registered_sql:
+                from polisyos.fabric.api import _execute_registered_sql
+
+                sql_execution = _execute_registered_sql(
+                    dataset_id=dataset_id,
+                    connector_id=cast("str", self._connector_id),
+                    constraints=constraints,
+                    registry=cast("Any", self._connector_registry),
+                    expected_config_fingerprint=expected_config_fingerprint,
+                    expected_dataset_id=expected_dataset_id,
+                    expected_page_size=expected_page_size,
+                    expected_query=expected_query,
+                )
+                fetch_result = sql_execution.result
+            else:
+                fetch_result = self._fetch_data(
+                    dataset_id=dataset_id,
+                    connector_id=self._connector_id,
+                    constraints=constraints,
+                    registry=self._connector_registry,
+                )
         else:
             from polisyos.fabric import (
                 freeze_federation_request,
@@ -195,12 +243,22 @@ class DefaultFabricPort:
             result=fetch_result,
             dataset_id=dataset_id,
         )
-        if federation_audit is not None:
+        if sql_execution is not None:
+            # Driver success proves neither source completeness nor freshness.
+            # The existing report schema requires a numeric score; zero is a
+            # conservative gate value, and the flag retains the unknown reason.
+            quality_payload["score"] = 0.0
+            quality_payload["tier"] = "unverified"
+            quality_payload["grade"] = "F"
+            quality_payload["quality_flags"] = sorted(
+                {*quality_payload["quality_flags"], "source_completeness_unknown"}
+            )
+        if federation_audit is not None or sql_execution is not None:
             quality_payload["freshness_status"] = {
                 "is_fresh": False,
                 "level": "unknown",
                 "data_age_seconds": None,
-                "message": "Federation replay does not establish source currentness",
+                "message": "Bounded capture does not establish source currentness",
                 "fetched_at": fetch_result.fetched_at.isoformat(),
             }
         evidence_ref = _coerce_evidence_ref(fetch_result)
@@ -209,8 +267,19 @@ class DefaultFabricPort:
             "schema_id": fetch_result.schema_id,
             "schema_version": fetch_result.schema_version,
         }
+        if sql_execution is not None:
+            schema_payload["sql_columns"] = [
+                {"name": name, "dtype": dtype}
+                for name, dtype in zip(sql_execution.columns, sql_execution.dtypes, strict=True)
+            ]
         federation_warnings: dict[str, Any] | None = None
         data_payload = _jsonable(fetch_result.data) if federation_audit is None else None
+        if sql_execution is not None:
+            from polisyos.fabric.api import _require_registered_sql_execution
+
+            _require_registered_sql_execution(sql_execution)
+            if not _registered_sql_rows_match(sql_execution.output_json, data_payload):
+                raise ValueError("registered_sql_output_binding_not_established")
         data_spec = CanonSpec(forbid_floats=False)
         if federation_audit is not None:
             # Every FED payload is admitted against the actual Core decoder
@@ -240,6 +309,10 @@ class DefaultFabricPort:
             return_selected_profile=True,
         )
         _require_selected_profile(data_ref, "fabric_bridge_data_profile_unverified")
+        if sql_execution is not None and not _registered_sql_rows_match(
+            sql_execution.output_json, load_core_json_artifact(store, data_ref)
+        ):
+            raise ValueError("registered_sql_output_binding_not_established")
         if federation_audit is not None:
             verify_federation_core_payload(
                 load_core_json_artifact(store, data_ref), data_payload, frame=fetch_result.data
@@ -247,7 +320,10 @@ class DefaultFabricPort:
         schema_options = ArtifactWriteOptions(
             kind="fabric.data_schema",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.fabric.DataSchema", version="1.0"),
+            schema=SchemaInfo(
+                name="polisyos.fabric.DataSchema",
+                version="1.1" if sql_execution is not None else "1.0",
+            ),
         )
         if federation_audit is None:
             schema_ref = store.put_json(
@@ -258,12 +334,20 @@ class DefaultFabricPort:
                 schema_payload, schema_options, canon_spec=data_spec, return_selected_profile=True
             )
         _require_selected_profile(schema_ref, "fabric_bridge_schema_profile_unverified")
+        if (
+            sql_execution is not None
+            and load_core_json_artifact(store, schema_ref) != schema_payload
+        ):
+            raise ValueError("registered_sql_schema_binding_not_established")
         quality_report_ref = store.put_json(
             quality_payload,
             ArtifactWriteOptions(
                 kind="fabric.quality_report",
                 media_type="application/json",
-                schema=SchemaInfo(name="polisyos.fabric.DataQualityReport", version="1.0"),
+                schema=SchemaInfo(
+                    name="polisyos.fabric.DataQualityReport",
+                    version="1.1" if sql_execution is not None else "1.0",
+                ),
             ),
             canon_spec=data_spec,
             return_selected_profile=True,
@@ -332,7 +416,17 @@ class DefaultFabricPort:
                     f"federation.parent_history={federation_audit['parent_history']}",
                 ]
             )
-        if federation_audit is None:
+        if sql_execution is not None:
+            snapshot_notes.remove("source=fabric_get_data")
+            snapshot_notes.extend(
+                [
+                    "source=registered_sql_candidate",
+                    "registered_sql.shape_and_workflow_basis=not_established",
+                ]
+            )
+            snapshot_stats["registered_sql_data_shape_basis"] = "not_established"
+            snapshot_stats["registered_sql_workflow_compatibility_basis"] = "not_established"
+        elif federation_audit is None:
             semantic_stats, semantic_notes = _collect_snapshot_semantics(fetch_result.data)
             snapshot_stats.update(semantic_stats)
             snapshot_notes.extend(semantic_notes)
@@ -375,7 +469,24 @@ class DefaultFabricPort:
                 load_core_json_artifact(store, snapshot_ref), snapshot_payload
             )
         _require_selected_profile(snapshot_ref, "fabric_bridge_snapshot_profile_unverified")
-        return DataSnapshotRef.model_validate(snapshot_ref.model_dump(mode="python"))
+        if sql_execution is not None:
+            _require_registered_sql_execution(sql_execution)
+            if not _registered_sql_rows_match(
+                sql_execution.output_json, load_core_json_artifact(store, data_ref)
+            ):
+                raise ValueError("registered_sql_output_binding_not_established")
+        return DataSnapshotRef.model_validate(snapshot_ref.model_dump(mode="python")), sql_execution
+
+
+def _registered_sql_rows_match(observed_json: bytes, value: object) -> bool:
+    """Compare decoded JSON without bool/int or null/omitted-key equivalence."""
+    try:
+        observed = json.loads(observed_json)
+        return json.dumps(
+            observed, sort_keys=True, separators=(",", ":"), allow_nan=False
+        ) == json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False)
+    except (TypeError, ValueError, UnicodeDecodeError):
+        return False
 
 
 def _parse_query_request(

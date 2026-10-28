@@ -25,6 +25,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_STATE_SNAPSHOT_REF,
     INPUT_DATA_SNAPSHOT_REF,
     INPUT_INPUT_BINDINGS_REF,
+    INPUT_REGISTERED_SQL_ADMISSION_REF,
     INPUT_REGISTRY_BUNDLE_REF,
     INPUT_TRINITY_BUNDLE_REF,
     INPUT_UKRAINE_FOUNDRY_METHOD_BUNDLE_REF,
@@ -63,6 +64,7 @@ _SPEC = NodeSpec(
     metadata=_METADATA,
     state_reads=[
         f"inputs.{INPUT_DATA_SNAPSHOT_REF}",
+        f"inputs.{INPUT_REGISTERED_SQL_ADMISSION_REF}",
         f"inputs.{INPUT_REGISTRY_BUNDLE_REF}",
         f"inputs.{INPUT_TRINITY_BUNDLE_REF}",
         "params.foundry_input_binding_rules",
@@ -127,6 +129,18 @@ class BindFoundryInputsNode:
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
         intake_config = state.params.get(_UKRAINE_INTAKE_CONFIG_KEY)
         selection_config = state.params.get(_UKRAINE_METHOD_SELECTION_CONFIG_KEY)
+        source_ref = state.inputs.get(INPUT_REGISTERED_SQL_ADMISSION_REF)
+        if source_ref is not None and (
+            INPUT_INPUT_BINDINGS_REF in state.inputs or intake_config is not None
+        ):
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code=node_errors.ERROR_INVALID_STATE,
+                    message="Registered SQL source cannot be combined with another intake",
+                ),
+            )
         if INPUT_INPUT_BINDINGS_REF in state.inputs and intake_config is None:
             return NodeOutcome(status="ok", state=state)
 
@@ -216,6 +230,8 @@ class BindFoundryInputsNode:
                 registry_bundle_ref=registry_bundle_ref,
                 rules=rules,
                 notes=["scientist.node_bind_foundry_inputs"],
+                registered_sql_admission_ref=source_ref,
+                return_selected_profile=source_ref is not None,
             )
         except _BINDING_VALIDATION_ERRORS as exc:
             error = NodeError(

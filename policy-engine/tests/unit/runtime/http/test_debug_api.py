@@ -925,6 +925,7 @@ def test_simulation_result_http_requires_exact_identity_for_every_same_id_node_r
         )
 
         assert response.status_code == expected_status, f"{case_name}: {response.text}"
+        assert response.headers["cache-control"] == "no-store"
         payload = response.json()
         if expected_status == 200:
             assert payload["debug"]["node_id"] == "test.simulate.row0@1.0.0"

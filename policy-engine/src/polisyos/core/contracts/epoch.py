@@ -1464,6 +1464,11 @@ def _known_epoch_statement_manifest_schema(
             SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
             SchemaInfo(name="polisyos.core.DataSnapshot", version="0.3.0"),
         )
+    if expected_kind == "fabric.quality_report":
+        return (
+            SchemaInfo(name="polisyos.fabric.DataQualityReport", version="1.0"),
+            SchemaInfo(name="polisyos.fabric.DataQualityReport", version="1.1"),
+        )
     if codec.schema_name is not None:
         return SchemaInfo(name=codec.schema_name, version=codec.schema_version or "")
     if (

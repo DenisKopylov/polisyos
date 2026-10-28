@@ -174,6 +174,29 @@ class ReproducibilityInfo:
 
 
 @dataclass(frozen=True, slots=True)
+class RestrictedMethodInvocationEvidence:
+    """Internal exact-call observation before binding it to a graph occurrence."""
+
+    status: Literal["verified", "unavailable"]
+    limitation: str | None
+    profile_id: str
+    profile_revision_sha256: str
+    method_fqn: str
+    method_version: str
+    method_abi_digest: str
+    method_callable_sha256: str | None
+    runner_callable_sha256: str | None
+    backend_runtime_fingerprint: str | None
+    state_reads: tuple[str, ...]
+    parameter_reads: tuple[str, ...]
+    parameter_origin: Literal["signature_default", "explicit_parameter", "not_established"]
+    poverty_line_value: None
+    output_slot_id: str
+    output_value_path: tuple[str, ...]
+    output_value_sha256: str | None
+
+
+@dataclass(frozen=True, slots=True)
 class MethodResult:
     """Wrap backend output together with declared slot outputs and diagnostics.
 
@@ -194,6 +217,7 @@ class MethodResult:
     artifacts: Mapping[str, Any] = field(default_factory=dict)
     warnings: tuple[str, ...] = ()
     validated_bound: ValidatedBound | None = None
+    restricted_invocation: RestrictedMethodInvocationEvidence | None = None
 
 
 class MethodRunner(Protocol):

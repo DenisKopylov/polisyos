@@ -220,6 +220,24 @@ class TestRunExperiment:
 
         assert mock_run.call_args.kwargs["foundry"] is foundry
 
+    @patch("polisyos.scientist.orchestration.workflows.builder.run_selected_workflow")
+    @patch("polisyos.scientist.api._resolve_observability")
+    def test_forwards_explicit_fabric_port_without_serializing_it(self, mock_obs, mock_run):
+        tracer, _span = _mock_tracer()
+        mock_obs.return_value = (tracer, _mock_metrics())
+        mock_run.return_value = MagicMock(
+            state=ExperimentState(run_id="R_fabric_port"),
+            report=MagicMock(status="ok"),
+        )
+        fabric = object()
+
+        from polisyos.scientist.api import run_experiment
+
+        result = run_experiment({"run_id": "R_fabric_port"}, fabric=fabric)
+
+        assert mock_run.call_args.kwargs["fabric"] is fabric
+        assert "fabric" not in result
+
 
 # ---------------------------------------------------------------------------
 # Tests for _estimate_run_cost_usd

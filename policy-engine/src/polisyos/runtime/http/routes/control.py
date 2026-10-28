@@ -332,7 +332,10 @@ def launch_run(
     if body.observational_input is None:
         ds = body.data_source
         if ds is None or not (
-            ds.data_snapshot_ref or ds.input_bindings_ref or ds.data_view_request_ref
+            ds.data_snapshot_ref
+            or ds.input_bindings_ref
+            or ds.data_view_request_ref
+            or ds.registered_sql_admission_ref
         ):
             raise bad_request(
                 "At least one data source must be provided",

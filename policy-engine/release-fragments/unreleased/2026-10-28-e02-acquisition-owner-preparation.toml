@@ -1,0 +1,17 @@
+id = "2026-10-28-e02-acquisition-owner-preparation"
+title = "Share actual write-free acquisition state and context preparation with their writers"
+type = "added"
+component = "runtime"
+owner = "team-runtime-quality"
+summary = "Expose the existing Foundry rule/state calculation without artifact writes and split acquired candidate context preparation before declaration/NCM emission. Both actual writers freshly recompute the same owner calculations."
+evidence = ["tests/unit/foundry/data_plane/test_input_bindings_preparation.py", "tests/unit/runtime/quality/test_cycle_substrate.py"]
+compatibility = "Additive public Foundry preparation API and internal Runtime owner seam. Existing binding reports, state snapshots, candidate context admission, limitation and schema semantics are unchanged."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.foundry.data_plane.InputBindingsPreparation and prepare_input_bindings; internal: acquired context preparation"
+migration = "Use the shared numerical preparation rather than a hand-maintained scalar projection. Actual emission continues through the maintained writer, which re-resolves its own inputs."
+api = "Add InputBindingsPreparation and prepare_input_bindings; add ConfiguredCandidateSimulationContextAdmissionOwner.prepare_context_for_acquired_world returning AcquiredCandidateContextPreparation."
+limitations = "Preparation only: no claim of complete acquisition evaluation basis, equality, retained terminal, currentness, full V3 or G acceptance. Post-composition runtime checks and public-surface inventory regeneration/review remain required."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/foundry/README.md", "src/polisyos/runtime/quality/README.md"]
+runbook_docs = []

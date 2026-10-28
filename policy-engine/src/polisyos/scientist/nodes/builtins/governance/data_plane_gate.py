@@ -16,6 +16,7 @@ from pydantic import (
     StrictStr,
     ValidationError,
     field_validator,
+    model_validator,
 )
 
 from polisyos.core.artifacts import CoreArtifactOwnerProfile, SchemaInfo
@@ -62,7 +63,10 @@ _QUALITY_TIER_MAP: dict[str, QualityTier] = {
 _QUALITY_REPORT_OWNER = CoreArtifactOwnerProfile(
     kind="fabric.quality_report",
     media_type="application/json",
-    schema_variants=(SchemaInfo(name="polisyos.fabric.DataQualityReport", version="1.0"),),
+    schema_variants=(
+        SchemaInfo(name="polisyos.fabric.DataQualityReport", version="1.0"),
+        SchemaInfo(name="polisyos.fabric.DataQualityReport", version="1.1"),
+    ),
     payload_schema_version_by_manifest="not_applicable",
 )
 _RETRIEVAL_SUMMARY_OWNER = CoreArtifactOwnerProfile(
@@ -356,6 +360,7 @@ def _load_quality_report(
 
 @dataclass(frozen=True)
 class _FreshnessProxy:
+    level: str
     is_fresh: bool
     data_age_seconds: int | None
     cache_age_seconds: int | None
@@ -366,10 +371,16 @@ class _QualityReportFreshnessArtifact(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
 
     is_fresh: bool
-    level: Literal["fresh", "stale"]
+    level: Literal["fresh", "stale", "unknown"]
     data_age_seconds: StrictInt | None
     message: StrictStr
     fetched_at: StrictStr
+
+    @model_validator(mode="after")
+    def _validate_unknown_freshness(self) -> _QualityReportFreshnessArtifact:
+        if self.level == "unknown" and self.is_fresh:
+            raise ValueError("unknown_freshness_cannot_be_fresh")
+        return self
 
     @field_validator("fetched_at")
     @classmethod
@@ -496,11 +507,18 @@ def _quality_report_from_dict(payload: dict[str, Any]) -> _QualityReportProxy:
         score = float(score_raw)
     except (TypeError, ValueError):
         score = 0.0
-    completeness_raw = payload.get("completeness_score", 1.0)
+    # An absent metric is not proof of complete external source coverage.
+    # Preserve the legacy default for other reports, but not the explicit
+    # unknown signal emitted by bounded SQL capture.
+    flags = payload.get("quality_flags", [])
+    default_completeness = (
+        0.0 if isinstance(flags, list) and "source_completeness_unknown" in flags else 1.0
+    )
+    completeness_raw = payload.get("completeness_score", default_completeness)
     try:
         completeness_score = float(completeness_raw)
     except (TypeError, ValueError):
-        completeness_score = 1.0
+        completeness_score = default_completeness
     consistency_raw = payload.get("consistency_score", 1.0)
     try:
         consistency_score = float(consistency_raw)
@@ -526,6 +544,7 @@ def _quality_report_from_dict(payload: dict[str, Any]) -> _QualityReportProxy:
         grade=str(payload.get("grade", "N/A")),
         score=score,
         freshness_status=_FreshnessProxy(
+            level=level,
             is_fresh=is_fresh,
             data_age_seconds=data_age,
             cache_age_seconds=cache_age,

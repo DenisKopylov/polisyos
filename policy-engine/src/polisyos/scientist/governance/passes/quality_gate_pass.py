@@ -316,18 +316,28 @@ class QualityGatePass(ValidatorPass):
                 IssueSeverity.WARNING if profile_level in ("fast", "mvp") else IssueSeverity.BLOCKER
             )
 
-            age_days = 0
-            if data_quality_report.freshness_status.data_age_seconds is not None:
-                age_days = data_quality_report.freshness_status.data_age_seconds // 86400
-
+            freshness = data_quality_report.freshness_status
+            raw_level = getattr(freshness, "level", None)
+            unknown = raw_level == "unknown" or getattr(raw_level, "value", None) == "unknown"
+            if unknown:
+                code = "DATA_FRESHNESS_UNKNOWN"
+                suggestion = "Provide independently verified source update time."
+            else:
+                code = "DATA_STALENESS"
+                age = freshness.data_age_seconds
+                suggestion = (
+                    f"Data last updated {age // 86400} days ago"
+                    if age is not None
+                    else "Source update time is unavailable."
+                )
             issues.append(
                 ComplianceIssue(
                     pass_id=self.pass_id,
                     path=["data", "freshness"],
-                    message=data_quality_report.freshness_status.message,
+                    message=freshness.message,
                     severity=severity,
-                    code="DATA_STALENESS",
-                    suggestion=f"Data last updated {age_days} days ago",
+                    code=code,
+                    suggestion=suggestion,
                 )
             )
 

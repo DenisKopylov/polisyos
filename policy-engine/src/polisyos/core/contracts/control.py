@@ -32,6 +32,7 @@ from .decision_validity import (
     EpochValidityBatchReceipt,
 )
 from .fabric import DataSnapshotRef, DataViewRequestRef
+from .foundry import FoundryInputBindingsRef
 from .policy_design_case_projection import PolicyDesignCaseProjection
 from .runtime import ApiMeta, TemporalScope
 
@@ -195,12 +196,12 @@ def _default_supported_execution_profiles() -> list[ExecutionProfile]:
 
 
 class DataSourceBinding(BaseModel):
-    """Legacy string-only source binding retained for natural-language runs."""
+    """Select an existing source, retaining exact typed profiles when provided."""
 
     model_config = ConfigDict(extra="forbid")
 
     data_snapshot_ref: DataSnapshotRef | str | None = None
-    input_bindings_ref: str | None = None
+    input_bindings_ref: FoundryInputBindingsRef | str | None = None
     data_view_request_ref: str | None = None
 
     @model_validator(mode="after")
@@ -209,6 +210,13 @@ class DataSourceBinding(BaseModel):
         reference = self.data_snapshot_ref
         if isinstance(reference, DataSnapshotRef) and reference.manifest_profile_sha256 is None:
             raise ValueError("data_source_snapshot_profile_missing")
+        bindings_ref = self.input_bindings_ref
+        if isinstance(bindings_ref, FoundryInputBindingsRef) and (
+            bindings_ref.kind != "foundry.input_bindings"
+            or bindings_ref.media_type != "application/json"
+            or bindings_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("workflow_input_bindings_selected_profile_invalid")
         return self
 
 
@@ -216,11 +224,30 @@ class WorkflowDataSourceBinding(DataSourceBinding):
     """Select one workflow source while preserving typed profile intent."""
 
     data_view_request_ref: DataViewRequestRef | str | None = None
+    registered_sql_admission_ref: ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
     @model_validator(mode="before")
     @classmethod
     def _require_complete_typed_data_view_request_ref(cls, value: object) -> object:
         if isinstance(value, dict):
+            raw_source_ref = value.get("registered_sql_admission_ref")
+            if isinstance(raw_source_ref, dict) and not {
+                "artifact_id",
+                "kind",
+                "media_type",
+                "manifest_profile_sha256",
+            }.issubset(raw_source_ref):
+                raise ValueError("workflow_registered_sql_ref_incomplete")
+            raw_bindings_ref = value.get("input_bindings_ref")
+            if isinstance(raw_bindings_ref, dict) and not {
+                "artifact_id",
+                "kind",
+                "media_type",
+                "manifest_profile_sha256",
+            }.issubset(raw_bindings_ref):
+                raise ValueError("workflow_input_bindings_ref_incomplete")
             raw_ref = value.get("data_view_request_ref")
             if isinstance(raw_ref, dict) and not {
                 "artifact_id",
@@ -234,17 +261,30 @@ class WorkflowDataSourceBinding(DataSourceBinding):
     def _select_one_workflow_data_source(self) -> Self:
         if "data_view_request_ref" in self.model_fields_set and self.data_view_request_ref is None:
             raise ValueError("workflow_data_view_request_selector_explicit_null")
+        if (
+            "registered_sql_admission_ref" in self.model_fields_set
+            and self.registered_sql_admission_ref is None
+        ):
+            raise ValueError("workflow_registered_sql_selector_explicit_null")
         selected = [
             field_name
             for field_name in (
                 "data_snapshot_ref",
                 "input_bindings_ref",
                 "data_view_request_ref",
+                "registered_sql_admission_ref",
             )
             if getattr(self, field_name) is not None
         ]
         if len(selected) > 1:
             raise ValueError("workflow_data_source_must_select_exactly_one")
+        source_ref = self.registered_sql_admission_ref
+        if source_ref is not None and (
+            source_ref.kind != "fabric.registered_sql_admission_binding"
+            or source_ref.media_type != "application/json"
+            or source_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("workflow_registered_sql_selected_profile_invalid")
         request_ref = self.data_view_request_ref
         if isinstance(request_ref, DataViewRequestRef):
             if (

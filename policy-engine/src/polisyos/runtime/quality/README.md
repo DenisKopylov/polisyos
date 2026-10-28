@@ -35,6 +35,23 @@ projections only. The normal NL `RunIntentBinding` still has absent
 blocked. Missing time and barrier producers/artifacts remain
 `producer_missing` and `artifact_missing`; standalone consumers fail closed.
 
+## Acquisition context preparation
+
+`ConfiguredCandidateSimulationContextAdmissionOwner.prepare_context_for_acquired_world()`
+resolves the exact selected bound state and refreshes every configured N5
+baseline slot before declaration or NCM writes. The normal admission method
+recomputes and consumes this same owner calculation. The returned
+`AcquiredCandidateContextPreparation` is a worker-local candidate value; nested
+model values are inspectable and are never accepted back as proof. Existing
+profile, problem, selected-state, limitation and slot-unit refusals remain in
+that shared owner.
+
+This is a preparation seam for G decision `AD-E02-B09-01`, not a complete
+semantic evaluation basis or a retained-evaluation terminal. The admitted source
+occurrence, persisted evaluation identity, eligibility/frontier fence and fresh
+history projection remain distinct. No new currentness or authority is inferred
+by preparing or admitting a limited candidate context.
+
 ## Selected HTE source content join
 
 `hte_source_projection.py` joins one frozen HTE input to its exact selected

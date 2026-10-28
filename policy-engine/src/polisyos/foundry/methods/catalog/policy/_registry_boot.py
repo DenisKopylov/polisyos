@@ -26,6 +26,9 @@ from .mcda import (
     RobustTOPSISEstimator,
     TOPSISEstimator,
 )
+
+# Load the immutable restricted profile only after the registered built-in is loaded.
+from .restricted_executable_profile import TRUSTED_EXANTE_NUMPY_PROFILE as _EXANTE_PROFILE
 from .welfare import (
     AtkinsonSWFEstimator,
     CostBenefitAnalysisEstimator,

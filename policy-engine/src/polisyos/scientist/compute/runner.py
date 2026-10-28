@@ -2272,7 +2272,7 @@ def read_job_result_method_execution_capture(
                 or schema.version
                 not in {
                     "1.0",
-                    MethodExecutionBundle.ARTIFACT_SCHEMA_VERSION,
+                    *MethodExecutionBundle.ARTIFACT_SCHEMA_VERSIONS,
                 }
             ):
                 raise ValueError("method execution bundle role has an unexpected schema")

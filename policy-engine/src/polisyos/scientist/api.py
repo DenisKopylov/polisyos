@@ -50,6 +50,7 @@ if TYPE_CHECKING:
     from polisyos.scientist.governance.pipeline import ValidationPipeline
     from polisyos.scientist.orchestration.engine.context import (
         CompletedMethodHTESelectionOwnerPort,
+        FabricPort,
         FoundryPort,
         MethodMetricSelectionOwnerPort,
     )
@@ -225,6 +226,7 @@ def run_experiment(
     store: ArtifactStore | None = None,
     store_factory: Callable[[], ArtifactStore] | None = None,
     foundry: FoundryPort | None = None,
+    fabric: FabricPort | None = None,
     quota_registry: QuotaRegistry | None = None,
     engine_metrics_factory: Callable[[], EngineMetricsCollector | None] | None = None,
     eval_safety_execution_context: EvaluationExecutionContext | None = None,
@@ -245,6 +247,8 @@ def run_experiment(
         state: Mapping or `ExperimentState` payload to seed the run. When `None`,
             a fresh run id and empty state container are generated.
         foundry: Optional Foundry port override forwarded to the selected workflow.
+        fabric: Optional Fabric port installed by Runtime and forwarded without
+            serializing the capability into experiment state.
         epoch_certificate_issuance_owner: Privileged in-process owner installed
             by Runtime composition; never read from or serialized into state.
         method_metric_selection_owner: Runtime-owned completed-source lookup installed
@@ -322,6 +326,7 @@ def run_experiment(
                     store=store,
                     store_factory=store_factory,
                     foundry=foundry,
+                    fabric=fabric,
                     tracer=resolved_tracer,
                     metrics=resolved_metrics,
                     quota_registry=quota_registry,

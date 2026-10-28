@@ -583,6 +583,57 @@ class _SourceAdmissionStateStore:
                 raise ValueError("source_admission_wrong_authority_scope")
             return self._receipt(row["event_ref"])
 
+    def scope_head(self, registration: SourceRegistrationReceipt) -> str:
+        """Read the committed scope predecessor; the later write still performs CAS."""
+        with self._transaction():
+            self._begin()
+            root = self._root()
+            self._durabilize(root)
+            self._require_registration(root, registration)
+            head = self._lookup(root.index_ref, "head:" + registration.admission_scope_digest)
+            if not isinstance(head, dict) or not isinstance(head.get("event_ref"), str):
+                raise ValueError("source_admission_scope_head_not_established")
+            event_ref = head["event_ref"]
+            if not event_ref.startswith("sha256:"):
+                raise ValueError("source_admission_scope_head_not_established")
+            _ref_text(event_ref.removeprefix("sha256:"))
+            return event_ref
+
+    def materialization_event(
+        self, *, authority: dict[str, str], event_id: str
+    ) -> tuple[SourceAdmissionReceipt, RegisteredMaterialization, str] | None:
+        """Read the exact original admit command from the committed root."""
+        with self._transaction():
+            self._begin()
+            root = self._root()
+            self._durabilize(root)
+            row = self._lookup(root.index_ref, "event:" + event_id)
+            if row is None:
+                return None
+            body = self._object(row["event_ref"])
+            command = body["command"]
+            if (
+                command.get("operation") != "admit"
+                or command.get("event_id") != event_id
+                or _digest(command) != row["command_digest"]
+                or body.get("command_digest") != row["command_digest"]
+            ):
+                raise ValueError("source_admission_materialization_event_required")
+            materialization = _typed(RegisteredMaterialization, command["materialization"])
+            actual = materialization.registration.model_dump(mode="json")
+            if any(actual.get(key) != value for key, value in authority.items()):
+                raise ValueError("source_admission_wrong_authority_scope")
+            receipt = self._receipt(row["event_ref"])
+            predecessor = command.get("expected_predecessor")
+            if (
+                receipt.carrier is None
+                or receipt.carrier.revision_digest
+                != _digest(materialization.model_dump(mode="json"))
+                or not isinstance(predecessor, str)
+            ):
+                raise ValueError("source_admission_materialization_event_mismatch")
+            return receipt, materialization, predecessor
+
     def fact_for_carrier(self, target: SourceAdmissionCarrier) -> dict[str, Any]:
         """Get a committed revision for exact readmission integrity checks, even if withdrawn."""
         with self._transaction():

@@ -55,6 +55,7 @@ from polisyos.runtime.http.services.human_decision_contracts import (
     HumanDecisionTrustedProducer,
     HumanDecisionTrustPolicy,
 )
+from polisyos.runtime.http.services.registered_sql_service_config import RegisteredSQLSourceSlot
 from polisyos.runtime.http.step_up import JWTStepUpAssertionVerifier
 from polisyos.runtime.quality.acquisition_world_growth import (
     AcquisitionWorldGrowthConfig,  # Pydantic resolves deployment DTO annotations
@@ -271,6 +272,7 @@ class DeploymentSecurityConfig(BaseModel):
     cell_registry_path: Path
     opa: OPADeploymentConfig
     service_principals: tuple[ServicePrincipalGrant, ...] = ()
+    registered_sql_sources: tuple[RegisteredSQLSourceSlot, ...] = ()
     human_decision_custody: HumanDecisionCustodyConfig | None = None
     epoch_deployment: EpochDeploymentConfig | None = None
     acquisition_authority: AcquisitionAuthorityConfig | None = None
@@ -281,6 +283,20 @@ class DeploymentSecurityConfig(BaseModel):
         keys = [grant.identity_key for grant in self.service_principals]
         if len(keys) != len(set(keys)):
             raise ValueError("duplicate exact service principal binding")
+        slot_ids = [slot.slot_id for slot in self.registered_sql_sources]
+        if len(slot_ids) != len(set(slot_ids)):
+            raise ValueError("duplicate registered SQL source slot")
+        grants = {grant.identity_key: grant for grant in self.service_principals}
+        for slot in self.registered_sql_sources:
+            grant = grants.get(slot.identity_key)
+            if grant is None or not grant.permissions.intersection(
+                {
+                    RuntimePermission.REGISTERED_SQL_ADMIT,
+                    RuntimePermission.REGISTERED_SQL_REGISTER,
+                    RuntimePermission.REGISTERED_SQL_WITHDRAW,
+                }
+            ):
+                raise ValueError("registered SQL slot requires an exact source-service grant")
         return self
 
     @classmethod

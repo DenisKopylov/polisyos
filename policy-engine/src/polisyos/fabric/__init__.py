@@ -55,6 +55,7 @@ __all__ = [
     "fabric_event_to_authored_text",
     "fabric_fact_to_quantity_value",
     "fabric_get_data",
+    "fabric_get_fresh_registered_sql_data",
     "file_lock",
     "freeze_federation_request",
     "prepare_federation_core_payload",
@@ -191,6 +192,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "SchemaType": ("polisyos.fabric.connectors.contracts", "SchemaType"),
     "SourceContract": ("polisyos.fabric.connectors.contracts", "SourceContract"),
     "fabric_get_data": ("polisyos.fabric.api", "fabric_get_data"),
+    "fabric_get_fresh_registered_sql_data": (
+        "polisyos.fabric.api",
+        "fabric_get_fresh_registered_sql_data",
+    ),
     "freeze_federation_request": ("polisyos.fabric.federated_fetch", "freeze_federation_request"),
     "prepare_federation_core_payload": (
         "polisyos.fabric.federated_fetch",

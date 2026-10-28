@@ -9265,6 +9265,8 @@ class ControlPlaneService(
         run_id: str,
         tenant_id: str,
         cell_id: str,
+        require_restricted_exante_call_witness: bool = False,
+        restricted_exante_call_collector: list[Any] | None = None,
     ) -> MethodMetricCandidateScore:
         """Reopen one authorized completed source and recompute a candidate score."""
         from polisyos.core.contracts.runtime import MethodMetricCandidateScore
@@ -9311,7 +9313,11 @@ class ControlPlaneService(
                 basis.verifier_implementation_sha256,
             )
             score = recompute_completed_ex_ante_rank_projection(
-                store, basis=basis, candidate_ref=candidate_ref
+                store,
+                basis=basis,
+                candidate_ref=candidate_ref,
+                require_restricted_exante_call_witness=require_restricted_exante_call_witness,
+                restricted_exante_call_collector=restricted_exante_call_collector,
             )
             if score.status != "selected":
                 return limited("completed_ex_ante_profile_not_established")
@@ -10818,6 +10824,109 @@ class ControlPlaneService(
 
     # ---- Workflow launch ---------------------------------------------------
 
+    def _resolve_registered_sql_workflow_source(
+        self, ref: ArtifactRef, *, principal: RuntimePrincipal | None
+    ) -> DataSnapshotRef:
+        """Resolve one candidate transport against the existing current-use owner.
+
+        This admits the source at this read point only. The completed result
+        must independently query the actual execution basis on every fresh read.
+        """
+        from collections import Counter
+
+        from polisyos.core.contracts.decision_validity import (
+            RegisteredSQLAdmissionBinding,
+            RegisteredSQLUseContract,
+            source_admission_basis_digest,
+        )
+        from polisyos.core.contracts.fabric import (
+            DataSnapshotOwnerBound,
+            data_snapshot_owner_input_requirements,
+        )
+        from polisyos.core.security import tenant_scope
+        from polisyos.runtime.http.resilience import _require_runtime_ambient_ownership
+        from polisyos.scientist.nodes.builtins.decide.policy_runtime_method_metrics import (
+            _BoundedExecutionSourceReader,
+            _ProjectionReadBudget,
+        )
+
+        if (
+            principal is None
+            or not principal.authenticated
+            or not principal.tenant_id
+            or not principal.cell_id
+            or ref.manifest_profile_sha256 is None
+            or ref.kind != RegisteredSQLAdmissionBinding.ARTIFACT_KIND
+            or ref.media_type != RegisteredSQLAdmissionBinding.ARTIFACT_MEDIA_TYPE
+        ):
+            raise ValueError("registered_sql_workflow_source_not_established")
+        _require_runtime_ambient_ownership(self._artifact_store)
+        with tenant_scope(None, tenant_id=principal.tenant_id, cell_id=principal.cell_id):
+            reader = _BoundedExecutionSourceReader(
+                cast("Any", self._artifact_store), _ProjectionReadBudget()
+            )
+            manifest, binding, _, _ = reader.read_typed_model(RegisteredSQLAdmissionBinding, ref)
+            materialization = binding.materialization
+            carrier = binding.receipt.carrier
+            if carrier is None or (carrier.tenant_id, carrier.cell_id) != (
+                principal.tenant_id,
+                principal.cell_id,
+            ):
+                raise ValueError("registered_sql_workflow_source_not_established")
+            _, snapshot, _, _ = reader.read_typed_model(
+                DataSnapshotOwnerBound, materialization.snapshot_ref
+            )
+            _, use, _, _ = reader.read_typed_model(
+                RegisteredSQLUseContract, materialization.registration.use_contract_ref
+            )
+            if (
+                use.use_key != RegisteredSQLUseContract.FOUNDRY_SELECTED_BASIS_USE_KEY
+                or use.selection_mode != "any_active"
+            ):
+                raise ValueError("registered_sql_workflow_use_not_supported")
+            expected = [
+                input_ref_from_artifact_ref(materialization.snapshot_ref, role="source.snapshot"),
+                input_ref_from_artifact_ref(
+                    materialization.registration.effective_view_contract_ref, role="source.view"
+                ),
+                input_ref_from_artifact_ref(
+                    materialization.registration.use_contract_ref, role="source.use"
+                ),
+                *(
+                    input_ref_from_artifact_ref(item, role="snapshot." + role)
+                    for item, role in data_snapshot_owner_input_requirements(snapshot)
+                ),
+                input_ref_from_artifact_ref(
+                    materialization.producer_capture_ref, role="source.capture"
+                ),
+            ]
+
+            def edge_key(edge: InputRef) -> tuple[str, str, str | None]:
+                return edge.role, str(edge.artifact_id), edge.manifest_profile_sha256
+
+            if any(item.manifest_profile_sha256 is None for item in expected) or Counter(
+                map(edge_key, manifest.inputs)
+            ) != Counter(map(edge_key, expected)):
+                raise ValueError("registered_sql_workflow_source_edges_not_established")
+            original = self._decision_validity_service.resolve_source_materialization_history(
+                carrier, event_id=binding.receipt.event_id
+            )
+            if original != (binding.receipt, materialization, binding.expected_predecessor):
+                raise ValueError("registered_sql_workflow_original_event_mismatch")
+            projection = self._decision_validity_service.read_source_current_use(
+                (carrier,), require_selected=False
+            )
+            if (
+                projection.status != "current"
+                or projection.predicate_provenance != "recomputed"
+                or projection.basis_digest
+                != source_admission_basis_digest((carrier,), require_selected=False)
+            ):
+                raise ValueError("registered_sql_workflow_source_not_current")
+            return DataSnapshotRef.model_validate(
+                materialization.snapshot_ref.model_dump(mode="python")
+            )
+
     def launch_workflow_run(
         self,
         request: WorkflowRunRequest,
@@ -10861,6 +10970,16 @@ class ControlPlaneService(
             workflow_data_source
         )
         inputs[ds_key] = ds_ref
+        if ds_key == "registered_sql_admission_ref":
+            try:
+                inputs["data_snapshot_ref"] = self._resolve_registered_sql_workflow_source(
+                    ds_ref, principal=principal
+                )
+            except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
+                raise unprocessable_entity(
+                    "The selected registered SQL source cannot be admitted for this workflow",
+                    code="registered_sql_workflow_source_not_established",
+                ) from exc
 
         # Optional refs
         for field_name, kind in _OPTIONAL_INPUT_KEYS.items():

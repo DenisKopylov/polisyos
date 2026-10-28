@@ -1,0 +1,30 @@
+id = "2026-10-28-e02-selected-posterior-consumer"
+title = "Fresh-read selected posterior evidence at candidate consumption"
+type = "added"
+component = "foundry-calibration"
+owner = "team-polisyos"
+summary = "A selected-reference candidate consumer reopens the exact posterior summary, its method-evidence and result, and checks the held evidence view, nested selected result and named point role before Monte Carlo. Selected manifests resolve through complete refs and the existing raw/typed Core owner."
+evidence = ["tests/unit/scientist/compute/test_selected_posterior_consumer.py"]
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.foundry.calibration selected posterior candidate consumer"
+compatibility = "The existing DTO-only Monte Carlo candidate method remains unchanged. The new selected-only route refuses absent summary, evidence or nested result manifest profiles and requires a separately held expected method-evidence view. The existing summary reader retains default-result behavior unless explicitly configured to require the selected result. Stores supporting complete selected refs need not implement the optional profile-only lookup."
+migration = "A caller holding the selected summary ref, method-evidence ref and store can use the new adapter; do not infer intended job selection or authority from the supplied references."
+limitations = "Independent source review passed. Composed-source review, real-CAS execution, removal probes, public facade/inventory review, and G disposition remain pending. This candidate result remains gate-ineligible with unit binding not established. Distinct job contexts with identical evidence identity cannot be distinguished by this adapter."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/how-to/selected-posterior-consumption.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-selected-posterior-consumer"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.foundry.calibration.propagate_selected_posterior_summary"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Selected-reference callers can reconcile the producer-held evidence view through a fresh summary reader before candidate Monte Carlo; the direct DTO-only route is unchanged."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/how-to/selected-posterior-consumption.md"]
+runbook_docs = []

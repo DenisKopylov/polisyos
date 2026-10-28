@@ -61,6 +61,7 @@ not a substitute.
 | `CalibrationReport`            | Persisted fit result with metrics, history, and fit quality.                              |
 | `CalibrationCoordinateProjection` | Typed calibration coordinate projection from the report owner.                         |
 | `persist_posterior_summary_from_method_evidence()` | Persists the existing candidate-only summary from source-bound method evidence. |
+| `propagate_selected_posterior_summary()` | Reopens an exact selected summary and separately held method-evidence view before candidate Monte Carlo. |
 | `MeasurementAwareTarget`       | Observation-aware target contract.                                                        |
 | `MeasurementAwareLossConfig`   | Controls lag, censoring, regime, and shock discounts.                                     |
 | `compute_effective_weight()`   | Combines trust, coverage, lag, censoring, and shock metadata into effective loss weights. |
@@ -99,6 +100,15 @@ draw evidence is present and matches the persisted result. `JobResult.posterior_
 exposes both existing point roles (`posterior_mean`, `posterior_median`) as typed candidate refs;
 the consumer still selects the ref and matching role explicitly and supplies its evaluator. No
 workflow default, unit binding, calibration authority, or causal-effect authority is implied.
+
+`propagate_selected_posterior_summary()` is available from this package facade. It accepts an exact
+profile-bearing summary reference and a separately held exact method-evidence reference, reopens the
+selected artifacts through the existing fresh Core reader, checks their full relationship and the
+requested point role, then delegates to the existing Monte Carlo consumer. The caller's intended-job
+selection remains `consumer_asserted`; the result stays `gate_eligible=False` with unit binding
+`not_established`. This library function does not add a workflow default or claim source currentness.
+See the [selected-posterior consumption guide](../../../../docs/how-to/selected-posterior-consumption.md)
+for its inputs, failure behavior, and usage boundary.
 
 The existing `summarize_bayesian_calibration_posterior()` route now attaches the existing
 `PosteriorSamplesCarrier` to each envelope whose mean remains representable inside the credible

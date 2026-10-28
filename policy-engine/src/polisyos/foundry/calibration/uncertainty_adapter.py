@@ -13,9 +13,11 @@ import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts import (
+    ArtifactManifest,
     ArtifactRef,
+    artifact_ref_identity_key,
     ensure_ir_artifact_store,
-    resolve_manifest_by_profile,
+    read_core_manifest_profile,
 )
 from polisyos.foundry.calibration.report import CalibrationReport
 from polisyos.foundry.uncertainty.protocol import (
@@ -48,7 +50,10 @@ from polisyos.ir.analytics.uncertainty import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.foundry.uncertainty.monte_carlo import MonteCarloPropagator
+    from polisyos.foundry.uncertainty.monte_carlo import (
+        MonteCarloPropagator,
+        PosteriorPushforwardResult,
+    )
 
 
 def _z_score(confidence_level: float) -> float:
@@ -654,6 +659,8 @@ def consume_persisted_bayesian_calibration_candidate(
 def _posterior_draw_source_from_method_evidence(
     store: ArtifactStore,
     evidence_ref: ArtifactRef,
+    *,
+    require_selected_result: bool = False,
 ) -> tuple[Mapping[str, Any], str, str, float]:
     """Resolve the producer-selected result view and bind its native draws to evidence."""
     if (
@@ -688,7 +695,12 @@ def _posterior_draw_source_from_method_evidence(
         ) from exc
     if str(result_ref.artifact_id) != result_id:
         raise ValueError("method evidence method-result ID does not match its producer-issued view")
-    evidence_manifest = store.get_manifest(evidence_ref)
+    if require_selected_result and result_ref.manifest_profile_sha256 is None:
+        raise ValueError("selected posterior consumption requires an exact method-result view")
+    if evidence_ref.manifest_profile_sha256 is None:
+        evidence_manifest = ArtifactManifest.model_validate(store.get_manifest(evidence_ref))
+    else:
+        evidence_manifest, _ = read_core_manifest_profile(ir_store, evidence_ref)
     result_edges = [
         edge
         for edge in evidence_manifest.inputs
@@ -774,8 +786,12 @@ def persist_posterior_summary_from_method_evidence(
 def load_persisted_posterior_summary(
     store: ArtifactStore,
     summary_ref: PosteriorSummaryRef,
+    *,
+    require_selected_result: bool = False,
 ) -> PosteriorSummaryV11:
-    """Fresh-read a summary and recompute it from its source method-evidence artifact."""
+    """Fresh-read and recompute a summary; optionally require its exact result view."""
+    if type(require_selected_result) is not bool:
+        raise TypeError("require_selected_result must be a bool")
     ir_store = ensure_ir_artifact_store(store)
     summary = load_posterior_summary(ir_store, summary_ref)
     source_ref = ArtifactRef.model_validate(
@@ -784,7 +800,9 @@ def load_persisted_posterior_summary(
         else {}
     )
     artifact_payload, artifact_ref, artifact_hash, source_credible_mass = (
-        _posterior_draw_source_from_method_evidence(store, source_ref)
+        _posterior_draw_source_from_method_evidence(
+            store, source_ref, require_selected_result=require_selected_result
+        )
     )
     recomputed = summarize_posterior_draw_artifact(
         artifact_ref=artifact_ref,
@@ -798,13 +816,12 @@ def load_persisted_posterior_summary(
         raise ValueError("posterior summary does not match its persisted method-evidence source")
 
     if summary_ref.manifest_profile_sha256 is None:
-        summary_manifest = store.get_manifest(summary_ref.artifact_id)
-    else:
-        summary_manifest = resolve_manifest_by_profile(
-            ir_store,
-            summary_ref.artifact_id,
-            summary_ref.manifest_profile_sha256,
+        summary_manifest = ArtifactManifest.model_validate(
+            store.get_manifest(summary_ref.artifact_id)
         )
+    else:
+        summary_selector = ArtifactRef.model_validate(summary_ref.model_dump(mode="python"))
+        summary_manifest, _ = read_core_manifest_profile(ir_store, summary_selector)
     source_edges = [edge for edge in summary_manifest.inputs if edge.role == "method_evidence"]
     if (
         len(source_edges) != 1
@@ -817,11 +834,89 @@ def load_persisted_posterior_summary(
     return summary
 
 
+def propagate_selected_posterior_summary(
+    store: ArtifactStore,
+    summary_ref: PosteriorSummaryRef,
+    *,
+    expected_method_evidence_ref: ArtifactRef,
+    simulation_fn: Callable[..., Mapping[str, float]],
+    nominal_params: Mapping[str, float],
+    parameter_names: tuple[str, ...],
+    output_metric_ids: tuple[str, ...],
+    point_role: PosteriorPointRole,
+) -> PosteriorPushforwardResult:
+    """Reopen an exact posterior view before its candidate Monte Carlo consumption.
+
+    The caller separately holds the selected summary and method-evidence views,
+    normally from the same method-job outcome. This function reconciles their
+    complete typed identities with the real fresh reader before evaluation. It
+    does not establish that the caller selected the intended job, nor confer
+    scientific, institutional, unit, source-currentness or publication authority.
+
+    Args:
+        store: Artifact store containing the selected summary and its sources.
+        summary_ref: Exact profile-bearing posterior summary selected by the caller.
+        expected_method_evidence_ref: Separately retained exact method-evidence view.
+        simulation_fn: Evaluator for the selected point and each source row.
+        nominal_params: Fixed evaluator inputs that are not posterior coordinates.
+        parameter_names: Ordered posterior coordinates consumed by the evaluator.
+        output_metric_ids: Ordered outputs retained from each evaluation.
+        point_role: Explicit point functional required by this consumer.
+
+    Returns:
+        The existing gate-ineligible posterior pushforward result.
+
+    Raises:
+        ValueError: If a selected profile, evidence identity or named role is absent
+            or inconsistent, or if the selected source law cannot be verified.
+    """
+    # Snapshot mutable ref models before any store callback can mutate caller
+    # objects. The selected-only route deliberately rejects the legacy default
+    # view instead of inferring an exact profile from an artifact ID.
+    selected_summary_ref = PosteriorSummaryRef.from_selected_write(
+        summary_ref.model_dump(mode="python")
+    )
+    expected_evidence = ArtifactRef.model_validate(
+        expected_method_evidence_ref.model_dump(mode="python")
+    )
+    if (
+        expected_evidence.kind != "scientist.method_evidence"
+        or expected_evidence.media_type != "application/json"
+        or expected_evidence.manifest_profile_sha256 is None
+    ):
+        raise ValueError("selected posterior consumption requires an exact method-evidence view")
+
+    summary = load_persisted_posterior_summary(
+        store, selected_summary_ref, require_selected_result=True
+    )
+    if summary.source_method_evidence_ref is None:
+        raise ValueError("selected posterior summary has no method-evidence view")
+    source_evidence = ArtifactRef.model_validate(
+        summary.source_method_evidence_ref.model_dump(mode="python")
+    )
+    if artifact_ref_identity_key(source_evidence) != artifact_ref_identity_key(expected_evidence):
+        raise ValueError("selected posterior summary does not match the held method-evidence view")
+    if summary.point_role is not point_role:
+        raise ValueError("selected posterior summary does not match the requested point role")
+
+    from polisyos.foundry.uncertainty.monte_carlo import MonteCarloPropagator
+
+    return MonteCarloPropagator().propagate_posterior_summary(
+        summary,
+        simulation_fn=simulation_fn,
+        nominal_params=nominal_params,
+        parameter_names=parameter_names,
+        output_metric_ids=output_metric_ids,
+        point_role=point_role,
+    )
+
+
 __all__ = [
     "BayesianCalibrationDrawContextCandidate",
     "BayesianCalibrationEnvelopeLimitation",
     "BayesianCalibrationPosteriorSummary",
     "envelope_from_calibration_param",
     "envelopes_from_calibration",
+    "propagate_selected_posterior_summary",
     "summarize_bayesian_calibration_posterior",
 ]

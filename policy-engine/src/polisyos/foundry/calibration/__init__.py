@@ -106,6 +106,7 @@ from .uncertainty_adapter import (
     envelope_from_calibration_param,
     envelopes_from_calibration,
     persist_posterior_summary_from_method_evidence,
+    propagate_selected_posterior_summary,
 )
 
 try:  # pragma: no cover - optional JAX dependency
@@ -265,6 +266,7 @@ __all__ = [
     "MultiStartResult",
     "ParamIdentifiability",
     "persist_posterior_summary_from_method_evidence",
+    "propagate_selected_posterior_summary",
     "put_calibration_config",
     "put_calibration_execution_input_basis",
     "put_calibration_report",

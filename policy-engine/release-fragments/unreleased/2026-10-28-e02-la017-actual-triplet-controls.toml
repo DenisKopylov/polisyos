@@ -1,0 +1,19 @@
+id = "2026-10-28-e02-la017-actual-triplet-controls"
+title = "Strengthen Lex semantic removal-control evidence"
+type = "changed"
+component = "lex"
+owner = "team-policyos-runtime"
+summary = "Add test-scoped Lex property and removal controls with source, process, input and write observations."
+evidence = [
+  "tests/unit/remediation/test_e02_lex_impact_controls.py",
+  "tests/unit/remediation/e02_lex_triplet_runner.py",
+  "docs/research/e02-cloud-test-plan/implementation-handoffs/F17/la017-controls/C95-actual-triplet-r2.md",
+]
+compatibility = "No product DTO, schema, persisted format, API, CLI or runtime owner changes. Existing legacy and selected report semantics are exercised by tests."
+change_class = "internal"
+surface_classification = "internal"
+limitations = "The controls do not establish legal authority, currentness, production provenance, measured policy effects, full LA-017 capability, G acceptance or closure."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

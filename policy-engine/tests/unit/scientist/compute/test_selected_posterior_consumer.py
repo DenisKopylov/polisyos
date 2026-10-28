@@ -13,7 +13,7 @@ from polisyos.core.artifacts import (
     artifact_manifest_profile_sha256,
     artifact_ref_identity_key,
 )
-from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import InputRef, ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.foundry.calibration import uncertainty_adapter
@@ -189,7 +189,7 @@ def test_selected_route_supports_real_cas_with_mapping_manifests(tmp_path: Path)
     assert calls == [1.5, 0.0, 1.0, 2.0, 3.0]
 
 
-def test_nondefault_full_ref_views_work_without_optional_profile_only_lookup(
+def test_selected_summary_and_evidence_full_refs_work_without_optional_profile_only_lookup(
     tmp_path: Path,
 ) -> None:
     _summary_ref, evidence_ref = _job(tmp_path)
@@ -207,14 +207,23 @@ def test_nondefault_full_ref_views_work_without_optional_profile_only_lookup(
 
     facade = FullRefOnlyView()
     assert not hasattr(facade, "get_manifest_by_profile")
-    # The ordinary selected writer must keep accepting a valid nondefault
-    # evidence view even when the optional profile-only resolver is absent.
     summary_ref = persist_posterior_summary_from_method_evidence(
         facade, selected_evidence, point_role=PosteriorPointRole.POSTERIOR_MEAN
     )
-    payload = from_canonical_bytes(actual.get_bytes(summary_ref.artifact_id))
-    selected_manifest = actual.get_manifest(
+    selected_summary_manifest = actual.get_manifest(
         ArtifactRef.model_validate(summary_ref.model_dump(mode="python"))
+    )
+    assert summary_ref.manifest_profile_sha256 is not None
+    assert len(selected_summary_manifest.inputs) == 1
+    assert selected_summary_manifest.inputs[0].manifest_profile_sha256 == (
+        selected_evidence.manifest_profile_sha256
+    )
+
+    # Producer metadata is a test-only manifest-profile dimension. Keep the
+    # producer-owned CAN.2 profile, summary bytes, and selected evidence edge.
+    payload = from_canonical_bytes(actual.get_bytes(summary_ref.artifact_id))
+    synthetic_producer = ProducerInfo(
+        component="tests.synthetic_posterior_summary_view", version="1.0"
     )
     alternate = actual.put_json(
         payload,
@@ -222,16 +231,25 @@ def test_nondefault_full_ref_views_work_without_optional_profile_only_lookup(
             kind="ir.posterior_summary",
             media_type="application/json",
             schema=SchemaInfo(name="ir.PosteriorSummaryV11", version="1.1"),
-            inputs=selected_manifest.inputs,
+            producer=synthetic_producer,
+            inputs=selected_summary_manifest.inputs,
         ),
-        canon_spec=CanonSpec(forbid_floats=False, max_depth=139),
+        canon_spec=CanonSpec(forbid_floats=False),
         return_selected_profile=True,
     )
     alternate_ref = PosteriorSummaryRef.model_validate(alternate.model_dump(mode="python"))
     assert alternate_ref.artifact_id == summary_ref.artifact_id
+    assert alternate_ref.manifest_profile_sha256 is not None
+    assert alternate_ref.manifest_profile_sha256 != summary_ref.manifest_profile_sha256
     assert alternate_ref.manifest_profile_sha256 != artifact_manifest_profile_sha256(
         actual.get_manifest(summary_ref.artifact_id)
     )
+    alternate_manifest = actual.get_manifest(
+        ArtifactRef.model_validate(alternate_ref.model_dump(mode="python"))
+    )
+    assert alternate_manifest.producer == synthetic_producer
+    assert alternate_manifest.canon == selected_summary_manifest.canon
+    assert alternate_manifest.inputs == selected_summary_manifest.inputs
     calls: list[float] = []
     result = _consume(facade, alternate_ref, selected_evidence, calls)
     assert result.output_summaries["value"].credible_mass == 0.9

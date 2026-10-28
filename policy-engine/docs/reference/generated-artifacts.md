@@ -118,7 +118,7 @@ Every committed generated artifact family must have a source of truth, a regener
 | `CG3 admission with preserved synthetic input limitations` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/grounding_admission_contract.json` |
 | `N6 generation cycle and immutable source preservation` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_generation_cycle_contract.json` |
 | `Pre-declared constructed-mismatch refusal sensitivity` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/corr/grounding_refusal_sensitivity.json` |
-| `Foundry method ABI type stubs` | `generated_committed` | `committed` | `automated` | `team-policyos-foundry` | `src/polisyos/foundry/methods/base.pyi`<br/>`src/polisyos/foundry/methods/registry.pyi`<br/>`src/polisyos/foundry/methods/composer.pyi`<br/>`src/polisyos/foundry/methods/components/composer.pyi` |
+| `Foundry method ABI type stubs` | `generated_committed` | `committed` | `automated` | `team-policyos-foundry` | `src/polisyos/foundry/methods/base.pyi`<br/>`src/polisyos/foundry/methods/registry.pyi`<br/>`src/polisyos/foundry/methods/composer.pyi`<br/>`src/polisyos/foundry/methods/components/composer.pyi`<br/>`src/polisyos/foundry/methods/selection/registry.pyi` |
 | `Runtime-quality active authority envelope v2 schema` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `schemas/runtime_quality/evidence_authority_envelope_v2.schema.json` |
 | `Runtime-quality frozen historical authority envelope v1 schema` | `source_committed` | `committed` | `automated` | `team-runtime-quality` | `schemas/runtime_quality/evidence_authority_envelope_v1.schema.json` |
 
@@ -3421,12 +3421,12 @@ uv run python -m tools.quality.validation.check_grounding_refusal_sensitivity --
 
 - Family id: `foundry-method-stubs`
 - Lifecycle: `generated_committed`
-- Source of truth: tools/devx/foundry/generate_stubs.py OUTPUT_MAP and REEXPORT_OWNERS derived canonical owner __all__, parse-only stubgen with private callable inclusion, source-derived free-function annotations, actual runtime Enum membership/value assignments, the canonical Ruff import/format/full-check pipeline, and ruff.toml/ruff.generated.toml; src/polisyos/foundry/methods/base.py, components/composer.py, and canonical registry/composer facade owners, including transitive imported type contracts
+- Source of truth: tools/devx/foundry/generate_stubs.py OUTPUT_MAP and REEXPORT_OWNERS derived canonical owner __all__, parse-only stubgen with private callable inclusion, source-derived free-function annotations, actual runtime Enum membership/value assignments, the canonical Ruff import/format/full-check pipeline, and ruff.toml/ruff.generated.toml; src/polisyos/foundry/methods/base.py, components/composer.py, selection/registry.py, and canonical registry/composer facade owners, including transitive imported type contracts
 - Generator: tools/devx/foundry/generate_stubs.py through polisyos-tools foundry generate-stubs
 - Verifier: The same generator regenerates and byte-compares its complete OUTPUT_MAP with --check
 - Promotion target: committed Foundry Python ABI stubs; no runtime or scientific authority
 - Commit policy: `committed`
-- Freshness rule: Regenerate all four outputs whenever the canonical method ABI, composition validation context, public facade __all__ ownership, canonical Ruff configuration/tool profile or stub generator changes; missing or unreadable output is not a clean comparison.
+- Freshness rule: Regenerate all five outputs whenever the canonical method ABI, composition validation context, public facade __all__ ownership, canonical Ruff configuration/tool profile or stub generator changes; missing or unreadable output is not a clean comparison.
 - Stale output behavior: `fail`
 - Drift gate: `automated`
 - Owner: `team-policyos-foundry`
@@ -3441,6 +3441,7 @@ uv run python -m tools.quality.validation.check_grounding_refusal_sensitivity --
   - `src/polisyos/foundry/methods/registry.pyi`
   - `src/polisyos/foundry/methods/composer.pyi`
   - `src/polisyos/foundry/methods/components/composer.pyi`
+  - `src/polisyos/foundry/methods/selection/registry.pyi`
 
 Canonical regeneration commands:
 

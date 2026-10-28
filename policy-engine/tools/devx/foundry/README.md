@@ -10,7 +10,8 @@
 - Signature baseline refresh: `tools/devx/foundry/update_signature_baseline.py`.
 - Written outputs:
   `src/polisyos/foundry/methods/{base,registry,composer}.pyi` and
-  `src/polisyos/foundry/methods/components/composer.pyi`.
+  `src/polisyos/foundry/methods/components/composer.pyi` and
+  `src/polisyos/foundry/methods/selection/registry.pyi`.
 
 - Baseline artifact:
   `tests/_golden/foundry/signature_baseline.json`.
@@ -74,7 +75,7 @@ These commands are source-backed interfaces, not execution receipts for a future
 candidate. Keep Python, lockfile, mypy/stubgen and the actual source tree pinned
 when generating and comparing. The canonical composer output comes from
 `components.composer`; the compatibility `composer.pyi` stays a canonical-owner
-reexport. `architecture/generated_artifacts.toml` registers all four outputs as
+reexport. `architecture/generated_artifacts.toml` registers all five outputs as
 one generated-committed family using this owner for checking and staged probing.
 
 Each invocation prints its explicit read measurement, selected modules/output
@@ -111,3 +112,15 @@ scientific authority.
   `scripts/` were retired during the Repository SOTA closeout.
 
 - Last updated: 2026-10-28
+
+## Canonical provider closure
+
+The generated family includes canonical `selection.registry` as well as the
+compatibility registry facade. Python type checkers resolve `selection/registry.pyi`
+ahead of its `.py`; updating the source reexport cannot repair a stale provider
+stub. All physical `.pyi` files below `src/polisyos/foundry/methods` must belong to
+the same complete `OUTPUT_MAP`. The defining staged-owner test recomputes this
+physical file-type denominator before generation, then type-checks all staged
+provider/facade outputs together. Its client also accesses every runtime `__all__`
+export and consumes canonical registry entries, snapshots, lifecycle and audit
+contracts. This is an extension of the existing owner, not a second stub generator.

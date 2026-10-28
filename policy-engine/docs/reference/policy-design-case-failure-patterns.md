@@ -607,6 +607,19 @@ preservation while keeping names, formatting and measurement markers must fail
 that checker. A repair proposal or source review does not establish runtime PASS;
 its real generator/type/removal checks remain separately bound evidence.
 
+#### C60 provider-shadowing continuation of the same P38/P40 class
+
+The first strict staged ABI run after the semantic-preservation repair found a
+fifth physical method `.pyi`, `selection/registry.pyi`, outside the four-output
+map. It shadowed the corrected `.py` and omitted the facade-required lifecycle
+export. A full five-file census, not a sampled output map, exposed the boundary.
+This is the same generated-ABI quantity mismatch, not a new per-symbol class.
+Consolidate the canonical provider into the existing generator once, preserve its
+useful source API, recompute the full physical `.pyi` ownership set, and type-check
+all staged providers/facades plus actual exports and registry consumers together.
+Historical four-output/fourteen-target receipts retain their original counts and
+versions; they are not evidence for the widened five-output/fifteen-target profile.
+
 ### P38/P40 instance: federation JOIN resource key relation
 
 Diagnostic: do cardinality and resource preflight, intermediate relation propagation, and materialization use the same equivalence over admitted keys? Tagged scalar bytes distinguish integer 1 from float 1.0 and positive from negative zero although numeric equality matches them; an outer JOIN can materialize two rows after preflight admitted one. Use one internal relation throughout, preserve exact carried keys, and test the real merge and allocation boundary against an independent row-occurrence oracle.

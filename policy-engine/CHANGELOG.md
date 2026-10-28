@@ -20,6 +20,10 @@ commits filtered out.
 
 ### Changed
 
+- Include the canonical Foundry selection registry provider in the existing five-file
+  generated ABI family, preserving its entry/snapshot/audit API and verifying all
+  real provider/facade exports together with strict consumers.
+
 - Preserve actual Enum members, explicit free-function annotations and typed internal
   callables in generated Foundry method ABI stubs; carry concrete signature and
   collection types through compilation, dispatch and checkpoint consumers. Strict

@@ -45,6 +45,12 @@ OUTPUT_MAP: dict[str, Path] = {
     / "methods"
     / "components"
     / "composer.pyi",
+    "polisyos.foundry.methods.selection.registry": SRC_ROOT
+    / "polisyos"
+    / "foundry"
+    / "methods"
+    / "selection"
+    / "registry.pyi",
 }
 TARGETS: tuple[str, ...] = tuple(OUTPUT_MAP)
 REEXPORT_OWNERS: dict[str, str] = {

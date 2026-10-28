@@ -217,16 +217,16 @@ Catalog-family tests should mirror the package layout under
 
 ## Generated ABI semantics
 
-The four committed method stubs are produced together by `polisyos-tools foundry generate-stubs`. The owner uses
+The five committed method stubs are produced together by `polisyos-tools foundry generate-stubs`. The owner uses
 parse-only stubgen with private callable inclusion, restores explicit source
 annotations that stubgen treats as implicit receiver annotations, and emits
 actual runtime Enum members as assignments. This preserves typed internal
 consumers such as `_stable_digest` and Enum attribute/value semantics; canonical
 Ruff formatting alone does not establish a valid typing ABI.
 
-Regenerate into a new `--output-root`, inspect all four genuine outputs, and then
+Regenerate into a new `--output-root`, inspect all five genuine outputs, and then
 run the same owner with `--check`. The defining staged-owner test also invokes
-strict mypy with all four canonical paths shadowed by the staged bytes and a
+strict mypy with all five canonical paths shadowed by the staged bytes and a
 consumer derived from every Enum declared by the canonical owners. Member names
 and expected value types come from runtime Enum objects, independently of the
 producer transform. The type client also consumes the real private digest ABI.
@@ -238,3 +238,12 @@ Collection helpers accept the iterable contracts they actually traverse, and
 executor helpers retain typed signatures through dispatch and cache composition.
 Ray's optional backend must be available in a profile claiming its strict import
 check; an absent Ray installation is an environment limitation, not a product PASS.
+
+The family includes `selection/registry.pyi`, the canonical provider behind the
+registry facade. Its generated contract preserves the actual registry API rather
+than carrying forward the older manual snapshot: constructor defaults and frozen
+snapshot rows reflect source semantics, existing public methods remain present,
+and audit export accepts both string and path-like inputs as its runtime already
+does. The strict consumer exercises these useful shapes and every actual declared
+public export; the generic physical-stub census prevents an unowned provider stub
+from silently shadowing a corrected source module.

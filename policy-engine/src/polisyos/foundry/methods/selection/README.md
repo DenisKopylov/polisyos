@@ -55,3 +55,15 @@ Set `POLISYOS_FOUNDRY_STATE_HOME` to an absolute root to choose a different loca
 
 The getter does not discover or import history from an earlier checkout path. To adopt old rows, stop all writers, verify the destination does not already exist, explicitly import the old JSONL with `SelectionHistoryStore.import_jsonl(path=...)`, and export to the new store. Verify the count and representative successful, failed, and telemetry fields; compare the old file hash and retain the original. `import_jsonl()` is append-oriented, so review before repeating it. Existing explicit `persist_path` and `MethodDispatcher(runtime_history=...)` behavior is unchanged. Failed appends remain visible through the store's persistence issues instead of selecting a fallback path.
 
+
+## Registry typing ABI
+
+`registry.py` is the canonical runtime contract, and its `registry.pyi` is a member
+of the single Foundry method-stub generated family. Regenerate it together with
+base, canonical composer and both compatibility facades using
+`polisyos-tools foundry generate-stubs`; never hand-fix a missing provider symbol.
+The generator derives source signatures, actual public exports and Enum semantics;
+strict staged consumers check lifecycle exports, entry/factory types, snapshots,
+context managers and audit-export path inputs. The former provider stub omitted
+`MethodLifecycle` and lagged source defaults/fields/frozen snapshot behavior;
+regeneration follows actual source while preserving supported useful API shapes.

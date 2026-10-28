@@ -52,6 +52,7 @@ from collections.abc import Callable, Generator, Iterator, Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from functools import cmp_to_key
+from os import PathLike
 from typing import Any
 
 from polisyos.core.registry import BaseRegistry
@@ -117,7 +118,7 @@ class RegistryAuditEvent:
     fqn: str
     timestamp: float  # time.time()
     caller: str  # simplified "module:lineno" string
-    details: dict  # extra context (backend, version, lazy, ...)
+    details: dict[str, Any]  # extra context (backend, version, lazy, ...)
 
 
 class RegistryAuditLog:
@@ -165,7 +166,7 @@ class RegistryAuditLog:
         with self._lock:
             self._events.clear()
 
-    def export_jsonl(self, path: str) -> None:
+    def export_jsonl(self, path: str | PathLike[str]) -> None:
         """Write all events to *path* as newline-delimited JSON."""
         import json as _json
 
@@ -224,7 +225,7 @@ __all__ = [
     "registry_scope",
 ]
 
-MethodFactory = Callable[[], type[FoundryMethod]]
+MethodFactory = Callable[[], type[FoundryMethod[Any, Any]]]
 
 
 def _normalize_import_target(
@@ -267,7 +268,7 @@ class MethodEntry:
     metadata: MethodMetadata
     factory: MethodFactory
     loaded: bool = False
-    _cached_class: type[FoundryMethod] | None = field(default=None, repr=False)
+    _cached_class: type[FoundryMethod[Any, Any]] | None = field(default=None, repr=False)
     import_module: str | None = None
     import_qualname: str | None = None
     lifecycle_log: LifecycleLog = field(default_factory=LifecycleLog, repr=False)
@@ -490,7 +491,9 @@ class MethodRegistry:
     # Registration
     # ---------------------------------------------------------------------
 
-    def register(self, method_class: type[FoundryMethod], *, override: bool = False) -> str:
+    def register(
+        self, method_class: type[FoundryMethod[Any, Any]], *, override: bool = False
+    ) -> str:
         """
         Register a method class (eager registration).
 
@@ -686,7 +689,7 @@ class MethodRegistry:
         *,
         policy: ResolutionPolicy | None = None,
         constraint: VersionConstraint | None = None,
-    ) -> type[FoundryMethod]:
+    ) -> type[FoundryMethod[Any, Any]]:
         """
         Get a method by name with version resolution.
 
@@ -780,7 +783,7 @@ class MethodRegistry:
             f"Please use fully qualified name (e.g., '{namespaces[0]}.{name}')"
         )
 
-    def _load_entry(self, entry: MethodEntry) -> type[FoundryMethod]:
+    def _load_entry(self, entry: MethodEntry) -> type[FoundryMethod[Any, Any]]:
         """
         Load a method entry, triggering lazy loading if needed.
         """

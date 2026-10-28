@@ -34,6 +34,15 @@ def test_actual_stub_owner_staging_and_check_detect_complete_byte_drift(tmp_path
     from tools.devx.foundry import generate_stubs
 
     owner_root = generate_stubs.REPO_ROOT.resolve()
+    physical_stubs = {
+        path.relative_to(generate_stubs.SRC_ROOT).as_posix()
+        for path in (generate_stubs.SRC_ROOT / "polisyos/foundry/methods").rglob("*.pyi")
+        if path.is_file()
+    }
+    assert physical_stubs == {
+        path.relative_to(generate_stubs.SRC_ROOT).as_posix()
+        for path in generate_stubs.OUTPUT_MAP.values()
+    }, "the generated family must own every physical method stub, including canonical providers"
 
     def physical_input_path(label: str) -> Path:
         recorded = Path(label)
@@ -116,16 +125,22 @@ def test_actual_stub_owner_staging_and_check_detect_complete_byte_drift(tmp_path
     from enum import Enum
 
     client_lines = [
-        "from typing import Literal, assert_type",
-        "from polisyos.foundry.methods.base import _stable_digest",
+        "from typing import Any, Literal, assert_type",
+        "from collections.abc import Iterator",
+        "from pathlib import Path",
+        "from polisyos.foundry.methods.base import FoundryMethod, MethodMetadata, MethodSignature, _stable_digest",
+        "from polisyos.foundry.methods.lifecycle import LifecycleLog",
+        "from polisyos.foundry.methods.selection import registry as canonical_registry",
         "assert_type(_stable_digest({}), str)",
     ]
     enum_count = 0
     member_count = 0
-    for module in generate_stubs.OUTPUT_MAP:
+    for index, module in enumerate(generate_stubs.OUTPUT_MAP):
         runtime_owner = import_module(module)
-        alias = "owner_" + str(enum_count)
+        alias = "owner_" + str(index)
         declarations = []
+        for export in getattr(runtime_owner, "__all__", ()):
+            declarations.append(f"{alias}.{export}")
         for name, actual in vars(runtime_owner).items():
             if (
                 isinstance(actual, type)
@@ -147,7 +162,32 @@ def test_actual_stub_owner_staging_and_check_detect_complete_byte_drift(tmp_path
         if declarations:
             client_lines.append(f"import {module} as {alias}")
             client_lines.extend(declarations)
+        if any(
+            isinstance(actual, type) and issubclass(actual, Enum) and actual.__module__ == module
+            for actual in vars(runtime_owner).values()
+        ):
             enum_count += 1
+    client_lines.extend(
+        [
+            "def registry_consumer(registry: canonical_registry.MethodRegistry, signature: MethodSignature, metadata: MethodMetadata, factory: canonical_registry.MethodFactory, lifecycle: LifecycleLog) -> None:",
+            "    assert_type(registry.get(signature.fqn), type[FoundryMethod[Any, Any]])",
+            "    assert_type(registry.list_all(), list[MethodSignature])",
+            "    assert_type(registry.snapshot().entries(), Iterator[canonical_registry.RegistrySnapshotEntry])",
+            "    entry = canonical_registry.MethodEntry(signature=signature, metadata=metadata, factory=factory, loaded=False, lifecycle_log=lifecycle)",
+            "    assert_type(entry.fqn, str)",
+            "    assert_type(canonical_registry.RegistrySnapshotEntry.from_entry(entry), canonical_registry.RegistrySnapshotEntry)",
+            "    audit = canonical_registry.RegistryAuditLog()",
+            "    audit.export_jsonl(Path('static-only.jsonl'))",
+            "    audit.export_jsonl('static-only.jsonl')",
+            "    assert_type(audit.get_history(), list[canonical_registry.RegistryAuditEvent])",
+            "    with registry.snapshot_scope() as snapshot:",
+            "        assert_type(snapshot, canonical_registry.RegistrySnapshot)",
+            "    with canonical_registry.registry_scope() as scoped:",
+            "        assert_type(scoped, canonical_registry.MethodRegistry)",
+            "def specialized_registry_consumer(registry: canonical_registry.MethodRegistry, method: type[FoundryMethod[int, dict[str, int]]]) -> None:",
+            "    registry.register(method)",
+        ]
+    )
     assert enum_count and member_count, "the actual canonical family must supply Enum witnesses"
     enum_client = tmp_path / "enum_consumer.py"
     enum_client.write_text("\n".join(client_lines) + "\n")
@@ -218,7 +258,7 @@ def test_actual_stub_owner_staging_and_check_detect_complete_byte_drift(tmp_path
         raise
     retain_type_output(typed.stdout, typed.stderr, typed.returncode)
     assert typed.returncode == 0, (
-        "actual generated Enum ABI must pass strict member/value consumers\n"
+        "actual generated Enum ABI must pass strict member/value consumers and canonical provider API\n"
         + typed.stdout.decode("utf-8", errors="replace")
         + typed.stderr.decode("utf-8", errors="replace")
     )

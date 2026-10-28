@@ -1,0 +1,14 @@
+╭─────────────────────────────────╮
+│ lefthook v2.1.6  hook: pre-push │
+╰─────────────────────────────────╯
+┃  typecheck ❯ 
+
+
+> @polisyos/runtime-dashboard@0.1.0 typecheck /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/apps/runtime-dashboard
+> tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.node.json --noEmit && tsc -p tsconfig.tools.json --noEmit
+
+
+                                      
+  ────────────────────────────────────
+summary: (done in 18.50 seconds)      
+✓ typecheck (18.49 seconds)

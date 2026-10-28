@@ -1,0 +1,19 @@
+F..                                                                      [100%]R4_INPUT_READSET_SUMMARY={"bypass": null, "capacity": null, "case_id": "driver", "module_count": 1609, "phase": "driver", "pid": 666, "readset_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c32-native-composed-pilot-r2-20261028/readsets/input-readset-666.json", "source_module_count": 1585, "test_module_count": 12, "tools_module_count": 12}
+
+=================================== FAILURES ===================================
+_____ test_available_owner_reads_all_actual_rows_under_the_admitted_source _____
+tests/unit/runtime/quality/test_catalog_source_identity.py:347: in test_available_owner_reads_all_actual_rows_under_the_admitted_source
+    gateway_type, problem, candidate = _actual_profile_gateway_inputs()
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_catalog_source_identity.py:324: in _actual_profile_gateway_inputs
+    base = fixtures._problem("c32-available-owner")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/_helpers/controlled_candidate_profile.py:1908: in _problem
+    return DesignProblem(
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for DesignProblem
+E   design_problem_id
+E     String should match pattern '^[a-z][a-z0-9_]*$' [type=string_pattern_mismatch, input_value='c32-available-owner', input_type=str]
+E       For further information visit https://errors.pydantic.dev/2.12/v/string_pattern_mismatch
+=========================== short test summary info ============================
+FAILED tests/unit/runtime/quality/test_catalog_source_identity.py::test_available_owner_reads_all_actual_rows_under_the_admitted_source
+1 failed, 2 passed in 16.41s

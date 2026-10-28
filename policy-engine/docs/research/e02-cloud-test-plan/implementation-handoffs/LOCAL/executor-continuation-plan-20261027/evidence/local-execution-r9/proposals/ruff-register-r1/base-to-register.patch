@@ -1,0 +1,18 @@
+--- a/policy-engine/docs/reference/policy-design-case-failure-patterns.md
++++ b/policy-engine/docs/reference/policy-design-case-failure-patterns.md
+@@ -450,6 +450,15 @@
+ 
+ **Closure.** Sort those seven local import blocks, then run Ruff check and format against the complete final file set in its physical topology. When candidate additions/removals can affect package or module discovery, repeat the gate after composing that topology. Do not mask the result with a global import-order override.
+ 
++**Diagnostic question.** Did Ruff actually parse every intended source with the
++product configuration and canonical logical filename? An ignored scratch path
++or zero-file selection can exit successfully without checking the intended bytes.
++**Closure move.** Enumerate the intended sources and bind each input's bytes,
++logical filename, working directory, and product `ruff.toml` configuration
++(including its generated extension) to its result. Use explicit stdin for scratch
++bytes; treat skips or zero checked files as no evidence, and repeat the check
++against the composed physical topology when package discovery can affect it.
++
+ **Scope.** This is the same P38 proxy-gate class, not a new class or a P40 repair ladder. The seven-block style delta is independently reviewed and the full 20-file canonical Ruff check/format receipts pass. Runtime tests remain unrun; this note makes no runtime or N4 closure claim.
+ 
+ ### P30/P38 instance: source snapshots sharing writable inodes (2026-10-17)

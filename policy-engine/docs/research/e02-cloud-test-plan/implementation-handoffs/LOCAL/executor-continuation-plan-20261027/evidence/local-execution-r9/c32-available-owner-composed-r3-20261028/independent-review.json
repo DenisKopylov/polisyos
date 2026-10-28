@@ -1,0 +1,87 @@
+{
+  "schema": "policyos.e02.c32.independent_available_positive_review.v1",
+  "disposition": "bounded_positive_runtime_pass",
+  "source_head": "aaefd17075b84ef45fbac6a56e04e29148e7e724",
+  "source_tree": "41cdce069a4107b3796a8410de17c15c814be76e",
+  "node": "tests/unit/runtime/quality/test_catalog_source_identity.py::test_available_owner_reads_all_actual_rows_under_the_admitted_source",
+  "plan": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c32-available-owner-composed-r3-20261028.json",
+    "sha256": "efd358dcae3f386b29917e5c2c973c06a6ea0e705fb7d90479e69379ea3691d8"
+  },
+  "qualification": {
+    "path": "LOCAL/raw/e02-execution-20261027/root-c32-available-r3/qualification.json",
+    "sha256": "d0ccff26d75a404e2e62e346190576b0fad01b5230a7492298fc8716731438a6",
+    "status": "qualified"
+  },
+  "audit": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c32-available-owner-composed-r3-20261028/audit-result.json",
+    "sha256": "440f26496b8e2bbb74bd01e6cbce1533643c0d2db9d84aab31b5afec543e0772"
+  },
+  "root_git_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c32-available-owner-composed-r3-20261028-Git-readback.json",
+    "sha256": "ecb95263c387b184b44ad030be5bab0b0e451dcfcdc20198946559191fe067ee",
+    "reported_mismatches": 0
+  },
+  "junit": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c32-available-owner-composed-r3-20261028/pytest.xml",
+    "sha256": "72907c44601b3e52e103fe071edc464b75ace44c2c60735876338e9e500dd9d0",
+    "tests": 1,
+    "passed": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "stdout": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c32-available-owner-composed-r3-20261028/c32-available-owner-composed-r3-20261028.stdout.txt",
+    "sha256": "2c32bad4e11b7a20a281f84db5ae627361cf52f7241921291c6836d180b673bb"
+  },
+  "stderr": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c32-available-owner-composed-r3-20261028/c32-available-owner-composed-r3-20261028.stderr.txt",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "witness": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c32-available-owner-composed-r3-20261028/c32-witness.json",
+    "sha256": "ac0bcf150ba20bedf1d74f41925a2726278e5c667f425e42ec013c052869c73c",
+    "actual_selected_observation_rows": 8,
+    "native_state_events": 30,
+    "native_state_incomplete": 0,
+    "observer_errors": 0,
+    "outside_inputs": 0
+  },
+  "deciding_native_source": {
+    "raw_sha256": "13d05766708585149f13ebdb63d0868550018efac7c5d7c660327821df2b82c7",
+    "raw_bytes": 1585152,
+    "retained_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c32-available-owner-composed-r3-20261028/native-input-bytes/13d05766708585149f13ebdb63d0868550018efac7c5d7c660327821df2b82c7.bin.gz",
+    "compressed_sha256": "89d68a52e3033ac3ec14f2b58f958f76369430fd20e296b8277222e4d025e5a6",
+    "compressed_bytes": 3860,
+    "verified_decompressed_sha256": true,
+    "original_retained_path_still_matches": true,
+    "overlay": "absent"
+  },
+  "readset": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c32-available-owner-composed-r3-20261028/readsets/input-readset-8550.json",
+    "sha256": "6a9666856899a9a764a21e3c84e182708b3036d3643bbba82e9367f60c704a40",
+    "complete_observed_module_denominator": 1606,
+    "git_blob_mismatches": 0,
+    "missing": 0,
+    "duplicate_paths": 0,
+    "independent_git_readback_bytes": 40944508,
+    "coverage": "observed src/polisyos, tests, tools Python only; external dependencies and unimported source are excluded"
+  },
+  "profile": {
+    "python": "3.14.3",
+    "duckdb": "1.4.3",
+    "pytest": "9.0.2",
+    "pydantic": "2.12.5",
+    "numeric_threads": 1,
+    "wall_seconds": 21.038366374996258,
+    "peak_process_tree_rss_bytes": 1004158976
+  },
+  "review_executed_product_tests": false,
+  "limits": [
+    "synthetic split code/data fixture; not production provenance or source currentness",
+    "positive only; no adversarial or removal control",
+    "not ordinary served N7, full V4/V7, G acceptance, atomic custody, or formal closure"
+  ],
+  "closure_ids": []
+}

@@ -1,0 +1,68 @@
+{
+  "slice": "C66",
+  "task_id": "task_e_6ae154adbec48325a31f7392ca89ce55",
+  "base_commit": "45fe14d8fe6f6822efab491495886501158d4b45",
+  "candidate_tree_reconstructed_from_received_diff": "8e2577a016c15c3a318edd7f327376cb8adc1116",
+  "received_diff_sha256": "5bc2acfa40dbbb722254ad7720f4b9cd7cb906048937e1dc6c4031f3b1b6b8b2",
+  "received_diff_bytes": 72224,
+  "files": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-27-c34-federation-lineage.toml",
+      "base_git_blob": null,
+      "postimage_git_blob": "eec9cde14cde620b0dd6e6794c6a6bb1c0c0117d",
+      "postimage_sha256": "e29b735947b5257e294e0c1763a7e7d8623abb558125e5584e5099df27c4ae78",
+      "bytes": 1925,
+      "new_file": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/README.md",
+      "base_git_blob": "7d2bf37e7616c3937da75e5989b87eb046b9b998",
+      "postimage_git_blob": "d3365bca7aa8b06e65ca9a021af0db548f8cf6ef",
+      "postimage_sha256": "4def81be75860b455bea6f6acdcaf8a7fe523fd7867175d54fb86c7f5e13cb7d",
+      "bytes": 13258,
+      "new_file": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/federation/__init__.py",
+      "base_git_blob": "cd542436e7232125f2b6db4521fb389c2924953c",
+      "postimage_git_blob": "76d277f5964a90f93d9bf1a8128794bd0878ec05",
+      "postimage_sha256": "6329351aa9b31709c11eefbaf0dfb0b864f7779d6b1b076c9a6b64e14c82cc97",
+      "bytes": 2234,
+      "new_file": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/federation/artifact.py",
+      "base_git_blob": null,
+      "postimage_git_blob": "cae1610a884dbcf01e83fc47d55ef9bbebbf1ca5",
+      "postimage_sha256": "2ab2d404c4e561cffeb757ad3c317a14c8491d741963be697224ef1c03e2e970",
+      "bytes": 13664,
+      "new_file": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/federation/composer.py",
+      "base_git_blob": "def3f64a2ab1f3331bc90f35144520411f6c72ac",
+      "postimage_git_blob": "e44263d9894744c2ff66b97af423afa258a98e0c",
+      "postimage_sha256": "253764d3072d041f4368394f1b4ae2cbae45b3cae968b208644994c3c075b212",
+      "bytes": 53657,
+      "new_file": false
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/connectors/test_federation.py",
+      "base_git_blob": "bd7f6c92bda6a11392e706079e7ec4a70a99783b",
+      "postimage_git_blob": "c86fdead7991b36a1539851d2549671494463743",
+      "postimage_sha256": "ee8f3fdba2e6ce65652110929a9aa6a09df83a184fcd724ee5e568984081136f",
+      "bytes": 35722,
+      "new_file": false
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/connectors/test_federation_artifact.py",
+      "base_git_blob": null,
+      "postimage_git_blob": "d936280d13f12fb09f75932332eb8b310e89af51",
+      "postimage_sha256": "999e3745494566c367a5dbfbd71c10a32f6eec0e712354374f929a682b1f2a8f",
+      "bytes": 7652,
+      "new_file": true
+    }
+  ],
+  "canonical_source_not_applied": true,
+  "actual_canonical_index_unchanged": true
+}

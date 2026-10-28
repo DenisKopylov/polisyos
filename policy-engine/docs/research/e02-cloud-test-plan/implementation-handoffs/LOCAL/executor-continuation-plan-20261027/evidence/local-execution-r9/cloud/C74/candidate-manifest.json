@@ -1,0 +1,38 @@
+{
+  "slice": "C74",
+  "task_id": "task_e_6ae163fade048325b28d50f6123642c5",
+  "base_commit": "45fe14d8fe6f6822efab491495886501158d4b45",
+  "candidate_tree_reconstructed_from_received_diff": "62f4ec9fc624135ba01f46c1a79e507b8fbc97c1",
+  "received_diff_sha256": "e2916dca9f15b2d26247674b76ea3e4429e476a80bebad8b867cec54ab9f934c",
+  "received_diff_bytes": 22378,
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/Q0/cloud/C74/neutral-contract-proof.md",
+      "base_git_blob": null,
+      "postimage_git_blob": "3e34071393b3380207e0b29feacb10465d35ee61",
+      "postimage_sha256": "81772833a3cefd992d931766a9da24ae0ba0027f6b7ed03ed37edf72816d332a",
+      "bytes": 5936,
+      "new_file": true,
+      "delivered_file": "LOCAL/raw/e02-execution-20261027/cloud/C74/delivered/Q0/cloud/C74/neutral-contract-proof.md",
+      "actual_delivered_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/tests/unit/ddm/test_contract_compatibility.py",
+      "base_git_blob": "c018a6638d0aefbbb8b56b6c87a0c3b9ca95f444",
+      "postimage_git_blob": "2138c42b707edb53b7404f4da3cf126304b643cd",
+      "postimage_sha256": "673a0636cef86db096fd0eaec546fa8550b57f2b8ea6625f1046090081223c06",
+      "bytes": 15254,
+      "new_file": false
+    },
+    {
+      "path": "policy-engine/tests/unit/ddm/test_facade.py",
+      "base_git_blob": "cef2125bc649a27ba562b49208afcc91397ff087",
+      "postimage_git_blob": "4ec3a16cf6a290035cca389ce15f93b98f131f67",
+      "postimage_sha256": "1649a39930747ccb86bc922f1605a9b37f5be247b01a499d96f23e2c6e73266b",
+      "bytes": 6058,
+      "new_file": false
+    }
+  ],
+  "canonical_source_not_applied": true,
+  "actual_canonical_index_unchanged": true
+}

@@ -1,0 +1,45 @@
+{
+  "verdict": "GO",
+  "scope": "Independent review of frozen R9 -> R9.1 -> R9.2 -> R9.3 sparse documentation/evidence proposal union; authoring/source review only, not G acceptance or closure.",
+  "manifests": {
+    "docs-progress-r9": "a4dd241cc110058d19131027bcf070694066cee3e09717fc9239674e7d5f6663",
+    "docs-progress-r9.1": "f050180f469d13217dea0ceb3dfbb8244dd448820cda9435a81bbd7917bc1c19",
+    "docs-progress-r9.2": "0b5d48a75e7f617b094303600d2d00066f59e2244c943049fcd790011d87b4b0",
+    "docs-progress-r9.3": "37d6ee23cfbb04817620ca2f02fb4e8436e546ebc001e4aaf44db52853e13a27"
+  },
+  "integrity": {
+    "manifest_rows": 118,
+    "unique_targets": 112,
+    "unique_payload_bytes": 1260292,
+    "all_postimages_verified": true,
+    "all_declared_gzip_payloads_verified": true,
+    "override_chain_verified": true,
+    "markdown_append_prefixes_verified": true,
+    "json_prior_keys_preserved": true,
+    "r9_3_live_view_changes": [
+      "cloud",
+      "source_checkpoint",
+      "next_native"
+    ],
+    "canonical_preimages_match": 2,
+    "historical_c37_origin_drift": "explicitly preserved and superseded in R9.2; frozen bytes verified"
+  },
+  "denominator": {
+    "rows": 26,
+    "bundles": 127,
+    "ids": 282,
+    "occurrences": 291,
+    "task_finding_edges": 319,
+    "expanded_occurrence_to_row_relations": 331
+  },
+  "boundaries": {
+    "B198_preserved": true,
+    "G_acceptance": false,
+    "closure_ids": [],
+    "r9_3_source_cut": "d4730847fd218a66f01bfd7ba862d58e927fe220 / 093533a909d4bf9a2627b4a3db20c55a8efce59a",
+    "C41_C48_behavioral_generated_checks": "UNRUN at recorded cut",
+    "C72_C76": "submitted; no execution outcome inferred",
+    "C70_C73_C74": "diffs received; candidate reconstructions only; independent review pending"
+  },
+  "composition_action": "Compose listed sparse union and ordered overrides; verify committed branch readback hashes. Do not infer G acceptance, product closure, or runtime PASS from this documentation review."
+}

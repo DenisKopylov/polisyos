@@ -1,0 +1,28 @@
+{
+  "head": "2e1c813d5030f15eb4ee1878ca1f28c1431db8a0",
+  "tree": "7d4a40c11718d487fb8bbaaebff5710fb3d9b8d9",
+  "parents": [
+    "aaefd17075b84ef45fbac6a56e04e29148e7e724"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "paths": {
+    "policy-engine/release-fragments/unreleased/2026-10-28-e02-generic-joint-owner-projection.toml": "2bebd161f07e28fb603d1414e2290420b9710b3c2a40ee3633f366400131f9ea",
+    "policy-engine/src/polisyos/core/artifacts/README.md": "18314bab93f6fea452ff92c8656d59ed3c224d396ec1757c4c3fe0eb82385a31",
+    "policy-engine/src/polisyos/core/artifacts/__init__.py": "fa040abf9b26519aa18f53a00e1c5025fa1899616a714d2e66663e4bd55b926b",
+    "policy-engine/src/polisyos/core/artifacts/ownership.py": "11feb86117d5e06261fea8555d024d46611c5ba40e1b90cc8b6bd5c6b81c6ad2",
+    "policy-engine/src/polisyos/core/artifacts/selected_verification.py": "8dbf6ef6811bc68f39988d1e2e87e5348c4f93352884cb4d452dd8cbb59e8038",
+    "policy-engine/src/polisyos/runtime/http/routes/README.md": "5ba9cce08c6c2b52590f373bc5ee6715c8d0da20657049a1699599a7e43bbf8f",
+    "policy-engine/src/polisyos/runtime/http/routes/runs.py": "7eaffbc54953a72a4aaa92992fd77005f73de2ade77d7e86bbd69bd02642a49c",
+    "policy-engine/src/polisyos/runtime/quality/generation_cycle.py": "adb8cef060301a545ba4cd6f31e7d096b064d490b66cfc9d1e9fe6e0a81f6488",
+    "policy-engine/src/polisyos/runtime/quality/generic_simulation_admission.py": "6ead34652977394db101326af53c0427bc1c42299fc45ffa693838031bd60080",
+    "policy-engine/tests/_helpers/acquisition_served_history.py": "d961bf27b8a7bb0a29d15e191a4d0b74397d6bdebbc77c8c17dd22017f133bbf",
+    "policy-engine/tests/integration/core_runtime/test_acquisition_authority_served.py": "549266ebd422fbe7b27115044e3d07327f6ce0a670076e17a61860b135983d91",
+    "policy-engine/tests/integration/runtime_quality/test_joint_interaction_cubic_consumer.py": "efecc5f420b25057203f0222d2c8673af82008a2e64fa14e1d001a63b53af63f",
+    "policy-engine/tests/unit/core/artifacts/test_selected_profile_verification_reader.py": "cf4e5cd46547a0788d61b378b1913f75286b6dabc0a05e6dc247655d26522713",
+    "policy-engine/tests/unit/remediation/test_cyc_02.py": "b99173035ad634c0bbb1c5c7f84582c74324aa7c5e28042bc01657ea3f86c2ca",
+    "policy-engine/tests/unit/runtime/quality/test_generic_n5_v3_binding.py": "f38943c03e880b6dc7e671581211b86679cb3f3cf7a8946b68f3960069436dde"
+  },
+  "source_global_freeze": false,
+  "code_acceptance": false,
+  "closure_ids": []
+}

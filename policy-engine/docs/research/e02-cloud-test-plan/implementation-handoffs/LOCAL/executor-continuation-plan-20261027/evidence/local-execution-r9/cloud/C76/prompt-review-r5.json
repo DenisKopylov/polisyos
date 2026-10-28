@@ -1,0 +1,43 @@
+{
+  "schema": "policyos.e02.c76.independent_delta_review.v1",
+  "verdict": "GO",
+  "scope": "bounded author commissioning only",
+  "prompt_sha256": "75f745af2888e69c801d60c4a0d5fa74a0491f754cf246c2678d73af7e24063c",
+  "prompt_bytes": 96196,
+  "prompt_characters": 75953,
+  "prompt_lines": 562,
+  "manifest_sha256": "c80655b4a14747533ab51c0b7c872d06ebf53a1960e4d778f18d4f7f82dbc521",
+  "base_commit": "45fe14d8fe6f6822efab491495886501158d4b45",
+  "base_tree": "930552b76801e1a295a17e2bbc48a7177693b0f6",
+  "remote_readback_matches": true,
+  "resolved": [
+    "B219-G1"
+  ],
+  "delta": "Two B219 blocks r3-to-r4, one comparator-observation sentence r4-to-r5; exact source/criterion/selector metadata unchanged",
+  "observation_contract": [
+    "actual exporter after fresh CAS read",
+    "edges(data=True) works on both graph containers",
+    "both count and full canonical payload observations plus mismatch verdicts captured before any assertion",
+    "one named combined or deferred semantic failure",
+    "no class/TypeError/early-count stand-in",
+    "exact restore and positive rerun"
+  ],
+  "verified_unchanged": {
+    "source_pins": 47,
+    "original_spans": 14,
+    "static_selector_occurrences": 57,
+    "selector_files": 18,
+    "selected_hash_mismatches": [],
+    "B220_correction_retained": true
+  },
+  "new_blockers": [],
+  "runtime": "UNRUN",
+  "imports": "UNRUN",
+  "removals": "UNRUN",
+  "G_acceptance": false,
+  "closure_ids": [],
+  "markdown": {
+    "path": "LOCAL/raw/e02-execution-20261027/reviews/C76GRAPH-r5-independent.md",
+    "sha256": "79f391e85e018bb5e6a45216e595407391c93f2d1a6a5df249461fd30a1806cb"
+  }
+}

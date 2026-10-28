@@ -1,0 +1,169 @@
+{
+  "schema": "policyos.e02.execution_receipt.v1",
+  "case": "c37-typed-json-error-consumers-r2-20261028",
+  "prepared_at": "2026-10-28T03:04:14.772162+00:00",
+  "classification": "D deciding output/freeze/readset bytes; source Git B",
+  "source": {
+    "commit": "a8bee9746d0ea6c9582648b60944f8a4a27eb31e",
+    "tree": "f54638ce89e0c2589d9be3b47809af12bd509c93",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-c37-native-typed-json-and-error-state-20261028-r1/full-composed-source-frame.json",
+      "sha256": "3161668387f877e11a48b5d7ce908e76d5c1256cccf995ddba6eabe4fc9b9838"
+    }
+  },
+  "scope": "One full affected seven-module native wave after the actual typed-NL-JSON and mutable-HTTP-exception class repair: original49 C37 cases, raw JSON/nonfinite/typed projection, sync/async/HTTP exception consumers, control intent and predictive-basis intake. Candidate request semantics only, no external temporal/legal/source authority, generated or G closure.",
+  "command_actually_executed": {
+    "argv": [
+      "/usr/bin/sandbox-exec",
+      "-f",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c37-typed-json-error-consumers-r2-20261028/child.sb",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "-B",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c37-typed-json-error-consumers-r2-20261028/pytest_launcher.py",
+      "-o",
+      "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c37-typed-json-error-consumers-r2-20261028/pytest-cache",
+      "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c37-typed-json-error-consumers-r2-20261028/benchmarks",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c37-typed-json-error-consumers-r2-20261028/basetemp",
+      "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c37-typed-json-error-consumers-r2-20261028/pytest.xml",
+      "--tb=short",
+      "--color=no",
+      "--maxfail=0",
+      "tests/unit/runtime/http/test_nl_temporal_scope_intake.py",
+      "tests/unit/runtime/http/test_nl_temporal_scope_lifecycle.py",
+      "tests/unit/runtime/http/test_nl_request_json_admission.py",
+      "tests/unit/runtime/http/test_runtime_http_error_state.py",
+      "tests/unit/runtime/http/test_error_semantics.py",
+      "tests/unit/runtime/http/test_control_job_execution_intent.py",
+      "tests/unit/runtime/http/test_nl_predictive_basis_intake.py"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine"
+  },
+  "source_profile": {
+    "freeze": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r9/c37-typed-json-error-consumers-r2-20261028/source-profile-freeze.json.gz",
+      "sha256": "7299606b6866e145bed30e122d74aae1c722e9a4f49a43418ffec9062c4c776e",
+      "bytes": 2768,
+      "availability": "r9 sparse proposal postimage; coordinator composition and committed readback pending"
+    },
+    "numeric_threads": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMBA_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "ARROW_NUM_THREADS": "1",
+      "BLIS_NUM_THREADS": "1",
+      "POLARS_MAX_THREADS": "1",
+      "TF_NUM_INTEROP_THREADS": "1",
+      "TF_NUM_INTRAOP_THREADS": "1",
+      "VECLIB_MAXIMUM_THREADS": "1"
+    },
+    "extra_env": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "TMPDIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c37-typed-json-error-consumers-r2-20261028/tmp",
+      "XDG_CACHE_HOME": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c37-typed-json-error-consumers-r2-20261028/tmp/xdg",
+      "MPLCONFIGDIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c37-typed-json-error-consumers-r2-20261028/tmp/mpl",
+      "NUMBA_CACHE_DIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c37-typed-json-error-consumers-r2-20261028/tmp/numba",
+      "HYPOTHESIS_STORAGE_DIRECTORY": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c37-typed-json-error-consumers-r2-20261028/tmp/hypothesis",
+      "PYTHONPYCACHEPREFIX": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c37-typed-json-error-consumers-r2-20261028/tmp/empty-pycache",
+      "POLISYOS_R4_INPUT_PROJECT_ROOT": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "POLISYOS_R4_INPUT_READSET_DIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c37-typed-json-error-consumers-r2-20261028/readsets",
+      "SCIENTIST_TORCH_NUM_THREADS": "1",
+      "SCIENTIST_TORCH_NUM_INTEROP_THREADS": "1"
+    },
+    "native_profile": "pytest.ini, default plugin autoload/importlib/strict markers; add read-only sys.modules observer; outputs redirected only; private empty pycache search prefix prevents stale canonical pyc reuse",
+    "root_live_pins": [
+      {
+        "path": "LOCAL/raw/root-live-ownership-20261021.json",
+        "run_sha256": "9ab1294c967d2a8f4c0b6835a9ab80744cf2bd565ced276f2ac31aed871cae92",
+        "observed_at_preparation_sha256": "bdb4b805b123a1dab4b5a10c94d8d0789af032e3ad0de601aa3300fb318bda5e",
+        "availability": "historical bytes unavailable at this original locator; alternate copy not established"
+      }
+    ]
+  },
+  "result": {
+    "return_code": 1,
+    "junit_counts": {
+      "tests": 149,
+      "failures": 5,
+      "errors": 0,
+      "skipped": 0
+    },
+    "failures": [
+      {
+        "node": "tests.unit.runtime.http.test_control_job_execution_intent::test_terminal_handler_diagnostic_rejects_foreign_and_replaced_attempt[completed]",
+        "status": "FAIL",
+        "message": "polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError: control job cannot be marked running: job-diagnostic-completed-proof"
+      },
+      {
+        "node": "tests.unit.runtime.http.test_control_job_execution_intent::test_terminal_handler_diagnostic_rejects_foreign_and_replaced_attempt[failed]",
+        "status": "FAIL",
+        "message": "polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError: control job cannot be marked running: job-diagnostic-failed-proof"
+      },
+      {
+        "node": "tests.unit.runtime.http.test_control_job_execution_intent::test_unestablished_attempt_band_refuses_before_evaluation_safety_or_n4[context0-not_established]",
+        "status": "FAIL",
+        "message": "polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError: control job lease no longer permits write for 09ae4cf98c3e4372ba18b37025bb35a4"
+      },
+      {
+        "node": "tests.unit.runtime.http.test_control_job_execution_intent::test_unestablished_attempt_band_refuses_before_evaluation_safety_or_n4[context1-eval_safety_required]",
+        "status": "FAIL",
+        "message": "polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError: control job lease no longer permits write for 4d0c629bcdf44af7875fb2f48a440bc9"
+      },
+      {
+        "node": "tests.unit.runtime.http.test_control_job_execution_intent::test_authenticated_launch_binds_all_five_intent_bands_and_actor_scope",
+        "status": "FAIL",
+        "message": "polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError: control job lease no longer permits write for 691d1971601c468d9540505eae0840be"
+      }
+    ],
+    "wall_seconds": 34.9175425839785,
+    "max_sampled_process_tree_rss_bytes": 1212219392
+  },
+  "outputs": {
+    "stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r9/c37-typed-json-error-consumers-r2-20261028/stdout.txt.gz",
+      "sha256": "c9c1458893775071bda6c4258d389da1d87d6a6f9de90e19729fd9f849c39ef8",
+      "bytes": 1442,
+      "availability": "r9 sparse proposal postimage; coordinator composition and committed readback pending"
+    },
+    "stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r6/common/empty.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "availability": "already tracked in r8 45fe; no duplicate"
+    },
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r9/c37-typed-json-error-consumers-r2-20261028/pytest.xml.gz",
+      "sha256": "d0dd3d409d2a4fe607f646b32cceaea25562ab6a90260d5fd454403c5ac8cf91",
+      "bytes": 3979,
+      "availability": "r9 sparse proposal postimage; coordinator composition and committed readback pending"
+    },
+    "audit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r9/c37-typed-json-error-consumers-r2-20261028/audit-result.json.gz",
+      "sha256": "472173b0e6845ba38c04298688487e4a60b113fae5a1bf41564aacf938010bd6",
+      "bytes": 1757,
+      "availability": "r9 sparse proposal postimage; coordinator composition and committed readback pending"
+    },
+    "freeze": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r9/c37-typed-json-error-consumers-r2-20261028/source-profile-freeze.json.gz",
+      "sha256": "7299606b6866e145bed30e122d74aae1c722e9a4f49a43418ffec9062c4c776e",
+      "bytes": 2768,
+      "availability": "r9 sparse proposal postimage; coordinator composition and committed readback pending"
+    },
+    "readset": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r9/c37-typed-json-error-consumers-r2-20261028/input-readset.json.gz",
+      "sha256": "6642769513d455e00c9df05ff15f116aae2bffc48531ad88877a88fca5cf23a8",
+      "bytes": 106480,
+      "availability": "r9 sparse proposal postimage; coordinator composition and committed readback pending"
+    },
+    "plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r9/c37-typed-json-error-consumers-r2-20261028/plan.json.gz",
+      "sha256": "e430e056e4ffe9d53c421b3c9b653c97ecff2c0786ebc6aa8f433735c4182d62",
+      "bytes": 551,
+      "availability": "r9 sparse proposal postimage; coordinator composition and committed readback pending"
+    }
+  },
+  "G_acceptance": false,
+  "closure_ids": []
+}

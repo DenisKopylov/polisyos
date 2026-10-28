@@ -1,0 +1,72 @@
+{
+  "observed_at": "2026-10-28T02:23:51.513773+00:00",
+  "scope_deviation": "Helper was assigned RAW-only Cloud prompt preparation with no canonical/index/ref/runtime writes; instead initialized an independent source repository and made four documentation-only commits. No Cloud prompt or runtime result delivered.",
+  "extra_repo": {
+    "path": "/Users/deniskopylov/.codex/worktrees/c76graph-20261028",
+    "gitdir": "/Users/deniskopylov/.codex/worktrees/c76graph-20261028/.git",
+    "common_gitdir": "/Users/deniskopylov/.codex/worktrees/c76graph-20261028/.git",
+    "branch": "codex/c76graph-keyc76graph-20261028",
+    "head": "968bdb69471a12e477a6cb70be4aab99f9b379d7",
+    "tree": "acb1dd6843a8aa7dd807cc1b7b9fd34204d8c943",
+    "tracked_status": "",
+    "refs": [
+      "refs/heads/codex/c76graph-keyc76graph-20261028 968bdb69471a12e477a6cb70be4aab99f9b379d7"
+    ],
+    "remotes": "",
+    "commits": [
+      {
+        "commit": "ba71a4382bb23152c28ef76b834184a7aee543ea",
+        "parents": [
+          "45fe14d8fe6f6822efab491495886501158d4b45"
+        ],
+        "paths": [
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C76/cloud/e02-c76-20261028-r1/README.md"
+        ]
+      },
+      {
+        "commit": "5bdb80d729c82fae4cf9d4347e6989b0efeacd77",
+        "parents": [
+          "ba71a4382bb23152c28ef76b834184a7aee543ea"
+        ],
+        "paths": [
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C76/cloud/e02-c76-20261028-r1/README.md"
+        ]
+      },
+      {
+        "commit": "b41ccb39b9323c119f01e0cc03790bab8679a4c3",
+        "parents": [
+          "5bdb80d729c82fae4cf9d4347e6989b0efeacd77"
+        ],
+        "paths": [
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C76/cloud/e02-c76-20261028-r1/README.md"
+        ]
+      },
+      {
+        "commit": "968bdb69471a12e477a6cb70be4aab99f9b379d7",
+        "parents": [
+          "b41ccb39b9323c119f01e0cc03790bab8679a4c3"
+        ],
+        "paths": [
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C76/cloud/e02-c76-20261028-r1/README.md"
+        ]
+      }
+    ],
+    "mandatory_hooks": "Independent Git init has default sample hooks; shared repo hook configuration was not inherited. These commits are not accepted author delivery."
+  },
+  "original_root": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "a8bee9746d0ea6c9582648b60944f8a4a27eb31e",
+    "tree": "f54638ce89e0c2589d9be3b47809af12bd509c93",
+    "tracked_status": ""
+  },
+  "retained_proposal": {
+    "path": "LOCAL/raw/next-cloud/C76GRAPH/c76graph-plan.patch",
+    "bytes": 31526,
+    "sha256": "83359df9f9d600d3f673038da12579fe2e3a2e9c2cf848a21e55d544823a3b8a",
+    "applied": false
+  },
+  "helper_reported_no_imports_tests_installs_pushes_or_environment_changes": true,
+  "action": "Further helper mutations stopped. Preserve extra repo and old packet as-is; no delete/archive/cleanup; salvage only read-only planning facts in a new Root-bound prompt.",
+  "closure_ids": []
+}

@@ -1,0 +1,25 @@
+{
+  "before": {
+    "head": "2e1c813d5030f15eb4ee1878ca1f28c1431db8a0",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-e02-c41-r9-r4-selected-owner-context-20261028/full-composed-source-frame.json",
+      "sha256": "ed481e81369bfba941efa2b8776e1f27ffe2e36b22423f1fc5ed52d7ea5c007c"
+    },
+    "expected_index": {
+      "raw_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "empty after root commit"
+    }
+  },
+  "after": {
+    "head": "2e1c813d5030f15eb4ee1878ca1f28c1431db8a0",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-e02-c48-r5-a8-subject-and-comparison-source-20261028/full-composed-source-frame.json",
+      "sha256": "1d278877df3ff2ea0955550182a4a133bb8f6e7d4390cbebd588a82ebb409beb"
+    },
+    "expected_index": {
+      "raw_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "empty after root commit"
+    }
+  },
+  "closure_ids": []
+}

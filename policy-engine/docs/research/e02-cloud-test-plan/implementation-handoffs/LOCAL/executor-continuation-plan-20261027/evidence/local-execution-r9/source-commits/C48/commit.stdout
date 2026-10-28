@@ -1,0 +1,5 @@
+[codex/e02-unified-local-20261009 d4730847f] fix(search): bind evaluated subjects and current comparison sources
+ 33 files changed, 5203 insertions(+), 493 deletions(-)
+ create mode 100644 policy-engine/release-fragments/unreleased/2026-10-28-e02-search-subject-identity.toml
+ create mode 100644 policy-engine/tests/unit/scientist/search/test_candidate_identity_semantics.py
+ create mode 100644 policy-engine/tests/unit/scientist/search/test_funnel_subject_identity.py

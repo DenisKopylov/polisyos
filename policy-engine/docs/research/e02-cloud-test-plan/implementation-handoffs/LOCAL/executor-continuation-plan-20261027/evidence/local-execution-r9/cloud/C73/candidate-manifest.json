@@ -1,0 +1,36 @@
+{
+  "slice": "C73",
+  "task_id": "task_e_6ae163f8f5dc83258651255f28a4f45c",
+  "base_commit": "45fe14d8fe6f6822efab491495886501158d4b45",
+  "candidate_tree_reconstructed_from_received_diff": "2cce0e5701e2694e3d3a12cdea35eec0163947f3",
+  "received_diff_sha256": "f185e1d211149d08ce64496037c37560151bf6ad44b00eff600eb2df2222e306",
+  "received_diff_bytes": 13862,
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/task-receipts/C73/README.md",
+      "base_git_blob": null,
+      "postimage_git_blob": "fac9ff4a3ccd608f3d90ad9e29f0322ae77fba34",
+      "postimage_sha256": "bc8e761240aec91c0a55425c23bbc2d3bcd1f4418e3ac6af624c1aa4968a99a0",
+      "bytes": 6171,
+      "new_file": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/task-receipts/C73/reader-companion.patch",
+      "base_git_blob": null,
+      "postimage_git_blob": "22d8caccda681099bb87d589302b91db0ba767d9",
+      "postimage_sha256": "088633d0053dd6b06909875812b1764a8ccda46f336dd0132b1008076adb4d74",
+      "bytes": 1218,
+      "new_file": true
+    },
+    {
+      "path": "policy-engine/tests/unit/berl/test_schema_profiles.py",
+      "base_git_blob": null,
+      "postimage_git_blob": "74575d890db1932e2e55ab86e2b7e026cf2f11fe",
+      "postimage_sha256": "e6cf5d1e68948bf7b67c1138cd67a394b99da0cfb06f1ea5ef24e8376a764a59",
+      "bytes": 5124,
+      "new_file": true
+    }
+  ],
+  "canonical_source_not_applied": true,
+  "actual_canonical_index_unchanged": true
+}

@@ -1,0 +1,36 @@
+{
+  "slice": "C71",
+  "task_id": "task_e_6ae159c5fc44832588af2aaa5d20e041",
+  "base_commit": "45fe14d8fe6f6822efab491495886501158d4b45",
+  "candidate_tree_reconstructed_from_received_diff": "9d8ccb73b00c09991c31ade5f8a2d114fa98e449",
+  "received_diff_sha256": "992278b862682fd86e0be7d433f76805f53cfa96d295fa5a81ec648a4e9ecb1a",
+  "received_diff_bytes": 22365,
+  "files": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-28-c71-owned-observational-source.toml",
+      "base_git_blob": null,
+      "postimage_git_blob": "2357b3871097f073c37750b4129ff3abde21f47e",
+      "postimage_sha256": "29abd6455bc0dc4b8e21cb3231e3fc6a80ce0d95745e7aad3de0d0ba0d16bf7c",
+      "bytes": 1918,
+      "new_file": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "base_git_blob": "b512218d871e9bb280e336ccee9f2d6f1f988379",
+      "postimage_git_blob": "daab1dc80bfc0cf6742c530ed9b7195547109e65",
+      "postimage_sha256": "253681f091721429440462633d4c8e401960fa515555ac8fd50db14857e6bcee",
+      "bytes": 566147,
+      "new_file": false
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_observational_method_runtime.py",
+      "base_git_blob": "076b2f651c1691a97961310101fd5183ed3814ca",
+      "postimage_git_blob": "3f9922b0121fa04c587921d5a43bba7a571c0ce9",
+      "postimage_sha256": "207b5036d07b521664a510c0b42b8fae82e0b457a019d364b0520b85820b3852",
+      "bytes": 171319,
+      "new_file": false
+    }
+  ],
+  "canonical_source_not_applied": true,
+  "actual_canonical_index_unchanged": true
+}

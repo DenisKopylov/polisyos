@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="3" time="16.071" timestamp="2026-10-28T04:37:52.927550+02:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.runtime.quality.test_catalog_source_identity" name="test_available_owner_reads_all_actual_rows_under_the_admitted_source" time="0.405"><failure message="pydantic_core._pydantic_core.ValidationError: 1 validation error for DesignProblem&#10;design_problem_id&#10;  String should match pattern '^[a-z][a-z0-9_]*$' [type=string_pattern_mismatch, input_value='c32-available-owner', input_type=str]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/string_pattern_mismatch">tests/unit/runtime/quality/test_catalog_source_identity.py:347: in test_available_owner_reads_all_actual_rows_under_the_admitted_source
+    gateway_type, problem, candidate = _actual_profile_gateway_inputs()
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/runtime/quality/test_catalog_source_identity.py:324: in _actual_profile_gateway_inputs
+    base = fixtures._problem("c32-available-owner")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/_helpers/controlled_candidate_profile.py:1908: in _problem
+    return DesignProblem(
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for DesignProblem
+E   design_problem_id
+E     String should match pattern '^[a-z][a-z0-9_]*$' [type=string_pattern_mismatch, input_value='c32-available-owner', input_type=str]
+E       For further information visit https://errors.pydantic.dev/2.12/v/string_pattern_mismatch</failure></testcase><testcase classname="tests.unit.data_forge.domains.catalog.knowledge.test_variable_availability" name="test_empty_initial_native_identity_is_typed_error_not_absent_data[identity]" time="0.007" /><testcase classname="tests.unit.data_forge.domains.catalog.knowledge.test_variable_availability" name="test_empty_initial_native_identity_is_typed_error_not_absent_data[initial_store]" time="0.006" /></testsuite></testsuites>

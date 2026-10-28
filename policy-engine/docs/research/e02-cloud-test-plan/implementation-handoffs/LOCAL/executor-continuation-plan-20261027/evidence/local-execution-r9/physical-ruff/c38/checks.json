@@ -1,0 +1,25 @@
+[
+  {
+    "argv": [
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/repo_quality/tools/test_runtime_quality_authority_schema_family.py"
+    ],
+    "exit": 0,
+    "python_files": 1
+  },
+  {
+    "argv": [
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "ruff",
+      "format",
+      "--check",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/repo_quality/tools/test_runtime_quality_authority_schema_family.py"
+    ],
+    "exit": 0,
+    "python_files": 1
+  }
+]

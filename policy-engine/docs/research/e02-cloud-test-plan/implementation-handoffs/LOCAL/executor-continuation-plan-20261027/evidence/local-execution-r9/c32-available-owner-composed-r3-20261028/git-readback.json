@@ -1,0 +1,11 @@
+{
+  "source_head": "aaefd17075b84ef45fbac6a56e04e29148e7e724",
+  "tree": "41cdce069a4107b3796a8410de17c15c814be76e",
+  "case": "c32-available-owner-composed-r3-20261028",
+  "actual_finite_loaded_py_paths": 1606,
+  "denominator": "Complete observed src/polisyos + tests + tools Python paths; external deps/native bytes/unimported inputs excluded",
+  "git_index_work_mismatches": [],
+  "scope": "Source-qualified bounded available-owner positive; no ordinary N7 or fullV4/V7 or G",
+  "audit_sha256": "440f26496b8e2bbb74bd01e6cbce1533643c0d2db9d84aab31b5afec543e0772",
+  "qualification_receipt": "LOCAL/raw/e02-execution-20261027/root-c32-available-r3/qualification.json"
+}

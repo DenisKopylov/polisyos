@@ -1,0 +1,53 @@
+[
+  {
+    "title": "check",
+    "argv": [
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "--no-cache",
+      "src/polisyos/core/artifacts/__init__.py",
+      "src/polisyos/core/artifacts/ownership.py",
+      "src/polisyos/core/artifacts/selected_verification.py",
+      "src/polisyos/runtime/http/routes/runs.py",
+      "src/polisyos/runtime/quality/generation_cycle.py",
+      "src/polisyos/runtime/quality/generic_simulation_admission.py",
+      "tests/_helpers/acquisition_served_history.py",
+      "tests/integration/core_runtime/test_acquisition_authority_served.py",
+      "tests/integration/runtime_quality/test_joint_interaction_cubic_consumer.py",
+      "tests/unit/core/artifacts/test_selected_profile_verification_reader.py",
+      "tests/unit/remediation/test_cyc_02.py",
+      "tests/unit/runtime/quality/test_generic_n5_v3_binding.py"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "exit": 0,
+    "target_denominator": 12
+  },
+  {
+    "title": "format-check",
+    "argv": [
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "ruff",
+      "format",
+      "--check",
+      "--no-cache",
+      "src/polisyos/core/artifacts/__init__.py",
+      "src/polisyos/core/artifacts/ownership.py",
+      "src/polisyos/core/artifacts/selected_verification.py",
+      "src/polisyos/runtime/http/routes/runs.py",
+      "src/polisyos/runtime/quality/generation_cycle.py",
+      "src/polisyos/runtime/quality/generic_simulation_admission.py",
+      "tests/_helpers/acquisition_served_history.py",
+      "tests/integration/core_runtime/test_acquisition_authority_served.py",
+      "tests/integration/runtime_quality/test_joint_interaction_cubic_consumer.py",
+      "tests/unit/core/artifacts/test_selected_profile_verification_reader.py",
+      "tests/unit/remediation/test_cyc_02.py",
+      "tests/unit/runtime/quality/test_generic_n5_v3_binding.py"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "exit": 0,
+    "target_denominator": 12
+  }
+]

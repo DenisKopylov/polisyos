@@ -1,0 +1,54 @@
+{
+  "at": "2026-10-28T03:10:27.227559+00:00",
+  "source": "b2dcf0ee106389216017a88620817c37d3746886",
+  "tree": "cd13b4ab7ed1e32661b2b8d4854440b8557cc0cb",
+  "author_topic": "codex/e02-composed-progress-20261028-r3",
+  "normal_hooks": "pre-push corepack pnpm typecheck; no bypass",
+  "frozen_input_topic": true,
+  "existing_input_topics": "unchanged",
+  "production_data": "none",
+  "G_acceptance": false,
+  "verified_remote_commit": "b2dcf0ee106389216017a88620817c37d3746886",
+  "verified_remote_tree": "cd13b4ab7ed1e32661b2b8d4854440b8557cc0cb",
+  "push_exit": 0,
+  "readback": "ls-remote + fetched commit/tree + unchanged attached author HEAD/index",
+  "outputs": {
+    "intent.json": {
+      "bytes": 407,
+      "sha256": "de969df27749e52329c75875a2e0d627504719fdb7f1a5f2b2576d8148c188cd"
+    },
+    "fetch.stderr": {
+      "bytes": 125,
+      "sha256": "0d8b821f9608165797faf0c60856e0b96b21b3119a3ca70754c67762da5de658"
+    },
+    "remote-before.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "fetch.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "remote-before.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "remote-after.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "push.stdout": {
+      "bytes": 764,
+      "sha256": "758d1eff6564d6e6c381dbf41a646a115b022ae8b8535d203beb0bac72ec0ec7"
+    },
+    "push.stderr": {
+      "bytes": 393,
+      "sha256": "4dff6835c1ea2b036144517ee653cba8687bf35f6d0d11c0e51034e282773db6"
+    },
+    "remote-after.stdout": {
+      "bytes": 92,
+      "sha256": "c760bd35aa3d411a3c70aa51df850342f76e2fe9f5a86c778860bc23be8f87db"
+    }
+  },
+  "formal_closure": false
+}

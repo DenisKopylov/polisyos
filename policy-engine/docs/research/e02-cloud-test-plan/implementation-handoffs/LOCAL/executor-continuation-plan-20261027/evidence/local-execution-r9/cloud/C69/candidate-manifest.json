@@ -1,0 +1,30 @@
+{
+  "slice": "C69",
+  "task_id": "task_e_6ae152024d608325b0971048de96c169",
+  "base_commit": "caa91a64d7d6afc4310186ba5fadbac2008dddab",
+  "candidate_tree_reconstructed_from_received_diff": "c591acb75230e3e676b4511fdd834e90b2c2d72a",
+  "received_diff_sha256": "7264a9ac021b49cf5be9d290265842a1381137c4438c60d4447c2058465826f2",
+  "received_diff_bytes": 7989,
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/Q0/cloud/e02-c69-ordinary-n7-20261028-r1/receipt.md",
+      "base_git_blob": null,
+      "postimage_git_blob": "75ead60734d09364fce3b16d785f96fdd3448ecd",
+      "postimage_sha256": "fdeb71b7430334819fd284f25a4dd1b077cca0e61476bed2021b300dd9ef14c0",
+      "bytes": 4755,
+      "new_file": true,
+      "delivered_file": "LOCAL/raw/e02-execution-20261027/cloud/C69/delivered/Q0/cloud/e02-c69-ordinary-n7-20261028-r1/receipt.md",
+      "actual_delivered_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/tests/integration/runtime_quality/test_c69_ordinary_n7_planner_diagnostic.py",
+      "base_git_blob": null,
+      "postimage_git_blob": "b0a77c187569d0ede615eeb54fb53749f39c0c3e",
+      "postimage_sha256": "e04d687e1f892f19346ea4d4c28dd2074fd1f925a9b76ed5e85879edde0fc010",
+      "bytes": 2137,
+      "new_file": true
+    }
+  ],
+  "canonical_source_not_applied": true,
+  "actual_canonical_index_unchanged": true
+}

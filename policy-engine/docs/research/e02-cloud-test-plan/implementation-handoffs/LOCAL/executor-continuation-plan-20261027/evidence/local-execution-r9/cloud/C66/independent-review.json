@@ -1,0 +1,73 @@
+{
+  "schema": "policyos.e02.c66.independent_source_review.v1",
+  "task_id": "task_e_6ae154adbec48325a31f7392ca89ce55",
+  "source_verdict": "HOLD",
+  "evidence_verdict": "not_established",
+  "local_product_import_tests_removals": "UNRUN",
+  "cloud_runtime_outcomes": "not_established_no_deciding_output_delivered",
+  "finding_buckets": [
+    {
+      "id": "C66-R1",
+      "bucket": "SAME C63-R1 provenance/source-to-cell class",
+      "severity": "P1",
+      "discriminator": "A selected A+B parent is unwrapped into mutable attrs; erase or change B origin to A and persist/reopen a child; producer and fresh reader repeat the same false source mapping.",
+      "labels": [
+        "bridge_missing",
+        "consumer_missing"
+      ],
+      "paths": [
+        "fabric/connectors/federation/artifact.py:212",
+        "fabric/connectors/federation/composer.py:160"
+      ]
+    },
+    {
+      "id": "C66-R2",
+      "bucket": "SAME C63-R2 B140 resource admission class",
+      "severity": "P1",
+      "discriminator": "match_nulls=True, null keys 2x2 and cap=1: default dropna value_counts estimates 0 before a 4-row merge.",
+      "paths": [
+        "fabric/connectors/federation/composer.py:710",
+        "fabric/connectors/federation/composer.py:775"
+      ]
+    },
+    {
+      "id": "C66-R3",
+      "bucket": "SAME C63 bounded selected-artifact resource concern",
+      "severity": "P1",
+      "discriminator": "compose runs before frame admission; writer accepts >8MiB scalar member which its reader refuses.",
+      "paths": [
+        "fabric/connectors/federation/artifact.py:71",
+        "fabric/connectors/federation/artifact.py:212"
+      ]
+    },
+    {
+      "id": "C66-R4",
+      "bucket": "NEW secondary ordering contract versus B144 index reuse",
+      "severity": "P2",
+      "discriminator": "explicit primary null with lower-priority secondary B before higher-priority C is filled from B; owner must settle whether preference or input order governs.",
+      "paths": [
+        "fabric/connectors/federation/composer.py:825",
+        "fabric/connectors/federation/composer.py:1325"
+      ]
+    }
+  ],
+  "criteria": {
+    "B138": "HOLD bridge_missing: parent relation, all supported modes, source identity and effective rule",
+    "B139": "verification_missing: existing real JOIN/SUMMARY test; no delivered deciding output or matched removal",
+    "B140": "HOLD: matching null many-to-many exceeds row cap",
+    "B141": "consumer_missing/semantic_test_missing: all-mode collision fresh readback",
+    "B142": "consumer_missing: typed-empty UNION selected/fresh query path",
+    "B143": "verification_missing: delivered actual removal/restoration and secondary allocation measurement",
+    "B144": "semantic_test_missing/verification_missing: actual two-secondary oracle and measured profile; ordering ambiguity",
+    "B145": "semantic_test_missing/consumer_missing: exact contributor/exclusion oracle and durable aggregate"
+  },
+  "delivery": "Seven returned paths contain no C66 deciding output or receipt; absence scoped to received diff and intended C66 handoff tree.",
+  "identity_receipt_path": "LOCAL/raw/e02-execution-20261027/reviews/C66-return-independent-identity.json",
+  "identity_receipt_sha256": "86b5128e9e18ec5cd48ae1f00a8c342743ba7e8b3d804abbc8c6834418ab3b01",
+  "identity_errors": [],
+  "markdown_path": "LOCAL/raw/e02-execution-20261027/reviews/C66-return-independent.md",
+  "markdown_sha256": "ea4dc08a4719d83bec8e3930d8af7282f3ee9fed1b5912bfb3379514c9d76a7c",
+  "canonical_source_index_refs_mutated_by_reviewer": false,
+  "g_acceptance": false,
+  "closure_ids": []
+}

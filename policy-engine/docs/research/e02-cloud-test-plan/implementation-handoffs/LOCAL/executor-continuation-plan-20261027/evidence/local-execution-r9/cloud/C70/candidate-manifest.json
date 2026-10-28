@@ -1,0 +1,30 @@
+{
+  "slice": "C70",
+  "task_id": "task_e_6ae163fbd2588325bcc95fd604e8494b",
+  "base_commit": "45fe14d8fe6f6822efab491495886501158d4b45",
+  "candidate_tree_reconstructed_from_received_diff": "19bb6b704fd67ae6643d290bea6d5a456b5d6119",
+  "received_diff_sha256": "d9d589335d5f2eb56bd2bc6526fa8ffb569a39073d1b1a649479246c3ac6b1f5",
+  "received_diff_bytes": 11327,
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/T2/cloud/e02-promotion-bridge-c70-r1/receipt.md",
+      "base_git_blob": null,
+      "postimage_git_blob": "67316c566155266712cc8a08920230017c9481d2",
+      "postimage_sha256": "3265c233b7acd4f29c0a017d0d52ccc0ee336b9d1f6085cdd4646010fdf70c05",
+      "bytes": 5711,
+      "new_file": true,
+      "delivered_file": "LOCAL/raw/e02-execution-20261027/cloud/C70/delivered/T2/cloud/e02-promotion-bridge-c70-r1/receipt.md",
+      "actual_delivered_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py",
+      "base_git_blob": "5204c6c65ad7f9386b213a8e7e3f65f0a607e30d",
+      "postimage_git_blob": "982f20e12a6d54e7514776f96b12dac65fb36fad",
+      "postimage_sha256": "a9a7d3be1a091d18e0ecb6a5ad461c7219c0cf2161ad8e360328959113943401",
+      "bytes": 4290,
+      "new_file": false
+    }
+  ],
+  "canonical_source_not_applied": true,
+  "actual_canonical_index_unchanged": true
+}

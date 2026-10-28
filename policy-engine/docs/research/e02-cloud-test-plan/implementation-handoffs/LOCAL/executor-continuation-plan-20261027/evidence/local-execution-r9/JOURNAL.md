@@ -1,0 +1,7 @@
+# r9 compact execution journal
+
+Observed source cut: `aaefd17075b84ef45fbac6a56e04e29148e7e724` / `41cdce069a4107b3796a8410de17c15c814be76e`. The existing r8 ledger and evidence were committed at `45fe14d8fe6f6822efab491495886501158d4b45` and its published topic was read back there; no later remote advancement is asserted.
+
+The four native case receipts record full source/profile, command, resources, actual output and compressed finite readsets. C07 r6 has 14 PASS / 1 FAIL at scoped current-access 403; C37 r2 has 144 PASS / 5 lease-related FAIL at a8bee, including 49 temporal PASS; C32 r2 has 2 PASS / 1 fixture-identity FAIL, and its separate aaefd r3 positive has 1 PASS over eight synthetic selected rows. The C32 actual review and input witness are retained. A later HEAD does not turn earlier observations into current-source replays.
+
+C60 and C38 are source compositions with physical Ruff records; generation and runtime remain UNRUN. C66/C67/C68 remain HOLD, C69 is diagnostic with missing deciding logs, and C71's returned source remains independently unreviewed at this cut. C70/C73/C74/C75 are submitted; C75's separate earlier hash refusal preceded any cloud call and its original stderr was not retained. C76 extra-repository incident receipt is retained without cleanup. The P38 Ruff-register and four-file R2 route-sync patches remain separate uncomposed proposals. No G or formal closure is assigned.

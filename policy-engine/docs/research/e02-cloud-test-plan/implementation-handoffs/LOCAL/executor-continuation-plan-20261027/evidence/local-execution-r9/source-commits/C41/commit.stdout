@@ -1,0 +1,4 @@
+[codex/e02-unified-local-20261009 2e1c813d5] fix(runtime): retain selected owner verification across wrapper and legacy views
+ 15 files changed, 1080 insertions(+), 112 deletions(-)
+ create mode 100644 policy-engine/src/polisyos/core/artifacts/selected_verification.py
+ create mode 100644 policy-engine/tests/unit/core/artifacts/test_selected_profile_verification_reader.py

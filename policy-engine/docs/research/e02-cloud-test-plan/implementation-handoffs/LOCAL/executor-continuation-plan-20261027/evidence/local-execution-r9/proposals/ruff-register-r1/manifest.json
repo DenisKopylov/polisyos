@@ -1,0 +1,14 @@
+{
+  "kind": "source-bound P38 Ruff register amendment; uncomposed proposal",
+  "head": "95f4b9b2022642cb1ea4e4f2a31b3493c36fd125",
+  "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+  "base_sha256": "741f66a832fde5d4d0fb00e35bf4d5a34ec1b976f94d61b83c7eaedc048defd4",
+  "base_blob": "ef82878fae6a33d03d05b77bffc8367fdacfb098",
+  "postimage_sha256": "bd9876488d7d4791be9334923e22fb50e8f76580d7c33639bce4d917307789c7",
+  "postimage_blob": "4e584329d98a47c7e60ba4daf0df49b271237346",
+  "patch_sha256": "a9e479c4a82b839d8bbb9ccde2ec8e1b3a7ed0da3be220c2000223b583a6dd47",
+  "canonical_mutated": false,
+  "runtime_or_tests_run": false,
+  "decision": "proposal only; root composes, rechecks preimage and performs normal docs checkpoint",
+  "changed_lines": 8
+}

@@ -1,0 +1,72 @@
+{
+  "slice": "C67",
+  "task_id": "task_e_6ae1570c3cf883258b9d78da688a7033",
+  "base_commit": "45fe14d8fe6f6822efab491495886501158d4b45",
+  "candidate_tree_reconstructed_from_received_diff": "9ea8450e2cdea9bd53ec50ea55b6689ae10384b4",
+  "received_diff_sha256": "e10f9f3b85323aa17ed927dd3b3ed9c489aae1a8c83b81082869b90212fb2614",
+  "received_diff_bytes": 32908,
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/Q0/cloud/e02-c67-bkt-full-chain/focused-pytest.log",
+      "base_git_blob": null,
+      "postimage_git_blob": "188512f5c1fddcf6cb1f73a3b4f5dd357d03d17c",
+      "postimage_sha256": "08faea39fd19189f6544839f505d91d76ecb1367e219f5db362cdf22916ef869",
+      "bytes": 80,
+      "new_file": true,
+      "delivered_file": "LOCAL/raw/e02-execution-20261027/cloud/C67/delivered/Q0/cloud/e02-c67-bkt-full-chain/focused-pytest.log",
+      "actual_delivered_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/Q0/cloud/e02-c67-bkt-full-chain/receipt.md",
+      "base_git_blob": null,
+      "postimage_git_blob": "9c54a9f3435f3aea0b3fb8854ffc990aaaac3537",
+      "postimage_sha256": "d24f15af9808d1dc6ab5e70b645b9bb848ec64529c4fa36c17c67aad997a0931",
+      "bytes": 4105,
+      "new_file": true,
+      "delivered_file": "LOCAL/raw/e02-execution-20261027/cloud/C67/delivered/Q0/cloud/e02-c67-bkt-full-chain/receipt.md",
+      "actual_delivered_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-28-e02-c67-backtest-cohort-lineage.toml",
+      "base_git_blob": null,
+      "postimage_git_blob": "d512d7819c6fe14e79c65b31502498d8ec28654f",
+      "postimage_sha256": "9d2369157f72778e42ce51cd68d6e42aa73fa0d9317734a98d850354ea6c57fd",
+      "bytes": 1058,
+      "new_file": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "base_git_blob": "bcf32f0beab30a28c36979fac4f79a5c12bca037",
+      "postimage_git_blob": "6aeec778273b89fc7a5ef9326ac73345f34288a6",
+      "postimage_sha256": "d7bc08a0ca45768c7b29bd1e9e668c44ea41c5fc2cd1a20d74597e5a07d4714c",
+      "bytes": 78009,
+      "new_file": false
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/methods/backtesting/test_backtest_fresh_report_semantics.py",
+      "base_git_blob": null,
+      "postimage_git_blob": "4158946fa79abf65855a637ce17e6b81a315a500",
+      "postimage_sha256": "e1168a7e63e1e95f2e676bd922bc3a1f10b0dd4e5e6d2679d0819a35ac1dbd99",
+      "bytes": 5530,
+      "new_file": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py",
+      "base_git_blob": "b1873f09a460b5587d077b21bd6f8f3a0eb56d8f",
+      "postimage_git_blob": "fbc819aff50a1b2a276e3fcbb0b4bbea2f1a6ef3",
+      "postimage_sha256": "a10b3259d1b14e9399dbbc1135bce2db4341fd08b820f6957d23cc28d18c2fbd",
+      "bytes": 70610,
+      "new_file": false
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap_statistic_semantics.py",
+      "base_git_blob": null,
+      "postimage_git_blob": "56dff74459dfced963de5ce989fa9071a98b98c6",
+      "postimage_sha256": "282b4a86edc145d9f48223f23712656faea6c68549fb3f4b795e84981276151c",
+      "bytes": 2792,
+      "new_file": true
+    }
+  ],
+  "canonical_source_not_applied": true,
+  "actual_canonical_index_unchanged": true
+}

@@ -1,0 +1,19 @@
+..............F                                                          [100%]R4_INPUT_READSET_SUMMARY={"bypass": null, "capacity": null, "case_id": "driver", "module_count": 1840, "phase": "driver", "pid": 51849, "readset_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c07-composed-owner-hte-r6-20261028/readsets/input-readset-51849.json", "source_module_count": 1824, "test_module_count": 16, "tools_module_count": 0}
+
+=================================== FAILURES ===================================
+_ test_owned_hte_outbox_records_first_assessment_without_authority_promotion[selected-source-unit] _
+tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py:1476: in test_owned_hte_outbox_records_first_assessment_without_authority_promotion
+    assert first_response.status_code == 200, first_response.text
+E   AssertionError: {"type":"https://polisyos.dev/problems/forbidden","title":"Observational source current access not established","status":403,"detail":"Asynchronous candidate execution requires an unscoped public observation.","code":"observational_source_current_access_not_established","instance":"/api/v1/control/runs","request_id":"133fbd52b9d44baca47c2f3811da4457","error":"forbidden","status_code":403,"context":{"request_id":"133fbd52b9d44baca47c2f3811da4457","tenant":"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"}}
+E   assert 403 == 200
+E    +  where 403 = <Response [403 Forbidden]>.status_code
+---------------------------- Captured stdout setup -----------------------------
+2026-10-28 03:49:40 [info     ] method_registered              backend=numpy fqn=causal.hte.forest_dr@1.0.0 lazy=False namespace=causal.hte override=False tags=['causal', 'cross-section', 'doubly-robust', 'estimation', 'forest-dr', 'hte', 'tabular'] version=1.0.0
+2026-10-28 03:49:40 [info     ] method_registered              backend=numpy fqn=causal.hte.forest_dr@1.1.0 lazy=False namespace=causal.hte override=False tags=['causal', 'cross-section', 'doubly-robust', 'estimation', 'forest-dr', 'hte', 'tabular'] version=1.1.0
+2026-10-28 03:49:40 [info     ] method_registered              backend=numpy fqn=causal.hte.causal_forest@2.0.0 lazy=False namespace=causal.hte override=False tags=['causal', 'causal-forest', 'cross-section', 'estimation', 'hte', 'native-inference', 'tabular'] version=2.0.0
+2026-10-28 03:49:40 [info     ] method_registered              backend=numpy fqn=causal.hte.double_ml@2.0.0 lazy=False namespace=causal.hte override=False tags=['causal', 'cross-section', 'double-ml', 'estimation', 'hte', 'native-inference', 'tabular'] version=2.0.0
+2026-10-28 03:49:40 [info     ] method_registered              backend=numpy fqn=causal.hte.meta_learner@2.0.0 lazy=False namespace=causal.hte override=False tags=['causal', 'cross-section', 'estimation', 'hte', 'meta-learner', 'native-inference', 'tabular'] version=2.0.0
+2026-10-28 03:49:40 [info     ] method_registered              backend=numpy fqn=causal.hte.forest_dr@2.0.0 lazy=False namespace=causal.hte override=False tags=['causal', 'cross-section', 'estimation', 'forest-dr', 'hte', 'native-inference', 'tabular'] version=2.0.0
+=========================== short test summary info ============================
+FAILED tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py::test_owned_hte_outbox_records_first_assessment_without_authority_promotion[selected-source-unit]
+1 failed, 14 passed in 68.13s (0:01:08)

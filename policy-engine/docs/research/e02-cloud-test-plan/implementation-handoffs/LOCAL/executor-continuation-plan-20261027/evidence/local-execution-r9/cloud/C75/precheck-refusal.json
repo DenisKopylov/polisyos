@@ -1,0 +1,14 @@
+{
+  "observed_at": "2026-10-28T03:01:57.616544+00:00",
+  "outcome": "local prompt hash admission refused before any cloud CLI call",
+  "attempted_prompt": "LOCAL/raw/e02-execution-20261027/next-cloud/C75-r2/prompt.md",
+  "expected_sha256": "4afb4f4655fc7be2cf2f835c34f991c90fdc825cab0aba6b8c158bc9a77c8e69",
+  "actual_sha256": "977c84e9f7c0eb7219a122ef564cdfe2d6a6e95bfb03dd935c990167ca852bec",
+  "actual_bytes": 69630,
+  "exit": 1,
+  "exception": "AssertionError",
+  "reason": "Author rewrote reviewed r2 tolerance sentence after its frozen review; exact-hash admission held",
+  "source_or_cloud_mutation": false,
+  "transport_was_not_reached": true,
+  "evidence": "Root directly observed launcher traceback at its first body-hash assert; original tool stdout/stderr was not separately retained. Current bytes and frozen independent r2/r3/r4 reviews retain actual deltas. No claimed Cloud result."
+}

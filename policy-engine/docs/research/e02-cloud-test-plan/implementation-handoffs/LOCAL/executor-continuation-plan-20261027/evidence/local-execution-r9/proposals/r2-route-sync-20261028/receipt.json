@@ -1,0 +1,87 @@
+{
+  "schema": "policyos.e02.r2_provenance_route_sync_proposal.v1",
+  "status": "prepared_unapplied",
+  "frozen_snapshot": {
+    "commit": "a8bee9746d0ea6c9582648b60944f8a4a27eb31e",
+    "tree": "f54638ce89e0c2589d9be3b47809af12bd509c93",
+    "branch_at_read": "codex/e02-unified-local-20261009",
+    "HEAD_at_read": "a8bee9746d0ea6c9582648b60944f8a4a27eb31e",
+    "HEAD_tree_at_read": "f54638ce89e0c2589d9be3b47809af12bd509c93"
+  },
+  "initial_observation_file": "command-output.txt",
+  "initial_observation_head": "026f0c89ac7ab9648f0c6727fd32f1be4bcb8f5e",
+  "final_readback_file": "final-readback.txt",
+  "canonical_task": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/R2",
+  "finding_ids": [
+    "B87",
+    "B89"
+  ],
+  "route_occurrences": [
+    "B87@NET-01",
+    "B89@NET-01"
+  ],
+  "G_item": "G27-06",
+  "G_disposition_pointer": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-review-followup-20261027/dispositions.json#/items/5",
+  "corrected_packet_commit": "1810a18581630afc079aef2747273447cb6f811f",
+  "candidate": "65ac853e2735e827e27688a6175f1a385901e20e",
+  "slice_base": "76691bd25ba10bee2caed9826e54cd9d40324ca5",
+  "related_history_commit_ids": [
+    "f29d85ef8eb35af3a9566ccd6c35202c2f1fbc58",
+    "e46cb5cd28baf204e69f556dcfea41889ed0ad35",
+    "07bbb61ffa6d53709942bcda87c37daef1a04651",
+    "1eb32f013308de34d77572dd4af8ca048b2b9ee3"
+  ],
+  "ancestry_verified": true,
+  "all_five_packet_pins_match_candidate": true,
+  "snapshot_candidate_path_matches": 2,
+  "snapshot_candidate_path_denominator": 5,
+  "snapshot_changed_paths": [
+    "policy-engine/src/polisyos/fabric/connectors/sources/event_stream.py",
+    "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+    "policy-engine/src/polisyos/fabric/data_plane/cursor_store.py"
+  ],
+  "tracked_local_blob_path_denominator": 2672,
+  "proposal_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/QUEUE.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/analysis/runtime-routes.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/analysis/criteria.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/analysis/dependencies.md"
+  ],
+  "preimage_blob_ids": {
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/QUEUE.json": "b12d93261751b3831d9d245056b5eb31e4210c07",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/analysis/runtime-routes.md": "a441bdec94679e43ca9564d597a1a6e4b3a8f915",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/analysis/criteria.md": "b0fe3606abb39bdf6fb862234815479ccaa3074b",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/analysis/dependencies.md": "cbbed1e3779c4ac6ecba57b61b8fefa747c97cd0"
+  },
+  "preimage_sha256": {
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/QUEUE.json": "e1e5394e2c4ab9d693340f01f77892cd04ba5857f7b57495f688ef2ce4fcf9f8",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/analysis/runtime-routes.md": "ef50e9836c5821ae2809585037856c67c30cc3db9357e43e47f4e0675bd12c5f",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/analysis/criteria.md": "05032cd753304ffd7263bb0c5b0b1650b990e99cd4e68555fabccacfab11dbfc",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/analysis/dependencies.md": "16e33027207152e4a8529f2dc1f82a01749277ee1c0cf948f0dbd47619acdbe9"
+  },
+  "postimage_sha256": {
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/QUEUE.json": "7ca854391f67642be4616f52dcb0b8d8dcebfba7690499312daad34f4ef4bc30",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/analysis/runtime-routes.md": "793e32f092e13ab0ace5fea2dd81b198e868b8dac9bff34beffa6d5484e83676",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/analysis/criteria.md": "41637ff74be9028bf7163c5f4ebeaab677c8d544a6013b638d6f8989ec465a25",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/analysis/dependencies.md": "6d4484adc8ed855a10abf6e84fc09081ebdb5efda5bafbf78c980c83d550a6b2"
+  },
+  "patch_sha256": "19d1f35295cc7a7df580ef22182fa48a056b1ecae83572ea7be7307bc5931ae3",
+  "initial_command_output_sha256": "22f00a90f18e2a145e503cd1d73cb0552997269095ef43e41492f924e5497cde",
+  "final_readback_sha256": "8f38a181250fd78172640e33235c5bf688a07ade886741151b301a989b30f69b",
+  "checks": {
+    "queue_json_postimage_parses": true,
+    "all_four_route_preimages_match_frozen_snapshot": true,
+    "git_apply_check_exit": 0,
+    "patch_applied": false,
+    "tracked_files_written": 0,
+    "index_changed": false,
+    "tests_or_imports_run": false
+  },
+  "excluded": [
+    "R2 packet: already corrected in cited commit; no further packet edit proposed",
+    "G27-06 disposition and G review verification: frozen G decision/record",
+    "analysis/review-plan.md: frozen plan-review output; accepted route delta requires new input identity",
+    "historical transfer snapshots and L01-receipt.json",
+    "R4 packet, product source, tests, canonical pointers, index and Git refs"
+  ]
+}

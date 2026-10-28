@@ -1,0 +1,17 @@
+id = "2026-10-28-e02-posterior-source-coordinate-admission"
+title = "Recompute complete posterior coordinates before publication"
+type = "fixed"
+component = "ir-analytics"
+owner = "team-polisyos"
+summary = "The existing profile-1.1 posterior owner derives the complete coordinate mapping, draw rows and functionals from its frozen source payload before any owned write. Ambiguous projections, omitted coordinates and forged declarations refuse; typed reads reconstruct admitted values from retained source bytes."
+evidence = ["src/polisyos/ir/analytics/posterior_summary.py", "tests/unit/ir/analytics/test_posterior_summary.py", "tests/unit/scientist/compute/test_runner_posterior_summary.py"]
+compatibility = "Canonical unambiguous profile-1.1 artifacts keep their schema, roles, axes and meanings. Previously permissively accepted benign unknown source extras now refuse this typed profile. Historical ambiguous/incomplete artifacts and unknown source-format extensions now refuse this typed law profile before evaluation; generic artifact inspection remains available. Existing UncertaintyEnvelope and historical E profile-1.0 meanings remain unchanged."
+change_class = "internal"
+surface_classification = "public_stable: existing polisyos.ir posterior summary APIs; stricter source-law admission with unchanged public fields and signatures"
+migration = "No new schema, owner tuple, migration edge, codec or sampler. Existing complete source payload is the reconstruction basis. CAN.2 keeps its historical zero-normalizing wire; source-derived typed reads preserve retained IEEE draw values without enabling CAN.3 writes."
+api = "The actual controlled MethodJob/evidence writer, selected-profile fresh reader, public joint-row reader and MonteCarlo consumer use detached source-derived values; full-row, mutable-alias, source-snapshot and explicit owner-bypass tests remain unrun."
+limitations = "Candidate-only unweighted finite profile1.1; no source quality, fit, mixing, ESS, unit, calibrated-Hessian, policy authority, S3 B31 or G acceptance is established. The historical E-selected weighted envelope1.0 chain remains separate."
+generated_client_compatibility = "No public field/signature/export change; private strict source-admission models and existing-module imports are extended. Actual ABI/public inventory checks remain with Root."
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

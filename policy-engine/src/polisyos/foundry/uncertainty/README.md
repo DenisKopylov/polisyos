@@ -153,3 +153,35 @@ substitution is applied.
 - Last updated: 2026-10-20
 - Files: 13 Python files in this package
 - Exports: 30 names declared in `__all__`
+
+
+### Source-derived posterior consumption
+
+The explicit profile-1.1 posterior path recomputes a detached source snapshot
+before executing any evaluator and consumes only its source-derived numerical
+point and rows. Equality of a caller's shallow-frozen DTO is not a value source.
+The public joint-row reader uses the same source admission. Complete source
+bytes are frozen once, and the same bytes are hashed and decoded; later caller
+mutations cannot change an admitted invocation. Unknown source-format fields
+now refuse this unweighted typed law profile instead of being ignored as
+unweighted data; generic artifact inspection is unchanged. This is candidate
+computation, not source validity, mixing, calibration or policy authority.
+
+Selected evidence provenance has a separate boundary. The fresh
+`load_persisted_posterior_summary` adapter resolves the actual store/ref and
+requested evidence view (the explicitly selected profile when supplied, otherwise
+the default view), the corresponding result edge and credible-mass diagnostic
+**at read time**.
+The standalone Monte Carlo API has no store; its copied
+`source_method_evidence_ref`/profile and linkage of credible mass to that evidence
+remain `consumer_asserted` for a direct input or one mutated after that read.
+Numerical source reconstruction does not independently verify those linkages.
+
+The remaining provenance boundary is assigned to the existing S3 selected-store/ref
+reader-to-consumer wrapper route, using an independently selected ref/context. Its
+concrete falsifiers are UNRUN: change an already-read model's well-formed evidence
+ref/profile before consumption; or change credible mass from 0.9 to 0.8 for source rows
+`(0, 1, 2, 3)`, whose finite bounds remain `[0,3]`, without changing the selected
+evidence diagnostic. The wrapper must refuse or re-resolve those changes before
+any effect and consume only that independently revalidated selection. This route
+has not established S3/B31, E-M1, G acceptance or closure.

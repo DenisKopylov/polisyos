@@ -12,10 +12,10 @@ import base64
 import math
 from collections.abc import Mapping
 from enum import StrEnum
-from typing import Any, Final, Literal
+from typing import Annotated, Any, Final, Literal
 
 import numpy as np
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from polisyos.ir.analytics._owner_admission import (
     OwnedJSONRepresentation as _OwnedJSONRepresentation,
@@ -29,7 +29,12 @@ from polisyos.ir.analytics._owner_admission import (
 from polisyos.ir.artifacts import ArtifactStore, InputRef
 from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
 from polisyos.ir.migrations.base import CompatibilityMode as _CompatibilityMode
-from polisyos.ir.model_layer.canon import CanonSpec, content_hash, to_canonical_bytes
+from polisyos.ir.model_layer.canon import (
+    CanonSpec,
+    content_hash,
+    from_canonical_bytes,
+    to_canonical_bytes,
+)
 from polisyos.ir.registry.refs import ArtifactRefModel
 
 POSTERIOR_SUMMARY_PROFILE_ID: Final[
@@ -37,6 +42,51 @@ POSTERIOR_SUMMARY_PROFILE_ID: Final[
 ] = "urn:policyos:ir:bayesian-posterior-summary-profile:1"
 POSTERIOR_SUMMARY_PROFILE_VERSION: Final[Literal["1.1"]] = "1.1"
 POSTERIOR_DRAWS_SCHEMA = "foundry.bayesian.draws.v1"
+
+
+class _PosteriorDrawLayoutV1(BaseModel):
+    """Admit the producer's exact chain-major float64 layout."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    axis_order: list[str] = Field(min_length=3, max_length=3)
+    array_order: Literal["C"]
+    dtype: Literal["<f8"]
+    canonicalization_version: Literal["foundry.bayesian.draws.v1"]
+
+    @model_validator(mode="after")
+    def _validate_axes(self) -> _PosteriorDrawLayoutV1:
+        if self.axis_order != ["chain", "draw", "parameter"]:
+            raise ValueError("posterior draw source axis order is unsupported")
+        return self
+
+
+class _PosteriorDrawArrayV1(BaseModel):
+    """Admit the existing producer's exact unweighted array record."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    shape: list[Annotated[int, Field(strict=True, ge=1)]] = Field(min_length=2)
+    dtype: Literal["<f8"]
+    data_base64: str
+
+
+class _PosteriorDrawSourceV1(BaseModel):
+    """Read the fixed canonical v1 source format, never infer unknown weights.
+
+    The canonical Foundry producer has these six fields and no extension
+    slot. Previously permissive unknown fields now refuse this typed law
+    profile; generic artifact inspection keeps its existing contract.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_name: Literal["foundry.bayesian.draws.v1"] = Field(alias="schema")
+    method_name: str
+    sampler_kernel: str
+    stage: Literal["posterior"]
+    draw_layout: _PosteriorDrawLayoutV1
+    parameters: dict[str, _PosteriorDrawArrayV1] = Field(min_length=1)
 
 
 def _inverse_empirical_cdf(
@@ -127,15 +177,35 @@ class PosteriorSummaryV11(BaseModel):
 
     @model_validator(mode="after")
     def _validate_summary_identity(self) -> PosteriorSummaryV11:
-        draw_count = self.chain_count * self.draws_per_chain
+        # The owner writer runs this parser on its frozen serialized payload
+        # before CAS emission, including model_construct/model_copy bypasses
+        # and nested mutations of a previously validated summary. Recompute
+        # the COMPLETE source set, not only the entries the caller retained.
+        chains, draws_per_chain, expected, source_payload = _recompute_posterior_source(
+            artifact_ref=self.source_draws_ref,
+            artifact_payload=self.source_draws_payload,
+            artifact_hash=self.source_draws_hash,
+            credible_mass=self.credible_mass,
+            point_role=self.point_role,
+        )
+        draw_count = chains * draws_per_chain
         if (
-            self.source_weights is not None
+            self.chain_count != chains
+            or self.draws_per_chain != draws_per_chain
+            or self.source_weights is not None
             or self.draw_order != tuple(range(draw_count))
-            or self.parameter_order != tuple(self.parameters)
-            or set(self.unit_bindings) - set(self.parameter_order)
-            or any(len(item.draws) != draw_count for item in self.parameters.values())
+            or self.parameter_order != tuple(expected)
+            or self.parameters != expected
+            or self.unit_bindings
         ):
             raise ValueError("posterior summary source axes or declarations are inconsistent")
+        # CAN.2 correctly retains its historical numeric wire law, including
+        # zero normalization. Rebuild the typed consumer projection from the
+        # retained source bytes after comparison, rather than losing source
+        # IEEE values through an equal-valued JSON declaration (e.g. -0.0).
+        # This changes neither frozen owner input bytes nor the Core codec.
+        object.__setattr__(self, "parameters", expected)
+        object.__setattr__(self, "source_draws_payload", source_payload)
         return self
 
     def joint_row_values(self, parameter_names: tuple[str, ...]) -> tuple[tuple[float, ...], ...]:
@@ -148,72 +218,72 @@ class PosteriorSummaryV11(BaseModel):
             The exact row-ordered joint values, with no independently declared join identifier.
 
         Raises:
-            ValueError: If names are empty, duplicated, or absent from this source artifact.
+            ValueError: If the source cannot be reconciled or names are empty,
+                duplicated, or absent from this source artifact.
         """
         if not parameter_names or len(set(parameter_names)) != len(parameter_names):
             raise ValueError("posterior joint row selection requires distinct parameter names")
-        missing = set(parameter_names) - set(self.parameters)
+        source = summarize_posterior_draw_artifact(
+            artifact_ref=self.source_draws_ref,
+            artifact_payload=self.source_draws_payload,
+            artifact_hash=self.source_draws_hash,
+            credible_mass=self.credible_mass,
+            point_role=self.point_role,
+            source_method_evidence_ref=self.source_method_evidence_ref,
+        )
+        if source != self:
+            raise ValueError("selected posterior summary does not match its source draw payload")
+        missing = set(parameter_names) - set(source.parameters)
         if missing:
             raise ValueError(
                 f"posterior joint row selection has unknown parameters: {sorted(missing)}"
             )
+        # Only this detached source projection supplies values. Equality of
+        # caller declarations does not authorize consuming their mutable map.
         return tuple(
-            tuple(self.parameters[name].draws[row] for name in parameter_names)
-            for row in self.draw_order
+            tuple(source.parameters[name].draws[row] for name in parameter_names)
+            for row in source.draw_order
         )
 
 
-def summarize_posterior_draw_artifact(
+def _recompute_posterior_source(
     *,
     artifact_ref: str,
     artifact_payload: Mapping[str, Any],
     artifact_hash: str,
     credible_mass: float,
     point_role: PosteriorPointRole,
-    source_method_evidence_ref: ArtifactRefModel | None = None,
-) -> PosteriorSummaryV11:
-    """Recompute separate functionals from one hash-bound Bayesian draw artifact.
+) -> tuple[int, int, dict[str, PosteriorParameterSummary], dict[str, Any]]:
+    """Admit every source coordinate and recompute its exact finite functionals.
 
-    Args:
-        artifact_ref: Native content-addressed producer reference.
-        artifact_payload: ``foundry.bayesian.draws.v1`` payload from that producer.
-        artifact_hash: Producer-declared digest, independently recomputed here.
-        credible_mass: Equal-tail interval mass in ``(0, 1)``.
-        point_role: Explicitly selected named point functional.
-        source_method_evidence_ref: Persisted method evidence that carries the draw payload.
-
-    Returns:
-        A candidate-only v1.1 summary retaining source order and all scalarized draws.
-
-    Raises:
-        ValueError: If source identity, axis layout, bytes, statistics, or selected functional
-            cannot be recomputed without loss.
+    This is the one source projection used by construction and the owner DTO
+    parser. It freezes one source byte string, verifies its exact digest and
+    decodes that same string into private components rather than constructing
+    the validating summary recursively. No declared coordinate list serves as
+    its denominator. Unknown extensions are not admitted as unweighted law.
     """
     if not 0.0 < credible_mass < 1.0:
         raise ValueError("credible_mass must be in (0, 1)")
-    expected_hash = content_hash(
-        to_canonical_bytes(artifact_payload, CanonSpec(forbid_floats=False)),
-        prefix=True,
-    )
+    # Hash and decode the SAME immutable bytes. The caller may mutate its
+    # original nested dict after this point; neither source decoding nor the
+    # constructed summary consults it again. A torn capture cannot acquire an
+    # unrelated declared hash/ref because that exact byte string must match.
+    source_bytes = to_canonical_bytes(artifact_payload, CanonSpec(forbid_floats=False))
+    expected_hash = content_hash(source_bytes, prefix=True)
     expected_ref = f"artifact://foundry/bayesian/posterior/{expected_hash}"
     if artifact_hash != expected_hash or artifact_ref != expected_ref:
         raise ValueError("posterior draw reference does not content-bind to its payload")
-    if (
-        artifact_payload.get("schema") != POSTERIOR_DRAWS_SCHEMA
-        or artifact_payload.get("stage") != "posterior"
-        or artifact_payload.get("draw_layout")
-        != {
-            "axis_order": ["chain", "draw", "parameter"],
-            "array_order": "C",
-            "dtype": "<f8",
-            "canonicalization_version": POSTERIOR_DRAWS_SCHEMA,
-        }
-    ):
-        raise ValueError("posterior draw payload has an unsupported schema or axis layout")
-    if "weights" in artifact_payload or "sample_weights" in artifact_payload:
+    source_payload = from_canonical_bytes(source_bytes)
+    try:
+        _PosteriorDrawSourceV1.model_validate(source_payload)
+    except ValidationError as exc:
         raise ValueError(
-            "posterior draw source reports weights unsupported by this unweighted v1.1 profile"
-        )
+            "posterior draw source format is undeclared or malformed; "
+            "weights unsupported by this unweighted v1.1 profile"
+        ) from exc
+    if not isinstance(source_payload, dict):
+        raise ValueError("posterior draw source must be a JSON object")
+    artifact_payload = source_payload
     raw_parameters = artifact_payload.get("parameters")
     if not isinstance(raw_parameters, Mapping) or not raw_parameters:
         raise ValueError("posterior draw payload has no parameter arrays")
@@ -271,6 +341,8 @@ def summarize_posterior_draw_artifact(
                 if not coordinate
                 else f"{source_name}[{','.join(map(str, coordinate))}]"
             )
+            if key in parameter_summaries:
+                raise ValueError("posterior scalar coordinate projection is ambiguous")
             selector = (slice(None), slice(None), *coordinate)
             draws = tuple(float(value) for value in array[selector].reshape(-1, order="C"))
             mean = math.fsum(draws) / draw_count
@@ -311,13 +383,62 @@ def summarize_posterior_draw_artifact(
                 selected_point=selected_point,
             )
 
+    return chain_count, draws_per_chain, parameter_summaries, source_payload
+
+
+def summarize_posterior_draw_artifact(
+    *,
+    artifact_ref: str,
+    artifact_payload: Mapping[str, Any],
+    artifact_hash: str,
+    credible_mass: float,
+    point_role: PosteriorPointRole,
+    source_method_evidence_ref: ArtifactRefModel | None = None,
+) -> PosteriorSummaryV11:
+    """Recompute separate functionals from one hash-bound Bayesian draw artifact.
+
+    Args:
+        artifact_ref: Native content-addressed producer reference.
+        artifact_payload: ``foundry.bayesian.draws.v1`` payload from that producer.
+        artifact_hash: Producer-declared digest, independently recomputed here.
+        credible_mass: Equal-tail interval mass in ``(0, 1)``.
+        point_role: Explicitly selected named point functional.
+        source_method_evidence_ref: Persisted method evidence that carries the draw payload.
+
+    Returns:
+        A candidate-only v1.1 summary retaining source order and all scalarized draws.
+
+    Raises:
+        ValueError: If source identity, axis layout, bytes, statistics, or selected functional
+            cannot be recomputed without loss.
+    """
+    chain_count, draws_per_chain, parameter_summaries, source_payload = _recompute_posterior_source(
+        artifact_ref=artifact_ref,
+        artifact_payload=artifact_payload,
+        artifact_hash=artifact_hash,
+        credible_mass=credible_mass,
+        point_role=point_role,
+    )
+    draw_count = chain_count * draws_per_chain
+    detached_method_ref = (
+        None
+        if source_method_evidence_ref is None
+        else ArtifactRefModel.model_validate(
+            from_canonical_bytes(
+                to_canonical_bytes(
+                    source_method_evidence_ref.model_dump(mode="python"),
+                    CanonSpec(forbid_floats=False),
+                )
+            )
+        )
+    )
     return PosteriorSummaryV11(
         point_role=point_role,
         credible_mass=credible_mass,
         source_draws_ref=artifact_ref,
-        source_draws_hash=expected_hash,
-        source_draws_payload=dict(artifact_payload),
-        source_method_evidence_ref=source_method_evidence_ref,
+        source_draws_hash=artifact_hash,
+        source_draws_payload=source_payload,
+        source_method_evidence_ref=detached_method_ref,
         chain_count=chain_count,
         draws_per_chain=draws_per_chain,
         draw_order=tuple(range(draw_count)),
@@ -372,7 +493,11 @@ def persist_posterior_summary(
     *,
     source_method_evidence_ref: ArtifactRefModel,
 ) -> PosteriorSummaryRef:
-    """Persist a candidate summary with its exact selected evidence view as lineage."""
+    """Persist after frozen owner admission recomputes the complete source law.
+
+    The selected evidence view remains lineage; it does not turn this
+    candidate-only profile into source validity or institutional authority.
+    """
     bound_summary = summary.model_copy(
         update={
             "source_method_evidence_ref": ArtifactRefModel.model_validate(

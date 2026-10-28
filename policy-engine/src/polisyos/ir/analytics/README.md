@@ -160,8 +160,11 @@ for selected backend, historical replay and refit-bootstrap limitations.
 
 `posterior_summary.py` defines a separate candidate artifact for source-reported Bayesian draws.
 It keeps the selected posterior mean or median distinct from the equal-tail interval, retains the
-exact ordered draw payload, and content-binds the payload to its source reference. The explicit HMC
-adapter persists this summary against selected `scientist.method_evidence`; a fresh reader resolves
+exact ordered draw payload, and content-binds the payload to its source reference. The source owner
+refuses parameter/coordinate sets whose stable scalar names collide, rather than
+silently overwriting one coordinate; unambiguous scalar, vector, and tensor names retain their
+existing spelling.
+The adapter persists this summary against selected `scientist.method_evidence`; a fresh reader resolves
 the selected manifest profile and recomputes summary fields from the source draw bytes. It reports
 weights as not supplied, parameter units as not established, and `gate_eligible=False`. This does
 not replace the legacy `summarize_bayesian_calibration_posterior()` path, alter
@@ -169,6 +172,52 @@ not replace the legacy `summarize_bayesian_calibration_posterior()` path, alter
 The native MethodJob producer returns persisted mean and median summary refs.
 The default uncertainty consumer still uses `UncertaintyEnvelope`; selecting a
 summary role and binding its parameters to an evaluator requires an owner mapping.
+
+The source parser now accepts only the existing canonical `foundry.bayesian.draws.v1`
+format: its six declared source fields, exact layout and exact array records. It has no
+weighted or extension-field encoding. Unknown fields, including otherwise benign extension
+metadata previously ignored by this reader, now refuse this typed unweighted law profile;
+generic artifact inspection remains available. This is an explicit narrowing of permissive
+source intake, not a new wire profile or a claim that every historical extra field was invalid.
+
+Source admission freezes one canonical byte string and hashes and decodes those same bytes.
+Both `joint_row_values()` and the actual Monte Carlo consumer use a detached recomputed
+projection for numerical source values, rows and the named point. Equal-valued substitutions in a caller's mutable
+dictionary, or changes to the original source dictionary after capture, cannot supply the
+executed law merely by passing ordinary model equality.
+
+Selected evidence provenance has a separate boundary. The fresh
+`load_persisted_posterior_summary` adapter resolves the actual store/ref and
+requested evidence view (the explicitly selected profile when supplied, otherwise
+the default view), the corresponding result edge and credible-mass diagnostic
+**at read time**.
+The standalone Monte Carlo API has no store; its copied
+`source_method_evidence_ref`/profile and linkage of credible mass to that evidence
+remain `consumer_asserted` for a direct input or one mutated after that read.
+Numerical source reconstruction does not independently verify those linkages.
+
+The remaining provenance boundary is assigned to the existing S3 selected-store/ref
+reader-to-consumer wrapper route, using an independently selected ref/context. Its
+concrete falsifiers are UNRUN: change an already-read model's well-formed evidence
+ref/profile before consumption; or change credible mass from 0.9 to 0.8 for source rows
+`(0, 1, 2, 3)`, whose finite bounds remain `[0,3]`, without changing the selected
+evidence diagnostic. The wrapper must refuse or re-resolve those changes before
+any effect and consume only that independently revalidated selection. This route
+has not established S3/B31, E-M1, G acceptance or closure.
+
+The profile-1.1 owner parser derives the entire scalar coordinate set, exact source rows and
+functionals from the frozen source payload before any owned summary write. A constructed,
+truncated or subsequently mutated DTO cannot replace that denominator with its retained
+entries. Construction and owner admission use the same non-recursive recomputation; fresh
+selected-evidence readers still resolve the actual producer result/evidence view. Historical
+ambiguous or incomplete summaries refuse when read. Valid unambiguous 1.1 meanings, the
+historical 1.0 envelope route and generic envelope containment remain unchanged. These checks
+do not establish units, mixing, ESS, calibration validity or policy authority.
+
+The typed parameter projection is reconstructed from the admitted source components after
+validation. Thus a CAN.2 JSON round-trip cannot replace retained IEEE draw values such as
+signed zero with an equal-valued declaration before an explicit numerical consumer uses them.
+This uses the existing exact base64 draw payload, not a second codec or a CAN.3 writer rollout.
 
 ## Depends on / depended on by
 

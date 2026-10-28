@@ -962,6 +962,10 @@ class MonteCarloPropagator:
         if recomputed != summary:
             raise ValueError("selected posterior summary does not match its source draw payload")
 
+        # Execute only the detached source-derived projection. A shallowly
+        # frozen caller DTO can have equal-valued mutable substitutions; its
+        # equality with the source is not permission to consume those values.
+        summary = recomputed
         rows = summary.joint_row_values(parameter_names)
         selected_input_point = tuple(
             summary.parameters[name].selected_point for name in parameter_names

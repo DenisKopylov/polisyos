@@ -22,6 +22,7 @@ __all__ = [
     "admit_execution_source",
     "admit_execution_source_bounded",
     "execute",
+    "execution_input_basis_sources",
     "get_state_path",
     "load_state_snapshot",
     "read_numeric_npz_bounded",
@@ -87,6 +88,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "admit_execution_source",
     ),
     "execute": ("polisyos.foundry.execute.api", "execute"),
+    "execution_input_basis_sources": (
+        "polisyos.foundry.execute.api",
+        "execution_input_basis_sources",
+    ),
     "get_state_path": ("polisyos.foundry.execute._internal.models", "get_state_path"),
     "load_state_snapshot": (
         "polisyos.foundry.execute._internal.snapshots",

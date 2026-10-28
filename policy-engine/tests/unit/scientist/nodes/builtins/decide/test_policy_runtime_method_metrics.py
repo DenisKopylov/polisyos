@@ -10,7 +10,12 @@ from pydantic import ValidationError
 
 from polisyos.core.artifacts import ArtifactStore, input_ref_from_artifact_ref
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactManifest,
+    ArtifactRef,
+    InputRef,
+    SchemaInfo,
+)
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.contracts.control import WorkflowRunRequest
 from polisyos.scientist.methods.search.contracts import EvaluationBundle
@@ -977,6 +982,7 @@ def _exercise_public_execute_method_metric_source(
     foundry_port: object | None = None,
     execution_data_snapshot_ref: ArtifactRef | None = None,
     registered_sql_admission_ref: ArtifactRef | None = None,
+    merge_registry_schema_override: str | None = None,
     candidate_data_snapshot_edge_ref: ArtifactRef | None = None,
     expected_executed_mean: float | None = None,
     execution_seed: int = 41,
@@ -1025,14 +1031,25 @@ def _exercise_public_execute_method_metric_source(
     )
     from polisyos.core.registry import build_registry_bundle
     from polisyos.core.run.context import RunContext
-    from polisyos.fabric.data_plane.orchestrator import _build_snapshot_from_evidence_async
-    from polisyos.fabric.evidence.evidence import build_evidence_bundle, persist_evidence_bundle
+    from polisyos.fabric.data_plane.orchestrator import (
+        _build_snapshot_from_evidence_async,
+    )
+    from polisyos.fabric.evidence.evidence import (
+        build_evidence_bundle,
+        persist_evidence_bundle,
+    )
     from polisyos.foundry.data_plane import build_input_bindings
     from polisyos.foundry.execute.api import execute as execute_foundry
-    from polisyos.foundry.methods.catalog.policy.evaluation import ExAnteSimulationEstimator
+    from polisyos.foundry.methods.catalog.policy.evaluation import (
+        ExAnteSimulationEstimator,
+    )
     from polisyos.foundry.methods.registry import MethodRegistry
     from polisyos.ir.governance.policy_spec import PolicySpec
-    from polisyos.ir.governance.problem_frame import ObjectiveSpec, ProblemDomain, ProblemFrame
+    from polisyos.ir.governance.problem_frame import (
+        ObjectiveSpec,
+        ProblemDomain,
+        ProblemFrame,
+    )
     from polisyos.ir.kernel import (
         DEFAULT_CONSTRAINT_REGISTRY,
         DEFAULT_MECHANISM_REGISTRY,
@@ -1064,7 +1081,9 @@ def _exercise_public_execute_method_metric_source(
     from polisyos.ir.model_layer.model_spec import ModelSpec
     from polisyos.ir.model_layer.types import OptimizationDirection
     from polisyos.ir.trinity import TrinityBundle
-    from polisyos.scientist.nodes.builtins.compile.compile_foundry import CompileFoundryNode
+    from polisyos.scientist.nodes.builtins.compile.compile_foundry import (
+        CompileFoundryNode,
+    )
     from polisyos.scientist.nodes.builtins.planning.build_execution_plan import (
         BuildExecutionPlanNode,
     )
@@ -1202,6 +1221,46 @@ def _exercise_public_execute_method_metric_source(
         units_registry=units_registry,
         return_selected_profile=True,
     )
+
+    if merge_registry_schema_override is not None:
+        # Same exact registry payload, separately selected manifest profile:
+        # do not let a metadata name manufacture a known schema contract.
+        from polisyos.core.artifacts.registry import (
+            RegistryBundle,
+            RegistryBundlePayload,
+        )
+
+        original_merge = registry.merge_registry
+        reprofiled_merge = store.put_json(
+            DEFAULT_MERGE_RULE_REGISTRY,
+            PutOptions(
+                kind="ir.merge_rule_registry",
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name="polisyos.ir.kernel.MergeRuleRegistry",
+                    version=merge_registry_schema_override,
+                ),
+            ),
+            return_selected_profile=True,
+        )
+        assert reprofiled_merge.artifact_id == original_merge.artifact_id
+        assert reprofiled_merge.manifest_profile_sha256 != original_merge.manifest_profile_sha256
+        original_bundle = store.get_manifest(registry.bundle_ref)
+        payload_dict = registry.model_dump(mode="python", exclude={"bundle_ref"})
+        payload_dict["merge_registry"] = reprofiled_merge
+        payload = RegistryBundlePayload.model_validate(payload_dict)
+        edges = [
+            input_ref_from_artifact_ref(reprofiled_merge, role="merge_registry")
+            if edge.role == "merge_registry"
+            else edge
+            for edge in original_bundle.inputs
+        ]
+        new_ref = store.put_json(
+            payload,
+            PutOptions(kind="core.registry_bundle", media_type="application/json", inputs=edges),
+            return_selected_profile=True,
+        )
+        registry = RegistryBundle(bundle_ref=new_ref, **payload.model_dump(mode="python"))
 
     source_payload_ref = _put_selected(
         {"baseline": baseline.tolist(), "scenario": scenario.tolist()},
@@ -1488,9 +1547,14 @@ def _exercise_public_execute_method_metric_source(
             "computed_method_outputs": method_execution_outputs.copy(),
         }
     if canonical_compile:
-        from polisyos.core.contracts.foundry import CompileRequest, MethodMetricBindingRequest
+        from polisyos.core.contracts.foundry import (
+            CompileRequest,
+            MethodMetricBindingRequest,
+        )
         from polisyos.foundry.compile import compile as compile_actual
-        from polisyos.scientist.orchestration.llm.cycle import persist_candidate_execution_plan
+        from polisyos.scientist.orchestration.llm.cycle import (
+            persist_candidate_execution_plan,
+        )
 
         selected_plan = ExecutionPlan(
             plan_id=f"{run_id}-comparison-method-plan",
@@ -1519,7 +1583,9 @@ def _exercise_public_execute_method_metric_source(
                 method_execution_plan_ref=selected_plan_ref,
                 method_metric_bindings=[
                     MethodMetricBindingRequest(
-                        objective_id=objective_id, node_id="ex_ante_node", output_slot_id="result"
+                        objective_id=objective_id,
+                        node_id="ex_ante_node",
+                        output_slot_id="result",
                     )
                 ],
                 return_selected_profile=True,
@@ -1717,7 +1783,12 @@ def _exercise_public_execute_method_metric_source(
     )
     assert all(
         ref.manifest_profile_sha256 is not None
-        for ref in (candidate_ref, result.simulation_result_ref, bundle_ref, binding_ref)
+        for ref in (
+            candidate_ref,
+            result.simulation_result_ref,
+            bundle_ref,
+            binding_ref,
+        )
     )
     simulation_manifest = store.get_manifest(result.simulation_result_ref)
     method_execution_edges = [
@@ -2184,7 +2255,10 @@ def _exercise_public_execute_method_metric_source(
         ) -> object:
             assert source_run_id == work.run_id
             assert candidate_ref == candidate_ref_expected
-            assert (tenant_id, cell_id) == ("tenant-public-execute", "cell-public-execute")
+            assert (tenant_id, cell_id) == (
+                "tenant-public-execute",
+                "cell-public-execute",
+            )
             return completed_source
 
     candidate_ref_expected = candidate_ref
@@ -3208,7 +3282,10 @@ def test_requested_selector_without_completed_owner_never_reaches_l3_default(
     class _Workflow:
         def run(self, initial_state: dict[str, Any]) -> dict[str, Any]:
             del initial_state
-            return {"simulation_results": {"gdp_change": 0.5}, "feedback": {"verdict": "APPROVE"}}
+            return {
+                "simulation_results": {"gdp_change": 0.5},
+                "feedback": {"verdict": "APPROVE"},
+            }
 
     def _forbid_default_score(*args: Any, **kwargs: Any) -> Any:
         del args, kwargs
@@ -3300,7 +3377,9 @@ def test_inconsistent_selector_status_cannot_enable_legacy_fallback(
         "_funnel_method_metric_projection_basis",
     ],
 )
-def test_runtime_metric_capsule_is_atomic_before_legacy_fallback(missing_key: str) -> None:
+def test_runtime_metric_capsule_is_atomic_before_legacy_fallback(
+    missing_key: str,
+) -> None:
     """Any partial Runtime-owned family fails closed, including a lost status."""
     context = _runtime_method_metric_context("absent")
     del context[missing_key]
@@ -3622,7 +3701,9 @@ def test_returned_runtime_type_mismatch_limits_persisted_metric_at_both_search_c
         MethodOutputPayload,
         SimulationResult,
     )
-    from polisyos.scientist.methods.search.funnel.level3_medium import Level3MediumFidelity
+    from polisyos.scientist.methods.search.funnel.level3_medium import (
+        Level3MediumFidelity,
+    )
     from polisyos.scientist.methods.search.stages import ExpensiveStage
 
     artifacts = _exercise_public_execute_method_metric_source(tmp_path, monkeypatch)
@@ -4257,7 +4338,9 @@ def test_ex_ante_rank_refuses_body_to_selected_snapshot_edge_mismatch(
     )
     assert mismatch["projection"].status == "selected"
     result = recompute_completed_ex_ante_rank_projection(
-        store, basis=mismatch["projection"].basis, candidate_ref=mismatch["candidate_ref"]
+        store,
+        basis=mismatch["projection"].basis,
+        candidate_ref=mismatch["candidate_ref"],
     )
     assert result.status == "verification_missing"
     assert result.limitations == ("completed_ex_ante_candidate_model_source_mismatch",)
@@ -4302,7 +4385,10 @@ def test_candidate_comparison_reselects_each_source_before_return(
         def resolve_completed_method_metric_selection(
             self, *, source_run_id, candidate_ref, tenant_id, cell_id
         ):
-            assert (tenant_id, cell_id) == ("tenant-public-execute", "cell-public-execute")
+            assert (tenant_id, cell_id) == (
+                "tenant-public-execute",
+                "cell-public-execute",
+            )
             self.calls += 1
             # Two owner lookups per source in initial replay; revoke on the
             # post-read lookup of source A during the final re-selection.
@@ -4358,7 +4444,9 @@ def test_ex_ante_rank_comparison_detects_actual_seed_drift(
     )
     a, b = (
         recompute_completed_ex_ante_rank_projection(
-            source["store"], basis=source["projection"].basis, candidate_ref=source["candidate_ref"]
+            source["store"],
+            basis=source["projection"].basis,
+            candidate_ref=source["candidate_ref"],
         )
         for source in (first, second)
     )
@@ -4385,7 +4473,9 @@ def test_actual_compiler_rank_comparison_accepts_identical_sources(tmp_path, mon
     ]
     ranks = [
         recompute_completed_ex_ante_rank_projection(
-            item["store"], basis=item["projection"].basis, candidate_ref=item["candidate_ref"]
+            item["store"],
+            basis=item["projection"].basis,
+            candidate_ref=item["candidate_ref"],
         )
         for item in sources
     ]
@@ -4487,7 +4577,11 @@ def test_actual_compiler_comparison_reconciles_whole_operator_closure(tmp_path, 
             manifest,
         ),
         (graph.model_copy(update={"edges": graph.edges[:-1]}), plan, manifest),
-        (graph, plan.model_copy(update={"order": list(reversed(plan.order))}), manifest),
+        (
+            graph,
+            plan.model_copy(update={"order": list(reversed(plan.order))}),
+            manifest,
+        ),
         (graph, plan.model_copy(update={"order": plan.order[:-1]}), manifest),
         (
             graph,
@@ -4520,7 +4614,11 @@ def test_actual_compiler_comparison_reconciles_whole_operator_closure(tmp_path, 
             replay(changed_graph, changed_plan, changed_manifest)
     from polisyos.core.artifacts.manifest import ArtifactRef
     from polisyos.core.contracts.execution_plan import ExecutionPlan
-    from polisyos.core.contracts.foundry import LoweredConstraint, LoweredIR, LoweredIRRef
+    from polisyos.core.contracts.foundry import (
+        LoweredConstraint,
+        LoweredIR,
+        LoweredIRRef,
+    )
     from polisyos.foundry.compile import replay_method_program_graph
     from polisyos.ir.kernel import ConstraintRegistry
 

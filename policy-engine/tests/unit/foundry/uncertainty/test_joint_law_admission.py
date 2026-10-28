@@ -218,7 +218,15 @@ def test_refused_sampling_law_precedes_irrelevant_binding_and_never_evaluates(
     assert result.envelope.distribution_family is DistributionFamily.UNKNOWN
     assert result.envelope.gate_eligible is False
     assert result.envelope.metadata["failure"] == failure
-    assert result.diagnostics == {failure: True}
+    # A refused law retains its cause and still discloses unbound fixed inputs.
+    # Recipe 1.0 does not bind the fixed scale supplied by these binding fixtures.
+    expected_diagnostics: dict[str, bool | str] = {failure: True}
+    if "scale" in nominal:
+        expected_diagnostics["input_identity_status"] = "not_established"
+        assert result.envelope.metadata["invocation_identity_status"] == "not_established"
+    else:
+        assert "invocation_identity_status" not in result.envelope.metadata
+    assert result.diagnostics == expected_diagnostics
     assert result.input_envelopes_used == ["a", "b"]
     dispatcher_owned = route != "mc" and kind in {
         "unknown_dependency",

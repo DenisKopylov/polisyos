@@ -10,12 +10,33 @@ from __future__ import annotations
 import importlib
 import sys
 import types
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-__all__ = ["compile", "replay_method_program_graph"]
+if TYPE_CHECKING:
+    from .manifest_inputs import execution_plan_input_refs, program_graph_input_refs
+    from .randomization import TreasuryPlan, build_treasury_plan
+
+__all__ = [
+    "TreasuryPlan",
+    "build_treasury_plan",
+    "compile",
+    "execution_plan_input_refs",
+    "program_graph_input_refs",
+    "replay_method_program_graph",
+]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "compile": ("polisyos.foundry.compile.api", "compile"),
+    "TreasuryPlan": ("polisyos.foundry.compile.randomization", "TreasuryPlan"),
+    "build_treasury_plan": ("polisyos.foundry.compile.randomization", "build_treasury_plan"),
+    "execution_plan_input_refs": (
+        "polisyos.foundry.compile.manifest_inputs",
+        "execution_plan_input_refs",
+    ),
+    "program_graph_input_refs": (
+        "polisyos.foundry.compile.manifest_inputs",
+        "program_graph_input_refs",
+    ),
     "replay_method_program_graph": ("polisyos.foundry.compile.api", "replay_method_program_graph"),
 }
 

@@ -163,7 +163,7 @@ class DefaultFabricPort:
 
         request_ref = profile_bound_ref(store, request_ref)
         payload = load_core_json_artifact(store, request_ref)
-        query_request = _parse_query_request(payload)
+        query_request = parse_data_view_request(payload)
 
         if self._require_fresh_registered_sql:
             # The general request-to-constraints conversion discards unsupported
@@ -315,7 +315,9 @@ class DefaultFabricPort:
             raise ValueError("registered_sql_output_binding_not_established")
         if federation_audit is not None:
             verify_federation_core_payload(
-                load_core_json_artifact(store, data_ref), data_payload, frame=fetch_result.data
+                load_core_json_artifact(store, data_ref),
+                data_payload,
+                frame=fetch_result.data,
             )
         schema_options = ArtifactWriteOptions(
             kind="fabric.data_schema",
@@ -331,7 +333,10 @@ class DefaultFabricPort:
             )
         else:
             schema_ref = store.put_json(
-                schema_payload, schema_options, canon_spec=data_spec, return_selected_profile=True
+                schema_payload,
+                schema_options,
+                canon_spec=data_spec,
+                return_selected_profile=True,
             )
         _require_selected_profile(schema_ref, "fabric_bridge_schema_profile_unverified")
         if (
@@ -489,9 +494,17 @@ def _registered_sql_rows_match(observed_json: bytes, value: object) -> bool:
         return False
 
 
-def _parse_query_request(
+def parse_data_view_request(
     payload: object,
 ) -> QueryDataViewRequest | AnalyticsDataViewRequest:
+    """Parse a selected request using the same union as the Fabric bridge.
+
+    Args:
+        payload: Decoded candidate request payload.
+
+    Returns:
+        A typed query or analytics request. This parser does not authenticate it.
+    """
     try:
         return QueryDataViewRequest.model_validate(payload)
     except Exception as exc:

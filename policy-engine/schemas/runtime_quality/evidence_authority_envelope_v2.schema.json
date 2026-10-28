@@ -47,6 +47,68 @@
     },
     "ClosureCasIdentity": {
       "additionalProperties": false,
+      "allOf": [
+        {
+          "properties": {
+            "artifact_ref": {
+              "properties": {
+                "manifest_profile_sha256": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "manifest_profile_sha256"
+              ]
+            }
+          }
+        },
+        {
+          "else": {
+            "properties": {
+              "schema_version": {
+                "type": "string"
+              }
+            }
+          },
+          "if": {
+            "properties": {
+              "schema_name": {
+                "type": "null"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "schema_version": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "else": {
+            "properties": {
+              "producer_version": {
+                "type": "string"
+              }
+            }
+          },
+          "if": {
+            "properties": {
+              "producer_component": {
+                "type": "null"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "producer_version": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ],
       "description": "Exact selected CAS view named by a v2 closure member.",
       "properties": {
         "artifact_ref": {
@@ -64,14 +126,28 @@
           "type": "string"
         },
         "producer_component": {
-          "minLength": 1,
-          "title": "Producer Component",
-          "type": "string"
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Producer Component"
         },
         "producer_version": {
-          "minLength": 1,
-          "title": "Producer Version",
-          "type": "string"
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Producer Version"
         },
         "role": {
           "minLength": 1,
@@ -79,14 +155,28 @@
           "type": "string"
         },
         "schema_name": {
-          "minLength": 1,
-          "title": "Schema Name",
-          "type": "string"
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Schema Name"
         },
         "schema_version": {
-          "minLength": 1,
-          "title": "Schema Version",
-          "type": "string"
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Schema Version"
         }
       },
       "required": [

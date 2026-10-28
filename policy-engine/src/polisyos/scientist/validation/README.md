@@ -102,6 +102,17 @@ same owner for both default and explicit/cache API selection. No protected refs
 are added to the public Research DAG. Existing packet/epoch stores remain
 unchanged; covered packet migration is still bridge work, not dual source authority.
 
+The optional `SourceAdmissionReadBudget` threads a caller-owned aggregate through
+current-use revalidation. Every exact tenant/cell-scoped selected CAS manifest
+and member read is bounded and charged from the Core owner receipt, including
+known transfers on refusal; unmeasured transfer marks the aggregate unestablished.
+An exhausted or unestablished budget yields `unknown`, without changing the owner
+state. This selected-CAS transfer cap excludes owner root/trie state I/O, other
+DB work, external SQL and OS/device I/O; it is not a full-request byte cap.
+Unbudgeted legacy callers retain their existing behavior. The Runtime protected
+consumer must provide its shared budget and combine it with its terminal trace
+accounting before emitting a bounded claim.
+
 The first source profile reuses concrete local `FileSystemCAS.for_tenant` selected
 view ownership, bound to the verified issuer or the committed registration. A
 foreign-only view, changed CAS root, unsupported backend or missing ownership

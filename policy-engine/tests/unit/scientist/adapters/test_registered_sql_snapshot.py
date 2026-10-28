@@ -896,6 +896,31 @@ def test_scientist_node_consumes_selected_sql_source_into_foundry_binding(tmp_pa
     )
 
 
+def _isolated_sql_workflow_app(tmp_path, monkeypatch):
+    """Select a real owner-built candidate catalog under this test's directory."""
+    from polisyos.runtime.http.app import create_runtime_api_app
+    from tests._helpers.candidate_cycle_source_profile import (
+        build_candidate_cycle_catalog_serving_source,
+    )
+
+    root = tmp_path.resolve(strict=True)
+    curated = root / "empty-curated"
+    production = root / "empty-production-data"
+    curated.mkdir()
+    production.mkdir()
+    monkeypatch.setenv("POLISYOS_CACHE_HOME", str(root / "catalog-cache"))
+    monkeypatch.setenv("POLISYOS_CURATED_DIR", str(curated))
+    monkeypatch.setenv("POLISYOS_PRODUCTION_DATA_ROOT", str(production))
+    selection, source = build_candidate_cycle_catalog_serving_source(root)
+    app = create_runtime_api_app(
+        cas_root=root / "cas",
+        core_runs_root=root / "runs",
+        repo_root=root,
+        catalog_source_selection=selection,
+    )
+    return app, source
+
+
 def test_actual_workflow_creation_reopens_sql_history_and_current_use(tmp_path, monkeypatch):
     """The job payload records the actual owner-admitted carrier and snapshot."""
     from fastapi.testclient import TestClient
@@ -905,7 +930,6 @@ def test_actual_workflow_creation_reopens_sql_history_and_current_use(tmp_path, 
     from polisyos.core.contracts.control import WorkflowDataSourceBinding, WorkflowRunRequest
     from polisyos.core.contracts.decision_validity import RegisteredSQLAdmissionBinding
     from polisyos.core.security import tenant_scope
-    from polisyos.runtime.http.app import create_runtime_api_app
     from polisyos.runtime.http.errors import RuntimeHTTPError
     from polisyos.runtime.http.execution_policy import RuntimePrincipal
     from polisyos.scientist.adapters.registered_sql_admission import RegisteredSQLProducer
@@ -940,8 +964,11 @@ def test_actual_workflow_creation_reopens_sql_history_and_current_use(tmp_path, 
         canon_spec=CanonSpec(forbid_floats=False),
         return_selected_profile=True,
     )
-    app = create_runtime_api_app(cas_root=tmp_path / "cas", core_runs_root=tmp_path / "runs")
+    app, catalog_source = _isolated_sql_workflow_app(tmp_path, monkeypatch)
     with TestClient(app):
+        assert app.state._control_service.catalog_serving_source.database_path == (
+            catalog_source.database_path
+        )
         service = app.state._control_service
         principal = RuntimePrincipal(
             subject="analyst", tenant_id="tenant-a", cell_id="cell-a", authenticated=True
@@ -987,7 +1014,6 @@ def test_workflow_refuses_admitted_source_for_a_different_use(tmp_path, monkeypa
 
     from polisyos.core.contracts.control import WorkflowDataSourceBinding, WorkflowRunRequest
     from polisyos.core.security import tenant_scope
-    from polisyos.runtime.http.app import create_runtime_api_app
     from polisyos.runtime.http.errors import RuntimeHTTPError
     from polisyos.runtime.http.execution_policy import RuntimePrincipal
     from polisyos.scientist.adapters.registered_sql_admission import RegisteredSQLProducer
@@ -1006,8 +1032,11 @@ def test_workflow_refuses_admitted_source_for_a_different_use(tmp_path, monkeypa
         occurrence_id="wrong-purpose",
         expected_predecessor=registration.event_ref,
     )
-    app = create_runtime_api_app(cas_root=tmp_path / "cas", core_runs_root=tmp_path / "runs")
+    app, catalog_source = _isolated_sql_workflow_app(tmp_path, monkeypatch)
     with TestClient(app):
+        assert app.state._control_service.catalog_serving_source.database_path == (
+            catalog_source.database_path
+        )
         principal = RuntimePrincipal(
             subject="analyst", tenant_id="tenant-a", cell_id="cell-a", authenticated=True
         )

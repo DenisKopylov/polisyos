@@ -1,0 +1,15 @@
+id = "2026-10-28-e02-compiler-input-lineage"
+title = "Expose compiler, execution and SQL input lineage"
+type = "added"
+component = "foundry"
+owner = "team-polisyos"
+summary = "Foundry and Scientist expose the typed source owners used by compiler, execution and registered SQL capture."
+evidence = ["tests/unit/foundry/compile/test_trinity_compiler.py", "tests/unit/foundry/calibration/test_identifiability_response_basis.py", "tests/integration/runtime/http/test_registered_sql_live_grant.py"]
+compatibility = "Additive helpers preserve the persisted writer order. For registered SQL, fresh admission inventory now follows that writer order rather than the former reader-only order. The existing compute and adapters __all__ exports become declared supported Scientist entrypoints."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.foundry.compile, polisyos.foundry.execute, polisyos.scientist.adapters, and polisyos.scientist.compute"
+migration = "Consumers comparing basis inventory by position must use the exact producer order; selected references and values still require independent admission."
+limitations = "Input reference lists and compute facade exports do not establish complete producer custody or authority."
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/foundry/README.md", "src/polisyos/scientist/adapters/README.md", "src/polisyos/scientist/compute/README.md"]
+runbook_docs = []

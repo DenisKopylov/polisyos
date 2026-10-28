@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from threading import RLock
-from typing import TYPE_CHECKING, Literal, get_args
+from typing import TYPE_CHECKING, Literal, Protocol, get_args
 from weakref import WeakKeyDictionary
 
 from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
@@ -26,6 +26,38 @@ if TYPE_CHECKING:
 SourceAdmissionOperation = Literal[
     "genesis", "admit", "withdraw", "readmit", "supersede", "read_event"
 ]
+
+
+class SourceAdmissionReadBudget(Protocol):
+    """Runtime-owned accounting for actual selected CAS transfer bytes.
+
+    This resource port grants no source authority. It excludes owner-state,
+    database, external-source and operating-system I/O.
+    """
+
+    max_manifest_bytes: int
+
+    @property
+    def remaining_bytes(self) -> int:
+        """Return the remaining shared selected-store allowance."""
+        ...
+
+    @property
+    def source_usage_established(self) -> bool:
+        """Return whether every preceding selected-store transfer was measured."""
+        ...
+
+    def account_execution_source_bytes(self, observed_bytes: int) -> None:
+        """Charge exact actual bytes from a successful owner read."""
+        ...
+
+    def account_refused_execution_source_bytes(self, observed_bytes: int) -> None:
+        """Charge exact actual bytes transferred before a refusal."""
+        ...
+
+    def mark_source_usage_unestablished(self) -> None:
+        """Invalidate an exact aggregate after an unmeasurable transfer."""
+        ...
 
 
 @dataclass(frozen=True, slots=True)

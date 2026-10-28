@@ -686,3 +686,204 @@ def test_original_materialization_replay_uses_the_committed_event_and_scope(tmp_
     )
     with pytest.raises(ValueError, match="source_admission_authority_not_established"):
         owner.resolve_source_materialization_event(object(), event_id=admitted.event_id)
+
+
+class _SelectedReadBudget:
+    """Test-only shared counter; the real CAS owner supplies each byte receipt."""
+
+    def __init__(self, maximum=2_000_000, parent=None):
+        self.maximum = maximum
+        self.max_manifest_bytes = 100_000
+        self.observed = 0
+        self.refused_bytes = 0
+        self.parent = parent
+        self._usage_established = True
+
+    @property
+    def source_usage_established(self):
+        return self._usage_established and (
+            self.parent is None or self.parent.source_usage_established
+        )
+
+    @property
+    def remaining_bytes(self):
+        if not self.source_usage_established:
+            return 0
+        remaining = max(0, self.maximum - self.observed)
+        return remaining if self.parent is None else min(remaining, self.parent.remaining_bytes)
+
+    def account_execution_source_bytes(self, observed_bytes):
+        self.observed += observed_bytes
+        if self.parent is not None:
+            self.parent.account_execution_source_bytes(observed_bytes)
+        if self.observed > self.maximum:
+            raise ValueError("test budget exceeded")
+
+    def account_refused_execution_source_bytes(self, observed_bytes):
+        self.observed += observed_bytes
+        self.refused_bytes += observed_bytes
+        if self.parent is not None:
+            self.parent.account_refused_execution_source_bytes(observed_bytes)
+
+    def mark_source_usage_unestablished(self):
+        self._usage_established = False
+        if self.parent is not None:
+            self.parent.mark_source_usage_unestablished()
+
+
+def _observe_actual_cas_transfers(monkeypatch):
+    """Record the filesystem owner's own receipts independently of the budget."""
+    transfers = []
+    original_manifest = FileSystemCAS.read_raw_manifest_bytes_bounded
+    original_member = FileSystemCAS.open_member_bounded
+
+    def manifest(self, *args, **kwargs):
+        result = original_manifest(self, *args, **kwargs)
+        transfers.append(result.usage.observed_source_bytes)
+        return result
+
+    class _ObservedAttempt:
+        def __init__(self, inner):
+            self.inner = inner
+
+        @property
+        def usage(self):
+            return self.inner.usage
+
+        def __enter__(self):
+            try:
+                return self.inner.__enter__()
+            except Exception:
+                transfers.append(self.inner.usage.observed_source_bytes)
+                raise
+
+        def __exit__(self, *args):
+            try:
+                return self.inner.__exit__(*args)
+            finally:
+                transfers.append(self.inner.usage.observed_source_bytes)
+
+    def member(self, *args, **kwargs):
+        return _ObservedAttempt(original_member(self, *args, **kwargs))
+
+    monkeypatch.setattr(FileSystemCAS, "read_raw_manifest_bytes_bounded", manifest)
+    monkeypatch.setattr(FileSystemCAS, "open_member_bounded", member)
+    return transfers
+
+
+def test_current_use_bounded_counts_actual_scoped_cas_and_preserves_fence(tmp_path, monkeypatch):
+    """JSON and binary refs use the same tenant-scoped read budget on each query."""
+    store, owner, _, receipt = _case(tmp_path, warnings=True)
+    assert receipt.carrier is not None
+    before = owner._source_admission._state.root_path.read_bytes()
+    transfers = _observe_actual_cas_transfers(monkeypatch)
+    scopes = []
+    for_tenant = FileSystemCAS.for_tenant
+
+    def observe_scope(self, tenant_id, cell_id=None):
+        scopes.append((tenant_id, cell_id))
+        return for_tenant(self, tenant_id, cell_id)
+
+    monkeypatch.setattr(FileSystemCAS, "for_tenant", observe_scope)
+    budget = _SelectedReadBudget()
+
+    def forbid_legacy(*_args, **_kwargs):
+        raise AssertionError("bounded source use reached an unbounded CAS method")
+
+    with monkeypatch.context() as bounded_only:
+        for name in ("get_manifest", "get_bytes", "verify"):
+            bounded_only.setattr(FileSystemCAS, name, forbid_legacy)
+        first = owner.read_source_current_use((receipt.carrier,), read_budget=budget)
+        assert first.status == "current"
+        assert budget.source_usage_established
+        assert transfers and all(type(size) is int for size in transfers)
+        assert budget.observed == sum(transfers) > 0
+        assert scopes and set(scopes) == {("tenant-a", "cell-a")}
+        first_count = budget.observed
+        again = owner.read_source_current_use((receipt.carrier,), read_budget=budget)
+        assert again.status == "current"
+        assert again.generation == first.generation
+        assert budget.observed == sum(transfers) > first_count
+    assert owner._source_admission._state.root_path.read_bytes() == before
+    assert owner.read_source_current_use((receipt.carrier,)).status == "current"
+    exact = _SelectedReadBudget(maximum=first_count)
+    assert owner.read_source_current_use((receipt.carrier,), read_budget=exact).status == "current"
+    assert exact.observed == first_count
+    below = _SelectedReadBudget(maximum=first_count - 1)
+    assert owner.read_source_current_use((receipt.carrier,), read_budget=below).status == "unknown"
+    assert below.source_usage_established and below.observed <= below.maximum
+
+    actual_scope = owner._source_admission._scoped_store
+    monkeypatch.setattr(
+        owner._source_admission,
+        "_scoped_store",
+        lambda *_args: for_tenant(store, "foreign-tenant", "foreign-cell"),
+    )
+    foreign = owner.read_source_current_use((receipt.carrier,), read_budget=_SelectedReadBudget())
+    assert foreign.status == "unknown"
+    monkeypatch.setattr(owner._source_admission, "_scoped_store", actual_scope)
+    assert owner._source_admission._state.root_path.read_bytes() == before
+
+    exhausted = _SelectedReadBudget(maximum=1)
+    unavailable = owner.read_source_current_use((receipt.carrier,), read_budget=exhausted)
+    assert unavailable.status == "unknown"
+    assert exhausted.observed == 0
+    assert owner._source_admission._state.root_path.read_bytes() == before
+
+    withdrawal = _transition(owner, receipt.carrier, receipt.event_ref, "withdraw", "bounded-a")
+    assert withdrawal.carrier is not None
+    assert (
+        owner.read_source_current_use((receipt.carrier,), read_budget=exhausted).status
+        == "withdrawn"
+    )
+
+
+def test_current_use_charges_real_integrity_refusal_and_retains_history(tmp_path, monkeypatch):
+    """A corrupted selected blob consumes its exact transferred bytes before refusal."""
+    store, owner, materialization, receipt = _case(tmp_path)
+    assert receipt.carrier is not None
+    before = owner._source_admission._state.root_path.read_bytes()
+    digest = materialization.payload_ref.artifact_id.hex
+    path = store.root / "artifacts" / "sha256" / digest[:2] / digest[2:4] / (digest + ".blob")
+    original = path.read_bytes()
+    path.write_bytes(bytes([original[0] ^ 1]) + original[1:])
+    transfers = _observe_actual_cas_transfers(monkeypatch)
+    budget = _SelectedReadBudget()
+    try:
+        refused = owner.read_source_current_use((receipt.carrier,), read_budget=budget)
+        assert refused.status == "unknown"
+        assert budget.source_usage_established
+        assert budget.refused_bytes > 0
+        assert transfers and all(type(size) is int for size in transfers)
+        assert budget.observed == sum(transfers)
+        assert owner._source_admission._state.root_path.read_bytes() == before
+    finally:
+        path.write_bytes(original)
+    assert (
+        owner.read_source_current_use((receipt.carrier,), read_budget=_SelectedReadBudget()).status
+        == "current"
+    )
+
+
+def test_current_use_marks_unknown_transfer_and_never_counts_it_as_zero(tmp_path, monkeypatch):
+    """A lost owner receipt refuses even when the physical selected read took bytes."""
+    _, owner, _, receipt = _case(tmp_path)
+    assert receipt.carrier is not None
+    before = owner._source_admission._state.root_path.read_bytes()
+    original = FileSystemCAS.read_raw_manifest_bytes_bounded
+    actual = []
+
+    def lose_receipt(self, *args, **kwargs):
+        result = original(self, *args, **kwargs)
+        actual.append(result.usage.observed_source_bytes)
+        raise OSError("selected transfer receipt lost")
+
+    monkeypatch.setattr(FileSystemCAS, "read_raw_manifest_bytes_bounded", lose_receipt)
+    aggregate = _SelectedReadBudget()
+    budget = _SelectedReadBudget(parent=aggregate)
+    refused = owner.read_source_current_use((receipt.carrier,), read_budget=budget)
+    assert refused.status == "unknown"
+    assert len(actual) == 1 and actual[0] > 0
+    assert not budget.source_usage_established and budget.remaining_bytes == 0
+    assert not aggregate.source_usage_established and aggregate.remaining_bytes == 0
+    assert owner._source_admission._state.root_path.read_bytes() == before

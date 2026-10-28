@@ -192,6 +192,7 @@ def test_in_place_config_aba_cannot_change_driver_database(tmp_path, monkeypatch
     original_connection = registry.get_connection
     original_connect = sqlite3.connect
     actual_paths = []
+    driver_queries = []
 
     def select_then_mutate(*args, **kwargs):
         connector = original_get(*args, **kwargs)
@@ -206,7 +207,9 @@ def test_in_place_config_aba_cannot_change_driver_database(tmp_path, monkeypatch
 
     def capture_path(path, *args, **kwargs):
         actual_paths.append(path)
-        return original_connect(path, *args, **kwargs)
+        connection = original_connect(path, *args, **kwargs)
+        connection.set_trace_callback(lambda statement: driver_queries.append((path, statement)))
+        return connection
 
     monkeypatch.setattr(registry, "get", select_then_mutate)
     monkeypatch.setattr(registry, "get_connection", restore_after_handle)
@@ -221,10 +224,21 @@ def test_in_place_config_aba_cannot_change_driver_database(tmp_path, monkeypatch
     finally:
         object.__setattr__(config, "url", f"sqlite:///{database_a}")
     assert actual.data["income"].tolist() == [12.5]
-    assert len(actual_paths) == 1
+    assert actual_paths
     assert not database_a.samefile(database_b)
-    assert database_a.samefile(actual_paths[0])
-    assert not database_b.samefile(actual_paths[0])
+    assert all(database_a.samefile(path) for path in actual_paths)
+    assert all(not database_b.samefile(path) for path in actual_paths)
+    data_selects = [
+        (path, statement)
+        for path, statement in driver_queries
+        if statement.lstrip().upper().startswith("SELECT")
+        and statement.strip().upper() != "SELECT 1"
+    ]
+    assert len(data_selects) == 1
+    executed_path, executed_query = data_selects[0]
+    assert database_a.samefile(executed_path)
+    assert not database_b.samefile(executed_path)
+    assert executed_query == 'SELECT * FROM "policy_inputs" LIMIT 3'
 
 
 def test_configured_fallback_is_legacy_only_and_never_fresh_sql(tmp_path):

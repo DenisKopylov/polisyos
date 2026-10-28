@@ -16,7 +16,10 @@ from typing import TYPE_CHECKING, ClassVar, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.core.artifacts import load_core_json_artifact, validate_core_model_json_artifact
+from polisyos.core.artifacts import (
+    load_core_json_artifact,
+    validate_core_model_json_artifact,
+)
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
     InputRef,
@@ -41,7 +44,10 @@ from polisyos.core.contracts.fabric import (
     data_snapshot_owner_input_requirements,
 )
 from polisyos.fabric.api import _require_registered_sql_execution
-from polisyos.scientist.adapters.fabric_bridge import DefaultFabricPort, _registered_sql_rows_match
+from polisyos.scientist.adapters.fabric_bridge import (
+    DefaultFabricPort,
+    _registered_sql_rows_match,
+)
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
 from polisyos.scientist.validation.source_admission_port import (
     SourceAdmissionAuthority,
@@ -77,7 +83,7 @@ class RegisteredSQLViewContract(BaseModel):
     restrictions: Literal["no_filters_or_temporal_scope"] = "no_filters_or_temporal_scope"
 
 
-class _RegisteredSQLCapture(BaseModel):
+class RegisteredSQLCapture(BaseModel):
     """Selected protected artifact describing the actual execution occurrence."""
 
     ARTIFACT_KIND: ClassVar[str] = "fabric.registered_sql_capture"
@@ -123,7 +129,7 @@ class _RegisteredSQLProducerWitness:
     snapshot: DataSnapshotOwnerBound
     view: RegisteredSQLViewContract
     use: RegisteredSQLUseContract
-    capture: _RegisteredSQLCapture
+    capture: RegisteredSQLCapture
     capture_ref: ArtifactRef
     edges: tuple[InputRef, ...]
     materialization_json: str
@@ -138,11 +144,21 @@ def _same_ref(left: ArtifactRef, right: ArtifactRef) -> bool:
     return artifact_ref_identity_key(left) == artifact_ref_identity_key(right)
 
 
-def _capture_edges(
+def registered_sql_capture_input_refs(
     snapshot: DataSnapshotOwnerBound,
     snapshot_ref: ArtifactRef,
     registration: SourceRegistrationReceipt,
 ) -> list[InputRef]:
+    """Derive the ordered SQL capture inputs without granting source authority.
+
+    Args:
+        snapshot: Typed selected Fabric Bridge snapshot.
+        snapshot_ref: Exact selected snapshot reference.
+        registration: Existing source registration receipt.
+
+    Returns:
+        Ordered selected references used by the registered SQL producer.
+    """
     refs = [
         input_ref_from_artifact_ref(snapshot_ref, role="source.snapshot"),
         input_ref_from_artifact_ref(registration.effective_view_contract_ref, role="source.view"),
@@ -299,7 +315,7 @@ class RegisteredSQLProducer:
             or snapshot.quality_report_ref is None
         ):
             raise ValueError("registered_sql_snapshot_not_bound")
-        capture = _RegisteredSQLCapture(
+        capture = RegisteredSQLCapture(
             connector_id=selected.connector_id,
             registration_generation=selected.binding.registration_generation,
             config_fingerprint=observed.config_fingerprint,
@@ -320,16 +336,16 @@ class RegisteredSQLProducer:
         )
         # Freeze the exact declared wire model before comparing its CAS readback.
         # Request and snapshot refs can be typed subclasses on the producer side.
-        capture = _RegisteredSQLCapture.model_validate_json(capture.model_dump_json(), strict=True)
-        edges = _capture_edges(snapshot, snapshot_ref, registration)
+        capture = RegisteredSQLCapture.model_validate_json(capture.model_dump_json(), strict=True)
+        edges = registered_sql_capture_input_refs(snapshot, snapshot_ref, registration)
         capture_ref = store.put_json(
             capture,
             ArtifactWriteOptions(
-                kind=_RegisteredSQLCapture.ARTIFACT_KIND,
-                media_type=_RegisteredSQLCapture.ARTIFACT_MEDIA_TYPE,
+                kind=RegisteredSQLCapture.ARTIFACT_KIND,
+                media_type=RegisteredSQLCapture.ARTIFACT_MEDIA_TYPE,
                 schema=SchemaInfo(
-                    name=_RegisteredSQLCapture.ARTIFACT_SCHEMA_NAME,
-                    version=_RegisteredSQLCapture.ARTIFACT_SCHEMA_VERSION,
+                    name=RegisteredSQLCapture.ARTIFACT_SCHEMA_NAME,
+                    version=RegisteredSQLCapture.ARTIFACT_SCHEMA_VERSION,
                 ),
                 inputs=edges,
             ),
@@ -405,9 +421,13 @@ class RegisteredSQLProducer:
         ):
             raise ValueError("registered_sql_snapshot_not_bound")
         payload = RegisteredSQLAdmissionBinding(
-            receipt=receipt, materialization=materialization, expected_predecessor=predecessor
+            receipt=receipt,
+            materialization=materialization,
+            expected_predecessor=predecessor,
         )
-        edges = _capture_edges(snapshot, materialization.snapshot_ref, materialization.registration)
+        edges = registered_sql_capture_input_refs(
+            snapshot, materialization.snapshot_ref, materialization.registration
+        )
         edges.append(
             input_ref_from_artifact_ref(materialization.producer_capture_ref, role="source.capture")
         )
@@ -442,7 +462,7 @@ class RegisteredSQLProducer:
         snapshot: DataSnapshotOwnerBound,
         view: RegisteredSQLViewContract,
         use: RegisteredSQLUseContract,
-        capture: _RegisteredSQLCapture,
+        capture: RegisteredSQLCapture,
         capture_ref: ArtifactRef,
         edges: list[InputRef],
     ) -> None:
@@ -500,7 +520,7 @@ class RegisteredSQLProducer:
             or quality["freshness_status"].get("is_fresh") is not False
         ):
             raise ValueError("registered_sql_quality_binding_not_established")
-        persisted = validate_core_model_json_artifact(_RegisteredSQLCapture, store, capture_ref)
+        persisted = validate_core_model_json_artifact(RegisteredSQLCapture, store, capture_ref)
         if persisted != capture or _edge_keys(store.get_manifest(capture_ref).inputs) != _edge_keys(
             edges
         ):
@@ -575,7 +595,9 @@ def _require_registered_sql_producer_capture(
         or snapshot.quality_report_ref is None
         or not _same_ref(snapshot.quality_report_ref, materialization.quality_ref)
         or _edge_keys(list(witness.edges))
-        != _edge_keys(_capture_edges(snapshot, materialization.snapshot_ref, registration))
+        != _edge_keys(
+            registered_sql_capture_input_refs(snapshot, materialization.snapshot_ref, registration)
+        )
     ):
         raise ValueError("registered_sql_producer_relation_not_established")
     verify = FunctionType(_REGISTERED_SQL_VERIFY_CAPTURE_CODE, globals())

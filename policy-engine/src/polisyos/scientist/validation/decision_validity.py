@@ -76,6 +76,7 @@ from polisyos.scientist.validation.source_admission_owner import (
 )
 from polisyos.scientist.validation.source_admission_port import (
     SourceAdmissionAuthority,
+    SourceAdmissionReadBudget,
     VerifiedRegisteredMaterialization,
 )
 
@@ -824,9 +825,15 @@ class DecisionValidityService:
         carriers: tuple[SourceAdmissionCarrier, ...],
         *,
         require_selected: bool = False,
+        read_budget: SourceAdmissionReadBudget | None = None,
     ) -> SourceCurrentUseProjection:
-        """Read bounded source admission at one fresh common-owner fence."""
-        return self._source_admission.read(carriers, require_selected=require_selected)
+        """Read source admission at one fresh common-owner fence.
+
+        An optional caller-owned budget covers selected CAS transfers only.
+        """
+        return self._source_admission.read(
+            carriers, require_selected=require_selected, read_budget=read_budget
+        )
 
     def state_generation(self) -> int:
         """Return the number of persisted owner-projection records (test diagnostic)."""

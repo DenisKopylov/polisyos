@@ -8,7 +8,7 @@ import re
 from collections.abc import Iterable, Mapping
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Final, Literal, Protocol, cast, overload
+from typing import TYPE_CHECKING, Any, Final, Literal, NoReturn, Protocol, cast, overload
 
 from pydantic import (
     BaseModel,
@@ -1105,21 +1105,52 @@ class GovernanceMetadata(BaseModel):
 class ClosureCasIdentity(BaseModel):
     """Exact selected CAS view named by a v2 closure member."""
 
-    model_config = ConfigDict(extra="forbid", frozen=True)
+    model_config = ConfigDict(
+        extra="forbid",
+        frozen=True,
+        json_schema_extra={
+            "allOf": [
+                {
+                    "properties": {
+                        "artifact_ref": {
+                            "required": ["manifest_profile_sha256"],
+                            "properties": {"manifest_profile_sha256": {"type": "string"}},
+                        }
+                    }
+                },
+                {
+                    "if": {"properties": {"schema_name": {"type": "null"}}},
+                    "then": {"properties": {"schema_version": {"type": "null"}}},
+                    "else": {"properties": {"schema_version": {"type": "string"}}},
+                },
+                {
+                    "if": {"properties": {"producer_component": {"type": "null"}}},
+                    "then": {"properties": {"producer_version": {"type": "null"}}},
+                    "else": {"properties": {"producer_version": {"type": "string"}}},
+                },
+            ]
+        },
+    )
 
     identity_domain: Literal["cas"] = "cas"
     name: str = Field(min_length=1)
     role: str = Field(min_length=1)
     artifact_ref: core_artifacts.ArtifactRef
-    schema_name: str = Field(min_length=1)
-    schema_version: str = Field(min_length=1)
-    producer_component: str = Field(min_length=1)
-    producer_version: str = Field(min_length=1)
+    # A selected manifest can genuinely lack these pairs, as with Foundry's
+    # raw state blob. Explicit null is identity, not provenance admission.
+    schema_name: str | None = Field(min_length=1)
+    schema_version: str | None = Field(min_length=1)
+    producer_component: str | None = Field(min_length=1)
+    producer_version: str | None = Field(min_length=1)
 
     @model_validator(mode="after")
     def _require_selected_profile(self) -> ClosureCasIdentity:
         if self.artifact_ref.manifest_profile_sha256 is None:
             raise ValueError("closure_cas_manifest_profile_missing")
+        if (self.schema_name is None) != (self.schema_version is None):
+            raise ValueError("closure_cas_schema_identity_incomplete")
+        if (self.producer_component is None) != (self.producer_version is None):
+            raise ValueError("closure_cas_producer_identity_incomplete")
         return self
 
 
@@ -1303,13 +1334,24 @@ class SameInputClosureResolver(Protocol):
         """Return ordered role-qualified input edges observed at the producer boundary."""
 
 
+def _closure_snapshot_json(closure: SameInputClosure) -> str:
+    """Freeze full model state without treating the snapshot as verification."""
+    return json.dumps(
+        closure.model_dump(mode="json"),
+        sort_keys=True,
+        ensure_ascii=False,
+        separators=(",", ":"),
+        allow_nan=False,
+    )
+
+
 _VERIFIED_CLOSURE_KEY = object()
 
 
 class VerifiedSameInputClosure:
     """Process-local result of resolving and recomputing a v2 closure."""
 
-    __slots__ = ("_closure", "_contract", "_identity", "_resolver", "_sealed")
+    __slots__ = ("_closure_json", "_contract", "_identity", "_resolver", "_sealed")
 
     def __init__(
         self,
@@ -1321,7 +1363,12 @@ class VerifiedSameInputClosure:
     ) -> None:
         if key is not _VERIFIED_CLOSURE_KEY:
             raise TypeError("verified closure results can only be created by the verifier")
-        object.__setattr__(self, "_closure", closure)
+        # A frozen Pydantic envelope does not freeze nested ArtifactRefs or owner
+        # value dictionaries. Snapshot and revalidate the entire record at issue.
+        snapshot = SameInputClosure.model_validate_json(_closure_snapshot_json(closure))
+        if snapshot.identity_tuple() != identity:
+            raise ValueError("verified_closure_identity_does_not_match_snapshot")
+        object.__setattr__(self, "_closure_json", _closure_snapshot_json(snapshot))
         object.__setattr__(self, "_identity", identity)
         object.__setattr__(self, "_contract", contract)
         object.__setattr__(self, "_resolver", resolver)
@@ -1334,11 +1381,24 @@ class VerifiedSameInputClosure:
             raise AttributeError("verified closure results are immutable")
         object.__setattr__(self, name, value)
 
+    def __delattr__(self, name: str) -> None:
+        """Prevent deletion of an issued admission result's owner state."""
+        raise AttributeError("verified closure results are immutable")
+
+    def __reduce__(self) -> NoReturn:
+        """Do not persist an in-process admission token as authority."""
+        raise TypeError("verified_closure_persistence_is_forbidden")
+
+    def __reduce_ex__(self, protocol: int) -> NoReturn:
+        """Do not persist an in-process admission token as authority."""
+        del protocol
+        raise TypeError("verified_closure_persistence_is_forbidden")
+
     @property
     def closure(self) -> SameInputClosure:
-        """Return the immutable admitted closure."""
+        """Return a fresh typed copy of the admitted closure snapshot."""
 
-        return self._closure
+        return SameInputClosure.model_validate_json(self._closure_json)
 
     @property
     def identity(self) -> tuple[str | None, ...]:
@@ -1349,9 +1409,11 @@ class VerifiedSameInputClosure:
     def _revalidate(self, closure: SameInputClosure) -> bool:
         """Re-enter the issuing owner and current-access resolver."""
 
-        if type(self) is not VerifiedSameInputClosure or closure != self._closure:
+        if type(self) is not VerifiedSameInputClosure or type(closure) is not SameInputClosure:
             return False
         try:
+            if _closure_snapshot_json(closure) != self._closure_json:
+                return False
             refreshed = verify_same_input_closure(
                 closure,
                 contract=self._contract,
@@ -1363,7 +1425,10 @@ class VerifiedSameInputClosure:
             )
         except (AuthorityEnvelopeError, PermissionError, TypeError, ValueError):
             return False
-        return refreshed.identity == self._identity
+        return (
+            refreshed.identity == self._identity
+            and _closure_snapshot_json(refreshed.closure) == self._closure_json
+        )
 
 
 def verify_same_input_closure(
@@ -1383,6 +1448,25 @@ def verify_same_input_closure(
     candidate comparison is therefore not an authority admission. The retained
     v2 reader is available before any v2 authority writer is enabled.
     """
+    # The only positive owner in this slice is the installed, narrowly scoped
+    # Runtime execution replay. Caller-created contracts/callbacks remain
+    # candidate-only; even the exact owner type must independently replay.
+    from polisyos.runtime.quality.owned_execution_identity import (
+        _RestrictedExecutionIdentityOwner,
+    )
+
+    if type(resolver) is _RestrictedExecutionIdentityOwner:
+        replayed = resolver.replay()
+        if (
+            replayed.contract != contract
+            or replayed.closure != closure
+            or (closure.run_id, closure.job_id, closure.tenant_id, closure.cell_id)
+            != (expected_run_id, expected_job_id, expected_tenant_id, expected_cell_id)
+        ):
+            raise AuthorityEnvelopeError("same_input_closure_owned_replay_mismatch")
+        return VerifiedSameInputClosure(
+            _VERIFIED_CLOSURE_KEY, closure, closure.identity_tuple(), contract, resolver
+        )
     compare_same_input_closure_candidate(
         closure,
         contract=contract,
@@ -1393,6 +1477,38 @@ def verify_same_input_closure(
         expected_cell_id=expected_cell_id,
     )
     raise AuthorityEnvelopeError("same_input_closure_owner_not_established")
+
+
+def _same_input_closure_projection_sha256(
+    *,
+    closure: SameInputClosure,
+    contract: SameInputClosureContract,
+    resolved_members: Iterable[ClosureMemberIdentity],
+    observed_refs: Iterable[str],
+) -> str:
+    """Compute the v2 identity; the supplied inputs alone confer no authority.
+
+    A protected owner must first independently resolve and reconcile every input,
+    its purpose, and the current access scope. This helper is not that owner.
+    """
+    spec = canon.CanonSpec(exclude_none=False)
+    projection = {
+        "domain": "polisyos.runtime.same_input_closure",
+        "schema_version": "2.0",
+        "identity_law_version": contract.rule_version,
+        "canonical_spec": core_artifacts.CanonInfo.from_spec(spec).model_dump(mode="json"),
+        "owner": contract.owner,
+        "purpose": contract.purpose,
+        "scope": {
+            "run_id": closure.run_id,
+            "job_id": closure.job_id,
+            "tenant_id": closure.tenant_id,
+            "cell_id": closure.cell_id,
+        },
+        "members": [member.model_dump(mode="json") for member in resolved_members],
+        "evidence_input_refs": list(observed_refs),
+    }
+    return "sha256:" + hashlib.sha256(canon.to_canonical_bytes(projection, spec)).hexdigest()
 
 
 def compare_same_input_closure_candidate(
@@ -1439,29 +1555,11 @@ def compare_same_input_closure_candidate(
     observed_refs = resolver.consumed_input_refs(run_id=closure.run_id, job_id=closure.job_id)
     if observed_refs != closure.evidence_input_refs:
         raise AuthorityEnvelopeError("same_input_closure_consumption_mismatch")
-    projection = {
-        "domain": "polisyos.runtime.same_input_closure",
-        "schema_version": "2.0",
-        "identity_law_version": contract.rule_version,
-        "canonical_spec": core_artifacts.CanonInfo.from_spec(
-            canon.CanonSpec(exclude_none=False)
-        ).model_dump(mode="json"),
-        "owner": contract.owner,
-        "purpose": contract.purpose,
-        "scope": {
-            "run_id": closure.run_id,
-            "job_id": closure.job_id,
-            "tenant_id": closure.tenant_id,
-            "cell_id": closure.cell_id,
-        },
-        "members": [member.model_dump(mode="json") for member in resolved],
-        "evidence_input_refs": list(observed_refs),
-    }
-    actual_digest = (
-        "sha256:"
-        + hashlib.sha256(
-            canon.to_canonical_bytes(projection, canon.CanonSpec(exclude_none=False))
-        ).hexdigest()
+    actual_digest = _same_input_closure_projection_sha256(
+        closure=closure,
+        contract=contract,
+        resolved_members=resolved,
+        observed_refs=observed_refs,
     )
     if closure.status != "closed" or closure.closure_sha256 != actual_digest:
         raise AuthorityEnvelopeError("same_input_closure_digest_mismatch")
@@ -1843,6 +1941,11 @@ def assert_same_input_closure(
         if len(verified_items) != len(validated):
             raise AuthorityEnvelopeError("same_input_closure_verification_missing")
         for envelope, result in zip(validated, verified_items, strict=True):
+            if (
+                type(result) is VerifiedSameInputClosure
+                and result._contract.purpose == "execution_input_identity_only"
+            ):
+                raise AuthorityEnvelopeError("same_input_closure_purpose_mismatch")
             if type(result) is not VerifiedSameInputClosure or not result._revalidate(
                 envelope.same_input_closure
             ):
@@ -2075,6 +2178,11 @@ def _assert_closed_consumed_input_closure(
         )
     if closure.schema_version != "2.0":
         raise AuthorityEnvelopeError("same_input_closure_legacy_not_authoritative")
+    if (
+        type(verified_closure) is VerifiedSameInputClosure
+        and verified_closure._contract.purpose == "execution_input_identity_only"
+    ):
+        raise AuthorityEnvelopeError("same_input_closure_purpose_mismatch")
     if type(verified_closure) is not VerifiedSameInputClosure or not verified_closure._revalidate(
         closure
     ):

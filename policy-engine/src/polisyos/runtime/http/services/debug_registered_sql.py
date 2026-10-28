@@ -8,7 +8,10 @@ from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.core.artifacts import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.canonical_profile import read_core_manifest_profile_bounded
-from polisyos.core.artifacts.manifest import artifact_ref_identity_key, input_ref_from_artifact_ref
+from polisyos.core.artifacts.manifest import (
+    artifact_ref_identity_key,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.contracts.decision_validity import (
     RegisteredSQLAdmissionBinding,
     RegisteredSQLUseContract,
@@ -20,8 +23,15 @@ from polisyos.core.contracts.foundry import (
     MethodExecutionBundle,
     ProgramGraph,
 )
-from polisyos.core.contracts.runtime import ExAnteSourceUseDebugView, GraphMethodExecutionSelection
-from polisyos.core.security import AccessScope, get_current_access_scope_or_none, tenant_scope
+from polisyos.core.contracts.runtime import (
+    ExAnteSourceUseDebugView,
+    GraphMethodExecutionSelection,
+)
+from polisyos.core.security import (
+    AccessScope,
+    get_current_access_scope_or_none,
+    tenant_scope,
+)
 from polisyos.ir.kernel.slots import SlotRegistry
 from polisyos.runtime.http.resilience import _require_runtime_ambient_ownership
 
@@ -38,7 +48,9 @@ if TYPE_CHECKING:
 
 def _unknown(reason: str) -> ExAnteSourceUseDebugView:
     return ExAnteSourceUseDebugView(
-        status="unknown", method_replay_status="verification_missing", limitations=(reason,)
+        status="unknown",
+        method_replay_status="verification_missing",
+        limitations=(reason,),
     )
 
 
@@ -76,47 +88,95 @@ def _is_supported_restricted_graph(graph: ProgramGraph, *, method_node_id: str) 
 
 
 def _require_bound_blob(
-    store: ArtifactStore, *, state_ref: ArtifactRef, expected: bytes, budget: _ProjectionReadBudget
+    store: ArtifactStore,
+    *,
+    state_ref: ArtifactRef,
+    expected: bytes,
+    budget: _ProjectionReadBudget,
 ) -> None:
     """Check the actual selected state bytes under one measured aggregate allowance."""
+    from polisyos.core.artifacts.canonical_profile import CoreJsonReadBoundsRefusalError
+
     remaining = budget.remaining_bytes
     manifest_limit = min(budget.max_manifest_bytes, remaining // 4)
     if manifest_limit < 1 or len(expected) > remaining - 2 * manifest_limit:
         raise ValueError("registered_sql_bound_state_budget_exceeded")
-    selected = read_core_manifest_profile_bounded(
-        store, state_ref, max_manifest_bytes=manifest_limit
-    )
+    try:
+        # StateSnapshot owns this binary child and its exact profile. NPZ is not
+        # canonical JSON, so its genuine manifest has no canonical payload profile.
+        selected = read_core_manifest_profile_bounded(
+            store,
+            state_ref,
+            max_manifest_bytes=manifest_limit,
+            allow_profile_absent=True,
+        )
+    except CoreJsonReadBoundsRefusalError as exc:
+        measured = exc.observed_source_bytes
+        if type(measured) is not int or measured < 0:
+            budget.mark_source_usage_unestablished()
+            raise ValueError("registered_sql_bound_state_usage_unavailable") from exc
+        budget.account_refused_execution_source_bytes(measured)
+        raise
+    except (AttributeError, OSError, RuntimeError, TypeError, ValueError):
+        budget.mark_source_usage_unestablished()
+        raise
     measured = selected.observed_source_bytes
     if type(measured) is not int or measured < 0:
+        budget.mark_source_usage_unestablished()
         raise ValueError("registered_sql_bound_state_usage_unavailable")
     budget.account_execution_source_bytes(measured)
     if (
         selected.effective_ref != state_ref
         or selected.manifest.kind != "foundry.state_blob"
         or selected.manifest.media_type != "application/x-npz"
+        or selected.manifest.artifact_schema is not None
+        or selected.manifest.canon is not None
         or selected.manifest.byte_size != len(expected)
     ):
         raise ValueError("registered_sql_bound_state_manifest_mismatch")
     remaining = budget.remaining_bytes
     if len(expected) > remaining - manifest_limit:
         raise ValueError("registered_sql_bound_state_budget_exceeded")
-    with store.open_member_bounded(
-        state_ref,
-        "blob",
-        max_manifest_bytes=manifest_limit,
-        expected_manifest_sha256=hashlib.sha256(selected.raw_manifest_bytes).hexdigest(),
-        max_member_bytes=remaining - manifest_limit,
-    ) as member:
-        if member.member_size_bytes != len(expected):
-            raise ValueError("registered_sql_bound_state_size_mismatch")
-        offset = 0
-        while offset < len(expected):
-            part = member.read(min(1024 * 1024, len(expected) - offset))
-            if not part or part != expected[offset : offset + len(part)]:
-                raise ValueError("registered_sql_bound_state_bytes_mismatch")
-            offset += len(part)
-        if member.read(1):
-            raise ValueError("registered_sql_bound_state_size_mismatch")
+    try:
+        attempt = store.open_member_bounded(
+            state_ref,
+            "blob",
+            max_manifest_bytes=manifest_limit,
+            expected_manifest_sha256=hashlib.sha256(selected.raw_manifest_bytes).hexdigest(),
+            max_member_bytes=remaining - manifest_limit,
+        )
+    except (AttributeError, OSError, RuntimeError, TypeError, ValueError):
+        budget.mark_source_usage_unestablished()
+        raise
+    try:
+        with attempt as member:
+            if member.member_size_bytes != len(expected):
+                raise ValueError("registered_sql_bound_state_size_mismatch")
+            offset = 0
+            while offset < len(expected):
+                part = member.read(min(1024 * 1024, len(expected) - offset))
+                if not part or part != expected[offset : offset + len(part)]:
+                    raise ValueError("registered_sql_bound_state_bytes_mismatch")
+                offset += len(part)
+            if member.read(1):
+                raise ValueError("registered_sql_bound_state_size_mismatch")
+    except Exception as exc:
+        # Core's attempt object retains exact partial usage even if enter,
+        # transfer, semantic comparison or context exit refuses.
+        usage = getattr(attempt, "usage", None)
+        observed = getattr(usage, "observed_source_bytes", None)
+        if type(observed) is not int or observed < 0:
+            budget.mark_source_usage_unestablished()
+            raise ValueError("registered_sql_bound_state_usage_unavailable") from exc
+        budget.account_refused_execution_source_bytes(observed)
+        raise
+    usage = getattr(attempt, "usage", None)
+    observed = getattr(usage, "observed_source_bytes", None)
+    if type(observed) is not int or observed < 0:
+        budget.mark_source_usage_unestablished()
+        raise ValueError("registered_sql_bound_state_usage_unavailable")
+    # Account the actual transfer before semantic receipt checks can refuse it.
+    budget.account_execution_source_bytes(observed)
     manifest_bytes = member.observed_manifest_verification_bytes
     payload_bytes = member.observed_payload_bytes
     if (
@@ -124,10 +184,10 @@ def _require_bound_blob(
         or type(payload_bytes) is not int
         or manifest_bytes < 0
         or payload_bytes != len(expected)
+        or observed != manifest_bytes + payload_bytes
         or member.payload_integrity_verified is not True
     ):
         raise ValueError("registered_sql_bound_state_integrity_not_established")
-    budget.account_execution_source_bytes(manifest_bytes + payload_bytes)
 
 
 def _reconcile_selected_sql_inputs(
@@ -140,8 +200,10 @@ def _reconcile_selected_sql_inputs(
     """Replay the consumed rows and compare the real captured method arrays."""
     import numpy as np
 
+    from polisyos.core.contracts.fabric import FabricBridgeDataSnapshotLineage
     from polisyos.core.contracts.foundry import StateSnapshot
     from polisyos.foundry.data_plane.bindings import _recompute_registered_sql_state
+    from polisyos.scientist.adapters import parse_data_view_request
     from polisyos.scientist.nodes.builtins.decide.policy_runtime_method_metrics import (
         MAX_METHOD_METRIC_SOURCE_BYTES,
         _BoundedExecutionSourceReader,
@@ -169,8 +231,31 @@ def _reconcile_selected_sql_inputs(
         max_bytes=MAX_METHOD_METRIC_SOURCE_BYTES,
         read_budget=budget,
     )
-    if payload.manifest.kind != "fabric.tabular_payload":
+    lineage = snapshot.source_lineage
+    if (
+        not isinstance(lineage, FabricBridgeDataSnapshotLineage)
+        or payload.manifest.kind != "fabric.tabular_payload"
+        or payload.manifest.media_type != "application/json"
+        or payload.manifest.artifact_schema
+        != SchemaInfo(name="polisyos.fabric.TabularPayload", version="1.0")
+        or payload.manifest.inputs
+        != [
+            input_ref_from_artifact_ref(lineage.data_view_request_ref, role="data_view_request_ref")
+        ]
+    ):
         raise ValueError("registered_sql_replay_payload_mismatch")
+    request_ref = _selected_ref(lineage.data_view_request_ref, kind="ir.data_view_request")
+    request = _read_bounded_method_metric_artifact(
+        cast("Any", store),
+        ref=request_ref,
+        max_bytes=MAX_METHOD_METRIC_SOURCE_BYTES,
+        read_budget=budget,
+    )
+    if request.manifest.artifact_schema != SchemaInfo(
+        name="polisyos.ir.DataViewRequest", version="1.0"
+    ):
+        raise ValueError("registered_sql_replay_request_schema_mismatch")
+    parse_data_view_request(request.value)
     encoded, entry_count = _recompute_registered_sql_state(
         cast("Any", store),
         snapshot=snapshot,
@@ -225,8 +310,16 @@ def read_registered_sql_source_use(
     run: IndexedRunRecord,
     simulation_ref: ArtifactRef,
 ) -> ExAnteSourceUseDebugView:
-    """Recompute one profile and query the installed C105 owner at every read."""
-    from polisyos.runtime.http.services.adapters.core_run import _terminal_workflow_output_refs
+    """Recompute one profile and query the installed C105 owner at every read.
+
+    The shared counter covers selected CAS transfers and strict terminal-trace
+    bytes. C105 owner-state root/trie, CAS ownership-index and guard metadata,
+    database, external SQL, and other OS I/O remain outside that counter; this
+    is not a whole-request I/O bound.
+    """
+    from polisyos.runtime.http.services.adapters.core_run import (
+        _terminal_workflow_output_refs,
+    )
     from polisyos.scientist.nodes.builtins.decide.policy_runtime_method_metrics import (
         _admit_execution_source_candidate,
         _BoundedExecutionSourceReader,
@@ -246,6 +339,7 @@ def read_registered_sql_source_use(
     owner = control._decision_validity_service
     if not tenant or not cell or owner is None or owner._store is not store:
         return _unknown("registered_sql_owner_or_scope_not_established")
+    aggregate_budget = _ProjectionReadBudget()
     try:
         _require_runtime_ambient_ownership(store)
         with tenant_scope(None, tenant_id=tenant, cell_id=cell):
@@ -259,6 +353,7 @@ def read_registered_sql_source_use(
                 tenant_id=tenant,
                 cell_id=cell,
                 expected_manifest_ref=manifest_ref,
+                aggregate_read_budget=aggregate_budget,
             )
             if (
                 unscoped
@@ -269,7 +364,10 @@ def read_registered_sql_source_use(
             ):
                 raise ValueError("terminal_finalization_not_established")
             selection = control.get_method_execution_selection(
-                run_id=run.run_id, tenant_id=tenant, cell_id=cell
+                run_id=run.run_id,
+                tenant_id=tenant,
+                cell_id=cell,
+                aggregate_read_budget=aggregate_budget,
             )
             if (
                 type(selection) is not GraphMethodExecutionSelection
@@ -284,6 +382,7 @@ def read_registered_sql_source_use(
                 cell_id=cell,
                 require_restricted_exante_call_witness=True,
                 restricted_exante_call_collector=calls,
+                aggregate_read_budget=aggregate_budget,
             )
             if score.status != "selected" or len(calls) != 1:
                 raise ValueError("registered_sql_method_replay_not_established")
@@ -297,7 +396,7 @@ def read_registered_sql_source_use(
                 method_execution_bundle_ref=selection.method_execution_bundle_ref,
                 method_metric_binding_set_ref=selection.method_metric_binding_set_ref,
             )
-            budget = _ProjectionReadBudget()
+            budget = _ProjectionReadBudget(parent=aggregate_budget)
             bases: list[Any] = []
             _admit_execution_source_candidate(
                 cast("Any", store),
@@ -320,7 +419,8 @@ def read_registered_sql_source_use(
                 or call.occurrence.dispatch is None
                 or call.occurrence.dispatch.input_state_source_ref is None
                 or not _same(
-                    call.occurrence.dispatch.input_state_source_ref, basis.base_state_snapshot_ref
+                    call.occurrence.dispatch.input_state_source_ref,
+                    basis.base_state_snapshot_ref,
                 )
             ):
                 raise ValueError("registered_sql_restricted_graph_not_established")
@@ -347,9 +447,17 @@ def read_registered_sql_source_use(
             original = owner.resolve_source_materialization_history(
                 carrier, event_id=binding.receipt.event_id
             )
-            if original != (binding.receipt, materialization, binding.expected_predecessor):
+            if original != (
+                binding.receipt,
+                materialization,
+                binding.expected_predecessor,
+            ):
                 raise ValueError("registered_sql_original_history_mismatch")
-            projection = owner.read_source_current_use((carrier,), require_selected=False)
+            projection = owner.read_source_current_use(
+                (carrier,),
+                require_selected=False,
+                read_budget=_ProjectionReadBudget(parent=aggregate_budget),
+            )
             if (
                 projection.status not in {"current", "withdrawn"}
                 or projection.selection_checked
@@ -361,13 +469,44 @@ def read_registered_sql_source_use(
                 )
             ):
                 raise ValueError("registered_sql_current_use_not_established")
+            # The exact restricted execution basis must be independently
+            # re-entered for this one source-use consumer. It grants no numeric,
+            # legal, publication, or unrelated scorecard authority.
+            from polisyos.runtime.quality.owned_execution_identity import (
+                assert_debug_execution_input_identity,
+                issue_debug_execution_input_identity,
+            )
+
+            closure, verified = issue_debug_execution_input_identity(
+                control=control,
+                run_id=run.run_id,
+                simulation_ref=simulation_ref,
+                aggregate_read_budget=aggregate_budget,
+            )
+            assert_debug_execution_input_identity(closure, verified)
+            # The source could be withdrawn during bounded identity replay.
+            # Re-read its current owner generation at the final emission point.
+            current_projection = owner.read_source_current_use(
+                (carrier,),
+                require_selected=False,
+                read_budget=_ProjectionReadBudget(parent=aggregate_budget),
+            )
+            if current_projection.model_dump(exclude={"checked_at"}) != projection.model_dump(
+                exclude={"checked_at"}
+            ):
+                raise ValueError("registered_sql_current_use_changed_during_identity_replay")
             if (
                 control.get_method_execution_selection(
-                    run_id=run.run_id, tenant_id=tenant, cell_id=cell
+                    run_id=run.run_id,
+                    tenant_id=tenant,
+                    cell_id=cell,
+                    aggregate_read_budget=aggregate_budget,
                 )
                 != selection
             ):
                 raise ValueError("registered_sql_selection_changed_during_read")
+            if not aggregate_budget.source_usage_established:
+                raise ValueError("registered_sql_source_transfer_usage_not_established")
             return ExAnteSourceUseDebugView(
                 status=projection.status,
                 method_replay_status="verified",

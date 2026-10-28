@@ -417,3 +417,15 @@ constraint registry and Scientist plan profiles first. It checks lowering conten
 against Trinity and retains the full merge/check operator plane. It writes no CAS
 objects and issues no completion, observation or publication authority. Enabled
 intervention mechanisms remain outside this bounded replay profile.
+
+The `polisyos.foundry.compile` facade exposes `program_graph_input_refs` and
+`execution_plan_input_refs`, the same ordered selected-edge builders used by the
+Trinity compiler writer, together with the existing `TreasuryPlan` and
+`build_treasury_plan` owner. These functions describe input identity only; they do
+not verify a source, establish completeness of a caller's basis, or grant
+authority. Callers must independently select and validate the supplied refs.
+
+The `polisyos.foundry.execute.execution_input_basis_sources` facade derives the
+producer-owned, ordered source-role and selected-reference pairs from a typed
+execution input basis. Foundry uses it for both basis creation and re-entry;
+this enumeration alone is neither source admission nor authority.

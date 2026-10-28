@@ -116,7 +116,12 @@ from polisyos.core.contracts.fabric import DataSnapshotRef
 from polisyos.core.contracts.runtime import CompletedMethodHTESource
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.core.security import AccessScope, clear_tenant_context
-from polisyos.runtime.http.errors import RuntimeHTTPError, conflict, forbidden, unprocessable_entity
+from polisyos.runtime.http.errors import (
+    RuntimeHTTPError,
+    conflict,
+    forbidden,
+    unprocessable_entity,
+)
 from polisyos.runtime.http.execution_policy import (
     ExecutionProfileError,
     PolicyFlagForbiddenError,
@@ -268,7 +273,9 @@ from polisyos.scientist.governance.continuous import (
     PublishedSignatureCustodyResult,
 )
 from polisyos.scientist.orchestration.engine import BudgetMiddleware
-from polisyos.scientist.orchestration.engine.producer_budget import ProducerBudgetObserver
+from polisyos.scientist.orchestration.engine.producer_budget import (
+    ProducerBudgetObserver,
+)
 from polisyos.scientist.orchestration.llm.provider_verification import (
     ProviderPreflightReport,
     run_provider_preflight,
@@ -361,7 +368,10 @@ def _content_admitted_intent_input_edges(
         (intent.submitted_input_ref, "submitted_input"),
         (intent.effective_input_ref, "effective_input"),
     )
-    return (*edges, *_search_binding_admission_input_edges(intent.search_binding_admission))
+    return (
+        *edges,
+        *_search_binding_admission_input_edges(intent.search_binding_admission),
+    )
 
 
 def _has_exact_selected_input_edges(
@@ -926,7 +936,12 @@ def _validate_direct_method_execution_selection_artifacts(
 
     if selection.hte is not None:
         hte_manifest_specs = [
-            (selection.hte_outcome_ref, "ir.hte_outcome", "polisyos.ir.HTEOutcome", "1.0")
+            (
+                selection.hte_outcome_ref,
+                "ir.hte_outcome",
+                "polisyos.ir.HTEOutcome",
+                "1.0",
+            )
         ]
         if selection.hte.kind == "point_estimate":
             hte_manifest_specs.append(
@@ -1123,14 +1138,19 @@ def _validate_direct_method_execution_selection_artifacts(
             remaining.pop(match)
         return not remaining
 
-    evidence_lineage = (("method_result", selection.method_result_ref), *expected_lineage)
+    evidence_lineage = (
+        ("method_result", selection.method_result_ref),
+        *expected_lineage,
+    )
     if not has_exact_inputs(
         tuple(result_manifest.inputs), expected_lineage
     ) or not has_exact_inputs(tuple(evidence_manifest.inputs), evidence_lineage):
         raise ValueError("direct_method_execution_output_lineage_mismatch")
 
 
-def _reject_duplicate_json_object_members(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+def _reject_duplicate_json_object_members(
+    pairs: list[tuple[str, Any]],
+) -> dict[str, Any]:
     """Decode one raw metadata object without ambiguous duplicate keys."""
     result: dict[str, Any] = {}
     for key, value in pairs:
@@ -2031,7 +2051,10 @@ if TYPE_CHECKING:
         ContractCompatibilityTarget as _ContractCompatibilityTarget,
     )
     from polisyos.pdc import ArtifactRef as EvalSafetyArtifactRef
-    from polisyos.runtime.http.services.adapters.core_run import TerminalCoreRunSource
+    from polisyos.runtime.http.services.adapters.core_run import (
+        TerminalCoreRunSource,
+        _TerminalReadBudget,
+    )
     from polisyos.runtime.http.services.control.generation_cycle import (
         CompiledRecursiveGenerationCycleRun,
         N4CandidateProposalExecution,
@@ -2068,6 +2091,7 @@ if TYPE_CHECKING:
     )
     from polisyos.runtime.quality.substrate_registry import CatalogServingSourcePaths
     from polisyos.scientist import BudgetState
+    from polisyos.scientist.compute import MethodMetricSourceReadBudget as _ProjectionReadBudget
     from polisyos.scientist.compute.runner import (
         MethodExecutionAdmission,
         MethodExecutionWork,
@@ -5695,7 +5719,10 @@ class ControlPlaneService(
         expected_sha256: str | None = None,
         source_scope: _ObservationalSourceReadScope | None = None,
     ) -> tuple[
-        CoreJsonManifestBoundedRead, ArtifactGovernanceInfo, ArtifactTenantContextInfo | None, str
+        CoreJsonManifestBoundedRead,
+        ArtifactGovernanceInfo,
+        ArtifactTenantContextInfo | None,
+        str,
     ]:
         """Bound-read one selected source manifest and require raw explicit governance."""
         from polisyos.core.artifacts import read_core_manifest_profile_bounded
@@ -5785,7 +5812,9 @@ class ControlPlaneService(
         admitted_snapshot: SearchUncertaintyTaskAdmissionSnapshot | None = None,
     ) -> SearchUncertaintyTaskAdmissionSnapshot:
         """Reconcile the POST snapshot with Runtime request and worker pins."""
-        from polisyos.core.contracts.runtime import SearchUncertaintyTaskAdmissionSnapshot
+        from polisyos.core.contracts.runtime import (
+            SearchUncertaintyTaskAdmissionSnapshot,
+        )
         from polisyos.runtime.http.services.control.owned_attempt_anchor import (
             _require_full_profile_ref,
         )
@@ -6238,7 +6267,10 @@ class ControlPlaneService(
 
         try:
             _require_supported_candidate_source(
-                self._artifact_store, source_read_scope, source_governance, source_tenant
+                self._artifact_store,
+                source_read_scope,
+                source_governance,
+                source_tenant,
             )
         except ValueError as exc:
             raise forbidden(
@@ -6290,7 +6322,9 @@ class ControlPlaneService(
         search_binding_admission = None
         if is_successor:
             from polisyos.core.contracts.control import ObservationalHTERequestV2
-            from polisyos.core.contracts.owned_attempt_anchor import OwnedHTERequestContextV1
+            from polisyos.core.contracts.owned_attempt_anchor import (
+                OwnedHTERequestContextV1,
+            )
 
             hte_request = selection.hte_request
             if type(hte_request) is not ObservationalHTERequestV2:
@@ -6301,7 +6335,9 @@ class ControlPlaneService(
             binding_ref = hte_request.search_uncertainty_task_binding_ref
             selected_binding_ref = None
             if binding_ref is not None:
-                from polisyos.core.contracts.owned_attempt_anchor import SelectedArtifactRef
+                from polisyos.core.contracts.owned_attempt_anchor import (
+                    SelectedArtifactRef,
+                )
 
                 if binding_ref.manifest_profile_sha256 is None:
                     raise unprocessable_entity(
@@ -6484,7 +6520,9 @@ class ControlPlaneService(
     ) -> CoreJsonArtifactBoundedRead:
         """Resolve and retain one full-profile bounded Core intent read."""
         from polisyos.core.artifacts import read_core_json_artifact_bounded
-        from polisyos.core.contracts.runtime import _observational_intent_manifest_identity
+        from polisyos.core.contracts.runtime import (
+            _observational_intent_manifest_identity,
+        )
         from polisyos.runtime.http.services.control.owned_attempt_anchor import (
             _require_full_profile_ref,
         )
@@ -6616,12 +6654,15 @@ class ControlPlaneService(
             or persisted_selection_digest != intent.selection_digest()
         ):
             raise ValueError("observational_method_job_selection_digest_mismatch")
-        bounded_source, source_governance, source_tenant_context, source_manifest_sha256 = (
-            self._read_observational_source_manifest(
-                persisted_source_ref,
-                expected_sha256=intent.source_manifest_sha256,
-                source_scope=source_read_scope,
-            )
+        (
+            bounded_source,
+            source_governance,
+            source_tenant_context,
+            source_manifest_sha256,
+        ) = self._read_observational_source_manifest(
+            persisted_source_ref,
+            expected_sha256=intent.source_manifest_sha256,
+            source_scope=source_read_scope,
         )
         if intent.resource_policy_ref is None:
             raise ValueError("observational_method_resource_policy_ref_missing")
@@ -6653,7 +6694,10 @@ class ControlPlaneService(
         )
         try:
             _require_supported_candidate_source(
-                self._artifact_store, source_read_scope, source_governance, source_tenant_context
+                self._artifact_store,
+                source_read_scope,
+                source_governance,
+                source_tenant_context,
             )
         except ValueError as exc:
             raise ValueError("observational_method_source_current_access_not_established") from exc
@@ -6892,7 +6936,10 @@ class ControlPlaneService(
         ):
             raise ValueError("content_admitted_intent_source_manifest_pin_drift")
         _require_supported_candidate_source(
-            self._artifact_store, source_read_scope, current_governance, current_tenant_context
+            self._artifact_store,
+            source_read_scope,
+            current_governance,
+            current_tenant_context,
         )
         requested_intent = self._read_bounded_intent_model(
             admission.observational_run_intent_ref,
@@ -7411,7 +7458,10 @@ class ControlPlaneService(
             (snapshot.owner_context_ref, resolution.owner_context_ref),
             (snapshot.basis_ref, resolution.basis_ref),
             (snapshot.dependency_inventory_ref, resolution.dependency_inventory_ref),
-            (snapshot.dependency_inventory_sha256, resolution.dependency_inventory_sha256),
+            (
+                snapshot.dependency_inventory_sha256,
+                resolution.dependency_inventory_sha256,
+            ),
             (snapshot.source_projection_ref, resolution.source_projection_ref),
             (snapshot.tenant_id, resolution.tenant_id),
             (snapshot.cell_id, resolution.cell_id),
@@ -7421,7 +7471,10 @@ class ControlPlaneService(
             (snapshot.selected_method_params, requested_intent.resolved_params),
             (snapshot.selected_method_params_sha256, params_sha256),
             (snapshot.selected_method_seed, requested_intent.seed),
-            (snapshot.selected_inference_profile_id, anchor.resource_policy_method_profile_id),
+            (
+                snapshot.selected_inference_profile_id,
+                anchor.resource_policy_method_profile_id,
+            ),
             (snapshot.selected_method_input_ref, anchor.effective_input_ref),
             (
                 snapshot.selected_method_input_content_sha256,
@@ -8158,7 +8211,10 @@ class ControlPlaneService(
         *,
         job: ControlJobRecord,
         source_refs: tuple[ArtifactRef, ArtifactRef, ArtifactRef],
-    ) -> tuple[_VerifiedMethodMetricProjectionAdmissionProtocol | None, dict[str, object] | None]:
+    ) -> tuple[
+        _VerifiedMethodMetricProjectionAdmissionProtocol | None,
+        dict[str, object] | None,
+    ]:
         """Run the AD01 fixed refs-only task bound to the exact final-state tuple."""
         from polisyos.scientist.compute.runner import (
             MethodMetricProjectionWork,
@@ -8335,7 +8391,9 @@ class ControlPlaneService(
             N4CandidateProposalLocator,
             N4CandidateProposalRecordV3,
         )
-        from polisyos.scientist.orchestration.engine import BudgetLedgerProducerRunBinding
+        from polisyos.scientist.orchestration.engine import (
+            BudgetLedgerProducerRunBinding,
+        )
 
         progress = dict(record.progress)
         for field in (
@@ -8414,7 +8472,12 @@ class ControlPlaneService(
                 raise ValueError("producer_cost_dispatch_basis_incomplete")
             for event_id, intent in basis.items():
                 actual = current_records[event_id]
-                if (intent.request_digest, intent.key, intent.model, intent.provider) != (
+                if (
+                    intent.request_digest,
+                    intent.key,
+                    intent.model,
+                    intent.provider,
+                ) != (
                     actual.request_digest,
                     actual.key,
                     actual.model,
@@ -8454,7 +8517,9 @@ class ControlPlaneService(
         request_id: str | None = None,
     ) -> ControlJobResponse:
         """Consume one current sealed job-owned permission and fence its exact attempt."""
-        from polisyos.runtime.http.authorization import BoundActionPermissionVerification
+        from polisyos.runtime.http.authorization import (
+            BoundActionPermissionVerification,
+        )
         from polisyos.runtime.http.permissions import RuntimePermission
         from polisyos.runtime.http.resource_binding import (
             BindingAuthority,
@@ -8491,6 +8556,7 @@ class ControlPlaneService(
         run_id: str,
         tenant_id: str,
         cell_id: str | None,
+        aggregate_read_budget: _TerminalReadBudget | None = None,
     ) -> MethodExecutionSelection | None:
         """Read the sole completed workflow selection after the route has authorized scope.
 
@@ -8557,6 +8623,7 @@ class ControlPlaneService(
                 run_id=run_id,
                 tenant_id=tenant_id,
                 cell_id=cell_id,
+                aggregate_read_budget=aggregate_read_budget,
             )
             if terminal_state_ref != selection.source_experiment_state_ref:
                 return None
@@ -9168,17 +9235,26 @@ class ControlPlaneService(
                         selection.hte.owned_attempt_anchor_ref,
                     ),
                     (projection_association.outcome_ref, selection.hte.hte_outcome_ref),
-                    (projection_association.source_data_ref, selection.hte.source_data_ref),
+                    (
+                        projection_association.source_data_ref,
+                        selection.hte.source_data_ref,
+                    ),
                     (
                         projection_association.resource_policy_ref,
                         selection.hte.resource_evidence.owner_policy_ref,
                     ),
-                    (projection_association.method_result_ref, selection.hte.method_result_ref),
+                    (
+                        projection_association.method_result_ref,
+                        selection.hte.method_result_ref,
+                    ),
                     (
                         projection_association.method_evidence_ref,
                         selection.hte.method_evidence_ref,
                     ),
-                    (projection_association.point_result_ref, selection.hte.point_result_ref),
+                    (
+                        projection_association.point_result_ref,
+                        selection.hte.point_result_ref,
+                    ),
                     (
                         projection_association.hte_result_ref,
                         selection.hte.hte_result_ref,
@@ -9267,6 +9343,7 @@ class ControlPlaneService(
         cell_id: str,
         require_restricted_exante_call_witness: bool = False,
         restricted_exante_call_collector: list[Any] | None = None,
+        aggregate_read_budget: _ProjectionReadBudget | None = None,
     ) -> MethodMetricCandidateScore:
         """Reopen one authorized completed source and recompute a candidate score."""
         from polisyos.core.contracts.runtime import MethodMetricCandidateScore
@@ -9281,7 +9358,10 @@ class ControlPlaneService(
 
         try:
             selection = self.get_method_execution_selection(
-                run_id=run_id, tenant_id=tenant_id, cell_id=cell_id
+                run_id=run_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                aggregate_read_budget=aggregate_read_budget,
             )
             candidate_ref = getattr(selection, "source_candidate_ref", None)
             if not isinstance(candidate_ref, ArtifactRef):
@@ -9300,6 +9380,7 @@ class ControlPlaneService(
                 candidate_ref=candidate_ref,
                 tenant_id=tenant_id,
                 cell_id=cell_id,
+                aggregate_read_budget=aggregate_read_budget,
             )
             if read.status != "selected" or read.basis is None:
                 return limited("completed_candidate_selection_not_established")
@@ -9318,6 +9399,7 @@ class ControlPlaneService(
                 candidate_ref=candidate_ref,
                 require_restricted_exante_call_witness=require_restricted_exante_call_witness,
                 restricted_exante_call_collector=restricted_exante_call_collector,
+                aggregate_read_budget=aggregate_read_budget,
             )
             if score.status != "selected":
                 return limited("completed_ex_ante_profile_not_established")
@@ -9330,6 +9412,7 @@ class ControlPlaneService(
                 candidate_ref=candidate_ref,
                 tenant_id=tenant_id,
                 cell_id=cell_id,
+                aggregate_read_budget=aggregate_read_budget,
             )
             if current.status != "selected" or current.basis is None:
                 return limited("completed_candidate_selection_no_longer_current")
@@ -9365,7 +9448,9 @@ class ControlPlaneService(
         from types import SimpleNamespace
 
         from polisyos.core.artifacts import read_core_json_artifact_bounded
-        from polisyos.core.artifacts.canonical_profile import validate_core_model_bounded_read
+        from polisyos.core.artifacts.canonical_profile import (
+            validate_core_model_bounded_read,
+        )
         from polisyos.core.contracts.runtime import (
             CompletedExAnteCandidateRanking,
             CompletedExAnteComparisonRequest,
@@ -9399,7 +9484,10 @@ class ControlPlaneService(
             ):
                 return limited("completed_comparison_run_scope_not_established")
             state_ref = self._terminal_experiment_state_ref_for_control_job(
-                job_id=record.job_id, run_id=run_id, tenant_id=tenant_id, cell_id=cell_id
+                job_id=record.job_id,
+                run_id=run_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
             )
             if state_ref is None:
                 return limited("completed_comparison_run_state_not_established")
@@ -9454,7 +9542,10 @@ class ControlPlaneService(
                 or current.job_id != record.job_id
                 or current.attempt != record.attempt
                 or self._terminal_experiment_state_ref_for_control_job(
-                    job_id=current.job_id, run_id=run_id, tenant_id=tenant_id, cell_id=cell_id
+                    job_id=current.job_id,
+                    run_id=run_id,
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
                 )
                 != state_ref
             ):
@@ -9470,6 +9561,7 @@ class ControlPlaneService(
         candidate_ref: ArtifactRef,
         tenant_id: str,
         cell_id: str | None,
+        aggregate_read_budget: _TerminalReadBudget | None = None,
     ) -> CompletedMethodMetricSource | None:
         """Resolve an exact completed graph source for an authorized follow-up.
 
@@ -9493,6 +9585,7 @@ class ControlPlaneService(
             run_id=source_run_id,
             tenant_id=tenant_id,
             cell_id=cell_id,
+            aggregate_read_budget=aggregate_read_budget,
         )
         if (
             not isinstance(selection, GraphMethodExecutionSelection)
@@ -9736,7 +9829,8 @@ class ControlPlaneService(
             self._control_store.mark_outbox_published(event_id=delivery.event_id)
         except Exception:
             logger.exception(
-                "Completed HTE DecisionValidity delivery failed for %s", delivery.event_id
+                "Completed HTE DecisionValidity delivery failed for %s",
+                delivery.event_id,
             )
             return leave_pending("completed_hte_validity_delivery_failed")
         return True
@@ -9938,6 +10032,7 @@ class ControlPlaneService(
         run_id: str,
         tenant_id: str,
         cell_id: str | None,
+        aggregate_read_budget: _TerminalReadBudget | None = None,
     ) -> ArtifactRef | None:
         """Resolve the exact final state named by the terminal workflow receipt."""
         from polisyos.core.artifacts import read_core_json_artifact_bounded
@@ -9947,6 +10042,7 @@ class ControlPlaneService(
         )
         from polisyos.core.contracts.runtime import ObservationalInputResourcePolicy
         from polisyos.runtime.http.services.adapters.core_run import (
+            _bounded_terminal_json_read,
             load_terminal_core_run_source,
         )
         from polisyos.scientist.orchestration.engine.finalization import (
@@ -9963,6 +10059,7 @@ class ControlPlaneService(
                 store=self._artifact_store,
                 core_runs_root=self._core_runs_root,
                 run_id=run_id,
+                aggregate_read_budget=aggregate_read_budget,
             )
             manifest = terminal.manifest
             finalization_ref = terminal.workflow_finalization_ref
@@ -9989,11 +10086,13 @@ class ControlPlaneService(
             max_manifest_bytes=policy.max_manifest_bytes,
         )
         try:
-            bounded = read_core_json_artifact_bounded(
-                self._require_core_bounded_member_reader(limits=limits),
-                finalization_ref,
-                limits=limits,
-            )
+            reader = self._require_core_bounded_member_reader(limits=limits)
+            if aggregate_read_budget is None:
+                bounded = read_core_json_artifact_bounded(reader, finalization_ref, limits=limits)
+            else:
+                bounded = _bounded_terminal_json_read(
+                    reader, finalization_ref, aggregate_read_budget, limits=limits
+                )
             if (
                 not _same_selected_artifact_ref(bounded.effective_ref, finalization_ref)
                 or bounded.manifest.kind != FINALIZATION_KIND
@@ -10887,7 +10986,8 @@ class ControlPlaneService(
             expected = [
                 input_ref_from_artifact_ref(materialization.snapshot_ref, role="source.snapshot"),
                 input_ref_from_artifact_ref(
-                    materialization.registration.effective_view_contract_ref, role="source.view"
+                    materialization.registration.effective_view_contract_ref,
+                    role="source.view",
                 ),
                 input_ref_from_artifact_ref(
                     materialization.registration.use_contract_ref, role="source.use"
@@ -10911,7 +11011,11 @@ class ControlPlaneService(
             original = self._decision_validity_service.resolve_source_materialization_history(
                 carrier, event_id=binding.receipt.event_id
             )
-            if original != (binding.receipt, materialization, binding.expected_predecessor):
+            if original != (
+                binding.receipt,
+                materialization,
+                binding.expected_predecessor,
+            ):
                 raise ValueError("registered_sql_workflow_original_event_mismatch")
             projection = self._decision_validity_service.read_source_current_use(
                 (carrier,), require_selected=False
@@ -11588,7 +11692,9 @@ class ControlPlaneService(
     def _validate_control_nl_data_snapshot(self, reference: DataSnapshotRef) -> DataSnapshot:
         """Resolve and type-check one exact DataSnapshot profile view."""
         from polisyos.core.artifacts import validate_core_model_json_artifact
-        from polisyos.runtime.http.services.predictive_calibration import _require_selected_ref
+        from polisyos.runtime.http.services.predictive_calibration import (
+            _require_selected_ref,
+        )
 
         if type(reference) is not DataSnapshotRef:
             raise ValueError("control_nl_data_snapshot_ref_untyped")
@@ -11680,7 +11786,9 @@ class ControlPlaneService(
 
     def _validate_control_nl_exact_ref(self, reference: ArtifactRef, *, expected_kind: str) -> None:
         """Require an exact, selected JSON CAS view of one declared forecast input."""
-        from polisyos.runtime.http.services.predictive_calibration import _require_selected_ref
+        from polisyos.runtime.http.services.predictive_calibration import (
+            _require_selected_ref,
+        )
 
         if (
             type(reference) is not ArtifactRef
@@ -12418,7 +12526,9 @@ class ControlPlaneService(
             DatasetFetchSpec,
             IngestionDependencies,
         )
-        from polisyos.fabric.ingestion.ingestion_providers import IngestionStoreBindingError
+        from polisyos.fabric.ingestion.ingestion_providers import (
+            IngestionStoreBindingError,
+        )
         from polisyos.fabric.storage.tenant_cas import TenantSidecarScope
         from polisyos.runtime.http.errors import forbidden
 

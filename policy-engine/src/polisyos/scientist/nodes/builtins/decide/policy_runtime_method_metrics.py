@@ -9,7 +9,7 @@ import math
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Protocol, SupportsIndex
+from typing import TYPE_CHECKING, Any, Literal, Protocol, SupportsIndex, cast
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 
@@ -322,6 +322,21 @@ class CompletedMethodMetricProjectionReadResult:
             raise ValueError("limited_completed_method_metrics_require_reason_only")
 
 
+class _BudgetAwareCompletedSelectionOwner(Protocol):
+    """Private completed-owner port with one physical-transfer budget."""
+
+    def resolve_completed_method_metric_selection(
+        self,
+        *,
+        source_run_id: str,
+        candidate_ref: ArtifactRef,
+        tenant_id: str,
+        cell_id: str | None,
+        aggregate_read_budget: _ProjectionReadBudget,
+    ) -> CompletedMethodMetricSource | None:
+        """Re-enter the scoped completed owner through the shared budget."""
+
+
 def read_completed_admitted_method_metric_projection(
     store: _MethodMetricProjectionArtifactReader,
     *,
@@ -331,6 +346,7 @@ def read_completed_admitted_method_metric_projection(
     tenant_id: str | None,
     cell_id: str | None,
     request_status: Literal["absent", "requested", "invalid"] = "requested",
+    aggregate_read_budget: _ProjectionReadBudget | None = None,
 ) -> CompletedMethodMetricProjectionReadResult:
     """Resolve source observations through Runtime's completed owner and exact candidate.
 
@@ -369,12 +385,25 @@ def read_completed_admitted_method_metric_projection(
             candidate_ref,
             kind="scientist.policy_design.candidate",
         )
-        source = owner.resolve_completed_method_metric_selection(
-            source_run_id=source_run_id,
-            candidate_ref=_core_artifact_ref(requested_candidate),
-            tenant_id=tenant_id,
-            cell_id=cell_id,
-        )
+
+        def resolve_current() -> CompletedMethodMetricSource | None:
+            if aggregate_read_budget is None:
+                return owner.resolve_completed_method_metric_selection(
+                    source_run_id=source_run_id,
+                    candidate_ref=_core_artifact_ref(requested_candidate),
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                )
+            bounded_owner = cast("_BudgetAwareCompletedSelectionOwner", owner)
+            return bounded_owner.resolve_completed_method_metric_selection(
+                source_run_id=source_run_id,
+                candidate_ref=_core_artifact_ref(requested_candidate),
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                aggregate_read_budget=aggregate_read_budget,
+            )
+
+        source = resolve_current()
     except (AttributeError, OSError, RuntimeError, TypeError, ValueError):
         return CompletedMethodMetricProjectionReadResult(
             status="verification_missing",
@@ -435,7 +464,9 @@ def read_completed_admitted_method_metric_projection(
             limitations=("completed_method_metric_candidate_or_state_join_mismatch",),
         )
 
-    read_result = _read_owned_method_metric_projection(store, selection=selection)
+    read_result = _read_owned_method_metric_projection(
+        store, selection=selection, aggregate_read_budget=aggregate_read_budget
+    )
     if read_result.status != "selected" or read_result.vector_ref is None:
         return CompletedMethodMetricProjectionReadResult(
             status=read_result.status,
@@ -482,12 +513,7 @@ def read_completed_admitted_method_metric_projection(
     # complete owner tuple after the read; selected bytes are not a currentness
     # receipt by themselves. Runtime returns immutable typed source selections.
     try:
-        current = owner.resolve_completed_method_metric_selection(
-            source_run_id=source_run_id,
-            candidate_ref=_core_artifact_ref(requested_candidate),
-            tenant_id=tenant_id,
-            cell_id=cell_id,
-        )
+        current = resolve_current()
     except (AttributeError, OSError, RuntimeError, TypeError, ValueError):
         return CompletedMethodMetricProjectionReadResult(
             status="verification_missing",
@@ -643,7 +669,9 @@ class _FunnelMethodMetricIntent:
     projection_basis: object | None
 
 
-def _funnel_method_metric_intent(context: Mapping[str, Any]) -> _FunnelMethodMetricIntent:
+def _funnel_method_metric_intent(
+    context: Mapping[str, Any],
+) -> _FunnelMethodMetricIntent:
     """Classify the whole emitted context family before any legacy fallback."""
     family = {
         key
@@ -1006,6 +1034,7 @@ def _read_owned_method_metric_projection(
     store: _MethodMetricProjectionArtifactReader,
     *,
     selection: OwnedMethodExecutionSelection,
+    aggregate_read_budget: _ProjectionReadBudget | None = None,
 ) -> MethodMetricProjectionReadResult:
     """Read the owner-selected projection without reopening outputs, arrays, or laws."""
     source_refs = (
@@ -1021,7 +1050,7 @@ def _read_owned_method_metric_projection(
         )
 
     try:
-        read_budget = _ProjectionReadBudget()
+        read_budget = _ProjectionReadBudget(parent=aggregate_read_budget)
         simulation_ref = _selected_ref(
             selection.simulation_result_ref,
             kind="foundry.simulation_result",
@@ -1237,16 +1266,22 @@ def _selected_manifest(
             max_manifest_bytes=read_budget.max_manifest_bytes_for(selected_ref),
         )
     except FileNotFoundError as exc:
+        read_budget.mark_source_usage_unestablished()
         raise _UnestablishedProjectionError("selected_method_metric_manifest_unavailable") from exc
     except CoreJsonReadBoundsRefusalError as exc:
-        read_budget.account_execution_source_bytes(_core_observed_source_bytes(exc))
+        read_budget.account_execution_source_bytes(
+            _core_observed_source_bytes(exc, budget=read_budget)
+        )
         raise _InvalidProjectionError(
             "selected_method_metric_manifest_exceeds_bounded_read"
         ) from exc
     except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
+        read_budget.mark_source_usage_unestablished()
         raise _InvalidProjectionError("selected_method_metric_manifest_profile_invalid") from exc
+    read_budget.account_execution_source_bytes(
+        _core_observed_source_bytes(bounded_manifest, budget=read_budget)
+    )
     manifest = bounded_manifest.manifest
-    read_budget.account_execution_source_bytes(_core_observed_source_bytes(bounded_manifest))
     read_budget.account_manifest(
         _core_artifact_ref(selected_ref), bounded_manifest.observed_manifest_bytes
     )
@@ -1548,7 +1583,9 @@ def _is_sha256_digest(value: str) -> bool:
     return len(digest) == 64 and all(character in "0123456789abcdef" for character in digest)
 
 
-def _method_class_source_sha256[MethodClassT](method_class: type[MethodClassT]) -> str | None:
+def _method_class_source_sha256[MethodClassT](
+    method_class: type[MethodClassT],
+) -> str | None:
     """Recompute the producer's narrowly declared class-source digest."""
     try:
         source = inspect.getsource(method_class).encode("utf-8")
@@ -1679,10 +1716,16 @@ def _admit_method_metric_binding(
 
 @dataclass(slots=True)
 class _ProjectionReadBudget:
-    """Bound actual reads across source admission and projection verification."""
+    """Bound selected CAS transfers and strict terminal-trace reads.
+
+    This is not a whole-request I/O budget. C105 owner-state root/trie reads,
+    CAS ownership-index and guard metadata, databases, external SQL, and other
+    OS/device I/O are outside this counter.
+    """
 
     max_bytes: int = MAX_METHOD_METRIC_TOTAL_SOURCE_BYTES
     max_manifest_bytes: int = MAX_METHOD_METRIC_MANIFEST_BYTES
+    parent: _ProjectionReadBudget | None = None
     observed_manifest_bytes: int = 0
     observed_payload_bytes: int = 0
     manifest_refs: set[tuple[str, str, str, str | None]] = field(default_factory=set)
@@ -1691,6 +1734,20 @@ class _ProjectionReadBudget:
         default_factory=dict
     )
     observed_execution_source_bytes: int = 0
+    _local_source_usage_established: bool = True
+
+    @property
+    def source_usage_established(self) -> bool:
+        """Say whether all selected-CAS and terminal-trace transfers are measured."""
+        return self._local_source_usage_established and (
+            self.parent is None or self.parent.source_usage_established
+        )
+
+    def mark_source_usage_unestablished(self) -> None:
+        """Propagate an unknown transfer to the common owner and refuse further reads."""
+        self._local_source_usage_established = False
+        if self.parent is not None:
+            self.parent.mark_source_usage_unestablished()
 
     @property
     def observed_bytes(self) -> int:
@@ -1699,8 +1756,11 @@ class _ProjectionReadBudget:
 
     @property
     def remaining_bytes(self) -> int:
-        """Return the aggregate capacity left before any further bounded read."""
-        return self.max_bytes - self.observed_bytes
+        """Return capacity only while the actual transfer count remains known."""
+        if not self.source_usage_established:
+            return 0
+        own = self.max_bytes - self.observed_bytes
+        return own if self.parent is None else min(own, self.parent.remaining_bytes)
 
     def max_manifest_bytes_for(self, ref: ArtifactRef) -> int:
         """Bound a metadata-only read by the remaining aggregate capacity."""
@@ -1763,16 +1823,22 @@ class _ProjectionReadBudget:
     def account_execution_source_bytes(self, observed_bytes: int) -> None:
         """Count exact selected-store transfers, preserving over-cap attempts."""
         if type(observed_bytes) is not int or observed_bytes < 0:
+            self.mark_source_usage_unestablished()
             raise _InvalidProjectionError("method_metric_observed_byte_count_invalid")
         self.observed_execution_source_bytes += observed_bytes
+        if self.parent is not None:
+            self.parent.account_execution_source_bytes(observed_bytes)
         if self.observed_bytes > self.max_bytes:
             raise _InvalidProjectionError("method_metric_source_bytes_exceed_bounded_admission")
 
     def account_refused_execution_source_bytes(self, observed_bytes: int) -> None:
         """Retain exact transfer usage from a bounded refusal before returning limited."""
         if type(observed_bytes) is not int or observed_bytes < 0:
+            self.mark_source_usage_unestablished()
             raise _UnestablishedProjectionError("method_metric_transfer_accounting_not_established")
         self.observed_execution_source_bytes += observed_bytes
+        if self.parent is not None:
+            self.parent.account_refused_execution_source_bytes(observed_bytes)
 
     def account_bounded_read(
         self,
@@ -1780,7 +1846,7 @@ class _ProjectionReadBudget:
         bounded_read: CoreJsonArtifactBoundedRead,
     ) -> None:
         """Account one Core read's measured total store transfers and content bytes."""
-        observed_source_bytes = _core_observed_source_bytes(bounded_read)
+        observed_source_bytes = _core_observed_source_bytes(bounded_read, budget=self)
         self.account_execution_source_bytes(observed_source_bytes)
         self.account_manifest(ref, bounded_read.observed_manifest_bytes)
         self.account_payload(ref, bounded_read.observed_bytes)
@@ -1815,10 +1881,11 @@ class _ProjectionReadBudget:
         setattr(self, counter_name, getattr(self, counter_name) + observed_bytes)
 
 
-def _core_observed_source_bytes(receipt: object) -> int:
-    """Require the Core owner-reported sum of all store transfers for a read."""
+def _core_observed_source_bytes(receipt: object, *, budget: _ProjectionReadBudget) -> int:
+    """Require Core's actual count; unknown is never treated as zero."""
     observed = getattr(receipt, "observed_source_bytes", None)
     if type(observed) is not int or observed < 0:
+        budget.mark_source_usage_unestablished()
         raise _UnestablishedProjectionError("core_store_transfer_accounting_not_established")
     return observed
 
@@ -1862,12 +1929,13 @@ class _BoundedExecutionSourceReader:
         except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
             observed = getattr(exc, "observed_source_bytes", None)
             if type(observed) is not int or observed < 0:
+                self._read_budget.mark_source_usage_unestablished()
                 raise _UnestablishedProjectionError(
                     "core_manifest_transfer_accounting_not_established"
                 ) from exc
             self._account_refusal(observed)
             self._raise_budget_refusal(observed_bytes=observed, cause=exc)
-        observed = _core_observed_source_bytes(bounded)
+        observed = _core_observed_source_bytes(bounded, budget=self._read_budget)
         self._account_read(observed)
         if ref.kind == "foundry.state_snapshot":
             observed += self._bind_selected_state_snapshot_parent(ref, bounded.manifest)
@@ -1972,12 +2040,13 @@ class _BoundedExecutionSourceReader:
         except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
             observed = getattr(exc, "observed_source_bytes", None)
             if type(observed) is not int or observed < 0:
+                self._read_budget.mark_source_usage_unestablished()
                 raise _UnestablishedProjectionError(
                     "core_manifest_transfer_accounting_not_established"
                 ) from exc
             self._account_refusal(observed)
             self._raise_budget_refusal(observed_bytes=observed, cause=exc)
-        observed = _core_observed_source_bytes(bounded)
+        observed = _core_observed_source_bytes(bounded, budget=self._read_budget)
         self._account_read(observed)
         return bounded.effective_ref, bounded.manifest, observed
 
@@ -2009,11 +2078,16 @@ class _BoundedExecutionSourceReader:
         except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
             observed = getattr(exc, "observed_source_bytes", None)
             if type(observed) is not int or observed < 0:
+                self._read_budget.mark_source_usage_unestablished()
                 raise _UnestablishedProjectionError(
                     "core_manifest_transfer_accounting_not_established"
                 ) from exc
             self._account_refusal(observed)
             self._raise_budget_refusal(observed_bytes=observed, cause=exc)
+        # A semantically invalid binary profile can still have transferred its
+        # selected manifest; charge the real receipt before refusing the view.
+        observed = _core_observed_source_bytes(bounded, budget=self._read_budget)
+        self._account_read(observed)
         manifest = bounded.manifest
         if (
             bounded.effective_ref != selected_ref
@@ -2025,8 +2099,6 @@ class _BoundedExecutionSourceReader:
             or artifact_manifest_profile_sha256(manifest) != selected_ref.manifest_profile_sha256
         ):
             raise _InvalidProjectionError("state_blob_manifest_identity_mismatch")
-        observed = _core_observed_source_bytes(bounded)
-        self._account_read(observed)
         return selected_ref, manifest, observed
 
     def _raise_core_read_refusal(
@@ -2036,7 +2108,7 @@ class _BoundedExecutionSourceReader:
         read_kind: str,
     ) -> NoReturn:
         """Keep bounded overruns, semantic refusal, and unknown usage distinct."""
-        observed = _core_observed_source_bytes(exc)
+        observed = _core_observed_source_bytes(exc, budget=self._read_budget)
         limit_name = getattr(exc, "limit_name", None)
         if type(limit_name) is str:
             observed_limit = {
@@ -2125,6 +2197,19 @@ class _BoundedExecutionSourceReader:
             )
         except CoreJsonReadBoundsRefusalError as exc:
             self._raise_core_read_refusal(exc, read_kind="typed_model")
+        except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
+            self._read_budget.mark_source_usage_unestablished()
+            raise _UnestablishedProjectionError(
+                "typed_model_transfer_accounting_not_established"
+            ) from exc
+        # The transfer has already happened even when typed validation refuses.
+        # Charge the owner receipt before inspecting the payload semantics.
+        observed_source_bytes = _core_observed_source_bytes(bounded, budget=self._read_budget)
+        self._account_read(observed_source_bytes)
+        payload_bytes = bounded.observed_bytes
+        manifest_transfer_bytes = observed_source_bytes - payload_bytes
+        if manifest_transfer_bytes < bounded.observed_manifest_bytes:
+            raise TypeError("core_transfer_receipt_omits_selected_manifest_read")
         manifest = bounded.manifest
         try:
             value = validate_core_model_bounded_read(model, bounded)
@@ -2132,12 +2217,6 @@ class _BoundedExecutionSourceReader:
             raise ValueError("method_metric_execution_source_typed_model_invalid") from exc
         if not isinstance(value, model):
             raise TypeError("method_metric_execution_source_typed_model_contract_mismatch")
-        observed_source_bytes = _core_observed_source_bytes(bounded)
-        payload_bytes = bounded.observed_bytes
-        manifest_transfer_bytes = observed_source_bytes - payload_bytes
-        if manifest_transfer_bytes < bounded.observed_manifest_bytes:
-            raise TypeError("core_transfer_receipt_omits_selected_manifest_read")
-        self._account_read(observed_source_bytes)
         return manifest, value, manifest_transfer_bytes, payload_bytes
 
     def _account_read(self, observed_bytes: int) -> None:
@@ -3565,7 +3644,10 @@ def _selected_returned_slot(
     # Foundry may expose a JSON-valued ABI slot while separately persisting a
     # typed scalar selected through the exact non-empty value path. The caller
     # has already content-read that MethodOutputPayload and matched its path.
-    selected_value_is_numeric = selected_value is None or type(selected_value) in {int, float}
+    selected_value_is_numeric = selected_value is None or type(selected_value) in {
+        int,
+        float,
+    }
     # Direct scalar selection requires the content-read typed value so the
     # persisted owner type claim cannot stand alone.
     direct_scalar_runtime_type_matches = selected_value is not None and (
@@ -4933,7 +5015,9 @@ def _ex_ante_rank_comparison_contract(
     remain in the comparison. The verified scenario bytes may differ between
     candidates. This helper does not authenticate a caller or issue authority.
     """
-    from polisyos.ir.kernel.method_metrics import METHOD_METRIC_EX_ANTE_MEAN_CHANGE_LAW_ID
+    from polisyos.ir.kernel.method_metrics import (
+        METHOD_METRIC_EX_ANTE_MEAN_CHANGE_LAW_ID,
+    )
 
     if (
         observation.source_status != "observed"
@@ -5035,6 +5119,7 @@ def recompute_completed_ex_ante_rank_projection(
     candidate_ref: ArtifactRef | None,
     require_restricted_exante_call_witness: bool = False,
     restricted_exante_call_collector: list[_VerifiedRestrictedExAnteCall] | None = None,
+    aggregate_read_budget: _ProjectionReadBudget | None = None,
 ) -> CompletedExAnteRankProjection:
     """Replay a freshly selected owner basis for one candidate-only rank coordinate.
 
@@ -5046,7 +5131,8 @@ def recompute_completed_ex_ante_rank_projection(
 
     if type(basis) is not _CompletedMethodMetricProjectionBasis:
         return CompletedExAnteRankProjection(
-            status="verification_missing", limitations=("completed_method_metric_basis_missing",)
+            status="verification_missing",
+            limitations=("completed_method_metric_basis_missing",),
         )
     score = admit_completed_method_metric_objective_score(
         basis, candidate_ref=candidate_ref, request_status="requested"
@@ -5060,7 +5146,8 @@ def recompute_completed_ex_ante_rank_projection(
         or score.recomputed_assessment.value is None
     ):
         return CompletedExAnteRankProjection(
-            status="verification_missing", limitations=("completed_whole_objective_not_available",)
+            status="verification_missing",
+            limitations=("completed_whole_objective_not_available",),
         )
     try:
         selected_candidate = _selected_ref(candidate_ref, kind="scientist.policy_design.candidate")
@@ -5075,7 +5162,7 @@ def recompute_completed_ex_ante_rank_projection(
             method_execution_bundle_ref=basis.method_execution_bundle_ref.materialize(),
             method_metric_binding_set_ref=basis.method_metric_binding_set_ref.materialize(),
         )
-        budget = _ProjectionReadBudget()
+        budget = _ProjectionReadBudget(parent=aggregate_read_budget)
         execution_bases: list[Any] = []
         replay_candidate = _admit_execution_source_candidate(
             store,
@@ -5168,7 +5255,11 @@ def recompute_completed_ex_ante_rank_projection(
                     "registry": source.candidate_registry_bundle_ref.model_dump(mode="json"),
                     "request": source.request.model_dump(
                         mode="json",
-                        exclude={"exec_plan_ref", "input_bindings_ref", "registry_bundle_ref"},
+                        exclude={
+                            "exec_plan_ref",
+                            "input_bindings_ref",
+                            "registry_bundle_ref",
+                        },
                     ),
                     "request_fields_set": source.request_fields_set,
                     "request_exec_config_fields_set": source.request_exec_config_fields_set,
@@ -5287,11 +5378,12 @@ def _read_bounded_method_metric_artifact(
     try:
         bounded_read = read_core_json_artifact_bounded(store, core_ref, limits=limits)
     except FileNotFoundError as exc:
+        read_budget.mark_source_usage_unestablished()
         raise _UnestablishedProjectionError(
             "selected_method_metric_artifact_bytes_unavailable"
         ) from exc
     except CoreJsonReadBoundsRefusalError as exc:
-        observed_source_bytes = _core_observed_source_bytes(exc)
+        observed_source_bytes = _core_observed_source_bytes(exc, budget=read_budget)
         observed_manifest_bytes = exc.observed_manifest_bytes
         observed_payload_bytes = exc.observed_bytes
         if (
@@ -5314,6 +5406,7 @@ def _read_bounded_method_metric_artifact(
             "selected_method_metric_artifact_exceeds_bounded_read"
         ) from exc
     except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
+        read_budget.mark_source_usage_unestablished()
         raise _InvalidProjectionError(
             "selected_method_metric_artifact_bounded_read_failed"
         ) from exc

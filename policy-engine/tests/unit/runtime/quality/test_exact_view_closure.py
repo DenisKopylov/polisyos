@@ -241,3 +241,181 @@ def test_advisory_flag_cannot_promote_a_mixed_legacy_v2_collection() -> None:
         assert_same_input_closure([legacy, v2])
     with pytest.raises(AuthorityEnvelopeError, match="verification_missing"):
         assert_same_input_closure([legacy, v2], historical_advisory=True)
+
+
+def test_absent_selected_manifest_metadata_is_explicit_candidate_not_authority() -> None:
+    """Explicitly absent metadata must not fabricate or imply producer provenance."""
+    payload = _member().model_dump(mode="json")
+    payload.update(
+        schema_name=None, schema_version=None, producer_component=None, producer_version=None
+    )
+    member = ClosureCasIdentity.model_validate(payload)
+    assert member.model_dump(mode="json") == payload
+    closure = _closure(member)
+    arguments = _arguments(closure, _Echo(member, closure.evidence_input_refs))
+    assert authority.compare_same_input_closure_candidate(**arguments) == closure
+    with pytest.raises(AuthorityEnvelopeError, match="owner_not_established"):
+        verify_same_input_closure(**arguments)
+
+
+@pytest.mark.parametrize(
+    ("field", "reason"),
+    [
+        ("schema_name", "schema_identity_incomplete"),
+        ("schema_version", "schema_identity_incomplete"),
+        ("producer_component", "producer_identity_incomplete"),
+        ("producer_version", "producer_identity_incomplete"),
+    ],
+)
+def test_selected_manifest_metadata_identity_pairs_must_be_complete(
+    field: str, reason: str
+) -> None:
+    payload = _member().model_dump(mode="json")
+    payload[field] = None
+    with pytest.raises(ValidationError, match=reason):
+        ClosureCasIdentity.model_validate(payload)
+
+
+def test_selected_manifest_metadata_must_not_be_silently_omitted() -> None:
+    payload = _member().model_dump(mode="json")
+    del payload["schema_name"]
+    with pytest.raises(ValidationError, match="schema_name"):
+        ClosureCasIdentity.model_validate(payload)
+
+
+def test_generated_candidate_schema_preserves_metadata_pairing() -> None:
+    from jsonschema import Draft202012Validator
+
+    validator = Draft202012Validator(ClosureCasIdentity.model_json_schema())
+    payload = _member().model_dump(mode="json")
+    assert validator.is_valid(payload)
+    for field in ("schema_name", "schema_version", "producer_component", "producer_version"):
+        malformed = dict(payload)
+        malformed[field] = None
+        assert not validator.is_valid(malformed)
+    payload.update(
+        schema_name=None, schema_version=None, producer_component=None, producer_version=None
+    )
+    assert validator.is_valid(payload)
+    del payload["schema_name"]
+    assert not validator.is_valid(payload)
+
+
+def test_generated_candidate_schema_requires_exact_selected_profile() -> None:
+    from jsonschema import Draft202012Validator
+
+    validator = Draft202012Validator(ClosureCasIdentity.model_json_schema())
+    payload = _member().model_dump(mode="json")
+    assert validator.is_valid(payload)
+    payload["artifact_ref"]["manifest_profile_sha256"] = None
+    assert not validator.is_valid(payload)
+    del payload["artifact_ref"]["manifest_profile_sha256"]
+    assert not validator.is_valid(payload)
+
+
+def test_internal_closure_snapshot_cannot_be_mutated_or_serialized() -> None:
+    """Mutation isolation is not owner issuance or a positive authority claim."""
+    import pickle
+
+    member = _member()
+    closure = _closure(member)
+    token = authority.VerifiedSameInputClosure(
+        authority._VERIFIED_CLOSURE_KEY,
+        closure,
+        closure.identity_tuple(),
+        _contract(),
+        _Echo(member, closure.evidence_input_refs),
+    )
+    exported = token.closure
+    exported_member = exported.members[0]
+    assert isinstance(exported_member, ClosureCasIdentity)
+    exported_member.artifact_ref.kind = "caller.mutated.kind"
+    stored = token.closure.members[0]
+    assert isinstance(stored, ClosureCasIdentity)
+    assert stored.artifact_ref.kind == "runtime.policy_intent_envelope"
+    closure_member = closure.members[0]
+    assert isinstance(closure_member, ClosureCasIdentity)
+    closure_member.artifact_ref.kind = "caller.mutated.kind"
+    assert closure_member.artifact_ref.kind == "caller.mutated.kind"
+    assert token._revalidate(closure) is False
+    with pytest.raises(TypeError, match="persistence_is_forbidden"):
+        pickle.dumps(token)
+
+
+def test_internal_closure_snapshot_rejects_an_unbound_identity() -> None:
+    """Even an internal constructor cannot bind a different identity tuple."""
+    closure = _closure(_member())
+    with pytest.raises(ValueError, match="identity_does_not_match_snapshot"):
+        authority.VerifiedSameInputClosure(
+            authority._VERIFIED_CLOSURE_KEY,
+            closure,
+            ("unbound",),
+            _contract(),
+            _Echo(_member(), closure.evidence_input_refs),
+        )
+
+
+def test_internal_snapshot_isolates_nested_owner_values_and_key_order() -> None:
+    member = authority.ClosureOwnerValueIdentity(
+        name="mode",
+        role="mode",
+        owner="test.owner",
+        rule_version="1",
+        value={"a": {"x": 1}, "b": 2},
+    )
+    closure = _closure(member)
+    contract = SameInputClosureContract(
+        owner="caller.invented.owner",
+        purpose="scorecard",
+        rule_version="candidate@2.0",
+        members=(ClosureMemberContract(name="mode", role="mode", identity_domain="owner_value"),),
+    )
+    token = authority.VerifiedSameInputClosure(
+        authority._VERIFIED_CLOSURE_KEY,
+        closure,
+        closure.identity_tuple(),
+        contract,
+        _Echo(member, closure.evidence_input_refs),
+    )
+    exported_member = token.closure.members[0]
+    assert isinstance(exported_member, authority.ClosureOwnerValueIdentity)
+    exported_member.value["a"]["x"] = 99
+    stored_member = token.closure.members[0]
+    assert isinstance(stored_member, authority.ClosureOwnerValueIdentity)
+    assert stored_member.value["a"]["x"] == 1
+    original = closure.model_dump(mode="json")
+    original["members"][0]["value"] = {"b": 2, "a": {"x": 1}}
+    reordered = SameInputClosure.model_validate(original)
+    assert authority._closure_snapshot_json(closure) == authority._closure_snapshot_json(reordered)
+
+
+def test_v2_identity_projection_preserves_existing_golden_law() -> None:
+    member = _member()
+    closure = _closure(member)
+    expected = "sha256:b3be4ffd72339d65d79764e68d94d9d9d90fa7958c5eab2ee9407f0651f220d9"
+    assert closure.closure_sha256 == expected
+
+    def digest(value: SameInputClosure, contract: SameInputClosureContract) -> str:
+        return authority._same_input_closure_projection_sha256(
+            closure=value,
+            contract=contract,
+            resolved_members=(member,),
+            observed_refs=value.evidence_input_refs,
+        )
+
+    assert digest(closure, _contract()) == expected
+    changed_locator = closure.model_copy(update={"closure_id": "another-locator"})
+    assert digest(changed_locator, _contract()) == expected
+    changed_status = closure.model_copy(update={"status": "not_closed"})
+    assert digest(changed_status, _contract()) == expected
+    with pytest.raises(AuthorityEnvelopeError, match="digest_mismatch"):
+        authority.compare_same_input_closure_candidate(
+            **_arguments(changed_status, _Echo(member, changed_status.evidence_input_refs))
+        )
+    different_purpose = _contract().model_copy(update={"purpose": "other"})
+    assert digest(closure, different_purpose) != expected
+    first = closure.model_copy(update={"evidence_input_refs": ("edge-a", "edge-b")})
+    reverse = closure.model_copy(update={"evidence_input_refs": ("edge-b", "edge-a")})
+    duplicate = closure.model_copy(update={"evidence_input_refs": ("edge-a", "edge-b", "edge-b")})
+    assert digest(first, _contract()) != digest(reverse, _contract())
+    assert digest(first, _contract()) != digest(duplicate, _contract())

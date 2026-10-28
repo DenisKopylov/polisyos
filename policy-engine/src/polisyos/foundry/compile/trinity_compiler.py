@@ -49,6 +49,10 @@ from polisyos.core.registry import (
     load_registry_bundle,
     load_registry_bundle_content,
 )
+from polisyos.foundry.compile.manifest_inputs import (
+    execution_plan_input_refs,
+    program_graph_input_refs,
+)
 from polisyos.foundry.compile.randomization import (
     TREASURY_SALTS_PROFILE,
     build_treasury_plan,
@@ -298,7 +302,7 @@ def compile_trinity(store: CoreJSONArtifactStore, request: CompileRequest) -> Co
                 semantic_closure_notes=semantic_notes,
             )
 
-    program_inputs = _program_graph_inputs(
+    program_inputs = program_graph_input_refs(
         policy_ref=policy_ref,
         registry_bundle_ref=registry_bundle_ref,
         link_report_ref=link_report_ref,
@@ -396,20 +400,11 @@ def compile_trinity(store: CoreJSONArtifactStore, request: CompileRequest) -> Co
                 name=ExecPlan.ARTIFACT_SCHEMA_NAME,
                 version=ExecPlan.ARTIFACT_SCHEMA_VERSION,
             ),
-            inputs=[
-                input_ref_from_artifact_ref(program_ref, role="program_graph"),
-                input_ref_from_artifact_ref(treasury_plan_ref, role="treasury_plan"),
-                *(
-                    [
-                        input_ref_from_artifact_ref(
-                            method_metric_binding_set_ref,
-                            role="method_metric_bindings",
-                        )
-                    ]
-                    if method_metric_binding_set_ref is not None
-                    else []
-                ),
-            ],
+            inputs=execution_plan_input_refs(
+                program_graph_ref=program_ref,
+                treasury_plan_ref=treasury_plan_ref,
+                method_metric_binding_set_ref=method_metric_binding_set_ref,
+            ),
         ),
         return_selected_profile=request.return_selected_profile,
     )
@@ -800,31 +795,6 @@ def _compile_method_metric_binding_set(
         return_selected_profile=True,
     )
     return MethodMetricBindingSetRef.model_validate(artifact_ref.model_dump(mode="python"))
-
-
-def _program_graph_inputs(
-    *,
-    policy_ref: ArtifactRef,
-    registry_bundle_ref: ArtifactRef | None,
-    link_report_ref: ArtifactRef | None,
-    lowered_ir_ref: ArtifactRef | None,
-    params_refs: dict[str, ArtifactRef],
-    method_execution_plan_ref: ExecutionPlanRef | None = None,
-) -> list[InputRef]:
-    inputs = [input_ref_from_artifact_ref(policy_ref, role="ir")]
-    if registry_bundle_ref is not None:
-        inputs.append(input_ref_from_artifact_ref(registry_bundle_ref, role="registry_bundle"))
-    if link_report_ref is not None:
-        inputs.append(input_ref_from_artifact_ref(link_report_ref, role="link_report"))
-    if lowered_ir_ref is not None:
-        inputs.append(input_ref_from_artifact_ref(lowered_ir_ref, role="lowered_ir"))
-    if method_execution_plan_ref is not None:
-        inputs.append(
-            input_ref_from_artifact_ref(method_execution_plan_ref, role="execution_plan_source")
-        )
-    for node_id, ref in sorted(params_refs.items()):
-        inputs.append(input_ref_from_artifact_ref(ref, role=f"params:{node_id}"))
-    return inputs
 
 
 def _compile_inputs(

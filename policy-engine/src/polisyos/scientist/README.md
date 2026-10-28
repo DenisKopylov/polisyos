@@ -10,6 +10,7 @@ governance, and publishes replayable decision artifacts across the `ir`,
 ## Where to Start
 
 - Stable facade and top-level entrypoint: [`__init__.py`](__init__.py) and [`api.py`](api.py)
+- Supported compute and bridge facades: [`compute/README.md`](compute/README.md) and [`adapters/README.md`](adapters/README.md)
 - Workflow assembly and routing: [`orchestration/workflows/README.md`](orchestration/workflows/README.md) and [`orchestration/workflows/builder.py`](orchestration/workflows/builder.py)
 - DAG execution semantics: [`orchestration/engine/README.md`](orchestration/engine/README.md)
 - Method lanes for search, discovery, and research DAG: [`methods/README.md`](methods/README.md)

@@ -131,6 +131,54 @@ def test_foundry_public_surface_registers_backend_entrypoint_without_leaking_exp
     assert root_exports.isdisjoint(backend_exports)
 
 
+def test_scientist_execution_facades_resolve_registered_owner_exports() -> None:
+    """The scanner and live imports both resolve the two admitted facades."""
+    import polisyos.scientist.adapters as adapters
+    import polisyos.scientist.compute as compute
+    from polisyos.scientist.adapters import fabric_bridge, registered_sql_admission
+    from polisyos.scientist.nodes.builtins.decide import policy_runtime_method_metrics as metrics
+
+    primary = tomllib.loads(
+        (REPO_ROOT / "architecture/packages/scientist.toml").read_text(encoding="utf-8")
+    )["public_surface"]["supported_entrypoints"]
+    aggregate = tomllib.loads(
+        (REPO_ROOT / "architecture/public_surface/contract.toml").read_text(encoding="utf-8")
+    )
+    scientist = next(row for row in aggregate["package"] if row["module"] == "polisyos.scientist")
+    for module, facade in (
+        ("polisyos.scientist.compute", compute),
+        ("polisyos.scientist.adapters", adapters),
+    ):
+        assert module in primary and module in scientist["supported_entrypoints"]
+        entrypoint = guardrails._entrypoint_inventory(module)
+        assert entrypoint.export_resolution["complete"] is True
+        assert set(entrypoint.exports) == set(facade.__all__)
+
+    # These are the actual Scientist owners used by Runtime, not names declared
+    # in TOML alone. Removing a route must fail this real import/replay witness.
+    assert compute.BoundedMethodMetricSourceReader is metrics._BoundedExecutionSourceReader
+    assert compute.MethodMetricSourceReadBudget is metrics._ProjectionReadBudget
+    assert compute.VerifiedRestrictedExAnteCall is metrics._VerifiedRestrictedExAnteCall
+    assert (
+        compute.read_bounded_method_metric_artifact is metrics._read_bounded_method_metric_artifact
+    )
+    assert compute.selected_method_metric_ref is metrics._selected_ref
+    assert compute.MAX_METHOD_METRIC_SOURCE_BYTES == metrics.MAX_METHOD_METRIC_SOURCE_BYTES
+    assert adapters.RegisteredSQLCapture is registered_sql_admission.RegisteredSQLCapture
+    assert adapters.RegisteredSQLViewContract is registered_sql_admission.RegisteredSQLViewContract
+    assert (
+        adapters.registered_sql_capture_input_refs
+        is registered_sql_admission.registered_sql_capture_input_refs
+    )
+    assert adapters.parse_data_view_request is fabric_bridge.parse_data_view_request
+    unknown_compute = "not_a_registered_execution_owner"
+    unknown_adapter = "not_a_registered_capture_owner"
+    with pytest.raises(AttributeError):
+        getattr(compute, unknown_compute)
+    with pytest.raises(AttributeError):
+        getattr(adapters, unknown_adapter)
+
+
 def test_supported_entrypoint_inventory_rejects_missing_or_ambiguous_facade(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

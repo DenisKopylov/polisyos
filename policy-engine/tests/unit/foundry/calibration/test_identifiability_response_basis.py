@@ -64,6 +64,7 @@ from polisyos.foundry.data_plane.bindings import build_input_bindings
 from polisyos.foundry.execute import (
     ExecutionSourceAdmissionRefusal,
     admit_execution_source,
+    execution_input_basis_sources,
 )
 from polisyos.foundry.execute.api import execute as execute_foundry
 from polisyos.foundry.execute.executor import load_state_snapshot, put_state_snapshot
@@ -571,6 +572,16 @@ def test_foundry_admission_returns_exact_basis_inventory(tmp_path):
         )
 
     assert inventory_key(admitted.basis_inventory) == inventory_key(admitted.basis_manifest.inputs)
+    # The actual producer and fresh admission share one ordered source owner.
+    # This assertion preserves role order and multiplicity, not only membership.
+    assert list(admitted.basis_inventory) == admitted.basis_manifest.inputs
+    source_edges = [
+        edge for edge in admitted.basis_inventory if edge.role.startswith("basis.source.")
+    ]
+    assert source_edges == [
+        input_ref_from_artifact_ref(ref, role=f"basis.source.{role}")
+        for role, ref in execution_input_basis_sources(admitted.basis)
+    ]
 
 
 @pytest.mark.parametrize(

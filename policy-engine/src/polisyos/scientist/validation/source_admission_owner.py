@@ -18,8 +18,11 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
 
 from polisyos.core.artifacts import (
+    ArtifactStoreReadUsage,
+    CoreJsonReadBoundsRefusalError,
     artifact_manifest_profile_sha256,
     read_core_json_artifact,
+    read_core_manifest_profile_bounded,
 )
 from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
 from polisyos.core.artifacts.store import FileSystemCAS
@@ -39,6 +42,7 @@ from polisyos.core.contracts.fabric import (
 )
 from polisyos.scientist.validation.source_admission_port import (
     SourceAdmissionAuthority,
+    SourceAdmissionReadBudget,
     SourceIssuerCall,
     VerifiedRegisteredMaterialization,
     _read_registered_materialization_candidate,
@@ -286,12 +290,15 @@ class _RegisteredSourceAdmissionOwner:
         *,
         tenant_id: str | None = None,
         cell_id: str | None = None,
+        read_budget: SourceAdmissionReadBudget | None = None,
     ) -> dict[str, object]:
         # Never silently bind a mutable default selector on an authority read.
         checked = ArtifactRef.model_validate_json(ref.model_dump_json(), strict=True)
         if checked.manifest_profile_sha256 is None:
             raise ValueError("source_admission_selected_profile_required")
         reader = self._scoped_store(tenant_id, cell_id)
+        if read_budget is not None:
+            return self._verify_ref_bounded(reader, checked, read_budget)
         manifest = reader.get_manifest(checked)
         if (manifest.artifact_id, manifest.kind, manifest.media_type) != (
             checked.artifact_id,
@@ -313,16 +320,136 @@ class _RegisteredSourceAdmissionOwner:
             "manifest_profile_sha256": artifact_manifest_profile_sha256(manifest),
         }
 
+    @staticmethod
+    def _verify_ref_bounded(
+        reader: FileSystemCAS, checked: ArtifactRef, budget: SourceAdmissionReadBudget
+    ) -> dict[str, object]:
+        """Verify one exact scoped CAS member within the caller's aggregate budget."""
+        remaining, max_manifest = budget.remaining_bytes, budget.max_manifest_bytes
+        if (
+            budget.source_usage_established is not True
+            or type(remaining) is not int
+            or type(max_manifest) is not int
+            or remaining < 2
+            or max_manifest < 1
+        ):
+            raise ValueError("source_admission_read_budget_exhausted")
+        # A selected sidecar must fit twice: once to select and once to reopen.
+        manifest_limit = min(max_manifest, remaining // 2)
+        try:
+            selected = read_core_manifest_profile_bounded(
+                reader, checked, max_manifest_bytes=manifest_limit, allow_profile_absent=True
+            )
+        except CoreJsonReadBoundsRefusalError as exc:
+            measured = exc.observed_source_bytes
+            if type(measured) is int and measured >= 0:
+                budget.account_refused_execution_source_bytes(measured)
+            else:
+                budget.mark_source_usage_unestablished()
+            raise
+        except Exception:
+            budget.mark_source_usage_unestablished()
+            raise
+        measured = selected.observed_source_bytes
+        if type(measured) is not int or measured < 0:
+            budget.mark_source_usage_unestablished()
+            raise ValueError("source_admission_read_usage_not_established")
+        budget.account_execution_source_bytes(measured)
+        manifest = selected.manifest
+        if (
+            selected.effective_ref != checked
+            or (manifest.artifact_id, manifest.kind, manifest.media_type)
+            != (checked.artifact_id, checked.kind, checked.media_type)
+            or artifact_manifest_profile_sha256(manifest) != checked.manifest_profile_sha256
+        ):
+            raise ValueError("source_admission_reference_identity_mismatch")
+        remaining = budget.remaining_bytes
+        # The second read is bound to the identical observed sidecar bytes, so
+        # its precise bound is known before reopening the member.
+        reopen_manifest_limit = len(selected.raw_manifest_bytes)
+        if (
+            type(remaining) is not int
+            or reopen_manifest_limit < 1
+            or remaining < reopen_manifest_limit + manifest.byte_size
+        ):
+            raise ValueError("source_admission_read_budget_exhausted")
+        # Even an empty member requires a positive API limit; the owner checks
+        # its actual zero size before exposing a bounded member stream.
+        max_payload = max(1, remaining - reopen_manifest_limit)
+        try:
+            attempt = reader.open_member_bounded(
+                checked,
+                "blob",
+                max_manifest_bytes=reopen_manifest_limit,
+                expected_manifest_sha256=hashlib.sha256(selected.raw_manifest_bytes).hexdigest(),
+                max_member_bytes=max_payload,
+            )
+        except Exception:
+            budget.mark_source_usage_unestablished()
+            raise
+        digest = hashlib.sha256()
+        transferred = 0
+        try:
+            with attempt as member:
+                if member.member_size_bytes != manifest.byte_size:
+                    raise ValueError("source_admission_reference_content_mismatch")
+                while transferred < manifest.byte_size:
+                    chunk = member.read(min(1024 * 1024, manifest.byte_size - transferred))
+                    if type(chunk) is not bytes or not chunk:
+                        raise ValueError("source_admission_reference_content_mismatch")
+                    digest.update(chunk)
+                    transferred += len(chunk)
+                if member.read(1):
+                    raise ValueError("source_admission_reference_content_mismatch")
+        except Exception:
+            usage = attempt.usage
+            measured = (
+                usage.observed_source_bytes if type(usage) is ArtifactStoreReadUsage else None
+            )
+            if type(measured) is int and measured >= 0:
+                budget.account_refused_execution_source_bytes(measured)
+            else:
+                budget.mark_source_usage_unestablished()
+            raise
+        usage = attempt.usage
+        measured = usage.observed_source_bytes if type(usage) is ArtifactStoreReadUsage else None
+        if type(measured) is not int or measured < 0:
+            budget.mark_source_usage_unestablished()
+            raise ValueError("source_admission_read_usage_not_established")
+        budget.account_execution_source_bytes(measured)
+        if (
+            usage.observed_manifest_selection_bytes != 0
+            or usage.observed_payload_bytes != transferred
+            or usage.observed_payload_size != manifest.byte_size
+            or usage.payload_integrity_verified is not True
+            or transferred != manifest.byte_size
+            or digest.hexdigest() != checked.artifact_id.hex
+        ):
+            raise ValueError("source_admission_reference_content_mismatch")
+        return {
+            "ref": checked.model_dump(mode="json"),
+            "raw_sha256": "sha256:" + digest.hexdigest(),
+            "manifest_profile_sha256": artifact_manifest_profile_sha256(manifest),
+        }
+
     def _verify_refs(
         self,
         refs: tuple[ArtifactRef, ...],
         *,
         tenant_id: str | None = None,
         cell_id: str | None = None,
+        read_budget: SourceAdmissionReadBudget | None = None,
     ) -> list[dict[str, object]]:
         unique = {artifact_ref_identity_key(ref): ref for ref in refs}
+        if read_budget is None:
+            return [
+                self._verify_ref(unique[key], tenant_id=tenant_id, cell_id=cell_id)
+                for key in sorted(unique, key=lambda key: (*key[:3], key[3] or ""))
+            ]
         return [
-            self._verify_ref(unique[key], tenant_id=tenant_id, cell_id=cell_id)
+            self._verify_ref(
+                unique[key], tenant_id=tenant_id, cell_id=cell_id, read_budget=read_budget
+            )
             for key in sorted(unique, key=lambda key: (*key[:3], key[3] or ""))
         ]
 
@@ -707,6 +834,7 @@ class _RegisteredSourceAdmissionOwner:
         carriers: tuple[SourceAdmissionCarrier, ...],
         *,
         require_selected: bool = False,
+        read_budget: SourceAdmissionReadBudget | None = None,
     ) -> SourceCurrentUseProjection:
         generation = 0
         committed_root = None
@@ -735,6 +863,7 @@ class _RegisteredSourceAdmissionOwner:
                                 refs,
                                 tenant_id=registration["tenant_id"],
                                 cell_id=registration["cell_id"],
+                                read_budget=read_budget,
                             )
                             != original
                         ):

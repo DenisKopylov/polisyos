@@ -297,6 +297,8 @@ readme = "src/polisyos/scientist/README.md"
 reference_doc = "docs/reference/public-surface.md"
 supported_entrypoints = [
   "polisyos.scientist",
+  "polisyos.scientist.adapters",
+  "polisyos.scientist.compute",
   "polisyos.scientist.governance.continuous",
   "polisyos.scientist.methods.backtesting",
   "polisyos.scientist.methods.research_dag",

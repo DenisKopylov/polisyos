@@ -21,14 +21,20 @@ through nodes.
 
 - `DefaultFoundryPort`
 - `DefaultFabricPort`
+- `RegisteredSQLCapture` and `RegisteredSQLViewContract`
+- `parse_data_view_request(...)` and `registered_sql_capture_input_refs(...)`
+
+This facade is a supported Scientist entrypoint. Parsing, typed capture, and
+input-reference derivation do not by themselves authorize a source or establish
+external currentness or completeness.
 
 Details: [Reference →](../../../../docs/reference/scientist/index.md)
 
 ## Current state
 
 - Last updated: 2026-04-03
-- Python modules: 3
-- Exports: 2
+- Python modules: 4
+- Exports: 6
 - The README follows the shared template; the API surface remains compact and stable.
 
 ## Explicit Federation capture consumer
@@ -132,3 +138,8 @@ production concurrency behavior.
 This lock is coordination, not a new authority or ledger. A guard timeout can
 leave an already-running action in flight; caller acknowledgement and recovery
 semantics must be specified by the installed source service.
+
+The `polisyos.scientist.adapters` facade exposes the existing registered SQL
+capture and view DTOs, `registered_sql_capture_input_refs`, and
+`parse_data_view_request` for typed owner replay. Parsing or deriving refs alone
+is not source admission, proof of external completeness, or currentness.

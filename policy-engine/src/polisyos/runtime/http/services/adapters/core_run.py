@@ -7,7 +7,7 @@ import os
 import stat
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, NoReturn, Protocol
 
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.common.logger import get_logger
@@ -21,6 +21,10 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
     from datetime import datetime
 
+    from polisyos.core.artifacts.canonical_profile import (
+        CoreJsonArtifactBoundedRead,
+        CoreJsonReadLimits,
+    )
     from polisyos.core.artifacts.manifest import ArtifactRef
     from polisyos.core.artifacts.protocol import ArtifactStore
     from polisyos.runtime.http.services.control_plane_store import ControlJobRecord
@@ -32,6 +36,27 @@ _RUN_MANIFEST_MEDIA_TYPE = "application/json"
 _RUN_MANIFEST_SCHEMA_NAME = "polisyos.core.RunManifest"
 _RUN_MANIFEST_SCHEMA_VERSION = "0.1.0"
 BOUND_RUN_MANIFEST_SCHEMA_VERSION = _RUN_MANIFEST_SCHEMA_VERSION
+
+
+class _TerminalReadBudget(Protocol):
+    """Structural view of the enclosing owner's physical-transfer budget."""
+
+    @property
+    def observed_bytes(self) -> int:
+        """Return the selected-CAS and strict-trace bytes charged to this owner."""
+
+    @property
+    def remaining_bytes(self) -> int:
+        """Return currently available transfer bytes."""
+
+    def mark_source_usage_unestablished(self) -> None:
+        """Invalidate the aggregate when actual transfer usage is unknown."""
+
+    def account_execution_source_bytes(self, observed_bytes: int) -> None:
+        """Charge successfully transferred bytes."""
+
+    def account_refused_execution_source_bytes(self, observed_bytes: int) -> None:
+        """Charge bytes transferred before a bounded refusal."""
 
 
 @dataclass(frozen=True)
@@ -201,52 +226,60 @@ def load_terminal_core_run_source(
     core_runs_root: Path,
     run_id: str,
     read_attempts: list[str] | None = None,
+    aggregate_read_budget: _TerminalReadBudget | None = None,
 ) -> TerminalCoreRunSource:
-    """Resolve one terminal Core source without recovery, scanning, or index facts."""
+    """Resolve one terminal source; the protected caller supplies its shared budget."""
 
     _validate_direct_child_run_id(run_id)
     trusted_root = core_runs_root.absolute()
     run_dir = trusted_root / run_id
     trace_path = run_dir / "trace.jsonl"
-    try:
-        strict_lines = list(
-            _iter_strict_terminal_trace_lines(trusted_root, run_id, read_attempts=read_attempts)
+    if aggregate_read_budget is None:
+        try:
+            strict_lines = list(
+                _iter_strict_terminal_trace_lines(trusted_root, run_id, read_attempts=read_attempts)
+            )
+        except (OSError, UnicodeError, ValueError) as exc:
+            raise ValueError("terminal Core run trace intake is invalid") from exc
+        try:
+            records = [_parse_trace_record(line) for line in strict_lines]
+        except (TypeError, ValueError) as exc:
+            raise ValueError("terminal Core run trace record is invalid") from exc
+        if not records:
+            raise ValueError("terminal Core run trace is empty")
+        started = [
+            record for record in records if record.phase == "core" and record.event == "RUN_STARTED"
+        ]
+        if len(started) != 1 or records[0] is not started[0]:
+            raise ValueError("terminal Core run requires one leading RUN_STARTED owner fact")
+        owner = started[0]
+        if owner.run_terminality is not RunTerminality.NON_TERMINAL:
+            raise ValueError("RUN_STARTED does not carry the non-terminal lifecycle fact")
+        if owner.run_id != run_id:
+            raise ValueError("RUN_STARTED owner does not match the requested run_id")
+        for record in records:
+            if (
+                record.run_id != owner.run_id
+                or record.tenant_id != owner.tenant_id
+                or record.cell_id != owner.cell_id
+            ):
+                raise ValueError("terminal Core trace owner scope is ambiguous")
+        finalized = [
+            record
+            for record in records
+            if record.phase == "core" and record.event == "RUN_FINALIZED"
+        ]
+        if len(finalized) != 1 or records[-1] is not finalized[0]:
+            raise ValueError("terminal Core run requires one final RUN_FINALIZED fact")
+        if any(record.run_terminality is RunTerminality.TERMINAL for record in records[:-1]):
+            raise ValueError("terminal Core trace has an intermediate terminal fact")
+        terminal = finalized[0]
+        if terminal.run_terminality is not RunTerminality.TERMINAL:
+            raise ValueError("RUN_FINALIZED does not carry the terminal lifecycle fact")
+    else:
+        owner, terminal = _bounded_terminal_trace_facts(
+            trusted_root, run_id, read_attempts=read_attempts, budget=aggregate_read_budget
         )
-    except (OSError, UnicodeError, ValueError) as exc:
-        raise ValueError("terminal Core run trace intake is invalid") from exc
-    try:
-        records = [_parse_trace_record(line) for line in strict_lines]
-    except (TypeError, ValueError) as exc:
-        raise ValueError("terminal Core run trace record is invalid") from exc
-    if not records:
-        raise ValueError("terminal Core run trace is empty")
-    started = [
-        record for record in records if record.phase == "core" and record.event == "RUN_STARTED"
-    ]
-    if len(started) != 1 or records[0] is not started[0]:
-        raise ValueError("terminal Core run requires one leading RUN_STARTED owner fact")
-    owner = started[0]
-    if owner.run_terminality is not RunTerminality.NON_TERMINAL:
-        raise ValueError("RUN_STARTED does not carry the non-terminal lifecycle fact")
-    if owner.run_id != run_id:
-        raise ValueError("RUN_STARTED owner does not match the requested run_id")
-    for record in records:
-        if (
-            record.run_id != owner.run_id
-            or record.tenant_id != owner.tenant_id
-            or record.cell_id != owner.cell_id
-        ):
-            raise ValueError("terminal Core trace owner scope is ambiguous")
-    finalized = [
-        record for record in records if record.phase == "core" and record.event == "RUN_FINALIZED"
-    ]
-    if len(finalized) != 1 or records[-1] is not finalized[0]:
-        raise ValueError("terminal Core run requires one final RUN_FINALIZED fact")
-    if any(record.run_terminality is RunTerminality.TERMINAL for record in records[:-1]):
-        raise ValueError("terminal Core trace has an intermediate terminal fact")
-    terminal = finalized[0]
-    if terminal.run_terminality is not RunTerminality.TERMINAL:
-        raise ValueError("RUN_FINALIZED does not carry the terminal lifecycle fact")
     manifest_ref = _terminal_manifest_ref(terminal)
     if manifest_ref is None:
         raise ValueError("terminal Core run manifest reference is invalid")
@@ -256,6 +289,7 @@ def load_terminal_core_run_source(
         run_id=owner.run_id,
         tenant_id=owner.tenant_id,
         cell_id=owner.cell_id,
+        aggregate_read_budget=aggregate_read_budget,
     )
     workflow_finalization_ref: ArtifactRef | None = None
     if len(terminal.refs.inputs) == 1:
@@ -553,6 +587,7 @@ def _terminal_workflow_output_refs(
     tenant_id: str | None,
     cell_id: str | None,
     expected_manifest_ref: ArtifactRef,
+    aggregate_read_budget: _TerminalReadBudget | None = None,
 ) -> tuple[ArtifactRef, ArtifactRef, bool]:
     """Select workflow refs through the real terminal owner's bounded receipt.
 
@@ -583,6 +618,7 @@ def _terminal_workflow_output_refs(
         store=store,
         core_runs_root=run_dir.parent,
         run_id=run_id,
+        aggregate_read_budget=aggregate_read_budget,
     )
     if (
         terminal.tenant_id != tenant_id
@@ -615,8 +651,13 @@ def _terminal_workflow_output_refs(
             max_elements=200_000,
             max_manifest_bytes=manifest_limit,
         )
-        bounded = read_core_json_artifact_bounded(store, ref, limits=limits)
-        observed = bounded.observed_source_bytes
+        if aggregate_read_budget is None:
+            bounded = read_core_json_artifact_bounded(store, ref, limits=limits)
+            observed = bounded.observed_source_bytes
+        else:
+            before = aggregate_read_budget.observed_bytes
+            bounded = _bounded_terminal_json_read(store, ref, aggregate_read_budget, limits=limits)
+            observed = aggregate_read_budget.observed_bytes - before
         if type(observed) is not int or observed < 0 or observed > remaining:
             raise ValueError("workflow_finalization_read_budget_invalid")
         remaining -= observed
@@ -754,6 +795,7 @@ def load_bound_terminal_manifest(
     run_id: str,
     tenant_id: str | None,
     cell_id: str | None,
+    aggregate_read_budget: _TerminalReadBudget | None = None,
 ) -> CoreRunManifest:
     """Resolve and content-bind the manifest carried by an owner terminal event."""
     if (
@@ -761,10 +803,33 @@ def load_bound_terminal_manifest(
         or manifest_ref.media_type != _RUN_MANIFEST_MEDIA_TYPE
     ):
         raise ValueError("terminal run manifest ref metadata mismatch")
-    verification = store.verify(manifest_ref)
-    if not verification.ok:
-        raise ValueError("terminal run manifest failed CAS verification")
-    artifact_manifest = read_core_manifest_profile(store, manifest_ref)[0]
+    if aggregate_read_budget is None:
+        verification = store.verify(manifest_ref)
+        if not verification.ok:
+            raise ValueError("terminal run manifest failed CAS verification")
+        artifact_manifest = read_core_manifest_profile(store, manifest_ref)[0]
+        manifest_bytes = store.get_bytes(manifest_ref)
+        if content_hash(manifest_bytes, prefix=True) != str(manifest_ref.artifact_id):
+            raise ValueError("terminal run manifest bytes do not match the bound artifact id")
+        payload = read_core_json_artifact(
+            store, manifest_ref, raw_payload_bytes=manifest_bytes
+        ).value
+    else:
+        from polisyos.core.artifacts.canonical_profile import CoreJsonReadLimits
+
+        bounded = _bounded_terminal_json_read(
+            store,
+            manifest_ref,
+            aggregate_read_budget,
+            limits=CoreJsonReadLimits(
+                max_bytes=8 * 1024 * 1024,
+                max_depth=64,
+                max_elements=200_000,
+                max_manifest_bytes=65_536,
+            ),
+        )
+        artifact_manifest = bounded.manifest
+        payload = bounded.value
     if (
         artifact_manifest.kind != manifest_ref.kind
         or artifact_manifest.media_type != manifest_ref.media_type
@@ -778,10 +843,6 @@ def load_bound_terminal_manifest(
     ):
         raise ValueError("terminal run manifest schema provenance mismatch")
 
-    manifest_bytes = store.get_bytes(manifest_ref)
-    if content_hash(manifest_bytes, prefix=True) != str(manifest_ref.artifact_id):
-        raise ValueError("terminal run manifest bytes do not match the bound artifact id")
-    payload = read_core_json_artifact(store, manifest_ref, raw_payload_bytes=manifest_bytes).value
     manifest = CoreRunManifest.model_validate(payload)
     if manifest.run_id != run_id or manifest.tenant_id != tenant_id or manifest.cell_id != cell_id:
         raise ValueError("terminal run manifest owner identity mismatch")
@@ -860,11 +921,184 @@ def _iter_trace_lines(path: Path) -> Iterator[str]:
                 yield stripped
 
 
+def _bounded_terminal_json_read(
+    store: ArtifactStore,
+    ref: ArtifactRef,
+    budget: _TerminalReadBudget,
+    *,
+    limits: CoreJsonReadLimits,
+) -> CoreJsonArtifactBoundedRead:
+    """Charge every bounded Core transfer to the protected caller's shared budget."""
+    from polisyos.core.artifacts import (
+        read_core_json_artifact_bounded,
+        read_core_manifest_profile_bounded,
+    )
+    from polisyos.core.artifacts.canonical_profile import (
+        CoreJsonReadBoundsRefusalError,
+        CoreJsonReadLimits,
+    )
+
+    if ref.manifest_profile_sha256 is None or type(budget.remaining_bytes) is not int:
+        raise ValueError("terminal_selected_profile_or_budget_not_established")
+
+    def refused(exc: CoreJsonReadBoundsRefusalError) -> NoReturn:
+        observed = getattr(exc, "observed_source_bytes", None)
+        if type(observed) is not int or observed < 0:
+            budget.mark_source_usage_unestablished()
+            raise ValueError("terminal_refusal_transfer_accounting_not_established") from exc
+        budget.account_refused_execution_source_bytes(observed)
+        raise ValueError("terminal_bounded_read_refused") from exc
+
+    remaining = budget.remaining_bytes
+    if remaining < 3:
+        raise ValueError("terminal_aggregate_budget_exhausted")
+    try:
+        selected = read_core_manifest_profile_bounded(
+            store, ref, max_manifest_bytes=min(limits.max_manifest_bytes, remaining)
+        )
+    except CoreJsonReadBoundsRefusalError as exc:
+        refused(exc)
+    except (AttributeError, OSError, RuntimeError, TypeError, ValueError):
+        budget.mark_source_usage_unestablished()
+        raise
+    observed = selected.observed_source_bytes
+    if type(observed) is not int or observed < 0:
+        budget.mark_source_usage_unestablished()
+        raise ValueError("terminal_transfer_accounting_not_established")
+    budget.account_execution_source_bytes(observed)
+    manifest_size = selected.observed_manifest_bytes
+    if type(manifest_size) is not int:
+        raise ValueError("terminal_manifest_size_not_established")
+    remaining = budget.remaining_bytes
+    # Core transfers this same selected manifest on selection and again when it
+    # opens the bounded member. Reserve those two exact measured sizes.
+    if manifest_size < 1 or remaining <= 2 * manifest_size:
+        raise ValueError("terminal_aggregate_budget_exhausted")
+    payload_limit = min(
+        limits.max_bytes,
+        remaining - 2 * manifest_size,
+        limits.max_bytes + 2 * limits.max_manifest_bytes - observed - 2 * manifest_size,
+    )
+    if payload_limit < 1:
+        raise ValueError("terminal_aggregate_budget_exhausted")
+    effective = CoreJsonReadLimits(
+        max_bytes=payload_limit,
+        max_depth=limits.max_depth,
+        max_elements=limits.max_elements,
+        max_manifest_bytes=manifest_size,
+    )
+    try:
+        read = read_core_json_artifact_bounded(store, ref, limits=effective)
+    except CoreJsonReadBoundsRefusalError as exc:
+        refused(exc)
+    except (AttributeError, OSError, RuntimeError, TypeError, ValueError):
+        budget.mark_source_usage_unestablished()
+        raise
+    observed = read.observed_source_bytes
+    if type(observed) is not int or observed < 0:
+        budget.mark_source_usage_unestablished()
+        raise ValueError("terminal_transfer_accounting_not_established")
+    budget.account_execution_source_bytes(observed)
+    return read
+
+
+def _bounded_terminal_trace_facts(
+    core_runs_root: Path,
+    run_id: str,
+    *,
+    read_attempts: list[str] | None,
+    budget: _TerminalReadBudget,
+) -> tuple[TraceRecord, TraceRecord]:
+    """Use the existing strict record parser while retaining only first/last facts."""
+    owner: TraceRecord | None = None
+    terminal: TraceRecord | None = None
+    try:
+        lines = _iter_strict_terminal_trace_lines(
+            core_runs_root, run_id, read_attempts=read_attempts, aggregate_read_budget=budget
+        )
+        for line in lines:
+            record = _parse_trace_record(line)
+            if owner is None:
+                if (
+                    record.phase != "core"
+                    or record.event != "RUN_STARTED"
+                    or record.run_terminality is not RunTerminality.NON_TERMINAL
+                    or record.run_id != run_id
+                ):
+                    raise ValueError(
+                        "terminal Core run requires one leading RUN_STARTED owner fact"
+                    )
+                owner = record
+                continue
+            if terminal is not None:
+                raise ValueError("terminal Core run requires one final RUN_FINALIZED fact")
+            if (record.run_id, record.tenant_id, record.cell_id) != (
+                owner.run_id,
+                owner.tenant_id,
+                owner.cell_id,
+            ):
+                raise ValueError("terminal Core trace owner scope is ambiguous")
+            if record.phase == "core" and record.event == "RUN_STARTED":
+                raise ValueError("terminal Core run requires one leading RUN_STARTED owner fact")
+            if record.phase == "core" and record.event == "RUN_FINALIZED":
+                if record.run_terminality is not RunTerminality.TERMINAL:
+                    raise ValueError("RUN_FINALIZED does not carry the terminal lifecycle fact")
+                terminal = record
+            elif record.run_terminality is RunTerminality.TERMINAL:
+                raise ValueError("terminal Core trace has an intermediate terminal fact")
+    except (OSError, UnicodeError, TypeError, ValueError) as exc:
+        raise ValueError("bounded terminal Core trace intake is invalid") from exc
+    if owner is None or terminal is None:
+        raise ValueError("terminal Core run requires one final RUN_FINALIZED fact")
+    return owner, terminal
+
+
+def _iter_bounded_terminal_bytes(fd: int, budget: _TerminalReadBudget) -> Iterator[str]:
+    """Read descriptor bytes in chunks; retain only one bounded JSONL record."""
+    initial = os.fstat(fd)
+    size = initial.st_size
+    if type(budget.remaining_bytes) is not int or size < 0 or size > budget.remaining_bytes:
+        raise ValueError("terminal_trace_aggregate_budget_exceeded")
+    remaining = size
+    pending = b""
+    max_line_bytes = 2 * 1024 * 1024
+    while remaining:
+        chunk = os.read(fd, min(65_536, remaining))
+        if not chunk:
+            raise ValueError("terminal_trace_changed_during_read")
+        budget.account_execution_source_bytes(len(chunk))
+        remaining -= len(chunk)
+        pending += chunk
+        while b"\n" in pending:
+            line, pending = pending.split(b"\n", 1)
+            if len(line) > max_line_bytes:
+                raise ValueError("terminal_trace_record_exceeds_bound")
+            stripped = line.decode("utf-8").strip()
+            if stripped:
+                yield stripped
+        if len(pending) > max_line_bytes:
+            raise ValueError("terminal_trace_record_exceeds_bound")
+    if pending:
+        stripped = pending.decode("utf-8").strip()
+        if stripped:
+            yield stripped
+    final = os.fstat(fd)
+    if (final.st_dev, final.st_ino, final.st_size, final.st_mtime_ns, final.st_ctime_ns) != (
+        initial.st_dev,
+        initial.st_ino,
+        initial.st_size,
+        initial.st_mtime_ns,
+        initial.st_ctime_ns,
+    ):
+        raise ValueError("terminal_trace_changed_during_read")
+
+
 def _iter_strict_terminal_trace_lines(
     core_runs_root: Path,
     run_id: str,
     *,
     read_attempts: list[str] | None = None,
+    aggregate_read_budget: _TerminalReadBudget | None = None,
 ) -> Iterator[str]:
     """Open the exact run child and trace leaf relative to trusted descriptors."""
 
@@ -892,14 +1126,17 @@ def _iter_strict_terminal_trace_lines(
         )
         if not stat.S_ISREG(os.fstat(trace_fd).st_mode):
             raise ValueError("terminal Core run trace leaf is not a regular file")
-        with os.fdopen(trace_fd, "r", encoding="utf-8") as handle:
-            trace_fd = None
-            if read_attempts is not None:
-                read_attempts.append(f"terminal_trace:{core_runs_root / run_id / 'trace.jsonl'}")
-            for line in handle:
-                stripped = line.strip()
-                if stripped:
-                    yield stripped
+        if read_attempts is not None:
+            read_attempts.append(f"terminal_trace:{core_runs_root / run_id / 'trace.jsonl'}")
+        if aggregate_read_budget is not None:
+            yield from _iter_bounded_terminal_bytes(trace_fd, aggregate_read_budget)
+        else:
+            with os.fdopen(trace_fd, "r", encoding="utf-8") as handle:
+                trace_fd = None
+                for line in handle:
+                    stripped = line.strip()
+                    if stripped:
+                        yield stripped
     finally:
         if trace_fd is not None:
             os.close(trace_fd)

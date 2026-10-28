@@ -6,7 +6,12 @@ from pathlib import Path
 import pytest
 
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
-from polisyos.core.artifacts.manifest import ArtifactRef, ProducerInfo, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    ProducerInfo,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.registry import RegistryBundlePayload
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -299,6 +304,13 @@ class TestCompileTrinitySuccess:
             and item.manifest_profile_sha256 == selected_policy_ref.manifest_profile_sha256
             for item in program_graph_inputs
         )
+        treasury_ref = next(
+            derived.ref for derived in result.derived_refs if derived.role == "treasury_plan"
+        )
+        assert store.get_manifest(result.exec_plan_ref).inputs == [
+            input_ref_from_artifact_ref(program_graph_ref, role="program_graph"),
+            input_ref_from_artifact_ref(treasury_ref, role="treasury_plan"),
+        ]
         assert len(result.derived_refs) == 6
         roles = {derived.role for derived in result.derived_refs}
         assert roles == {

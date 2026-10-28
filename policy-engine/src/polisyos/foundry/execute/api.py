@@ -417,10 +417,20 @@ def _execution_source_inventory(
     return inventory
 
 
-def _execution_input_basis_sources(
+def execution_input_basis_sources(
     basis: FoundryExecutionInputBasis,
 ) -> list[tuple[str, ArtifactRef]]:
-    """Enumerate the source refs owned by a Foundry execution-input basis."""
+    """Return the producer-owned, role-qualified selected execution inputs.
+
+    The returned order is the persisted Foundry basis writer order. This
+    enumeration alone does not admit source bytes, authority, or currentness.
+
+    Args:
+        basis: Typed execution input basis selected by the Foundry owner.
+
+    Returns:
+        Ordered role and exact artifact-reference pairs, including repetitions.
+    """
     sources: list[tuple[str, ArtifactRef]] = [
         ("exec_plan", basis.exec_plan_ref),
         ("program_graph", basis.program_graph_ref),
@@ -436,6 +446,8 @@ def _execution_input_basis_sources(
         ("compile_registry_bundle", basis.compile_registry_ref),
         ("runtime_registry_bundle", basis.runtime_registry_ref),
     ]
+    if basis.registered_sql_admission_ref is not None:
+        sources.append(("registered_sql_admission", basis.registered_sql_admission_ref))
     for role, payload in (
         ("binding", basis.binding_registry_members),
         ("compile", basis.compile_registry_members),
@@ -449,8 +461,6 @@ def _execution_input_basis_sources(
                         ArtifactRef.model_validate(member_ref),
                     )
                 )
-    if basis.registered_sql_admission_ref is not None:
-        sources.append(("registered_sql_admission", basis.registered_sql_admission_ref))
     if basis.parameter_override_bundle_ref is not None:
         sources.append(("parameter_override_bundle", basis.parameter_override_bundle_ref))
     if basis.observed_range_bundle_ref is not None:
@@ -469,7 +479,7 @@ def _execution_input_basis_inventory(
     """Recompute the exact basis inventory through the executor's source reader."""
     return _execution_source_inventory(
         store,
-        _execution_input_basis_sources(basis),
+        execution_input_basis_sources(basis),
         read_session=read_session,
     )
 
@@ -1206,42 +1216,14 @@ def _build_execution_input_basis(
     runtime_registry_ref = request.registry_bundle_ref
     if runtime_registry_ref is None:
         raise ValueError("registry_bundle_ref is required for selected execution basis")
-    source_refs: list[tuple[str, ArtifactRef]] = [
-        ("exec_plan", request.exec_plan_ref),
-        ("program_graph", graph_ref),
-        ("trinity_bundle", trinity_ref),
-        ("candidate", candidate_ref),
-        ("candidate_data_snapshot", candidate_data_snapshot_ref),
-        ("candidate_registry_bundle", candidate_registry_bundle_ref),
-        ("input_bindings", request.input_bindings_ref),
-        ("actual_data_snapshot", bindings.data_snapshot_ref),
-        ("bound_state_snapshot", bindings.bound_state_snapshot_ref),
-        ("base_state_snapshot", resolved_state.state_snapshot_ref),
-        ("binding_registry_bundle", binding_registry_ref),
-        ("compile_registry_bundle", compile_registry_ref),
-        ("runtime_registry_bundle", runtime_registry_ref),
-    ]
-    if bindings.registered_sql_admission_ref is not None:
-        source_refs.append(("registered_sql_admission", bindings.registered_sql_admission_ref))
-    registry_payloads: dict[str, RegistryBundlePayload] = {}
-    for role, ref in (
-        ("binding", binding_registry_ref),
-        ("compile", compile_registry_ref),
-        ("runtime", runtime_registry_ref),
-    ):
-        payload = load_registry_bundle_payload(store, ref)
-        registry_payloads[role] = payload
-        for member_role, member_ref in payload.model_dump(mode="python").items():
-            if member_ref is not None:
-                typed_ref = ArtifactRef.model_validate(member_ref)
-                source_refs.append((f"{role}_registry_member.{member_role}", typed_ref))
-    if request.parameter_override_bundle_ref is not None:
-        source_refs.append(("parameter_override_bundle", request.parameter_override_bundle_ref))
-    if request.observed_range_bundle_ref is not None:
-        source_refs.append(("observed_range_bundle", request.observed_range_bundle_ref))
-    if request.feedback_config_ref is not None:
-        source_refs.append(("feedback_config", request.feedback_config_ref))
-    inventory = _execution_source_inventory(store, source_refs)
+    registry_payloads = {
+        role: load_registry_bundle_payload(store, ref)
+        for role, ref in (
+            ("binding", binding_registry_ref),
+            ("compile", compile_registry_ref),
+            ("runtime", runtime_registry_ref),
+        )
+    }
     basis = FoundryExecutionInputBasis(
         schema_version="1.1" if bindings.registered_sql_admission_ref is not None else "1.0",
         registered_sql_admission_ref=bindings.registered_sql_admission_ref,
@@ -1277,6 +1259,9 @@ def _build_execution_input_basis(
         effective_jit=posture.jit,
         effective_capture_env=posture.capture_env,
     )
+    # The same owner now enumerates writer and fresh-reader sources. Preserve
+    # the writer's historical exact order and multiplicity in the manifest.
+    inventory = _execution_source_inventory(store, execution_input_basis_sources(basis))
     payload_ref = store.put_json(
         basis,
         PutOptions(

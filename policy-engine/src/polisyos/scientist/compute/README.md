@@ -6,17 +6,20 @@
 the Foundry runtime: legacy program execution, method-based dispatch, and the
 C7 advanced-suite path used by causal and simulation-oriented workflow nodes.
 
-The supported namespace is governed by architecture/public_surface/contract.toml. It lists polisyos.scientist and selected subpaths, but not polisyos.scientist.compute. This package facade preserves convenient exports for first-party Runtime composition; those exports do not establish a supported external API or a compatibility promise.
+The supported namespace is governed by `architecture/public_surface/contract.toml`.
+`polisyos.scientist.compute` is a supported Scientist entrypoint. Its declared
+`__all__` exports are part of that facade; the method-metric helpers are
+bounded execution/readback tools, not source or publication authority.
 
 ## Where to Start
 
-- Convenience package exports (internal): [`__init__.py`](__init__.py)
+- Supported package exports: [`__init__.py`](__init__.py)
 - Job contracts: [`job_spec.py`](job_spec.py)
 - Runtime backend and dispatch path: [`runner.py`](runner.py)
 - Advanced method suite: [`advanced_methods.py`](advanced_methods.py)
 - Downstream method/runtime context: [`../../foundry/methods/README.md`](../../foundry/methods/README.md)
 
-## Package Exports (Internal)
+## Package Exports
 
 - Job contracts in [`job_spec.py`](job_spec.py): `JobSpec`, `JobKey`, and `JobResult`
 - Runtime execution in [`runner.py`](runner.py): `run_job(...)` and `MethodBackend`
@@ -105,3 +108,9 @@ uv run pytest tests/unit/scientist/compute/test_runner_polyglot.py tests/unit/sc
 ## Last Updated
 
 - Last updated: 2026-10-21 (qualified execution and legacy capture lineage routes)
+
+For first-party Runtime composition, this facade also resolves the existing
+method-metric selected-source reader, transfer budget, restricted call witness,
+and selected-ref/bounded-read helpers. They remain owned by the Scientist
+method-metric execution path. Their availability does not admit a source,
+establish complete inputs, or grant publication or producer authority.

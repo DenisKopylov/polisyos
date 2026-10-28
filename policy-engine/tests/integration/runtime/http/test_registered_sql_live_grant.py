@@ -33,11 +33,15 @@ from polisyos.runtime.http.services import control_registry_providers
 from polisyos.runtime.http.services.registered_sql_live_grant import (
     RegisteredSQLLiveGrantWitness,
 )
-from polisyos.runtime.http.services.registered_sql_service import REGISTERED_SQL_ADMIT_AUTHZ
+from polisyos.runtime.http.services.registered_sql_service import (
+    REGISTERED_SQL_ADMIT_AUTHZ,
+)
 from polisyos.runtime.http.services.registered_sql_service_contracts import (
     RegisteredSQLMaterializationRequest,  # noqa: TC001 - FastAPI resolves this at runtime.
 )
-from polisyos.scientist.adapters.registered_sql_admission import RegisteredSQLViewContract
+from polisyos.scientist.adapters.registered_sql_admission import (
+    RegisteredSQLViewContract,
+)
 from polisyos.scientist.validation.source_admission_port import (
     SourceIssuerCall,
     _bind_runtime_source_admission_authority,
@@ -51,7 +55,9 @@ def source_grant_env(tmp_path, monkeypatch):
     """Create actual JWT/JWKS/OPA deployment; no fabricated bound proof."""
     from unit.runtime.quality.test_catalog_source_identity import _selected_fixture
 
-    from polisyos.runtime.quality.substrate_registry import CatalogServingSourceSelection
+    from polisyos.runtime.quality.substrate_registry import (
+        CatalogServingSourceSelection,
+    )
 
     external = _ExternalTrust(tmp_path)
     code_root, owner_root, selected_catalog = _selected_fixture(tmp_path / "source-catalog")
@@ -150,7 +156,11 @@ def source_grant_env(tmp_path, monkeypatch):
         identity = {**service_identity, "subject": subject}
         external.raw["service_principals"].append({**identity, "permissions": [permission]})
         external.raw["registered_sql_sources"].append(
-            {**external.raw["registered_sql_sources"][0], **identity, "slot_id": subject}
+            {
+                **external.raw["registered_sql_sources"][0],
+                **identity,
+                "slot_id": subject,
+            }
         )
     now = int(time.time())
     token = external.encode(
@@ -345,11 +355,16 @@ def _probe(client, token, body):
     )
 
 
-def test_genuine_jwt_deployment_slot_produces_owner_pinned_live_authority(source_grant_env):
+def test_genuine_jwt_deployment_slot_produces_owner_pinned_live_authority(
+    source_grant_env,
+):
     _, _, client, token, body, captured = source_grant_env
     response = _probe(client, token, body)
     assert response.status_code == 200, response.text
-    assert response.json() == {"issuer_key": "deployed-sql-service-a", "provider_id": "provider-a"}
+    assert response.json() == {
+        "issuer_key": "deployed-sql-service-a",
+        "provider_id": "provider-a",
+    }
     assert len(captured) == 1
     owner, _, _, authority, call = captured[0]
     state = _require_source_admission_call(authority, owner=owner, call=call)
@@ -400,7 +415,9 @@ def test_owner_pin_replacement_cannot_install_an_arbitrary_verifier(source_grant
     assert verifier is not owner._registered_sql_issuer_verifier
 
 
-def test_actual_command_cannot_be_substituted_after_live_authorization(source_grant_env):
+def test_actual_command_cannot_be_substituted_after_live_authorization(
+    source_grant_env,
+):
     _, _, client, token, body, captured = source_grant_env
     assert _probe(client, token, body).status_code == 200
     owner, _, _, authority, call = captured[0]
@@ -485,13 +502,18 @@ def test_configured_genesis_event_cannot_be_replaced_by_request_field(source_gra
     assert response.status_code == 403, response.text
 
 
-def test_fake_request_with_copied_sealed_proof_and_invalid_bearer_is_refused(source_grant_env):
+def test_fake_request_with_copied_sealed_proof_and_invalid_bearer_is_refused(
+    source_grant_env,
+):
     _, _, client, token, body, captured = source_grant_env
     assert _probe(client, token, body).status_code == 200
     _, verifier, genuine, _, _ = captured[0]
     scope = dict(genuine.request.scope)
     scope["headers"] = [
-        (name, b"Bearer invalid.jwt.value" if name.lower() == b"authorization" else value)
+        (
+            name,
+            b"Bearer invalid.jwt.value" if name.lower() == b"authorization" else value,
+        )
         for name, value in scope["headers"]
     ]
     fake = Request(scope)
@@ -623,7 +645,9 @@ def test_live_grant_retry_waits_for_timed_out_real_owner_admission(
 
     from polisyos.runtime.http.errors import RuntimeDependencyTimeoutError
     from polisyos.scientist.adapters.fabric_bridge import DefaultFabricPort
-    from polisyos.scientist.adapters.registered_sql_admission import RegisteredSQLProducer
+    from polisyos.scientist.adapters.registered_sql_admission import (
+        RegisteredSQLProducer,
+    )
 
     _, _, client, token, body, captured = source_grant_env
     headers = {"Authorization": f"Bearer {token}", "X-Tenant-ID": TENANT}
@@ -653,7 +677,11 @@ def test_live_grant_retry_waits_for_timed_out_real_owner_admission(
     source = owner._source_admission
     original_admit = source._methods["admit"]
     original_connect = sqlite3.connect
-    entered, release, completed = threading.Event(), threading.Event(), threading.Event()
+    entered, release, completed = (
+        threading.Event(),
+        threading.Event(),
+        threading.Event(),
+    )
     source_opens = []
     database = (tmp_path / "policy.sqlite").resolve()
 
@@ -837,7 +865,10 @@ def test_real_sql_workflows_recheck_current_use_on_every_debug_get(
     from polisyos.core.contracts.decision_validity import RegisteredSQLAdmissionBinding
     from polisyos.core.contracts.execution_plan import ExecutionPlan, MethodDagNode
     from polisyos.core.contracts.runtime import GraphMethodExecutionSelection
-    from tests._helpers.control_worker import dispatch_one_control_job, stop_embedded_control_worker
+    from tests._helpers.control_worker import (
+        dispatch_one_control_job,
+        stop_embedded_control_worker,
+    )
 
     external, _, client, source_token, body, _ = source_grant_env
     source_headers = {"Authorization": f"Bearer {source_token}", "X-Tenant-ID": TENANT}
@@ -882,7 +913,7 @@ def test_real_sql_workflows_recheck_current_use_on_every_debug_get(
         independent["receipt"]["carrier"]["snapshot_ref"] != a["receipt"]["carrier"]["snapshot_ref"]
     )
 
-    def run_source(result, name):
+    def run_source(result, name, *, merge_registry_schema_override=None):
         source_ref = ArtifactRef.model_validate(result["binding_ref"])
         with tenant_scope(None, tenant_id=TENANT, cell_id=CELL):
             binding = validate_core_model_json_artifact(
@@ -895,6 +926,7 @@ def test_real_sql_workflows_recheck_current_use_on_every_debug_get(
                 prepare_only=True,
                 execution_data_snapshot_ref=binding.materialization.snapshot_ref,
                 registered_sql_admission_ref=source_ref,
+                merge_registry_schema_override=merge_registry_schema_override,
             )
         plan = ExecutionPlan(
             plan_id=f"{name}-plan",
@@ -966,9 +998,53 @@ def test_real_sql_workflows_recheck_current_use_on_every_debug_get(
 
     run_a, selection_a, ref_a = run_source(a, "sql-a")
     run_i, selection_i, ref_i = run_source(independent, "sql-i")
+    run_bad, selection_bad, _ = run_source(
+        a, "sql-a-unknown-merge-schema", merge_registry_schema_override="99.0"
+    )
     assert run_a["run_id"] != run_i["run_id"]
     context = client.app.state.runtime_container.runtime_api_context
     context.run_index.refresh(force=True)
+
+    # Observe the actual Runtime owner result without substituting its replay.
+    import polisyos.foundry.execute as foundry_execute
+    from polisyos.runtime.quality import authority as closure_authority
+    from polisyos.runtime.quality import owned_execution_identity as owned_identity
+
+    real_issue = owned_identity.issue_debug_execution_input_identity
+    captured_identities = []
+    captured_budgets = []
+    owner_mode = {"omit_source": False}
+    real_sources = foundry_execute.execution_input_basis_sources
+
+    def observe_real_owner(**kwargs):
+        if owner_mode["omit_source"]:
+            with monkeypatch.context() as limited:
+                limited.setattr(
+                    foundry_execute,
+                    "execution_input_basis_sources",
+                    lambda basis: real_sources(basis)[:-1],
+                )
+                return real_issue(**kwargs)
+        closure, verified = real_issue(**kwargs)
+        # The limited custody fact must not become broad producer authority.
+        with pytest.raises(closure_authority.AuthorityEnvelopeError, match="purpose_mismatch"):
+            closure_authority._assert_closed_consumed_input_closure(
+                closure, verified_closure=verified
+            )
+        # Removing a decisive edge while retaining the closure digest cannot
+        # reuse this actual owner token.
+        omitted = closure.model_copy(
+            update={
+                "evidence_input_refs": closure.evidence_input_refs[:-1],
+            }
+        )
+        with pytest.raises(closure_authority.AuthorityEnvelopeError):
+            owned_identity.assert_debug_execution_input_identity(omitted, verified)
+        captured_identities.append((closure, verified))
+        captured_budgets.append(kwargs["aggregate_read_budget"])
+        return closure, verified
+
+    monkeypatch.setattr(owned_identity, "issue_debug_execution_input_identity", observe_real_owner)
 
     def get_result(run, selection, *, exact=False):
         url = f"/api/v1/debug/runs/{run['run_id']}/nodes/run_simulation/simulation-result"
@@ -990,6 +1066,314 @@ def test_real_sql_workflows_recheck_current_use_on_every_debug_get(
         == "current"
     )
     assert first_i["exante_source_use"]["status"] == "current"
+    assert len(captured_identities) == 3
+    closure_a, _ = captured_identities[0]
+    closure_a_fresh, _ = captured_identities[1]
+    closure_i, _ = captured_identities[2]
+    assert closure_a.closure_sha256 == closure_a_fresh.closure_sha256
+    assert closure_a.run_id == run_a["run_id"] and closure_a.job_id == run_a["job_id"]
+    assert closure_a.tenant_id == TENANT and closure_a.cell_id == CELL
+    assert closure_i.closure_sha256 != closure_a.closure_sha256
+    assert {item.role for item in closure_a.members} >= {
+        "basis.source.registered_sql_admission",
+        "basis.source.actual_data_snapshot",
+        "basis.source.base_state_snapshot",
+        "method.execution_input_identity",
+    }
+    source_roles = [
+        item.role.removeprefix("basis.source.")
+        for item in closure_a.members
+        if item.role.startswith("basis.source.")
+    ]
+    # Registered SQL historically precedes registry members in the actual
+    # writer's manifest; unifying owner enumeration must preserve that order.
+    assert source_roles.index("registered_sql_admission") < next(
+        index for index, role in enumerate(source_roles) if "_registry_member." in role
+    )
+    plan_edge_roles = [
+        item.role.removeprefix("basis.edge.exec_plan.")
+        for item in closure_a.members
+        if item.role.startswith("basis.edge.exec_plan.")
+    ]
+    assert plan_edge_roles == [
+        "program_graph",
+        "treasury_plan",
+        "method_metric_bindings",
+    ]
+    actual = next(item for item in closure_a.members if item.name == "restricted_execution")
+    # A separate byte oracle computes the captured identities from known fixture
+    # rows, not from the producer's claimed digest or input-count markers.
+    import hashlib
+
+    import numpy as np
+
+    def expected_input(slot, values):
+        array = np.asarray(values, dtype=np.float64)
+        digest = hashlib.sha256()
+        digest.update(array.dtype.str.encode("ascii"))
+        digest.update(json.dumps(tuple(array.shape), separators=(",", ":")).encode("ascii"))
+        digest.update(array.tobytes(order="C"))
+        return {
+            "slot_id": slot,
+            "dtype": array.dtype.str,
+            "shape": list(array.shape),
+            "value_sha256": digest.hexdigest(),
+        }
+
+    assert actual.value["inputs"] == [
+        expected_input("baseline", [10.0, 20.0, 40.0]),
+        expected_input("scenario", [11.0, 18.0, 44.0]),
+    ]
+    actual_i = next(item for item in closure_i.members if item.name == "restricted_execution")
+    # Both executions report mean change 1.0, but their consumed arrays differ.
+    # Compare the independent array oracle directly so differing run/job scope
+    # cannot masquerade as proof that different input values were captured.
+    assert actual_i.value["inputs"] == [
+        expected_input("baseline", [100.0, 200.0, 400.0]),
+        expected_input("scenario", [101.0, 198.0, 404.0]),
+    ]
+    assert actual_i.value["inputs"] != actual.value["inputs"]
+    assert actual.value["poverty_line"] is None
+    assert actual.value["parameter_origin"] == "explicit_parameter"
+    # Same registry bytes under a real, unknown selected manifest profile are
+    # carried by a real completed worker and must not yield a closed identity.
+    assert get_result(run_bad, selection_bad)["exante_source_use"]["status"] == "unknown"
+
+    # Observe actual selected-store receipts and trace os.read bytes separately
+    # from the budget under test. A removed charge must change the comparison.
+    import os
+
+    from polisyos.runtime.http.services import debug_registered_sql
+    from polisyos.runtime.http.services.adapters import core_run
+    from polisyos.scientist.nodes.builtins.decide import (
+        policy_runtime_method_metrics as metrics,
+    )
+
+    observed = {
+        "active": False,
+        "cas": 0,
+        "trace": 0,
+        "unknown": False,
+        "unbounded": [],
+        "inject_unbounded": False,
+    }
+    trace_fds = set()
+    real_service_read = debug_registered_sql.read_registered_sql_source_use
+    real_trace_iter = core_run._iter_bounded_terminal_bytes
+    real_os_read = os.read
+    real_member = FileSystemCAS.open_member_bounded
+
+    def record_usage(usage):
+        value = getattr(usage, "observed_source_bytes", None)
+        if type(value) is not int or value < 0:
+            observed["unknown"] = True
+        else:
+            observed["cas"] += value
+
+    def observe_manifest(real):
+        def run(*args, **kwargs):
+            try:
+                receipt = real(*args, **kwargs)
+            except Exception as exc:
+                if observed["active"]:
+                    record_usage(getattr(exc, "usage", None))
+                raise
+            if observed["active"]:
+                record_usage(receipt.usage)
+            return receipt
+
+        return run
+
+    class MemberAttemptObserver:
+        def __init__(self, inner):
+            self.inner = inner
+
+        @property
+        def usage(self):
+            return self.inner.usage
+
+        def __enter__(self):
+            try:
+                return self.inner.__enter__()
+            except BaseException:
+                if observed["active"]:
+                    record_usage(self.inner.usage)
+                raise
+
+        def __exit__(self, *args):
+            try:
+                return self.inner.__exit__(*args)
+            finally:
+                if observed["active"]:
+                    record_usage(self.inner.usage)
+
+    def observe_member(cas, *args, **kwargs):
+        return MemberAttemptObserver(real_member(cas, *args, **kwargs))
+
+    def observe_os_read(fd, count):
+        data = real_os_read(fd, count)
+        if observed["active"] and fd in trace_fds:
+            observed["trace"] += len(data)
+        return data
+
+    def observe_trace(fd, budget):
+        trace_fds.add(fd)
+        try:
+            yield from real_trace_iter(fd, budget)
+        finally:
+            trace_fds.remove(fd)
+
+    def observe_service(**kwargs):
+        observed["active"] = True
+        try:
+            result = real_service_read(**kwargs)
+            if observed["inject_unbounded"] == "selected_manifest":
+                ref = kwargs["simulation_ref"]
+                store.get_manifest_by_profile(ref.artifact_id, ref.manifest_profile_sha256)
+            elif observed["inject_unbounded"] == "manifest_inventory":
+                # This real public API reads manifest bytes directly, bypassing
+                # the get/read/open/verify name family entirely.
+                store.manifest_inventory_snapshot(kind="foundry.program_graph")
+            return result
+        finally:
+            observed["active"] = False
+
+    def observe_unbounded(name, real):
+        def run(*args, **kwargs):
+            if (
+                observed["active"]
+                and not (
+                    # Bounded open_member is the documented owner-internal attempt
+                    # and its full usage is recorded by MemberAttemptObserver.
+                    name == "open_member" and kwargs.get("_read_attempt") is not None
+                )
+                and name != "for_tenant"
+            ):
+                observed["unbounded"].append(name)
+            result = real(*args, **kwargs)
+            if (
+                observed["active"]
+                and name == "for_tenant"
+                and (type(result) is not FileSystemCAS or result.root != backend.root)
+            ):
+                observed["unknown"] = True
+            return result
+
+        return run
+
+    with monkeypatch.context() as io:
+        # C105 constructs scoped FileSystemCAS instances from the same installed
+        # backend. Observe the class-owned public entrypoints, not only a proxy
+        # instance, so those actual source-use reads cannot disappear from the
+        # denominator. Preserve descriptor and guard behavior.
+        import inspect
+
+        from polisyos.runtime.http.resilience import _require_runtime_filesystem_guard
+
+        backend = _require_runtime_filesystem_guard(store).backend
+        assert type(backend) is FileSystemCAS
+        names = {
+            name
+            for name in dir(FileSystemCAS)
+            if not name.startswith("_") and callable(getattr(FileSystemCAS, name))
+        }
+        measured_methods = {
+            "read_raw_manifest_bytes_bounded",
+            "read_raw_manifest_bytes_bounded_for_input",
+            "open_member_bounded",
+        }
+        assert measured_methods.issubset(names)
+        assert {"get_manifest_by_profile", "manifest_inventory_snapshot", "for_tenant"}.issubset(
+            names
+        )
+        for name in (
+            "read_raw_manifest_bytes_bounded",
+            "read_raw_manifest_bytes_bounded_for_input",
+        ):
+            io.setattr(FileSystemCAS, name, observe_manifest(getattr(FileSystemCAS, name)))
+        for name in names - measured_methods:
+            descriptor = inspect.getattr_static(FileSystemCAS, name)
+            if isinstance(descriptor, classmethod):
+                wrapped = classmethod(observe_unbounded(name, descriptor.__func__))
+            elif isinstance(descriptor, staticmethod):
+                wrapped = staticmethod(observe_unbounded(name, descriptor.__func__))
+            else:
+                wrapped = observe_unbounded(name, descriptor)
+            io.setattr(FileSystemCAS, name, wrapped)
+        io.setattr(FileSystemCAS, "open_member_bounded", observe_member)
+        io.setattr(os, "read", observe_os_read)
+        io.setattr(core_run, "_iter_bounded_terminal_bytes", observe_trace)
+        io.setattr(debug_registered_sql, "read_registered_sql_source_use", observe_service)
+        assert get_result(run_a, selection_a)["exante_source_use"]["status"] == "current"
+        assert not observed["unknown"] and not observed["unbounded"]
+        assert observed["cas"] > 0 and observed["trace"] > 0
+        measured = observed["cas"] + observed["trace"]
+        assert captured_budgets[-1].source_usage_established
+        assert captured_budgets[-1].observed_bytes == measured
+        # Exercise the observer against a real selected but unbudgeted API.
+        observed["inject_unbounded"] = "selected_manifest"
+        assert get_result(run_a, selection_a)["exante_source_use"]["status"] == "current"
+        assert "get_manifest_by_profile" in observed["unbounded"]
+        observed["unbounded"].clear()
+        observed["inject_unbounded"] = "manifest_inventory"
+        assert get_result(run_a, selection_a)["exante_source_use"]["status"] == "current"
+        assert "manifest_inventory_snapshot" in observed["unbounded"]
+
+    real_budget_init = metrics._ProjectionReadBudget.__init__
+
+    def run_with_cap(cap):
+        with monkeypatch.context() as capped:
+
+            def budget_init(instance, *args, **kwargs):
+                if kwargs.get("parent") is None:
+                    kwargs["max_bytes"] = cap
+                real_budget_init(instance, *args, **kwargs)
+
+            capped.setattr(metrics._ProjectionReadBudget, "__init__", budget_init)
+            return get_result(run_a, selection_a)["exante_source_use"]["status"]
+
+    assert run_with_cap(measured - 1) == "unknown"
+    # Per-read manifest reserves can conservatively refuse at exact physical
+    # usage; exact threshold semantics are tested on the real bounded primitives.
+    assert run_with_cap(max(measured * 2, 65_536)) == "current"
+
+    # Keep the same selected payload bytes, but offer an unknown schema at the
+    # actual SQL replay seam. The served consumer must refuse this forged view.
+    # This is a seam-level adversary; a real reprofiled CAS control is separate.
+    from types import SimpleNamespace
+
+    real_bounded_read = metrics._read_bounded_method_metric_artifact
+
+    def unknown_tabular_schema(*args, **kwargs):
+        result = real_bounded_read(*args, **kwargs)
+        if kwargs["ref"].kind != "fabric.tabular_payload":
+            return result
+        manifest = result.manifest.model_copy(update={"artifact_schema": None})
+        return SimpleNamespace(manifest=manifest, value=result.value)
+
+    with monkeypatch.context() as forged_schema:
+        forged_schema.setattr(
+            metrics, "_read_bounded_method_metric_artifact", unknown_tabular_schema
+        )
+        assert get_result(run_a, selection_a)["exante_source_use"]["status"] == "unknown"
+
+    # A caller-supplied non-token cannot authorize the real Debug consumer.
+    with monkeypatch.context() as forged:
+        forged.setattr(
+            owned_identity,
+            "issue_debug_execution_input_identity",
+            lambda **_kwargs: (closure_a, object()),
+        )
+        assert get_result(run_a, selection_a)["exante_source_use"]["status"] == "unknown"
+    # Remove a decisive owner-enumerated input only inside the new owner replay,
+    # after the outer SQL consumer already admitted its own source. The real
+    # selected manifest must expose the omission even if success markers remain.
+    owner_mode["omit_source"] = True
+    try:
+        assert get_result(run_a, selection_a)["exante_source_use"]["status"] == "unknown"
+    finally:
+        owner_mode["omit_source"] = False
+    assert get_result(run_a, selection_a)["exante_source_use"]["status"] == "current"
     now = int(time.time())
     other_cell_token = external.encode(
         {

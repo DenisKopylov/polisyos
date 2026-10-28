@@ -1,0 +1,54 @@
+{
+  "status": "FROZEN for independent harness/source-plan review; single stdlib infrastructure control PASS; native UNRUN",
+  "head_at_read": "b8fcda7332c89609410e8ca936b472ef2eed43e1",
+  "tree_at_read": "bcc0766ff9eae30e3bbeda86631bbcf79eae3c7a",
+  "baseline_ancestry": "Original575432 frame retained; exact75sourcebytes govern later clean descendant admission, not fixed HEAD",
+  "source_bindings_sha256": "4951410f5f528c9a2f3108871e9ec488735da43653dd303abb5acb7dae036c79",
+  "runner": {
+    "old_runner": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/run_case_with_tools_r2.py",
+    "old_sha256": "4c3eae2136b6c8941ba09d4438d12ea6ea11310527768f0482877b877b8e30c2",
+    "proposed_runner": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/run_case_with_tools_r3.py",
+    "new_sha256": "b15b573c4b7854dddd3cdd55933fd4634d013cbe1410dd1cf965d6bdaff53243",
+    "runner_bytes": 7337,
+    "r2_restored_text_equal": true,
+    "r2_restored_ast_equal": true,
+    "declared_deltas": [
+      "inline fragment type/hash check and retained fragment file",
+      "append fragment to original write policy; require exact plan full profile bytes/hash",
+      "pin both generated profile/fragment for unchanged postrun all-input recheck",
+      "record both complete profile and fragment bytes/hash in existing source-profile-freeze"
+    ],
+    "sandbox_launch_count": 1,
+    "source75_entries_unchanged": true,
+    "raw_runner_inputs_count": 4,
+    "runtime": "UNRUN"
+  },
+  "diagnostic": {
+    "AST": "PASS guard/preparer/proposed runner; no imports",
+    "source_rows_checked": 75,
+    "source_mismatches": [],
+    "install_target_absent": true,
+    "new_file_patch_check": 0,
+    "diagnostic_receipt_sha256": "99ebd7a7ee488f83a146799f74ec30f40b8286195f82eed9f617784c8073f1d6",
+    "native": "UNRUN"
+  },
+  "profile_fragment_sha256": "e713e37c560c3b6c183dd7766a317d819b86a9477ff444c71647da9eeb6dd042",
+  "support_sha256": {
+    "README.md": "f52d1121d1f7665c44cd21344cd64fc5cdd0083d4f59e5a72e43ed5fcf30b135",
+    "build_runner.py": "7a19f96da6f57a04c5a3ffe1ad5421a2dda95a1e8d517f84c69ba19aa575ea21",
+    "check_single_guard.py": "5db2399ebd35f90b06854f506ea560b04cc829b9f05f506359dc2f8cdc13f33e",
+    "guard-infra-single-diagnostic-r1-20261028/allowed-write.txt": "7faaf68885c99fd577dbaace0eb22f2ee2a2dc04c8638990db73581558abed6a",
+    "guard-infra-single-diagnostic-r1-20261028/allowed.txt": "933eacb16bb98685e6c52a17ccad1f4a93f121d2b6020d8c076fecdf677cc828",
+    "guard-infra-single-diagnostic-r1-20261028/production-fragment.sb": "e713e37c560c3b6c183dd7766a317d819b86a9477ff444c71647da9eeb6dd042",
+    "guard-infra-single-diagnostic-r1-20261028/receipt.json": "99ebd7a7ee488f83a146799f74ec30f40b8286195f82eed9f617784c8073f1d6",
+    "guard-infra-single-diagnostic-r1-20261028/synthetic-combined.sb": "b040b561576012272be3b0a34bd1f9c3f5ff4ffcb7f9be60eed089af5c16183d",
+    "guard-infra-single-diagnostic-r1-20261028/test-owned-denied/value.txt": "4bf7c24f6ac6c438e95abb700119d7df9f018a2e1a932f7b91ae4bf15ca1e51a",
+    "install-runner.patch": "e9257056488fb56ac4386ef157fe3e93e716ba6ab4af9afb753c2e5f717d4397",
+    "postimage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/run_case_with_tools_r3.py": "b15b573c4b7854dddd3cdd55933fd4634d013cbe1410dd1cf965d6bdaff53243",
+    "prepare_plan.py": "66805afb531ec7556c1e3956a85f8f6defda10c9481e95c36e126afcb014102d",
+    "runner-delta.patch": "7cea610c2838884dadd98191174d1796df2686453a8bd79ea4041adfd74fdf9a",
+    "runner-equivalence.json": "0eebf20676c5236e868ac03c77513341110a01a29eda07b67a2077b4c53bda66",
+    "source-bindings.json": "4951410f5f528c9a2f3108871e9ec488735da43653dd303abb5acb7dae036c79",
+    "static-readback.json": "b331072d449e0b767c74a5c9d0f04dd81ab2d083285eb0fd485851b1e270dcd1"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "head": "ea3d65682d76a5d66d514e525ad2212e5a85f669",
+  "tree": "7c5412fddc4ef3e56c859b83d237162e0fd260e7",
+  "parents": [
+    "8623b3908bb3317060e84f2db7857a971e8887f7"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "paths": {
+    "policy-engine/docs/reference/runtime-observational-source-access.md": "5cfb562f083813735362e2a37b902a1709d589fd50fc9e718b5103745e2f2818",
+    "policy-engine/release-fragments/unreleased/2026-10-28-observational-source-owner-scope.toml": "d247577c6dd2edfb5af363d6322a24c665907d27e2010d8f04a58b05ab731021",
+    "policy-engine/src/polisyos/foundry/data_plane/bindings.py": "f8cf224d4adeb718240e10508f680aeed5d0f1da4f95de9b03e1516848af1980",
+    "policy-engine/src/polisyos/foundry/data_plane/selected_row_candidate_scope.py": "776a6c5006b2bba708f9c1518d5e7b0041a096ec40fa9931adca27a82ef55dad",
+    "policy-engine/src/polisyos/runtime/http/services/README.md": "b6c08d4e1aacb41853532d77e067bec7a3bbe2296b8d63fd789d4e82b09bf8b9",
+    "policy-engine/src/polisyos/runtime/http/services/control/observational_source_access.py": "faef9afc1a2c72ebd2dd7c6344c68ed4d595d0a9e40aba1027033c908c7efebb",
+    "policy-engine/src/polisyos/runtime/http/services/control/owned_attempt_anchor.py": "1e7d1c79ff61e2490e6672128a2a44a3180376ff02ade6db7f8670a881c87b59",
+    "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py": "83a85ed5d27ded497bd725e4cd1558b2cac10fec266e52cedc56295625da1c18",
+    "policy-engine/src/polisyos/scientist/compute/runner.py": "95db7f839b7ee8d198247f7eb96a0897d6c239484c9afdc368d28aeb3852e929",
+    "policy-engine/tests/_helpers/observational_source_runtime.py": "af91871d567aa8013cd381cb17a651db8b5f2ad88bfb510c37e0656553a6101f",
+    "policy-engine/tests/unit/foundry/data_plane/test_hte_observational_input.py": "b7b9c4f60b437258b01ee9234f31664975c35fb556f6273c05ea340110c79084",
+    "policy-engine/tests/unit/runtime/http/test_observational_method_runtime.py": "ed6dedba363534f10fd22af88ddf6158ab86ee1b6b660c03cc8eef30dec70024",
+    "policy-engine/tests/unit/runtime/http/test_observational_source_access.py": "68a7906fa9e3edc9ea3d9d4b896a3ef976ca6f64abeb283ce5d4568a9ca07c0d",
+    "policy-engine/tests/unit/scientist/compute/test_runner_method_execution_work.py": "b33d9e558f149b1474b750194f3b53079666ccbc4fe2fac857bcb7b09f8c0623"
+  },
+  "source_global_freeze": false,
+  "code_acceptance": false,
+  "closure_ids": []
+}

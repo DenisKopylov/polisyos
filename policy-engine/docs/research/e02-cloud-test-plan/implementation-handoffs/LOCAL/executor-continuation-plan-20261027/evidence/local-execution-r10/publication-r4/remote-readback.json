@@ -1,0 +1,20 @@
+{
+  "remote_ref": "refs/heads/codex/e02-composed-progress-20261028-r4",
+  "head": "545c6990e2bfa42bf580b475e23cf88df04e71d8",
+  "tree": "abd7d9913680d5531081c45536c1cf7d7d701835",
+  "ordinary_hooked_push_exit": 0,
+  "remote_readback": true,
+  "fetch_commit_tree_readback": true,
+  "root_guard": {
+    "head": "545c6990e2bfa42bf580b475e23cf88df04e71d8",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-c05-exact-prepared-dispatch-r8/full-composed-source-frame.json",
+      "sha256": "663f8ae12f29a510eebd661f1cb136607f8d96b01de708a2b3f62e3a3e742ade"
+    },
+    "expected_index": {
+      "raw_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "empty after root commit"
+    }
+  },
+  "closure_ids": []
+}

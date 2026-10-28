@@ -1,0 +1,17 @@
+{
+  "source_head": "7382a1c4eb32ee3370dc8f370133449cb95dd0db",
+  "source_tree": "b3840419a81bad0f96c933ff1cf920b76efb6d96",
+  "case": "c57-oracle-focused-r4-20261028",
+  "finite_loaded_py_paths": 1814,
+  "git_index_work_mismatches": [],
+  "denominator": "All observed imported src/polisyos, tests and tools Python paths; unimported paths, external packages/native libraries excluded",
+  "audit_sha256": "6b20bada807825932408bd0d01a5f9bc390127c74f366d811a8537f3e5555860",
+  "runtime_result": {
+    "tests": 6,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "G_acceptance": false,
+  "closure_ids": []
+}

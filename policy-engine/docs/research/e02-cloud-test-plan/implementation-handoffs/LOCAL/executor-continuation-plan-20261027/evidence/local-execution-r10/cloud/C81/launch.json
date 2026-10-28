@@ -1,0 +1,18 @@
+{
+  "slice": "C81",
+  "task_id": "task_e_6ae1712d510483259787b871e7b47bdf",
+  "url": "https://chatgpt.com/codex/tasks/task_e_6ae1712d510483259787b871e7b47bdf",
+  "expected_base": "b2dcf0ee106389216017a88620817c37d3746886",
+  "expected_tree": "cd13b4ab7ed1e32661b2b8d4854440b8557cc0cb",
+  "branch": "codex/e02-composed-progress-20261028-r3",
+  "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+  "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C81-launch-prompt.md",
+  "prompt_sha256": "5ea45a6f762557cdc5bb4ca4031707ccfc94d8781410e9292eafb83f1f40c4f8",
+  "prompt_bytes": 64092,
+  "requested_model": "gpt-6.1-sol",
+  "actual_model": "not_established",
+  "create_exit": 0,
+  "created_at": "2026-10-28T03:51:11.970230+00:00",
+  "status": "submitted",
+  "closure_ids": []
+}

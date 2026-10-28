@@ -1,0 +1,36 @@
+{
+  "verdict": "GO",
+  "scope": "Independent delivery/content-boundary review of frozen docs-progress-r10 and docs-progress-r10.1 proposals; no product acceptance or closure.",
+  "manifests": {
+    "docs-progress-r10": "f6c2d7756291456c9a82595364ffd3315fde4f50c2a190c5c26b13bc9be0d31c",
+    "docs-progress-r10.1": "1c34876a4422882e2da4ef8ceaaf5e47718532d26f0055878cc3c9f53c7ec46d"
+  },
+  "integrity": {
+    "rows": 160,
+    "unique_targets": 158,
+    "unique_payload_bytes": 1881432,
+    "postimages_verified": true,
+    "gzip_raw_bindings_verified": true,
+    "r10_overrides_verified": 2,
+    "canonical_preimages_verified": 5,
+    "ledger_append_prefix_verified": true,
+    "queue_change": "top-level scope only; all 26 row objects unchanged"
+  },
+  "source_cuts": {
+    "r10": "8623b3908bb3317060e84f2db7857a971e8887f7 / 2bd8450b2b4b5c283ba7840e13ef06abb2a9beed",
+    "r10_1": "ea3d65682d76a5d66d514e525ad2212e5a85f669 / 7c5412fddc4ef3e56c859b83d237162e0fd260e7"
+  },
+  "evidence_boundaries": {
+    "C05": "corrected helper smoke PASS and 7 selected native PASS at 8623; complete C05/HTTP/removal UNRUN; root-live input bytes unavailable at old locator and not reconstructed",
+    "C57": "183 case wave remains 176 PASS / 3 FAIL / 4 PostgreSQL SKIP; later six targeted controls are separate",
+    "C60": "four staged .pyi Ruff selection FAIL I001/F403; generated freshness/consumer checks open",
+    "C71": "bounded source/static GO at ea3d; no full HTE/removal/generated/authority/G claim",
+    "C48": "infrastructure ERROR before product execution",
+    "cloud": "candidate/reconstructed diffs and bounded outcomes do not establish final Cloud commit or composed runtime pass",
+    "denominator": "26/127/282/291/319; 331 expanded occurrence-to-row relations distinct",
+    "B198": "preserved",
+    "G_acceptance": false,
+    "closure_ids": []
+  },
+  "action": "GO to compose and commit sparse union; verify committed branch readback. No tests/imports/index/ref/canonical writes during review."
+}

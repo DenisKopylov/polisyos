@@ -1,0 +1,181 @@
+{
+  "schema": "policyos.e02.execution_receipt.v1",
+  "case": "c57-composed-intent-diagnostic-consumers-r1-20261028",
+  "prepared_at": "2026-10-28T04:31:28.655405+00:00",
+  "source": {
+    "commit": "575432f281aeec5dbe89e906cd2545fcd2bc4087",
+    "tree": "8107f2cbbdbb39d0861134a0ff5f47b19025ef57",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-c57-admission-compose-r1/full-composed-source-frame.json",
+      "sha256": "80d2ecc3caf04e916387231fd72d9cee9908b41c8008b088be614eed29862c59"
+    }
+  },
+  "scope": "Full affected C37 seven-module cohort plus changed C57 publication and two existing event-log consumer modules. Dedicated disposable PG absent = explicit SKIP4, never productPASS or allbackendproof. No externaltemporal/legal/producerissuer/Gclosure.",
+  "command_actually_executed": {
+    "argv": [
+      "/usr/bin/sandbox-exec",
+      "-f",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-composed-intent-diagnostic-consumers-r1-20261028/child.sb",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "-B",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-composed-intent-diagnostic-consumers-r1-20261028/pytest_launcher.py",
+      "-o",
+      "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-composed-intent-diagnostic-consumers-r1-20261028/pytest-cache",
+      "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-composed-intent-diagnostic-consumers-r1-20261028/benchmarks",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-composed-intent-diagnostic-consumers-r1-20261028/basetemp",
+      "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-composed-intent-diagnostic-consumers-r1-20261028/pytest.xml",
+      "--tb=short",
+      "--color=no",
+      "--maxfail=0",
+      "tests/unit/runtime/http/test_nl_temporal_scope_intake.py",
+      "tests/unit/runtime/http/test_nl_temporal_scope_lifecycle.py",
+      "tests/unit/runtime/http/test_nl_request_json_admission.py",
+      "tests/unit/runtime/http/test_runtime_http_error_state.py",
+      "tests/unit/runtime/http/test_error_semantics.py",
+      "tests/unit/runtime/http/test_control_job_execution_intent.py",
+      "tests/unit/runtime/http/test_nl_predictive_basis_intake.py",
+      "tests/unit/runtime/http/test_control_job_admission_publication.py",
+      "tests/unit/runtime/quality/test_event_log.py",
+      "tests/unit/runtime/quality/test_runtime_event_log.py"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine"
+  },
+  "source_profile": {
+    "freeze": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c57-composed-intent-diagnostic-consumers-r1-20261028/source-profile-freeze.json.gz",
+      "sha256": "1fff1479c41e4a31214617b2975b75f269d2f982cb9c831595e1f0f7e4f2ebc3",
+      "bytes": 2897,
+      "availability": "r10 proposal postimage; coordinator composition and Git readback pending"
+    },
+    "numeric_threads": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMBA_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "ARROW_NUM_THREADS": "1",
+      "BLIS_NUM_THREADS": "1",
+      "POLARS_MAX_THREADS": "1",
+      "TF_NUM_INTEROP_THREADS": "1",
+      "TF_NUM_INTRAOP_THREADS": "1",
+      "VECLIB_MAXIMUM_THREADS": "1"
+    },
+    "extra_env": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "TMPDIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-composed-intent-diagnostic-consumers-r1-20261028/tmp",
+      "XDG_CACHE_HOME": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-composed-intent-diagnostic-consumers-r1-20261028/tmp/xdg",
+      "MPLCONFIGDIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-composed-intent-diagnostic-consumers-r1-20261028/tmp/mpl",
+      "NUMBA_CACHE_DIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-composed-intent-diagnostic-consumers-r1-20261028/tmp/numba",
+      "HYPOTHESIS_STORAGE_DIRECTORY": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-composed-intent-diagnostic-consumers-r1-20261028/tmp/hypothesis",
+      "PYTHONPYCACHEPREFIX": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-composed-intent-diagnostic-consumers-r1-20261028/tmp/empty-pycache",
+      "POLISYOS_R4_INPUT_PROJECT_ROOT": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "POLISYOS_R4_INPUT_READSET_DIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-composed-intent-diagnostic-consumers-r1-20261028/readsets",
+      "SCIENTIST_TORCH_NUM_THREADS": "1",
+      "SCIENTIST_TORCH_NUM_INTEROP_THREADS": "1"
+    },
+    "native_profile": "pytest.ini, default plugin autoload/importlib/strict markers; add read-only sys.modules observer; outputs redirected only; private empty pycache search prefix prevents stale canonical pyc reuse",
+    "actual_root_live": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/shared/root-live-99a4.json.gz",
+      "sha256": "8f98e07de6fcb9abf38e7117bf5704e2a2c76e3358b4cc0e3cdc1628ce257a86",
+      "bytes": 2748,
+      "availability": "r10 proposal postimage; coordinator composition and Git readback pending",
+      "decompressed_sha256": "99a4dcae8a8afc0ae2314efc36bebfc38e2a0ac152897950a28c6918a33a15b8"
+    }
+  },
+  "result": {
+    "return_code": 1,
+    "junit_counts": {
+      "tests": 183,
+      "failures": 3,
+      "errors": 0,
+      "skipped": 4
+    },
+    "failures": [
+      {
+        "node": "tests.unit.runtime.http.test_control_job_admission_publication::test_prepared_values_publish_atomically_with_actual_event_time_and_fresh_reader[pending-sqlite]",
+        "message": "AssertionError: assert datetime.datetime(2026, 10, 28, 3, 22, 50, tzinfo=datetime.timezone.utc) >= datetime.datetime(2026, 10, 28, 3, 22, 50, 456341, tzinfo=datetime.timezone.utc)\n +  where datetime.datetime(2026, 10, 28, 3, 22, 50, tzinfo=datetime.timezone.utc) = ControlDiagnosticEventRecord(row_id=1, event=DiagnosticEvent(event_id='evt-0c8bec9d41bc461e90d20506b1c9fe6c', event_so...75480f3653533c32212d72a9eb1e4d1f', created_at=datetime.datetime(2026, 10, 28, 3, 22, 50, tzinfo=datetime.timezone.utc)).created_at\n +  and   datetime.datetime(2026, 10, 28, 3, 22, 50, 456341, tzinfo=datetime.timezone.utc) = _ControlJobLifecycleSourceEventRecord(event_id=1, job_id='admission-publication-84852b998a5c4e1f8f800ea44decbc09', eve...zinfo=datetime.timezone.utc), payload_sha256='sha256:fd35597831d6793b70a97bd8c742913048e05e4ca5f7de8412b1676abf77fd20').created_at"
+      },
+      {
+        "node": "tests.unit.runtime.http.test_control_job_admission_publication::test_prepared_values_publish_atomically_with_actual_event_time_and_fresh_reader[failed-sqlite]",
+        "message": "AssertionError: assert datetime.datetime(2026, 10, 28, 3, 22, 50, tzinfo=datetime.timezone.utc) >= datetime.datetime(2026, 10, 28, 3, 22, 50, 496445, tzinfo=datetime.timezone.utc)\n +  where datetime.datetime(2026, 10, 28, 3, 22, 50, tzinfo=datetime.timezone.utc) = ControlDiagnosticEventRecord(row_id=1, event=DiagnosticEvent(event_id='evt-fb3ba454d19444efb61a5cc3e169c3c4', event_so...962f5d382c7bb6b3a6c468984d248d45', created_at=datetime.datetime(2026, 10, 28, 3, 22, 50, tzinfo=datetime.timezone.utc)).created_at\n +  and   datetime.datetime(2026, 10, 28, 3, 22, 50, 496445, tzinfo=datetime.timezone.utc) = _ControlJobLifecycleSourceEventRecord(event_id=1, job_id='admission-publication-5167c16fb1bd43e59286f11f26c5a9e8', eve...zinfo=datetime.timezone.utc), payload_sha256='sha256:f36af9c07a0da7bbaece6d624a0999ff701c90f652abede64cad58cd54732b64').created_at"
+      },
+      {
+        "node": "tests.unit.runtime.http.test_control_job_admission_publication::test_fast_worker_or_cancellation_cannot_be_overwritten_by_late_admission_progress[cancelled]",
+        "message": "AssertionError: assert 'pending' == 'cancelled'\n  \n  - cancelled\n  + pending"
+      }
+    ],
+    "skips": [
+      {
+        "node": "tests.unit.runtime.http.test_control_job_admission_publication::test_prepared_values_publish_atomically_with_actual_event_time_and_fresh_reader[pending-postgres]",
+        "reason": "dedicated disposable PostgreSQL DSN not supplied"
+      },
+      {
+        "node": "tests.unit.runtime.http.test_control_job_admission_publication::test_prepared_values_publish_atomically_with_actual_event_time_and_fresh_reader[failed-postgres]",
+        "reason": "dedicated disposable PostgreSQL DSN not supplied"
+      },
+      {
+        "node": "tests.unit.runtime.http.test_control_job_admission_publication::test_prepared_retry_after_rollback_preserves_bytes_without_advertising_event_ids[postgres]",
+        "reason": "dedicated disposable PostgreSQL DSN not supplied"
+      },
+      {
+        "node": "tests.unit.runtime.http.test_control_job_admission_publication::test_prepare_a_publish_b_publish_a_preserves_actual_job_sources_and_append_order[postgres]",
+        "reason": "dedicated disposable PostgreSQL DSN not supplied"
+      }
+    ],
+    "wall_seconds": 33.71531324999523,
+    "max_sampled_process_tree_rss_bytes": 1136574464
+  },
+  "outputs": {
+    "stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c57-composed-intent-diagnostic-consumers-r1-20261028/stdout.txt.gz",
+      "sha256": "33d5749fdd8d488619c11d6c79d4f2c8d2f351713e8e4eea500f3bd69c3735d6",
+      "bytes": 1300,
+      "availability": "r10 proposal postimage; coordinator composition and Git readback pending"
+    },
+    "stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r6/common/empty.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "availability": "previous committed r8 shared empty output"
+    },
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c57-composed-intent-diagnostic-consumers-r1-20261028/pytest.xml.gz",
+      "sha256": "8fd90b5c1d4fb9fa07d4b10057248828f42d30301416bf74ee249bff82f767bb",
+      "bytes": 4727,
+      "availability": "r10 proposal postimage; coordinator composition and Git readback pending"
+    },
+    "audit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c57-composed-intent-diagnostic-consumers-r1-20261028/audit-result.json.gz",
+      "sha256": "39e1f3c0cd6d875de222e8cc7a299572b7959a10821936a74d9f913a9a230364",
+      "bytes": 1954,
+      "availability": "r10 proposal postimage; coordinator composition and Git readback pending"
+    },
+    "freeze": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c57-composed-intent-diagnostic-consumers-r1-20261028/source-profile-freeze.json.gz",
+      "sha256": "1fff1479c41e4a31214617b2975b75f269d2f982cb9c831595e1f0f7e4f2ebc3",
+      "bytes": 2897,
+      "availability": "r10 proposal postimage; coordinator composition and Git readback pending"
+    },
+    "plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c57-composed-intent-diagnostic-consumers-r1-20261028/plan.json.gz",
+      "sha256": "13a733d628564ef2a181edaa05bbe2b46ebf8adc7f42db3267550ee66bf51d75",
+      "bytes": 559,
+      "availability": "r10 proposal postimage; coordinator composition and Git readback pending"
+    },
+    "readset": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c57-composed-intent-diagnostic-consumers-r1-20261028/input-readset.json.gz",
+      "sha256": "ca4e532c22f250d5075ae3f59c5bf98f31ee171a77895a27cfff37c3e80a7f3f",
+      "bytes": 106846,
+      "availability": "r10 proposal postimage; coordinator composition and Git readback pending"
+    },
+    "git_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c57-composed-intent-diagnostic-consumers-r1-20261028/git-readback.json",
+      "sha256": "f296e7a4f444c23c847aaba6370f49acf314694d45e51b6b7a5018c72ea737eb",
+      "bytes": 638,
+      "availability": "r10 proposal postimage; coordinator composition and Git readback pending"
+    }
+  },
+  "G_acceptance": false,
+  "closure_ids": []
+}

@@ -1,0 +1,74 @@
+{
+  "schema": "policyos.e02.c05_decoder_forward_fix.sol_review.v1",
+  "source_verdict": "GO_narrow_forward_fix_to_Root_smoke_and_deciding_wave",
+  "overall_verification": "Partial",
+  "capability_state": "verification_missing",
+  "finding_class": "SAME shared-consumer API compatibility class; closes the named required-source signature mismatch in source",
+  "target": {
+    "manifest": "LOCAL/raw/e02-execution-20261027/repairs/C05-r8-serialization-contract-r1/manifest.json",
+    "manifest_sha256": "ec27fc5f6c21af0c84c4ef2bac43fae980f95bed6ffc73868858523cb6e8b9c3",
+    "patch_sha256": "9d3b1a9e5c193ea6f9d77c3043b1465db9921c7ad9c9d3b6a38a13a62fa38fec",
+    "base_commit": "545c6990e2bfa42bf580b475e23cf88df04e71d8",
+    "base_tree": "abd7d9913680d5531081c45536c1cf7d7d701835"
+  },
+  "independent_source_audit": {
+    "files": [
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prepared_request.py",
+        "preimage_sha256": "bd1978cf37fc519c0843494dca5d54924b7c12911ec8c55619ba2ad35d876862",
+        "postimage_sha256": "b147b4788ae96373af086703752b40d74b686a350301e9e351386360745e779f",
+        "current_matches_preimage": true,
+        "reconstruction": "PASS",
+        "ast": "PASS"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prepared_request_dispatch.py",
+        "preimage_sha256": "2498042e500fe37fb4087283aeb3c8789ec0fd379d1969115039829799361704",
+        "postimage_sha256": "2581468d08cb21530dbf140eeed88ac136b6d2c5828bafb0b3e003828961147f",
+        "current_matches_preimage": true,
+        "reconstruction": "PASS",
+        "ast": "PASS"
+      }
+    ],
+    "helper_signature": "raw: bytes | str, *, source: str, kind: str='JSON record'",
+    "helper_sha256": "9dd34967d6bb95244085410a5988d326824c017aadb3233db903eab1efb31685",
+    "new_call": "decode_json_object(value, source='polisyos.scientist.orchestration.llm.prepared_request', kind='prepared LLM request')",
+    "required_kwonly": [
+      "source"
+    ],
+    "provided": [
+      "source",
+      "kind"
+    ],
+    "head": "545c6990e2bfa42bf580b475e23cf88df04e71d8",
+    "verdict": "GO_narrow_forward_fix_to_Root_smoke_and_deciding_wave",
+    "runtime": "UNRUN"
+  },
+  "review": {
+    "mechanism": "Only supplies source='polisyos.scientist.orchestration.llm.prepared_request' to unchanged canonical strict decode_json_object invocation. No catch, alternate decoder, cache skip or authority change.",
+    "tests": "Existing test_prepared_request_dispatch.py adds actual thaw/freeze wire and native tuple/list roundtrip positive; six malformed input cases assert ValueError and stable kind/source diagnostics.",
+    "strict_refusal_definition": "Canonical decoder catches UnicodeDecodeError/ValueError and includes kind/source; non-object root also includes both. Required source has no default. Strict JSON owner remains unchanged.",
+    "source_findings": [],
+    "census_boundary": "Packet manifest declares broader shared census companion pending. README census prose is not used as proof. Independent Sol bounded 560 changed-call audit is separately retained, with unresolved rows not passed.",
+    "prior_reviews": "Original r8 Sol GO and independent HOLD remain immutable. Sol correction-r1 HOLD supersedes original GO for the unrepaired r8 batch; this narrow repair receives a separate source verdict.",
+    "runtime": "UNRUN by this reviewer. Root reports actual baseline reproduction, but this receipt does not claim to have executed or independently revalidated that runtime receipt."
+  },
+  "required_next": [
+    "Root exact composition/checkpoint/readback",
+    "Actual corrected positive strict decoder/native/wire smoke",
+    "Full bounded C05 modules and actual Gateway/preflight/research POST consumers",
+    "Semantic removals only after passing positive baseline; intended assertion failure and exact source restoration/passing replay",
+    "Required type/architecture/API/generated/compatibility checks"
+  ],
+  "actions": {
+    "new_raw_review_files_only": true,
+    "canonical_source": false,
+    "product_imports": false,
+    "tests": false,
+    "native": false,
+    "environment": false,
+    "git_index_objects_refs": false,
+    "children": false
+  },
+  "final_observed_head": "545c6990e2bfa42bf580b475e23cf88df04e71d8"
+}

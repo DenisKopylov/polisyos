@@ -1,0 +1,28 @@
+{
+  "task": "C78 actual returned-source and evidence review",
+  "source_verdict": "HOLD",
+  "runtime_verdict": "not_established",
+  "formal_G_acceptance": "not_adjudicated",
+  "base_commit": "b2dcf0ee106389216017a88620817c37d3746886",
+  "candidate_tree": "1d55a9c895342e977471ab0edb7259a9a2ff5ef5",
+  "source_diff_sha256": "5723928805a396e58ac59fbade9ac49cfd31a88b0cdecd57cd020b49e705e364",
+  "source_diff_bytes": 111348,
+  "manifest_sha256": "f29dc118a8d50a1cc8efa04bce684362fbd07ccb0529a894c3e0a6a4a9d6af2f",
+  "commission_sha256": "ffb0192d49cd52e63a31d8454d24e51867d5909b557cfc426537c901a7f2fe88",
+  "postimages_checked": 10,
+  "postimage_mismatches": 0,
+  "delivered_evidence_files": 0,
+  "classes": [
+    "executor invocation compatibility",
+    "whole ordered profile/configuration/report semantics",
+    "numeric-domain admission",
+    "selected ordered input and consumer reconciliation",
+    "E-M1 inference meaning at actual consumer",
+    "legacy roster compatibility and missing tests"
+  ],
+  "source_review_path": "LOCAL/raw/e02-execution-20261027/reviews/C78-return-independent.md",
+  "source_review_sha256": "726b8a1c154359300585487bc1429cc004285f6291325f6be06f7057ac79f68e",
+  "observed_composition_head": "545c6990e2bfa42bf580b475e23cf88df04e71d8",
+  "runtime_executed": false,
+  "product_sources_mutated": false
+}

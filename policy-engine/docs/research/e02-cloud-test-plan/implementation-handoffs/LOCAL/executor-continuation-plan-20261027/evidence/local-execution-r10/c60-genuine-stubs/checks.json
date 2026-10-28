@@ -1,0 +1,33 @@
+[
+  {
+    "argv": [
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "--show-files",
+      "--no-cache",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/foundry/methods/base.pyi",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/foundry/methods/registry.pyi",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/foundry/methods/composer.pyi",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/foundry/methods/components/composer.pyi"
+    ],
+    "exit": 0,
+    "paths": 4
+  },
+  {
+    "argv": [
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "--no-cache",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/foundry/methods/base.pyi",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/foundry/methods/registry.pyi",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/foundry/methods/composer.pyi",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/foundry/methods/components/composer.pyi"
+    ],
+    "exit": 1,
+    "paths": 4
+  }
+]

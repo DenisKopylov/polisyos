@@ -1,0 +1,38 @@
+{
+  "base": "b8fcda7332c89609410e8ca936b472ef2eed43e1",
+  "files": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/base.pyi",
+      "stage": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c60-four-stub-owner-native-r4-20261028/basetemp/test_actual_stub_owner_staging0/staged/src/polisyos/foundry/methods/base.pyi",
+      "preimage_sha256": "b63fce515499ea4ca59a8395f3fff01f5b1958877655a8942fa65e59c1311a94",
+      "sha256": "80331b6912bdf9fa470011ba566bca95de80038a9566838be5fbf97fe64904c3",
+      "bytes": 7312
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/registry.pyi",
+      "stage": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c60-four-stub-owner-native-r4-20261028/basetemp/test_actual_stub_owner_staging0/staged/src/polisyos/foundry/methods/registry.pyi",
+      "preimage_sha256": "b9ebb5dc33ec14db6fc72edeb3b214dbb3365d176539c81bd83e0f88eff60a1f",
+      "sha256": "57f3509e55e92e57e7c5cc3fd6f257c0ff433bfefcb3d6286747126eae1377ef",
+      "bytes": 58
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/composer.pyi",
+      "stage": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c60-four-stub-owner-native-r4-20261028/basetemp/test_actual_stub_owner_staging0/staged/src/polisyos/foundry/methods/composer.pyi",
+      "preimage_sha256": "8f1a1667781c1797529f3683a3c9d0c0d63cbba5ba52a73c8f134b2105e88b7a",
+      "sha256": "46d5d113361d487abf5cef5c85f88b8bbe1cd22f70ba266d763a1deb4aa4e781",
+      "bytes": 59
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/composer.pyi",
+      "stage": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c60-four-stub-owner-native-r4-20261028/basetemp/test_actual_stub_owner_staging0/staged/src/polisyos/foundry/methods/components/composer.pyi",
+      "preimage_sha256": "b519bbdf56ad9492a0ded988d5c3e5b06cabb0738bb22b42f1c8fcd14c207195",
+      "sha256": "d7efa8503e09b906344545786093cad72bc5a73e5a8dc46e9b4b8bf6ae9c760b",
+      "bytes": 5086
+    }
+  ],
+  "producer_source": "7382a1c4eb32ee3370dc8f370133449cb95dd0db",
+  "actual_owner_case": "c60-four-stub-owner-native-r4-20261028",
+  "independent_artifact_review_sha256": "0b2de4cdac02ad4c1c1b0736edd580b9c7a38815dd026a8f3b93194829efc330",
+  "canonical_owner_check": "UNRUN after composition",
+  "closure_ids": []
+}

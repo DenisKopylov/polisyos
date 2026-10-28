@@ -1,0 +1,164 @@
+{
+  "slice": "C72",
+  "task_id": "task_e_6ae1662482fc8325b427fc8ff4c37c60",
+  "base_commit": "45fe14d8fe6f6822efab491495886501158d4b45",
+  "candidate_tree_reconstructed_from_received_diff": "13a803f11d9fa5a75883252c21d9b6c6743057f3",
+  "received_diff_sha256": "3fbe7a078431f887189f24b7d354c362bbe29bc5f9d9823ff581ade607685443",
+  "received_diff_bytes": 74234,
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/Q0/cloud/e02-c72-ordinary-predictive-20261028-r1/README.md",
+      "base_git_blob": null,
+      "postimage_git_blob": "ab218c5cf106622c2c4aefb5b8ebe7121df192c5",
+      "postimage_sha256": "0e6235e8b98cc1e2f8a0a78bce8487bc4acf250a424f5ad485138566e9cc722e",
+      "bytes": 4199,
+      "new_file": true,
+      "delivered_file": "LOCAL/raw/e02-execution-20261027/cloud/C72/delivered/Q0/cloud/e02-c72-ordinary-predictive-20261028-r1/README.md",
+      "actual_delivered_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/Q0/cloud/e02-c72-ordinary-predictive-20261028-r1/SHA256SUMS",
+      "base_git_blob": null,
+      "postimage_git_blob": "951dfef3a62b4916e3511a5825d58c6a434b1862",
+      "postimage_sha256": "c0ad96db14653b0967caf00742d3f535a0e1207cdc557863da0ead6663baf16c",
+      "bytes": 2109,
+      "new_file": true,
+      "delivered_file": "LOCAL/raw/e02-execution-20261027/cloud/C72/delivered/Q0/cloud/e02-c72-ordinary-predictive-20261028-r1/SHA256SUMS",
+      "actual_delivered_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/Q0/cloud/e02-c72-ordinary-predictive-20261028-r1/default-http.junit.xml.gz",
+      "base_git_blob": null,
+      "postimage_git_blob": "a3a6fa4f06adb194ffa3b3a85ad77b256492d28e",
+      "postimage_sha256": "cb1c30b59f9fabee5418a3e0c6ed9288d5e2a10726009c773b3965f49cc117de",
+      "bytes": 3336,
+      "new_file": true,
+      "delivered_file": "LOCAL/raw/e02-execution-20261027/cloud/C72/delivered/Q0/cloud/e02-c72-ordinary-predictive-20261028-r1/default-http.junit.xml.gz",
+      "actual_delivered_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/Q0/cloud/e02-c72-ordinary-predictive-20261028-r1/default-http.log.gz",
+      "base_git_blob": null,
+      "postimage_git_blob": "b12ebbdd331a0699a5e781ca091b120f8a21e82b",
+      "postimage_sha256": "ca20903c839e5f0a5a70325e01485449fe840a770c58cd95468d47fd5aa54195",
+      "bytes": 3203,
+      "new_file": true,
+      "delivered_file": "LOCAL/raw/e02-execution-20261027/cloud/C72/delivered/Q0/cloud/e02-c72-ordinary-predictive-20261028-r1/default-http.log.gz",
+      "actual_delivered_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/Q0/cloud/e02-c72-ordinary-predictive-20261028-r1/fixture.junit.xml.gz",
+      "base_git_blob": null,
+      "postimage_git_blob": "9efe80cf79c7fd6e24d2fd5abad3d67858bac772",
+      "postimage_sha256": "e54644652ee710f938c6cb22b32ee89be0169cfc746d21cecc04e77220bc242a",
+      "bytes": 505,
+      "new_file": true,
+      "delivered_file": "LOCAL/raw/e02-execution-20261027/cloud/C72/delivered/Q0/cloud/e02-c72-ordinary-predictive-20261028-r1/fixture.junit.xml.gz",
+      "actual_delivered_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/Q0/cloud/e02-c72-ordinary-predictive-20261028-r1/fixture.log.gz",
+      "base_git_blob": null,
+      "postimage_git_blob": "9611cf2b82ff9a9838f145f1144d24c73eaacd03",
+      "postimage_sha256": "6bac759265aa7a58419bf5e50ffd7d92691f38a3bb86a0b9a07552df51c0a88c",
+      "bytes": 33,
+      "new_file": true,
+      "delivered_file": "LOCAL/raw/e02-execution-20261027/cloud/C72/delivered/Q0/cloud/e02-c72-ordinary-predictive-20261028-r1/fixture.log.gz",
+      "actual_delivered_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/Q0/cloud/e02-c72-ordinary-predictive-20261028-r1/ordinary.junit.xml.gz",
+      "base_git_blob": null,
+      "postimage_git_blob": "aee69fa23d48decfbef065620b8187ba3e8d932b",
+      "postimage_sha256": "952e7b3b9be33342a296e0c90fb26f6bb9cbd992c7aecebcb18dc9e5d4ec1e71",
+      "bytes": 2566,
+      "new_file": true,
+      "delivered_file": "LOCAL/raw/e02-execution-20261027/cloud/C72/delivered/Q0/cloud/e02-c72-ordinary-predictive-20261028-r1/ordinary.junit.xml.gz",
+      "actual_delivered_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/Q0/cloud/e02-c72-ordinary-predictive-20261028-r1/ordinary.log.gz",
+      "base_git_blob": null,
+      "postimage_git_blob": "3e79966b0ee5d1dcd8ad3c9bb5d0f1e8bb0d33ca",
+      "postimage_sha256": "f3848d321c3cff60ef882105e20e1804442f247debcab8a0bf0af8884be968a4",
+      "bytes": 2380,
+      "new_file": true,
+      "delivered_file": "LOCAL/raw/e02-execution-20261027/cloud/C72/delivered/Q0/cloud/e02-c72-ordinary-predictive-20261028-r1/ordinary.log.gz",
+      "actual_delivered_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/Q0/cloud/e02-c72-ordinary-predictive-20261028-r1/profile-owner.junit.xml.gz",
+      "base_git_blob": null,
+      "postimage_git_blob": "e23513d79d839a79c8a854110e4e63ff712f376a",
+      "postimage_sha256": "a9414fa5e2bd35aa3ce4630459969c269b0dd3d3f6719e8874e4a3a43ca4b554",
+      "bytes": 3978,
+      "new_file": true,
+      "delivered_file": "LOCAL/raw/e02-execution-20261027/cloud/C72/delivered/Q0/cloud/e02-c72-ordinary-predictive-20261028-r1/profile-owner.junit.xml.gz",
+      "actual_delivered_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/Q0/cloud/e02-c72-ordinary-predictive-20261028-r1/profile-owner.log.gz",
+      "base_git_blob": null,
+      "postimage_git_blob": "05554f29eb0fb3c4fc6834d595c541f0a4ec811f",
+      "postimage_sha256": "bbf458227625ceba89c31a4510361f46172556e67ef0f8c2781183b19a0c8ce5",
+      "bytes": 3829,
+      "new_file": true,
+      "delivered_file": "LOCAL/raw/e02-execution-20261027/cloud/C72/delivered/Q0/cloud/e02-c72-ordinary-predictive-20261028-r1/profile-owner.log.gz",
+      "actual_delivered_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/Q0/cloud/e02-c72-ordinary-predictive-20261028-r1/s10.junit.xml.gz",
+      "base_git_blob": null,
+      "postimage_git_blob": "e8606545a57fd63f2df5d8e18552ade91ae28f9d",
+      "postimage_sha256": "ea0f16b82429c581f62208abf44c2e5d3476a6e702db9e6bd5da13fadfb4a553",
+      "bytes": 311,
+      "new_file": true,
+      "delivered_file": "LOCAL/raw/e02-execution-20261027/cloud/C72/delivered/Q0/cloud/e02-c72-ordinary-predictive-20261028-r1/s10.junit.xml.gz",
+      "actual_delivered_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/Q0/cloud/e02-c72-ordinary-predictive-20261028-r1/s10.log.gz",
+      "base_git_blob": null,
+      "postimage_git_blob": "5865ab26ed26c11ab04cce04d95790dc1c3d9276",
+      "postimage_sha256": "a46c670e5a3967b340f77029e85c2c97cc61444502995a55cbe44392c56b3d8c",
+      "bytes": 32,
+      "new_file": true,
+      "delivered_file": "LOCAL/raw/e02-execution-20261027/cloud/C72/delivered/Q0/cloud/e02-c72-ordinary-predictive-20261028-r1/s10.log.gz",
+      "actual_delivered_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/tests/_helpers/controlled_candidate_profile.py",
+      "base_git_blob": "e608f54be496bebd314e8d69da9618906a26bd38",
+      "postimage_git_blob": "294035be273e27c41b4a0e46f04de2bf766b038f",
+      "postimage_sha256": "fb5c7cd0d334a551fc1ae3b9bbe3cc84b06b7ee610f11d3ab29b59d3a6ab5b5e",
+      "bytes": 86200,
+      "new_file": false
+    },
+    {
+      "path": "policy-engine/tests/_helpers/generic_n4_served_replay.py",
+      "base_git_blob": "9e456541455b938f02b9738911a06945f1f6ec14",
+      "postimage_git_blob": "d5709f5544a0b96d542c412b5cf21edf2fbbffbb",
+      "postimage_sha256": "7f8f4122f93906068f3c29e345a22f1316df1127299f5afc52940f82acd7e777",
+      "bytes": 94875,
+      "new_file": false
+    },
+    {
+      "path": "policy-engine/tests/integration/runtime_quality/test_c72_ordinary_n7_predictive.py",
+      "base_git_blob": null,
+      "postimage_git_blob": "259e4899446fe747015031dc1d432e92eaed3e22",
+      "postimage_sha256": "a52706097db6b2639f193c5d40088e43d09b73420b0c89af738f7d67c8c7406d",
+      "bytes": 898,
+      "new_file": true
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_c72_fixture_source_root.py",
+      "base_git_blob": null,
+      "postimage_git_blob": "c1f81b6f2463094c5bf224793bb8dce0092b3ad0",
+      "postimage_sha256": "1fd0187135d9ee282e95fc77e47e3bf7035376a747ee4c6c940fbb7ea1bd327e",
+      "bytes": 5143,
+      "new_file": true
+    }
+  ],
+  "canonical_source_not_applied": true,
+  "actual_canonical_index_unchanged": true
+}

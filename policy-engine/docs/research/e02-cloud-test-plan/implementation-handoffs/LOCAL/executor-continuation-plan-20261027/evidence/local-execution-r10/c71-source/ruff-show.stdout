@@ -1,0 +1,11 @@
+/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/foundry/data_plane/bindings.py
+/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/foundry/data_plane/selected_row_candidate_scope.py
+/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/runtime/http/services/control/observational_source_access.py
+/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/runtime/http/services/control/owned_attempt_anchor.py
+/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py
+/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/compute/runner.py
+/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/_helpers/observational_source_runtime.py
+/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/foundry/data_plane/test_hte_observational_input.py
+/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/runtime/http/test_observational_method_runtime.py
+/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/runtime/http/test_observational_source_access.py
+/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/scientist/compute/test_runner_method_execution_work.py

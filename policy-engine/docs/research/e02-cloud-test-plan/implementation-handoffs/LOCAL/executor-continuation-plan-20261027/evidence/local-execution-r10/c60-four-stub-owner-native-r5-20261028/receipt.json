@@ -1,0 +1,164 @@
+{
+  "schema": "policyos.e02.execution_receipt.v1",
+  "case": "c60-four-stub-owner-native-r5-20261028",
+  "prepared_at": "2026-10-28T04:41:30.144106+00:00",
+  "source": {
+    "commit": "72d83ce91ad2e75f508eda4c9caaa2bbb6311e3c",
+    "tree": "579fb9f6c66225c2d82f9ede27282859e658dfa2",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-c60-generator-style-r1/full-composed-source-frame.json",
+      "sha256": "eacca9d90d001436b59ea94909ef53a34c51b91688daed7f5a56a23a6561647b"
+    }
+  },
+  "scope": "First new actual producer profile: full four-output staging/check, independent canonical Ruff/full facade identity, corrupt/removal/restoration/missing/outside-selector defining behavior. Only exact four frozen Root-owned genuine .pyi WIP inputs permitted; no false Git-clean premise. Actual new output only eligible after full PASS and independent review.",
+  "command_actually_executed": {
+    "argv": [
+      "/usr/bin/sandbox-exec",
+      "-f",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c60-four-stub-owner-native-r5-20261028/child.sb",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "-B",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c60-four-stub-owner-native-r5-20261028/pytest_launcher.py",
+      "-o",
+      "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c60-four-stub-owner-native-r5-20261028/pytest-cache",
+      "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c60-four-stub-owner-native-r5-20261028/benchmarks",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c60-four-stub-owner-native-r5-20261028/basetemp",
+      "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c60-four-stub-owner-native-r5-20261028/pytest.xml",
+      "--tb=short",
+      "--color=no",
+      "--maxfail=0",
+      "tests/repo_quality/tools/test_foundry_stub_generation.py::test_actual_stub_owner_staging_and_check_detect_complete_byte_drift"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine"
+  },
+  "source_profile": {
+    "freeze": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c60-four-stub-owner-native-r5-20261028/source-profile-freeze.json.gz",
+      "sha256": "52946c1634c68b694d67e16180acb64b1d69b8be872c0b72633a5a09c53f032d",
+      "bytes": 2423,
+      "availability": "r10.3 sparse proposal postimage; coordinator composition and committed readback pending"
+    },
+    "numeric_threads": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMBA_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "ARROW_NUM_THREADS": "1",
+      "BLIS_NUM_THREADS": "1",
+      "POLARS_MAX_THREADS": "1",
+      "TF_NUM_INTEROP_THREADS": "1",
+      "TF_NUM_INTRAOP_THREADS": "1",
+      "VECLIB_MAXIMUM_THREADS": "1"
+    },
+    "extra_env": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "TMPDIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c60-four-stub-owner-native-r5-20261028/tmp",
+      "XDG_CACHE_HOME": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c60-four-stub-owner-native-r5-20261028/tmp/xdg",
+      "MPLCONFIGDIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c60-four-stub-owner-native-r5-20261028/tmp/mpl",
+      "NUMBA_CACHE_DIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c60-four-stub-owner-native-r5-20261028/tmp/numba",
+      "HYPOTHESIS_STORAGE_DIRECTORY": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c60-four-stub-owner-native-r5-20261028/tmp/hypothesis",
+      "PYTHONPYCACHEPREFIX": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c60-four-stub-owner-native-r5-20261028/tmp/empty-pycache",
+      "POLISYOS_R4_INPUT_PROJECT_ROOT": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "POLISYOS_R4_INPUT_READSET_DIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c60-four-stub-owner-native-r5-20261028/readsets",
+      "SCIENTIST_TORCH_NUM_THREADS": "1",
+      "SCIENTIST_TORCH_NUM_INTEROP_THREADS": "1"
+    },
+    "native_profile": "pytest.ini, default plugin autoload/importlib/strict markers; add read-only sys.modules observer; outputs redirected only; private empty pycache search prefix prevents stale canonical pyc reuse",
+    "exact_root_live": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c60-four-stub-owner-native-r5-20261028/root-live-snapshot.json.gz",
+      "sha256": "73c43db88ab0cb845b98958bd2df3d42b2b9621eb9eaacd3cbd671129694d1f9",
+      "bytes": 2980,
+      "availability": "r10.3 sparse proposal postimage; coordinator composition and committed readback pending"
+    }
+  },
+  "result": {
+    "return_code": 1,
+    "junit_counts": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    },
+    "node": "tests.repo_quality.tools.test_foundry_stub_generation::test_actual_stub_owner_staging_and_check_detect_complete_byte_drift",
+    "named_failure": "expected one ImportFrom node; actual Ruff rendered ten same-owner ImportFrom nodes",
+    "wall_seconds": 9.475222374981968,
+    "max_sampled_process_tree_rss_bytes": 339312640,
+    "partial_stage": "all four fresh stage files rendered and preceding AST and configured Ruff checks passed; test stopped before full owner/freshness cycle",
+    "full_owner_cycle": "UNRUN after first-facade assertion failure",
+    "removal_controls": "UNRUN",
+    "stage_adoption": "none"
+  },
+  "outputs": {
+    "stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c60-four-stub-owner-native-r5-20261028/stdout.txt.gz",
+      "sha256": "e68c3eea6c920d7d7af9ea97489ad288659c8b59ef50276e09f70ea09fa4f87a",
+      "bytes": 1850,
+      "availability": "r10.3 sparse proposal postimage; coordinator composition and committed readback pending"
+    },
+    "stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r6/common/empty.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "availability": "previous committed shared empty output"
+    },
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c60-four-stub-owner-native-r5-20261028/pytest.xml",
+      "sha256": "14a61d2aad8be2d1b5566963bb337efc16246a6f671ae6fac9ee61b7c9538c90",
+      "bytes": 1255,
+      "availability": "r10.3 sparse proposal postimage; coordinator composition and committed readback pending"
+    },
+    "audit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c60-four-stub-owner-native-r5-20261028/audit-result.json.gz",
+      "sha256": "1a309a7c67436e4f67405210afd15e574c8d976273af96a7d94f3b7bbfa39479",
+      "bytes": 3130,
+      "availability": "r10.3 sparse proposal postimage; coordinator composition and committed readback pending"
+    },
+    "freeze": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c60-four-stub-owner-native-r5-20261028/source-profile-freeze.json.gz",
+      "sha256": "52946c1634c68b694d67e16180acb64b1d69b8be872c0b72633a5a09c53f032d",
+      "bytes": 2423,
+      "availability": "r10.3 sparse proposal postimage; coordinator composition and committed readback pending"
+    },
+    "plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c60-four-stub-owner-native-r5-20261028/plan.json.gz",
+      "sha256": "cb059025324dbf049498e58dc074bed4b4212621ea9fcbbb49e9b291d5f92227",
+      "bytes": 2026,
+      "availability": "r10.3 sparse proposal postimage; coordinator composition and committed readback pending"
+    },
+    "readset": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c60-four-stub-owner-native-r5-20261028/input-readset.json.gz",
+      "sha256": "d030b3c2aab69c64d2b29f925e19914be08269f84c7b20ab6b96ddcd556ae323",
+      "bytes": 9347,
+      "availability": "r10.3 sparse proposal postimage; coordinator composition and committed readback pending"
+    },
+    "git_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c60-four-stub-owner-native-r5-20261028/git-readback.json",
+      "sha256": "a78f5220a69c74fd1476a8307c78073ddd6c26b310031d7059a33b9b90171bb1",
+      "bytes": 621,
+      "availability": "r10.3 sparse proposal postimage; coordinator composition and committed readback pending"
+    },
+    "root_live_snapshot": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c60-four-stub-owner-native-r5-20261028/root-live-snapshot.json.gz",
+      "sha256": "73c43db88ab0cb845b98958bd2df3d42b2b9621eb9eaacd3cbd671129694d1f9",
+      "bytes": 2980,
+      "availability": "r10.3 sparse proposal postimage; coordinator composition and committed readback pending"
+    },
+    "controller": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c60-four-stub-owner-native-r5-20261028/controller-events.jsonl.gz",
+      "sha256": "70d0381afa6bd754294b9c89e6665bf58a5650f64818fb5e53ec9e933e9a49ed",
+      "bytes": 657,
+      "availability": "r10.3 sparse proposal postimage; coordinator composition and committed readback pending"
+    },
+    "phase_output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c60-four-stub-owner-native-r5-20261028/phase-output.jsonl.gz",
+      "sha256": "b80c39b7bd0912a90c08c8eac3b4ec8b111d17fbd910b967d152282ec3b51d2f",
+      "bytes": 613,
+      "availability": "r10.3 sparse proposal postimage; coordinator composition and committed readback pending"
+    }
+  },
+  "independent_actual_review": "pending at preparation",
+  "G_acceptance": false,
+  "closure_ids": []
+}

@@ -1,0 +1,96 @@
+{
+  "slice": "C75",
+  "task_id": "task_e_6ae1659633008325884781fcf8d268f6",
+  "base_commit": "45fe14d8fe6f6822efab491495886501158d4b45",
+  "candidate_tree_reconstructed_from_received_diff": "23c6883b9770c6f8fb202812b2784acc65cc693a",
+  "received_diff_sha256": "ccfe47ee6d905a15b15d1ea44c9a8bb8976fb68cd71e544b69ebe9ec8f106bb4",
+  "received_diff_bytes": 27215,
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C75/cloud/c75-20261028-2c6d8283/RECEIPT.md",
+      "base_git_blob": null,
+      "postimage_git_blob": "b2c0d60778d06b87dd779cd815555a3de733c9a1",
+      "postimage_sha256": "317b8b683ea84743aa41ce19b423ad564b0bd2c43cbe59ca57db19b9f91ee00a",
+      "bytes": 6560,
+      "new_file": true,
+      "delivered_file": "LOCAL/raw/e02-execution-20261027/cloud/C75/delivered/C75/cloud/c75-20261028-2c6d8283/RECEIPT.md",
+      "actual_delivered_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C75/cloud/c75-20261028-2c6d8283/outputs/affected.xml",
+      "base_git_blob": null,
+      "postimage_git_blob": "3dafd6aedc7ce38791f0b3990f8c9ed2276c3f73",
+      "postimage_sha256": "9f9dcaf28cfe289a8a1738d1b3178d0e837cdf2b3c9b64436eeaf96c065fa9ba",
+      "bytes": 2080,
+      "new_file": true,
+      "delivered_file": "LOCAL/raw/e02-execution-20261027/cloud/C75/delivered/C75/cloud/c75-20261028-2c6d8283/outputs/affected.xml",
+      "actual_delivered_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C75/cloud/c75-20261028-2c6d8283/outputs/joint-hashes.txt",
+      "base_git_blob": null,
+      "postimage_git_blob": "005e1db70d512396613f9930ffc6127f4e11c4cb",
+      "postimage_sha256": "96debd22d8b1d2bd87340da0e8c533a424c57ae700a9172c2197f0b9278765d3",
+      "bytes": 342,
+      "new_file": true,
+      "delivered_file": "LOCAL/raw/e02-execution-20261027/cloud/C75/delivered/C75/cloud/c75-20261028-2c6d8283/outputs/joint-hashes.txt",
+      "actual_delivered_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C75/cloud/c75-20261028-2c6d8283/outputs/joint-mutant.txt",
+      "base_git_blob": null,
+      "postimage_git_blob": "e0643f06a89df2a0f58e8e5f7c8b0a60c02d925d",
+      "postimage_sha256": "9a2d657fb38e1c6f6a1cc80d3ceffe4d7754ad25eb9e3f14b8d1c3678d97bb26",
+      "bytes": 2683,
+      "new_file": true,
+      "delivered_file": "LOCAL/raw/e02-execution-20261027/cloud/C75/delivered/C75/cloud/c75-20261028-2c6d8283/outputs/joint-mutant.txt",
+      "actual_delivered_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C75/cloud/c75-20261028-2c6d8283/outputs/named-hashes.txt",
+      "base_git_blob": null,
+      "postimage_git_blob": "ef57558bb48718d1c425d5106203a676673ff100",
+      "postimage_sha256": "5d11afcb2911d03f82a69d08228afa7f65905d8bf6e800ef3d23789ad13c125f",
+      "bytes": 339,
+      "new_file": true,
+      "delivered_file": "LOCAL/raw/e02-execution-20261027/cloud/C75/delivered/C75/cloud/c75-20261028-2c6d8283/outputs/named-hashes.txt",
+      "actual_delivered_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C75/cloud/c75-20261028-2c6d8283/outputs/named-mutant.txt",
+      "base_git_blob": null,
+      "postimage_git_blob": "38c893b9143a80b70b58bb340ae6438a41c77212",
+      "postimage_sha256": "4005ce830d94f44876530281dde11716f3e8809d4cf7a04b8afdc45f58324172",
+      "bytes": 1676,
+      "new_file": true,
+      "delivered_file": "LOCAL/raw/e02-execution-20261027/cloud/C75/delivered/C75/cloud/c75-20261028-2c6d8283/outputs/named-mutant.txt",
+      "actual_delivered_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-28-c75-persisted-posterior-law.toml",
+      "base_git_blob": null,
+      "postimage_git_blob": "09c44167786fdf3aa512184f2c84c064f75aa7f4",
+      "postimage_sha256": "83861afb6fff6756acee80784c7dff2f1eb68d6f4a72ccfb5e5935d0ab5a20a1",
+      "bytes": 1398,
+      "new_file": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+      "base_git_blob": "e05c703f5b5d15ecbd6d8e11aff8362cc51c1424",
+      "postimage_git_blob": "70d326514f34b2b59173c0e8f42506555024085b",
+      "postimage_sha256": "e1470b5f634aaa7cb4b0372c08b1ed94a597fa9d4d247addda084119ab2b15b8",
+      "bytes": 24137,
+      "new_file": false
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/analytics/test_c75_persisted_posterior_law.py",
+      "base_git_blob": null,
+      "postimage_git_blob": "29e7abe953a514c908d43523e2423ead3785976e",
+      "postimage_sha256": "9a5017e9742101035744648824823e42f1697bf0f0ae0fa10080a4892a7161a4",
+      "bytes": 4194,
+      "new_file": true
+    }
+  ],
+  "canonical_source_not_applied": true,
+  "actual_canonical_index_unchanged": true
+}

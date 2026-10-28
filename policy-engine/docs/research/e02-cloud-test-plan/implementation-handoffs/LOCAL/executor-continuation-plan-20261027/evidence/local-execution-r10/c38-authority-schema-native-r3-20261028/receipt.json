@@ -1,0 +1,148 @@
+{
+  "schema": "policyos.e02.execution_receipt.v1",
+  "case": "c38-authority-schema-native-r3-20261028",
+  "prepared_at": "2026-10-28T04:31:28.655405+00:00",
+  "source": {
+    "commit": "575432f281aeec5dbe89e906cd2545fcd2bc4087",
+    "tree": "8107f2cbbdbb39d0861134a0ff5f47b19025ef57",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-c57-admission-compose-r1/full-composed-source-frame.json",
+      "sha256": "80d2ecc3caf04e916387231fd72d9cee9908b41c8008b088be614eed29862c59"
+    }
+  },
+  "scope": "Four exact native pytest selectors / six source-derived cases: actual v2 model/schema equality; frozen v1 byte contract; real registered exporter+generic comparator matching/type-drift/required-removed witnesses; legacy round-trip and refusal of new authority. Six exporter subprocess calls planned only on complete PASS. Retain real uncorrupted probe v2 schema bytes; do not promote expected-path semantic corruptions. Not private copied-source isolation, positive authority issuance, full provenance/B87/B89 closure, global generated freshness or G acceptance.",
+  "command_actually_executed": {
+    "argv": [
+      "/usr/bin/sandbox-exec",
+      "-f",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c38-authority-schema-native-r3-20261028/child.sb",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "-B",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c38-authority-schema-native-r3-20261028/pytest_launcher.py",
+      "-o",
+      "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c38-authority-schema-native-r3-20261028/pytest-cache",
+      "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c38-authority-schema-native-r3-20261028/benchmarks",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c38-authority-schema-native-r3-20261028/basetemp",
+      "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c38-authority-schema-native-r3-20261028/pytest.xml",
+      "--tb=short",
+      "--color=no",
+      "--maxfail=0",
+      "tests/unit/runtime/quality/test_authority.py::test_json_schema_snapshot_matches_model_schema",
+      "tests/repo_quality/tools/test_runtime_quality_authority_schema_family.py::test_historical_schema_bytes_remain_frozen",
+      "tests/repo_quality/tools/test_runtime_quality_authority_schema_family.py::test_actual_v2_exporter_is_compared_by_content",
+      "tests/unit/runtime/quality/test_authority.py::test_runtime_envelope_round_trips_as_legacy_without_new_authority"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine"
+  },
+  "source_profile": {
+    "freeze": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c38-authority-schema-native-r3-20261028/source-profile-freeze.json.gz",
+      "sha256": "5a8efa79930a78b7fc2eaaa566226cf8e2bb8efdfb37118dda672be6de3e62c7",
+      "bytes": 2708,
+      "availability": "r10 proposal postimage; coordinator composition and Git readback pending"
+    },
+    "numeric_threads": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMBA_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "ARROW_NUM_THREADS": "1",
+      "BLIS_NUM_THREADS": "1",
+      "POLARS_MAX_THREADS": "1",
+      "TF_NUM_INTEROP_THREADS": "1",
+      "TF_NUM_INTRAOP_THREADS": "1",
+      "VECLIB_MAXIMUM_THREADS": "1"
+    },
+    "extra_env": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "TMPDIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c38-authority-schema-native-r3-20261028/tmp",
+      "XDG_CACHE_HOME": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c38-authority-schema-native-r3-20261028/tmp/xdg",
+      "MPLCONFIGDIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c38-authority-schema-native-r3-20261028/tmp/mpl",
+      "NUMBA_CACHE_DIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c38-authority-schema-native-r3-20261028/tmp/numba",
+      "HYPOTHESIS_STORAGE_DIRECTORY": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c38-authority-schema-native-r3-20261028/tmp/hypothesis",
+      "PYTHONPYCACHEPREFIX": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c38-authority-schema-native-r3-20261028/tmp/empty-pycache",
+      "POLISYOS_R4_INPUT_PROJECT_ROOT": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "POLISYOS_R4_INPUT_READSET_DIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c38-authority-schema-native-r3-20261028/readsets",
+      "SCIENTIST_TORCH_NUM_THREADS": "1",
+      "SCIENTIST_TORCH_NUM_INTEROP_THREADS": "1",
+      "PYTHONNOUSERSITE": "1",
+      "PYTHONHASHSEED": "0",
+      "JAX_PLATFORMS": "cpu"
+    },
+    "native_profile": "pytest.ini, default plugin autoload/importlib/strict markers; add read-only sys.modules observer; outputs redirected only; private empty pycache search prefix prevents stale canonical pyc reuse",
+    "actual_root_live": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/shared/root-live-99a4.json.gz",
+      "sha256": "8f98e07de6fcb9abf38e7117bf5704e2a2c76e3358b4cc0e3cdc1628ce257a86",
+      "bytes": 2748,
+      "availability": "r10 proposal postimage; coordinator composition and Git readback pending",
+      "decompressed_sha256": "99a4dcae8a8afc0ae2314efc36bebfc38e2a0ac152897950a28c6918a33a15b8"
+    }
+  },
+  "result": {
+    "return_code": 0,
+    "junit_counts": {
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "failures": [],
+    "skips": [],
+    "wall_seconds": 118.46755991701502,
+    "max_sampled_process_tree_rss_bytes": 1747550208
+  },
+  "outputs": {
+    "stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c38-authority-schema-native-r3-20261028/stdout.txt",
+      "sha256": "75739e6e6cb5d70d5dcae85d6edbfb6e8814b75cb038f8c2b442834e28ffa1f0",
+      "bytes": 680,
+      "availability": "r10 proposal postimage; coordinator composition and Git readback pending"
+    },
+    "stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r6/common/empty.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "availability": "previous committed r8 shared empty output"
+    },
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c38-authority-schema-native-r3-20261028/pytest.xml",
+      "sha256": "6d76555d6390284e657ff7bc5600a714afc6b0c43d3eeb512cb854566c31254d",
+      "bytes": 1235,
+      "availability": "r10 proposal postimage; coordinator composition and Git readback pending"
+    },
+    "audit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c38-authority-schema-native-r3-20261028/audit-result.json.gz",
+      "sha256": "e33cc460a532c7ca498410a4b3641fa32eb1b2a712b779d8bdc1db626d99d509",
+      "bytes": 1993,
+      "availability": "r10 proposal postimage; coordinator composition and Git readback pending"
+    },
+    "freeze": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c38-authority-schema-native-r3-20261028/source-profile-freeze.json.gz",
+      "sha256": "5a8efa79930a78b7fc2eaaa566226cf8e2bb8efdfb37118dda672be6de3e62c7",
+      "bytes": 2708,
+      "availability": "r10 proposal postimage; coordinator composition and Git readback pending"
+    },
+    "plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c38-authority-schema-native-r3-20261028/plan.json.gz",
+      "sha256": "612cdf4f68be7a32ff740c902c613f171ffb007310cfc64df5dca97451f19087",
+      "bytes": 802,
+      "availability": "r10 proposal postimage; coordinator composition and Git readback pending"
+    },
+    "readset": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c38-authority-schema-native-r3-20261028/input-readset.json.gz",
+      "sha256": "34947706621890a665e543eee370b2ef784d43b75b4004bfd3a8b72df30a68f5",
+      "bytes": 87484,
+      "availability": "r10 proposal postimage; coordinator composition and Git readback pending"
+    },
+    "git_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c38-authority-schema-native-r3-20261028/git-readback.json",
+      "sha256": "c3b0bf991c591d69060294371501c3fe4acd8e91d034127278a57b98c729307d",
+      "bytes": 623,
+      "availability": "r10 proposal postimage; coordinator composition and Git readback pending"
+    }
+  },
+  "G_acceptance": false,
+  "closure_ids": []
+}

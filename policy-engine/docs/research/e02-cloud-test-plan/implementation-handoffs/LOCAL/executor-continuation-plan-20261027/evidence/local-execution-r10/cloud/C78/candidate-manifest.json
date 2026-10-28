@@ -1,0 +1,92 @@
+{
+  "slice": "C78",
+  "task_id": "task_e_6ae1693191fc832593fbcf8b2778d377",
+  "base_commit": "b2dcf0ee106389216017a88620817c37d3746886",
+  "candidate_tree_reconstructed_from_received_diff": "1d55a9c895342e977471ab0edb7259a9a2ff5ef5",
+  "received_diff_sha256": "5723928805a396e58ac59fbade9ac49cfd31a88b0cdecd57cd020b49e705e364",
+  "received_diff_bytes": 111348,
+  "files": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-28-cal05-selector-batch-executor.toml",
+      "base_git_blob": null,
+      "postimage_git_blob": "c7d5211cfabf0a12cacb377aea403c282a927652",
+      "postimage_sha256": "d0fc588ec9a0d06e192ed57d81a75e9ea0c333ab02c04ebb84b2e8985af772df",
+      "bytes": 2178,
+      "new_file": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/README.md",
+      "base_git_blob": "e343b7dd8215bcf66755a0dbcd8d9aa1fe425a6c",
+      "postimage_git_blob": "747a1b76109943904c8edad374a5acbd4253c6bb",
+      "postimage_sha256": "c5eda1701e0a17d755bca66c362b2a3d15769a385c9e6d785a911a8e60bb80f9",
+      "bytes": 17140,
+      "new_file": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/__init__.py",
+      "base_git_blob": "03be7150535d127c495c9283eebdf3b86200701b",
+      "postimage_git_blob": "aa045d34504e80a904af8cc6aa77042b8847c06f",
+      "postimage_sha256": "d64d3c778c08ebe3ec4bba086e8377489ba1a616f4f4d81b44e866eb9fe5689b",
+      "bytes": 8592,
+      "new_file": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+      "base_git_blob": "ca8e195db254e3535765959315ea2437e9e46759",
+      "postimage_git_blob": "64d766c49b3d71ce3ba47191fdfe7e9d0f1eaa0e",
+      "postimage_sha256": "37c41f6625fe3b11a690b646777b302d501a10e75267985d15cebde716187adc",
+      "bytes": 144083,
+      "new_file": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/execution_basis.py",
+      "base_git_blob": "15fecd54183abc9412e8e10ea9f80de68362e4fc",
+      "postimage_git_blob": "7ea1e9cb0d1a7877cf5199a447c08555e3d52351",
+      "postimage_sha256": "8cef74e0b9616a963f4ff7107a163f7761ce593688db7c0f86512d860e7c86dd",
+      "bytes": 28374,
+      "new_file": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/measurement.py",
+      "base_git_blob": "fd22f4376944fc29fd8ccb88dd0de0e2ceeebfc8",
+      "postimage_git_blob": "872828461d04ddce98febd8a620a00ff8df78625",
+      "postimage_sha256": "be1de99f1764725d501ddaf2f1136ed40c39d02df456aef4478a497138ace350",
+      "bytes": 28892,
+      "new_file": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/pure_executor.py",
+      "base_git_blob": "3f5dcea6511b1e39e91f59df1bb96bd21434d658",
+      "postimage_git_blob": "4c8d109bcec96bb3243cee83ce3902ac6644a8d1",
+      "postimage_sha256": "ced0d5c9ff05a80c08bc7f2ebae18129f7df5c7bab0f5e64c57f9bf1c703df8d",
+      "bytes": 39227,
+      "new_file": false
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/calibration/test_ordered_batch_calibration.py",
+      "base_git_blob": null,
+      "postimage_git_blob": "52e9b8676a7b07df07f605825d2c242854c6d05f",
+      "postimage_sha256": "6b812602bdf8b8f07950dc710a928e4b06385deecb766b09731355df43d1fb74",
+      "bytes": 3631,
+      "new_file": true
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+      "base_git_blob": "013f2b7d85e28b723cae17a964e95f7f9789b715",
+      "postimage_git_blob": "1b62d852a354db106fe11f3b1c77469c03b01c38",
+      "postimage_sha256": "1be87a10a7cc784684f1552f5c79d3e4f43c0fc7f2f2671363864c94f2c12047",
+      "bytes": 29745,
+      "new_file": false
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_cal_01.py",
+      "base_git_blob": "bade523dcce39fe00b2c77c2bf627675e69a1eb1",
+      "postimage_git_blob": "593daa22292e0da7f5da8475a9104b20212274de",
+      "postimage_sha256": "8c343db6ca5d1003606156e47cc9fd47da3c484dd2a5b946a8527bc785628441",
+      "bytes": 11416,
+      "new_file": false
+    }
+  ],
+  "canonical_source_not_applied": true,
+  "actual_canonical_index_unchanged": true
+}

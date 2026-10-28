@@ -1,0 +1,10 @@
+{
+  "slice": "C82",
+  "task_id": "task_e_6ae172bd146c83259b2d49acf0fb4213",
+  "exit": 1,
+  "bytes": 0,
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "expected_base": "b2dcf0ee106389216017a88620817c37d3746886",
+  "expected_tree": "cd13b4ab7ed1e32661b2b8d4854440b8557cc0cb",
+  "delivery": "unavailable"
+}

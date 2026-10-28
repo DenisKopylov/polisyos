@@ -1,0 +1,18 @@
+import sys, pathlib, hashlib, json, traceback, resource
+from polisyos.scientist.orchestration.llm.prepared_request import freeze_wire_object, thaw_wire_object
+try:
+    value=thaw_wire_object(freeze_wire_object({"text":"native decoder positive","items":[1,2]}))
+    assert value=={"text":"native decoder positive","items":[1,2]}
+    print("PASS exact shared-owner JSON roundtrip")
+except BaseException:
+    traceback.print_exc()
+    raise
+finally:
+    root=pathlib.Path("/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos")
+    rows={}
+    for module in tuple(sys.modules.values()):
+        filename=getattr(module,"__file__",None)
+        if filename:
+            f=pathlib.Path(filename)
+            if f.suffix==".py" and f.is_relative_to(root) and f.is_file():rows[str(f.relative_to(root))]=hashlib.sha256(f.read_bytes()).hexdigest()
+    print(json.dumps({"python":sys.version,"loaded_repository_python":rows,"maxrss_bytes":resource.getrusage(resource.RUSAGE_SELF).ru_maxrss},sort_keys=True))

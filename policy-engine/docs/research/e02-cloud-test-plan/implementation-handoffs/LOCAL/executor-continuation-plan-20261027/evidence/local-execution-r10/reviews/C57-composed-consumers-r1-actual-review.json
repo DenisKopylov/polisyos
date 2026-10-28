@@ -1,0 +1,96 @@
+{
+  "schema": "policyos.e02.C57.composed_consumer_wave.actual_review.v1",
+  "verdict": "HOLD",
+  "verdict_scope": "the 183-case affected wave is not green; two failure causes are classified, but their source contracts must be resolved before qualification",
+  "source": {
+    "head": "575432f281aeec5dbe89e906cd2545fcd2bc4087",
+    "tree": "8107f2cbbdbb39d0861134a0ff5f47b19025ef57",
+    "plan_sha256": "85db9f1ada38c7dc2a5f4285989c45d913cb102a44dd7bf8c3de865704ce5204",
+    "audit_sha256": "e5ad17f5a0005c5999845deec041a397ded5e538dfe3783013aa0494f2aaa1c9",
+    "junit_sha256": "f68a205450d698eb33a076e986129652057b13c8af7adac0fa973c313fe27173",
+    "stdout_sha256": "38ba689b12bfdd166e7edb50e37818c00e6120bb498e3187d64be25ac6ffee9e",
+    "source_profile_freeze_sha256": "2db55d3ce304c02e1845b8716a7c048b6666b047a12a26425f0a7be2a1b68bf1",
+    "readset_sha256": "53b099990199b07f595f53be78645fe9981432463525c4f03ff7c20d9d365b99",
+    "git_readback_sha256": "f296e7a4f444c23c847aaba6370f49acf314694d45e51b6b7a5018c72ea737eb"
+  },
+  "run": {
+    "tests": 183,
+    "passed": 176,
+    "failed": 3,
+    "errors": 0,
+    "skipped": 4,
+    "return_code": 1,
+    "wall_seconds": 33.71531324999523,
+    "max_sampled_process_tree_rss_bytes": 1136574464,
+    "rss_cap_bytes": 2415919104,
+    "source_paths": 1884,
+    "test_paths": 28,
+    "tool_paths": 20,
+    "readset_entries": 1932,
+    "readset_content_mismatches": 0,
+    "readset_missing_or_untracked": 0,
+    "selected_input_pins": 22,
+    "selected_input_pin_mismatches": 0,
+    "git_index_work_mismatches": 0
+  },
+  "test_scope_results": {
+    "full_C37_seven_module_cohort": {
+      "tests": 151,
+      "passed": 151
+    },
+    "existing_event_log_consumers": {
+      "tests": 7,
+      "passed": 7
+    },
+    "C57_publication_module": {
+      "tests": 25,
+      "passed": 18,
+      "failed": 3,
+      "postgresql_skipped": 4,
+      "postgresql_skip_reason": "dedicated disposable PostgreSQL DSN not supplied"
+    }
+  },
+  "failure_classes": [
+    {
+      "class": "timestamp_precision_contract_unresolved",
+      "count": 2,
+      "testcases": [
+        "test_prepared_values_publish_atomically_with_actual_event_time_and_fresh_reader[pending-sqlite]",
+        "test_prepared_values_publish_atomically_with_actual_event_time_and_fresh_reader[failed-sqlite]"
+      ],
+      "observation": "source lifecycle created_at carries microseconds; diagnostic row created_at is written via Store _utc_now(), which truncates to seconds; C57 diagnostic.event.event_time equals the source.created_at and passes",
+      "classification": "the row timestamp comparison is not a valid SQL-order oracle at these different precisions; if row created_at must encode post-source ordering, a product time-semantics defect remains, otherwise the test must assert the bound event_time and append-order contract",
+      "source_defect_established": false
+    },
+    {
+      "class": "cancelled_job_vs_progress_projection_state",
+      "count": 1,
+      "testcase": "test_fast_worker_or_cancellation_cannot_be_overwritten_by_late_admission_progress[cancelled]",
+      "observation": "cancel_job sets authoritative job state to cancelled and adds cancellation metadata while preserving prior progress.state=pending; the test's progress equality/no-overwrite assertion passes, but the extra progress.state == cancelled assertion fails",
+      "classification": "current ControlJobResponse exposes state/execution_status separately and treats progress as an open projection; this mirror requirement is not established unless a product consumer contract requires it",
+      "source_defect_established": false,
+      "http_cancellation_authorization_established": false,
+      "physical_stop_established": false
+    }
+  ],
+  "runtime_limits": {
+    "postgres": "4 cases skipped; not a product pass",
+    "full_B56": "not established",
+    "production_currentness": "not established",
+    "G_acceptance": false,
+    "closure_ids": []
+  },
+  "actions_taken": {
+    "tests_rerun_for_review": false,
+    "product_imports_for_review": false,
+    "canonical_source_writes": false,
+    "index_or_ref_changes": false
+  },
+  "pattern_pass": [
+    "P29",
+    "P37",
+    "P38",
+    "P40",
+    "P41"
+  ]
+}

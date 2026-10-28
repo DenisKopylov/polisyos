@@ -1,0 +1,21 @@
+{
+  "case": "c57-admission-publication-pilot-r1-20261028",
+  "source_head": "575432f281aeec5dbe89e906cd2545fcd2bc4087",
+  "tree": "8107f2cbbdbb39d0861134a0ff5f47b19025ef57",
+  "finite_loaded_py_paths": 1815,
+  "denominator": "Complete observed src/polisyos+tests+tools Python paths; unimported/external dependency/native bytes excluded",
+  "git_index_work_mismatches": [],
+  "junit_tests": 7,
+  "actual_testcase_names": [
+    "test_terminal_handler_diagnostic_rejects_foreign_and_replaced_attempt[completed]",
+    "test_terminal_handler_diagnostic_rejects_foreign_and_replaced_attempt[failed]",
+    "test_unestablished_attempt_band_refuses_before_evaluation_safety_or_n4[context0-not_established]",
+    "test_unestablished_attempt_band_refuses_before_evaluation_safety_or_n4[context1-eval_safety_required]",
+    "test_authenticated_launch_binds_all_five_intent_bands_and_actor_scope",
+    "test_fast_worker_or_cancellation_cannot_be_overwritten_by_late_admission_progress[completed]",
+    "test_stalled_admission_cas_does_not_hold_other_job_cancellation"
+  ],
+  "actual_junit_all_pass": true,
+  "audit_sha256": "3cf1b5f7cf912ff643611d7d757ef11cd342cf751203dc8f3fc3156221804641",
+  "scope": "Seven-case C57 diagnostic admission/SQL-control-capacity pilot, no completeC57/B56/G closure"
+}

@@ -1,0 +1,47 @@
+{
+  "schema": "policyos.e02.c77.return.independent_review.v1",
+  "source_verdict": "HOLD",
+  "reviewer_runtime": "UNRUN",
+  "author_runtime": "REPORTED_PASS_BOUNDED_OUTPUT_DELIVERED_SOURCE_COMMIT_UNAVAILABLE",
+  "g_acceptance": false,
+  "base_commit": "b2dcf0ee106389216017a88620817c37d3746886",
+  "candidate_tree": "7e52d93b23c35d6005fa120455ae9066d3f8f1e9",
+  "source_only_tree": "b680e7c634b703eaec5fecfc417406511aa1acc6",
+  "source_diff_sha256": "b121bb95766be9dfe27f814efeab45575bd720f4d5345abc3937ef18b199dfe9",
+  "prompt_sha256": "d6caa65f8511d05d514954a2f8e48c313edeb11b224e6787e993654cbdbfda80",
+  "complete_changed_paths": 13,
+  "delivered_handoff_files": 6,
+  "identity_output_sha256": "97edf98ab4f5257c5bed274b187a189c25d1e2350b7585b64c32badba42491c7",
+  "finding_buckets": [
+    {
+      "id": "R1",
+      "bucket": "SAME selected physical parent/source-to-cell class",
+      "examples": [
+        "fresh reader ignores selected parent digest",
+        "raw sidecar trust",
+        "all-mode relation missing",
+        "identical declaration physical instance alias"
+      ]
+    },
+    {
+      "id": "R2",
+      "bucket": "SAME producer/reader resource envelope class",
+      "examples": [
+        "pre-admission full projection",
+        "unchecked manifest unreadable by paired reader",
+        "uncapped outer join materializes before output limit",
+        "unsupported schema after writes"
+      ]
+    },
+    {
+      "id": "R3",
+      "bucket": "SAME effective rule replay class",
+      "examples": [
+        "column_policies enum restores as string and SUMMARY replay raises AttributeError"
+      ]
+    }
+  ],
+  "new_class": "No further new class identified; B144 ordering was previously NEW and has missing required semantic evidence.",
+  "production_bridge": "integration_pending; exact caller/terminus and invocation diagnostic not established",
+  "reviewer_canonical_source_index_refs_mutated": false
+}

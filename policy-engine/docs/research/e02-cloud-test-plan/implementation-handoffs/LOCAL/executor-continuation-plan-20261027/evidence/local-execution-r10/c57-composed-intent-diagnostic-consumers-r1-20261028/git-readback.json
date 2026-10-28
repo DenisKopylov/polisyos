@@ -1,0 +1,17 @@
+{
+  "source_head": "575432f281aeec5dbe89e906cd2545fcd2bc4087",
+  "source_tree": "8107f2cbbdbb39d0861134a0ff5f47b19025ef57",
+  "case": "c57-composed-intent-diagnostic-consumers-r1-20261028",
+  "finite_loaded_py_paths": 1932,
+  "git_index_work_mismatches": [],
+  "denominator": "All observed imported src/polisyos, tests and tools Python paths; unimported paths, external packages/native libraries excluded",
+  "audit_sha256": "e5ad17f5a0005c5999845deec041a397ded5e538dfe3783013aa0494f2aaa1c9",
+  "runtime_result": {
+    "tests": 183,
+    "failures": 3,
+    "errors": 0,
+    "skipped": 4
+  },
+  "G_acceptance": false,
+  "closure_ids": []
+}

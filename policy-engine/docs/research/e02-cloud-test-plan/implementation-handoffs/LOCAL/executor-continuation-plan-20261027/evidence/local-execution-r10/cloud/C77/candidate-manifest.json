@@ -1,0 +1,128 @@
+{
+  "slice": "C77",
+  "task_id": "task_e_6ae168e88ee8832595dc32b035d62676",
+  "base_commit": "b2dcf0ee106389216017a88620817c37d3746886",
+  "candidate_tree_reconstructed_from_received_diff": "7e52d93b23c35d6005fa120455ae9066d3f8f1e9",
+  "received_diff_sha256": "b121bb95766be9dfe27f814efeab45575bd720f4d5345abc3937ef18b199dfe9",
+  "received_diff_bytes": 93497,
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C77/cloud/2026-10-28/git-diff-check.txt",
+      "base_git_blob": null,
+      "postimage_git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "postimage_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "new_file": true,
+      "delivered_file": "LOCAL/raw/e02-execution-20261027/cloud/C77/delivered/C77/cloud/2026-10-28/git-diff-check.txt",
+      "actual_delivered_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C77/cloud/2026-10-28/production-invocation.stderr",
+      "base_git_blob": null,
+      "postimage_git_blob": "e45127744654316c7b59646d946ed0d45db1c790",
+      "postimage_sha256": "059978ab377fe0dd475330c4693175318b7bc67b8acd5c34d375e3930c1a25aa",
+      "bytes": 108,
+      "new_file": true,
+      "delivered_file": "LOCAL/raw/e02-execution-20261027/cloud/C77/delivered/C77/cloud/2026-10-28/production-invocation.stderr",
+      "actual_delivered_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C77/cloud/2026-10-28/production-invocation.stdout",
+      "base_git_blob": null,
+      "postimage_git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "postimage_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "new_file": true,
+      "delivered_file": "LOCAL/raw/e02-execution-20261027/cloud/C77/delivered/C77/cloud/2026-10-28/production-invocation.stdout",
+      "actual_delivered_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C77/cloud/2026-10-28/pytest.exit",
+      "base_git_blob": null,
+      "postimage_git_blob": "573541ac9702dd3969c9bc859d2b91ec1f7e6e56",
+      "postimage_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2,
+      "new_file": true,
+      "delivered_file": "LOCAL/raw/e02-execution-20261027/cloud/C77/delivered/C77/cloud/2026-10-28/pytest.exit",
+      "actual_delivered_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C77/cloud/2026-10-28/pytest.txt",
+      "base_git_blob": null,
+      "postimage_git_blob": "60e6e9d780d11e69e12fcf4e4fade7c88ef3a400",
+      "postimage_sha256": "6dd786dc72d45e02d32f9a2c96fbee7f0ea69261b610e86a41d1a671dd0186ef",
+      "bytes": 80,
+      "new_file": true,
+      "delivered_file": "LOCAL/raw/e02-execution-20261027/cloud/C77/delivered/C77/cloud/2026-10-28/pytest.txt",
+      "actual_delivered_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C77/cloud/2026-10-28/receipt.json",
+      "base_git_blob": null,
+      "postimage_git_blob": "043bb51d57903983398b7c516f89996f5ee8d838",
+      "postimage_sha256": "16625ade8630a877ddf0ac7b3d0951399c20a6ca51f2cd5489c58c166087021d",
+      "bytes": 5779,
+      "new_file": true,
+      "delivered_file": "LOCAL/raw/e02-execution-20261027/cloud/C77/delivered/C77/cloud/2026-10-28/receipt.json",
+      "actual_delivered_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-27-c34-federation-lineage.toml",
+      "base_git_blob": null,
+      "postimage_git_blob": "a0e3833e89714275c1bf232d6d5f4b8a44f6c58c",
+      "postimage_sha256": "b8c7f146036b5efdc429b56f3f4d1614c6df49e2bed90e6f41e09063c3982862",
+      "bytes": 1951,
+      "new_file": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/README.md",
+      "base_git_blob": "7d2bf37e7616c3937da75e5989b87eb046b9b998",
+      "postimage_git_blob": "ef126ff471a41d19a843033e592811c80ee9a22c",
+      "postimage_sha256": "d7461bb75e2b9cca3ef81bd5e18414c900d108351d1fd689b0bd07d8931b0b53",
+      "bytes": 13437,
+      "new_file": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/federation/__init__.py",
+      "base_git_blob": "cd542436e7232125f2b6db4521fb389c2924953c",
+      "postimage_git_blob": "b78a10a186a01122bd3d958688d5c79bb4be474f",
+      "postimage_sha256": "4c8857a3c526d7e14dfbd760a2a9275d3ae83bd09ccc3d2f70acc7025c90adb4",
+      "bytes": 2294,
+      "new_file": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/federation/artifact.py",
+      "base_git_blob": null,
+      "postimage_git_blob": "7fd772b6b1d89c8fec6791d415b278584e771ff9",
+      "postimage_sha256": "29122c0b861731847cf492aeb931a48c73a13daa0a74be2a582f213fef927859",
+      "bytes": 15929,
+      "new_file": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/federation/composer.py",
+      "base_git_blob": "def3f64a2ab1f3331bc90f35144520411f6c72ac",
+      "postimage_git_blob": "67b3dd7f00787c24ec2317e18180bf32fdd9f787",
+      "postimage_sha256": "6566643d53deaaec40475d914fd4b3a19bec763a14849addf42b008f3201e8ba",
+      "bytes": 54579,
+      "new_file": false
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/connectors/test_federation.py",
+      "base_git_blob": "bd7f6c92bda6a11392e706079e7ec4a70a99783b",
+      "postimage_git_blob": "e2bf77a656fe48976e874c08a341507f33c79518",
+      "postimage_sha256": "d20c0fd01d02f4a43455c52b21405f1d9f412b937a9f1348a3ad93274f203629",
+      "bytes": 37236,
+      "new_file": false
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/connectors/test_federation_artifact.py",
+      "base_git_blob": null,
+      "postimage_git_blob": "ed60b269449e3e8dc39b883c2d29135e025a7049",
+      "postimage_sha256": "37bf4ca121ceb2cb879c25b021f26fe9e0ab383ea603aadae8dcad7a37252db8",
+      "bytes": 7806,
+      "new_file": true
+    }
+  ],
+  "canonical_source_not_applied": true,
+  "actual_canonical_index_unchanged": true
+}

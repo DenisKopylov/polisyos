@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/LOCAL/raw/e02-execution-20261027/root-c05-decoder-repro-r1/child.py", line 4, in <module>
+    value=thaw_wire_object(freeze_wire_object({"text":"native decoder positive","items":[1,2]}))
+  File "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/llm/prepared_request.py", line 49, in thaw_wire_object
+    return decode_json_object(value, kind="prepared LLM request")
+TypeError: decode_json_object() missing 1 required keyword-only argument: 'source'
+Traceback (most recent call last):
+  File "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/LOCAL/raw/e02-execution-20261027/root-c05-decoder-repro-r1/child.py", line 4, in <module>
+    value=thaw_wire_object(freeze_wire_object({"text":"native decoder positive","items":[1,2]}))
+  File "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/llm/prepared_request.py", line 49, in thaw_wire_object
+    return decode_json_object(value, kind="prepared LLM request")
+TypeError: decode_json_object() missing 1 required keyword-only argument: 'source'

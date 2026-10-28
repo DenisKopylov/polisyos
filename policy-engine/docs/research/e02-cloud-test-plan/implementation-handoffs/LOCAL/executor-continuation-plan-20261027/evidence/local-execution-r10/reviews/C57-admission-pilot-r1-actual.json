@@ -1,0 +1,84 @@
+{
+  "schema": "policyos.e02.C57.admission_pilot.actual_review.v1",
+  "verdict": "GO",
+  "verdict_scope": "bounded seven-case admission publication and SQLite SQL-capacity pilot only",
+  "source": {
+    "head": "575432f281aeec5dbe89e906cd2545fcd2bc4087",
+    "tree": "8107f2cbbdbb39d0861134a0ff5f47b19025ef57",
+    "plan_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-admission-publication-pilot-r1-20261028.json",
+    "plan_sha256": "7aebb07af993f1daa8f2d08b0d60c8a41382b563ebff0bd2bc8a4becb4bf9b8b",
+    "audit_sha256": "3cf1b5f7cf912ff643611d7d757ef11cd342cf751203dc8f3fc3156221804641",
+    "junit_sha256": "e91e90e17614236e88bae5d0ec022b6d5fef026aeac5cfa37b3681fba18890ba",
+    "stdout_sha256": "c9fc3925c5063f9f65550a74c02a3aa85a27197abe1e17a3fd4c2b049cf82e9e",
+    "source_profile_freeze_sha256": "22f7409ba39736a316c97cb8ca0a8e04549b2bada38deea769419794059077f4",
+    "readset_sha256": "0c389607977c75bd2ff93c78b685338e54772b9fe8ef04c723b81e7bb1cba679",
+    "git_readback_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-admission-publication-pilot-r1-20261028-Git-readback.json",
+    "git_readback_sha256": "6c9e2afeb294176134fe0634b81a1372ede4b34d0bea31e387d9bd923b94c6fc"
+  },
+  "run": {
+    "tests": 7,
+    "passed": 7,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "return_code": 0,
+    "wall_seconds": 29.780170499987435,
+    "max_sampled_process_tree_rss_bytes": 1083883520,
+    "rss_cap_bytes": 2415919104,
+    "finite_loaded_python_paths": 1815,
+    "source_paths": 1800,
+    "test_paths": 15,
+    "tool_paths": 0,
+    "readset_content_mismatches": 0,
+    "readset_untracked_or_missing": 0,
+    "selected_input_pins": 14,
+    "selected_input_pin_mismatches": 0,
+    "git_index_work_mismatches": 0
+  },
+  "baseline": {
+    "c37_junit_sha256": "8e2eb202d98a6c9b6d32662a4c93e596e2ae59d4d2101531b5f50a096104cf7a",
+    "c37_failed_selectors": 5,
+    "all_five_same_selectors_present_and_passing": true,
+    "exact_historical_149_node_replay": "not rerun as the same historical selection; the later affected-wave run includes 151 current C37 module cases plus C57 and event-log consumers",
+    "later_affected_wave": {
+      "path": "LOCAL/raw/e02-execution-20261027/reviews/C57-composed-consumers-r1-actual-review.md",
+      "result": "176 passed, 3 failed, 4 skipped; not green"
+    }
+  },
+  "witnesses": [
+    {
+      "test": "test_fast_worker_or_cancellation_cannot_be_overwritten_by_late_admission_progress[completed]",
+      "result": "PASS",
+      "establishes": "real ControlWorker completion before enqueue resumes sees all three admission diagnostic IDs and late admission progress does not overwrite completion",
+      "bounded_to": "completed worker state parameter"
+    },
+    {
+      "test": "test_stalled_admission_cas_does_not_hold_other_job_cancellation",
+      "result": "PASS",
+      "establishes": "while an admission FileSystemCAS.put_json call is paused before release, a separate Store on the same SQLite database completes and verifies another job cancellation",
+      "bounded_to": "SQLite SQL control/capacity; test helper uses synthetic cancellation scope and is not an HTTP authorization witness"
+    }
+  ],
+  "runtime_limits": {
+    "postgres": "UNRUN",
+    "native_physical_stop_or_cancel": "not_established",
+    "http_cancellation_authorization": "not_established",
+    "full_B56": "not_established",
+    "production_currentness": "not_established",
+    "G_acceptance": false,
+    "closure_ids": []
+  },
+  "actions_taken": {
+    "tests_rerun_for_review": false,
+    "product_imports_for_review": false,
+    "canonical_source_writes": false,
+    "index_or_ref_changes": false
+  },
+  "pattern_pass": [
+    "P29",
+    "P37",
+    "P38",
+    "P40",
+    "P41"
+  ]
+}

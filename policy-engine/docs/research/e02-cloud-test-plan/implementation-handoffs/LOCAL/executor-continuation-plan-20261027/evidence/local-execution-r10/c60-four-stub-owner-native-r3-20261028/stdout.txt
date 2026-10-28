@@ -1,0 +1,17 @@
+.F.                                                                      [100%]R4_INPUT_READSET_SUMMARY={"bypass": null, "capacity": null, "case_id": "driver", "module_count": 87, "phase": "driver", "pid": 39274, "readset_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c60-four-stub-owner-native-r3-20261028/readsets/input-readset-39274.json", "source_module_count": 69, "test_module_count": 6, "tools_module_count": 12}
+
+=================================== FAILURES ===================================
+_____ test_actual_stub_owner_staging_and_check_detect_complete_byte_drift ______
+tests/repo_quality/tools/test_foundry_stub_generation.py:64: in test_actual_stub_owner_staging_and_check_detect_complete_byte_drift
+    assert set(map(str, expected)) <= set(actual_reads)
+E   AssertionError: assert {'/Users/deni...registry.pyi'} <= {'docs/resear...registry.pyi'}
+E     
+E     Extra items in the left set:
+E     '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-p...ur-stub-owner-native-r3-20261028/basetemp/test_actual_stub_owner_staging0/staged/src/polisyos/foundry/methods/base.pyi'
+E     '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-p...ative-r3-20261028/basetemp/test_actual_stub_owner_staging0/staged/src/polisyos/foundry/methods/components/composer.pyi'
+E     '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/pol...
+E     
+E     ...Full output truncated (2 lines hidden), use '-vv' to show
+=========================== short test summary info ============================
+FAILED tests/repo_quality/tools/test_foundry_stub_generation.py::test_actual_stub_owner_staging_and_check_detect_complete_byte_drift
+1 failed, 2 passed in 11.33s

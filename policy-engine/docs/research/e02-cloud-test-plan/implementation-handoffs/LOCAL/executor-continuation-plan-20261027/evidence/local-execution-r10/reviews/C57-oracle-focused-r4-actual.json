@@ -1,0 +1,95 @@
+{
+  "schema": "policyos.e02.C57.oracle_focused_r4.independent_actual_review.v1",
+  "verdict": "GO",
+  "verdict_scope": "six exact focused SQLite/native selectors on pinned source only",
+  "source": {
+    "commit": "7382a1c4eb32ee3370dc8f370133449cb95dd0db",
+    "tree": "b3840419a81bad0f96c933ff1cf920b76efb6d96",
+    "parent": "575432f281aeec5dbe89c906cd2545fcd2bc4087",
+    "test_postimage_sha256": "f271b80810b566c306fd873ca0f5dc7cac200b77936640e594794b224eed5c54",
+    "services_readme_sha256": "07f47a1291b2c80c810ffee67de5f505832f6a5fe35f0bfae7d0d9652a6588c7",
+    "unrelated_commit_path": "policy-engine/tests/repo_quality/tools/test_foundry_stub_generation.py"
+  },
+  "evidence": {
+    "plan_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-oracle-focused-r4-20261028.json",
+    "plan_sha256": "57955869835435d465f32b5cc1e016c09fe092a02348bd232c92c0329230c717",
+    "audit_sha256": "6b20bada807825932408bd0d01a5f9bc390127c74f366d811a8537f3e5555860",
+    "junit_sha256": "120ad9cad0ae566f98260326607c8a611a2bcced11a17e850a8e668c3430f44b",
+    "stdout_sha256": "35970edb3debbb59ccbcbe5be9b50ed7cdd33723c1bbb4446b4b232b863b232b",
+    "stderr": "empty",
+    "readset_sha256": "01bd8ee403fe84e75ea88bd7b8e22a8dfbd6a0d586ca72de84b10d2deaf63d43",
+    "readset_paths": 1814,
+    "readset_source_test_tools": [1800, 14, 0],
+    "git_readback_sha256": "f8f5956b8707c0bf36515dd230866dac3beb42944aaaeb99598aa620dfb72e70",
+    "git_index_work_mismatches": 0,
+    "audit_return_code": 0,
+    "pytest_exit_status": 0,
+    "process_group_gone": true,
+    "maximum_sampled_process_tree_rss_bytes": 1103282176,
+    "rss_cap_bytes": 1610612736,
+    "supervisor_wall_seconds": 25.761669958010316
+  },
+  "junit": {
+    "tests": 6,
+    "passes": 6,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "passing_cases": [
+      "test_prepared_values_publish_atomically_with_actual_event_time_and_fresh_reader[pending-sqlite]",
+      "test_prepared_values_publish_atomically_with_actual_event_time_and_fresh_reader[failed-sqlite]",
+      "test_fast_worker_or_cancellation_cannot_be_overwritten_by_late_admission_progress[running]",
+      "test_fast_worker_or_cancellation_cannot_be_overwritten_by_late_admission_progress[completed]",
+      "test_fast_worker_or_cancellation_cannot_be_overwritten_by_late_admission_progress[failed]",
+      "test_fast_worker_or_cancellation_cannot_be_overwritten_by_late_admission_progress[cancelled]"
+    ]
+  },
+  "scope": {
+    "time_source_binding_preserved": true,
+    "time_oracle_reads_actual_sql_recording_value": true,
+    "cancellation_verifies_event_outbox_and_authoritative_response": true,
+    "cancellation_helper_is_http_authorization_witness": false,
+    "physical_stop_established": false,
+    "full_183_case_wave_requalified": false,
+    "unchanged_151_c37_and_7_event_log_cases_rerun": false,
+    "postgres_delta_run": false,
+    "r4_removal_controls_run": false,
+    "G_acceptance": false,
+    "closure_ids": []
+  },
+  "removal_next_step": {
+    "feasible_under_observed_single_run_resource_envelope": true,
+    "run_sequentially_in_isolated_source_scratch": true,
+    "probes": [
+      {
+        "mutant": "substitute-diagnostic-recording-time",
+        "selector": "test_prepared_values_publish_atomically_with_actual_event_time_and_fresh_reader[pending-sqlite]",
+        "required_mutant_result": "assertion failure at persisted-time equality/precision oracle",
+        "required_restore_result": "same selector passes after exact source restoration"
+      },
+      {
+        "mutant": "project-cancelled-execution-status-from-progress",
+        "selector": "test_fast_worker_or_cancellation_cannot_be_overwritten_by_late_admission_progress[cancelled]",
+        "required_mutant_result": "assertion failure at authoritative state/execution_status equality",
+        "required_restore_result": "same selector passes after exact source restoration"
+      }
+    ],
+    "runtime": "UNRUN"
+  },
+  "prior_broad_wave": {
+    "source_cut": "575432f281aeec5dbe89c906cd2545fcd2bc4087",
+    "tests": 183,
+    "pass": 176,
+    "fail": 3,
+    "postgres_skip": 4,
+    "previously_failing_C57_selectors_in_focused_r4_and_passing": 3,
+    "other_cases_not_rerun": 177,
+    "original_receipt_relabelled_green": false
+  },
+  "reviewer_actions": {
+    "tests_rerun": false,
+    "product_imports_performed": false,
+    "canonical_source_index_or_refs_changed": false,
+    "environment_changed": false
+  }
+}

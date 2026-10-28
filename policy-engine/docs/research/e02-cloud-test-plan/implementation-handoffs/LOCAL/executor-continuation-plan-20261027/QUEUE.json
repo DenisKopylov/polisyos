@@ -1,6 +1,6 @@
 {
   "schema": "policyos.e02.continuation_routes.v1",
-  "scope": "Continuation view over existing canonical queue; no new task IDs/status changes or implementation authorization. Read detailed source reports and criterion pointers before execution.",
+  "scope": "Continuation view over existing canonical queue; no new task IDs/status changes or implementation authorization. Read detailed source reports and criterion pointers before execution. The current_source fields on all 26 rows record the historical route-authoring snapshot at base_commit, not current implementation source; for the latest observed execution cut and source-qualified receipts, see execution-state.json source_checkpoint and progress records.",
   "base_commit": "ad81c5b826bdfdda6aa2295b8641e9ae2a68b21a",
   "base_tree": "df24ff6ff12e7039c0cbfbd47abc8bee82f5332e",
   "denominator": {

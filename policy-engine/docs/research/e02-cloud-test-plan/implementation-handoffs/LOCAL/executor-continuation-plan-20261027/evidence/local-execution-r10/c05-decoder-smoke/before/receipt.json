@@ -1,0 +1,35 @@
+{
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+    "-B",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/LOCAL/raw/e02-execution-20261027/root-c05-decoder-repro-r1/child.py"
+  ],
+  "exit": 1,
+  "before": {
+    "head": "545c6990e2bfa42bf580b475e23cf88df04e71d8",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-c05-exact-prepared-dispatch-r8/full-composed-source-frame.json",
+      "sha256": "663f8ae12f29a510eebd661f1cb136607f8d96b01de708a2b3f62e3a3e742ade"
+    },
+    "expected_index": {
+      "raw_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "empty after root commit"
+    }
+  },
+  "after": {
+    "head": "545c6990e2bfa42bf580b475e23cf88df04e71d8",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-c05-exact-prepared-dispatch-r8/full-composed-source-frame.json",
+      "sha256": "663f8ae12f29a510eebd661f1cb136607f8d96b01de708a2b3f62e3a3e742ade"
+    },
+    "expected_index": {
+      "raw_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "empty after root commit"
+    }
+  },
+  "expected": "actual missing required source keyword TypeError before decoder fix",
+  "stdout_sha256": "85d295221f056f971ed2633a1e1b81e61414d4fc800e13c8e041e442cfe4535a",
+  "stderr_sha256": "b958e87214743690140b7de6e0671fb9245a300a1c50e400489228c9612cd9ec",
+  "runtime_scope": "one actual JSON helper roundtrip; not full C05/HTTP/native suite",
+  "closure_ids": []
+}

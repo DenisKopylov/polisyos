@@ -1,0 +1,52 @@
+I001 [*] Import block is un-sorted or un-formatted
+  --> src/polisyos/foundry/methods/base.pyi:1:1
+   |
+ 1 | / import ast
+ 2 | | from _typeshed import Incomplete
+ 3 | | from collections.abc import Callable, Mapping
+ 4 | | from dataclasses import dataclass, field
+ 5 | | from enum import Enum
+ 6 | | from polisyos.core.observability import DeterminismTier
+ 7 | | from polisyos.ir.analytics.uncertainty import OutputContractCapability
+ 8 | | from typing import Any, ClassVar, Protocol, TypeVar
+   | |___________________________________________________^
+ 9 |
+10 |   def is_valid_semver(version: str) -> bool: ...
+   |
+help: Organize imports
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> src/polisyos/foundry/methods/components/composer.pyi:1:1
+   |
+ 1 | / from _typeshed import Incomplete
+ 2 | | from collections.abc import Iterator, Mapping, Sequence
+ 3 | | from dataclasses import dataclass, field
+ 4 | | from enum import Enum
+ 5 | | from polisyos.foundry.methods.backends.chain_executor import ExecutorMode, FxRateProvider
+ 6 | | from polisyos.foundry.methods.base import MethodSignature
+ 7 | | from polisyos.foundry.methods.components.linker import LinkResult, LinkerConfig, SlotBinding, SlotLinker
+ 8 | | from polisyos.foundry.methods.selection.registry import MethodRegistry
+ 9 | | from typing import Any
+10 | | from uuid import UUID
+   | |_____________________^
+11 |
+12 |   __all__ = ['CompiledMethodChain', 'CompositionDAG', 'MethodComposer', 'MethodNode', 'SemanticValidationLevel', 'ValidationContext', 'r…
+   |
+help: Organize imports
+
+F403 `from polisyos.foundry.methods.components.composer import *` used; unable to detect undefined names
+ --> src/polisyos/foundry/methods/composer.pyi:1:1
+  |
+1 | from polisyos.foundry.methods.components.composer import *
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+
+F403 `from polisyos.foundry.methods.selection.registry import *` used; unable to detect undefined names
+ --> src/polisyos/foundry/methods/registry.pyi:1:1
+  |
+1 | from polisyos.foundry.methods.selection.registry import *
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+
+Found 4 errors.
+[*] 2 fixable with the `--fix` option.

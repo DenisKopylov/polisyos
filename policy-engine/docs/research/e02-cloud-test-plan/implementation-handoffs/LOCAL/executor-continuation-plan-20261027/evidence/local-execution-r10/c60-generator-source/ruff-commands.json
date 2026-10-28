@@ -1,0 +1,43 @@
+[
+  {
+    "command": [
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "--show-files",
+      "--no-cache",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/repo_quality/tools/test_foundry_stub_generation.py",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tools/devx/foundry/generate_stubs.py",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tools/registry.py"
+    ],
+    "exit": 0
+  },
+  {
+    "command": [
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "--no-cache",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/repo_quality/tools/test_foundry_stub_generation.py",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tools/devx/foundry/generate_stubs.py",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tools/registry.py"
+    ],
+    "exit": 0
+  },
+  {
+    "command": [
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "ruff",
+      "format",
+      "--check",
+      "--no-cache",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/repo_quality/tools/test_foundry_stub_generation.py",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tools/devx/foundry/generate_stubs.py",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tools/registry.py"
+    ],
+    "exit": 0
+  }
+]

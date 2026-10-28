@@ -1,0 +1,17 @@
+{
+  "source_head": "575432f281aeec5dbe89e906cd2545fcd2bc4087",
+  "source_tree": "8107f2cbbdbb39d0861134a0ff5f47b19025ef57",
+  "case": "c38-authority-schema-native-r3-20261028",
+  "finite_loaded_py_paths": 1581,
+  "git_index_work_mismatches": [],
+  "denominator": "All observed imported src/polisyos, tests and tools Python paths; unimported paths, external packages/native libraries excluded",
+  "audit_sha256": "8db97392fa12c37b4ecbe98dab9f2952e7ef47b1a30c19d07e876386176b777f",
+  "runtime_result": {
+    "tests": 6,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "G_acceptance": false,
+  "closure_ids": []
+}

@@ -1,0 +1,146 @@
+{
+  "schema": "policyos.e02.execution_receipt.v1",
+  "case": "c57-admission-publication-pilot-r1-20261028",
+  "prepared_at": "2026-10-28T04:31:28.655405+00:00",
+  "source": {
+    "commit": "575432f281aeec5dbe89e906cd2545fcd2bc4087",
+    "tree": "8107f2cbbdbb39d0861134a0ff5f47b19025ef57",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-c57-admission-compose-r1/full-composed-source-frame.json",
+      "sha256": "80d2ecc3caf04e916387231fd72d9cee9908b41c8008b088be614eed29862c59"
+    }
+  },
+  "scope": "Focused actual complete admission publication pilot: preserved five C37 failing cases, actual completed ControlWorker before enqueue resumes, real stalled CAS versus other-job cancellation before release. No new authority/physical stop/productioncurrentness/G closure. Expected7cases; Root checks exact JUnit rather than runner expected-count metadata.",
+  "command_actually_executed": {
+    "argv": [
+      "/usr/bin/sandbox-exec",
+      "-f",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-admission-publication-pilot-r1-20261028/child.sb",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "-B",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-admission-publication-pilot-r1-20261028/pytest_launcher.py",
+      "-o",
+      "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-admission-publication-pilot-r1-20261028/pytest-cache",
+      "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-admission-publication-pilot-r1-20261028/benchmarks",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-admission-publication-pilot-r1-20261028/basetemp",
+      "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-admission-publication-pilot-r1-20261028/pytest.xml",
+      "--tb=short",
+      "--color=no",
+      "--maxfail=0",
+      "tests/unit/runtime/http/test_control_job_execution_intent.py::test_terminal_handler_diagnostic_rejects_foreign_and_replaced_attempt",
+      "tests/unit/runtime/http/test_control_job_execution_intent.py::test_unestablished_attempt_band_refuses_before_evaluation_safety_or_n4",
+      "tests/unit/runtime/http/test_control_job_execution_intent.py::test_authenticated_launch_binds_all_five_intent_bands_and_actor_scope",
+      "tests/unit/runtime/http/test_control_job_admission_publication.py::test_fast_worker_or_cancellation_cannot_be_overwritten_by_late_admission_progress[completed]",
+      "tests/unit/runtime/http/test_control_job_admission_publication.py::test_stalled_admission_cas_does_not_hold_other_job_cancellation"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine"
+  },
+  "source_profile": {
+    "freeze": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c57-admission-publication-pilot-r1-20261028/source-profile-freeze.json.gz",
+      "sha256": "ce41e7ce23e1a79485542af852a748852e71bae973f2f3bb6590f5278984694e",
+      "bytes": 2630,
+      "availability": "r10 proposal postimage; coordinator composition and Git readback pending"
+    },
+    "numeric_threads": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMBA_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "ARROW_NUM_THREADS": "1",
+      "BLIS_NUM_THREADS": "1",
+      "POLARS_MAX_THREADS": "1",
+      "TF_NUM_INTEROP_THREADS": "1",
+      "TF_NUM_INTRAOP_THREADS": "1",
+      "VECLIB_MAXIMUM_THREADS": "1"
+    },
+    "extra_env": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "TMPDIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-admission-publication-pilot-r1-20261028/tmp",
+      "XDG_CACHE_HOME": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-admission-publication-pilot-r1-20261028/tmp/xdg",
+      "MPLCONFIGDIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-admission-publication-pilot-r1-20261028/tmp/mpl",
+      "NUMBA_CACHE_DIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-admission-publication-pilot-r1-20261028/tmp/numba",
+      "HYPOTHESIS_STORAGE_DIRECTORY": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-admission-publication-pilot-r1-20261028/tmp/hypothesis",
+      "PYTHONPYCACHEPREFIX": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-admission-publication-pilot-r1-20261028/tmp/empty-pycache",
+      "POLISYOS_R4_INPUT_PROJECT_ROOT": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "POLISYOS_R4_INPUT_READSET_DIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-admission-publication-pilot-r1-20261028/readsets",
+      "SCIENTIST_TORCH_NUM_THREADS": "1",
+      "SCIENTIST_TORCH_NUM_INTEROP_THREADS": "1"
+    },
+    "native_profile": "pytest.ini, default plugin autoload/importlib/strict markers; add read-only sys.modules observer; outputs redirected only; private empty pycache search prefix prevents stale canonical pyc reuse",
+    "actual_root_live": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/shared/root-live-99a4.json.gz",
+      "sha256": "8f98e07de6fcb9abf38e7117bf5704e2a2c76e3358b4cc0e3cdc1628ce257a86",
+      "bytes": 2748,
+      "availability": "r10 proposal postimage; coordinator composition and Git readback pending",
+      "decompressed_sha256": "99a4dcae8a8afc0ae2314efc36bebfc38e2a0ac152897950a28c6918a33a15b8"
+    }
+  },
+  "result": {
+    "return_code": 0,
+    "junit_counts": {
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "failures": [],
+    "skips": [],
+    "wall_seconds": 29.780170499987435,
+    "max_sampled_process_tree_rss_bytes": 1083883520
+  },
+  "outputs": {
+    "stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c57-admission-publication-pilot-r1-20261028/stdout.txt",
+      "sha256": "c9fc3925c5063f9f65550a74c02a3aa85a27197abe1e17a3fd4c2b049cf82e9e",
+      "bytes": 672,
+      "availability": "r10 proposal postimage; coordinator composition and Git readback pending"
+    },
+    "stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r6/common/empty.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "availability": "previous committed r8 shared empty output"
+    },
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c57-admission-publication-pilot-r1-20261028/pytest.xml",
+      "sha256": "e91e90e17614236e88bae5d0ec022b6d5fef026aeac5cfa37b3681fba18890ba",
+      "bytes": 1568,
+      "availability": "r10 proposal postimage; coordinator composition and Git readback pending"
+    },
+    "audit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c57-admission-publication-pilot-r1-20261028/audit-result.json.gz",
+      "sha256": "43ffd485392bf7e75220415ed6839a66bddea9a3b2192c867de89e35663d3a2d",
+      "bytes": 1879,
+      "availability": "r10 proposal postimage; coordinator composition and Git readback pending"
+    },
+    "freeze": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c57-admission-publication-pilot-r1-20261028/source-profile-freeze.json.gz",
+      "sha256": "ce41e7ce23e1a79485542af852a748852e71bae973f2f3bb6590f5278984694e",
+      "bytes": 2630,
+      "availability": "r10 proposal postimage; coordinator composition and Git readback pending"
+    },
+    "plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c57-admission-publication-pilot-r1-20261028/plan.json.gz",
+      "sha256": "da38f9605549fd946ef8b1c0c75708d31f6b219b0f838d709fa7ce6a23c9cb69",
+      "bytes": 688,
+      "availability": "r10 proposal postimage; coordinator composition and Git readback pending"
+    },
+    "readset": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c57-admission-publication-pilot-r1-20261028/input-readset.json.gz",
+      "sha256": "63cfec613e49e2256156016f4f4cca0af7447390da3d11780d4f9f2491b8efe9",
+      "bytes": 100499,
+      "availability": "r10 proposal postimage; coordinator composition and Git readback pending"
+    },
+    "git_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c57-admission-publication-pilot-r1-20261028/git-readback.json",
+      "sha256": "6c9e2afeb294176134fe0634b81a1372ede4b34d0bea31e387d9bd923b94c6fc",
+      "bytes": 1287,
+      "availability": "r10 proposal postimage; coordinator composition and Git readback pending"
+    }
+  },
+  "G_acceptance": false,
+  "closure_ids": []
+}

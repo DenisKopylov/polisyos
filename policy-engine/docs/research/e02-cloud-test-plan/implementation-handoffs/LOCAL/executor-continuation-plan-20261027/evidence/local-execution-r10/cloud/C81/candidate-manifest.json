@@ -1,0 +1,36 @@
+{
+  "slice": "C81",
+  "task_id": "task_e_6ae1712d510483259787b871e7b47bdf",
+  "base_commit": "b2dcf0ee106389216017a88620817c37d3746886",
+  "candidate_tree_reconstructed_from_received_diff": "c5c9eff26b54f8c8ea8eaf1444952b824bbe7f41",
+  "received_diff_sha256": "fb3d03de1ab6eeae0f8999241f044b81017886926b7d54fd8ac8f18baeb5a933",
+  "received_diff_bytes": 16711,
+  "files": [
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+      "base_git_blob": "e05c703f5b5d15ecbd6d8e11aff8362cc51c1424",
+      "postimage_git_blob": "bd6d6a00ce2029d69d24464b2b667179b17d8ece",
+      "postimage_sha256": "f70ad67036ad6f6b4a570f0b3b4fcaf1dd6747c4a93b099e11093b72ebb6553b",
+      "bytes": 24108,
+      "new_file": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "base_git_blob": "bad42f58c9cc59bd146f8b11d332a88fdb687154",
+      "postimage_git_blob": "a16287d8ff9c8d6180c4816b4c85c7a7c8b3f9e9",
+      "postimage_sha256": "1dc31e289c69cc5b9da03a1860b096f354d690b7a1d30da0664713964a7addce",
+      "bytes": 18188,
+      "new_file": false
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/analytics/test_posterior_summary.py",
+      "base_git_blob": "1d967d573cf604a2c11bf680156a759dcf8b6721",
+      "postimage_git_blob": "7953d3a2699b236a3fc9427af119ee07fd522309",
+      "postimage_sha256": "33b6f37b54e20237ea4f813a4986d251c8fd8d20f6d0e3564abf4387142679fe",
+      "bytes": 8596,
+      "new_file": false
+    }
+  ],
+  "canonical_source_not_applied": true,
+  "actual_canonical_index_unchanged": true
+}

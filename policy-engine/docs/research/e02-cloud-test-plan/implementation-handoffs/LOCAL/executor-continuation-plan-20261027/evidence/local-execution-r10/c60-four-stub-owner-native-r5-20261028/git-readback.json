@@ -1,0 +1,17 @@
+{
+  "source_head": "72d83ce91ad2e75f508eda4c9caaa2bbb6311e3c",
+  "source_tree": "579fb9f6c66225c2d82f9ede27282859e658dfa2",
+  "case": "c60-four-stub-owner-native-r5-20261028",
+  "finite_loaded_py_paths": 154,
+  "git_index_work_mismatches": [],
+  "denominator": "All observed imported src/polisyos, tests and tools Python paths; unimported paths, external packages/native libraries excluded",
+  "audit_sha256": "9684144f96ea8d2a97c7a5e6c8e5ae8d14ebe6a4c00cebc86cbcba2a2969153e",
+  "runtime_result": {
+    "tests": 1,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0
+  },
+  "G_acceptance": false,
+  "closure_ids": []
+}

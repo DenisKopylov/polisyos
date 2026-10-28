@@ -1,0 +1,7 @@
+[codex/e02-unified-local-20261009 ea3d65682] fix(e02): preserve source origin and derived writer custody across HTE
+ 14 files changed, 1396 insertions(+), 89 deletions(-)
+ create mode 100644 policy-engine/docs/reference/runtime-observational-source-access.md
+ create mode 100644 policy-engine/release-fragments/unreleased/2026-10-28-observational-source-owner-scope.toml
+ create mode 100644 policy-engine/src/polisyos/runtime/http/services/control/observational_source_access.py
+ create mode 100644 policy-engine/tests/_helpers/observational_source_runtime.py
+ create mode 100644 policy-engine/tests/unit/runtime/http/test_observational_source_access.py

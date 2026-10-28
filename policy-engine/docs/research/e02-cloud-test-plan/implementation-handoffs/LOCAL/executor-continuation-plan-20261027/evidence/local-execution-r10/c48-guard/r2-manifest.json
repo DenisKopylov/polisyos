@@ -1,0 +1,44 @@
+{
+  "status": "FROZEN C05 source-admission delta; no runtime/tests/imports/guard execution; launch waits for normal clean Root source",
+  "source_commit": "545c6990e2bfa42bf580b475e23cf88df04e71d8",
+  "source_tree": "abd7d9913680d5531081c45536c1cf7d7d701835",
+  "head_at_freeze": "545c6990e2bfa42bf580b475e23cf88df04e71d8",
+  "tree_at_freeze": "abd7d9913680d5531081c45536c1cf7d7d701835",
+  "reuses_harness_manifest": "LOCAL/raw/e02-execution-20261027/repairs/C48-single-sandbox-r1/manifest.json",
+  "reuses_harness_manifest_sha256": "fd2ea0c91a90d4f22423fc5c3c99a726510d0f3089bb8674f2496c2732605c0d",
+  "runner_sha256": "b15b573c4b7854dddd3cdd55933fd4634d013cbe1410dd1cf965d6bdaff53243",
+  "guard_sha256": "5db2399ebd35f90b06854f506ea560b04cc829b9f05f506359dc2f8cdc13f33e",
+  "guard_byte_identical_to_prior": true,
+  "source_frame_sha256": "88ca4644bf2abf2074e7520b552adac5dec15a0a21ea98a13915803b35b2d23f",
+  "base_source_rows": 75,
+  "changed_base_rows": 2,
+  "supplemental_c05_runtime_rows": 17,
+  "total_finite_source_rows": 92,
+  "C48_controls_source_intersection": {
+    "inventory_count": 21,
+    "affected_control_sources": [],
+    "basis": "complete21 control entries inspected; no control mutation source equals either C05-intersecting frame path"
+  },
+  "live_vs545c_frame_mismatches": [],
+  "known_root_wip": [
+    " M policy-engine/src/polisyos/foundry/methods/base.pyi",
+    " M policy-engine/src/polisyos/foundry/methods/components/composer.pyi",
+    " M policy-engine/src/polisyos/foundry/methods/composer.pyi",
+    " M policy-engine/src/polisyos/foundry/methods/registry.pyi"
+  ],
+  "R3_installed_by_this_agent": false,
+  "checks": {
+    "AST": "PASS three RAW Python programs; no imports",
+    "source_behavior": "complete class AST comparison and actual Graph/NL gate read",
+    "product_tests_native_guard_removals": "UNRUN"
+  },
+  "support_sha256": {
+    "README.md": "53032fbb2d1363cb1466af5b2b8dd9fb1c53468c82fa5c753c4d98a9f1f9cee4",
+    "audit_c05_delta.py": "c06dd6f65305aabf57be278d01063b86aa6d8e09dbd5fc087a738353107de6c2",
+    "check_single_guard.py": "5db2399ebd35f90b06854f506ea560b04cc829b9f05f506359dc2f8cdc13f33e",
+    "delta-audit.json": "f9954c2675ce74436d16385de93e144b832e6d9467e085c1ed7e26fbf3d62cdb",
+    "prepare_plan.py": "de4265136aa5c7ac4185d516e00b30ddb6d436e217fa63f11561de9b64a823a2",
+    "preparer-delta.patch": "469dfc164c5484054e3cf7bd01535341a2f845b4514204b967e14b6b85a22ca9",
+    "source-bindings.json": "88ca4644bf2abf2074e7520b552adac5dec15a0a21ea98a13915803b35b2d23f"
+  }
+}

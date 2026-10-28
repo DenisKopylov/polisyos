@@ -1,0 +1,20 @@
+{
+  "remote_ref": "refs/heads/codex/e02-composed-progress-20261028-r5",
+  "head": "ea3d65682d76a5d66d514e525ad2212e5a85f669",
+  "tree": "7c5412fddc4ef3e56c859b83d237162e0fd260e7",
+  "normal_hooked_push_exit": 0,
+  "remote_commit_tree_readback": true,
+  "root_guard": {
+    "head": "ea3d65682d76a5d66d514e525ad2212e5a85f669",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-c71-physical-import-order-r1/full-composed-source-frame.json",
+      "sha256": "f12efd0839327c90d01bae96556451d062bdfa18040ac15d044e01c67db0fe7d"
+    },
+    "expected_index": {
+      "raw_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "empty after root commit"
+    }
+  },
+  "scope": "C05 repaired source+C71 contextual source; runtime proofs remain individually versioned; four pyi WIP not published",
+  "closure_ids": []
+}

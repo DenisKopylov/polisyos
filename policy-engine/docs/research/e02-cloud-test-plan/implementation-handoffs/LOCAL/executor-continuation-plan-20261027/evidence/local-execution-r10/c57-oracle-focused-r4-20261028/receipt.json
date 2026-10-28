@@ -1,0 +1,144 @@
+{
+  "schema": "policyos.e02.execution_receipt.v1",
+  "case": "c57-oracle-focused-r4-20261028",
+  "prepared_at": "2026-10-28T04:31:28.655405+00:00",
+  "source": {
+    "commit": "7382a1c4eb32ee3370dc8f370133449cb95dd0db",
+    "tree": "b3840419a81bad0f96c933ff1cf920b76efb6d96",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-c57-c60-oracles-r1/full-composed-source-frame.json",
+      "sha256": "64626e7a3dc5e0daab4bf1bdce0be3acdaf8e1f43eb8a28a331f61256d4fc359"
+    }
+  },
+  "scope": "Six focused cases after two reviewed owner-contract oracle corrections:2SQLite actualrecordingtime cases+all4realworker outcomes, notunchanged151PASS replay. CancellationSQL fixture isnotHTTPpermission/physicalstop. No PGorGclosure.",
+  "command_actually_executed": {
+    "argv": [
+      "/usr/bin/sandbox-exec",
+      "-f",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-oracle-focused-r4-20261028/child.sb",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "-B",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-oracle-focused-r4-20261028/pytest_launcher.py",
+      "-o",
+      "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-oracle-focused-r4-20261028/pytest-cache",
+      "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-oracle-focused-r4-20261028/benchmarks",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-oracle-focused-r4-20261028/basetemp",
+      "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-oracle-focused-r4-20261028/pytest.xml",
+      "--tb=short",
+      "--color=no",
+      "--maxfail=0",
+      "tests/unit/runtime/http/test_control_job_admission_publication.py::test_prepared_values_publish_atomically_with_actual_event_time_and_fresh_reader[pending-sqlite]",
+      "tests/unit/runtime/http/test_control_job_admission_publication.py::test_prepared_values_publish_atomically_with_actual_event_time_and_fresh_reader[failed-sqlite]",
+      "tests/unit/runtime/http/test_control_job_admission_publication.py::test_fast_worker_or_cancellation_cannot_be_overwritten_by_late_admission_progress"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine"
+  },
+  "source_profile": {
+    "freeze": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c57-oracle-focused-r4-20261028/source-profile-freeze.json.gz",
+      "sha256": "d2a6717a7a9adb3e1e66ed14cb801b6aebd3e65a88ab4e6a4a480d15e81cf2a7",
+      "bytes": 2438,
+      "availability": "r10 proposal postimage; coordinator composition and Git readback pending"
+    },
+    "numeric_threads": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMBA_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "ARROW_NUM_THREADS": "1",
+      "BLIS_NUM_THREADS": "1",
+      "POLARS_MAX_THREADS": "1",
+      "TF_NUM_INTEROP_THREADS": "1",
+      "TF_NUM_INTRAOP_THREADS": "1",
+      "VECLIB_MAXIMUM_THREADS": "1"
+    },
+    "extra_env": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "TMPDIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-oracle-focused-r4-20261028/tmp",
+      "XDG_CACHE_HOME": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-oracle-focused-r4-20261028/tmp/xdg",
+      "MPLCONFIGDIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-oracle-focused-r4-20261028/tmp/mpl",
+      "NUMBA_CACHE_DIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-oracle-focused-r4-20261028/tmp/numba",
+      "HYPOTHESIS_STORAGE_DIRECTORY": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-oracle-focused-r4-20261028/tmp/hypothesis",
+      "PYTHONPYCACHEPREFIX": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-oracle-focused-r4-20261028/tmp/empty-pycache",
+      "POLISYOS_R4_INPUT_PROJECT_ROOT": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "POLISYOS_R4_INPUT_READSET_DIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c57-oracle-focused-r4-20261028/readsets",
+      "SCIENTIST_TORCH_NUM_THREADS": "1",
+      "SCIENTIST_TORCH_NUM_INTEROP_THREADS": "1"
+    },
+    "native_profile": "pytest.ini, default plugin autoload/importlib/strict markers; add read-only sys.modules observer; outputs redirected only; private empty pycache search prefix prevents stale canonical pyc reuse",
+    "actual_root_live": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/shared/root-live-bd0e.json.gz",
+      "sha256": "897fc495b635851b1970e9ff80b697900f8ed33282ebde8dd1e7abddc407044e",
+      "bytes": 2752,
+      "availability": "r10 proposal postimage; coordinator composition and Git readback pending",
+      "decompressed_sha256": "bd0e2556dac07cf361564afb4e92c937e848547d71fc9ccbbd4ad29fe432c739"
+    }
+  },
+  "result": {
+    "return_code": 0,
+    "junit_counts": {
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "failures": [],
+    "skips": [],
+    "wall_seconds": 25.761669958010316,
+    "max_sampled_process_tree_rss_bytes": 1103282176
+  },
+  "outputs": {
+    "stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c57-oracle-focused-r4-20261028/stdout.txt",
+      "sha256": "35970edb3debbb59ccbcbe5be9b50ed7cdd33723c1bbb4446b4b224b863b232b",
+      "bytes": 659,
+      "availability": "r10 proposal postimage; coordinator composition and Git readback pending"
+    },
+    "stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r6/common/empty.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "availability": "previous committed r8 shared empty output"
+    },
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c57-oracle-focused-r4-20261028/pytest.xml",
+      "sha256": "120ad9cad0ae566f98260326607c8a611a2bcced11a17e850a8e668c3430f44b",
+      "bytes": 1459,
+      "availability": "r10 proposal postimage; coordinator composition and Git readback pending"
+    },
+    "audit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c57-oracle-focused-r4-20261028/audit-result.json.gz",
+      "sha256": "55261da1138d7d36ff223bdbd3fd5703c47182dfe773c76ed9f3024ff82c94ae",
+      "bytes": 1732,
+      "availability": "r10 proposal postimage; coordinator composition and Git readback pending"
+    },
+    "freeze": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c57-oracle-focused-r4-20261028/source-profile-freeze.json.gz",
+      "sha256": "d2a6717a7a9adb3e1e66ed14cb801b6aebd3e65a88ab4e6a4a480d15e81cf2a7",
+      "bytes": 2438,
+      "availability": "r10 proposal postimage; coordinator composition and Git readback pending"
+    },
+    "plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c57-oracle-focused-r4-20261028/plan.json.gz",
+      "sha256": "684df9ac689d129641bc673cd5c8c0a54a49d175cacf89f352731c932acdc7d3",
+      "bytes": 531,
+      "availability": "r10 proposal postimage; coordinator composition and Git readback pending"
+    },
+    "readset": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c57-oracle-focused-r4-20261028/input-readset.json.gz",
+      "sha256": "17329e3af70273cbae4e063801314701697693f475e1d10ce387ce31bd3edf15",
+      "bytes": 100348,
+      "availability": "r10 proposal postimage; coordinator composition and Git readback pending"
+    },
+    "git_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r10/c57-oracle-focused-r4-20261028/git-readback.json",
+      "sha256": "f8f5956b8707c0bf36515dd230866dac3beb42944aaaeb99598aa620dfb72e70",
+      "bytes": 614,
+      "availability": "r10 proposal postimage; coordinator composition and Git readback pending"
+    }
+  },
+  "G_acceptance": false,
+  "closure_ids": []
+}

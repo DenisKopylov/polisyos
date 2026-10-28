@@ -1,0 +1,19 @@
+{
+  "head": "72d83ce91ad2e75f508eda4c9caaa2bbb6311e3c",
+  "tree": "579fb9f6c66225c2d82f9ede27282859e658dfa2",
+  "parents": [
+    "ea3d65682d76a5d66d514e525ad2212e5a85f669"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "paths": {
+    "policy-engine/architecture/generated_artifacts.toml": "d67c9d8203336a13780e8f21822b57ed58c587d028a6abd2d132a2ba6dccc039",
+    "policy-engine/release-fragments/unreleased/2026-10-27-e02-c35-composition-execution.toml": "ffcd6c291ea865a7900def35567f8da67e6c478db765af3ddcf2a099a6709c99",
+    "policy-engine/tests/repo_quality/tools/test_foundry_stub_generation.py": "a8f107a0855c08a047639a6f76e78fc270ac6d1deeec95d95f6617aff9f1d743",
+    "policy-engine/tools/devx/foundry/README.md": "50b7e1b820b3eb8cd49c87824b16b67fe33a67bbca09c98950eef6055d307e43",
+    "policy-engine/tools/devx/foundry/generate_stubs.py": "e3eb3cd00fd7f6fe9ef4c87cfd6f9473a20a0345cbf5dea3ed635a15612d065d",
+    "policy-engine/tools/registry.py": "105cba933cdd46143dfa770e6f7e26eec90aead51cc6664ce0afd1aaa1122bc6"
+  },
+  "source_global_freeze": false,
+  "code_acceptance": false,
+  "closure_ids": []
+}

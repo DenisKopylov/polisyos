@@ -1,0 +1,23 @@
+id = "2026-10-28-control-job-cancellation"
+title = "Fence authenticated control-job cancellation publication"
+type = "fixed"
+component = "runtime"
+owner = "team-policyos-runtime"
+summary = "Add a job-owned cancellation action whose current permission proof atomically fences the selected attempt, events, outbox, and later progress or terminal publication."
+evidence = [
+  "src/polisyos/runtime/http/routes/control.py",
+  "src/polisyos/runtime/http/services/control_plane_store.py",
+  "src/polisyos/core/contracts/__init__.py",
+  "tests/unit/core/contracts/test_control_job_cancellation_facade.py",
+  "tests/unit/runtime/http/test_control_plane_store.py",
+]
+compatibility = "The cancellation route fails closed until its deployment explicitly enables rollout. Enable only after the shared generated OpenAPI, clients, dashboard readers, and persisted-data migration are composed and verified by their owners; the switch itself is not evidence of reader readiness."
+change_class = "behavioral"
+surface_classification = "runtime API: guarded pending generated-family composition"
+migration = "Existing pending, running, completed, and failed records remain readable; activation of cancelled requires the shared reader migration."
+api = "POST /api/v1/control/jobs/{job_id}/cancel requires a current jobs.cancel permission bound by the server to the immutable job tenant and cell. No production role receives the new permission in this change. Python consumers may import ControlJobCancellationRequest from polisyos.core.contracts; this is an additive public facade export."
+limitations = "Cancellation revokes PolicyOS publication authority only. Physical thread, process, provider work, incurred cost, and external side effects remain not_established and are not claimed stopped."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

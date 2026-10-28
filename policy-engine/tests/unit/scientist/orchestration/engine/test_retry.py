@@ -2498,6 +2498,281 @@ def test_owned_supervisor_reaps_tree_on_async_caller_cancellation(owned_tree_dir
     assert _caller_subreaper_flag() == original_flag
 
 
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux owned-process-tree supervisor")
+def test_authenticated_cancel_reaps_owned_child_and_fences_fresh_job(
+    owned_tree_dir, ctx, state, runtime_api_env, monkeypatch
+):
+    """Real route permission and worker lease loss stop the owned process tree."""
+    from polisyos.core.artifacts.manifest import SchemaInfo
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+    from polisyos.core.security.identity import PolicyOSRole, UserIdentityClaims
+    from polisyos.runtime.http import deployment_security
+    from polisyos.runtime.http.services.control_plane_store import (
+        ControlJobExecutionAdmissionError,
+        ControlJobLeaseLostError,
+    )
+    from polisyos.runtime.http.services.control_worker import ControlWorker
+    from tests._helpers.runtime_http import deployment_security_config_mapping
+    from tests.unit.runtime.http.test_control_plane_store import (
+        _job_creation_event,
+        _job_execution_scope,
+    )
+    from tests.unit.runtime.http.test_runtime_api_authz import (
+        _AllowOPA,
+        _build_secure_client,
+        _fixture_bearer,
+        _install_authorization_audit_capture,
+    )
+
+    client, cell, provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=_AllowOPA(),
+        claims_by_token={},
+        raise_server_exceptions=False,
+    )
+    tenant = runtime_api_env["tenant_a"]
+    bearer = _fixture_bearer("cancellation-authorized")
+    provider.put_claim(
+        bearer,
+        UserIdentityClaims(
+            sub="runtime-canary",
+            tenant_id=tenant,
+            cell_id=cell.cell_id,
+            roles=frozenset({PolicyOSRole.ADMIN}),
+            mfa_verified=True,
+            iss="https://idp.example",
+            aud="polisyos-runtime",
+            exp=9_999_999_999,
+            iat=1,
+            jti="cancellation-test-jwt",
+        ),
+    )
+    denied_bearer = _fixture_bearer("cancellation-denied")
+    other_tenant_bearer = _fixture_bearer("cancellation-other-tenant")
+    for token, subject, claim_tenant in (
+        (denied_bearer, "ungranted-actor", tenant),
+        (other_tenant_bearer, "runtime-canary", runtime_api_env["tenant_b"]),
+    ):
+        provider.put_claim(
+            token,
+            UserIdentityClaims(
+                sub=subject,
+                tenant_id=claim_tenant,
+                cell_id=cell.cell_id,
+                roles=frozenset({PolicyOSRole.ADMIN}),
+                mfa_verified=True,
+                iss="https://idp.example",
+                aud="polisyos-runtime",
+                exp=9_999_999_999,
+                iat=1,
+                jti=f"cancellation-test-{subject}-{claim_tenant}",
+            ),
+        )
+    config = deployment_security_config_mapping(owned_tree_dir)
+    registry_path = owned_tree_dir / "cancellation-cells.json"
+    registry_path.write_text(
+        json.dumps(
+            {
+                "cells": [cell.model_dump(mode="json")],
+                "tenants": [
+                    {
+                        "tenant_id": tenant,
+                        "name": "Cancellation test tenant",
+                        "tier": cell.tier.value,
+                        "region": cell.region,
+                        "cell_id": cell.cell_id,
+                    },
+                    {
+                        "tenant_id": runtime_api_env["tenant_b"],
+                        "name": "Cancellation other test tenant",
+                        "tier": cell.tier.value,
+                        "region": cell.region,
+                        "cell_id": cell.cell_id,
+                    },
+                ],
+            }
+        )
+    )
+    config["cell_registry_path"] = str(registry_path)
+    principals = config["service_principals"]
+    assert isinstance(principals, list)
+    principals[0].update(
+        {
+            "tenant_id": tenant,
+            "cell_id": cell.cell_id,
+            "permissions": ["runs.view", "jobs.cancel"],
+        }
+    )
+    principals.append({**principals[0], "tenant_id": runtime_api_env["tenant_b"]})
+    security = deployment_security.build_deployment_security(
+        deployment_security.DeploymentSecurityConfig.from_mapping(config)
+    )
+    client.app.state.runtime_deployment_principal_grants = security.principal_grants
+    _install_authorization_audit_capture(client)
+    headers = {"Authorization": f"Bearer {bearer}", "X-Tenant-ID": tenant}
+
+    with client:
+        service = client.app.state.runtime_container.control_service
+        assert service is not None
+        if service._worker is not None:
+            service._worker.stop()
+        store = service._control_store
+        scope = _job_execution_scope()
+        scope["tenant_id"], scope["cell_id"] = tenant, cell.cell_id
+        cas = FileSystemCAS(runtime_api_env["cas_root"])
+        manifest = cas.put_json(
+            {"fixture": "c57-process-ownership"},
+            ArtifactWriteOptions(
+                kind="runtime.capability_manifest",
+                media_type="application/json",
+                schema=SchemaInfo(name="polisyos.test.C57Manifest", version="1.0"),
+            ),
+        )
+        manifest_id = str(manifest.artifact_id)
+        creation = _job_creation_event(execution_scope=scope)
+        creation["capability_manifest_ref"] = manifest_id
+        job = store.create_job(
+            job_id="job_execution_admission",
+            kind="workflow_run",
+            run_id="run_execution_admission",
+            pipeline_id=None,
+            requested_execution_profile=None,
+            effective_execution_profile="dev",
+            policy_flags={"candidate": True},
+            capability_manifest_ref=manifest_id,
+            payload_ref="sha256:payload-b",
+            submitted_by="denis",
+            creation_event_payload=creation,
+        )
+
+        def handler(_job):
+            execute_with_retry_sync(
+                _OwnedProcessTreeNode(owned_tree_dir, finish=False),
+                ctx,
+                state,
+                retry_policy=RetryPolicy(),
+                timeout_s=30,
+                alias="authenticated-cancellation",
+            )
+            pytest.fail("interrupted owned computation returned a result")
+
+        worker = ControlWorker(
+            store=store, handler=handler, worker_id="cancel-test-worker", lease_seconds=2
+        )
+        errors = []
+
+        def dispatch():
+            try:
+                worker.dispatch_once()
+            except BaseException as exc:
+                errors.append(exc)
+
+        thread = threading.Thread(target=dispatch, daemon=True)
+        thread.start()
+        try:
+            effects = owned_tree_dir / "grandchild-effects.txt"
+            deadline = _time.monotonic() + 30
+            while not effects.exists() or not effects.stat().st_size:
+                assert thread.is_alive() and _time.monotonic() < deadline
+                _time.sleep(0.01)
+            running = store.get_job(job.job_id)
+            assert running is not None and running.state == "running"
+            assert (
+                client.get(f"/api/v1/control/jobs/{job.job_id}", headers=headers).status_code == 200
+            )
+            body = {
+                "operation_id": "cancel-owned-child",
+                "expected_lease_owner": running.lease_owner,
+                "expected_attempt": running.attempt,
+            }
+            for token, claim_tenant in (
+                (denied_bearer, tenant),
+                (other_tenant_bearer, runtime_api_env["tenant_b"]),
+            ):
+                denied = client.post(
+                    f"/api/v1/control/jobs/{job.job_id}/cancel",
+                    headers={
+                        "Authorization": f"Bearer {token}",
+                        "X-Tenant-ID": claim_tenant,
+                    },
+                    json=body,
+                )
+                assert denied.status_code == 403, denied.text
+                assert store.get_job(job.job_id).state == "running"
+
+            inactive = client.post(
+                f"/api/v1/control/jobs/{job.job_id}/cancel", headers=headers, json=body
+            )
+            assert inactive.status_code == 503, inactive.text
+            assert store.get_job(job.job_id).state == "running"
+            client.app.state.control_job_cancellation_rollout_enabled = True
+
+            # The proof observed here is produced by the actual route dependency.
+            # Reusing it with a different body must be refused before mutation.
+            original_cancel = service.cancel_job
+            observed_proofs = []
+
+            def intercept(*, job_id, request, authorization_proof, request_id=None):
+                observed_proofs.append(authorization_proof)
+                with pytest.raises(ControlJobExecutionAdmissionError):
+                    store.cancel_job(
+                        job_id=job_id,
+                        authorization_proof=authorization_proof,
+                        operation_id="substituted-operation",
+                        expected_lease_owner=request.expected_lease_owner,
+                        expected_attempt=request.expected_attempt,
+                    )
+                return original_cancel(
+                    job_id=job_id,
+                    request=request,
+                    authorization_proof=authorization_proof,
+                    request_id=request_id,
+                )
+
+            monkeypatch.setattr(service, "cancel_job", intercept)
+            response = client.post(
+                f"/api/v1/control/jobs/{job.job_id}/cancel",
+                headers=headers,
+                json=body,
+            )
+            assert response.status_code == 200, response.text
+            assert response.json()["state"] == "cancelled"
+            repeated = client.post(
+                f"/api/v1/control/jobs/{job.job_id}/cancel",
+                headers=headers,
+                json=body,
+            )
+            assert repeated.status_code == 200, repeated.text
+            with pytest.raises(ControlJobExecutionAdmissionError):
+                store.cancel_job(
+                    job_id=job.job_id,
+                    authorization_proof=observed_proofs[0],
+                    operation_id=body["operation_id"],
+                    expected_lease_owner=body["expected_lease_owner"],
+                    expected_attempt=body["expected_attempt"],
+                )
+            thread.join(timeout=10)
+            assert not thread.is_alive() and not errors
+            _assert_real_tree_reaped(owned_tree_dir)
+            fresh = client.get(f"/api/v1/control/jobs/{job.job_id}", headers=headers)
+            assert fresh.status_code == 200
+            assert fresh.json()["state"] == "cancelled"
+            assert fresh.json()["physical_stop_status"] == "not_established"
+            assert store.get_cancelled_job_verified_record(job.job_id).attempt == running.attempt
+            with pytest.raises(ControlJobLeaseLostError):
+                store.complete_job(
+                    job_id=job.job_id,
+                    expected_lease_owner=running.lease_owner,
+                    expected_attempt=running.attempt,
+                )
+            with pytest.raises(ControlJobLeaseLostError):
+                store.upsert_progress(job_id=job.job_id, progress={"state": "running"})
+        finally:
+            worker.stop()
+            thread.join(timeout=3)
+
+
 def test_framed_result_reader_never_blocks_on_an_actual_partial_pipe():
     channel = retry_module._WorkerResultChannel(mp.get_context("fork"))
     try:

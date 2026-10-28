@@ -187,7 +187,7 @@ def _progress_carrier_ref(
 
 
 _CONTROL_JOB_KINDS = frozenset(get_args(ControlJobKind))
-_CONTROL_JOB_STATES = frozenset({"pending", "running", "completed", "failed"})
+_CONTROL_JOB_STATES = frozenset({"pending", "running", "completed", "failed", "cancelled"})
 _EXECUTION_PROFILES = frozenset({"dev", "research", "governed", "production"})
 _SERIOUS_EXECUTION_PROFILES = frozenset({"research", "governed", "production"})
 # Backward-compatible name for consumers; the Literal contract above is canonical.
@@ -1053,6 +1053,8 @@ class ControlJobRecord:
             started_at=self.started_at,
             finished_at=self.finished_at,
             error_message=self.error_message,
+            cancellation_disposition=("publication_fenced" if self.state == "cancelled" else None),
+            physical_stop_status=("not_established" if self.state == "cancelled" else None),
             failure=failure,
             execution_status=self.state,
             quality_status=quality_status,
@@ -1760,7 +1762,7 @@ class _ControlJobTransactionAdmission:
     resource: Any
     identity: tuple[str, str, int]
     lease_expires_at: datetime | None
-    terminal_state: Literal["completed", "failed"] | None = None
+    terminal_state: Literal["completed", "failed", "cancelled"] | None = None
 
 
 class ControlPlaneStore:
@@ -2111,7 +2113,7 @@ class ControlPlaneStore:
     ) -> tuple[str, tuple[Any, ...]]:
         """Build a parameterized lifecycle-write predicate."""
         if fence is None:
-            return "job_id = ?", (job_id,)
+            return "job_id = ? AND state IN ('pending', 'running')", (job_id,)
         owner, attempt = fence
         return (
             "job_id = ? AND state = 'running' AND lease_owner = ? "
@@ -2127,7 +2129,7 @@ class ControlPlaneStore:
         affected_rows: int,
     ) -> None:
         """Reject a lost generation instead of silently accepting a no-op."""
-        if fence is not None and affected_rows != 1:
+        if affected_rows != 1:
             raise ControlJobLeaseLostError(
                 f"control job lease no longer permits write for {job_id}"
             )
@@ -5085,6 +5087,92 @@ class ControlPlaneStore:
         except (TypeError, ValueError, json.JSONDecodeError) as exc:
             raise ControlJobLeaseLostError("control job terminal event is malformed") from exc
 
+    def get_cancelled_job_verified_record(self, job_id: str) -> ControlJobRecord:
+        """Reconcile a cancelled row, its creation scope, event, and outbox."""
+        with self._job_transaction():
+            self._lock_job_state(job_id)
+            record = self.get_job(job_id)
+            if (
+                record is None
+                or record.state != "cancelled"
+                or record.lease_owner is not None
+                or record.lease_expires_at is not None
+                or record.finished_at is None
+            ):
+                raise ControlJobLeaseLostError("cancelled job row not established")
+            scope, _ = self._reconcile_control_job_creation_envelope(record)
+            cancellation = record.progress.get("cancellation")
+            if (
+                not isinstance(cancellation, dict)
+                or scope.status != "established"
+                or cancellation.get("tenant_id") != scope.tenant_id
+                or cancellation.get("cell_id") != scope.cell_id
+                or cancellation.get("cancelled_attempt") != record.attempt
+                or cancellation.get("disposition") != "publication_fenced"
+                or cancellation.get("physical_stop_status") != "not_established"
+                or not isinstance(cancellation.get("authorized_actor"), str)
+                or not cancellation["authorized_actor"]
+                or not isinstance(cancellation.get("operation_id"), str)
+                or not cancellation["operation_id"]
+                or not isinstance(cancellation.get("body_sha256"), str)
+                or not cancellation["body_sha256"].startswith("sha256:")
+                or len(cancellation["body_sha256"]) != 71
+            ):
+                raise ControlJobLeaseLostError("cancelled job disposition not established")
+            cancelled_owner = cancellation.get("cancelled_lease_owner")
+            if cancelled_owner is None:
+                if (
+                    cancellation.get("expected_lease_owner") is not None
+                    or cancellation.get("expected_attempt") is not None
+                ):
+                    raise ControlJobLeaseLostError("pending cancellation has a lease precondition")
+            elif (
+                not isinstance(cancelled_owner, str)
+                or not cancelled_owner
+                or cancellation.get("expected_lease_owner") != cancelled_owner
+                or cancellation.get("expected_attempt") != record.attempt
+            ):
+                raise ControlJobLeaseLostError("cancelled job attempt identity disagrees")
+            event_rows = self._fetchall(
+                """
+                SELECT event_id, job_id, event_type, payload_json, created_at
+                FROM control_job_events WHERE job_id = ? AND event_type = ?
+                ORDER BY event_id ASC
+                """,
+                (job_id, "job_cancelled"),
+            )
+            if len(event_rows) != 1:
+                raise ControlJobLeaseLostError("cancelled job source event not unique")
+            try:
+                event = self._control_job_lifecycle_event_record_from_row(
+                    event_rows[0],
+                    expected_job_id=job_id,
+                    expected_event_type="job_cancelled",
+                )
+            except (TypeError, ValueError, json.JSONDecodeError) as exc:
+                raise ControlJobLeaseLostError("cancelled job source event malformed") from exc
+            payload = {**cancellation, "state": "cancelled"}
+            if event.payload != payload:
+                raise ControlJobLeaseLostError("cancelled job source event disagrees")
+            outbox_rows = self._fetchall(
+                """
+                SELECT event_id, topic, event_key, state, job_id, run_id,
+                       payload_json, created_at, published_at, attempt, error_message
+                FROM control_outbox_events WHERE topic = ? AND event_key = ? AND job_id = ?
+                """,
+                ("control.job.cancelled", f"{job_id}:job_cancelled", job_id),
+            )
+            if len(outbox_rows) != 1:
+                raise ControlJobLeaseLostError("cancelled job outbox not unique")
+            try:
+                outbox = self._row_to_outbox_record(outbox_rows[0])
+            except (TypeError, ValueError, KeyError) as exc:
+                raise ControlJobLeaseLostError("cancelled job outbox malformed") from exc
+            expected_payload = {**_control_job_outbox_identity_envelope(record), **payload}
+            if outbox.run_id != record.run_id or outbox.payload != expected_payload:
+                raise ControlJobLeaseLostError("cancelled job outbox disagrees")
+            return record
+
     def get_job_lifecycle_event_record(
         self,
         *,
@@ -5460,8 +5548,28 @@ class ControlPlaneStore:
                 transitions.append(state)
         return transitions
 
+    def _lock_job_state(self, job_id: str) -> str:
+        """Lock the shared job row before any transaction mutates its progress."""
+        sqlite = getattr(self._human_decision_transaction, "sqlite_connection", None)
+        postgres = getattr(self._human_decision_transaction, "postgres_cursor", None)
+        if sqlite is None and postgres is None:
+            raise RuntimeError("control_job_row_lock_requires_transaction")
+        suffix = " FOR UPDATE" if self.backend == "postgres" else ""
+        row = self._fetchone(f"SELECT state FROM control_jobs WHERE job_id = ?{suffix}", (job_id,))
+        if row is None:
+            raise KeyError(job_id)
+        return str(row[0] if not isinstance(row, Mapping) else row.get("state"))
+
     def upsert_progress(self, *, job_id: str, progress: dict[str, Any]) -> None:
-        """Create or replace the latest JSON progress snapshot for one job."""
+        """Replace progress only while the authoritative job permits publication."""
+        with self._job_transaction():
+            state = self._lock_job_state(job_id)
+            if state == "cancelled":
+                raise ControlJobLeaseLostError("cancelled control job rejects progress publication")
+            self._upsert_progress_unchecked(job_id=job_id, progress=progress)
+
+    def _upsert_progress_unchecked(self, *, job_id: str, progress: dict[str, Any]) -> None:
+        """Write progress inside an owner transaction that already admitted the mutation."""
         now = _iso(_utc_now())
         normalized_progress = _progress_with_quality_scorecard_summary(progress)
         progress_json = json.dumps(normalized_progress, sort_keys=True)
@@ -5746,24 +5854,32 @@ class ControlPlaneStore:
         with self._job_transaction():
             now = _utc_now()
             lease_expires_at = now + timedelta(seconds=max(lease_seconds, 1))
-            self._execute(
+            affected = self._execute(
                 """
                 UPDATE control_jobs
                 SET state = ?, started_at = COALESCE(started_at, ?),
                     lease_owner = ?, lease_expires_at = ?, attempt = attempt + 1
-                WHERE job_id = ?
+                WHERE job_id = ? AND (state = 'pending' OR
+                    (state = 'running' AND lease_expires_at <= ?))
                 """,
-                ("running", _iso(now), worker_id, _iso(lease_expires_at), job_id),
+                (
+                    "running",
+                    _iso(now),
+                    worker_id,
+                    _iso(lease_expires_at),
+                    job_id,
+                    _iso(now),
+                ),
             )
+            if affected != 1:
+                raise ControlJobLeaseLostError(f"control job cannot be marked running: {job_id}")
             record = self.get_job(job_id)
-            if record is None:
-                raise ControlJobLeaseLostError(
-                    f"control job row disappeared while marking running: {job_id}"
-                )
+            if record is None or record.state != "running" or record.lease_owner != worker_id:
+                raise ControlJobLeaseLostError(f"control job cannot be marked running: {job_id}")
             payload = {
                 "state": "running",
                 "lease_owner": worker_id,
-                "lease_expires_at": _iso(lease_expires_at),
+                "lease_expires_at": _iso(record.lease_expires_at),
                 "attempt": record.attempt,
             }
             self.append_event(job_id=job_id, event_type="job_running", payload=payload)
@@ -6021,6 +6137,8 @@ class ControlPlaneStore:
         fence: tuple[str, int] | None,
     ) -> AcquisitionEvaluationFrontierRecord | None:
         """Apply one completion and all of its evidence rows in one transaction."""
+        if self._lock_job_state(job_id) not in {"pending", "running"}:
+            raise ControlJobLeaseLostError("control job cannot complete from terminal state")
         now = _utc_now()
         selection_payload: dict[str, Any] | None = None
         if method_execution_selection is not None:
@@ -6165,7 +6283,7 @@ class ControlPlaneStore:
                     fence=fence,
                 )
                 return
-            self.upsert_progress(job_id=job_id, progress=progress)
+            self._upsert_progress_unchecked(job_id=job_id, progress=progress)
         where, where_params = self._job_fence_where(
             job_id=job_id,
             fence=fence,
@@ -6351,6 +6469,181 @@ class ControlPlaneStore:
             cas,
             require_replacement=True,
         )
+
+    def cancel_job(
+        self,
+        *,
+        job_id: str,
+        authorization_proof: object,
+        operation_id: str,
+        expected_lease_owner: str | None = None,
+        expected_attempt: int | None = None,
+    ) -> ControlJobRecord:
+        """Fence publication for one job using its verified immutable scope.
+
+        Cancellation is a durable authority revocation.  It deliberately makes
+        no claim that an executing thread, process, provider call, or external
+        side effect has physically stopped.
+        """
+        from polisyos.runtime.http.authorization import BoundActionPermissionVerification
+        from polisyos.runtime.http.cancellation_admission import is_current_cancellation_authority
+        from polisyos.runtime.http.permissions import RuntimePermission
+        from polisyos.runtime.http.resource_binding import (
+            BindingAuthority,
+            BoundAuthorizationResource,
+        )
+
+        if type(
+            authorization_proof
+        ) is not BoundActionPermissionVerification or not is_current_cancellation_authority(
+            authorization_proof
+        ):
+            raise ControlJobExecutionAdmissionError("control_job_cancellation_proof_invalid")
+        verification = authorization_proof.verification
+        bound = authorization_proof.bound_resource
+        if (
+            verification.requirement.permission is not RuntimePermission.JOBS_CANCEL
+            or type(bound) is not BoundAuthorizationResource
+            or bound.authority is not BindingAuthority.OWNERSHIP_VERIFIED
+            or bound.requirement is not verification.requirement
+            or not operation_id.strip()
+        ):
+            raise ControlJobExecutionAdmissionError("control_job_cancellation_proof_invalid")
+        from polisyos.core.contracts.control import ControlJobCancellationRequest
+
+        try:
+            if (
+                bound.resolved_context_kind != "runtime.control_job.cancellation.v1"
+                or bound.resolved_context is None
+            ):
+                raise ValueError("cancellation context missing")
+            authorized_request = ControlJobCancellationRequest.model_validate_json(
+                bound.resolved_context
+            )
+        except (TypeError, ValueError) as exc:
+            raise ControlJobExecutionAdmissionError(
+                "control_job_cancellation_body_not_established"
+            ) from exc
+        if (
+            authorized_request.operation_id != operation_id
+            or authorized_request.expected_lease_owner != expected_lease_owner
+            or authorized_request.expected_attempt != expected_attempt
+        ):
+            raise ControlJobExecutionAdmissionError("control_job_cancellation_body_mismatch")
+
+        authorized_actor = verification.subject
+        authorized_tenant_id = verification.tenant_id
+        bound_selectors = dict(bound.canonical_selectors)
+        if bound_selectors.get("job_id") != json.dumps(job_id):
+            raise ControlJobExecutionAdmissionError("control_job_cancellation_job_mismatch")
+        if (expected_lease_owner is None) != (expected_attempt is None):
+            raise ValueError("control_job_cancellation_precondition_incomplete")
+        if (
+            getattr(self._human_decision_transaction, "sqlite_connection", None) is not None
+            or getattr(self._human_decision_transaction, "postgres_cursor", None) is not None
+        ):
+            raise ControlJobExecutionAdmissionError("control_job_cancellation_nested_transaction")
+
+        def admit_cancellation_commit() -> None:
+            if not is_current_cancellation_authority(authorization_proof):
+                raise ControlJobExecutionAdmissionError("control_job_cancellation_scope_expired")
+
+        with self._job_transaction(commit_admission=admit_cancellation_commit):
+            # Progress and cancellation must serialize on the same authoritative row.
+            # Taking it before reading progress also lets an identical retry observe
+            # the winning transaction rather than racing a stale snapshot.
+            self._lock_job_state(job_id)
+            record = self.get_job(job_id)
+            if record is None:
+                raise KeyError(job_id)
+            scope, _ = self._reconcile_control_job_creation_envelope(record)
+            if (
+                scope.status != "established"
+                or scope.tenant_id != authorized_tenant_id
+                or not scope.cell_id
+                or bound_selectors.get("cell_id") != json.dumps(scope.cell_id)
+                or not authorized_actor.strip()
+            ):
+                raise ControlJobExecutionAdmissionError(
+                    "control_job_cancellation_scope_not_established"
+                )
+            cancellation = record.progress.get("cancellation")
+            if record.state == "cancelled":
+                if (
+                    not isinstance(cancellation, dict)
+                    or cancellation.get("authorized_actor") != authorized_actor
+                    or cancellation.get("tenant_id") != authorized_tenant_id
+                    or cancellation.get("operation_id") != operation_id
+                    or cancellation.get("body_sha256") != bound.body_sha256
+                    or cancellation.get("expected_attempt") != expected_attempt
+                    or cancellation.get("expected_lease_owner") != expected_lease_owner
+                ):
+                    raise ControlJobLeaseLostError("control job cancellation identity changed")
+                verified = self.get_cancelled_job_verified_record(job_id)
+                if not is_current_cancellation_authority(authorization_proof):
+                    raise ControlJobExecutionAdmissionError(
+                        "control_job_cancellation_scope_expired"
+                    )
+                return verified
+            if record.state in {"completed", "failed"}:
+                raise ControlJobLeaseLostError("control job already has a terminal disposition")
+            if record.state == "running" and (
+                expected_lease_owner != record.lease_owner or expected_attempt != record.attempt
+            ):
+                raise ControlJobLeaseLostError("control job cancellation attempt is stale")
+            if record.state == "pending" and expected_lease_owner is not None:
+                raise ControlJobLeaseLostError("pending control job has no leased attempt")
+            if not is_current_cancellation_authority(authorization_proof):
+                raise ControlJobExecutionAdmissionError("control_job_cancellation_scope_expired")
+            now = _utc_now()
+            affected = self._execute(
+                """
+                UPDATE control_jobs SET state = 'cancelled', finished_at = ?,
+                    lease_owner = NULL, lease_expires_at = NULL
+                WHERE job_id = ? AND state = ? AND attempt = ?
+                  AND ((? IS NULL AND lease_owner IS NULL) OR lease_owner = ?)
+                """,
+                (
+                    _iso(now),
+                    job_id,
+                    record.state,
+                    record.attempt,
+                    record.lease_owner,
+                    record.lease_owner,
+                ),
+            )
+            if affected != 1:
+                raise ControlJobLeaseLostError("control job changed during cancellation")
+            progress = dict(record.progress)
+            progress["cancellation"] = {
+                "authorized_actor": authorized_actor,
+                "tenant_id": authorized_tenant_id,
+                "cell_id": scope.cell_id,
+                "operation_id": operation_id,
+                "body_sha256": bound.body_sha256,
+                "expected_attempt": expected_attempt,
+                "expected_lease_owner": expected_lease_owner,
+                "disposition": "publication_fenced",
+                "physical_stop_status": "not_established",
+                "cancelled_attempt": record.attempt,
+                "cancelled_lease_owner": record.lease_owner,
+            }
+            self._upsert_progress_unchecked(job_id=job_id, progress=progress)
+            payload = dict(progress["cancellation"])
+            payload["state"] = "cancelled"
+            self.append_event(job_id=job_id, event_type="job_cancelled", payload=payload)
+            cancelled = self.get_job(job_id)
+            if cancelled is None:
+                raise ControlJobLeaseLostError("cancelled control job disappeared")
+            self._emit_job_outbox_event(
+                record=cancelled, event_type="job_cancelled", payload=payload
+            )
+            # The outbox owner deduplicates by key: validate its persisted
+            # payload in this transaction before allowing the row to commit.
+            verified = self.get_cancelled_job_verified_record(job_id)
+            if not is_current_cancellation_authority(authorization_proof):
+                raise ControlJobExecutionAdmissionError("control_job_cancellation_scope_expired")
+            return verified
 
     def fail_job(
         self,
@@ -6771,8 +7064,11 @@ class ControlPlaneStore:
         job_id: str | None = None,
         run_id: str | None = None,
         event_key: str | None = None,
+        require_new: bool = False,
     ) -> ControlOutboxRecord:
-        """Insert a deduplicated pending outbox event keyed by `(topic, event_key)`."""
+        """Insert a keyed outbox event, optionally refusing any prior winner."""
+        if require_new and not event_key:
+            raise ValueError("control_job_outbox_new_requires_key")
         if topic == "control.search.hte_completed":
             resource = getattr(self._human_decision_transaction, "sqlite_connection", None)
             if resource is None:
@@ -6785,10 +7081,13 @@ class ControlPlaneStore:
                         job_id=job_id,
                         run_id=run_id,
                         event_key=event_key,
+                        require_new=require_new,
                     )
         if event_key:
             existing = self._get_outbox_event_by_key(topic=topic, event_key=event_key)
             if existing is not None:
+                if require_new:
+                    raise ControlJobLeaseLostError("control_job_outbox_already_exists")
                 if topic == _COMPLETED_HTE_VALIDITY_OUTBOX_TOPIC and (
                     existing.job_id != job_id
                     or existing.run_id != run_id
@@ -7852,6 +8151,7 @@ class ControlPlaneStore:
             job_id=record.job_id,
             run_id=record.run_id,
             payload=outbox_payload,
+            **({"require_new": True} if event_type == "job_cancelled" else {}),
         )
 
     def _lease_next_sqlite(self, *, worker_id: str, lease_seconds: int) -> ControlJobRecord | None:
@@ -8922,12 +9222,17 @@ class ControlPlaneStore:
         self,
         *,
         purpose: Literal["execution", "completed_proof", "failed_proof"] = "execution",
+        commit_admission: Callable[[], None] | None = None,
     ) -> Iterator[None]:
         """Admit bound-source effects and publish all SQL rows atomically."""
         existing_sqlite = getattr(self._human_decision_transaction, "sqlite_connection", None)
         existing_postgres = getattr(self._human_decision_transaction, "postgres_cursor", None)
         resource = existing_sqlite if existing_sqlite is not None else existing_postgres
         if resource is not None:
+            if commit_admission is not None:
+                raise ControlJobExecutionAdmissionError(
+                    "control_job_cancellation_nested_transaction"
+                )
             with self._bound_transaction_admission(resource, purpose=purpose):
                 yield
             return
@@ -8938,6 +9243,8 @@ class ControlPlaneStore:
                 try:
                     with self._bound_transaction_admission(conn, purpose=purpose):
                         yield
+                    if commit_admission is not None:
+                        commit_admission()
                     conn.commit()
                 except BaseException:
                     conn.rollback()
@@ -8950,6 +9257,8 @@ class ControlPlaneStore:
             try:
                 with self._bound_transaction_admission(cur, purpose=purpose):
                     yield
+                if commit_admission is not None:
+                    commit_admission()
             finally:
                 self._human_decision_transaction.postgres_cursor = None
 

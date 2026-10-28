@@ -18,11 +18,21 @@ from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.contracts.control import NaturalLanguageRunRequest
+from polisyos.runtime.http.authorization import (
+    _BOUND_ACTION_PERMISSION_SEAL,
+    ActionPermissionVerification,
+    BoundActionPermissionVerification,
+    ResourceBindingSource,
+    ResourceBindingSpec,
+    RouteAuthorizationRequirement,
+)
 from polisyos.runtime.http.errors import RuntimeDependencyUnavailableError
 from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.resilience import guard_runtime_control_store
 from polisyos.runtime.http.resource_binding import (
     BindingAuthority,
+    BoundAuthorizationResource,
+    _binding_resource_urn,
     _canonical_json,
     _digest_payload,
 )
@@ -1910,6 +1920,743 @@ def _fence_leased_execution(
         worker_id=worker_id,
         attempt=leased.attempt,
     )
+
+
+def _cancellation_proof(
+    job_id: str,
+    *,
+    operation_id: str,
+    expected_lease_owner: str | None = None,
+    expected_attempt: int | None = None,
+) -> BoundActionPermissionVerification:
+    """SQL-isolation fixture only; this is not an HTTP authorization witness."""
+    from polisyos.core import canon
+
+    context = canon.to_canonical_bytes(
+        {
+            "operation_id": operation_id,
+            "expected_lease_owner": expected_lease_owner,
+            "expected_attempt": expected_attempt,
+        },
+        canon.CanonSpec(forbid_floats=False),
+    )
+    requirement = RouteAuthorizationRequirement(
+        permission=RuntimePermission.JOBS_CANCEL,
+        resource_binding=ResourceBindingSpec(
+            source=ResourceBindingSource.OWNED_EXISTING_PATH,
+            resource_kind="runtime.control_job.cancel",
+            path_parameter="job_id",
+        ),
+    )
+    selectors = (("cell_id", _canonical_json("cell-b")), ("job_id", _canonical_json(job_id)))
+    digest = "sha256:" + hashlib.sha256(repr(selectors).encode()).hexdigest()
+    resource = BoundAuthorizationResource(
+        requirement=requirement,
+        tenant_id="tenant-b",
+        resource_kind="runtime.control_job.cancel.ownership_verified",
+        resource_id=_binding_resource_urn(digest),
+        resource_digest=digest,
+        authority=BindingAuthority.OWNERSHIP_VERIFIED,
+        body_sha256="sha256:" + hashlib.sha256(context).hexdigest(),
+        query_sha256="sha256:" + hashlib.sha256(b"").hexdigest(),
+        canonical_selectors=selectors,
+        resolved_context_kind="runtime.control_job.cancellation.v1",
+        resolved_context=context,
+    )
+    verification = ActionPermissionVerification(
+        requirement=requirement,
+        subject="reviewer-a",
+        tenant_id="tenant-b",
+        jwt_id="current-jwt",
+        roles=frozenset(),
+        authorization_source="configured_test_policy",
+        granted_permissions=(RuntimePermission.JOBS_CANCEL,),
+    )
+    return BoundActionPermissionVerification(
+        verification=verification,
+        bound_resource=resource,
+        _seal=_BOUND_ACTION_PERMISSION_SEAL,
+    )
+
+
+def _sql_cancel(store: ControlPlaneStore, **kwargs: Any) -> ControlJobRecord:
+    """Exercise SQL in a synthetic scope; this is not an authorization witness."""
+    from types import SimpleNamespace
+
+    from polisyos.runtime.http.cancellation_admission import cancellation_request_scope
+
+    proof = kwargs["authorization_proof"]
+    state = SimpleNamespace(
+        action_permission_verification=proof,
+        authz_bound_resource=proof.bound_resource,
+        authz_action_bound_resource=proof.bound_resource,
+        authz_resource_frozen=True,
+    )
+    with cancellation_request_scope(SimpleNamespace(state=state), proof):
+        return store.cancel_job(**kwargs)
+
+
+def test_pending_cancellation_is_durable_idempotent_and_prevents_lease(tmp_path: Path) -> None:
+    store = _make_store(tmp_path)
+    job = _create_execution_admission_job(store, execution_scope=_job_execution_scope())
+
+    cancelled = _sql_cancel(
+        store,
+        job_id=job.job_id,
+        authorization_proof=_cancellation_proof(job.job_id, operation_id="cancel-pending"),
+        operation_id="cancel-pending",
+    )
+    repeated = _sql_cancel(
+        store,
+        job_id=job.job_id,
+        authorization_proof=_cancellation_proof(job.job_id, operation_id="cancel-pending"),
+        operation_id="cancel-pending",
+    )
+
+    assert cancelled.state == repeated.state == "cancelled"
+    assert cancelled.progress["cancellation"]["physical_stop_status"] == "not_established"
+    assert store.lease_next_job(worker_id="late-worker") is None
+    event_count = store._fetchone(  # noqa: SLF001
+        "SELECT COUNT(*) FROM control_job_events WHERE job_id = ? AND event_type = ?",
+        (job.job_id, "job_cancelled"),
+    )
+    assert event_count is not None and event_count[0] == 1
+    assert (
+        len(
+            [
+                event
+                for event in store.list_outbox_events(state=None)
+                if event.topic == "control.job.cancelled"
+            ]
+        )
+        == 1
+    )
+    with pytest.raises(ControlJobLeaseLostError):
+        store.complete_job(job_id=job.job_id)
+    with pytest.raises(ControlJobLeaseLostError):
+        store.mark_running(job_id=job.job_id, worker_id="resurrector")
+
+
+def test_running_cancellation_revokes_attempt_publication_authority(tmp_path: Path) -> None:
+    store = _make_store(tmp_path)
+    job = _create_execution_admission_job(store, execution_scope=_job_execution_scope())
+    leased = store.lease_next_job(worker_id="worker-a", lease_seconds=30)
+    assert leased is not None
+
+    cancelled = _sql_cancel(
+        store,
+        job_id=job.job_id,
+        authorization_proof=_cancellation_proof(
+            job.job_id,
+            operation_id="cancel-running",
+            expected_lease_owner="worker-a",
+            expected_attempt=leased.attempt,
+        ),
+        operation_id="cancel-running",
+        expected_lease_owner="worker-a",
+        expected_attempt=leased.attempt,
+    )
+    assert cancelled.progress["cancellation"]["physical_stop_status"] == "not_established"
+    with pytest.raises(ControlJobLeaseLostError):
+        store.complete_job(
+            job_id=job.job_id,
+            expected_lease_owner="worker-a",
+            expected_attempt=leased.attempt,
+        )
+
+
+def test_cancelled_job_rejects_unbound_progress_and_preserves_disposition(
+    tmp_path: Path,
+) -> None:
+    store = _make_store(tmp_path)
+    job = _create_execution_admission_job(store, execution_scope=_job_execution_scope())
+    cancelled = _sql_cancel(
+        store,
+        job_id=job.job_id,
+        authorization_proof=_cancellation_proof(job.job_id, operation_id="cancel-progress-fence"),
+        operation_id="cancel-progress-fence",
+    )
+
+    with pytest.raises(ControlJobLeaseLostError, match="rejects progress"):
+        store.upsert_progress(job_id=job.job_id, progress={"state": "running"})
+
+    persisted = store.get_job(job.job_id)
+    assert persisted is not None
+    assert persisted.progress == cancelled.progress
+    repeated = _sql_cancel(
+        store,
+        job_id=job.job_id,
+        authorization_proof=_cancellation_proof(job.job_id, operation_id="cancel-progress-fence"),
+        operation_id="cancel-progress-fence",
+    )
+    assert repeated.progress == cancelled.progress
+
+
+def test_cancellation_refuses_unknown_scope_and_stale_attempt(tmp_path: Path) -> None:
+    store = _make_store(tmp_path)
+    job = _create_execution_admission_job(store, execution_scope=_job_execution_scope())
+    leased = store.lease_next_job(worker_id="worker-a", lease_seconds=30)
+    assert leased is not None
+
+    with pytest.raises(ControlJobExecutionAdmissionError):
+        _sql_cancel(
+            store,
+            job_id="substituted-job",
+            authorization_proof=_cancellation_proof(
+                job.job_id,
+                operation_id="forged",
+                expected_lease_owner="worker-a",
+                expected_attempt=leased.attempt,
+            ),
+            operation_id="forged",
+            expected_lease_owner="worker-a",
+            expected_attempt=leased.attempt,
+        )
+    with pytest.raises(ControlJobLeaseLostError):
+        _sql_cancel(
+            store,
+            job_id=job.job_id,
+            authorization_proof=_cancellation_proof(
+                job.job_id,
+                operation_id="stale",
+                expected_lease_owner="worker-a",
+                expected_attempt=leased.attempt + 1,
+            ),
+            operation_id="stale",
+            expected_lease_owner="worker-a",
+            expected_attempt=leased.attempt + 1,
+        )
+    assert store.get_job(job.job_id).state == "running"
+
+
+def test_cancellation_scope_expires_in_a_copied_guard_context() -> None:
+    """A copied context must not keep request authority after scope exit."""
+    from contextvars import copy_context
+    from types import SimpleNamespace
+
+    from polisyos.runtime.http.cancellation_admission import (
+        cancellation_request_scope,
+        is_current_cancellation_authority,
+    )
+
+    proof = _cancellation_proof("job", operation_id="operation")
+    state = SimpleNamespace(
+        action_permission_verification=proof,
+        authz_bound_resource=proof.bound_resource,
+        authz_action_bound_resource=proof.bound_resource,
+        authz_resource_frozen=True,
+    )
+    with cancellation_request_scope(SimpleNamespace(state=state), proof):
+        copied = copy_context()
+        assert copied.run(is_current_cancellation_authority, proof)
+    assert not copied.run(is_current_cancellation_authority, proof)
+
+
+@pytest.mark.parametrize("mixed_failure", [False, True])
+def test_worker_handles_real_taskgroup_interrupt_and_preserves_sibling_failure(
+    tmp_path: Path, mixed_failure: bool
+) -> None:
+    """A real lease loss reaches two async tasks without killing the worker loop."""
+    import asyncio
+
+    from polisyos.common.job_execution_interrupt import (
+        JobExecutionInterrupted,
+        raise_if_job_execution_interrupted,
+    )
+
+    store = _make_store(tmp_path)
+    job = _create_execution_admission_job(store, execution_scope=_job_execution_scope())
+    leased = store.lease_next_job(worker_id="async-group-worker", lease_seconds=5)
+    assert leased is not None
+    entered = threading.Event()
+    abort = threading.Event()
+    errors: list[BaseException] = []
+
+    def handler(_job: ControlJobRecord) -> None:
+        async def run_group() -> None:
+            all_arrived = asyncio.Event()
+            started = 0
+            arrived = 0
+
+            async def child(index: int) -> None:
+                nonlocal started, arrived
+                started += 1
+                if started == 2:
+                    entered.set()
+                captured = None
+                while captured is None:
+                    if abort.is_set():
+                        raise RuntimeError("async interruption witness aborted")
+                    try:
+                        raise_if_job_execution_interrupted()
+                    except JobExecutionInterrupted as exc:
+                        captured = exc
+                    else:
+                        await asyncio.sleep(0.01)
+                arrived += 1
+                if arrived == 2:
+                    all_arrived.set()
+                await all_arrived.wait()
+                if mixed_failure and index == 1:
+                    raise RuntimeError("unrelated sibling failure")
+                raise captured
+
+            async with asyncio.TaskGroup() as group:
+                group.create_task(child(0))
+                group.create_task(child(1))
+
+        asyncio.run(run_group())
+
+    worker = ControlWorker(
+        store=store, handler=handler, worker_id="async-group-worker", lease_seconds=5
+    )
+    worker._heartbeat_interval_s = 0.05
+
+    def run_worker() -> None:
+        try:
+            worker._run_with_lease_heartbeat(leased)
+        except BaseException as exc:
+            errors.append(exc)
+
+    thread = threading.Thread(target=run_worker, daemon=True)
+    thread.start()
+    try:
+        assert entered.wait(10)
+        _sql_cancel(
+            store,
+            job_id=job.job_id,
+            authorization_proof=_cancellation_proof(
+                job.job_id,
+                operation_id="taskgroup-cancel",
+                expected_lease_owner="async-group-worker",
+                expected_attempt=leased.attempt,
+            ),
+            operation_id="taskgroup-cancel",
+            expected_lease_owner="async-group-worker",
+            expected_attempt=leased.attempt,
+        )
+        thread.join(timeout=10)
+        assert not thread.is_alive()
+        if mixed_failure:
+            assert len(errors) == 1
+            assert isinstance(errors[0], ExceptionGroup)
+            assert errors[0].subgroup(RuntimeError) is not None
+            assert errors[0].subgroup(JobExecutionInterrupted) is None
+        else:
+            assert errors == []
+        assert store.get_cancelled_job_verified_record(job.job_id).state == "cancelled"
+    finally:
+        abort.set()
+        thread.join(timeout=5)
+
+
+def test_worker_loop_processes_next_job_after_taskgroup_cancellation(tmp_path: Path) -> None:
+    """The actual embedded loop continues after a grouped lease-loss signal."""
+    import asyncio
+
+    from polisyos.common.job_execution_interrupt import raise_if_job_execution_interrupted
+
+    store = _make_store(tmp_path)
+    first = _create_execution_admission_job(store, execution_scope=_job_execution_scope())
+    entered = threading.Event()
+    first_exited = threading.Event()
+    second_finished = threading.Event()
+    abort = threading.Event()
+
+    def handler(job: ControlJobRecord) -> None:
+        if job.job_id != first.job_id:
+            store.complete_job(job_id=job.job_id, progress={"state": "second-completed"})
+            second_finished.set()
+            return
+
+        async def group_work() -> None:
+            async def child() -> None:
+                entered.set()
+                while not abort.is_set():
+                    raise_if_job_execution_interrupted()
+                    await asyncio.sleep(0.01)
+                raise RuntimeError("worker survival witness aborted")
+
+            async with asyncio.TaskGroup() as group:
+                group.create_task(child())
+                group.create_task(child())
+
+        try:
+            asyncio.run(group_work())
+        finally:
+            first_exited.set()
+
+    worker = ControlWorker(
+        store=store, handler=handler, worker_id="group-survival-worker", lease_seconds=5
+    )
+    worker._heartbeat_interval_s = 0.05
+    worker.start()
+    try:
+        assert entered.wait(10)
+        leased = store.get_job(first.job_id)
+        assert leased is not None and leased.state == "running"
+        _sql_cancel(
+            store,
+            job_id=first.job_id,
+            authorization_proof=_cancellation_proof(
+                first.job_id,
+                operation_id="group-survival",
+                expected_lease_owner=worker.worker_id,
+                expected_attempt=leased.attempt,
+            ),
+            operation_id="group-survival",
+            expected_lease_owner=worker.worker_id,
+            expected_attempt=leased.attempt,
+        )
+        assert first_exited.wait(10)
+        scope = _job_execution_scope()
+        creation = _job_creation_event(execution_scope=scope)
+        creation["job_id"] = "job-after-cancellation"
+        creation["run_id"] = "run-after-cancellation"
+        store.create_job(
+            job_id="job-after-cancellation",
+            kind="workflow_run",
+            run_id="run-after-cancellation",
+            pipeline_id=None,
+            requested_execution_profile=None,
+            effective_execution_profile="dev",
+            policy_flags={"candidate": True},
+            capability_manifest_ref="sha256:manifest-admission",
+            payload_ref="sha256:payload-b",
+            submitted_by="denis",
+            creation_event_payload=creation,
+        )
+        worker.wake()
+        assert second_finished.wait(10)
+        second = store.get_job("job-after-cancellation")
+        assert second is not None and second.state == "completed"
+        assert store.get_cancelled_job_verified_record(first.job_id).state == "cancelled"
+    finally:
+        abort.set()
+        worker.stop(timeout=5)
+
+
+def test_worker_does_not_swallow_interrupt_without_observed_lease_loss(tmp_path: Path) -> None:
+    from polisyos.common.job_execution_interrupt import JobExecutionInterrupted
+
+    store = _make_store(tmp_path)
+    _create_execution_admission_job(store, execution_scope=_job_execution_scope())
+    leased = store.lease_next_job(worker_id="still-current-worker", lease_seconds=5)
+    assert leased is not None
+
+    def handler(_job: ControlJobRecord) -> None:
+        raise JobExecutionInterrupted("unbound interruption")
+
+    worker = ControlWorker(
+        store=store, handler=handler, worker_id="still-current-worker", lease_seconds=5
+    )
+    with pytest.raises(JobExecutionInterrupted):
+        worker._run_with_lease_heartbeat(leased)
+
+
+def test_cancellation_low_level_body_substitution_is_refused(tmp_path: Path) -> None:
+    """The store rejects a changed body even when the other proof fields match."""
+    store = _make_store(tmp_path)
+    job = _create_execution_admission_job(store, execution_scope=_job_execution_scope())
+    proof = _cancellation_proof(job.job_id, operation_id="original")
+    with pytest.raises(ControlJobExecutionAdmissionError, match="body_mismatch"):
+        _sql_cancel(store, job_id=job.job_id, authorization_proof=proof, operation_id="substituted")
+    assert store.get_job(job.job_id).state == "pending"
+
+
+def test_cancellation_rolls_back_row_progress_and_event_when_outbox_fails(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    store = _make_store(tmp_path)
+    job = _create_execution_admission_job(store, execution_scope=_job_execution_scope())
+    before = store.get_job(job.job_id)
+
+    def unavailable(**_kwargs: object) -> None:
+        raise RuntimeError("controlled outbox failure")
+
+    monkeypatch.setattr(store, "_emit_job_outbox_event", unavailable)
+    with pytest.raises(RuntimeError, match="controlled outbox failure"):
+        _sql_cancel(
+            store,
+            job_id=job.job_id,
+            authorization_proof=_cancellation_proof(job.job_id, operation_id="rollback"),
+            operation_id="rollback",
+        )
+    after = store.get_job(job.job_id)
+    assert after is not None and before is not None
+    assert after.state == before.state == "pending"
+    assert after.progress == before.progress
+    rows = store._fetchall(  # noqa: SLF001
+        "SELECT event_type FROM control_job_events WHERE job_id = ? AND event_type = ?",
+        (job.job_id, "job_cancelled"),
+    )
+    assert rows == []
+
+
+def test_conflicting_cancel_outbox_rolls_back_the_proposed_transition(tmp_path: Path) -> None:
+    store = _make_store(tmp_path)
+    job = _create_execution_admission_job(store, execution_scope=_job_execution_scope())
+    original = store.get_job(job.job_id)
+    store.enqueue_outbox_event(
+        topic="control.job.cancelled",
+        event_key=f"{job.job_id}:job_cancelled",
+        job_id=job.job_id,
+        run_id=job.run_id,
+        payload={"conflicting": True},
+    )
+    with pytest.raises(ControlJobLeaseLostError, match="outbox_already_exists"):
+        _sql_cancel(
+            store,
+            job_id=job.job_id,
+            authorization_proof=_cancellation_proof(job.job_id, operation_id="conflict"),
+            operation_id="conflict",
+        )
+    after = store.get_job(job.job_id)
+    assert original is not None and after is not None
+    assert after.state == original.state == "pending" and after.progress == original.progress
+    assert (
+        store._fetchall(  # noqa: SLF001
+            "SELECT event_type FROM control_job_events WHERE job_id = ? AND event_type = ?",
+            (job.job_id, "job_cancelled"),
+        )
+        == []
+    )
+
+
+@pytest.mark.parametrize("published", [False, True])
+def test_matching_preexisting_cancel_outbox_is_not_adopted(tmp_path: Path, published: bool) -> None:
+    """Equal bytes cannot make a prior event atomic with a new transition."""
+    store = _make_store(tmp_path)
+    job = _create_execution_admission_job(store, execution_scope=_job_execution_scope())
+    proof = _cancellation_proof(job.job_id, operation_id="matching-prepublished")
+    payload = {
+        "job_id": job.job_id,
+        "job_kind": job.kind,
+        "run_id": job.run_id,
+        "pipeline_id": job.pipeline_id,
+        "effective_execution_profile": job.effective_execution_profile,
+        "state": "cancelled",
+        "authorized_actor": "reviewer-a",
+        "tenant_id": "tenant-b",
+        "cell_id": "cell-b",
+        "operation_id": "matching-prepublished",
+        "body_sha256": cast("BoundAuthorizationResource", proof.bound_resource).body_sha256,
+        "expected_attempt": None,
+        "expected_lease_owner": None,
+        "disposition": "publication_fenced",
+        "physical_stop_status": "not_established",
+        "cancelled_attempt": job.attempt,
+        "cancelled_lease_owner": None,
+    }
+    prior = store.enqueue_outbox_event(
+        topic="control.job.cancelled",
+        event_key=f"{job.job_id}:job_cancelled",
+        job_id=job.job_id,
+        run_id=job.run_id,
+        payload=payload,
+    )
+    if published:
+        store.mark_outbox_published(event_id=prior.event_id)
+    with pytest.raises(ControlJobLeaseLostError, match="outbox_already_exists"):
+        _sql_cancel(
+            store,
+            job_id=job.job_id,
+            authorization_proof=proof,
+            operation_id="matching-prepublished",
+        )
+    after = store.get_job(job.job_id)
+    assert after is not None and after.state == "pending"
+    retained = store.get_outbox_event(prior.event_id)
+    assert retained is not None
+    assert retained.state == ("published" if published else "pending")
+    assert (
+        store._fetchall(  # noqa: SLF001
+            "SELECT event_type FROM control_job_events WHERE job_id = ? AND event_type = ?",
+            (job.job_id, "job_cancelled"),
+        )
+        == []
+    )
+
+
+def test_cancel_commit_admission_refuses_expired_request_scope(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Close the copied request after writes, before the real commit admission."""
+    from contextvars import copy_context
+    from types import SimpleNamespace
+
+    from polisyos.runtime.http.cancellation_admission import cancellation_request_scope
+
+    store = _make_store(tmp_path)
+    job = _create_execution_admission_job(store, execution_scope=_job_execution_scope())
+    proof = _cancellation_proof(job.job_id, operation_id="expired-commit")
+    state = SimpleNamespace(
+        action_permission_verification=proof,
+        authz_bound_resource=proof.bound_resource,
+        authz_action_bound_resource=proof.bound_resource,
+        authz_resource_frozen=True,
+    )
+    entered = threading.Event()
+    release = threading.Event()
+    original_transaction = store._job_transaction
+
+    @contextmanager
+    def observed_transaction(*, purpose="execution", commit_admission=None):
+        underlying_admission = commit_admission
+
+        def before_commit() -> None:
+            entered.set()
+            assert release.wait(10)
+            assert underlying_admission is not None
+            underlying_admission()
+
+        with original_transaction(
+            purpose=purpose,
+            commit_admission=before_commit if underlying_admission is not None else None,
+        ):
+            yield
+
+    monkeypatch.setattr(store, "_job_transaction", observed_transaction)
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        try:
+            with cancellation_request_scope(SimpleNamespace(state=state), proof):
+                context = copy_context()
+                future = pool.submit(
+                    context.run,
+                    store.cancel_job,
+                    job_id=job.job_id,
+                    authorization_proof=proof,
+                    operation_id="expired-commit",
+                )
+                assert entered.wait(10)
+            release.set()
+            with pytest.raises(ControlJobExecutionAdmissionError, match="scope_expired"):
+                future.result(timeout=10)
+        finally:
+            release.set()
+
+    after = store.get_job(job.job_id)
+    assert after is not None and after.state == "pending"
+    assert (
+        store._fetchall(  # noqa: SLF001
+            "SELECT event_type FROM control_job_events WHERE job_id = ? AND event_type = ?",
+            (job.job_id, "job_cancelled"),
+        )
+        == []
+    )
+    assert not [
+        event
+        for event in store.list_outbox_events(state=None)
+        if event.job_id == job.job_id and event.topic == "control.job.cancelled"
+    ]
+
+
+def test_cancel_refuses_caller_owned_transaction(tmp_path: Path) -> None:
+    store = _make_store(tmp_path)
+    job = _create_execution_admission_job(store, execution_scope=_job_execution_scope())
+    with (
+        store._job_transaction(),  # noqa: SLF001
+        pytest.raises(ControlJobExecutionAdmissionError, match="nested_transaction"),
+    ):
+        _sql_cancel(
+            store,
+            job_id=job.job_id,
+            authorization_proof=_cancellation_proof(job.job_id, operation_id="nested"),
+            operation_id="nested",
+        )
+    assert store.get_job(job.job_id).state == "pending"
+
+
+@pytest.mark.parametrize("takeover", [False, True])
+def test_cancel_expired_attempt_before_and_after_reassignment(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, takeover: bool
+) -> None:
+    """Cancellation may win before reassignment; an old attempt cannot win after."""
+    from polisyos.runtime.http.services import control_plane_store as store_module
+
+    clock = [datetime(2026, 10, 28, tzinfo=UTC)]
+    monkeypatch.setattr(store_module, "_utc_now", lambda: clock[0])
+    store = _make_store(tmp_path)
+    job = _create_execution_admission_job(store, execution_scope=_job_execution_scope())
+    first = store.lease_next_job(worker_id="expiry-owner", lease_seconds=2)
+    assert first is not None and first.lease_expires_at is not None
+    clock[0] = first.lease_expires_at + timedelta(seconds=1)
+    if takeover:
+        replacement = store.lease_next_job(worker_id="replacement", lease_seconds=5)
+        assert replacement is not None and replacement.attempt == first.attempt + 1
+
+    def cancel_expired():
+        return _sql_cancel(
+            store,
+            job_id=job.job_id,
+            authorization_proof=_cancellation_proof(
+                job.job_id,
+                operation_id="expiry-cancel",
+                expected_lease_owner="expiry-owner",
+                expected_attempt=first.attempt,
+            ),
+            operation_id="expiry-cancel",
+            expected_lease_owner="expiry-owner",
+            expected_attempt=first.attempt,
+        )
+
+    if takeover:
+        with pytest.raises(ControlJobLeaseLostError):
+            cancel_expired()
+        current = store.get_job(job.job_id)
+        assert current is not None
+        assert current.state == "running" and current.lease_owner == "replacement"
+        assert current.attempt == first.attempt + 1
+    else:
+        assert cancel_expired().state == "cancelled"
+        assert store.get_cancelled_job_verified_record(job.job_id).attempt == first.attempt
+
+
+def test_cancel_refuses_unknown_original_creation_scope(tmp_path: Path) -> None:
+    store = _make_store(tmp_path)
+    job = _create_execution_admission_job(store, execution_scope=None)
+    with pytest.raises(ControlJobExecutionAdmissionError):
+        _sql_cancel(
+            store,
+            job_id=job.job_id,
+            authorization_proof=_cancellation_proof(job.job_id, operation_id="unknown-scope"),
+            operation_id="unknown-scope",
+        )
+    assert store.get_job(job.job_id).state == "pending"
+
+
+@pytest.mark.parametrize("corrupt", ["event", "outbox", "progress"])
+def test_cancelled_reader_refuses_inconsistent_persisted_source(
+    tmp_path: Path, corrupt: str
+) -> None:
+    store = _make_store(tmp_path)
+    job = _create_execution_admission_job(store, execution_scope=_job_execution_scope())
+    _sql_cancel(
+        store,
+        job_id=job.job_id,
+        authorization_proof=_cancellation_proof(job.job_id, operation_id="persisted"),
+        operation_id="persisted",
+    )
+    assert store.get_cancelled_job_verified_record(job.job_id).state == "cancelled"
+    # Corrupt one independent persisted owner while leaving the status row.
+    if corrupt == "event":
+        store._execute(  # noqa: SLF001
+            "UPDATE control_job_events SET payload_json = ? WHERE job_id = ? AND event_type = ?",
+            ("{}", job.job_id, "job_cancelled"),
+        )
+    elif corrupt == "outbox":
+        store._execute(  # noqa: SLF001
+            "UPDATE control_outbox_events SET payload_json = ? WHERE job_id = ? AND topic = ?",
+            ("{}", job.job_id, "control.job.cancelled"),
+        )
+    else:
+        store._execute(  # noqa: SLF001
+            "UPDATE control_job_progress SET progress_json = ? WHERE job_id = ?",
+            ("{}", job.job_id),
+        )
+    assert store.get_job(job.job_id).state == "cancelled"
+    with pytest.raises(ControlJobLeaseLostError):
+        store.get_cancelled_job_verified_record(job.job_id)
 
 
 @pytest.mark.parametrize("guarded", [False, True])

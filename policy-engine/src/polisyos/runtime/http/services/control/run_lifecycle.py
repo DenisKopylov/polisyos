@@ -70,6 +70,7 @@ from polisyos.core.contracts.control import (
     CacheStatusResponse,
     ConnectorInfo,
     ConnectorsListResponse,
+    ControlJobCancellationRequest,
     ControlJobResponse,
     ControlOutboxEventInfo,
     ControlOutboxEventsResponse,
@@ -8312,7 +8313,49 @@ class ControlPlaneService(
         record = self._control_store.get_job(job_id)
         if record is None:
             raise KeyError(job_id)
+        if record.state == "cancelled":
+            record = self._control_store.get_cancelled_job_verified_record(job_id)
         return self._current_normative_job_record(record).to_response(request_id=request_id)
+
+    def cancel_job(
+        self,
+        *,
+        job_id: str,
+        request: ControlJobCancellationRequest,
+        authorization_proof: object,
+        request_id: str | None = None,
+    ) -> ControlJobResponse:
+        """Consume one current sealed job-owned permission and fence its exact attempt."""
+        from polisyos.runtime.http.authorization import BoundActionPermissionVerification
+        from polisyos.runtime.http.permissions import RuntimePermission
+        from polisyos.runtime.http.resource_binding import (
+            BindingAuthority,
+            BoundAuthorizationResource,
+        )
+
+        if type(authorization_proof) is not BoundActionPermissionVerification:
+            raise forbidden("Cancellation authorization proof is invalid")
+        verification = authorization_proof.verification
+        bound = authorization_proof.bound_resource
+        if (
+            verification.requirement.permission is not RuntimePermission.JOBS_CANCEL
+            or type(bound) is not BoundAuthorizationResource
+            or bound.authority is not BindingAuthority.OWNERSHIP_VERIFIED
+            or bound.requirement is not verification.requirement
+            or bound.tenant_id != verification.tenant_id
+            or dict(bound.canonical_selectors).get("job_id") != json.dumps(job_id)
+            or not isinstance(dict(bound.canonical_selectors).get("cell_id"), str)
+        ):
+            raise forbidden("Cancellation proof is not bound to this exact job")
+        record = self._control_store.cancel_job(
+            job_id=job_id,
+            authorization_proof=authorization_proof,
+            operation_id=request.operation_id,
+            expected_lease_owner=request.expected_lease_owner,
+            expected_attempt=request.expected_attempt,
+        )
+        verified_record = self._control_store.get_cancelled_job_verified_record(record.job_id)
+        return verified_record.to_response(request_id=request_id)
 
     def get_method_execution_selection(
         self,

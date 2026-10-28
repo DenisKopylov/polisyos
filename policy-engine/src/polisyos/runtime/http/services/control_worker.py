@@ -9,6 +9,11 @@ from contextlib import suppress
 from datetime import UTC, datetime
 from time import monotonic
 
+from polisyos.common.job_execution_interrupt import (
+    JobExecutionInterrupt,
+    JobExecutionInterrupted,
+    job_execution_interrupt_scope,
+)
 from polisyos.common.logger import get_logger
 from polisyos.core.security import clear_tenant_context
 from polisyos.runtime.http.errors import (
@@ -188,6 +193,12 @@ class ControlWorker:
 
     def _run_with_lease_heartbeat(self, job: ControlJobRecord) -> None:
         stop_heartbeat = threading.Event()
+        interrupt = JobExecutionInterrupt(
+            job_id=job.job_id,
+            worker_id=self._worker_id,
+            attempt=job.attempt,
+            lost=threading.Event(),
+        )
 
         def _lease_pulse() -> None:
             while not stop_heartbeat.wait(self._heartbeat_interval_s):
@@ -199,6 +210,7 @@ class ControlWorker:
                         expected_attempt=job.attempt,
                     )
                     if renewed is False:
+                        interrupt.lost.set()
                         logger.warning(
                             "Control worker %s lost the lease for job %s attempt %s",
                             self._worker_id,
@@ -249,11 +261,34 @@ class ControlWorker:
                         attempt=job.attempt,
                     ),
                     clear_tenant_context(),
+                    job_execution_interrupt_scope(interrupt),
                 ):
                     self._handler(job)
             else:
-                with clear_tenant_context():
+                with clear_tenant_context(), job_execution_interrupt_scope(interrupt):
                     self._handler(job)
+        except JobExecutionInterrupted:
+            if not interrupt.lost.is_set():
+                raise
+            logger.info(
+                "Control worker %s interrupted job %s attempt %s after lease loss",
+                self._worker_id,
+                job.job_id,
+                job.attempt,
+            )
+        except BaseExceptionGroup as group:
+            interrupted, remaining = group.split(JobExecutionInterrupted)
+            if interrupted is None or not interrupt.lost.is_set():
+                raise
+            if remaining is not None:
+                # Do not let a legitimate interruption erase a sibling failure.
+                raise remaining from group
+            logger.info(
+                "Control worker %s interrupted job %s attempt %s after lease loss",
+                self._worker_id,
+                job.job_id,
+                job.attempt,
+            )
         finally:
             self._emit_worker_diagnostic_event(
                 job=job,

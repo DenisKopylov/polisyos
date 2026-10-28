@@ -18,6 +18,9 @@ migration primitives. Keep domain logic out of this package.
 - `src/polisyos/common/async_tools/__init__.py` owns the sync/async bridge API, shared worker
   admission, and Future lifecycle classes. Keep those class bodies in this owner so reflection and
   pickle lookup resolve the real definitions.
+- `src/polisyos/common/job_execution_interrupt.py` carries a context-local signal bound to a
+  leased job, worker and attempt. It reports observed lease loss to cooperating owners;
+  it does not attest that a thread, provider, or external effect has stopped.
 - `src/polisyos/common/config/__init__.py` owns process configuration and private environment
   parsing. `_logging.py` installs sinks only when explicit bootstrap calls it.
 - `src/polisyos/common/jax_env/__init__.py` applies the safe backend defaults; `_policy.py` is the

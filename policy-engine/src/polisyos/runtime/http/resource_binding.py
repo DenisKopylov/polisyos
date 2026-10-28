@@ -68,18 +68,21 @@ _RESOLVED_CONTEXT_CANON = canon.CanonSpec(forbid_floats=False)
 _SCENARIO_TARGET_CONTEXT_KIND = "runtime.scenario.target.v1"
 _LINEAGE_BATCH_CONTEXT_KIND = "runtime.lineage.batch.v1"
 _HUMAN_DECISION_CREATE_CONTEXT_KIND = "runtime.human_decision.create.v1"
+_CONTROL_JOB_CANCELLATION_CONTEXT_KIND = "runtime.control_job.cancellation.v1"
 
 
 class _ResolverKind(StrEnum):
     """Closed server-side resolvers registered for binding specs."""
 
     RUN = "run"
+    JOB = "job"
     ARTIFACT = "artifact"
     PROMOTION = "promotion"
     LINEAGE = "lineage"
 
 
 _OWNED_PATH_RESOLVERS = {
+    ("runtime.control_job.cancel", "job_id"): _ResolverKind.JOB,
     ("runtime.run.normative_evidence", "run_id"): _ResolverKind.RUN,
     ("runtime.run.epoch_staleness", "run_id"): _ResolverKind.RUN,
     ("runtime.run.feedback_evaluation", "run_id"): _ResolverKind.RUN,
@@ -884,6 +887,36 @@ def _bind_owned_existing_path(
         else:
             resource_id, tenant_id = _resolve_owned_run(ctx, scope, value)
         selector_name = "run_id"
+    elif resolver_kind is _ResolverKind.JOB:
+        control = resolve_control_service(request)
+        if control is None:
+            raise service_unavailable(
+                "Control job resolver is unavailable",
+                code="authorization_binding_resolver_unavailable",
+            )
+        try:
+            record = control._control_store.get_job(value)
+            if record is None:
+                raise KeyError(value)
+            creation_scope, _event = (
+                control._control_store._reconcile_control_job_creation_envelope(record)
+            )
+        except Exception as exc:
+            raise forbidden(
+                "Control job resource could not be resolved",
+                code="authorization_binding_job_unresolved",
+            ) from exc
+        if (
+            creation_scope.status != "established"
+            or creation_scope.tenant_id != scope.tenant_id
+            or not scope.cell_id
+            or creation_scope.cell_id != scope.cell_id
+        ):
+            raise forbidden(
+                "Control job ownership is not established for this tenant and cell",
+                code="authorization_binding_job_scope_mismatch",
+            )
+        resource_id, tenant_id, selector_name = record.job_id, creation_scope.tenant_id, "job_id"
     else:
         raise forbidden(
             "Owned path binding has no registered resolver",
@@ -910,9 +943,25 @@ def _bind_owned_existing_path(
             )
         )
     )
+    if resolver_kind is _ResolverKind.JOB:
+        selectors = tuple(sorted((*selectors, ("cell_id", _canonical_json(scope.cell_id)))))
     resolved_context_kind: str | None = None
     resolved_context: bytes | None = None
-    if spec.resource_kind == "runtime.run.production_approval":
+    if resolver_kind is _ResolverKind.JOB:
+        from polisyos.core.contracts.control import ControlJobCancellationRequest
+
+        try:
+            cancellation = ControlJobCancellationRequest.model_validate(body)
+        except (TypeError, ValueError) as exc:
+            raise bad_request(
+                "Control job cancellation request is invalid",
+                code="authorization_binding_job_cancellation_invalid",
+            ) from exc
+        resolved_context_kind = _CONTROL_JOB_CANCELLATION_CONTEXT_KIND
+        resolved_context = canon.to_canonical_bytes(
+            cancellation.model_dump(mode="json"), _RESOLVED_CONTEXT_CANON
+        )
+    elif spec.resource_kind == "runtime.run.production_approval":
         _validate_production_approval_override_authority(body, scope=scope)
         resolved = resolve_production_approval_scorecard(
             body=body,
@@ -1570,7 +1619,7 @@ def _resolve_method_execution_indexed_run(
     used_control_alias = False
     try:
         indexed_run = ctx.run_index.get_run(run_id)
-    except (KeyError, TypeError, ValueError):
+    except KeyError, TypeError, ValueError:
         control = resolve_control_service(request)
         resolve_binding = getattr(control, "_resolve_observational_method_core_run_binding", None)
         if not callable(resolve_binding):

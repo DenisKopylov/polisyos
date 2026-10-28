@@ -27,6 +27,11 @@ The DS17 OpenAPI example is packaged at `src/polisyos/runtime/http/_resources/` 
 - `src/polisyos/runtime/http/permissions.py` for the server-owned action
   permission vocabulary and immutable role grants projected by `/auth/me`.
 
+- `src/polisyos/runtime/http/cancellation_admission.py` scopes a single current
+  cancellation permission proof to its request; the control store binds the
+  request body and attempt and owns the durable event/outbox. The cancellation
+  route defaults to disabled; a rollout switch is not proof of installed-reader
+  readiness, and physical effects outside the cooperating owner remain unknown.
 - `src/polisyos/runtime/http/mutation_policy.py` for rate limits, idempotency,
   audit trail, and live-stream budgets.
 

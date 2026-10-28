@@ -18,6 +18,7 @@ from polisyos.core.contracts.control import (
     CausalFrontierSAERequest,
     CausalFrontierSAEResponse,
     ConnectorsListResponse,
+    ControlJobCancellationRequest,
     ControlJobResponse,
     ControlOutboxEventsResponse,
     ControlWorkersResponse,
@@ -56,6 +57,7 @@ from polisyos.runtime.http.authorization import (
     ResourceBindingSpec,
     require_action_permission,
 )
+from polisyos.runtime.http.cancellation_admission import cancellation_request_scope
 from polisyos.runtime.http.container import resolve_control_service
 from polisyos.runtime.http.dependencies import (
     RuntimeAccessScope as AccessScope,
@@ -69,7 +71,7 @@ from polisyos.runtime.http.dependencies import (
     get_runtime_api_context,
     set_authz_resource,
 )
-from polisyos.runtime.http.errors import bad_request, forbidden, not_found
+from polisyos.runtime.http.errors import bad_request, forbidden, not_found, service_unavailable
 from polisyos.runtime.http.execution_policy import RuntimePrincipal
 from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.routes._export_replay import bind_export_replay_or_conflict
@@ -137,6 +139,15 @@ _REISSUE_RUN_AUTHZ = require_action_permission(
         resource_kind="runtime.run.reissue",
         path_parameter="run_id",
         allow_empty_body=True,
+    ),
+)
+_CANCEL_JOB_AUTHZ = require_action_permission(
+    RuntimePermission.JOBS_CANCEL,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.OWNED_EXISTING_PATH,
+        resource_kind="runtime.control_job.cancel",
+        path_parameter="job_id",
+        allow_empty_body=False,
     ),
 )
 _SUBMIT_NORMATIVE_EVIDENCE_AUTHZ = require_action_permission(
@@ -580,6 +591,46 @@ if router is not None:
         control = _get_control_service(request)
         request_id = ensure_request_id(request)
         return control.get_job_status(job_id, request_id=request_id)
+
+    @router.post(
+        "/jobs/{job_id}/cancel",
+        response_model=ControlJobResponse,
+        operation_id="cancel_control_job",
+        summary="Fence publication authority for one control job attempt",
+        dependencies=[Depends(_CANCEL_JOB_AUTHZ)],
+    )
+    def cancel_control_job(
+        job_id: str,
+        body: ControlJobCancellationRequest,
+        request: Request,
+    ) -> ControlJobResponse:
+        proof = getattr(request.state, "action_permission_verification", None)
+        if type(proof) is not BoundActionPermissionVerification:
+            raise forbidden(
+                "Cancellation requires the route's current job-owned permission proof",
+                code="control_job_cancellation_authorization_not_established",
+            )
+        if (
+            getattr(request.app.state, "control_job_cancellation_rollout_enabled", False)
+            is not True
+        ):
+            raise service_unavailable(
+                "Control job cancellation is not enabled on this deployment",
+                code="control_job_cancellation_rollout_disabled",
+            )
+        current_proof = _CANCEL_JOB_AUTHZ._authorize(request)
+        if current_proof is not proof:
+            raise forbidden(
+                "Cancellation permission is no longer current",
+                code="control_job_cancellation_authorization_not_current",
+            )
+        with cancellation_request_scope(request, proof):
+            return _get_control_service(request).cancel_job(
+                job_id=job_id,
+                request=body,
+                authorization_proof=proof,
+                request_id=ensure_request_id(request),
+            )
 
     @router.get(
         "/admission-attempts/by-idempotency-key",

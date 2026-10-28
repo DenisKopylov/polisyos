@@ -43,6 +43,10 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.common.async_tools import get_shared_executor, run_blocking_async
 from polisyos.common.canonical import _admit_canon_spec
+from polisyos.common.job_execution_interrupt import (
+    JobExecutionInterrupted,
+    raise_if_job_execution_interrupted,
+)
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
     SchemaInfo,
@@ -2689,10 +2693,12 @@ def _drain_result_sync(
     completion_time: Any = None,
 ) -> tuple[str, object]:
     """Receive a result while its producer runs, without partial-frame blocking."""
+    raise_if_job_execution_interrupted()
     while process.is_alive() and not _completion_before_deadline(
         completion_time,
         compute_deadline,
     ):
+        raise_if_job_execution_interrupted()
         remaining = compute_deadline - time.monotonic()
         if remaining <= 0:
             raise _WorkerComputeTimeout
@@ -2704,6 +2710,7 @@ def _drain_result_sync(
             continue
         if not _completion_before_deadline(completion_time, compute_deadline):
             raise _WorkerComputeTimeout
+        raise_if_job_execution_interrupted()
         return _require_worker_result_frame(raw_frame)
 
     if not process.is_alive() and not _completion_before_deadline(
@@ -2716,11 +2723,13 @@ def _drain_result_sync(
 
     delivery_deadline = _delivery_deadline(completion_time)
     while time.monotonic() < delivery_deadline:
+        raise_if_job_execution_interrupted()
         remaining = delivery_deadline - time.monotonic()
         try:
             delivered_frame: object = result_queue.get(
                 timeout=min(_PROCESS_RESULT_POLL_S, remaining)
             )
+            raise_if_job_execution_interrupted()
             return _require_worker_result_frame(delivered_frame)
         except EOFError:
             raise _WorkerDeliveryTimeout from None
@@ -2737,10 +2746,12 @@ async def _drain_result_async(
     completion_time: Any = None,
 ) -> tuple[str, object]:
     """Async counterpart of :func:`_drain_result_sync`."""
+    raise_if_job_execution_interrupted()
     while process.is_alive() and not _completion_before_deadline(
         completion_time,
         compute_deadline,
     ):
+        raise_if_job_execution_interrupted()
         try:
             raw_frame: object = result_queue.get_nowait()
         except EOFError:
@@ -2753,6 +2764,7 @@ async def _drain_result_async(
         else:
             if not _completion_before_deadline(completion_time, compute_deadline):
                 raise _WorkerComputeTimeout
+            raise_if_job_execution_interrupted()
             return _require_worker_result_frame(raw_frame)
 
     if not process.is_alive() and not _completion_before_deadline(
@@ -2765,8 +2777,10 @@ async def _drain_result_async(
 
     delivery_deadline = _delivery_deadline(completion_time)
     while time.monotonic() < delivery_deadline:
+        raise_if_job_execution_interrupted()
         try:
             delivered_frame: object = result_queue.get_nowait()
+            raise_if_job_execution_interrupted()
             return _require_worker_result_frame(delivered_frame)
         except EOFError:
             raise _WorkerDeliveryTimeout from None
@@ -2779,6 +2793,7 @@ async def _drain_result_async(
 def _join_worker_until(process: mp.Process, *, deadline: float) -> None:
     """Wait for a result-producing worker to exit before decoding it."""
     while process.is_alive():
+        raise_if_job_execution_interrupted()
         remaining = deadline - time.monotonic()
         if remaining <= 0:
             raise _WorkerDeliveryTimeout
@@ -2788,6 +2803,7 @@ def _join_worker_until(process: mp.Process, *, deadline: float) -> None:
 async def _join_worker_until_async(process: mp.Process, *, deadline: float) -> None:
     """Async wait for a result-producing worker to exit."""
     while process.is_alive():
+        raise_if_job_execution_interrupted()
         if deadline - time.monotonic() <= 0:
             raise _WorkerDeliveryTimeout
         process.join(timeout=0.0)
@@ -3385,6 +3401,7 @@ def _execute_with_timeout_process(
                 ),
                 daemon=True,
             )
+        raise_if_job_execution_interrupted()
         process.start()
         result_queue.close_writer()
         lifecycle.process_group_id = _owned_process_group_id(
@@ -3409,6 +3426,15 @@ def _execute_with_timeout_process(
                 raise _worker_timeout_error(timeout_s, cleanup_complete=False)
         else:
             _join_worker_until(process, deadline=_delivery_deadline(lifecycle.completion_time))
+        raise_if_job_execution_interrupted()
+    except JobExecutionInterrupted:
+        authority.revoke()
+        if process is not None and process.pid is not None:
+            # The validated owner group can outlive the immediate child.
+            _terminate_owned_process(
+                process, lifecycle.process_group_id, lifecycle.cleanup_complete
+            )
+        raise
     except _WorkerComputeTimeout:
         cleanup_complete = _terminate_owned_process(
             process,
@@ -3585,6 +3611,7 @@ async def _execute_with_timeout_process_async(
                 ),
                 daemon=True,
             )
+        raise_if_job_execution_interrupted()
         process.start()
         result_queue.close_writer()
         lifecycle.process_group_id = _owned_process_group_id(
@@ -3611,6 +3638,15 @@ async def _execute_with_timeout_process_async(
             await _join_worker_until_async(
                 process, deadline=_delivery_deadline(lifecycle.completion_time)
             )
+        raise_if_job_execution_interrupted()
+    except JobExecutionInterrupted:
+        authority.revoke()
+        if process is not None and process.pid is not None:
+            # The validated owner group can outlive the immediate child.
+            _terminate_owned_process(
+                process, lifecycle.process_group_id, lifecycle.cleanup_complete
+            )
+        raise
     except _WorkerComputeTimeout:
         cleanup_complete = _terminate_owned_process(
             process,

@@ -44,6 +44,7 @@ class RuntimePermission(StrEnum):
     RUNS_BATCH_READ = "runs.batch.read"
     RUNS_FEEDBACK_EVALUATE = "runs.feedback.evaluate"
     RUNS_HUMAN_DECISIONS_CREATE = "runs.human_decisions.create"
+    JOBS_CANCEL = "jobs.cancel"
     RUNS_LAUNCH = "runs.launch"
     RUNS_PRODUCTION_APPROVAL_CREATE = "runs.production_approval.create"
     RUNS_REISSUE = "runs.reissue"

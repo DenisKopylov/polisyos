@@ -12,6 +12,9 @@ orchestration stack.
 - Stable facade and export map: [`__init__.py`](__init__.py)
 - State and workflow contracts: [`state.py`](state.py) and [`workflow_spec.py`](workflow_spec.py)
 - Core execution path: [`executor.py`](executor.py) and [`async_executor.py`](async_executor.py)
+- Bounded retry and owned-process cleanup: [`retry.py`](retry.py). Its result drains observe
+  the current job-interrupt signal and use their own process handle and validated group for
+  cleanup; they do not establish termination of arbitrary threads or external providers.
 - Checkpointing and idempotency: [`checkpoint.py`](checkpoint.py) and [`idempotency.py`](idempotency.py)
 - Remote/distributed runners: [`runner/`](runner/)
 

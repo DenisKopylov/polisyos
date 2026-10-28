@@ -62,7 +62,25 @@ ExecutionProfile = Literal["dev", "research", "governed", "production"]
 PolicyAuthorityProfile = Literal["research", "governed", "production"]
 PolicyValidationProfile = Literal["fast", "mvp", "strict"]
 PolicyFallbackProfile = Literal["serious_fallback_fail_closed"]
-ControlJobState = Literal["pending", "running", "completed", "failed"]
+ControlJobState = Literal["pending", "running", "completed", "failed", "cancelled"]
+
+
+class ControlJobCancellationRequest(BaseModel):
+    """Optimistic identity and stable operation key for a cancellation request."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    expected_lease_owner: str | None = Field(default=None, min_length=1, max_length=256)
+    expected_attempt: int | None = Field(default=None, ge=0)
+    operation_id: str = Field(min_length=1, max_length=256)
+
+    @model_validator(mode="after")
+    def _complete_attempt_precondition(self) -> Self:
+        if (self.expected_lease_owner is None) != (self.expected_attempt is None):
+            raise ValueError("control_job_cancellation_precondition_incomplete")
+        return self
+
+
 ControlJobKind = Literal[
     "workflow_run",
     "natural_language_run",
@@ -749,7 +767,7 @@ class WorkflowRunRequest(BaseModel):
                     and parsed_ref.media_type == "application/json"
                     and same_selected_view
                 )
-            except (TypeError, ValueError):
+            except TypeError, ValueError:
                 matches = False
         else:
             matches = False
@@ -2172,6 +2190,12 @@ class ControlJobResponse(BaseModel):
     started_at: datetime | None = None
     finished_at: datetime | None = None
     error_message: str | None = None
+    cancellation_disposition: Literal["publication_fenced"] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    physical_stop_status: Literal["not_established"] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     failure: ControlFailureEnvelope | None = None
     execution_status: str | None = None
     quality_status: str | None = None
@@ -2436,6 +2460,7 @@ __all__ = [
     "ControlApprovalProjection",
     "ControlAuthorityGap",
     "ControlFailureEnvelope",
+    "ControlJobCancellationRequest",
     "ControlJobKind",
     "ControlJobResponse",
     "ControlJobState",

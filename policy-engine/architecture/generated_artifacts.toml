@@ -4219,3 +4219,75 @@ output_probe_command = [
   "uv", "run", "--extra", "lint", "polisyos-tools", "foundry", "generate-stubs",
   "--output-root", "{output_root}",
 ]
+
+
+[[family]]
+id = "runtime-quality-authority-envelope-v2-schema"
+label = "Runtime-quality active authority envelope v2 schema"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+generator = "Existing authority.write_authority_envelope_json_schema with an explicit staging path"
+verifier = "Source-derived authority model snapshot equality and generic generator-observed byte comparison"
+promotion_target = "Versioned wire schema only; no purpose authority, issuer, closure, or positive protected action"
+stale_output_behavior = "fail"
+source_of_truth = "src/polisyos/runtime/quality/authority.py EvidenceAuthorityEnvelope.model_json_schema(mode='validation'); runtime quality import closure and locked Python dependencies"
+outputs = ["schemas/runtime_quality/evidence_authority_envelope_v2.schema.json"]
+regenerate_commands = [
+  "PYTHONPATH=src:. uv run python -c \"from pathlib import Path; import sys; from polisyos.runtime.quality.authority import write_authority_envelope_json_schema; write_authority_envelope_json_schema(Path(sys.argv[1]) / 'schemas/runtime_quality/evidence_authority_envelope_v2.schema.json')\" \"${E02_C38_STAGE:?set a new admitted staging root}\"",
+]
+commit_policy = "committed"
+freshness_rule = "Regenerate only active v2 after an intentional authority model change; retain v1 historical bytes unchanged. Positive purpose-authority issuance remains disabled."
+compatibility_class = "schema-openapi-abi"
+version_owner = "team-runtime-quality"
+deprecation_window = "Historical v1 remains readable without new authority; no in-place v1 rewrite"
+release_fragment_change_class = "schema-openapi-abi"
+compatibility_promise = "A versioned wire schema is not a grant of authority; current declaration-only cache cannot authorize protected reuse."
+drift_gate = "automated"
+workflow = "src/polisyos/runtime/quality/authority.py"
+check_cwd = "."
+check_command = [
+  "uv", "run", "python", "-m", "pytest", "-q",
+  "tests/unit/runtime/quality/test_authority.py::test_json_schema_snapshot_matches_model_schema",
+  "tests/repo_quality/tools/test_runtime_quality_authority_schema_family.py::test_actual_v2_exporter_is_compared_by_content",
+]
+default_freshness_check = true
+output_probe_command = [
+  "env", "PYTHONDONTWRITEBYTECODE=1", "python", "-c",
+  "from pathlib import Path; import sys; from polisyos.runtime.quality.authority import write_authority_envelope_json_schema; write_authority_envelope_json_schema(Path(sys.argv[1]) / 'schemas/runtime_quality/evidence_authority_envelope_v2.schema.json')",
+  "{output_root}",
+]
+probe_input_roots = ["src", "tools", "architecture", "schemas"]
+probe_required_paths = [
+  "pyproject.toml",
+  "uv.lock",
+  "hatch.toml",
+  "architecture/generated_artifacts.toml",
+  "architecture/policies/directory_contracts.toml",
+]
+
+[[family]]
+id = "runtime-quality-authority-envelope-v1-history"
+label = "Runtime-quality frozen historical authority envelope v1 schema"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "source_committed"
+generator = "Historical frozen snapshot; current v2 model exporter must never regenerate v1"
+verifier = "Frozen-byte historical snapshot witness and actual historical reader refusing protected authority"
+promotion_target = "Historical interpretation only; no upgraded authority, re-signing, or current-purpose admission"
+stale_output_behavior = "block_release"
+source_of_truth = "Committed schemas/runtime_quality/evidence_authority_envelope_v1.schema.json historical wire bytes; reader law in src/polisyos/runtime/quality/authority.py and historical wave35d schema receipt"
+outputs = ["schemas/runtime_quality/evidence_authority_envelope_v1.schema.json"]
+regenerate_commands = [
+  "Do not regenerate: preserve historical v1 bytes in Git. A new wire contract gets a new version; any historical correction requires explicit owner review and a compatibility decision.",
+]
+commit_policy = "committed"
+freshness_rule = "The v1 snapshot remains byte-identical to its admitted historical version; current v2 shape is not its source of truth."
+drift_gate = "automated"
+workflow = "src/polisyos/runtime/quality/authority.py"
+check_cwd = "."
+check_command = [
+  "uv", "run", "python", "-m", "pytest", "-q",
+  "tests/repo_quality/tools/test_runtime_quality_authority_schema_family.py::test_historical_schema_bytes_remain_frozen",
+  "tests/unit/runtime/quality/test_authority.py::test_runtime_envelope_round_trips_as_legacy_without_new_authority",
+]

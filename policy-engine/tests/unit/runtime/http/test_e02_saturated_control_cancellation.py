@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 
 import pytest
+
 from tests._helpers.e02_c96_control_harness import run_capacity_case
 
 

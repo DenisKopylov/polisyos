@@ -192,7 +192,7 @@ _OVERRIDES: dict[tuple[str, str], dict[str, Any]] = {
         "external_dependencies": ("mutmut",),
     },
     ("foundry", "generate-stubs"): {
-        "required_imports": ("mypy.stubgen",),
+        "required_imports": ("mypy.stubgen", "ruff"),
     },
     ("migrations", "migrate"): {
         "required_extras": ("pyyaml",),

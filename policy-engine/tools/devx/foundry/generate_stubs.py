@@ -6,9 +6,11 @@ import argparse
 import ast
 import json
 import re
+import subprocess
 import sys
 import tempfile
 from collections.abc import Sequence
+from importlib import import_module
 from pathlib import Path
 
 from tools.lib.fs import (
@@ -18,7 +20,7 @@ from tools.lib.fs import (
     measured_read_bytes,
     measured_read_text,
 )
-from tools.lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from, resolve_polisyos_source_module_file
 from tools.lib.runner import run_command
 
 REPO_ROOT = repo_root_from(__file__)
@@ -43,14 +45,13 @@ OUTPUT_MAP: dict[str, Path] = {
     / "composer.pyi",
 }
 TARGETS: tuple[str, ...] = tuple(OUTPUT_MAP)
-REEXPORT_STUBS: dict[str, str] = {
-    "polisyos.foundry.methods.registry": (
-        "from polisyos.foundry.methods.selection.registry import *\n"
-    ),
-    "polisyos.foundry.methods.composer": (
-        "from polisyos.foundry.methods.components.composer import *\n"
-    ),
+REEXPORT_OWNERS: dict[str, str] = {
+    "polisyos.foundry.methods.registry": "polisyos.foundry.methods.selection.registry",
+    "polisyos.foundry.methods.composer": "polisyos.foundry.methods.components.composer",
 }
+RUFF_CONFIGS = (REPO_ROOT / "ruff.toml", REPO_ROOT / "ruff.generated.toml")
+STUBGEN_TIMEOUT_SECONDS = 120
+RUFF_TIMEOUT_SECONDS = 30
 
 
 def _run_stubgen(module: str, out_dir: Path, *, verbose: bool) -> Path | None:
@@ -65,7 +66,18 @@ def _run_stubgen(module: str, out_dir: Path, *, verbose: bool) -> Path | None:
         "--no-analysis",
         "--export-less",
     )
-    result = run_command(cmd, cwd=REPO_ROOT, capture_output=True, text=True, check=False)
+    try:
+        result = run_command(
+            cmd,
+            cwd=REPO_ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=STUBGEN_TIMEOUT_SECONDS,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        print(f"  stubgen backend ERROR for {module}: {type(exc).__name__}: {exc}", file=sys.stderr)
+        return None
     if result.returncode != 0:
         print(f"  stubgen failed for {module}:", file=sys.stderr)
         if result.stderr:
@@ -90,28 +102,84 @@ def _remove_private_exports(content: str) -> str:
     return "\n".join(cleaned) + "\n"
 
 
+def _render_reexport(owner: str) -> str:
+    """Derive explicit stub reexports from the actual canonical owner's __all__."""
+    source, error = resolve_polisyos_source_module_file(REPO_ROOT, owner, is_file=measured_is_file)
+    if source is None or error is not None:
+        raise ValueError(f"Unable to resolve canonical reexport owner {owner}: {error}")
+    measured_read_text(source)
+    names = getattr(import_module(owner), "__all__", None)
+    if (
+        not isinstance(names, (list, tuple))
+        or not names
+        or not all(isinstance(name, str) and name.isidentifier() for name in names)
+        or len(names) != len(set(names))
+    ):
+        raise ValueError(f"{owner} __all__ must be a nonempty unique identifier sequence")
+    aliases = "\n".join(f"    {name} as {name}," for name in names)
+    return f"from {owner} import (\n{aliases}\n)\n\n__all__ = {list(names)!r}\n"
+
+
+def _canonicalize_stub(target: Path, content: str) -> str:
+    """Apply canonical import organization/format and require the full Ruff policy."""
+    logical_path = target.relative_to(REPO_ROOT).as_posix()
+    policy = ("--config", str(RUFF_CONFIGS[0]), "--no-cache", "--stdin-filename", logical_path)
+    steps = (
+        ("check", "--fix", "--select", "I", *policy, "-"),
+        ("format", *policy, "-"),
+        ("check", *policy, "-"),
+    )
+    for step in steps:
+        try:
+            result = run_command(
+                (sys.executable, "-m", "ruff", *step),
+                cwd=REPO_ROOT,
+                input=content,
+                capture_output=True,
+                text=True,
+                check=False,
+                timeout=RUFF_TIMEOUT_SECONDS,
+            )
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            raise ValueError(
+                f"Ruff backend ERROR for {logical_path}: {type(exc).__name__}: {exc}"
+            ) from exc
+        if result.returncode != 0:
+            raise ValueError(
+                f"Ruff {step[0]} failed for {logical_path}:\n"
+                f"{result.stdout or ''}{result.stderr or ''}"
+            )
+        if step[0] == "format" or "--fix" in step:
+            content = result.stdout
+    return content
+
+
 def _render_stubs(out_dir: Path, *, verbose: bool) -> dict[Path, str] | None:
     """Render every declared output before any committed or staged write."""
     rendered: dict[Path, str] = {}
     failed: list[str] = []
+    try:
+        for config in RUFF_CONFIGS:
+            measured_read_text(config)
+    except (OSError, UnicodeError) as exc:
+        print(f"Unable to read canonical Ruff configuration: {exc}", file=sys.stderr)
+        return None
     for module, target in OUTPUT_MAP.items():
         print(f"  Processing {module}")
-        cleaned = REEXPORT_STUBS.get(module)
-        if cleaned is None:
-            stub_path = _run_stubgen(module, out_dir, verbose=verbose)
-            if stub_path is None:
-                failed.append(module)
-                continue
-            try:
-                cleaned = _remove_private_exports(measured_read_text(stub_path))
-            except (OSError, UnicodeError) as exc:
-                print(f"  Unable to read generated stub for {module}: {exc}", file=sys.stderr)
-                failed.append(module)
-                continue
         try:
+            owner = REEXPORT_OWNERS.get(module)
+            if owner is None:
+                stub_path = _run_stubgen(module, out_dir, verbose=verbose)
+                if stub_path is None:
+                    failed.append(module)
+                    continue
+                cleaned = _remove_private_exports(measured_read_text(stub_path))
+            else:
+                cleaned = _render_reexport(owner)
+            cleaned = _canonicalize_stub(target, cleaned)
             ast.parse(cleaned, filename=str(target))
-        except SyntaxError as exc:
-            print(f"  Invalid generated stub for {module}: {exc}", file=sys.stderr)
+        except (ImportError, OSError, SyntaxError, ValueError, TypeError) as exc:
+            print(f"Unable to render canonical stub for {module}: {exc}", file=sys.stderr)
             failed.append(module)
             continue
         rendered[target] = cleaned
@@ -200,8 +268,10 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "output_root": str(args.output_root.resolve() if args.output_root else REPO_ROOT),
             }
             measurement["unresolved_by_construction"].append(
-                "Stubgen subprocess source/import reads and dependency versions are not observed; "
-                "byte equality covers only OUTPUT_MAP, not unlisted stubs or semantic type "
+                "Stubgen/Ruff subprocess source/import/config reads and dependency versions "
+                "are not observed; explicit canonical owner/config reads above are observed. "
+                "Backend timeouts bound launcher waits, not arbitrary descendant quiescence. "
+                "Byte equality covers only OUTPUT_MAP, not unlisted stubs or semantic type "
                 "correctness."
             )
             print("Measurement: " + json.dumps(measurement, sort_keys=True))

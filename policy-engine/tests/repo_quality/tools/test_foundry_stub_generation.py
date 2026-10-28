@@ -26,6 +26,9 @@ def test_actual_stub_owner_staging_and_check_detect_complete_byte_drift(tmp_path
     """Run real stubgen and the registered owner against a staged complete family."""
     import hashlib
     import json
+    import subprocess
+    import sys
+    from importlib import import_module
     from pathlib import Path
 
     from tools.devx.foundry import generate_stubs
@@ -66,15 +69,89 @@ def test_actual_stub_owner_staging_and_check_detect_complete_byte_drift(tmp_path
                 assert item["sha256"] == hashlib.sha256(payload).hexdigest()
 
     staged = (tmp_path / "staged").resolve()
-    committed_before = {path: path.read_bytes() for path in generate_stubs.OUTPUT_MAP.values()}
+    canonical_before = {path: path.read_bytes() for path in generate_stubs.OUTPUT_MAP.values()}
     assert generate_stubs.main(["--output-root", str(staged)]) == 0
     outputs = {
         staged / target.relative_to(generate_stubs.REPO_ROOT): target
         for target in generate_stubs.OUTPUT_MAP.values()
     }
     expected = {path: path.read_bytes() for path in outputs}
-    for content in expected.values():
+    for path, content in expected.items():
         ast.parse(content.decode())
+        logical = outputs[path].relative_to(generate_stubs.REPO_ROOT).as_posix()
+        for command in ("check", "format"):
+            arguments = [sys.executable, "-m", "ruff", command]
+            if command == "format":
+                arguments.append("--check")
+            arguments.extend(
+                [
+                    "--config",
+                    str(generate_stubs.REPO_ROOT / "ruff.toml"),
+                    "--no-cache",
+                    "--stdin-filename",
+                    logical,
+                    "-",
+                ]
+            )
+            checked = subprocess.run(
+                arguments,
+                cwd=generate_stubs.REPO_ROOT,
+                input=content.decode(),
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            assert checked.returncode == 0, (
+                "actual generated stub must pass canonical Ruff "
+                + command
+                + ": "
+                + logical
+                + "\n"
+                + checked.stdout
+                + checked.stderr
+            )
+
+    # Runtime facades, not a second symbol list or the generator's own mapping,
+    # independently supply the public names and canonical route for each reexport.
+    actual_facade_routes = {}
+    for module, target in generate_stubs.OUTPUT_MAP.items():
+        source_tree = ast.parse(target.with_suffix(".py").read_text())
+        routes = [
+            ast.literal_eval(node.value.args[1])
+            for node in source_tree.body
+            if isinstance(node, ast.Assign)
+            and any(isinstance(item, ast.Name) and item.id == "__all__" for item in node.targets)
+            and isinstance(node.value, ast.Call)
+            and isinstance(node.value.func, ast.Name)
+            and node.value.func.id == "_reexport_module"
+        ]
+        if not routes:
+            continue
+        assert len(routes) == 1
+        owner = routes[0]
+        actual_facade_routes[module] = owner
+        facade = import_module(module)
+        canonical = import_module(owner)
+        names = list(canonical.__all__)
+        assert list(facade.__all__) == names
+        assert all(getattr(facade, name) is getattr(canonical, name) for name in names)
+        stub = ast.parse(expected[staged / target.relative_to(generate_stubs.REPO_ROOT)].decode())
+        imports = [node for node in stub.body if isinstance(node, ast.ImportFrom)]
+        assert len(imports) == 1 and imports[0].module == owner
+        assert len(imports[0].names) == len(names), (
+            "facade stub must preserve every actual canonical export without wildcard"
+        )
+        assert {(alias.name, alias.asname) for alias in imports[0].names} == {
+            (name, name) for name in names
+        }, "facade stub must preserve every actual canonical export without wildcard"
+        declarations = [
+            ast.literal_eval(node.value)
+            for node in stub.body
+            if isinstance(node, ast.Assign)
+            and any(isinstance(item, ast.Name) and item.id == "__all__" for item in node.targets)
+        ]
+        assert declarations == [names]
+    assert actual_facade_routes == generate_stubs.REEXPORT_OWNERS
     assert generate_stubs.main(["--check", "--output-root", str(staged)]) == 0
     capsys.readouterr()
 
@@ -132,7 +209,7 @@ def test_actual_stub_owner_staging_and_check_detect_complete_byte_drift(tmp_path
     assert any(
         "unlisted stubs" in boundary for boundary in measurement["unresolved_by_construction"]
     )
-    assert {path: path.read_bytes() for path in committed_before} == committed_before
+    assert {path: path.read_bytes() for path in canonical_before} == canonical_before
 
 
 def test_generated_family_registration_reconciles_complete_owner_output_map():

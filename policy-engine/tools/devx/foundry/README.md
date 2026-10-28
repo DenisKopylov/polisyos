@@ -24,7 +24,7 @@
 
 ## Depends On / Depended On By
 
-- **Depends on:** `polisyos.foundry.methods.*`, `mypy.stubgen`, registry
+- **Depends on:** `polisyos.foundry.methods.*`, `mypy.stubgen`, Ruff, registry
   snapshotting in `MethodRegistry`, and the baseline fixture under `tests/unit/foundry`.
 
 - **Depended on by:** Foundry public-surface reviews, signature compatibility
@@ -33,6 +33,30 @@
 ## Common Commands
 
 The generator renders the complete `OUTPUT_MAP` before writing or comparing.
+The existing owner derives facade names from each actual canonical owner's explicit
+`__all__`, emitting explicit self-alias reexports rather than wildcard
+imports or a second curated symbol list. It then organizes imports with Ruff,
+formats each stub, and requires the full canonical Ruff policy before any
+output is written. Every Ruff stdin call uses the actual canonical `.pyi`
+logical filename, explicit product `ruff.toml` (which extends
+`ruff.generated.toml`) and `--no-cache`. No policy suppression/configuration
+change is made. Missing tools/configuration or missing/invalid owner
+export declarations are ERROR before output publication.
+
+Both existing mypy and Ruff are in the retained `lint` profile and frozen lock.
+The family now declares the two Ruff config files as native probe inputs.
+Each stubgen launcher wait is bounded at 120 seconds and each Ruff wait at 30
+seconds; OSError/TimeoutExpired surfaces as backend ERROR before publication.
+These conservative budgets are grounded in retained native/static measurements.
+They do not establish standalone owner-import or descendant-process quiescence;
+use the retained external supervisor for whole-case/process-group qualification.
+
+Generation keeps two real stubgen calls per render and four outputs; the Ruff
+normalization/check subprocesses are additional measured work. Existing runtime
+freshness PASS proves its own producer/profile version; it does not imply that
+older adopted bytes passed canonical Ruff. Source/staged/type/property checks
+remain separate evidence.
+
 `--dry-run` invokes stubgen and validates generated syntax but performs no byte
 comparison; it is not a freshness receipt. `--check` regenerates into temporary
 scratch and compares every declared output byte-for-byte without writing output

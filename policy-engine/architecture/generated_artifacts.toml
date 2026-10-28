@@ -4184,12 +4184,14 @@ generator = "tools/devx/foundry/generate_stubs.py through polisyos-tools foundry
 verifier = "The same generator regenerates and byte-compares its complete OUTPUT_MAP with --check"
 promotion_target = "committed Foundry Python ABI stubs; no runtime or scientific authority"
 stale_output_behavior = "fail"
-source_of_truth = "tools/devx/foundry/generate_stubs.py OUTPUT_MAP and REEXPORT_STUBS; src/polisyos/foundry/methods/base.py, components/composer.py, and canonical registry/composer facade owners, including transitive imported type contracts"
+source_of_truth = "tools/devx/foundry/generate_stubs.py OUTPUT_MAP and REEXPORT_OWNERS derived canonical owner __all__, the canonical Ruff import/format/full-check pipeline, and ruff.toml/ruff.generated.toml; src/polisyos/foundry/methods/base.py, components/composer.py, and canonical registry/composer facade owners, including transitive imported type contracts"
 probe_input_roots = ["src", "tools", "architecture"]
 probe_required_paths = [
   "pyproject.toml",
   "uv.lock",
   "hatch.toml",
+  "ruff.toml",
+  "ruff.generated.toml",
   "architecture/generated_artifacts.toml",
   "architecture/policies/directory_contracts.toml",
 ]
@@ -4203,7 +4205,7 @@ regenerate_commands = [
   "PYTHONDONTWRITEBYTECODE=1 PYTHONNOUSERSITE=1 PYTHONHASHSEED=0 JAX_PLATFORMS=cpu PYTHONPATH=src:. uv run --extra lint polisyos-tools foundry generate-stubs",
 ]
 commit_policy = "committed"
-freshness_rule = "Regenerate all four outputs whenever the canonical method ABI, composition validation context, public facade ownership or stub generator changes; missing or unreadable output is not a clean comparison."
+freshness_rule = "Regenerate all four outputs whenever the canonical method ABI, composition validation context, public facade __all__ ownership, canonical Ruff configuration/tool profile or stub generator changes; missing or unreadable output is not a clean comparison."
 drift_gate = "automated"
 workflow = "tools/devx/foundry/generate_stubs.py"
 check_cwd = "."

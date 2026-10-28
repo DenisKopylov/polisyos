@@ -210,6 +210,10 @@ class RegisteredSQLProducer:
         _selected(request_ref)
         _selected(registration.effective_view_contract_ref)
         _selected(registration.use_contract_ref)
+        # The owner persists declared transport fields, not Python ref subclasses.
+        registration = SourceRegistrationReceipt.model_validate_json(
+            registration.model_dump_json(), strict=True
+        )
         return self._owner._run_source_acquisition_serialized(
             self._authority,
             event_id=event_id,
@@ -314,6 +318,9 @@ class RegisteredSQLProducer:
             view_ref=registration.effective_view_contract_ref,
             use_ref=registration.use_contract_ref,
         )
+        # Freeze the exact declared wire model before comparing its CAS readback.
+        # Request and snapshot refs can be typed subclasses on the producer side.
+        capture = _RegisteredSQLCapture.model_validate_json(capture.model_dump_json(), strict=True)
         edges = _capture_edges(snapshot, snapshot_ref, registration)
         capture_ref = store.put_json(
             capture,
@@ -341,6 +348,10 @@ class RegisteredSQLProducer:
             schema_ref=snapshot.data_schema_ref,
             quality_ref=snapshot.quality_report_ref,
             observed_at=observed.result.fetched_at,
+        )
+        # C105 records and reopens this same strict transport representation.
+        materialization = RegisteredMaterialization.model_validate_json(
+            materialization.model_dump_json(), strict=True
         )
 
         def verify_capture() -> None:

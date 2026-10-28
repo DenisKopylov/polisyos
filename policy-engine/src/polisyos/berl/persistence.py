@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from collections.abc import Callable, Mapping, Sequence
 from typing import TYPE_CHECKING, TypeVar, cast
 
@@ -188,7 +189,12 @@ def load_explanation_bundle(
         raise ValueError("explanation_bundle_manifest_contract_mismatch")
 
     try:
-        return ExplanationBundle.model_validate(payload)
+        # Validate with Pydantic's strict JSON path: unlike ``model_validate`` this
+        # retains JSON-native datetime parsing while refusing Python coercions
+        # (for example numeric strings and booleans in numeric wire slots).
+        return ExplanationBundle.model_validate_json(
+            json.dumps(payload, ensure_ascii=False, separators=(",", ":")), strict=True
+        )
     except (TypeError, ValidationError, ValueError) as exc:
         raise ValueError("explanation_bundle_persisted_payload_invalid") from exc
 

@@ -2314,9 +2314,14 @@ async def test_served_n6_uses_later_real_n4_spend_and_keeps_first_n5(
 
     from fastapi.testclient import TestClient
 
+    from polisyos.core.artifacts.canonical_profile import read_core_json_artifact
+    from polisyos.core.artifacts.ids import ArtifactID
+    from polisyos.core.artifacts.manifest import ArtifactRef
     from polisyos.core.observability.pricing import estimate_llm_cost_usd
     from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.runtime.http.app import create_runtime_api_app
+    from polisyos.runtime.http.container import RuntimeContainerOverrides
+    from polisyos.runtime.http.dependencies import build_runtime_api_context
     from polisyos.runtime.http.services.control.generation_cycle import (
         CompiledRecursiveGenerationCycleRun,
     )
@@ -2459,6 +2464,12 @@ async def test_served_n6_uses_later_real_n4_spend_and_keeps_first_n5(
             if row["status"] == "joint_simulated"
         ]
         assert len(successful_n5) == 1
+        assert successful_n5[0]["simulation_result_body_status"] == "resolved"
+        assert (
+            successful_n5[0]["simulation_result_body"]["artifact_ref"]
+            == (successful_n5[0]["simulation_result_ref"])
+        )
+        assert successful_n5[0]["simulation_result_body"]["publication_authority"] is False
         first_n5_ref = successful_n5[0]["node_ref"]
         assert first_n5_ref in child_refs and first_n5_ref != stop_ref
         completed_children = set(checkpoint["completed_design_refs"]) & child_refs
@@ -2534,7 +2545,155 @@ async def test_served_n6_uses_later_real_n4_spend_and_keeps_first_n5(
         )
         assert actual_spend == preflight_cost + Decimal(2) * one_n4_cost
         assert actual_spend > budget_limit
+        resolution = receipt.job_status_payload["progress"]["recursive_budget_resolution"]
+        assert resolution["requested_max_iterations"] == 1
+        assert resolution["effective_max_iterations"] == 1
+        assert resolution["requested_candidate_children"] == 3
+        assert resolution["effective_candidate_children"] == 3
+        assert resolution["recursive_budget"]["max_nodes"] == 4
+        original_run = receipt.get_payload["run"]
+        original_projection = receipt.projection
+        selected_result_ref = ArtifactRef.model_validate(successful_n5[0]["simulation_result_ref"])
     served_worker_phase_probe("testclient_lifespan.shutdown.complete")
+
+    # Reopen a distinct API context over the actual saved run and selected CAS,
+    # then compare it to the typed persisted source rather than a supplied graph.
+    assert prepared.cas_root.resolve(strict=True).is_relative_to(tmp_path.resolve(strict=True))
+    reopened_context = build_runtime_api_context(
+        cas_root=prepared.cas_root,
+        core_runs_root=prepared.runtime_api_context.core_runs_root,
+    )
+    assert reopened_context is not prepared.runtime_api_context
+    indexed = reopened_context.run_index.get_run(receipt.run_id)
+    assert indexed is not None
+    compiled_refs = tuple(
+        ref
+        for ref in indexed.details.root_artifacts
+        if ref.kind == "runtime.compiled_recursive_generation_cycle"
+    )
+    assert len(compiled_refs) == 1
+    assert (
+        str(compiled_refs[0].artifact_id) == job.progress["compiled_recursive_generation_cycle_ref"]
+    )
+    # Bind the full selected view published by the actual job, not only its bytes.
+    assert compiled_refs[0] == ArtifactRef.model_validate(
+        job.progress["compiled_recursive_generation_cycle_artifact_ref"]
+    )
+    assert compiled_refs[0].manifest_profile_sha256 is not None
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        assert reopened_context.store.verify(compiled_refs[0]).ok
+        reopened_payload = read_core_json_artifact(reopened_context.store, compiled_refs[0]).value
+        assert reopened_context.store.verify(selected_result_ref).ok
+        result_path, _manifest_path = reopened_context.store._paths(
+            ArtifactID.model_validate(selected_result_ref.artifact_id)
+        )
+    reopened_compiled = CompiledRecursiveGenerationCycleRun.model_validate(reopened_payload)
+    assert reopened_compiled.model_dump(mode="json") == compiled.model_dump(mode="json")
+    expected_history = _n6_history_rows_from_compiled(reopened_compiled)
+    assert {first_n5_ref, stop_ref} <= {row["node_ref"] for row in expected_history}
+    assert pending_children.isdisjoint({row["node_ref"] for row in expected_history})
+    assert not result_path.is_symlink()
+    assert result_path.resolve(strict=True).is_relative_to(prepared.cas_root.resolve(strict=True))
+    original_result_bytes = result_path.read_bytes()
+    assert "sha256:" + hashlib.sha256(original_result_bytes).hexdigest() == str(
+        selected_result_ref.artifact_id
+    )
+
+    reopened_kwargs = dict(prepared.app_kwargs)
+    reopened_kwargs["container_overrides"] = RuntimeContainerOverrides(
+        runtime_api_context=reopened_context
+    )
+    reopened_app = create_runtime_api_app(**reopened_kwargs)
+    served_worker_phase_probe("budget.reopened_client.start", run_id=receipt.run_id)
+    with TestClient(reopened_app) as reopened_client:
+
+        def get_projection() -> tuple[dict[str, Any], dict[str, Any]]:
+            response = reopened_client.get(f"/api/v1/runs/{receipt.run_id}")
+            assert response.status_code == 200, response.text
+            reopened_run = response.json()["run"]
+            return reopened_run, reopened_run["generic_cycle_simulation"]
+
+        reopened_run, reopened_projection = get_projection()
+        assert reopened_run["status"] == original_run["status"]
+        assert reopened_run["finished_at"] == original_run["finished_at"]
+        assert (
+            reopened_projection["child_profile_bindings"]
+            == (original_projection["child_profile_bindings"])
+        )
+        assert reopened_projection["recursive_cycle_checkpoint"] == checkpoint
+        assert reopened_projection["n5_observations"] == original_projection["n5_observations"]
+        assert reopened_projection["n6_cycle_history_status"] == "resolved"
+        assert reopened_projection["n6_cycle_history"] == expected_history
+        assert reopened_projection["publication_authority"] is False
+        assert reopened_projection["currentness_status"] == "not_established"
+
+        # Keep the already-persisted checkpoint/reference markers in place.
+        # Both corrupt and missing N5 bytes must suppress that result; restoring
+        # the exact bytes must recover the same selected observation each time.
+        for removal_kind in ("corrupt", "missing"):
+            try:
+                if removal_kind == "corrupt":
+                    result_path.write_bytes(b"controlled-corrupt-budget-result")
+                else:
+                    result_path.unlink()
+                _, limited_projection = get_projection()
+                assert limited_projection["recursive_cycle_checkpoint"] == checkpoint
+                assert limited_projection["child_profile_status"] == "resolved"
+                assert limited_projection["n5_limitation_code"] == (
+                    "generic_n5_persisted_lineage_not_established"
+                )
+                assert all(
+                    row["simulation_result_ref"] != successful_n5[0]["simulation_result_ref"]
+                    for row in limited_projection["n5_observations"]
+                )
+            finally:
+                result_path.write_bytes(original_result_bytes)
+            assert result_path.read_bytes() == original_result_bytes
+            _, restored_projection = get_projection()
+            assert restored_projection["recursive_cycle_checkpoint"] == checkpoint
+            assert restored_projection["n5_observations"] == original_projection["n5_observations"]
+            assert restored_projection["n6_cycle_history"] == expected_history
+    served_worker_phase_probe("budget.reopened_client.shutdown.complete", run_id=receipt.run_id)
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+async def test_portable_n4_budget_stop_reopens_prior_selected_result(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    controlled_candidate_gateway: Any,
+    served_worker_phase_probe: Any,
+) -> None:
+    """Run the existing later-spend path against an owner-built portable source profile."""
+    from tests._helpers.candidate_cycle_source_profile import (
+        build_candidate_cycle_substrate_route_inputs,
+    )
+
+    source_inputs = build_candidate_cycle_substrate_route_inputs(
+        tmp_path / "portable-n4-budget-source-root"
+    )
+    original_prepare = prepare_generic_n4_served_replay
+
+    async def prepare_portable(**kwargs: Any) -> Any:
+        assert "source_root" not in kwargs
+        prepared = await original_prepare(**kwargs, source_root=source_inputs.root)
+        assert prepared.source_root == source_inputs.root
+        assert prepared.app_kwargs["repo_root"] == source_inputs.root
+        witness = prepared.source_root_witness
+        assert witness["source_root"] == str(source_inputs.root)
+        assert witness["n4_repo_root"] == str(source_inputs.root)
+        assert all(
+            Path(witness[name]).is_relative_to(source_inputs.root)
+            for name in ("selected_l1_dcat_path", "selected_l2_skg_path", "selected_l3_lex_path")
+        )
+        return prepared
+
+    # Select input only; keep the exact existing producer, checks and consumer.
+    with monkeypatch.context() as selected_source:
+        selected_source.setitem(globals(), "prepare_generic_n4_served_replay", prepare_portable)
+        await test_served_n6_uses_later_real_n4_spend_and_keeps_first_n5(
+            tmp_path, monkeypatch, controlled_candidate_gateway, served_worker_phase_probe
+        )
 
 
 @pytest.mark.integration
@@ -3213,8 +3372,14 @@ async def test_original_second_capture_tcp_reopens_partial_n5_after_sibling_fail
             prepared=prepared,
             monkeypatch=monkeypatch,
             expected_failure_code=failure_code,
-            exercise_projection_controls=False,
+            exercise_projection_controls=True,
         )
+        assert receipt.corrupt_projection is not None
+        assert receipt.corrupt_projection["n5_limitation_code"] == (
+            "generic_n5_persisted_lineage_not_established"
+        )
+        assert receipt.incomplete_profile_projection is not None
+        assert receipt.incomplete_profile_projection["child_profile_status"] == "not_established"
         budget_receipt = await run_n4_budget_stop_worker_and_get(
             client=client,
             app=app,
@@ -3386,6 +3551,11 @@ async def test_original_second_capture_tcp_reopens_partial_n5_after_sibling_fail
             )
             removed_history_response = reopened_client.get(f"/api/v1/runs/{receipt.run_id}")
             assert removed_history_response.status_code >= 400
+        restored_history_response = reopened_client.get(f"/api/v1/runs/{receipt.run_id}")
+        assert restored_history_response.status_code == 200, restored_history_response.text
+        restored_history = restored_history_response.json()["run"]["generic_cycle_simulation"]
+        assert restored_history["n6_cycle_history_status"] == "resolved"
+        assert restored_history["n6_cycle_history"] == first_source_n6_rows
 
     assert reopened_run["status"] == first_run["status"]
     assert reopened_run["finished_at"] == first_run["finished_at"]

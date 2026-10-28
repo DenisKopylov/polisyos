@@ -170,10 +170,11 @@ def test_aba_default_config_cannot_change_the_executed_view(tmp_path, monkeypatc
     assert actual.data["income"].tolist() == [12.5, 25.0]
     assert registry.get_default_config("sql.query") == config_a
     driver_selects = [s for s in statements if "select" in s.lower()]
-    assert len(driver_selects) == 1
-    assert "policy_inputs" in driver_selects[0].lower()
-    assert "limit 3" in driver_selects[0].lower()
-    assert "wrong_inputs" not in driver_selects[0].lower()
+    health_selects = [s for s in driver_selects if s.strip().upper() == "SELECT 1"]
+    data_selects = [s for s in driver_selects if s.strip().upper() != "SELECT 1"]
+    assert health_selects == ["SELECT 1"]
+    assert data_selects == ['SELECT * FROM "policy_inputs" LIMIT 3']
+    assert all("wrong_inputs" not in s.lower() for s in driver_selects)
 
 
 def test_in_place_config_aba_cannot_change_driver_database(tmp_path, monkeypatch):
@@ -220,7 +221,10 @@ def test_in_place_config_aba_cannot_change_driver_database(tmp_path, monkeypatch
     finally:
         object.__setattr__(config, "url", f"sqlite:///{database_a}")
     assert actual.data["income"].tolist() == [12.5]
-    assert actual_paths == [str(database_a)]
+    assert len(actual_paths) == 1
+    assert not database_a.samefile(database_b)
+    assert database_a.samefile(actual_paths[0])
+    assert not database_b.samefile(actual_paths[0])
 
 
 def test_configured_fallback_is_legacy_only_and_never_fresh_sql(tmp_path):

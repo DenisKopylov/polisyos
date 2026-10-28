@@ -304,6 +304,12 @@ def test_sql_producer_binds_actual_snapshot_to_existing_owner_and_retries(tmp_pa
         expected_predecessor=registration.event_ref,
     )
     assert receipt.carrier is not None
+    assert type(request_ref) is DataViewRequestRef
+    assert type(materialization.request_ref) is ArtifactRef
+    assert type(materialization.snapshot_ref) is ArtifactRef
+    assert materialization.request_ref.model_dump(mode="json") == request_ref.model_dump(
+        mode="json"
+    )
     from polisyos.core.artifacts import validate_core_model_json_artifact
     from polisyos.core.contracts.decision_validity import RegisteredSQLAdmissionBinding
 
@@ -402,6 +408,43 @@ def test_sql_producer_refuses_missing_capture_input_edge(tmp_path, monkeypatch):
             expected_predecessor=registration.event_ref,
         )
     assert owner.resolve_source_materialization_event(authority, event_id="admit-a") is None
+
+
+@pytest.mark.parametrize("change", ["output", "request_profile"])
+def test_sql_producer_refuses_rewritten_capture_content(tmp_path, monkeypatch, change):
+    """A valid selected capture with changed content cannot authorize the real read."""
+    from polisyos.scientist.adapters.registered_sql_admission import RegisteredSQLProducer
+
+    store, port, authority, owner, registration = _storage_only_registered_source(
+        tmp_path, expected_query='SELECT * FROM "policy_inputs" LIMIT 100'
+    )
+    request_ref = _request(store)
+    original_put = store.put_json
+
+    def rewrite_capture(value, options, *args, **kwargs):
+        if options.kind == "fabric.registered_sql_capture":
+            if change == "output":
+                value = value.model_copy(update={"output_sha256": "sha256:" + "0" * 64})
+            else:
+                different_ref = value.request_ref.model_copy(
+                    update={"manifest_profile_sha256": "sha256:" + "0" * 64}
+                )
+                value = value.model_copy(update={"request_ref": different_ref})
+        return original_put(value, options, *args, **kwargs)
+
+    monkeypatch.setattr(store, "put_json", rewrite_capture)
+    with pytest.raises(ValueError, match="registered_sql_capture_binding_not_established"):
+        RegisteredSQLProducer(port=port, owner=owner, authority=authority).acquire_and_admit(
+            store=store,
+            request_ref=request_ref,
+            registration=registration,
+            event_id="rewritten-capture",
+            occurrence_id="actual-occurrence",
+            expected_predecessor=registration.event_ref,
+        )
+    assert (
+        owner.resolve_source_materialization_event(authority, event_id="rewritten-capture") is None
+    )
 
 
 def test_foundry_binding_carries_the_actual_single_sql_source(tmp_path):

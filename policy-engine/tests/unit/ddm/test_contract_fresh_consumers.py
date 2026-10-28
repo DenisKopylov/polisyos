@@ -26,7 +26,6 @@ from polisyos.ddm.contracts.events import (
     ShiftDetectedEvent,
     ShiftRiskEvent,
 )
-from polisyos.ddm.detectors.track_2_2_shift_adapter import adapt_shift_event
 
 PROJECT_ROOT = Path(__file__).parents[3]
 SOURCE_ROOT = PROJECT_ROOT / "src"
@@ -66,9 +65,18 @@ def _inside(path, root):
 def _origin_snapshot():
     modules = {}
     foreign = []
+    snapshot_errors = []
     for name, module in sorted(sys.modules.items()):
         raw_origin = getattr(module, "__file__", None)
-        raw_locations = list(getattr(module, "__path__", ()) or ())
+        path_snapshot_error = None
+        try:
+            raw_locations = list(getattr(module, "__path__", ()) or ())
+        except Exception as exc:
+            raw_locations = []
+            path_snapshot_error = {
+                "type": type(exc).__name__,
+                "message": str(exc),
+            }
         origin = os.path.realpath(raw_origin) if raw_origin else None
         locations = sorted(os.path.realpath(item) for item in raw_locations)
         paths = ([origin] if origin else []) + locations
@@ -92,17 +100,27 @@ def _origin_snapshot():
             "source_bytes": source,
             "allowed_origin": allowed,
         }
-        if not allowed:
+        if path_snapshot_error is not None:
+            modules[name]["origin_snapshot_error"] = path_snapshot_error
+            snapshot_errors.append({"name": name, **path_snapshot_error})
+        if not allowed and paths:
             foreign.append({"name": name, "origin": origin, "locations": locations})
-    return modules, foreign
+        elif not allowed and path_snapshot_error is None:
+            snapshot_errors.append({
+                "name": name,
+                "type": "missing-origin",
+                "message": "first-party module has no file or package path",
+            })
+    return modules, foreign, snapshot_errors
 
 
 def _base_record(before):
-    modules, foreign = _origin_snapshot()
+    modules, foreign, snapshot_errors = _origin_snapshot()
     return {
         "before_first_party_modules": before,
         "first_party_modules": modules,
         "foreign_first_party_origins": foreign,
+        "first_party_origin_snapshot_errors": snapshot_errors,
         "first_party_roots": [str(path) for path in FIRST_PARTY_ROOTS],
         "pid": os.getpid(),
         "ppid": os.getppid(),
@@ -614,6 +632,7 @@ def _assert_local_origins(observation: dict[str, Any]) -> None:
     """Reject first-party imports resolving outside this checkout's source roots."""
 
     assert observation["foreign_first_party_origins"] == []
+    assert observation["first_party_origin_snapshot_errors"] == []
     roots = [Path(path).resolve() for path in observation["first_party_roots"]]
     for details in observation["first_party_modules"].values():
         locations = list(details["locations"])
@@ -974,6 +993,8 @@ def test_synthetic_legacy_pickle_resolves_in_distinct_cold_reader(kind: str) -> 
 def test_manual_schema_and_real_adapter_enforce_channel_guard() -> None:
     """All three evidence channels work; missing and null-only evidence fail both boundaries."""
 
+    from polisyos.ddm.detectors.track_2_2_shift_adapter import adapt_shift_event
+
     raw_schema = SCHEMA_PATH.read_bytes()
     print(
         "DDM_SCHEMA_INPUT "
@@ -1018,6 +1039,8 @@ def test_manual_schema_and_real_adapter_enforce_channel_guard() -> None:
 
 def test_manual_schema_and_model_reject_malformed_inputs_at_their_boundaries() -> None:
     """Wire-only checks and model cross-field checks are tested independently."""
+
+    from polisyos.ddm.detectors.track_2_2_shift_adapter import adapt_shift_event
 
     raw_schema = SCHEMA_PATH.read_bytes()
     print(
@@ -1090,7 +1113,7 @@ def test_metric_budget_owner_keeps_directional_boundaries() -> None:
         minimum_acceptable_value=0.742,
     )
     assert higher.minimum_acceptable_value == 0.742
-    with pytest.raises(ValidationError, match="require minimum_acceptable_value"):
+    with pytest.raises(ValidationError, match="requires minimum_acceptable_value"):
         MetricBudgetPolicy(
             model_id="synthetic-budget-model",
             model_version="v7",
@@ -1117,7 +1140,7 @@ def test_metric_budget_owner_keeps_directional_boundaries() -> None:
         maximum_acceptable_value=0.258,
     )
     assert lower.maximum_acceptable_value == 0.258
-    with pytest.raises(ValidationError, match="require maximum_acceptable_value"):
+    with pytest.raises(ValidationError, match="requires maximum_acceptable_value"):
         MetricBudgetPolicy(
             model_id="synthetic-budget-model",
             model_version="v7",

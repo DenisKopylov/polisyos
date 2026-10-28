@@ -4,6 +4,7 @@ import importlib
 import json
 from copy import deepcopy
 from dataclasses import replace
+from datetime import timedelta
 
 import pytest
 
@@ -549,24 +550,35 @@ def test_lex_worker_keeps_completion_diagnostic_under_admitted_scope(
             event_payload={"attempt": 1},
         )
         assert false_admission_attempt.status == "not_persisted"
+        from pydantic import ValidationError
+
+        from polisyos.runtime.http.services.control.job_diagnostics import (
+            _ControlJobExecutionBinding,
+        )
+
         for event in admission_events:
             assert event.payload_inline is not None
             binding = event.payload_inline["control_job_execution_binding"]
+            assert binding["schema_version"] == (
+                "polisyos.runtime.control_job_admission_binding.v2"
+            )
             assert binding["proof_phase"] == "job_admission"
+            assert binding["binding_status"] == "creation_basis"
+            assert binding["authority_role"] == "diagnostic_only"
             assert binding["control_job_id"] == launch.job_id
             assert binding["control_run_id"] == admitted_job.run_id
             assert binding["source_event_job_state"] == "pending"
-            assert binding["control_worker_id"] is None
-            assert binding["control_worker_attempt"] is None
             assert binding["source_event_type"] == "job_created"
-            assert binding["source_event_id"] > 0
-            assert binding["source_event_created_at"]
-            assert binding["source_event_payload_sha256"].startswith("sha256:")
-            assert binding["source_event_id"] == created_source.event_id
-            assert binding[
-                "source_event_created_at"
-            ] == created_source.created_at.isoformat().replace("+00:00", "Z")
+            assert "source_event_id" not in binding
+            assert "source_event_created_at" not in binding
             assert binding["source_event_payload_sha256"] == created_source.payload_sha256
+            actual_source = service._control_store.get_job_admission_diagnostic_source_event_record(  # noqa: SLF001
+                event_id=event.event.event_id, payload=event.payload_inline
+            )
+            assert actual_source == created_source
+            assert actual_source.event_id > 0 and actual_source.created_at.tzinfo is not None
+            with pytest.raises(ValidationError):
+                _ControlJobExecutionBinding.model_validate_json(json.dumps(binding))
             assert binding["bound_job_record_refs"] == [
                 ref
                 for ref in (admitted_job.payload_ref, admitted_job.capability_manifest_ref)
@@ -779,15 +791,21 @@ def test_terminal_handler_diagnostic_rejects_foreign_and_replaced_attempt(
             )
             assert foreign.status == "not_persisted"
 
-            admin_store.mark_running(
-                job_id=job_id,
-                worker_id="replacement-diagnostic-worker",
-                lease_seconds=60,
+            # A completed/failed job cannot be revived as another attempt.
+            # The supported expired-running takeover is exercised separately.
+            from polisyos.runtime.http.services.control_plane_store import (
+                ControlJobLeaseLostError,
             )
-            stale_attempt = service._emit_runtime_diagnostic_event(  # noqa: SLF001
-                **event_args
-            )
-            assert stale_attempt.status == "not_persisted"
+
+            with pytest.raises(ControlJobLeaseLostError):
+                admin_store.mark_running(
+                    job_id=job_id,
+                    worker_id="replacement-diagnostic-worker",
+                    lease_seconds=60,
+                )
+            retained = admin_store.get_job(job_id)
+            assert retained is not None and retained.state == terminal_state
+            assert retained.attempt == leased.attempt
 
         events = store.list_diagnostic_events(job_id=job_id)
         assert len(events) == 2
@@ -825,6 +843,101 @@ def test_terminal_handler_diagnostic_rejects_foreign_and_replaced_attempt(
     finally:
         if admin_store is not None:
             admin_store.close()
+        service.close()
+
+
+@pytest.mark.parametrize("terminal_state", ["completed", "failed"])
+def test_terminal_diagnostic_rejects_old_attempt_after_expired_running_takeover(
+    tmp_path, monkeypatch: pytest.MonkeyPatch, terminal_state: str
+) -> None:
+    """Replace a still-running expired attempt, never resurrect a terminal row."""
+    from polisyos.runtime.http.services import control_plane_store as store_module
+
+    service = _build_control_service(tmp_path)
+    store = service._control_store  # noqa: SLF001
+    raw = store._target  # noqa: SLF001
+    admin = store_module.ControlPlaneStore(
+        backend="sqlite",
+        sqlite_path=raw._sqlite_path,  # noqa: SLF001
+    )
+    job_id = f"expired-diagnostic-{terminal_state}"
+    run_id = f"run-{job_id}"
+    scope_payload = {
+        "schema_version": "polisyos.runtime.control_execution_scope.v1",
+        "status": "established",
+        "tenant_id": "tenant-diagnostic-owner",
+        "cell_id": "cell-diagnostic-owner",
+        "actor_subject": "diagnostic-owner",
+        "actor_authenticated": True,
+        "actor_roles": ["analyst"],
+    }
+    try:
+        store.create_job(
+            job_id=job_id,
+            kind="workflow_run",
+            run_id=run_id,
+            pipeline_id=None,
+            requested_execution_profile=None,
+            effective_execution_profile="dev",
+            policy_flags={},
+            capability_manifest_ref="sha256:manifest-diagnostic",
+            payload_ref="sha256:payload-diagnostic",
+            submitted_by="diagnostic-owner",
+            creation_event_payload={
+                "job_id": job_id,
+                "run_id": run_id,
+                "job_kind": "workflow_run",
+                "pipeline_id": None,
+                "payload_ref": "sha256:payload-diagnostic",
+                "submitted_by": "diagnostic-owner",
+                "requested_execution_profile": None,
+                "effective_execution_profile": "dev",
+                "policy_flags": {},
+                "capability_manifest_ref": "sha256:manifest-diagnostic",
+                "execution_scope": scope_payload,
+            },
+        )
+        leased = store.lease_next_job(worker_id="old-diagnostic-worker", lease_seconds=60)
+        assert leased is not None and leased.lease_expires_at is not None
+        with store.job_execution_fence(
+            job_id=job_id, worker_id="old-diagnostic-worker", attempt=leased.attempt
+        ):
+            original = store.current_execution_job_admission()
+            takeover_at = leased.lease_expires_at + timedelta(seconds=1)
+            monkeypatch.setattr(store_module, "_utc_now", lambda: takeover_at)
+            admin.mark_running(job_id=job_id, worker_id="new-diagnostic-worker", lease_seconds=60)
+            replacement = admin.get_job(job_id)
+            assert replacement is not None and replacement.attempt == leased.attempt + 1
+            with admin.job_execution_fence(
+                job_id=job_id, worker_id="new-diagnostic-worker", attempt=replacement.attempt
+            ):
+                if terminal_state == "completed":
+                    admin.complete_job(job_id=job_id, progress={"state": "completed"})
+                else:
+                    admin.fail_job(
+                        job_id=job_id,
+                        progress={"state": "failed"},
+                        error_message="controlled replacement failure",
+                    )
+            rejected = service._emit_runtime_diagnostic_event(  # noqa: SLF001
+                execution_scope=original.scope,
+                job_id=job_id,
+                run_id=run_id,
+                execution_profile="dev",
+                phase="worker_terminal",
+                event_type="polisyos.runtime.diagnostic.phase_transition.v1",
+                state_before="running",
+                state_after=terminal_state,
+                payload={},
+                event_payload={"attempt": leased.attempt},
+            )
+            assert rejected.status == "not_persisted"
+        retained = admin.get_job(job_id)
+        assert retained is not None and retained.state == terminal_state
+        assert retained.attempt == replacement.attempt
+        assert store.list_diagnostic_events(job_id=job_id) == []
+    finally:
+        admin.close()
         service.close()
 
 

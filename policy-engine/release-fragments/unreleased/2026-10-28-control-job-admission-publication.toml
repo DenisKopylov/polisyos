@@ -1,0 +1,24 @@
+id = "2026-10-28-control-job-admission-publication"
+title = "Publish initialized control jobs without diagnostic I/O under writer locks"
+type = "fixed"
+component = "runtime"
+owner = "team-policyos-runtime"
+summary = "Prepare immutable diagnostic payloads outside SQL, then atomically reconcile creation facts, diagnostics and initial progress before workers can claim the job; recheck running/terminal source proofs after CAS I/O."
+evidence = [
+  "src/polisyos/runtime/http/services/control/job_diagnostics.py",
+  "src/polisyos/runtime/http/services/control_plane_store.py",
+  "src/polisyos/runtime/http/services/_control_contracts.py",
+  "src/polisyos/runtime/quality/event_log.py",
+  "tests/unit/runtime/http/test_control_job_admission_publication.py",
+  "tests/unit/runtime/http/test_control_job_execution_intent.py",
+]
+compatibility = "No HTTP DTO or job-state migration. Preserve v1 running/terminal source semantics and historical v1 admission payloads. New v2 admission basis payloads require their explicit reader and are rejected by a strict v1 parser; unknown profiles fail closed. Generic event-log append behavior remains unchanged."
+change_class = "behavioral"
+surface_classification = "internal lifecycle, versioned diagnostic payload and existing job-progress surface"
+migration = "Reader-first v2 admission support is composed with the writer. Actual event IDs/timestamps are read from committed source rows; no global sequence reservation or prepared-time substitution is introduced."
+api = "Add typed event-log prepare/load_payload helpers and an internal source reconciliation reader. No new authorization, current-source proof or public HTTP action. Root owns any affected generated Python public inventory review."
+limitations = "Dev diagnostic preparation may be explicitly limited; serious failure refuses publication. SQL rollback may leave unreferenced candidate CAS payloads. PostgreSQL, native runtime/removal evidence and generated inventory review remain unrun during proposal preparation."
+generated_client_compatibility = "unchanged"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

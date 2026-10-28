@@ -31,15 +31,20 @@ from polisyos.runtime.quality.diagnostic_events import (
     DiagnosticEvent,
 )
 from polisyos.runtime.quality.evaluation_modes import ExecutionIntentBand
-from polisyos.runtime.quality.event_log import DiagnosticEventPayloadPolicy
+from polisyos.runtime.quality.event_log import (
+    DiagnosticEventPayloadPolicy,
+    _PreparedDiagnosticEvent,
+)
 
-from .._control_contracts import _coerce_control_job_kind
+from .._control_contracts import (
+    _coerce_control_job_kind,
+    _ControlJobAdmissionDiagnosticBinding,
+)
 from ..control_plane_store import (
     ControlDiagnosticEventRecord,
     ControlJobExecutionScope,
     ControlJobLeaseLostError,
     ControlJobRecord,
-    _control_job_execution_scope_from_event,
     _ControlJobExecutionLifecycleProof,
 )
 from .job_attempt_publication import (
@@ -184,7 +189,7 @@ class ControlJobDiagnosticsMixin:
         )
         return record, "tenant-unknown", "cell-unknown"
 
-    def _emit_runtime_diagnostic_event(
+    def _build_runtime_diagnostic_event(
         self,
         *,
         job_id: str,
@@ -203,8 +208,15 @@ class ControlJobDiagnosticsMixin:
         producer_component: str = "polisyos.runtime.control",
         parent_span_id: str | None = None,
         execution_scope: ControlJobExecutionScope | AccessScope,
-    ) -> _DiagnosticEventEmission:
-        """Persist a diagnostic with typed owner attribution or a scoped limitation."""
+    ) -> tuple[
+        DiagnosticEvent,
+        _DiagnosticExecutionScopeRecord,
+        dict[str, Any],
+        Mapping[str, Any],
+        bool,
+        bool,
+    ]:
+        """Build one detached diagnostic candidate without storage or source publication."""
 
         trace = self._job_trace_context(
             job_id=job_id,
@@ -268,6 +280,62 @@ class ControlJobDiagnosticsMixin:
             sampling_decision="always_record",
             sampling_rate=1.0,
         )
+        return (
+            event,
+            scope_record,
+            caller_event_payload,
+            persisted_event_payload,
+            authority_withheld,
+            scope_established,
+        )
+
+    def _emit_runtime_diagnostic_event(
+        self,
+        *,
+        job_id: str,
+        run_id: str | None,
+        execution_profile: str,
+        phase: str,
+        event_type: str,
+        state_before: str | None = None,
+        state_after: str | None = None,
+        payload: Mapping[str, Any] | None = None,
+        event_payload: Mapping[str, Any] | None = None,
+        artifact_refs: list[str] | tuple[str, ...] | None = None,
+        input_refs: list[str] | tuple[str, ...] | None = None,
+        blocking_status: str | None = None,
+        authority_bearing_payload: bool = False,
+        producer_component: str = "polisyos.runtime.control",
+        parent_span_id: str | None = None,
+        execution_scope: ControlJobExecutionScope | AccessScope,
+    ) -> _DiagnosticEventEmission:
+        """Persist a diagnostic with typed owner attribution or a scoped limitation."""
+
+        (
+            event,
+            scope_record,
+            caller_event_payload,
+            persisted_event_payload,
+            authority_withheld,
+            scope_established,
+        ) = self._build_runtime_diagnostic_event(
+            job_id=job_id,
+            run_id=run_id,
+            execution_profile=execution_profile,
+            phase=phase,
+            event_type=event_type,
+            state_before=state_before,
+            state_after=state_after,
+            payload=payload,
+            event_payload=event_payload,
+            artifact_refs=artifact_refs,
+            input_refs=input_refs,
+            blocking_status=blocking_status,
+            authority_bearing_payload=authority_bearing_payload,
+            producer_component=producer_component,
+            parent_span_id=parent_span_id,
+            execution_scope=execution_scope,
+        )
         try:
             # The top-level `attempt` name is reserved for this control-worker path.
             # Domain/evaluation attempts remain in their nested step payloads.
@@ -289,166 +357,95 @@ class ControlJobDiagnosticsMixin:
                 if selected_job is None:
                     raise ControlJobLeaseLostError("runtime diagnostic source job is not present")
                 if phase == "job_admission":
-                    # The request path emits this facet before a worker has a
-                    # lease. Bind it to both immutable creation records so the
-                    # request's resolved scope survives without acting as a
-                    # worker execution credential.
-                    def append_admission_event() -> ControlDiagnosticEventRecord:
-                        with self._control_store._job_transaction():
-                            current_job = self._control_store.get_job(job_id)
-                            created_source = (
-                                self._control_store._get_job_created_source_event_record(job_id)
-                            )
-                            created = created_source.payload
-                            outbox = self._control_store.get_job_created_outbox_event(job_id)
-                            if current_job is None:
-                                raise ControlJobLeaseLostError(
-                                    "runtime diagnostic source job is not present"
-                                )
-                            expected = {
-                                "job_id": current_job.job_id,
-                                "run_id": current_job.run_id,
-                                "job_kind": current_job.kind,
-                                "pipeline_id": current_job.pipeline_id,
-                                "payload_ref": current_job.payload_ref,
-                                "submitted_by": current_job.submitted_by,
-                                "requested_execution_profile": (
-                                    current_job.requested_execution_profile
-                                ),
-                                "effective_execution_profile": (
-                                    current_job.effective_execution_profile
-                                ),
-                                "policy_flags": current_job.policy_flags,
-                                "capability_manifest_ref": current_job.capability_manifest_ref,
-                            }
-                            if (
-                                outbox is None
-                                or outbox.topic != "control.job.created"
-                                or outbox.job_id != current_job.job_id
-                                or outbox.run_id != current_job.run_id
-                                or any(created.get(key) != value for key, value in expected.items())
-                                or any(
-                                    key not in outbox.payload or outbox.payload[key] != value
-                                    for key, value in created.items()
-                                )
-                                or _control_job_execution_scope_from_event(created)
-                                != execution_scope
-                                or _control_job_execution_scope_from_event(outbox.payload)
-                                != execution_scope
-                            ):
-                                raise ControlJobLeaseLostError(
-                                    "runtime diagnostic does not bind created job scope"
-                                )
-                            proof = _ControlJobExecutionLifecycleProof(
-                                record=current_job,
-                                proof_phase="job_admission",
-                                worker_id=None,
-                                attempt=None,
-                                source_event=created_source,
-                            )
-                            append_payload = self._control_job_bound_diagnostic_payload(
-                                persisted_payload=persisted_event_payload,
-                                caller_payload=caller_event_payload,
-                                proof=proof,
-                            )
-                            return self._diagnostic_event_log.append(
-                                event,
-                                payload=append_payload,
-                                payload_policy=payload_policy,
-                            )
-
-                    record = run_guarded_dependency_operation(
-                        self._control_store,
-                        append_admission_event,
+                    proof_purpose: Literal["execution", "completed_proof", "failed_proof"] = (
+                        "execution"
                     )
-                elif selected_job.state in {"completed", "failed"}:
-                    # Run the exact terminal-attempt proof and append on the
-                    # store's guarded worker. Its transaction state is
-                    # thread-local, so entering it on the caller and making
-                    # later guarded store calls would lose the transaction owner.
-                    if selected_job.state == "completed":
-                        terminal_state: Literal["completed", "failed"] = "completed"
-                        proof_purpose: Literal["completed_proof", "failed_proof"] = (
-                            "completed_proof"
-                        )
-                    else:
-                        terminal_state = "failed"
-                        proof_purpose = "failed_proof"
-
-                    def append_terminal_event() -> ControlDiagnosticEventRecord:
-                        with self._control_store._job_transaction(purpose=proof_purpose):
-                            created_source = (
-                                self._control_store._get_job_created_source_event_record(job_id)
-                            )
-                            created = created_source.payload
-                            outbox = self._control_store.get_job_created_outbox_event(job_id)
-                            if (
-                                outbox is None
-                                or outbox.topic != "control.job.created"
-                                or outbox.job_id != job_id
-                                or outbox.run_id != selected_job.run_id
-                                or _control_job_execution_scope_from_event(created)
-                                != execution_scope
-                                or _control_job_execution_scope_from_event(outbox.payload)
-                                != execution_scope
-                            ):
-                                raise ControlJobLeaseLostError(
-                                    "runtime diagnostic does not bind terminal source scope"
-                                )
-                            terminal_proof = (
-                                self._control_store._current_execution_completed_job_proof()
-                                if terminal_state == "completed"
-                                else self._control_store._current_execution_failed_job_proof()
-                            )
-                            if (
-                                terminal_proof.record.job_id != job_id
-                                or terminal_proof.record.attempt != selected_job.attempt
-                            ):
-                                raise ControlJobLeaseLostError(
-                                    "runtime diagnostic does not bind "
-                                    f"{terminal_state} handler attempt"
-                                )
-                            append_payload = self._control_job_bound_diagnostic_payload(
-                                persisted_payload=persisted_event_payload,
-                                caller_payload=caller_event_payload,
-                                proof=terminal_proof,
-                            )
-                            return self._diagnostic_event_log.append(
-                                event,
-                                payload=append_payload,
-                                payload_policy=payload_policy,
-                            )
-
-                    record = run_guarded_dependency_operation(
-                        self._control_store,
-                        append_terminal_event,
-                    )
+                elif selected_job.state == "completed":
+                    proof_purpose = "completed_proof"
+                elif selected_job.state == "failed":
+                    proof_purpose = "failed_proof"
                 else:
+                    proof_purpose = "execution"
 
-                    def append_running_event() -> ControlDiagnosticEventRecord:
-                        with self._control_store._job_transaction():
-                            running_proof = (
-                                self._control_store._current_execution_running_job_proof()
-                            )
-                            if running_proof.record.job_id != job_id:
-                                raise ControlJobLeaseLostError(
-                                    "runtime diagnostic does not bind current handler attempt"
-                                )
-                            append_payload = self._control_job_bound_diagnostic_payload(
-                                persisted_payload=persisted_event_payload,
-                                caller_payload=caller_event_payload,
-                                proof=running_proof,
-                            )
-                            return self._diagnostic_event_log.append(
-                                event,
-                                payload=append_payload,
-                                payload_policy=payload_policy,
-                            )
-
-                    record = run_guarded_dependency_operation(
-                        self._control_store,
-                        append_running_event,
+                def source_in_transaction() -> _ControlJobExecutionLifecycleProof:
+                    if phase == "job_admission":
+                        self._control_store._lock_job_state(job_id)
+                        current = self._control_store.get_job(job_id)
+                        if current is None:
+                            raise ControlJobLeaseLostError("runtime diagnostic source job missing")
+                        source = self._control_store._get_job_created_source_event_record(job_id)
+                        proof = _ControlJobExecutionLifecycleProof(
+                            record=current,
+                            proof_phase="job_admission",
+                            worker_id=None,
+                            attempt=None,
+                            source_event=source,
+                        )
+                    elif proof_purpose == "completed_proof":
+                        proof = self._control_store._current_execution_completed_job_proof()
+                    elif proof_purpose == "failed_proof":
+                        proof = self._control_store._current_execution_failed_job_proof()
+                    else:
+                        proof = self._control_store._current_execution_running_job_proof()
+                    scope, admission_manifest = (
+                        self._control_store._reconcile_control_job_creation_envelope(proof.record)
                     )
+                    if phase == "job_admission" and (
+                        proof.record.capability_manifest_ref != admission_manifest
+                    ):
+                        raise ControlJobLeaseLostError(
+                            "runtime admission diagnostic manifest changed"
+                        )
+                    if (
+                        proof.record.job_id != job_id
+                        or proof.record.run_id != run_id
+                        or scope != execution_scope
+                    ):
+                        raise ControlJobLeaseLostError("runtime diagnostic source scope changed")
+                    return proof
+
+                def read_source() -> _ControlJobExecutionLifecycleProof:
+                    with self._control_store._job_transaction(purpose=proof_purpose):
+                        return source_in_transaction()
+
+                snapshot = run_guarded_dependency_operation(self._control_store, read_source)
+                append_payload = self._control_job_bound_diagnostic_payload(
+                    persisted_payload=persisted_event_payload,
+                    caller_payload=caller_event_payload,
+                    proof=snapshot,
+                )
+                # Preparation enforces that no caller-owned SQL transaction is
+                # active. CAS/registry work occurs before the fresh write proof.
+                prepared = self._diagnostic_event_log.prepare(
+                    event, payload=append_payload, payload_policy=payload_policy
+                )
+                prepared_event, prepared_payload = prepared.publication_values()
+                if prepared_payload is None:
+                    raise ControlJobLeaseLostError("runtime diagnostic prepared payload missing")
+                expected_binding = prepared_payload[_CONTROL_JOB_EXECUTION_BINDING_KEY]
+
+                def append_reconciled_event() -> ControlDiagnosticEventRecord:
+                    with self._control_store._job_transaction(purpose=proof_purpose):
+                        current_proof = source_in_transaction()
+                        current_payload = self._control_job_bound_diagnostic_payload(
+                            persisted_payload={},
+                            caller_payload=caller_event_payload,
+                            proof=current_proof,
+                        )
+                        if current_payload[_CONTROL_JOB_EXECUTION_BINDING_KEY] != expected_binding:
+                            raise ControlJobLeaseLostError(
+                                "runtime diagnostic source changed after I/O"
+                            )
+                        return self._control_store.append_diagnostic_event(
+                            event=prepared_event,
+                            payload_ref=prepared.payload_ref,
+                            payload_inline=(prepared_payload if prepared.inline_payload else None),
+                            payload_sha256=prepared.payload_sha256,
+                        )
+
+                record = run_guarded_dependency_operation(
+                    self._control_store, append_reconciled_event
+                )
             else:
                 record = self._diagnostic_event_log.append(
                     event,
@@ -813,42 +810,13 @@ class ControlJobDiagnosticsMixin:
                     else {}
                 ),
             }
-            record = self._control_store.create_job(
+            creation_basis = self._control_store.prepare_job_creation(
                 job_id=job_id,
-                kind=_coerce_control_job_kind(job_kind),
-                run_id=run_id,
-                pipeline_id=pipeline_id,
-                requested_execution_profile=policy.requested_profile,
-                effective_execution_profile=policy.effective_profile,
-                policy_flags=policy.policy_flags.model_dump(mode="json"),
-                capability_manifest_ref=capability_manifest_ref,
-                payload_ref=payload_ref,
-                submitted_by=submitted_by,
-                creation_event_payload=creation_event_payload,
                 initial_state="failed" if initially_refused else "pending",
-                initial_error_message=(
-                    "nl_job_execution_intent_not_established" if initially_refused else None
-                ),
-                initial_progress=(
-                    {
-                        "state": "failed",
-                        "phase": "job_admission",
-                        "status": "not_established",
-                        "failure_code": "nl_job_execution_intent_not_established",
-                        "execution_intent_binding": payload[_EXECUTION_INTENT_BINDING_KEY],
-                    }
-                    if initially_refused
-                    else None
-                ),
-                pre_admission_attempt_id=pre_admission_attempt_id,
-                pre_admission_outcome=(
-                    ("refused" if initially_refused else "admitted")
-                    if pre_admission_attempt_id is not None
-                    else None
-                ),
+                creation_event_payload=creation_event_payload,
             )
-            diagnostic_emissions = (
-                self._emit_runtime_diagnostic_event(
+            candidates = (
+                self._build_runtime_diagnostic_event(
                     job_id=job_id,
                     run_id=run_id,
                     execution_profile=policy.effective_profile,
@@ -867,7 +835,7 @@ class ControlJobDiagnosticsMixin:
                         policy.effective_profile in _SERIOUS_EXECUTION_PROFILES
                     ),
                 ),
-                self._emit_runtime_diagnostic_event(
+                self._build_runtime_diagnostic_event(
                     job_id=job_id,
                     run_id=run_id,
                     execution_profile=policy.effective_profile,
@@ -887,7 +855,7 @@ class ControlJobDiagnosticsMixin:
                         policy.effective_profile in _SERIOUS_EXECUTION_PROFILES
                     ),
                 ),
-                self._emit_runtime_diagnostic_event(
+                self._build_runtime_diagnostic_event(
                     job_id=job_id,
                     run_id=run_id,
                     execution_profile=policy.effective_profile,
@@ -906,50 +874,91 @@ class ControlJobDiagnosticsMixin:
                     },
                 ),
             )
-            diagnostic_event_ids = [
-                emission.event_id
-                for emission in diagnostic_emissions
-                if emission.event_id is not None
-            ]
-            if diagnostic_event_ids:
-                diagnostic_progress = {
-                    "diagnostic_event_ids": diagnostic_event_ids,
-                    "diagnostic_event_authority": (
-                        "scope_limited"
-                        if any(
-                            emission.status == "authority_withheld"
-                            for emission in diagnostic_emissions
-                        )
-                        else "progress_reference_only"
+            prepared_diagnostics: list[_PreparedDiagnosticEvent] = []
+            preparation_failed = False
+            for event, _scope_record, caller_payload, event_payload, _, established in candidates:
+                if (
+                    "attempt" in caller_payload
+                    or _CONTROL_JOB_EXECUTION_BINDING_KEY in caller_payload
+                ):
+                    raise ControlJobLeaseLostError("runtime diagnostic reserved admission binding")
+                # These are unpublished candidate bytes. Only create_job may
+                # reconcile them with an actual row/event/outbox and emit them.
+                binding = _ControlJobAdmissionDiagnosticBinding(
+                    control_job_id=job_id,
+                    control_run_id=run_id,
+                    source_event_job_state="failed" if initially_refused else "pending",
+                    source_event_payload_sha256=creation_basis.source_payload_sha256,
+                    prepared_at=creation_basis.prepared_at,
+                    bound_job_record_refs=tuple(
+                        ref for ref in (payload_ref, capability_manifest_ref) if ref is not None
                     ),
-                    "diagnostic_event_scope_status": execution_scope.status,
+                )
+                bound_payload = {
+                    **dict(event_payload),
+                    _CONTROL_JOB_EXECUTION_BINDING_KEY: binding.model_dump(mode="json"),
                 }
-                if execution_scope.status == "not_established":
-                    diagnostic_progress["diagnostic_event_limitation_code"] = (
-                        "control_job_execution_scope_not_established"
+                try:
+                    prepared_diagnostics.append(
+                        self._diagnostic_event_log.prepare(
+                            event,
+                            payload=bound_payload,
+                            payload_policy=DiagnosticEventPayloadPolicy(
+                                authority_bearing=(
+                                    policy.effective_profile in _SERIOUS_EXECUTION_PROFILES
+                                    and established
+                                )
+                            ),
+                        )
                     )
-                progress_state = "failed" if initially_refused else "pending"
-                progress = (
-                    {
-                        **record.progress,
-                        "state": "failed",
-                        **diagnostic_progress,
-                    }
-                    if initially_refused
-                    else {
-                        "state": "pending",
-                        "phase": "job_admission",
-                        **diagnostic_progress,
-                    }
-                )
-                self._control_store.update_progress_state(
-                    job_id=job_id,
-                    state=progress_state,
-                    progress=progress,
-                    error_message=(
-                        "nl_job_execution_intent_not_established" if initially_refused else None
+                except Exception as exc:
+                    if policy.effective_profile in _SERIOUS_EXECUTION_PROFILES:
+                        raise RuntimeError(
+                            f"runtime_diagnostic_event_persistence_failed:{job_id}:job_admission"
+                        ) from exc
+                    # Preserve the existing dev best-effort rule. No omitted
+                    # event ID is advertised; the limitation is initial progress.
+                    preparation_failed = True
+                    logger.debug("Admission diagnostic preparation failed for %s: %s", job_id, exc)
+            record = self._control_store.create_job(
+                job_id=job_id,
+                kind=_coerce_control_job_kind(job_kind),
+                run_id=run_id,
+                pipeline_id=pipeline_id,
+                requested_execution_profile=policy.requested_profile,
+                effective_execution_profile=policy.effective_profile,
+                policy_flags=policy.policy_flags.model_dump(mode="json"),
+                capability_manifest_ref=capability_manifest_ref,
+                payload_ref=payload_ref,
+                submitted_by=submitted_by,
+                creation_event_payload=creation_event_payload,
+                initial_state="failed" if initially_refused else "pending",
+                initial_error_message=(
+                    "nl_job_execution_intent_not_established" if initially_refused else None
+                ),
+                initial_progress={
+                    "state": "failed" if initially_refused else "pending",
+                    "phase": "job_admission",
+                    **(
+                        {
+                            "status": "not_established",
+                            "failure_code": "nl_job_execution_intent_not_established",
+                            "execution_intent_binding": payload[_EXECUTION_INTENT_BINDING_KEY],
+                        }
+                        if initially_refused
+                        else {}
                     ),
-                )
+                },
+                creation_basis=creation_basis,
+                prepared_admission_diagnostics=tuple(prepared_diagnostics),
+                diagnostic_preparation_failed=preparation_failed,
+                pre_admission_attempt_id=pre_admission_attempt_id,
+                pre_admission_outcome=(
+                    ("refused" if initially_refused else "admitted")
+                    if pre_admission_attempt_id is not None
+                    else None
+                ),
+            )
             if self._worker is not None:
                 self._worker.wake()
         except Exception:

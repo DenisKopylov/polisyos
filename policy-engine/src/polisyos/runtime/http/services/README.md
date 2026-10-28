@@ -54,11 +54,34 @@ policy/legal admissibility require their independent owners and remain limited u
   not establish consumption by the ordinary `/runs/nl` route. Separately, the tested normal
   POST/worker job boundary projects a shared CAS availability failure as a dependency failure; it
   is not treated as selected-artifact absence.
-- **Control-job diagnostic binding** - admission diagnostics bind only to the persisted
-  `job_created` record and carry no worker attempt; running, completed, and failed diagnostics
-  bind to the exact persisted lifecycle event, its row time and raw-payload digest, and the job's
-  stored artifact references. The generic top-level `attempt` remains the control-worker lease
-  attempt; evaluation-step attempts stay in their own nested rows.
+- **Atomic control-job admission publication** - the request owner freezes a candidate
+  creation basis and prepares diagnostic payload/CAS bytes before the creation writer runs.
+  The existing SQL owner records the job, actual `job_created` event/outbox, reconciles those
+  facts against the prepared v2 admission bindings, and commits diagnostic rows plus their
+  initial progress references together. A terminal admission refusal is initialized once;
+  after publication request code only wakes the worker and cannot overwrite its progress.
+  There is no reserved global event ID, staged job state or new activation owner.
+- **Control-job diagnostic binding** - new creation-time diagnostics use
+  `polisyos.runtime.control_job_admission_binding.v2`: exact creation-payload content, job/run,
+  original artifact references, preparation time and diagnostic-only purpose. Preparation is
+  not a delivered event, current-source proof, worker lease or authorization. The fresh
+  `get_job_admission_diagnostic_source_event_record` reader reconciles a resolved/hash-bound
+  payload with the actual unique creation event/outbox and returns its real event ID/row time.
+  `RuntimeDiagnosticEventLog.load_payload` performs CAS I/O before this SQL-only reconciliation.
+  Old v1 admission records and running/completed/failed bindings keep their original meaning;
+  a strict v1 parser refuses the distinct v2 profile, and unknown v2 profiles refuse admission.
+  Running/terminal diagnostics read their v1 source proof, prepare CAS outside the writer lock,
+  then re-read the same scope/attempt/event-content binding before SQL-only append. A current
+  lease loss or changed source after I/O refuses publication. Nested preparation under an
+  existing Store transaction refuses before CAS.
+  `prepared_at`, diagnostic `event_time` and the diagnostic/source row `created_at` retain
+  separate roles: a job phase transition receives the actual recorded creation-event time,
+  while its prepared CAS body is unchanged. Payload/CAS-write observations retain their own
+  occurrence time; row `created_at` is recorded during actual SQL publication.
+  The generic top-level `attempt` remains the control-worker lease attempt; evaluation-step
+  attempts stay in their own nested rows. Dev diagnostic preparation stays best effort with
+  an explicit initial limitation and only real diagnostic IDs; serious-profile failure refuses
+  before job publication. A rolled-back SQL publication may leave unreferenced CAS candidates.
 - **Guarded confidence risk spend** - resolves the governed N11 source through
   its real isolated owner validator, preserves source/dependency/registry and
   semantic identities, and composes the strict reviewer-only four-arm packet.

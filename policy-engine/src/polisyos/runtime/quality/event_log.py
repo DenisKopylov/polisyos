@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+import json
 import uuid
 from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, Protocol
 
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
@@ -45,6 +46,55 @@ class DiagnosticEventPayloadPolicy:
     inline_max_bytes: int = INLINE_PAYLOAD_MAX_BYTES
 
 
+class _DiagnosticPayloadRecord(Protocol):
+    @property
+    def payload_ref(self) -> str | None: ...
+
+    @property
+    def payload_inline(self) -> dict[str, Any] | None: ...
+
+    @property
+    def payload_sha256(self) -> str | None: ...
+
+
+_DIAGNOSTIC_PREPARATION_SEAL = object()
+
+
+@dataclass(frozen=True, slots=True)
+class _PreparedDiagnosticEvent:
+    """Freeze diagnostic bytes prepared outside a control-store transaction.
+
+    This ephemeral candidate is not an event receipt or an authorization proof.
+    The publication owner must reconcile its source before appending any row.
+    """
+
+    event_json: str
+    payload_json: str | None
+    payload_ref: str | None
+    payload_sha256: str | None
+    inline_payload: bool
+    preparation_seal: object
+
+    def publication_values(self) -> tuple[DiagnosticEvent, dict[str, Any] | None]:
+        """Decode detached values and recheck the exact prepared payload bytes."""
+        if self.preparation_seal is not _DIAGNOSTIC_PREPARATION_SEAL:
+            raise ValueError("diagnostic_preparation_not_owned")
+        event = validate_diagnostic_event(DiagnosticEvent.model_validate_json(self.event_json))
+        payload = None if self.payload_json is None else json.loads(self.payload_json)
+        if payload is not None and not isinstance(payload, dict):
+            raise ValueError("diagnostic_preparation_payload_invalid")
+        expected = (
+            None if payload is None else _sha256_from_canonical_bytes(_payload_bytes(payload))
+        )
+        if expected != self.payload_sha256 or event.payload_ref != self.payload_ref:
+            raise ValueError("diagnostic_preparation_content_mismatch")
+        if self.inline_payload and self.payload_ref is not None:
+            raise ValueError("diagnostic_preparation_storage_mismatch")
+        if payload is not None and not self.inline_payload and self.payload_ref != expected:
+            raise ValueError("diagnostic_preparation_cas_identity_mismatch")
+        return event, payload
+
+
 class RuntimeDiagnosticEventLog:
     """Append ADR-0154 diagnostic events to durable store rows."""
 
@@ -64,6 +114,91 @@ class RuntimeDiagnosticEventLog:
         """Expose the CAS store for tests and reconciliation tooling."""
 
         return self._artifact_store
+
+    def prepare(
+        self,
+        event: DiagnosticEvent | Mapping[str, Any],
+        *,
+        payload: Mapping[str, Any] | None = None,
+        payload_policy: DiagnosticEventPayloadPolicy | None = None,
+    ) -> _PreparedDiagnosticEvent:
+        """Prepare immutable payload/CAS values without publishing a diagnostic row.
+
+        All caller mapping access, validation, serialization and CAS I/O occur
+        here. A control-job creation transaction receives only frozen values;
+        it must reconcile the actual source before publishing them.
+        """
+        active = getattr(self._store, "_has_active_job_transaction", None)
+        if callable(active) and active():
+            raise RuntimeError("diagnostic_preparation_inside_store_transaction")
+        diagnostic_event = DiagnosticEvent.model_validate(event)
+        policy = payload_policy or DiagnosticEventPayloadPolicy(
+            inline_max_bytes=self._inline_payload_max_bytes
+        )
+        payload_ref = diagnostic_event.payload_ref
+        payload_json: str | None = None
+        payload_sha256: str | None = None
+        inline_payload = False
+        if payload is not None:
+            # The Store already requires JSON-compatible inline values. Freeze
+            # that exact JSON snapshot before any provider can retain the map.
+            payload_json = json.dumps(dict(payload), sort_keys=True)
+            snapshot = json.loads(payload_json)
+            payload_bytes = _payload_bytes(snapshot)
+            payload_sha256 = _sha256_from_canonical_bytes(payload_bytes)
+            if payload_ref or _payload_requires_cas(
+                snapshot, payload_bytes=payload_bytes, event=diagnostic_event, policy=policy
+            ):
+                ref = self._artifact_store.put_json(
+                    snapshot,
+                    ArtifactWriteOptions(
+                        kind="runtime.diagnostic_event_payload",
+                        media_type="application/json",
+                        schema=SchemaInfo(
+                            name="polisyos.runtime.DiagnosticEventPayload", version="1.0"
+                        ),
+                    ),
+                    canon_spec=CanonSpec(forbid_floats=False),
+                )
+                payload_ref = str(ref.artifact_id)
+                if payload_ref != payload_sha256:
+                    raise ValueError("diagnostic_preparation_cas_identity_mismatch")
+                diagnostic_event = diagnostic_event.model_copy(update={"payload_ref": payload_ref})
+            else:
+                inline_payload = True
+        validated = validate_diagnostic_event(diagnostic_event)
+        return _PreparedDiagnosticEvent(
+            event_json=json.dumps(validated.model_dump(mode="json"), sort_keys=True),
+            payload_json=payload_json,
+            payload_ref=payload_ref,
+            payload_sha256=payload_sha256,
+            inline_payload=inline_payload,
+            preparation_seal=_DIAGNOSTIC_PREPARATION_SEAL,
+        )
+
+    def load_payload(self, record: _DiagnosticPayloadRecord) -> dict[str, Any] | None:
+        """Resolve and content-bind a stored payload without holding a Store transaction."""
+        import hashlib
+
+        from polisyos.core.artifacts.ids import ArtifactID
+        from polisyos.core.canon import from_canonical_bytes
+
+        if record.payload_ref is not None:
+            raw = self._artifact_store.get_bytes(ArtifactID.model_validate(record.payload_ref))
+            digest = "sha256:" + hashlib.sha256(raw).hexdigest()
+            if digest != record.payload_sha256 or digest != record.payload_ref:
+                raise ValueError("diagnostic_payload_content_mismatch")
+            payload = from_canonical_bytes(raw)
+        else:
+            payload = record.payload_inline
+            digest = (
+                None if payload is None else _sha256_from_canonical_bytes(_payload_bytes(payload))
+            )
+            if digest != record.payload_sha256:
+                raise ValueError("diagnostic_payload_content_mismatch")
+        if payload is not None and not isinstance(payload, dict):
+            raise ValueError("diagnostic_payload_not_object")
+        return payload
 
     def append(
         self,

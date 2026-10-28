@@ -65,6 +65,8 @@ from polisyos.runtime.quality.diagnostic_events import (
     DiagnosticEventContractError,
     classify_duplicate_event,
 )
+from polisyos.runtime.quality.event_log import _PreparedDiagnosticEvent, _payload_bytes
+from polisyos.runtime.http.services._control_contracts import _ControlJobAdmissionDiagnosticBinding
 from polisyos.runtime.quality.evidence_spine_handoff import (
     append_evidence_spine_handoff,
     control_plane_handoff,
@@ -1765,6 +1767,18 @@ class _ControlJobTransactionAdmission:
     terminal_state: Literal["completed", "failed", "cancelled"] | None = None
 
 
+@dataclass(frozen=True, slots=True)
+class _ControlJobCreationBasis:
+    """Unpublished immutable preparation basis, never an event/authorization receipt."""
+
+    job_id: str
+    initial_state: Literal["pending", "failed"]
+    prepared_at: datetime
+    source_payload_json: str
+    source_payload_sha256: str
+    creation_owner: object
+
+
 class ControlPlaneStore:
     """Store control jobs and leases with a backend-specific SQL schema.
 
@@ -1785,6 +1799,7 @@ class ControlPlaneStore:
         self._postgres_dsn = postgres_dsn
         self._lock = threading.RLock()
         self._human_decision_transaction = threading.local()
+        self._creation_plan_owner = object()
         self._job_execution_fence: ContextVar[tuple[str, str, int] | None] = ContextVar(
             "control_job_execution_fence", default=None
         )
@@ -3968,6 +3983,137 @@ class ControlPlaneStore:
         )
         return event_id
 
+    def _has_active_job_transaction(self) -> bool:
+        """Report this Store worker's actual transaction ownership without database I/O."""
+        return (
+            getattr(self._human_decision_transaction, "sqlite_connection", None) is not None
+            or getattr(self._human_decision_transaction, "postgres_cursor", None) is not None
+        )
+
+    def prepare_job_creation(
+        self,
+        *,
+        job_id: str,
+        initial_state: Literal["pending", "failed"],
+        creation_event_payload: dict[str, Any],
+    ) -> _ControlJobCreationBasis:
+        """Freeze a creation basis without a SQL row, event ID or recorded timestamp.
+
+        Diagnostic CAS work can use this candidate basis outside a writer lock.
+        Only create_job can reconcile the subsequently recorded source event and
+        outbox before publishing diagnostics/progress. The basis grants no lease,
+        current-source admission, authorization or permission.
+        """
+        if initial_state not in {"pending", "failed"}:
+            raise ValueError("control_job_initial_state_invalid")
+        payload = {**creation_event_payload, "state": initial_state}
+        if payload.get("job_id") != job_id:
+            raise ValueError("control_job_creation_basis_job_mismatch")
+        payload_json = json.dumps(payload, sort_keys=True)
+        return _ControlJobCreationBasis(
+            job_id=job_id,
+            initial_state=initial_state,
+            prepared_at=_utc_now(),
+            source_payload_json=payload_json,
+            source_payload_sha256="sha256:" + hashlib.sha256(payload_json.encode()).hexdigest(),
+            creation_owner=self._creation_plan_owner,
+        )
+
+    def _reconcile_admission_diagnostic_basis(
+        self,
+        *,
+        record: ControlJobRecord,
+        source: _ControlJobLifecycleSourceEventRecord,
+        event: DiagnosticEvent,
+        payload: dict[str, Any],
+        binding: _ControlJobAdmissionDiagnosticBinding,
+    ) -> None:
+        """Bind v2 candidate bytes to actual unique creation/outbox rows with SQL only."""
+        scope, _ = self._reconcile_control_job_creation_envelope(record)
+        source_refs = tuple(
+            source.payload[key]
+            for key in ("payload_ref", "capability_manifest_ref")
+            if source.payload.get(key) is not None
+        )
+        expected_scope = {
+            "schema_version": "polisyos.runtime.control_execution_scope.v1",
+            "status": scope.status,
+            "source": "job_admission",
+            "limitation_code": (
+                None
+                if scope.status == "established"
+                else "control_job_execution_scope_not_established"
+            ),
+        }
+        allowed_types = {
+            "polisyos.runtime.diagnostic.cas_write.v1",
+            "polisyos.runtime.diagnostic.phase_transition.v1",
+            "polisyos.runtime.diagnostic.scope_limited.v1",
+        }
+        if (
+            binding.control_job_id != record.job_id
+            or binding.control_run_id != record.run_id
+            or binding.source_event_job_state != source.payload.get("state")
+            or binding.source_event_payload_sha256 != source.payload_sha256
+            or binding.bound_job_record_refs != source_refs
+            or source.job_id != record.job_id
+            or source.event_type != "job_created"
+            or source.event_id < 1
+            or source.created_at.tzinfo is None
+            or event.job_id != record.job_id
+            or event.run_id != str(record.run_id or "run-unknown")
+            or event.phase != "job_admission"
+            or event.event_type not in allowed_types
+            or event.producer_component != "polisyos.runtime.control"
+            or (
+                event.event_type == "polisyos.runtime.diagnostic.phase_transition.v1"
+                and (
+                    event.state_after != binding.source_event_job_state
+                    or event.event_time != source.created_at
+                )
+            )
+            or event.execution_profile != record.effective_execution_profile
+            or event.tenant_id != (scope.tenant_id or "tenant-unknown")
+            or event.cell_id != (scope.cell_id or "cell-unknown")
+            or "attempt" in payload
+            or not _json_values_equal_strict(payload.get("execution_scope"), expected_scope)
+        ):
+            raise ControlJobExecutionAdmissionError(
+                "control_job_admission_diagnostic_basis_mismatch"
+            )
+
+    def get_job_admission_diagnostic_source_event_record(
+        self, *, event_id: str, payload: dict[str, Any]
+    ) -> _ControlJobLifecycleSourceEventRecord:
+        """Resolve actual event ID/time from a content-bound v2 diagnostic payload.
+
+        The event-log owner resolves CAS bytes before this DB-only read. This
+        result describes historical admission, never a current worker proof.
+        """
+        digest = "sha256:" + hashlib.sha256(_payload_bytes(payload)).hexdigest()
+        binding = _ControlJobAdmissionDiagnosticBinding.model_validate_json(
+            json.dumps(payload.get("control_job_execution_binding"), sort_keys=True)
+        )
+        with self._job_transaction():
+            diagnostics = self.list_diagnostic_events(event_id=event_id, limit=2)
+            if len(diagnostics) != 1 or diagnostics[0].payload_sha256 != digest:
+                raise ControlJobExecutionAdmissionError(
+                    "control_job_admission_diagnostic_not_bound"
+                )
+            diagnostic = diagnostics[0]
+            record = self.get_job(diagnostic.event.job_id)
+            if record is None:
+                raise ControlJobExecutionAdmissionError("control_job_admission_job_missing")
+            source = self._get_job_created_source_event_record(record.job_id)
+            self._reconcile_admission_diagnostic_basis(
+                record=record,
+                source=source,
+                event=diagnostic.event,
+                payload=payload,
+                binding=binding,
+            )
+            return source
+
     def create_job(
         self,
         *,
@@ -3985,13 +4131,22 @@ class ControlPlaneStore:
         initial_state: Literal["pending", "failed"] = "pending",
         initial_error_message: str | None = None,
         initial_progress: dict[str, Any] | None = None,
+        creation_basis: _ControlJobCreationBasis | None = None,
+        prepared_admission_diagnostics: tuple[_PreparedDiagnosticEvent, ...] = (),
+        diagnostic_preparation_failed: bool = False,
         pre_admission_attempt_id: str | None = None,
         pre_admission_outcome: Literal["admitted", "refused"] | None = None,
         pre_admission_producer_event_observation: ProducerCallState | None = None,
         pre_admission_no_call_reason: NoCallReason | None = None,
         pre_admission_failure_code: str | None = None,
     ) -> ControlJobRecord:
-        """Insert a pending or terminally refused job and enqueue its creation event."""
+        """Publish one job and prepared admission diagnostics atomically with SQL only.
+
+        Snapshot/registry validation and CAS I/O precede the writer transaction.
+        The v2 creation basis never supplies actual event IDs or recorded times;
+        this owner records them normally, reconciles the actual source/outbox,
+        then appends prepared diagnostics and their initial progress links.
+        """
         if initial_state not in {"pending", "failed"}:
             raise ValueError("control_job_initial_state_invalid")
         if initial_state == "failed" and not initial_error_message:
@@ -4004,6 +4159,40 @@ class ControlPlaneStore:
             (initial_state == "pending") != (pre_admission_outcome == "admitted")
         ):
             raise ValueError("control_job_pre_admission_outcome_mismatch")
+        if creation_basis is not None and self._has_active_job_transaction():
+            raise ControlJobExecutionAdmissionError(
+                "control_job_prepared_creation_nested_transaction"
+            )
+        if type(diagnostic_preparation_failed) is not bool:
+            raise TypeError("control_job_diagnostic_preparation_status_invalid")
+        if creation_basis is None and (
+            prepared_admission_diagnostics or diagnostic_preparation_failed
+        ):
+            raise ValueError("control_job_diagnostics_require_creation_basis")
+        if creation_basis is not None and (
+            type(creation_basis) is not _ControlJobCreationBasis
+            or creation_basis.creation_owner is not self._creation_plan_owner
+            or creation_basis.job_id != job_id
+            or creation_basis.initial_state != initial_state
+            or creation_basis.source_payload_json
+            != json.dumps(
+                {**dict(creation_event_payload or {}), "state": initial_state}, sort_keys=True
+            )
+        ):
+            raise ValueError("control_job_creation_basis_mismatch")
+        # Registry/filesystem reads, parsing and complete payload hashing happen
+        # before the SQL lock. No provider callback enters the transaction.
+        prepared_values = []
+        for prepared in prepared_admission_diagnostics:
+            if type(prepared) is not _PreparedDiagnosticEvent:
+                raise TypeError("control_job_diagnostic_preparation_type_invalid")
+            event, payload = prepared.publication_values()
+            if payload is None:
+                raise ValueError("control_job_diagnostic_preparation_payload_missing")
+            binding = _ControlJobAdmissionDiagnosticBinding.model_validate_json(
+                json.dumps(payload.get("control_job_execution_binding"), sort_keys=True)
+            )
+            prepared_values.append((prepared, event, payload, binding))
         created_at = _utc_now()
         progress: dict[str, Any] = append_evidence_spine_handoff(
             dict(initial_progress or {}),
@@ -4063,6 +4252,61 @@ class ControlPlaneStore:
                 event_type="job_created",
                 payload=created_event_payload,
             )
+            if creation_basis is not None:
+                source = self._get_job_created_source_event_record(job_id)
+                if source.payload_sha256 != creation_basis.source_payload_sha256:
+                    raise ControlJobExecutionAdmissionError(
+                        "control_job_creation_basis_content_mismatch"
+                    )
+                scope, _ = self._reconcile_control_job_creation_envelope(record)
+                diagnostic_ids: list[str] = []
+                authority_withheld = False
+                for prepared, event, payload, binding in prepared_values:
+                    if event.event_type == "polisyos.runtime.diagnostic.phase_transition.v1":
+                        # event_time is outside the CAS payload hash. The job
+                        # transition occurs now, not at candidate preparation.
+                        event = event.model_copy(update={"event_time": source.created_at})
+                    self._reconcile_admission_diagnostic_basis(
+                        record=record, source=source, event=event, payload=payload, binding=binding
+                    )
+                    if event.event_id in diagnostic_ids or self.list_diagnostic_events(
+                        event_id=event.event_id, limit=1
+                    ):
+                        raise ControlJobExecutionAdmissionError(
+                            "control_job_prepared_diagnostic_already_exists"
+                        )
+                    self.append_diagnostic_event(
+                        event=event,
+                        payload_ref=prepared.payload_ref,
+                        payload_inline=payload if prepared.inline_payload else None,
+                        payload_sha256=prepared.payload_sha256,
+                    )
+                    diagnostic_ids.append(event.event_id)
+                    authority_withheld |= (
+                        event.event_type == "polisyos.runtime.diagnostic.scope_limited.v1"
+                    )
+                diagnostic_progress: dict[str, Any] = {
+                    "diagnostic_event_ids": diagnostic_ids,
+                    "diagnostic_event_authority": (
+                        "scope_limited" if authority_withheld else "progress_reference_only"
+                    ),
+                    "diagnostic_event_scope_status": scope.status,
+                }
+                if scope.status == "not_established":
+                    diagnostic_progress["diagnostic_event_limitation_code"] = (
+                        "control_job_execution_scope_not_established"
+                    )
+                if diagnostic_preparation_failed:
+                    diagnostic_progress["diagnostic_event_preparation_status"] = "limited"
+                    diagnostic_progress["diagnostic_event_preparation_limitation_code"] = (
+                        "runtime_diagnostic_event_persistence_failed"
+                    )
+                self._upsert_progress_unchecked(
+                    job_id=job_id, progress={**record.progress, **diagnostic_progress}
+                )
+                record = self.get_job(job_id)
+                if record is None:
+                    raise RuntimeError(f"Failed to initialize control job {job_id}")
             if pre_admission_attempt_id is not None and pre_admission_outcome is not None:
                 self.observe_pre_admission_attempt(
                     attempt_id=pre_admission_attempt_id,

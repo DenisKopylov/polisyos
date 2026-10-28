@@ -6,9 +6,10 @@ import os
 import re
 import time
 import uuid
+from datetime import datetime
 from typing import Any, Literal, Protocol, cast, get_args
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts import DataSnapshotRef, DataViewRequestRef
@@ -36,6 +37,38 @@ class WorkflowDataViewRequestIntent(BaseModel):
         "polisyos.runtime.workflow_data_view_request_intent.v1"
     )
     profile_origin: Literal["caller_selected", "worker_default"]
+
+
+class _ControlJobAdmissionDiagnosticBinding(BaseModel):
+    """Bind prepared admission bytes to an immutable creation basis, not a future event.
+
+    Actual job_created event ID/recorded time are resolved by the Store after
+    publication. This v2 profile grants no worker, authorization or custody proof.
+    Existing v1 running/terminal bindings and historical payloads remain unchanged.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal["polisyos.runtime.control_job_admission_binding.v2"] = (
+        "polisyos.runtime.control_job_admission_binding.v2"
+    )
+    binding_status: Literal["creation_basis"] = "creation_basis"
+    proof_phase: Literal["job_admission"] = "job_admission"
+    purpose: Literal["job_admission_diagnostic"] = "job_admission_diagnostic"
+    authority_role: Literal["diagnostic_only"] = "diagnostic_only"
+    control_job_id: str = Field(min_length=1)
+    control_run_id: str | None
+    source_event_type: Literal["job_created"] = "job_created"
+    source_event_job_state: Literal["pending", "failed"]
+    source_event_payload_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    prepared_at: datetime
+    bound_job_record_refs: tuple[str, ...]
+
+    @model_validator(mode="after")
+    def _validate_preparation_time(self) -> _ControlJobAdmissionDiagnosticBinding:
+        if self.prepared_at.tzinfo is None or self.prepared_at.utcoffset() is None:
+            raise ValueError("control_job_admission_preparation_time_naive")
+        return self
 
 
 class _MethodCatalogSnapshotAware(Protocol):
@@ -266,6 +299,7 @@ __all__ = [
     "_OPTIONAL_INPUT_KEYS",
     "_WORKFLOW_DATA_VIEW_REQUEST_INTENT_KEY",
     "WorkflowDataViewRequestIntent",
+    "_ControlJobAdmissionDiagnosticBinding",
     "_MethodCatalogSnapshotAware",
     "_artifact_ref_from_summary_payload",
     "_as_bool",

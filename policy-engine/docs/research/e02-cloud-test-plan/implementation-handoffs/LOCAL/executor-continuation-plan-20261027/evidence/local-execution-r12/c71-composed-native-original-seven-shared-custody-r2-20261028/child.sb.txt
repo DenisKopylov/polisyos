@@ -1,0 +1,5 @@
+(version 1)
+(allow default)
+(deny file-write*)
+(allow file-write* (subpath "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c71-composed-native-original-seven-shared-custody-r2-20261028"))
+(allow file-write* (literal "/dev/null"))

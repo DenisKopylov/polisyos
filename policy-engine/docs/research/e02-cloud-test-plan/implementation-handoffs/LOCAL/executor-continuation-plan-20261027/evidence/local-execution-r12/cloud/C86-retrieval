@@ -1,0 +1,17 @@
+{
+  "slice": "C86",
+  "task_id": "task_e_6ae1807c6c5c83259bdb771787170a31",
+  "exit": 0,
+  "bytes": 3827332,
+  "sha256": "f03d70be1fcf58cfc30a6dde7d240b39f5aa27c34a4d68bf4d05c2d2c4057869",
+  "expected_base": "ea3d65682d76a5d66d514e525ad2212e5a85f669",
+  "expected_tree": "7c5412fddc4ef3e56c859b83d237162e0fd260e7",
+  "delivery": "actual diff bytes retrieved",
+  "numstat_exit": 0,
+  "footprint": [
+    "94\t0\tpolicy-engine/docs/research/e02-cloud-test-plan/results/c86/README.md",
+    "-\t-\tpolicy-engine/docs/research/e02-cloud-test-plan/results/c86/deciding-evidence.tar.gz",
+    "10\t0\tpolicy-engine/docs/research/e02-cloud-test-plan/results/c86/loaded-caller-enumeration.py",
+    "75\t0\tpolicy-engine/tools/c86_pytest_audit.py"
+  ]
+}

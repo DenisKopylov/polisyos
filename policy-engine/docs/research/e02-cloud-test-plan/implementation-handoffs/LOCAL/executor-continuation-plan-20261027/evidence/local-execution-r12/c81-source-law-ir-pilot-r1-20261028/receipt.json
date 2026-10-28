@@ -1,0 +1,124 @@
+{
+  "schema": "policyos.e02.native_deciding_receipt.v1",
+  "case": "c81-source-law-ir-pilot-r1-20261028",
+  "classification": "D: exact deciding outputs with independent actual review; source files are B by Git",
+  "source": {
+    "commit": "192fc44303c63e52e4dfa8e0b4ee77790bae3394",
+    "tree": "fd6881f1c9fc1e63984ed0b24095e0482faba2e9"
+  },
+  "counts": {
+    "PASS": 10,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "exit": 0,
+  "wall_seconds": 15.836535833019298,
+  "max_sampled_process_tree_rss_bytes": 693780480,
+  "finite_python_paths": 874,
+  "source_qualification": "independent review reconciled the 874 recorded parent Python paths and 2496 explicit source-frame rows at run source; transient/child/external/non-Python reads remain unobserved",
+  "positive": "four selected IR functions exercised captured-input mutation, mean versus median/credible interval, forged coordinate and six collision cases",
+  "unrun": "HMC, MethodJob, CAS owner, MC source provenance, ten semantic removals, B201/B202 full, G and closure",
+  "input_custody": "exact captured root-live bytes match freeze pin; referenced complete source-frame and RAW helpers remain local-only; exact rerun requires those inputs or separately requalified source",
+  "files": {
+    "stdout.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r12/c81-source-law-ir-pilot-r1-20261028/stdout.txt",
+      "sha256": "bd07d538b30aeccb05dd853987670864890bf141dbfa69ebab94fe2ee69fb228",
+      "bytes": 661,
+      "availability": "r12 sparse proposal postimage; coordinator composition and committed branch readback pending"
+    },
+    "pytest.xml": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r12/c81-source-law-ir-pilot-r1-20261028/pytest.xml.gz",
+      "sha256": "a92cae3be391f2fce763d1544d93401da31c8fcb0ffd7f5b241f6e72843b12df",
+      "bytes": 458,
+      "availability": "r12 sparse proposal postimage; coordinator composition and committed branch readback pending"
+    },
+    "audit-result.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r12/c81-source-law-ir-pilot-r1-20261028/audit-result.json.gz",
+      "sha256": "d75f52824253eeb724c7eb717b64adf22a6f8bafdd6088ad42628199daf44252",
+      "bytes": 1926,
+      "availability": "r12 sparse proposal postimage; coordinator composition and committed branch readback pending"
+    },
+    "source-profile-freeze.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r12/c81-source-law-ir-pilot-r1-20261028/source-profile-freeze.json.gz",
+      "sha256": "63484b5cffbb17882e0589dacf64836fa1c9d61a0ccea4fa5321a52911854781",
+      "bytes": 2511,
+      "availability": "r12 sparse proposal postimage; coordinator composition and committed branch readback pending"
+    },
+    "readset.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r12/c81-source-law-ir-pilot-r1-20261028/readset.json.gz",
+      "sha256": "d2fe09e2618983d9dc94c660a1b6735c453bd2401e7356ea5110fbb967ee0232",
+      "bytes": 48802,
+      "availability": "r12 sparse proposal postimage; coordinator composition and committed branch readback pending"
+    },
+    "phase-output.jsonl": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r12/c81-source-law-ir-pilot-r1-20261028/phase-output.jsonl.gz",
+      "sha256": "277918180ffe267de367a90102709a287e33809403f6d228ef7d49b5b7d5b226",
+      "bytes": 716,
+      "availability": "r12 sparse proposal postimage; coordinator composition and committed branch readback pending"
+    },
+    "controller-events.jsonl": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r12/c81-source-law-ir-pilot-r1-20261028/controller-events.jsonl.gz",
+      "sha256": "4bd80c86c56e80896e7c783ea5fd10c9a0874072788d4dc65dfa13bbaf29b9d6",
+      "bytes": 769,
+      "availability": "r12 sparse proposal postimage; coordinator composition and committed branch readback pending"
+    },
+    "process-tree.jsonl": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r12/c81-source-law-ir-pilot-r1-20261028/process-tree.jsonl.gz",
+      "sha256": "ca9197c55faada291542fb64cbc68b4c9bab0f906bf931562d682bb23f259907",
+      "bytes": 1653,
+      "availability": "r12 sparse proposal postimage; coordinator composition and committed branch readback pending"
+    },
+    "pytest_launcher.py.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r12/c81-source-law-ir-pilot-r1-20261028/pytest_launcher.py.txt",
+      "sha256": "136a52a895c22d8b17596422e837bfd04c6920f20cc9bb4006be89afcff68118",
+      "bytes": 607,
+      "availability": "r12 sparse proposal postimage; coordinator composition and committed branch readback pending"
+    },
+    "child.sb.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r12/c81-source-law-ir-pilot-r1-20261028/child.sb.txt",
+      "sha256": "8bd8942293cb9b2ddcbf4b42bde6a5b297c9f205869f6be8492a61613fedb596",
+      "bytes": 419,
+      "availability": "r12 sparse proposal postimage; coordinator composition and committed branch readback pending"
+    },
+    "plan.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r12/c81-source-law-ir-pilot-r1-20261028/plan.json",
+      "sha256": "d44157696b4c6661ddb5e6761dd871a00fa143ce1e3d0c7f59917f783c35bef8",
+      "bytes": 1389,
+      "availability": "r12 sparse proposal postimage; coordinator composition and committed branch readback pending"
+    },
+    "root-live-input.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r12/c81-source-law-ir-pilot-r1-20261028/root-live-input.json.gz",
+      "sha256": "4d0ae2f5faab6c5483c6d92b705f7b2d4d0c2f8a16d2976fe806d9777f96879b",
+      "bytes": 2752,
+      "availability": "r12 sparse proposal postimage; coordinator composition and committed branch readback pending"
+    },
+    "git-readback.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r12/c81-source-law-ir-pilot-r1-20261028/git-readback.json",
+      "sha256": "8f3a3a8210826b7de15e15167e59b6afba740c4c2760279217a65c47b5136623",
+      "bytes": 619,
+      "availability": "r12 sparse proposal postimage; coordinator composition and committed branch readback pending"
+    },
+    "stderr.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r6/common/empty.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "availability": "already committed at 6c61"
+    }
+  },
+  "review": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r12/reviews/C81-ir-pilot-r1-actual.md.gz",
+      "sha256": "b8fb640cf16c545dfe989920d3c477d6cc42747567f6fe1280bf10badc87a5f4",
+      "bytes": 3821,
+      "availability": "r12 sparse proposal postimage; coordinator composition and committed branch readback pending"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r12/reviews/C81-ir-pilot-r1-actual.json.gz",
+      "sha256": "113c2421c25c83a4d7d50bc47291a5c0119e19ad913b04434b309772ef162335",
+      "bytes": 2259,
+      "availability": "r12 sparse proposal postimage; coordinator composition and committed branch readback pending"
+    }
+  ],
+  "closure_ids": []
+}

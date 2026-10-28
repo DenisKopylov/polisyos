@@ -1,0 +1,52 @@
+{
+  "schema": "policyos.e02.source_observation.v1",
+  "observed_at": "2026-10-28T05:57:29.595623+00:00",
+  "observed_commit": "6c61e98d5efcf8ced3e0b613eda7f0a717050066",
+  "observed_tree": "22ba7b9dd650fa7c0754fd02c534cc0c74152d91",
+  "c40": {
+    "manifest_sha256": "d02281f3e40a8840ec5330309742e282fc16e8281daf900461a30939ad33af08",
+    "paths": 12,
+    "type_counts": {
+      ".json": 1,
+      ".md": 1,
+      ".toml": 1,
+      ".py": 9
+    },
+    "source_commit": "4ff21ccedde38a7ed410af2046661c131ee13704",
+    "source_tree": "a11daf2b116e4d2d02a78940b202ca2d59dc2e34",
+    "manifest_postimage_mismatches_at_source_and_observed_commit": 0,
+    "method": "for every manifest path, git show at both named commits then compare SHA-256 and length; whole B13/runtime not established"
+  },
+  "finite_readset_cross_cut": {
+    "from": "192fc44303c63e52e4dfa8e0b4ee77790bae3394",
+    "to": "6c61e98d5efcf8ced3e0b613eda7f0a717050066",
+    "changed_git_paths": 12,
+    "changed_type_counts": {
+      ".md": 2,
+      ".toml": 1,
+      ".py": 9
+    },
+    "method": "git diff --name-only on exact commits intersected with every recorded module path, prefixed policy-engine/",
+    "result": {
+      "C81": {
+        "observed_python_paths": 874,
+        "readset_raw_sha256": "5964eaafbdc7b0eb4eeef628e762be723f296084c363384b260464b92e687393",
+        "changed_path_intersection": 0
+      },
+      "C71": {
+        "observed_python_paths": 1845,
+        "readset_raw_sha256": "373e49cfcb2a37229086a954c34689b208ea0d016f883a045f902ed965628668",
+        "changed_path_intersection": 0
+      }
+    },
+    "boundary": "finite parent observer sets only; no child, transient, external or non-Python absence claim"
+  },
+  "c48_candidate": {
+    "manifest_sha256": "3b2801ac35639306c285e5596d89d864e52fc19699fdc6a2b38900905ec660fa",
+    "paths": 10,
+    "worktree_postimage_mismatches": 0,
+    "status": "working candidate only, not a Git commit or delivered source; generated companions pending"
+  },
+  "G_acceptance_new": false,
+  "closure_ids": []
+}

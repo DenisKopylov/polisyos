@@ -1,0 +1,11 @@
+{
+  "at": "2026-10-28T05:48:51.525692+00:00",
+  "reason": "Root requested graceful partial stop before fixed600s unknown-profile limit to preserve completed pytest tracebacks/JUnit; ten-case wave incomplete, no green claim.",
+  "signal": "SIGINT",
+  "pid": 3704,
+  "last_sample_elapsed_seconds": 578.7511314580042,
+  "last_sample_rss_bytes": 1159200768,
+  "observed_progress": ".FFFF",
+  "source_head": "192fc44303c63e52e4dfa8e0b4ee77790bae3394",
+  "closure_ids": []
+}

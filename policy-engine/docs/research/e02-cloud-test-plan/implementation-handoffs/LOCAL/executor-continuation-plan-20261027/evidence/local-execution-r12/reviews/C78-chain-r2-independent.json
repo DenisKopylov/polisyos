@@ -1,0 +1,29 @@
+{
+  "task": "C78-chain-r2 independent whole-source review",
+  "source_verdict": "HOLD",
+  "runtime": "UNRUN",
+  "formal_G": "not_adjudicated",
+  "manifest_sha256": "257d59681f59581226f819fdf236f41ddb15ac9739e02d289f385c81a7c132ae",
+  "proposal_sha256": "31aae3d13fc258a7aadcc10cbf847300f8a87a54964dd9c9f42285dd019d1830",
+  "proposal_bytes": 218280,
+  "base_commit": "545c6990e2bfa42bf580b475e23cf88df04e71d8",
+  "pinned_composition_commit": "192fc44303c63e52e4dfa8e0b4ee77790bae3394",
+  "base_overlay_tree": "f45fc1985da912fed56a973cf16e4d91adc5adb3",
+  "current_overlay_tree": "5e375a4f62b34b293970dbd838faf9dd7d828c66",
+  "postimages_checked": 24,
+  "python_postimages": 20,
+  "postimage_or_patch_mismatches": 0,
+  "control_identities_checked": 10,
+  "control_identity_mismatches": 0,
+  "criteria_occurrences": 13,
+  "classes": [
+    "selected report schema/version admission",
+    "original and effective numeric domain",
+    "replay PRNG profile and missing-source status",
+    "default-x64 and callback effect test evidence"
+  ],
+  "review_path": "LOCAL/raw/e02-execution-20261027/reviews/C78-chain-r2-independent.md",
+  "review_sha256": "b1cced90f4f9a6a396919ef22e604db1220766996f341cf88229f6a4569f56d4",
+  "runtime_or_mutants_executed": false,
+  "canonical_index_refs_mutated": false
+}

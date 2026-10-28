@@ -1,0 +1,20 @@
+{
+  "case_id": "c81-source-law-ir-pilot-r1-20261028",
+  "source_head": "192fc44303c63e52e4dfa8e0b4ee77790bae3394",
+  "source_tree": "fd6881f1c9fc1e63984ed0b24095e0482faba2e9",
+  "nodes": [
+    "tests/unit/ir/analytics/test_posterior_summary.py::test_source_hash_and_decoding_use_the_same_private_snapshot",
+    "tests/unit/ir/analytics/test_posterior_summary.py::test_b201_keeps_named_point_functional_separate_from_equal_tail_interval",
+    "tests/unit/ir/analytics/test_posterior_summary.py::test_constructed_summary_cannot_bypass_coordinate_identity",
+    "tests/unit/ir/analytics/test_posterior_summary.py::test_posterior_draw_artifact_refuses_ambiguous_scalar_coordinate_projection"
+  ],
+  "rss_cap_bytes": 2415919104,
+  "deadline_seconds": 600,
+  "extra_env": {},
+  "selected_source_pins": {
+    "src/polisyos/ir/analytics/posterior_summary.py": "dd016b943dab63057414296da0631038dab653c596c4a36be104d87e960dd41f",
+    "tests/unit/ir/analytics/test_posterior_summary.py": "ccea24111bf04d83e3855eab87fe081f271ba017e0f518053e885076a6712c7b"
+  },
+  "scope": "Four IR source-law/admission properties only: private hash/decode snapshot; point/interval distinct functionals; constructed coordinate integrity; six alias/order falsifiers. Small real NumPy/Pydantic work, no HMC/MethodJob. Actual collection/JUnit must be reconciled; no fullC81/MCprovenance/S3/Gclaim.",
+  "closure_ids": []
+}

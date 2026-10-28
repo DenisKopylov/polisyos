@@ -1,0 +1,47 @@
+{
+  "schema": "policyos.e02.source_observation.v1",
+  "observed_at": "2026-10-28T06:04:46.061943+00:00",
+  "observed_commit": "d9397c7c0458ec2980fa58115c5ee597eb58dbc8",
+  "observed_tree": "832c6d744f3f09f261fbd8c72dc647109e2baceb",
+  "c48": {
+    "branch_readback_raw_sha256": "edc37c49b2a58ee641224fa0da9cf0331932566aee836790777b66c981d6de9c",
+    "all_13_recorded_committed_paths_sha_match": true,
+    "proposed_path_denominator": 10,
+    "unchanged_proposal_postimages": 9,
+    "later_public_companion_delta": [
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-28-e02-compile-state-array-views.toml",
+        "proposal_sha256": "03bc458b3d5388af4408d11dbc8aede0bc5af405969a4887aa9135a75b029053",
+        "commit_sha256": "0cf0f87e98ee72212bd203b8e0b4b53708fdf66d83ff2fc4bf9248008a688ec7"
+      }
+    ],
+    "status": "committed source with public/reference companions; no runtime or full generated gate inferred"
+  },
+  "finite_readset_cross_cut": {
+    "from": "192fc44303c63e52e4dfa8e0b4ee77790bae3394",
+    "to": "d9397c7c0458ec2980fa58115c5ee597eb58dbc8",
+    "changed_git_paths": 25,
+    "method": "git diff --name-only exact commits intersect all recorded parent Python paths",
+    "result": {
+      "C81": {
+        "observed_python_paths": 874,
+        "readset_raw_sha256": "5964eaafbdc7b0eb4eeef628e762be723f296084c363384b260464b92e687393",
+        "changed_paths_observed": [
+          "policy-engine/src/polisyos/foundry/compile/__init__.py"
+        ]
+      },
+      "C71": {
+        "observed_python_paths": 1845,
+        "readset_raw_sha256": "373e49cfcb2a37229086a954c34689b208ea0d016f883a045f902ed965628668",
+        "changed_paths_observed": [
+          "policy-engine/src/polisyos/foundry/compile/__init__.py",
+          "policy-engine/src/polisyos/foundry/compile/api.py",
+          "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_method_metrics.py"
+        ]
+      }
+    },
+    "boundary": "parent session-end observer only, not proof of changed-call execution or an exhaustive backend/child/non-Python readset"
+  },
+  "G_acceptance_new": false,
+  "closure_ids": []
+}

@@ -1,0 +1,58 @@
+{
+  "schema": "policyos.e02.cloud_deciding_receipt.v1",
+  "task_id": "task_e_6ae1807c6c5c83259bdb771787170a31",
+  "classification": "PARTIAL; D: five actual complete log/XML/audit sets and provenance in allowlisted archive; original scratch/CAS/DB are C excluded",
+  "source": {
+    "commit": "ea3d65682d76a5d66d514e525ad2212e5a85f669",
+    "tree": "7c5412fddc4ef3e56c859b83d237162e0fd260e7"
+  },
+  "candidate_tree_reconstructed": "1d07b6db185ca1cf21f430e1c662ebffe07b1aa0",
+  "received_diff_raw_sha256": "f03d70be1fcf58cfc30a6dde7d240b39f5aa27c34a4d68bf4d05c2d2c4057869",
+  "counts": {
+    "PASS": 84,
+    "FAIL": 22,
+    "ERROR": 3,
+    "SKIP": 0,
+    "executed": 109,
+    "native_deselected": 1
+  },
+  "scope": "at author source only, with incomplete independently observed plugin/interpreter/bytecode/environment/resource profile; finite loaded-source sets changed at 192fc",
+  "M3_original": "actual cold-reader selected testcase PASS; M3 mutant and restored UNRUN",
+  "other_controls": "M2/M4/M6/M8 originals fail at catalog fixture before target; all five mutant/restored controls UNRUN",
+  "archive": "353443-byte compact archive includes exactly 15 actual log/XML/audit files, 3 delivered author/instrument files and 1 inventory; 11332-member original including 164143289 expanded regular bytes and 69 absolute-target symlinks remains local RAW and excluded",
+  "positive_limit": "physical/selected positive paths use ownership_enforced=False; do not infer tenant enforcement; M3 negative uses real enforcing store",
+  "unrun": "native HTE, full scoped-access/removal chain, production authorization, G and closure",
+  "compact_archive": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r12/evidence/deciding-compact.tar.gz",
+    "sha256": "2af910c3dce300368d058588922fbb3ca38655814371f41b288e89d2fdc9dcc4",
+    "bytes": 353443,
+    "availability": "r12 sparse proposal postimage; coordinator composition and committed branch readback pending"
+  },
+  "retrieval": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r12/cloud/C86-retrieval",
+    "sha256": "f6f120c5c9d6045141de2590e835404e69f415337ec0070c9e4b5a09288c193a",
+    "bytes": 742,
+    "availability": "r12 sparse proposal postimage; coordinator composition and committed branch readback pending"
+  },
+  "candidate_manifest": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r12/cloud/C86-candidate.gz",
+    "sha256": "2c9b6b19582d52d563e6c22cfcf25dc95af1044b1a9061510ae5abdc44b446ef",
+    "bytes": 872,
+    "availability": "r12 sparse proposal postimage; coordinator composition and committed branch readback pending"
+  },
+  "review": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r12/reviews/C86-return-independent.md.gz",
+      "sha256": "65ffdfe1c5980efa5859e6bfc5aa34774fabb848d3e72eaa54c7a1db23082cc7",
+      "bytes": 6176,
+      "availability": "r12 sparse proposal postimage; coordinator composition and committed branch readback pending"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r12/reviews/C86-return-independent.json.gz",
+      "sha256": "d312ccd9e86f5767627adb0bff339da3e99f884ebc026f2b968b371490c003ea",
+      "bytes": 5484,
+      "availability": "r12 sparse proposal postimage; coordinator composition and committed branch readback pending"
+    }
+  ],
+  "closure_ids": []
+}

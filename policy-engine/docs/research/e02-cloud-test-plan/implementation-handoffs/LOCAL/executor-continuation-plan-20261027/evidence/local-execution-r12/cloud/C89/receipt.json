@@ -1,0 +1,59 @@
+{
+  "schema": "policyos.e02.cloud_deciding_receipt.v1",
+  "task_id": "task_e_6ae18686531c832580b04aa8cf62c389",
+  "classification": "PARTIAL; narrow provider source GO, full C05 HOLD / verification_missing",
+  "source": {
+    "commit": "ea3d65682d76a5d66d514e525ad2212e5a85f669",
+    "tree": "7c5412fddc4ef3e56c859b83d237162e0fd260e7"
+  },
+  "received_diff_raw_sha256": "f41413f2491e65682f5d69ee18345ce1550b005d240c11495c7e621c2257dc9a",
+  "received_diff_raw_bytes": 2387786,
+  "candidate_tree_reconstructed": "28285d69e23a34bd0d4fbe568df8e44025aeb3e4",
+  "candidate_tree_attestation": "Root reconstructed from received diff; worker final commit not established",
+  "complete_return": "117 manifest paths: 116 new evidence paths plus one modified provider source; all 36 actual gzip streams and 40 source pins independently verified; receipt inventory also names two unexported nondeciding pyc rows",
+  "full_wave": {
+    "PASS": 359,
+    "FAIL": 43,
+    "ERROR": 0,
+    "SKIP": 0,
+    "executed": 402,
+    "modules": 14,
+    "failure_classes": "36 catalog setup/early assertions; 7 distinct consumer or fixture assertion failures; no inherited-red waiver"
+  },
+  "other_observations": "3 pre-fix FAIL then 3 focused PASS; 30 priority PASS and 45 provider module PASS, overlapping reruns not independent; actual 7-case and 15-case removal witnesses fail then restored PASS",
+  "unrun": "third removal after seven Runtime positive cases failed catalog setup; full C05, G and closure not established",
+  "environment_limits": "all 12 same-PID actual configurations and finite readsets reviewed; full pip 403, architecture and py_compile transcripts not delivered; Ruff absence observed and Ruff UNRUN; six loaded paths differ from d939, no automatic current-source PASS",
+  "carrier": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r12/cloud/C89/received-source.diff.gz",
+    "sha256": "4c24c082b9bd0bfbcab76566772b0e96931f283dbd101bd8664a3580d4876c19",
+    "bytes": 584065,
+    "availability": "r12 sparse proposal postimage; coordinator composition and committed branch readback pending"
+  },
+  "retrieval": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r12/cloud/C89-retrieval.gz",
+    "sha256": "bdf1a65c83df10b2af843c4e4fcc7a1027c98d09580b3cc196b0079d934240d8",
+    "bytes": 1207,
+    "availability": "r12 sparse proposal postimage; coordinator composition and committed branch readback pending"
+  },
+  "candidate_manifest": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r12/cloud/C89-candidate.gz",
+    "sha256": "ee9b3c047a741f56278650286ca34bf08fdcf553f507afc1f7baff0196f2ced4",
+    "bytes": 9511,
+    "availability": "r12 sparse proposal postimage; coordinator composition and committed branch readback pending"
+  },
+  "review": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r12/reviews/C89-code-evidence-c05.md.gz",
+      "sha256": "499b0b74838506ebd1a34accf9361987e6c800ab294612d6c671b5340c3ec913",
+      "bytes": 9541,
+      "availability": "r12 sparse proposal postimage; coordinator composition and committed branch readback pending"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r12/reviews/C89-code-evidence-c05.json.gz",
+      "sha256": "accf122f095ae3652b988cc0d455bb64c8940a9647223c990d97ae618befc757",
+      "bytes": 13647,
+      "availability": "r12 sparse proposal postimage; coordinator composition and committed branch readback pending"
+    }
+  ],
+  "closure_ids": []
+}

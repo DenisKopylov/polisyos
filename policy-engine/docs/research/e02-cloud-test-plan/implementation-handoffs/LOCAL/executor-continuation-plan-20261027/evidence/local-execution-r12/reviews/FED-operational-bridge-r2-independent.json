@@ -1,0 +1,27 @@
+{
+  "schema": "policyos.e02.fed_bridge.r2.independent_review.v1",
+  "source_verdict": "HOLD",
+  "runtime": "UNRUN",
+  "g_acceptance": false,
+  "manifest_sha256": "369664fc0702c2835aa90fae95b0fb6cd260519654a4a83026e1491553cd0d65",
+  "patch_sha256": "58790b5002b2563f2edd191e17d176edde720e726911982201b62bee78ce151c",
+  "base": "545c6990e2bfa42bf580b475e23cf88df04e71d8",
+  "compared_root_commit": "a437f597212cc7cc6dcb1c60fff9fb018ce43fe0",
+  "observed_head": "192fc44303c63e52e4dfa8e0b4ee77790bae3394",
+  "kernel_r4_manifest_sha256": "4f517b829408ca139fb14c6413dad1387976e771dc30db5ec968307973b30edd",
+  "path_count": 10,
+  "path_denominator": {
+    "python": 6,
+    "markdown": 3,
+    "toml": 1
+  },
+  "identity_output_sha256": "69dbc66036c3b189b777f2549dc11064839ef03db7701b499ff5c7cbfee96ee6",
+  "bucket": "SAME request/capture/selected-source scope class",
+  "findings": [
+    "pagination limit not enforced on final output or fresh source",
+    "self-attested same-intent capture labeled independently_reconciled and connector_reported",
+    "fresh consumer does not reapply whole-leaf declared minimum trust"
+  ],
+  "r1_dispositions": "completeness, unsupported filters, generic CAN.2 semantic refusal and parent history typed limitations present; runtime UNRUN",
+  "canonical_source_index_refs_mutated": false
+}

@@ -13,3 +13,19 @@ from polisyos.foundry.methods.components.composer import (
 from polisyos.foundry.methods.components.composer import (
     SemanticValidationLevel as SemanticValidationLevel,
 )
+from polisyos.foundry.methods.components.composer import (
+    ValidationContext as ValidationContext,
+)
+from polisyos.foundry.methods.components.composer import (
+    reconcile_validation_context as reconcile_validation_context,
+)
+
+__all__ = [
+    "CompiledMethodChain",
+    "CompositionDAG",
+    "MethodComposer",
+    "MethodNode",
+    "SemanticValidationLevel",
+    "ValidationContext",
+    "reconcile_validation_context",
+]

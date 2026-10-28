@@ -28,3 +28,16 @@ from polisyos.foundry.methods.selection.registry import (
 from polisyos.foundry.methods.selection.registry import (
     registry_scope as registry_scope,
 )
+
+__all__ = [
+    "MethodEntry",
+    "MethodLifecycle",
+    "MethodRegistry",
+    "RegistryAuditEvent",
+    "RegistryAuditLog",
+    "RegistrySnapshot",
+    "RegistrySnapshotEntry",
+    "get_registry",
+    "get_registry_audit_log",
+    "registry_scope",
+]

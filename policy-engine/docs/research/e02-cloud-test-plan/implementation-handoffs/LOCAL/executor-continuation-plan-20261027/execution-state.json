@@ -4252,7 +4252,7 @@
       "return_code": 1,
       "wall_seconds": 6.277841834002174,
       "rss_bytes": 378437632,
-      "scope": "C43 old mutant phase: 1 FAIL at numeric variance assertion, 2.032255595756678 vs 0.4 ± 0.06; actual red but UNQUALIFIED as a matched removal proof.",
+      "scope": "C43 old mutant phase: 1 FAIL at numeric variance assertion, 2.032255595756678 vs 0.4 \u00b1 0.06; actual red but UNQUALIFIED as a matched removal proof.",
       "receipt": {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r6/c43-random-joint-pilot-r3-20261028-mutant/receipt.json",
         "sha256": "c42890b159358911ef63ba2079632a1ad440b53a2c0a0d4d9e122096654f6a14",
@@ -5409,7 +5409,7 @@
       "observed_at": "2026-10-27T23:19:05.252557+00:00",
       "page_count": 3,
       "cursor": null,
-      "scope": "C41–C60 only; missing local launch manifests do not prove a task was not launched",
+      "scope": "C41\u2013C60 only; missing local launch manifests do not prove a task was not launched",
       "labels_without_local_launch_manifest": [
         "C49",
         "C54",
@@ -6121,7 +6121,7 @@
         "slice": "C60",
         "review_path": "LOCAL/raw/e02-execution-20261027/reviews/C60-code.md",
         "review_sha256": "a38dccf056238f96b0642a981dd3ac41333c4f664ea5f16a7b74391a4afa38aa",
-        "verdict": "full B42–B48 HOLD; bounded proposal only"
+        "verdict": "full B42\u2013B48 HOLD; bounded proposal only"
       },
       {
         "slice": "C61",
@@ -7615,7 +7615,7 @@
         "tree": "093533a909d4bf9a2627b4a3db20c55a8efce59a",
         "scope": "r9.3 observed source cut only; native/generated evidence remains separate and earlier runs keep their own source"
       },
-      "next_native": "Freeze and independently review C41/C48 source composition before source-qualified affected consumer and generated-surface execution; finish C07 current-access witness, C37/C57 control-intent repair and C32 adversarial/removal controls. Independently review C70/C73/C74 returns; C72/C76 are submitted, with results separate. Continue C77/C78/C79 preparation and outstanding C66–C69 work; G and closure remain separate."
+      "next_native": "Freeze and independently review C41/C48 source composition before source-qualified affected consumer and generated-surface execution; finish C07 current-access witness, C37/C57 control-intent repair and C32 adversarial/removal controls. Independently review C70/C73/C74 returns; C72/C76 are submitted, with results separate. Continue C77/C78/C79 preparation and outstanding C66\u2013C69 work; G and closure remain separate."
     },
     "native_case_receipts": [
       {
@@ -9304,7 +9304,7 @@
     "G_acceptance_new": false,
     "closure_ids": []
   },
-  "continuation_view_r14_r2":   {
+  "continuation_view_r14_r2": {
     "prepared_at": "2026-10-28",
     "source_as_of": {
       "head": "f728cfe467a32eb2a9023fbe157d5d06c4928369",
@@ -9356,7 +9356,7 @@
     "closure_ids_new": [],
     "R9_GY_Atlas": "not started"
   },
-  "continuation_view_r14_r3":   {
+  "continuation_view_r14_r3": {
     "source_as_of": {
       "commit": "f728cfe467a32eb2a9023fbe157d5d06c4928369",
       "tree": "08371dae76c6ae9bc92c6213b735319d7e68b0e2",
@@ -9376,5 +9376,51 @@
     "G_acceptance_new": false,
     "formal_closure_new": false,
     "last_confirmed_remote_publication": "R10"
-  }
+  },
+  "continuation_view_r15": {
+    "current_at_preparation": {
+      "commit": "6dea075a5052183bb013e6a54a951ef689731c6f",
+      "tree": "090267516a7c64512491501e4a532144bfd43565",
+      "change": "Root-owned 25-file public-input commit; source-neutral for bound results"
+    },
+    "source_as_of": {
+      "commit": "154b32e8691f4bfbf216d64e0d7fc95f96d8c0d5",
+      "tree": "fc3ea1679ba3ff9317a4f25fc0c39ca127909750",
+      "historical_snapshot": true
+    },
+    "evidence_index": "evidence/local-execution-r15/README.md",
+    "progress": "evidence/local-execution-r15/progress-r15.md",
+    "progress_json": "evidence/local-execution-r15/progress-r15.json",
+    "allowlist": "LOCAL/raw/e02-execution-20261027/docs-progress-r15/payload-manifest.json",
+    "payload_count": 165,
+    "uncompressed_bytes": 4007612,
+    "compressed_bytes": 1197377,
+    "stage": "Wave 2 owner composition and uncovered original criteria; Wave 0 done; Wave 1 front executed with open properties; Wave 3 targeted preparation only; Wave 4 final G reconciliation/review not started",
+    "queue_denominator": {
+      "rows": 26,
+      "bundles": 127,
+      "finding_ids": 282,
+      "criterion_occurrences": 291,
+      "task_finding_edges": 319,
+      "expanded_occurrence_row_relations": 331
+    },
+    "new_G_acceptance": false,
+    "new_formal_closure": false,
+    "R9_GY_Atlas": "not started",
+    "evidence_inventory": {"allowlist": "LOCAL/raw/e02-execution-20261027/docs-progress-r15/r2/manifest.json", "payload_count": 165, "canonical_targets": 171, "uncompressed_bytes": 4007612, "compressed_bytes": 1197377, "duplicate_payloads_removed": 20},
+    "source_status_corrections": {
+      "C94_R4": "APPLIED six paths at 2891; runtime/G boundary unchanged",
+      "C78_R7": "APPLIED 23ce; independent bounded SOURCE GO; older R6 HOLD remains historical; runtime tests UNRUN",
+      "C90": "17-file public input carrier composed at 6dea and published R12; held R3 implementation remains unapplied, F01/F02 unresolved",
+      "C106": "eight-path public SOURCE HOLD; fresh-SQL proxy/effective-profile mismatch and complete chain absent"
+    },
+    "later_events_note": "R12 and later d007/c8cd FED derivative updates are outside this R15 source snapshot and do not retag native proof",
+    "source_status_corrections": {
+      "C94_R4": "APPLIED six paths at 2891; runtime/G boundary unchanged",
+      "C78_R7": "APPLIED 23ce; independent bounded SOURCE GO; prior R6 HOLD is historical; runtime controls UNRUN",
+      "C90": "17-file input carrier composed at 6dea and published R12; held R3 implementation unapplied, F01/F02 unresolved",
+      "C106": "eight-path public SOURCE HOLD; fresh-SQL proxy/effective query and complete chain absent"
+    },
+    "later_events_note": "R12 and later d007/c8cd FED derivative updates are outside the 154b source snapshot and do not retag native proof"
+}
 }

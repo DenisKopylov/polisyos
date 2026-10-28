@@ -56,3 +56,9 @@ Latest execution checkpoint proposal: [R14 state and evidence](evidence/local-ex
 
 
 Latest execution checkpoint proposal: [R14 R3 evidence correction](evidence/local-execution-r14/README.md). It adds the 12 deciding child captures omitted from the audited 63-file R14 inventory; the R14 source snapshot remains historical and no runtime result changes.
+
+
+Latest execution checkpoint proposal: [R15 current progress and evidence](evidence/local-execution-r15/README.md). R15 keeps the original queue and route bindings, records bounded outcomes by their own source cuts, and leaves G acceptance/closure separate. The canonical source snapshot is 154b32e; later branch movement does not retag those runs.
+
+
+R15 R2 refines the evidence economy and source-status notes under the exact successor manifest `LOCAL/raw/e02-execution-20261027/docs-progress-r15/r2/manifest.json`; R15 R1 remains immutable.

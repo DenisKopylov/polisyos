@@ -1,0 +1,136 @@
+{
+  "schema": "policyos.e02.execution_state.r15.v1",
+  "prepared_at": "2026-10-28",
+  "source_as_of": {
+    "commit": "154b32e8691f4bfbf216d64e0d7fc95f96d8c0d5",
+    "tree": "fc3ea1679ba3ff9317a4f25fc0c39ca127909750",
+    "readback": "LOCAL/raw/e02-execution-20261027/root-progress-r14-r3/commit/branch-readback.json",
+    "readback_sha256": "e8cee7ea57b4aa3b01c5a637a50a884b5eff9e2d619142e8e9e1e06172d51312",
+    "historical_snapshot": true,
+    "current_at_preparation": {
+      "commit": "6dea075a5052183bb013e6a54a951ef689731c6f",
+      "tree": "090267516a7c64512491501e4a532144bfd43565",
+      "change": "Root-owned 25-file public-input commit; source-neutral for these bound results",
+      "qualification": "not a new result/source-retag"
+    }
+  },
+  "last_confirmed_remote_publication": {
+    "commit": "b349e5c17351b160ff39a8c23c1759a2c522f81f",
+    "tree": "2d297ee70ea7eaee0d4c833b8daa634750f499e5",
+    "readback": "LOCAL/raw/e02-execution-20261027/publication-composed-progress-r11/remote-readback.json",
+    "readback_sha256": "1077f62854641e5e34d31386619cf5cdfe2ffd37d51e85f8fde1263d5ca48209"
+  },
+  "original_plan_stage": {
+    "main": "Wave 2 owner composition and uncovered original criteria",
+    "wave_0": "done",
+    "wave_1": "front executed; properties open",
+    "wave_3": "targeted preparation only; no full freeze/expensive wave",
+    "wave_4": "final G reconciliation/review not started",
+    "canonical_route": "QUEUE.json + PLAN.md + LAUNCH.md + TASKS.json + analysis/criterion-routes.json",
+    "operational_Cnnn_ids": "evidence locators, not task/capability identities",
+    "completion_percentage": null
+  },
+  "queue_denominator": {
+    "rows": 26,
+    "bundles": 127,
+    "unique_finding_ids": 282,
+    "criterion_occurrences": 291,
+    "task_finding_edges": 319,
+    "expanded_occurrence_row_relations": 331,
+    "historical_B198_retained": true,
+    "derived_from": "LOCAL/raw/e02-execution-20261027/analysis/original-queue-next-front-r1/rows.json @ 9568fb61029023d2011242c6e2e95cd28c41589f6385b0bb357a6f90d79add19",
+    "G_acceptance_new": false,
+    "formal_closure_new": false
+  },
+  "evidence_inventory": {
+    "allowlist": "LOCAL/raw/e02-execution-20261027/docs-progress-r15/r2/manifest.json",
+    "payload_count": 165,
+    "canonical_targets": 171,
+    "uncompressed_bytes": 4007612,
+    "compressed_bytes": 1197377,
+    "payload_bytes_reused_from": "LOCAL/raw/e02-execution-20261027/docs-progress-r15/payloads/",
+    "duplicate_payloads_removed": 20
+  },
+  "bounded_results": [
+    {
+      "id": "C60 executable/cache R3",
+      "outcome": "22 PASS; qualified for exercised property",
+      "source": "2891f2988c90fbd31be6e4b6223886508a3235e1",
+      "review_sha256": "27bc791d88fa49212d61891b141c7aadc1e0162c889696d01bc5d46e1f6b7146",
+      "boundary": "not whole-current-source/strict-profile/G closure"
+    },
+    {
+      "id": "C95 fresh-process triplets R4",
+      "outcome": "16 commands; 20 JUnit PASS; qualified with source-provenance limit",
+      "source": "154b32e8691f4bfbf216d64e0d7fc95f96d8c0d5",
+      "review_sha256": "f9cd8a07c47acb48eaa4fd196b31ff2841a13482eedaef40af170a28b7f6161b",
+      "boundary": "manifest_edge/scope_guard callable source hash is docstring only; no LA-017 closure"
+    },
+    {
+      "id": "C60 strict clients R3",
+      "outcome": "1 raw PASS; independent qualification pending",
+      "source": "154b32e8691f4bfbf216d64e0d7fc95f96d8c0d5",
+      "boundary": "full type profile and G acceptance not established"
+    },
+    {
+      "id": "C105 four focused native runs",
+      "outcome": "8 raw PASS across three source cuts",
+      "boundary": "no independent qualification in this proposal; no full capability/acceptance claim"
+    },
+    {
+      "id": "FED scope continuation R5",
+      "outcome": "four expected owner steps process-qualified; exact restore",
+      "source": "154b32e8691f4bfbf216d64e0d7fc95f96d8c0d5",
+      "boundary": "canonical adoption/public review pending; 11 broader native outputs UNRUN"
+    }
+  ],
+  "cloud": {
+    "C110": "partial return, qualification HOLD; 28 UNRUN",
+    "C111": "raw three-phase results; source-origin qualification HOLD",
+    "C112": "source/runtime HOLD; deciding output evidence missing",
+    "C113": "task_e_6ae1fcfe925c8325bf9b191ae87102f5 pending",
+    "C109": "360065-byte actual diff returned; independent review pending",
+    "actual_model": "not_established",
+    "C106": "Eight-path lower-fetch/keyword-forwarding public SOURCE HOLD; fresh-SQL proxy/effective-query boundary and complete producer/admission/basis/fresh-API chain absent"
+  },
+  "source_composition": {
+    "C100": "five paths at 978d9ef61f9498065d2e3ab126c769a0357970b2; no post-composition runtime proof",
+    "selected_posterior": "six paths at 2891f2988c90fbd31be6e4b6223886508a3235e1",
+    "nested_code_identity": "13 paths at 0c0bf5977c2c3ce546a2f14c7c912543a8e6fd70",
+    "C90_R3": "source HOLD; public 17-file carrier GO pending composition/publication",
+    "R9_GY_Atlas": "not started",
+    "C94_R4": {
+      "status": "APPLIED six paths at 2891f2988c90fbd31be6e4b6223886508a3235e1",
+      "readback": "LOCAL/raw/e02-execution-20261027/root-selected-posterior-r4/commit/branch-readback.json",
+      "readback_sha256": "96805e7c45f73c7920e1c5c71ab38c74a098fb1290d23fde3f9ef6a5d4875b73",
+      "runtime": "not newly established",
+      "G_acceptance": false
+    },
+    "C78_R7": {
+      "status": "APPLIED at 23ce492159cc366feed9a73b0ba7d702f1b50c6d / tree 5f52e871f52988d3bee026f8c02c02e0c66618f2; independent bounded SOURCE GO",
+      "review": "LOCAL/raw/e02-execution-20261027/reviews/C78-chain-r7-independent.md",
+      "review_sha256": "94a3919dd21ee19853a0b1be12239c413acf9ccbc3ded77ef6a620e91a949759",
+      "runtime_tests": "UNRUN",
+      "historical_R6_HOLD": "separate historical receipt 8460f309\u2026 remains intact"
+    },
+    "C90_public_input_carrier": {
+      "status": "17 files composed at 6dea075a5052183bb013e6a54a951ef689731c6f and published in R12",
+      "publication_readback_sha256": "9c2b7b89136cd05cc6ba2e284ca6d67e519d446699f7548d9caedb797d7587b3",
+      "implementation": "C90 R3 remains held/unapplied; F01/F02 unresolved"
+    },
+    "C106_eight_path_return": {
+      "status": "public SOURCE HOLD",
+      "review": "cloud-inputs/c106-producer-r2/review.md",
+      "review_sha256": "af92b6f6668a68e240685dbb0366105d7573be578882d4c7c936019ee6b4c40c",
+      "boundary": "cache-disabled/class selection is a fresh-SQL execution proxy; effective query/profile may differ; complete Runtime producer/admission/basis/fresh-API chain absent"
+    },
+    "later_source_events": "R12 publication and later d007/c8cd FED derivative updates are post-snapshot and do not retag R15-native proof"
+  },
+  "continuation_limits": {
+    "G_acceptance_new": false,
+    "formal_closure_new": false,
+    "R9_GY_Atlas": "not started",
+    "queue_bindings_changed": false
+  },
+  "revision": "R15-R2 documentation correction; source snapshot and run bindings unchanged"
+}

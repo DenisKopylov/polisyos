@@ -9,6 +9,7 @@ from tests._helpers.controlled_candidate_profile import (
     ControlledCandidateGateway,
     _configured_procurement_profile,
     _current_compiler_problem,
+    _seed_controlled_selected_skg_source,
 )
 from tests._helpers.generic_n4_served_replay import (
     _RECORDING_ID,
@@ -111,9 +112,17 @@ def test_terminal_n4_attempt_stays_candidate_only_through_fresh_get(
         cas_root=cas_root,
         core_runs_root=cas_root / "runs",
     )
+    source_root = tmp_path / "credal-candidate-source"
+    selected_skg_source = _seed_controlled_selected_skg_source(
+        tmp_path,
+        source_root=source_root,
+        recorded_problem=problem,
+    )
     base_profile, base_declaration = _configured_procurement_profile(
         recorded_problem=problem,
         tmp_path=tmp_path,
+        source_root=source_root,
+        selected_skg_source=selected_skg_source,
         artifact_store=runtime_api_context.store,
         tenant_id=tenant_id,
         cell_id=cell_id,
@@ -126,6 +135,8 @@ def test_terminal_n4_attempt_stays_candidate_only_through_fresh_get(
         )
     root_profile = _generic_profile_for_selection(
         tmp_path=tmp_path,
+        source_root=source_root,
+        selected_skg_source=selected_skg_source,
         base_profile=base_profile,
         base_declaration=base_declaration,
         profile_id="v6-credal-root",

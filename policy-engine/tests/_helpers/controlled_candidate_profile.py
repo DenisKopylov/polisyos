@@ -1022,6 +1022,7 @@ def _materialize_controlled_world_model_build(
     source_world_model_record: Any,
     artifact_store: ArtifactStore,
     tmp_path: Path,
+    source_root: Path | None = None,
     substrate_registry: Any,
     selected_registry_entry_hashes: Sequence[str],
     substrate_registry_ref: Any,
@@ -1038,8 +1039,12 @@ def _materialize_controlled_world_model_build(
     The synthetic fixture aliases its explicit controlled variables onto existing
     canonical runtime paths. It never represents an empirical or live source.
     """
-    source_root = tmp_path / "controlled-candidate-source"
-    expected_skg_path = source_root / "academic-skg.duckdb"
+    admitted_source_root = (
+        Path(source_root).resolve()
+        if source_root is not None
+        else tmp_path / "controlled-candidate-source"
+    )
+    expected_skg_path = admitted_source_root / "academic-skg.duckdb"
     if selected_skg_source.db_path.resolve() != expected_skg_path.resolve():
         raise ValueError("controlled_selected_skg_source_path_mismatch")
     _validate_controlled_skg_source(selected_skg_source)
@@ -1133,11 +1138,13 @@ def _materialize_controlled_world_model_build(
         }
     )
 
-    source_root = tmp_path / "controlled-candidate-source"
+    # The admitted SKG is read-only input; generated artifacts retain their
+    # independent fixture output owner, including when source_root is explicit.
+    output_root = tmp_path / "controlled-candidate-source"
     snapshot_id = "controlled-candidate-source-v1"
-    fabric_root = source_root / "fabric-world"
-    fabric_db = source_root / "fabric-world.duckdb"
-    data_forge_root = source_root / "data-forge" / snapshot_id
+    fabric_root = output_root / "fabric-world"
+    fabric_db = output_root / "fabric-world.duckdb"
+    data_forge_root = output_root / "data-forge" / snapshot_id
     academic_artifact = data_forge_root / "academic" / "academic.jsonl"
     academic_artifact.parent.mkdir(parents=True, exist_ok=True)
     academic_artifact.write_text(
@@ -1345,6 +1352,7 @@ def _materialize_controlled_world_model_record(
     source_world_model_record: Any,
     artifact_store: ArtifactStore,
     tmp_path: Path,
+    source_root: Path | None = None,
     substrate_registry: Any,
     selected_registry_entry_hashes: Sequence[str],
     substrate_registry_ref: Any,
@@ -1362,6 +1370,7 @@ def _materialize_controlled_world_model_record(
         source_world_model_record=source_world_model_record,
         artifact_store=artifact_store,
         tmp_path=tmp_path,
+        source_root=source_root,
         substrate_registry=substrate_registry,
         selected_registry_entry_hashes=selected_registry_entry_hashes,
         substrate_registry_ref=substrate_registry_ref,
@@ -1380,6 +1389,7 @@ def _seed_controlled_selected_skg_source(
     tmp_path: Path,
     *,
     recorded_problem: DesignProblem,
+    source_root: Path | None = None,
 ) -> ControlledSKGSourceSelection:
     """Build a variable-identity-only SKG through its canonical owner.
 
@@ -1392,9 +1402,9 @@ def _seed_controlled_selected_skg_source(
     )
     from tests._helpers.academic_skg import build_synthetic_academic_skg_source
 
-    source_root = tmp_path / "controlled-candidate-source"
-    source_root.mkdir(parents=True, exist_ok=True)
-    db_path = source_root / "academic-skg.duckdb"
+    admitted_source_root = source_root or tmp_path / "controlled-candidate-source"
+    admitted_source_root.mkdir(parents=True, exist_ok=True)
+    db_path = admitted_source_root / "academic-skg.duckdb"
     outcome_variable = recorded_problem.outcome_of_interest.target_variable
     selected_slots = tuple(
         dict.fromkeys(
@@ -1447,6 +1457,7 @@ def _build_configured_procurement_profile(
     tenant_id: str,
     cell_id: str,
     tmp_path: Path,
+    source_root: Path | None = None,
     selected_skg_source: ControlledSKGSourceSelection | None = None,
     repo_root: Path | None = None,
     rule_operator_kind: str = "procurement_shock_intensity",
@@ -1509,6 +1520,7 @@ def _build_configured_procurement_profile(
     ncm = candidate_ncm_spec_from_declaration(model_parameters)
     selected_source = selected_skg_source or _seed_controlled_selected_skg_source(
         tmp_path,
+        source_root=source_root,
         recorded_problem=recorded_problem,
     )
     candidate_slots = tuple(
@@ -1538,6 +1550,7 @@ def _build_configured_procurement_profile(
         source_world_model_record=base_context.world_model_record,
         artifact_store=artifact_store,
         tmp_path=tmp_path,
+        source_root=source_root,
         substrate_registry=base_context.substrate_registry,
         selected_registry_entry_hashes=base_context.selected_registry_entry_hashes,
         substrate_registry_ref=substrate_registry_ref,
@@ -1654,6 +1667,7 @@ def _configured_procurement_profile(
     tenant_id: str,
     cell_id: str,
     tmp_path: Path,
+    source_root: Path | None = None,
     selected_skg_source: ControlledSKGSourceSelection | None = None,
     repo_root: Path | None = None,
     rule_operator_kind: str = "procurement_shock_intensity",
@@ -1673,6 +1687,7 @@ def _configured_procurement_profile(
         tenant_id=tenant_id,
         cell_id=cell_id,
         tmp_path=tmp_path,
+        source_root=source_root,
         selected_skg_source=selected_skg_source,
         repo_root=repo_root,
         rule_operator_kind=rule_operator_kind,

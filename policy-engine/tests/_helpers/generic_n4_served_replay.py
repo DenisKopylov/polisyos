@@ -710,17 +710,20 @@ def _seed_controlled_selected_skg_source(
     tmp_path: Path,
     *,
     recorded_problem: Any,
+    source_root: Path | None = None,
 ) -> ControlledSKGSourceSelection:
     """Use the canonical producer for a candidate-only variable-identity SKG."""
     return _build_candidate_only_skg_source(
         tmp_path,
         recorded_problem=recorded_problem,
+        source_root=source_root,
     )
 
 
 def _generic_profile_for_selection(
     *,
     tmp_path: Path,
+    source_root: Path | None = None,
     base_profile: Any,
     base_declaration: Any,
     profile_id: str,
@@ -827,6 +830,7 @@ def _generic_profile_for_selection(
         source_world_model_record=base_world,
         artifact_store=store,
         tmp_path=tmp_path,
+        source_root=source_root,
         substrate_registry=base_context_inputs.substrate_registry,
         selected_registry_entry_hashes=base_context_inputs.selected_registry_entry_hashes,
         substrate_registry_ref=substrate_registry_ref,
@@ -1114,6 +1118,7 @@ async def prepare_generic_n4_served_replay(
     selected_skg_source = _seed_controlled_selected_skg_source(
         selected_source_root or tmp_path,
         recorded_problem=recorded_problem,
+        source_root=selected_source_root,
     )
     selected_skg_db_path = selected_skg_source.db_path
     selected_skg_version_id = selected_skg_source.version_id
@@ -1141,6 +1146,7 @@ async def prepare_generic_n4_served_replay(
             recorded_problem=recorded_problem,
             tmp_path=tmp_path,
             selected_skg_source=selected_skg_source,
+            source_root=selected_source_root,
             artifact_store=runtime_api_context.store,
             tenant_id=tenant_id,
             cell_id=cell_id,
@@ -1441,6 +1447,7 @@ async def prepare_generic_n4_served_replay(
         generic_child_profiles_list.append(
             _generic_profile_for_selection(
                 tmp_path=tmp_path,
+                source_root=selected_source_root,
                 base_profile=base_profile,
                 base_declaration=base_declaration,
                 profile_id=f"v6-n4-child-{index}",

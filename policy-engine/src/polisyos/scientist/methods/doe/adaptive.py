@@ -36,6 +36,23 @@ class AdaptiveRound:
     stability_score: float = 0.0
 
 
+@dataclass(frozen=True)
+class AdaptiveAttempt:
+    """Observed work for one attempted adaptive round.
+
+    ``evaluator_completed`` is deliberately tri-state.  When an evaluator
+    raises, this coordinator cannot know how many rows the external evaluator
+    completed and must not turn the planned row count into completed work.
+    """
+
+    round_number: int
+    n_trajectories: int
+    phase: str
+    planned_evaluations: int
+    evaluator_completed: int | None
+    error_type: str | None = None
+
+
 @dataclass
 class AdaptiveResult:
     """Result of adaptive sensitivity sampling."""
@@ -45,6 +62,7 @@ class AdaptiveResult:
     converged: bool = False
     total_evaluations: int = 0
     stop_reason: str | None = None
+    attempts: list[AdaptiveAttempt] = field(default_factory=list)
 
 
 class AdaptiveSampler:
@@ -82,6 +100,7 @@ class AdaptiveSampler:
         total_evals = 0
         last_result: SensitivityResult | None = None
         stop_reason: str | None = None
+        attempts: list[AdaptiveAttempt] = []
 
         current_n = self._plan.n_trajectories
 
@@ -106,16 +125,82 @@ class AdaptiveSampler:
                 break
             round_plan = SensitivityPlan(**plan_dict)
 
+            planned_evaluations = round_plan.estimated_runs
             try:
-                samples = generate_sensitivity_samples(round_plan)
-                outputs = evaluator(samples)
-                total_evals += len(outputs)
-                result = analyze_sensitivity(round_plan, samples, outputs)
+                samples = np.asarray(generate_sensitivity_samples(round_plan))
+                if samples.ndim != 2:
+                    raise ValueError(
+                        f"generated samples must be a 2-D array (received ndim={samples.ndim})"
+                    )
+                if samples.shape[1] != len(round_plan.parameter_specs):
+                    raise ValueError(
+                        "generated sample column count must match parameter_specs "
+                        f"({samples.shape[1]} != {len(round_plan.parameter_specs)})"
+                    )
+                sample_count = samples.shape[0]
             except Exception as exc:
+                attempts.append(
+                    AdaptiveAttempt(
+                        round_num,
+                        current_n,
+                        "generation",
+                        planned_evaluations,
+                        0,
+                        type(exc).__name__,
+                    )
+                )
                 if last_result is None:
                     raise
-                stop_reason = f"adaptive_round_failed:{type(exc).__name__}"
+                stop_reason = f"adaptive_generation_failed:{type(exc).__name__}"
                 break
+            try:
+                outputs = np.asarray(evaluator(samples))
+                if outputs.ndim != 1:
+                    raise ValueError(
+                        f"evaluator output must be a 1-D array (received ndim={outputs.ndim})"
+                    )
+                if outputs.shape[0] != sample_count:
+                    raise ValueError(
+                        "evaluator output length must match generated samples "
+                        f"({outputs.shape[0]} != {sample_count})"
+                    )
+                output_count = outputs.shape[0]
+            except Exception as exc:
+                attempts.append(
+                    AdaptiveAttempt(
+                        round_num,
+                        current_n,
+                        "evaluation",
+                        sample_count,
+                        None,
+                        type(exc).__name__,
+                    )
+                )
+                if last_result is None:
+                    raise
+                stop_reason = f"adaptive_evaluation_failed:{type(exc).__name__}"
+                break
+            total_evals += output_count
+            try:
+                result = analyze_sensitivity(round_plan, samples, outputs)
+            except Exception as exc:
+                attempts.append(
+                    AdaptiveAttempt(
+                        round_num,
+                        current_n,
+                        "analysis",
+                        sample_count,
+                        output_count,
+                        type(exc).__name__,
+                    )
+                )
+                if last_result is None:
+                    raise
+                stop_reason = f"adaptive_analysis_failed:{type(exc).__name__}"
+                break
+            attempts.append(
+                AdaptiveAttempt(round_num, current_n, "completed", sample_count, output_count)
+            )
             last_result = result
 
             current_indices = self._extract_primary_indices(result)
@@ -140,6 +225,7 @@ class AdaptiveSampler:
                     rounds=rounds,
                     converged=True,
                     total_evaluations=total_evals,
+                    attempts=attempts,
                 )
 
             prev_ranking = result.ranking
@@ -157,6 +243,7 @@ class AdaptiveSampler:
             converged=False,
             total_evaluations=total_evals,
             stop_reason=stop_reason,
+            attempts=attempts,
         )
 
     def _extract_primary_indices(self, result: SensitivityResult) -> dict[str, float]:

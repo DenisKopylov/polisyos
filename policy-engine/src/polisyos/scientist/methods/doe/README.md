@@ -46,6 +46,26 @@ the plan seed remains a separate request input.  Seeded Morris/Sobol streams
 are isolated; seeded FAST remains `compatibility_pending` because SALib 1.5.2
 mutates process-global NumPy state.
 
+## Adaptive execution accounting
+
+`AdaptiveSampler` preserves the caller's large-run permission and admits each
+expanded design before invoking the evaluator. Its additive `attempts` history
+distinguishes generation, evaluation, analysis, and completed rounds. Counts
+describe only observed work: an evaluator exception has an unknown completed
+row count rather than inheriting the planned design size. Malformed sample and
+output shapes fail inside their owning phase boundary. After at least one valid
+round, a later failure returns that last completed scientific result without an
+extra evaluation; a first-round failure is propagated.
+
+These in-memory attempt records are operational observations, not USD charges,
+durable provenance, independent replicas, or evidence that the design is
+scientifically sufficient. Monetary settlement requires an admitted typed
+bridge to the orchestration budget owner; none is inferred from row counts.
+
+Focused coordinator-fault tests may explicitly inject synthetic collaborators.
+Real-backend verification must separately run the locked SALib sampler and
+analyzer; an unavailable backend is a missing verification profile, not a pass.
+
 ## Morris trajectory admission
 
 Point analysis, PCA component analysis, and elementary-effect uncertainty admit
@@ -88,7 +108,7 @@ Details: [Reference →](../../../../../docs/reference/scientist/index.md)
 
 ## Current state
 
-- Last updated: 2026-10-14
+- Last updated: 2026-10-27
 - Python modules: 11
 - Exports: 82
 - README reflects that `doe` remains upstream for search/stress flows.

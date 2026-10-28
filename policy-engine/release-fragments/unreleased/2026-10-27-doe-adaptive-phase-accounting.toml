@@ -1,0 +1,11 @@
+id = "2026-10-27-doe-adaptive-phase-accounting"
+title = "Preserve adaptive DOE results across phase failures"
+type = "fixed"
+component = "scientist-doe"
+owner = "team-polisyos"
+summary = "Adaptive DOE validates generated samples and evaluator outputs inside explicit phase boundaries, preserves the last completed round, and records unknown external work without fabrication."
+evidence = ["tests/unit/remediation/test_doe_01.py", "docs/research/e02-cloud-test-plan/implementation-handoffs/C56/cloud/e02-c56-20261028-r1/doe-test.txt"]
+compatibility = "The additive in-memory attempts history remains compatible with existing AdaptiveResult consumers; malformed sample and output shapes now fail explicitly."
+surface_classification = "internal: polisyos.scientist.methods.doe; supported Scientist entrypoints unchanged"
+migration = "Consumers may inspect AdaptiveResult.attempts for phase-specific operational observations; do not interpret them as durable provenance or monetary settlement."
+limitations = "The C56 author runtime used synthetic coordinator collaborators and skipped unavailable SALib modules; real-backend and composed checks require separate evidence. No USD conversion, durable attempt artifact, replica/cache binding, G acceptance, or formal finding closure is claimed."

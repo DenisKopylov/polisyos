@@ -1,0 +1,28 @@
+id = "2026-10-28-e02-compile-state-array-views"
+title = "Accept admitted workflow array views at method metric compilation"
+type = "fixed"
+component = "scientist-foundry"
+owner = "team-policyos-runtime"
+summary = "CompileFoundryNode accepts admitted list views; candidate comparison reconciles the complete canonical method graph, operators, selected lowering and execution order before projecting proven source identities."
+evidence = ["tests/unit/scientist/nodes/builtins/compile/test_compile_foundry_state_views.py", "tests/unit/runtime/http/test_observational_method_runtime.py"]
+change_class = "python-public-api"
+surface_classification = "public additive Foundry read-only replay facade; internal canonical compile intake and candidate comparison"
+compatibility = "No DTO, schema, endpoint or generated client shape changes. A valid JSON array remains admissible after the existing engine wraps it in its state view. Arbitrary sequences, booleans, extra binding fields and oversized inventories remain refused."
+migration = "Rerun affected workflow sources and read back actual compiled binding artifacts; do not synthesize selections or metric values for older failed runs."
+limitations = "Source proposal only until focused real engine/compiler and negative checks run. The first R5 source failed at compile intake before simulation, source B or planner; C48 comparison and broader C05/C71/G authority remain unqualified."
+generated_client_compatibility = "unchanged_wire_shape; no generated Foundry method stub is owned by this compile facade"
+public_surface_inventory_reviewed = true
+
+[[compatibility_change]]
+id = "foundry-read-only-method-graph-replay"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.foundry.compile.replay_method_program_graph"
+owner = "team-policyos-foundry"
+version_owner = "team-architecture"
+deprecation_window = "Not applicable: additive read-only API; existing compile entrypoint remains supported."
+release_note = "Expose canonical zero-mechanism method graph and execution-order replay for selected-content verification; completed-source and metric authority remain with their existing owners."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/foundry/README.md", "src/polisyos/scientist/nodes/README.md"]
+runbook_docs = []

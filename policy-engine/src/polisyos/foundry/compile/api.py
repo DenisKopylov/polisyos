@@ -10,11 +10,20 @@ envelope when compilation cannot produce an executable plan.
 from __future__ import annotations
 
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
-from polisyos.core.artifacts.manifest import InputRef
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.compiler.report import CompileReport, put_compile_report
-from polisyos.core.contracts.foundry import CompileRequest, CompileResult
+from polisyos.core.contracts.execution_plan import ExecutionPlan
+from polisyos.core.contracts.foundry import (
+    CompileRequest,
+    CompileResult,
+    LoweredIR,
+    LoweredIRRef,
+    ProgramGraph,
+)
 from polisyos.foundry._artifact_capabilities import resolve_core_json_profile_store
+from polisyos.ir.kernel import ConstraintRegistry
+from polisyos.ir.trinity import TrinityBundle
 
 
 def compile(store: ArtifactStore, request: CompileRequest) -> CompileResult:
@@ -114,3 +123,75 @@ def _compile_exception(
         derived_refs=[],
         notes=notes,
     )
+
+
+def replay_method_program_graph(
+    *,
+    policy: TrinityBundle,
+    policy_ref: ArtifactRef,
+    lowered_ir: LoweredIR,
+    lowered_ir_ref: LoweredIRRef,
+    method_plan: ExecutionPlan,
+    constraint_registry: ConstraintRegistry,
+) -> tuple[ProgramGraph, list[str]]:
+    """Recompute the compiler's complete zero-mechanism method graph without CAS I/O.
+
+    Callers own bounded content reads and exact selected-profile reconciliation.
+    This facade validates the selected lowering against Trinity, then delegates
+    graph construction and ordering to the same owners used by ``compile``.
+    It grants no completed-source or metric authority.
+
+    Args:
+        policy: Content-read selected Trinity bundle.
+        policy_ref: Exact selected reference for that bundle.
+        lowered_ir: Content-read lowering from the selected compiler lineage.
+        lowered_ir_ref: Exact selected reference for that lowering.
+        method_plan: Content-read selected Scientist method plan.
+        constraint_registry: Content-read selected registry constraint member.
+
+    Returns:
+        The complete canonical graph and its deterministic execution order.
+
+    Raises:
+        ValueError: If enabled mechanisms are outside this replay profile or
+            the selected lowering disagrees with its Trinity source.
+    """
+    from ._graph import build_exec_order, build_program_graph
+    from ._lowering import _lower_constraints, audit_trinity_field_coverage
+
+    if any(item.enabled for item in policy.policy_spec.interventions) or lowered_ir.mechanisms:
+        raise ValueError("method_graph_replay_mechanisms_unsupported")
+    constraints, notes = _lower_constraints(policy.problem_frame, constraint_registry)
+    expected_lowering = LoweredIR(
+        schema_version="0.2",
+        ir_ref=policy_ref,
+        mechanisms=[],
+        constraints=constraints,
+        parameter_specs=[item.model_dump(mode="json") for item in policy.policy_spec.parameters],
+        time_semantics=(
+            policy.model_spec.time_semantics.model_dump(mode="json")
+            if policy.model_spec.time_semantics is not None
+            else None
+        ),
+        environment_config=(
+            policy.model_spec.environment_config.model_dump(mode="json")
+            if policy.model_spec.environment_config is not None
+            else None
+        ),
+        policy_fidelity_level=policy.model_spec.fidelity_level.value,
+        constraint_mode="hard_soft_v1",
+        notes=sorted(set(audit_trinity_field_coverage(strict=True) + notes)),
+    )
+    if lowered_ir != expected_lowering:
+        raise ValueError("method_graph_replay_lowering_mismatch")
+    # Both mechanism inventories are established empty above: the shared builder
+    # never enters its store-reading mechanism/slot-transfer branch in this profile.
+    graph, _ = build_program_graph(
+        None,
+        ir_ref=policy_ref,
+        lowered_ir_ref=lowered_ir_ref,
+        mechanisms=lowered_ir.mechanisms,
+        constraint_ids=[item.constraint_id for item in lowered_ir.constraints],
+        method_plan=method_plan,
+    )
+    return graph, build_exec_order(graph)

@@ -984,6 +984,7 @@ def _exercise_public_execute_method_metric_source(
     attempt: int = 1,
     capture_only: bool = False,
     prepare_only: bool = False,
+    canonical_compile: bool = False,
     request: pytest.FixtureRequest | None = None,
     scenario_values: tuple[float, ...] | None = None,
     baseline_values: tuple[float, ...] | None = None,
@@ -1468,44 +1469,94 @@ def _exercise_public_execute_method_metric_source(
             "method_fqn": method_signature.fqn,
             "computed_method_outputs": method_execution_outputs.copy(),
         }
-    lowered_ir = LoweredIR(ir_ref=trinity_ref, mechanisms=[], constraints=[])
-    lowered_ir_ref = store.put_json(
-        lowered_ir,
-        PutOptions(
-            kind="foundry.lowered_ir",
-            media_type="application/json",
-            inputs=[input_ref_from_artifact_ref(trinity_ref, role="ir")],
-        ),
-        canon_spec=CanonSpec(forbid_floats=False),
-        return_selected_profile=True,
-    )
-    graph = ProgramGraph(
-        ir_ref=trinity_ref,
-        lowered_ir_ref=LoweredIRRef.model_validate(lowered_ir_ref.model_dump(mode="python")),
-        nodes=[
-            ProgramNode(
-                node_id="ex_ante_node",
-                node_kind="method",
-                method_fqn=method_signature.fqn,
-                method_version=method_signature.version,
-                inputs=["baseline", "scenario"],
-            )
-        ],
-        edges=[],
-        entrypoints=["ex_ante_node"],
-    )
-    graph_ref_raw = _put_selected(
-        graph,
-        kind=ProgramGraph.ARTIFACT_KIND,
-        schema_name=ProgramGraph.ARTIFACT_SCHEMA_NAME,
-        schema_version=ProgramGraph.ARTIFACT_SCHEMA_VERSION,
-        inputs=[
-            input_ref_from_artifact_ref(trinity_ref, role="ir"),
-            input_ref_from_artifact_ref(lowered_ir_ref, role="lowered_ir"),
-            input_ref_from_artifact_ref(registry.bundle_ref, role="registry_bundle"),
-        ],
-    )
-    graph_ref = ProgramGraphRef.model_validate(graph_ref_raw.model_dump(mode="python"))
+    if canonical_compile:
+        from polisyos.core.contracts.foundry import CompileRequest, MethodMetricBindingRequest
+        from polisyos.foundry.compile import compile as compile_actual
+        from polisyos.scientist.orchestration.llm.cycle import persist_candidate_execution_plan
+
+        selected_plan = ExecutionPlan(
+            plan_id=f"{run_id}-comparison-method-plan",
+            run_id=run_id,
+            method_dag=[
+                MethodDagNode(
+                    node_id="ex_ante_node",
+                    method_fqn=method_signature.fqn,
+                    method_version=method_signature.version,
+                    backend=method_signature.execution_backend.value,
+                    params={"poverty_line": None},
+                    reads_slots=["baseline", "scenario"],
+                    writes_slots=["result"],
+                )
+            ],
+        )
+        selected_plan_ref, trinity_ref = persist_candidate_execution_plan(
+            store, selected_plan, trinity_ref
+        )
+        compiled = compile_actual(
+            store,
+            CompileRequest(
+                schema_version="1.2",
+                policy_ref=trinity_ref,
+                registry_bundle_ref=registry.bundle_ref,
+                method_execution_plan_ref=selected_plan_ref,
+                method_metric_bindings=[
+                    MethodMetricBindingRequest(
+                        objective_id=objective_id, node_id="ex_ante_node", output_slot_id="result"
+                    )
+                ],
+                return_selected_profile=True,
+            ),
+        )
+        assert compiled.ok is True, compiled.notes
+        compiled_refs = {item.role: item.ref for item in compiled.derived_refs}
+        graph_ref = ProgramGraphRef.model_validate(
+            compiled_refs["program_graph"].model_dump(mode="python")
+        )
+        graph = validate_core_model_json_artifact(ProgramGraph, store, graph_ref)
+        compiled_plan = validate_core_model_json_artifact(ExecPlan, store, compiled.exec_plan_ref)
+        compiled_bindings = validate_core_model_json_artifact(
+            MethodMetricBindingSet, store, compiled_refs["method_metric_binding_set"]
+        )
+        assert len(compiled_bindings.bindings) == 1
+    else:
+        lowered_ir = LoweredIR(ir_ref=trinity_ref, mechanisms=[], constraints=[])
+        lowered_ir_ref = store.put_json(
+            lowered_ir,
+            PutOptions(
+                kind="foundry.lowered_ir",
+                media_type="application/json",
+                inputs=[input_ref_from_artifact_ref(trinity_ref, role="ir")],
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        graph = ProgramGraph(
+            ir_ref=trinity_ref,
+            lowered_ir_ref=LoweredIRRef.model_validate(lowered_ir_ref.model_dump(mode="python")),
+            nodes=[
+                ProgramNode(
+                    node_id="ex_ante_node",
+                    node_kind="method",
+                    method_fqn=method_signature.fqn,
+                    method_version=method_signature.version,
+                    inputs=["baseline", "scenario"],
+                )
+            ],
+            edges=[],
+            entrypoints=["ex_ante_node"],
+        )
+        graph_ref_raw = _put_selected(
+            graph,
+            kind=ProgramGraph.ARTIFACT_KIND,
+            schema_name=ProgramGraph.ARTIFACT_SCHEMA_NAME,
+            schema_version=ProgramGraph.ARTIFACT_SCHEMA_VERSION,
+            inputs=[
+                input_ref_from_artifact_ref(trinity_ref, role="ir"),
+                input_ref_from_artifact_ref(lowered_ir_ref, role="lowered_ir"),
+                input_ref_from_artifact_ref(registry.bundle_ref, role="registry_bundle"),
+            ],
+        )
+        graph_ref = ProgramGraphRef.model_validate(graph_ref_raw.model_dump(mode="python"))
     binding = MethodMetricBinding(
         binding_id="method_metric_ex_ante_binding",
         objective_id=objective_id,
@@ -1546,6 +1597,8 @@ def _exercise_public_execute_method_metric_source(
         registered_law_identity=law_identity,
         registered_semantics_match=True,
     )
+    if canonical_compile:
+        binding = compiled_bindings.bindings[0]
     actual_method_output = ExAnteSimulationEstimator.pure_step(
         {"baseline": baseline, "scenario": scenario},
         {"poverty_line": None},
@@ -1575,43 +1628,49 @@ def _exercise_public_execute_method_metric_source(
             sibling_semantics,
         )
 
-    binding_set = MethodMetricBindingSet(
-        program_graph_ref=graph_ref,
-        policy_ref=trinity_ref,
-        registry_bundle_ref=registry.bundle_ref,
-        metric_registry_ref=registry.metric_registry,
-        units_registry_ref=registry.units_registry,
-        bindings=[binding],
-    )
-    binding_ref = _put_selected(
-        binding_set,
-        kind=MethodMetricBindingSet.ARTIFACT_KIND,
-        schema_name=MethodMetricBindingSet.ARTIFACT_SCHEMA_NAME,
-        schema_version=MethodMetricBindingSet.ARTIFACT_SCHEMA_VERSION,
-        inputs=[
-            input_ref_from_artifact_ref(graph_ref, role="program_graph"),
-            input_ref_from_artifact_ref(trinity_ref, role="policy"),
-            input_ref_from_artifact_ref(registry.bundle_ref, role="registry_bundle"),
-            input_ref_from_artifact_ref(registry.metric_registry, role="metric_registry"),
-            input_ref_from_artifact_ref(registry.units_registry, role="units_registry"),
-        ],
-    )
-    plan_raw_ref = _put_selected(
-        ExecPlan(
-            program_ref=graph_ref,
-            order=["ex_ante_node"],
-            mode="dev",
-            jit=False,
-        ),
-        kind=ExecPlan.ARTIFACT_KIND,
-        schema_name=ExecPlan.ARTIFACT_SCHEMA_NAME,
-        schema_version=ExecPlan.ARTIFACT_SCHEMA_VERSION,
-        inputs=[
-            input_ref_from_artifact_ref(graph_ref, role="program_graph"),
-            input_ref_from_artifact_ref(binding_ref, role="method_metric_bindings"),
-        ],
-    )
-    plan_ref = ExecPlanRef.model_validate(plan_raw_ref.model_dump(mode="python"))
+    if canonical_compile:
+        binding_set = compiled_bindings
+        binding_ref = compiled_refs["method_metric_binding_set"]
+        plan_ref = compiled.exec_plan_ref
+        assert plan_ref is not None
+    else:
+        binding_set = MethodMetricBindingSet(
+            program_graph_ref=graph_ref,
+            policy_ref=trinity_ref,
+            registry_bundle_ref=registry.bundle_ref,
+            metric_registry_ref=registry.metric_registry,
+            units_registry_ref=registry.units_registry,
+            bindings=[binding],
+        )
+        binding_ref = _put_selected(
+            binding_set,
+            kind=MethodMetricBindingSet.ARTIFACT_KIND,
+            schema_name=MethodMetricBindingSet.ARTIFACT_SCHEMA_NAME,
+            schema_version=MethodMetricBindingSet.ARTIFACT_SCHEMA_VERSION,
+            inputs=[
+                input_ref_from_artifact_ref(graph_ref, role="program_graph"),
+                input_ref_from_artifact_ref(trinity_ref, role="policy"),
+                input_ref_from_artifact_ref(registry.bundle_ref, role="registry_bundle"),
+                input_ref_from_artifact_ref(registry.metric_registry, role="metric_registry"),
+                input_ref_from_artifact_ref(registry.units_registry, role="units_registry"),
+            ],
+        )
+        plan_raw_ref = _put_selected(
+            ExecPlan(
+                program_ref=graph_ref,
+                order=["ex_ante_node"],
+                mode="dev",
+                jit=False,
+            ),
+            kind=ExecPlan.ARTIFACT_KIND,
+            schema_name=ExecPlan.ARTIFACT_SCHEMA_NAME,
+            schema_version=ExecPlan.ARTIFACT_SCHEMA_VERSION,
+            inputs=[
+                input_ref_from_artifact_ref(graph_ref, role="program_graph"),
+                input_ref_from_artifact_ref(binding_ref, role="method_metric_bindings"),
+            ],
+        )
+        plan_ref = ExecPlanRef.model_validate(plan_raw_ref.model_dump(mode="python"))
     request = ExecuteRequest(
         exec_plan_ref=plan_ref,
         input_bindings_ref=input_bindings.input_bindings_ref,
@@ -1750,7 +1809,10 @@ def _exercise_public_execute_method_metric_source(
         _put_selected(
             ExecPlan(
                 program_ref=graph_ref,
-                order=["ex_ante_node"],
+                order=compiled_plan.order if canonical_compile else ["ex_ante_node"],
+                policy_fidelity_level=compiled_plan.policy_fidelity_level
+                if canonical_compile
+                else None,
                 mode="dev",
                 jit=False,
             ),
@@ -3908,7 +3970,9 @@ def test_completed_ex_ante_rank_projection_replays_selected_source_and_refuses_s
         recompute_completed_ex_ante_rank_projection,
     )
 
-    artifacts = _exercise_public_execute_method_metric_source(tmp_path, monkeypatch)
+    artifacts = _exercise_public_execute_method_metric_source(
+        tmp_path, monkeypatch, canonical_compile=True
+    )
     basis = artifacts["projection"].basis
     candidate_ref = artifacts["candidate_ref"]
     projection = recompute_completed_ex_ante_rank_projection(
@@ -4014,6 +4078,7 @@ def test_two_ex_ante_sources_require_same_complete_comparison_basis(
             job_id=f"job-{name}",
             run_id=f"run-{name}",
             scenario_values=values,
+            canonical_compile=True,
         )
         for name, values in (
             ("a", (11.0, 18.0, 44.0)),
@@ -4042,7 +4107,11 @@ def test_ex_ante_rank_comparison_detects_changed_baseline(
     )
 
     first = _exercise_public_execute_method_metric_source(
-        tmp_path / "a", monkeypatch, job_id="job-baseline-a", run_id="run-baseline-a"
+        tmp_path / "a",
+        monkeypatch,
+        job_id="job-baseline-a",
+        run_id="run-baseline-a",
+        canonical_compile=True,
     )
     second = _exercise_public_execute_method_metric_source(
         tmp_path / "b",
@@ -4050,6 +4119,7 @@ def test_ex_ante_rank_comparison_detects_changed_baseline(
         job_id="job-baseline-b",
         run_id="run-baseline-b",
         baseline_values=(10.0, 20.0, 41.0),
+        canonical_compile=True,
     )
     a, b = (
         recompute_completed_ex_ante_rank_projection(
@@ -4079,6 +4149,7 @@ def test_ex_ante_rank_refuses_actual_snapshot_different_from_candidate(
         artifact_store=store,
         scenario_values=(12.0, 20.0, 44.0),
         prepare_only=True,
+        canonical_compile=True,
     )
     mismatched = _exercise_public_execute_method_metric_source(
         tmp_path / "a",
@@ -4086,6 +4157,7 @@ def test_ex_ante_rank_refuses_actual_snapshot_different_from_candidate(
         artifact_store=store,
         execution_data_snapshot_ref=b["data_snapshot_ref"],
         expected_executed_mean=2.0,
+        canonical_compile=True,
     )
     # The seam uses the existing test-double owner; it establishes a real
     # Foundry source join, not an actual completed Runtime-job receipt.
@@ -4116,6 +4188,7 @@ def test_ex_ante_rank_refuses_body_to_selected_snapshot_edge_mismatch(
         artifact_store=store,
         scenario_values=(12.0, 20.0, 44.0),
         prepare_only=True,
+        canonical_compile=True,
     )
     mismatch = _exercise_public_execute_method_metric_source(
         tmp_path / "a",
@@ -4124,6 +4197,7 @@ def test_ex_ante_rank_refuses_body_to_selected_snapshot_edge_mismatch(
         candidate_data_snapshot_edge_ref=b["data_snapshot_ref"],
         execution_data_snapshot_ref=b["data_snapshot_ref"],
         expected_executed_mean=2.0,
+        canonical_compile=True,
     )
     assert mismatch["projection"].status == "selected"
     result = recompute_completed_ex_ante_rank_projection(
@@ -4153,6 +4227,7 @@ def test_candidate_comparison_reselects_each_source_before_return(
             job_id=f"job-{name}",
             run_id=f"run-{name}",
             scenario_values=values,
+            canonical_compile=True,
         )
         for name, values in (("a", (11.0, 18.0, 44.0)), ("b", (12.0, 20.0, 44.0)))
     ]
@@ -4210,10 +4285,20 @@ def test_ex_ante_rank_comparison_detects_actual_seed_drift(
     )
 
     first = _exercise_public_execute_method_metric_source(
-        tmp_path / "a", monkeypatch, job_id="job-seed-a", run_id="run-seed-a", execution_seed=41
+        tmp_path / "a",
+        monkeypatch,
+        job_id="job-seed-a",
+        run_id="run-seed-a",
+        execution_seed=41,
+        canonical_compile=True,
     )
     second = _exercise_public_execute_method_metric_source(
-        tmp_path / "b", monkeypatch, job_id="job-seed-b", run_id="run-seed-b", execution_seed=42
+        tmp_path / "b",
+        monkeypatch,
+        job_id="job-seed-b",
+        run_id="run-seed-b",
+        execution_seed=42,
+        canonical_compile=True,
     )
     a, b = (
         recompute_completed_ex_ante_rank_projection(
@@ -4224,3 +4309,208 @@ def test_ex_ante_rank_comparison_detects_actual_seed_drift(
     assert a.status == b.status == "selected"
     assert a.maximizing_coordinate == b.maximizing_coordinate == pytest.approx(1.0)
     assert a.comparison_contract_sha256 != b.comparison_contract_sha256
+
+
+def test_actual_compiler_rank_comparison_accepts_identical_sources(tmp_path, monkeypatch):
+    """A/A is established before testing the bounded A/B model-input contrast."""
+    from polisyos.scientist.nodes.builtins.decide.policy_runtime_method_metrics import (
+        recompute_completed_ex_ante_rank_projection,
+    )
+
+    sources = [
+        _exercise_public_execute_method_metric_source(
+            tmp_path / name,
+            monkeypatch,
+            run_id=f"run-{name}",
+            job_id=f"job-{name}",
+            canonical_compile=True,
+        )
+        for name in ("same-a", "same-b")
+    ]
+    ranks = [
+        recompute_completed_ex_ante_rank_projection(
+            item["store"], basis=item["projection"].basis, candidate_ref=item["candidate_ref"]
+        )
+        for item in sources
+    ]
+    assert all(item.status == "selected" for item in ranks), ranks
+    assert [item.maximizing_coordinate for item in ranks] == pytest.approx([1.0, 1.0])
+    assert ranks[0].comparison_contract_sha256 == ranks[1].comparison_contract_sha256
+
+
+def test_actual_compiler_comparison_reconciles_whole_operator_closure(tmp_path, monkeypatch):
+    """Real compiled models admit once; auxiliary/edge/order/profile edits fail closed."""
+    from polisyos.core.artifacts import validate_core_model_json_artifact
+    from polisyos.core.artifacts.registry import RegistryBundlePayload
+    from polisyos.core.contracts.foundry import (
+        ExecPlan,
+        MethodExecutionBundle,
+        MethodMetricBindingSet,
+        ProgramGraph,
+    )
+    from polisyos.ir.trinity import TrinityBundle
+    from polisyos.scientist.nodes.builtins.decide.policy_runtime_method_metrics import (
+        _compiled_method_comparison_graph,
+        _ProjectionReadBudget,
+        _selected_ref,
+    )
+
+    source = _exercise_public_execute_method_metric_source(
+        tmp_path, monkeypatch, canonical_compile=True
+    )
+    store = source["store"]
+    bundle = validate_core_model_json_artifact(MethodExecutionBundle, store, source["bundle_ref"])
+    bindings = validate_core_model_json_artifact(
+        MethodMetricBindingSet, store, source["binding_ref"]
+    )
+    graph = validate_core_model_json_artifact(ProgramGraph, store, bundle.program_graph_ref)
+    plan = validate_core_model_json_artifact(ExecPlan, store, bundle.exec_plan_ref)
+    manifest = store.get_manifest(bundle.program_graph_ref)
+    policy = validate_core_model_json_artifact(TrinityBundle, store, bindings.policy_ref)
+    registry = validate_core_model_json_artifact(
+        RegistryBundlePayload, store, bindings.registry_bundle_ref
+    )
+    methods = {node.node_id for node in graph.nodes if node.node_kind == "method"}
+    assert methods == {"ex_ante_node"}
+    ops = {
+        node.op.op_kind: node.node_id
+        for node in graph.nodes
+        if node.node_kind == "op" and node.op is not None
+    }
+    assert {"merge_state", "check_constraints"} <= ops.keys()
+    edges = {(edge.src, edge.dst, edge.relation) for edge in graph.edges}
+    assert ("ex_ante_node", ops["merge_state"], "depends_on") in edges
+    assert (ops["merge_state"], ops["check_constraints"], "depends_on") in edges
+    assert set(plan.order) == {node.node_id for node in graph.nodes}
+
+    def replay(current_graph=graph, current_plan=plan, current_manifest=manifest):
+        return _compiled_method_comparison_graph(
+            store,
+            graph=current_graph,
+            graph_manifest=current_manifest,
+            plan=current_plan,
+            policy=policy,
+            policy_ref=_selected_ref(bindings.policy_ref, kind="ir.trinity_bundle"),
+            registry_bundle=registry,
+            registry_bundle_ref=_selected_ref(
+                bindings.registry_bundle_ref, kind="core.registry_bundle"
+            ),
+            registry_bundle_manifest=store.get_manifest(bindings.registry_bundle_ref),
+            read_budget=_ProjectionReadBudget(),
+        )
+
+    admitted = replay()
+    assert admitted is not None
+    assert admitted["graph"]["nodes"] == graph.model_dump(mode="json")["nodes"]
+    assert admitted["plan"]["order"] == plan.order
+    assert "constraints" in admitted["lowering"]
+    check = next(node for node in graph.nodes if node.node_id == ops["check_constraints"])
+    changed_check = check.model_copy(
+        update={"op": check.op.model_copy(update={"params": {"constraint_ids": ["invented"]}})}
+    )
+    variants = [
+        (
+            graph.model_copy(
+                update={
+                    "nodes": [node for node in graph.nodes if node.node_id != ops["merge_state"]]
+                }
+            ),
+            plan,
+            manifest,
+        ),
+        (
+            graph.model_copy(
+                update={
+                    "nodes": [
+                        changed_check if node.node_id == check.node_id else node
+                        for node in graph.nodes
+                    ]
+                }
+            ),
+            plan,
+            manifest,
+        ),
+        (graph.model_copy(update={"edges": graph.edges[:-1]}), plan, manifest),
+        (graph, plan.model_copy(update={"order": list(reversed(plan.order))}), manifest),
+        (graph, plan.model_copy(update={"order": plan.order[:-1]}), manifest),
+        (
+            graph,
+            plan,
+            manifest.model_copy(
+                update={
+                    "inputs": [
+                        edge for edge in manifest.inputs if edge.role != "execution_plan_source"
+                    ]
+                }
+            ),
+        ),
+        (
+            graph,
+            plan,
+            manifest.model_copy(
+                update={
+                    "inputs": [
+                        edge.model_copy(update={"manifest_profile_sha256": "sha256:" + "f" * 64})
+                        if edge.role == "execution_plan_source"
+                        else edge
+                        for edge in manifest.inputs
+                    ]
+                }
+            ),
+        ),
+    ]
+    for changed_graph, changed_plan, changed_manifest in variants:
+        with pytest.raises((ValueError, OSError)):
+            replay(changed_graph, changed_plan, changed_manifest)
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.contracts.execution_plan import ExecutionPlan
+    from polisyos.core.contracts.foundry import LoweredConstraint, LoweredIR, LoweredIRRef
+    from polisyos.foundry.compile import replay_method_program_graph
+    from polisyos.ir.kernel import ConstraintRegistry
+
+    lowered = validate_core_model_json_artifact(LoweredIR, store, graph.lowered_ir_ref)
+    constraint_registry = validate_core_model_json_artifact(
+        ConstraintRegistry, store, registry.constraint_registry
+    )
+    source_edge = next(edge for edge in manifest.inputs if edge.role == "execution_plan_source")
+    method_plan = validate_core_model_json_artifact(
+        ExecutionPlan,
+        store,
+        ArtifactRef(
+            artifact_id=source_edge.artifact_id,
+            kind="scientist.execution_plan",
+            media_type="application/json",
+            manifest_profile_sha256=source_edge.manifest_profile_sha256,
+        ),
+    )
+    for lowering_update in (
+        {"constraint_mode": "invented"},
+        {"environment_config": {"invented": True}},
+        {"parameter_specs": [{"invented": True}]},
+        {
+            "constraints": [
+                LoweredConstraint(
+                    constraint_id="invented",
+                    severity="hard",
+                    slot_id="baseline",
+                    operator=">=",
+                    expected="9",
+                )
+            ]
+        },
+    ):
+        with pytest.raises(ValueError, match="method_graph_replay_lowering_mismatch"):
+            replay_method_program_graph(
+                policy=policy,
+                policy_ref=bindings.policy_ref,
+                lowered_ir=lowered.model_copy(update=lowering_update),
+                lowered_ir_ref=LoweredIRRef.model_validate(
+                    graph.lowered_ir_ref.model_dump(mode="python")
+                ),
+                method_plan=method_plan,
+                constraint_registry=constraint_registry,
+            )
+    second_method = next(node for node in graph.nodes if node.node_kind == "method").model_copy(
+        update={"node_id": "other_method"}
+    )
+    assert replay(graph.model_copy(update={"nodes": [*graph.nodes, second_method]})) is None

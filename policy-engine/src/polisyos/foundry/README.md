@@ -400,3 +400,11 @@ compile artifacts are emitted. Empty selected plans and absent selected refs
 retain the legacy mechanism-only route; request versions 1.0 and 1.1 retain
 their no-plan behavior. This candidate execution chain does not establish
 scientific appropriateness or publication authority.
+
+The public `polisyos.foundry.compile.replay_method_program_graph` facade is a
+read-only replay of the canonical zero-mechanism method compiler graph and order.
+Its caller must content-read and reconcile exact selected Trinity, lowering,
+constraint registry and Scientist plan profiles first. It checks lowering content
+against Trinity and retains the full merge/check operator plane. It writes no CAS
+objects and issues no completion, observation or publication authority. Enabled
+intervention mechanisms remain outside this bounded replay profile.

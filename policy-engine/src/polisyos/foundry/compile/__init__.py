@@ -12,10 +12,11 @@ import sys
 import types
 from typing import Any
 
-__all__ = ["compile"]
+__all__ = ["compile", "replay_method_program_graph"]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "compile": ("polisyos.foundry.compile.api", "compile"),
+    "replay_method_program_graph": ("polisyos.foundry.compile.api", "replay_method_program_graph"),
 }
 
 

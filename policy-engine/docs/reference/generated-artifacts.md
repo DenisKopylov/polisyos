@@ -118,6 +118,9 @@ Every committed generated artifact family must have a source of truth, a regener
 | `CG3 admission with preserved synthetic input limitations` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/grounding_admission_contract.json` |
 | `N6 generation cycle and immutable source preservation` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_generation_cycle_contract.json` |
 | `Pre-declared constructed-mismatch refusal sensitivity` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/corr/grounding_refusal_sensitivity.json` |
+| `Foundry method ABI type stubs` | `generated_committed` | `committed` | `automated` | `team-policyos-foundry` | `src/polisyos/foundry/methods/base.pyi`<br/>`src/polisyos/foundry/methods/registry.pyi`<br/>`src/polisyos/foundry/methods/composer.pyi`<br/>`src/polisyos/foundry/methods/components/composer.pyi` |
+| `Runtime-quality active authority envelope v2 schema` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `schemas/runtime_quality/evidence_authority_envelope_v2.schema.json` |
+| `Runtime-quality frozen historical authority envelope v1 schema` | `source_committed` | `committed` | `automated` | `team-runtime-quality` | `schemas/runtime_quality/evidence_authority_envelope_v1.schema.json` |
 
 ## `Policy Design Case Layer 3 G1 substrate grounding artifacts`
 
@@ -3412,4 +3415,87 @@ Canonical regeneration commands:
 
 ```bash
 uv run python -m tools.quality.validation.check_grounding_refusal_sensitivity --write --world-cas .tmp/gy-s-composed-wmr-cas --world-ref sha256:e96949676a6f0c9278cc8a82bf083d34f982e90b1c071097e953b2ffbb585bb5 --declarations architecture/policy_design_case/corr/grounding-2026-09-08
+```
+
+## `Foundry method ABI type stubs`
+
+- Family id: `foundry-method-stubs`
+- Lifecycle: `generated_committed`
+- Source of truth: tools/devx/foundry/generate_stubs.py OUTPUT_MAP and REEXPORT_OWNERS derived canonical owner __all__, the canonical Ruff import/format/full-check pipeline, and ruff.toml/ruff.generated.toml; src/polisyos/foundry/methods/base.py, components/composer.py, and canonical registry/composer facade owners, including transitive imported type contracts
+- Generator: tools/devx/foundry/generate_stubs.py through polisyos-tools foundry generate-stubs
+- Verifier: The same generator regenerates and byte-compares its complete OUTPUT_MAP with --check
+- Promotion target: committed Foundry Python ABI stubs; no runtime or scientific authority
+- Commit policy: `committed`
+- Freshness rule: Regenerate all four outputs whenever the canonical method ABI, composition validation context, public facade __all__ ownership, canonical Ruff configuration/tool profile or stub generator changes; missing or unreadable output is not a clean comparison.
+- Stale output behavior: `fail`
+- Drift gate: `automated`
+- Owner: `team-policyos-foundry`
+- Approval owner: `team-policyos-foundry`
+- Native probe input roots: `src`, `tools`, `architecture`
+- Native probe required inputs: `pyproject.toml`, `uv.lock`, `hatch.toml`, `ruff.toml`, `ruff.generated.toml`, `architecture/generated_artifacts.toml`, `architecture/policies/directory_contracts.toml`
+- Related workflow/config: `tools/devx/foundry/generate_stubs.py`
+- Required in default freshness check: `true`
+- Generator-observed output probe: `env PYTHONDONTWRITEBYTECODE=1 PYTHONNOUSERSITE=1 PYTHONHASHSEED=0 JAX_PLATFORMS=cpu PYTHONPATH=src:. uv run --extra lint polisyos-tools foundry generate-stubs --output-root '{output_root}'`
+- Outputs:
+  - `src/polisyos/foundry/methods/base.pyi`
+  - `src/polisyos/foundry/methods/registry.pyi`
+  - `src/polisyos/foundry/methods/composer.pyi`
+  - `src/polisyos/foundry/methods/components/composer.pyi`
+
+Canonical regeneration commands:
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 PYTHONNOUSERSITE=1 PYTHONHASHSEED=0 JAX_PLATFORMS=cpu PYTHONPATH=src:. uv run --extra lint polisyos-tools foundry generate-stubs
+```
+
+## `Runtime-quality active authority envelope v2 schema`
+
+- Family id: `runtime-quality-authority-envelope-v2-schema`
+- Lifecycle: `generated_committed`
+- Source of truth: src/polisyos/runtime/quality/authority.py EvidenceAuthorityEnvelope.model_json_schema(mode='validation'); runtime quality import closure and locked Python dependencies
+- Generator: Existing authority.write_authority_envelope_json_schema with an explicit staging path
+- Verifier: Source-derived authority model snapshot equality and generic generator-observed byte comparison
+- Promotion target: Versioned wire schema only; no purpose authority, issuer, closure, or positive protected action
+- Commit policy: `committed`
+- Freshness rule: Regenerate only active v2 after an intentional authority model change; retain v1 historical bytes unchanged. Positive purpose-authority issuance remains disabled.
+- Stale output behavior: `fail`
+- Drift gate: `automated`
+- Owner: `team-runtime-quality`
+- Approval owner: `team-runtime-quality`
+- Native probe input roots: `src`, `tools`, `architecture`, `schemas`
+- Native probe required inputs: `pyproject.toml`, `uv.lock`, `hatch.toml`, `architecture/generated_artifacts.toml`, `architecture/policies/directory_contracts.toml`
+- Related workflow/config: `src/polisyos/runtime/quality/authority.py`
+- Required in default freshness check: `true`
+- Generator-observed output probe: `env PYTHONDONTWRITEBYTECODE=1 python -c 'from pathlib import Path; import sys; from polisyos.runtime.quality.authority import write_authority_envelope_json_schema; write_authority_envelope_json_schema(Path(sys.argv[1]) / '"'"'schemas/runtime_quality/evidence_authority_envelope_v2.schema.json'"'"')' '{output_root}'`
+- Outputs:
+  - `schemas/runtime_quality/evidence_authority_envelope_v2.schema.json`
+
+Canonical regeneration commands:
+
+```bash
+PYTHONPATH=src:. uv run python -c "from pathlib import Path; import sys; from polisyos.runtime.quality.authority import write_authority_envelope_json_schema; write_authority_envelope_json_schema(Path(sys.argv[1]) / 'schemas/runtime_quality/evidence_authority_envelope_v2.schema.json')" "${E02_C38_STAGE:?set a new admitted staging root}"
+```
+
+## `Runtime-quality frozen historical authority envelope v1 schema`
+
+- Family id: `runtime-quality-authority-envelope-v1-history`
+- Lifecycle: `source_committed`
+- Source of truth: Committed schemas/runtime_quality/evidence_authority_envelope_v1.schema.json historical wire bytes; reader law in src/polisyos/runtime/quality/authority.py and historical wave35d schema receipt
+- Generator: Historical frozen snapshot; current v2 model exporter must never regenerate v1
+- Verifier: Frozen-byte historical snapshot witness and actual historical reader refusing protected authority
+- Promotion target: Historical interpretation only; no upgraded authority, re-signing, or current-purpose admission
+- Commit policy: `committed`
+- Freshness rule: The v1 snapshot remains byte-identical to its admitted historical version; current v2 shape is not its source of truth.
+- Stale output behavior: `block_release`
+- Drift gate: `automated`
+- Owner: `team-runtime-quality`
+- Approval owner: `team-runtime-quality`
+- Related workflow/config: `src/polisyos/runtime/quality/authority.py`
+- Outputs:
+  - `schemas/runtime_quality/evidence_authority_envelope_v1.schema.json`
+
+Canonical regeneration commands:
+
+```bash
+Do not regenerate: preserve historical v1 bytes in Git. A new wire contract gets a new version; any historical correction requires explicit owner review and a compatibility decision.
 ```

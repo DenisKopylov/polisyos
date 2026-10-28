@@ -172,7 +172,12 @@ class CompileFoundryNode:
         effective_bindings = self.method_metric_bindings
         if "method_metric_bindings" in state.params:
             raw_bindings = state.params["method_metric_bindings"]
-            if type(raw_bindings) is not list or len(raw_bindings) > METHOD_METRIC_BINDING_LIMIT:
+            # Admitted workflow JSON arrays have a journaled list view. Preserve
+            # the list contract without requiring the exact builtin class.
+            if (
+                not isinstance(raw_bindings, list)
+                or len(raw_bindings) > METHOD_METRIC_BINDING_LIMIT
+            ):
                 return NodeOutcome(
                     status="fail",
                     state=state,

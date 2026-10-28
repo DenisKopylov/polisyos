@@ -60,6 +60,7 @@ from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
 if TYPE_CHECKING:
     from typing import NoReturn
 
+    from polisyos.core.artifacts.registry import RegistryBundlePayload
     from polisyos.core.contracts.foundry import (
         ExecPlan,
         MethodExecutionBundle,
@@ -71,6 +72,7 @@ if TYPE_CHECKING:
     )
     from polisyos.ir.kernel.method_metrics import MethodMetricSourceUnit
     from polisyos.ir.kernel.units import UnitSpecType
+    from polisyos.ir.trinity import TrinityBundle
 
 MAX_POLICY_EVALUATION_VECTOR_BYTES = 8 * 1024 * 1024
 MAX_METHOD_METRIC_SOURCE_BYTES = 16 * 1024 * 1024
@@ -2915,13 +2917,18 @@ def _admit_method_metric_observations(
     if comparison_collector is not None and comparison_candidate is not None:
         if comparison_candidate.trinity_bundle != policy:
             raise _InvalidProjectionError("completed_rank_candidate_trinity_mismatch")
-        # This first profile admits a single, explicit method invocation only.
-        # Graph and plan contents remain comparable; only selected source refs vary.
-        if len(graph.nodes) == 1 and not graph.edges and len(plan.order) == 1:
-            comparison_graph = {
-                "graph": graph.model_dump(mode="json", exclude={"ir_ref", "lowered_ir_ref"}),
-                "plan": plan.model_dump(mode="json", exclude={"program_ref"}),
-            }
+        comparison_graph = _compiled_method_comparison_graph(
+            store,
+            graph=graph,
+            graph_manifest=graph_manifest,
+            plan=plan,
+            policy=policy,
+            policy_ref=policy_ref,
+            registry_bundle=registry_bundle,
+            registry_bundle_ref=registry_bundle_ref,
+            registry_bundle_manifest=registry_bundle_manifest,
+            read_budget=read_budget,
+        )
 
     if len(binding_set.bindings) > MAX_METHOD_METRIC_BINDINGS:
         raise _InvalidProjectionError("method_metric_binding_count_exceeds_bounded_admission")
@@ -3313,6 +3320,113 @@ def _admit_method_metric_observations(
                 )
             )
     return tuple(observations)
+
+
+def _compiled_method_comparison_graph(
+    store: _MethodMetricProjectionArtifactReader,
+    *,
+    graph: ProgramGraph,
+    graph_manifest: ArtifactManifest,
+    plan: ExecPlan,
+    policy: TrinityBundle,
+    policy_ref: SelectedMethodMetricArtifactRef,
+    registry_bundle: RegistryBundlePayload,
+    registry_bundle_ref: SelectedMethodMetricArtifactRef,
+    registry_bundle_manifest: ArtifactManifest,
+    read_budget: _ProjectionReadBudget,
+) -> dict[str, Any] | None:
+    """Reconcile the complete canonical compiler closure before source ref projection."""
+    from polisyos.core.contracts.execution_plan import ExecutionPlan
+    from polisyos.core.contracts.foundry import LoweredIR, LoweredIRRef
+    from polisyos.foundry.compile import replay_method_program_graph
+    from polisyos.ir.kernel import ConstraintRegistry
+
+    if sum(node.node_kind == "method" for node in graph.nodes) != 1:
+        return None
+    if any(item.enabled for item in policy.policy_spec.interventions):
+        return None
+    source_edges = [edge for edge in graph_manifest.inputs if edge.role == "execution_plan_source"]
+    if not source_edges:
+        raise _UnestablishedProjectionError("comparison_graph_selected_method_plan_not_established")
+    if len(source_edges) != 1 or source_edges[0].manifest_profile_sha256 is None:
+        raise _InvalidProjectionError("comparison_graph_selected_method_plan_missing")
+    edge = source_edges[0]
+    method_plan_ref = _selected_ref(
+        ArtifactRef(
+            artifact_id=edge.artifact_id,
+            kind="scientist.execution_plan",
+            media_type="application/json",
+            manifest_profile_sha256=edge.manifest_profile_sha256,
+        ),
+        kind="scientist.execution_plan",
+    )
+    method_manifest, method_plan = _load_method_metric_model(
+        store,
+        ref=method_plan_ref,
+        model=ExecutionPlan,
+        expected_kind="scientist.execution_plan",
+        expected_schema_name="polisyos.core.ExecutionPlan",
+        expected_schema_versions={"1.0"},
+        max_bytes=MAX_METHOD_METRIC_SOURCE_BYTES,
+        read_budget=read_budget,
+    )
+    _require_exact_manifest_edge(method_manifest, role="policy_candidate", ref=policy_ref)
+    lowered_ref = _selected_ref(graph.lowered_ir_ref, kind="foundry.lowered_ir")
+    _require_exact_manifest_edge(graph_manifest, role="lowered_ir", ref=lowered_ref)
+    lowered_manifest, lowered = _load_method_metric_model(
+        store,
+        ref=lowered_ref,
+        model=LoweredIR,
+        expected_kind="foundry.lowered_ir",
+        expected_schema_name="polisyos.foundry.LoweredIR",
+        expected_schema_versions={"0.2.0"},
+        max_bytes=MAX_METHOD_METRIC_SOURCE_BYTES,
+        read_budget=read_budget,
+    )
+    _require_payload_ref_match(
+        lowered.ir_ref, policy_ref, reason="comparison_lowering_policy_mismatch"
+    )
+    _require_exact_manifest_edge(lowered_manifest, role="ir", ref=policy_ref)
+    _require_exact_manifest_edge(lowered_manifest, role="registry_bundle", ref=registry_bundle_ref)
+    constraint_ref = _selected_ref(
+        registry_bundle.constraint_registry, kind="ir.constraint_registry"
+    )
+    _require_exact_manifest_edge(
+        registry_bundle_manifest, role="constraint_registry", ref=constraint_ref
+    )
+    _, constraints = _load_method_metric_model(
+        store,
+        ref=constraint_ref,
+        model=ConstraintRegistry,
+        expected_kind="ir.constraint_registry",
+        expected_schema_name="polisyos.ir.kernel.ConstraintRegistry",
+        expected_schema_versions={"1.0"},
+        max_bytes=MAX_METHOD_METRIC_SOURCE_BYTES,
+        read_budget=read_budget,
+    )
+    try:
+        replayed, order = replay_method_program_graph(
+            policy=policy,
+            policy_ref=_core_artifact_ref(policy_ref),
+            lowered_ir=lowered,
+            lowered_ir_ref=LoweredIRRef.model_validate(lowered_ref.model_dump(mode="python")),
+            method_plan=method_plan,
+            constraint_registry=constraints,
+        )
+    except (TypeError, ValueError) as exc:
+        raise _InvalidProjectionError("comparison_canonical_method_graph_replay_failed") from exc
+    if graph != replayed or plan.order != order:
+        raise _InvalidProjectionError("comparison_canonical_method_graph_or_order_mismatch")
+    if (
+        plan.policy_fidelity_level != lowered.policy_fidelity_level
+        or plan.constraint_mode != lowered.constraint_mode
+    ):
+        raise _InvalidProjectionError("comparison_exec_plan_lowering_posture_mismatch")
+    return {
+        "graph": graph.model_dump(mode="json", exclude={"ir_ref", "lowered_ir_ref"}),
+        "plan": plan.model_dump(mode="json", exclude={"program_ref"}),
+        "lowering": lowered.model_dump(mode="json", exclude={"ir_ref"}),
+    }
 
 
 def _validate_execution_capture_order(

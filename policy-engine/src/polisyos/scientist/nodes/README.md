@@ -201,3 +201,15 @@ routing, or decision artifact shape.
 ## Last Updated
 
 - Last updated: 2026-10-14
+
+`compile/compile_foundry.py` consumes `params.method_metric_bindings` as a bounded
+JSON array. The real engine supplies admitted arrays through journaled list
+views, so the node accepts the list contract rather than the exact builtin
+class. Each row still passes the strict `MethodMetricBindingRequest` DTO;
+non-list inventories, boolean fields, extra fields, conflicting selections and
+the existing inventory cap remain fail-closed. Selected policy/plan profiles,
+method ABI, metric law and actual compiler provenance remain required. The
+candidate comparison reads the exact source plan, lowering and constraint registry
+and replays the complete compiler graph/order through the public Foundry facade;
+method-only graph counts cannot replace the mandatory operator closure. The state-view compatibility fix grants no metric value,
+completed-source selection, calibration or publication authority.

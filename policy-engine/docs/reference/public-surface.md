@@ -4451,10 +4451,10 @@ write_participation_requirement_bundle
 | `polisyos.fabric` | `src/polisyos/fabric/__init__.py` | `unresolved_exports` | unknown (no names proven) |
 | `polisyos.fabric.api` | `src/polisyos/fabric/api.py` | `eager_exports` | 44 |
 | `polisyos.fabric.connectors` | `src/polisyos/fabric/connectors/__init__.py` | `eager_exports` | 134 |
-| `polisyos.fabric.data_plane` | `src/polisyos/fabric/data_plane/__init__.py` | `lazy_facade` | 54 |
+| `polisyos.fabric.data_plane` | `src/polisyos/fabric/data_plane/__init__.py` | `lazy_facade` | 56 |
 | `polisyos.fabric.world` | `src/polisyos/fabric/world/__init__.py` | `unresolved_exports` | unknown (no names proven) |
 | `polisyos.fabric.docs` | `src/polisyos/fabric/docs/__init__.py` | `eager_exports` | 17 |
-| `polisyos.fabric.ingestion` | `src/polisyos/fabric/ingestion/__init__.py` | `lazy_facade` | 8 |
+| `polisyos.fabric.ingestion` | `src/polisyos/fabric/ingestion/__init__.py` | `lazy_facade` | 11 |
 | `polisyos.fabric.retrieval` | `src/polisyos/fabric/retrieval/__init__.py` | `eager_exports` | 16 |
 | `polisyos.fabric.product_integration` | `src/polisyos/fabric/product_integration/__init__.py` | `eager_exports` | 3 |
 
@@ -4729,13 +4729,14 @@ with_retry
 - Facade: `lazy_facade`
 - Summary: Data Plane facade for orchestration, quarantine, snapshots, shape, and time.
 
-<details><summary>Entrypoint exports (54)</summary>
+<details><summary>Entrypoint exports (56)</summary>
 
 ```text
 AppendOnlyEvidenceJournal
 EvidenceJournalError
 FabricBenchmarkReport
 HarnessAuthorizationEvidence
+IngestionResult
 JournalEventRef
 LiveAttemptTerminal
 LiveExecutionAuthorization
@@ -4762,6 +4763,7 @@ compare_historical_rows
 content_sha256
 derive_harness_authorization_evidence
 derive_live_http_budget
+ingestion_is_complete
 iter_record_batches
 list_quarantine_records
 load_quarantine_payload
@@ -4884,7 +4886,7 @@ structure_doc
 - Facade: `lazy_facade`
 - Summary: Fabric ingestion runtime and provider dependencies.
 
-<details><summary>Entrypoint exports (8)</summary>
+<details><summary>Entrypoint exports (11)</summary>
 
 ```text
 ConnectorManifestSpec
@@ -4892,7 +4894,10 @@ DatasetFetchSpec
 IngestionDependencies
 PreTransformFetchResultSink
 RawFetchResultSink
+SourceCollection
+SourceCollectionMember
 build_filesystem_artifact_store
+load_source_collection
 resolve_ingestion_dependencies
 run_connectors_ingestion
 ```
@@ -4962,12 +4967,12 @@ Export total is unknown; the static reader cannot resolve the extension.
 | --- | --- | --- | ---: |
 | `polisyos.foundry` | `src/polisyos/foundry/__init__.py` | `lazy_facade` | 31 |
 | `polisyos.foundry.api` | `src/polisyos/foundry/api.py` | `eager_exports` | 3 |
-| `polisyos.foundry.compile` | `src/polisyos/foundry/compile/__init__.py` | `lazy_facade` | 1 |
+| `polisyos.foundry.compile` | `src/polisyos/foundry/compile/__init__.py` | `lazy_facade` | 2 |
 | `polisyos.foundry.analysis` | `src/polisyos/foundry/analysis/__init__.py` | `eager_exports` | 19 |
 | `polisyos.foundry.calibration` | `src/polisyos/foundry/calibration/__init__.py` | `unresolved_exports` | unknown (no names proven) |
 | `polisyos.foundry.data_plane` | `src/polisyos/foundry/data_plane/__init__.py` | `eager_exports` | 19 |
-| `polisyos.foundry.execute` | `src/polisyos/foundry/execute/__init__.py` | `lazy_facade` | 17 |
-| `polisyos.foundry.methods` | `src/polisyos/foundry/methods/__init__.py` | `eager_exports` | 223 |
+| `polisyos.foundry.execute` | `src/polisyos/foundry/execute/__init__.py` | `lazy_facade` | 19 |
+| `polisyos.foundry.methods` | `src/polisyos/foundry/methods/__init__.py` | `eager_exports` | 225 |
 | `polisyos.foundry.methods.backends` | `src/polisyos/foundry/methods/backends/__init__.py` | `lazy_facade` | 25 |
 | `polisyos.foundry.methods.causal` | `src/polisyos/foundry/methods/causal/__init__.py` | `unresolved_exports` | unknown (no names proven) |
 | `polisyos.foundry.uncertainty` | `src/polisyos/foundry/uncertainty/__init__.py` | `unresolved_exports` | unknown (no names proven) |
@@ -5039,10 +5044,11 @@ execute
 - Facade: `lazy_facade`
 - Summary: Expose the compile facade without importing the Trinity compiler eagerly.
 
-<details><summary>Entrypoint exports (1)</summary>
+<details><summary>Entrypoint exports (2)</summary>
 
 ```text
 compile
+replay_method_program_graph
 ```
 
 </details>
@@ -5221,9 +5227,10 @@ resolve_bound_state_snapshot_ref
 - Facade: `lazy_facade`
 - Summary: Stable execute facade for compiled Foundry plans.
 
-<details><summary>Entrypoint exports (17)</summary>
+<details><summary>Entrypoint exports (19)</summary>
 
 ```text
+BoundedNumericNPZError
 BoundedStateSnapshotInputs
 ExecutionSourceAdmission
 ExecutionSourceAdmissionRefusal
@@ -5239,6 +5246,7 @@ admit_execution_source_bounded
 execute
 get_state_path
 load_state_snapshot
+read_numeric_npz_bounded
 read_state_snapshot_inputs_bounded
 resolve_execution_posture
 ```
@@ -5251,7 +5259,7 @@ resolve_execution_posture
 - Facade: `eager_exports`
 - Summary: Stable lazy facade for Foundry Methods.
 
-<details><summary>Entrypoint exports (223)</summary>
+<details><summary>Entrypoint exports (225)</summary>
 
 ```text
 ADVISOR_EXECUTION_CONTEXT_PARAM
@@ -5373,6 +5381,7 @@ ReproducibilityInfo
 ResolutionError
 ResolutionPolicy
 ResolvedEquivalenceCertificate
+SemanticValidationLevel
 Shape
 ShapeAdapter
 ShapeAdapterKind
@@ -5397,6 +5406,7 @@ Unit
 UnitAdapter
 UnitAdapterKind
 UnitMismatchError
+ValidationContext
 VersionConstraint
 advise_methods
 advise_methods_for_analyst

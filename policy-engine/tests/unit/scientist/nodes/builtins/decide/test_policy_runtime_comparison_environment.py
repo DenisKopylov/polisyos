@@ -21,7 +21,9 @@ if TYPE_CHECKING:
 @pytest.fixture
 def comparison_source(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> dict[str, Any]:
     """Keep the real captured environment and selected plan; execute no replacement."""
-    source = _exercise_public_execute_method_metric_source(tmp_path, monkeypatch)
+    source = _exercise_public_execute_method_metric_source(
+        tmp_path, monkeypatch, canonical_compile=True
+    )
     store = source["store"]
     bundle = validate_core_model_json_artifact(MethodExecutionBundle, store, source["bundle_ref"])
     ref = bundle.environment_manifest_ref

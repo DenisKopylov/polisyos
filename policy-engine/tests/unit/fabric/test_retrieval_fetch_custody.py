@@ -9,6 +9,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, ClassVar, Literal
 
+import duckdb
 import pandas as pd
 import pytest
 
@@ -52,8 +53,17 @@ def build_real_fetch_owner(
     dataset_records=None,
     artifact_store=None,
     artifact_store_config=None,
+    catalog_updated_at: datetime | None = None,
 ):
-    """Use a real graph, with only the connector transport controlled."""
+    """Use a real graph, with only the connector transport controlled.
+
+    An explicit aware timestamp is a synthetic fixture ingestion input. It is
+    written before readers/admission and never establishes source currentness.
+    """
+    if catalog_updated_at is not None and (
+        catalog_updated_at.tzinfo is None or catalog_updated_at.utcoffset() is None
+    ):
+        raise ValueError("fixture_catalog_updated_at_timezone_required")
     from polisyos.data_forge.domains.catalog.knowledge.types import (
         DatasetRecord,
         DistributionRecord,
@@ -82,6 +92,13 @@ def build_real_fetch_owner(
         for name in dataset_names
     ]
     build_graph(records=records if dataset_records is None else dataset_records, db_path=graph_path)
+    if catalog_updated_at is not None:
+        # Complete fixture construction before opening any Catalog read owner.
+        with duckdb.connect(str(graph_path)) as fixture_writer:
+            fixture_writer.execute(
+                "UPDATE ds_datasets SET updated_at = ?",
+                [catalog_updated_at.astimezone(UTC).replace(tzinfo=None)],
+            )
     overlay_path = tmp_path / "overlay.duckdb"
     index_dir = tmp_path
     graph = catalog_api.DatasetCatalogGraph(graph_path, index_dir, overlay_path=overlay_path)
@@ -257,6 +274,7 @@ def build_recorded_file_fetch_owner(
     catalog_connector_params=None,
     profile_base_url=None,
     with_catalog_profile=False,
+    catalog_updated_at: datetime | None = None,
 ):
     """Use the real FileTabularConnector and exact catalog binding for custody tests.
 
@@ -376,6 +394,7 @@ def build_recorded_file_fetch_owner(
         source_location=str(csv_path),
         patch_fastlane=False,
         dataset_records=dataset_records,
+        catalog_updated_at=catalog_updated_at,
     ) as owner:
         owner.csv_path = csv_path
         owner.frame = frame

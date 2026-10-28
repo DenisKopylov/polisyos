@@ -56,10 +56,16 @@ def _actual_graphs(tmp_path: Path):
     """Retain native owner bytes; admit an existing member without copying it."""
     with (
         build_recorded_file_fetch_owner(
-            tmp_path / "selected", canonicalize_catalog_source=True, with_catalog_profile=True
+            tmp_path / "selected",
+            canonicalize_catalog_source=True,
+            with_catalog_profile=True,
+            catalog_updated_at=datetime(2026, 7, 17, tzinfo=UTC),
         ) as owner,
         build_recorded_file_fetch_owner(
-            tmp_path / "foreign", canonicalize_catalog_source=True, with_catalog_profile=True
+            tmp_path / "foreign",
+            canonicalize_catalog_source=True,
+            with_catalog_profile=True,
+            catalog_updated_at=datetime(2026, 7, 17, tzinfo=UTC),
         ) as foreign,
     ):
         source = admit_fixture_catalog_source(
@@ -352,3 +358,31 @@ def test_actual_gateway_keeps_unrelated_provider_failure_behavior(
         assert len(entered) == 1
         assert owner.requests == foreign.requests == []
         assert gateway.network_counter.network_calls == 0
+
+
+def test_selected_fixture_catalog_ingestion_time_is_explicit_without_data_time_claim(
+    tmp_path: Path,
+) -> None:
+    """The genuine fixture writer fixes ingestion time before selected admission."""
+    with _actual_graphs(tmp_path) as (_owner, _foreign, _source, selected, foreign, _overlay):
+        for graph in [selected, foreign]:
+            with graph._store.read_session() as con:
+                rows = con.execute(
+                    "SELECT id, updated_at, last_updated, temporal_start, temporal_end "
+                    "FROM ds_datasets ORDER BY id"
+                ).fetchall()
+            assert rows == [
+                ("catalog-fallback", datetime(2026, 7, 17), None, None, None),
+                ("catalog-primary", datetime(2026, 7, 17), None, None, None),
+            ]
+
+
+def test_recorded_catalog_fixture_refuses_an_unknown_timestamp_timezone(tmp_path: Path) -> None:
+    """A missing timezone cannot silently become a synthetic source time."""
+    with (
+        pytest.raises(ValueError, match="fixture_catalog_updated_at_timezone_required"),
+        build_recorded_file_fetch_owner(
+            tmp_path / "naive-time", catalog_updated_at=datetime(2026, 7, 17)
+        ),
+    ):
+        pytest.fail("unknown timezone must refuse before admitting a Catalog fixture")

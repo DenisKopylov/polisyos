@@ -100,7 +100,7 @@ def test_selected_registry_reconciles_actual_value_owner_and_code_epoch(tmp_path
     from tests._helpers import controlled_candidate_profile as fixtures
 
     code, _owner, source = _selected_fixture(tmp_path)
-    base_problem = fixtures._problem("c32-actual-value-owner")
+    base_problem = fixtures._problem("c32_actual_value_owner")
     problem = base_problem.model_copy(
         update={
             "outcome_of_interest": base_problem.outcome_of_interest.model_copy(
@@ -321,7 +321,7 @@ def _actual_profile_gateway_inputs():
     from polisyos.runtime.quality.generation_cycle import RealValueOwnerGateway
     from tests._helpers import controlled_candidate_profile as fixtures
 
-    base = fixtures._problem("c32-available-owner")
+    base = fixtures._problem("c32_available_owner")
     problem = base.model_copy(
         update={
             "outcome_of_interest": base.outcome_of_interest.model_copy(
@@ -429,7 +429,7 @@ def test_n7_registry_readmission_is_a_typed_cycle_refusal_with_its_original_caus
 
     code, _owner, source = _selected_fixture(tmp_path)
     legacy = build_substrate_registry_from_existing_catalogs(code)
-    problem = fixtures._problem("c32-readmission").model_copy(
+    problem = fixtures._problem("c32_readmission").model_copy(
         update={
             "runtime_hints": {"substrate_registry": legacy.model_dump(mode="json")},
         }

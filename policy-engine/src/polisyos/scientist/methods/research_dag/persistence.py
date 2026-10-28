@@ -5,7 +5,13 @@ from __future__ import annotations
 from collections.abc import Iterable
 from typing import Any
 
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    InputRef,
+    SchemaInfo,
+    artifact_ref_identity_key,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.scientist.methods.research_dag.models import ResearchDAGArtifact
@@ -23,14 +29,14 @@ def research_dag_inputs(
     """Build lineage inputs for a persisted research DAG."""
 
     inputs: list[InputRef] = []
-    seen: set[tuple[str, str]] = set()
+    seen: set[tuple[tuple[str, str, str, str | None], str]] = set()
 
     def add(ref: ArtifactRef, role: str) -> None:
-        key = (str(ref.artifact_id), role)
+        key = (artifact_ref_identity_key(ref), role)
         if key in seen:
             return
         seen.add(key)
-        inputs.append(InputRef(artifact_id=ref.artifact_id, role=role))
+        inputs.append(input_ref_from_artifact_ref(ref, role=role))
 
     if claim_ledger_ref is not None:
         add(claim_ledger_ref, "claim_ledger")
@@ -70,6 +76,7 @@ def persist_research_dag(
             inputs=manifest_inputs or None,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
 
 

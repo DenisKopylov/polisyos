@@ -6,7 +6,7 @@ import re
 from datetime import UTC, datetime
 from typing import Any
 
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
 from polisyos.core.canon import content_hash, fingerprint
 from polisyos.scientist.methods.research_dag.models import (
     FORBIDDEN_PUBLIC_METADATA_TOKENS,
@@ -88,14 +88,14 @@ def sanitize_public_artifact_refs(refs: list[ArtifactRef]) -> list[ArtifactRef]:
     """Drop hidden/private eval refs from the public Research DAG."""
 
     output: list[ArtifactRef] = []
-    seen: set[str] = set()
+    seen: set[tuple[str, str, str, str | None]] = set()
     for ref in refs:
         if is_hidden_artifact_ref(ref):
             continue
-        artifact_id = str(ref.artifact_id)
-        if artifact_id in seen:
+        identity = artifact_ref_identity_key(ref)
+        if identity in seen:
             continue
-        seen.add(artifact_id)
+        seen.add(identity)
         output.append(ref)
     return output
 

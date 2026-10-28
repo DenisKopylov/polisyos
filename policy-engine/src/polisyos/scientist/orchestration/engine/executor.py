@@ -2207,6 +2207,7 @@ class WorkflowExecutor:
                     run_id=state.run_id,
                     workflow_id=workflow.workflow_id,
                     records=records,
+                    workflow_spec=workflow,
                     state=state,
                     claim_ledger_ref=state.artifacts_index.get(ARTIFACT_CLAIMS_REF),
                 )

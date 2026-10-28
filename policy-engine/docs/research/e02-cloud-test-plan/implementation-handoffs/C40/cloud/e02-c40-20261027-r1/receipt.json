@@ -1,0 +1,68 @@
+{
+  "schema": "policyos.e02.c40.cloud_receipt.v1",
+  "task": "C40",
+  "criterion": "B13@RES-03",
+  "environment": {
+    "pwd": "/workspace/polisyos",
+    "branch": "work",
+    "base_commit": "4b10f758dde8417be2638584ac810fc67ca36a24",
+    "base_tree": "42b9b594a235b3bc255df264c22241eb360114ea",
+    "disk_total": "32G",
+    "disk_free_at_measurement": "27G",
+    "memory_total": "17Gi",
+    "memory_available_at_measurement": "16Gi",
+    "cpu_count": 3,
+    "python": "3.14.4"
+  },
+  "input": {
+    "carrier_manifest_sha256": "6ffa58e48d600ec0773eefd7c4ad1270b34e23e9dcedce4dce6ab8aad20e0ca1",
+    "c28_gzip_sha256": "6642a935b72ca36dbaec602e55a24f6bc9768ffad63ebcc017af71f204bd88c4",
+    "c28_gzip_bytes": 3853,
+    "c28_raw_sha256": "67b64c16bbf3baaf4f60233df8ffb3824311609309d2566cee002588c6c3ee4f",
+    "c28_raw_bytes": 16559,
+    "c28_private_index_post_apply_tree": "e6c381d4a80bb6781a3762216d74e8c132f5ff74"
+  },
+  "implemented_scope": [
+    "C28 exact ArtifactRef invalidation matching and unrelated target rejection",
+    "WorkflowExecutor passes its selected WorkflowSpec into Research DAG projection",
+    "projection derives dependency edges from selected depends_on aliases rather than record chronology",
+    "legacy record-only projection is marked chronological_not_currentness_evidence",
+    "public DAG and manifest lineage retain same-payload distinct manifest profiles"
+  ],
+  "predicate_classification": {
+    "selected_workflow_topology": "owner-recomputed from WorkflowExecutor-selected WorkflowSpec",
+    "artifact_view_identity": "independently_reconciled by full ArtifactRef identity",
+    "complete_actual_data_readset": "not_established",
+    "durable_source_event_head": "not_established",
+    "fresh_HTTP_currentness_admission": "not_established"
+  },
+  "results": [
+    {
+      "status": "PASS",
+      "command": ".venv/bin/python -m pytest -q tests/unit/scientist/methods/research_dag/test_invalidation.py tests/unit/scientist/methods/research_dag/test_projections.py tests/unit/scientist/methods/research_dag/test_persistence.py",
+      "cases": 15
+    },
+    {
+      "status": "PASS",
+      "command": ".venv/bin/python -m pytest -q tests/unit/runtime/http/test_debug_result_profile_identity.py tests/unit/runtime/http/test_debug_api.py -k simulation_result",
+      "cases": 1,
+      "wall_seconds": 56.299
+    },
+    {
+      "status": "ERROR",
+      "command": ".venv/bin/python -m ruff check <changed-python-paths>",
+      "reason": "ruff module is absent from the supplied virtual environment"
+    },
+    {
+      "status": "UNRUN",
+      "command": ".venv/bin/python -m polisyos.runtime.quality.production_invocation --base 4b10f758dde8417be2638584ac810fc67ca36a24 --receipt /tmp/c40/raw/production-invocation.json",
+      "reason": "no output or receipt after more than four minutes; terminated to preserve bounded execution"
+    }
+  ],
+  "remaining_boundary": {
+    "capability_state": ["bridge_missing", "consumer_missing", "verification_missing"],
+    "detail": "This delivery corrects the selected DAG topology and exact-view lineage substrate. It does not claim the requested durable owner-selected source event/head, complete observed readset, racing fence, or fresh served 409 chain. Those predicates remain not_established rather than inferred from scheduling edges or caller-provided events.",
+    "smallest_missing_capability": "A durable tenant/run/cell/source-scoped source-revision owner with atomic append-and-head selection, plus DebugService consultation under the same revision fence."
+  },
+  "authority": "author result only; not G acceptance or formal closure"
+}

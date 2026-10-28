@@ -10,7 +10,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
 from polisyos.scientist.evidence.claims.lifecycle import (
     AppendOnlyClaimLedger,
     ClaimLifecycleAction,
@@ -75,6 +75,18 @@ def validate_source_invalidation_event(
     orphan_claims = sorted(set(event.affected_claim_ids) - claim_ids)
     if orphan_claims:
         raise ValueError(f"orphaned invalidation target claim ids: {orphan_claims}")
+    source_closure = set(_downstream_node_ids(dag, source_node_ids))
+    unrelated_nodes = sorted(set(event.affected_node_ids) - source_closure)
+    if unrelated_nodes:
+        raise ValueError(
+            f"invalidation target node ids outside the source-derived closure: {unrelated_nodes}"
+        )
+    source_claim_ids = _claim_ids_for_nodes(dag, source_closure)
+    unrelated_claims = sorted(set(event.affected_claim_ids) - source_claim_ids)
+    if unrelated_claims:
+        raise ValueError(
+            f"invalidation target claim ids outside the source-derived closure: {unrelated_claims}"
+        )
 
 
 def propagate_source_invalidation(
@@ -85,11 +97,8 @@ def propagate_source_invalidation(
 
     validate_source_invalidation_event(dag, event)
     source_node_ids = _source_node_ids_for_ref(dag, event.source_ref)
-    seed_node_ids = sorted(set(source_node_ids) | set(event.affected_node_ids))
-    affected_node_ids = _downstream_node_ids(dag, seed_node_ids)
-    stale_claim_ids = sorted(
-        set(event.affected_claim_ids) | _claim_ids_for_nodes(dag, set(affected_node_ids))
-    )
+    affected_node_ids = _downstream_node_ids(dag, source_node_ids)
+    stale_claim_ids = sorted(_claim_ids_for_nodes(dag, set(affected_node_ids)))
     action = (
         ClaimLifecycleAction.INVALIDATED
         if event.invalidation_type in {"withdrawn", "contradicted"}
@@ -166,11 +175,11 @@ def _source_node_ids_for_ref(
     dag: ResearchDAGArtifact,
     source_ref: ArtifactRef,
 ) -> list[str]:
-    target_id = str(source_ref.artifact_id)
+    target_identity = artifact_ref_identity_key(source_ref)
     return sorted(
         node.node_id
         for node in dag.nodes
-        if any(str(ref.artifact_id) == target_id for ref in node.artifact_refs)
+        if any(artifact_ref_identity_key(ref) == target_identity for ref in node.artifact_refs)
     )
 
 

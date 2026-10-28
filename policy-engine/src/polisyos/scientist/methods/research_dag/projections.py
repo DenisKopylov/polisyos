@@ -21,6 +21,7 @@ from polisyos.scientist.methods.research_dag.models import (
 )
 from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_CLAIMS_REF
 from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.workflow_spec import WorkflowSpec
 from polisyos.scientist.orchestration.memory.contracts import ReflexiveMemoryEvent
 
 RESEARCH_DAG_FEATURE_FLAG = "scientist.best_in_class.wave1.phase1_2.research_dag"
@@ -66,6 +67,7 @@ def project_workflow_execution_to_research_dag(
     run_id: str,
     workflow_id: str,
     records: list[Any],
+    workflow_spec: WorkflowSpec | None = None,
     state: ExperimentState | None = None,
     claim_ledger_ref: ArtifactRef | None = None,
     producer: str = "workflow_executor",
@@ -104,8 +106,42 @@ def project_workflow_execution_to_research_dag(
         edge_type=ResearchEdgeType.DEPENDS_ON,
     )
 
-    previous_node_id = plan.node_id
-    for index, record in enumerate(records):
+    record_by_alias: dict[str, Any] = {}
+    for record in records:
+        alias = str(getattr(record, "alias", ""))
+        if not alias.strip() or alias in record_by_alias:
+            raise ValueError("workflow projection record aliases must be unique and non-blank")
+        record_by_alias[alias] = record
+    if workflow_spec is not None:
+        if workflow_spec.workflow_id != workflow_id:
+            raise ValueError("workflow projection spec identity mismatch")
+        spec_by_alias = {invocation.alias: invocation for invocation in workflow_spec.nodes}
+        if len(spec_by_alias) != len(workflow_spec.nodes):
+            raise ValueError("workflow projection selected spec aliases must be unique")
+        unknown = sorted(set(record_by_alias) - set(spec_by_alias))
+        if unknown:
+            raise ValueError(f"workflow projection records absent from selected spec: {unknown}")
+        for alias, record in record_by_alias.items():
+            if str(getattr(record, "node_id", "")) != str(spec_by_alias[alias].node_id):
+                raise ValueError(f"workflow projection component identity mismatch for {alias}")
+        omitted = sorted(set(spec_by_alias) - set(record_by_alias))
+        builder.metadata["record_coverage"] = (
+            "missing_spec_aliases" if omitted else "all_spec_aliases_recorded"
+        )
+        builder.metadata["omitted_record_aliases"] = omitted
+        projection_aliases = [
+            item.alias for item in workflow_spec.nodes if item.alias in record_by_alias
+        ]
+    else:
+        # Compatibility only: legacy projections remain readable, but are explicitly
+        # not eligible as dependency evidence for a new currentness decision.
+        spec_by_alias = {}
+        projection_aliases = list(record_by_alias)
+        builder.metadata["dependency_basis"] = "legacy_chronological_not_currentness_evidence"
+
+    node_by_alias: dict[str, ResearchDAGNode] = {}
+    for alias in projection_aliases:
+        record = record_by_alias[alias]
         node_type = classify_runtime_step(
             alias=str(getattr(record, "alias", "")),
             node_id=str(getattr(record, "node_id", "")),
@@ -126,7 +162,7 @@ def project_workflow_execution_to_research_dag(
             node_type=node_type,
             producer=str(getattr(record, "node_id", "") or producer),
             summary=_record_summary(record, status),
-            node_id=f"{workflow_id}:{index + 1}:{getattr(record, 'alias', 'node')}",
+            node_id=f"{workflow_id}:execution:{alias}",
             artifact_refs=artifact_refs,
             metadata=metadata,
             output_fingerprint=stable_fingerprint(
@@ -137,18 +173,53 @@ def project_workflow_execution_to_research_dag(
                 }
             ),
         )
-        builder.add_edge(
-            source_node_id=previous_node_id,
-            target_node_id=node.node_id,
-            edge_type=ResearchEdgeType.DEPENDS_ON,
-        )
+        node_by_alias[alias] = node
         if node.node_type in {ResearchNodeType.GOVERNANCE, ResearchNodeType.PUBLICATION}:
             builder.add_edge(
                 source_node_id=plan.node_id,
                 target_node_id=node.node_id,
                 edge_type=ResearchEdgeType.GATES,
             )
-        previous_node_id = node.node_id
+
+    if workflow_spec is None:
+        previous_node_id = plan.node_id
+        for alias in projection_aliases:
+            node = node_by_alias[alias]
+            builder.add_edge(
+                source_node_id=previous_node_id,
+                target_node_id=node.node_id,
+                edge_type=ResearchEdgeType.DEPENDS_ON,
+                metadata={"basis": "legacy_record_order"},
+            )
+            previous_node_id = node.node_id
+    else:
+        for alias in projection_aliases:
+            invocation = spec_by_alias[alias]
+            node = node_by_alias[alias]
+            present_dependencies = [dep for dep in invocation.depends_on if dep in node_by_alias]
+            missing_dependencies = sorted(set(invocation.depends_on) - set(node_by_alias))
+            if missing_dependencies:
+                raise ValueError(
+                    f"workflow projection dependency records missing for {alias}: "
+                    f"{missing_dependencies}"
+                )
+            if not present_dependencies:
+                builder.add_edge(
+                    source_node_id=plan.node_id,
+                    target_node_id=node.node_id,
+                    edge_type=ResearchEdgeType.DEPENDS_ON,
+                    metadata={"basis": "selected_workflow_spec_root"},
+                )
+            for dependency in present_dependencies:
+                builder.add_edge(
+                    source_node_id=node_by_alias[dependency].node_id,
+                    target_node_id=node.node_id,
+                    edge_type=ResearchEdgeType.DEPENDS_ON,
+                    metadata={"basis": "selected_workflow_spec_depends_on"},
+                )
+        # Scheduling prerequisites are not an observed or verified read set.
+        builder.metadata["dependency_basis"] = "selected_workflow_spec_prerequisites_only"
+        builder.metadata["actual_consumed_basis"] = "not_established"
 
     return builder.artifact(
         metadata={

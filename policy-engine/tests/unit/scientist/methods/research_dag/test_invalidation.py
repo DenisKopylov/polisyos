@@ -9,6 +9,7 @@ from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.evidence.claims.lifecycle import (
     AppendOnlyClaimLedger,
     ClaimLifecycleAction,
+    ClaimLifecycleEvent,
 )
 from polisyos.scientist.evidence.claims.models import (
     ClaimPublishability,
@@ -27,15 +28,22 @@ from polisyos.scientist.methods.research_dag.models import ResearchEdgeType, Res
 from polisyos.scientist.methods.search.readiness import DecisionReadiness
 
 
-def _ref(suffix: str, *, kind: str = "scientist.source") -> ArtifactRef:
+def _ref(
+    suffix: str,
+    *,
+    kind: str = "scientist.source",
+    media_type: str = "application/json",
+    profile: str | None = None,
+) -> ArtifactRef:
     return ArtifactRef(
         artifact_id="sha256:" + suffix * 64,
         kind=kind,
-        media_type="application/json",
+        media_type=media_type,
+        manifest_profile_sha256=profile,
     )
 
 
-def _claim(claim_id: str = "claim_1") -> ClaimRecord:
+def _claim(claim_id: str = "claim_1", *, source_ref: ArtifactRef | None = None) -> ClaimRecord:
     return ClaimRecord(
         claim_id=claim_id,
         run_id="run_invalid",
@@ -44,7 +52,7 @@ def _claim(claim_id: str = "claim_1") -> ClaimRecord:
         support_status=ClaimSupportStatus.SUPPORTED,
         publishability=ClaimPublishability.INTERNAL_ONLY,
         readiness_level=DecisionReadiness.RESEARCH_ARTIFACT,
-        evidence_refs=[_ref("1")],
+        evidence_refs=[source_ref or _ref("1")],
     )
 
 
@@ -174,3 +182,160 @@ def test_invalidation_source_ref_must_exist_in_dag_lineage() -> None:
 
     with pytest.raises(ValueError, match="source_ref is not present"):
         propagate_source_invalidation(dag, event)
+
+
+def test_source_invalidation_selects_only_exact_artifact_view() -> None:
+    profile_a = "sha256:" + "a" * 64
+    profile_b = "sha256:" + "b" * 64
+    source_a = _ref("1", profile=profile_a)
+    source_b = _ref("1", profile=profile_b)
+    builder = ResearchDAGBuilder(run_id="run_invalid", workflow_id="scientist_policy_design")
+    node_a = builder.add_node(
+        node_type=ResearchNodeType.SOURCE_READ,
+        producer="safe_fetch",
+        summary="Read source view A.",
+        artifact_refs=[source_a],
+        claim_ids=["claim_a"],
+    )
+    node_b = builder.add_node(
+        node_type=ResearchNodeType.SOURCE_READ,
+        producer="safe_fetch",
+        summary="Read source view B.",
+        artifact_refs=[source_b],
+        claim_ids=["claim_b"],
+    )
+    dag = builder.artifact()
+
+    impact = propagate_source_invalidation(
+        dag,
+        SourceInvalidationEvent(
+            event_id="source_invalid_exact",
+            source_ref=source_a,
+            invalidation_type="stale",
+            reason="The selected source view changed.",
+        ),
+    )
+
+    assert impact.source_node_ids == [node_a.node_id]
+    assert node_b.node_id not in impact.affected_node_ids
+    assert impact.stale_claim_ids == ["claim_a"]
+    with pytest.raises(ValueError, match="source_ref is not present"):
+        propagate_source_invalidation(
+            _dag(source_a),
+            SourceInvalidationEvent(
+                event_id="source_invalid_profile_b",
+                source_ref=source_b,
+                invalidation_type="stale",
+                reason="Source view B is absent.",
+            ),
+        )
+    for alias in (
+        _ref("1", kind="scientist.other", profile=profile_a),
+        _ref("1", media_type="text/plain", profile=profile_a),
+        _ref("1"),
+    ):
+        event = SourceInvalidationEvent(
+            event_id="source_invalid_alias",
+            source_ref=alias,
+            invalidation_type="stale",
+            reason="A different source view changed.",
+        )
+        with pytest.raises(ValueError, match="source_ref is not present"):
+            propagate_source_invalidation(dag, event)
+
+
+def _branched_dag(common_ref: ArtifactRef, independent_ref: ArtifactRef):
+    builder = ResearchDAGBuilder(run_id="run_invalid", workflow_id="scientist_policy_design")
+    common = builder.add_node(
+        node_type=ResearchNodeType.SOURCE_READ,
+        producer="safe_fetch",
+        summary="Read common source.",
+        artifact_refs=[common_ref],
+    )
+    dependent_a = builder.add_node(
+        node_type=ResearchNodeType.EXTRACTION,
+        producer="extractor",
+        summary="First dependent output.",
+        claim_ids=["claim_a"],
+    )
+    dependent_b = builder.add_node(
+        node_type=ResearchNodeType.SYNTHESIS,
+        producer="synthesizer",
+        summary="Second dependent output.",
+        claim_ids=["claim_b"],
+    )
+    independent = builder.add_node(
+        node_type=ResearchNodeType.SOURCE_READ,
+        producer="safe_fetch",
+        summary="Independent output.",
+        artifact_refs=[independent_ref],
+        claim_ids=["claim_independent"],
+    )
+    for target, claim_id in ((dependent_a, "claim_a"), (dependent_b, "claim_b")):
+        builder.add_edge(
+            source_node_id=common.node_id,
+            target_node_id=target.node_id,
+            edge_type=ResearchEdgeType.SUPPORTS,
+            claim_ids=[claim_id],
+        )
+    return builder.artifact(), common, independent
+
+
+def test_common_source_invalidation_preserves_independent_claim_and_ledger_prefix() -> None:
+    common_ref = _ref("1")
+    dag, common, independent = _branched_dag(common_ref, _ref("2"))
+    impact = propagate_source_invalidation(
+        dag,
+        SourceInvalidationEvent(
+            event_id="source_invalid_common",
+            source_ref=common_ref,
+            invalidation_type="withdrawn",
+            reason="Common source was withdrawn.",
+        ),
+    )
+    claims = [
+        _claim("claim_a"),
+        _claim("claim_b"),
+        _claim("claim_independent", source_ref=_ref("2")),
+    ]
+    prefix = ClaimLifecycleEvent(
+        event_id="existing_event",
+        claim_id="claim_independent",
+        run_id="run_invalid",
+        action=ClaimLifecycleAction.REVIEWED,
+        occurred_at=datetime(2026, 4, 27, tzinfo=UTC),
+        actor_id="reviewer",
+        reason="Independent claim was reviewed.",
+    )
+    ledger = AppendOnlyClaimLedger(run_id="run_invalid", current_claims=claims, events=[prefix])
+    updated = append_invalidation_events_to_ledger(
+        ledger,
+        impact,
+        actor_id="replay.invalidation",
+        occurred_at=datetime(2026, 4, 28, tzinfo=UTC),
+    )
+
+    assert impact.source_node_ids == [common.node_id]
+    assert independent.node_id not in impact.affected_node_ids
+    assert impact.stale_claim_ids == ["claim_a", "claim_b"]
+    assert updated.events[0] == prefix
+    assert [event.claim_id for event in updated.events[1:]] == ["claim_a", "claim_b"]
+
+
+def test_present_unrelated_explicit_targets_cannot_expand_invalidation() -> None:
+    common_ref = _ref("1")
+    dag, _, independent = _branched_dag(common_ref, _ref("2"))
+    for node_ids, claim_ids in (
+        ([independent.node_id], []),
+        ([], ["claim_independent"]),
+    ):
+        event = SourceInvalidationEvent(
+            event_id="source_invalid_false_target",
+            source_ref=common_ref,
+            invalidation_type="stale",
+            affected_node_ids=node_ids,
+            affected_claim_ids=claim_ids,
+            reason="Caller selected an unrelated present sibling.",
+        )
+        with pytest.raises(ValueError, match="outside the source-derived closure"):
+            propagate_source_invalidation(dag, event)

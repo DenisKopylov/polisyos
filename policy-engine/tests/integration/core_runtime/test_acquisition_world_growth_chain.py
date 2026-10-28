@@ -1059,6 +1059,7 @@ async def _admit_served_wdi_projection(
         acquisition_production.bind_fixture_l1_catalog_source(
             repo_path,
             baseline_path,
+            include_n7_dataset_bundle=True,
         )
         prepared_baselines.add(baseline_path.resolve())
         return baseline_path

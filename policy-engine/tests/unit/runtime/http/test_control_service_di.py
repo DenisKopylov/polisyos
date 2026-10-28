@@ -4493,31 +4493,7 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         resolve_catalog_serving_source,
     )
     from polisyos.scientist.methods.backtesting.forecast_owner import ForecastOwner
-
-    # The N7 route needs an explicit datasets bundle to exercise registry
-    # resolution. Keep this opt-in to this one controlled HTTP witness.
-    from tests._helpers import acquisition_epoch_production, acquisition_production
     from tests.unit.remediation.test_frc_02_owner import _rule, _source, _spec
-
-    original_bind_fixture_l1_catalog_source = acquisition_production.bind_fixture_l1_catalog_source
-
-    def bind_n7_fixture_catalog(repo_root, baseline_path):
-        original_bind_fixture_l1_catalog_source(
-            repo_root,
-            baseline_path,
-            include_n7_dataset_bundle=True,
-        )
-
-    monkeypatch.setattr(
-        acquisition_production,
-        "bind_fixture_l1_catalog_source",
-        bind_n7_fixture_catalog,
-    )
-    monkeypatch.setattr(
-        acquisition_epoch_production,
-        "bind_fixture_l1_catalog_source",
-        bind_n7_fixture_catalog,
-    )
 
     def assert_persisted_evidence_identity(store: Any, stored_association: dict[str, Any]) -> None:
         with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):

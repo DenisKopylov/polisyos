@@ -21,6 +21,7 @@ from tests._helpers.controlled_candidate_profile import (
     _build_configured_procurement_profile,
     _capture_controlled_skg_source,
     _problem,
+    _seed_controlled_candidate_l6_source,
     _seed_controlled_selected_skg_source,
 )
 from tests._helpers.generic_n4_served_replay import _generic_profile_for_selection
@@ -42,6 +43,7 @@ def test_configured_base_and_child_reopen_the_independently_admitted_source(
     """Actual source/WMR owners carry one SKG identity into fresh profile reads."""
     problem = _problem("controlled_source_profiles")
     source_root = tmp_path / "admitted-skg-input"
+    l6_source_root = _seed_controlled_candidate_l6_source(tmp_path / "admitted-l6-input")
     selected = _seed_controlled_selected_skg_source(
         tmp_path, source_root=source_root, recorded_problem=problem
     )
@@ -59,6 +61,7 @@ def test_configured_base_and_child_reopen_the_independently_admitted_source(
         tmp_path=tmp_path / "base-output",
         source_root=source_root,
         selected_skg_source=selected,
+        l6_source_owner_root=l6_source_root,
     )
     with tenant_scope(None, tenant_id=_TENANT, cell_id=_CELL):
         registry_ref = persist_substrate_registry(
@@ -88,6 +91,11 @@ def test_configured_base_and_child_reopen_the_independently_admitted_source(
         assert fresh.verify(child.world_model_record_ref).ok
     assert base == base_profile.context_inputs.world_model_record
     assert child_world == child.context_inputs.world_model_record
+    assert (
+        child.context_inputs.intervention_substrate
+        == base_profile.context_inputs.intervention_substrate
+    )
+    assert base_profile.context_inputs.intervention_substrate.knob_dictionary == {}
     assert base_build.record_ref.artifact_id != child.world_model_record_ref.artifact_id
     assert base.skg_causal_prior_ref == child_world.skg_causal_prior_ref
     assert base.skg_causal_prior_ref.skg_snapshot_ref == selected.snapshot_ref

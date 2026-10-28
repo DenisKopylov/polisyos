@@ -7,6 +7,7 @@ package does not mint calibration, transport, or publication authority.
 
 from __future__ import annotations
 
+from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, ClassVar
@@ -398,17 +399,56 @@ def _seed_emp01_catalog(
                 """,
                 [dataset_id, country_code, row_count],
             )
-    monkeypatch.setattr(
-        substrate_registry,
-        "default_substrate_catalog_paths",
-        lambda _repo_root: SimpleNamespace(l1_dcat_path=catalog_path),
-    )
+    original_paths = substrate_registry.default_substrate_catalog_paths
+    fixture_root = tmp_path.resolve()
+
+    def fixture_paths(
+        repo_root: Path,
+        *,
+        source_owner_root: Path | None = None,
+    ) -> substrate_registry.SubstrateCatalogPaths:
+        paths = original_paths(repo_root, source_owner_root=source_owner_root)
+        selected_owner = (
+            Path(source_owner_root).resolve() if source_owner_root is not None else None
+        )
+        if Path(repo_root).resolve() != fixture_root:
+            return paths
+        if selected_owner is not None and selected_owner != fixture_root:
+            return paths
+        return replace(paths, l1_dcat_path=catalog_path)
+
+    monkeypatch.setattr(substrate_registry, "default_substrate_catalog_paths", fixture_paths)
     monkeypatch.setattr(
         read_api.catalog,
         "default_acquisition_overlay_path",
         lambda _repo_root: None,
     )
     return catalog_path
+
+
+def test_emp01_catalog_fixture_preserves_the_selected_data_owner(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """A foreign physical owner cannot be silently replaced by the EMP01 fixture."""
+    original_paths = substrate_registry.default_substrate_catalog_paths
+    fixture_path = _seed_emp01_catalog(monkeypatch, tmp_path, ())
+    for selected_owner in (None, tmp_path):
+        paths = substrate_registry.default_substrate_catalog_paths(
+            tmp_path, source_owner_root=selected_owner
+        )
+        assert isinstance(paths, substrate_registry.SubstrateCatalogPaths)
+        assert paths == replace(
+            original_paths(tmp_path, source_owner_root=selected_owner), l1_dcat_path=fixture_path
+        )
+    foreign_owner = tmp_path / "foreign-selected-data-owner"
+    foreign_owner.mkdir()
+    observed = substrate_registry.default_substrate_catalog_paths(
+        tmp_path, source_owner_root=foreign_owner
+    )
+    assert observed == original_paths(tmp_path, source_owner_root=foreign_owner)
+    assert observed.l1_dcat_path.is_relative_to(foreign_owner)
+    assert observed.l1_dcat_path != fixture_path
 
 
 def test_scope_is_bound_before_limit_and_ambiguous_units_fail_closed(
@@ -502,6 +542,87 @@ def test_scope_filter_excludes_other_regions_before_profile_limit(
     assert profile.unit_count == 1
     assert all(row.unit_id == "UA" for row in profile.rows)
     assert all(len(row.source_row_content_hashes) == 1 for row in profile.rows)
+
+
+def test_scope_change_selects_distinct_input_identity_with_equal_summaries(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """Actual Catalog rows follow scope even when shape, values and labels agree."""
+    from polisyos.pdc import gy_content_hash
+
+    periods = (2020, 2021, 2022, 2023)
+    values = (10.0, 11.0, 12.0, 13.0)
+    rows = tuple(
+        (
+            region,
+            period,
+            value,
+            "dataset-percent",
+            f"obs-{region}-{period}",
+            '{"unit":"percent"}',
+        )
+        for region in ("UA", "PL")
+        for period, value in zip(periods, values, strict=True)
+    )
+    _seed_emp01_catalog(monkeypatch, tmp_path, rows)
+    monkeypatch.setattr(
+        data_state_substrate,
+        "l1_dcat_variable_availability",
+        lambda *_args, **_kwargs: SimpleNamespace(
+            status="available",
+            coverage_ref="catalog://emp01/outcome",
+            dataset_count=1,
+            metric_binding_count=1,
+            observation_count=len(rows),
+        ),
+    )
+    candidate = SimpleNamespace(atom=SimpleNamespace(target_world_slots=("outcome",)))
+    gateway = generation_cycle.RealValueOwnerGateway(repo_root=tmp_path)
+    profiles = {
+        region: gateway.load_value_data_profile(
+            candidate=candidate,
+            problem=SimpleNamespace(
+                outcome_of_interest=SimpleNamespace(target_variable="outcome"),
+                jurisdiction_time=SimpleNamespace(region=region),
+                runtime_hints={},
+            ),
+            world_record=SimpleNamespace(),
+        )
+        for region in ("UA", "PL")
+    }
+    for region, profile in profiles.items():
+        assert tuple(
+            (row.unit_id, row.period_id, row.outcome_value, row.measurement_unit)
+            for row in profile.rows
+        ) == tuple(
+            (region, period, value, "percent")
+            for period, value in zip(periods, values, strict=True)
+        )
+        expected_source_hashes = {
+            gy_content_hash(
+                {
+                    "outcome": "outcome",
+                    "unit_id": region,
+                    "period_id": period,
+                    "value": value,
+                    "dataset_id": "dataset-percent",
+                    "observation_id": f"obs-{region}-{period}",
+                    "measurement_unit": "percent",
+                }
+            )
+            for period, value in zip(periods, values, strict=True)
+        }
+        assert {
+            source_hash for row in profile.rows for source_hash in row.source_row_content_hashes
+        } == expected_source_hashes
+    assert profiles["UA"].outcome == profiles["PL"].outcome == "outcome"
+    assert profiles["UA"].measurement_unit == profiles["PL"].measurement_unit == "percent"
+    assert profiles["UA"].available_data_modalities == profiles["PL"].available_data_modalities
+    assert profiles["UA"].owner_row_count == profiles["PL"].owner_row_count == 4
+    assert profiles["UA"].period_count == profiles["PL"].period_count == 4
+    assert profiles["UA"].content_hash != profiles["PL"].content_hash
+    assert profiles["UA"].owner_rows_content_hash != profiles["PL"].owner_rows_content_hash
 
 
 def test_cross_period_mixed_dataset_units_fail_closed(

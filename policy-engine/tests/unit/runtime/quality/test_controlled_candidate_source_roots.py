@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import shutil
 import stat
 from dataclasses import replace
@@ -13,6 +14,12 @@ import pytest
 
 from polisyos.core.artifacts import FileSystemCAS
 from polisyos.core.security.tenant_context import tenant_scope
+from polisyos.pdc import gy_content_hash
+from polisyos.runtime.quality.intervention_substrate import (
+    InterventionSubstrateError,
+    default_l6_bundle_paths,
+    resolve_intervention_lever,
+)
 from polisyos.runtime.quality.substrate_registry import persist_substrate_registry
 from polisyos.runtime.quality.world_model_record import load_world_model_record
 from tests._helpers.controlled_candidate_profile import (
@@ -22,6 +29,7 @@ from tests._helpers.controlled_candidate_profile import (
     _controlled_profile_cycle_basis,
     _materialize_controlled_world_model_build,
     _problem,
+    _seed_controlled_candidate_l6_source,
     _seed_controlled_selected_skg_source,
     _validate_controlled_skg_source,
 )
@@ -145,11 +153,31 @@ def test_materializer_keeps_admitted_input_unchanged_and_outputs_separate(
 
 
 def test_configured_no_selection_seeds_the_independently_admitted_root(
-    tmp_path: Path, store: FileSystemCAS
+    tmp_path: Path, store: FileSystemCAS, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """The fallback producer forwards the root before its materializer reads it."""
+    from polisyos.runtime.quality import intervention_substrate as l6_owner
+    from tests._helpers.controlled_candidate_profile import REPO_ROOT
+
+    original_loader = l6_owner.load_l6_intervention_substrate
+    reads: list[tuple[Path, Path | None]] = []
+
+    def selected_loader(repo_root: Path, *, source_owner_root: Path | None = None) -> Any:
+        reads.append(
+            (
+                Path(repo_root).resolve(),
+                Path(source_owner_root).resolve() if source_owner_root is not None else None,
+            )
+        )
+        assert reads[-1][1] == l6_source_root, "selected_l6_input_owner_not_forwarded"
+        return original_loader(repo_root, source_owner_root=source_owner_root)
+
+    monkeypatch.setattr(l6_owner, "load_l6_intervention_substrate", selected_loader)
+
     source_root = tmp_path / "admitted-new-source"
     output_root = tmp_path / "profile-output"
+    l6_source_root = _seed_controlled_candidate_l6_source(tmp_path / "admitted-l6-input")
+    l6_before = _input_tree(l6_source_root)
     profile, _declaration, built = _build_configured_procurement_profile(
         recorded_problem=_problem("configured_source_roots"),
         artifact_store=store,
@@ -157,12 +185,44 @@ def test_configured_no_selection_seeds_the_independently_admitted_root(
         cell_id=_CELL,
         tmp_path=output_root,
         source_root=source_root,
+        l6_source_owner_root=l6_source_root,
     )
     source = _capture_controlled_skg_source(source_root / "academic-skg.duckdb")
     observed = _reopen(store, built)
     assert observed == profile.context_inputs.world_model_record
     assert observed.skg_causal_prior_ref.skg_snapshot_ref == source.snapshot_ref
     assert observed.skg_causal_prior_ref.skg_version_id == str(source.version_id)
+    bundle = profile.context_inputs.intervention_substrate
+    assert bundle is not None
+    assert bundle.knob_dictionary == {}
+    assert bundle.lex_intervention_map == {}
+    assert bundle.observation_manifest == {}
+    assert reads == [(REPO_ROOT.resolve(), l6_source_root)]
+    l6_paths = default_l6_bundle_paths(REPO_ROOT, source_owner_root=l6_source_root)
+    for name in (
+        "intervention_knob_dictionary",
+        "lex_intervention_map",
+        "observation_to_contract_manifest",
+    ):
+        assert bundle.source_refs[name] == (
+            "repo://" + l6_paths[name].relative_to(l6_source_root).as_posix()
+        )
+        assert bundle.source_content_hashes[name] == gy_content_hash({})
+    authority_path = l6_paths["owner_authority_bindings"]
+    assert authority_path.is_relative_to(REPO_ROOT)
+    assert not authority_path.is_relative_to(l6_source_root)
+    assert bundle.source_refs["owner_authority_bindings"] == (
+        "repo://" + authority_path.relative_to(REPO_ROOT).as_posix()
+    )
+    assert bundle.source_content_hashes["owner_authority_bindings"] == gy_content_hash(
+        json.loads(authority_path.read_text(encoding="utf-8"))
+    )
+    assert _input_tree(l6_source_root) == l6_before
+    # This is a selected source/WMR fixture, not a fabricated grounded lever.
+    with pytest.raises(InterventionSubstrateError, match="knob_operator_unresolved"):
+        resolve_intervention_lever(
+            bundle, operator_kind=profile.rule.operator_kind, parameter_value=0
+        )
     assert not (output_root / "controlled-candidate-source/academic-skg.duckdb").exists()
     assert not (source_root / "fabric-world").exists()
     assert not (source_root / "data-forge").exists()

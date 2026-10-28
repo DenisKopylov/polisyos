@@ -9,6 +9,7 @@ from tests._helpers.controlled_candidate_profile import (
     ControlledCandidateGateway,
     _configured_procurement_profile,
     _current_compiler_problem,
+    _seed_controlled_candidate_l6_source,
     _seed_controlled_selected_skg_source,
 )
 from tests._helpers.generic_n4_served_replay import (
@@ -113,6 +114,7 @@ def test_terminal_n4_attempt_stays_candidate_only_through_fresh_get(
         core_runs_root=cas_root / "runs",
     )
     source_root = tmp_path / "credal-candidate-source"
+    l6_source_root = _seed_controlled_candidate_l6_source(tmp_path / "candidate-l6-input")
     selected_skg_source = _seed_controlled_selected_skg_source(
         tmp_path,
         source_root=source_root,
@@ -126,6 +128,7 @@ def test_terminal_n4_attempt_stays_candidate_only_through_fresh_get(
         artifact_store=runtime_api_context.store,
         tenant_id=tenant_id,
         cell_id=cell_id,
+        l6_source_owner_root=l6_source_root,
     )
     base_inputs = base_profile.context_inputs
     with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):

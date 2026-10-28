@@ -1438,6 +1438,31 @@ def _seed_controlled_selected_skg_source(
     return _capture_controlled_skg_source(db_path)
 
 
+def _seed_controlled_candidate_l6_source(source_owner_root: Path) -> Path:
+    """Create fresh, empty candidate L6 data without inventing a lever or law.
+
+    Only source/WMR fixture consumers use this bounded input. The real L6 owner
+    still reads its authority manifest from the code root, verifies all hashes,
+    and refuses an operator absent from the empty knob dictionary. This fixture
+    does not establish an intervention, legal permission, or empirical grounding.
+    """
+    from polisyos.runtime.quality.intervention_substrate import default_l6_bundle_paths
+
+    root = Path(source_owner_root)
+    root.mkdir(parents=True, exist_ok=False)
+    root = root.resolve(strict=True)
+    paths = default_l6_bundle_paths(REPO_ROOT, source_owner_root=root)
+    for name in (
+        "intervention_knob_dictionary",
+        "lex_intervention_map",
+        "observation_to_contract_manifest",
+    ):
+        path = paths[name]
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("{}\n", encoding="utf-8")
+    return root
+
+
 @dataclass(frozen=True)
 class _ControlledCandidateNCMParameters:
     """Scalar candidate assumptions shared by the model and its declaration."""
@@ -1460,6 +1485,7 @@ def _build_configured_procurement_profile(
     source_root: Path | None = None,
     selected_skg_source: ControlledSKGSourceSelection | None = None,
     repo_root: Path | None = None,
+    l6_source_owner_root: Path | None = None,
     rule_operator_kind: str = "procurement_shock_intensity",
     rule_parameter_id: str = "intensity",
     rule_target_world_slot: str = "cells.distress_score",
@@ -1567,7 +1593,14 @@ def _build_configured_procurement_profile(
         substrate_registry=base_context.substrate_registry,
         selected_registry_entry_hashes=base_context.selected_registry_entry_hashes,
         world_model_record=world,
-        intervention_substrate=load_l6_intervention_substrate(product_root),
+        intervention_substrate=(
+            load_l6_intervention_substrate(product_root)
+            if l6_source_owner_root is None
+            else load_l6_intervention_substrate(
+                product_root,
+                source_owner_root=l6_source_owner_root,
+            )
+        ),
         source_pack_content_hash=base_context.source_pack_content_hash,
         substrate_input_content_hash=base_context.substrate_input_content_hash,
     )
@@ -1670,6 +1703,7 @@ def _configured_procurement_profile(
     source_root: Path | None = None,
     selected_skg_source: ControlledSKGSourceSelection | None = None,
     repo_root: Path | None = None,
+    l6_source_owner_root: Path | None = None,
     rule_operator_kind: str = "procurement_shock_intensity",
     rule_parameter_id: str = "intensity",
     rule_target_world_slot: str = "cells.distress_score",
@@ -1690,6 +1724,7 @@ def _configured_procurement_profile(
         source_root=source_root,
         selected_skg_source=selected_skg_source,
         repo_root=repo_root,
+        l6_source_owner_root=l6_source_owner_root,
         rule_operator_kind=rule_operator_kind,
         rule_parameter_id=rule_parameter_id,
         rule_target_world_slot=rule_target_world_slot,

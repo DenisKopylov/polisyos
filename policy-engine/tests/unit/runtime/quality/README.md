@@ -12,3 +12,12 @@ legacy and explicit input roots, and the independent generated-output root.
 reopens actual configured base/child WMRs through a fresh authorized CAS handle.
 These bounded fixture checks do not establish an ordinary N4/planner path or
 predictive S10.
+
+The configured fixture checks select empty candidate L6 data separately from the
+tracked code authority manifest. They check actual source refs/content hashes,
+keep selected bytes unchanged, and require the real L6 owner to refuse an absent
+operator. Empty candidate data is not an established L6 intervention capability.
+The transparent predictive route witness lives in
+`tests/integration/runtime_quality/test_controlled_acquisition_route_observation.py`;
+its deciding stdout/JUnit properties capture actual guard premises even when the
+unchanged guard refuses them.

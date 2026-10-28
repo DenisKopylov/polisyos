@@ -47,6 +47,20 @@ those writes. Pass the same explicit root and actual selected source to base and
 child profiles. Fixture evidence remains candidate-only and does not supply
 empirical grounding, currentness or authority.
 
+Configured source/WMR fixtures may additionally pass `l6_source_owner_root` to
+select a small physical L6 data owner independently of the code root. The
+`_seed_controlled_candidate_l6_source` helper creates exactly the three required
+empty candidate JSON inputs in a fresh fixture directory. The real two-root L6
+loader still reads the tracked authority manifest from the code root and
+verifies content hashes; an absent operator is still refused. The fixture proves
+source/WMR plumbing only. It supplies no grounded lever, legal permission,
+production provenance or empirical calibration. Omitting the optional owner
+preserves the existing configured-profile input selection.
+
+The positive `_admit_served_wdi_projection` fixture explicitly declares its
+controlled datasets bundle through the existing binder option. Partial and
+invalid source owners retain native refusal; the binder default is unchanged.
+
 ## Operability Links
 
 - `tests/README.md`

@@ -425,6 +425,10 @@ class CircuitBreaker:
                 self._half_open_leases.discard(lease.token)
             self._retire_lease_locked(lease, finalized=True)
 
+    def _release_cancelled_lease(self, lease: CircuitAttemptLease | None) -> None:
+        """Preserve cancellation callers while delegating to the single lease owner."""
+        self._release_unrecorded_lease(lease)
+
     def acquire_attempt(self) -> CircuitAttemptLease | None:
         """Acquire an execution-boundary attempt lease if the circuit allows it."""
         with self._lock:
@@ -564,8 +568,8 @@ class CircuitBreaker:
             try:
                 result = await func(*args, **kwargs)
             except asyncio.CancelledError:
-                # Do not count cancellations as failures
-                self._release_unrecorded_lease(lease)
+                # Retain the existing subclass cancellation hook.
+                self._release_cancelled_lease(lease)
                 span.set_status(Status(StatusCode.ERROR, "Cancelled"))
                 raise
 

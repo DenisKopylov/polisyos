@@ -8,6 +8,7 @@ from contextlib import ExitStack
 from dataclasses import replace
 from decimal import Decimal
 from typing import Any
+from unittest.mock import patch
 
 import pytest
 
@@ -692,6 +693,54 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
 
     runtime_context = app.state.runtime_container.runtime_api_context
     indexed_run = runtime_context.run_index.get_run(run_id)
+
+    # Preserve the real successful report and all other state while removing only
+    # the retained result reference. The owner-selected state is a real verified
+    # CAS artifact; the index selection is an explicit test seam for this negative.
+    assert candidate_response.status_code == 200, candidate_response.text
+    state_without_result = result.state.model_copy(deep=True)
+    removed_ref = state_without_result.artifacts_index.pop(ARTIFACT_SIMULATION_RESULT_REF)
+    assert removed_ref == simulation_ref
+    assert records["run_simulation"].status == "ok"
+    assert records["independent_sibling"].status == "ok"
+    assert result.report.status == "fail"
+    with tenant_scope(None, tenant_id=_TENANT_ID, cell_id=_CELL_ID):
+        missing_result_state_ref = store.put_json(
+            state_without_result,
+            PutOptions(
+                kind="scientist.experiment_state",
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name="polisyos.scientist.orchestration.engine.ExperimentState",
+                    version=state_without_result.schema_version,
+                ),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        assert store.verify(missing_result_state_ref).ok
+    assert missing_result_state_ref != indexed_run.experiment_state_ref
+    removed_ref_run = replace(indexed_run, experiment_state_ref=missing_result_state_ref)
+    assert removed_ref_run.workflow_report_ref == indexed_run.workflow_report_ref
+    with patch.object(runtime_context.run_index, "get_run", return_value=removed_ref_run):
+        retained_ref_removed_response = client.get(
+            f"/api/v1/debug/runs/{run_id}/nodes/run_simulation/simulation-result"
+        )
+    assert retained_ref_removed_response.status_code == 409, retained_ref_removed_response.text
+    problem = RuntimeApiProblem.model_validate_json(
+        retained_ref_removed_response.content, strict=True
+    )
+    assert problem.status == problem.status_code == 409
+    assert problem.code == "simulation_result_ref_missing"
+    restored_response = client.get(
+        f"/api/v1/debug/runs/{run_id}/nodes/run_simulation/simulation-result"
+    )
+    assert restored_response.status_code == 200, restored_response.text
+    assert (
+        restored_response.json()["debug"]["artifact_ref"]
+        == (candidate_response.json()["debug"]["artifact_ref"])
+    )
+
     rebound_fixture_counter = 0
 
     def _get_candidate_in_owner_scope(run: Any, *, alias: str) -> Any:

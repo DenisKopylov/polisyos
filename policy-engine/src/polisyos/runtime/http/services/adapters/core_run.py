@@ -295,6 +295,7 @@ def load_core_run(
     run_terminality = RunTerminality.NOT_ESTABLISHED
     terminality_conflicted = False
     finalized_without_fact = False
+    terminal_has_inputs = False
     trace_started_at: datetime | None = None
     trace_tenant_id: str | None = None
     trace_cell_id: str | None = None
@@ -378,6 +379,7 @@ def load_core_run(
                 terminality_conflicted = True
                 continue
             terminal_manifest_ref = candidate
+            terminal_has_inputs = bool(record.refs.inputs)
 
     if run_id is None:
         logger.debug("No RUN_STARTED identity found in trace %s", trace_path)
@@ -484,6 +486,38 @@ def load_core_run(
     duration_ms = _duration_ms(manifest.started_at, manifest.finished_at)
     workflow_report_ref = _first_ref_by_kind(manifest.outputs, "scientist.workflow_report")
     experiment_state_ref = _first_ref_by_kind(manifest.outputs, "scientist.experiment_state")
+    if run_terminality is RunTerminality.TERMINAL:
+        has_finalization_output = any(
+            ref.kind == "scientist.workflow_state_finalization" for ref in manifest.outputs
+        )
+        if terminal_has_inputs or has_finalization_output:
+            try:
+                (
+                    experiment_state_ref,
+                    workflow_report_ref,
+                    tenant_manifest_scope_missing,
+                ) = _terminal_workflow_output_refs(
+                    store=store,
+                    run_dir=run_dir,
+                    run_id=run_id,
+                    tenant_id=trace_tenant_id,
+                    cell_id=trace_cell_id,
+                    expected_manifest_ref=manifest_ref,
+                )
+                if tenant_manifest_scope_missing:
+                    warnings.append("core_run_finalization_manifest_tenant_not_established")
+            except (OSError, RuntimeError, TypeError, ValueError):
+                # A recorded but unverifiable finalization must never fall back to
+                # the earlier state merely because its kind appears first.
+                experiment_state_ref = None
+                workflow_report_ref = None
+                warnings.append("core_run_workflow_finalization_unavailable")
+        else:
+            # Legacy runs remain inspectable as candidate history. They do not
+            # establish that any same-kind output was the finalizer selection.
+            warnings.append("core_run_workflow_finalization_not_established")
+    else:
+        warnings.append("core_run_workflow_finalization_not_established")
     decision_packet_ref = _first_ref_by_kind(manifest.outputs, "scientist.decision_packet")
 
     return CoreRunAdapterResult(
@@ -509,6 +543,198 @@ def load_core_run(
         warnings=tuple(warnings),
         errors=tuple(manifest.errors),
     )
+
+
+def _terminal_workflow_output_refs(
+    *,
+    store: ArtifactStore,
+    run_dir: Path,
+    run_id: str,
+    tenant_id: str | None,
+    cell_id: str | None,
+    expected_manifest_ref: ArtifactRef,
+) -> tuple[ArtifactRef, ArtifactRef, bool]:
+    """Select workflow refs through the real terminal owner's bounded receipt.
+
+    This is an output-selection check, not a source-currentness decision or an
+    assertion that all upstream reads were observed. The exact finalization
+    contract remains owned by ``WorkflowStateFinalization``.
+    """
+    from polisyos.core.artifacts import read_core_json_artifact_bounded
+    from polisyos.core.artifacts.canonical_profile import CoreJsonReadLimits
+    from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo, artifact_ref_identity_key
+    from polisyos.core.artifacts.protocol import (
+        CoreJSONArtifactBoundedMemberReader,
+        matches_runtime_protocol,
+    )
+    from polisyos.scientist.orchestration.engine.finalization import (
+        FINAL_WORKFLOW_REPORT_STATE_PATH,
+        FINALIZATION_KIND,
+        FINALIZATION_OUTPUT_KINDS,
+        FINALIZATION_SCHEMA_NAME,
+        FINALIZATION_SCHEMA_VERSION,
+        WorkflowStateFinalization,
+    )
+    from polisyos.scientist.orchestration.engine.workflow_spec import WorkflowSpec
+
+    if not matches_runtime_protocol(store, CoreJSONArtifactBoundedMemberReader):
+        raise ValueError("workflow_finalization_bounded_reader_unavailable")
+    terminal = load_terminal_core_run_source(
+        store=store,
+        core_runs_root=run_dir.parent,
+        run_id=run_id,
+    )
+    if (
+        terminal.tenant_id != tenant_id
+        or terminal.cell_id != cell_id
+        or terminal.manifest_ref != expected_manifest_ref
+        or terminal.workflow_finalization_ref is None
+    ):
+        raise ValueError("workflow_finalization_terminal_owner_mismatch")
+
+    # One shared aggregate budget over receipt, spec, final state and report.
+    # Reserve two maximal manifest reads for each next payload to avoid an
+    # over-budget read before the observer can account it.
+    remaining = 8 * 1024 * 1024
+    manifest_limit = 65_536
+    tenant_manifest_scope_missing = False
+
+    def read_view(ref: ArtifactRef, *, kind: str, schema_name: str, schema_version: str) -> object:
+        nonlocal remaining, tenant_manifest_scope_missing
+        if (
+            type(ref) is not ArtifactRef
+            or ref.manifest_profile_sha256 is None
+            or ref.kind != kind
+            or ref.media_type != "application/json"
+            or remaining <= 2 * manifest_limit
+        ):
+            raise ValueError("workflow_finalization_selected_ref_invalid")
+        limits = CoreJsonReadLimits(
+            max_bytes=remaining - 2 * manifest_limit,
+            max_depth=64,
+            max_elements=200_000,
+            max_manifest_bytes=manifest_limit,
+        )
+        bounded = read_core_json_artifact_bounded(store, ref, limits=limits)
+        observed = bounded.observed_source_bytes
+        if type(observed) is not int or observed < 0 or observed > remaining:
+            raise ValueError("workflow_finalization_read_budget_invalid")
+        remaining -= observed
+        if (
+            bounded.effective_ref != ref
+            or bounded.manifest.kind != kind
+            or bounded.manifest.media_type != "application/json"
+            or bounded.manifest.artifact_schema
+            != SchemaInfo(name=schema_name, version=schema_version)
+        ):
+            raise ValueError("workflow_finalization_selected_manifest_mismatch")
+        context = bounded.manifest.tenant_context
+        if context is not None and (context.tenant_id != tenant_id or context.cell_id != cell_id):
+            raise ValueError("workflow_finalization_selected_tenant_mismatch")
+        if context is None and tenant_id is not None:
+            tenant_manifest_scope_missing = True
+        value = bounded.value
+        if not isinstance(value, dict) or value.get("schema_version") != schema_version:
+            raise ValueError("workflow_finalization_payload_schema_mismatch")
+        return value
+
+    def require_one(ref: ArtifactRef, candidates: list[ArtifactRef], *, kind: str) -> None:
+        if (
+            ref.kind != kind
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+            or sum(
+                artifact_ref_identity_key(item) == artifact_ref_identity_key(ref)
+                for item in candidates
+            )
+            != 1
+        ):
+            raise ValueError("workflow_finalization_selected_ref_not_owner_linked")
+
+    receipt_ref = terminal.workflow_finalization_ref
+    receipt = WorkflowStateFinalization.model_validate(
+        read_view(
+            receipt_ref,
+            kind=FINALIZATION_KIND,
+            schema_name=FINALIZATION_SCHEMA_NAME,
+            schema_version=FINALIZATION_SCHEMA_VERSION,
+        )
+    )
+    if receipt.run_id != run_id:
+        raise ValueError("workflow_finalization_run_mismatch")
+    require_one(receipt.workflow_spec_ref, terminal.manifest.inputs, kind="scientist.workflow_spec")
+    spec = WorkflowSpec.model_validate(
+        read_view(
+            receipt.workflow_spec_ref,
+            kind="scientist.workflow_spec",
+            schema_name="polisyos.scientist.orchestration.engine.WorkflowSpec",
+            schema_version="1.0",
+        )
+    )
+    if spec.workflow_id != receipt.workflow_id:
+        raise ValueError("workflow_finalization_spec_mismatch")
+    require_one(
+        receipt.prior_state_ref, terminal.manifest.outputs, kind="scientist.experiment_state"
+    )
+    require_one(
+        receipt.final_state_ref, terminal.manifest.outputs, kind="scientist.experiment_state"
+    )
+
+    bindings = {item.state_path: item.artifact_ref for item in receipt.output_bindings}
+    if (
+        len(bindings) != len(receipt.output_bindings)
+        or FINAL_WORKFLOW_REPORT_STATE_PATH not in bindings
+        or set(bindings) - set(FINALIZATION_OUTPUT_KINDS)
+    ):
+        raise ValueError("workflow_finalization_output_bindings_invalid")
+    for path, ref in bindings.items():
+        require_one(ref, terminal.manifest.outputs, kind=FINALIZATION_OUTPUT_KINDS[path])
+
+    prior_state = read_view(
+        receipt.prior_state_ref,
+        kind="scientist.experiment_state",
+        schema_name="polisyos.scientist.orchestration.engine.ExperimentState",
+        schema_version="1.3",
+    )
+    if not isinstance(prior_state, dict) or prior_state.get("run_id") != run_id:
+        raise ValueError("workflow_finalization_prior_state_run_mismatch")
+
+    # The index must read the final state's own recorded bindings, not infer them
+    # from another same-kind artifact or from a receipt marker alone.
+    final_state = read_view(
+        receipt.final_state_ref,
+        kind="scientist.experiment_state",
+        schema_name="polisyos.scientist.orchestration.engine.ExperimentState",
+        schema_version="1.3",
+    )
+    if not isinstance(final_state, dict) or final_state.get("run_id") != run_id:
+        raise ValueError("workflow_finalization_state_run_mismatch")
+    for path, ref in bindings.items():
+        section, key = path.split(".", 1)
+        mapping = final_state.get(section)
+        if not isinstance(mapping, dict):
+            raise ValueError("workflow_finalization_state_binding_missing")
+        try:
+            state_ref = ArtifactRef.model_validate(mapping[key])
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError("workflow_finalization_state_binding_invalid") from exc
+        if artifact_ref_identity_key(state_ref) != artifact_ref_identity_key(ref):
+            raise ValueError("workflow_finalization_state_binding_mismatch")
+
+    report_ref = bindings[FINAL_WORKFLOW_REPORT_STATE_PATH]
+    report = read_view(
+        report_ref,
+        kind="scientist.workflow_report",
+        schema_name="polisyos.scientist.orchestration.engine.WorkflowReport",
+        schema_version="1.0",
+    )
+    if (
+        not isinstance(report, dict)
+        or report.get("run_id") != run_id
+        or report.get("workflow_id") != receipt.workflow_id
+    ):
+        raise ValueError("workflow_finalization_report_identity_mismatch")
+    return receipt.final_state_ref, report_ref, tenant_manifest_scope_missing
 
 
 def _terminal_manifest_ref(record: TraceRecord) -> ArtifactRef | None:

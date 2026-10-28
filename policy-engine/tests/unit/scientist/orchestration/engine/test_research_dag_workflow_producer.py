@@ -8,6 +8,7 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
+from polisyos.runtime.http.services.adapters.core_run import load_core_run
 from polisyos.scientist.methods.research_dag.invalidation import (
     SourceInvalidationEvent,
     propagate_source_invalidation,
@@ -98,6 +99,12 @@ def test_engine_selected_dag_reopens_and_propagates_only_real_branched_scope(tmp
     finalization = WorkflowStateFinalization.model_validate_json(store.get_bytes(finalization_ref))
     assert store.verify(finalization.workflow_spec_ref).ok
     assert store.verify(finalization.final_state_ref).ok
+    assert run.trace_path is not None
+    indexed = load_core_run(store=store, run_dir=run.trace_path.parent)
+    assert indexed is not None
+    assert indexed.experiment_state_ref == finalization.final_state_ref
+    assert indexed.experiment_state_ref != finalization.prior_state_ref
+    assert indexed.workflow_report_ref == report_ref
     assert (
         WorkflowSpec.model_validate_json(store.get_bytes(finalization.workflow_spec_ref))
         == workflow

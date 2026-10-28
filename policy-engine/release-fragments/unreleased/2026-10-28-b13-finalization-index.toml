@@ -1,0 +1,16 @@
+id = "2026-10-28-b13-finalization-index"
+title = "Select owner-bound terminal workflow state and report"
+type = "fixed"
+component = "runtime"
+owner = "team-polisyos-runtime"
+summary = "Select terminal workflow state and report from the exact owner-bound finalization instead of the first same-kind run output."
+evidence = ["tests/unit/runtime/http/test_terminal_workflow_index.py", "tests/integration/scientist/test_res_03_real_simulation_route.py", "tests/unit/scientist/orchestration/engine/test_research_dag_workflow_producer.py"]
+change_class = "python-runtime-behavior"
+surface_classification = "internal selection behind existing run index and debug surfaces"
+compatibility = "Existing DTO and endpoint shapes remain; invalid modern terminal selections withhold both refs, and legacy candidates retain explicit limitations."
+migration = "Reopen the exact terminal finalization and its selected state/report pair; a prior state cannot substitute for a missing final result."
+limitations = "The new 8 MiB budget covers five selected JSON views, excluding existing terminal trace/run-manifest intake. Full predecessor transitions, source-event head/currentness, runtime/removal proof, G acceptance and B13 closure remain separate."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/research/e02-cloud-test-plan/implementation-handoffs/B13/finalization-index-selection.md"]
+runbook_docs = []

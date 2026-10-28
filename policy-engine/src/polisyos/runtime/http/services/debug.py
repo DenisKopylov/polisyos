@@ -573,6 +573,15 @@ class DebugService:
                 "candidate_reference_only",
                 "not_an_authority_envelope",
                 "generic_artifact_authority_routes_remain_blocked",
+                *(
+                    warning
+                    for warning in run.details.warnings
+                    if warning
+                    in {
+                        "core_run_workflow_finalization_not_established",
+                        "core_run_finalization_manifest_tenant_not_established",
+                    }
+                ),
             ],
         )
 

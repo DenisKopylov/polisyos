@@ -46,7 +46,11 @@ def freeze_wire_object(value: dict[str, Any]) -> bytes:
 
 def thaw_wire_object(value: bytes) -> dict[str, Any]:
     """Read a detached native object from an immutable prepared call."""
-    return decode_json_object(value, kind="prepared LLM request")
+    return decode_json_object(
+        value,
+        source="polisyos.scientist.orchestration.llm.prepared_request",
+        kind="prepared LLM request",
+    )
 
 
 @dataclass(frozen=True, slots=True)

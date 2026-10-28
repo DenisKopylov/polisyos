@@ -13,7 +13,11 @@ from aiohttp import web
 
 from polisyos.scientist.orchestration.llm.fallback_router import EndpointConfig, FallbackRouter
 from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMClient
-from polisyos.scientist.orchestration.llm.prepared_request import freeze_wire_object
+from polisyos.scientist.orchestration.llm.prepared_request import (
+    freeze_wire_object,
+    prepare_call_values,
+    thaw_wire_object,
+)
 from polisyos.scientist.orchestration.llm.prompt_cache import (
     CachingLLMClient,
     InMemoryPromptCache,
@@ -337,3 +341,24 @@ def test_opaque_prebound_request_refuses_unestablished_equality_without_dispatch
             provider, cache=InMemoryPromptCache(), model="fixture", prepared_request=planned
         )
     assert provider.calls == 0
+
+
+def test_prepared_values_use_the_real_strict_decoder_contract() -> None:
+    expected = {"messages": [{"role": "user", "content": "A"}], "temperature": 0}
+    assert thaw_wire_object(freeze_wire_object(expected)) == expected
+    native = prepare_call_values((), {"adapter_options": ("tuple", ["nested-list"])})
+    args, kwargs = native.call_values()
+    assert args == () and type(kwargs["adapter_options"]) is tuple
+    assert type(kwargs["adapter_options"][1]) is list
+    assert kwargs["adapter_options"] == ("tuple", ["nested-list"])
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [b"\xff", b'{"same":1,"same":2}', b'{"value":NaN}', b'{"value":1e1000}', b"[]", b'{"missing":'],
+)
+def test_prepared_decoder_preserves_strict_refusal_with_stable_source(raw: bytes) -> None:
+    with pytest.raises(ValueError) as failure:
+        thaw_wire_object(raw)
+    assert "prepared LLM request" in str(failure.value)
+    assert "polisyos.scientist.orchestration.llm.prepared_request" in str(failure.value)

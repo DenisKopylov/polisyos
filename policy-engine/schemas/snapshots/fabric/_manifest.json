@@ -6,8 +6,8 @@
     "release_fragment_change_class": "schema-openapi-abi",
     "version_owner": "team-fabric"
   },
-  "content_hash": "2aad7e79af114d6e6422467e0855cc8b7e92960f674a29f52e2a19c10b3700ee",
-  "generated_at": "2026-10-13T21:05:17+00:00",
+  "content_hash": "3b4da05e0df4da60625aada61a8e415735f086d36814aa6a0b6b4cd229cb1ec5",
+  "generated_at": "2026-10-28T12:37:42+00:00",
   "generator_version": "1.1.0",
   "models": {
     "edge_kind": {
@@ -20,6 +20,20 @@
       "schema_version": null,
       "sha256_full": "894bf59fc06006b5e0f69bc4477ba428db976a17a5c0660f661c8c988cc00c06",
       "sha256_semantic": "d27d5bc958bf0fb20d803ebb17c32c23d7a2e5b9beb64c3748ae6ea00466f421",
+      "version_field": null
+    },
+    "federation_fetch_audit": {
+      "aliases": [],
+      "compat_mode": "strict",
+      "fqn": "polisyos.fabric.federated_fetch.FederationFetchAudit",
+      "lifecycle": "active",
+      "priority": "p1",
+      "schema_file": "federation_fetch_audit.schema.json",
+      "schema_mode": "serialization",
+      "schema_variant_version": null,
+      "schema_version": null,
+      "sha256_full": "070b1a45ee4e6955a78a41f9ba068d2351a4fe2430d783697d06bef6ae3752f8",
+      "sha256_semantic": "0235a855442ff182033637e5517030ae96ff48990ad48f7f6a1e8b0c1358a643",
       "version_field": null
     },
     "node_kind": {

@@ -1,0 +1,738 @@
+{
+  "$defs": {
+    "ArtifactID": {
+      "description": "IR-local artifact ID model compatible with CAS interfaces.",
+      "maxLength": 71,
+      "minLength": 71,
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "title": "ArtifactID",
+      "type": "string"
+    },
+    "DataVersion": {
+      "additionalProperties": false,
+      "description": "Version identifier for cached data.",
+      "properties": {
+        "content_hash": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "CAS-compatible content hash for Law D compliance",
+          "title": "Content Hash"
+        },
+        "strategy": {
+          "$ref": "#/$defs/VersionStrategy",
+          "description": "Versioning strategy used for this data"
+        },
+        "timestamp": {
+          "description": "When this version was recorded (UTC)",
+          "format": "date-time",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "value": {
+          "description": "Strategy-specific version value (ETag, timestamp ISO, revision, or hash)",
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "strategy",
+        "value",
+        "timestamp"
+      ],
+      "title": "DataVersion",
+      "type": "object"
+    },
+    "EvidenceBundleRef": {
+      "additionalProperties": false,
+      "description": "IR-level reference to a fabric evidence bundle artifact.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "fabric.evidence_bundle",
+          "default": "fabric.evidence_bundle",
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Profile Sha256"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "EvidenceBundleRef",
+      "type": "object"
+    },
+    "FederationColumnProjection": {
+      "additionalProperties": false,
+      "description": "Fresh selected schema retained even when there are no rows.",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "pandas_dtype": {
+          "title": "Pandas Dtype",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "pandas_dtype"
+      ],
+      "title": "FederationColumnProjection",
+      "type": "object"
+    },
+    "FederationFetchObservation": {
+      "additionalProperties": false,
+      "description": "A selected source member and consumer-asserted capture/provenance claims.",
+      "properties": {
+        "captured_bytes_basis": {
+          "const": "consumer_asserted",
+          "default": "consumer_asserted",
+          "title": "Captured Bytes Basis",
+          "type": "string"
+        },
+        "connector_id": {
+          "title": "Connector Id",
+          "type": "string"
+        },
+        "dataset_id": {
+          "title": "Dataset Id",
+          "type": "string"
+        },
+        "observation_basis": {
+          "const": "consumer_asserted",
+          "default": "consumer_asserted",
+          "title": "Observation Basis",
+          "type": "string"
+        },
+        "observed_at": {
+          "format": "date-time",
+          "title": "Observed At",
+          "type": "string"
+        },
+        "pagination_reported": {
+          "title": "Pagination Reported",
+          "type": "boolean"
+        },
+        "position": {
+          "minimum": 0,
+          "title": "Position",
+          "type": "integer"
+        },
+        "provenance": {
+          "$ref": "#/$defs/FetchProvenanceEnvelope"
+        },
+        "provenance_basis": {
+          "const": "consumer_asserted",
+          "default": "consumer_asserted",
+          "title": "Provenance Basis",
+          "type": "string"
+        },
+        "quality": {
+          "$ref": "#/$defs/FetchQualityEnvelope"
+        },
+        "request_key": {
+          "title": "Request Key",
+          "type": "string"
+        },
+        "row_count": {
+          "minimum": 0,
+          "title": "Row Count",
+          "type": "integer"
+        },
+        "schema_id": {
+          "title": "Schema Id",
+          "type": "string"
+        },
+        "schema_version": {
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "selected_member_bytes_basis": {
+          "const": "recomputed",
+          "default": "recomputed",
+          "title": "Selected Member Bytes Basis",
+          "type": "string"
+        },
+        "selected_member_row_count_basis": {
+          "const": "recomputed",
+          "default": "recomputed",
+          "title": "Selected Member Row Count Basis",
+          "type": "string"
+        },
+        "selected_source_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Selected Source Sha256",
+          "type": "string"
+        },
+        "source_completeness": {
+          "const": "not_established",
+          "default": "not_established",
+          "title": "Source Completeness",
+          "type": "string"
+        },
+        "source_scope": {
+          "const": "captured_rows_only",
+          "default": "captured_rows_only",
+          "title": "Source Scope",
+          "type": "string"
+        },
+        "transfer": {
+          "$ref": "#/$defs/FetchTransferEnvelope"
+        }
+      },
+      "required": [
+        "position",
+        "selected_source_sha256",
+        "connector_id",
+        "dataset_id",
+        "request_key",
+        "observed_at",
+        "row_count",
+        "schema_id",
+        "schema_version",
+        "quality",
+        "transfer",
+        "provenance",
+        "pagination_reported"
+      ],
+      "title": "FederationFetchObservation",
+      "type": "object"
+    },
+    "FederationParentObservation": {
+      "additionalProperties": false,
+      "description": "Kernel parents do not carry a separately bound acquisition/warning history.",
+      "properties": {
+        "manifest_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Manifest Sha256",
+          "type": "string"
+        },
+        "observation_history": {
+          "const": "unavailable",
+          "default": "unavailable",
+          "title": "Observation History",
+          "type": "string"
+        },
+        "position": {
+          "minimum": 0,
+          "title": "Position",
+          "type": "integer"
+        },
+        "warning_history": {
+          "const": "not_established",
+          "default": "not_established",
+          "title": "Warning History",
+          "type": "string"
+        }
+      },
+      "required": [
+        "position",
+        "manifest_sha256"
+      ],
+      "title": "FederationParentObservation",
+      "type": "object"
+    },
+    "FetchProvenanceEnvelope": {
+      "additionalProperties": false,
+      "description": "Versioning and evidence metadata attached to a fetch payload.",
+      "properties": {
+        "evidence_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/EvidenceBundleRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "fetched_at": {
+          "format": "date-time",
+          "title": "Fetched At",
+          "type": "string"
+        },
+        "source_updated_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Updated At"
+        },
+        "version": {
+          "$ref": "#/$defs/DataVersion"
+        }
+      },
+      "required": [
+        "version",
+        "fetched_at"
+      ],
+      "title": "FetchProvenanceEnvelope",
+      "type": "object"
+    },
+    "FetchQualityEnvelope": {
+      "additionalProperties": false,
+      "description": "Quality assessment boundary for a fetch payload.",
+      "properties": {
+        "completeness": {
+          "title": "Completeness",
+          "type": "number"
+        },
+        "quality_flags": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Quality Flags",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "quality_tier": {
+          "$ref": "#/$defs/QualityTier"
+        }
+      },
+      "required": [
+        "completeness",
+        "quality_tier"
+      ],
+      "title": "FetchQualityEnvelope",
+      "type": "object"
+    },
+    "FetchTransferEnvelope": {
+      "additionalProperties": false,
+      "description": "Transport/runtime metrics for one fetch invocation.",
+      "properties": {
+        "bytes_transferred": {
+          "default": 0,
+          "title": "Bytes Transferred",
+          "type": "integer"
+        },
+        "fetch_duration_ms": {
+          "default": 0.0,
+          "title": "Fetch Duration Ms",
+          "type": "number"
+        },
+        "not_modified": {
+          "default": false,
+          "title": "Not Modified",
+          "type": "boolean"
+        },
+        "pii_scan": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PIIScanSummary"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "resilience": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ResilienceInfo"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "FetchTransferEnvelope",
+      "type": "object"
+    },
+    "PIIDetectedEntity": {
+      "additionalProperties": false,
+      "description": "Single redacted PII detection result.",
+      "properties": {
+        "column": {
+          "default": "",
+          "title": "Column",
+          "type": "string"
+        },
+        "end": {
+          "default": 0,
+          "minimum": 0,
+          "title": "End",
+          "type": "integer"
+        },
+        "entity_type": {
+          "description": "Detected entity type (Presidio/custom)",
+          "title": "Entity Type",
+          "type": "string"
+        },
+        "redacted_text": {
+          "default": "***",
+          "title": "Redacted Text",
+          "type": "string"
+        },
+        "score": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Score",
+          "type": "number"
+        },
+        "severity": {
+          "description": "PII severity level",
+          "title": "Severity",
+          "type": "string"
+        },
+        "start": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Start",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "entity_type",
+        "severity",
+        "score"
+      ],
+      "title": "PIIDetectedEntity",
+      "type": "object"
+    },
+    "PIIScanSummary": {
+      "additionalProperties": false,
+      "description": "Aggregated PII scan summary attached to connector fetch results.",
+      "properties": {
+        "entities": {
+          "items": {
+            "$ref": "#/$defs/PIIDetectedEntity"
+          },
+          "title": "Entities",
+          "type": "array"
+        },
+        "entities_by_severity": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Entities By Severity",
+          "type": "object"
+        },
+        "entities_by_type": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Entities By Type",
+          "type": "object"
+        },
+        "max_severity": {
+          "default": "none",
+          "title": "Max Severity",
+          "type": "string"
+        },
+        "sample_rate": {
+          "default": 1.0,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Sample Rate",
+          "type": "number"
+        },
+        "sampled": {
+          "default": false,
+          "title": "Sampled",
+          "type": "boolean"
+        },
+        "scan_duration_ms": {
+          "default": 0.0,
+          "minimum": 0.0,
+          "title": "Scan Duration Ms",
+          "type": "number"
+        },
+        "total_entities_found": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Total Entities Found",
+          "type": "integer"
+        },
+        "total_records_scanned": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Total Records Scanned",
+          "type": "integer"
+        }
+      },
+      "title": "PIIScanSummary",
+      "type": "object"
+    },
+    "QualityTier": {
+      "description": "Data quality classification aligned with existing QualityIndicators.",
+      "enum": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "title": "QualityTier",
+      "type": "integer"
+    },
+    "ResilienceInfo": {
+      "additionalProperties": false,
+      "description": "Metadata describing resilience behavior applied to a fetch result.",
+      "properties": {
+        "circuit_state": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Circuit breaker state observed during execution",
+          "title": "Circuit State"
+        },
+        "fallback_strategy": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Name of fallback strategy that succeeded",
+          "title": "Fallback Strategy"
+        },
+        "fallback_used": {
+          "default": false,
+          "description": "Whether a fallback strategy produced this result",
+          "title": "Fallback Used",
+          "type": "boolean"
+        },
+        "rate_limited": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Whether a rate limiter delayed the request",
+          "title": "Rate Limited"
+        },
+        "retry_attempts": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Retry attempt number that succeeded (if any)",
+          "title": "Retry Attempts"
+        }
+      },
+      "title": "ResilienceInfo",
+      "type": "object"
+    },
+    "VersionStrategy": {
+      "description": "Versioning strategies for cached data.",
+      "enum": [
+        "etag",
+        "timestamp",
+        "revision",
+        "content_hash"
+      ],
+      "title": "VersionStrategy",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Request-bound selected candidate; no field is an EOF or authority proof.",
+  "properties": {
+    "acquisition_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Acquisition Sha256",
+      "type": "string"
+    },
+    "artifact_root": {
+      "format": "path",
+      "title": "Artifact Root",
+      "type": "string"
+    },
+    "assurance": {
+      "const": "software_derivation_candidate",
+      "default": "software_derivation_candidate",
+      "title": "Assurance",
+      "type": "string"
+    },
+    "capture_origin_basis": {
+      "const": "consumer_asserted",
+      "default": "consumer_asserted",
+      "title": "Capture Origin Basis",
+      "type": "string"
+    },
+    "capture_scope": {
+      "const": "captured_rows_only",
+      "default": "captured_rows_only",
+      "title": "Capture Scope",
+      "type": "string"
+    },
+    "columns": {
+      "items": {
+        "$ref": "#/$defs/FederationColumnProjection"
+      },
+      "title": "Columns",
+      "type": "array"
+    },
+    "data_shape_basis": {
+      "const": "not_established",
+      "default": "not_established",
+      "title": "Data Shape Basis",
+      "type": "string"
+    },
+    "fetches": {
+      "items": {
+        "$ref": "#/$defs/FederationFetchObservation"
+      },
+      "title": "Fetches",
+      "type": "array"
+    },
+    "fetches_scope": {
+      "const": "fresh_connector_fetches_only",
+      "default": "fresh_connector_fetches_only",
+      "title": "Fetches Scope",
+      "type": "string"
+    },
+    "held_parents": {
+      "additionalProperties": {
+        "format": "path",
+        "type": "string"
+      },
+      "title": "Held Parents",
+      "type": "object"
+    },
+    "leaf_history_basis": {
+      "const": "consumer_asserted",
+      "default": "consumer_asserted",
+      "title": "Leaf History Basis",
+      "type": "string"
+    },
+    "limitation": {
+      "title": "Limitation",
+      "type": "string"
+    },
+    "manifest_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Manifest Sha256",
+      "type": "string"
+    },
+    "merge_summary": {
+      "additionalProperties": true,
+      "title": "Merge Summary",
+      "type": "object"
+    },
+    "observation_origin_basis": {
+      "const": "consumer_asserted",
+      "default": "consumer_asserted",
+      "title": "Observation Origin Basis",
+      "type": "string"
+    },
+    "output_completeness": {
+      "const": "not_established",
+      "default": "not_established",
+      "title": "Output Completeness",
+      "type": "string"
+    },
+    "parent_history": {
+      "enum": [
+        "not_applicable",
+        "unavailable"
+      ],
+      "title": "Parent History",
+      "type": "string"
+    },
+    "parents": {
+      "items": {
+        "$ref": "#/$defs/FederationParentObservation"
+      },
+      "title": "Parents",
+      "type": "array"
+    },
+    "request_binding_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Request Binding Sha256",
+      "type": "string"
+    },
+    "selected_bytes_basis": {
+      "const": "recomputed",
+      "default": "recomputed",
+      "title": "Selected Bytes Basis",
+      "type": "string"
+    },
+    "verified_at": {
+      "format": "date-time",
+      "title": "Verified At",
+      "type": "string"
+    },
+    "workflow_compatibility_basis": {
+      "const": "not_established",
+      "default": "not_established",
+      "title": "Workflow Compatibility Basis",
+      "type": "string"
+    }
+  },
+  "required": [
+    "artifact_root",
+    "manifest_sha256",
+    "acquisition_sha256",
+    "request_binding_sha256",
+    "fetches",
+    "parents",
+    "held_parents",
+    "columns",
+    "merge_summary",
+    "verified_at",
+    "parent_history",
+    "limitation"
+  ],
+  "title": "FederationFetchAudit",
+  "type": "object"
+}

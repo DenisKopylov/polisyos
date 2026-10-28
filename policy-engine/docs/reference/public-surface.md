@@ -125,7 +125,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | `polisyos.common` | `src/polisyos/common/__init__.py` | `lazy_facade` | 8 |
 | `polisyos.common.text` | `src/polisyos/common/text.py` | `eager_exports` | 1 |
 | `polisyos.common.config` | `src/polisyos/common/config/__init__.py` | `eager_exports` | 8 |
-| `polisyos.common.canonical` | `src/polisyos/common/canonical.py` | `eager_exports` | 5 |
+| `polisyos.common.canonical` | `src/polisyos/common/canonical.py` | `eager_exports` | 10 |
 | `polisyos.common.canonical_profile` | `src/polisyos/common/canonical_profile.py` | `eager_exports` | 9 |
 | `polisyos.common.hashing` | `src/polisyos/common/hashing.py` | `eager_exports` | 5 |
 | `polisyos.common.migrations` | `src/polisyos/common/migrations/__init__.py` | `eager_exports` | 6 |
@@ -192,13 +192,18 @@ validate_process_bootstrap_config
 - Facade: `eager_exports`
 - Summary: Shared strict canonical JSON mechanics for the Core and IR profiles.
 
-<details><summary>Entrypoint exports (5)</summary>
+<details><summary>Entrypoint exports (10)</summary>
 
 ```text
+ArrayDigestRepresentation
+BytesHexRepresentation
 CanonSpec
 CanonicalError
+CanonicalResourceLimits
+FloatHexRepresentation
 from_canonical_bytes
 from_canonical_obj
+to_bounded_canonical_bytes
 to_canonical_bytes
 ```
 
@@ -294,13 +299,13 @@ timestamps
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
 | `polisyos.core` | `src/polisyos/core/__init__.py` | `lazy_facade` | 134 |
-| `polisyos.core.artifacts` | `src/polisyos/core/artifacts/__init__.py` | `lazy_facade` | 127 |
-| `polisyos.core.canon` | `src/polisyos/core/canon/__init__.py` | `eager_exports` | 10 |
+| `polisyos.core.artifacts` | `src/polisyos/core/artifacts/__init__.py` | `lazy_facade` | 131 |
+| `polisyos.core.canon` | `src/polisyos/core/canon/__init__.py` | `eager_exports` | 12 |
 | `polisyos.core.components` | `src/polisyos/core/components/__init__.py` | `eager_exports` | 63 |
-| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 770 |
+| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 777 |
 | `polisyos.core.governance` | `src/polisyos/core/governance/__init__.py` | `eager_exports` | 5 |
-| `polisyos.core.llm` | `src/polisyos/core/llm/__init__.py` | `eager_exports` | 17 |
-| `polisyos.core.llm.cache_settlement` | `src/polisyos/core/llm/cache_settlement.py` | `eager_exports` | 7 |
+| `polisyos.core.llm` | `src/polisyos/core/llm/__init__.py` | `eager_exports` | 20 |
+| `polisyos.core.llm.cache_settlement` | `src/polisyos/core/llm/cache_settlement.py` | `eager_exports` | 8 |
 | `polisyos.core.observability` | `src/polisyos/core/observability/__init__.py` | `unresolved_exports` | unknown (no names proven) |
 | `polisyos.core.security` | `src/polisyos/core/security/__init__.py` | `lazy_facade` | 113 |
 | `polisyos.core.trace` | `src/polisyos/core/trace/__init__.py` | `eager_exports` | 6 |
@@ -460,7 +465,7 @@ security
 - Facade: `lazy_facade`
 - Summary: Publish the stable CAS artifact ABI used by manifests, lineage, and signing.
 
-<details><summary>Entrypoint exports (127)</summary>
+<details><summary>Entrypoint exports (131)</summary>
 
 ```text
 AUTHORITY_ENVELOPE_ARTIFACT_KIND
@@ -491,6 +496,7 @@ ArtifactStore
 ArtifactStoreConfig
 ArtifactStoreReadUsage
 ArtifactTenantContextInfo
+ArtifactUnavailableError
 ArtifactVerifier
 ArtifactWriteOptions
 AsyncArtifactStore
@@ -544,6 +550,7 @@ RegistryBundle
 RegistryBundlePayload
 RootedArtifactStore
 SchemaInfo
+SelectedProfileVerificationReader
 SignatureStatement
 SignatureVerificationResult
 SignatureVerificationStatus
@@ -574,6 +581,7 @@ matches_artifact_store_protocol
 matches_runtime_protocol
 matches_runtime_protocol_definition
 profile_bound_ref
+raise_artifact_read_access_error
 read_core_input_manifest_profile_bounded
 read_core_json_artifact
 read_core_json_artifact_bounded
@@ -589,6 +597,7 @@ validate_core_model_json_artifact
 validate_owned_core_model_json_artifact
 validate_return_selected_profile
 with_ambient_ownership_enforcement_if_supported
+write_bytes_atomic
 write_bytes_once
 ```
 
@@ -600,17 +609,19 @@ write_bytes_once
 - Facade: `eager_exports`
 - Summary: Exports canonical JSON helpers and hashing utilities for stable artifact identities.
 
-<details><summary>Entrypoint exports (10)</summary>
+<details><summary>Entrypoint exports (12)</summary>
 
 ```text
 CanonSpec
 CanonViolation
+CanonicalResourceLimits
 DeprecatedHashAlgorithm
 content_hash
 fingerprint
 from_canonical_bytes
 from_canonical_obj
 streaming_hash
+to_bounded_canonical_bytes
 to_canonical_bytes
 truncated_hash
 ```
@@ -699,7 +710,7 @@ validate_metadata
 - Facade: `lazy_facade`
 - Summary: Lazy facade for the stable DTOs shared across PolicyOS subsystem boundaries.
 
-<details><summary>Entrypoint exports (770)</summary>
+<details><summary>Entrypoint exports (777)</summary>
 
 ```text
 AcceptanceNonReceipt
@@ -957,6 +968,7 @@ ContinuationBranch
 ContinuationBranchPoint
 ContinuationBranchRef
 ControlFailureEnvelope
+ControlJobCancellationRequest
 ControlJobResponse
 ControlPreAdmissionAttemptEventInfo
 ControlPreAdmissionAttemptResponse
@@ -1182,6 +1194,12 @@ MethodExecutionPosteriorSummaryRef
 MethodExecutionProducerDiagnostic
 MethodExecutionProducerEmissionDiagnostic
 MethodExecutionSelection
+CompletedExAnteCandidateComparisonResponse
+CompletedExAnteCandidateSource
+CompletedExAnteComparisonRequest
+CompletedExAnteCandidateObservation
+CompletedExAnteCandidateRanking
+MethodMetricCandidateScore
 MethodMetricProjectionResponse
 MethodMetricProjectionSelection
 ObservationalInputResourcePolicy
@@ -1500,7 +1518,7 @@ SafetyPass
 - Facade: `eager_exports`
 - Summary: Exports LLM pricing, retry, tracing, and response-normalization helpers.
 
-<details><summary>Entrypoint exports (17)</summary>
+<details><summary>Entrypoint exports (20)</summary>
 
 ```text
 SECRET_AND_PII_SCAN_SCOPES
@@ -1518,7 +1536,10 @@ estimate_cost_from_tokens
 extract_llm_response_data
 retry_async
 scan_secret_and_pii
+LLMProducerAdmissionGuard
 LLMProducerEvent
+LLMProducerIntent
+LLMSettlementOwnershipError
 normalize_llm_cost_evidence
 ```
 
@@ -1530,7 +1551,7 @@ normalize_llm_cost_evidence
 - Facade: `eager_exports`
 - Summary: Opaque Core-owned owner boundary for authenticated cache reuse.
 
-<details><summary>Entrypoint exports (7)</summary>
+<details><summary>Entrypoint exports (8)</summary>
 
 ```text
 CacheFlightOutcome
@@ -1538,6 +1559,7 @@ CacheFlightRegistration
 CacheReuseAttestation
 CacheReuseEvidence
 CacheSettlementSession
+bind_cache_settlement_client
 create_cache_settlement_session
 session_for_cache_client
 ```
@@ -4449,7 +4471,7 @@ write_participation_requirement_bundle
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
 | `polisyos.fabric` | `src/polisyos/fabric/__init__.py` | `unresolved_exports` | unknown (no names proven) |
-| `polisyos.fabric.api` | `src/polisyos/fabric/api.py` | `eager_exports` | 44 |
+| `polisyos.fabric.api` | `src/polisyos/fabric/api.py` | `eager_exports` | 53 |
 | `polisyos.fabric.connectors` | `src/polisyos/fabric/connectors/__init__.py` | `eager_exports` | 134 |
 | `polisyos.fabric.data_plane` | `src/polisyos/fabric/data_plane/__init__.py` | `lazy_facade` | 56 |
 | `polisyos.fabric.world` | `src/polisyos/fabric/world/__init__.py` | `unresolved_exports` | unknown (no names proven) |
@@ -4468,7 +4490,7 @@ write_participation_requirement_bundle
 - Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
 - Source evidence: 1 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
-<details><summary>Source-declared candidates (44; native exports unproved)</summary>
+<details><summary>Source-declared candidates (53; native exports unproved)</summary>
 
 ```text
 AccessRef
@@ -4480,6 +4502,11 @@ FabricDecisionData
 FabricDecisionDataCoverage
 FabricDecisionDataResponse
 FabricFetchReceipt
+FederatedFetchResult
+FederationFetchAudit
+FederationFetchRequest
+FederationFetchSource
+FederationSnapshotProjectionError
 FieldSpec
 IngestionStoreBindingError
 LineageRef
@@ -4506,14 +4533,18 @@ fabric_event_to_authored_text
 fabric_fact_to_quantity_value
 fabric_get_data
 file_lock
+freeze_federation_request
+prepare_federation_core_payload
 project_data_requirement_to_catalog_needs
 query_claims
 query_events
 query_world_table
+reopen_federated_fetch_result
 resolve_connector_registry
 resolve_world_snapshot
 run_connectors_ingestion
 stream_processing_contract
+verify_federation_core_payload
 world
 ```
 
@@ -4525,7 +4556,7 @@ world
 - Facade: `eager_exports`
 - Summary: Explicit public Fabric API facade and connector bridge.
 
-<details><summary>Entrypoint exports (44)</summary>
+<details><summary>Entrypoint exports (53)</summary>
 
 ```text
 AccessRef
@@ -4537,6 +4568,11 @@ FabricDecisionData
 FabricDecisionDataCoverage
 FabricDecisionDataResponse
 FabricFetchReceipt
+FederatedFetchResult
+FederationFetchAudit
+FederationFetchRequest
+FederationFetchSource
+FederationSnapshotProjectionError
 FieldSpec
 IngestionStoreBindingError
 LineageRef
@@ -4563,14 +4599,18 @@ fabric_event_to_authored_text
 fabric_fact_to_quantity_value
 fabric_get_data
 file_lock
+freeze_federation_request
+prepare_federation_core_payload
 project_data_requirement_to_catalog_needs
 query_claims
 query_events
 query_world_table
+reopen_federated_fetch_result
 resolve_connector_registry
 resolve_world_snapshot
 run_connectors_ingestion
 stream_processing_contract
+verify_federation_core_payload
 world
 ```
 
@@ -5095,13 +5135,25 @@ persist_continuation_branch
 - Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
 - Source evidence: 1 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
-<details><summary>Source-declared candidates (87; native exports unproved)</summary>
+<details><summary>Source-declared candidates (115; native exports unproved)</summary>
 
 ```text
+CalibrationSourceRead
+CalibrationSourceReadRefusal
+CalibrationSourceStatus
+classify_calibration_source_error
+read_calibration_source
+read_calibration_config_source
+read_calibration_model_source
+read_calibration_registry_source
+read_calibration_execution_input_basis_source
+read_calibration_report_source
+record_calibration_source_error
 affine_bijector
 aggregate_moment_summary
 attach_abm_identifiability_certificate_ref
 attach_identifiability_diagnostic_ref
+apply_nodes_batch
 AuxLossComponent
 build_robust_set_spec_from_samples
 calibrate_discrete_ci
@@ -5109,9 +5161,15 @@ calibrate_kernel_ci
 calibration_report_series_sha256
 calibration_report_time_axis_sha256
 CALIBRATION_RUNTIME_INPUT_CONTRACT
+CALIBRATION_RUNTIME_INPUT_CONTRACT_V1_2
 CALIBRATION_RUNTIME_INPUT_NAMES
+CALIBRATION_RUNTIME_INPUT_NAMES_V1_2
 CalibrationCoordinateProjection
 CalibrationExecutionInputBasis
+CalibrationOrderedBatchInput
+CalibrationOrderedBatchBackendUnavailable
+CalibrationOrderedBatchReport
+CalibrationOrderedBatchRow
 CalibrationFitMetrics
 CalibrationFitQuality
 CalibrationParameterUnitIdentity
@@ -5125,6 +5183,8 @@ CalibrationTargetInputIdentity
 CalibrationUncertainty
 Calibrator
 CalibratorInputs
+OrderedBatchCalibrationEvaluation
+OrderedBatchCalibrationProfile
 canonical_input_sha256
 chain_bijector
 CIFPRInflationBound
@@ -5142,6 +5202,7 @@ DPContext
 effective_privacy_xi
 envelope_from_calibration_param
 envelopes_from_calibration
+evaluate_ordered_batch_objective
 ExecuteResponseBasisCandidate
 ExecuteResponseSourceIdentity
 fabric_calibration_context_from_decision_data
@@ -5169,9 +5230,16 @@ MeasurementAwareTarget
 MultiStartResult
 ParamIdentifiability
 persist_posterior_summary_from_method_evidence
+propagate_selected_posterior_summary
 put_calibration_config
 put_calibration_execution_input_basis
 put_calibration_report
+reconcile_ordered_batch_inputs
+put_calibration_ordered_batch_input
+resolve_calibration_ordered_batch_input
+reconcile_ordered_batch_report_identity
+replay_ordered_batch_report_projection
+ordered_batch_fit_metrics
 reconcile_selected_runtime_input
 required_n_chi2
 required_n_kernel
@@ -8871,9 +8939,9 @@ validate_web_evidence_source_binding
 | `polisyos.data_forge` | `src/polisyos/data_forge/__init__.py` | `lazy_facade` | 49 |
 | `polisyos.data_forge.read_api` | `src/polisyos/data_forge/read_api/__init__.py` | `lazy_facade` | 26 |
 | `polisyos.data_forge.read_api.academic` | `src/polisyos/data_forge/read_api/academic.py` | `lazy_facade` | 110 |
-| `polisyos.data_forge.read_api.catalog` | `src/polisyos/data_forge/read_api/catalog.py` | `lazy_facade` | 151 |
+| `polisyos.data_forge.read_api.catalog` | `src/polisyos/data_forge/read_api/catalog.py` | `lazy_facade` | 152 |
 | `polisyos.data_forge.read_api.legal` | `src/polisyos/data_forge/read_api/legal.py` | `lazy_facade` | 61 |
-| `polisyos.data_forge.read_api.ukraine` | `src/polisyos/data_forge/read_api/ukraine.py` | `lazy_facade` | 73 |
+| `polisyos.data_forge.read_api.ukraine` | `src/polisyos/data_forge/read_api/ukraine.py` | `lazy_facade` | 75 |
 
 #### `polisyos.data_forge`
 
@@ -9105,7 +9173,7 @@ validate_claim_adjudication_input_batch
 - Facade: `lazy_facade`
 - Summary: Runtime-safe read API for catalog Data Forge artifacts.
 
-<details><summary>Entrypoint exports (151)</summary>
+<details><summary>Entrypoint exports (152)</summary>
 
 ```text
 AcquisitionAuthorityEntry
@@ -9147,6 +9215,7 @@ CatalogFetchResolution
 CatalogHistoryPolicy
 CatalogQCReport
 CatalogQueryGenerationContext
+CatalogReadSourceError
 CatalogReadinessPackage
 CatalogReadinessSummary
 CatalogRunLane
@@ -9343,7 +9412,7 @@ search_legal_knowledge_graph
 - Facade: `lazy_facade`
 - Summary: Runtime-safe read API for Ukraine source snapshots and demographic artifacts.
 
-<details><summary>Entrypoint exports (73)</summary>
+<details><summary>Entrypoint exports (75)</summary>
 
 ```text
 ArtifactRecord
@@ -9368,6 +9437,7 @@ UKRAINE_DEMOGRAPHY_PRIORS_KEY
 UKRAINE_DEMOGRAPHY_SOURCE_INVENTORY_KEY
 UKRAINE_DEMOGRAPHY_TARGETS_KEY
 UKRAINE_NORMALIZED_SOURCES_KEY
+UKRAINE_PERIOD_PROJECTION_VERSION
 UKRAINE_RAW_SOURCES_KEY
 UKRAINE_READINESS_KEY
 UKRAINE_SOURCE_CONFIG_KEY
@@ -9417,6 +9487,7 @@ load_verified_stage_artifacts
 load_verified_stage_json_output
 load_verified_stage_manifest_json
 load_verified_stage_output_bytes
+project_ukraine_observation_periods
 read_ukraine_json_snapshot
 ukraine_d4_json_snapshot_model_type
 ```

@@ -16,6 +16,7 @@ from polisyos.data_forge.domains.ukraine.adapters import (
     build_default_adapter_registry,
 )
 from polisyos.data_forge.domains.ukraine.builders import STAGE_BUILDERS
+from polisyos.data_forge.domains.ukraine.builders.sources import ObservationStagePartialError
 from polisyos.data_forge.domains.ukraine.manifests import (
     ArtifactRecord,
     BuildRunManifest,
@@ -360,6 +361,8 @@ class UkraineDataOrchestrator:
         except Exception as exc:
             status = "failed"
             errors.append(str(exc))
+            if isinstance(exc, ObservationStagePartialError):
+                metrics["partial_observation_stage"] = exc.partial_state
         elapsed_s = time.perf_counter() - start
         budget = self.config.stages[stage_id.value].resource_budget.time_budget_s
         if budget is not None and elapsed_s > budget:

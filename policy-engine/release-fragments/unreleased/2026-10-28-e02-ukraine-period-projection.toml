@@ -1,0 +1,65 @@
+id = "2026-10-28-e02-ukraine-period-projection"
+title = "Preserve Ukraine observation period limits and reader failures"
+type = "changed"
+component = "data-forge"
+owner = "team-data-forge"
+summary = "The experimental Ukraine read API exposes a versioned observation-period projection, while the D2/D3 and Scientist paths retain unresolved periods and bounded reader failures."
+evidence = [
+  "src/polisyos/data_forge/read_api/README.md",
+  "tests/unit/remediation/test_obs_01.py",
+  "tests/unit/remediation/test_obs_02.py",
+  "tests/unit/data_forge/domains/ukraine/test_adapters.py",
+  "tests/unit/data_forge/domains/ukraine/test_builders.py",
+  "tests/unit/data_forge/domains/ukraine/test_orchestrator.py",
+  "tests/unit/scientist/governance/test_blueprint_release.py",
+]
+change_class = "python-public-api; persisted-artifact-format; internal reader behavior"
+surface_classification = "public_experimental: polisyos.data_forge.read_api.ukraine; internal: Ukraine normalization and D2/D3 stage execution"
+compatibility = "The public projection exports are additive. Normalized period representation, unknown-year household identities, D2/D3 observation fields, and new exact-signoff behavior can differ from historical artifacts; the existing two-series builder aliases remain available. Historical bytes and source versions are not rewritten."
+migration = "Reconcile annual and quarterly source grain and affected consumers, then re-evaluate dependent observations from their actual original sources and provenance. Preserve historical artifacts; do not assign a date or source authority to fill an unknown. Requalify users of D2 full-read fallback, stage failure details, and retained scratch before adopting the new behavior."
+api = "The Ukraine read facade exports UKRAINE_PERIOD_PROJECTION_VERSION and project_ukraine_observation_periods(values, *, time_grain), returning aligned inclusive bounds, disposition, and reason series."
+limitations = "Source review is bounded; authored tests and removal controls do not by themselves establish runtime PASS. Full B146 source/time-role provenance and historical re-evaluation remain unverified. For B147, no safe admitted full-frame allocation bound or immutable/read-bound restart has been established, and the replacement-after-hash control is unrun. Generated public inventory review, installed consumers, composed checks, production-size resources, source authority/currentness, G acceptance, and formal closure remain separate."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/data_forge/read_api/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "ukraine-observation-period-read-api"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_experimental: polisyos.data_forge.read_api.ukraine"
+owner = "team-data-forge"
+version_owner = "team-data-forge"
+deprecation_window = "not_applicable"
+release_note = "The experimental Ukraine read API exposes versioned, aligned period bounds and explicit missing, invalid, and insufficient-precision dispositions."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/data_forge/read_api/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "ukraine-observation-period-artifact-migration"
+change_class = "persisted-artifact-format"
+impact = "migration"
+surface = "internal: Ukraine normalized observations and D2/D3 artifacts"
+owner = "team-data-forge"
+version_owner = "team-data-forge"
+deprecation_window = "not_applicable"
+release_note = "New observations retain a projection version and explicit period limitations; historical artifacts require source-bound re-evaluation rather than rewriting their provenance."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/data_forge/read_api/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "ukraine-d2-reader-failure-and-partial-state"
+change_class = "internal"
+impact = "migration"
+surface = "internal: Ukraine D2 reader and failed-stage receipt"
+owner = "team-data-forge"
+version_owner = "team-data-forge"
+deprecation_window = "not_applicable"
+release_note = "A D2 failure retains its originating error and incomplete scratch state; an unbounded pre-publication full-read fallback is refused."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/data_forge/read_api/README.md"]
+runbook_docs = []

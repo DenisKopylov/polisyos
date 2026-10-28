@@ -20,6 +20,12 @@ is part of the supported import surface.
 
 The Ukraine read API owns the strict candidate payload types, contract-to-model registry, and role map for the three D4 source JSON contracts (governance request, identity-resolution cohort, and selected calibration splits). The same DataForge-owned model registry is used by the D4 producer and C5b source reader. `read_ukraine_json_snapshot()` still controls whether a payload is a conformant typed candidate, profileless raw snapshot candidate, or raw-only unknown profile; these types establish no producer authority, currentness, or promotion eligibility. The D3/S1 source group remains a separate complete group in Scientist orchestration.
 
+The experimental Ukraine read API also exposes a versioned observation-period
+projection. Its aligned bounds and dispositions, the D2/D3 consumer behavior,
+legacy limitations, and the remaining reader-recovery boundaries are described
+in the [read API README](read_api/README.md#ukraine-observation-periods).
+The projection does not establish source authority or currentness.
+
 The top-level package lazily exports build-time contracts for asset identity,
 `ArtifactRef` governance, schema registry access, snapshot transactions,
 quality checks, provenance manifests, and golden/differential migration tests.

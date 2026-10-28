@@ -14,6 +14,7 @@ import tempfile
 import urllib.request
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
+from datetime import date, datetime
 from pathlib import Path
 from typing import Protocol
 from zipfile import ZipFile
@@ -353,7 +354,7 @@ class TabularSourceAdapter:
                         "target_agent_id": target_agent_id,
                         "amount": self._coerce_float(item.get("amount") or item.get("amount_cop")),
                         "period_id": self._coerce_period_id(
-                            item.get("trans_date") or item.get("doc_date")
+                            self._first_present(item, "trans_date", "doc_date")
                         ),
                         "registration_code": source_agent_id,
                     }
@@ -433,7 +434,8 @@ class TabularSourceAdapter:
                   || '|'
                   || coalesce(target_agent_id, '')
                   || '|'
-                  || coalesce(period_id, '')
+                  || case when period_id is null then 'N'
+                          else 'S' || cast(length(period_id) as varchar) || ':' || period_id end
                   || '|'
                   || cast(amount as varchar)
                 ) as record_hash
@@ -592,7 +594,7 @@ class TabularSourceAdapter:
                 )
             )
 
-        aggregated: dict[tuple[str, str, str], float] = {}
+        aggregated: dict[tuple[str, str, str | None], float] = {}
         for path in [*sample_paths, *selected_daily_paths]:
             data = self._load_json_payload(path)
             if not isinstance(data, list):
@@ -608,7 +610,9 @@ class TabularSourceAdapter:
                 ).strip()
                 if not source_agent_id or not target_agent_id:
                     continue
-                period_id = self._coerce_period_id(item.get("trans_date") or item.get("doc_date"))
+                period_id = self._coerce_period_id(
+                    self._first_present(item, "trans_date", "doc_date")
+                )
                 amount = self._coerce_float(item.get("amount") or item.get("amount_cop"))
                 key = (source_agent_id, target_agent_id, period_id)
                 aggregated[key] = aggregated.get(key, 0.0) + amount
@@ -688,9 +692,7 @@ class TabularSourceAdapter:
                     amount_value = document.get("amount")
                 amount = self._coerce_float(amount_value)
                 period_id = self._coerce_period_id(
-                    document.get("signDate")
-                    or document.get("documentDate")
-                    or document.get("fromDate")
+                    self._first_present(document, "signDate", "documentDate", "fromDate")
                 )
                 contractors = document.get("contractors")
                 supplier_candidates: list[str | None] = []
@@ -835,25 +837,17 @@ class TabularSourceAdapter:
                     )
                 )
                 continue
-            year_series = (
-                pd.to_numeric(frame[year_col], errors="coerce")
-                .fillna(self._extract_year_from_name(path.name))
-                .astype(int)
-            )
+            year_series = frame[year_col]
             quarter_series = (
-                pd.to_numeric(
-                    frame[quarter_col] if quarter_col is not None else 4,
-                    errors="coerce",
-                )
-                .fillna(4)
-                .clip(1, 4)
-                .astype(int)
+                frame[quarter_col]
+                if quarter_col is not None
+                else pd.Series(None, index=frame.index, dtype=object)
             )
             region_series = frame[region_col] if region_col is not None else "00"
             normalized = pd.DataFrame(
                 {
                     "household_id": [
-                        f"hh::{year}::{self._normalize_registration_code(code) or self._stable_token(code)}"
+                        self._microdata_identity("hh", year, code)
                         for year, code in zip(
                             year_series.tolist(), frame[family_col].tolist(), strict=False
                         )
@@ -869,9 +863,14 @@ class TabularSourceAdapter:
                         )
                     ],
                     "quarter_id": [
-                        f"{year}Q{quarter}"
-                        for year, quarter in zip(
-                            year_series.tolist(), quarter_series.tolist(), strict=False
+                        period
+                        if period is not None and re.fullmatch(r"\d{4}Q[1-4]", period)
+                        else None
+                        for period in (
+                            self._quarter_to_period_id(year, quarter)
+                            for year, quarter in zip(
+                                year_series.tolist(), quarter_series.tolist(), strict=False
+                            )
                         )
                     ],
                     "income": pd.to_numeric(frame[income_col], errors="coerce").fillna(0.0),
@@ -952,11 +951,7 @@ class TabularSourceAdapter:
                     )
                 )
                 continue
-            year_series = (
-                pd.to_numeric(frame[year_col], errors="coerce")
-                .fillna(self._extract_year_from_name(path.name))
-                .astype(int)
-            )
+            year_series = frame[year_col]
             region_series = frame[region_col] if region_col is not None else "00"
             participation = (
                 frame[labour_force_col].map(self._labor_force_participation_flag).astype(float)
@@ -976,7 +971,7 @@ class TabularSourceAdapter:
             normalized = pd.DataFrame(
                 {
                     "household_id": [
-                        f"lfs::{year}::{self._normalize_registration_code(code) or self._stable_token(code)}"
+                        self._microdata_identity("lfs", year, code)
                         for year, code in zip(
                             year_series.tolist(), frame[id_col].tolist(), strict=False
                         )
@@ -985,7 +980,7 @@ class TabularSourceAdapter:
                         f"cell::{region_code}::labor_market"
                         for region_code in region_series.map(self._normalize_region_code).tolist()
                     ],
-                    "period_id": [f"{year}-12" for year in year_series.tolist()],
+                    "period_id": [self._coerce_period_id(year) for year in year_series.tolist()],
                     "participation_rate": participation,
                     "weight": (
                         pd.to_numeric(frame[weight_col], errors="coerce").fillna(1.0)
@@ -1058,10 +1053,14 @@ class TabularSourceAdapter:
                     "region_code",
                 ]
             ), findings
-        aggregated = frame.groupby(["registration_code", "period_id"], as_index=False).agg(
-            arrears_amount=("arrears_amount", "sum"),
-            debt_amount=("debt_amount", "sum"),
-            region_code=("region_code", "first"),
+        aggregated = (
+            frame.dropna(subset=["registration_code"])
+            .groupby(["registration_code", "period_id"], as_index=False, dropna=False)
+            .agg(
+                arrears_amount=("arrears_amount", "sum"),
+                debt_amount=("debt_amount", "sum"),
+                region_code=("region_code", "first"),
+            )
         )
         return aggregated, findings
 
@@ -1207,10 +1206,14 @@ class TabularSourceAdapter:
                     "region_code",
                 ]
             ), findings
-        aggregated = frame.groupby(["registration_code", "period_id"], as_index=False).agg(
-            event_count=("event_count", "sum"),
-            event_flag=("event_flag", "max"),
-            region_code=("region_code", "first"),
+        aggregated = (
+            frame.dropna(subset=["registration_code"])
+            .groupby(["registration_code", "period_id"], as_index=False, dropna=False)
+            .agg(
+                event_count=("event_count", "sum"),
+                event_flag=("event_flag", "max"),
+                region_code=("region_code", "first"),
+            )
         )
         return aggregated, findings
 
@@ -1294,9 +1297,13 @@ class TabularSourceAdapter:
                 columns=["cell_id", "period_id", "mobility_pressure", "region_code"]
             ), findings
         combined = pd.concat(rows, ignore_index=True)
-        aggregated = combined.groupby(["cell_id", "period_id", "region_code"], as_index=False).agg(
-            mobility_pressure=("mobility_pressure", "sum"),
-            source_file=("source_file", "first"),
+        aggregated = (
+            combined.dropna(subset=["cell_id", "region_code"])
+            .groupby(["cell_id", "period_id", "region_code"], as_index=False, dropna=False)
+            .agg(
+                mobility_pressure=("mobility_pressure", "sum"),
+                source_file=("source_file", "first"),
+            )
         )
         return aggregated, findings
 
@@ -1404,9 +1411,9 @@ class TabularSourceAdapter:
                                     (contract.get("value") or {}).get("amount")
                                 ),
                                 "period_id": self._coerce_period_id(
-                                    contract.get("dateSigned")
-                                    or contract.get("date")
-                                    or contract.get("dateModified")
+                                    self._first_present(
+                                        contract, "dateSigned", "date", "dateModified"
+                                    )
                                 ),
                                 "registration_code": str(
                                     buyer_identifier or contract.get("id") or ""
@@ -1439,7 +1446,7 @@ class TabularSourceAdapter:
                 )
             )
 
-        period_counts: dict[str, int] = {}
+        period_counts: dict[str | None, int] = {}
         for path in [*seed_paths, *selected_pages]:
             payload = self._load_json_payload(path)
             if not isinstance(payload, dict):
@@ -1459,7 +1466,9 @@ class TabularSourceAdapter:
                     "registration_code": f"contracts_feed::{period_id}",
                     "contract_count": int(count),
                 }
-                for period_id, count in sorted(period_counts.items())
+                for period_id, count in sorted(
+                    period_counts.items(), key=lambda item: (item[0] is not None, item[0] or "")
+                )
             ]
         )
         return frame, findings
@@ -1554,7 +1563,8 @@ class TabularSourceAdapter:
         frame["agent_id"] = frame["registration_code"].map(
             lambda value: f"agent::{self._stable_token(value)}"
         )
-        frame["period_id"] = "2022-12"
+        # These source archives name the year, not a month within that year.
+        frame["period_id"] = "2022"
         for column in ("revenue", "assets", "liabilities", "employees"):
             if column not in frame.columns:
                 frame[column] = 0.0
@@ -1686,18 +1696,60 @@ class TabularSourceAdapter:
             return default
         return parsed if parsed > 0 else default
 
+    def _microdata_identity(self, prefix: str, year: object, code: object) -> str | None:
+        """Keep valid-year IDs stable without inventing an unknown year."""
+        year_text = self._coerce_period_id(year)
+        if year_text is None or re.fullmatch(r"\d{4}", year_text) is None:
+            return None
+        if int(year_text) < 1:
+            return None
+        token = self._normalize_registration_code(code) or self._stable_token(code)
+        return f"{prefix}::{year_text}::{token}"
+
     @staticmethod
-    def _coerce_period_id(value: object) -> str:
-        text = str(value or "").strip()
-        if len(text) >= 7 and text[4] == "-":
-            return text[:7]
-        if len(text) == 4 and text.isdigit():
-            return f"{text}-12"
-        if len(text) >= 10 and text[2] == "." and text[5] == ".":
-            return f"{text[6:10]}-{text[3:5]}"
-        if len(text) == 8 and text.isdigit():
-            return f"{text[:4]}-{text[4:6]}"
-        return "2025-01"
+    def _first_present(payload: dict[str, object], *keys: str) -> object:
+        """Preserve the first declared value, including explicit null or blank."""
+        for key in keys:
+            if key in payload:
+                return payload[key]
+        return None
+
+    @staticmethod
+    def _coerce_period_id(value: object) -> str | None:
+        """Normalize recognized dates while retaining absent and malformed inputs."""
+        if value is None or value is pd.NA:
+            return None
+        try:
+            if bool(pd.isna(value)):
+                return None
+        except (TypeError, ValueError):
+            pass
+        if isinstance(value, float) and value.is_integer():
+            value = int(value)
+        text = str(value).strip()
+        if not text:
+            return text
+        if re.fullmatch(r"\d{4}\.0+", text):
+            return text.split(".", 1)[0]
+        iso = re.fullmatch(r"(\d{4})-(\d{2})-(\d{2})(?:[T ].+)?", text)
+        dotted = re.fullmatch(r"(\d{2})\.(\d{2})\.(\d{4})", text)
+        compact = re.fullmatch(r"(\d{4})(\d{2})(\d{2})", text)
+        if iso or dotted or compact:
+            match = iso or dotted or compact
+            if match is None:
+                return text
+            if dotted:
+                day, month, year = map(int, match.groups())
+            else:
+                year, month, day = map(int, match.groups())
+            try:
+                date(year, month, day)
+                if iso and len(text) > 10:
+                    datetime.fromisoformat(text)
+            except ValueError:
+                return text
+            return f"{year:04d}-{month:02d}"
+        return text
 
     @staticmethod
     def _region_from_registration(value: object) -> str:
@@ -1790,13 +1842,11 @@ class TabularSourceAdapter:
         return best_column if best_score > 0 else None
 
     @staticmethod
-    def _extract_year_from_name(name: str) -> int:
+    def _extract_year_from_name(name: str) -> int | None:
         match = re.search(r"(20\d{2})", name)
-        if match is not None:
-            return int(match.group(1))
-        return 2021
+        return int(match.group(1)) if match is not None else None
 
-    def _extract_period_id_from_name(self, name: str) -> str:
+    def _extract_period_id_from_name(self, name: str) -> str | None:
         dotted_match = re.search(r"(\d{2}\.\d{2}\.\d{4})", name)
         if dotted_match is not None:
             return self._coerce_period_id(dotted_match.group(1))
@@ -1804,12 +1854,17 @@ class TabularSourceAdapter:
         if compact_match is not None:
             return f"{compact_match.group(1)}-{compact_match.group(2)}"
         year = self._extract_year_from_name(name)
-        return f"{year}-12"
+        return str(year) if year is not None else None
 
     @staticmethod
-    def _quarter_to_period_id(year: int, quarter: int) -> str:
-        month_lookup = {1: "03", 2: "06", 3: "09", 4: "12"}
-        return f"{int(year):04d}-{month_lookup.get(int(quarter), '12')}"
+    def _quarter_to_period_id(year: object, quarter: object) -> str | None:
+        year_text = TabularSourceAdapter._coerce_period_id(year)
+        quarter_text = TabularSourceAdapter._coerce_period_id(quarter)
+        if year_text is None or not year_text:
+            return year_text
+        if quarter_text is None or not quarter_text:
+            return year_text
+        return f"{year_text}Q{quarter_text}"
 
     @staticmethod
     def _labor_force_participation_flag(value: object) -> int:
@@ -1850,7 +1905,7 @@ class TabularSourceAdapter:
         self,
         frame: pd.DataFrame,
         *,
-        period_id: str,
+        period_id: str | None,
     ) -> list[dict[str, object]]:
         if frame.empty:
             return []
@@ -1983,11 +2038,13 @@ class TabularSourceAdapter:
                 ]
             ), findings
         frame = pd.DataFrame.from_records(rows)
-        aggregated = frame.groupby(
-            ["agent_id", "registration_code", "period_id"], as_index=False
-        ).agg(
-            wage_arrears_amount=("wage_arrears_amount", "sum"),
-            region_code=("region_code", "first"),
+        aggregated = (
+            frame.dropna(subset=["agent_id", "registration_code"])
+            .groupby(["agent_id", "registration_code", "period_id"], as_index=False, dropna=False)
+            .agg(
+                wage_arrears_amount=("wage_arrears_amount", "sum"),
+                region_code=("region_code", "first"),
+            )
         )
         return aggregated, findings
 
@@ -2087,7 +2144,7 @@ class TabularSourceAdapter:
         if "schema_version" not in result.columns:
             result["schema_version"] = "1.0"
         if source.period_column not in result.columns:
-            result[source.period_column] = "2025-01"
+            result[source.period_column] = pd.NA
         if "agent_id" not in result.columns and "registration_code" in result.columns:
             result["agent_id"] = result["registration_code"].map(
                 lambda value: (

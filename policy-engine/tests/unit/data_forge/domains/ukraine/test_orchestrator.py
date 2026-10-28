@@ -507,3 +507,107 @@ def test_d4_registry_route_keeps_governance_handoff_purpose_limited(tmp_path: Pa
     assert "governance_verdict" not in request
     assert "coverage_threshold" not in request
     assert "waived_signoff_families" not in request
+
+
+@pytest.mark.parametrize(
+    "failure_kind", ["permission", "reader", "reader_restart", "mapper", "mapper_after_first"]
+)
+def test_d2_failure_receipt_preserves_actual_reader_or_mapper_reason(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    failure_kind: str,
+) -> None:
+    """The stage's persisted error distinguishes denial, reader and mapper failures."""
+    import pyarrow.parquet as parquet
+
+    from polisyos.data_forge.domains.ukraine.builders import sources
+    from polisyos.data_forge.domains.ukraine.models import SourceConfig
+    from polisyos.ir.observation.contracts import EntityScope, ObservationFamily
+
+    config = build_default_pipeline_config(root=tmp_path / "ukraine")
+    source = SourceConfig(
+        source_id="reader_failure",
+        display_name="reader failure",
+        stage_id=StageId.D1,
+        normalized_artifact="frame.parquet",
+        required_columns=["agent_id", "period_id", "income"],
+        metric_columns=["income"],
+        observation_family=ObservationFamily.MACRO_STATE,
+        entity_scope=EntityScope.AGENT,
+    )
+    config = config.model_copy(update={"sources": {source.source_id: source}})
+    orchestrator = UkraineDataOrchestrator(config)
+    orchestrator.ensure_layout()
+    path = config.build_root.normalized_dir / source.source_id / source.normalized_artifact
+    path.parent.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame({"agent_id": ["a"], "period_id": ["2024-02"], "income": [1.0]}).to_parquet(path)
+    reads: list[Path] = []
+
+    def forbidden_read(path: Path, **_kwargs: object) -> pd.DataFrame:
+        reads.append(path)
+        raise AssertionError("full reader must not be called")
+
+    monkeypatch.setattr(sources, "_read_parquet_frame", forbidden_read)
+    if failure_kind in {"permission", "reader"}:
+
+        def fail_read(_path: Path) -> object:
+            if failure_kind == "permission":
+                raise PermissionError("controlled source permission denied")
+            raise OSError("controlled reader decoder error")
+
+        monkeypatch.setattr(parquet, "ParquetFile", fail_read)
+    elif failure_kind == "reader_restart":
+        original_reader = parquet.ParquetFile
+        calls: list[Path] = []
+
+        class FailAfterFirstBatch:
+            def __init__(self, reader: object) -> None:
+                self.reader = reader
+
+            def iter_batches(self, **kwargs: object):
+                batches = iter(self.reader.iter_batches(**kwargs))
+                yield next(batches)
+                raise OSError("controlled first reader error")
+
+        def fail_restart(path: Path) -> object:
+            calls.append(path)
+            if len(calls) == 1:
+                return FailAfterFirstBatch(original_reader(path))
+            raise OSError("controlled retry reader error")
+
+        monkeypatch.setattr(parquet, "ParquetFile", fail_restart)
+    else:
+        original_mapper = sources._observation_metric_frames_from_frame
+
+        def fail_mapper(*args: object, **kwargs: object):
+            if failure_kind == "mapper_after_first":
+                yield next(iter(original_mapper(*args, **kwargs)))
+            raise OSError("controlled mapper error")
+
+        monkeypatch.setattr(sources, "_observation_metric_frames_from_frame", fail_mapper)
+
+    summary = orchestrator._run_stage_with_tracking(StageId.D2, inputs=[])
+    assert summary.status == "failed"
+    receipt = load_manifest(orchestrator.stage_manifest_path(StageId.D2), BuildRunManifest)
+    error = " ".join(receipt.errors)
+    assert reads == []
+    if failure_kind == "permission":
+        assert "controlled source permission denied" in error
+        assert "observation_full_read_budget_not_established" not in error
+    elif failure_kind in {"mapper", "mapper_after_first"}:
+        assert "controlled mapper error" in error
+        assert "observation_full_read_budget_not_established" not in error
+    elif failure_kind == "reader_restart":
+        assert "controlled first reader error" in error
+        assert "controlled retry reader error" in error
+    else:
+        assert "controlled reader decoder error" in error
+        assert "observation_full_read_budget_not_established" in error
+    partial = receipt.metrics["partial_observation_stage"]
+    assert partial["status"] == "incomplete"
+    has_partial = failure_kind in {"mapper_after_first", "reader_restart"}
+    assert partial["confirmed_shard_count"] == (1 if has_partial else 0)
+    assert partial["confirmed_monthly_rows"] == (1 if has_partial else 0)
+    if has_partial:
+        assert len(partial["confirmed_shard_paths"]) == 1
+        assert Path(partial["confirmed_shard_paths"][0]).is_file()

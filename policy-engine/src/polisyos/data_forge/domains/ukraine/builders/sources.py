@@ -12,7 +12,11 @@ from typing import TYPE_CHECKING
 import numpy as np
 import pandas as pd
 
-from polisyos.core.artifacts import FileSystemCAS, SchemaInfo, input_ref_from_artifact_ref
+from polisyos.core.artifacts import (
+    FileSystemCAS,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
 from polisyos.data_forge.domains.ukraine.manifests import (
     ArtifactRecord,
@@ -97,7 +101,11 @@ from .io import (
     _write_json,
     _write_npz,
 )
-from .observation import _period_series_to_iso_bounds
+from .observation import (
+    UKRAINE_PERIOD_PROJECTION_VERSION,
+    _period_series_to_iso_bounds,  # noqa: F401 - compatibility binding
+    project_ukraine_observation_periods,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
@@ -1216,8 +1224,8 @@ def _observation_metric_frames_from_frame(
             dtype="string",
         )
     )
-    period_start, period_end = _period_series_to_iso_bounds(
-        period_values, time_grain=source.time_grain
+    period_start, period_end, period_disposition, period_reason = (
+        project_ukraine_observation_periods(period_values, time_grain=source.time_grain)
     )
     entity_id = _compact_locator_series(
         frame,
@@ -1301,8 +1309,12 @@ def _observation_metric_frames_from_frame(
                 "observation_id": "obs." + source_slug + "." + metric_slug + "." + row_numbers,
                 "family": source.observation_family.value,
                 "time_grain": source.time_grain.value,
+                "period_id": period_values.loc[valid].astype("string"),
                 "period_start": period_start.loc[valid],
                 "period_end": period_end.loc[valid],
+                "period_disposition": period_disposition.loc[valid],
+                "period_reason": period_reason.loc[valid],
+                "period_projection_version": UKRAINE_PERIOD_PROJECTION_VERSION,
                 "entity_scope": (source.entity_scope or EntityScope.AGENT).value,
                 "entity_id": entity_id.loc[valid],
                 "cell_id": cell_id.loc[valid],
@@ -1341,8 +1353,12 @@ def _observation_metric_frames_from_frame(
                 metric_frame[column] = metric_frame[column].astype("category")
         for column in [
             "observation_id",
+            "period_id",
             "period_start",
             "period_end",
+            "period_disposition",
+            "period_reason",
+            "period_projection_version",
             "entity_id",
             "cell_id",
             "region_code",
@@ -1357,6 +1373,40 @@ def _observation_metric_frames_from_frame(
                 except Exception:
                     metric_frame[column] = metric_frame[column].astype("string")
         yield metric_id, metric_frame
+
+
+class ObservationFullReadBudgetUnavailableError(RuntimeError):
+    """Refuse a full-frame read whose decoded allocation has no admitted bound."""
+
+    def __init__(self, *, source_id: str, budget_gib: float | None, cause: Exception) -> None:
+        self.source_id = source_id
+        self.budget_gib = budget_gib
+        self.reader_cause = cause
+        super().__init__(
+            "observation_full_read_budget_not_established: "
+            f"source={source_id}, d2_memory_gib={budget_gib!r}; "
+            f"reader_error={type(cause).__name__}: {cause}"
+        )
+
+
+class ObservationStagePartialError(RuntimeError):
+    """An observation stage stopped after retaining only a partial scratch set."""
+
+    def __init__(self, cause: Exception, *, partial_state: dict[str, object]) -> None:
+        self.original_error = cause
+        self.partial_state = partial_state
+        chain: list[str] = []
+        seen: set[int] = set()
+        current: BaseException | None = cause
+        while current is not None and id(current) not in seen and len(chain) < 16:
+            seen.add(id(current))
+            chain.append(f"{type(current).__name__}: {current}")
+            current = current.__cause__ or (
+                None if current.__suppress_context__ else current.__context__
+            )
+        if current is not None:
+            chain.append("exception_chain_truncated_or_cyclic")
+        super().__init__("d2_observation_stage_incomplete: " + " <- ".join(chain))
 
 
 def _iter_observation_metric_frames(
@@ -1396,12 +1446,15 @@ def _iter_observation_metric_frames(
         row_offset = 0
         emitted_metric_ids: set[str] = set()
         snapshot_sha256 = sha256_file(artifact_path)
+        phase = "reader"
         try:
             import pyarrow.parquet as pq
 
             parquet_file = pq.ParquetFile(artifact_path)
             for batch in parquet_file.iter_batches(batch_size=100_000, columns=requested_columns):
+                phase = "conversion"
                 frame = batch.to_pandas()
+                phase = "mapper"
                 for metric_id, metric_frame in _observation_metric_frames_from_frame(
                     source,
                     frame,
@@ -1413,7 +1466,12 @@ def _iter_observation_metric_frames(
                 batch_index += 1
                 emitted_metric_ids.clear()
                 del frame
+                phase = "reader"
         except (ImportError, OSError) as read_error:
+            if isinstance(read_error, (PermissionError, FileNotFoundError)):
+                raise
+            if phase != "reader":
+                raise
             if sha256_file(artifact_path) != snapshot_sha256:
                 raise RuntimeError(
                     "normalized observation artifact changed during streaming; "
@@ -1421,15 +1479,13 @@ def _iter_observation_metric_frames(
                 ) from read_error
 
             if row_offset == 0 and not emitted_metric_ids:
-                # Before publication there is no cursor to preserve, so the
-                # established pandas reader remains an allowed fallback.
-                frame = _read_parquet_frame(artifact_path, columns=requested_columns)
-                for metric_id, metric_frame in _observation_metric_frames_from_frame(
-                    source, frame, row_offset=0
-                ):
-                    yield source, metric_id, batch_index, metric_frame
-                del frame
-                continue
+                # A stage hint is not a bound on decoded Parquet + Pandas and
+                # concurrent residency. Refuse before any full-frame allocation.
+                stage = config.stages.get(StageId.D2.value)
+                budget_gib = stage.resource_budget.memory_gib if stage is not None else None
+                raise ObservationFullReadBudgetUnavailableError(
+                    source_id=source.source_id, budget_gib=budget_gib, cause=read_error
+                ) from read_error
 
             # A reader failure after publication must resume from the same
             # immutable snapshot.  Re-open the streaming reader and discard
@@ -1467,11 +1523,13 @@ def _iter_observation_metric_frames(
                 del frame
             if pending_metric_ids:
                 raise RuntimeError(
-                    "stream restart ended before the pending observation metric cursor"
+                    "stream restart ended before the pending observation metric cursor; "
+                    f"original_error={type(read_error).__name__}: {read_error}"
                 ) from read_error
             if resumed_row_offset < row_offset:
                 raise RuntimeError(
-                    "stream restart ended before the confirmed observation cursor"
+                    "stream restart ended before the confirmed observation cursor; "
+                    f"original_error={type(read_error).__name__}: {read_error}"
                 ) from read_error
 
 
@@ -1909,34 +1967,49 @@ def build_d2_stage(config: PipelineConfig) -> StageBuildResult:
     annual_row_count = 0
 
     shard_counter = 0
-    for source, metric_id, batch_index, metric_frame in _iter_observation_metric_frames(config):
-        if metric_frame.empty:
-            continue
-        source_dir = shard_dir / source.source_id
-        ensure_dirs(source_dir)
-        shard_path = (
-            source_dir / f"{_kernel_safe_id(metric_id, prefix='metric')}_{batch_index:05d}.parquet"
-        )
-        metric_frame.to_parquet(shard_path, index=False)
-        shard_counter += 1
-        if source.time_grain == TimeFrequency.YEAR:
-            annual_shards.append(shard_path)
-            annual_row_count += len(metric_frame)
-        else:
-            monthly_shards.append(shard_path)
-            monthly_row_count += len(metric_frame)
-        family_counts[source.observation_family.value] += len(metric_frame)
-        families_present.add(source.observation_family.value)
-        if shard_counter == 1 or shard_counter % 25 == 0:
-            resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / (1024.0 * 1024.0)
-        del metric_frame
-        try:
-            import pyarrow as pa
+    try:
+        for source, metric_id, batch_index, metric_frame in _iter_observation_metric_frames(config):
+            if metric_frame.empty:
+                continue
+            source_dir = shard_dir / source.source_id
+            ensure_dirs(source_dir)
+            shard_path = (
+                source_dir
+                / f"{_kernel_safe_id(metric_id, prefix='metric')}_{batch_index:05d}.parquet"
+            )
+            metric_frame.to_parquet(shard_path, index=False)
+            shard_counter += 1
+            if source.time_grain == TimeFrequency.YEAR:
+                annual_shards.append(shard_path)
+                annual_row_count += len(metric_frame)
+            else:
+                monthly_shards.append(shard_path)
+                monthly_row_count += len(metric_frame)
+            family_counts[source.observation_family.value] += len(metric_frame)
+            families_present.add(source.observation_family.value)
+            if shard_counter == 1 or shard_counter % 25 == 0:
+                resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / (1024.0 * 1024.0)
+            del metric_frame
+            try:
+                import pyarrow as pa
 
-            pa.default_memory_pool().release_unused()
-        except Exception:
-            pass
-        gc.collect()
+                pa.default_memory_pool().release_unused()
+            except Exception:
+                pass
+            gc.collect()
+    except Exception as exc:
+        raise ObservationStagePartialError(
+            exc,
+            partial_state={
+                "status": "incomplete",
+                "confirmed_shard_count": shard_counter,
+                "confirmed_monthly_rows": monthly_row_count,
+                "confirmed_annual_rows": annual_row_count,
+                "confirmed_family_counts": dict(family_counts),
+                "confirmed_shard_paths": [str(path) for path in [*monthly_shards, *annual_shards]],
+                "scratch_integrity": "not_established",
+            },
+        ) from exc
     gc.collect()
 
     def _materialize_panel(output_path: Path, shards: list[Path]) -> ArtifactRecord:

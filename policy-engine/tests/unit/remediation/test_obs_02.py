@@ -150,11 +150,11 @@ def test_partial_batch_failure_resumes_without_republishing_confirmed_prefix(
     ) == [100.0, 200.0, 300.0, 400.0]
 
 
-def test_failure_between_metric_frames_resumes_at_confirmed_metric_cursor(
+def test_mapper_failure_after_metric_is_not_reclassified_as_reader_failure(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """A failure between metrics does not replay the first metric frame."""
+    """A semantic mapper failure stops after the published prefix without retry."""
     pytest.importorskip("pyarrow")
     from polisyos.data_forge.domains.ukraine.builders import sources
 
@@ -198,47 +198,29 @@ def test_failure_between_metric_frames_resumes_at_confirmed_metric_cursor(
         forbidden_full_read,
     )
 
-    emitted = list(sources._iter_observation_metric_frames(config))
-
-    assert mapper_calls == 2
+    emitted = iter(sources._iter_observation_metric_frames(config))
+    _, metric_id, batch_index, first = next(emitted)
+    with pytest.raises(OSError, match="controlled failure between metric frames"):
+        next(emitted)
+    assert mapper_calls == 1
     assert read_calls == []
-    assert [(metric_id, batch_index) for _, metric_id, batch_index, _ in emitted] == [
-        ("metric_a", 0),
-        ("metric_b", 0),
-    ]
-    observation_ids = [
-        value
-        for _, _, _, metric_frame in emitted
-        for value in metric_frame["observation_id"].tolist()
-    ]
-    assert len(observation_ids) == len(set(observation_ids)) == 8
+    assert (metric_id, batch_index) == ("metric_a", 0)
+    assert first["observation_id"].is_unique
+    assert first["observed_value"].tolist() == [10.0, 20.0, 30.0, 40.0]
 
 
-def test_partial_resume_aborts_when_unchanged_snapshot_lacks_pending_metric_cursor(
+def test_partial_resume_aborts_when_reader_restart_lacks_confirmed_batch(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """An unchanged snapshot cannot silently drop a pending metric frame."""
+    """A reader restart cannot silently discard a confirmed batch."""
     pytest.importorskip("pyarrow")
     from polisyos.data_forge.domains.ukraine.builders import sources
 
     config, _, frame = _config(tmp_path)
-    original_mapper = sources._observation_metric_frames_from_frame
-    mapper_calls = 0
     instances: list[int] = []
 
-    def fail_after_first_metric(*args: Any, **kwargs: Any):
-        nonlocal mapper_calls
-        mapper_calls += 1
-        mapped = iter(original_mapper(*args, **kwargs))
-        if mapper_calls == 1:
-            yield next(mapped)
-            raise OSError("controlled failure before the pending metric frame")
-        yield from mapped
-
     class MissingResumeBatchParquetFile:
-        """Return the first batch, then an unchanged but empty restart."""
-
         def __init__(self, _path: Path) -> None:
             self.instance = len(instances)
             instances.append(self.instance)
@@ -247,20 +229,14 @@ def test_partial_resume_aborts_when_unchanged_snapshot_lacks_pending_metric_curs
             del batch_size, columns
             if self.instance == 0:
                 yield _batch(frame, size=len(frame))
+                raise OSError("controlled reader failure after confirmed batch")
 
     import pyarrow.parquet as parquet
 
     monkeypatch.setattr(parquet, "ParquetFile", MissingResumeBatchParquetFile)
-    monkeypatch.setattr(
-        sources,
-        "_observation_metric_frames_from_frame",
-        fail_after_first_metric,
-    )
-
-    with pytest.raises(RuntimeError, match="metric cursor"):
+    with pytest.raises(RuntimeError, match="confirmed observation cursor") as caught:
         list(sources._iter_observation_metric_frames(config))
-
-    assert mapper_calls == 1
+    assert "controlled reader failure after confirmed batch" in str(caught.value)
     assert instances == [0, 1]
 
 
@@ -315,6 +291,7 @@ def test_partial_resume_aborts_when_normalized_snapshot_changes(
 
 def test_build_d2_materializes_unique_observation_shards_and_counts(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """The D2 consumer materializes the streamed frames without duplicate IDs."""
     pytest.importorskip("pyarrow")
@@ -355,10 +332,101 @@ def test_build_d2_materializes_unique_observation_shards_and_counts(
         artifact.parent.mkdir(parents=True, exist_ok=True)
         fixture_frame.to_parquet(artifact, index=False)
     config = config.model_copy(update={"sources": family_sources})
+    from io import BytesIO
 
+    from polisyos.core.artifacts import FileSystemCAS
+    from polisyos.data_forge.domains.ukraine.manifests import (
+        BuildRunManifest,
+        write_manifest,
+    )
+    from polisyos.data_forge.read_api.ukraine import (
+        load_verified_stage_artifacts,
+        load_verified_stage_output_bytes,
+    )
+
+    shards: list[pd.DataFrame] = []
+    real_to_parquet = pd.DataFrame.to_parquet
+
+    def capture_real_shard(self: pd.DataFrame, path: Any, *args: Any, **kwargs: Any) -> Any:
+        result = real_to_parquet(self, path, *args, **kwargs)
+        if "d2_observation_shards" in Path(path).parts:
+            shards.append(pd.read_parquet(path))
+        return result
+
+    monkeypatch.setattr(pd.DataFrame, "to_parquet", capture_real_shard)
+    import pyarrow.parquet as parquet
+
+    real_parquet_file = parquet.ParquetFile
+    target = config.build_root.normalized_dir / source.source_id / source.normalized_artifact
+    target_opens: list[Path] = []
+
+    class FailOnceAfterFirstBatch:
+        def __init__(self, reader: Any) -> None:
+            self.reader = reader
+
+        def iter_batches(self, **kwargs: Any):
+            batches = iter(self.reader.iter_batches(**kwargs))
+            yield next(batches)
+            raise OSError("controlled post-publication stream failure")
+
+    def recovering_reader(path: Any, *args: Any, **kwargs: Any) -> Any:
+        reader = real_parquet_file(path, *args, **kwargs)
+        if isinstance(path, (str, Path)) and Path(path) == target:
+            target_opens.append(Path(path))
+            if len(target_opens) == 1:
+                return FailOnceAfterFirstBatch(reader)
+        return reader
+
+    monkeypatch.setattr(parquet, "ParquetFile", recovering_reader)
     result = sources.build_d2_stage(config)
+    assert len(target_opens) >= 2
     panel_path = config.build_root.calibration_dir / "d2" / "observation_panel_monthly.parquet"
-    panel = pd.read_parquet(panel_path)
+    manifest_path = config.build_root.manifests_dir / "build_run_d2.json"
+    write_manifest(
+        manifest_path,
+        BuildRunManifest(
+            run_id="d2-shard-witness",
+            stage_id=StageId.D2,
+            status="completed",
+            started_at="2026-01-01T00:00:00Z",
+            finished_at="2026-01-01T00:00:01Z",
+            outputs=list(result.outputs.values()),
+        ),
+    )
+    store = FileSystemCAS(config.build_root.resolved_cas_root)
+    receipt = load_verified_stage_artifacts(
+        manifest_path,
+        store=store,
+        allowed_root=config.build_root.root,
+        expected_stage=StageId.D2.value,
+        required_outputs=(
+            "observation_panel_monthly.parquet",
+            "observation_panel_annual.parquet",
+            "calibration_bundle_manifest.json",
+        ),
+    )
+    panel = pd.read_parquet(
+        BytesIO(
+            load_verified_stage_output_bytes(store, receipt, "observation_panel_monthly.parquet")
+        )
+    )
+    annual = pd.read_parquet(
+        BytesIO(
+            load_verified_stage_output_bytes(store, receipt, "observation_panel_annual.parquet")
+        )
+    )
+    import json
+
+    persisted_metrics = json.loads(
+        load_verified_stage_output_bytes(store, receipt, "calibration_bundle_manifest.json")
+    )["metrics"]
+    assert persisted_metrics["n_monthly_records"] == result.metrics["n_monthly_records"]
+    assert persisted_metrics["n_annual_records"] == result.metrics["n_annual_records"]
+    assert annual.empty
+    assert shards
+    shard_rows = pd.concat(shards, ignore_index=True)
+    assert sorted(shard_rows["observation_id"]) == sorted(panel["observation_id"])
+    assert not (config.build_root.tmp_dir / "d2_observation_shards").exists()
 
     expected_rows = sum(
         len(frame) * len(fixture_source.metric_columns)
@@ -373,3 +441,41 @@ def test_build_d2_materializes_unique_observation_shards_and_counts(
     custom_rows = panel[panel["source_id"] == source.source_id]
     assert len(custom_rows) == 8
     assert set(custom_rows["metric_id"].astype(str)) == {"metric_a", "metric_b"}
+    assert result.metrics["n_annual_records"] == 0
+    for metric in ("metric_a", "metric_b"):
+        selected = custom_rows[custom_rows["metric_id"].astype(str) == metric]
+        assert sorted(selected["observed_value"].tolist()) == sorted(frame[metric].tolist())
+        assert set(selected["period_disposition"].astype(str)) == {"valid"}
+
+
+@pytest.mark.parametrize("budget_gib", [None, 0.01, 28.0])
+def test_prepublication_reader_failure_refuses_unbounded_full_read(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, budget_gib: float | None
+) -> None:
+    """A D2 budget hint alone must not authorize a full-frame allocation."""
+    pytest.importorskip("pyarrow")
+    import pyarrow.parquet as parquet
+
+    from polisyos.data_forge.domains.ukraine.builders import sources
+
+    config, source, _ = _config(tmp_path)
+    config.stages[StageId.D2.value].resource_budget.memory_gib = budget_gib
+
+    class FailBeforeYield:
+        def __init__(self, _path: Path) -> None:
+            raise OSError("controlled unavailable stream")
+
+    reads: list[Path] = []
+
+    def full_reader(path: Path, *, columns: list[str] | None = None) -> pd.DataFrame:
+        del columns
+        reads.append(path)
+        raise AssertionError("unbounded full reader must not be invoked")
+
+    monkeypatch.setattr(parquet, "ParquetFile", FailBeforeYield)
+    monkeypatch.setattr(sources, "_read_parquet_frame", full_reader)
+    with pytest.raises(sources.ObservationFullReadBudgetUnavailableError) as caught:
+        list(sources._iter_observation_metric_frames(config))
+    assert caught.value.source_id == source.source_id
+    assert caught.value.budget_gib == config.stages[StageId.D2.value].resource_budget.memory_gib
+    assert reads == []

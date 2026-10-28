@@ -70,7 +70,14 @@ def test_canonical_period_owner_uses_inclusive_calendar_bounds(
 @pytest.mark.parametrize(
     "period_value",
     ["2024-13", "2024-00", "not-a-period", "", None, pd.NA],
-    ids=["month-too-large", "month-too-small", "malformed", "empty", "missing-none", "missing-na"],
+    ids=[
+        "month-too-large",
+        "month-too-small",
+        "malformed",
+        "empty",
+        "missing-none",
+        "missing-na",
+    ],
 )
 def test_period_owner_rejects_unknown_periods_without_2025_fallback(
     period_value: object,
@@ -140,7 +147,11 @@ def test_source_observation_consumer_uses_canonical_period_bounds() -> None:
     )
     frame = pd.DataFrame(
         {
-            "agent_id": ["household::valid", "household::invalid", "household::missing"],
+            "agent_id": [
+                "household::valid",
+                "household::invalid",
+                "household::missing",
+            ],
             "period_id": ["2024-02", "2024-13", None],
             "household_income": [100.0, 200.0, 300.0],
         }
@@ -250,3 +261,106 @@ def test_legacy_runner_private_facade_aliases_remain_explicit_only() -> None:
     for name in compatibility_names:
         assert getattr(builders, name) is getattr(common, name)
         assert name not in builders.__all__
+
+
+def test_period_projection_is_positional_for_duplicate_indices_and_reordering() -> None:
+    """Equal labels do not merge different periods or hide malformed input."""
+    observation, *_ = _load_builder_surface()
+    values = pd.Series(
+        ["2024-02", "2023-02", "2024-13", None, "NaN", ""],
+        index=[7, 7, 7, 1, 1, 7],
+        dtype="string",
+    )
+    expected = [
+        ("2024-02-01", "2024-02-29", "valid", "<none>"),
+        ("2023-02-01", "2023-02-28", "valid", "<none>"),
+        ("<none>", "<none>", "invalid", "period_identifier_invalid"),
+        ("<none>", "<none>", "missing", "period_identifier_missing"),
+        ("<none>", "<none>", "invalid", "period_identifier_invalid"),
+        ("<none>", "<none>", "missing", "period_identifier_missing"),
+    ]
+
+    def rows(series: pd.Series) -> list[tuple[str, ...]]:
+        result = observation.project_ukraine_observation_periods(
+            series, time_grain=TimeFrequency.MONTH
+        )
+        assert all(item.index.equals(series.index) for item in result)
+        return list(zip(*(item.fillna("<none>").tolist() for item in result), strict=True))
+
+    assert rows(values) == expected
+    assert rows(values.reset_index(drop=True)) == expected
+    order = [5, 2, 0, 4, 1, 3]
+    assert rows(values.iloc[order]) == [expected[i] for i in order]
+    old_start, old_end = observation._period_series_to_iso_bounds(
+        values, time_grain=TimeFrequency.MONTH
+    )
+    assert old_start.fillna("<none>").tolist() == [row[0] for row in expected]
+    assert old_end.fillna("<none>").tolist() == [row[1] for row in expected]
+
+
+def test_source_and_household_consumers_keep_duplicate_rows_by_position() -> None:
+    """Producer rows and calendar facts stay paired after index/order changes."""
+    _, _, sources, demography, _ = _load_builder_surface()
+    source = SourceConfig(
+        source_id="period_position",
+        display_name="period position",
+        stage_id=StageId.D1,
+        normalized_artifact="witness.parquet",
+        required_columns=["agent_id", "period_id", "income"],
+        metric_columns=["income"],
+        observation_family=ObservationFamily.HOUSEHOLD_DISTRIBUTION,
+        entity_scope=EntityScope.HOUSEHOLD,
+    )
+    frame = pd.DataFrame(
+        {
+            "agent_id": ["a", "b", "c", "d"],
+            "cell_id": ["a", "b", "c", "d"],
+            "region_code": ["01", "01", "01", "01"],
+            "period_id": ["2024-02", "2023-02", None, "2024-13"],
+            "income": [1.0, 2.0, 3.0, 4.0],
+            "trust_weight": [0.95, 0.95, 0.95, 0.95],
+            "household_income_mean": [1.0, 2.0, 3.0, 4.0],
+        },
+        index=[7, 7, 1, 7],
+    )
+    expected = {
+        "a": ("2024-02-29", "valid"),
+        "b": ("2023-02-28", "valid"),
+        "c": ("<none>", "missing"),
+        "d": ("<none>", "invalid"),
+    }
+
+    def by_entity(panel: pd.DataFrame) -> dict[str, tuple[str, str]]:
+        return {
+            str(row.entity_id): (
+                "<none>" if pd.isna(row.period_end) else str(row.period_end),
+                str(row.period_disposition),
+            )
+            for row in panel.itertuples(index=False)
+        }
+
+    for values in (frame, frame.reset_index(drop=True), frame.iloc[[3, 1, 0, 2]]):
+        _, observations = next(iter(sources._observation_metric_frames_from_frame(source, values)))
+        assert by_entity(observations) == expected
+        household = demography._build_household_distribution_observation_panel(values)
+        assert by_entity(household) == expected
+        unresolved = household[household["period_disposition"].isin(["missing", "invalid"])]
+        assert unresolved["regime_id"].isna().all()
+        assert unresolved["schema_regime_id"].isna().all()
+
+
+def test_coarse_period_cannot_acquire_finer_declared_precision() -> None:
+    """A year or quarter must not become an invented month."""
+    observation, *_ = _load_builder_surface()
+    start, end, disposition, reason = observation.project_ukraine_observation_periods(
+        pd.Series(["2024", "2024Q2", "2024-02"], dtype="string"),
+        time_grain=TimeFrequency.MONTH,
+    )
+    assert disposition.tolist() == ["limited", "limited", "valid"]
+    assert reason.iloc[:2].tolist() == ["period_precision_insufficient"] * 2
+    assert start.isna().tolist() == [True, True, False]
+    assert end.iloc[2] == "2024-02-29"
+    assert observation._period_to_dates("2024", TimeFrequency.YEAR)[1].isoformat() == "2024-12-31"
+    assert (
+        observation._period_to_dates("2024Q2", TimeFrequency.QUARTER)[0].isoformat() == "2024-04-01"
+    )

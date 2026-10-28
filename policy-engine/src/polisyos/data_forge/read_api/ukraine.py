@@ -143,6 +143,12 @@ if TYPE_CHECKING:
     from polisyos.data_forge.domains.ukraine.builders.demography import (
         build_household_diagnostic_panel as build_household_diagnostic_panel,
     )
+    from polisyos.data_forge.domains.ukraine.builders.observation import (
+        UKRAINE_PERIOD_PROJECTION_VERSION as UKRAINE_PERIOD_PROJECTION_VERSION,
+    )
+    from polisyos.data_forge.domains.ukraine.builders.observation import (
+        project_ukraine_observation_periods as project_ukraine_observation_periods,
+    )
     from polisyos.data_forge.domains.ukraine.contracts import (
         RealBacktestBundleContract as RealBacktestBundleContract,
     )
@@ -172,6 +178,7 @@ if TYPE_CHECKING:
     )
 
 _UKRAINE_DOMAIN = "polisyos.data_forge.domains.ukraine"
+_UKRAINE_OBSERVATION = "polisyos.data_forge.domains.ukraine.builders.observation"
 REAL_BACKTEST_BUNDLE_CONTRACT_FQN = (
     "polisyos.data_forge.domains.ukraine.contracts.RealBacktestBundleContract"
 )
@@ -186,6 +193,8 @@ _EXPORTS = {
     "UKRAINE_READINESS_KEY": _UKRAINE_DOMAIN,
     "UKRAINE_SOURCE_CONFIG_KEY": _UKRAINE_DOMAIN,
     "UKRAINE_STATIC_AGING_INPUTS_KEY": _UKRAINE_DOMAIN,
+    "UKRAINE_PERIOD_PROJECTION_VERSION": _UKRAINE_OBSERVATION,
+    "project_ukraine_observation_periods": _UKRAINE_OBSERVATION,
     "DemographyRoleProjection": _UKRAINE_DOMAIN,
     "DemographySourceEvidence": _UKRAINE_DOMAIN,
     "DemographySourceRequest": _UKRAINE_DOMAIN,
@@ -1455,6 +1464,7 @@ __all__ = [  # noqa: RUF022
     "UKRAINE_DEMOGRAPHY_SOURCE_INVENTORY_KEY",
     "UKRAINE_DEMOGRAPHY_TARGETS_KEY",
     "UKRAINE_NORMALIZED_SOURCES_KEY",
+    "UKRAINE_PERIOD_PROJECTION_VERSION",
     "UKRAINE_RAW_SOURCES_KEY",
     "UKRAINE_READINESS_KEY",
     "UKRAINE_SOURCE_CONFIG_KEY",
@@ -1504,6 +1514,7 @@ __all__ = [  # noqa: RUF022
     "load_verified_stage_json_output",
     "load_verified_stage_manifest_json",
     "load_verified_stage_output_bytes",
+    "project_ukraine_observation_periods",
     "read_ukraine_json_snapshot",
     "ukraine_d4_json_snapshot_model_type",
 ]

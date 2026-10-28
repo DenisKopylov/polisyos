@@ -37,6 +37,7 @@ from polisyos.core.governance.profiles import ValidationProfile
 from polisyos.data_forge.read_api.ukraine import (
     REAL_BACKTEST_BUNDLE_CONTRACT_FQN,
     UKRAINE_D4_SOURCE_JSON_SNAPSHOT_ROLE_BY_CONTRACT,
+    UKRAINE_PERIOD_PROJECTION_VERSION,
     ArtifactRecord,
     D5ReleaseHandoffRequest,
     HouseholdDiagnosticPanelBasis,
@@ -59,6 +60,7 @@ from polisyos.data_forge.read_api.ukraine import (
     load_verified_stage_artifacts,
     load_verified_stage_json_output,
     load_verified_stage_output_bytes,
+    project_ukraine_observation_periods,
 )
 from polisyos.foundry.validation.release_acceptance import (
     FoundryReleaseAcceptanceReceipt,
@@ -66,6 +68,7 @@ from polisyos.foundry.validation.release_acceptance import (
     ReleaseAcceptanceRunner,
     ReleaseAcceptanceStep,
 )
+from polisyos.ir import TimeFrequency
 from polisyos.ir.analytics.abstraction import (
     AbstractionCertificate,
     AbstractionPreservationType,
@@ -623,6 +626,7 @@ def build_family_eligibility_registry(
     if observation_panel.empty:
         return FamilyEligibilityRegistry(coverage_threshold=coverage_threshold)
 
+    observation_panel = _reconcile_ukraine_period_projection(observation_panel)
     families: dict[str, FamilyEligibilityEntry] = {}
     waived_set = set(waived_families)
     proxy_promoted_set = set(proxy_promoted_families)
@@ -686,6 +690,17 @@ def build_family_eligibility_registry(
         )
         reasons: list[str] = []
         tier = FamilyTier.A
+        period_status = family_frame["period_disposition"].astype("string")
+        unresolved = period_status != "valid"
+        if bool(unresolved.fillna(True).any()):
+            tier = FamilyTier.B
+            reasons.extend(
+                family_frame.loc[unresolved.fillna(True), "period_reason"]
+                .dropna()
+                .astype(str)
+                .unique()
+                .tolist()
+            )
         has_proxy_lineage = proxy_count > 0
         bias_validated = family in proxy_promoted_set or (
             bias_share <= 0.05 and coverage_ratio >= coverage_threshold
@@ -1384,6 +1399,20 @@ def build_required_backtest_bundles(
             )
             continue
         if kind_frame["period_start_dt"].isna().any():
+            period_reasons = (
+                sorted(
+                    set(
+                        kind_frame.loc[kind_frame["period_start_dt"].isna(), "period_reason"]
+                        .dropna()
+                        .astype(str)
+                    )
+                )
+                if "period_reason" in kind_frame.columns
+                else []
+            )
+            period_gap = f"intervention_time_axis_unresolved:{kind.value}"
+            if period_reasons:
+                period_gap += ":" + ",".join(period_reasons)
             bundles[kind] = BacktestPlanBundle(
                 contract_target=ContractCompatibilityTarget(
                     contract_id=f"{kind.value}_bundle",
@@ -1393,7 +1422,7 @@ def build_required_backtest_bundles(
                 selected_training_role=selected_training_role,
                 selected_validation_role=selected_validation_role,
                 selected_holdout_role=selected_holdout_role,
-                gap_reason=f"intervention_time_axis_unresolved:{kind.value}",
+                gap_reason=period_gap,
             )
             continue
         aggregated = (
@@ -1760,9 +1789,95 @@ def _recompute_labor_proxy_promotion(validation_panel: pd.DataFrame) -> bool:
     )
 
 
+def _reconcile_ukraine_period_projection(
+    frame: pd.DataFrame,
+    *,
+    fixed_time_grain: TimeFrequency | None = None,
+) -> pd.DataFrame:
+    """Recompute period facts from the source IDs; preserve legacy limitations."""
+    original_index = frame.index
+    projection_fields = {
+        "period_start",
+        "period_end",
+        "period_disposition",
+        "period_reason",
+        "period_projection_version",
+        "period_id",
+    }
+    markers = {"period_disposition", "period_reason", "period_projection_version"}
+    if markers.intersection(frame.columns) and not projection_fields.issubset(frame.columns):
+        raise UkraineStageArtifactVerificationError("period_projection_incomplete")
+    work = frame.reset_index(drop=True).copy()
+    had_period_id = "period_id" in work.columns
+    had_time_grain = "time_grain" in work.columns or fixed_time_grain is not None
+    if fixed_time_grain is not None:
+        work["time_grain"] = fixed_time_grain.value
+    for column in (
+        "period_id",
+        "period_start",
+        "period_end",
+        "period_disposition",
+        "period_reason",
+        "period_projection_version",
+        "time_grain",
+    ):
+        if column not in work.columns:
+            work[column] = pd.NA
+    # A producer-supplied lookalike cannot establish the original schema version.
+    work = work.drop(columns=["period_source_projection_version"], errors="ignore")
+    work["period_projection_provenance"] = pd.Series(pd.NA, index=work.index, dtype="string")
+
+    marker = work["period_disposition"].astype("string")
+    version = work["period_projection_version"].astype("string")
+    declared = marker.notna() | version.notna() | work["period_reason"].notna()
+    already_unavailable = marker.eq("not_established").fillna(False) & version.isna()
+    declared = declared & ~already_unavailable
+    available = work["time_grain"].notna() & had_period_id & had_time_grain & ~already_unavailable
+    if bool((declared & ~available).any()):
+        raise UkraineStageArtifactVerificationError("period_projection_incomplete")
+    unavailable = ~available
+    work.loc[unavailable, "period_disposition"] = "not_established"
+    work.loc[unavailable, "period_reason"] = "period_projection_not_established"
+    work.loc[unavailable, "period_projection_version"] = pd.NA
+    work.loc[unavailable, "period_projection_provenance"] = "legacy_unavailable"
+
+    names = ("period_start", "period_end", "period_disposition", "period_reason")
+    for grain, indexes in work.loc[available].groupby("time_grain", sort=False).groups.items():
+        try:
+            frequency = TimeFrequency(str(grain))
+        except ValueError as exc:
+            raise UkraineStageArtifactVerificationError(
+                "period_projection_invalid_frequency"
+            ) from exc
+        projected = project_ukraine_observation_periods(
+            work.loc[indexes, "period_id"], time_grain=frequency
+        )
+        declared_indexes = [index for index in indexes if bool(declared.loc[index])]
+        if declared_indexes:
+            if not bool(
+                version.loc[declared_indexes]
+                .eq(UKRAINE_PERIOD_PROJECTION_VERSION)
+                .fillna(False)
+                .all()
+            ):
+                raise UkraineStageArtifactVerificationError("period_projection_incomplete")
+            for name, expected in zip(names, projected, strict=True):
+                actual = work.loc[declared_indexes, name].astype("string")
+                target = expected.loc[declared_indexes].astype("string")
+                if not actual.equals(target):
+                    raise UkraineStageArtifactVerificationError(
+                        f"period_projection_mismatch:{name}"
+                    )
+        for name, expected in zip(names, projected, strict=True):
+            work.loc[indexes, name] = expected
+        work.loc[indexes, "period_projection_version"] = UKRAINE_PERIOD_PROJECTION_VERSION
+        work.loc[indexes, "period_projection_provenance"] = "recomputed_from_period_id"
+    work.index = original_index
+    return work
+
+
 def _household_distribution_observation_panel(cells: pd.DataFrame) -> pd.DataFrame:
     """Project verified D3 household cells into the D4 observation contract."""
-
     if cells.empty:
         return pd.DataFrame()
     required = {"cell_id", "region_code", "period_id", "household_income_mean"}
@@ -1771,12 +1886,18 @@ def _household_distribution_observation_panel(cells: pd.DataFrame) -> pd.DataFra
         raise UkraineStageArtifactVerificationError(
             "calibrated household cells are missing columns: " + ",".join(missing)
         )
-    frame = cells.copy()
-    period_start = pd.to_datetime(frame["period_id"].astype(str) + "-01", errors="coerce")
+    frame = _reconcile_ukraine_period_projection(cells, fixed_time_grain=TimeFrequency.MONTH)
     return pd.DataFrame(
         {
             "family": ObservationFamily.HOUSEHOLD_DISTRIBUTION.value,
-            "period_start": period_start.dt.strftime("%Y-%m-%d"),
+            "time_grain": TimeFrequency.MONTH.value,
+            "period_id": frame["period_id"],
+            "period_start": frame["period_start"],
+            "period_end": frame["period_end"],
+            "period_disposition": frame["period_disposition"],
+            "period_reason": frame["period_reason"],
+            "period_projection_version": frame["period_projection_version"],
+            "period_projection_provenance": frame["period_projection_provenance"],
             "observed_value": pd.to_numeric(frame["household_income_mean"], errors="coerce").fillna(
                 0.0
             ),
@@ -1788,7 +1909,12 @@ def _household_distribution_observation_panel(cells: pd.DataFrame) -> pd.DataFra
             "identification_mode": IdentificationMode.BOUNDS_ONLY.value,
             "source_confidence_tier": SourceConfidenceTier.EXPLORATORY.value,
             "proxy_source_id": "calibrated_household_cells.parquet",
-            "regime_id": "regime_a",
+            "regime_id": pd.Series("regime_a", index=frame.index, dtype="string").where(
+                frame["period_disposition"].eq("valid"), pd.NA
+            ),
+            "regime_provenance": pd.Series(
+                "legacy_unverified", index=frame.index, dtype="string"
+            ).where(frame["period_disposition"].eq("valid"), "period_unresolved"),
             "entity_id": frame["cell_id"].astype(str),
         }
     )
@@ -1886,6 +2012,7 @@ def run_verified_ukraine_d4_governance(
             )
         )
     )
+    observation_panel = _reconcile_ukraine_period_projection(observation_panel)
     household_panel = _household_distribution_observation_panel(
         pd.read_parquet(
             BytesIO(

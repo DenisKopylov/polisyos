@@ -138,7 +138,24 @@ def _verified_bridge_fixture(tmp_path):
         for index, period in enumerate(periods)
     ]
     observation_path = d2_dir / "observation_panel_monthly.parquet"
-    pd.DataFrame(rows).to_parquet(observation_path, index=False)
+    from polisyos.data_forge.read_api.ukraine import (
+        UKRAINE_PERIOD_PROJECTION_VERSION,
+        project_ukraine_observation_periods,
+    )
+    from polisyos.ir import TimeFrequency
+
+    d2_panel = pd.DataFrame(rows)
+    d2_panel["period_id"] = d2_panel["period_start"].str[:7]
+    d2_panel["time_grain"] = TimeFrequency.MONTH.value
+    start, end, disposition, reason = project_ukraine_observation_periods(
+        d2_panel["period_id"], time_grain=TimeFrequency.MONTH
+    )
+    d2_panel["period_start"] = start
+    d2_panel["period_end"] = end
+    d2_panel["period_disposition"] = disposition
+    d2_panel["period_reason"] = reason
+    d2_panel["period_projection_version"] = UKRAINE_PERIOD_PROJECTION_VERSION
+    d2_panel.to_parquet(observation_path, index=False)
     splits_path = d2_dir / "calibration_splits.json"
     splits_path.write_text(
         json.dumps(
@@ -2040,3 +2057,109 @@ def test_s1_named_split_bundle_denominator_covers_empty_short_and_full(
             assert not bundle.plans and bundle.gap_reason.startswith(expected_household_state)
         else:
             assert not bundle.plans and bundle.gap_reason.startswith("no_source_rows")
+
+
+def test_household_consumer_checks_projection_against_source_and_labels_legacy() -> None:
+    """The real D4 consumer recomputes period facts instead of trusting labels."""
+    from polisyos.data_forge.domains.ukraine.builders.demography import (
+        _build_calibrated_household_cells,
+    )
+
+    raw = pd.DataFrame(
+        {
+            "cell_id": ["valid", "missing", "invalid"],
+            "region_code": ["01", "01", "01"],
+            "period_id": ["2024-02", None, "2024-13"],
+            "income": [10.0, 20.0, 30.0],
+            "weight": [1.0, 1.0, 1.0],
+        }
+    )
+    cells = _build_calibrated_household_cells(raw)
+    panel = _household_distribution_observation_panel(cells).set_index("entity_id")
+    assert panel.loc["valid", "period_start"] == "2024-02-01"
+    assert panel.loc["valid", "period_end"] == "2024-02-29"
+    assert panel.loc["missing", "period_reason"] == "period_identifier_missing"
+    assert panel.loc["invalid", "period_reason"] == "period_identifier_invalid"
+    assert pd.isna(panel.loc["missing", "period_start"])
+    assert pd.isna(panel.loc["invalid", "period_start"])
+    assert pd.isna(panel.loc["missing", "regime_id"])
+    assert pd.isna(panel.loc["invalid", "regime_id"])
+    assert panel.loc["valid", "regime_provenance"] == "legacy_unverified"
+    assert panel.loc["missing", "regime_provenance"] == "period_unresolved"
+    assert set(panel["period_projection_provenance"]) == {"recomputed_from_period_id"}
+
+    forged = cells.copy()
+    forged.loc[forged["cell_id"] == "invalid", "period_disposition"] = "missing"
+    with pytest.raises(UkraineStageArtifactVerificationError, match="period_projection_mismatch"):
+        _household_distribution_observation_panel(forged)
+    with pytest.raises(UkraineStageArtifactVerificationError, match="period_projection_incomplete"):
+        _household_distribution_observation_panel(cells.drop(columns=["period_reason"]))
+
+    legacy = cells.drop(
+        columns=[
+            "period_start",
+            "period_end",
+            "period_disposition",
+            "period_reason",
+            "period_projection_version",
+        ]
+    )
+    legacy_panel = _household_distribution_observation_panel(legacy).set_index("entity_id")
+    assert legacy_panel.loc["invalid", "period_reason"] == "period_identifier_invalid"
+    assert legacy_panel.loc["missing", "period_reason"] == "period_identifier_missing"
+    assert set(legacy_panel["period_projection_provenance"]) == {"recomputed_from_period_id"}
+    assert "period_projection_version" not in legacy.columns
+    legacy["period_source_projection_version"] = "ukraine_observation_period_v1"
+    adversarial_panel = _household_distribution_observation_panel(legacy)
+    rechecked = blueprint_release._reconcile_ukraine_period_projection(adversarial_panel)
+    assert "period_source_projection_version" not in adversarial_panel.columns
+    assert "period_source_projection_version" not in rechecked.columns
+    assert set(rechecked["period_projection_provenance"]) == {"recomputed_from_period_id"}
+
+
+def test_legacy_d2_period_projection_is_limited_not_assumed_valid() -> None:
+    """An old panel without source period IDs cannot gain a new valid status."""
+    panel = pd.DataFrame(
+        {
+            "family": ["macro_state"],
+            "period_start": ["2024-02-01"],
+            "observed_value": [1.0],
+            "coverage_estimate": [1.0],
+            "measurement_bias_flag": [False],
+            "source_id": ["legacy"],
+            "identification_mode": ["point_identified"],
+            "source_confidence_tier": ["validated"],
+        }
+    )
+    reconciled = blueprint_release._reconcile_ukraine_period_projection(panel)
+    assert reconciled.loc[0, "period_disposition"] == "not_established"
+    assert reconciled.loc[0, "period_reason"] == "period_projection_not_established"
+    assert reconciled.loc[0, "period_projection_provenance"] == "legacy_unavailable"
+    assert reconciled.loc[0, "period_start"] == "2024-02-01"
+    registry = blueprint_release.build_family_eligibility_registry(
+        reconciled, coverage_threshold=0.95
+    )
+    entry = registry.families["macro_state"]
+    assert entry.exact_signoff_eligible is False
+    assert "period_projection_not_established" in entry.reasons
+
+
+def test_two_d2_reconciliations_do_not_promote_a_forged_source_projection_version() -> None:
+    """A column supplied by a legacy source cannot attest an original artifact schema."""
+    legacy = pd.DataFrame(
+        {
+            "period_id": ["2024-02"],
+            "time_grain": ["M"],
+            "source_version": ["original-source-v0"],
+            "period_source_projection_version": ["ukraine_observation_period_v1"],
+        }
+    )
+    first = blueprint_release._reconcile_ukraine_period_projection(legacy)
+    second = blueprint_release._reconcile_ukraine_period_projection(first)
+    assert "period_source_projection_version" not in first.columns
+    assert "period_source_projection_version" not in second.columns
+    assert first.loc[0, "period_projection_provenance"] == "recomputed_from_period_id"
+    assert second.loc[0, "period_projection_provenance"] == "recomputed_from_period_id"
+    assert second.loc[0, "period_end"] == "2024-02-29"
+    assert second.loc[0, "source_version"] == "original-source-v0"
+    assert "period_disposition" not in legacy.columns

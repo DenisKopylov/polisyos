@@ -461,7 +461,7 @@ def test_tabular_adapter_normalizes_household_microdata_from_manual_drop(tmp_pat
     frame = pd.read_parquet(manifest.normalized_artifact.path)
 
     assert len(frame) == 2
-    assert set(frame["period_id"]) == {"2018-12", "2018-06"}
+    assert set(frame["period_id"]) == {"2018Q4", "2018Q2"}
     assert set(frame["region_code"]) == {"05", "80"}
     assert set(frame["income"]) == {1200.0, 1800.0}
 
@@ -524,7 +524,7 @@ def test_tabular_adapter_normalizes_labor_force_microdata_from_manual_drop(tmp_p
     frame = pd.read_parquet(manifest.normalized_artifact.path)
 
     assert len(frame) == 2
-    assert set(frame["period_id"]) == {"2018-12"}
+    assert set(frame["period_id"]) == {"2018"}
     assert set(frame["region_code"]) == {"05", "80"}
     assert set(frame["participation_rate"]) == {0.0, 1.0}
 
@@ -695,3 +695,184 @@ def test_s1_household_adapter_binds_complete_directory_snapshot(tmp_path: Path) 
     )
     assert isinstance(removed, SourceSnapshotManifest)
     assert removed.raw_artifacts[0].sha256 not in {initial, changed.raw_artifacts[0].sha256}
+
+
+def test_period_normalization_preserves_absence_malformed_and_coarse_grain() -> None:
+    """The canonical adapter never guesses a year, month or quarter."""
+    adapter = TabularSourceAdapter()
+    assert adapter._coerce_period_id(None) is None
+    assert adapter._coerce_period_id("") == ""
+    assert adapter._coerce_period_id("not-a-date") == "not-a-date"
+    assert adapter._coerce_period_id("2024") == "2024"
+    assert adapter._coerce_period_id(2018.0) == "2018"
+    assert adapter._coerce_period_id("2018.0") == "2018"
+    assert adapter._coerce_period_id("2024-02-31") == "2024-02-31"
+    assert adapter._coerce_period_id("2024-02-29") == "2024-02"
+    assert adapter._coerce_period_id("29.02.2024") == "2024-02"
+    assert adapter._coerce_period_id("20240229") == "2024-02"
+    assert adapter._extract_year_from_name("no-dated-evidence.csv") is None
+    assert adapter._extract_period_id_from_name("annual_2018.csv") == "2018"
+    assert adapter._extract_period_id_from_name("no-dated-evidence.csv") is None
+    assert adapter._quarter_to_period_id(2018, 2) == "2018Q2"
+    assert adapter._quarter_to_period_id(2018, 5) == "2018Q5"
+    assert adapter._quarter_to_period_id(None, 1) is None
+
+
+def test_adapter_to_d2_and_scientist_preserves_unknown_and_invalid_periods(tmp_path: Path) -> None:
+    """Absent and malformed source periods survive normalization through the real mapper."""
+    from polisyos.data_forge.domains.ukraine.builders import sources
+    from polisyos.data_forge.domains.ukraine.models import build_default_pipeline_config
+    from polisyos.ir.observation.contracts import EntityScope, ObservationFamily
+    from polisyos.scientist.governance import blueprint_release
+
+    config = build_default_pipeline_config(root=tmp_path / "build")
+    adapter = TabularSourceAdapter()
+    source_ids = ("fixture_absent_period", "fixture_invalid_period")
+    for source_id in source_ids:
+        path = tmp_path / f"{source_id}.csv"
+        frame = pd.DataFrame({"agent_id": [source_id], "income": [10.0]})
+        if source_id == source_ids[1]:
+            frame["period_id"] = "not-a-date"
+        frame.to_csv(path, index=False)
+        source = SourceConfig(
+            source_id=source_id,
+            display_name=source_id,
+            stage_id=StageId.D1,
+            local_path=path,
+            raw_format="csv",
+            normalized_artifact="frame.parquet",
+            required_columns=["agent_id", "period_id", "income"],
+            metric_columns=["income"],
+            observation_family=ObservationFamily.HOUSEHOLD_DISTRIBUTION,
+            entity_scope=EntityScope.HOUSEHOLD,
+        )
+        context = SourceExecutionContext(config.build_root)
+        snapshot = adapter.fetch(source, context)
+        manifest = adapter.normalize(source, snapshot, context)
+        normalized = pd.read_parquet(manifest.normalized_artifact.path)
+        if source_id == source_ids[0]:
+            assert pd.isna(normalized.loc[0, "period_id"])
+        else:
+            assert normalized.loc[0, "period_id"] == "not-a-date"
+        config.sources[source_id] = source
+    config = config.model_copy(update={"sources": {key: config.sources[key] for key in source_ids}})
+    frames = [item[3] for item in sources._iter_observation_metric_frames(config)]
+    panel = blueprint_release._reconcile_ukraine_period_projection(
+        pd.concat(frames, ignore_index=True)
+    )
+    rows = panel.set_index("source_id")
+    assert rows.loc[source_ids[0], "period_reason"] == "period_identifier_missing"
+    assert rows.loc[source_ids[1], "period_reason"] == "period_identifier_invalid"
+    assert rows["period_start"].isna().all()
+    registry = blueprint_release.build_family_eligibility_registry(panel, coverage_threshold=0.95)
+    assert registry.families["household_distribution"].exact_signoff_eligible is False
+
+
+def test_spending_normalization_retains_null_blank_and_bad_period_through_d2(
+    tmp_path: Path,
+) -> None:
+    """Real chunk/aggregate normalization cannot turn absent data into a date."""
+    from polisyos.data_forge.domains.ukraine.builders import sources
+    from polisyos.data_forge.domains.ukraine.models import build_default_pipeline_config
+    from polisyos.ir.observation.contracts import EntityScope, ObservationFamily
+    from polisyos.scientist.governance import blueprint_release
+
+    directory = tmp_path / "spending_seed"
+    directory.mkdir()
+    periods = [None, "", "not-a-date", "2024", "2024-02-29"]
+    data = [
+        {
+            "payer_edrpou": "11111111",
+            "recipt_edrpou": "22222222",
+            "amount": 1.0,
+            "trans_date": value,
+        }
+        for value in periods
+    ]
+    (directory / "transactions_sample_fixture.json").write_text(json.dumps(data), encoding="utf-8")
+    source = SourceConfig(
+        source_id="spending_full",
+        display_name="spending",
+        stage_id=StageId.D0_P0,
+        local_path=directory,
+        normalized_artifact="budget_flows.parquet",
+        required_columns=["source_agent_id", "target_agent_id", "amount", "period_id"],
+        metric_columns=["amount"],
+        observation_family=ObservationFamily.BUDGET_FLOWS,
+        entity_scope=EntityScope.AGENT,
+    )
+    config = build_default_pipeline_config(root=tmp_path / "build")
+    context = SourceExecutionContext(config.build_root)
+    adapter = TabularSourceAdapter()
+    snapshot = adapter.fetch(source, context)
+    manifest = adapter.normalize(source, snapshot, context)
+    normalized = pd.read_parquet(manifest.normalized_artifact.path)
+    assert len(normalized) == len(periods)
+    assert int(normalized["period_id"].isna().sum()) == 1
+    assert int(normalized["period_id"].eq("").fillna(False).sum()) == 1
+    assert {"not-a-date", "2024", "2024-02"}.issubset(set(normalized["period_id"].dropna()))
+    assert normalized["record_hash"].nunique() == len(periods)
+    config = config.model_copy(update={"sources": {source.source_id: source}})
+    frame = pd.concat([entry[3] for entry in sources._iter_observation_metric_frames(config)])
+    panel = blueprint_release._reconcile_ukraine_period_projection(frame)
+    counts = panel["period_disposition"].value_counts().to_dict()
+    assert counts == {"missing": 2, "invalid": 1, "limited": 1, "valid": 1}
+    assert not panel["period_start"].astype("string").str.contains("2025", na=False).any()
+
+
+def test_household_and_labor_valid_year_identity_survives_missing_year(tmp_path: Path) -> None:
+    """A mixed nullable Excel year column keeps the established valid-year token."""
+    household_dir = tmp_path / "h" / "mic_doch_i_umovy"
+    household_dir.mkdir(parents=True)
+    pd.DataFrame(
+        {
+            "rik_fa_1": [2018, None],
+            "kvart_kd": [4, 1],
+            "code_fam": [100001, 100002],
+            "w_q": [1.0, 1.0],
+            "cod_obl": ["Київ", "Київ"],
+            "totalinc": [10.0, 11.0],
+        }
+    ).to_excel(household_dir / "Households_microdani_anonimni_fixture.xlsx", index=False)
+    labor_dir = tmp_path / "l" / "mic_poc_rob_syly_18"
+    labor_dir.mkdir(parents=True)
+    pd.DataFrame(
+        {
+            "Kod_obs": [11111, 22222],
+            "Rik": [2018, None],
+            "wes_rik": [1.0, 1.0],
+            "RG": ["Київ", "Київ"],
+            "labour_force": ["Зайняте населення"] * 2,
+        }
+    ).to_excel(labor_dir / "LFS_fixture.xlsx", index=False)
+    for source_id, source_root, expected in (
+        ("household_microdata", tmp_path / "h", "hh::2018::100001"),
+        ("labor_force_microdata", tmp_path / "l", "lfs::2018::11111"),
+    ):
+        source = SourceConfig(
+            source_id=source_id,
+            display_name=source_id,
+            stage_id=StageId.D3,
+            local_path=source_root,
+            normalized_artifact="frame.parquet",
+            required_columns=["household_id", "cell_id", "period_id"],
+        )
+        context = SourceExecutionContext(BuildRootConfig(root=tmp_path / f"build-{source_id}"))
+        adapter = TabularSourceAdapter()
+        snapshot = adapter.fetch(source, context)
+        manifest = adapter.normalize(source, snapshot, context)
+        result = pd.read_parquet(manifest.normalized_artifact.path)
+        assert expected in set(result["household_id"])
+        assert int(result["household_id"].isna().sum()) == 1
+        assert (
+            not result["household_id"]
+            .astype("string")
+            .str.contains("2018.0", regex=False, na=False)
+            .any()
+        )
+        assert (
+            not result["period_id"]
+            .astype("string")
+            .str.contains("2021", regex=False, na=False)
+            .any()
+        )

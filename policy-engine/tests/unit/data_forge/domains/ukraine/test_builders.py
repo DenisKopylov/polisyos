@@ -461,6 +461,8 @@ def test_family_eligibility_registry_respects_signoff_waivers() -> None:
         }
     )
 
+    observation_panel["period_id"] = "2024-01"
+    observation_panel["time_grain"] = "M"
     registry = build_family_eligibility_registry(
         observation_panel,
         coverage_threshold=0.95,
@@ -667,6 +669,8 @@ def test_family_eligibility_registry_promotes_bias_validated_labor_proxy() -> No
         }
     )
 
+    observation_panel["period_id"] = "2024-01"
+    observation_panel["time_grain"] = "M"
     registry = build_family_eligibility_registry(
         observation_panel,
         coverage_threshold=0.95,
@@ -688,16 +692,19 @@ def test_build_d3_stage_emits_labor_validation_artifacts(tmp_path) -> None:
             "household_synthetic_targets.parquet",
             pd.DataFrame(
                 {
-                    "household_id": ["hh::1", "hh::2"],
+                    "household_id": ["hh::1", "hh::2", "hh::3", "hh::4", "hh::5"],
                     "cell_id": [
                         "cell::01::household_distribution",
                         "cell::02::household_distribution",
+                        "cell::03::household_distribution",
+                        "cell::03::household_distribution",
+                        "cell::04::household_distribution",
                     ],
-                    "period_id": ["2025-12", "2025-12"],
-                    "income": [1000.0, 800.0],
-                    "weight": [1.0, 1.0],
-                    "market_income": [900.0, 700.0],
-                    "region_code": ["01", "02"],
+                    "period_id": ["2025-12", "2024-02", None, "", "NaN"],
+                    "income": [1000.0, 800.0, 700.0, 650.0, 600.0],
+                    "weight": [1.0, 1.0, 1.0, 1.0, 1.0],
+                    "market_income": [900.0, 700.0, 600.0, 550.0, 500.0],
+                    "region_code": ["01", "02", "03", "03", "04"],
                 }
             ),
         ),
@@ -788,6 +795,74 @@ def test_build_d3_stage_emits_labor_validation_artifacts(tmp_path) -> None:
 
     result = build_d3_stage(config)
 
+    from io import BytesIO
+
+    from polisyos.core.artifacts import FileSystemCAS
+    from polisyos.data_forge.domains.ukraine.manifests import (
+        BuildRunManifest,
+        write_manifest,
+    )
+    from polisyos.data_forge.read_api.ukraine import (
+        load_verified_stage_artifacts,
+        load_verified_stage_output_bytes,
+    )
+    from polisyos.scientist.governance.blueprint_release import (
+        _household_distribution_observation_panel,
+    )
+
+    manifest_path = config.build_root.manifests_dir / "build_run_d3.json"
+    write_manifest(
+        manifest_path,
+        BuildRunManifest(
+            run_id="d3-period-witness",
+            stage_id=StageId.D3,
+            status="completed",
+            started_at="2026-01-01T00:00:00Z",
+            finished_at="2026-01-01T00:00:01Z",
+            outputs=list(result.outputs.values()),
+        ),
+    )
+    store = FileSystemCAS(config.build_root.resolved_cas_root)
+    receipt = load_verified_stage_artifacts(
+        manifest_path,
+        store=store,
+        allowed_root=config.build_root.root,
+        expected_stage=StageId.D3.value,
+        required_outputs=("calibrated_household_cells.parquet",),
+    )
+    persisted = pd.read_parquet(
+        BytesIO(
+            load_verified_stage_output_bytes(store, receipt, "calibrated_household_cells.parquet")
+        )
+    )
+    panel = _household_distribution_observation_panel(persisted).set_index("entity_id")
+    assert panel.loc["cell::02::household_distribution", "period_end"] == "2024-02-29"
+    missing = panel.loc["cell::03::household_distribution"]
+    assert len(missing) == 2
+    assert set(missing["period_reason"]) == {"period_identifier_missing"}
+    assert int(missing["period_id"].isna().sum()) == 1
+    assert int(missing["period_id"].eq("").fillna(False).sum()) == 1
+    assert sorted(missing["observed_value"].tolist()) == [650.0, 700.0]
+    assert missing["regime_id"].isna().all()
+    assert (
+        panel.loc["cell::04::household_distribution", "period_reason"]
+        == "period_identifier_invalid"
+    )
+    assert pd.isna(panel.loc["cell::04::household_distribution", "regime_id"])
+    from polisyos.scientist.governance import blueprint_release
+
+    bundle = blueprint_release.build_required_backtest_bundles(
+        panel.reset_index(),
+        stage_dir=tmp_path / "backtests",
+        splits={
+            "train_pre_2024": {"start": "2020-01-01", "end": "2020-12-31"},
+            "validation_2024": {"start": "2024-01-01", "end": "2024-12-31"},
+            "test_2025": {"start": "2025-01-01", "end": "2025-12-31"},
+        },
+    )[blueprint_release.BacktestKind.HOUSEHOLD]
+    assert not bundle.plans
+    assert "period_identifier_missing" in bundle.gap_reason
+    assert "period_identifier_invalid" in bundle.gap_reason
     assert "labor_validation_panel.parquet" in result.outputs
     assert "labor_market_corrected_panel.parquet" in result.outputs
     assert "labor_bias_validation.json" in result.outputs

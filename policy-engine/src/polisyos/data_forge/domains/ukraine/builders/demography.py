@@ -42,7 +42,11 @@ from .io import (
     _write_frame,
     _write_json,
 )
-from .observation import _period_series_to_iso_bounds
+from .observation import (
+    UKRAINE_PERIOD_PROJECTION_VERSION,
+    _period_series_to_iso_bounds,  # noqa: F401 - compatibility binding
+    project_ukraine_observation_periods,
+)
 
 
 def _weighted_average_series(values: pd.Series, weights: pd.Series) -> float:
@@ -197,6 +201,11 @@ def _build_calibrated_household_cells(household: pd.DataFrame) -> pd.DataFrame:
                 "cell_id",
                 "region_code",
                 "period_id",
+                "period_start",
+                "period_end",
+                "period_disposition",
+                "period_reason",
+                "period_projection_version",
                 "household_income_mean",
                 "market_income_mean",
                 "total_expenditure_mean",
@@ -212,7 +221,11 @@ def _build_calibrated_household_cells(household: pd.DataFrame) -> pd.DataFrame:
     frame["region_code"] = _coerce_string_series(frame, "region_code", fill="00").map(
         _normalize_region_code_value
     )
-    frame["period_id"] = _coerce_string_series(frame, "period_id", fill="")
+    frame["period_id"] = (
+        frame["period_id"].astype("string")
+        if "period_id" in frame.columns
+        else pd.Series(pd.NA, index=frame.index, dtype="string")
+    )
     frame["weight"] = pd.to_numeric(frame.get("weight", 1.0), errors="coerce").fillna(1.0)
     frame["income"] = pd.to_numeric(frame.get("income", 0.0), errors="coerce").fillna(0.0)
     frame["market_income"] = pd.to_numeric(
@@ -224,7 +237,7 @@ def _build_calibrated_household_cells(household: pd.DataFrame) -> pd.DataFrame:
     ).fillna(0.0)
     rows: list[dict[str, Any]] = []
     for (cell_id, region_code, period_id), group in frame.groupby(
-        ["cell_id", "region_code", "period_id"], sort=False
+        ["cell_id", "region_code", "period_id"], sort=False, dropna=False
     ):
         rows.append(
             {
@@ -243,7 +256,16 @@ def _build_calibrated_household_cells(household: pd.DataFrame) -> pd.DataFrame:
                 "trust_weight": 0.95,
             }
         )
-    return pd.DataFrame.from_records(rows)
+    cells = pd.DataFrame.from_records(rows)
+    start, end, disposition, reason = project_ukraine_observation_periods(
+        cells["period_id"], time_grain=TimeFrequency.MONTH
+    )
+    cells["period_start"] = start
+    cells["period_end"] = end
+    cells["period_disposition"] = disposition
+    cells["period_reason"] = reason
+    cells["period_projection_version"] = UKRAINE_PERIOD_PROJECTION_VERSION
+    return cells
 
 
 def _build_household_distribution_observation_panel(
@@ -251,7 +273,8 @@ def _build_household_distribution_observation_panel(
 ) -> pd.DataFrame:
     if calibrated_household_cells.empty:
         return pd.DataFrame(columns=OBSERVATION_FRAME_COLUMNS)
-    frame = calibrated_household_cells.copy()
+    original_index = calibrated_household_cells.index
+    frame = calibrated_household_cells.reset_index(drop=True).copy()
     frame["cell_id"] = _coerce_string_series(
         frame, "cell_id", fill="cell::00::household_distribution"
     )
@@ -259,10 +282,13 @@ def _build_household_distribution_observation_panel(
         _normalize_region_code_value
     )
     frame["period_id"] = _coerce_string_series(frame, "period_id", fill="")
-    period_start, period_end = _period_series_to_iso_bounds(
-        frame["period_id"], time_grain=TimeFrequency.MONTH
+    period_start, period_end, period_disposition, period_reason = (
+        project_ukraine_observation_periods(frame["period_id"], time_grain=TimeFrequency.MONTH)
     )
-    regime_values = frame["period_id"].map(_regime_for_period_id)
+    regime_values = [
+        _regime_for_period_id(period_id) if disposition == "valid" else (None, None)
+        for period_id, disposition in zip(frame["period_id"], period_disposition, strict=True)
+    ]
     observations = pd.DataFrame(
         {
             "observation_id": [
@@ -271,8 +297,12 @@ def _build_household_distribution_observation_panel(
             ],
             "family": ObservationFamily.HOUSEHOLD_DISTRIBUTION.value,
             "time_grain": TimeFrequency.MONTH.value,
+            "period_id": frame["period_id"],
             "period_start": period_start,
             "period_end": period_end,
+            "period_disposition": period_disposition,
+            "period_reason": period_reason,
+            "period_projection_version": UKRAINE_PERIOD_PROJECTION_VERSION,
             "entity_scope": EntityScope.CELL.value,
             "entity_id": frame["cell_id"].astype("string"),
             "cell_id": frame["cell_id"].astype("string"),
@@ -312,6 +342,7 @@ def _build_household_distribution_observation_panel(
     for column in OBSERVATION_FRAME_COLUMNS:
         if column not in observations.columns:
             observations[column] = None
+    observations.index = original_index
     return observations[OBSERVATION_FRAME_COLUMNS]
 
 

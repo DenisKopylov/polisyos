@@ -31,6 +31,9 @@ from polisyos.fabric.connectors.resilience import (
     RetryPolicy,
     apply_resilience,
 )
+from polisyos.fabric.connectors.resilience._bounded_registry import (
+    BoundedResourceRegistryCapacityError,
+)
 from polisyos.fabric.connectors.resilience.circuit_breaker import (
     CircuitAttemptLease,
     CircuitLeaseError,
@@ -686,6 +689,25 @@ async def test_rate_limiter_rejects_weight_above_capacity_without_waiting() -> N
         await limiter.acquire(tokens=2.0)
 
 
+@pytest.mark.parametrize("rate", [0.0, -1.0, float("nan"), float("inf"), -float("inf")])
+def test_rate_limiter_rejects_non_serviceable_rates(rate: float) -> None:
+    """Invalid rates fail at construction rather than corrupting token accounting."""
+    with pytest.raises(ValueError, match="rate_limit_rps must be finite and > 0"):
+        RateLimiter(rate_limit_rps=rate)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("weight", [0.0, -1.0, float("nan"), float("inf")])
+async def test_rate_limiter_rejects_non_serviceable_weights(weight: float) -> None:
+    """Invalid request weights fail before sleeping or changing admission state."""
+    limiter = RateLimiter(rate_limit_rps=1.0)
+
+    with pytest.raises(ValueError, match="tokens must be finite and > 0"):
+        await limiter.acquire(tokens=weight)
+
+    assert limiter.get_stats()["total_requests"] == 0
+
+
 @pytest.mark.asyncio
 async def test_rate_limiter_cancellation_does_not_consume_unacquired_request(
     monkeypatch: pytest.MonkeyPatch,
@@ -896,15 +918,16 @@ async def test_bounded_registry_pressure_preserves_rate_limit_cooldown(
     monkeypatch.setattr(asyncio, "sleep", clock.sleep)
 
     registry = BoundedResourceRegistry[RateLimiter](max_items=1, ttl_seconds=300.0)
-    first = registry.get_or_create("source-a", lambda: RateLimiter(1.0, burst_size=1.0))
-    first.record_rate_limit(retry_after_seconds=300.0)
-    registry.get_or_create("source-b", lambda: RateLimiter(1.0, burst_size=1.0))
+    with registry.lease("source-a", lambda: RateLimiter(1.0, burst_size=1.0)) as first:
+        first.record_rate_limit(retry_after_seconds=300.0)
+    with pytest.raises(BoundedResourceRegistryCapacityError):
+        with registry.lease("source-b", lambda: RateLimiter(1.0, burst_size=1.0)):
+            pass
 
-    current = registry.get_or_create("source-a", lambda: RateLimiter(1.0, burst_size=1.0))
-    await current.acquire()
-
-    assert sleep_calls == [pytest.approx(300.0)]
-    assert current.get_stats()["total_requests"] == 1
+    with registry.lease("source-a", lambda: RateLimiter(1.0, burst_size=1.0)) as current:
+        await current.acquire()
+        assert sleep_calls == [pytest.approx(300.0)]
+        assert current.get_stats()["total_requests"] == 1
 
 
 @pytest.mark.asyncio
@@ -933,46 +956,35 @@ async def test_bounded_registry_ttl_preserves_rate_limit_cooldown(
     monkeypatch.setattr(asyncio, "sleep", clock.sleep)
 
     registry = BoundedResourceRegistry[RateLimiter](max_items=2, ttl_seconds=1.0)
-    limiter = registry.get_or_create("source-a", lambda: RateLimiter(1.0, burst_size=1.0))
-    limiter.record_rate_limit(retry_after_seconds=300.0)
+    with registry.lease("source-a", lambda: RateLimiter(1.0, burst_size=1.0)) as limiter:
+        limiter.record_rate_limit(retry_after_seconds=300.0)
     clock.now = 2.0
 
-    current = registry.get_or_create("source-a", lambda: RateLimiter(1.0, burst_size=1.0))
-    await current.acquire()
-
-    assert sleep_calls == [pytest.approx(298.0)]
-    assert current.get_stats()["total_requests"] == 1
+    with registry.lease("source-a", lambda: RateLimiter(1.0, burst_size=1.0)) as current:
+        await current.acquire()
+        assert sleep_calls == [pytest.approx(298.0)]
+        assert current.get_stats()["total_requests"] == 1
 
 
 def test_bounded_registry_pressure_preserves_open_circuit_state() -> None:
     """Pressure eviction cannot reopen a circuit by constructing a fresh CLOSED breaker."""
     registry = BoundedResourceRegistry[CircuitBreaker](max_items=1, ttl_seconds=300.0)
-    first = registry.get_or_create(
-        "source-a",
-        lambda: CircuitBreaker(
-            circuit_id="source-a",
-            config=CircuitBreakerConfig(failure_threshold=1, min_throughput=1),
-        ),
-    )
-    first.record_failure()
-    assert first.is_open()
-    registry.get_or_create(
-        "source-b",
-        lambda: CircuitBreaker(
-            circuit_id="source-b",
-            config=CircuitBreakerConfig(failure_threshold=1, min_throughput=1),
-        ),
-    )
 
-    current = registry.get_or_create(
-        "source-a",
-        lambda: CircuitBreaker(
-            circuit_id="source-a",
+    def breaker(key: str) -> CircuitBreaker:
+        return CircuitBreaker(
+            circuit_id=key,
             config=CircuitBreakerConfig(failure_threshold=1, min_throughput=1),
-        ),
-    )
+        )
 
-    assert current.is_open()
+    with registry.lease("source-a", lambda: breaker("source-a")) as first:
+        first.record_failure()
+        assert first.is_open()
+    with pytest.raises(BoundedResourceRegistryCapacityError):
+        with registry.lease("source-b", lambda: breaker("source-b")):
+            pass
+
+    with registry.lease("source-a", lambda: breaker("source-a")) as current:
+        assert current.is_open()
 
 
 @pytest.mark.asyncio

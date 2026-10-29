@@ -38,6 +38,15 @@ root set; they never establish absence of effects. Model, field and method
 summaries remain invalidated and cannot authorize importer selection. This is a static selected-source/temporal guarantee, not proof of
 arbitrary code injected by an external callback or of runtime class immutability.
 
+The actual nominal-bridge discriminator starts with a passing finite fixture,
+restores the former invalidated-summary proxy at the nominal lookup only,
+requires the original class-resolution refusal, and then restores the passing
+inventory. Removing only deferred dependency-name collection does not remove the
+whole rebind protection: the independent unmodeled-call/module-time guard can
+still refuse the changed root. That redundant refusal remains required; an
+extracted state without the second guard is not evidence of a false-green full
+collector. These controls retain compact per-case deciding receipts in scratch.
+
 ## Docs lifecycle removed-reference scan
 
 `check_docs_lifecycle.py` keeps the lifecycle checker and CLI surface. Its removed-stub reference scan is implemented by `docs_lifecycle_reference_scan.py`; the facade supplies the current repository enumerator, reader, selector, finding type, and path formatter through a typed dependency value. This preserves injected test enumerators without mutating scanner module globals. The scan receipt remains scoped to this one check. Excluded, opaque, or malformed inputs continue to produce partial or ambiguous coverage rather than a complete lifecycle-gate claim.

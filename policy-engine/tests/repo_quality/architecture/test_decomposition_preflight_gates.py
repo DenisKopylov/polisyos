@@ -11952,6 +11952,54 @@ def selected():
     entries = preflight.collect_dynamic_imports()
     assert [entry["pattern"] for entry in entries] == ["deferred_escaped_class_selected_target"]
 
+    identity_lookup = preflight._DynamicImportSourceBindings._source_class_identity_definition
+    bridge_removal_calls = []
+
+    def old_summary_proxy(source_bindings, source_name: str, **context):
+        invalidated = source_name in source_bindings.invalidated_source_classes
+        bridge_removal_calls.append(
+            {"source_name": source_name, "summary_invalidated": invalidated}
+        )
+        if invalidated:
+            return None
+        return identity_lookup(source_bindings, source_name, **context)
+
+    with monkeypatch.context() as removed:
+        removed.setattr(
+            preflight._DynamicImportSourceBindings,
+            "_source_class_identity_definition",
+            old_summary_proxy,
+        )
+        with pytest.raises(
+            preflight.DynamicImportCollectionError,
+            match="source-owned call target is neither a selected function nor a selected class",
+        ) as removed_bridge:
+            preflight.collect_dynamic_imports()
+
+    assert any(
+        call["source_name"] == "polisyos.refusal.RefusalError" and call["summary_invalidated"]
+        for call in bridge_removal_calls
+    )
+    assert (
+        preflight._DynamicImportSourceBindings._source_class_identity_definition is identity_lookup
+    )
+    restored_entries = preflight.collect_dynamic_imports()
+    assert restored_entries == entries
+    (tmp_path / "nominal-bridge-removal.json").write_text(
+        json.dumps(
+            {
+                "positive_patterns": [entry["pattern"] for entry in entries],
+                "removed_property": "nominal identity separated from mutable-summary validity",
+                "removed_bridge_refusal": str(removed_bridge.value),
+                "actual_lookup_calls": bridge_removal_calls,
+                "identity_lookup_object_restored": True,
+                "restored_patterns": [entry["pattern"] for entry in restored_entries],
+            },
+            sort_keys=True,
+        ),
+        encoding="utf-8",
+    )
+
     paths = preflight._dynamic_source_paths("src")
     context = preflight._dynamic_read_source_context(paths)
     bindings = preflight._DynamicImportSourceBindings(paths, source_context=context)
@@ -12010,7 +12058,7 @@ def test_dynamic_deferred_escaped_class_refuses_changed_importer_and_removal(
     class_declarations: str,
     escaped_class: str,
 ) -> None:
-    """Opaque class/base effects retain the complete tracked importer quantity."""
+    """A changed root refuses with both the full path and its independent fallback."""
     _dynamic_import_internal_modules_fixture(
         tmp_path,
         monkeypatch,
@@ -12034,7 +12082,9 @@ def refuse():
         },
     )
 
-    with pytest.raises(preflight.DynamicImportCollectionError, match="proven importer rebind"):
+    with pytest.raises(
+        preflight.DynamicImportCollectionError, match="proven importer rebind"
+    ) as original_refusal:
         preflight.collect_dynamic_imports()
 
     with monkeypatch.context() as removed:
@@ -12043,10 +12093,32 @@ def refuse():
             "_deferred_scope_importer_names",
             lambda _self, _deferred, _environment: frozenset(),
         )
-        assert preflight.collect_dynamic_imports() == []
+        with pytest.raises(
+            preflight.DynamicImportCollectionError,
+            match="unmodeled call has an unproven module-time dynamic-import namespace",
+        ) as fallback_refusal:
+            preflight.collect_dynamic_imports()
+        assert f"namespace ({changed_root});" in str(fallback_refusal.value)
 
-    with pytest.raises(preflight.DynamicImportCollectionError, match="proven importer rebind"):
+    with pytest.raises(
+        preflight.DynamicImportCollectionError, match="proven importer rebind"
+    ) as restored_refusal:
         preflight.collect_dynamic_imports()
+    (tmp_path / "redundant-root-guards.json").write_text(
+        json.dumps(
+            {
+                "changed_root": changed_root,
+                "escaped_class": escaped_class,
+                "original_refusal": str(original_refusal.value),
+                "removed_helper": "_deferred_scope_importer_names",
+                "independent_guard_refusal": str(fallback_refusal.value),
+                "restored_refusal": str(restored_refusal.value),
+                "single_helper_removal_is_not_whole_property_removal": True,
+            },
+            sort_keys=True,
+        ),
+        encoding="utf-8",
+    )
 
 
 def test_dynamic_deferred_unescaped_class_keeps_precise_unrelated_root_boundary(

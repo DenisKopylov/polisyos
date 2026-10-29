@@ -5275,6 +5275,29 @@ class MethodExecutionCandidateOutcome(BaseModel):
         "scientific_validity_not_established",
     )
 
+    @classmethod
+    def from_json_payload(cls, payload: object) -> MethodExecutionCandidateOutcome:
+        """Validate a bounded decoded JSON summary with strict wire semantics.
+
+        The caller still owns selected-profile, integrity, provenance and read-limit
+        admission. JSON arrays are valid wire values for the DTO's tuple fields;
+        this does not relax strict Python validation or the candidate-only limits.
+
+        Args:
+            payload: The complete JSON mapping returned by a bounded reader.
+
+        Returns:
+            A new immutable candidate summary under the unchanged DTO contract.
+
+        Raises:
+            ValueError: If the value is not JSON wire data or violates the contract.
+        """
+        return _validate_strict_json_wire_payload(
+            payload,
+            TypeAdapter(cls),
+            invalid_code="method_execution_candidate_outcome_wire_payload_invalid",
+        )
+
     @model_validator(mode="after")
     def _require_candidate_report_shape(self) -> MethodExecutionCandidateOutcome:
         if self.status == "success" and (

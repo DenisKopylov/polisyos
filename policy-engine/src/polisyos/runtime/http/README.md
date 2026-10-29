@@ -80,6 +80,15 @@ ref when present and checks each input edge by role, artifact ID, profile, and m
 refs remain separate edges when their semantic roles differ; the check does not grant additional
 read authority or change the admission status.
 
+The fresh direct-method evidence consumer admits the complete decoded candidate
+summary through `MethodExecutionCandidateOutcome.from_json_payload()`. This
+preserves the producer's JSON-array representation while retaining strict scalar,
+candidate-only and limitation validation; it does not cast individual fields.
+Selected manifest/profile, resource, source, intent, result-ref and lineage checks
+still precede completion. A valid but mismatched summary remains refused. The
+transport repair establishes neither a scientifically valid estimate nor a
+cancel-during-native-work result.
+
 ## Controlled local Legal runtime profile
 
 For a local Legal vector-search candidate, run the module entrypoint with the

@@ -53,6 +53,14 @@ models, and provenance payloads that let `fabric`, `foundry`, `scientist`, `lex`
 
 ## Public API
 
+`MethodExecutionCandidateOutcome.from_json_payload()` is the typed intake for an
+already decoded, bounded JSON candidate summary. It reuses Core's strict JSON
+wire owner so persisted arrays can reconstruct tuple fields without accepting
+numeric strings, non-JSON Python carriers, extra fields or non-finite values.
+The DTO's strict Python constructor, candidate limitations and scalar validators
+remain unchanged. The method itself grants no artifact custody, authority or
+scientific validity; consumers must first verify the selected CAS view and lineage.
+
 `polisyos.core.contracts` also exposes Fabric's `data_snapshot_reference_fields()` and
 `data_snapshot_reference_input_roles(field_name)` through the stable lazy facade; both names retain
 the function objects owned by `fabric.py`.

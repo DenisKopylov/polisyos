@@ -1019,7 +1019,7 @@ def _validate_direct_method_execution_selection_artifacts(
             raise ValueError("direct_method_execution_candidate_outcome_unbound")
     else:
         try:
-            checked_candidate_outcome = MethodExecutionCandidateOutcome.model_validate(
+            checked_candidate_outcome = MethodExecutionCandidateOutcome.from_json_payload(
                 evidence_candidate_outcome
             )
         except (TypeError, ValueError) as exc:

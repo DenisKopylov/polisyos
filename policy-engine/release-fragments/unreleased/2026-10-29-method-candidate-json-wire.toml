@@ -1,0 +1,16 @@
+id = "2026-10-29-method-candidate-json-wire"
+title = "Read persisted method candidates through strict JSON wire admission"
+type = "fixed"
+component = "runtime-http"
+owner = "team-runtime"
+summary = "Reuse the Core candidate DTO's strict JSON intake after selected bounded CAS reads so producer-emitted arrays round-trip into tuple fields without weakening scalar or candidate-only validation."
+evidence = ["src/polisyos/core/contracts/runtime.py", "src/polisyos/runtime/http/services/control/run_lifecycle.py", "tests/unit/runtime/http/test_method_candidate_evidence_roundtrip.py"]
+compatibility = "No DTO field, schema version, serialized producer payload or strict Python constructor changes. The public DTO gains a JSON-payload reader; historical valid evidence uses the existing wire representation. Invalid evidence and mismatched selected summaries continue to fail closed."
+change_class = "python-public-api; runtime-consumer"
+surface_classification = "Additive method on the existing exported MethodExecutionCandidateOutcome DTO; no new HTTP or top-level facade symbol."
+migration = "Compose the Core reader before the Runtime consumer, run defining CAS/public-worker and removal controls, then review actual public inventory and affected generated-family checks under the canonical owner."
+limitations = "The reader does not grant artifact custody, institutional authority or scientific validity. A completed JSON round-trip does not establish cancellation during native compute."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/core/contracts/README.md", "src/polisyos/runtime/http/README.md"]
+runbook_docs = []

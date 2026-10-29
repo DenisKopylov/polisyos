@@ -13,7 +13,7 @@ from typing import Any, Literal, Protocol, TypeGuard, runtime_checkable
 from uuid import uuid4
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.ir import TypedFailureCard
 from polisyos.scientist.methods.search.contracts import EvaluationBundle
@@ -982,11 +982,49 @@ class FunnelOrchestrator:
         if final_result is not None:
             feedback = dict(final_result.feedback or {})
             feedback["uncertainty_current"] = None
-            feedback["uncertainty_current_status"] = (
-                "not_established"
-                if current_read is None or current_read.status != "available_as_of_task_epoch"
-                else current_read.admission_status
-            )
+            # This diagnostic describes the admitted basis, not a count-based
+            # aggregate across unrelated obligations. The full current read
+            # continues to expose every unknown and contested obligation.
+            current_status = "not_established"
+            if (
+                current_read is not None
+                and current_read.status == "available_as_of_task_epoch"
+                and current_read.resolved_projection is not None
+                and current_read.task_admission is not None
+                and current_read.task_admission.status == "unassessed"
+                and current_read.task_admission.basis_ref is not None
+                and current_read.task_admission_ref is not None
+            ):
+                resolved = current_read.resolved_projection
+                basis_key = artifact_ref_identity_key(current_read.task_admission.basis_ref)
+                admission_key = artifact_ref_identity_key(current_read.task_admission_ref)
+                predecessors = [
+                    item
+                    for item in resolved.selected_unassessed_observations
+                    if artifact_ref_identity_key(item.basis_ref) == basis_key
+                    and artifact_ref_identity_key(item.observation.task_admission_ref)
+                    == admission_key
+                ]
+                if len(predecessors) == 1:
+                    predecessor = predecessors[0]
+                    predecessor_key = artifact_ref_identity_key(predecessor.observation_ref)
+                    selected = [
+                        item
+                        for item in resolved.current_obligations
+                        if artifact_ref_identity_key(item.basis_ref) == basis_key
+                        and artifact_ref_identity_key(item.selection.predecessor_ref)
+                        == predecessor_key
+                        and item.selection.obligation_id == predecessor.observation.obligation_id
+                    ]
+                    if len(selected) == 1:
+                        current_status = selected[0].selection.status
+                    elif (
+                        not selected
+                        and predecessor.observation.obligation_id
+                        in resolved.projection.active_unknown_obligation_ids
+                    ):
+                        current_status = "unassessed"
+            feedback["uncertainty_current_status"] = current_status
             feedback["search_uncertainty_current_read"] = (
                 None
                 if current_read is None

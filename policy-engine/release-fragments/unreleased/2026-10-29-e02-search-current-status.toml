@@ -1,0 +1,31 @@
+id = "2026-10-29-e02-search-current-status"
+title = "Report the selected Search assessment state from the current projection"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-runtime"
+summary = "Funnel stage feedback derives its selected candidate assessment status from the verified task-epoch projection rather than the immutable initial admission."
+evidence = ["tests/unit/scientist/methods/search/test_s1_b161_request_binding_cloud.py", "tests/unit/scientist/nodes/builtins/decide/test_policy_blueprint_runtime_reporting.py"]
+compatibility = "The existing feedback key can change from unassessed to assessed or contested; the typed current read remains the source for scope, uncertainty and other obligations. Dynamic reporting output can carry the feedback, so downstream readers should accept these existing owner states."
+change_class = "Correct the internal selected-task diagnostic serialized by runtime reporting"
+surface_classification = "internal: polisyos.scientist.methods.search.funnel and dynamic policy runtime reporting"
+migration = "Read search_uncertainty_current_read for the resolved basis, assessment, limitations and contested successors; do not infer live currentness or use historical maximum as current risk."
+api = "The existing dynamic stage feedback value changes; no schema or generated-client change is asserted. Reporting serializes stage feedback and the separately typed current read."
+limitations = "Runtime, native producer and consumer verification remain UNRUN until the candidate is executed. Active independent-risk assessment is absent/unallocated in inspected paths; the earlier funnel request relationship remains bridge_missing. This is a candidate task-epoch diagnostic, not calibrated risk or authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/scientist/methods/search/README.md"]
+runbook_docs = ["src/polisyos/scientist/methods/search/README.md"]
+
+[[compatibility_change]]
+id = "search-selected-current-feedback-state"
+change_class = "internal"
+impact = "consumer_input_update"
+surface = "internal: polisyos.scientist.methods.search.funnel and dynamic policy runtime reporting"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "not_applicable"
+release_note = "The selected task's candidate uncertainty status follows its current verified assessment instead of the original unassessed admission."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/scientist/methods/search/README.md"]
+runbook_docs = ["src/polisyos/scientist/methods/search/README.md"]

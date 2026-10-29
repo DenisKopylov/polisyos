@@ -205,6 +205,19 @@ basis, refinement and scoring profile bodies from their exact profiled CAS refs.
 preserves the historical refs and states only the pinned task epoch; live
 currentness remains not_established.
 
+The stage feedback `uncertainty_current_status` describes the resolved current
+assessment for the selected task, rather than repeating the immutable pre-dispatch
+admission state. It is a task-epoch candidate diagnostic, separate from score
+availability, and grants no authority. `search_uncertainty_current_read` is the
+inspectable source for the selected basis, observation, refinement, outstanding
+unknowns and contested successors. The ordinary envelope is historical; it cannot
+supply an independently current risk. The selected state is matched by the exact
+admitted basis and predecessor, not by counting obligations; other obligations
+remain visible in the typed read. If the selected state cannot be resolved, the
+summary is `not_established`. It is not an aggregate across obligations. Consumers
+needing the other obligations must read the typed projection. Reissue retains old
+artifacts as history, not the current state.
+
 The pre-dispatch Scientist owner reads the selected method FQN and canonical
 parameters from `ExperimentState`, records every selected state artifact ref,
 input, produced artifact and report ref, and captures the instantiated L0-L6

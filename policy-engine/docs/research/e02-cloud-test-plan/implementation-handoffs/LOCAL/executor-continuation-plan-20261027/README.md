@@ -1,5 +1,9 @@
 # E02 continuation planning checkpoint — 27 October 2026
 
+Current author position: [R31 source, evidence boundaries and next joins](PROGRESS-20261029-r31.md).
+
+**Latest dated progress — R29 R2, 29 October 2026:** [PROGRESS-20261029-r29.md](PROGRESS-20261029-r29.md), as of 07:31:39 UTC. It adds affected-reader setup errors and C151 submission while preserving the distinct Inspector FAIL and source-qualification boundaries. Earlier snapshots retain their source cuts; E02/G acceptance remains unfinished.
+
 **Latest dated progress — R24, 29 October 2026:** [PROGRESS-20261029-r24.md](PROGRESS-20261029-r24.md), with the 00:32:17 UTC native evidence cut and a separate later R25 tools-publication note. Earlier snapshots below retain their own sources; E02/G acceptance remains unfinished.
 
 **Latest progress — 29 October 2026 (Kyiv):** [PROGRESS-20261029.md](PROGRESS-20261029.md) and [R23 receipt summary](evidence/local-execution-r23/summary.json), as of 2026-10-28 22:39:17 UTC. This source-bound snapshot supersedes the current-status wording below; earlier R20/R21 and pause notes remain dated history. E02 and G acceptance remain unfinished.

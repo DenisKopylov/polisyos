@@ -1441,6 +1441,160 @@ def test_ttl_demotes_old_lessons_before_archive(tmp_path) -> None:
     assert results[0].trust_level == LessonTrustLevel.LOW_CONFIDENCE
 
 
+def test_evidence_age_survives_reads_restart_and_transfer_materialization(tmp_path) -> None:
+    """Usage and transfer clocks cannot renew the producer-owned evidence clock."""
+    now = datetime.now(UTC)
+    evidence_at = now - timedelta(days=100)
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    root = tmp_path / "registry" / "lessons"
+    policy = TransferPolicy(ttl_days=90)
+    source = TransferContext(
+        task_family="policy",
+        domain="fiscal",
+        run_id="age-source",
+        tenant_hash="tenant-a",
+        timestamp=now,
+    )
+    target = TransferContext(
+        task_family="policy",
+        domain="labor",
+        run_id="age-target",
+        tenant_hash="tenant-a",
+        timestamp=now,
+    )
+    registry = LessonRegistry(root=root, store=store, transfer_policy=policy)
+    stale = _card(created_at=evidence_at).model_copy(
+        update={"confidence": 0.9, "tags": ["age-anchor"]}
+    )
+    source_ref = registry.record_local(stale, context=source)
+
+    broad = LessonQuery(
+        task_family="policy",
+        domain="fiscal",
+        tenant_hash="tenant-a",
+        tags=["age-anchor"],
+        limit=1,
+    )
+    cold = registry.query(broad)
+    warm = registry.query(broad)
+    assert [(card.trust_level, card.confidence) for card in (cold + warm)] == [
+        (LessonTrustLevel.LOW_CONFIDENCE, 0.5),
+        (LessonTrustLevel.LOW_CONFIDENCE, 0.5),
+    ]
+    assert (
+        registry.query(
+            broad.model_copy(
+                update={
+                    "trust_levels": [LessonTrustLevel.LOCAL],
+                    "min_confidence": 0.8,
+                }
+            )
+        )
+        == []
+    )
+
+    reopened = LessonRegistry(root=root, store=store, transfer_policy=policy)
+    after_restart = reopened.query(broad)
+    assert len(after_restart) == 1
+    assert (after_restart[0].trust_level, after_restart[0].confidence) == (
+        LessonTrustLevel.LOW_CONFIDENCE,
+        0.5,
+    )
+    source_entry = reopened.index_snapshot(context=source).entries[0]
+    assert source_entry.artifact_ref == source_ref
+    assert source_entry.last_seen == evidence_at
+    assert source_entry.last_accessed_at is not None
+
+    transferred = reopened.query_with_transfer(
+        LessonQuery(task_family="policy", tags=["age-anchor"], limit=1),
+        target_context=target,
+    )
+    assert len(transferred) == 1
+    assert transferred[0].trust_level is LessonTrustLevel.LOW_CONFIDENCE
+    assert transferred[0].confidence == after_restart[0].confidence == 0.5
+    assert transferred[0].provenance_weight == pytest.approx(0.325)
+    assert transferred[0].created_at == evidence_at
+
+    target_entry = reopened.index_snapshot(context=target).entries[0]
+    target_ref = target_entry.artifact_ref
+    assert target_entry.last_seen == evidence_at
+    assert load_lesson_card(store, target_ref).created_at == evidence_at
+
+    fresh = LessonRegistry(root=root, store=store, transfer_policy=policy)
+    target_query = LessonQuery(
+        task_family="policy",
+        domain="labor",
+        tenant_hash="tenant-a",
+        tags=["age-anchor"],
+        limit=1,
+    )
+    repeated_target = fresh.query(target_query)
+    assert len(repeated_target) == 1
+    assert (repeated_target[0].trust_level, repeated_target[0].confidence) == (
+        LessonTrustLevel.LOW_CONFIDENCE,
+        0.5,
+    )
+    assert fresh.index_snapshot(context=target).entries[0].artifact_ref == target_ref
+
+    fresh_card = _card(created_at=now).model_copy(update={"tags": ["fresh-control"]})
+    fresh.record_local(fresh_card, context=source)
+    fresh_transfer = fresh.query_with_transfer(
+        LessonQuery(task_family="policy", tags=["fresh-control"], limit=1),
+        target_context=target,
+    )
+    assert len(fresh_transfer) == 1
+    assert fresh_transfer[0].trust_level is LessonTrustLevel.TRANSFERRED
+    assert fresh_transfer[0].provenance_weight == pytest.approx(0.65)
+
+
+def test_stale_transfer_confidence_filter_uses_effective_age(tmp_path) -> None:
+    """A stale source cannot pass a strict target filter on raw confidence."""
+    now = datetime.now(UTC)
+    registry = _registry(tmp_path)
+    source = TransferContext(
+        task_family="policy",
+        domain="fiscal",
+        run_id="age-source",
+        tenant_hash="tenant-a",
+        timestamp=now,
+    )
+    target = TransferContext(
+        task_family="policy",
+        domain="labor-strict",
+        run_id="age-target",
+        tenant_hash="tenant-a",
+        timestamp=now,
+    )
+    registry.record_local(
+        _card(created_at=now - timedelta(days=100)).model_copy(
+            update={"confidence": 0.9, "tags": ["age-strict"]}
+        ),
+        context=source,
+    )
+    local = registry.query(
+        LessonQuery(
+            task_family="policy",
+            domain="fiscal",
+            tenant_hash="tenant-a",
+            tags=["age-strict"],
+            limit=1,
+        )
+    )
+    assert len(local) == 1
+    assert (local[0].trust_level, local[0].confidence) == (
+        LessonTrustLevel.LOW_CONFIDENCE,
+        0.5,
+    )
+    strict = LessonQuery(
+        task_family="policy",
+        tags=["age-strict"],
+        min_confidence=0.8,
+        limit=1,
+    )
+    assert registry.query_with_transfer(strict, target_context=target) == []
+    assert registry.index_snapshot(context=target).entries == []
+
+
 def test_invalidation_beats_transfer_materialization(tmp_path) -> None:
     registry = _registry(tmp_path)
     source = TransferContext(

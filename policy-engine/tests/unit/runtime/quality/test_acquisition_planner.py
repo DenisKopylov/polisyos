@@ -980,6 +980,191 @@ def test_acquisition_planner_report_persists_as_first_class_artifact(
     assert str(ref.artifact_id)
 
 
+def _presence_bound_planner_report(shape: str) -> acquisition_owner.AcquisitionPlannerReport:
+    report = plan_evidence_acquisition(
+        run_id="run-presence-fixture",
+        gaps=[
+            AcquisitionGap(
+                gap_id="gap-presence-fixture",
+                gap_type=AcquisitionGapType.METHOD_OBLIGATION,
+                claim_ref="claim://presence-fixture",
+                authority_level=AuthorityLevel.GOVERNED,
+                mandatory_gate_state=MandatoryGateState.NONE,
+            )
+        ],
+        generated_at=datetime(2026, 7, 17, tzinfo=UTC),
+    )
+    payload = report.model_dump(mode="json")
+    row = payload["acquisition_records"][0]
+    field = "capability_requirement_resolutions"
+    row.pop(field, None)
+    if shape == "null":
+        row[field] = None
+    elif shape == "empty":
+        row[field] = []
+    elif shape == "nonempty":
+        row[field] = [
+            {
+                "scope_profile_id": "profile:ua-2026",
+                "query": {
+                    "requirement_id": "data-requirement:profile:ua-2026:firm_survival",
+                    "construct": "firm_survival",
+                    "entity_scope": "firm",
+                    "population_filter": {"type": "msmes"},
+                    "geography": "UA",
+                    "time_window": {"start": "2026-01-01", "end": "2026-12-31"},
+                    "claim_use": "claim_evidence_closeout",
+                    "source_family_alias": "production_msme_panel",
+                },
+                "state": "not_established",
+                "binding": None,
+                "reason_codes": ["capability_resolver_not_established"],
+            }
+        ]
+    elif shape != "absent":
+        raise ValueError("unsupported presence case")
+    typed = acquisition_owner.AcquisitionPlannerReport.model_validate(payload)
+    return acquisition_owner.bind_acquisition_planner_report(
+        typed, planning_context_hash="sha256:" + "1" * 64
+    )
+
+
+@pytest.mark.parametrize("shape", ["absent", "null", "empty", "nonempty"])
+def test_n7_planner_report_preserves_full_resolution_presence_in_fresh_cas(
+    tmp_path: Path, shape: str
+) -> None:
+    """The output binding survives actual CAS serialization with distinct presence states."""
+    from polisyos.core import canon
+
+    store = FileSystemCAS(tmp_path / "cas")
+    report = _presence_bound_planner_report(shape)
+    ref = acquisition_owner.persist_and_verify_acquisition_planner_report(store, report)
+    fresh = FileSystemCAS(tmp_path / "cas")
+    loaded = load_acquisition_planner_report(fresh, ref)
+    manifest = fresh.get_manifest(ref)
+    assert manifest.canon is not None and manifest.canon.exclude_none is False
+    assert acquisition_owner._canonical_model_bytes(
+        loaded
+    ) == acquisition_owner._canonical_model_bytes(report)
+    assert acquisition_owner.acquisition_planner_report_matches_context(
+        loaded, planning_context_hash=report.planning_context_hash
+    )
+    assert (
+        acquisition_owner._validate_persisted_planner_report(store=fresh, ref=ref, report=report)
+        == ()
+    )
+    row = canon.from_canonical_bytes(fresh.get_bytes(ref))["acquisition_records"][0]
+    field = "capability_requirement_resolutions"
+    if shape == "absent":
+        assert field not in row
+    elif shape == "null":
+        assert field in row and row[field] is None
+    elif shape == "empty":
+        assert row[field] == []
+    else:
+        assert len(row[field]) == 1
+        assert row[field][0]["state"] == "not_established"
+
+
+def test_n7_planner_old_lossy_profile_refuses_null_collapse_and_restores_writer(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Legacy absence remains readable; lost explicit null cannot be inferred."""
+    from polisyos.core import artifacts, canon
+
+    store = FileSystemCAS(tmp_path / "cas")
+
+    def old_writer(store, report):
+        return store.put_json(
+            report,
+            artifacts.PutOptions(
+                kind=acquisition_owner.ACQUISITION_PLANNER_KIND,
+                media_type="application/json",
+                schema=artifacts.SchemaInfo(
+                    name=acquisition_owner.ACQUISITION_PLANNER_SCHEMA_NAME,
+                    version=acquisition_owner.ACQUISITION_PLANNER_SCHEMA_VERSION_SHORT,
+                ),
+                inputs=acquisition_owner.acquisition_report_inputs(report),
+            ),
+            canon_spec=canon.CanonSpec(forbid_floats=False),
+        )
+
+    absent = _presence_bound_planner_report("absent")
+    old_absent = old_writer(store, absent)
+    assert (
+        acquisition_owner._validate_persisted_planner_report(
+            store=store, ref=old_absent, report=absent
+        )
+        == ()
+    )
+    assert acquisition_owner.acquisition_planner_report_matches_context(
+        load_acquisition_planner_report(FileSystemCAS(tmp_path / "cas"), old_absent),
+        planning_context_hash=absent.planning_context_hash,
+    )
+
+    explicit = _presence_bound_planner_report("null")
+    old_explicit = old_writer(store, explicit)
+    old_bytes = store.get_bytes(old_explicit)
+    old_loaded = load_acquisition_planner_report(FileSystemCAS(tmp_path / "cas"), old_explicit)
+    assert old_loaded == explicit  # Value equality does not prove wire presence.
+    assert (
+        "capability_requirement_resolutions"
+        not in old_loaded.acquisition_records[0].model_fields_set
+    )
+    issues = acquisition_owner._validate_persisted_planner_report(
+        store=store, ref=old_explicit, report=explicit
+    )
+    assert {row["code"] for row in issues} >= {
+        "acquisition_planner_report_readback_mismatch",
+        "acquisition_planner_report_context_binding_missing",
+    }
+    assert store.get_bytes(old_explicit) == old_bytes
+
+    # Remove the presence-preserving writer while leaving the report and hash
+    # markers intact. The actual post-write verifier must refuse, then recover.
+    with monkeypatch.context() as local:
+        local.setattr(acquisition_owner, "persist_acquisition_planner_report", old_writer)
+        with pytest.raises(ValueError, match="acquisition_planner_report_readback_mismatch"):
+            acquisition_owner.persist_and_verify_acquisition_planner_report(store, explicit)
+    restored_ref = acquisition_owner.persist_and_verify_acquisition_planner_report(store, explicit)
+    restored = load_acquisition_planner_report(FileSystemCAS(tmp_path / "cas"), restored_ref)
+    assert acquisition_owner.acquisition_planner_report_matches_context(
+        restored, planning_context_hash=explicit.planning_context_hash
+    )
+    assert restored.model_dump(mode="json") == explicit.model_dump(mode="json")
+
+    # Keep report/action IDs and binding markers while changing the actual
+    # action quantity. The selected CAS record must not be treated as equal.
+    row = explicit.acquisition_records[0]
+    changed_row = row.model_copy(update={"claim_ref": row.claim_ref + ":different"})
+    changed_report = explicit.model_copy(update={"acquisition_records": (changed_row,)})
+    assert {
+        issue["code"]
+        for issue in acquisition_owner._validate_persisted_planner_report(
+            store=store, ref=restored_ref, report=changed_report
+        )
+    } == {"acquisition_planner_report_readback_mismatch"}
+    bad_binding = explicit.model_copy(update={"planning_binding_hash": "sha256:" + "2" * 64})
+    bad_binding_ref = persist_acquisition_planner_report(store, bad_binding)
+    assert {
+        issue["code"]
+        for issue in acquisition_owner._validate_persisted_planner_report(
+            store=store, ref=bad_binding_ref, report=bad_binding
+        )
+    } == {"acquisition_planner_report_context_binding_missing"}
+
+    # A malformed typed caller value must return a refusal, not escape as a
+    # JSON encoding exception or be normalized into a different report.
+    row = explicit.acquisition_records[0]
+    assert row.strategy_records
+    bad_strategy = row.strategy_records[0].model_copy(update={"voi_expected_cost": float("nan")})
+    bad_row = row.model_copy(update={"strategy_records": (bad_strategy, *row.strategy_records[1:])})
+    bad_report = explicit.model_copy(update={"acquisition_records": (bad_row,)})
+    assert acquisition_owner._validate_persisted_planner_report(
+        store=store, ref=restored_ref, report=bad_report
+    ) == ({"code": "acquisition_planner_report_content_invalid"},)
+
+
 def test_scorecard_surfaces_acquisition_blockers_as_runtime_closeout_failures() -> None:
     report = plan_evidence_acquisition(
         run_id="run-acq-5",

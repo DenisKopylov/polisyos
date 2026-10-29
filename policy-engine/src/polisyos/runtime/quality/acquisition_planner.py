@@ -4127,8 +4127,25 @@ def _validate_persisted_planner_report(
                 "error": str(exc),
             },
         )
-    if persisted != report:
+    # Pydantic equality does not distinguish an omitted optional field from
+    # an explicitly supplied null. The planner binding does, so compare its
+    # complete deterministic model quantity instead of value equality.
+    try:
+        same_report = _canonical_model_bytes(persisted) == _canonical_model_bytes(report)
+    except (TypeError, ValueError):
+        return ({"code": "acquisition_planner_report_content_invalid"},)
+    if not same_report:
         issues.append({"code": "acquisition_planner_report_readback_mismatch"})
+    if (
+        persisted.planning_context_hash is not None or persisted.planning_binding_hash is not None
+    ) and (
+        persisted.planning_context_hash is None
+        or persisted.planning_binding_hash is None
+        or not acquisition_planner_report_matches_context(
+            persisted, planning_context_hash=persisted.planning_context_hash
+        )
+    ):
+        issues.append({"code": "acquisition_planner_report_context_binding_missing"})
     if report.requirement_basis_binding is not None:
         issues.extend(
             _validate_persisted_data_requirement_compilation_report(
@@ -4168,7 +4185,9 @@ def validate_persisted_acquisition_planner_report(
             planning_context_hash=report.planning_context_hash,
         )
     ):
-        issues.append({"code": "acquisition_planner_report_context_binding_missing"})
+        issue = {"code": "acquisition_planner_report_context_binding_missing"}
+        if issue not in issues:
+            issues.append(issue)
     binding = report.requirement_basis_binding
     if binding is None:
         issues.append({"code": "acquisition_requirement_basis_not_established"})
@@ -5762,7 +5781,9 @@ def persist_acquisition_planner_report(
             ),
             inputs=list(inputs) if inputs is not None else acquisition_report_inputs(report),
         ),
-        canon_spec=canon.CanonSpec(forbid_floats=False),
+        # The report binding distinguishes an absent resolution from an
+        # explicit null. Preserve that quantity through the Core CAS codec.
+        canon_spec=canon.CanonSpec(forbid_floats=False, exclude_none=False),
     )
 
 

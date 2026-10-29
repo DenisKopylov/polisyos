@@ -1578,6 +1578,18 @@ historical producer code emitted a fully reconstructed alternative record. Such
 producer provenance remains `not_established`. A retained continuation cannot
 introduce an inline checkpoint without an actual retained-owner binding for it.
 
+The planner-report CAS writer preserves explicit nulls using its recorded Core
+canonical profile, because optional capability-resolution field presence is part
+of the bound output. The persisted-report reader compares the complete serialized
+quantity and rechecks the persisted output binding; model value equality alone is
+not sufficient. Earlier artifacts are not rewritten. An old profile that omitted
+nulls can still replay a report that actually lacked the field; if it collapsed an
+explicit null, its original presence is not recoverable from that report alone
+and the binding is not established. Reissue from current independently validated
+inputs instead of inventing historical presence. This rule covers planner-report
+CAS artifacts; other carriers and separate projection readers have not thereby
+been qualified.
+
 Joined source-record emission is disabled by default while compatible readers,
 retained-continuation witnesses, and old/new reader controls are qualified.
 Older cycle readers reject the new record even though field shapes are

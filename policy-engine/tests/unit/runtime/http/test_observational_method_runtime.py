@@ -5150,7 +5150,7 @@ def test_real_forest_fit_progress_spans_durable_cancel_post(
             "manifest_sha256": "",
             "manifest_profile_sha256": "",
             "source_kind": "ir.observation_method_input",
-            "rows": 2000,
+            "rows": 8000,
             "source_authority": "fixture_synthetic_candidate",
             "sample_ids_unique": False,
         },
@@ -5976,9 +5976,9 @@ def test_real_forest_fit_progress_spans_durable_cancel_post(
             source_ref = _put_runtime_observational_source(
                 service,
                 owner_scope=owner_scope,
-                n_obs=2000,
+                n_obs=8000,
             )
-            source_payload = _runtime_hte_source_payload(n_obs=2000)
+            source_payload = _runtime_hte_source_payload(n_obs=8000)
             artifact_hex = source_ref.artifact_id.hex
             payload_path = (
                 Path(env["cas_root"])
@@ -6016,11 +6016,11 @@ def test_real_forest_fit_progress_spans_durable_cancel_post(
                     ).hexdigest(),
                 }
             )
-            if len(sample_ids) != 2000 or len(set(sample_ids)) != 2000:
+            if len(sample_ids) != 8000 or len(set(sample_ids)) != 8000:
                 raise RuntimeError("served_input_payload_row_or_sample_id_binding_mismatch")
 
             method_params = {
-                "n_estimators": 128,
+                "n_estimators": 512,
                 "cv_folds": 2,
                 "subforest_size": 4,
                 # Omit the untyped nullable override; the owner supplies its seed policy.
@@ -6964,7 +6964,7 @@ def test_real_forest_fit_progress_spans_durable_cancel_post(
                             observation["result"]["semantic_estimate_valid"] = bool(
                                 candidate is not None
                                 and candidate.status == "success"
-                                and candidate.sample_size == 2000
+                                and candidate.sample_size == 8000
                                 and candidate.point_estimate is not None
                                 and candidate.confidence_interval is not None
                                 and all(

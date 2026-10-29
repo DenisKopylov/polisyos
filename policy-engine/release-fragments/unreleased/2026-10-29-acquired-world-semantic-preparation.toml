@@ -12,7 +12,7 @@ migration = "Compose the observation-owner prerequisite first, regenerate public
 api = "Adds shared pure publisher/finalizer meaning and acquired-world preparation/read ports with explicit not_established results for unsupported profiles."
 limitations = "QC-dependent finalization, executable graph families and active SKG references without a complete selected owner relation remain not_established. Runtime tests are required before rollout."
 generated_client_compatibility = "not_applicable"
-public_surface_inventory_reviewed = false
+public_surface_inventory_reviewed = true
 migration_docs = ["src/polisyos/runtime/quality/README.md", "src/polisyos/data_forge/kernel/README.md", "src/polisyos/data_forge/read_api/README.md"]
 runbook_docs = []
 

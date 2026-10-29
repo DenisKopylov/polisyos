@@ -12,7 +12,7 @@ migration = "Regenerate and review the public inventory for the added catalog fa
 api = "Adds historical candidate semantic-value and full-rule replay ports; no new authority or publication status."
 limitations = "Only the one-selected-controlled-numerical-row profile is supported. Unsupported source/codec/row bindings refuse. Historical replay does not establish present native eligibility or evidence independence."
 generated_client_compatibility = "not_applicable"
-public_surface_inventory_reviewed = false
+public_surface_inventory_reviewed = true
 migration_docs = ["src/polisyos/runtime/quality/README.md", "src/polisyos/data_forge/read_api/README.md", "src/polisyos/fabric/world/README.md"]
 runbook_docs = []
 

@@ -51,13 +51,18 @@ from polisyos.runtime.quality.evaluation_safety import (
 
 
 @pytest.fixture
-def runtime_api_env(tmp_path: Path, pytestconfig: pytest.Config) -> Iterator[dict[str, object]]:
-    """Use an owner-built temporary catalog for artifact-inspector requests."""
+def runtime_api_env(
+    tmp_path: Path,
+    pytestconfig: pytest.Config,
+    monkeypatch: pytest.MonkeyPatch,
+) -> Iterator[dict[str, object]]:
+    """Use a complete owner-built temporary catalog for artifact-inspector requests."""
     project_root = pytestconfig.rootpath.resolve(strict=True)
     env = build_runtime_api_env_with_fixture_catalog(
         tmp_path,
         include_test_client=True,
         app_kwargs={"repo_root": project_root},
+        monkeypatch=monkeypatch,
     )
     try:
         yield env
@@ -70,6 +75,9 @@ def test_artifact_inspector_fixture_reads_its_selected_catalog(runtime_api_env) 
     selection = service._catalog_source_selection
     graph = service._retrieval._dataset_catalog
     assert selection is not None
+    owner_root = selection.source_owner_root
+    assert owner_root is not None
+    assert selection.snapshot_root.resolve().is_relative_to(owner_root.resolve())
     assert graph is not None
     database_path = selection.snapshot_root / "datasets" / "graph" / "dataset_catalog.duckdb"
     assert database_path.is_file()
@@ -77,6 +85,39 @@ def test_artifact_inspector_fixture_reads_its_selected_catalog(runtime_api_env) 
     source_identity = graph.read_source_identity[0]
     assert source_identity.source_path == str(database_path.resolve())
     assert source_identity.byte_size > 0
+    from polisyos.runtime.quality.substrate_registry import (
+        build_substrate_registry_from_existing_catalogs,
+        catalog_serving_source_scope,
+    )
+
+    with catalog_serving_source_scope(service._catalog_serving_source):
+        registry = build_substrate_registry_from_existing_catalogs(service._repo_root)
+    assert any("production_data/manifest.json" in ref for ref in registry.source_catalog_refs)
+
+
+def test_artifact_inspector_fixture_fails_closed_when_owned_l5_input_is_missing(
+    runtime_api_env,
+) -> None:
+    from polisyos.runtime.quality.substrate_registry import (
+        SubstrateRegistryError,
+        build_substrate_registry_from_existing_catalogs,
+        catalog_serving_source_scope,
+        default_substrate_catalog_paths,
+    )
+
+    service = runtime_api_env["app"].state._control_service
+    selection = service._catalog_source_selection
+    assert selection is not None and selection.source_owner_root is not None
+    paths = default_substrate_catalog_paths(
+        service._repo_root,
+        source_owner_root=selection.source_owner_root,
+    )
+    paths.measurement_registry_path.unlink()
+    with (
+        catalog_serving_source_scope(service._catalog_serving_source),
+        pytest.raises(SubstrateRegistryError, match="substrate_catalog_missing"),
+    ):
+        build_substrate_registry_from_existing_catalogs(service._repo_root)
 
 
 def _put_controlled_authority_profile_view(

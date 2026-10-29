@@ -6,6 +6,7 @@ request and monkeypatch lifetime. Fixture-generated source is candidate evidence
 
 from __future__ import annotations
 
+from collections.abc import Iterator
 from contextlib import closing
 from pathlib import Path
 from typing import Any
@@ -13,6 +14,29 @@ from typing import Any
 import pytest
 
 pytest_plugins = ("tests._helpers.runtime_http",)
+
+
+@pytest.fixture
+def runtime_api_env(
+    tmp_path: Path,
+    pytestconfig: pytest.Config,
+    monkeypatch: pytest.MonkeyPatch,
+) -> Iterator[dict[str, Any]]:
+    """Opt S1 into the complete isolated catalog owner used by Inspector tests."""
+    from tests._helpers.runtime_http import (
+        build_runtime_api_env_with_fixture_catalog,
+        close_runtime_api_env,
+    )
+
+    env = build_runtime_api_env_with_fixture_catalog(
+        tmp_path,
+        app_kwargs={"repo_root": pytestconfig.rootpath.resolve(strict=True)},
+        monkeypatch=monkeypatch,
+    )
+    try:
+        yield env
+    finally:
+        close_runtime_api_env(env)
 
 
 @pytest.fixture

@@ -111,6 +111,7 @@ def _build_api_env(
     monkeypatch: MonkeyPatch,
     *,
     snapshot_root: Path | None,
+    source_owner_root: Path | None = None,
 ) -> tuple[dict[str, object], object | None]:
     """Build the real control app with either an exact selection or no profile."""
     from tests._helpers.runtime_http import build_runtime_api_env
@@ -124,6 +125,7 @@ def _build_api_env(
 
     selection = CatalogServingSourceSelection(
         snapshot_root=snapshot_root,
+        source_owner_root=source_owner_root,
         catalog_run_profile=_PROFILE,
     )
     env = build_runtime_api_env(
@@ -159,9 +161,20 @@ def test_catalog_profile_http_selects_published_plan_through_fresh_reader(
     monkeypatch: MonkeyPatch,
 ) -> None:
     """The public route carries a typed profile to a fresh current producer snapshot."""
+    from polisyos.runtime.quality.substrate_registry import default_substrate_catalog_paths
     from tests._helpers.runtime_http import close_runtime_api_env
+    from tests.unit.runtime.quality.test_substrate_registry import (
+        _write_substrate_catalog_fixture,
+    )
 
-    fixture = _build_complete_published_fixture(tmp_path, monkeypatch)
+    owner_root = tmp_path / "catalog-fixture-owner"
+    owner_root.mkdir(parents=True, exist_ok=True)
+    _write_substrate_catalog_fixture(owner_root)
+    project_root = Path(__file__).resolve().parents[4]
+    owner_paths = default_substrate_catalog_paths(project_root, source_owner_root=owner_root)
+    # The epoch regime is code-root owned; avoid a conflicting synthetic duplicate.
+    owner_paths.schema_regime_registry_path.write_text('{"regimes": {}}\n', encoding="utf-8")
+    fixture = _build_complete_published_fixture(owner_root / "published", monkeypatch)
     env = None
     try:
         snapshot_root = fixture.snapshot_root
@@ -175,6 +188,7 @@ def test_catalog_profile_http_selects_published_plan_through_fresh_reader(
             tmp_path,
             monkeypatch,
             snapshot_root=snapshot_root,
+            source_owner_root=owner_root,
         )
         client = env["client"]
         assert client is not None
@@ -215,6 +229,7 @@ def test_catalog_profile_http_selects_published_plan_through_fresh_reader(
             tmp_path / "receipt-removed-reader",
             monkeypatch,
             snapshot_root=snapshot_root,
+            source_owner_root=owner_root,
         )
         refused_client = refused_env["client"]
         assert refused_client is not None

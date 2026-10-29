@@ -24,13 +24,13 @@ the FastAPI runtime surface, with focused HTTP and mirror-contract suites.
   review, auth, and OpenAPI hardening.
 
 Runtime HTTP tests that materialize data-backed catalog readers should select a
-test-owned catalog snapshot through `CatalogServingSourceSelection`. The shared
-`build_runtime_api_env_with_fixture_catalog` helper creates an offline
-candidate-only catalog below `tmp_path` when no explicit source selection is
-provided. It preserves explicit selections and leaves production source
-identity and fresh-reader checks enabled. Keep the selected path/readback and a
-fail-closed missing-source or publish-receipt case in the affected suite; do
-not make a no-op retrieval service stand in for catalog-backed request behavior.
+complete test-owned source bundle through `CatalogServingSourceSelection`. The
+`build_runtime_api_env_with_fixture_catalog` helper composes a published L1
+snapshot with synthetic L5/L2/L3/L6 inputs below `tmp_path` when no explicit
+source selection is provided. It preserves explicit selections and leaves the
+normal source identity and registry checks enabled. Keep selected-path
+readback and a fail-closed missing-source or publish-receipt case in each
+opting-in suite; do not use a no-op retrieval service for catalog-backed requests.
 
 - `tests/unit/runtime/mirror_contracts/`: runtime mirror-contract coverage.
 

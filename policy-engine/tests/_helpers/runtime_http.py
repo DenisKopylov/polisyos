@@ -676,12 +676,25 @@ def close_runtime_api_env(env: dict[str, object]) -> None:
         container = getattr(state, "runtime_container", None)
         service = getattr(container, "control_service", None)
     service_close = getattr(service, "close", None)
+    catalog_fixture = env.pop("_runtime_http_catalog_fixture", None)
     try:
         if callable(client_close):
             client_close()
     finally:
-        if callable(service_close):
-            service_close()
+        try:
+            if callable(service_close):
+                service_close()
+        finally:
+            if catalog_fixture is not None:
+                graph = getattr(catalog_fixture, "producer_graph", None)
+                graph_close = getattr(graph, "close", None)
+                fixture_close = getattr(catalog_fixture, "close", None)
+                try:
+                    if callable(graph_close):
+                        graph_close()
+                finally:
+                    if callable(fixture_close):
+                        fixture_close()
 
 
 def close_registered_runtime_api_envs() -> None:
@@ -2206,34 +2219,72 @@ def build_runtime_api_env_with_fixture_catalog(
     tmp_path: Path,
     *,
     app_kwargs: dict[str, object] | None = None,
+    monkeypatch: pytest.MonkeyPatch | None = None,
     include_test_client: bool = True,
     raise_server_exceptions: bool = True,
 ) -> dict[str, object]:
-    """Build a runtime HTTP fixture with an isolated candidate catalog by default.
+    """Build a runtime HTTP fixture with a complete isolated catalog owner by default.
 
     An explicit ``catalog_source_selection`` in ``app_kwargs`` is preserved. The
-    default fixture source is owner-built below ``tmp_path`` so catalog readers
-    retain their normal source-identity checks without depending on production
-    catalog bytes.
+    default fixture includes a published L1 snapshot and test-owned L5/L2/L3/L6
+    inputs below ``tmp_path``. Catalog readers retain their normal identity and
+    registry checks without reading production-data bytes.
     """
     selected_app_kwargs = dict(app_kwargs or {})
+    published_fixture = None
     if selected_app_kwargs.get("catalog_source_selection") is None:
-        from _helpers.candidate_cycle_source_profile import (
-            build_candidate_cycle_catalog_serving_source,
+        project_root = selected_app_kwargs.get("repo_root")
+        if not isinstance(project_root, Path):
+            raise TypeError("runtime_api_fixture_catalog_requires_project_repo_root")
+        if monkeypatch is None:
+            raise TypeError("runtime_api_fixture_catalog_requires_monkeypatch")
+        from polisyos.runtime.quality.substrate_registry import (
+            CatalogServingSourceSelection,
+            default_substrate_catalog_paths,
+        )
+        from tests.unit.runtime.http.test_catalog_profile_http import (
+            _build_complete_published_fixture,
+        )
+        from tests.unit.runtime.quality.test_substrate_registry import (
+            _write_substrate_catalog_fixture,
         )
 
-        fixture_root = tmp_path / "catalog-fixture"
-        fixture_root.mkdir(parents=True, exist_ok=True)
-        selection, _source_paths = build_candidate_cycle_catalog_serving_source(
-            fixture_root
+        owner_root = tmp_path / "catalog-fixture-owner"
+        owner_root.mkdir(parents=True, exist_ok=True)
+        _write_substrate_catalog_fixture(owner_root)
+        owner_paths = default_substrate_catalog_paths(
+            project_root,
+            source_owner_root=owner_root,
+        )
+        # Epoch regimes remain code-root owned; keep the synthetic dynamic L5
+        # registry empty so it composes without conflicting duplicate regime rows.
+        owner_paths.schema_regime_registry_path.write_text('{"regimes": {}}\n', encoding="utf-8")
+        published_root = owner_root / "published"
+        published_root.mkdir(parents=True, exist_ok=True)
+        published_fixture = _build_complete_published_fixture(published_root, monkeypatch)
+        selection = CatalogServingSourceSelection(
+            snapshot_root=published_fixture.snapshot_root,
+            source_owner_root=owner_root,
+            catalog_run_profile="prod_full",
         )
         selected_app_kwargs["catalog_source_selection"] = selection
-    return build_runtime_api_env(
-        tmp_path,
-        include_test_client=include_test_client,
-        app_kwargs=selected_app_kwargs,
-        raise_server_exceptions=raise_server_exceptions,
-    )
+    try:
+        env = build_runtime_api_env(
+            tmp_path,
+            include_test_client=include_test_client,
+            app_kwargs=selected_app_kwargs,
+            raise_server_exceptions=raise_server_exceptions,
+        )
+    except BaseException:
+        if published_fixture is not None:
+            try:
+                published_fixture.producer_graph.close()
+            finally:
+                published_fixture.close()
+        raise
+    if published_fixture is not None:
+        env["_runtime_http_catalog_fixture"] = published_fixture
+    return env
 
 
 @pytest.fixture

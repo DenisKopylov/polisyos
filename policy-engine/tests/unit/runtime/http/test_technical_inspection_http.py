@@ -62,9 +62,14 @@ def _import_selected_closure(source: FileSystemCAS, target: Any, ref: ArtifactRe
 
 
 @pytest.fixture
-def runtime_env(tmp_path: Path, pytestconfig: pytest.Config) -> Iterator[dict[str, Any]]:
+def runtime_env(
+    tmp_path: Path, pytestconfig: pytest.Config, monkeypatch: pytest.MonkeyPatch
+) -> Iterator[dict[str, Any]]:
     env = build_runtime_api_env_with_fixture_catalog(
-        tmp_path, include_test_client=True, app_kwargs={"repo_root": pytestconfig.rootpath}
+        tmp_path,
+        include_test_client=True,
+        app_kwargs={"repo_root": pytestconfig.rootpath},
+        monkeypatch=monkeypatch,
     )
     try:
         yield env

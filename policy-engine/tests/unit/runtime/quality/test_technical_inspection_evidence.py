@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any
 import pytest
 
 from polisyos.core.artifacts import ArtifactRef, FileSystemCAS, ProducerInfo, PutOptions
+from polisyos.core.artifacts.canonical_profile import CoreJsonReadBoundsRefusalError
 from polisyos.core.artifacts.ownership import ArtifactOwnershipError, ArtifactOwnershipIndex
 from polisyos.core.canon import from_canonical_bytes, to_canonical_bytes
 from polisyos.core.security.tenant_context import tenant_scope
@@ -455,8 +456,13 @@ def test_constructor_injected_permissive_provider_is_not_current_access(
         with tenant_scope(None, tenant_id="tenant-b", cell_id="cell-b"):
             # Establish the actual distinguishing context: native ledger has no
             # B claim, while the publicly supplied permissive provider reads A.
-            with pytest.raises(ArtifactOwnershipError):
+            with pytest.raises(
+                CoreJsonReadBoundsRefusalError,
+                match=r"^canon_profile_bounded_manifest_unavailable$",
+            ) as denied:
                 read_method_artifact_output_bounded(stock, ref, max_bytes=65536)
+            assert denied.value.code == "canon_profile_bounded_manifest_unavailable"
+            assert isinstance(denied.value.__cause__, ArtifactOwnershipError)
             assert (
                 read_method_artifact_output_bounded(substituted, ref, max_bytes=65536).effective_ref
                 == ref

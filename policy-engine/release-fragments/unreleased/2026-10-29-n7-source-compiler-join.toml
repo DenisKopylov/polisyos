@@ -1,0 +1,31 @@
+id = "2026-10-29-n7-source-compiler-join"
+title = "Keep typed source semantics in N7 compiler routes"
+type = "fixed"
+component = "runtime-quality"
+owner = "team-runtime"
+summary = "Reader-first N7 source/compiler joining preserves the bound source semantics and independently compiled requirement; joined emission remains disabled by default."
+evidence = ["tests/unit/runtime/quality/test_n7_source_gap_projection.py", "tests/unit/runtime/quality/test_generation_cycle.py", "tests/integration/core_runtime/test_acquisition_world_growth_chain.py", "tests/integration/core_runtime/test_acquisition_retained_sequential_served.py"]
+compatibility = "Existing compiler-family records retain their original meaning. Newly planned source-semantic records use the existing fields and add a recomputed versioned join identity; older cycle readers reject those new records. Compatible readers must be deployed before emission, and rollback to old readers after emission is not established."
+change_class = "persisted-artifact-format"
+surface_classification = "internal: runtime-quality N7 planning and acquisition route"
+migration = "Historical compiler-family reports are not rewritten. Consumers must verify the current source cycle and persisted compiler report before using a source-semantic record; unmatched or unsupported joins refuse."
+api = "No new public DTO, HTTP endpoint, generated client, or authority status."
+limitations = "The fixture source gap and cost are synthetic and do not establish scoped source absence, evidence admissibility or production authority. The fresh route selects one source action from the full report and refuses ambiguity. Candidate-only recorded reentry requires selected-port and cycle-checkpoint CAS readback and exact source/compiler reconciliation. The private in-process current selection is only a trusted-controller comparison; an arbitrary direct caller that can write CAS and construct private objects has no independently established source custody. The generic real gateway remains unsupported for this joined route and must not substitute for the protected WDI owner. A versioned source-driver rule carries dotted issue names without reinterpreting unmarked historical revisions; retained reads recompute the complete source/compiler action set and bind the input rule to the owner revision. This is replay consistency, not independent proof of the historical producer's code version for a fully reconstructed alternative. The compiler can append unmatched capability-resolution rows; receipt spec-count and retained spec-ref checks leave their successful joined receipt and actual terminal or refusal unestablished. Joined emission is disabled by default pending cross-version and retained-reader controls."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/quality/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "n7-source-compiler-join-internal"
+change_class = "persisted-artifact-format"
+impact = "internal"
+surface = "internal: runtime-quality acquisition route records"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "Source-semantic N7 planning preserves the independently compiled requirement and revalidates the complete join on fresh reads; unsupported joins remain fail-closed."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/quality/README.md"]
+runbook_docs = []

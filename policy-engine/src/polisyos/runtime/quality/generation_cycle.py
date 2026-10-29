@@ -95,7 +95,6 @@ from polisyos.core.contracts.value_outer_set import (
 from polisyos.data_forge import read_api as data_forge_read_api
 from polisyos.data_requirement import (
     DataRequirementCompilationReport,
-    DataRequirementSpec,
 )
 from polisyos.data_requirement.compiler import (
     DataRequirementCompiler,
@@ -132,7 +131,9 @@ from polisyos.runtime.quality._generation_cycle_history_schema import (
     FROZEN_N6_HISTORY_SCHEMA,
 )
 from polisyos.runtime.quality.acquisition_planner import (
+    _N7_SOURCE_JOIN_RULE,
     AcquisitionCostBasisRecord,
+    AcquisitionGap,
     AcquisitionGroundingRederivation,
     AcquisitionOwnerGateway,
     AcquisitionPlannerBindingError,
@@ -142,6 +143,16 @@ from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionWorldSnapshot,
     RealAcquisitionOwnerGateway,
     RequirementGapFamily,
+    _n7_candidate_source_selection,
+    _n7_exact_wire,
+    _n7_planner_join_records_match,
+    _n7_put_candidate_source,
+    _n7_requirement_family,
+    _n7_route_compiler_gaps,
+    _n7_source_semantic_planning_gaps,
+    _N7CandidateCurrentSelection,
+    _N7CandidateCycleCheckpoint,
+    _N7CandidatePortSource,
     acquisition_planner_report_matches_context,
     acquisition_receipt_has_verified_emission,
     bind_acquisition_planner_report,
@@ -150,7 +161,7 @@ from polisyos.runtime.quality.acquisition_planner import (
     n7_planner_input_content_hash,
     persist_and_verify_acquisition_planner_report,
     persist_and_verify_data_requirement_compilation_report,
-    plan_requirement_gap_acquisition,
+    plan_evidence_acquisition,
     produce_acquisition_cost_basis_record,
     requirement_gaps_from_compiled_specs,
     run_acquisition_closed_loop,
@@ -395,6 +406,8 @@ GENERATION_CYCLE_CONTROLLER_REF = (
     "polisyos.runtime.quality.generation_cycle.GenerationCycleController"
 )
 _N7_ACQ01_ROUTE_SCHEMA_VERSION = "policyos.runtime.acq01_route.v1"
+# Reader-first rollout: enable only after cross-version and consumer controls.
+_N7_SOURCE_SEMANTIC_EMISSION_ENABLED = False
 ENGINE_SIMPLE_OWNER_REF = (
     "polisyos.scientist.orchestration.workflows.engine_simple.SimpleLoopEngine"
 )
@@ -419,6 +432,9 @@ _N7_ROUTING_FAILURE_CODES = frozenset(
         "n7_substrate_registry_invalid",
         "n7_substrate_registry_unresolved",
         "n7_catalog_source_refused",
+        "n7_candidate_recorded_gateway_required",
+        "n7_candidate_source_context_missing",
+        "n7_candidate_source_not_established",
     }
 )
 
@@ -2263,38 +2279,6 @@ def _requirement_missing_distributions(
     return tuple(dict.fromkeys(rows))
 
 
-def _n7_requirement_family(requirement: AcquisitionRequirementGap) -> str | None:
-    """Return one exact source-declared family for a typed internal gap."""
-
-    source = requirement.metadata.get("source")
-    if source == "l1_dcat_variable_availability":
-        availability = requirement.metadata.get("availability")
-        if not isinstance(availability, Mapping):
-            return None
-        variable_id = availability.get("variable_id")
-        if not isinstance(variable_id, str) or not variable_id.strip():
-            return None
-        normalized = variable_id.strip()
-        if requirement.missing_requirement_fields != (
-            f"canonical_variable_observations:{normalized}",
-        ):
-            return None
-        return normalized
-    if source == "cgf_grounding_coverage":
-        issue_codes = requirement.metadata.get("issue_codes")
-        if not isinstance(issue_codes, Sequence) or isinstance(
-            issue_codes, str | bytes | bytearray
-        ):
-            return None
-        families = tuple(
-            item.partition(":")[2]
-            for item in issue_codes
-            if isinstance(item, str) and item.startswith("acquire_data:")
-        )
-        return families[0] if len(families) == 1 and families[0] else None
-    return None
-
-
 def _n7_compiler_families_for_source_gap(
     problem: DesignProblem,
     *,
@@ -2330,21 +2314,19 @@ def _n7_compiler_families_for_source_gap(
     return (family,), None
 
 
-def _n7_cycle_source_gap(
+def _n7_bound_source_gap(
     problem: DesignProblem,
     *,
-    cycle: object,
+    grounding: CandidateGroundingObservation,
+    value_port: ValuePortObservation,
+    selected_candidate_ref: str,
+    selected_candidate_content_hash: str,
+    design_problem_basis_ref: str,
     acquisition_request: Mapping[str, Any],
 ) -> tuple[AcquisitionRequirementGap | None, str | None]:
-    """Validate that request routing bytes exactly repeat the selected cycle's producer gap."""
-
+    """Bind a source gap to actual cycle/retained owner fields, not its labels alone."""
     raw_present = "requirement_gap" in acquisition_request
-    if type(cycle) is not GenerationCycleRecord:
-        return (
-            None,
-            "unbound_requirement_input_refused" if raw_present else "requirement_gap_not_compiled",
-        )
-    source_gap = _cycle_acquisition_requirement(cycle.grounding, cycle.value_port)
+    source_gap = _cycle_acquisition_requirement(grounding, value_port)
     if source_gap is None:
         return (
             None,
@@ -2362,80 +2344,72 @@ def _n7_cycle_source_gap(
     if request_gap.model_dump(mode="json") != source_gap.model_dump(mode="json"):
         return None, "unbound_requirement_input_refused"
     driver = acquisition_request.get("driver")
-    source_issues = (
-        *cycle.grounding.issue_codes,
-        *cycle.value_port.authority_blockers,
-    )
+    source_issues = (*grounding.issue_codes, *value_port.authority_blockers)
     if not isinstance(driver, str) or driver not in source_issues:
         return None, "unbound_requirement_input_refused"
     binding = source_gap.metadata.get("candidate_binding")
     expected_problem_ref = _problem_ref(problem)
     if (
         not isinstance(binding, Mapping)
-        or binding.get("candidate_id") != cycle.selected_candidate_ref
-        or binding.get("candidate_content_hash") != cycle.selected_candidate_content_hash
+        or binding.get("candidate_id") != selected_candidate_ref
+        or binding.get("candidate_content_hash") != selected_candidate_content_hash
         or binding.get("design_problem_ref") != expected_problem_ref
-        or expected_problem_ref != (cycle.design_problem_basis_ref or cycle.design_problem_ref)
+        or expected_problem_ref != design_problem_basis_ref
     ):
         return None, "unbound_requirement_input_refused"
     return source_gap, None
 
 
-def _n7_compiler_gap_matches_source(
-    spec: object,
-    requirement: AcquisitionRequirementGap,
-) -> bool:
-    """Match an internal routing signal to one independently compiled requirement."""
-
-    if type(spec) is not DataRequirementSpec:
-        return False
-    source_refs = set(spec.source_requirement_refs)
-    if {
-        requirement.requirement_gap_id,
-        requirement.compiled_requirement_ref,
-    }.intersection(source_refs):
-        return True
-    family = _n7_requirement_family(requirement)
-    return family is not None and spec.required_data_families == (family,)
-
-
-def _n7_route_compiler_gaps(
+def _n7_cycle_source_gap(
+    problem: DesignProblem,
     *,
+    cycle: object,
+    acquisition_request: Mapping[str, Any],
+) -> tuple[AcquisitionRequirementGap | None, str | None]:
+    """Validate that request routing bytes exactly repeat the selected cycle's producer gap."""
+    if type(cycle) is not GenerationCycleRecord:
+        return (
+            None,
+            "unbound_requirement_input_refused"
+            if "requirement_gap" in acquisition_request
+            else "requirement_gap_not_compiled",
+        )
+    return _n7_bound_source_gap(
+        problem,
+        grounding=cycle.grounding,
+        value_port=cycle.value_port,
+        selected_candidate_ref=cycle.selected_candidate_ref,
+        selected_candidate_content_hash=cycle.selected_candidate_content_hash,
+        design_problem_basis_ref=cycle.design_problem_basis_ref or cycle.design_problem_ref,
+        acquisition_request=acquisition_request,
+    )
+
+
+def _n7_joined_planner_records_match(
+    *,
+    problem: DesignProblem,
+    acquisition_request: Mapping[str, Any],
     source_gap: AcquisitionRequirementGap,
     specs: Sequence[object],
     capability_resolutions: Sequence[CapabilityRequirementResolution] | None,
-) -> tuple[tuple[AcquisitionRequirementGap, ...], str | None]:
-    """Preserve all compiler gaps while linking one exact source gap to its spec."""
-
-    matching_specs = tuple(
-        spec for spec in specs if _n7_compiler_gap_matches_source(spec, source_gap)
+    report: AcquisitionPlannerReport,
+) -> bool:
+    """Combine the problem/request owner check with the shared pure join law."""
+    families, family_error = _n7_compiler_families_for_source_gap(
+        problem,
+        acquisition_request=acquisition_request,
+        source_gap=source_gap,
     )
-    if len(matching_specs) != 1:
-        return (), "requirement_gap_not_compiled"
-    compiled_ref = matching_specs[0].requirement_id
-    compiler_gaps = requirement_gaps_from_compiled_specs(
-        data_requirement_specs=specs,
-        capability_requirement_resolutions=capability_resolutions,
-    )
-    matching_gaps = tuple(
-        gap for gap in compiler_gaps if gap.compiled_requirement_ref == compiled_ref
-    )
-    if len(matching_gaps) != 1:
-        return (), "requirement_gap_not_compiled"
-    routed_ref = source_gap.requirement_gap_id
-    routed_gaps = tuple(
-        gap.model_copy(
-            update={
-                "scenario_requirement_refs": tuple(
-                    dict.fromkeys((*gap.scenario_requirement_refs, routed_ref))
-                )
-            }
+    return (
+        family_error is None
+        and len(families) == 1
+        and _n7_planner_join_records_match(
+            source_gap=source_gap,
+            specs=specs,
+            capability_resolutions=capability_resolutions,
+            report=report,
         )
-        if gap.compiled_requirement_ref == compiled_ref
-        else gap
-        for gap in compiler_gaps
     )
-    return routed_gaps, None
 
 
 class GenerationCycleRecord(_StrictModel):
@@ -2566,10 +2540,48 @@ class GenerationCycleRecord(_StrictModel):
             for record in records
             if requirement.requirement_gap_id in record.scenario_requirement_refs
         )
+        joined_matches = tuple(
+            record
+            for record in records
+            if record.requirement_gap_ref == requirement.requirement_gap_id
+            and record.compiled_requirement_ref != requirement.compiled_requirement_ref
+        )
+        request = self.revision_request.strategy_payload.get("acquisition_request")
+        source_rule = request.get("n7_source_join_rule") if isinstance(request, Mapping) else None
+        if source_rule is not None and source_rule != _N7_SOURCE_JOIN_RULE:
+            raise ValueError("acquisition_route_source_rule_unsupported")
+        if source_rule == _N7_SOURCE_JOIN_RULE and len(joined_matches) != 1:
+            raise ValueError("acquisition_route_requirement_mismatch")
         if direct_matches:
-            if len(direct_matches) != 1:
+            if len(direct_matches) != 1 or joined_matches:
                 raise ValueError("acquisition_route_requirement_mismatch")
             record = direct_matches[0]
+        elif joined_matches:
+            if len(joined_matches) != 1:
+                raise ValueError("acquisition_route_requirement_mismatch")
+            record = joined_matches[0]
+            family = _n7_requirement_family(requirement)
+            if (
+                family is None
+                or not record.compiled_requirement_ref
+                or requirement.requirement_gap_id not in record.scenario_requirement_refs
+                or requirement.compiled_requirement_ref not in record.scenario_requirement_refs
+                or record.compiled_requirement_ref not in record.scenario_requirement_refs
+                or family not in record.scenario_requirement_refs
+            ):
+                raise ValueError("acquisition_route_requirement_mismatch")
+            payload = requirement.to_acquisition_gap().model_dump(mode="python")
+            payload["compiled_requirement_ref"] = record.compiled_requirement_ref
+            payload["scenario_requirement_refs"] = record.scenario_requirement_refs
+            payload["capability_requirement_resolutions"] = (
+                record.capability_requirement_resolutions
+            )
+            expected = plan_evidence_acquisition(
+                run_id=self.acquisition_routing_report.run_id,
+                gaps=(AcquisitionGap.model_validate(payload),),
+            ).acquisition_records[0]
+            if record != expected:
+                raise ValueError("acquisition_route_requirement_mismatch")
         else:
             family = _n7_requirement_family(requirement)
             if (
@@ -8172,6 +8184,8 @@ class GenerationCycleController:
         self._source_synthetic: Literal[True] | None = None
         self._grounding_run_budget = None
         self._n7_candidate_bindings: dict[tuple[str, str], object] = {}
+        self._n7_candidate_checkpoint_refs: dict[int, CASArtifactRef] = {}
+        self._n7_candidate_selections: dict[int, _N7CandidateCurrentSelection] = {}
         self._engine = SimpleLoopEngine(
             [
                 ("generate", self._generate_node),
@@ -8206,6 +8220,8 @@ class GenerationCycleController:
         self._candidate_scenario_source_refs = {}
         self._source_synthetic = True if self._authority_scope == "contract_testing" else None
         self._n7_candidate_bindings = {}
+        self._n7_candidate_checkpoint_refs = {}
+        self._n7_candidate_selections = {}
         try:
             store = self._artifact_store
             if store is None and self._authority_scope == "contract_testing":
@@ -9416,7 +9432,38 @@ class GenerationCycleController:
             "candidate_scenario_proposal_reissue": candidate_scenario_proposal_reissue,
         }
         finished = await self._engine.run_async(state)
-        return finished["cycle"], tuple(finished["candidate_summaries"])
+        cycle = finished["cycle"]
+        port_ref = finished.get("_n7_candidate_port_source_ref")
+        port_wire = finished.get("_n7_candidate_port_source_wire")
+        if (
+            _N7_SOURCE_SEMANTIC_EMISSION_ENABLED
+            and self._authority_scope == "contract_testing"
+            and type(port_ref) is CASArtifactRef
+            and type(port_wire) is bytes
+            and type(cycle) is GenerationCycleRecord
+            and self._source_run_id is not None
+        ):
+            store = self._n7_runtime_artifact_store()
+            if store is not None:
+                try:
+                    checkpoint = _N7CandidateCycleCheckpoint(
+                        source_ref=port_ref,
+                        source_run_id=self._source_run_id,
+                        cycle_index=cycle_index,
+                        cycle=cycle.model_dump(mode="json"),
+                    )
+                    checkpoint_ref = _n7_put_candidate_source(store, checkpoint)
+                    self._n7_candidate_checkpoint_refs[cycle_index] = checkpoint_ref
+                    self._n7_candidate_selections[cycle_index] = _N7CandidateCurrentSelection(
+                        checkpoint_ref=checkpoint_ref,
+                        source_ref=port_ref,
+                        source_wire=port_wire,
+                        cycle_wire=_n7_exact_wire(cycle.model_dump(mode="json")),
+                    )
+                except (OSError, TypeError, ValueError):
+                    self._n7_candidate_checkpoint_refs.pop(cycle_index, None)
+                    self._n7_candidate_selections.pop(cycle_index, None)
+        return cycle, tuple(finished["candidate_summaries"])
 
     def _n7_runtime_artifact_store(self) -> ArtifactStore | None:
         """Return the same controller CAS used by persisted source handoffs."""
@@ -9504,28 +9551,30 @@ class GenerationCycleController:
             else f"n7-cycle:{problem.design_problem_id}:{cycle.cycle_index}"
         )
         try:
-            return run_acquisition_closed_loop(
-                run_id=run_id,
-                acquisition_request=normalized_request,
-                data_requirement_specs=tuple(compiled_specs),
-                world_snapshot=world_snapshot,
-                capability_requirement_resolutions=capability_resolutions,
-                requirement_basis_binding=basis_binding,
-                design_problem=problem,
-                owner_gateway=owner_gateway,
-                useful_design_rate_before=float(
-                    problem.runtime_hints.get("n7_useful_design_rate_before") or 0.0
-                ),
-                generated_at=(
-                    planner_report.generated_at
-                    if planner_report is not None
-                    else self._generated_at
-                ),
-                planner_report=planner_report,
-                planner_report_ref=planner_report_ref,
-                artifact_store=artifact_store,
-                require_persisted_planner_report=planner_report is not None,
-            )
+            selection = self._n7_candidate_selections.get(cycle.cycle_index)
+            with _n7_candidate_source_selection(selection):
+                return run_acquisition_closed_loop(
+                    run_id=run_id,
+                    acquisition_request=normalized_request,
+                    data_requirement_specs=tuple(compiled_specs),
+                    world_snapshot=world_snapshot,
+                    capability_requirement_resolutions=capability_resolutions,
+                    requirement_basis_binding=basis_binding,
+                    design_problem=problem,
+                    owner_gateway=owner_gateway,
+                    useful_design_rate_before=float(
+                        problem.runtime_hints.get("n7_useful_design_rate_before") or 0.0
+                    ),
+                    generated_at=(
+                        planner_report.generated_at
+                        if planner_report is not None
+                        else self._generated_at
+                    ),
+                    planner_report=planner_report,
+                    planner_report_ref=planner_report_ref,
+                    artifact_store=artifact_store,
+                    require_persisted_planner_report=planner_report is not None,
+                )
         except AcquisitionPlannerBindingError as exc:
             if exc.source_refusal_code is not None:
                 raise GenerationCycleError(
@@ -9533,6 +9582,12 @@ class GenerationCycleController:
                     str(exc),
                     source_refusal_code=exc.source_refusal_code,
                 ) from exc
+            if str(exc) in {
+                "n7_candidate_recorded_gateway_required",
+                "n7_candidate_source_context_missing",
+                "n7_candidate_source_not_established",
+            }:
+                raise GenerationCycleError(str(exc), str(exc)) from exc
             error_code = (
                 "n7_compiler_report_binding_refused"
                 if "compiler_report" in str(exc)
@@ -9588,6 +9643,20 @@ class GenerationCycleController:
             **acquisition_request,
             "cycle_index": cycle.cycle_index,
         }
+        if (
+            _N7_SOURCE_SEMANTIC_EMISSION_ENABLED
+            and _cycle_acquisition_requirement(cycle.grounding, cycle.value_port) is not None
+        ):
+            normalized_request["n7_source_join_rule"] = _N7_SOURCE_JOIN_RULE
+        candidate_source_ref = self._n7_candidate_checkpoint_refs.get(cycle.cycle_index)
+        if (
+            _N7_SOURCE_SEMANTIC_EMISSION_ENABLED
+            and self._authority_scope == "contract_testing"
+            and candidate_source_ref is not None
+        ):
+            normalized_request["n7_candidate_source_ref"] = candidate_source_ref.model_dump(
+                mode="json"
+            )
         basis = self._n7_data_requirement_basis_with_report(
             problem,
             acquisition_request=normalized_request,
@@ -9614,7 +9683,22 @@ class GenerationCycleController:
                 else "n7_compiler_report_persistence_refused"
             )
             raise GenerationCycleError(error_code, str(exc)) from exc
-        gaps = basis.routed_compiler_gaps
+        if (
+            _N7_SOURCE_SEMANTIC_EMISSION_ENABLED
+            and basis.routed_source_gap is not None
+            and basis.routing_limitation_code is None
+            and not basis.unbound_input_fields
+        ):
+            try:
+                gaps = _n7_source_semantic_planning_gaps(
+                    source_gap=basis.routed_source_gap,
+                    compiler_gaps=basis.routed_compiler_gaps,
+                    specs=basis.specs,
+                )
+            except (TypeError, ValueError) as exc:
+                raise GenerationCycleError("n7_planner_report_binding_refused", str(exc)) from exc
+        else:
+            gaps = tuple(gap.to_acquisition_gap() for gap in basis.routed_compiler_gaps)
         run_id = f"n7-cycle:{problem.design_problem_id}:{cycle.cycle_index}"
         planning_generated_at = self._generated_at or datetime.now(UTC)
         world_snapshot = self._n7_world_snapshot(
@@ -9694,9 +9778,9 @@ class GenerationCycleController:
                 cost_estimation_status="not_estimated",
             )
         elif gaps:
-            report = plan_requirement_gap_acquisition(
+            report = plan_evidence_acquisition(
                 run_id=run_id,
-                requirement_gaps=gaps,
+                gaps=gaps,
                 generated_at=planning_generated_at,
                 requirement_basis_binding=basis_binding,
             )
@@ -9993,6 +10077,7 @@ class GenerationCycleController:
                 source_gap=source_gap,
                 specs=tuple(report.specs),
                 capability_resolutions=report.capability_requirement_resolutions,
+                strict_family=_N7_SOURCE_SEMANTIC_EMISSION_ENABLED,
             )
         elif cycle is None:
             routed_compiler_gaps = requirement_gaps_from_compiled_specs(
@@ -12032,8 +12117,20 @@ class GenerationCycleController:
                 )
                 for record in acquisition_receipt.planner_report.acquisition_records
             )
-            if actual_route_rows != expected_route_rows:
+            source_rule = request.get("n7_source_join_rule")
+            if source_rule is not None and source_rule != _N7_SOURCE_JOIN_RULE:
                 raise GenerationCycleError("n7_planner_report_request_basis_mismatch")
+            if source_rule == _N7_SOURCE_JOIN_RULE or actual_route_rows != expected_route_rows:
+                source_gap = basis.routed_source_gap
+                if source_gap is None or not _n7_joined_planner_records_match(
+                    problem=problem,
+                    acquisition_request=request,
+                    source_gap=source_gap,
+                    specs=specs,
+                    capability_resolutions=capability_resolutions,
+                    report=acquisition_receipt.planner_report,
+                ):
+                    raise GenerationCycleError("n7_planner_report_request_basis_mismatch")
             basis_binding = acquisition_receipt.requirement_basis_binding
             if basis_binding is not None:
                 if artifact_store is None:
@@ -12311,6 +12408,7 @@ class GenerationCycleController:
             counterexample=counterexample,
             grounding=grounding,
             value_port=value_port,
+            source_issue_rule=_N7_SOURCE_SEMANTIC_EMISSION_ENABLED,
         )
         voi_decision = self.decide_next_action(
             candidate_id=cycle.selected_candidate_ref,
@@ -13350,6 +13448,55 @@ class GenerationCycleController:
         return simulation.model_copy(update={"cycle_substrate_context_job_ref": context_ref})
 
     def _joint_value_node(self, state: dict[str, Any]) -> dict[str, Any]:
+        """Capture actual selected candidate-port outputs before cycle construction."""
+        result = self._joint_value_node_impl(state)
+        if (
+            not _N7_SOURCE_SEMANTIC_EMISSION_ENABLED
+            or self._authority_scope != "contract_testing"
+            or self._source_run_id is None
+        ):
+            return result
+        grounding = result.get("selected_grounding")
+        value = result.get("value_port")
+        candidate = result.get("selected_candidate")
+        problem = result.get("problem")
+        if (
+            type(grounding) is not CandidateGroundingObservation
+            or type(value) is not ValuePortObservation
+            or type(problem) is not DesignProblem
+        ):
+            return result
+        source_gap = _cycle_acquisition_requirement(grounding, value)
+        from polisyos.runtime.quality.intervention_atom_binding import InterventionAtomBinding
+
+        atom = _object_get(candidate, "atom")
+        if source_gap is None or type(atom) is not InterventionAtomBinding:
+            return result
+        store = self._n7_runtime_artifact_store()
+        if store is None:
+            return result
+        try:
+            source = _N7CandidatePortSource(
+                source_run_id=self._source_run_id,
+                cycle_index=int(result["cycle_index"]),
+                candidate_id=_candidate_id(candidate),
+                candidate_atom=atom.model_dump(mode="json"),
+                design_problem=problem.model_dump(mode="json"),
+                grounding_observation=grounding.model_dump(mode="json"),
+                value_observation=value.model_dump(mode="json"),
+                source_gap=source_gap,
+            )
+            source_wire = _n7_exact_wire(source.model_dump(mode="json"))
+            source_ref = _n7_put_candidate_source(store, source)
+        except (OSError, TypeError, ValueError):
+            return result
+        return {
+            **result,
+            "_n7_candidate_port_source_ref": source_ref,
+            "_n7_candidate_port_source_wire": source_wire,
+        }
+
+    def _joint_value_node_impl(self, state: dict[str, Any]) -> dict[str, Any]:
         candidate = state["selected_candidate"]
         problem = state["problem"]
         cycle_index = int(state["cycle_index"])
@@ -14387,6 +14534,7 @@ class GenerationCycleController:
             grounding=grounding,
             value_port=state["value_port"],
             source_reaction_ref=source_reaction_ref,
+            source_issue_rule=_N7_SOURCE_SEMANTIC_EMISSION_ENABLED,
         )
         placeholder_cycle = _cycle_record(
             problem=problem,
@@ -19218,6 +19366,7 @@ def _default_revision_request(
     grounding: CandidateGroundingObservation | None = None,
     value_port: ValuePortObservation | None = None,
     source_reaction_ref: CASArtifactRef | None = None,
+    source_issue_rule: bool = False,
 ) -> DesignRevisionRequest:
     identity_suffix, _ = _source_reaction_identity_suffixes(
         problem=problem,
@@ -19228,8 +19377,31 @@ def _default_revision_request(
     previous_grammar = tuple(
         str(item) for item in problem.runtime_hints.get("generation_cycle_grammar", ("seed",))
     )
-    diagnostic_code = str(counterexample.diagnostic.code).split(".")
-    issue = diagnostic_code[-1] if diagnostic_code else counterexample.counterexample_class
+    diagnostic_code = str(counterexample.diagnostic.code)
+    issue = (
+        diagnostic_code.split(".")[-1] if diagnostic_code else counterexample.counterexample_class
+    )
+    source_issue_applied = False
+    if source_issue_rule and grounding is not None and value_port is not None:
+        value_issue = _value_revision_issue(value_port)
+        source_issue = value_issue or (
+            grounding.issue_codes[0] if grounding.issue_codes else grounding.status
+        )
+        expected_code = (
+            f"n6.value.{value_issue}" if value_issue else f"n6.{grounding.status}.{source_issue}"
+        )
+        # The diagnostic's final dot is not a field delimiter in a source issue.
+        # This is candidate routing only; the source and compiler are still
+        # separately validated before the route or any protected action.
+        if (
+            terminal_kind == SearchTerminalKind.ACQUISITION_REQUIRED.value
+            and _cycle_acquisition_requirement(grounding, value_port) is not None
+            and source_issue.startswith("acquire_data:")
+            and diagnostic_code == expected_code
+            and source_issue != issue
+        ):
+            issue = source_issue
+            source_issue_applied = True
     strategy = _revision_strategy_for_terminal_kind(terminal_kind)
     new_grammar_elements = _revision_grammar_elements(
         problem,
@@ -19251,6 +19423,19 @@ def _default_revision_request(
             else None
         ),
     )
+    if (
+        source_issue_rule
+        and grounding is not None
+        and value_port is not None
+        and terminal_kind == SearchTerminalKind.ACQUISITION_REQUIRED.value
+        and _cycle_acquisition_requirement(grounding, value_port) is not None
+    ):
+        request = strategy_payload.get("acquisition_request")
+        if not isinstance(request, dict):
+            raise GenerationCycleError("n7_source_issue_request_missing")
+        request["n7_source_join_rule"] = _N7_SOURCE_JOIN_RULE
+        if source_issue_applied:
+            request["n7_source_driver_rule"] = "policyos.runtime.n7_source_driver.v1"
     next_grammar = _dedupe((*previous_grammar, *new_grammar_elements))
     revised_problem = problem.model_copy(
         update={

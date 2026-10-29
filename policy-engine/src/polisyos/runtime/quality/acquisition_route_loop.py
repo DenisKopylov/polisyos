@@ -3,18 +3,22 @@
 from __future__ import annotations
 
 import hashlib
+from collections.abc import Mapping
 from datetime import datetime
 from typing import TYPE_CHECKING, Literal, Protocol
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import canon
-from polisyos.core.artifacts import ArtifactID, ArtifactRef
+from polisyos.core.artifacts import ArtifactID, ArtifactRef, load_core_json_artifact
+from polisyos.data_requirement import DataRequirementCompilationReport
 from polisyos.runtime.quality.acquisition_evaluation import AcquisitionSelectedEvaluation
 from polisyos.runtime.quality.acquisition_planner import (
+    _N7_SOURCE_JOIN_RULE,
     AcquisitionActionRecord,
     AcquisitionCostBasisRecord,
     AcquisitionPlannerReport,
+    AcquisitionRequirementGap,
     load_planner_acquisition_cost_schedule,
     produce_acquisition_cost_basis_record,
     validate_persisted_acquisition_planner_report,
@@ -24,7 +28,10 @@ from polisyos.runtime.quality.generation_cycle import (
     AcquisitionOverlayReentryReceipt,
     GenerationCycleRecord,
     GenerationCycleRun,
+    _cycle_acquisition_requirement,
     _cycle_basis_ref,
+    _n7_cycle_source_gap,
+    _n7_joined_planner_records_match,
     _problem_ref,
     generation_cycle_run_content_hash,
     validate_acquisition_overlay_continuation,
@@ -70,6 +77,29 @@ class AcquisitionRouteClosureError(ValueError):
     def __init__(self, code: str) -> None:
         self.code = code
         super().__init__(code)
+
+
+def _select_source_planner_record(
+    report: AcquisitionPlannerReport,
+    source: AcquisitionRequirementGap | None,
+) -> AcquisitionActionRecord:
+    """Select one joined source action without dropping other compiler gaps."""
+    records = report.acquisition_records
+    if len(records) == 1:
+        return records[0]
+    if source is None:
+        raise AcquisitionRouteClosureError("costed_route_not_unique")
+    selected = tuple(
+        record
+        for record in records
+        if record.requirement_gap_ref == source.requirement_gap_id
+        and record.requirement_schema_version == source.requirement_schema_version
+        and record.gap_type == source.gap_type
+        and record.compiled_requirement_ref != source.compiled_requirement_ref
+    )
+    if len(selected) != 1:
+        raise AcquisitionRouteClosureError("costed_route_not_unique")
+    return selected[0]
 
 
 class AcquisitionRouteRecoveryRequired(RuntimeError):  # noqa: N818 - exact lifecycle signal
@@ -615,7 +645,7 @@ class AcquisitionRouteLoop:
         if len(costed) != 1:
             raise AcquisitionRouteClosureError("costed_route_not_unique")
         generation_run, source_cycle = costed[0]
-        _resolve_source_cycle_problem_basis(
+        source_problem = _resolve_source_cycle_problem_basis(
             generation_run=generation_run,
             source_cycle=source_cycle,
             design_problem=compiled.design_problem,
@@ -623,9 +653,12 @@ class AcquisitionRouteLoop:
         )
         report = source_cycle.acquisition_routing_report
         cost = source_cycle.acquisition_cost_basis_record
-        if report is None or cost is None or len(report.acquisition_records) != 1:
+        if report is None or cost is None:
             raise AcquisitionRouteClosureError("costed_route_not_unique")
-        planner_record = report.acquisition_records[0]
+        source_requirement = _cycle_acquisition_requirement(
+            source_cycle.grounding, source_cycle.value_port
+        )
+        planner_record = _select_source_planner_record(report, source_requirement)
         planner_ref = source_cycle.acquisition_routing_report_ref
         if planner_ref is None:
             raise AcquisitionRouteClosureError("acquisition_planner_report_ref_required")
@@ -642,6 +675,52 @@ class AcquisitionRouteLoop:
             raise AcquisitionRouteClosureError(
                 code if isinstance(code, str) else "acquisition_planner_basis_not_revalidated"
             )
+        source_semantic_schema = planner_record.requirement_schema_version in {
+            "policyos.runtime.l1_variable_availability_gap.v1",
+            "policyos.runtime.grounding_coverage_gap.v1",
+        }
+        if source_semantic_schema and source_requirement is None:
+            raise AcquisitionRouteClosureError("source_requirement_missing")
+        request = source_cycle.revision_request.strategy_payload.get("acquisition_request")
+        source_rule = request.get("n7_source_join_rule") if isinstance(request, Mapping) else None
+        if source_rule is not None and source_rule != _N7_SOURCE_JOIN_RULE:
+            raise AcquisitionRouteClosureError("source_requirement_rule_unsupported")
+        row_has_joined_shape = (
+            source_semantic_schema
+            and source_requirement is not None
+            and planner_record.compiled_requirement_ref
+            != source_requirement.compiled_requirement_ref
+        )
+        if row_has_joined_shape and source_rule is None:
+            raise AcquisitionRouteClosureError("source_requirement_rule_missing")
+        if source_rule == _N7_SOURCE_JOIN_RULE:
+            if not isinstance(request, Mapping):
+                raise AcquisitionRouteClosureError("source_requirement_request_missing")
+            source_gap, refusal = _n7_cycle_source_gap(
+                source_problem,
+                cycle=source_cycle,
+                acquisition_request=request,
+            )
+            binding = report.requirement_basis_binding
+            if refusal is not None or source_gap is None or binding is None:
+                raise AcquisitionRouteClosureError("source_requirement_binding_mismatch")
+            try:
+                compiler_report = DataRequirementCompilationReport.model_validate(
+                    load_core_json_artifact(self._artifact_store, binding.compiler_report_ref)
+                )
+            except Exception as exc:
+                raise AcquisitionRouteClosureError(
+                    "source_requirement_compiler_unreadable"
+                ) from exc
+            if not _n7_joined_planner_records_match(
+                problem=source_problem,
+                acquisition_request=request,
+                source_gap=source_gap,
+                specs=compiler_report.specs,
+                capability_resolutions=compiler_report.capability_requirement_resolutions,
+                report=report,
+            ):
+                raise AcquisitionRouteClosureError("source_requirement_projection_mismatch")
         schedule = load_planner_acquisition_cost_schedule()
         recomputed = produce_acquisition_cost_basis_record(
             missing_distribution=cost.missing_distribution,

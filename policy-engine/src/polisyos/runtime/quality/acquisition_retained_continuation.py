@@ -23,10 +23,12 @@ from polisyos.runtime.quality.acquisition_evaluation import (
     read_acquisition_evaluation_artifact,
 )
 from polisyos.runtime.quality.acquisition_planner import (
+    _N7_SOURCE_JOIN_RULE,
     AcquisitionCostBasisRecord,
     AcquisitionPlannerReport,
     AcquisitionRequirementBasisBinding,
     AcquisitionWorldSnapshot,
+    _n7_legacy_planner_records_match,
     load_acquisition_planner_report,
     n7_planner_input_content_hash,
     validate_persisted_acquisition_planner_report,
@@ -38,6 +40,9 @@ from polisyos.runtime.quality.generation_cycle import (
     DesignRevisionRequest,
     LoopVOIDecision,
     ValuePortObservation,
+    _cycle_acquisition_requirement,
+    _n7_bound_source_gap,
+    _n7_joined_planner_records_match,
 )
 from polisyos.runtime.quality.n5_execution_basis import (
     exact_n5_content_bytes,
@@ -275,12 +280,25 @@ def read_acquisition_retained_continuation(
         grounding=projection.grounding,
         value_port=projection.value_port,
     )
+    request = projection.revision_request.strategy_payload.get("acquisition_request")
+    source_driver_rule = request.get("n7_source_driver_rule") if isinstance(request, dict) else None
+    source_join_rule = request.get("n7_source_join_rule") if isinstance(request, dict) else None
+    if (
+        source_driver_rule is not None
+        and source_driver_rule != "policyos.runtime.n7_source_driver.v1"
+    ):
+        raise ValueError("acquisition_retained_source_driver_rule_unsupported")
+    if source_join_rule is not None and source_join_rule != _N7_SOURCE_JOIN_RULE:
+        raise ValueError("acquisition_retained_source_join_rule_unsupported")
+    if source_driver_rule is not None and source_join_rule is None:
+        raise ValueError("acquisition_retained_source_driver_rule_unbound")
     revision = _default_revision_request(
         **common,
         terminal_kind=projection.terminal_kind,
         counterexample=counterexample,
         grounding=projection.grounding,
         value_port=projection.value_port,
+        source_issue_rule=source_join_rule is not None,
     )
     refinement = _refinement_decision(
         **common,
@@ -339,6 +357,71 @@ def read_acquisition_retained_continuation(
             )
             if issues:
                 raise ValueError("acquisition_retained_current_planner_unverified")
+        source_requirement = _cycle_acquisition_requirement(
+            projection.grounding,
+            projection.value_port,
+        )
+        source_rule = planner_inputs.acquisition_request.get("n7_source_join_rule")
+        if source_rule != source_join_rule:
+            raise ValueError("acquisition_retained_source_join_rule_mismatch")
+        # The retained owner does not currently produce the inline candidate
+        # checkpoint; do not accept an unexplained injected checkpoint here.
+        if source_rule is not None and (
+            not isinstance(request, dict)
+            or planner_inputs.acquisition_request
+            != {**request, "cycle_index": projection.source_cycle_index}
+        ):
+            raise ValueError("acquisition_retained_source_request_mismatch")
+        semantic_rows = tuple(
+            row
+            for row in report.acquisition_records
+            if row.requirement_schema_version
+            in {
+                "policyos.runtime.l1_variable_availability_gap.v1",
+                "policyos.runtime.grounding_coverage_gap.v1",
+            }
+        )
+        if source_requirement is None:
+            if source_rule is not None or semantic_rows:
+                raise ValueError("acquisition_retained_source_requirement_missing")
+        elif report.acquisition_records:
+            source_gap, refusal = _n7_bound_source_gap(
+                source.problem,
+                grounding=projection.grounding,
+                value_port=projection.value_port,
+                selected_candidate_ref=projection.selected_candidate_id,
+                selected_candidate_content_hash=projection.selected_candidate_content_hash,
+                design_problem_basis_ref=record.retained_evaluation.design_problem_ref,
+                acquisition_request=planner_inputs.acquisition_request,
+            )
+            compiler_report = planner_inputs.compilation_report
+            if (
+                refusal is not None
+                or source_gap is None
+                or tuple(spec.model_dump(mode="json") for spec in compiler_report.specs)
+                != planner_inputs.compiled_requirement_specs
+            ):
+                raise ValueError("acquisition_retained_source_projection_mismatch")
+            if source_rule == _N7_SOURCE_JOIN_RULE:
+                valid_source_projection = _n7_joined_planner_records_match(
+                    problem=source.problem,
+                    acquisition_request=planner_inputs.acquisition_request,
+                    source_gap=source_gap,
+                    specs=compiler_report.specs,
+                    capability_resolutions=compiler_report.capability_requirement_resolutions,
+                    report=report,
+                )
+            else:
+                valid_source_projection = _n7_legacy_planner_records_match(
+                    source_gap=source_gap,
+                    specs=compiler_report.specs,
+                    capability_resolutions=compiler_report.capability_requirement_resolutions,
+                    report=report,
+                )
+            if not valid_source_projection:
+                raise ValueError("acquisition_retained_source_projection_mismatch")
+        elif source_rule is not None and report.basis_limitation_code is None:
+            raise ValueError("acquisition_retained_source_projection_mismatch")
         snapshot = projection.current_planner_world_snapshot
         if snapshot is None or snapshot.world_model_record_ref != (
             record.retained_evaluation.world_model_record_hash

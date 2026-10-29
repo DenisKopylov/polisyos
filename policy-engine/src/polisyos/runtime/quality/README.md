@@ -1533,3 +1533,64 @@ under pinned Python source; private/class/interpreter mutation is outside that
 cohort. The configured guard remains the actual I/O handle. The shared surface
 outcome meet also consumes each typed authority contributor's blocking field;
 S12 or time/source downgrades cannot clear a stronger blocking contributor.
+
+## Candidate N7 source and compiler join
+
+When enabled for an already bound L1-availability or grounding source gap, N7
+retains the source gap's own type, missing fields, claim, gates and output reference when
+planning its action. The separate compiler requirement remains in the persisted
+compiler report and the action carries its exact requirement ref; no compiler
+facet is thereby satisfied. A versioned join identity is recomputed over the
+complete typed source gap, matched compiler gap and compiler spec. The fresh
+route reader reopens the compiler report and reconstructs that join and the
+whole planner action before a source-specific route can execute. Missing,
+ambiguous or mismatched source/compiler bindings refuse. Existing historical
+compiler-family records remain compiler-family records.
+
+This is a candidate-band routing mechanism. The current L1 availability owner
+counts catalog presence by variable and does not establish scoped absence for a
+request's geography and time. The contract-testing WDI fixture supplies a
+synthetic source gap and cost row; it is not a production measurement. The
+fresh route selects exactly one source action from the full report and retains
+unmatched compiler gaps; ambiguous matches refuse. For contract-testing only, a source-semantic action can use the configured
+Recorded gateway after the lower planner reopens a candidate-port capture and
+a separately persisted pre-dispatch cycle checkpoint. The checkpoint binds
+its selected port artifact, full candidate atom/problem, actual observations,
+request, compiler output and planner action. These captures are candidate
+fixture evidence; they do not establish institutional or live execution
+authority. The private current-selection comparison is meaningful on the actual
+trusted controller path; an arbitrary in-process caller able to construct private
+objects and write the CAS can synthesize its own consistent pair. Source custody
+for that direct caller is `not_established`. The generic real gateway refuses this
+joined path before owner dispatch; live WDI still uses its existing protected
+action/lease owner.
+
+The versioned source-driver revision reconstructs the complete acquisition issue
+from the selected grounding/value observation and checks the corresponding
+owner diagnostic before carrying the issue to N7. Dots in an issue or family are
+not delimiters. A new source-join rule marker is carried by the actual revision
+and its normalized planner inputs. The retained reader replays that revision,
+compares the two requests and recomputes the entire source/compiler action set;
+a changed stored row schema cannot select the old law. Unmarked historical
+revisions keep their previous driver projection and compiler-family law. The
+marker selects a consistent replay law; it is not independent proof of which
+historical producer code emitted a fully reconstructed alternative record. Such
+producer provenance remains `not_established`. A retained continuation cannot
+introduce an inline checkpoint without an actual retained-owner binding for it.
+
+Joined source-record emission is disabled by default while compatible readers,
+retained-continuation witnesses, and old/new reader controls are qualified.
+Older cycle readers reject the new record even though field shapes are
+unchanged; deploy readers before enabling emission. Rollback to an old reader
+after new records exist remains unsupported. Existing compiler-family records
+retain their prior interpretation.
+
+The compiler-gap producer can append unresolved capability-resolution rows in
+addition to spec-derived gaps. The current receipt reader compares planner-row
+and spec counts, and the retained reader checks each row against compiler spec
+refs. A successful joined receipt with such an unmatched resolution, and its
+actual terminal or typed refusal, are not yet established. This limitation does
+not imply that those rows were dropped or that the runtime was executed.
+
+No source authority, observation admissibility, historical retention, or policy
+publication follows from this join.

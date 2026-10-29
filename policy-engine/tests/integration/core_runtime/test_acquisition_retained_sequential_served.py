@@ -974,3 +974,245 @@ async def test_legacy_route_attempt_remains_recoverable_and_new_epoch_is_distinc
     finally:
         attempt_path.write_bytes(attempt_bytes)
     assert later_bridge._growth_pointer(later, create=False) == current
+
+
+def test_retained_join_reopens_persisted_current_source_and_compiler(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    served_recorded_candidate_gateway: Any,
+) -> None:
+    """A synthetic candidate gap exercises the actual retained producer and reader.
+
+    The fixture declares a grounding limitation; it does not measure L1 absence
+    or grant a live acquisition right. N4, N5, source admission, retention, CAS,
+    and the current continuation reader are the existing served test owners.
+    """
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.runtime.quality import acquisition_planner, generation_cycle
+    from polisyos.runtime.quality import acquisition_retained_continuation as retained_owner
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        persist_acquisition_evaluation_artifact,
+    )
+    from polisyos.runtime.quality.acquisition_planner import (
+        AcquisitionStrategy,
+        bind_acquisition_planner_report,
+        persist_and_verify_acquisition_planner_report,
+    )
+    from polisyos.runtime.quality.acquisition_retained_continuation import (
+        AcquisitionRetainedContinuation,
+    )
+    from polisyos.runtime.quality.n5_execution_basis import exact_n5_content_hash
+    from tests._helpers.candidate_cycle_source_profile import (
+        build_candidate_cycle_substrate_route_inputs,
+    )
+
+    monkeypatch.setattr(generation_cycle, "_N7_SOURCE_SEMANTIC_EMISSION_ENABLED", True)
+    monkeypatch.setitem(
+        acquisition_planner._ACQUISITION_GAP_BASIS,
+        "fixture.retained_family",
+        {
+            "basis_ref": "fixture-only:retained-source-join-cost:v1",
+            "collection_mode": "Fixture-only retained acquisition costing input",
+            "expert_hours": 1,
+            "calendar_days": 1,
+        },
+    )
+    original_retention = GenerationCycleController._retained_configured_cheap_continuation
+    original_ground = generation_cycle.PolicyGroundingPort.__call__
+
+    def fixture_grounding(self: Any, *, candidate: Any, problem: Any, **kwargs: Any) -> Any:
+        original_ground(self, candidate=candidate, problem=problem, **kwargs)
+        return generation_cycle._grounding_unavailable(
+            candidate.candidate_id,
+            issue_codes=("acquire_data:fixture.retained_family",),
+            candidate_content_hash=candidate.atom.content_hash,
+            design_problem_ref=generation_cycle._problem_ref(problem),
+            authority_level=problem.authority_profile.requested_authority_level,
+        )
+
+    def scoped_fixture_retention(self: Any, *args: Any, **kwargs: Any) -> Any:
+        with monkeypatch.context() as local:
+            local.setattr(generation_cycle.PolicyGroundingPort, "__call__", fixture_grounding)
+            return original_retention(self, *args, **kwargs)
+
+    monkeypatch.setattr(
+        GenerationCycleController,
+        "_retained_configured_cheap_continuation",
+        scoped_fixture_retention,
+    )
+    checked: list[str] = []
+
+    def verify_retained(**inputs: Any) -> None:
+        ctx = inputs["ctx"]
+        _negative, positive = inputs["issue_equal_source"]()
+        terminal = positive.receipt
+        assert terminal.terminal_outcome == "source_admitted_evaluation_retained"
+        assert terminal.current_continuation_ref is not None
+        with TestClient(ctx.app()) as client:
+            control = client.app.state.runtime_container.control_service
+            store, events = control._artifact_store, control._diagnostic_event_log
+            fresh = FileSystemCAS(store.root, ownership_enforced=True)
+            decision = fixture._within_fixture_owner(
+                read_acquisition_evaluation_artifact,
+                store=fresh,
+                event_log=events,
+                ref=terminal.evaluation_decision_ref,
+                record_type=AcquisitionEvaluationDecision,
+            )
+
+            def reopen(ref: ArtifactRef, selected_terminal: Any = terminal) -> Any:
+                return fixture._within_fixture_owner(
+                    read_acquisition_retained_continuation,
+                    store=fresh,
+                    event_log=events,
+                    ref=ref,
+                    decision=decision,
+                    terminal=selected_terminal,
+                )
+
+            continuation = reopen(terminal.current_continuation_ref)
+            projection = continuation.current_projection
+            gap = projection.grounding.acquisition_requirement
+            report = projection.current_planner_report
+            planner_inputs = projection.current_planner_inputs
+            assert gap is not None and report is not None and planner_inputs is not None
+            assert gap.metadata["issue_codes"] == ["acquire_data:fixture.retained_family"]
+            request = projection.revision_request.strategy_payload["acquisition_request"]
+            assert request["driver"] == "acquire_data:fixture.retained_family"
+            assert request["n7_source_driver_rule"] == "policyos.runtime.n7_source_driver.v1"
+            source_rows = tuple(
+                row
+                for row in report.acquisition_records
+                if row.requirement_gap_ref == gap.requirement_gap_id
+            )
+            assert len(source_rows) == 1
+            source_row = source_rows[0]
+            assert source_row.compiled_requirement_ref != gap.compiled_requirement_ref
+            assert report.requirement_basis_binding is not None
+            assert planner_inputs.acquisition_request["n7_source_join_rule"] == (
+                "policyos.runtime.n7_source_compiler_join.v1"
+            )
+            compiler_ref = report.requirement_basis_binding.compiler_report_ref
+
+            # Keep the same selected source and compiler IDs while corrupting
+            # the real compiler blob. A fresh reader must reject and recover.
+            blob, _ = store._paths(compiler_ref.artifact_id)
+            original_bytes = blob.read_bytes()
+            try:
+                blob.write_bytes(b"{}")
+                with pytest.raises((OSError, RuntimeError, ValueError)):
+                    reopen(terminal.current_continuation_ref)
+            finally:
+                blob.write_bytes(original_bytes)
+            assert reopen(terminal.current_continuation_ref) == continuation
+
+            # A separate owner-written control keeps source/compiler refs and
+            # current planner inputs but changes the actual routed strategy.
+            # Rebind and persist the report and continuation through their
+            # owners, so the semantic check, not marker presence, is decisive.
+            wrong_strategy = (
+                AcquisitionStrategy.AGENCY_REQUEST
+                if source_row.recommended_strategy is not AcquisitionStrategy.AGENCY_REQUEST
+                else AcquisitionStrategy.PUBLIC_REGISTRY
+            )
+            altered_rows = tuple(
+                row.model_copy(
+                    update={
+                        "requirement_schema_version": "policyos.data_requirement_spec.v1",
+                        "recommended_strategy": wrong_strategy,
+                    }
+                )
+                if row is source_row
+                else row
+                for row in report.acquisition_records
+            )
+            assert report.planning_context_hash is not None
+            altered_report = bind_acquisition_planner_report(
+                report.model_copy(update={"acquisition_records": altered_rows}),
+                planning_context_hash=report.planning_context_hash,
+            )
+            altered_report_ref = fixture._within_fixture_owner(
+                persist_and_verify_acquisition_planner_report,
+                store,
+                altered_report,
+            )
+            altered_projection = projection.model_copy(
+                update={
+                    "current_planner_report": altered_report,
+                    "current_planner_report_ref": altered_report_ref,
+                }
+            )
+            altered_payload = continuation.model_dump(mode="json", exclude={"content_hash"})
+            altered_payload["current_projection"] = altered_projection.model_dump(mode="json")
+            altered_continuation = AcquisitionRetainedContinuation.model_validate(
+                {**altered_payload, "content_hash": exact_n5_content_hash(altered_payload)}
+            )
+            altered_ref = fixture._within_fixture_owner(
+                persist_acquisition_evaluation_artifact,
+                store=store,
+                event_log=events,
+                record=altered_continuation,
+            )
+            altered_terminal = terminal.model_copy(update={"current_continuation_ref": altered_ref})
+            with pytest.raises(ValueError, match="acquisition_retained_source_projection_mismatch"):
+                reopen(altered_ref, altered_terminal)
+            real_join = retained_owner._n7_joined_planner_records_match
+            with monkeypatch.context() as local:
+                local.setattr(retained_owner, "_n7_joined_planner_records_match", lambda **_: True)
+                assert reopen(altered_ref, altered_terminal) == altered_continuation
+            assert retained_owner._n7_joined_planner_records_match is real_join
+            with pytest.raises(ValueError, match="acquisition_retained_source_projection_mismatch"):
+                reopen(altered_ref, altered_terminal)
+            assert reopen(terminal.current_continuation_ref) == continuation
+
+            # Removing the planner-input version and recomputing its real
+            # binding must not relabel the independently replayed new revision
+            # as an old compiler-family projection.
+            downgraded_request = dict(planner_inputs.acquisition_request)
+            downgraded_request.pop("n7_source_join_rule")
+            downgraded_inputs = planner_inputs.model_copy(
+                update={"acquisition_request": downgraded_request}
+            )
+            downgraded_report = bind_acquisition_planner_report(
+                report, planning_context_hash=downgraded_inputs.planner_content_hash()
+            )
+            downgraded_report_ref = fixture._within_fixture_owner(
+                persist_and_verify_acquisition_planner_report, store, downgraded_report
+            )
+            downgraded_projection = projection.model_copy(
+                update={
+                    "current_planner_report": downgraded_report,
+                    "current_planner_report_ref": downgraded_report_ref,
+                    "current_planner_inputs": downgraded_inputs,
+                }
+            )
+            downgraded_payload = continuation.model_dump(mode="json", exclude={"content_hash"})
+            downgraded_payload["current_projection"] = downgraded_projection.model_dump(mode="json")
+            downgraded = AcquisitionRetainedContinuation.model_validate(
+                {**downgraded_payload, "content_hash": exact_n5_content_hash(downgraded_payload)}
+            )
+            downgraded_ref = fixture._within_fixture_owner(
+                persist_acquisition_evaluation_artifact,
+                store=store,
+                event_log=events,
+                record=downgraded,
+            )
+            downgraded_terminal = terminal.model_copy(
+                update={"current_continuation_ref": downgraded_ref}
+            )
+            with pytest.raises(ValueError, match="acquisition_retained_source_join_rule_mismatch"):
+                reopen(downgraded_ref, downgraded_terminal)
+            assert reopen(terminal.current_continuation_ref) == continuation
+            checked.append("persisted_join_and_removal")
+
+    source = build_candidate_cycle_substrate_route_inputs(tmp_path / "candidate-source")
+    with _OwnerCallMonitor() as monitor:
+        oracle = _SequentialOracle(monkeypatch, monitor, after_real_b=verify_retained)
+        result = fixture._produce_served_acquisition_history(
+            tmp_path,
+            monkeypatch,
+            served_recorded_candidate_gateway,
+            source_owner_root=source.root,
+            sequential_oracle=oracle,
+        )
+    assert result is not None and checked == ["persisted_join_and_removal"]

@@ -713,8 +713,27 @@ async def _run_actual_wdi_admits_delta_and_reenters_same_case_impl(
             == source_requirement.requirement_schema_version
             == "policyos.runtime.l1_variable_availability_gap.v1"
         )
-        assert persisted_record.compiled_requirement_ref == (
+        from polisyos.core.artifacts import load_core_json_artifact
+        from polisyos.data_requirement import DataRequirementCompilationReport
+
+        binding = persisted_report.requirement_basis_binding
+        assert binding is not None
+        compiler_report = DataRequirementCompilationReport.model_validate(
+            load_core_json_artifact(control._artifact_store, binding.compiler_report_ref)
+        )
+        selected_specs = tuple(
+            spec
+            for spec in compiler_report.specs
+            if spec.requirement_id == persisted_record.compiled_requirement_ref
+        )
+        assert len(selected_specs) == 1
+        assert selected_specs[0].required_data_families == ("government.balance",)
+        assert (
             source_requirement.compiled_requirement_ref
+            in persisted_record.scenario_requirement_refs
+        )
+        assert (
+            persisted_record.compiled_requirement_ref in persisted_record.scenario_requirement_refs
         )
         assert (
             persisted_record.missing_requirement_fields
@@ -1183,6 +1202,7 @@ async def test_active_dataforge_row_builds_limited_candidate_world_with_source_t
         content_sha256,
     )
     from polisyos.runtime.http.resilience import guard_runtime_cas
+    from polisyos.runtime.quality import generation_cycle as generation_cycle_module
     from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
     from polisyos.runtime.quality.data_snapshot_lineage import (
         DataSnapshotLineageError,
@@ -1199,6 +1219,7 @@ async def test_active_dataforge_row_builds_limited_candidate_world_with_source_t
     from polisyos.runtime.quality.world_model_record import build_world_model_record
     from tests._helpers import world_model_record as wmr_fixture
 
+    monkeypatch.setattr(generation_cycle_module, "_N7_SOURCE_SEMANTIC_EMISSION_ENABLED", True)
     admitted = await _admit_served_wdi_projection(tmp_path, monkeypatch, request)
     served = admitted.served
     closure = served.closure

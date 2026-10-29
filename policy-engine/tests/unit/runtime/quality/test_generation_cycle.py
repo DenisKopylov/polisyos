@@ -8407,13 +8407,22 @@ async def test_acquisition_required_invokes_n7_and_records_same_cycle_reentry(
         data_requirement_specs=compiler_basis.specs,
         capability_requirement_resolutions=compiler_basis.capability_resolutions,
     )
+    matching_specs = tuple(
+        spec
+        for spec in compiler_basis.specs
+        if spec.required_data_families == ("administrative_tax_receipts",)
+    )
+    assert len(matching_specs) == 1
+    selected_spec = matching_specs[0]
     matching_compiler_gaps = tuple(
-        gap
-        for gap in compiled_gaps
-        if gap.missing_requirement_fields == ("required_data_family:administrative_tax_receipts",)
+        gap for gap in compiled_gaps if gap.compiled_requirement_ref == selected_spec.requirement_id
     )
     assert len(matching_compiler_gaps) == 1
     compiled_gap = matching_compiler_gaps[0]
+    assert compiled_gap.missing_requirement_fields == (
+        "required_data_family:administrative_tax_receipts",
+        *(f"mandatory_facet:{facet}" for facet in selected_spec.mandatory_facets),
+    )
     payload = _n7_owner_payload(
         acquired_family="administrative_tax_receipts",
         source_id="fabric.administrative_tax_receipts",
@@ -8494,7 +8503,7 @@ async def test_acquisition_required_invokes_n7_and_records_same_cycle_reentry(
 
     value_probe = _TypedGapThenPendingValuePort()
     owner_gateway = _OrderedRecordedGateway(
-        artifacts_by_requirement={requirement_gap.compiled_requirement_ref: artifact}
+        artifacts_by_requirement={compiled_gap.compiled_requirement_ref: artifact}
     )
     controller = _ObserveActionsController(
         generation_port=_CounterexampleAwareGenerator(first_atom=atom),

@@ -1159,10 +1159,26 @@ def _valid_passport(tmp_path: Path):
     return passport, store, authority, entry
 
 
-def _real_epoch_scenario(tmp_path: Path, *, epoch_id: int = 1) -> SimpleNamespace:
-    """Prepare and persist one pending admission through the real epoch service."""
+def _real_epoch_scenario(
+    tmp_path: Path,
+    *,
+    epoch_id: int = 1,
+    fixture_source: SimpleNamespace | None = None,
+) -> SimpleNamespace:
+    """Prepare a real epoch using a new or explicitly reused fixture source.
 
-    fixture_passport, store, authority, entry, raw_ref = _fixture(tmp_path / "authority")
+    Reuse retains the original authority, signed rights, raw evidence and CAS;
+    the new epoch still gets its own overlay, preparation and admission.
+    """
+
+    if fixture_source is None:
+        fixture_passport, store, authority, entry, raw_ref = _fixture(tmp_path / "authority")
+    else:
+        fixture_passport = fixture_source.passport
+        store = fixture_source.store
+        authority = fixture_source.authority
+        entry = fixture_source.entry
+        raw_ref = fixture_source.raw_ref
     fixture_candidate, fixture_prepared = _semantic_handshake_from_passport(
         fixture_passport,
         store,

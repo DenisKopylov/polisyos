@@ -391,8 +391,44 @@ def test_served_acquisition_binds_n7_compiler_and_planner_cas_before_reentry(
     )
 
     source_inputs = build_candidate_cycle_substrate_route_inputs(
-        tmp_path / "served-candidate-source-root"
+        tmp_path / "served-candidate-source-root",
+        include_owner_slot_manifest=True,
     )
+    from polisyos.runtime.quality.intervention_substrate import (
+        InterventionSubstrateError,
+        default_l6_bundle_paths,
+        intervention_generation_registry_bundle,
+        load_l6_intervention_substrate,
+    )
+
+    # Exercise the real L6 registry before the ordinary served producer. A
+    # marker-preserving removal of the actual slot declarations must refuse.
+    slot_manifest_path = default_l6_bundle_paths(REPO_ROOT, source_owner_root=source_inputs.root)[
+        "slot_family_manifest"
+    ]
+    selected_slot_bytes = slot_manifest_path.read_bytes()
+    selected_bundle = load_l6_intervention_substrate(
+        REPO_ROOT, source_owner_root=source_inputs.root
+    )
+    intervention_generation_registry_bundle(substrate_bundle=selected_bundle)
+    removed_slots = json.loads(selected_slot_bytes)
+    for family in removed_slots["families"].values():
+        family["slots"] = []
+    try:
+        slot_manifest_path.write_text(json.dumps(removed_slots), encoding="utf-8")
+        with pytest.raises(InterventionSubstrateError, match="world_slot_manifest_missing"):
+            intervention_generation_registry_bundle(
+                substrate_bundle=load_l6_intervention_substrate(
+                    REPO_ROOT, source_owner_root=source_inputs.root
+                )
+            )
+    finally:
+        slot_manifest_path.write_bytes(selected_slot_bytes)
+    restored_bundle = load_l6_intervention_substrate(
+        REPO_ROOT, source_owner_root=source_inputs.root
+    )
+    assert restored_bundle.content_hash == selected_bundle.content_hash
+    intervention_generation_registry_bundle(substrate_bundle=restored_bundle)
     result = _produce_served_acquisition_history(
         tmp_path,
         monkeypatch,

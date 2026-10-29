@@ -1369,6 +1369,14 @@ in the payload. The source projection count and exactly-one selected row remain
 bound. A different or unsupported source/codec/selection refuses rather than
 using value-only equality.
 
+Historical activation may carry profileless owner-native references. Replay
+resolves each through its actual default manifest and accepts the selected
+CAS view only when the complete manifest profile matches and both views
+pass the epoch content reader. A missing default or one resolving to a
+different profile refuses; matching artifact ID, kind and media type alone
+is insufficient. This does not establish current eligibility or publication
+authority.
+
 `acquired_observation_binding_rule` is the original producer's shared full rule
 constructor. `acquired_observation_binding_rule_values` checks the entire
 prepared rule before projecting its known generated `notes` report field.

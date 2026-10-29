@@ -69,6 +69,8 @@ def _build_record(
     *,
     data_snapshot_factory: Callable[[FileSystemCAS], ArtifactRef] | None = None,
 ):
+    # Workspace artifacts must not rely on the chosen CAS creating this path.
+    tmp_path.mkdir(parents=True, exist_ok=True)
     store = FileSystemCAS(tmp_path / "cas")
     _write_fabric_world_snapshot(tmp_path)
     data_snapshot_ref = (

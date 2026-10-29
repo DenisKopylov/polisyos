@@ -1217,6 +1217,57 @@ def prepare_acquired_observation_semantic_values(
     )
 
 
+def _historical_owner_ref_matches_selected_view(
+    store: ArtifactStore,
+    *,
+    owner_ref: ArtifactRef | None,
+    selected_ref: ArtifactRef,
+    expected_kind: str,
+) -> bool:
+    """Reconcile the real owner default or selected view with one admitted view.
+
+    A profileless owner-native reference names the store's actual default. It
+    does not authorize selecting an arbitrary same-content sidecar. Both views
+    must resolve to the same full identity and pass the epoch content reader.
+    """
+    from polisyos.core.artifacts import artifact_ref_for_manifest, read_core_manifest_profile
+    from polisyos.core.contracts import epoch
+
+    if (
+        not isinstance(owner_ref, ArtifactRef)
+        or not isinstance(selected_ref, ArtifactRef)
+        or selected_ref.manifest_profile_sha256 is None
+        or owner_ref.kind != expected_kind
+        or selected_ref.kind != expected_kind
+        or owner_ref.artifact_id != selected_ref.artifact_id
+        or owner_ref.media_type != selected_ref.media_type
+    ):
+        return False
+    try:
+        owner_manifest, _ = read_core_manifest_profile(store, owner_ref)
+        if artifact_ref_for_manifest(owner_manifest) != selected_ref:
+            return False
+        owner_value = epoch.load_verified_epoch_statement(
+            store=store,
+            ref=owner_ref,
+            expected_kind=expected_kind,
+            expected_media_type=owner_ref.media_type,
+        )
+        selected_value = epoch.load_verified_epoch_statement(
+            store=store,
+            ref=selected_ref,
+            expected_kind=expected_kind,
+            expected_media_type=selected_ref.media_type,
+        )
+        final_manifest, _ = read_core_manifest_profile(store, owner_ref)
+        return (
+            owner_value == selected_value
+            and artifact_ref_for_manifest(final_manifest) == selected_ref
+        )
+    except (OSError, RuntimeError, TypeError, ValueError):
+        return False
+
+
 def _verify_historical_acquisition_activation(
     store: ArtifactStore,
     *,
@@ -1388,7 +1439,12 @@ def _verify_historical_acquisition_activation(
         or projection.semantic_denominator_receipt_ref != admitted.semantic_denominator_receipt_ref
         or projection.semantic_denominator_receipt_content_hash
         != admitted.semantic_denominator_receipt_content_hash
-        or projection.verifier_provenance_ref != admitted.verifier_provenance_ref
+        or not _historical_owner_ref_matches_selected_view(
+            store,
+            owner_ref=projection.verifier_provenance_ref,
+            selected_ref=admitted.verifier_provenance_ref,
+            expected_kind="epoch.acquisition_projection_verifier_provenance",
+        )
         or projection.verifier_provenance_content_hash
         != epoch.epoch_semantic_content_hash(
             domain="polisyos.epoch.acquisition-projection-verifier.v1", value=provenance
@@ -1405,9 +1461,21 @@ def _verify_historical_acquisition_activation(
         or not any(
             row.semantic_candidate_ref == admitted.semantic_candidate_ref
             and row.semantic_candidate_content_hash == admitted.semantic_candidate_content_hash
-            and row.passport_ref == passport_ref
+            and row.operational_epoch_id == passport.epoch_id
+            and row.passport_content_hash == admitted.passport_content_hash
+            and _historical_owner_ref_matches_selected_view(
+                store,
+                owner_ref=row.passport_ref,
+                selected_ref=passport_ref,
+                expected_kind="epoch.acquisition_passport_snapshot",
+            )
             and row.binding_status == "bound"
-            and row.native_member_ref == admitted.native_member_ref
+            and _historical_owner_ref_matches_selected_view(
+                store,
+                owner_ref=row.native_member_ref,
+                selected_ref=admitted.native_member_ref,
+                expected_kind="epoch.acquisition_native_member",
+            )
             and row.native_member_content_hash == admitted.native_member_content_hash
             for row in native.assessments
         )

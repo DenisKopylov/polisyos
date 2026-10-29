@@ -66,6 +66,163 @@ def test_historical_source_replay_requires_exact_boundary_source_join(tmp_path: 
         )
 
 
+@pytest.mark.parametrize("link", ["verifier_provenance", "native_member", "passport"])
+def test_historical_consumers_refuse_changed_owner_default_view(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, link: str
+) -> None:
+    """The owner default must resolve to the admitted selected CAS view."""
+    from polisyos.core.artifacts import ArtifactRef, ProducerInfo, artifact_ref_for_manifest
+    from polisyos.core.artifacts._layout import CASPathLayout
+    from polisyos.core.contracts import epoch
+    from tests.integration.core_runtime.test_acquisition_data_preparation import _same_write_options
+
+    case = _case(tmp_path)
+    prepared = case.prepared
+    store = case.scenario.store
+    issued = owner.materialize_acquired_observation_snapshot(
+        store, **case.args, workspace_dir=case.workspace, prepared=prepared
+    )
+    receipt = epoch.ActivatedOverlayAdmissionStatement.model_validate(
+        epoch.load_verified_epoch_statement(
+            store=store,
+            ref=prepared.receipt_ref,
+            expected_kind="epoch.activated_overlay_admission_receipt",
+        )
+    )
+    admitted = epoch.AdmittedAcquisitionBoundaryEvidence.model_validate(
+        epoch.load_verified_epoch_statement(
+            store=store,
+            ref=receipt.admitted_boundary_evidence_ref,
+            expected_kind="epoch.admitted_acquisition_boundary_evidence",
+        )
+    )
+    native = epoch.AcquisitionNativeMembershipReceipt.model_validate(
+        epoch.load_verified_epoch_statement(
+            store=store,
+            ref=admitted.native_membership_receipt_ref,
+            expected_kind="epoch.acquisition_native_membership",
+        )
+    )
+    projection = epoch.AcquisitionSemanticProjectionVerificationReceipt.model_validate(
+        epoch.load_verified_epoch_statement(
+            store=store,
+            ref=admitted.semantic_projection_verification_receipt_ref,
+            expected_kind="epoch.acquisition_semantic_projection_verification_receipt",
+        )
+    )
+    matching = [
+        row
+        for row in native.assessments
+        if row.operational_epoch_id == case.scenario.passport.epoch_id
+        and row.semantic_candidate_ref == admitted.semantic_candidate_ref
+    ]
+    assert len(matching) == 1
+    row = matching[0]
+    pairs = {
+        "verifier_provenance": (
+            projection.verifier_provenance_ref,
+            admitted.verifier_provenance_ref,
+        ),
+        "native_member": (row.native_member_ref, admitted.native_member_ref),
+        "passport": (row.passport_ref, admitted.passport_ref),
+    }
+    embedded, selected = pairs[link]
+    assert isinstance(embedded, ArtifactRef) and isinstance(selected, ArtifactRef)
+    assert embedded.manifest_profile_sha256 is None
+    assert selected.manifest_profile_sha256 is not None
+    assert embedded.artifact_id == selected.artifact_id
+    assert embedded.kind == selected.kind and embedded.media_type == selected.media_type
+
+    def snapshot_read() -> object:
+        return owner.read_acquired_observation_semantic_values(
+            FileSystemCAS(store.root), issued.data_snapshot_ref
+        )
+
+    def preparation_read() -> object:
+        return owner.replay_acquired_observation_snapshot_preparation(
+            FileSystemCAS(store.root),
+            base_data_snapshot_ref=prepared.base_data_snapshot_ref,
+            receipt_ref=prepared.receipt_ref,
+            passport_ref=prepared.observation_projection.passport_ref,
+            boundary_candidate_ref=case.scenario.candidate.candidate_ref,
+            source_ref=case.scenario.candidate.statement.source_record_ref,
+            observation_id=prepared.selected_observation_id,
+            slot_binding=prepared.selected_profile,
+            transaction_time=case.args["transaction_time"],
+        )
+
+    expected_values = owner.prepare_acquired_observation_semantic_values(prepared)
+    assert snapshot_read() == expected_values
+    assert preparation_read() == prepared
+    manifest = store.get_manifest(selected)
+    alternate = store.put_bytes(
+        store.get_bytes(selected),
+        _same_write_options(
+            manifest, producer=ProducerInfo(component="fixture.changed-default", version="1.0")
+        ),
+        return_selected_profile=True,
+    )
+    assert alternate.artifact_id == selected.artifact_id
+    assert alternate.manifest_profile_sha256 != selected.manifest_profile_sha256
+    assert store.verify(alternate).ok and store.verify(selected).ok
+
+    layout = CASPathLayout(store.root)
+    _blob, default_path = layout.paths(selected.artifact_id)
+    assert alternate.manifest_profile_sha256 is not None
+    alternate_path = layout.view_manifest_path(
+        alternate.artifact_id, alternate.manifest_profile_sha256
+    )
+    original_default = default_path.read_bytes()
+    try:
+        # Change only the owner-default view in the test-owned CAS. Keep the
+        # same blob, selected manifest, receipt, hashes, status and markers.
+        default_path.write_bytes(alternate_path.read_bytes())
+        assert artifact_ref_for_manifest(store.get_manifest(embedded)) == alternate
+        assert epoch.load_verified_epoch_statement(
+            store=store,
+            ref=embedded,
+            expected_kind=embedded.kind,
+            expected_media_type=embedded.media_type,
+        ) == epoch.load_verified_epoch_statement(
+            store=store,
+            ref=selected,
+            expected_kind=selected.kind,
+            expected_media_type=selected.media_type,
+        )
+        with pytest.raises(
+            owner.DataStateSubstrateError, match="historical_projection_binding_mismatch"
+        ):
+            snapshot_read()
+        with pytest.raises(
+            owner.DataStateSubstrateError, match="historical_projection_binding_mismatch"
+        ):
+            preparation_read()
+        actual_reconciler = owner._historical_owner_ref_matches_selected_view
+        with monkeypatch.context() as removed:
+            # Remove the real shared predicate only. With the same divergent
+            # view and every receipt/status/hash marker intact, both actual
+            # consumers now accept; restoring it must reinstate both refusals.
+            removed.setattr(
+                owner, "_historical_owner_ref_matches_selected_view", lambda *_args, **_kwargs: True
+            )
+            assert snapshot_read() == expected_values
+            assert preparation_read() == prepared
+        assert owner._historical_owner_ref_matches_selected_view is actual_reconciler
+        with pytest.raises(
+            owner.DataStateSubstrateError, match="historical_projection_binding_mismatch"
+        ):
+            snapshot_read()
+        with pytest.raises(
+            owner.DataStateSubstrateError, match="historical_projection_binding_mismatch"
+        ):
+            preparation_read()
+    finally:
+        default_path.write_bytes(original_default)
+    assert default_path.read_bytes() == original_default
+    assert snapshot_read() == expected_values
+    assert preparation_read() == prepared
+
+
 def _world_case(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     case = _case(tmp_path / "source")
     monkeypatch.setattr(world_fixture, "FileSystemCAS", lambda _path: case.scenario.store)

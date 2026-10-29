@@ -9,6 +9,7 @@ currentness.
 from __future__ import annotations
 
 import hashlib
+import json
 from collections.abc import Callable, Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass
@@ -366,7 +367,9 @@ def _build_l3_fixture(path: Path) -> None:
     )
 
 
-def _build_source_files(root: Path) -> tuple[Path, str]:
+def _build_source_files(
+    root: Path, *, include_owner_slot_manifest: bool = False
+) -> tuple[Path, str]:
     from polisyos.runtime.quality.credal_reference import (
         DEFAULT_DATA_FORGE_CATALOG_PATH,
     )
@@ -399,6 +402,30 @@ def _build_source_files(root: Path) -> tuple[Path, str]:
         path = l6_paths[name]
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text("{}\n", encoding="utf-8")
+    if include_owner_slot_manifest:
+        # Declare only slots already used by the tracked mechanism owner.
+        # This is structural candidate input, not a lever, law or permission.
+        code_root = Path(__file__).resolve().parents[2]
+        owner_path = default_l6_bundle_paths(code_root)["owner_authority_bindings"]
+        owner = json.loads(owner_path.read_text(encoding="utf-8"))
+        mechanisms = owner["world_mechanism_manifest"]["mechanisms"]
+        slots = sorted(
+            {
+                slot
+                for mechanism in mechanisms.values()
+                for role in ("reads_slots", "writes_slots")
+                for slot in mechanism[role]
+            }
+        )
+        slot_manifest = {
+            "synthetic": True,
+            "fixture_scope": "candidate_source_owner_slots_only",
+            "families": {"tracked_owner_mechanisms": {"slots": slots}},
+        }
+        path = l6_paths["slot_family_manifest"]
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("x", encoding="utf-8") as stream:
+            stream.write(json.dumps(slot_manifest, sort_keys=True) + "\n")
     return skg_path, str(version_id)
 
 
@@ -446,6 +473,7 @@ def build_candidate_cycle_substrate_route_inputs(
     *,
     runtime_hints: Mapping[str, Any] | None = None,
     outcome_variable: str = "education.learning_outcomes",
+    include_owner_slot_manifest: bool = False,
 ) -> CandidateCycleSubstrateRouteInputs:
     """Build only selected-profile source inputs beneath a caller-owned temp root.
 
@@ -456,6 +484,9 @@ def build_candidate_cycle_substrate_route_inputs(
         tmp_path: Pytest-owned root for all controlled source files.
         runtime_hints: Additional problem hints; the candidate-only profile
             selector and N5 resource, budget and horizon bindings are retained.
+        include_owner_slot_manifest: Declare the tracked mechanism owner's complete
+            read/write slot set for a candidate-action fixture. The default keeps
+            the empty source-only L6 input and its real linker refusal.
 
     Returns:
         Owner-built source data and an unprofiled seed context for the actual
@@ -465,7 +496,9 @@ def build_candidate_cycle_substrate_route_inputs(
     root = (tmp_path / "policy-engine").resolve()
     root.mkdir(parents=True, exist_ok=False)
     problem = _problem(runtime_hints=runtime_hints, outcome_variable=outcome_variable)
-    skg_path, version_id = _build_source_files(root)
+    skg_path, version_id = _build_source_files(
+        root, include_owner_slot_manifest=include_owner_slot_manifest
+    )
     registry = _build_registry(skg_path, root=root, version_id=version_id)
     selected_entry_hashes = tuple(sorted(entry.entry_content_hash for entry in registry.entries))
     from polisyos.runtime.quality.generation_cycle import (

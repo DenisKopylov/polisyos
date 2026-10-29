@@ -1680,7 +1680,8 @@ def test_selected_manifest_authority_controls_all_artifact_http_surfaces(
 def test_default_json_content_and_schema_carry_one_bounded_manifest_selection(
     runtime_api_env, monkeypatch
 ) -> None:
-    artifact_id = runtime_api_env["workflow_report_artifact_id"]
+    # The workflow report intentionally contains a token; use a clean owned JSON artifact.
+    artifact_id = runtime_api_env["root_artifact_id"]
     client = runtime_api_env["client"]
     expected_selector = ArtifactID.model_validate(artifact_id)
     route_reader = artifact_routes.read_core_manifest_profile_bounded
@@ -1760,3 +1761,16 @@ def test_default_json_content_and_schema_carry_one_bounded_manifest_selection(
         assert response.status_code == 200, response.text
         assert len(inspector_reads) == 1
         assert not carries_single_selected_header()
+
+    # Restore the carried header and verify the original sensitive fixture is refused.
+    monkeypatch.setattr(inspector_module, "_read_inspector_semantic_json", observe_semantic)
+    sensitive_id = runtime_api_env["workflow_report_artifact_id"]
+    sensitive = _runtime_api_request(
+        runtime_api_env, client.get, f"/api/v1/artifacts/{sensitive_id}/content"
+    )
+    assert sensitive.status_code == 409, sensitive.text
+    assert sensitive.json()["code"] == "authority_surface_admission_blocked"
+    decision = sensitive.json()["extensions"]["authority_surface_decision"]
+    assert decision["reason"] == "secret_pii_surface_blocked"
+    assert "keyed_secret" in decision["secret_pii_finding_kinds"]
+    assert "should-not-leak" not in sensitive.text

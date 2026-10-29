@@ -18,8 +18,12 @@ from tests._helpers import world_model_record as world_fixture
 from tests.unit.runtime.quality.test_acquisition_executor import _activate_real_epoch_scenario
 
 
-def _case(root: Path, *, epoch_id: int = 1) -> SimpleNamespace:
-    scenario = native_fixture._real_epoch_scenario(root, epoch_id=epoch_id)
+def _case(
+    root: Path, *, epoch_id: int = 1, fixture_source: SimpleNamespace | None = None
+) -> SimpleNamespace:
+    scenario = native_fixture._real_epoch_scenario(
+        root, epoch_id=epoch_id, fixture_source=fixture_source
+    )
     _, activated = _activate_real_epoch_scenario(scenario)
     projection = scenario.overlay.read_activated_semantic_epoch_observations(
         receipt_ref=activated.receipt_ref,
@@ -85,9 +89,20 @@ def test_real_new_epoch_with_only_occurrence_id_change_has_equal_semantic_values
     tmp_path: Path,
 ) -> None:
     previous = _case(tmp_path / "previous", epoch_id=1)
-    current = _case(tmp_path / "current", epoch_id=2)
+    current = _case(tmp_path / "current", epoch_id=2, fixture_source=previous.scenario)
+    assert current.scenario.store is previous.scenario.store
+    assert current.scenario.authority is previous.scenario.authority
+    assert current.scenario.raw_ref == previous.scenario.raw_ref
+    assert current.scenario.passport.registration == previous.scenario.passport.registration
+    assert current.scenario.passport.source_watermark == previous.scenario.passport.source_watermark
+    assert current.scenario.passport.dataset_version == previous.scenario.passport.dataset_version
     assert previous.prepared.selected_observation_id != current.prepared.selected_observation_id
     assert previous.prepared.foundry_binding_rule != current.prepared.foundry_binding_rule
+    previous_row = previous.prepared.observation_projection.observations[0].observation
+    current_row = current.prepared.observation_projection.observations[0].observation
+    assert previous_row.model_dump(mode="json", exclude={"observation_id"}) == (
+        current_row.model_dump(mode="json", exclude={"observation_id"})
+    )
     assert owner.prepare_acquired_observation_semantic_values(previous.prepared) == (
         owner.prepare_acquired_observation_semantic_values(current.prepared)
     )
@@ -141,7 +156,11 @@ def test_duplicate_selected_source_multiplicity_is_refused_by_real_canonical_own
         scoped.setattr(
             native_fixture, "_fixture", partial(original, rows=repeated, source_rows=repeated)
         )
-        with pytest.raises(ValueError, match="identity_aggregation_not_unique"):
+        # The canonical overlay refuses the duplicate at admission, before the
+        # substrate preparation is entered; this is not a downstream refusal.
+        with pytest.raises(
+            read_api.catalog.OverlayAdmissionError, match="identity_aggregation_not_unique"
+        ):
             _case(tmp_path)
 
 
@@ -263,22 +282,34 @@ def test_historical_reader_refuses_opaque_bytes_in_the_actual_selected_source(
     issued = owner.materialize_acquired_observation_snapshot(
         case.scenario.store, **case.args, workspace_dir=case.workspace, prepared=case.prepared
     )
+    expected = owner.prepare_acquired_observation_semantic_values(case.prepared)
+    assert (
+        owner.read_acquired_observation_semantic_values(
+            FileSystemCAS(case.scenario.store.root), issued.data_snapshot_ref
+        )
+        == expected
+    )
     source_id = case.scenario.candidate.statement.source_record_ref.artifact_id
     original = FileSystemCAS.get_bytes
+    denied: list[str] = []
 
     def corrupted_read(store: FileSystemCAS, selected: object) -> bytes:
         identity = selected.artifact_id if isinstance(selected, ArtifactRef) else selected
         if str(identity) == str(source_id):
+            denied.append(str(identity))
             return b"opaque bytes instead of the selected canonical source"
         return original(store, selected)
 
     # Keep every real persisted blob and receipt; remove only the source read relation.
     assert case.scenario.store.has(source_id)
     monkeypatch.setattr(FileSystemCAS, "get_bytes", corrupted_read)
-    with pytest.raises(owner.DataStateSubstrateError):
+    with pytest.raises(
+        owner.DataStateSubstrateError, match="acquisition_semantic_source_unverified"
+    ):
         owner.read_acquired_observation_semantic_values(
             FileSystemCAS(case.scenario.store.root), issued.data_snapshot_ref
         )
+    assert denied and set(denied) == {str(source_id)}
 
 
 @pytest.mark.parametrize(

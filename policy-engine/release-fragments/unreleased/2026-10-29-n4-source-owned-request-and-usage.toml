@@ -12,6 +12,6 @@ migration = "Compose readers/facades first; run the configured public-surface ge
 api = "Presence-preserving replay_llm_usage_payload alias shared by legacy and V3; PreparedLLMInput, collectible pending ownership and atomic actual Traced invocation scope; generic common candidate carrier; exact Core quantity and Scientist context aliases; opt-in unqualified capture V3 writer."
 limitations = "Body equality is not external issuer authentication. A jointly rehashed candidate input does not prove capture execution or original provider usage. Standalone no-store capture remains unqualified, and replayed reuse remains unknown."
 generated_client_compatibility = "not_applicable"
-public_surface_inventory_reviewed = false
+public_surface_inventory_reviewed = true
 migration_docs = ["src/polisyos/runtime/quality/README.md", "src/polisyos/core/llm/README.md", "tools/quality/validation/generation_replay_input.README.md"]
 runbook_docs = []

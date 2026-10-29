@@ -86,7 +86,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 
 | Package | Classification | Facade | Exports | Owner | README |
 | --- | --- | --- | ---: | --- | --- |
-| `polisyos.common` | `public_stable` | `lazy_facade` | 8 | `team-polisyos` | `src/polisyos/common/README.md` |
+| `polisyos.common` | `public_stable` | `lazy_facade` | 9 | `team-polisyos` | `src/polisyos/common/README.md` |
 | `polisyos.core` | `public_stable` | `lazy_facade` | 134 | `team-polisyos` | `src/polisyos/core/README.md` |
 | `polisyos.ir` | `public_stable` | `lazy_facade` | 530 | `team-polisyos` | `src/polisyos/ir/README.md` |
 | `polisyos.obligation_rules` | `internal` | `eager_exports` | 22 | `team-policyos-runtime` | `src/polisyos/obligation_rules/README.md` |
@@ -95,7 +95,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | `polisyos.participation_requirement` | `internal` | `eager_exports` | 23 | `team-policyos-runtime` | `src/polisyos/participation_requirement/README.md` |
 | `polisyos.fabric` | `public_stable` | `unresolved_exports` | unknown (no names proven) | `team-polisyos` | `src/polisyos/fabric/README.md` |
 | `polisyos.foundry` | `public_stable` | `lazy_facade` | 31 | `team-polisyos` | `src/polisyos/foundry/README.md` |
-| `polisyos.scientist` | `public_stable` | `lazy_facade` | 41 | `team-polisyos` | `src/polisyos/scientist/README.md` |
+| `polisyos.scientist` | `public_stable` | `lazy_facade` | 45 | `team-polisyos` | `src/polisyos/scientist/README.md` |
 | `polisyos.evidence` | `internal` | `eager_exports` | 19 | `team-policyos-runtime` | `src/polisyos/evidence/README.md` |
 | `polisyos.runtime` | `public_stable` | `lazy_facade` | 10 | `team-polisyos` | `src/polisyos/runtime/README.md` |
 | `polisyos.runtime.quality` | `public_experimental` | `eager_exports` | 973 | `team-polisyos` | `src/polisyos/runtime/quality/README.md` |
@@ -110,7 +110,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 ## `polisyos.common`
 
 - Classification: `public_stable`
-- Supported entrypoints: `polisyos.common`, `polisyos.common.text`, `polisyos.common.config`, `polisyos.common.canonical`, `polisyos.common.canonical_profile`, `polisyos.common.hashing`, `polisyos.common.migrations`
+- Supported entrypoints: `polisyos.common`, `polisyos.common.text`, `polisyos.common.config`, `polisyos.common.canonical`, `polisyos.common.canonical_profile`, `polisyos.common.producer_request`, `polisyos.common.hashing`, `polisyos.common.migrations`
 - Facade policy: expected `lazy_facade`, observed `lazy_facade`
 - Owner: `team-polisyos`
 - README: `src/polisyos/common/README.md`
@@ -122,11 +122,12 @@ publish recommendation, rollout, closeout, or policy-design authority.
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.common` | `src/polisyos/common/__init__.py` | `lazy_facade` | 8 |
+| `polisyos.common` | `src/polisyos/common/__init__.py` | `lazy_facade` | 9 |
 | `polisyos.common.text` | `src/polisyos/common/text.py` | `eager_exports` | 1 |
 | `polisyos.common.config` | `src/polisyos/common/config/__init__.py` | `eager_exports` | 8 |
 | `polisyos.common.canonical` | `src/polisyos/common/canonical.py` | `eager_exports` | 10 |
 | `polisyos.common.canonical_profile` | `src/polisyos/common/canonical_profile.py` | `eager_exports` | 9 |
+| `polisyos.common.producer_request` | `src/polisyos/common/producer_request.py` | `eager_exports` | 14 |
 | `polisyos.common.hashing` | `src/polisyos/common/hashing.py` | `eager_exports` | 5 |
 | `polisyos.common.migrations` | `src/polisyos/common/migrations/__init__.py` | `eager_exports` | 6 |
 
@@ -136,7 +137,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 - Facade: `lazy_facade`
 - Summary: Expose side-effect-sensitive common helpers behind a lazy package facade.
 
-<details><summary>Entrypoint exports (8)</summary>
+<details><summary>Entrypoint exports (9)</summary>
 
 ```text
 async_tools
@@ -144,6 +145,7 @@ config
 jax_env
 logger
 migrations
+producer_request
 serialization
 text
 timestamps
@@ -231,6 +233,33 @@ require_declared_profile
 
 </details>
 
+#### `polisyos.common.producer_request`
+
+- Source: `src/polisyos/common/producer_request.py`
+- Facade: `eager_exports`
+- Summary: Generic candidate request preparation and emission facade.
+
+<details><summary>Entrypoint exports (14)</summary>
+
+```text
+PreparedProducerEmission
+ProducerRequestBinding
+capture_producer_payload
+consume_producer_request_context
+derive_producer_payload
+issue_producer_request_args
+owned_producer_request_context
+parse_producer_request_context
+producer_payload
+producer_request_args
+producer_request_scope
+read_producer_payload
+validate_prepared_producer_payload
+without_producer_request_context
+```
+
+</details>
+
 #### `polisyos.common.hashing`
 
 - Source: `src/polisyos/common/hashing.py`
@@ -268,7 +297,7 @@ run_linear_migration
 
 </details>
 
-<details><summary>Supported exports (8)</summary>
+<details><summary>Supported exports (9)</summary>
 
 ```text
 async_tools
@@ -276,6 +305,7 @@ config
 jax_env
 logger
 migrations
+producer_request
 serialization
 text
 timestamps
@@ -304,7 +334,7 @@ timestamps
 | `polisyos.core.components` | `src/polisyos/core/components/__init__.py` | `eager_exports` | 63 |
 | `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 782 |
 | `polisyos.core.governance` | `src/polisyos/core/governance/__init__.py` | `eager_exports` | 5 |
-| `polisyos.core.llm` | `src/polisyos/core/llm/__init__.py` | `eager_exports` | 20 |
+| `polisyos.core.llm` | `src/polisyos/core/llm/__init__.py` | `eager_exports` | 26 |
 | `polisyos.core.llm.cache_settlement` | `src/polisyos/core/llm/cache_settlement.py` | `eager_exports` | 8 |
 | `polisyos.core.observability` | `src/polisyos/core/observability/__init__.py` | `unresolved_exports` | unknown (no names proven) |
 | `polisyos.core.security` | `src/polisyos/core/security/__init__.py` | `lazy_facade` | 113 |
@@ -1527,22 +1557,28 @@ SafetyPass
 - Facade: `eager_exports`
 - Summary: Exports LLM pricing, retry, tracing, and response-normalization helpers.
 
-<details><summary>Entrypoint exports (20)</summary>
+<details><summary>Entrypoint exports (26)</summary>
 
 ```text
 SECRET_AND_PII_SCAN_SCOPES
 SECRET_PII_DETECTOR_VERSION
 LLMClientProtocol
 LLMResponseData
+LLMUsageQuantity
+PreparedLLMInput
 PromptSanitizer
 SanitizationRule
 SecretAndPIIScanReport
 SecretPIIScanResult
 TracedLLMClient
+capture_llm_usage_observation
 estimate_cost
 estimate_cost_from_text
 estimate_cost_from_tokens
 extract_llm_response_data
+parse_llm_usage_quantity
+recorded_llm_usage_payload
+replay_llm_usage_payload
 retry_async
 scan_secret_and_pii
 LLMProducerAdmissionGuard
@@ -5760,7 +5796,7 @@ validate_source_bound_gcm_spec
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.scientist` | `src/polisyos/scientist/__init__.py` | `lazy_facade` | 41 |
+| `polisyos.scientist` | `src/polisyos/scientist/__init__.py` | `lazy_facade` | 45 |
 | `polisyos.scientist.adapters` | `src/polisyos/scientist/adapters/__init__.py` | `lazy_facade` | 6 |
 | `polisyos.scientist.compute` | `src/polisyos/scientist/compute/__init__.py` | `lazy_facade` | 17 |
 | `polisyos.scientist.governance.continuous` | `src/polisyos/scientist/governance/continuous/__init__.py` | `lazy_facade` | 87 |
@@ -5779,9 +5815,13 @@ validate_source_bound_gcm_spec
 - Facade: `lazy_facade`
 - Summary: Stable Scientist package facade for workflow execution and run observability.
 
-<details><summary>Entrypoint exports (41)</summary>
+<details><summary>Entrypoint exports (45)</summary>
 
 ```text
+create_n4_producer_binding
+n4_producer_request_scope
+consume_n4_producer_request_context
+validate_n4_producer_context
 decision_packet_invocation_input_refs
 require_canonical_decision_packet_invocation
 DECISION_PACKET_INVOCATION_KIND
@@ -6553,9 +6593,13 @@ trace_to_mutation_hints
 
 </details>
 
-<details><summary>Supported exports (41)</summary>
+<details><summary>Supported exports (45)</summary>
 
 ```text
+create_n4_producer_binding
+n4_producer_request_scope
+consume_n4_producer_request_context
+validate_n4_producer_context
 decision_packet_invocation_input_refs
 require_canonical_decision_packet_invocation
 DECISION_PACKET_INVOCATION_KIND

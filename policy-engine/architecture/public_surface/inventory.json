@@ -178,18 +178,20 @@
         "polisyos.common.config",
         "polisyos.common.canonical",
         "polisyos.common.canonical_profile",
+        "polisyos.common.producer_request",
         "polisyos.common.hashing",
         "polisyos.common.migrations"
       ],
       "major_subsystem": false,
-      "export_count": 8,
-      "known_export_count": 8,
+      "export_count": 9,
+      "known_export_count": 9,
       "exports": [
         "async_tools",
         "config",
         "jax_env",
         "logger",
         "migrations",
+        "producer_request",
         "serialization",
         "text",
         "timestamps"
@@ -203,14 +205,15 @@
         {
           "module": "polisyos.common",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 8,
-          "known_export_count": 8,
+          "export_count": 9,
+          "known_export_count": 9,
           "exports": [
             "async_tools",
             "config",
             "jax_env",
             "logger",
             "migrations",
+            "producer_request",
             "serialization",
             "text",
             "timestamps"
@@ -239,12 +242,18 @@
                 "path": "src/polisyos/common/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 1362,
-                "sha256": "fcd588a5472ebb7b8849a6ea6b8f9cb375ac7b33dd73767f2805130c9c17ea49"
+                "bytes": 1412,
+                "sha256": "7366be1858e35622c6ca211d9d344d4c3897dc065212450584fc772ebeb0536b"
               },
               {
                 "path": "src/polisyos/common",
                 "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/common/producer_request.py",
+                "operation": "is_file",
                 "status": "present",
                 "result": true
               },
@@ -281,6 +290,12 @@
               {
                 "path": "src/polisyos/common/serialization",
                 "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/common/_producer_request.py",
+                "operation": "is_file",
                 "status": "present",
                 "result": true
               },
@@ -572,6 +587,68 @@
               },
               {
                 "path": "src/polisyos/common/canonical_profile",
+                "operation": "is_dir",
+                "status": "absent",
+                "result": false
+              }
+            ],
+            "unresolved_by_construction": [
+              "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."
+            ],
+            "complete": true,
+            "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
+          }
+        },
+        {
+          "module": "polisyos.common.producer_request",
+          "facade_mode_observed": "eager_exports",
+          "export_count": 14,
+          "known_export_count": 14,
+          "exports": [
+            "PreparedProducerEmission",
+            "ProducerRequestBinding",
+            "capture_producer_payload",
+            "consume_producer_request_context",
+            "derive_producer_payload",
+            "issue_producer_request_args",
+            "owned_producer_request_context",
+            "parse_producer_request_context",
+            "producer_payload",
+            "producer_request_args",
+            "producer_request_scope",
+            "read_producer_payload",
+            "validate_prepared_producer_payload",
+            "without_producer_request_context"
+          ],
+          "has___getattr__": false,
+          "has___dir__": false,
+          "source_file": "src/polisyos/common/producer_request.py",
+          "summary": "Generic candidate request preparation and emission facade.",
+          "export_resolution": {
+            "complete_verdict": true,
+            "finding_coverage": "explicit file-reader operations only",
+            "inputs": [
+              {
+                "path": "src/polisyos/common/producer_request.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/common/producer_request/__init__.py",
+                "operation": "is_file",
+                "status": "absent",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/common/producer_request.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 1919,
+                "sha256": "ee330319ede297b95511756ce174cd112e540bfd737003f56d82803cace9a300"
+              },
+              {
+                "path": "src/polisyos/common/producer_request",
                 "operation": "is_dir",
                 "status": "absent",
                 "result": false
@@ -3075,22 +3152,28 @@
         {
           "module": "polisyos.core.llm",
           "facade_mode_observed": "eager_exports",
-          "export_count": 20,
-          "known_export_count": 20,
+          "export_count": 26,
+          "known_export_count": 26,
           "exports": [
             "SECRET_AND_PII_SCAN_SCOPES",
             "SECRET_PII_DETECTOR_VERSION",
             "LLMClientProtocol",
             "LLMResponseData",
+            "LLMUsageQuantity",
+            "PreparedLLMInput",
             "PromptSanitizer",
             "SanitizationRule",
             "SecretAndPIIScanReport",
             "SecretPIIScanResult",
             "TracedLLMClient",
+            "capture_llm_usage_observation",
             "estimate_cost",
             "estimate_cost_from_text",
             "estimate_cost_from_tokens",
             "extract_llm_response_data",
+            "parse_llm_usage_quantity",
+            "recorded_llm_usage_payload",
+            "replay_llm_usage_payload",
             "retry_async",
             "scan_secret_and_pii",
             "LLMProducerAdmissionGuard",
@@ -3123,8 +3206,8 @@
                 "path": "src/polisyos/core/llm/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 1746,
-                "sha256": "6d85b26f9d8fe6b460a22794b55c235335273601bd42753531cfc82f70acba83"
+                "bytes": 2300,
+                "sha256": "63a97fbfddbbd1fa91a9a474aaf562867311a144b92de65bcb33a3deac0401dd"
               },
               {
                 "path": "src/polisyos/core/llm",
@@ -12550,9 +12633,13 @@
         "polisyos.scientist.policy_design"
       ],
       "major_subsystem": true,
-      "export_count": 41,
-      "known_export_count": 41,
+      "export_count": 45,
+      "known_export_count": 45,
       "exports": [
+        "create_n4_producer_binding",
+        "n4_producer_request_scope",
+        "consume_n4_producer_request_context",
+        "validate_n4_producer_context",
         "decision_packet_invocation_input_refs",
         "require_canonical_decision_packet_invocation",
         "DECISION_PACKET_INVOCATION_KIND",
@@ -12604,9 +12691,13 @@
         {
           "module": "polisyos.scientist",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 41,
-          "known_export_count": 41,
+          "export_count": 45,
+          "known_export_count": 45,
           "exports": [
+            "create_n4_producer_binding",
+            "n4_producer_request_scope",
+            "consume_n4_producer_request_context",
+            "validate_n4_producer_context",
             "decision_packet_invocation_input_refs",
             "require_canonical_decision_packet_invocation",
             "DECISION_PACKET_INVOCATION_KIND",
@@ -12673,8 +12764,8 @@
                 "path": "src/polisyos/scientist/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 8116,
-                "sha256": "788c90a28976c00bff196fa7cdd94f545f2135498ffa022a6bdf7a7739404a29"
+                "bytes": 8787,
+                "sha256": "707f43406882d45bd72a1da15e7c7702f9c0c51e76e16844a9837b9dcaac0d07"
               },
               {
                 "path": "src/polisyos/scientist",
@@ -18175,6 +18266,12 @@
               },
               {
                 "path": "src/polisyos/runtime/quality/case_maturity.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/runtime/quality/_n4_usage_capture.py",
                 "operation": "is_file",
                 "status": "present",
                 "result": true

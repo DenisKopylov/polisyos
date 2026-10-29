@@ -57,6 +57,7 @@ from polisyos.core.canon import (
 )
 from polisyos.core.canon.canon_json import (
     CORE_TAG_POLICY_ID,
+    CORE_V3_TAG_POLICY_ID,
     _encode_core_canonical_bytes_raw,
 )
 
@@ -595,6 +596,7 @@ def _read_core_manifest_profile_with_bytes(
         raw_manifest_bytes,
         profile_model=CanonInfo,
         allow_profile_absent=allow_profile_absent,
+        supported_versions=("0.2.0", "0.3.0"),
     )
     try:
         if manifest_profile_sha256 is None:
@@ -1192,6 +1194,7 @@ def _parse_core_manifest_profile_components(
             raw_manifest_bytes,
             profile_model=CanonInfo,
             allow_profile_absent=allow_profile_absent,
+            supported_versions=("0.2.0", "0.3.0"),
         )
     except CanonicalProfileRefusalError:
         raise
@@ -1367,6 +1370,7 @@ def decode_core_json_payload(
         raw_manifest_bytes,
         profile_model=CanonInfo,
         allow_profile_absent=allow_profile_absent,
+        supported_versions=("0.2.0", "0.3.0"),
     )
     read = _decode_core_payload_under_declaration(raw_payload_bytes, declaration)
     return read
@@ -1377,14 +1381,22 @@ def _decode_core_payload_under_declaration(
     declaration: CanonicalProfileDeclaration,
 ) -> CanonicalProfileRead:
     """Use the canonical shared profile bridge and Core's existing tagged decoder."""
+    version = (
+        declaration.profile.version
+        if declaration.status == "declared" and isinstance(declaration.profile, CanonInfo)
+        else "0.2.0"
+    )
+    reader_policy_id = CORE_V3_TAG_POLICY_ID if version == "0.3.0" else CORE_TAG_POLICY_ID
     return decode_profiled_canonical_bytes(
         raw_payload_bytes,
         declaration,
         profile_model=CanonInfo,
         make_spec=_core_spec_from_profile,
-        decode=lambda raw, max_depth: from_canonical_bytes(raw, max_depth=max_depth),
+        decode=lambda raw, max_depth: from_canonical_bytes(
+            raw, max_depth=max_depth, version=version
+        ),
         encode=_encode_core_profiled_value,
-        reader_policy_id=CORE_TAG_POLICY_ID,
+        reader_policy_id=reader_policy_id,
     )
 
 
@@ -1847,6 +1859,10 @@ def _verified_core_json_bounded_view(
     )
 
     cached_profile_read = seal.profile_read
+    selected_version = manifest_read.declaration.profile.version
+    expected_reader_policy = (
+        CORE_V3_TAG_POLICY_ID if selected_version == "0.3.0" else CORE_TAG_POLICY_ID
+    )
     expected_artifact_id = str(manifest.artifact_id)
     expected_manifest_profile = artifact_manifest_profile_sha256(manifest)
     if cached_profile_read is None:
@@ -1870,7 +1886,7 @@ def _verified_core_json_bounded_view(
             or cached_profile_read.raw_payload_bytes != raw_payload_bytes
             or cached_profile_read.selected_artifact_id != expected_artifact_id
             or cached_profile_read.selected_manifest_profile_sha256 != expected_manifest_profile
-            or cached_profile_read.reader_policy_id != CORE_TAG_POLICY_ID
+            or cached_profile_read.reader_policy_id != expected_reader_policy
         ):
             raise CanonicalProfileRefusalError("canon_profile_bounded_cached_read_mismatch")
         try:
@@ -2678,6 +2694,7 @@ def load_core_json_frame_records(
     if type(payload) is not bytes or content_hash(payload) != manifest.artifact_id.hex:
         raise CanonicalProfileRefusalError("canon_profile_selected_payload_identity_mismatch")
     records = _split_core_json_frames(payload)
+    version = declaration.profile.version
     values: list[Any] = []
     for raw_record in records:
         read = decode_profiled_canonical_bytes(
@@ -2685,9 +2702,11 @@ def load_core_json_frame_records(
             declaration,
             profile_model=CanonInfo,
             make_spec=_core_spec_from_profile,
-            decode=lambda raw, max_depth: from_canonical_bytes(raw, max_depth=max_depth),
+            decode=lambda raw, max_depth: from_canonical_bytes(
+                raw, max_depth=max_depth, version=version
+            ),
             encode=_encode_core_profiled_value,
-            reader_policy_id=CORE_TAG_POLICY_ID,
+            reader_policy_id=(CORE_V3_TAG_POLICY_ID if version == "0.3.0" else CORE_TAG_POLICY_ID),
         )
         values.append(require_declared_profile(read))
     return values
@@ -2719,6 +2738,7 @@ async def aload_core_json_artifact(
             raw_manifest,
             profile_model=CanonInfo,
             allow_profile_absent=False,
+            supported_versions=("0.2.0", "0.3.0"),
         )
         if declaration.status != "declared":
             raise CanonicalProfileRefusalError("canon_profile_not_verified")

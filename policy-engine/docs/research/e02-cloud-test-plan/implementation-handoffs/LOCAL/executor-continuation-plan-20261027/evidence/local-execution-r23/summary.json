@@ -1,0 +1,469 @@
+{
+  "schema": "policyos.e02.progress_summary.v1",
+  "as_of_utc": "2026-10-28T22:39:17Z",
+  "local_calendar_date": "2026-10-29 Europe/Kyiv",
+  "source_checkpoint": {
+    "commit": "558d24d33f6bfa13d314c033c078b76959ae2d99",
+    "tree": "23c6ec8a16651187a7b7d298f030e49b2d008cb3",
+    "branch": "codex/e02-unified-local-20261009",
+    "readback_ref": "source_readback",
+    "publication": "R23 publication not claimed at this source freeze; existing Cloud jobs intentionally retain their r19/r22 launch bases."
+  },
+  "original_queue": {
+    "denominator": {
+      "canonical_task_rows": 26,
+      "bundles": 127,
+      "unique_finding_ids": 282,
+      "criterion_occurrences": 291,
+      "task_finding_edges_id_level": 319
+    },
+    "separate_occurrence_to_row_relations": 331,
+    "derivation": "Full QUEUE.rows and criterion-routes.occurrences walks, retaining repeated occurrences. Operational C IDs are evidence locators, not capabilities or a replacement backlog.",
+    "queue_ref": "queue",
+    "criterion_ref": "criteria"
+  },
+  "original_plan_position": {
+    "stage": "Wave 2 owner composition and uncovered original criteria",
+    "critical_front": [
+      "V3 shared source/evaluation basis and history",
+      "V1 actual served producer/fresh-consumer route",
+      "V4 ordinary planner path",
+      "V6 valid A/A then intended profile-conflict controls",
+      "V7 actual empirical evidence/default consumers",
+      "R1 physical child and complete semantic/source proof",
+      "V5 actual native GP"
+    ],
+    "independent_front": [
+      "S1/B161 owner/request oracle C145",
+      "Q1 CAN.3 C147",
+      "T2/B137 evidence age C146"
+    ],
+    "next_ready_rule": "Advance each real owner/input/proof boundary; TC CAN.2 does not wait CAN.3, and R1 does not wait I2 merely by historical order. Root alone composes shared owners; unknown native profiles first run alone.",
+    "wave3": "Targeted preparation only; no whole expensive proof wave qualified.",
+    "wave4": "Final G reconciliation/acceptance has not started."
+  },
+  "local_results": [
+    {
+      "id": "first_r22_prerequisites",
+      "source": "a581bc46babc6d14411ba3d3c3291086d3f3dc7e",
+      "tree": "60189a3900e83eafb8881428d3d5e7eae9300153",
+      "result": "3 PASS / 2 FAIL / 1 setup ERROR of 6",
+      "evidence_ref": "first_native",
+      "remaining": "Original OpenAPI setup and v1 registry-fixture defects led to reviewed four-test composition; old results are not relabeled."
+    },
+    {
+      "id": "r23_prerequisites",
+      "source": "558d24d33f6bfa13d314c033c078b76959ae2d99",
+      "tree": "23c6ec8a16651187a7b7d298f030e49b2d008cb3",
+      "result": "19 PASS / 8 FAIL / 0 ERROR / 0 SKIP of 27",
+      "evidence_ref": "r23_native",
+      "wall_seconds": 36.32475287502166,
+      "peak_sampled_rss_bytes": 1866547200,
+      "loaded_python_paths": 1911,
+      "observer_mismatches": 0,
+      "qualification": "Latest author receipt; independent qualification pending. Both OpenAPI metadata tests pass. Six BindNode failures and two v1 WMR reference-equality assertions remain; no broad closure or inherited-red attribution."
+    },
+    {
+      "id": "api_declared_contract",
+      "source": "a581bc46babc6d14411ba3d3c3291086d3f3dc7e",
+      "tree": "60189a3900e83eafb8881428d3d5e7eae9300153",
+      "result": "PASS, declared OpenAPI drift/hardening scope only",
+      "wall_seconds": 25.010978334001265,
+      "evidence_ref": "api",
+      "unchanged_four_client_output_equality_ref": "clients",
+      "not_proven": "Endpoint execution, authorization, runtime client behavior, hosted deployment and current R23 source replay."
+    },
+    {
+      "id": "aa_actual_runtime",
+      "source": "a581bc46babc6d14411ba3d3c3291086d3f3dc7e",
+      "tree": "60189a3900e83eafb8881428d3d5e7eae9300153",
+      "result": "1 actual FAIL; no abort",
+      "wall_seconds": 113.61914895899827,
+      "peak_sampled_rss_bytes": 1721090048,
+      "evidence_ref": "aa_native",
+      "cause_ref": "aa_diagnosis",
+      "observed": "Actual compile/capture refused profileless FoundryInputBindings; completed job has method execution selection None.",
+      "repair": "The real binding node now requests return_selected_profile=True through its existing writer in committed R23. The new prerequisite run has reached further fixture lineage failures; fresh A/A and intended A/B remain unqualified."
+    },
+    {
+      "id": "r1_worker_observation",
+      "source": "a581bc46babc6d14411ba3d3c3291086d3f3dc7e",
+      "tree": "60189a3900e83eafb8881428d3d5e7eae9300153",
+      "result": "Bounded typed Decimal worker outcome PASS; whole R1 proof partial",
+      "evidence_ref": "r1_worker",
+      "old_harness_error_ref": "r1_old",
+      "child_pid": 39756,
+      "physical_attempts": 1,
+      "natural_exitcode": 0,
+      "exit_elapsed_seconds": 66.903382166,
+      "tracked_rows": 1322,
+      "temporary_overlay_rows": 1,
+      "tracked_mismatches": 0,
+      "overlay_release_ref": "r1_release",
+      "limitation": "Actual DecimalTransportNode.execute source frame absent. Stacks at 5 s and 30 s show per-file Git/source flush observation overhead. Observer repair and complete source/semantic qualification remain pending; this is not an OOM diagnosis or whole R1 PASS."
+    }
+  ],
+  "reviewed_cloud_returns": [
+    {
+      "slice": "C135",
+      "source": "0c2169fd0d17dc59b49733fe6a001ec4114d2d1c",
+      "result": "A1 actual FAIL before cancellation body; five remaining phases UNRUN",
+      "review_ref": "C135_review",
+      "scope": "Fixture row actor c96-configured-test disagrees with creation event/outbox/scope actor denis; real owner returns 403. Preserve correct authorization and accepted B56 configured permit/serial-fold decision; full R4 remains verification_missing."
+    },
+    {
+      "slice": "C136",
+      "source": "aa8571cba044ebe04d4db4f99432cb49abdde59a",
+      "result": "Two bounded baseline PASS -> semantic red -> restored PASS triplets independently GO",
+      "review_ref": "C136_review",
+      "delivered_files": 5,
+      "delivered_bytes": 159277,
+      "tar_regular_members": 83,
+      "limits": "Neutral-import and synthetic old-FQN reader properties only; not historical writer-byte availability, stationary calibration, whole LA-056, authority or G acceptance."
+    },
+    {
+      "slice": "C137/C138",
+      "source": "aa8571cba044ebe04d4db4f99432cb49abdde59a",
+      "result": "Backend setup ERROR; all requested product tests/controls UNRUN",
+      "review_ref": "C137_C138_review",
+      "minimum_unblock": "Actual compatible DuckDB FTS and locked CP-SAT backends with a reachable authorized dependency source or admitted local pilots; no mock/greedy substitution."
+    },
+    {
+      "slice": "C139",
+      "source": "aa8571cba044ebe04d4db4f99432cb49abdde59a",
+      "result": "Setup ERROR; all product/statistical phases UNRUN",
+      "review_ref": "C139_review",
+      "locked_active_entries": 156,
+      "missing_compatible_wheels": 148,
+      "minimum_unblock": "Available exact locked wheel/cache/index inputs; actual network attempt was unavailable. pip check of the existing 19-package environment is not readiness or product PASS."
+    }
+  ],
+  "cloud_launches_and_returns": [
+    {
+      "slice": "C134",
+      "purpose": "TC/C105 served execution, SQL fixtures, MC refusal and public routes",
+      "task_id": "task_e_6ae2755f98788325b0d508b8c97a7ca8",
+      "base_commit": "a581bc46babc6d14411ba3d3c3291086d3f3dc7e",
+      "base_tree": "60189a3900e83eafb8881428d3d5e7eae9300153",
+      "status_at_cut": "returned_unreviewed",
+      "launch": {
+        "path": "LOCAL/raw/e02-execution-20261027/cloud/C134-launch.json",
+        "sha256": "d4b1b91b3ca305cdeed028fb52ecad946954465e8e3796bed54f6cb390e67861",
+        "bytes": 790
+      },
+      "requested_model": "gpt-6.1-sol",
+      "actual_model": "not_established",
+      "retrieval": {
+        "path": "LOCAL/raw/e02-execution-20261027/cloud/C134/retrieval.json",
+        "sha256": "1ebf9f7290541749661c4f0d5c4bd636a413e305116676c1bcd4dc5c13fef07a",
+        "bytes": 1781
+      }
+    },
+    {
+      "slice": "C140",
+      "purpose": "Q0 F16 current-source proof",
+      "task_id": "task_e_6ae275cc4c94832592448f2c6c11916c",
+      "base_commit": "a581bc46babc6d14411ba3d3c3291086d3f3dc7e",
+      "base_tree": "60189a3900e83eafb8881428d3d5e7eae9300153",
+      "status_at_cut": "submitted_no_return_record_observed",
+      "launch": {
+        "path": "LOCAL/raw/e02-execution-20261027/cloud/C140-launch.json",
+        "sha256": "0756a470c9e409960d10db6f44f6e91acc15a8e6959a75185be6671d70150dda",
+        "bytes": 790
+      },
+      "requested_model": "gpt-6.1-sol",
+      "actual_model": "not_established"
+    },
+    {
+      "slice": "C141",
+      "purpose": "V5 classification, units and native Search",
+      "task_id": "task_e_6ae273975ac48325adfcee7d3bbfc4a3",
+      "base_commit": "aa8571cba044ebe04d4db4f99432cb49abdde59a",
+      "base_tree": "0ff45c87431af2a4139519ff31d123ff465ed862",
+      "status_at_cut": "bounded_source_go_runtime_hold",
+      "launch": {
+        "path": "LOCAL/raw/e02-execution-20261027/cloud/C141-launch.json",
+        "sha256": "2d6701728c86d8c999b4dcde8c54e714e7366e85a4dd014d1284402af33f3ee4",
+        "bytes": 790
+      },
+      "requested_model": "gpt-6.1-sol",
+      "actual_model": "not_established",
+      "retrieval": {
+        "path": "LOCAL/raw/e02-execution-20261027/cloud/C141/retrieval.json",
+        "sha256": "d1cee1ebe2b3a414657cdce9b29c8df280e9a243e7d72d21cda402e2119b5fc4",
+        "bytes": 1659
+      },
+      "review_ref": "C141_review"
+    },
+    {
+      "slice": "C142",
+      "purpose": "I3 source-progress/restart oracle",
+      "task_id": "task_e_6ae26e138b7c8325b731c1d13e747bc8",
+      "base_commit": "aa8571cba044ebe04d4db4f99432cb49abdde59a",
+      "base_tree": "0ff45c87431af2a4139519ff31d123ff465ed862",
+      "status_at_cut": "bounded_source_go_runtime_unrun",
+      "launch": {
+        "path": "LOCAL/raw/e02-execution-20261027/cloud/C142-launch.json",
+        "sha256": "0268979abf414364a4c088ddb4b5685b29292eb6114b6da2121badc58e99d845",
+        "bytes": 790
+      },
+      "requested_model": "gpt-6.1-sol",
+      "actual_model": "not_established",
+      "retrieval": {
+        "path": "LOCAL/raw/e02-execution-20261027/cloud/C142/retrieval.json",
+        "sha256": "7b1f7d9432ffeed6f996b5a5ca124b2f199b9552f27a0e587968f4b4ef168f34",
+        "bytes": 585
+      },
+      "review_ref": "C142_review"
+    },
+    {
+      "slice": "C143",
+      "purpose": "S2 / LA-036 BERL identity and correlated-background bridge",
+      "task_id": "task_e_6ae26e13068083259325469e676dce8f",
+      "base_commit": "aa8571cba044ebe04d4db4f99432cb49abdde59a",
+      "base_tree": "0ff45c87431af2a4139519ff31d123ff465ed862",
+      "status_at_cut": "raw_diff_rejected_normalized_author_proposal_needs_separate_review_runtime_unrun",
+      "launch": {
+        "path": "LOCAL/raw/e02-execution-20261027/cloud/C143-launch.json",
+        "sha256": "a20877fc72177f73b02a1559d6dc2ecb232f30ddd4aa9ddd70d5c2f3a0591c20",
+        "bytes": 790
+      },
+      "requested_model": "gpt-6.1-sol",
+      "actual_model": "not_established",
+      "retrieval": {
+        "path": "LOCAL/raw/e02-execution-20261027/cloud/C143/retrieval.json",
+        "sha256": "5a8d578b7d628e736c10b3f2164c814bdbe4ac29260445525d9da58b606cba42",
+        "bytes": 519
+      },
+      "review_ref": "C143_review"
+    },
+    {
+      "slice": "C145",
+      "purpose": "S1 / B161 actual-source/request bridge oracle",
+      "task_id": "task_e_6ae276871ad883258de6df9a324c3193",
+      "base_commit": "a581bc46babc6d14411ba3d3c3291086d3f3dc7e",
+      "base_tree": "60189a3900e83eafb8881428d3d5e7eae9300153",
+      "status_at_cut": "submitted_no_return_record_observed",
+      "launch": {
+        "path": "LOCAL/raw/e02-execution-20261027/cloud/C145-launch.json",
+        "sha256": "9746e2a0b76a2d5bbce5a03e128c1f0e189ee31603ddc8d5688ac4f8e22bca9b",
+        "bytes": 790
+      },
+      "requested_model": "gpt-6.1-sol",
+      "actual_model": "not_established"
+    },
+    {
+      "slice": "C146",
+      "purpose": "T2 / B137 lesson evidence age through restart and transfer",
+      "task_id": "task_e_6ae2777c33848325a04e27d0ef4a6854",
+      "base_commit": "a581bc46babc6d14411ba3d3c3291086d3f3dc7e",
+      "base_tree": "60189a3900e83eafb8881428d3d5e7eae9300153",
+      "status_at_cut": "submitted_no_return_record_observed",
+      "launch": {
+        "path": "LOCAL/raw/e02-execution-20261027/cloud/C146-launch.json",
+        "sha256": "f11520c43598b31f7562361cb260115c7934efed18242e8289d23a8930c930cc",
+        "bytes": 789
+      },
+      "requested_model": "gpt-6.1-sol",
+      "actual_model": "not_established"
+    },
+    {
+      "slice": "C147",
+      "purpose": "Q1 CAN.3 reader-first profile and preallocation admission",
+      "task_id": "task_e_6ae2771bc98483258d527d278c315f8b",
+      "base_commit": "a581bc46babc6d14411ba3d3c3291086d3f3dc7e",
+      "base_tree": "60189a3900e83eafb8881428d3d5e7eae9300153",
+      "status_at_cut": "submitted_no_return_record_observed",
+      "launch": {
+        "path": "LOCAL/raw/e02-execution-20261027/cloud/C147-launch.json",
+        "sha256": "e840e8c0fa7bed25f8ac8a64ca8a9f0dd929758f52cb852861530bbefee08502",
+        "bytes": 790
+      },
+      "requested_model": "gpt-6.1-sol",
+      "actual_model": "not_established"
+    }
+  ],
+  "C144": "R4 successor planned; no launch record at this cut.",
+  "resource_snapshot": {
+    "as_of_utc": "2026-10-28T22:39:17Z",
+    "free_disk_bytes": 13716242432,
+    "total_disk_bytes": 245107195904,
+    "method": "shutil.disk_usage on the admitted checkout filesystem; light stat only",
+    "limits": "No physical bytes freed or Trash reclamation is inferred. Disk, RAM, CPU/native threads and shared mutable resources are separate admissions; no broad scan/cleanup/reinstall. Cloud ~32 GB is capacity guidance, not RAM/free-space proof."
+  },
+  "locator_roots": {
+    "local_raw": "LOCAL/raw/e02-execution-20261027",
+    "native_raw": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1",
+    "plan": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027"
+  },
+  "evidence_refs": {
+    "source_readback": {
+      "root": "local_raw",
+      "path": "composition-r23-checkpoint/commit/branch-readback.json",
+      "sha256": "db582bada2c004dec5d0e48e443af40b83f6e6d830442d7d679141519655f172",
+      "bytes": 1505
+    },
+    "queue": {
+      "root": "plan",
+      "path": "QUEUE.json",
+      "sha256": "cad7504de57c5ee14a8959ce87c8ae3a483d863b9d7ecbcbe46e356538ffe0c1",
+      "bytes": 70335
+    },
+    "criteria": {
+      "root": "plan",
+      "path": "analysis/criterion-routes.json",
+      "sha256": "08f8dd27542514cc108a48b21bb5fa6bca79c7191fac5c108c1c0e52107a3c74",
+      "bytes": 179931
+    },
+    "api": {
+      "root": "local_raw",
+      "path": "resume-20261028-r1/api-contract-check-r22/receipt.json",
+      "sha256": "969379bd5c162c0c5c9ed487f54dc0c26edc96c0ec5d3724d2acdc67f2f27aa0",
+      "bytes": 819
+    },
+    "api_stdout": {
+      "root": "local_raw",
+      "path": "resume-20261028-r1/api-contract-check-r22/stdout.txt",
+      "sha256": "6177bcfe785610a3423d71ec60342148fb305d4b0d4111a2c217d89bdc1ae30a",
+      "bytes": 304
+    },
+    "clients": {
+      "root": "local_raw",
+      "path": "resume-20261028-r1/clients-stage/manifest.json",
+      "sha256": "3b1921eeb08be311bcfe0f16f920eb264e4f3b972ba4ad27eca4c33f643755dc",
+      "bytes": 3757
+    },
+    "first_native": {
+      "root": "native_raw",
+      "path": "v3-api-prerequisite-first-r22-20261029/audit-result.json",
+      "sha256": "a7334768edcfa5f2e1e82b4aa212423f5fab93db7c334ff5bf9fe5d8f329543a",
+      "bytes": 8711
+    },
+    "first_native_xml": {
+      "root": "native_raw",
+      "path": "v3-api-prerequisite-first-r22-20261029/pytest.xml",
+      "sha256": "a41c83e03447c111198eecf212842966d55a038cd5e2b005f254243a8af14a59",
+      "bytes": 6601
+    },
+    "r23_native": {
+      "root": "native_raw",
+      "path": "r23-prerequisite-node-http-v3-20261029/audit-result.json",
+      "sha256": "514594e3327f8c6615824c2f4f078e15d074df32c88f6418401c6cbc3296f2ee",
+      "bytes": 9162
+    },
+    "r23_native_xml": {
+      "root": "native_raw",
+      "path": "r23-prerequisite-node-http-v3-20261029/pytest.xml",
+      "sha256": "d9f2d563d241996403876c841797bc0f2b9a28c5ea33fed51050249406eddd8e",
+      "bytes": 9652
+    },
+    "aa_native": {
+      "root": "native_raw",
+      "path": "c100-aa-bounded-r22-20261029/audit-result.json",
+      "sha256": "e79f098f24219c9507f3c793cb58b2a3e356dd6286aa4e191a507c22d8b31a08",
+      "bytes": 9221
+    },
+    "aa_phase": {
+      "root": "native_raw",
+      "path": "c100-aa-bounded-r22-20261029/phase-qualification.json",
+      "sha256": "85ce68ccaacf2ec7a7620d15b461aef9ed6627c1e227da13fbffb9b4637253c7",
+      "bytes": 472
+    },
+    "aa_diagnosis": {
+      "root": "local_raw",
+      "path": "diagnostics/C100-AA-r22-failure-r1/evidence.json",
+      "sha256": "613243e8ed1a40fab3237e1b26306363e3b40b32ae372f2e57359b9ee6c0ade4",
+      "bytes": 7006
+    },
+    "aa_proposal": {
+      "root": "local_raw",
+      "path": "diagnostics/C100-AA-r22-failure-r1/proposal-manifest.json",
+      "sha256": "60df594b2689e9a833bc0126c9db477fe99b4d13b4703f6373e73637a114386f",
+      "bytes": 1717
+    },
+    "r1_old": {
+      "root": "local_raw",
+      "path": "diagnostics/R1-worker-observation-r2/probe-r1/receipt.json",
+      "sha256": "7dcadedb6e47f83be8a66d2c2a2c84185a8c2b72b6021a37f3097001d6c2e5dd",
+      "bytes": 10039
+    },
+    "r1_worker": {
+      "root": "local_raw",
+      "path": "diagnostics/R1-worker-observation-r2/probe-r2/receipt.json",
+      "sha256": "03974c343c6895eb66340d3331b567fb65db6bb80df29df5753487468e25a4a2",
+      "bytes": 13546
+    },
+    "r1_supervisor": {
+      "root": "local_raw",
+      "path": "diagnostics/R1-worker-observation-r2/supervisor-r2/supervisor-receipt.json",
+      "sha256": "713fd8dd0ecf44db9766d7fd0fcfb45b8d8ffedc0888b7dfb7153bb965ed7c89",
+      "bytes": 3435
+    },
+    "r1_release": {
+      "root": "local_raw",
+      "path": "diagnostics/R1-worker-observation-r2/supervisor-r2/root-Git-readback-and-overlay-release.json",
+      "sha256": "8107932207660729fee8b8b61b645288fda379ae061b805c780ccecaf5f11243",
+      "bytes": 1021
+    },
+    "r1_stacks": {
+      "root": "local_raw",
+      "path": "diagnostics/R1-worker-observation-r2/probe-r2/child-stacks-39756.txt",
+      "sha256": "579d1173fafaeae4dbc30d53f7767ce4a82e605371651d2a3168b3921614239b",
+      "bytes": 5454
+    },
+    "C135_review": {
+      "root": "local_raw",
+      "path": "reviews/C135-return-r1.md",
+      "sha256": "0d3e2872a92656a8d52efb9901c12f3bc14b16993af86ca5580c15f62545aec2",
+      "bytes": 7999
+    },
+    "C136_review": {
+      "root": "local_raw",
+      "path": "reviews/C136-return-r1.md",
+      "sha256": "294c87839cfffab2f66d6c25407472231f089c2541d14b262f7f506469308c5e",
+      "bytes": 14749
+    },
+    "C137_C138_review": {
+      "root": "local_raw",
+      "path": "reviews/C137-C138-return-r1.md",
+      "sha256": "1928d1124c99f9544cf8e7e11bd508fd30a4419da8a1a60a8d06268df393cd70",
+      "bytes": 4413
+    },
+    "C139_review": {
+      "root": "local_raw",
+      "path": "reviews/C139-return-r1/independent-review.md",
+      "sha256": "63083acbe57d40c942319ac26c4e971960fbd5b9ce8a74f0c8f9f46556fba2c8",
+      "bytes": 6498
+    },
+    "C141_review": {
+      "root": "local_raw",
+      "path": "reviews/C141-return-r1.md",
+      "sha256": "daee62549ca4cf51c03a817da046e3f50bf12bf73c6abfd329fe668b12c5ab0a",
+      "bytes": 16212
+    },
+    "C142_review": {
+      "root": "local_raw",
+      "path": "reviews/C142-return-r1/review.md",
+      "sha256": "bb1c303b50f94a0b0699e43fff5557482a40f89130c9692fb8bc9cabf389b25c",
+      "bytes": 6032
+    },
+    "C143_review": {
+      "root": "local_raw",
+      "path": "reviews/C143-return-r1/review.md",
+      "sha256": "0aa55535df917970fa52a411e5b69b2a0db996c51fced0f2db6acff28146f163",
+      "bytes": 5940
+    }
+  },
+  "pattern_pass": [
+    "P29: actual behaviors/removals, not marker/source or supervisor-only PASS",
+    "P35: complete queue and delivered evidence denominators kept separate",
+    "P37/P38: source/run/backend admission, API exit scope and missing source frames stay explicit",
+    "P40: batch fixture/lineage/freshness classes; no per-example or status-string ladder",
+    "P41: do not call current failures inherited without exact slice-base replay and full disjoint input proof"
+  ],
+  "closure_ids": [],
+  "G_acceptance": false,
+  "historical_B198": "preserved",
+  "R9_GY_Atlas_implementation": "not_started; remains contingent on independent E02 acceptance",
+  "large_state_file": "execution-state.json unchanged by this three-file progress update"
+}

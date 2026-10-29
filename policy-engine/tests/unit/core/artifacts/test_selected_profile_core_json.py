@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import json
 from collections.abc import Mapping
+from dataclasses import replace
 from datetime import UTC, date, datetime
 from decimal import Decimal
 from enum import Enum
@@ -42,7 +43,10 @@ from polisyos.core.artifacts.ir_adapter import CoreToIRArtifactStoreAdapter
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.protocol import CoreJSONArtifactStore
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
-from polisyos.core.canon.canon_json import CORE_TAG_POLICY_ID
+from polisyos.core.canon.canon_json import (
+    CORE_TAG_POLICY_ID,
+    FloatHexRepresentation,
+)
 from polisyos.core.contracts.foundry import (
     ExecPlanRef,
     MetricsRef,
@@ -631,7 +635,7 @@ def test_async_core_refuses_nonreadable_raw_profile_before_typed_or_payload_read
         if profile_variant == "incomplete":
             return b'{"canon":{}}'
         manifest = json.loads(raw)
-        manifest["canon"]["version"] = "0.3.0"
+        manifest["canon"]["version"] = "9.9.0"
         return json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode()
 
     def record_manifest(selector):
@@ -1591,3 +1595,179 @@ def test_nullable_model_container_keeps_existing_same_shape_union_refusal(
             raw,
             reader_route,
         )
+
+
+def _v3_reader_seed() -> tuple[bytes, dict[str, object]]:
+    # This wire tree is specified independently of the codec under test.
+    wire_tree = {
+        "native": {"_type": "decimal", "value": "1.0"},
+        "raw": {"_type": "mapping", "entries": [["_type", "decimal"], ["value", "1.0"]]},
+        "nested": [{"_type": "mapping", "entries": [["_type", None], ["kept", None]]}],
+        "escape": {
+            "_type": "mapping",
+            "entries": [["_type", "mapping"], ["entries", [["_type", "future"]]]],
+        },
+    }
+    wire = json.dumps(wire_tree, sort_keys=True, separators=(",", ":")).encode()
+    expected = {
+        "native": Decimal("1.0"),
+        "raw": {"_type": "decimal", "value": "1.0"},
+        "nested": [{"_type": None, "kept": None}],
+        "escape": {"_type": "mapping", "entries": [["_type", "future"]]},
+    }
+    return wire, expected
+
+
+def _persist_v3_reader_seed(tmp_path, wire: bytes):
+    root = tmp_path / "v3-reader-cas"
+    ref = FileSystemCAS(root).put_bytes(
+        wire,
+        PutOptions(
+            kind="test.v3.reader",
+            media_type="application/json",
+            canon=CanonInfo(version="0.3.0", exclude_none=False),
+        ),
+        return_selected_profile=True,
+    )
+    return root, ref
+
+
+def _independent_wire_shape(value: object) -> tuple[int, int]:
+    # JSON lexical nodes count containers, member names and values. Container
+    # depth is independent of the decoded logical .3 mapping depth.
+    if type(value) is dict:
+        children = [_independent_wire_shape(child) for child in value.values()]
+        return 1 + len(value) + sum(n for n, _ in children), 1 + max(
+            (d for _, d in children), default=0
+        )
+    if type(value) is list:
+        children = [_independent_wire_shape(child) for child in value]
+        return 1 + sum(n for n, _ in children), 1 + max((d for _, d in children), default=0)
+    return 1, 0
+
+
+def test_v3_nested_selected_readers_preserve_independent_value_types(tmp_path) -> None:
+    wire, expected = _v3_reader_seed()
+    root, ref = _persist_v3_reader_seed(tmp_path, wire)
+    read = read_core_json_artifact(FileSystemCAS(root), ref)
+    assert read.value == expected
+    assert type(read.value["native"]) is Decimal
+    assert type(read.value["raw"]) is dict
+    assert type(read.value["escape"]) is dict
+    assert read.reader_policy_id == "core-tag-policy@2"
+    assert (
+        asyncio.run(aload_core_json_artifact(AsyncArtifactStoreAdapter(FileSystemCAS(root)), ref))
+        == expected
+    )
+
+
+def test_v3_selected_frames_use_their_profile_instead_of_default_decoder(tmp_path) -> None:
+    wire, expected = _v3_reader_seed()
+    framed = len(wire).to_bytes(8, "big") + wire
+    root, ref = _persist_v3_reader_seed(tmp_path, framed)
+    assert load_core_json_frame_records(FileSystemCAS(root), ref) == [expected]
+
+
+def test_v3_bounded_reader_exact_wire_and_one_over_limits(tmp_path, monkeypatch) -> None:
+    wire, expected = _v3_reader_seed()
+    root, ref = _persist_v3_reader_seed(tmp_path, wire)
+    nodes, depth = _independent_wire_shape(json.loads(wire))
+    store = FileSystemCAS(root)
+    manifest_size = len(store.get_raw_manifest_bytes(ref))
+    exact = CoreJsonReadLimits(len(wire), depth, nodes, manifest_size)
+    read = read_core_json_artifact_bounded(store, ref, limits=exact)
+    assert read.value == expected
+    assert read.profile_read.reader_policy_id == "core-tag-policy@2"
+    assert (read.observed_bytes, read.observed_depth, read.observed_elements) == (
+        len(wire),
+        depth,
+        nodes,
+    )
+
+    from polisyos.core.artifacts import canonical_profile as profile_owner
+
+    decode_events = []
+
+    def forbidden_decode(*args, **kwargs):
+        decode_events.append("materialize")
+        raise AssertionError("oversized payload reached the value decoder")
+
+    monkeypatch.setattr(profile_owner, "_decode_core_payload_under_declaration", forbidden_decode)
+    for field in ("max_bytes", "max_depth", "max_elements", "max_manifest_bytes"):
+        smaller = replace(exact, **{field: getattr(exact, field) - 1})
+        with pytest.raises(CanonicalProfileRefusalError):
+            read_core_json_artifact_bounded(FileSystemCAS(root), ref, limits=smaller)
+        assert decode_events == []
+
+
+def test_same_payload_selected_v2_and_v3_views_keep_distinct_reader_policies(tmp_path) -> None:
+    root = tmp_path / "versions-cas"
+    store = FileSystemCAS(root)
+    wire = b'{"value":1}'
+    refs = [
+        store.put_bytes(
+            wire,
+            PutOptions(
+                kind="test.selected.version",
+                media_type="application/json",
+                canon=CanonInfo(version=version),
+            ),
+            return_selected_profile=True,
+        )
+        for version in ("0.2.0", "0.3.0")
+    ]
+    assert refs[0].artifact_id == refs[1].artifact_id
+    assert refs[0].manifest_profile_sha256 != refs[1].manifest_profile_sha256
+    for ref, policy in zip(refs, ("core-tag-policy@1", "core-tag-policy@2"), strict=True):
+        read = read_core_json_artifact(FileSystemCAS(root), ref)
+        assert read.value == {"value": 1}
+        assert read.reader_policy_id == policy
+
+
+def test_v3_selected_float_carrier_retains_negative_zero_and_raw_shape(tmp_path) -> None:
+    wire = (
+        b'{"native":{"_type":"float_hex","value":"-0x0.0p+0"},'
+        b'"raw":{"_type":"mapping","entries":[["_type","float_hex"],'
+        b'["value","-0x0.0p+0"]]}}'
+    )
+    root = tmp_path / "carrier-cas"
+    ref = FileSystemCAS(root).put_bytes(
+        wire,
+        PutOptions(
+            kind="test.selected.carrier",
+            media_type="application/json",
+            canon=CanonInfo(version="0.3.0", forbid_floats=False),
+        ),
+        return_selected_profile=True,
+    )
+    value = read_core_json_artifact(FileSystemCAS(root), ref).value
+    assert type(value["native"]) is FloatHexRepresentation
+    assert value["native"].value == "-0x0.0p+0"
+    assert value["raw"] == {"_type": "float_hex", "value": "-0x0.0p+0"}
+
+
+def test_v3_bounded_reader_has_no_unbounded_backend_fallback(tmp_path) -> None:
+    wire, _expected = _v3_reader_seed()
+    root, ref = _persist_v3_reader_seed(tmp_path, wire)
+    inner = FileSystemCAS(root)
+    nodes, depth = _independent_wire_shape(json.loads(wire))
+    limits = CoreJsonReadLimits(len(wire), depth, nodes, len(inner.get_raw_manifest_bytes(ref)))
+    events = []
+
+    class MissingBoundedBackend:
+        open_member_bounded = None
+
+        def __getattr__(self, name):
+            return getattr(inner, name)
+
+        def get_bytes(self, selector):
+            events.append("unbounded-payload")
+            return inner.get_bytes(selector)
+
+        def open_member(self, *args, **kwargs):
+            events.append("unbounded-stream")
+            return inner.open_member(*args, **kwargs)
+
+    with pytest.raises(CanonicalProfileRefusalError):
+        read_core_json_artifact_bounded(MissingBoundedBackend(), ref, limits=limits)
+    assert events == []

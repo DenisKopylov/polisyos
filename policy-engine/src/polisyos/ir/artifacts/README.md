@@ -69,3 +69,19 @@ Full reference: [docs/reference/ir/](../../../../docs/reference/ir/index.md)
 - Files: 6 Python files under this package tree
 - Exports: 33 public names in `__all__` in `__init__.py`
 - Current usage: shared I/O layer for analytics artifacts, observation bundles, and typed `ir.refs`
+
+## Explicit `.3` generic reads and callback boundary
+
+Generic `get_json_artifact` accepts a complete selected `.3` canonical profile,
+uses the `.3` grammar and retains `ir-tag-policy@2` as materialization context.
+Its `.2` interpretation remains `ir-tag-policy@1`. Exact view selection and
+byte re-encoding checks remain required. Core-only native descriptors stay
+unsupported; their escaped ordinary mapping shapes remain ordinary data.
+
+This does not qualify owned callback projections. Their private snapshot decoder
+still uses the historical `.2` law, so the shared owned-profile admission refuses
+`.3` before payload access or profile callbacks, even when a row or callback says
+it is accepted. The private decode boundary repeats the same codec guard. A future
+owned cohort must migrate and behaviorally qualify that entire path before the
+guard is extended. Persisted `.3` writers remain fenced. See the
+[qualified read contract](../../../../docs/reference/canonical-json-profile-reads.md).

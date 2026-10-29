@@ -1,0 +1,16 @@
+id = "2026-10-29-canonical-v3-selected-readers"
+title = "Read explicitly selected canonical .3 artifact profiles with owner-specific policies"
+type = "added"
+component = "core-ir"
+owner = "team-polisyos"
+summary = "Core selected JSON, bounded, async and frame readers and generic IR JSON reads dispatch explicit .3 profiles to their separate reader policies. Owned IR callbacks remain .2-qualified and refuse .3 before payload or profile callbacks."
+evidence = ["tests/unit/core/artifacts/test_selected_profile_core_json.py", "tests/unit/core/artifacts/test_canonical_v3_writer_fence.py", "tests/unit/ir/artifacts/test_selected_profile_write.py"]
+compatibility = "Default and unqualified .2 behavior, stored bytes/IDs and the persisted .3 writer fence remain unchanged. Common parse_canonical_profile gains optional supported_versions; omission retains default-version-only behavior. Explicit .3 generic read support is additive and returns Core-qualified representation carriers where declared."
+change_class = "python-public-api"
+surface_classification = "public_stable: Common canonical profile parser and Core/IR selected artifact read semantics; internal: owned callback qualification guard"
+migration = "Keep exact selected manifest profiles. Use qualified .3 readers without rewriting old CAS history. Keep unsupported writer and owned callback cohorts disabled until their complete paths are qualified."
+limitations = "Source composed after independent review. Runtime tests/removals and installed rollback proof remain UNRUN here; no G acceptance, authority, producer authenticity or process RSS guarantee is claimed. Root rendered the registered inventory and both reference owners: only the inventory input-byte/hash witness changed; reference outputs are byte-identical."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["docs/reference/canonical-json-profile-reads.md"]
+runbook_docs = ["src/polisyos/common/README.md", "src/polisyos/core/artifacts/README.md", "src/polisyos/ir/artifacts/README.md"]

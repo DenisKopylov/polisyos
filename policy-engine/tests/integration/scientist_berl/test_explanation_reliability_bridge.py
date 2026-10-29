@@ -571,8 +571,8 @@ def test_correlated_rho_08_source_bundle_keeps_conditional_refused_and_marginal_
     from polisyos.berl import (
         ExplanationOrchestrator,
         ExplanationRequest,
+        explain_and_persist,
         load_explanation_bundle,
-        persist_explanation_bundle,
     )
     from polisyos.core.artifacts import ensure_ir_artifact_store
     from polisyos.core.artifacts.store import FileSystemCAS
@@ -586,11 +586,13 @@ def test_correlated_rho_08_source_bundle_keeps_conditional_refused_and_marginal_
         policy_design_case_claim_closeout_gates,
     )
 
-    orthogonal = 1.0 / sqrt(3.0)
+    # These four rows reproduce the first and second moments of the rho=0.8
+    # Gaussian reference.  They are not a fitted or verified conditional law.
     background = (
-        {"x1": -1.0, "x2": -0.8 + 0.6 * orthogonal},
-        {"x1": 0.0, "x2": -1.2 * orthogonal},
-        {"x1": 1.0, "x2": 0.8 + 0.6 * orthogonal},
+        {"x1": -1.0, "x2": -1.4},
+        {"x1": -1.0, "x2": -0.2},
+        {"x1": 1.0, "x2": 0.2},
+        {"x1": 1.0, "x2": 1.4},
     )
     x_values = [row["x1"] for row in background]
     y_values = [row["x2"] for row in background]
@@ -607,9 +609,13 @@ def test_correlated_rho_08_source_bundle_keeps_conditional_refused_and_marginal_
     store = FileSystemCAS(tmp_path)
     producer = ExplanationOrchestrator()
     cases = (
-        ("marginal_interventional", "kernel_shap_marginal"),
-        ("conditional_observational", "kernel_shap_conditional"),
+        (
+            "marginal_interventional",
+            ("kernel_shap_marginal",),
+        ),
+        ("conditional_observational", ("kernel_shap_conditional",)),
     )
+    loaded_by_profile = {}
 
     def manifest_reader_for(manifest: object) -> Callable[[object], object]:
         def read_manifest(_selector: object) -> object:
@@ -617,13 +623,13 @@ def test_correlated_rho_08_source_bundle_keeps_conditional_refused_and_marginal_
 
         return read_manifest
 
-    for profile, method_id in cases:
+    for profile, method_ids in cases:
         request = ExplanationRequest(
             prediction_id=f"prediction-{profile}",
             row_id="row-rho-08",
             x={"x1": 1.0, "x2": 1.0},
             feature_names=("x1", "x2"),
-            methods=(method_id,),
+            methods=method_ids,
             feature_dependence_policy=profile,
             model_id="rho-08-linear-model",
             model_hash="sha256:rho-08-model",
@@ -632,20 +638,15 @@ def test_correlated_rho_08_source_bundle_keeps_conditional_refused_and_marginal_
             n_eval_perturbations=64,
             residual_cap=0.1,
             random_seed=7,
+            adapter_params={"max_exact_shap_features": 2},
+            artifact_refs=("cas://self-attested/conditional-law",),
         )
-        bundle = producer.explain(model, request)
-        ref = persist_explanation_bundle(store, bundle)
+        # This is the real owner entry point: production and selected-CAS write
+        # happen together, and only the returned exact ref crosses the bridge.
+        ref = explain_and_persist(model, request, store, orchestrator=producer)
         fresh_store = FileSystemCAS(tmp_path)
         loaded = load_explanation_bundle(fresh_store, ref)
-        assert loaded.bundle_id == bundle.bundle_id
-        assert loaded.prediction.prediction_id == request.prediction_id
-        assert loaded.model.model_hash == request.model_hash
-        assert loaded.feature_context.feature_schema_version == request.feature_schema_version
-        assert (
-            loaded.assumptions.feature_dependence_policy.primary
-            == request.feature_dependence_policy
-        )
-        assert loaded.methods[0].requested_method_id == method_id
+        loaded_by_profile[profile] = loaded
 
         ir_store = ensure_ir_artifact_store(store)
         raw_before = ir_store.get_bytes(ref)
@@ -682,6 +683,14 @@ def test_correlated_rho_08_source_bundle_keeps_conditional_refused_and_marginal_
             load_explanation_bundle(missing_typed_manifest, ref)
         assert ir_store.get_bytes(ref) == raw_before
         assert ir_store.get_manifest_bytes(ref) == selected_manifest_before
+
+        assert loaded.prediction.prediction_id == request.prediction_id
+        assert loaded.model.model_hash == request.model_hash
+        assert loaded.feature_context.feature_schema_version == request.feature_schema_version
+        assert (
+            loaded.assumptions.feature_dependence_policy.primary
+            == request.feature_dependence_policy
+        )
 
         subject = {
             "prediction_id": request.prediction_id,
@@ -748,8 +757,15 @@ def test_correlated_rho_08_source_bundle_keeps_conditional_refused_and_marginal_
             if component.name == "explanation"
         )
         if profile == "marginal_interventional":
-            values = {item.feature: item.value for item in loaded.methods[0].attributions}
-            assert values == pytest.approx({"x1": 1.0, "x2": 0.0})
+            by_requested = {method.requested_method_id: method for method in loaded.methods}
+            assert set(by_requested) == {"kernel_shap_marginal"}
+            method = by_requested["kernel_shap_marginal"]
+            assert method.effective_method_id == "kernel_shap"
+            assert method.fallback is False
+            assert {item.feature: item.value for item in method.attributions} == pytest.approx(
+                {"x1": 1.0, "x2": 0.0}
+            )
+            assert loaded.disagreement is None
             assert any(
                 issue.code == "policy_design_warrant_berl_subject_context_not_established"
                 for issue in runtime.issues
@@ -764,8 +780,12 @@ def test_correlated_rho_08_source_bundle_keeps_conditional_refused_and_marginal_
             }
             assert phase5_explanation.status == "pass"
         else:
-            assert loaded.methods[0].scope == "diagnostic"
-            assert loaded.methods[0].attributions == []
+            method = loaded.methods[0]
+            assert method.requested_method_id == "kernel_shap_conditional"
+            assert method.effective_method_id is None
+            assert method.scope == "diagnostic"
+            assert method.attributions == []
+            assert "no verified conditional law" in str(method.params)
             assert any(
                 "conditional_feature_law_unverified" in issue.message for issue in runtime.issues
             )
@@ -773,6 +793,58 @@ def test_correlated_rho_08_source_bundle_keeps_conditional_refused_and_marginal_
                 "conditional_feature_law_unverified" in str(gate.get("message")) for gate in gates
             )
             assert phase5_explanation.status == "blocked"
+
+    # The analytic conditional Gaussian Shapley reference is (0.6, 0.4), while
+    # the persisted empirical marginal computation above is (1.0, 0.0).
+    # The background rows alone do not authorize the former conditional law.
+    marginal = loaded_by_profile["marginal_interventional"].methods[0]
+    assert [item.value for item in marginal.attributions] == pytest.approx([1.0, 0.0])
+    assert [item.value for item in marginal.attributions] != pytest.approx([0.6, 0.4])
+
+    alias_request = ExplanationRequest(
+        prediction_id="prediction-aliases",
+        row_id="row-rho-08",
+        x={"x1": 1.0, "x2": 1.0},
+        feature_names=("x1", "x2"),
+        methods=("kernel_shap", "kernel_shap_marginal"),
+        feature_dependence_policy="marginal_interventional",
+        model_hash="sha256:rho-08-model",
+        feature_schema_version="rho-08-feature-schema-v1",
+        background_rows=background,
+        adapter_params={"max_exact_shap_features": 2},
+    )
+    alias_ref = explain_and_persist(model, alias_request, store, orchestrator=producer)
+    alias_bundle = load_explanation_bundle(FileSystemCAS(tmp_path), alias_ref)
+    assert [method.requested_method_id for method in alias_bundle.methods] == [
+        "kernel_shap",
+        "kernel_shap_marginal",
+    ]
+    assert {method.effective_method_id for method in alias_bundle.methods} == {"kernel_shap"}
+    assert alias_bundle.disagreement is None
+
+    tree_request = ExplanationRequest(
+        prediction_id="prediction-tree-fallback",
+        row_id="row-rho-08",
+        x={"x1": 1.0, "x2": 1.0},
+        feature_names=("x1", "x2"),
+        methods=("tree_shap",),
+        feature_dependence_policy="marginal_interventional",
+        model_hash="sha256:rho-08-model",
+        feature_schema_version="rho-08-feature-schema-v1",
+        background_rows=background,
+        adapter_params={"max_exact_shap_features": 2},
+    )
+    tree_ref = explain_and_persist(model, tree_request, store, orchestrator=producer)
+    tree_bundle = load_explanation_bundle(FileSystemCAS(tmp_path), tree_ref)
+    assert tree_bundle.assumptions.feature_dependence_policy.primary == "marginal_interventional"
+    tree_method = tree_bundle.methods[0]
+    assert tree_method.assumptions["feature_dependence_policy"] == "marginal_interventional"
+    assert tree_method.assumptions["tree_exactness_claimed"] is False
+    assert tree_method.assumptions["causal_claim_made"] is False
+    assert tree_method.requested_method_id == "tree_shap"
+    assert tree_method.effective_method_id == "kernel_shap"
+    assert tree_method.fallback is True
+    assert tree_method.fallback_reason
 
 
 def test_selected_cas_method_identity_reaches_public_validator_and_canary_scorecard(

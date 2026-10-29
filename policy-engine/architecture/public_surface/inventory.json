@@ -567,8 +567,8 @@
                 "path": "src/polisyos/common/canonical_profile.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 16671,
-                "sha256": "d040ecb9baab955f9372703363570f1423777b68febe5d20250113e27875ec3e"
+                "bytes": 17125,
+                "sha256": "7fdcd41b3b415441214893e76c6c0ec6b461f920b8d1ddf106b7f67ce975f85a"
               },
               {
                 "path": "src/polisyos/common/canonical_profile",

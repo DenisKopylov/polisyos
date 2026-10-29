@@ -2838,7 +2838,9 @@ def test_acquired_world_admission_reads_the_selected_state_snapshot_view(
         "promotion_authority",
     }.issubset(offer.context.may_not_use_for)
     assert offer.context.world_model_record.artifact_views is not None
-    assert offer.context.world_model_record.artifact_views.bound_state_snapshot_ref == state_view
+    assert offer.context.world_model_record.artifact_views.bound_state_snapshot_ref.model_dump(
+        mode="json"
+    ) == state_view.model_dump(mode="json")
     admitted_registry_ref = offer.context.world_model_record.artifact_views.substrate_registry_ref
     assert type(admitted_registry_ref) is ArtifactRef
     assert admitted_registry_ref.manifest_profile_sha256 is not None

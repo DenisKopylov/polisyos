@@ -51,3 +51,14 @@ owner vector before their corresponding writers can be enabled. State,
 checkpoint, Foundry/cache, installed and rollback consumers need their own
 reader-first verification. No producer authority, currentness, G acceptance or
 formal closure follows from a direct codec result.
+
+## Qualified persisted reads
+
+The selected Core artifact readers now use `core-tag-policy@2` for an explicitly
+declared `.3` profile and retain `core-tag-policy@1` for `.2`. Core `.3`
+`bytes_hex`, `float_hex` and `array_digest` native envelopes return their exact
+representation carrier types; the float carrier preserves signed zero, while the
+array carrier remains an opaque supplied descriptor. A similarly shaped escaped
+ordinary map remains data. The direct codec contract and the persisted writer
+fence above remain distinct. See the
+[qualified read contract](../../../../docs/reference/canonical-json-profile-reads.md).

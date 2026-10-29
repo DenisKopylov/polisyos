@@ -228,8 +228,14 @@ def parse_canonical_profile(
     *,
     profile_model: type[BaseModel],
     allow_profile_absent: bool,
+    supported_versions: tuple[str, ...] | None = None,
 ) -> CanonicalProfileDeclaration:
-    """Parse and fully validate the raw selected profile before blob I/O."""
+    """Parse and fully validate the raw selected profile before blob I/O.
+
+    ``supported_versions`` is supplied by the concrete reader owner.  Common
+    only compares the declaration; it never decides which tag policy is
+    authorized for Core or IR.
+    """
     if type(raw_manifest_bytes) is not bytes:
         raise CanonicalProfileRefusalError("canon_profile_raw_manifest_invalid")
     try:
@@ -263,7 +269,13 @@ def parse_canonical_profile(
 
     if profile.max_depth < 0:
         raise CanonicalProfileRefusalError("canon_profile_invalid")
-    if profile.name != supported.name or profile.version != supported.version:
+    versions = (supported.version,) if supported_versions is None else supported_versions
+    if (
+        not versions
+        or any(type(version) is not str or not version for version in versions)
+        or profile.name != supported.name
+        or profile.version not in versions
+    ):
         return CanonicalProfileDeclaration(
             profile=parsed_profile,
             status="declared_unknown_candidate",

@@ -1,0 +1,282 @@
+{
+  "boundary": "Synthetic diagnostic values only. No historical writer-byte availability, calibration, authority, promotion, production-model evidence, whole-LA-056 acceptance, G closure, or broad-suite result is claimed. verification_missing remains pending independent review and broader criterion adjudication.",
+  "classification_basis": {
+    "P29": "Both selectors execute real cold import/unpickle behavior, not authorial markers.",
+    "P33": "Each exact source-property mutation is the witness; test/oracle bytes were unchanged.",
+    "P38": "Measured properties are forbidden live-import avoidance and old-FQN resolution, not exit codes; complete child semantics adjudicate each red.",
+    "P41": "Each unmodified baseline passed before attribution; each byte-exact restoration passed."
+  },
+  "final_controls": {
+    "l_status_porcelain_v1": "",
+    "n_status_porcelain_v1": "",
+    "targets_restored": true
+  },
+  "mutations": {
+    "L": {
+      "git_diff_sha256": "db747a4af79136b5fa0a013dd628a369c695d87cb69571ee92beb1d652b5d1a6",
+      "mutated_sha256": "c67c1b65365f7b91aa506b0f461d340e761b7a2d3985f02f4a26e45b51fbef4e",
+      "patch_sha256": "557cc9a2326db9723b3c7d66850c70a3397d9ad1424e577b0c061d42e4a64d48",
+      "preimage_sha256": "894151bedc3046b2b41c469f15b42565818162dbd8d7a3d2d587a36ebcc9eb50",
+      "target": "policy-engine/src/polisyos/ddm/integration/events.py"
+    },
+    "N": {
+      "git_diff_sha256": "dc3267f8f35b760104b497e10ca6675e31bbbeb62d5e0c1ab9aa30327a8b9188",
+      "mutated_sha256": "a9d1f05bcc614ecb29350480ef9f52d796aa9e7aac39348cc2813443f6b08383",
+      "patch_sha256": "68165522704b19748078bcaf8c5a653b07fdc226ad502bdae663ad1e8b0b2278",
+      "preimage_sha256": "adbf26cc868a931b8ad4b2951558a065a52169a5d55acb3993e137d6657322fc",
+      "target": "policy-engine/src/polisyos/ddm/__init__.py"
+    }
+  },
+  "phases": {
+    "l-baseline": {
+      "child_pids": [
+        5709,
+        5710
+      ],
+      "classification": "PASS",
+      "duration_ns": 7572940692,
+      "exit_status": 0,
+      "files": {
+        "junit.xml": {
+          "bytes": 406,
+          "sha256": "8233fa7168b80572b9b1e2aa30fdfcd23037dec4db0b0134b621668bb0e2cb4c"
+        },
+        "stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.txt": {
+          "bytes": 76197,
+          "sha256": "38c838aa0d565c793b0f6b090ef65dce775e9a21cf0131338991fe96762b3097"
+        }
+      },
+      "observer_dir": "runs/l-baseline/observer/5678",
+      "pytest_pid": 5678,
+      "snapshot_errors": [
+        {
+          "errors": [],
+          "label": "synthetic-event-legacy-writer"
+        },
+        {
+          "errors": [],
+          "label": "synthetic-event-cold-legacy-reader"
+        }
+      ],
+      "wrapper_labels": [
+        "synthetic-event-legacy-writer",
+        "synthetic-event-cold-legacy-reader"
+      ]
+    },
+    "l-mutant": {
+      "child_pids": [
+        5961
+      ],
+      "classification": "SEMANTIC_RED",
+      "duration_ns": 5944558437,
+      "exit_status": 1,
+      "files": {
+        "junit.xml": {
+          "bytes": 3869,
+          "sha256": "a35afbfb9604ca729567893a6b561f25be5ce50192dffbcadf15e33c7a883513"
+        },
+        "stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.txt": {
+          "bytes": 51060,
+          "sha256": "faed8617423906b0e20049384705f8dea897db07cd5eb3338a20a0a4d4baae28"
+        }
+      },
+      "observer_dir": "runs/l-mutant/observer/5930",
+      "pytest_pid": 5930,
+      "snapshot_errors": [
+        {
+          "errors": [],
+          "label": "synthetic-event-cold-legacy-reader"
+        }
+      ],
+      "wrapper_labels": [
+        "synthetic-event-cold-legacy-reader"
+      ]
+    },
+    "l-restored": {
+      "child_pids": [
+        6115
+      ],
+      "classification": "PASS",
+      "duration_ns": 6091239835,
+      "exit_status": 0,
+      "files": {
+        "junit.xml": {
+          "bytes": 406,
+          "sha256": "d24e1edd60c20b3f2d4097088b6218fc340bbb7c98351e50cbc30bc39f1b4184"
+        },
+        "stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.txt": {
+          "bytes": 53464,
+          "sha256": "5fda5f07eeede10e8674aa584e1dd4217bd48a97f99085727d6d773d27416f15"
+        }
+      },
+      "observer_dir": "runs/l-restored/observer/6084",
+      "pytest_pid": 6084,
+      "snapshot_errors": [
+        {
+          "errors": [],
+          "label": "synthetic-event-cold-legacy-reader"
+        }
+      ],
+      "wrapper_labels": [
+        "synthetic-event-cold-legacy-reader"
+      ]
+    },
+    "n-baseline": {
+      "child_pids": [
+        5250
+      ],
+      "classification": "PASS",
+      "duration_ns": 9185724988,
+      "exit_status": 0,
+      "files": {
+        "junit.xml": {
+          "bytes": 433,
+          "sha256": "25bd39d0e63e61e0221b2bd02badd165ba1b9b223d607d255dd24233f283cac9"
+        },
+        "stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.txt": {
+          "bytes": 24461,
+          "sha256": "a13489c0ae3c5f22360b67870086e51b9c10463db6f496fe5cad8029b78c1908"
+        }
+      },
+      "observer_dir": "runs/n-baseline/observer/5219",
+      "pytest_pid": 5219,
+      "snapshot_errors": [
+        {
+          "errors": [],
+          "label": "neutral:polisyos.ddm.contracts.events"
+        }
+      ],
+      "wrapper_labels": [
+        "neutral:polisyos.ddm.contracts.events"
+      ]
+    },
+    "n-mutant": {
+      "child_pids": [
+        5415
+      ],
+      "classification": "SEMANTIC_RED",
+      "duration_ns": 6193913964,
+      "exit_status": 1,
+      "files": {
+        "junit.xml": {
+          "bytes": 5951,
+          "sha256": "8bb6275cab94c5942039fafef45d0e793b5ebaf47c5ce582efb82eb6ccfb33ef"
+        },
+        "stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.txt": {
+          "bytes": 30088,
+          "sha256": "332d89d69e0a2a58b766aa3eb8534182ff4c3a7e0e49693a5e02f31a67d64fc8"
+        }
+      },
+      "observer_dir": "runs/n-mutant/observer/5384",
+      "pytest_pid": 5384,
+      "snapshot_errors": [
+        {
+          "errors": [
+            {
+              "message": "'polisyos.ddm'",
+              "name": "polisyos.ddm.contracts",
+              "type": "KeyError"
+            }
+          ],
+          "label": "neutral:polisyos.ddm.contracts.events"
+        }
+      ],
+      "wrapper_labels": [
+        "neutral:polisyos.ddm.contracts.events"
+      ]
+    },
+    "n-restored": {
+      "child_pids": [
+        5569
+      ],
+      "classification": "PASS",
+      "duration_ns": 5794757789,
+      "exit_status": 0,
+      "files": {
+        "junit.xml": {
+          "bytes": 433,
+          "sha256": "977d971b6392111c34133223c0b2416af5b3f6f93f868c943d3a56b70ce5e63e"
+        },
+        "stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.txt": {
+          "bytes": 24461,
+          "sha256": "e5023d964d9892e949ea95f0486100ed98caa6278daea467a396cecb0773c1b4"
+        }
+      },
+      "observer_dir": "runs/n-restored/observer/5538",
+      "pytest_pid": 5538,
+      "snapshot_errors": [
+        {
+          "errors": [],
+          "label": "neutral:polisyos.ddm.contracts.events"
+        }
+      ],
+      "wrapper_labels": [
+        "neutral:polisyos.ddm.contracts.events"
+      ]
+    }
+  },
+  "pins": {
+    "all_ok": true,
+    "count": 25,
+    "file_type_denominator": {
+      ".ini": 1,
+      ".lock": 1,
+      ".md": 4,
+      ".py": 16,
+      ".python-version": 1,
+      ".toml": 2
+    }
+  },
+  "readset_location": "Lossless bundle: each run stdout contains complete cold-child snapshots and each observer/<pytest-pid>/origins.json contains the pytest-process first-party readset.",
+  "selectors": {
+    "L": "tests/unit/ddm/test_contract_fresh_consumers.py::test_synthetic_legacy_pickle_resolves_in_distinct_cold_reader[event]",
+    "N": "tests/unit/ddm/test_contract_fresh_consumers.py::test_neutral_contract_entrypoints_are_independent_cold_processes[polisyos.ddm.contracts.events]"
+  },
+  "semantic_causes": {
+    "L": "Exact facade export removal caused the real cold reader to see the old global and raise AttributeError resolving ShiftDetectedEvent; mutant and restore reused the exact baseline writer record and ran no writer.",
+    "N": "Exact eager monitor mutation caused the neutral cold child live-import trap; complete report captured RuntimeError and the sole attempt polisyos.ddm.integration.monitor."
+  },
+  "source": {
+    "commit": "aa8571cba044ebe04d4db4f99432cb49abdde59a",
+    "parent": "0c2169fd0d17dc59b49733fe6a001ec4114d2d1c",
+    "topic": "codex/e02-composed-progress-20261028-r19",
+    "tree": "0ff45c87431af2a4139519ff31d123ff465ed862"
+  },
+  "writer_reuse": {
+    "inner_json_bytes": 9346,
+    "inner_json_sha256": "b55bf614217615522fd30a890248710559ca2e8edbf50489c24cb9082ad0b974",
+    "legacy_global": "polisyos.ddm.integration.events.ShiftDetectedEvent",
+    "pickle_bytes": 1345,
+    "pickle_sha256": "66083e3804228ba12bda0e5d41a32ffdf993311b5a18b846feebada9b6bf0306",
+    "snapshot_errors": [],
+    "wrapper_count": 2,
+    "wrapper_label": "synthetic-event-legacy-writer",
+    "wrapper_pid": 5709,
+    "writer_pid": 5709,
+    "writer_ppid": 5678
+  }
+}

@@ -488,13 +488,13 @@ def test_same_run_direct_l4_and_l3_to_l4_persist_joined_invocations(
         result = outcome.stage_results[level]
         assert result.executed_work_packet_status == "available"
         assert result.executed_work_packet_ref is not None
-        assert result.score_status is ObjectiveScoreStatus.UNAVAILABLE
+        assert result.score_status is ObjectiveScoreStatus.NOT_ESTABLISHED
         assert result.objective_value is None
         assert result.score_assessment is not None
         assert result.is_promising is False
         assert result.simulation_results["metric_units"] == {}
-        assert result.feedback["selected_objective_admission"] == "unavailable"
-    assert chain_outcome.stage_results[3].score_status is ObjectiveScoreStatus.UNAVAILABLE
+        assert result.feedback["selected_objective_admission"] == "not_established"
+    assert chain_outcome.stage_results[3].score_status is ObjectiveScoreStatus.NOT_ESTABLISHED
     assert chain_outcome.stage_results[3].objective_value is None
     assert chain_outcome.stage_results[3].is_promising is False
     assert chain_voi.snapshot().observations == []

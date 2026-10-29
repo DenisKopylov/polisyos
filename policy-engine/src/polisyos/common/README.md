@@ -217,3 +217,13 @@ public-surface refresh, and compatibility note.
 - [Common migrations](migrations/README.md)
 
 - Last updated: 2026-10-18
+
+## Selected persisted canonical readers
+
+Concrete Core and IR readers explicitly admit canonical JSON `.2` and `.3`
+versions when parsing a selected manifest. `parse_canonical_profile` accepts the
+reader owner's optional `supported_versions` tuple; omission retains its default
+version-only behavior. This tuple selects declared codec support, not producer
+authenticity, schema ownership, resource admission or policy authority. Unknown
+versions remain candidates until the concrete owner supplies an interpretation.
+See the [qualified read contract](../../../docs/reference/canonical-json-profile-reads.md).

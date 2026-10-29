@@ -32,6 +32,7 @@ from polisyos.common.hashing import (
 )
 
 IR_TAG_POLICY_ID = "ir-tag-policy@1"
+IR_V3_TAG_POLICY_ID = "ir-tag-policy@2"
 
 _CANONICAL_TYPES = frozenset({"datetime", "date", "decimal", "bytes", "float"})
 
@@ -138,6 +139,7 @@ def content_hash(
 
 __all__ = [
     "IR_TAG_POLICY_ID",
+    "IR_V3_TAG_POLICY_ID",
     "CanonSpec",
     "CanonViolation",
     "DeprecatedHashAlgorithm",

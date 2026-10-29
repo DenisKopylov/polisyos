@@ -2,8 +2,13 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
+import os
+import subprocess
+import sys
 import threading
+import time
 from collections.abc import Callable
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta
@@ -14,7 +19,6 @@ from urllib.parse import parse_qs, urlsplit
 
 import pytest
 import pytest_asyncio
-from tests._helpers.source_progress import finite_source_reader
 
 from polisyos.core.artifacts.protocol import matches_runtime_protocol
 from polisyos.core.artifacts.store import FileSystemCAS
@@ -52,6 +56,7 @@ from polisyos.fabric.data_plane.streaming import (
 )
 from polisyos.fabric.data_plane.watermark import WindowPolicy
 from polisyos.runtime.http.resilience import BlockingDependencyGuard, GuardedDependencyProxy
+from tests._helpers.source_progress import finite_source_reader
 
 
 class _ProcessDeath(BaseException):
@@ -332,11 +337,10 @@ def test_b79_finite_file_replay_uses_only_its_admitted_persisted_cursor(
     """Actual file replay proves portable progress; it makes no live REST claim."""
     from copy import deepcopy
 
-    from tests._helpers.source_progress import write_source_history
-
     from polisyos.fabric.data_plane.modes import run_batch_incremental
     from polisyos.fabric.ingestion import resolve_ingestion_dependencies
     from polisyos.fabric.ingestion.source_progress import ReconciledSourceFrame
+    from tests._helpers.source_progress import write_source_history
 
     reader = finite_source_reader(
         tmp_path / "owner",
@@ -507,8 +511,6 @@ def test_b80_two_source_failure_then_fresh_snapshot_consumes_both_sources(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """A9/B4 then fresh Snapshot B is A9/B5 through the real Foundry loader."""
-    from tests._helpers.source_progress import write_source_history
-
     from polisyos.core.artifacts import load_core_json_artifact
     from polisyos.core.artifacts.manifest import SchemaInfo
     from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
@@ -523,6 +525,7 @@ def test_b80_two_source_failure_then_fresh_snapshot_consumes_both_sources(
         SourceProgressAdmissionError,
     )
     from polisyos.foundry.data_plane.bindings import _load_binding_payload, _resolve_source_path
+    from tests._helpers.source_progress import write_source_history
 
     a9 = {"event_id": "a-event-9", "source_version": "9", "event_time": "2025-01-01T00:00:00Z"}
     b5 = {"event_id": "b-late-event-5", "source_version": "5", "event_time": "2024-01-01T00:00:00Z"}
@@ -1707,80 +1710,143 @@ async def test_b83_nonempty_legacy_dedupe_keys_without_utc_time_refuse_before_re
 @pytest.mark.asyncio
 async def test_b83_first_accepted_key_expires_at_utc_86400_seconds_after_restart(
     tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
-    stream_registry: ConnectorRegistry,
 ) -> None:
-    """A duplicate near expiry does not refresh the first-accepted timestamp."""
-    import polisyos.fabric.data_plane.streaming as streaming_module
-
+    """Independent processes reopen one CAS across the exact UTC expiry boundary."""
     first_accepted = datetime(2026, 1, 1, tzinfo=UTC)
-    initial_times = [first_accepted, first_accepted + timedelta(seconds=10)]
-    clock = {"now": first_accepted}
-
-    def ingestion_time() -> datetime:
-        if initial_times:
-            return initial_times.pop(0)
-        return clock["now"]
-
-    monkeypatch.setattr(streaming_module, "_ingestion_utc", ingestion_time, raising=False)
     duplicate_v1 = {
         "event_id": "entity-event",
         "source_version": 1,
         "entity_id": "same-entity",
         "value": "version-1",
     }
-    rows = [
-        duplicate_v1,
-        {
-            "event_id": "entity-event",
-            "source_version": 2,
-            "entity_id": "same-entity",
-            "value": "version-2",
-        },
-        {**duplicate_v1, "value": "redelivery-before-expiry"},
-    ]
-    dataset_id = "dedupe-expiry-restart"
-    stream_path = tmp_path / "dedupe-expiry-restart.jsonl"
-    stream_path.write_text(
-        "".join(json.dumps(row, sort_keys=True) + "\n" for row in rows),
+    version_v2 = {**duplicate_v1, "source_version": 2, "value": "version-2"}
+    root = tmp_path / "process-horizon"
+    root.mkdir()
+    (root / "stream.jsonl").write_text(
+        "".join(json.dumps(row, sort_keys=True) + "\n" for row in (duplicate_v1, version_v2)),
         encoding="utf-8",
     )
-    registry = _configure_stream_registry(stream_registry, stream_path)
     reader = finite_source_reader(
-        tmp_path / "source-owner",
+        root / "source-owner",
         connector_id="stream.jsonl",
-        dataset_id=dataset_id,
+        dataset_id="horizon",
         schema_id="fixture.source_events",
-        snapshots=[("fixture-current", rows[:2])],
-        transport_path=stream_path,
+        snapshots=[("fixture-current", [duplicate_v1, version_v2])],
+        transport_path=root / "stream.jsonl",
     )
-    cas_root = tmp_path / "dedupe-expiry-cas"
-    store = FileSystemCAS(cas_root)
-    original_poll = StreamingSourceSession.poll
-    poll_state = {"count": 0}
+    common = {
+        "root": str(root),
+        "source_root": str(reader.source_root),
+        "source_contract": reader.source_contract.model_dump(mode="json"),
+        "extension": reader.extension.model_dump(mode="json"),
+        "event": duplicate_v1,
+    }
 
-    async def crash_before_third_source_chunk(session: StreamingSourceSession):
-        if poll_state["count"] == 2:
-            raise _ProcessDeath("leave both versions in the persisted horizon")
-        poll_state["count"] += 1
-        return await original_poll(session)
+    child_artifacts = tmp_path / "child-process-artifacts"
+    child_artifacts.mkdir()
+    first_child_elapsed: float | None = None
 
-    monkeypatch.setattr(StreamingSourceSession, "poll", crash_before_third_source_chunk)
-    with pytest.raises(_ProcessDeath):
-        await process_stream_dataset(
-            connector_id="stream.jsonl",
-            dataset_id=dataset_id,
-            store=store,
-            cursor_store=CursorStore(store),
-            sanitize_rows=_valid_rows,
-            runtime_options=_dedupe_options(max_dedupe_keys=2),
-            registry=registry,
-            source_progress_readers=(reader,),
+    def run_worker(name: str, **updates: Any) -> tuple[subprocess.CompletedProcess[str], Any]:
+        nonlocal first_child_elapsed
+        artifact_dir = child_artifacts / name
+        artifact_dir.mkdir()
+        config_path = artifact_dir / "config.json"
+        config_bytes = json.dumps({**common, **updates}, sort_keys=True).encode("utf-8")
+        config_path.write_bytes(config_bytes)
+        argv = [
+            sys.executable,
+            "-B",
+            "-m",
+            "tests._helpers.source_progress_stream_worker",
+            str(config_path),
+        ]
+        cwd = Path(__file__).parents[4].resolve()
+        # Use a generous first-run guard; later bounds derive from the measured first child.
+        timeout_seconds = (
+            120.0
+            if first_child_elapsed is None
+            else max(60.0, min(300.0, first_child_elapsed * 5.0 + 10.0))
         )
+        started = time.monotonic()
+        with subprocess.Popen(
+            argv,
+            cwd=cwd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        ) as child:
+            try:
+                stdout, stderr = child.communicate(timeout=timeout_seconds)
+                timed_out = False
+            except subprocess.TimeoutExpired:
+                child.kill()
+                stdout, stderr = child.communicate()
+                timed_out = True
+            elapsed_seconds = time.monotonic() - started
+            completed = subprocess.CompletedProcess(argv, child.returncode, stdout, stderr)
+            child_pid = child.pid
+        if first_child_elapsed is None:
+            first_child_elapsed = elapsed_seconds
+        (artifact_dir / "stdout.txt").write_text(stdout, encoding="utf-8")
+        (artifact_dir / "stderr.txt").write_text(stderr, encoding="utf-8")
+        try:
+            child_result = json.loads(stdout)
+        except json.JSONDecodeError:
+            child_result = None
+        (artifact_dir / "run.json").write_text(
+            json.dumps(
+                {
+                    "argv": argv,
+                    "cwd": str(cwd),
+                    "config_sha256": hashlib.sha256(config_bytes).hexdigest(),
+                    "returncode": child.returncode,
+                    "elapsed_seconds": elapsed_seconds,
+                    "timeout_seconds": timeout_seconds,
+                    "timed_out": timed_out,
+                    "pid": child_pid,
+                    "reported_pid": (
+                        child_result.get("pid") if isinstance(child_result, dict) else None
+                    ),
+                    "stdout_sha256": hashlib.sha256(stdout.encode("utf-8")).hexdigest(),
+                    "stderr_sha256": hashlib.sha256(stderr.encode("utf-8")).hexdigest(),
+                },
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        assert not timed_out, f"child timed out; complete evidence: {artifact_dir}"
+        assert completed.returncode == 0, (
+            f"child failed; complete evidence: {artifact_dir}\n{stderr}"
+        )
+        assert isinstance(child_result, dict), f"child emitted no JSON; evidence: {artifact_dir}"
+        assert child_result["pid"] == child_pid
+        return completed, child_result
 
-    monkeypatch.setattr(StreamingSourceSession, "poll", original_poll)
-    before = CursorStore(FileSystemCAS(cas_root))
-    prior_checkpoint = before.find_latest_stream_checkpoint("stream.jsonl", dataset_id)
+    _initial_process, initial = run_worker(
+        "initial",
+        steps=[
+            {
+                "at": first_accepted.isoformat(),
+                "append": False,
+                "ingestion_times": [
+                    first_accepted.isoformat(),
+                    (first_accepted + timedelta(seconds=10)).isoformat(),
+                ],
+            }
+        ],
+    )
+    assert initial["pid"] != os.getpid()
+    assert initial["clock_profile"] == "fixture_utc"
+    assert all("error_type" not in item for item in initial["results"]), initial
+    assert [(item["rows_emitted"], item["dedupe_dropped"]) for item in initial["results"]] == [
+        (2, 0),
+    ]
+    cas_root = root / "cas"
+    prior_checkpoint = CursorStore(FileSystemCAS(cas_root)).find_latest_stream_checkpoint(
+        "stream.jsonl", "horizon"
+    )
     assert prior_checkpoint is not None
     key_v1 = (("event_id", "entity-event"), ("source_version", 1))
     key_v2 = (("event_id", "entity-event"), ("source_version", 2))
@@ -1789,57 +1855,75 @@ async def test_b83_first_accepted_key_expires_at_utc_86400_seconds_after_restart
         key_v2: first_accepted + timedelta(seconds=10),
     }
 
-    clock["now"] = first_accepted + timedelta(seconds=86_399)
-    resumed_store = FileSystemCAS(cas_root)
-    before_expiry = await process_stream_dataset(
-        connector_id="stream.jsonl",
-        dataset_id=dataset_id,
-        store=resumed_store,
-        cursor_store=CursorStore(resumed_store),
-        sanitize_rows=_valid_rows,
-        runtime_options=_dedupe_options(max_dedupe_keys=2),
-        registry=registry,
-        source_progress_readers=(reader,),
+    index_path = cas_root / "stream_checkpoint_index.json"
+    index_before_removal = index_path.read_bytes()
+    artifact_ids_before_removal = tuple(map(str, FileSystemCAS(cas_root).iter_artifact_ids()))
+    _removed_process, removed = run_worker(
+        "binding-removed",
+        remove_source_binding=True,
+        steps=[{"at": first_accepted.isoformat(), "append": False}],
     )
-    assert before_expiry.dedupe_dropped == 1
-    before_expiry_checkpoint = CursorStore(resumed_store).find_latest_stream_checkpoint(
-        "stream.jsonl",
-        dataset_id,
+    assert removed["pid"] not in {os.getpid(), initial["pid"]}
+    assert removed["results"][0]["error_type"] == "StreamDedupeUnsupported"
+    assert index_path.read_bytes() == index_before_removal
+    assert (
+        tuple(map(str, FileSystemCAS(cas_root).iter_artifact_ids())) == artifact_ids_before_removal
     )
-    assert before_expiry_checkpoint is not None
-    assert _dedupe_horizon_entries(before_expiry_checkpoint) == {
-        key_v1: first_accepted,
-        key_v2: first_accepted + timedelta(seconds=10),
-    }
 
-    rows.append({**duplicate_v1, "value": "redelivery-at-expiry"})
-    stream_path.write_text(
-        "".join(json.dumps(row, sort_keys=True) + "\n" for row in rows),
-        encoding="utf-8",
+    _boundary_process, boundary = run_worker(
+        "boundary",
+        steps=[
+            {
+                "at": (first_accepted + timedelta(seconds=86_399)).isoformat(),
+                "append": True,
+                "event": {**duplicate_v1, "value": "redelivery-before-expiry"},
+            },
+            {
+                "at": (first_accepted + timedelta(seconds=86_400)).isoformat(),
+                "append": True,
+                "event": {**duplicate_v1, "value": "redelivery-at-expiry"},
+            },
+        ],
     )
-    clock["now"] = first_accepted + timedelta(seconds=86_400)
+    assert boundary["pid"] not in {
+        os.getpid(),
+        initial["pid"],
+        removed["pid"],
+    }
+    expected_source_modules = {
+        "polisyos.core.artifacts.store",
+        "polisyos.fabric.data_plane.cursor_store",
+        "polisyos.fabric.data_plane.streaming",
+        "polisyos.fabric.ingestion.source_progress",
+    }
+    for child_result in (initial, removed, boundary):
+        assert set(child_result["source_modules"]) == expected_source_modules
+        for module_identity in child_result["source_modules"].values():
+            assert Path(module_identity["origin"]).is_absolute()
+            assert len(module_identity["sha256"]) == 64
+            int(module_identity["sha256"], 16)
+    assert [(item["rows_emitted"], item["dedupe_dropped"]) for item in boundary["results"]] == [
+        (0, 1),
+        (1, 0),
+    ]
+    boundary_before_expiry = boundary["results"][0]["dedupe_horizon"]
+    assert {
+        tuple(
+            (str(field), value) for field, value in json.loads(encoded_key)
+        ): datetime.fromisoformat(timestamp)
+        for encoded_key, timestamp in boundary_before_expiry["entries"].items()
+    } == {key_v1: first_accepted, key_v2: first_accepted + timedelta(seconds=10)}
+
     expiry_store = FileSystemCAS(cas_root)
-    at_expiry = await process_stream_dataset(
-        connector_id="stream.jsonl",
-        dataset_id=dataset_id,
-        store=expiry_store,
-        cursor_store=CursorStore(expiry_store),
-        sanitize_rows=_valid_rows,
-        runtime_options=_dedupe_options(max_dedupe_keys=2),
-        registry=registry,
-        source_progress_readers=(reader,),
-    )
-    assert at_expiry.dedupe_dropped == 0
     final_checkpoint = CursorStore(expiry_store).find_latest_stream_checkpoint(
-        "stream.jsonl",
-        dataset_id,
+        "stream.jsonl", "horizon"
     )
     assert final_checkpoint is not None
     assert _dedupe_horizon_entries(final_checkpoint) == {
         key_v1: first_accepted + timedelta(seconds=86_400),
         key_v2: first_accepted + timedelta(seconds=10),
     }
-    emitted = _persisted_stream_rows(expiry_store, dataset_id=dataset_id)
+    emitted = _persisted_stream_rows(expiry_store, dataset_id="horizon")
     assert [(row["event_id"], row["source_version"]) for row in emitted] == [
         ("entity-event", 1),
         ("entity-event", 2),

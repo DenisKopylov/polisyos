@@ -24,7 +24,7 @@ from polisyos.core.artifacts.backends.caching_store import CachingArtifactStore
 from polisyos.core.artifacts.backends.gcs_store import GCSArtifactStore
 from polisyos.core.artifacts.backends.s3_store import S3ArtifactStore
 from polisyos.core.artifacts.ir_adapter import CoreToIRArtifactStoreAdapter
-from polisyos.core.canon import CanonSpec, CanonViolation
+from polisyos.core.canon import CanonSpec, CanonViolation, to_canonical_bytes
 from polisyos.core.security.namespace import NamespacedArtifactStore
 from polisyos.fabric.storage.tenant_cas import TenantScopedCAS
 from polisyos.ir.artifacts.io import put_json_artifact
@@ -448,7 +448,7 @@ def test_admission_does_not_call_caller_metaclass_equality(surface: str, tmp_pat
     assert sink.events == []
 
 
-def test_raw_v3_import_remains_unknown_candidate_without_authority(tmp_path) -> None:
+def test_raw_v3_import_uses_selected_reader_without_granting_authority(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     raw = b'{"candidate":true}'
     ref = store.put_bytes(
@@ -460,7 +460,28 @@ def test_raw_v3_import_remains_unknown_candidate_without_authority(tmp_path) -> 
         ),
     )
     read = read_core_json_artifact(store, ref)
-    assert read.status == "declared_unknown_candidate"
-    assert read.raw_only_candidate_bytes == raw
-    with pytest.raises(ValueError, match="canon_profile_not_verified"):
-        _ = read.value
+    assert read.status == "declared_bytes_conformant"
+    assert read.value == {"candidate": True}
+    assert read.reader_policy_id == "core-tag-policy@2"
+
+
+def test_fresh_selected_v3_reader_preserves_raw_type_mapping_from_real_cas(tmp_path) -> None:
+    root = tmp_path / "cas"
+    wire = to_canonical_bytes({"_type": "future"}, CanonSpec(version="0.3.0"))
+    assert wire == b'{"_type":"mapping","entries":[["_type","future"]]}'
+    store = FileSystemCAS(root)
+    ref = store.put_bytes(
+        wire,
+        PutOptions(
+            kind="test.v3.selected-reader",
+            media_type="application/json",
+            canon=CanonInfo(version="0.3.0"),
+        ),
+        return_selected_profile=True,
+    )
+
+    fresh = FileSystemCAS(root)
+    read = read_core_json_artifact(fresh, ref)
+    assert read.value == {"_type": "future"}
+    assert type(read.value) is dict
+    assert read.reader_policy_id == "core-tag-policy@2"

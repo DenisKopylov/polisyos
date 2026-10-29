@@ -8,8 +8,13 @@ import pytest
 
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.common.serialization import to_python_data
-from polisyos.core.artifacts import artifact_ref_identity_key, resolve_manifest_by_profile
-from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts import (
+    artifact_ref_identity_key,
+    ensure_ir_artifact_store,
+    input_ref_from_artifact_ref,
+    resolve_manifest_by_profile,
+)
+from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
@@ -31,6 +36,7 @@ from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.model_layer.types import SelectorOperator
 from polisyos.ir.observation.bundles import ProxyIdentificationBundle
 from polisyos.ir.trinity import TrinityBundle
+from polisyos.ir.trinity.loaders import persist_trinity_bundle_artifact
 from polisyos.scientist.nodes.builtins.data.bind_foundry_inputs import (
     BindFoundryInputsNode,
     _check_model_spec_consistency,
@@ -56,7 +62,7 @@ def _put_trinity_bundle(
     *,
     registry_bundle_ref,
     data_snapshot_ref: str,
-) -> object:
+) -> ArtifactRef:
     trinity = TrinityBundle(
         problem_frame=ProblemFrame(problem_id="p8_bind", domain=ProblemDomain.FISCAL),
         policy_spec=PolicySpec(
@@ -81,17 +87,11 @@ def _put_trinity_bundle(
             registry_bundle_ref=str(registry_bundle_ref.artifact_id),
         ),
     )
-    return store.put_json(
-        trinity,
-        PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version=trinity.schema_version),
-        ),
-    )
+    selected = persist_trinity_bundle_artifact(ensure_ir_artifact_store(store), trinity)
+    return ArtifactRef.model_validate(selected.model_dump(mode="python"))
 
 
-def _setup_ctx(store: FileSystemCAS, *, return_selected_profile: bool = False):
+def _setup_ctx(store: FileSystemCAS, *, return_selected_profile: bool = True):
     registry_bundle = build_default_registry_bundle(
         store, return_selected_profile=return_selected_profile
     ).bundle_ref
@@ -104,7 +104,7 @@ def _put_data_snapshot(
     store: FileSystemCAS,
     *,
     stats: dict[str, int | str] | None = None,
-    return_selected_profile: bool = False,
+    return_selected_profile: bool = True,
 ) -> DataSnapshotRef:
     base_state = GlobalState.empty(n_agents=5, n_firms=2)
     state_snapshot_ref = put_state_snapshot(
@@ -116,10 +116,15 @@ def _put_data_snapshot(
             stats=stats or {},
         ),
         PutOptions(
-            kind="fabric.data_snapshot",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
+            kind=DataSnapshot.ARTIFACT_KIND,
+            media_type=DataSnapshot.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+            ),
+            inputs=[input_ref_from_artifact_ref(state_snapshot_ref, role="data_ref")],
         ),
+        canon_spec=CanonSpec(forbid_floats=False),
         return_selected_profile=return_selected_profile,
     )
     return DataSnapshotRef.model_validate(snapshot_ref.model_dump(mode="python"))
@@ -258,7 +263,7 @@ def test_bind_foundry_inputs_node_consumes_intake_and_persists_inspectable_recei
     ) as load_intake:
         outcome = BindFoundryInputsNode().execute(ctx, state)
 
-    assert outcome.status == "ok"
+    assert outcome.status == "ok", outcome.error
     load_intake.assert_called_once()
     receipt_ref = outcome.state.artifacts_index["ukraine_foundry_intake_receipt_ref"]
     receipt = from_canonical_bytes(store.get_bytes(receipt_ref.artifact_id))
@@ -304,7 +309,7 @@ def test_bind_foundry_inputs_node_routes_explicit_compatible_panel_selection(tmp
     ):
         outcome = BindFoundryInputsNode().execute(ctx, state)
 
-    assert outcome.status == "ok"
+    assert outcome.status == "ok", outcome.error
     selected_ref = outcome.state.inputs["ukraine_selected_foundry_method_contract_ref"]
     assert (
         selected_ref.artifact_id
@@ -460,7 +465,7 @@ def test_bind_foundry_inputs_node_builds_bindings_and_report(tmp_path) -> None:
     )
 
     outcome = BindFoundryInputsNode().execute(ctx, state)
-    assert outcome.status == "ok"
+    assert outcome.status == "ok", outcome.error
     assert INPUT_INPUT_BINDINGS_REF in outcome.state.inputs
     assert ARTIFACT_STATE_SNAPSHOT_REF in outcome.state.artifacts_index
     assert ARTIFACT_INPUT_BINDING_REPORT_REF in outcome.state.artifacts_index
@@ -478,11 +483,17 @@ def _produce_selected_regular_bindings(tmp_path):
     store = FileSystemCAS(tmp_path)
     ctx, registry_ref = _setup_ctx(store, return_selected_profile=True)
     snapshot_ref = _put_data_snapshot(store, return_selected_profile=True)
+    trinity_ref = _put_trinity_bundle(
+        store,
+        registry_bundle_ref=registry_ref,
+        data_snapshot_ref=str(snapshot_ref.artifact_id),
+    )
     outcome = BindFoundryInputsNode().execute(
         ctx,
         ExperimentState(
             run_id="R_selected_regular_bindings",
             inputs={
+                INPUT_TRINITY_BUNDLE_REF: trinity_ref,
                 INPUT_REGISTRY_BUNDLE_REF: registry_ref,
                 INPUT_DATA_SNAPSHOT_REF: snapshot_ref,
             },
@@ -536,6 +547,48 @@ def test_regular_binding_node_emits_selected_profiles_for_fresh_consumers(tmp_pa
     report = from_canonical_bytes(fresh.get_bytes(report_ref))
     report_bound_ref = StateSnapshotRef.model_validate(report["bound_state_snapshot_ref"])
     assert artifact_ref_identity_key(report_bound_ref) == artifact_ref_identity_key(bound_ref)
+
+
+def test_regular_binding_node_refuses_missing_selected_snapshot_lineage(tmp_path) -> None:
+    """Keeping the selected payload while removing its parent edge fails closed."""
+    store = FileSystemCAS(tmp_path)
+    ctx, registry_ref = _setup_ctx(store)
+    snapshot_ref = _put_data_snapshot(store)
+    manifest = resolve_manifest_by_profile(
+        store, snapshot_ref.artifact_id, snapshot_ref.manifest_profile_sha256
+    )
+    assert len(manifest.inputs) == 1 and manifest.inputs[0].role == "data_ref"
+    unbound_snapshot = store.put_bytes(
+        store.get_bytes(snapshot_ref),
+        PutOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=manifest.artifact_schema,
+            canon=manifest.canon,
+            inputs=[],
+        ),
+        return_selected_profile=True,
+    )
+    assert unbound_snapshot.artifact_id == snapshot_ref.artifact_id
+    assert unbound_snapshot.manifest_profile_sha256 != snapshot_ref.manifest_profile_sha256
+    outcome = BindFoundryInputsNode().execute(
+        ctx,
+        ExperimentState(
+            run_id="R_missing_selected_snapshot_edge",
+            inputs={
+                INPUT_REGISTRY_BUNDLE_REF: registry_ref,
+                INPUT_DATA_SNAPSHOT_REF: unbound_snapshot,
+            },
+        ),
+    )
+    assert outcome.status == "fail"
+    assert outcome.error is not None
+    assert outcome.error.code == "foundry.input_bindings_failed"
+    assert outcome.error.message == (
+        "Failed to build foundry.input_bindings: "
+        "DataSnapshot selected nested reference lineage is not established: data_ref"
+    )
+    assert INPUT_INPUT_BINDINGS_REF not in outcome.state.inputs
 
 
 def test_regular_binding_fresh_reader_refuses_wrong_selected_profile(tmp_path) -> None:
@@ -593,6 +646,8 @@ def test_bind_foundry_inputs_node_is_deterministic_for_identical_inputs(tmp_path
     outcome_a = node.execute(ctx, base_state)
     outcome_b = node.execute(ctx, base_state.model_copy(deep=True))
 
+    assert outcome_a.status == "ok", outcome_a.error
+    assert outcome_b.status == "ok", outcome_b.error
     ref_a = outcome_a.state.inputs[INPUT_INPUT_BINDINGS_REF]
     ref_b = outcome_b.state.inputs[INPUT_INPUT_BINDINGS_REF]
     assert ref_a.artifact_id == ref_b.artifact_id
@@ -655,7 +710,7 @@ def test_bind_foundry_inputs_node_carries_shape_warning_for_survey_snapshots(tmp
     )
 
     outcome = BindFoundryInputsNode().execute(ctx, state)
-    assert outcome.status == "ok"
+    assert outcome.status == "ok", outcome.error
 
     bindings_ref = outcome.state.inputs[INPUT_INPUT_BINDINGS_REF]
     payload = from_canonical_bytes(store.get_bytes(bindings_ref.artifact_id))

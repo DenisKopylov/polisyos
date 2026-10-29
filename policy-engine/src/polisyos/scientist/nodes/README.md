@@ -138,6 +138,10 @@ It forwards the complete input-bindings, bound-state and binding-report refs
 returned by that writer. The selected execution-basis consumer still rejects
 profileless sources and incomplete selected lineage; this bridge does not infer
 a profile from a default manifest or grant governance authority.
+Selected DataSnapshot inputs must retain the actual data producer's nested
+references and matching manifest edges. Trinity fixtures and producers use the
+IR-owned persistence entrypoint so the strict ModelSpec reader sees its declared
+canonical profile; a generic JSON write with the same schema name is insufficient.
 
 ## Extension Points
 

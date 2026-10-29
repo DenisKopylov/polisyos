@@ -27,6 +27,7 @@ from polisyos.common.canonical_profile import (
 )
 from polisyos.ir.model_layer.canon import (
     IR_TAG_POLICY_ID,
+    IR_V3_TAG_POLICY_ID,
     CanonSpec,
     CanonViolation,
     from_canonical_bytes,
@@ -469,7 +470,7 @@ def _validated_ir_canon_info(value: object) -> CanonInfo:
     supported = CanonInfo()
     if (
         profile.name != supported.name
-        or profile.version != supported.version
+        or profile.version not in (supported.version, "0.3.0")
         or profile.max_depth < 0
     ):
         raise CanonViolation("unsupported_ir_canon_profile")
@@ -500,6 +501,17 @@ def _encode_ir_profiled_value(value: object, spec: object) -> bytes:
     return to_canonical_bytes(value, spec)
 
 
+def _require_owner_callback_codec(profile: CanonInfo | CanonSpec) -> None:
+    """Keep owned callbacks on their qualified decoder until their cohort migrates.
+
+    Generic selected readers support .3, but the owned callback snapshot path
+    below still uses the historical unqualified .2 decoder. An owner callback's
+    approval or a registry row cannot qualify a different decoder for it.
+    """
+    if profile.name == "polisyos.canon.json" and profile.version != "0.2.0":
+        raise CanonViolation("ir_owned_artifact_callback_codec_unavailable")
+
+
 def _decode_owner_callback_payload(
     raw_payload_bytes: bytes,
     spec: CanonSpec,
@@ -507,6 +519,7 @@ def _decode_owner_callback_payload(
     refusal_code: str,
 ) -> object:
     """Decode a private, callback-local JSON root from the immutable owned payload bytes."""
+    _require_owner_callback_codec(spec)
     try:
         return from_canonical_bytes(raw_payload_bytes, max_depth=spec.max_depth)
     except Exception as exc:
@@ -653,6 +666,7 @@ def _read_json_artifact_with_bytes(
             raw_manifest_bytes,
             profile_model=CanonInfo,
             allow_profile_absent=False,
+            supported_versions=("0.2.0", "0.3.0"),
         )
     except CanonicalProfileRefusalError as exc:
         code = {
@@ -737,14 +751,17 @@ def _read_json_artifact_with_bytes(
     if hashlib.sha256(raw_bytes).hexdigest() != expected_hex:
         raise CanonViolation("ir_artifact_payload_identity_mismatch")
     try:
+        version = profile.version
         result = decode_profiled_canonical_bytes(
             raw_bytes,
             declaration,
             profile_model=CanonInfo,
             make_spec=_make_ir_canon_spec,
-            decode=lambda raw, max_depth: from_canonical_bytes(raw, max_depth=max_depth),
+            decode=lambda raw, max_depth: from_canonical_bytes(
+                raw, max_depth=max_depth, version=version
+            ),
             encode=_encode_ir_profiled_value,
-            reader_policy_id=IR_TAG_POLICY_ID,
+            reader_policy_id=(IR_V3_TAG_POLICY_ID if version == "0.3.0" else IR_TAG_POLICY_ID),
         )
     except CanonicalProfileRefusalError as exc:
         code = {
@@ -835,6 +852,7 @@ def _checked_owner_profile[OwnerSourceT, OwnerConsumerT](
     registration: object,
 ) -> bool:
     """Require the trusted owner callback to accept the exact selected profile and row."""
+    _require_owner_callback_codec(profile)
     try:
         accepted = owner.validate_profile(profile, registration)
     except Exception as exc:

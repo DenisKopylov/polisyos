@@ -467,3 +467,15 @@ not source review alone, qualify a composed correction. Generic tests cover fres
 selected full/bounded reads, nested model containers, malformed values, required/null
 fields and terminal validator counts. No schema, wire enum, authority or source
 currentness is introduced.
+
+### Version-qualified selected JSON reads
+
+Selected `.3` Core JSON reads dispatch to the `.3` grammar and report
+`core-tag-policy@2`; `.2` retains `core-tag-policy@1`. The synchronous, asynchronous,
+frame and bounded selected readers bind this dispatch to the complete persisted
+profile and exact manifest view. Bounded reads retain `CoreJsonReadLimits` wire
+byte/depth/element and manifest limits, including structural escape overhead.
+A conformant read does not authorize a `.3` artifact writer. The writer fence
+remains until a real owner resource vector and reader/rollback cohort are admitted.
+See the [qualified read contract](../../../../docs/reference/canonical-json-profile-reads.md)
+for carrier returns, limitations and migration.

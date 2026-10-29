@@ -584,7 +584,7 @@ async def test_served_candidate_reader_reconciles_inner_scope_without_changing_v
         )
 
 
-def test_synthetic_cg2_contract_mechanism_remains_non_promotable():
+def test_synthetic_cg2_contract_mechanism_remains_non_promotable(tmp_path):
     """A v2 synthetic seed may exercise mechanics only in its explicit contract lane."""
     from polisyos.runtime.quality.grounding_bind import (
         GroundingBindGate,
@@ -607,11 +607,32 @@ def test_synthetic_cg2_contract_mechanism_remains_non_promotable():
     mechanical = resolve_grounding_decision_promotability_for_contract_testing(decision, reference)
     actual = resolve_grounding_decision_promotability(decision, reference)
 
+    # Retain the owner values before any assertion, including on a mechanical
+    # refusal. The synthetic reason by itself does not establish a bind.
+    import json
+
+    diagnostic_path = tmp_path / "synthetic-cg2-owner-diagnostic.json"
+    diagnostic_path.write_text(
+        json.dumps(
+            {
+                "schema_version": "test.synthetic_cg2_owner_diagnostic.v1",
+                "relation": relation.model_dump(mode="json"),
+                "decision": decision.model_dump(mode="json"),
+                "contract_resolution": mechanical.model_dump(mode="json"),
+                "production_resolution": actual.model_dump(mode="json"),
+            },
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
     assert decision.synthetic is True
     assert mechanical.reason == "synthetic_input_cannot_grant_authority"
     assert not mechanical.promotable
     assert not actual.promotable
-    assert _cg2_resolution_is_contract_lane_bind(mechanical)
+    assert _cg2_resolution_is_contract_lane_bind(mechanical), diagnostic_path
     assert not _cg2_resolution_is_contract_lane_bind(actual)
     for mutation in (
         {"owned_anchor_id": None},
@@ -627,10 +648,57 @@ def test_synthetic_cg2_contract_mechanism_remains_non_promotable():
         )
 
 
+def _load_recorded_n4_world(store_root, artifact_id, expected_record_hash):
+    """Read one existing, selected WMR through the read-only CAS owner."""
+    import hashlib
+
+    from polisyos.core import artifacts
+    from polisyos.runtime.quality.world_model_record import load_world_model_record
+
+    store = artifacts.FileSystemCAS.open_existing_read_only(store_root)
+    if not store.verify(artifact_id).ok:
+        raise ValueError("recorded_n4_world_artifact_verify_failed")
+    if "sha256:" + hashlib.sha256(store.get_bytes(artifact_id)).hexdigest() != artifact_id:
+        raise ValueError("recorded_n4_world_artifact_hash_mismatch")
+    world = load_world_model_record(store, artifact_id)
+    if world.content_hash != expected_record_hash:
+        raise ValueError("recorded_n4_world_logical_hash_mismatch")
+    return store, world
+
+
+def test_recorded_n4_world_reader_never_writes_selected_store(tmp_path):
+    """A local owner-produced WMR is verified without creating or modifying its source CAS."""
+    import hashlib
+
+    from polisyos.core.artifacts import ArtifactReadOnlyUnavailableError
+    from tests._helpers.world_model_record import _build_record
+
+    store, built, _, _ = _build_record(tmp_path / "owner")
+    artifact_id = str(built.record_ref.artifact_id)
+
+    def inventory():
+        return {
+            path.relative_to(store.root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
+            for path in store.root.rglob("*")
+            if path.is_file()
+        }
+
+    before = inventory()
+    reader, loaded = _load_recorded_n4_world(store.root, artifact_id, built.record.content_hash)
+    assert loaded == built.record
+    assert not hasattr(reader, "put_bytes")
+    with pytest.raises(ValueError, match="recorded_n4_world_logical_hash_mismatch"):
+        _load_recorded_n4_world(store.root, artifact_id, "sha256:" + "0" * 64)
+    assert inventory() == before
+    missing = tmp_path / "missing-owner"
+    with pytest.raises(ArtifactReadOnlyUnavailableError, match="cas_root_missing_or_invalid"):
+        _load_recorded_n4_world(missing, artifact_id, built.record.content_hash)
+    assert not missing.exists()
+
+
 @pytest.fixture(scope="module")
 def actual_n4_source():
     """Use the actual composed WMR/L6 owners and explicitly synthetic relation inputs."""
-    import hashlib
     import os
     from dataclasses import replace
     from decimal import Decimal
@@ -649,10 +717,7 @@ def actual_n4_source():
         production_composed_world_model_record,
     )
     from polisyos.runtime.quality.substrate_registry import load_substrate_registry
-    from polisyos.runtime.quality.world_model_record import (
-        load_world_model_record,
-        world_model_artifact_views,
-    )
+    from polisyos.runtime.quality.world_model_record import world_model_artifact_views
     from tests.unit.runtime.quality.test_design_generation import _llm_call
     from tests.unit.runtime.quality.test_grounding_bind import _reference
 
@@ -662,11 +727,7 @@ def actual_n4_source():
     )
     if any(value is not None for value in pin):
         assert all(pin), "A replay pin must declare its store, artifact and logical record hash."
-        store = artifacts.FileSystemCAS(root / pin[0])
-        assert store.verify(pin[1]).ok
-        assert "sha256:" + hashlib.sha256(store.get_bytes(pin[1])).hexdigest() == pin[1]
-        world = load_world_model_record(store, pin[1])
-        assert world.content_hash == pin[2]
+        store, world = _load_recorded_n4_world(root / pin[0], pin[1], pin[2])
     else:
         world = production_composed_world_model_record(root)
         store = artifacts.FileSystemCAS(root / ".tmp/gy-s-composed-wmr-cas")
@@ -678,6 +739,16 @@ def actual_n4_source():
         update={"runtime_hints": {**problem.runtime_hints, "synthetic": True}}
     )
     problem_ref = n4.gy_content_hash(problem.model_dump(mode="json"))
+    l6_root = os.environ.get("CORR_C_L6_SOURCE_ROOT")
+    l6_hash = os.environ.get("CORR_C_L6_SOURCE_HASH")
+    if l6_root is not None or l6_hash is not None:
+        assert l6_root and l6_hash, (
+            "An L6 replay pin requires both its source root and bundle hash."
+        )
+        l6 = load_l6_intervention_substrate(root, source_owner_root=Path(l6_root))
+        assert l6.content_hash == l6_hash, "The selected L6 bundle differs from its replay pin."
+    else:
+        l6 = load_l6_intervention_substrate(root)
     context = build_cycle_substrate_context(
         design_problem_ref=problem_ref,
         domain=problem.domain,
@@ -686,7 +757,7 @@ def actual_n4_source():
             item.entry_content_hash for item in world.substrate_registry_ref.resolved_entries
         ),
         world_model_record=world,
-        intervention_substrate=load_l6_intervention_substrate(root),
+        intervention_substrate=l6,
         candidate_levers=(),
         transport_context=None,
         source_pack_content_hash=None,

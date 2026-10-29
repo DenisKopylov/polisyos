@@ -1,14 +1,28 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+from pathlib import Path
 
 import pytest
+
+
+@pytest.fixture
+def n7_synthetic_catalog_root(tmp_path: Path) -> Path:
+    """Use the real registry owner with small, test-owned catalog inputs."""
+    from tests.unit.runtime.quality.test_substrate_registry import (
+        _write_substrate_catalog_fixture,
+    )
+
+    root = tmp_path / "c"
+    _write_substrate_catalog_fixture(root)
+    return root
 
 
 @pytest.mark.asyncio
 async def test_n7_source_gap_semantics_survive_compiler_and_fresh_route_read(
     tmp_path,
     monkeypatch: pytest.MonkeyPatch,
+    n7_synthetic_catalog_root: Path,
 ) -> None:
     """The persisted N7 record keeps its typed source gap and exact compiler join."""
     from polisyos.core.artifacts import load_core_json_artifact
@@ -39,6 +53,7 @@ async def test_n7_source_gap_semantics_survive_compiler_and_fresh_route_read(
             control,
             tenant_id="tenant-fixture",
             cell_id="cell-fixture",
+            generation_cycle_repo_root=n7_synthetic_catalog_root,
             revised_source=False,
         )
         route_cycle = closure.route_source_cycle
@@ -278,6 +293,7 @@ async def test_n7_source_gap_semantics_survive_compiler_and_fresh_route_read(
 async def test_fresh_route_rejects_same_id_wrong_compiler_metadata_with_guard_removal(
     tmp_path,
     monkeypatch: pytest.MonkeyPatch,
+    n7_synthetic_catalog_root: Path,
 ) -> None:
     """A CAS-persisted compiler mismatch is rejected despite unchanged route IDs."""
     from polisyos.core.artifacts import load_core_json_artifact
@@ -345,6 +361,7 @@ async def test_fresh_route_rejects_same_id_wrong_compiler_metadata_with_guard_re
             control,
             tenant_id="tenant-fixture",
             cell_id="cell-fixture",
+            generation_cycle_repo_root=n7_synthetic_catalog_root,
             revised_source=False,
         )
         with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
@@ -402,6 +419,7 @@ async def test_fresh_route_rejects_same_id_wrong_compiler_metadata_with_guard_re
 async def test_fresh_route_selects_one_source_action_and_keeps_unmatched_compiler_gap(
     tmp_path,
     monkeypatch: pytest.MonkeyPatch,
+    n7_synthetic_catalog_root: Path,
 ) -> None:
     """A second compiler requirement survives a real persisted source route."""
     from polisyos.core.security.tenant_context import tenant_scope
@@ -447,6 +465,7 @@ async def test_fresh_route_selects_one_source_action_and_keeps_unmatched_compile
             control,
             tenant_id="tenant-fixture",
             cell_id="cell-fixture",
+            generation_cycle_repo_root=n7_synthetic_catalog_root,
             revised_source=False,
         )
         source = closure.route_source_cycle.value_port.acquisition_requirement

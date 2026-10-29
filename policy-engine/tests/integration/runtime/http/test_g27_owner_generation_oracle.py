@@ -275,6 +275,7 @@ def test_g27_retry_conflict_gap(g27_env, monkeypatch):
     attempts = []
     observation_errors = []
     real_commit = source_admission_state._SourceAdmissionStateStore._commit
+    fault_binding = {"armed": False, "event_id": None, "hook": None, "store": None}
 
     def retain_observation(value):
         try:
@@ -284,17 +285,38 @@ def test_g27_retry_conflict_gap(g27_env, monkeypatch):
             return None
 
     def observe_actual_commit(store, command, *args, **kwargs):
-        attempt = {"command": copy.deepcopy(command)}
+        attempt = {"command": copy.deepcopy(command), "store": store}
         attempts.append(attempt)
         sequence = retain_observation(
             {
                 "kind": "commit_call",
                 "command": attempt["command"],
+                "store_identity": id(store),
+                "root_path": str(store.root_path),
                 "predicate_provenance": "not_established",
             }
         )
         try:
-            receipt = real_commit(store, command, *args, **kwargs)
+            if fault_binding["armed"]:
+                expected_root = env["cas_root"] / "decision_validity" / "committed_source_root.json"
+                if (
+                    type(store) is not source_admission_state._SourceAdmissionStateStore
+                    or store.root_path != expected_root
+                    or store._fault is not None
+                    or command.get("event_id") != fault_binding["event_id"]
+                    or command.get("operation") != "withdraw"
+                ):
+                    observation_errors.append("G27_COMMIT_STORE_BINDING_ERROR")
+                    raise AssertionError("G27_COMMIT_STORE_BINDING_ERROR")
+                fault_binding["armed"] = False
+                fault_binding["store"] = store
+                store._fault = fault_binding["hook"]
+                try:
+                    receipt = real_commit(store, command, *args, **kwargs)
+                finally:
+                    store._fault = None
+            else:
+                receipt = real_commit(store, command, *args, **kwargs)
         except BaseException as exc:
             attempt.update(outcome="raised", error_type=type(exc).__name__, error_message=str(exc))
             retain_observation(
@@ -332,47 +354,84 @@ def test_g27_retry_conflict_gap(g27_env, monkeypatch):
     assert not observation_errors, "G27_COMMIT_OBSERVATION_ERROR"
     command = _withdraw_a(env, results)
     before = committed_snapshot(env["cas_root"])
-    state = env["owner"]._source_admission._state
-    assert state._fault is None
     fault_roots = []
+    pending_roots = []
 
     def interrupt_before_publish(point):
         if point != "before_root_publish":
             return
+        store = fault_binding["store"]
         try:
-            member = env["oracle"].cas.preserve(state.root_path.read_bytes())
+            member = env["oracle"].cas.preserve(store.root_path.read_bytes())
+            staged_paths = list(store.root_path.parent.glob(".source-root-*"))
+            if len(staged_paths) != 1:
+                raise ValueError("staged root is not uniquely observed")
+            staged_raw = staged_paths[0].read_bytes()
+            staged = json.loads(staged_raw)
+            event_raw = (store.objects / (staged["event_ref"] + ".json")).read_bytes()
+            event = json.loads(event_raw)
+            index_raw = (store.objects / (staged["index_ref"] + ".json")).read_bytes()
+            index = json.loads(index_raw)
+            pending = {
+                "root": staged,
+                "event": event,
+                "index": index,
+                "root_member": env["oracle"].cas.preserve(staged_raw),
+                "event_member": env["oracle"].cas.preserve(event_raw),
+                "index_member": env["oracle"].cas.preserve(index_raw),
+            }
+            pending_roots.append(pending)
         except Exception as exc:
             observation_errors.append(type(exc).__name__)
             member = None
+            pending = None
         fault_roots.append(member)
         retain_observation(
             {
                 "kind": "commit_fault_observation",
                 "point": point,
                 "root_member": member,
+                "staged_root_member": None if pending is None else pending["root_member"],
+                "staged_event_member": None if pending is None else pending["event_member"],
+                "staged_index_member": None if pending is None else pending["index_member"],
+                "store_identity": id(store),
                 "predicate_provenance": "not_established",
             }
         )
         raise OSError("g27-test-interrupted-before-root")
 
     call_count = len(attempts)
-    monkeypatch.setattr(state, "_fault", interrupt_before_publish)
-    try:
-        interrupted, observed = _exchange(env, "withdrawals", command)
-    finally:
-        monkeypatch.setattr(state, "_fault", None)
+    fault_binding.update(armed=True, event_id=command["event_id"], hook=interrupt_before_publish)
+    interrupted, observed = _exchange(env, "withdrawals", command)
     reconciled = False
     try:
         assert not observation_errors, "G27_COMMIT_OBSERVATION_ERROR"
         assert interrupted.status_code >= 400, interrupted.text
         assert len(attempts) == call_count + 1
         aborted = attempts[-1]
+        assert not fault_binding["armed"] and fault_binding["store"] is aborted["store"]
+        assert aborted["store"]._fault is None
         assert aborted["outcome"] == "raised" and aborted["error_type"] == "OSError"
         assert aborted["error_message"] == "g27-test-interrupted-before-root"
         assert aborted["command"]["event_id"] == command["event_id"]
         assert aborted["command"]["target"] == command["target"]
         assert aborted["command"]["expected_predecessor"] == command["expected_predecessor"]
         assert fault_roots == [before["root_digest"].removeprefix("sha256:")]
+        assert len(pending_roots) == 1
+        pending = pending_roots[0]
+        staged, event, index = pending["root"], pending["event"], pending["index"]
+        assert set(staged) == {"schema_version", "generation", "event_ref", "index_ref"}
+        assert staged["schema_version"] == "source-admission-root.v1"
+        assert staged["generation"] == event["generation"] == before["root"]["generation"] + 1
+        assert digest(staged).removeprefix("sha256:") == pending["root_member"]
+        assert pending["event_member"] == staged["event_ref"]
+        assert pending["index_member"] == staged["index_ref"]
+        assert digest(event).removeprefix("sha256:") == pending["event_member"]
+        assert digest(index).removeprefix("sha256:") == pending["index_member"]
+        assert event["schema_version"] == "source-event.v1"
+        assert event["command"] == aborted["command"]
+        assert event["command_digest"] == digest(aborted["command"])
+        assert event["result"] == {"operation": "withdraw", "carrier": aborted["command"]["target"]}
         assert committed_snapshot(env["cas_root"]) == before
         assert command["event_id"] not in before["events"]
         reconciled = True

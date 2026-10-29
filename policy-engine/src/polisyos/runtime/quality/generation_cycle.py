@@ -2385,6 +2385,40 @@ def _n7_cycle_source_gap(
     )
 
 
+def _n7_cycle_request_matches_revision(
+    *,
+    cycle: GenerationCycleRecord,
+    acquisition_request: Mapping[str, Any],
+) -> bool:
+    """Reconcile the complete compiler input to the selected cycle's revision."""
+    selected = cycle.revision_request.strategy_payload.get("acquisition_request")
+    if not isinstance(selected, Mapping):
+        return False
+    if "cycle_index" in selected and (
+        type(selected["cycle_index"]) is not int or selected["cycle_index"] != cycle.cycle_index
+    ):
+        return False
+    expected = dict(selected)
+    # These controller fields do not supply compiler scope or constructs.
+    # Their own route/checkpoint consumers still validate their content.
+    if "cycle_index" in acquisition_request:
+        expected["cycle_index"] = cycle.cycle_index
+    if (
+        "n7_source_join_rule" not in expected
+        and acquisition_request.get("n7_source_join_rule") == _N7_SOURCE_JOIN_RULE
+    ):
+        expected["n7_source_join_rule"] = _N7_SOURCE_JOIN_RULE
+    if (
+        "n7_candidate_source_ref" not in expected
+        and "n7_candidate_source_ref" in acquisition_request
+    ):
+        expected["n7_candidate_source_ref"] = acquisition_request["n7_candidate_source_ref"]
+    try:
+        return _n7_exact_wire(expected) == _n7_exact_wire(dict(acquisition_request))
+    except (TypeError, ValueError):
+        return False
+
+
 def _n7_joined_planner_records_match(
     *,
     problem: DesignProblem,
@@ -9946,13 +9980,29 @@ class GenerationCycleController:
         raw_gap_present = "requirement_gap" in acquisition_request
         source_gap: AcquisitionRequirementGap | None = None
         routing_limitation_code: str | None = None
+        request_binding_refused = (
+            type(cycle) is GenerationCycleRecord
+            and _cycle_acquisition_requirement(cycle.grounding, cycle.value_port) is not None
+            and not _n7_cycle_request_matches_revision(
+                cycle=cycle, acquisition_request=acquisition_request
+            )
+        )
+        if request_binding_refused and cycle is not None:
+            # Even a changed gap or driver cannot carry a foreign compiler
+            # scope. Keep the selected source only to reconstruct its basis;
+            # the request refusal suppresses every routed gap below.
+            selected_request = cycle.revision_request.strategy_payload.get("acquisition_request")
+            acquisition_request = selected_request if isinstance(selected_request, Mapping) else {}
+            unbound_input_fields = ("acquisition_request", *unbound_input_fields)
         if cycle is not None or raw_gap_present:
             source_gap, routing_limitation_code = _n7_cycle_source_gap(
                 problem,
                 cycle=cycle,
                 acquisition_request=acquisition_request,
             )
-            if routing_limitation_code == "unbound_requirement_input_refused":
+            if request_binding_refused:
+                routing_limitation_code = "unbound_requirement_input_refused"
+            elif routing_limitation_code == "unbound_requirement_input_refused":
                 unbound_input_fields = (
                     "acquisition_request.requirement_gap",
                     *unbound_input_fields,
@@ -9964,7 +10014,7 @@ class GenerationCycleController:
                 acquisition_request=acquisition_request,
                 source_gap=source_gap,
             )
-            if source_family_limitation is not None:
+            if source_family_limitation is not None and not request_binding_refused:
                 routing_limitation_code = source_family_limitation
         profile_aliases = (
             "scenario_profile",
@@ -10072,7 +10122,7 @@ class GenerationCycleController:
         if type(report) is not DataRequirementCompilationReport:
             raise GenerationCycleError("n7_compiler_report_binding_refused", "report_untyped")
         routed_compiler_gaps: tuple[AcquisitionRequirementGap, ...] = ()
-        if source_gap is not None:
+        if source_gap is not None and not request_binding_refused:
             routed_compiler_gaps, routing_limitation_code = _n7_route_compiler_gaps(
                 source_gap=source_gap,
                 specs=tuple(report.specs),
@@ -10089,7 +10139,7 @@ class GenerationCycleController:
             capability_resolutions=report.capability_requirement_resolutions,
             compilation_report=report,
             unbound_input_fields=unbound_input_fields,
-            routed_source_gap=source_gap,
+            routed_source_gap=None if request_binding_refused else source_gap,
             routed_compiler_gaps=routed_compiler_gaps,
             routing_limitation_code=routing_limitation_code,
         )

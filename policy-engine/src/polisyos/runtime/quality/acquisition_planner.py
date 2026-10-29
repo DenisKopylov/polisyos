@@ -11,15 +11,18 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import math
 import re
 import weakref
-from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
+from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence, Set
 from contextlib import contextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
+from decimal import Decimal
 from enum import StrEnum
 from importlib import import_module
+from numbers import Number, Rational, Real
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Protocol, Self, cast
 
@@ -80,7 +83,63 @@ _VERIFIED_RECEIPT_EMISSIONS: dict[int, tuple[weakref.ReferenceType, bytes, objec
 _UNSPECIFIED_EMISSION_CONTEXT = object()
 
 
+def _require_finite_numeric_projection(model: BaseModel) -> None:
+    """Reject non-finite or unsupported numerics visible in the Python projection."""
+    try:
+        pending: list[object] = [model.model_dump(mode="python")]
+        visited: set[int] = set()
+        while pending:
+            value = pending.pop()
+            if isinstance(value, Decimal):
+                if not value.is_finite():
+                    raise AcquisitionPlannerBindingError("acquisition_model_nonfinite_numeric")
+            elif isinstance(value, Rational):
+                # Integers and fractions are finite without conversion to float.
+                continue
+            elif isinstance(value, Real):
+                try:
+                    finite = math.isfinite(value)
+                except (OverflowError, TypeError, ValueError) as exc:
+                    raise AcquisitionPlannerBindingError(
+                        "acquisition_model_numeric_unsupported"
+                    ) from exc
+                if not finite:
+                    try:
+                        nonfinite = value != value or value in (math.inf, -math.inf)
+                    except (OverflowError, TypeError, ValueError) as exc:
+                        raise AcquisitionPlannerBindingError(
+                            "acquisition_model_numeric_unsupported"
+                        ) from exc
+                    if not nonfinite:
+                        raise AcquisitionPlannerBindingError(
+                            "acquisition_model_numeric_unsupported"
+                        )
+                    raise AcquisitionPlannerBindingError("acquisition_model_nonfinite_numeric")
+            elif isinstance(value, complex):
+                if not math.isfinite(value.real) or not math.isfinite(value.imag):
+                    raise AcquisitionPlannerBindingError("acquisition_model_nonfinite_numeric")
+            elif isinstance(value, Number):
+                raise AcquisitionPlannerBindingError("acquisition_model_numeric_unsupported")
+            elif isinstance(value, Mapping):
+                if id(value) not in visited:
+                    visited.add(id(value))
+                    pending.extend(value.keys())
+                    pending.extend(value.values())
+            elif (
+                isinstance(value, Sequence | Set)
+                and not isinstance(value, str | bytes | bytearray | memoryview)
+                and id(value) not in visited
+            ):
+                visited.add(id(value))
+                pending.extend(value)
+    except AcquisitionPlannerBindingError:
+        raise
+    except (TypeError, ValueError) as exc:
+        raise AcquisitionPlannerBindingError("acquisition_model_python_projection_invalid") from exc
+
+
 def _canonical_model_bytes(model: BaseModel) -> bytes:
+    _require_finite_numeric_projection(model)
     return json.dumps(
         model.model_dump(mode="json"),
         sort_keys=True,
@@ -136,12 +195,15 @@ def _emission_is_sealed(
     model: BaseModel, registry: dict, context: object = _UNSPECIFIED_EMISSION_CONTEXT
 ) -> bool:
     stored = registry.get(id(model))
-    return bool(
-        stored is not None
-        and stored[0]() is model
-        and stored[1] == _canonical_model_bytes(model)
-        and (context is _UNSPECIFIED_EMISSION_CONTEXT or stored[2] == context)
-    )
+    try:
+        return bool(
+            stored is not None
+            and stored[0]() is model
+            and stored[1] == _canonical_model_bytes(model)
+            and (context is _UNSPECIFIED_EMISSION_CONTEXT or stored[2] == context)
+        )
+    except (TypeError, ValueError):
+        return False
 
 
 def _validated_catalog_run_profile(value: object | None) -> CatalogRunProfile | None:

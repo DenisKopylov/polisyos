@@ -239,6 +239,30 @@ def test_complete_receipt_emission_and_actual_cycle_consumer_refuse_forged_bytes
     assert _n7_rederived_grounding_for_candidate(forged, candidate_id="candidate:forged") is None
 
 
+def test_nonfinite_nested_value_revokes_real_source_and_receipt_seals(captured, monkeypatch):
+    """The same source and receipt must not stay sealed after a float collision."""
+    receipt = _replay(*captured)
+    artifact = receipt.owner_artifacts[0]
+    assert n7.acquisition_receipt_has_verified_emission(receipt)
+    assert n7._emission_is_sealed(artifact, n7._VERIFIED_SOURCE_EMISSIONS)
+    resolution = artifact.payload["owner_response"]["resolution"]
+    assert resolution["candidate_operator"] is None
+    original_refs = (receipt.content_hash, artifact.artifact_ref, artifact.content_hash)
+    resolution["candidate_operator"] = float("nan")
+    assert original_refs == (receipt.content_hash, artifact.artifact_ref, artifact.content_hash)
+    assert not n7._emission_is_sealed(artifact, n7._VERIFIED_SOURCE_EMISSIONS)
+    assert not n7.acquisition_receipt_has_verified_emission(receipt)
+    with monkeypatch.context() as removed:
+        removed.setattr(n7, "_require_finite_numeric_projection", lambda model: None)
+        assert n7._emission_is_sealed(artifact, n7._VERIFIED_SOURCE_EMISSIONS)
+        assert n7.acquisition_receipt_has_verified_emission(receipt)
+    assert not n7._emission_is_sealed(artifact, n7._VERIFIED_SOURCE_EMISSIONS)
+    assert not n7.acquisition_receipt_has_verified_emission(receipt)
+    resolution["candidate_operator"] = None
+    assert n7._emission_is_sealed(artifact, n7._VERIFIED_SOURCE_EMISSIONS)
+    assert n7.acquisition_receipt_has_verified_emission(receipt)
+
+
 def test_identical_deserialized_receipt_requires_replay_and_nested_mutation_revokes_seal(captured):
     receipt = _replay(*captured)
     decoded = n7.AcquisitionReceipt.model_validate_json(receipt.model_dump_json())

@@ -278,13 +278,67 @@ async def test_n7_source_gap_semantics_survive_compiler_and_fresh_route_read(
                 acquisition_request={},
             ),
         }
-        foreign_basis = controller._n7_data_requirement_basis_with_report(
-            problem,
-            acquisition_request=foreign_scope_request,
-            cycle=route_cycle,
+        # Check the complete selected revision request, not just the gap ID.
+        # Profile aliases, constructs, and even non-compiler fields may not be
+        # transplanted after selection while retaining the same cycle/gap.
+        owner_basis = controller._n7_data_requirement_basis_with_report(
+            problem, acquisition_request=request, cycle=route_cycle
         )
-        assert foreign_basis.routing_limitation_code == "unbound_requirement_input_refused"
-        assert foreign_basis.routed_compiler_gaps == ()
+        assert owner_basis.routing_limitation_code is None
+        assert owner_basis.routed_compiler_gaps
+        # The checkpoint field is not a compiler input; acceptance here is
+        # not checkpoint custody or permission, which the dispatcher verifies.
+        checkpoint_request = {
+            **request,
+            "n7_candidate_source_ref": {"fixture": "unverified"},
+        }
+        checkpoint_basis = controller._n7_data_requirement_basis_with_report(
+            problem, acquisition_request=checkpoint_request, cycle=route_cycle
+        )
+        assert checkpoint_basis.routing_limitation_code is None
+        assert checkpoint_basis.specs == owner_basis.specs
+        mutations = (
+            foreign_scope_request,
+            {**request, "scenario_profile": foreign_scope_request["scope_profile"]},
+            {
+                **request,
+                "context": {"scope_profile": foreign_scope_request["scope_profile"]},
+            },
+            {**request, "required_constructs": ["foreign_construct"]},
+            {**request, "metadata": {"deadline_ms": 1}},
+            {
+                **foreign_scope_request,
+                "requirement_gap": different_source_gap.model_dump(mode="json"),
+            },
+            {**foreign_scope_request, "driver": "acquire_data:foreign"},
+            {key: value for key, value in request.items() if key != "consumer_owner"},
+        )
+        for changed_request in mutations:
+            foreign_basis = controller._n7_data_requirement_basis_with_report(
+                problem, acquisition_request=changed_request, cycle=route_cycle
+            )
+            assert foreign_basis.routing_limitation_code == "unbound_requirement_input_refused"
+            assert foreign_basis.routed_compiler_gaps == ()
+            assert foreign_basis.specs == owner_basis.specs
+
+        # Remove the property itself, retaining every source ID and marker.
+        # The foreign scope now reaches the compiler and a route; restoring
+        # the property must refuse it again.
+        with monkeypatch.context() as removed:
+            removed.setattr(
+                generation_cycle, "_n7_cycle_request_matches_revision", lambda **_: True
+            )
+            unguarded = controller._n7_data_requirement_basis_with_report(
+                problem, acquisition_request=foreign_scope_request, cycle=route_cycle
+            )
+            assert unguarded.routing_limitation_code is None
+            assert unguarded.routed_compiler_gaps
+            assert any(spec.scope.jurisdiction == "USA" for spec in unguarded.specs)
+        restored = controller._n7_data_requirement_basis_with_report(
+            problem, acquisition_request=foreign_scope_request, cycle=route_cycle
+        )
+        assert restored.routing_limitation_code == "unbound_requirement_input_refused"
+        assert restored.routed_compiler_gaps == ()
     finally:
         control.close()
 

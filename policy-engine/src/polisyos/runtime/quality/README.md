@@ -1577,12 +1577,26 @@ marker selects a consistent replay law; it is not independent proof of which
 historical producer code emitted a fully reconstructed alternative record. Such
 producer provenance remains `not_established`. A retained continuation cannot
 introduce an inline checkpoint without an actual retained-owner binding for it.
+When a source gap is selected from a cycle, its compiler request is reconciled
+to that cycle's full revision request, with only the controller's routing
+fields added. A changed request refuses the source route, and the compiler
+uses the selected revision rather than the changed request. This is a current
+cycle consistency check; the checkpoint reference's custody is checked by the
+later dispatcher. It does not independently establish the producer or semantic
+admissibility of a profile already present in that revision.
 
 The planner-report CAS writer preserves explicit nulls using its recorded Core
 canonical profile, because optional capability-resolution field presence is part
 of the bound output. The persisted-report reader compares the complete serialized
 quantity and rechecks the persisted output binding; model value equality alone is
-not sufficient. Earlier artifacts are not rewritten. An old profile that omitted
+not sufficient. Before the existing JSON comparison, the shared model-byte owner
+checks numeric values visible in the Pydantic Python projection. Non-finite float,
+Decimal or complex values and unsupported recognized numeric carriers refuse;
+integers and rationals remain finite without float conversion. This covers planner
+comparison and current source/receipt seals; seal checks return false on refusal.
+The seal compares JSON projection identity, not all Python object identity; values
+hidden by custom Python serializers are not established. Earlier artifacts are not
+rewritten. An old profile that omitted
 nulls can still replay a report that actually lacked the field; if it collapsed an
 explicit null, its original presence is not recoverable from that report alone
 and the binding is not established. Reissue from current independently validated

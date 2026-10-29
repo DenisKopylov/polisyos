@@ -3,8 +3,11 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import json
+import math
 import os
 from datetime import UTC, datetime, timedelta
+from decimal import Decimal
+from fractions import Fraction
 from pathlib import Path
 
 import pytest
@@ -1160,9 +1163,144 @@ def test_n7_planner_old_lossy_profile_refuses_null_collapse_and_restores_writer(
     bad_strategy = row.strategy_records[0].model_copy(update={"voi_expected_cost": float("nan")})
     bad_row = row.model_copy(update={"strategy_records": (bad_strategy, *row.strategy_records[1:])})
     bad_report = explicit.model_copy(update={"acquisition_records": (bad_row,)})
+    python_cost = bad_report.model_dump(mode="python")["acquisition_records"][0][
+        "strategy_records"
+    ][0]["voi_expected_cost"]
+    assert isinstance(python_cost, float) and math.isnan(python_cost)
+    with pytest.raises(ValueError):
+        persist_acquisition_planner_report(store, bad_report)
     assert acquisition_owner._validate_persisted_planner_report(
         store=store, ref=restored_ref, report=bad_report
     ) == ({"code": "acquisition_planner_report_content_invalid"},)
+    # The writer's generic Core finite-value property must be exercised, not
+    # just its marker: remove the preflight and test the same malformed report.
+    with monkeypatch.context() as removed:
+        removed.setattr(
+            acquisition_owner, "_require_finite_numeric_projection", lambda report: None
+        )
+        assert (
+            acquisition_owner._validate_persisted_planner_report(
+                store=store, ref=restored_ref, report=bad_report
+            )
+            == ()
+        )
+    assert acquisition_owner._validate_persisted_planner_report(
+        store=store, ref=restored_ref, report=bad_report
+    ) == ({"code": "acquisition_planner_report_content_invalid"},)
+    # Exercise both strategy collections and VOI fields with all non-finite
+    # float categories, preserving report/action IDs and binding markers.
+    for collection in ("strategy_records", "ineligible_strategy_records"):
+        strategies = getattr(row, collection)
+        assert strategies
+        for field in ("voi_expected_value", "voi_expected_cost"):
+            for value in (float("nan"), float("inf"), float("-inf")):
+                changed = strategies[0].model_copy(update={field: value})
+                changed_row = row.model_copy(update={collection: (changed, *strategies[1:])})
+                changed_report = explicit.model_copy(update={"acquisition_records": (changed_row,)})
+                assert acquisition_owner._validate_persisted_planner_report(
+                    store=FileSystemCAS(tmp_path / "cas"), ref=restored_ref, report=changed_report
+                ) == ({"code": "acquisition_planner_report_content_invalid"},)
+
+
+def test_shared_model_bytes_keep_valid_json_projection_and_refuse_nested_nonfinite_numbers() -> (
+    None
+):
+    """Keep the former JSON bytes while inspecting supported Python containers."""
+    artifact = acquisition_owner.AcquisitionOwnerArtifact.from_payload(
+        owner_component="fixture.owner",
+        requirement_ref="fixture:requirement",
+        artifact_ref="fixture:artifact",
+        payload={"_type": "ordinary_fixture_data", "path": Path("fixture/input")},
+        cost_usd=0.0,
+        quality={
+            "finite_values": {0.25, 0.75},
+            "large_decimal": Decimal("1e10000"),
+            "finite_complex": complex(1.0, 2.0),
+            "huge_integer": 10**500,
+        },
+        rights={},
+        binding_refs=(),
+        journal_ref="fixture:journal",
+    )
+    expected = json.dumps(
+        artifact.model_dump(mode="json"), sort_keys=True, separators=(",", ":"), allow_nan=False
+    ).encode()
+    assert acquisition_owner._canonical_model_bytes(artifact) == expected
+    invalid = (
+        {"nested": [float("nan")]},
+        {"nested": (float("inf"),)},
+        {"nested": {float("-inf")}},
+        {float("nan"): "key"},
+        {"nested": frozenset({float("inf")})},
+        {"nested": [Decimal("NaN"), Decimal("Infinity")]},
+        {"nested": Decimal("sNaN")},
+        {Decimal("NaN"): "key"},
+        {"nested": complex(float("nan"), 0.0)},
+        {"nested": complex(0.0, float("inf"))},
+    )
+    for value in invalid:
+        changed = artifact.model_copy(update={"quality": value})
+        with pytest.raises(
+            acquisition_owner.AcquisitionPlannerBindingError,
+            match="acquisition_model_nonfinite_numeric",
+        ):
+            acquisition_owner._canonical_model_bytes(changed)
+    huge_fraction = artifact.model_copy(update={"quality": {"value": Fraction(10**500, 1)}})
+    acquisition_owner._require_finite_numeric_projection(huge_fraction)
+
+
+def test_n7_decimal_collision_must_not_preserve_actual_receipt_seal(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Falsify a string-to-nonfinite-Decimal collision on a real emitted receipt."""
+    spec = _compiled_requirement_specs()[0]
+    artifact = _captured_owner_artifact(
+        owner_component="fabric.ingestion",
+        requirement_ref=spec.requirement_id,
+        artifact_ref="fabric://recorded/decimal-collision",
+        acquired_family="production_msme_panel",
+        source_id="fabric.production_msme_panel",
+        candidate_id="design:credit",
+        cost_usd=11.25,
+    )
+    artifact.quality["fixture_decimal_probe"] = "NaN"
+    inputs = {
+        "run_id": "run-n7-decimal-collision",
+        "acquisition_request": {"cycle_index": 1},
+        "data_requirement_specs": (spec,),
+        "world_snapshot": AcquisitionWorldSnapshot(
+            world_ref="world://before/decimal-collision",
+            known_slots=("production_msme_panel",),
+            substrate_registry=_substrate_registry().model_dump(mode="json"),
+        ),
+        "owner_gateway": RecordedAcquisitionOwnerGateway(
+            artifacts_by_requirement={spec.requirement_id: artifact}
+        ),
+    }
+    receipt = run_acquisition_closed_loop(**inputs)
+    assert acquisition_owner.acquisition_receipt_has_verified_emission(receipt)
+    emitted = receipt.owner_artifacts[0]
+    assert emitted is artifact
+    assert emitted.quality["fixture_decimal_probe"] == "NaN"
+    refs = (receipt.content_hash, emitted.artifact_ref, emitted.content_hash)
+    emitted.quality["fixture_decimal_probe"] = Decimal("NaN")
+    assert refs == (receipt.content_hash, emitted.artifact_ref, emitted.content_hash)
+    assert (
+        receipt.model_dump(mode="json")["owner_artifacts"][0]["quality"]["fixture_decimal_probe"]
+        == "NaN"
+    )
+    assert not acquisition_owner.acquisition_receipt_has_verified_emission(receipt)
+    with pytest.raises(
+        acquisition_owner.AcquisitionPlannerBindingError,
+        match="acquisition_model_nonfinite_numeric",
+    ):
+        run_acquisition_closed_loop(**inputs)
+    with monkeypatch.context() as removed:
+        removed.setattr(acquisition_owner, "_require_finite_numeric_projection", lambda model: None)
+        assert acquisition_owner.acquisition_receipt_has_verified_emission(receipt)
+    assert not acquisition_owner.acquisition_receipt_has_verified_emission(receipt)
+    emitted.quality["fixture_decimal_probe"] = "NaN"
+    assert acquisition_owner.acquisition_receipt_has_verified_emission(receipt)
 
 
 def test_scorecard_surfaces_acquisition_blockers_as_runtime_closeout_failures() -> None:

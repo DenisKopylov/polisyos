@@ -1379,6 +1379,128 @@ def test_dfk_01_census_reads_native_invalid_byte_git_filename(tmp_path: Path) ->
     )
 
 
+@pytest.mark.skipif(
+    sys.platform != "linux",
+    reason="requires native Linux filenames containing non-UTF-8 bytes",
+)
+def test_dfk_01_native_invalid_byte_removal_control_detects_lossy_fsdecode(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Reconcile every actual Git path and content, including a readable collision."""
+    from tools.quality.validation import schema_fqn_census
+
+    for collision_present in (False, True):
+        root = tmp_path / ("present" if collision_present else "absent")
+        root.mkdir()
+        _init_census_repository(root, {"README.md": "tracked fixture\n"})
+        payloads = {
+            b"native_\xff.json": b'{"module":"polisyos.foundry.domain.mechanisms","id":1}\n',
+            b"native_\xfe.json": b'{"module":"polisyos.foundry.domain.mechanisms","id":2}\n',
+        }
+        if collision_present:
+            payloads[b"native_\xef\xbf\xbd.json"] = (
+                b'{"module":"polisyos.foundry.domain.mechanisms","id":3}\n'
+            )
+        for raw_name, payload in payloads.items():
+            fd = os.open(
+                os.fsencode(root) + b"/" + raw_name, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600
+            )
+            try:
+                assert os.write(fd, payload) == len(payload)
+            finally:
+                os.close(fd)
+        subprocess.run([b"git", b"add", b"--", *payloads], cwd=root, check=True)
+        entries = subprocess.run(
+            [b"git", b"ls-files", b"--stage", b"-z"], cwd=root, capture_output=True, check=True
+        ).stdout.split(b"\0")
+        raw_objects = {}
+        for entry in entries:
+            if entry:
+                header, raw_path = entry.split(b"\t", 1)
+                mode, object_id, stage = header.split()
+                assert mode == b"100644" and stage == b"0" and raw_path not in raw_objects
+                raw_objects[raw_path] = object_id
+        assert set(raw_objects) == {b"README.md", *payloads}
+        assert len(set(raw_objects.values())) == len(raw_objects)
+        raw_contents = {}
+        for raw_path, object_id in raw_objects.items():
+            raw_contents[raw_path] = subprocess.run(
+                [b"git", b"cat-file", b"blob", object_id],
+                cwd=root,
+                capture_output=True,
+                check=True,
+            ).stdout
+        assert raw_contents == {b"README.md": b"tracked fixture\n", **payloads}
+
+        # Build the full path/content oracle from raw Git bytes, independently of os.fsdecode.
+        expected = {
+            raw_path.decode("utf-8", "surrogateescape"): hashlib.sha256(content).hexdigest()
+            for raw_path, content in raw_contents.items()
+        }
+        expected_matches = {
+            raw_path.decode("utf-8", "surrogateescape")
+            for raw_path, content in raw_contents.items()
+            if b"polisyos.foundry.domain.mechanisms" in content
+        }
+        assert len(expected) == len(raw_contents)
+
+        def preserves_raw_identities(
+            receipt: dict[str, object], expected: dict[str, str], expected_matches: set[str]
+        ) -> bool:
+            selected = receipt["selection"]["selected_paths"]
+            read_paths = receipt["scanned_denominator"]["read_paths"]
+            reads = [
+                item
+                for item in receipt["read_receipt"]["inputs"]
+                if item["operation"] == "read_bytes" and item["status"] == "read"
+            ]
+            digests = {item["path"]: item["sha256"] for item in reads}
+            matches = {
+                hit["path"]
+                for hit in receipt["matches"]
+                if hit["target"] == "polisyos.foundry.domain.mechanisms"
+            }
+            return (
+                len(selected) == len(expected)
+                and set(selected) == set(expected)
+                and receipt["selection"]["selected_path_count"] == len(expected)
+                and len(read_paths) == len(expected)
+                and set(read_paths) == set(expected)
+                and receipt["scanned_denominator"]["successful_byte_reads"] == len(expected)
+                and len(reads) == len(expected)
+                and digests == expected
+                and matches == expected_matches
+            )
+
+        baseline, baseline_status = schema_fqn_census.collect_census(root)
+        assert baseline_status == 0 and baseline["read_receipt"]["complete_verdict"] is True
+        assert preserves_raw_identities(baseline, expected, expected_matches)
+        original_fsdecode = os.fsdecode
+
+        def lossy_fsdecode(path: str | bytes | os.PathLike[str] | os.PathLike[bytes]) -> str:
+            value = os.fspath(path)
+            return value.decode("utf-8", "replace") if isinstance(value, bytes) else value
+
+        with monkeypatch.context() as control:
+            control.setattr(schema_fqn_census.os, "fsdecode", lossy_fsdecode)
+            mutated, mutated_status = schema_fqn_census.collect_census(root)
+
+        # The same actual fields survive; the independent byte/count oracle detects loss
+        # even if a colliding existing file makes the mutant report a complete success.
+        assert all(key in mutated for key in ("selection", "read_receipt", "matches"))
+        assert preserves_raw_identities(mutated, expected, expected_matches) is False
+        if collision_present:
+            assert b"native_\xef\xbf\xbd.json" in raw_contents
+            if mutated_status == 0 and mutated["read_receipt"]["complete_verdict"] is True:
+                assert preserves_raw_identities(mutated, expected, expected_matches) is False
+        else:
+            assert b"native_\xef\xbf\xbd.json" not in raw_contents
+        assert os.fsdecode is original_fsdecode
+        restored, restored_status = schema_fqn_census.collect_census(root)
+        assert restored_status == 0 and restored["read_receipt"]["complete_verdict"] is True
+        assert preserves_raw_identities(restored, expected, expected_matches)
+
+
 def test_dfk_01_census_decodes_valid_junit_and_manifested_source_snapshot(
     tmp_path: Path,
 ) -> None:

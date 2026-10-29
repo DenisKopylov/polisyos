@@ -482,3 +482,7 @@ compatibility convention remains candidate-only. Full stress occurrence counts
 and bounded examples remain distinct. The current selected-objective-intent
 limitation stays explicit until an independent selected input owner is joined;
 changing a presentation cap or adding a direction label cannot establish it.
+
+## Lesson evidence age on transfer (B137)
+
+Local lesson reads and transfer materialization apply the same evidence-age confidence cap before effective-quality filtering. The source CAS record remains unchanged; a stale lesson within the transfer TTL window may remain available at reduced weight. Read or transfer activity does not establish a new evidence verification. An authorized scientific revalidation producer and production authority remain unestablished.

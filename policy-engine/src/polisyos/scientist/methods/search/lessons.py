@@ -792,8 +792,8 @@ class LessonRegistry:
         # an additional declaration of the destination TransferContext.
         target_context = resolve_transfer_context(transfer_context=target_context)
         active_policy = policy or self._transfer_policy
-        source_scope = self._verified_source_scope_for_card(card)
-        if source_scope is None:
+        source_binding = self._verified_source_binding_for_card(card)
+        if source_binding is None:
             raise TransferScopeRefusedError(
                 [
                     _scope_refusal(
@@ -801,17 +801,35 @@ class LessonRegistry:
                     )
                 ]
             )
+        source_scope, source_entry = source_binding
         source_context = source_scope.context(run_id=card.origin_run_id or card.source_run_id)
+        effective_card = self._materialize_query_card(
+            source_entry,
+            now=datetime.now(UTC),
+            source_context=source_context,
+            ttl_days=active_policy.ttl_days,
+        )
+        # A caller may present an already-demoted candidate; never raise it.
+        effective_card = effective_card.model_copy(
+            update={
+                "confidence": min(effective_card.confidence, card.confidence),
+                "trust_level": (
+                    LessonTrustLevel.LOW_CONFIDENCE
+                    if card.trust_level is LessonTrustLevel.LOW_CONFIDENCE
+                    else effective_card.trust_level
+                ),
+            }
+        )
         weight = compute_provenance_weight(
             source_context,
             target_context,
-            created_at=card.created_at,
+            created_at=self._evidence_anchor(source_entry, effective_card),
             policy=active_policy,
         )
         if weight <= 0.0:
             return None
         if query is not None and not self._revalidate_transfer(
-            card,
+            effective_card,
             query,
             target_context=target_context,
         ):
@@ -823,7 +841,7 @@ class LessonRegistry:
             provenance_weight=weight,
         )
         materialized = self._normalize_card(
-            card.model_copy(
+            effective_card.model_copy(
                 update={
                     "lesson_id": uuid4().hex,
                     "task_family": target_context.task_family,
@@ -831,6 +849,7 @@ class LessonRegistry:
                     "trust_level": (
                         LessonTrustLevel.TRANSFERRED
                         if weight >= 0.5
+                        and effective_card.trust_level is not LessonTrustLevel.LOW_CONFIDENCE
                         else LessonTrustLevel.LOW_CONFIDENCE
                     ),
                     "provenance_weight": weight,
@@ -1204,6 +1223,7 @@ class LessonRegistry:
         *,
         now: datetime,
         source_context: TransferContext,
+        ttl_days: int | None = None,
     ) -> LessonCard:
         card = load_lesson_card(self._store, entry.artifact_ref)
         if (
@@ -1229,7 +1249,7 @@ class LessonRegistry:
         age = max(timedelta(), now - evidence_anchor)
         trust_level = normalized.trust_level
         confidence = normalized.confidence
-        if age > timedelta(days=self._transfer_policy.ttl_days):
+        if age > timedelta(days=self._transfer_policy.ttl_days if ttl_days is None else ttl_days):
             trust_level = LessonTrustLevel.LOW_CONFIDENCE
             confidence = min(confidence, 0.5)
         return normalized.model_copy(
@@ -1241,16 +1261,16 @@ class LessonRegistry:
             }
         )
 
-    def _verified_source_scope_for_card(
+    def _verified_source_binding_for_card(
         self,
         candidate: LessonCard,
-    ) -> TransferSourceScope | None:
-        """Resolve a candidate to one unambiguous persisted source scope."""
+    ) -> tuple[TransferSourceScope, LessonIndexEntry] | None:
+        """Resolve a candidate to one unambiguous persisted source binding."""
 
         candidate_payload = candidate.model_dump(mode="json")
         for derived_field in ("provenance_weight", "last_accessed_at", "trust_level", "confidence"):
             candidate_payload.pop(derived_field, None)
-        matches: list[TransferSourceScope] = []
+        matches: list[tuple[TransferSourceScope, LessonIndexEntry]] = []
         for binding, path in self._iter_index_paths():
             if binding.status != "bound":
                 continue
@@ -1298,11 +1318,11 @@ class LessonRegistry:
                     raise TransferScopeRefusedError(
                         [_scope_refusal(path, TransferScopeRefusalReason.ENTRY_SCOPE_MISMATCH)]
                     )
-                matches.append(scope)
+                matches.append((scope, entry))
         if not matches:
             return None
-        source_scope = matches[0]
-        return source_scope if all(item == source_scope for item in matches[1:]) else None
+        binding = matches[0]
+        return binding if all(item == binding for item in matches[1:]) else None
 
     def _normalize_card(
         self,

@@ -140,7 +140,7 @@ def ts_to_dt(ts: float | None) -> datetime | None:
 
 def request_to_payload(request: FetchRequest) -> dict[str, Any]:
     incremental_dump = (
-        request.incremental_since.model_dump(mode="python") if request.incremental_since else None
+        request.incremental_since.model_dump(mode="json") if request.incremental_since else None
     )
     return {
         "dataset_id": request.dataset_id,

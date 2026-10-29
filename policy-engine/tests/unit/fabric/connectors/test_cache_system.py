@@ -263,6 +263,42 @@ def test_cache_selected_payload_profile_survives_index_reopen(tmp_path):
     assert report.ok is True
 
 
+def test_cache_incremental_timestamp_request_roundtrips_through_reopened_index(tmp_path):
+    timestamp = datetime(2025, 3, 4, 5, 6, 7, tzinfo=UTC)
+    incremental_since = DataVersion(
+        strategy=VersionStrategy.TIMESTAMP,
+        value="source-version-1",
+        timestamp=timestamp,
+    )
+    request = FetchRequest(
+        dataset_id="test.incremental",
+        incremental_since=incremental_since,
+    )
+    cas = FileSystemCAS(tmp_path / ".polisyos")
+    policy = TTLPolicy(ttl=timedelta(hours=1))
+
+    with ConnectorCacheStore(cas, policy) as cache:
+        written = cache.put(
+            request,
+            _make_result({"x": 1}),
+            connector_id="test.connector",
+        )
+        cache_key = written.cache_key
+
+    with ConnectorCacheStore(cas, policy) as reopened:
+        payload = reopened.get_request_payload(cache_key)
+        restored = reopened.get_request(cache_key)
+
+    assert payload is not None
+    assert isinstance(payload["incremental_since"]["timestamp"], str)
+    assert datetime.fromisoformat(payload["incremental_since"]["timestamp"]) == timestamp
+    assert restored == request
+    assert restored is not None
+    assert restored.query_key == request.query_key
+    assert restored.request_key == request.request_key
+    assert restored.cache_key == request.cache_key
+
+
 def test_cache_index_v1_migration_keeps_legacy_profile_unknown(tmp_path):
     import sqlite3
 

@@ -484,12 +484,18 @@ def _exercise(
             initial = cas.put_json({"fixture": "c96-control-initial"}, options)
             late = cas.put_json({"fixture": "c96-control-late"}, options)
             payload = cas.put_json({"fixture": "c96-control-input"}, options)
+            fixture_actor = "c96-configured-test"
             scope = _job_execution_scope()
-            scope.update(tenant_id=tenant, cell_id=cell.cell_id)
+            scope.update(
+                tenant_id=tenant,
+                cell_id=cell.cell_id,
+                actor_subject=fixture_actor,
+            )
             creation = _job_creation_event(execution_scope=scope)
             creation.update(
                 capability_manifest_ref=str(initial.artifact_id),
                 payload_ref=str(payload.artifact_id),
+                submitted_by=fixture_actor,
             )
             job = store.create_job(
                 job_id="job_execution_admission",
@@ -501,9 +507,65 @@ def _exercise(
                 policy_flags={"candidate": True},
                 capability_manifest_ref=str(initial.artifact_id),
                 payload_ref=str(payload.artifact_id),
-                submitted_by="c96-configured-test",
+                submitted_by=fixture_actor,
                 creation_event_payload=creation,
             )
+            admission_row = reader.get_job(job.job_id)
+            assert admission_row is not None
+            admission_event = reader.get_job_created_event_payload(job.job_id)
+            admission_outbox = reader.get_job_created_outbox_event(job.job_id)
+            assert admission_outbox is not None
+            outbox_payload = admission_outbox.payload
+            event_scope = admission_event.get("execution_scope")
+            outbox_scope = outbox_payload.get("execution_scope")
+            observed["fixture_admission_preflight"] = {
+                "independent_reader": reader is not raw,
+                "sqlite_path": str(raw._sqlite_path),
+                "reader_sqlite_path": str(reader._sqlite_path),
+                "job_row": {
+                    "job_id": admission_row.job_id,
+                    "run_id": admission_row.run_id,
+                    "kind": admission_row.kind,
+                    "pipeline_id": admission_row.pipeline_id,
+                    "payload_ref": admission_row.payload_ref,
+                    "submitted_by": admission_row.submitted_by,
+                    "requested_execution_profile": admission_row.requested_execution_profile,
+                    "effective_execution_profile": admission_row.effective_execution_profile,
+                    "policy_flags": admission_row.policy_flags,
+                    "capability_manifest_ref": admission_row.capability_manifest_ref,
+                },
+                "event_payload": admission_event,
+                "outbox_topic": admission_outbox.topic,
+                "outbox_job_id": admission_outbox.job_id,
+                "outbox_run_id": admission_outbox.run_id,
+                "outbox_payload": outbox_payload,
+                "reconciliation_passed": False,
+            }
+            assert observed["fixture_admission_preflight"]["independent_reader"] is True
+            assert (
+                observed["fixture_admission_preflight"]["sqlite_path"]
+                == observed["fixture_admission_preflight"]["reader_sqlite_path"]
+            )
+            assert admission_row.submitted_by == fixture_actor
+            assert admission_event.get("submitted_by") == fixture_actor
+            assert outbox_payload.get("submitted_by") == fixture_actor
+            assert isinstance(event_scope, dict) and event_scope == outbox_scope
+            assert event_scope.get("status") == "established"
+            assert event_scope.get("actor_subject") == fixture_actor
+            assert event_scope.get("tenant_id") == tenant
+            assert event_scope.get("cell_id") == cell.cell_id
+            admission_scope, _ = reader._reconcile_control_job_creation_envelope(admission_row)
+            observed["fixture_admission_preflight"]["reconciled_scope"] = {
+                "status": admission_scope.status,
+                "tenant_id": admission_scope.tenant_id,
+                "cell_id": admission_scope.cell_id,
+                "actor_subject": admission_scope.actor_subject,
+            }
+            assert admission_scope.status == "established"
+            assert admission_scope.tenant_id == tenant
+            assert admission_scope.cell_id == cell.cell_id
+            assert admission_scope.actor_subject == fixture_actor
+            observed["fixture_admission_preflight"]["reconciliation_passed"] = True
             original_renew = raw.renew_job_lease
 
             def observe_renew(**kwargs: Any) -> bool:

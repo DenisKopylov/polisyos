@@ -47,6 +47,11 @@ The supported facade exposes `SourceProfile` as an exact alias to the profile ow
 | `validate_protocol_compliance()`                               | Executable capability and method-contract validation.                              |
 | `ConnectorCacheStore`, resilience helpers, contract registries | Shared runtime layers for cache, retry, fallback, schema, and governance behavior. |
 
+The connector cache index persists `FetchRequest` values as JSON-compatible typed
+projections. Nested `DataVersion` timestamps use their JSON-mode representation,
+so the request can be hashed, indexed, and reconstructed after the SQLite index is
+reopened without changing its request or query identity.
+
 ## Depends On / Depended On By
 
 - Depends on: `polisyos.ir.connectors`, `polisyos.core.components`, and the

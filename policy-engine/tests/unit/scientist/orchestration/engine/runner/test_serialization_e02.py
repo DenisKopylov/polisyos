@@ -101,6 +101,7 @@ def test_output_aware_outcome_remains_typed(backend) -> None:
 
 def test_real_worker_process_consumes_state_and_emits_exact_typed_outcome(backend, tmp_path):
     """Exercise the actual remote worker bridge through a safe outer process."""
+    from tests._helpers.worker_transport_wait import reap_worker_process, receive_worker_message
     from tests.unit.scientist.orchestration.engine.runner.decimal_worker_transport import (
         execute_decimal_worker,
     )
@@ -139,8 +140,7 @@ def test_real_worker_process_consumes_state_and_emits_exact_typed_outcome(backen
     process.start()
     child.close()
     try:
-        assert parent.poll(10.0), "actual worker did not emit an outcome"
-        kind, actual_bytes = parent.recv()
+        kind, actual_bytes = receive_worker_message(parent, process)
         assert kind == "result", actual_bytes
         restored = wire.deserialize_outcome(actual_bytes)
         assert restored.status == "ok"
@@ -162,11 +162,10 @@ def test_real_worker_process_consumes_state_and_emits_exact_typed_outcome(backen
             assert process.pid in [ancestor["pid"] for ancestor in chain[1:]]
             assert attempts[0]["pid"] not in {os.getpid(), process.pid}
     finally:
-        process.join(10.0)
-        if process.is_alive():
-            process.terminate()
-            process.join(5.0)
-        parent.close()
+        try:
+            reap_worker_process(process)
+        finally:
+            parent.close()
     assert process.exitcode == 0
 
 

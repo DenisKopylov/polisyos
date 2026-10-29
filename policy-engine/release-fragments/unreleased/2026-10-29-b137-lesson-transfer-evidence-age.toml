@@ -1,0 +1,14 @@
+id = "2026-10-29-b137-lesson-transfer-evidence-age"
+title = "Apply lesson evidence age before transfer selection"
+type = "fixed"
+component = "scientist"
+owner = "team-polisyos"
+summary = "Transfer materialization applies the lesson evidence-age confidence cap before the effective confidence filter while retaining source CAS records and reduced-weight stale transfer."
+evidence = ["tests/unit/scientist/search/test_lesson_transfer.py", "tests/unit/scientist/search/test_lessons.py"]
+compatibility = "Fresh lessons remain transferable and stale lessons within the configured window remain available at reduced confidence and provenance weight."
+change_class = "internal"
+surface_classification = "internal: lesson query and transfer"
+migration_docs = ["src/polisyos/scientist/methods/search/README.md"]
+limitations = "Evidence timestamps and scope bindings are not a scientific revalidation authority or production tenant permission."
+public_surface_inventory_reviewed = true
+generated_client_compatibility = "not_applicable"

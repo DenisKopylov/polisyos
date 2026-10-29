@@ -1595,6 +1595,150 @@ def test_stale_transfer_confidence_filter_uses_effective_age(tmp_path) -> None:
     assert registry.index_snapshot(context=target).entries == []
 
 
+def test_direct_materialize_uses_freshly_resolved_source_age(tmp_path) -> None:
+    """Direct materialization applies the same age cap as query transfer."""
+    now = datetime.now(UTC)
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    root = tmp_path / "registry" / "lessons"
+    registry = LessonRegistry(root=root, store=store, transfer_policy=TransferPolicy(ttl_days=90))
+    source = TransferContext(
+        task_family="policy",
+        domain="fiscal",
+        run_id="source",
+        tenant_hash="tenant-a",
+        timestamp=now,
+    )
+    target = TransferContext(
+        task_family="policy",
+        domain="labor-direct",
+        run_id="target",
+        tenant_hash="tenant-a",
+        timestamp=now,
+    )
+    source_ref = registry.record_local(
+        _card(created_at=now - timedelta(days=100)).model_copy(
+            update={"confidence": 0.9, "tags": ["direct-age"]}
+        ),
+        context=source,
+    )
+    query = LessonQuery(task_family="policy", tags=["direct-age"], limit=1)
+    candidates = registry.find_transfer_candidates(query, target_context=target).candidates
+    assert len(candidates) == 1
+    result = registry.materialize_transfer(candidates[0], target_context=target, query=query)
+    assert result is not None
+    assert (result.trust_level, result.confidence) == (LessonTrustLevel.LOW_CONFIDENCE, 0.5)
+    assert result.provenance_weight == pytest.approx(0.325)
+    assert load_lesson_card(store, source_ref).confidence == 0.9
+    fresh = LessonRegistry(
+        root=root,
+        store=FileSystemCAS(tmp_path / ".polisyos"),
+        transfer_policy=TransferPolicy(ttl_days=90),
+    )
+    reloaded = fresh.query(
+        LessonQuery(
+            task_family="policy",
+            domain="labor-direct",
+            tenant_hash="tenant-a",
+            tags=["direct-age"],
+            limit=1,
+        )
+    )
+    assert len(reloaded) == 1
+    assert (reloaded[0].trust_level, reloaded[0].confidence) == (
+        LessonTrustLevel.LOW_CONFIDENCE,
+        0.5,
+    )
+
+
+def test_direct_transfer_preserves_lower_candidate_grade(tmp_path) -> None:
+    """A source candidate already demoted by a caller is never promoted."""
+    now = datetime.now(UTC)
+    registry = _registry(tmp_path)
+    source = TransferContext(
+        task_family="policy",
+        domain="fiscal",
+        run_id="source",
+        tenant_hash="tenant-a",
+        timestamp=now,
+    )
+    target = TransferContext(
+        task_family="policy",
+        domain="labor-lower",
+        run_id="target",
+        tenant_hash="tenant-a",
+        timestamp=now,
+    )
+    source_ref = registry.record_local(
+        _card(created_at=now).model_copy(update={"confidence": 0.9, "tags": ["lower-grade"]}),
+        context=source,
+    )
+    query = LessonQuery(task_family="policy", tags=["lower-grade"], limit=1)
+    candidates = registry.find_transfer_candidates(query, target_context=target).candidates
+    assert len(candidates) == 1
+    lowered = candidates[0].model_copy(
+        update={"confidence": 0.3, "trust_level": LessonTrustLevel.LOW_CONFIDENCE}
+    )
+    result = registry.materialize_transfer(lowered, target_context=target, query=query)
+    assert result is not None
+    assert result.confidence == 0.3
+    assert result.trust_level is LessonTrustLevel.LOW_CONFIDENCE
+    assert result.provenance_weight == pytest.approx(0.65)
+    assert load_lesson_card(registry._store, source_ref).confidence == 0.9
+
+
+def test_transfer_older_selected_card_keeps_conservative_restart_age(tmp_path) -> None:
+    """A target restart does not infer an evidence update from access or transfer."""
+    now = datetime.now(UTC)
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    root = tmp_path / "registry" / "lessons"
+    policy = TransferPolicy(ttl_days=90)
+    registry = LessonRegistry(root=root, store=store, transfer_policy=policy)
+    source = TransferContext(
+        task_family="policy",
+        domain="fiscal",
+        run_id="source",
+        tenant_hash="tenant-a",
+        timestamp=now,
+    )
+    target = TransferContext(
+        task_family="policy",
+        domain="labor-clock",
+        run_id="target",
+        tenant_hash="tenant-a",
+        timestamp=now,
+    )
+    newer = _card(created_at=now).model_copy(update={"confidence": 0.9, "tags": ["clock-gap"]})
+    older = _card(created_at=now - timedelta(days=100)).model_copy(
+        update={"confidence": 0.9, "tags": ["clock-gap"]}
+    )
+    registry.record_local(newer, context=source)
+    old_ref = registry.record_local(older, context=source)
+    entry = registry.index_snapshot(context=source).entries[0]
+    assert entry.last_seen == now
+    assert entry.artifact_ref == old_ref
+    assert load_lesson_card(store, old_ref).created_at == older.created_at
+    query = LessonQuery(task_family="policy", tags=["clock-gap"], limit=1)
+    result = registry.query_with_transfer(query, target_context=target)
+    assert len(result) == 1
+    assert result[0].confidence == 0.9
+    assert result[0].provenance_weight == pytest.approx(0.65)
+    assert result[0].created_at == older.created_at
+    fresh = LessonRegistry(
+        root=root, store=FileSystemCAS(tmp_path / ".polisyos"), transfer_policy=policy
+    )
+    target_query = LessonQuery(
+        task_family="policy",
+        domain="labor-clock",
+        tenant_hash="tenant-a",
+        tags=["clock-gap"],
+        limit=1,
+    )
+    reread = fresh.query(target_query)
+    assert len(reread) == 1
+    assert (reread[0].trust_level, reread[0].confidence) == (LessonTrustLevel.LOW_CONFIDENCE, 0.5)
+    assert reread[0].created_at == older.created_at
+
+
 def test_invalidation_beats_transfer_materialization(tmp_path) -> None:
     registry = _registry(tmp_path)
     source = TransferContext(

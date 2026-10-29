@@ -21,6 +21,7 @@ Only tests import this subtree. Product code must not depend on it.
 | `causal_scm_fixtures.py` | Causal SCM fixtures. |
 | `observability.py` | Observability assertions. |
 | `runtime_http.py` | Runtime HTTP test helpers. |
+| `e02_c96_control_harness.py` | Configured-authority worker/SQLite/HTTP cancellation under event-held shared-compute saturation. |
 | `scientist_runtime.py`, `search_strategies.py` | Scientist runtime/search helpers. |
 
 ## Extension Points
@@ -114,3 +115,29 @@ necessary.
 Lexical normalization is only a claimed-scope annotation. Physical resolution
 always receives the original absolute operand, preserving filesystem symlink/..
 semantics and preventing a local decoy from substituting for an outside origin.
+
+## Saturated control cancellation witnesses
+
+`e02_c96_control_harness.py` supplies the isolated cases in
+`tests/unit/runtime/http/test_e02_saturated_control_cancellation.py`. The creator
+fixture uses one actor for the job row's `submitted_by`, the unique creation event
+and outbox, and `execution_scope.actor_subject`. Before worker start or any HTTP
+request, a distinct raw `ControlPlaneStore` on the same SQLite file reads the
+persisted row and complete creation event/outbox, then invokes the existing
+`_reconcile_control_job_creation_envelope` owner. The child observation retains
+this `fixture_admission_preflight`; an inconsistency stops the fixture before
+saturation. The authenticated `runtime-canary` canceller and its permissions
+remain separate from the creator identity.
+
+Baseline, same-compute-pool removal, and restored runs use the same persisted
+cancellation oracle for pending and cancelled-pending queue variants. Compute is
+held by events on the actual canonical shared executor. The helper proves this
+configured test software path, not production identity authority, physical task
+stop, a long native numerical workload, or acceptance at another source/profile.
+
+`worker_transport_wait.py` owns the measured physical-worker fixture wait and bounded
+reaping sequence. The Decimal transport fixture keeps product node timeouts
+unchanged; it refuses silent/dead children and preserves the original result
+message. Its focused behavioral controls live in
+`tests/unit/helpers/test_worker_transport_wait.py`. The 35-second outcome wait and
+10/5/5-second teardown are fixture budgets, not product latency guarantees.

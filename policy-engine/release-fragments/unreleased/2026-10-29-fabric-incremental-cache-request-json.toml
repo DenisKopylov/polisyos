@@ -1,0 +1,35 @@
+id = "2026-10-29-fabric-incremental-cache-request-json"
+title = "Persist incremental connector requests as typed JSON"
+type = "changed"
+component = "fabric"
+owner = "team-polisyos"
+summary = "Serialize nested incremental DataVersion timestamps through the typed JSON projection before persisting connector-cache request payloads, preserving request identity across cache-index reopen. Make deprecated and sunset source-progress rejection fixtures satisfy their source contract so the identity-mismatch check is exercised."
+evidence = [
+  "src/polisyos/fabric/connectors/cache/_store_models.py",
+  "tests/unit/fabric/connectors/test_cache_system.py",
+  "tests/unit/fabric/data_plane/test_source_progress.py",
+]
+compatibility = "No request model, cache-key, index schema, or source-progress admission behavior changes. Existing typed DataVersion JSON representation is now used by the cache request-payload serializer; requests preserve query_key and request_key after index reopen."
+change_class = "internal"
+surface_classification = "internal: connector cache request persistence and source-progress verification fixture"
+migration = "No persisted-index migration is required. Existing cache request JSON rows remain readable; newly written nested DataVersion timestamps use the same JSON projection as FetchRequest identity hashing."
+api = "No symbol, DTO, or public API is added. The cache request payload uses the typed JSON projection already used to compute FetchRequest request/query identities."
+limitations = "The source-progress cases establish rejection of non-active source contracts with matching content hashes; they do not claim broader source-contract status lifecycle coverage. Runtime qualification remains pending."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "fabric-incremental-cache-request-json"
+change_class = "internal"
+impact = "compatible"
+surface = "internal: connector cache request persistence"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "The connector cache persists nested incremental DataVersion timestamps through typed JSON serialization and reconstructs the same FetchRequest identity after index reopen."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

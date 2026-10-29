@@ -12,6 +12,7 @@ from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.cursor import CursorState, WatermarkType
 from polisyos.fabric.connectors.base import ConnectionConfig
+from polisyos.fabric.connectors.contracts.source_contract import SourceDeprecationPolicy
 from polisyos.fabric.data_plane.cursor_store import CursorStore, CursorStoreConflict
 from polisyos.fabric.data_plane.modes import _cursor_version
 from polisyos.fabric.ingestion.source_progress import (
@@ -263,7 +264,17 @@ def test_nonactive_source_status_cannot_bind_even_with_matching_content_hash(
     tmp_path: Path, status: str
 ) -> None:
     reader = _owner(tmp_path)
-    source = reader.source_contract.model_copy(update={"status": status})
+    deprecation = None
+    if status in {"deprecated", "sunset"}:
+        deprecation = SourceDeprecationPolicy(
+            deprecated_at=datetime(2026, 1, 1, tzinfo=UTC),
+            sunset_at=datetime(2030, 1, 1, tzinfo=UTC),
+            reason="fixture status mismatch",
+            migration_note="Use the active fixture contract",
+        )
+    source = reader.source_contract.model_copy(
+        update={"status": status, "deprecation": deprecation}
+    )
     extension = reader.extension.model_copy(
         update={"source_contract_content_hash": source.content_hash}
     )

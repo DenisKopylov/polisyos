@@ -13,6 +13,7 @@ from types import SimpleNamespace
 
 import pytest
 
+from polisyos.core.artifacts import read_core_json_artifact
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.llm.traced_client import TracedLLMClient
@@ -31,7 +32,9 @@ from polisyos.runtime.quality.joint_simulation_horizon import (
     JointSimulationControllerError,
     JointSimulationHorizonController,
     JointSimulationResult,
+    ProofReceiptError,
     build_content_bound_simulation_receipt,
+    verify_simulation_receipt,
 )
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from polisyos.scientist.orchestration.engine.budget_ledger import (
@@ -253,18 +256,72 @@ def test_fresh_owner_exhaustion_between_real_seeds_stops_before_second_call(tmp_
     monkeypatch.setattr(
         NCMEngineMethod, "pure_step", staticmethod(actual_method_then_new_owner_event)
     )
-    result = JointSimulationHorizonController(producer_budget_observer=observer).run(
-        _native_request()
-    )
+    request = _native_request()
+    result = JointSimulationHorizonController(producer_budget_observer=observer).run(request)
     assert len(calls) == 1  # Removing per-seed admission must make this assertion fail.
     assert result.diagnostics["physical_work_interruption"] == "n5_current_budget_exhausted"
     assert len(result.physical_work_observations) == 1
     assert result.physical_work_observations[0].status == "completed"
     assert result.trajectories == ()  # A partial replicate set is not a completed role.
     assert observer.last_checked.remaining_usd == Decimal("0")
-    ref = persist_joint_simulation_result(result, store=FileSystemCAS(tmp_path / "interrupted-cas"))
-    fresh = load_joint_simulation_result(ref, store=FileSystemCAS(tmp_path / "interrupted-cas"))
+    cas_path = tmp_path / "interrupted-cas"
+    ref = persist_joint_simulation_result(result, store=FileSystemCAS(cas_path))
+    # Custody of an interrupted report is not admission as a numerical result.
+    fresh_store = FileSystemCAS.open_existing_read_only(cas_path)
+    selected = read_core_json_artifact(fresh_store, ref)
+    assert selected.status == "declared_bytes_conformant"
+    assert selected.selected_artifact_id == str(ref.artifact_id)
+    assert selected.selected_manifest_profile_sha256 == ref.manifest_profile_sha256
+    payload = selected.value
+    fresh = JointSimulationResult.model_validate(payload)
+    original_projection = {key: value for key, value in payload.items() if key != "receipt"}
+    verify_simulation_receipt(fresh.receipt, original_projection)
     assert fresh.physical_work_observations == result.physical_work_observations
+    assert (
+        fresh.diagnostics["producer_budget_observations"]
+        == result.diagnostics["producer_budget_observations"]
+    )
+    assert (
+        fresh.diagnostics["budget_interruption_basis"]
+        == result.diagnostics["budget_interruption_basis"]
+    )
+    assert fresh.trajectories == ()
+    assert fresh.receipt.trajectory_count == 0
+    assert fresh.receipt.calibration_status == "no_run"
+    assert fresh.receipt.authoritative_for == ()
+    assert fresh.receipt.may_not_use_for == ("world_credal_state_shrinkage", "promotion")
+    status, blockers = _joint_simulation_port_outcome(fresh)
+    assert status == "simulation_blocked"
+    assert "n5_current_budget_exhausted" in blockers
+    with pytest.raises(GenerationCycleError, match="joint_simulation_result_trajectory_missing"):
+        load_joint_simulation_result(ref, store=fresh_store)
+
+    # Original producer bytes and receipt are retained; neither negative is reissued.
+    changed_projection = copy.deepcopy(original_projection)
+    changed_projection["diagnostics"]["physical_work_observations"] = []
+    with pytest.raises(ProofReceiptError, match="receipt_content_mismatch"):
+        verify_simulation_receipt(fresh.receipt, changed_projection)
+    changed_payload = copy.deepcopy(payload)
+    changed_payload["diagnostics"]["physical_work_observations"] = []
+    with pytest.raises(ValueError, match="n5_physical_work_unit_count_mismatch"):
+        JointSimulationResult.model_validate(changed_payload)
+
+    # A stored audit snapshot cannot admit another call. Reopen the actual owner
+    # and ledger for reentry; the settled spend still exhausts the configured cap.
+    reopened_store, reopened_binding, reopened_state = _producer_owner(tmp_path)
+    reopened_observer = ProducerBudgetObserver(
+        settlement_store=reopened_store,
+        producer_run_binding=reopened_binding,
+        budget_state=reopened_state,
+    )
+    reentry = JointSimulationHorizonController(producer_budget_observer=reopened_observer).run(
+        request
+    )
+    assert len(calls) == 1
+    assert reentry.diagnostics["physical_work_interruption"] == "n5_current_budget_exhausted"
+    assert reentry.physical_work_observations == ()
+    assert reentry.trajectories == ()
+    assert reopened_observer.last_checked.remaining_usd == Decimal("0")
 
 
 @pytest.mark.parametrize("cap", ["0", "0.2"])

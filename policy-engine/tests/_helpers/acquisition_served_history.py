@@ -228,11 +228,16 @@ def _capture_semantic_epoch_finalizer_failure(call):
 
 def _read_owned_terminal(store, ref):
     """Read the actual terminal schema through scoped immutable CAS ownership."""
+    from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoopReceiptV2
+
     with tenant_scope(None, tenant_id=TENANT, cell_id=CELL):
-        assert store.get_manifest(ref).kind == "runtime_quality.acquisition_route_loop_receipt"
-        return AcquisitionRouteLoopReceipt.model_validate(
-            canon.from_canonical_bytes(store.get_bytes(ref))
-        )
+        manifest = store.get_manifest(ref)
+        assert manifest.kind == "runtime_quality.acquisition_route_loop_receipt"
+        assert manifest.artifact_schema is not None
+        version = manifest.artifact_schema.version
+        assert version in {"1.0", "2.0"}
+        model = AcquisitionRouteLoopReceiptV2 if version == "2.0" else AcquisitionRouteLoopReceipt
+        return model.model_validate(canon.from_canonical_bytes(store.get_bytes(ref)))
 
 
 def _served_wdi_candidate_profile(
@@ -736,6 +741,7 @@ def _produce_served_acquisition_history(
     include_b09_evidence: bool = False,
     source_owner_root: Path | None = None,
     include_default_only_compiled_probe: bool = False,
+    sequential_oracle=None,
 ) -> dict[str, str] | None:
     import os
 
@@ -1435,8 +1441,18 @@ def _produce_served_acquisition_history(
                 # The initial route carries one N6-stage cap through restarts.
                 # A compute cap establishes neither authority nor causal coupling.
                 reentry_budget_usd=Decimal("0.50"),
+                **(
+                    {
+                        "fixture_epoch_id": sequential_oracle.epoch_id,
+                        "fixture_attempt_ids": sequential_oracle.attempt_ids,
+                    }
+                    if sequential_oracle is not None
+                    else {}
+                ),
             )
             cases.append(case)
+            if sequential_oracle is not None:
+                sequential_oracle.observe_case(case, port_patch)
             if candidate_generation_mode[0] and remove_acquired_n5_baseline:
                 from polisyos.runtime.quality.generation_cycle import (
                     JointSimulationPort,
@@ -2324,6 +2340,30 @@ def _produce_served_acquisition_history(
             # remains a typed refusal rather than replaying the prior receipt.
             with pytest.raises(ValueError, match="acquisition_live_evidence_not_admitted"):
                 _within_fixture_owner(cases[-1].bridge.resume, fresh_closure, ())
+
+            if sequential_oracle is not None:
+                sequential_oracle.run(
+                    app=app,
+                    trust=trust,
+                    path=path,
+                    route_prefix=route_prefix,
+                    request=request,
+                    run_id=run_id,
+                    source_job_id=seed_job_id,
+                    closure=fresh_closure,
+                    reentry=reentry,
+                    growth=growth,
+                    growth_ref=growth_refs[0],
+                    seed_input=seed_n5_input,
+                    evaluated_input=n5_input,
+                    target_world_slot=model_declaration.target_world_slot,
+                    cases=cases,
+                    approve_request=approve_request,
+                    appoint_mandate=appoint_mandate,
+                    history_path=history_path,
+                    history_headers=history_headers,
+                )
+                return {"run_id": core_run_id, "candidate_id": cycle.selected_candidate_ref}
 
             if stop_after_fresh_get:
                 return {

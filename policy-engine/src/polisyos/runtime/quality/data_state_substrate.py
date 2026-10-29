@@ -12,7 +12,8 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from dataclasses import dataclass, replace
+import struct
+from dataclasses import asdict, dataclass, fields, replace
 from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
@@ -21,9 +22,18 @@ if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
     from polisyos.core.contracts import FoundryInputBindingRule
+    from polisyos.core.contracts.epoch import ActivatedOverlayAdmissionStatement
     from polisyos.data_forge.read_api.catalog import (
         ActivatedAcquisitionObservationProjection,
+        CanonicalAcquisitionObservation,
     )
+    from polisyos.fabric.world import WorldSnapshotFactWrite, WorldSnapshotNodeWrite
+    from polisyos.foundry.contracts.state import GlobalState
+    from polisyos.runtime.quality.acquisition_executor import (
+        ActivatedSemanticEpochAdmissionReceipt,
+        AdmissionPassport,
+    )
+    from polisyos.runtime.quality.world_model_record import WorldModelOwnerValues
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -787,8 +797,6 @@ def prepare_acquired_observation_snapshot(
         DataStateSubstrateError: If the base snapshot, selected row, candidate
             mapping, or transaction time cannot be verified.
     """
-    from polisyos.core.artifacts import load_core_json_artifact
-    from polisyos.core.contracts import FoundryInputBindingRule
     from polisyos.data_forge.read_api.catalog import (
         ActivatedAcquisitionObservationProjection,
         CatalogAcquisitionOverlay,
@@ -821,6 +829,30 @@ def prepare_acquired_observation_snapshot(
         raise DataStateSubstrateError(
             "acquisition_projection_or_mapping_invalid", str(exc)
         ) from exc
+    return _prepare_acquired_observation_snapshot_from_projection(
+        store,
+        base_data_snapshot_ref=base_data_snapshot_ref,
+        selected_projection=selected_projection,
+        selected_profile=selected_profile,
+        observation_id=observation_id,
+        receipt_ref=receipt_ref,
+        transaction_time=transaction_time,
+    )
+
+
+def _prepare_acquired_observation_snapshot_from_projection(
+    store: ArtifactStore,
+    *,
+    base_data_snapshot_ref: ArtifactRef,
+    selected_projection: ActivatedAcquisitionObservationProjection,
+    selected_profile: ControlledAcquisitionSlotBinding,
+    observation_id: str,
+    receipt_ref: ArtifactRef,
+    transaction_time: datetime,
+) -> AcquiredObservationDataPreparation:
+    """Shared actual payload/history/rule construction after source-owner replay."""
+    from polisyos.core.artifacts import load_core_json_artifact
+
     _require_selected_profile(
         selected_projection.receipt_ref,
         "acquisition_receipt_profile_unselected",
@@ -954,19 +986,9 @@ def prepare_acquired_observation_snapshot(
                 "observation": observation.model_dump(mode="json"),
             }
         )
-    selected_value = {
-        "value": observation.value,
-        "canonical_variable_id": observation.canonical_var,
-        "observation_id": observation.observation_id,
-        "dataset_id": observation.dataset_id,
-        "row_content_sha256": selected_row.row_content_sha256,
-        "source_time_status": "not_established",
-        "reported_time_coordinate": {
-            "year": observation.year,
-            "survey_year": observation.survey_year,
-            "wave": observation.wave,
-        },
-    }
+    selected_value = _acquired_observation_selected_value(
+        observation, selected_row.row_content_sha256
+    )
     acquisition["selected"] = selected_value
     payload["acquisition"] = acquisition
     payload["_policyos_acquisition_history"] = history
@@ -1002,20 +1024,9 @@ def prepare_acquired_observation_snapshot(
             role="evidence.acquisition_passport",
         ),
     )
-    token = re.sub(r"[^a-zA-Z0-9_-]+", "_", observation.canonical_var).strip("_")
-    foundry_binding_rule = FoundryInputBindingRule(
-        binding_id=f"acquisition.{token}.candidate",
-        source_path="acquisition.selected.value",
-        target_slot_id=selected_profile.target_slot_id,
-        required=True,
-        notes=[
-            "candidate_only_controlled_mapping",
-            "source_time_not_established",
-            "source_to_target_measurement_contract_not_established",
-            f"profile_selection_ref:{selected_profile.profile_selection_ref}",
-            f"dataset_id:{observation.dataset_id}",
-            f"observation_id:{observation.observation_id}",
-        ],
+    foundry_binding_rule = acquired_observation_binding_rule(
+        observation=observation,
+        slot_binding=selected_profile,
     )
     payload_json = json.dumps(
         payload,
@@ -1043,6 +1054,664 @@ def prepare_acquired_observation_snapshot(
         prepared,
         preparation_sha256=_acquisition_preparation_sha256(prepared, include_digest=False),
     )
+
+
+def acquired_observation_binding_rule(
+    *,
+    observation: CanonicalAcquisitionObservation,
+    slot_binding: ControlledAcquisitionSlotBinding,
+) -> FoundryInputBindingRule:
+    """Build the exact existing controlled rule, including occurrence notes.
+
+    Callers must compare this entire rule with the selected actual Foundry rule
+    before using its purpose-specific effective projection.
+    """
+    from polisyos.core.contracts import FoundryInputBindingRule
+    from polisyos.data_forge.read_api.catalog import CanonicalAcquisitionObservation
+
+    if type(observation) is not CanonicalAcquisitionObservation:
+        raise DataStateSubstrateError("acquisition_semantic_observation_untyped")
+    if type(slot_binding) is not ControlledAcquisitionSlotBinding:
+        raise DataStateSubstrateError("acquisition_slot_binding_untyped")
+    observation = CanonicalAcquisitionObservation.model_validate(
+        observation.model_dump(mode="python")
+    )
+    slot_binding = ControlledAcquisitionSlotBinding.model_validate(
+        slot_binding.model_dump(mode="python")
+    )
+    if observation.canonical_var != slot_binding.canonical_variable_id:
+        raise DataStateSubstrateError("acquisition_selected_variable_mismatch")
+    token = re.sub(r"[^a-zA-Z0-9_-]+", "_", observation.canonical_var).strip("_")
+    return FoundryInputBindingRule(
+        binding_id=f"acquisition.{token}.candidate",
+        source_path="acquisition.selected.value",
+        target_slot_id=slot_binding.target_slot_id,
+        required=True,
+        notes=[
+            "candidate_only_controlled_mapping",
+            "source_time_not_established",
+            "source_to_target_measurement_contract_not_established",
+            f"profile_selection_ref:{slot_binding.profile_selection_ref}",
+            f"dataset_id:{observation.dataset_id}",
+            f"observation_id:{observation.observation_id}",
+        ],
+    )
+
+
+def _acquired_observation_selected_value(
+    observation: CanonicalAcquisitionObservation, row_content_sha256: str
+) -> dict[str, object]:
+    """Build the exact owner-selected payload value used by the materializer."""
+    return {
+        "value": observation.value,
+        "canonical_variable_id": observation.canonical_var,
+        "observation_id": observation.observation_id,
+        "dataset_id": observation.dataset_id,
+        "row_content_sha256": row_content_sha256,
+        "source_time_status": "not_established",
+        "reported_time_coordinate": {
+            "year": observation.year,
+            "survey_year": observation.survey_year,
+            "wave": observation.wave,
+        },
+    }
+
+
+def _prepared_acquired_observation(
+    prepared: AcquiredObservationDataPreparation,
+) -> CanonicalAcquisitionObservation:
+    """Reconcile all selected row and payload bindings on one preparation."""
+    from polisyos.data_forge.read_api.catalog import ActivatedAcquisitionObservationProjection
+    from polisyos.fabric import data_plane
+
+    if type(prepared) is not AcquiredObservationDataPreparation:
+        raise DataStateSubstrateError("acquisition_preparation_untyped")
+    prepared.validate_content_binding()
+    projection = ActivatedAcquisitionObservationProjection.model_validate(
+        prepared.observation_projection.model_dump(mode="python")
+    )
+    selected = tuple(
+        row
+        for row in projection.observations
+        if row.observation.observation_id == prepared.selected_observation_id
+        and row.observation.dataset_id == prepared.selected_dataset_id
+    )
+    if len(selected) != 1:
+        raise DataStateSubstrateError("acquisition_semantic_selected_row_not_unique")
+    row = selected[0]
+    observation = row.observation
+    payload = prepared.payload()
+    acquisition = payload.get("acquisition")
+    if (
+        row.row_content_sha256 != prepared.selected_row_content_sha256
+        or data_plane.content_sha256(observation.model_dump(mode="json"))
+        != prepared.selected_row_content_sha256
+        or not isinstance(acquisition, dict)
+        or acquisition.get("selected")
+        != _acquired_observation_selected_value(observation, prepared.selected_row_content_sha256)
+    ):
+        raise DataStateSubstrateError("acquisition_semantic_selected_payload_mismatch")
+    expected_rule = acquired_observation_binding_rule(
+        observation=observation, slot_binding=prepared.selected_profile
+    )
+    if prepared.foundry_binding_rule != expected_rule:
+        raise DataStateSubstrateError("acquisition_semantic_full_binding_rule_mismatch")
+    return observation
+
+
+def acquired_observation_binding_rule_values(
+    prepared: AcquiredObservationDataPreparation,
+) -> dict[str, object]:
+    """Project effective rule values only after full generated-rule reconciliation.
+
+    ``notes`` is one known owner-produced report field. No note value or prefix
+    is selectively stripped. An added or changed note refuses before projection.
+    """
+    observation = _prepared_acquired_observation(prepared)
+    rule = acquired_observation_binding_rule(
+        observation=observation, slot_binding=prepared.selected_profile
+    )
+    return dict(rule.model_dump(mode="json", exclude={"notes"}))
+
+
+def _acquired_observation_semantic_values(
+    *,
+    observation: CanonicalAcquisitionObservation,
+    slot_binding: ControlledAcquisitionSlotBinding,
+    projection_row_count: int,
+) -> dict[str, object]:
+    """Compose the narrow one-selected-row purpose without occurrence identity."""
+    rule = acquired_observation_binding_rule(observation=observation, slot_binding=slot_binding)
+    wire = observation.model_dump(mode="json")
+    # Walk the complete typed row. The sole excluded field is the occurrence ID;
+    # dataset, watermark, all coordinates and transform evidence stay decisive.
+    row_values = {
+        name: wire.get(name) for name in type(observation).model_fields if name != "observation_id"
+    }
+    return {
+        "purpose_profile": "policyos.runtime.acquired_observation_semantic_values.v1",
+        "observation_codec": "CanonicalAcquisitionObservation.model_dump:json",
+        "observation": row_values,
+        "selected_row_count": 1,
+        "source_projection_row_count": projection_row_count,
+        "slot_binding": slot_binding.model_dump(mode="json"),
+        "binding_rule": rule.model_dump(mode="json", exclude={"notes"}),
+        "source_time_status": "not_established",
+    }
+
+
+def prepare_acquired_observation_semantic_values(
+    prepared: AcquiredObservationDataPreparation,
+) -> dict[str, object]:
+    """Return candidate semantic values from the real owner preparation.
+
+    Equality covers one selected controlled numerical row and its mapping. It
+    grants no independence, native-currentness, or publication authority. The
+    materializer recomputes and reconciles the same preparation before writing.
+    """
+    observation = _prepared_acquired_observation(prepared)
+    return _acquired_observation_semantic_values(
+        observation=observation,
+        slot_binding=prepared.selected_profile,
+        projection_row_count=len(prepared.observation_projection.observations),
+    )
+
+
+def _verify_historical_acquisition_activation(
+    store: ArtifactStore,
+    *,
+    receipt: ActivatedOverlayAdmissionStatement,
+    passport: AdmissionPassport,
+    receipt_ref: ArtifactRef,
+    passport_ref: ArtifactRef,
+    activation: ActivatedSemanticEpochAdmissionReceipt | None,
+) -> None:
+    """Reconcile immutable activation evidence without a current native permit."""
+    from polisyos.core.contracts import epoch
+    from polisyos.fabric import data_plane
+    from polisyos.runtime.quality.acquisition_executor import ActivatedSemanticEpochAdmissionReceipt
+
+    def read(ref: ArtifactRef, kind: str) -> dict[str, Any]:
+        # Nested owner-native refs can predate their CAS copy. The Core reader
+        # owns the exact declared default-profile law; never invent a selector.
+        return epoch.load_verified_epoch_statement(
+            store=store,
+            ref=ref,
+            expected_kind=kind,
+            expected_media_type=ref.media_type,
+        )
+
+    production = epoch.SemanticEpochProductionReceiptStatement.model_validate(
+        read(receipt.semantic_epoch_production_receipt_ref, "epoch.production_receipt")
+    )
+    if (
+        production.production_mode != "acquisition_finalization"
+        or production.status not in {"appended", "no_change"}
+        or production.admitted_boundary_evidence_ref != receipt.admitted_boundary_evidence_ref
+        or production.prepared_epoch_ref != receipt.prepared_semantic_epoch_ref
+        or production.epoch_ref != receipt.semantic_epoch_stamp.epoch_ref
+        or production.semantic_manifest_ref != receipt.semantic_epoch_stamp.semantic_manifest_ref
+        or production.requested_query_context_ref
+        != receipt.semantic_epoch_stamp.requested_query_context_ref
+    ):
+        raise DataStateSubstrateError("acquisition_historical_production_binding_mismatch")
+    admitted = epoch.AdmittedAcquisitionBoundaryEvidence.model_validate(
+        read(receipt.admitted_boundary_evidence_ref, "epoch.admitted_acquisition_boundary_evidence")
+    )
+    actual_activation = ActivatedSemanticEpochAdmissionReceipt(
+        passport_ref=passport_ref,
+        prepared_epoch_ref=admitted.prepared_epoch_ref,
+        pending_overlay_receipt_ref=admitted.pending_overlay_receipt_ref,
+        semantic_epoch_production_receipt_ref=receipt.semantic_epoch_production_receipt_ref,
+        overlay_admission_receipt_ref=receipt_ref,
+        native_membership_receipt_ref=admitted.native_membership_receipt_ref,
+        semantic_denominator_receipt_ref=admitted.semantic_denominator_receipt_ref,
+        semantic_projection_verification_receipt_ref=admitted.semantic_projection_verification_receipt_ref,
+        semantic_epoch_stamp=admitted.semantic_epoch_stamp,
+        activation_state="active",
+    )
+    if (
+        activation is not None
+        and actual_activation
+        != ActivatedSemanticEpochAdmissionReceipt.model_validate(
+            activation.model_dump(mode="python")
+        )
+    ):
+        raise DataStateSubstrateError("acquisition_historical_growth_activation_mismatch")
+    if (
+        admitted.passport_ref != passport_ref
+        or admitted.passport_content_hash
+        != data_plane.content_sha256(passport.model_dump(mode="json"))
+        or admitted.epoch_id != passport.epoch_id
+        or admitted.prepared_epoch_ref != passport.prepared_semantic_epoch_ref
+        or admitted.pending_overlay_receipt_ref != receipt.pending_overlay_receipt_ref
+        or admitted.semantic_candidate_ref != passport.semantic_boundary_candidate_ref
+        or admitted.semantic_candidate_content_hash
+        != passport.semantic_boundary_candidate_content_hash
+        or admitted.semantic_epoch_stamp != passport.semantic_epoch_stamp
+    ):
+        raise DataStateSubstrateError("acquisition_historical_admitted_binding_mismatch")
+    loaded: dict[str, Any] = {}
+    recipe = (
+        ("prepared_epoch", "epoch.prepared", None, "polisyos.epoch.prepared.v1"),
+        (
+            "native_member",
+            "epoch.acquisition_native_member",
+            None,
+            "polisyos.epoch.acquisition-native-member.v1",
+        ),
+        (
+            "pending_overlay_receipt",
+            "epoch.pending_overlay_admission_receipt",
+            epoch.PendingOverlayAdmissionStatement,
+            None,
+        ),
+        (
+            "native_membership_receipt",
+            "epoch.acquisition_native_membership",
+            epoch.AcquisitionNativeMembershipReceipt,
+            "polisyos.epoch.acquisition-native-membership-receipt.v1",
+        ),
+        (
+            "semantic_denominator_receipt",
+            "epoch.acquisition_semantic_denominator_receipt",
+            epoch.AcquisitionSemanticCandidateDenominatorReceipt,
+            "polisyos.epoch.acquisition-semantic-denominator-receipt.v1",
+        ),
+        (
+            "semantic_projection_verification_receipt",
+            "epoch.acquisition_semantic_projection_verification_receipt",
+            epoch.AcquisitionSemanticProjectionVerificationReceipt,
+            "polisyos.epoch.acquisition-semantic-projection-verification-receipt.v1",
+        ),
+    )
+    for name, kind, model, domain in recipe:
+        mapping = read(getattr(admitted, name + "_ref"), kind)
+        value = model.model_validate(mapping) if model is not None else mapping
+        loaded[name] = value
+        observed = (
+            epoch.epoch_semantic_content_hash(domain=domain, value=value)
+            if domain is not None
+            else data_plane.content_sha256(mapping)
+        )
+        if observed != getattr(admitted, name + "_content_hash"):
+            raise DataStateSubstrateError("acquisition_historical_evidence_content_mismatch")
+    native = loaded["native_membership_receipt"]
+    semantic = loaded["semantic_denominator_receipt"]
+    projection = loaded["semantic_projection_verification_receipt"]
+    pending = loaded["pending_overlay_receipt"]
+    owner_snapshot = read(native.owner_source_snapshot_ref, "epoch.acquisition_owner_snapshot")
+    owner_rows = owner_snapshot.get("rows")
+    if (
+        owner_snapshot.get("schema_version") != pending.schema_version
+        or not isinstance(owner_rows, list)
+        or len(owner_rows) != native.declared_native_member_count
+        or len(owner_rows) != len(native.assessments)
+        or epoch.epoch_semantic_content_hash(
+            domain="polisyos.epoch.acquisition-owner-snapshot.v1", value=owner_snapshot
+        )
+        != native.owner_source_snapshot_content_hash
+    ):
+        raise DataStateSubstrateError("acquisition_historical_native_snapshot_mismatch")
+    assessments = {str(row.native_member_ref.artifact_id): row for row in native.assessments}
+    if len(assessments) != len(owner_rows):
+        raise DataStateSubstrateError("acquisition_historical_native_snapshot_mismatch")
+    for owner_row in owner_rows:
+        if not isinstance(owner_row, dict):
+            raise DataStateSubstrateError("acquisition_historical_native_row_malformed")
+        encoded = epoch.canonical_epoch_bytes(owner_row)
+        framed = len(encoded).to_bytes(8, "big") + encoded
+        row_id = "sha256:" + hashlib.sha256(framed).hexdigest()
+        assessment = assessments.get(row_id)
+        if (
+            assessment is None
+            or read(assessment.native_member_ref, "epoch.acquisition_native_member") != owner_row
+            or epoch.epoch_semantic_content_hash(
+                domain="polisyos.epoch.acquisition-native-member.v1", value=owner_row
+            )
+            != assessment.native_member_content_hash
+        ):
+            raise DataStateSubstrateError("acquisition_historical_native_row_binding_mismatch")
+    provenance = epoch.AcquisitionProjectionVerifierProvenance.model_validate(
+        read(admitted.verifier_provenance_ref, "epoch.acquisition_projection_verifier_provenance")
+    )
+    if (
+        native.status != "resolved"
+        or semantic.status != "resolved"
+        or projection.status != "verified"
+        or native.query != semantic.query
+        or native.query.requested_query_context_ref
+        != passport.semantic_epoch_stamp.requested_query_context_ref
+        or projection.native_membership_receipt_ref != admitted.native_membership_receipt_ref
+        or projection.native_membership_receipt_content_hash
+        != admitted.native_membership_receipt_content_hash
+        or projection.semantic_denominator_receipt_ref != admitted.semantic_denominator_receipt_ref
+        or projection.semantic_denominator_receipt_content_hash
+        != admitted.semantic_denominator_receipt_content_hash
+        or projection.verifier_provenance_ref != admitted.verifier_provenance_ref
+        or projection.verifier_provenance_content_hash
+        != epoch.epoch_semantic_content_hash(
+            domain="polisyos.epoch.acquisition-projection-verifier.v1", value=provenance
+        )
+        or pending.epoch_id != passport.epoch_id
+        or pending.passport_id != passport.passport_id
+        or pending.boundary_candidate_ref != admitted.semantic_candidate_ref
+        or pending.prepared_semantic_epoch_ref != admitted.prepared_epoch_ref
+        or pending.semantic_epoch_stamp != admitted.semantic_epoch_stamp
+        or receipt.baseline_before_sha256 != receipt.baseline_after_sha256
+        or pending.baseline_before_sha256 != receipt.baseline_before_sha256
+        or pending.baseline_after_sha256 != receipt.baseline_after_sha256
+        or pending.admission_content_sha256 != receipt.admission_content_sha256
+        or not any(
+            row.semantic_candidate_ref == admitted.semantic_candidate_ref
+            and row.semantic_candidate_content_hash == admitted.semantic_candidate_content_hash
+            and row.passport_ref == passport_ref
+            and row.binding_status == "bound"
+            and row.native_member_ref == admitted.native_member_ref
+            and row.native_member_content_hash == admitted.native_member_content_hash
+            for row in native.assessments
+        )
+        or not any(
+            row.semantic_candidate_ref == admitted.semantic_candidate_ref
+            and row.semantic_candidate_content_hash == admitted.semantic_candidate_content_hash
+            for row in semantic.assessments
+        )
+    ):
+        raise DataStateSubstrateError("acquisition_historical_projection_binding_mismatch")
+
+
+def _replay_acquired_observation_projection(
+    store: ArtifactStore,
+    *,
+    receipt_ref: ArtifactRef,
+    passport_ref: ArtifactRef,
+    boundary_candidate_ref: ArtifactRef | None = None,
+    expected_source_ref: ArtifactRef | None = None,
+    activation: ActivatedSemanticEpochAdmissionReceipt | None = None,
+) -> ActivatedAcquisitionObservationProjection:
+    """Replay source and typed activation history without a present native permit."""
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.core.contracts import epoch
+    from polisyos.fabric import connectors, data_plane
+    from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
+    from polisyos.runtime.quality.data_snapshot_lineage import validate_data_snapshot_owner_lineage
+
+    _require_selected_profile(receipt_ref, "acquisition_receipt_profile_unselected")
+    _require_selected_profile(passport_ref, "acquisition_passport_profile_unselected")
+    passport = AdmissionPassport.model_validate(
+        epoch.load_verified_epoch_statement(
+            store=store,
+            ref=passport_ref,
+            expected_kind="epoch.acquisition_passport_snapshot",
+        )
+    )
+    receipt = epoch.ActivatedOverlayAdmissionStatement.model_validate(
+        epoch.load_verified_epoch_statement(
+            store=store,
+            ref=receipt_ref,
+            expected_kind="epoch.activated_overlay_admission_receipt",
+        )
+    )
+    if (
+        receipt.epoch_id != passport.epoch_id
+        or receipt.passport_id != passport.passport_id
+        or receipt.prepared_semantic_epoch_ref != passport.prepared_semantic_epoch_ref
+        or receipt.semantic_epoch_stamp != passport.semantic_epoch_stamp
+        or receipt.activation_state != "active"
+    ):
+        raise DataStateSubstrateError("acquisition_historical_activation_binding_mismatch")
+    if (
+        boundary_candidate_ref is not None
+        and boundary_candidate_ref != passport.semantic_boundary_candidate_ref
+    ):
+        raise DataStateSubstrateError("acquisition_historical_boundary_binding_mismatch")
+    _verify_historical_acquisition_activation(
+        store,
+        receipt=receipt,
+        passport=passport,
+        receipt_ref=receipt_ref,
+        passport_ref=passport_ref,
+        activation=activation,
+    )
+    candidate = epoch.AcquisitionSemanticBoundaryCandidateStatement.model_validate(
+        epoch.load_verified_epoch_statement(
+            store=store,
+            ref=passport.semantic_boundary_candidate_ref,
+            expected_kind="epoch.acquisition_semantic_boundary_candidate",
+        )
+    )
+    if (
+        epoch.acquisition_semantic_candidate_content_hash(candidate)
+        != passport.semantic_boundary_candidate_content_hash
+    ):
+        raise DataStateSubstrateError("acquisition_semantic_source_candidate_mismatch")
+    source_ref = candidate.source_record_ref
+    if expected_source_ref is not None and source_ref != expected_source_ref:
+        raise DataStateSubstrateError("acquisition_historical_source_binding_mismatch")
+    source_manifest = store.get_manifest(source_ref)
+    source_body = store.get_bytes(source_ref)
+    codec = epoch.acquisition_artifact_codec(source_ref.kind, media_type=source_ref.media_type)
+    if (
+        codec is None
+        or not store.verify(source_ref).ok
+        or str(source_ref.artifact_id) != candidate.source_record_content_hash
+        or "sha256:" + hashlib.sha256(source_body).hexdigest()
+        != candidate.source_record_content_hash
+        or source_manifest.kind != source_ref.kind
+        or source_manifest.media_type != source_ref.media_type
+        or source_ref.media_type != codec.media_type
+        or (codec.canon is not None and source_manifest.canon != codec.canon)
+        or (
+            codec.schema_name is not None
+            and source_manifest.artifact_schema
+            != SchemaInfo(name=codec.schema_name, version=codec.schema_version or "")
+        )
+    ):
+        raise DataStateSubstrateError("acquisition_semantic_source_unverified")
+    if passport.source_lane == "local_lift":
+        if (
+            source_ref.kind != "fabric.acquisition.raw_evidence"
+            or source_ref.media_type != "application/json"
+            or str(source_ref.artifact_id) != passport.raw_artifact_id
+        ):
+            raise DataStateSubstrateError("acquisition_semantic_source_codec_unsupported")
+    else:
+        live = passport.live_source_execution
+        if (
+            live is None
+            or source_ref.kind != "connector_cache.payload"
+            or codec.payload_format != "connector_cache_payload"
+            or source_ref.media_type
+            not in {
+                "application/vnd.polisyos.cached-result+application/json",
+                "application/vnd.polisyos.cached-result+application/parquet",
+            }
+        ):
+            raise DataStateSubstrateError("acquisition_semantic_source_codec_unsupported")
+        _require_selected_profile(source_ref, "acquisition_semantic_source_profile_unselected")
+        live_snapshot = DataSnapshot.model_validate(
+            load_core_json_artifact(store, live.data_snapshot_ref)
+        )
+        if (
+            live_snapshot.data_ref != source_ref
+            or str(source_ref.artifact_id) != live.normalized_data_artifact_id
+            or live_snapshot.evidence_ref != live.evidence_bundle_ref
+        ):
+            raise DataStateSubstrateError("acquisition_semantic_source_snapshot_mismatch")
+        validate_data_snapshot_owner_lineage(
+            store, live.data_snapshot_ref, live_snapshot, candidate_only=True
+        )
+        result = connectors.ResultSerializer.deserialize(source_body)
+        replay_bytes, replay_media = connectors.ResultSerializer.serialize(result)
+        if replay_bytes != source_body or replay_media != source_ref.media_type:
+            raise DataStateSubstrateError("acquisition_semantic_source_codec_mismatch")
+        source_body = data_forge_read_api.catalog.normalized_acquisition_source_body(result)
+    derived = data_forge_read_api.catalog.derive_canonical_observations(
+        source_body, passport=passport, registration=passport.registration
+    )
+    return data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection.issue(
+        receipt_ref=receipt_ref,
+        receipt_content_sha256=data_plane.content_sha256(receipt.model_dump(mode="json")),
+        passport_ref=passport_ref,
+        passport_content_sha256=data_plane.content_sha256(passport.model_dump(mode="json")),
+        variable_id=passport.variable_id,
+        epoch_id=passport.epoch_id,
+        passport_id=passport.passport_id,
+        admission_content_sha256=receipt.admission_content_sha256,
+        observations=derived,
+    )
+
+
+def replay_acquired_observation_snapshot_preparation(
+    store: ArtifactStore,
+    *,
+    base_data_snapshot_ref: ArtifactRef,
+    receipt_ref: ArtifactRef,
+    passport_ref: ArtifactRef,
+    boundary_candidate_ref: ArtifactRef,
+    source_ref: ArtifactRef,
+    observation_id: str,
+    slot_binding: ControlledAcquisitionSlotBinding,
+    transaction_time: datetime,
+    activation: ActivatedSemanticEpochAdmissionReceipt | None = None,
+) -> AcquiredObservationDataPreparation:
+    """Recompute actual historical preparation from compact source selectors, write-free.
+
+    This proves historical consumed meaning only. Current native admission,
+    revocation, frontier and permission remain the live Runtime owner's checks.
+    """
+    if not isinstance(boundary_candidate_ref, ArtifactRef) or not isinstance(
+        source_ref, ArtifactRef
+    ):
+        raise DataStateSubstrateError("acquisition_historical_source_selectors_missing")
+    if type(slot_binding) is not ControlledAcquisitionSlotBinding:
+        raise DataStateSubstrateError("acquisition_slot_binding_untyped")
+    if not isinstance(transaction_time, datetime):
+        raise DataStateSubstrateError("acquisition_transaction_time_untyped")
+    slot_binding = ControlledAcquisitionSlotBinding.model_validate(
+        slot_binding.model_dump(mode="python")
+    )
+    projection = _replay_acquired_observation_projection(
+        store,
+        receipt_ref=receipt_ref,
+        passport_ref=passport_ref,
+        boundary_candidate_ref=boundary_candidate_ref,
+        expected_source_ref=source_ref,
+        activation=activation,
+    )
+    return _prepare_acquired_observation_snapshot_from_projection(
+        store,
+        base_data_snapshot_ref=base_data_snapshot_ref,
+        selected_projection=projection,
+        selected_profile=slot_binding,
+        observation_id=observation_id,
+        receipt_ref=receipt_ref,
+        transaction_time=transaction_time,
+    )
+
+
+def _read_acquired_observation_selection(
+    store: ArtifactStore, data_snapshot_ref: ArtifactRef
+) -> tuple[CanonicalAcquisitionObservation, ControlledAcquisitionSlotBinding, int]:
+    """Replay the actual selected snapshot, source codec and canonical row owner."""
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.data_forge.read_api.catalog import CanonicalAcquisitionObservation
+    from polisyos.fabric import data_plane
+    from polisyos.runtime.quality.data_snapshot_lineage import (
+        validate_data_snapshot_owner_lineage,
+    )
+
+    _require_selected_profile(data_snapshot_ref, "acquisition_semantic_snapshot_profile_unselected")
+    try:
+        snapshot = DataSnapshot.model_validate(load_core_json_artifact(store, data_snapshot_ref))
+        lineage = snapshot.source_lineage
+        if not isinstance(lineage, core_contracts.AcquiredObservationDataSnapshotLineage):
+            raise DataStateSubstrateError("acquisition_semantic_snapshot_owner_unsupported")
+        validate_data_snapshot_owner_lineage(
+            store, data_snapshot_ref, snapshot, candidate_only=True
+        )
+        payload = load_core_json_artifact(store, snapshot.data_ref)
+        if not isinstance(payload, dict):
+            raise DataStateSubstrateError("acquisition_semantic_payload_not_object")
+        owner = payload.get("_policyos_acquisition")
+        history = payload.get("_policyos_acquisition_history")
+        acquisition = payload.get("acquisition")
+        if not isinstance(owner, dict) or not isinstance(history, list):
+            raise DataStateSubstrateError("acquisition_semantic_owner_fields_missing")
+        if owner.get("schema_version") != ACQUIRED_DATA_STATE_SCHEMA_VERSION:
+            raise DataStateSubstrateError("acquisition_semantic_payload_epoch_unsupported")
+        selected = tuple(
+            row
+            for row in history
+            if isinstance(row, dict)
+            and row.get("observation_id") == owner.get("selected_observation_id")
+            and row.get("dataset_id") == owner.get("selected_dataset_id")
+        )
+        if len(selected) != 1:
+            raise DataStateSubstrateError("acquisition_semantic_selected_row_not_unique")
+        row = selected[0]
+        observation = CanonicalAcquisitionObservation.model_validate(row.get("observation"))
+        row_digest = data_plane.content_sha256(observation.model_dump(mode="json"))
+        slot_binding = ControlledAcquisitionSlotBinding.model_validate(owner.get("slot_binding"))
+        if (
+            observation.observation_id != owner.get("selected_observation_id")
+            or observation.dataset_id != owner.get("selected_dataset_id")
+            or row.get("row_content_sha256") != row_digest
+            or owner.get("selected_row_content_sha256") != row_digest
+            or row.get("projection_content_sha256") != owner.get("projection_content_sha256")
+            or not isinstance(acquisition, dict)
+            or acquisition.get("selected")
+            != _acquired_observation_selected_value(observation, row_digest)
+            or any(
+                snapshot.stats.get(field) != owner.get(field)
+                for field in (
+                    "selected_observation_id",
+                    "selected_dataset_id",
+                    "selected_row_content_sha256",
+                    "projection_content_sha256",
+                    "source_time_status",
+                )
+            )
+        ):
+            raise DataStateSubstrateError("acquisition_semantic_selected_payload_mismatch")
+        projection = _replay_acquired_observation_projection(
+            store,
+            receipt_ref=lineage.overlay_admission_receipt_ref,
+            passport_ref=lineage.passport_ref,
+        )
+        derived = tuple(row.observation for row in projection.observations)
+        selected_source_rows = tuple(
+            row for row in derived if row.observation_id == observation.observation_id
+        )
+        if len(selected_source_rows) != 1 or selected_source_rows[0] != observation:
+            raise DataStateSubstrateError("acquisition_semantic_source_row_mismatch")
+        if projection.projection_content_sha256 != owner.get("projection_content_sha256"):
+            raise DataStateSubstrateError("acquisition_semantic_source_projection_mismatch")
+        # Re-run the exact full generated rule before its report-only field is projected.
+        acquired_observation_binding_rule(observation=observation, slot_binding=slot_binding)
+        return observation, slot_binding, len(derived)
+    except DataStateSubstrateError:
+        raise
+    except (KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
+        raise DataStateSubstrateError("acquisition_semantic_snapshot_unresolved", str(exc)) from exc
+
+
+def read_acquired_observation_semantic_values(
+    store: ArtifactStore, data_snapshot_ref: ArtifactRef
+) -> dict[str, object]:
+    """Read historical consumed values, without asserting present native eligibility."""
+    observation, binding, count = _read_acquired_observation_selection(store, data_snapshot_ref)
+    return _acquired_observation_semantic_values(
+        observation=observation, slot_binding=binding, projection_row_count=count
+    )
+
+
+def read_acquired_observation_binding_rule(
+    store: ArtifactStore, data_snapshot_ref: ArtifactRef
+) -> FoundryInputBindingRule:
+    """Rebuild the whole historical rule for comparison with actual Foundry input."""
+    observation, binding, _count = _read_acquired_observation_selection(store, data_snapshot_ref)
+    return acquired_observation_binding_rule(observation=observation, slot_binding=binding)
 
 
 def materialize_acquired_observation_snapshot(
@@ -1110,6 +1779,7 @@ def materialize_acquired_observation_snapshot(
     if prepared is not None and prepared != current:
         raise DataStateSubstrateError("acquisition_preparation_owner_state_changed")
     prepared = current
+    prepare_acquired_observation_semantic_values(prepared)
     transaction_time_text = prepared.transaction_time_text
     payload = prepared.payload()
     selected_projection = prepared.observation_projection
@@ -1194,16 +1864,8 @@ def materialize_acquired_observation_snapshot(
             _cas_data_forge_ref(selected_projection.passport_ref),
             _cas_data_forge_ref(payload_ref),
         ),
-        claim_requirement_bindings=(
-            {
-                "claim_id": "candidate-acquired-world-state",
-                "requirement_id": (
-                    f"candidate-observation:{selected_profile.canonical_variable_id}"
-                ),
-                "requirement_kind": "candidate_acquisition_observation",
-                "authority_level": "candidate",
-                "time_role": "transaction_time",
-            },
+        claim_requirement_bindings=_acquired_claim_requirement_bindings(
+            selected_profile.canonical_variable_id
         ),
     )
     return AcquiredObservationDataSnapshotResult(
@@ -1218,6 +1880,636 @@ def materialize_acquired_observation_snapshot(
         observation_projection=selected_projection,
         foundry_binding_rule=prepared.foundry_binding_rule,
     )
+
+
+@dataclass(frozen=True)
+class AcquiredObservationWorldPreparation:
+    """Actual acquired-world constructor inputs before source-dependent writes."""
+
+    model_values_json: bytes
+    rules: tuple[FoundryInputBindingRule, ...]
+    limitations: WorldModelLimitations
+    base_world_model: WorldModelRecord
+    registry_bundle_ref: ArtifactRef
+    owner_values: WorldModelOwnerValues | None
+
+    def materialized_model(self, data_snapshot_ref: ArtifactRef) -> ModelSpec:
+        """Bind the sole late source slot after its real materializer has emitted it."""
+        return ModelSpec.model_validate(
+            {
+                **json.loads(self.model_values_json),
+                "data_snapshot_ref": str(data_snapshot_ref.artifact_id),
+            }
+        )
+
+
+def _prepare_acquired_observation_world(
+    store: ArtifactStore,
+    *,
+    base_world_model_record: WorldModelRecord,
+    acquired_rule: FoundryInputBindingRule,
+    registry_bundle_ref: ArtifactRef,
+    substrate_registry: SubstrateRegistry | None,
+) -> AcquiredObservationWorldPreparation:
+    """Construct the existing producer's full model/rules/limitations without writes."""
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.foundry.data_plane import load_input_bindings
+
+    if type(base_world_model_record) is not WorldModelRecord:
+        raise DataStateSubstrateError("acquisition_world_base_record_untyped")
+    base = WorldModelRecord.model_validate(base_world_model_record.model_dump(mode="json"))
+    views = world_model_artifact_views(base)
+    if acquired_rule.target_slot_id not in {binding.slot_id for binding in base.policy_slot_map}:
+        raise DataStateSubstrateError("acquisition_target_slot_not_in_base_world")
+    if views.registry_bundle_ref != registry_bundle_ref:
+        raise DataStateSubstrateError("acquisition_world_registry_selection_mismatch")
+    model_manifest = store.get_manifest(views.model_spec_ref)
+    if model_manifest.kind != "ir.model_spec" or not store.verify(views.model_spec_ref).ok:
+        raise DataStateSubstrateError("acquisition_base_model_spec_unverified")
+    model_spec = ModelSpec.model_validate(load_core_json_artifact(store, views.model_spec_ref))
+    if (
+        gy_content_hash(model_spec.model_dump(mode="json"))
+        != base.simulation_model_ref.model_spec_hash
+    ):
+        raise DataStateSubstrateError("acquisition_base_model_spec_hash_mismatch")
+    payload = model_spec.model_dump(mode="json")
+    # All model fields survive. Only the source slot is late-bound to the actual
+    # new DataSnapshot; its entire numerical value is separately prepared below.
+    payload.pop("data_snapshot_ref")
+    payload.update(
+        {
+            "calibrated": False,
+            "calibration_ref": None,
+            "notes": [
+                *model_spec.notes,
+                "candidate_acquisition_world",
+                "source_time_not_established",
+                "causal_coupling_not_established",
+            ],
+        }
+    )
+    bindings = load_input_bindings(store, world_model_artifact_views(base).input_bindings_ref)
+    rules = (
+        *(rule for rule in bindings.rules if rule.target_slot_id != acquired_rule.target_slot_id),
+        acquired_rule,
+    )
+    limitations = base.limitations.model_copy(
+        update={
+            "admissibility_blockers": tuple(
+                sorted(
+                    set(base.limitations.admissibility_blockers)
+                    | set(ACQUIRED_DATA_STATE_LIMITATION_CODES)
+                )
+            )
+        }
+    )
+    return AcquiredObservationWorldPreparation(
+        model_values_json=json.dumps(
+            payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+        ).encode(),
+        rules=rules,
+        limitations=limitations,
+        base_world_model=base,
+        registry_bundle_ref=registry_bundle_ref,
+        owner_values=None,
+    )
+
+
+def _acquired_world_meaning(
+    *,
+    world: WorldModelRecord,
+    model_values: dict[str, object],
+    limitations: WorldModelLimitations,
+    rules: tuple[FoundryInputBindingRule, ...],
+    state: object,
+    registry_values: dict[str, object],
+    substrate_registry: SubstrateRegistry,
+    data_values: dict[str, object],
+    fabric_values: dict[str, object],
+    binding_values: dict[str, object],
+) -> dict[str, object]:
+    """Project all inherited fields and all complete owner-resolved value facets."""
+    from polisyos.foundry.contracts.state import GlobalState
+    from polisyos.foundry.execute import state_snapshot_value_projection
+
+    if type(state) is not GlobalState:
+        raise DataStateSubstrateError("acquisition_world_state_values_untyped")
+    # These are the existing constructor's generated occurrence compartments.
+    # They are replaced below by their separately resolved full value owners;
+    # every other typed WMR field is retained generically, including future ones.
+    inherited = world.model_dump(
+        mode="json",
+        exclude={
+            "world_model_record_id",
+            "content_hash",
+            "created_at",
+            "tx_time_scope",
+            "fabric_world_ref",
+            "data_forge_binding_ref",
+            "simulation_model_ref",
+            "foundry_binding_ref",
+            "artifact_views",
+            "substrate_registry_ref",
+        },
+    )
+    inherited.update(
+        {
+            "schema_version": "policyos.runtime.world_model_record.v2",
+            "authority_status": "limited",
+            "valid_time_scope": "not_established",
+            "producer_ref": (
+                "polisyos.runtime.quality.data_state_substrate."
+                "build_acquired_observation_candidate_world"
+            ),
+            "limitations": limitations.model_dump(mode="json"),
+        }
+    )
+    return {
+        "inherited_world": inherited,
+        "model_spec": model_values,
+        "rules": tuple(rule.model_dump(mode="json") for rule in rules),
+        "state": tuple(asdict(leaf) for leaf in state_snapshot_value_projection(state)),
+        "registry": registry_values,
+        "substrate_registry": substrate_registry.model_dump(mode="json"),
+        "data": data_values,
+        "fabric": fabric_values,
+        "data_forge_binding": binding_values,
+    }
+
+
+def _world_not_established(
+    codes: tuple[str, ...], values: dict[str, object] | None = None
+) -> dict[str, object]:
+    """Return an explicit partial preparation; it cannot be treated as equality proof."""
+    return {
+        "status": "not_established",
+        "predicate_provenance": "not_established",
+        "reason_codes": codes,
+        "effective_values": values or {},
+    }
+
+
+def _prepared_config_value(value: object) -> object:
+    """Freeze complete structural config values without coercion; unknown natives refuse."""
+    if value is None or type(value) in {str, int, bool, bytes}:
+        return (type(value).__name__, value)
+    if type(value) is float:
+        return ("float64", struct.pack("!d", value))
+    if isinstance(value, BaseModel):
+        return (
+            type(value).__module__,
+            type(value).__qualname__,
+            tuple(
+                (name, _prepared_config_value(getattr(value, name)))
+                for name in type(value).model_fields
+            ),
+        )
+    if isinstance(value, (tuple, list)) and type(value) in {tuple, list}:
+        return (type(value).__name__, tuple(_prepared_config_value(item) for item in value))
+    if isinstance(value, dict) and type(value) is dict and all(type(key) is str for key in value):
+        return ("dict", tuple((key, _prepared_config_value(value[key])) for key in sorted(value)))
+    raise DataStateSubstrateError("acquisition_world_config_native_value_not_established")
+
+
+def prepare_acquired_observation_world_semantic_values(
+    *,
+    store: ArtifactStore,
+    base_world_model_record: WorldModelRecord,
+    data_preparation: AcquiredObservationDataPreparation,
+    prepared_state_values: object,
+    registry_bundle_ref: ArtifactRef,
+    substrate_registry: SubstrateRegistry | None = None,
+) -> dict[str, object]:
+    """Prepare the actual acquired-world inputs without state/context/N4/N5 emission.
+
+    Unsupported binding/fact/graph roles remain explicit not-established facets.
+    The caller-supplied state preparation is compared with the real Foundry owner;
+    it is never accepted as completeness or authority by declaration.
+    """
+    from polisyos.foundry.data_plane import prepare_json_input_binding_values
+    from polisyos.foundry.execute import state_snapshot_value_projection
+
+    try:
+        data_values = prepare_acquired_observation_semantic_values(data_preparation)
+        plan = _prepare_acquired_observation_world(
+            store,
+            base_world_model_record=base_world_model_record,
+            acquired_rule=data_preparation.foundry_binding_rule,
+            registry_bundle_ref=registry_bundle_ref,
+            substrate_registry=substrate_registry,
+        )
+        from polisyos.runtime.quality.world_model_record import read_world_model_record_owner_values
+
+        plan = replace(
+            plan,
+            owner_values=read_world_model_record_owner_values(
+                store,
+                world_model_record=base_world_model_record,
+                registry_bundle_ref=registry_bundle_ref,
+                substrate_registry=substrate_registry,
+            ),
+        )
+        current = prepare_json_input_binding_values(
+            store,
+            payload_json=data_preparation.payload_json,
+            registry_bundle_ref=registry_bundle_ref,
+            rules=list(plan.rules),
+        )
+        if type(prepared_state_values) is not type(current):
+            raise DataStateSubstrateError("acquisition_world_prepared_state_owner_mismatch")
+        for field in fields(current):
+            actual_value = getattr(current, field.name)
+            supplied_value = getattr(prepared_state_values, field.name)
+            if field.name == "materialized_state":
+                equal = state_snapshot_value_projection(
+                    actual_value
+                ) == state_snapshot_value_projection(supplied_value)
+            else:
+                equal = _prepared_config_value(actual_value) == _prepared_config_value(
+                    supplied_value
+                )
+            if not equal:
+                raise DataStateSubstrateError("acquisition_world_prepared_state_owner_mismatch")
+        return _prepare_acquired_world_semantic_result(
+            store=store,
+            plan=plan,
+            data_values=data_values,
+            state=current.materialized_state,
+            data_preparation=data_preparation,
+            binding_execution={
+                "applied_binding_ids": current.applied_binding_ids,
+                "warnings": current.warnings,
+            },
+        )
+    except (
+        DataStateSubstrateError,
+        WorldModelRecordError,
+        TypeError,
+        ValueError,
+        OSError,
+        RuntimeError,
+    ) as exc:
+        return _world_not_established(
+            (getattr(exc, "code", "acquisition_world_values_unresolved"),)
+        )
+
+
+def _effective_acquired_world_rules(
+    rules: tuple[FoundryInputBindingRule, ...],
+    acquired_rule: FoundryInputBindingRule,
+) -> tuple[dict[str, object], ...]:
+    """Verify the full occurrence rule before projecting its generated report field."""
+    matching = tuple(rule for rule in rules if rule.target_slot_id == acquired_rule.target_slot_id)
+    if matching != (acquired_rule,):
+        raise DataStateSubstrateError("acquisition_world_full_rule_mismatch")
+    return tuple(
+        rule.model_dump(mode="json", exclude={"notes"} if rule == acquired_rule else set())
+        for rule in rules
+    )
+
+
+def _acquired_fabric_meaning(world: WorldModelRecord) -> dict[str, object]:
+    """Instantiate the exact producer recipe with explicit local occurrence roles."""
+    node, facts = _acquired_candidate_fabric_rows(
+        snapshot_id="owner-occurrence:snapshot",
+        payload_hash="owner-occurrence:payload",
+        transaction_time="owner-occurrence:transaction-time",
+    )
+    return {
+        "as_of_valid_time": world.fabric_world_ref.as_of_valid_time,
+        "world_query_policy": world.fabric_world_ref.world_query_policy,
+        "branch": "candidate",
+        "valid_time_scope": "not_established",
+        "node": node.model_dump(mode="json"),
+        "facts": tuple(fact.model_dump(mode="json") for fact in facts),
+    }
+
+
+def _acquired_binding_meaning(
+    *,
+    payload: dict[str, Any],
+    owner: dict[str, Any],
+    data_values: dict[str, object],
+    state_values: tuple[dict[str, object], ...],
+    actual_binding_path: str | None = None,
+) -> dict[str, object]:
+    """Bind source bytes/meaning before the existing finalizer projects occurrence roles."""
+    from polisyos.core.canon import to_canonical_bytes
+
+    payload_hash = (
+        "sha256:"
+        + hashlib.sha256(to_canonical_bytes(payload, CanonSpec(forbid_floats=False))).hexdigest()
+    )
+    base_ref = ArtifactRef.model_validate(owner["base_data_snapshot_ref"])
+    receipt_ref = ArtifactRef.model_validate(owner["receipt_ref"])
+    passport_ref = ArtifactRef.model_validate(owner["passport_ref"])
+    lineage_refs = (
+        _cas_data_forge_ref(base_ref),
+        _cas_data_forge_ref(receipt_ref),
+        _cas_data_forge_ref(passport_ref),
+        f"cas://sha256/{payload_hash.removeprefix('sha256:')}",
+    )
+    extra = _data_forge_snapshot_manifest_extra(
+        corpus_id="candidate-acquisition-observation-overlay",
+        builder_revision=(
+            "polisyos.runtime.quality.data_state_substrate."
+            "materialize_acquired_observation_snapshot"
+        ),
+        lineage_refs=lineage_refs,
+        claim_requirement_bindings=_acquired_claim_requirement_bindings(
+            str(owner["slot_binding"]["canonical_variable_id"])
+        ),
+        payload_content_hash=payload_hash,
+    )
+    artifact_meaning = {"observation": data_values, "consumed_state": state_values}
+    lineage_meanings = (
+        base_ref.model_dump(mode="json"),
+        data_values,
+        data_values,
+        artifact_meaning,
+    )
+    if actual_binding_path is None:
+        artifact_path = Path("data_state_payload.json")
+        content = _data_forge_payload_file_bytes(payload)
+    else:
+        artifact_path = (
+            Path(actual_binding_path).parent
+            / _DATA_FORGE_SNAPSHOT_PIPELINE
+            / "data_state_payload.json"
+        )
+        content = artifact_path.read_bytes()
+        # This is a plain publisher JSON file, parsed by its existing DataForge
+        # manifest reader. Core canonical bytes bind it to the selected CAS value.
+        if to_canonical_bytes(
+            data_forge_read_api.read_manifest(artifact_path), CanonSpec(forbid_floats=False)
+        ) != to_canonical_bytes(payload, CanonSpec(forbid_floats=False)):
+            raise DataStateSubstrateError("acquisition_world_publisher_payload_mismatch")
+    manifest = data_forge_read_api.prepare_publish_manifest(
+        pipeline=_DATA_FORGE_SNAPSHOT_PIPELINE,
+        artifacts=(artifact_path,),
+        captured_artifact_bytes={artifact_path: content},
+        extra=extra,
+        published_at=str(owner["materialized_at_transaction_time"]),
+    )
+    if actual_binding_path is None:
+        return data_forge_read_api.prepare_snapshot_binding_meaning(
+            manifest=manifest,
+            pipeline=_DATA_FORGE_SNAPSHOT_PIPELINE,
+            artifact_contents=(content,),
+            artifact_meanings=(artifact_meaning,),
+            expected_lineage_refs=lineage_refs,
+            lineage_meanings=lineage_meanings,
+        )
+    return data_forge_read_api.read_snapshot_binding_meaning(
+        binding_path=actual_binding_path,
+        expected_manifest=manifest,
+        pipeline=_DATA_FORGE_SNAPSHOT_PIPELINE,
+        artifact_contents=(content,),
+        artifact_meanings=(artifact_meaning,),
+        expected_lineage_refs=lineage_refs,
+        lineage_meanings=lineage_meanings,
+    )
+
+
+def _acquired_model_dependency_values(
+    store: ArtifactStore, world: WorldModelRecord
+) -> dict[str, object]:
+    """Resolve complete supported NCM values; unknown executable graph roles refuse."""
+    from polisyos.ir import NCMSpecRef, load_ncm_spec, prepare_ncm_spec_selected_values
+
+    simulation = world.simulation_model_ref
+    if simulation.mechanism_refs or simulation.gcm_refs or simulation.program_graph_refs:
+        raise DataStateSubstrateError("acquisition_world_executable_graph_profile_not_established")
+    if (
+        world.skg_causal_prior_ref.edge_prior_refs
+        or world.skg_causal_prior_ref.transport_score_refs
+        or world.skg_causal_prior_ref.query_trace_refs
+    ):
+        raise DataStateSubstrateError("acquisition_world_skg_consumed_values_not_established")
+    views = world_model_artifact_views(world)
+    return {
+        "ncm_values": tuple(
+            prepare_ncm_spec_selected_values(
+                load_ncm_spec(store, NCMSpecRef.model_validate(ref.model_dump(mode="json")))
+            ).value_bytes
+            for ref in views.ncm_refs
+        ),
+        "skg_causal_prior": world.skg_causal_prior_ref.model_dump(mode="json"),
+    }
+
+
+def _prepare_acquired_world_semantic_result(
+    *,
+    store: ArtifactStore,
+    plan: AcquiredObservationWorldPreparation,
+    data_values: dict[str, object],
+    state: GlobalState,
+    data_preparation: AcquiredObservationDataPreparation,
+    binding_execution: dict[str, object],
+) -> dict[str, object]:
+    """Compose the supported current producer's complete owner value quantities."""
+    from polisyos.foundry.execute import state_snapshot_value_projection
+
+    owner_values = plan.owner_values
+    if owner_values is None:
+        raise DataStateSubstrateError("acquisition_world_owner_values_not_established")
+    payload = data_preparation.payload()
+    state_values = tuple(asdict(leaf) for leaf in state_snapshot_value_projection(state))
+    dependencies = _acquired_model_dependency_values(store, plan.base_world_model)
+    binding = _acquired_binding_meaning(
+        payload=payload,
+        owner=payload["_policyos_acquisition"],
+        data_values=data_values,
+        state_values=state_values,
+    )
+    effective = _acquired_world_meaning(
+        world=plan.base_world_model,
+        model_values=json.loads(plan.model_values_json),
+        limitations=plan.limitations,
+        rules=plan.rules,
+        state=state,
+        registry_values=owner_values.registry_values,
+        substrate_registry=owner_values.substrate_registry,
+        data_values=data_values,
+        fabric_values=_acquired_fabric_meaning(plan.base_world_model),
+        binding_values=binding,
+    )
+    effective["rules"] = _effective_acquired_world_rules(
+        plan.rules, data_preparation.foundry_binding_rule
+    )
+    effective["model_dependencies"] = dependencies
+    effective["binding_execution"] = binding_execution
+    return {
+        "status": "established",
+        "predicate_provenance": "recomputed",
+        "reason_codes": (),
+        "effective_values": effective,
+    }
+
+
+def _verify_actual_acquired_native_world(
+    world: WorldModelRecord, payload_hash: str, transaction_time: str
+) -> None:
+    """Compare every typed emitted native field with the shared concrete recipe."""
+    import polisyos.fabric as fabric
+    from polisyos.fabric.world import WorldSnapshotFactWrite, WorldSnapshotNodeWrite
+    from polisyos.runtime.quality.world_model_record import _json_scalar
+
+    node, facts = _acquired_candidate_fabric_rows(
+        snapshot_id=world.fabric_world_ref.snapshot_id,
+        payload_hash=payload_hash,
+        transaction_time=transaction_time,
+    )
+    with fabric.SimulationDB(db_path=":memory:") as database:
+        actual = []
+        for table, model, expected in (
+            ("world_nodes", WorldSnapshotNodeWrite, (node,)),
+            ("world_facts", WorldSnapshotFactWrite, facts),
+        ):
+            frame = fabric.execute_world_query(
+                database,
+                fabric.WorldQueryRequest(
+                    table=table,
+                    columns=tuple(model.model_fields),
+                    snapshot_root=Path(world.fabric_world_ref.snapshot_root),
+                    snapshot_id=world.fabric_world_ref.snapshot_id,
+                    limit=2,
+                ),
+            )
+            rows = []
+            for raw in frame.to_dict(orient="records"):
+                values = {key: _json_scalar(value) for key, value in raw.items()}
+                for name in ("provenance_json", "trust_json", "legal_json"):
+                    if name in values and isinstance(values[name], str):
+                        values[name] = json.loads(values[name])
+                rows.append(model.model_validate(values))
+            if tuple(rows) != expected:
+                raise DataStateSubstrateError("acquisition_world_native_recipe_mismatch")
+            actual.append(rows)
+    ref = world.fabric_world_ref
+    if (
+        ref.branch != "candidate"
+        or ref.as_of_tx_time != transaction_time
+        or ref.provenance_manifest_ref != f"cas://{payload_hash.removeprefix('sha256:')}"
+    ):
+        raise DataStateSubstrateError("acquisition_world_native_scope_mismatch")
+
+
+def read_acquired_observation_world_semantic_values(
+    *,
+    store: ArtifactStore,
+    world_model_record: WorldModelRecord,
+    registry_bundle_ref: ArtifactRef,
+) -> dict[str, object]:
+    """Reconcile actual produced WMR, state, native rows and binding before projection."""
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.foundry.data_plane import load_input_bindings, prepare_input_bindings
+    from polisyos.foundry.execute import load_state_snapshot, state_snapshot_value_projection
+    from polisyos.runtime.quality.world_model_record import read_world_model_record_owner_values
+
+    try:
+        values = read_world_model_record_owner_values(
+            store,
+            world_model_record=world_model_record,
+            registry_bundle_ref=registry_bundle_ref,
+        )
+        world = values.record
+        if (
+            world.producer_ref
+            != (
+                "polisyos.runtime.quality.data_state_substrate."
+                "build_acquired_observation_candidate_world"
+            )
+            or world.authority_status != "limited"
+            or world.valid_time_scope != "not_established"
+            or values.model_spec.calibrated
+            or values.model_spec.calibration_ref is not None
+            or values.model_spec.notes[-3:]
+            != [
+                "candidate_acquisition_world",
+                "source_time_not_established",
+                "causal_coupling_not_established",
+            ]
+        ):
+            raise DataStateSubstrateError("acquisition_world_producer_profile_not_established")
+        views = world_model_artifact_views(world)
+        snapshot = DataSnapshot.model_validate(
+            load_core_json_artifact(store, views.data_snapshot_ref)
+        )
+        payload = load_core_json_artifact(store, snapshot.data_ref)
+        data_values = read_acquired_observation_semantic_values(store, views.data_snapshot_ref)
+        acquired_rule = read_acquired_observation_binding_rule(store, views.data_snapshot_ref)
+        bindings = load_input_bindings(store, views.input_bindings_ref)
+        prepared = prepare_input_bindings(
+            store,
+            data_snapshot_ref=views.data_snapshot_ref,
+            registry_bundle_ref=registry_bundle_ref,
+            rules=list(bindings.rules),
+        )
+        state = load_state_snapshot(store, snapshot_ref=views.bound_state_snapshot_ref)
+        if state_snapshot_value_projection(
+            prepared.materialized_state
+        ) != state_snapshot_value_projection(state):
+            raise DataStateSubstrateError("acquisition_world_state_readback_mismatch")
+        _effective_acquired_world_rules(tuple(bindings.rules), acquired_rule)
+        owner = payload["_policyos_acquisition"]
+        _verify_actual_acquired_native_world(
+            world,
+            str(snapshot.data_ref.artifact_id),
+            str(owner["materialized_at_transaction_time"]),
+        )
+        model_values = values.model_spec.model_dump(mode="json")
+        if model_values.pop("data_snapshot_ref") != str(views.data_snapshot_ref.artifact_id):
+            raise DataStateSubstrateError("acquisition_world_model_snapshot_mismatch")
+        binding = _acquired_binding_meaning(
+            payload=payload,
+            owner=owner,
+            data_values=data_values,
+            state_values=tuple(asdict(leaf) for leaf in state_snapshot_value_projection(state)),
+            actual_binding_path=values.data_forge_binding.binding_path,
+        )
+        effective = _acquired_world_meaning(
+            world=world,
+            model_values=model_values,
+            limitations=world.limitations,
+            rules=tuple(bindings.rules),
+            state=state,
+            registry_values=values.registry_values,
+            substrate_registry=values.substrate_registry,
+            data_values=data_values,
+            fabric_values=_acquired_fabric_meaning(world),
+            binding_values=binding,
+        )
+        effective["rules"] = _effective_acquired_world_rules(tuple(bindings.rules), acquired_rule)
+        effective["model_dependencies"] = _acquired_model_dependency_values(store, world)
+        report = load_core_json_artifact(store, views.input_binding_report_ref)
+        if (
+            not isinstance(report, dict)
+            or report.get("warnings") != list(prepared.warnings)
+            or report.get("applied_binding_ids") != list(prepared.applied_binding_ids)
+        ):
+            raise DataStateSubstrateError("acquisition_world_binding_report_mismatch")
+        effective["binding_execution"] = {
+            "applied_binding_ids": prepared.applied_binding_ids,
+            "warnings": prepared.warnings,
+        }
+        return {
+            "status": "established",
+            "predicate_provenance": "recomputed",
+            "reason_codes": (),
+            "effective_values": effective,
+        }
+    except (
+        DataStateSubstrateError,
+        WorldModelRecordError,
+        TypeError,
+        ValueError,
+        OSError,
+        RuntimeError,
+    ) as exc:
+        return _world_not_established(
+            (getattr(exc, "code", "acquisition_world_values_unresolved"),)
+        )
 
 
 def build_acquired_observation_candidate_world(
@@ -1238,9 +2530,6 @@ def build_acquired_observation_candidate_world(
     current causal evidence. Fabric facts use unknown valid time and the
     supplied transaction time only for the snapshot transaction.
     """
-    from polisyos.core.artifacts import load_core_json_artifact
-    from polisyos.foundry.data_plane import load_input_bindings
-    from polisyos.ir.model_layer.model_spec import ModelSpec
 
     if transaction_time.tzinfo is None or transaction_time.utcoffset() is None:
         raise DataStateSubstrateError("acquisition_transaction_time_must_be_aware")
@@ -1251,53 +2540,25 @@ def build_acquired_observation_candidate_world(
     if selected_slot not in base_slots:
         raise DataStateSubstrateError("acquisition_target_slot_not_in_base_world")
 
-    base_model_ref = base_views.model_spec_ref
-    model_manifest = store.get_manifest(base_model_ref)
-    if model_manifest.kind != "ir.model_spec" or not store.verify(base_model_ref).ok:
-        raise DataStateSubstrateError("acquisition_base_model_spec_unverified")
-    model_spec = ModelSpec.model_validate(load_core_json_artifact(store, base_model_ref))
-    if (
-        gy_content_hash(model_spec.model_dump(mode="json"))
-        != base.simulation_model_ref.model_spec_hash
-    ):
-        raise DataStateSubstrateError("acquisition_base_model_spec_hash_mismatch")
-    model_spec = model_spec.model_copy(
-        update={
-            "data_snapshot_ref": str(materialization.data_snapshot_ref.artifact_id),
-            "calibrated": False,
-            "calibration_ref": None,
-            "notes": [
-                *model_spec.notes,
-                "candidate_acquisition_world",
-                "source_time_not_established",
-                "causal_coupling_not_established",
-            ],
-        }
-    )
     registry_bundle_ref = base_views.registry_bundle_ref
-    base_bindings_ref = base_views.input_bindings_ref
-    base_bindings = load_input_bindings(store, base_bindings_ref)
-    retained_rules = [rule for rule in base_bindings.rules if rule.target_slot_id != selected_slot]
-    retained_rules.append(materialization.foundry_binding_rule)
-
+    plan = _prepare_acquired_observation_world(
+        store,
+        base_world_model_record=base,
+        acquired_rule=materialization.foundry_binding_rule,
+        registry_bundle_ref=registry_bundle_ref,
+        substrate_registry=substrate_registry,
+    )
+    model_spec = plan.materialized_model(materialization.data_snapshot_ref)
+    retained_rules = list(plan.rules)
     tx_time = transaction_time.astimezone(UTC).isoformat()
     fabric_root = _write_acquired_candidate_fabric_snapshot(
         workspace_dir=workspace_dir,
         snapshot_id=materialization.snapshot_id,
         payload_hash=materialization.payload_content_hash,
         transaction_time=tx_time,
-        as_of_valid_time=(base.fabric_world_ref.as_of_valid_time or tx_time),
+        as_of_valid_time=base.fabric_world_ref.as_of_valid_time,
     )
-    limitations = base.limitations.model_copy(
-        update={
-            "admissibility_blockers": tuple(
-                sorted(
-                    set(base.limitations.admissibility_blockers)
-                    | set(ACQUIRED_DATA_STATE_LIMITATION_CODES)
-                )
-            )
-        }
-    )
+    limitations = plan.limitations
     data_snapshot_ref = materialization.data_snapshot_ref
     built = build_world_model_record(
         store,
@@ -1305,7 +2566,7 @@ def build_acquired_observation_candidate_world(
             snapshot_root=str(fabric_root),
             snapshot_id=materialization.snapshot_id,
             branch="candidate",
-            as_of_valid_time=(base.fabric_world_ref.as_of_valid_time or tx_time),
+            as_of_valid_time=base.fabric_world_ref.as_of_valid_time,
             as_of_tx_time=tx_time,
             world_query_policy=base.fabric_world_ref.world_query_policy,
             provenance_manifest_ref=f"cas://{materialization.payload_content_hash.removeprefix('sha256:')}",
@@ -2125,6 +3386,68 @@ def _clamp(value: float, lower: float, upper: float) -> float:
     return max(lower, min(upper, value))
 
 
+def _data_forge_snapshot_manifest_extra(
+    *,
+    corpus_id: str,
+    builder_revision: str,
+    lineage_refs: Sequence[str] | None,
+    claim_requirement_bindings: Sequence[Mapping[str, Any]] | None,
+    payload_content_hash: str,
+) -> dict[str, object]:
+    """Construct the existing publisher extra values without side effects."""
+    return {
+        "corpus_id": corpus_id,
+        "builder_revision": builder_revision,
+        "lineage_refs": list(
+            lineage_refs
+            if lineage_refs is not None
+            else (
+                payload_content_hash,
+                "repo://production_data/canonical/local_data_20260501/"
+                "ukraine_server_support_20260410/normalized_corpus",
+                "repo://production_data/datasets_full_phase3full_20260327_183054/"
+                "dataset_catalog.duckdb",
+            )
+        ),
+        "claim_requirement_bindings": [
+            dict(item)
+            for item in (
+                claim_requirement_bindings
+                if claim_requirement_bindings is not None
+                else (
+                    {
+                        "claim_id": "gy-s1-real-l4-data-state",
+                        "requirement_id": "gy-s1-l1-l4-l5-data-state",
+                        "requirement_kind": "production_data_state",
+                        "authority_level": "closeout",
+                        "time_role": "observation_time",
+                    },
+                )
+            )
+        ],
+    }
+
+
+def _data_forge_payload_file_bytes(payload: Mapping[str, Any]) -> bytes:
+    """Use the existing publisher file encoding, also for prospective captured bytes."""
+    return (json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n").encode(
+        "utf-8"
+    )
+
+
+def _acquired_claim_requirement_bindings(variable_id: str) -> tuple[dict[str, str], ...]:
+    """Construct the existing candidate-only claim row before finalizer defaults."""
+    return (
+        {
+            "claim_id": "candidate-acquired-world-state",
+            "requirement_id": f"candidate-observation:{variable_id}",
+            "requirement_kind": "candidate_acquisition_observation",
+            "authority_level": "candidate",
+            "time_role": "transaction_time",
+        },
+    )
+
+
 def _write_data_forge_snapshot_binding(
     *,
     workspace_dir: Path,
@@ -2152,10 +3475,7 @@ def _write_data_forge_snapshot_binding(
     if confine_outputs:
         artifact_path = _require_workspace_output_path(workspace_dir, artifact_path)
         manifest_path = _require_workspace_output_path(workspace_dir, manifest_path)
-    artifact_path.write_text(
-        json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    artifact_path.write_bytes(_data_forge_payload_file_bytes(payload))
     if confine_outputs:
         _require_workspace_output_tree(workspace_dir, snapshot_root)
     data_forge_read_api.write_publish_manifest(
@@ -2163,37 +3483,13 @@ def _write_data_forge_snapshot_binding(
         pipeline=_DATA_FORGE_SNAPSHOT_PIPELINE,
         artifacts=(artifact_path,),
         published_at=published_at,
-        extra={
-            "corpus_id": corpus_id,
-            "builder_revision": builder_revision,
-            "lineage_refs": list(
-                lineage_refs
-                if lineage_refs is not None
-                else (
-                    payload_content_hash,
-                    "repo://production_data/canonical/local_data_20260501/"
-                    "ukraine_server_support_20260410/normalized_corpus",
-                    "repo://production_data/datasets_full_phase3full_20260327_183054/"
-                    "dataset_catalog.duckdb",
-                )
-            ),
-            "claim_requirement_bindings": [
-                dict(item)
-                for item in (
-                    claim_requirement_bindings
-                    if claim_requirement_bindings is not None
-                    else (
-                        {
-                            "claim_id": "gy-s1-real-l4-data-state",
-                            "requirement_id": "gy-s1-l1-l4-l5-data-state",
-                            "requirement_kind": "production_data_state",
-                            "authority_level": "closeout",
-                            "time_role": "observation_time",
-                        },
-                    )
-                )
-            ],
-        },
+        extra=_data_forge_snapshot_manifest_extra(
+            corpus_id=corpus_id,
+            builder_revision=builder_revision,
+            lineage_refs=lineage_refs,
+            claim_requirement_bindings=claim_requirement_bindings,
+            payload_content_hash=payload_content_hash,
+        ),
     )
     if confine_outputs:
         _require_workspace_output_tree(workspace_dir, snapshot_root)
@@ -2313,27 +3609,15 @@ def _write_fabric_world_snapshot(
     return snapshot_root
 
 
-def _write_acquired_candidate_fabric_snapshot(
+def _acquired_candidate_fabric_rows(
     *,
-    workspace_dir: Path,
     snapshot_id: str,
     payload_hash: str,
     transaction_time: str,
-    as_of_valid_time: str,
-) -> Path:
-    """Use Fabric's snapshot writer with unknown valid time for acquired facts."""
-    from polisyos.fabric.world import (
-        WorldSnapshotFactWrite,
-        WorldSnapshotNodeWrite,
-        WorldSnapshotWriteRequest,
-        write_world_snapshot,
-    )
+) -> tuple[WorldSnapshotNodeWrite, tuple[WorldSnapshotFactWrite, ...]]:
+    """Prepare the actual native rows; no world is written by this constructor."""
+    from polisyos.fabric.world import WorldSnapshotFactWrite, WorldSnapshotNodeWrite
 
-    snapshot_root = workspace_dir / "fabric-world"
-    db_path = workspace_dir / "fabric-world.duckdb"
-    # Materialize the caller-owned job workspace before the file-backed writer.
-    snapshot_root.mkdir(parents=True, exist_ok=True)
-    db_path.parent.mkdir(parents=True, exist_ok=True)
     node_id = f"world.acquisition-candidate.{snapshot_id}"
     node = WorldSnapshotNodeWrite(
         node_id=node_id,
@@ -2357,6 +3641,33 @@ def _write_acquired_candidate_fabric_snapshot(
             legal_json=None,
             segment_id=f"seg:{snapshot_id}:candidate",
         ),
+    )
+    return node, facts
+
+
+def _write_acquired_candidate_fabric_snapshot(
+    *,
+    workspace_dir: Path,
+    snapshot_id: str,
+    payload_hash: str,
+    transaction_time: str,
+    as_of_valid_time: str | None,
+) -> Path:
+    """Use Fabric's snapshot writer with unknown valid time for acquired facts."""
+    from polisyos.fabric.world import (
+        WorldSnapshotWriteRequest,
+        write_world_snapshot,
+    )
+
+    snapshot_root = workspace_dir / "fabric-world"
+    db_path = workspace_dir / "fabric-world.duckdb"
+    # Materialize the caller-owned job workspace before the file-backed writer.
+    snapshot_root.mkdir(parents=True, exist_ok=True)
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+    node, facts = _acquired_candidate_fabric_rows(
+        snapshot_id=snapshot_id,
+        payload_hash=payload_hash,
+        transaction_time=transaction_time,
     )
     write_world_snapshot(
         db_path,

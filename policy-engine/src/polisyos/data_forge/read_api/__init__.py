@@ -23,8 +23,18 @@ if TYPE_CHECKING:
     from polisyos.data_forge.kernel.io.generation_basis import (
         build_generation_basis as build_generation_basis,
     )
+    from polisyos.data_forge.kernel.pipeline.manifests import (
+        prepare_publish_manifest as prepare_publish_manifest,
+    )
+    from polisyos.data_forge.kernel.pipeline.manifests import read_manifest as read_manifest
     from polisyos.data_forge.kernel.pipeline.manifests import write_publish_manifest
     from polisyos.data_forge.kernel.snapshot import finalize_snapshot
+    from polisyos.data_forge.kernel.snapshot.finalize import (
+        prepare_snapshot_binding_meaning as prepare_snapshot_binding_meaning,
+    )
+    from polisyos.data_forge.kernel.snapshot.finalize import (
+        read_snapshot_binding_meaning as read_snapshot_binding_meaning,
+    )
     from polisyos.data_forge.read_api.compliance import (
         build_privacy_compliance_report as build_privacy_compliance_report,
     )
@@ -95,6 +105,19 @@ _EXPORTS = {
         "polisyos.data_forge.read_api.compliance",
         "normalize_privacy_compliance_report",
     ),
+    "prepare_publish_manifest": (
+        "polisyos.data_forge.kernel.pipeline.manifests",
+        "prepare_publish_manifest",
+    ),
+    "prepare_snapshot_binding_meaning": (
+        "polisyos.data_forge.kernel.snapshot.finalize",
+        "prepare_snapshot_binding_meaning",
+    ),
+    "read_snapshot_binding_meaning": (
+        "polisyos.data_forge.kernel.snapshot.finalize",
+        "read_snapshot_binding_meaning",
+    ),
+    "read_manifest": ("polisyos.data_forge.kernel.pipeline.manifests", "read_manifest"),
     "write_publish_manifest": (
         "polisyos.data_forge.kernel.pipeline.manifests",
         "write_publish_manifest",
@@ -169,7 +192,11 @@ __all__ = [
     "load_surface",
     "normalize_privacy_compliance_report",
     "pipeline_binding_surface",
+    "prepare_publish_manifest",
+    "prepare_snapshot_binding_meaning",
     "provenance",
+    "read_manifest",
+    "read_snapshot_binding_meaning",
     "surface_module",
     "surfaces",
     "ukraine",

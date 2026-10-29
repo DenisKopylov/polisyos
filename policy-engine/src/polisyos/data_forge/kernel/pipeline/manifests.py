@@ -149,6 +149,29 @@ def write_publish_manifest(
     trace_context: TraceContext | None = None,
 ) -> pathlib.Path:
     """Write a legacy-compatible final publish manifest."""
+    manifest = prepare_publish_manifest(
+        pipeline=pipeline,
+        artifacts=artifacts,
+        captured_artifact_bytes=captured_artifact_bytes,
+        qc_report_path=qc_report_path,
+        extra=extra,
+        published_at=published_at,
+        trace_context=trace_context,
+    )
+    return _write_json(manifest_path, manifest)
+
+
+def prepare_publish_manifest(
+    *,
+    pipeline: str,
+    artifacts: list[str | pathlib.Path] | tuple[str | pathlib.Path, ...] | None = None,
+    captured_artifact_bytes: Mapping[str | pathlib.Path, bytes] | None = None,
+    qc_report_path: str | pathlib.Path | None = None,
+    extra: dict[str, object] | None = None,
+    published_at: str | None = None,
+    trace_context: TraceContext | None = None,
+) -> dict[str, object]:
+    """Prepare the actual publish manifest values without writing files."""
     captured = {
         pathlib.Path(path): content for path, content in (captured_artifact_bytes or {}).items()
     }
@@ -169,7 +192,7 @@ def write_publish_manifest(
     if extra:
         manifest["extra"] = extra
     manifest.update(_trace_fields(trace_context))
-    return _write_json(manifest_path, manifest)
+    return manifest
 
 
 def validate_manifest_artifacts(

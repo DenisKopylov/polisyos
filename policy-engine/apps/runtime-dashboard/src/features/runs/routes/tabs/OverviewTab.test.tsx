@@ -1,3 +1,4 @@
+import { retainedAcquisitionHistoryFixture } from "@/test/fixtures/retainedAcquisitionHistory";
 import { fireEvent, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 
@@ -1235,6 +1236,50 @@ describe("OverviewTab", () => {
     expect(
       screen.getByTestId("overview-candidate-simulation"),
     ).toHaveTextContent("Publication authority is not established.");
+  });
+
+  it("shows the admitted source and original retained evaluation separately", () => {
+    const projection = sameCandidateAcquisitionHistoryProjection();
+    overviewState.run.candidate_simulation = {
+      ...projection,
+      acquisition_history: [retainedAcquisitionHistoryFixture()],
+    };
+    renderWithProviders(<OverviewTab />);
+    const history = screen.getByTestId("overview-acquisition-history-retained");
+    expect(history).toHaveTextContent(
+      "Newly admitted source: sha256:" + "3".repeat(64),
+    );
+    expect(history).toHaveTextContent(
+      "Prior evaluation source: sha256:" + "9".repeat(64),
+    );
+    expect(history).toHaveTextContent(
+      "Original evaluation: run run-original, job job-original, cycle 1",
+    );
+    expect(history).toHaveTextContent("Retained candidate: candidate-prior");
+    expect(
+      screen.getByTestId("overview-acquisition-source-reaction-link"),
+    ).toHaveTextContent(
+      "Source reaction at that decision: sha256:" + "0".repeat(64),
+    );
+    expect(history).toHaveTextContent("Currentness: not_established");
+    expect(history).not.toHaveTextContent("Re-entry candidate:");
+  });
+
+  it("withholds a v3 row whose retained evaluation tuple was removed", () => {
+    const projection = sameCandidateAcquisitionHistoryProjection();
+    overviewState.run.candidate_simulation = {
+      ...projection,
+      acquisition_history: [
+        { ...retainedAcquisitionHistoryFixture(), retained_evaluation: null },
+      ],
+    };
+    renderWithProviders(<OverviewTab />);
+    expect(
+      screen.queryByTestId("overview-acquisition-history-retained"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByTestId("overview-acquisition-history-refused"),
+    ).toBeVisible();
   });
 
   it("renders same-candidate history only with a joined source and root origin", () => {

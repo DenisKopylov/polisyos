@@ -45,6 +45,7 @@ from polisyos.core.contracts.runtime import (
     MethodMetricCandidateScore,
     MethodMetricProjectionResponse,
     RunCandidateSimulationAcquisitionHistoryEntry,
+    RunCandidateSimulationAcquisitionHistoryEntryV3,
     RunCandidateSimulationChildProfileBinding,
     RunCandidateSimulationN5Observation,
     RunCandidateSimulationN8ChildSourceBinding,
@@ -447,7 +448,14 @@ def _candidate_acquisition_history_projection(
     source_status: str | None,
     tenant_id: str | None,
     cell_id: str | None,
-) -> tuple[tuple[RunCandidateSimulationAcquisitionHistoryEntry, ...], str | None]:
+) -> tuple[
+    tuple[
+        RunCandidateSimulationAcquisitionHistoryEntry
+        | RunCandidateSimulationAcquisitionHistoryEntryV3,
+        ...,
+    ],
+    str | None,
+]:
     """Resolve persisted acquisition receipts without asserting route currentness."""
     if not tenant_id or not cell_id or not control_job_id:
         return (), "acquisition_n4_source_not_established"
@@ -665,10 +673,21 @@ def _candidate_acquisition_history_projection(
         return input_record, source
 
     try:
-        history_entries: list[RunCandidateSimulationAcquisitionHistoryEntry] = []
-        matching_receipts: list[tuple[Any, ArtifactRef, AcquisitionRouteLoopReceipt]] = []
+        history_entries: list[
+            RunCandidateSimulationAcquisitionHistoryEntry
+            | RunCandidateSimulationAcquisitionHistoryEntryV3
+        ] = []
+        matching_receipts: list[
+            tuple[
+                Any,
+                ArtifactRef,
+                AcquisitionRouteLoopReceipt | RunCandidateSimulationAcquisitionHistoryEntryV3,
+                Any,
+            ]
+        ] = []
         matching_incomplete = False
         for head in heads:
+            verified_source = None
             if (
                 head.tenant_id != tenant_id
                 or head.cell_id != cell_id
@@ -688,11 +707,59 @@ def _candidate_acquisition_history_projection(
                         route_receipt_ref,
                         expected_kind="runtime_quality.acquisition_route_loop_receipt",
                         expected_schema="polisyos.runtime.AcquisitionRouteLoopReceipt",
-                        expected_version="1.0",
+                        expected_version=("1.0", "2.0"),
                         expected_job_id=head.job_id,
                     )
                 )
-                route_receipt = AcquisitionRouteLoopReceipt.model_validate(route_payload)
+                route_manifest = read_core_manifest_profile(store, route_receipt_ref)[0]
+                route_schema = route_manifest.artifact_schema
+                if route_schema is None:
+                    raise ValueError("acquisition_history_terminal_schema_missing")
+                if route_schema.version == "2.0":
+                    # Dispatch by the selected manifest epoch before legacy parsing.
+                    # The Runtime owner reopens the actual closure; payload flags
+                    # and a readable decision blob cannot establish this join.
+                    if not isinstance(route_payload, dict):
+                        raise ValueError("acquisition_history_terminal_payload_invalid")
+                    if route_payload.get("compiled_ref") != str(compiled_ref.artifact_id):
+                        continue
+                    from polisyos.runtime.quality.acquisition_evaluation_history import (
+                        verify_acquisition_retention_history,
+                    )
+
+                    verified = verify_acquisition_retention_history(
+                        artifact_store=store,
+                        event_log=event_log,
+                        control_store=control_store,
+                        control_service=control_service,
+                        head=head,
+                        route_receipt_ref=route_receipt_ref,
+                        compiled_ref=compiled_ref,
+                        source_run_id=source_run_id,
+                        source_job_id=source_job_id,
+                        tenant_id=tenant_id,
+                        cell_id=cell_id,
+                    )
+                    verified_source = verified
+                    if verified.history_entry is not None:
+                        if verified.legacy_receipt is not None:
+                            raise ValueError("acquisition_history_v3_projection_ambiguous")
+                        matching_receipts.append(
+                            (
+                                head,
+                                route_receipt_ref,
+                                RunCandidateSimulationAcquisitionHistoryEntryV3.model_validate(
+                                    verified.history_entry
+                                ),
+                                verified_source,
+                            )
+                        )
+                        continue
+                    if verified.legacy_receipt is None:
+                        raise ValueError("acquisition_history_v3_projection_missing")
+                    route_receipt = verified.legacy_receipt
+                else:
+                    route_receipt = AcquisitionRouteLoopReceipt.model_validate(route_payload)
                 receipt = route_receipt
             else:
                 route_receipt_ref = _selected_ref(
@@ -748,14 +815,17 @@ def _candidate_acquisition_history_projection(
             if receipt.run_id != source_run_id or receipt.source_job_id != source_job_id:
                 raise ValueError("acquisition_action_head_source_binding_mismatch")
             route_receipt = receipt
-            matching_receipts.append((head, route_receipt_ref, route_receipt))
+            matching_receipts.append((head, route_receipt_ref, route_receipt, verified_source))
 
-        if not matching_receipts:
+        if not matching_receipts and not history_entries:
             if matching_incomplete:
                 return (), "acquisition_action_history_incomplete"
             return (), "acquisition_action_history_not_observed"
 
-        for _head, route_receipt_ref, route_receipt in matching_receipts:
+        for _head, route_receipt_ref, route_receipt, verified_source in matching_receipts:
+            if isinstance(route_receipt, RunCandidateSimulationAcquisitionHistoryEntryV3):
+                history_entries.append(route_receipt)
+                continue
             if route_receipt.terminal_outcome == "quarantined_no_growth":
                 observed_origin_source_ref = None
                 if compiled.n4_recursive_source_ref is not None:
@@ -806,17 +876,25 @@ def _candidate_acquisition_history_projection(
             ):
                 raise ValueError("acquisition_reentry_route_binding_mismatch")
 
-            source_runs = tuple(
-                node.cycle_run
-                for node in recursive_run.nodes
-                if isinstance(node, RecursiveCycleNode)
-                and node.cycle_run is not None
-                and node.design_problem_ref == reentry_receipt.design_problem_ref
-                and any(
-                    cycle.cycle_index == reentry_receipt.source_cycle_index
-                    for cycle in node.cycle_run.cycles
+            if verified_source is not None:
+                source_run = verified_source.source_generation_run
+                selected_source_cycle = verified_source.source_cycle
+                if source_run is None or selected_source_cycle is None:
+                    raise ValueError("acquisition_reentry_verified_source_missing")
+                source_runs = (source_run,)
+            else:
+                selected_source_cycle = None
+                source_runs = tuple(
+                    node.cycle_run
+                    for node in recursive_run.nodes
+                    if isinstance(node, RecursiveCycleNode)
+                    and node.cycle_run is not None
+                    and node.design_problem_ref == reentry_receipt.design_problem_ref
+                    and any(
+                        cycle.cycle_index == reentry_receipt.source_cycle_index
+                        for cycle in node.cycle_run.cycles
+                    )
                 )
-            )
             source_cycles = tuple(
                 cycle
                 for run in source_runs
@@ -830,6 +908,8 @@ def _candidate_acquisition_history_projection(
             ):
                 raise ValueError("acquisition_reentry_source_candidate_binding_mismatch")
             source_cycle = source_cycles[0]
+            if selected_source_cycle is not None and source_cycle != selected_source_cycle:
+                raise ValueError("acquisition_reentry_verified_source_cycle_mismatch")
             if len(source_runs) != 1:
                 raise ValueError("acquisition_reentry_source_run_ambiguous")
             source_run = source_runs[0]
@@ -841,10 +921,17 @@ def _candidate_acquisition_history_projection(
             if (old_source_ref is None) != (old_input_ref is None):
                 raise ValueError("acquisition_reentry_old_candidate_source_incomplete")
             if old_source_ref is not None and old_input_ref is not None:
+                old_evaluation_job_id = (
+                    verified_source.source_evaluation_job_id
+                    if verified_source is not None
+                    else source_job_id
+                )
+                if not old_evaluation_job_id:
+                    raise ValueError("acquisition_reentry_old_evaluation_job_missing")
                 old_input, old_source = _resolve_n5_v5_source(
                     ArtifactRef.model_validate(old_input_ref.model_dump(mode="json")),
                     expected_run_id=source_run_id,
-                    expected_job_id=source_job_id,
+                    expected_job_id=old_evaluation_job_id,
                     expected_tenant_id=tenant_id,
                     expected_cell_id=cell_id,
                 )

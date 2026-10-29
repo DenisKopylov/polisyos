@@ -57,3 +57,15 @@
   kernel package. Legal corpus exception semantics stay with
   `domains/legal/contracts.py`; generic artifact readers default to the kernel
   validation error and domain callers select their own error class explicitly.
+
+## Write-free publish and binding meaning
+
+`prepare_publish_manifest` is the actual publisher's shared input constructor.
+The snapshot finalizer uses one full binding-row constructor for writing and
+historical readback. `prepare_snapshot_binding_meaning` projects explicit owner
+occurrence roles at constructor inputs; `read_snapshot_binding_meaning` first
+recomputes the entire emitted row/provenance and source-copy relations. Supplied
+claim/transform fields retain their meaning; no output-prefix stripping is used.
+The current candidate profile refuses QC-report-dependent meaning until that
+owner relation is supplied. Occurrence tokens in a prospective meaning projection
+are variable roles, never issued artifact refs or claims that a new publish ran.

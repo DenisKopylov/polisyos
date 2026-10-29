@@ -15292,6 +15292,253 @@ def _loaded_code_manifest(
             _ACTIVE_INTEGRITY_ANALYSIS.reset(token)
 
 
+def _execution_loaded_slot_bindings(
+    root: Path,
+    paths: Mapping[str, str],
+    executed_code: tuple[tuple[str, types.CodeType], ...],
+    *,
+    receiver_classes: tuple[type, ...] = (),
+) -> dict[str, object]:
+    """Reconcile the live SOURCE slots which own actually consumed code.
+
+    The original C95 full-module authority census remains unchanged. This
+    separate observation has a different denominator: real producer frames and
+    its exact entry callables. A nested function/comprehension is owned by the
+    nearest source-declared callable, rather than a caller-written helper list.
+    Unexecuted N4/N9/LLM alternatives receive a source-byte binding only.
+    """
+    modules: dict[str, set[str]] = {}
+    for module, code in executed_code:
+        if module in paths:
+            modules.setdefault(module, set()).add(code.co_qualname)
+    class_paths: dict[str, set[tuple[str, ...]]] = {}
+    for cls in receiver_classes:
+        module_name = cls.__module__
+        module = sys.modules.get(module_name)
+        parts = tuple(cls.__qualname__.split("."))
+        owner: object = module
+        for part in parts:
+            owner = vars(owner).get(part) if hasattr(owner, "__dict__") else None
+        if module_name not in paths or owner is not cls or type(cls) is not type:
+            raise ConfidenceLedgerError("n5_receiver_construction_not_established")
+        class_paths.setdefault(module_name, set()).add(parts)
+        modules.setdefault(module_name, set())
+    result: dict[str, object] = {}
+    for module_name, qualnames in sorted(modules.items()):
+        relative = paths[module_name]
+        source_path = (root / relative).resolve(strict=True)
+        module = sys.modules.get(module_name)
+        spec = getattr(module, "__spec__", None)
+        if (
+            module is None
+            or not isinstance(getattr(spec, "loader", None), SourceFileLoader)
+            or Path(str(getattr(spec, "origin", ""))).resolve() != source_path
+            or Path(str(getattr(module, "__file__", ""))).resolve() != source_path
+        ):
+            raise ConfidenceLedgerError("n5_executed_code_origin_mismatch")
+        source = source_path.read_bytes()
+        compiled = compile(
+            source, str(source_path), "exec", dont_inherit=True, optimize=sys.flags.optimize
+        )
+        hashes = _loader_code_hashes_by_qualname(compiled)
+        declarations = _loader_owned_callable_slots(source_path)
+        selected: dict[str, _LoaderOwnedCallableSlot] = {}
+        for qualname in qualnames:
+            matches = tuple(
+                slot
+                for slot in declarations
+                if qualname == slot.qualname or qualname.startswith(slot.qualname + ".<locals>.")
+            )
+            if not matches:
+                if qualname == "<module>":
+                    # Import/module execution has no callable owner slot. Its
+                    # complete code is reconciled below against compiled source.
+                    continue
+                raise ConfidenceLedgerError("n5_executed_owner_slot_not_established")
+            slot = max(matches, key=lambda item: len(item.qualname))
+            selected[slot.qualname] = slot
+        for owner_path in class_paths.get(module_name, ()):
+            class_slots = tuple(
+                slot for slot in declarations if slot.owner_path[: len(owner_path)] == owner_path
+            )
+            if not class_slots or not any(slot.binding_name == "__init__" for slot in class_slots):
+                raise ConfidenceLedgerError("n5_receiver_construction_not_established")
+            selected.update((slot.qualname, slot) for slot in class_slots)
+            prefix = ".".join(owner_path)
+            actual: set[str] = set()
+
+            def collect_labels(cls: type, label: str, labels: set[str], owner_module: str) -> None:
+                for name, raw in vars(cls).items():
+                    member = label + "." + name
+                    if isinstance(raw, (types.FunctionType, classmethod, staticmethod)):
+                        labels.add(member)
+                    elif isinstance(raw, property):
+                        labels.update(
+                            member + "." + role
+                            for role in ("fget", "fset", "fdel")
+                            if getattr(raw, role) is not None
+                        )
+                    elif isinstance(raw, type) and raw.__module__ == owner_module:
+                        collect_labels(raw, member, labels, owner_module)
+
+            cls = _loader_owned_slot_owner(module, module_name, owner_path)
+            if not isinstance(cls, type):
+                raise ConfidenceLedgerError("n5_receiver_construction_not_established")
+            collect_labels(cls, prefix, actual, module_name)
+            expected = {
+                slot.qualname + "." + role if slot.descriptor_kind == "property" else slot.qualname
+                for slot in class_slots
+                for role in (
+                    slot.property_accessors if slot.descriptor_kind == "property" else ("function",)
+                )
+            }
+            if actual != expected:
+                raise ConfidenceLedgerError("n5_receiver_construction_not_established")
+        # Constructors execute module-global/import lookup edges before the
+        # numerical observer exists. Reuse the source import relation on every
+        # direct imported dependency read by those actual constructor code
+        # objects, not a hand-written name/alias list.
+        tree = ast.parse(source, filename=str(source_path))
+        imported_names = _source_imported_names(tree)
+        constructor_imports: dict[str, tuple[str, ...]] = {}
+        for owner_path in class_paths.get(module_name, ()):
+            cls = _loader_owned_slot_owner(module, module_name, owner_path)
+            raw = vars(cls).get("__init__") if isinstance(cls, type) else None
+            if not isinstance(raw, types.FunctionType):
+                raise ConfidenceLedgerError("n5_receiver_construction_not_established")
+            consumed = set()
+            for instruction in dis.get_instructions(raw.__code__):
+                if instruction.opname not in {"LOAD_GLOBAL", "LOAD_NAME"}:
+                    continue
+                name = str(instruction.argval)
+                if name in imported_names:
+                    if (
+                        _source_import_binding(
+                            name, tree=tree, module=module, module_name=module_name
+                        )
+                        is _SOURCE_DERIVATION_FAILED
+                    ):
+                        raise ConfidenceLedgerError("n5_receiver_construction_not_established")
+                    consumed.add(name)
+            constructor_imports[".".join(owner_path)] = tuple(sorted(consumed))
+        rows: dict[str, dict[str, object]] = {}
+        for qualname, slot in sorted(selected.items()):
+            row, matches = _loader_owned_slot_binding(
+                module, module_name, source_path, slot, hashes.get(qualname, ()), hashes
+            )
+            if not matches:
+                receiver_owned = any(
+                    slot.owner_path[: len(path)] == path
+                    for path in class_paths.get(module_name, ())
+                )
+                raise ConfidenceLedgerError(
+                    "n5_receiver_construction_not_established"
+                    if receiver_owned
+                    else "n5_consumed_loaded_binding_mismatch"
+                )
+            rows[qualname] = {"slot": row}
+        # Validate loader slots before normalizing arbitrary current closures.
+        # A noncanonical constructor's environment is not traversed first.
+        live = _live_defined_code_manifest(
+            module,
+            module_name,
+            source_path=source_path,
+            selected_qualnames=frozenset(selected),
+        )
+        for qualname in sorted(selected):
+            # Existing C95 rows include code/wrapper/descriptor provenance;
+            # this adds defaults/kwdefaults/closure from its existing generic
+            # function-binding owner. Same code with changed defaults differs.
+            actual_bindings = {
+                label: binding
+                for label, binding in live.items()
+                if label == qualname or label.startswith(qualname + ".")
+            }
+            if not actual_bindings:
+                raise ConfidenceLedgerError("n5_consumed_loaded_binding_missing")
+            rows[qualname]["live_bindings"] = actual_bindings
+        result[module_name] = {
+            "relative_path": relative,
+            "consumed_slots": rows,
+            "constructor_import_lookup_relations": constructor_imports,
+        }
+    return result
+
+
+def capture_execution_source_bindings(
+    entry_modules: tuple[str, ...],
+    executed_code: tuple[tuple[str, types.CodeType], ...],
+    *,
+    bound_entry_code: tuple[tuple[str, types.CodeType], ...] = (),
+    receiver_classes: tuple[type, ...] = (),
+) -> dict[str, object]:
+    """Reconcile the complete source closure and actual consumed live slots.
+
+    Actual producer frames/entry objects determine the loaded-binding set. The
+    static closure still binds every alternative's source bytes, but an
+    unrelated loaded function is not asserted to have supplied this N5 result.
+    The original C95 full-module admission policy is not changed by this seam.
+    """
+    root = _loaded_policy_engine_root()
+    closure = _resolve_authority_import_closure(root, entry_modules)
+    source_rows = tuple(
+        (module, relative, _bytes_hash((root / relative).read_bytes()))
+        for module, relative in closure
+    )
+    paths = dict(closure)
+    loaded_bindings = _execution_loaded_slot_bindings(
+        root, paths, executed_code + bound_entry_code, receiver_classes=receiver_classes
+    )
+    executed_rows: list[tuple[str, str, str]] = []
+    bound_rows: list[tuple[str, str, str]] = []
+    for index, (module, code) in enumerate(executed_code + bound_entry_code):
+        relative = paths.get(module)
+        loaded_module = sys.modules.get(module)
+        spec = getattr(loaded_module, "__spec__", None)
+        loader = getattr(spec, "loader", None)
+        origin = getattr(spec, "origin", None)
+        if relative is not None:
+            source_path = (root / relative).resolve()
+            source = source_path.read_bytes()
+            if Path(code.co_filename).resolve() != source_path:
+                raise ConfidenceLedgerError("n5_executed_code_origin_mismatch")
+            compiled = compile(
+                source, str(source_path), "exec", dont_inherit=True, optimize=sys.flags.optimize
+            )
+        elif isinstance(loader, SourceFileLoader) and isinstance(origin, str):
+            source_path = Path(origin).resolve(strict=True)
+            if (
+                loaded_module is None
+                or Path(str(getattr(loaded_module, "__file__", ""))).resolve() != source_path
+                or Path(code.co_filename).resolve() != source_path
+            ):
+                raise ConfidenceLedgerError("n5_executed_dependency_origin_mismatch")
+            source = source_path.read_bytes()
+            compiled = compile(
+                source, str(source_path), "exec", dont_inherit=True, optimize=sys.flags.optimize
+            )
+        elif origin == "frozen" and hasattr(loader, "get_code"):
+            compiled = loader.get_code(module)
+            if not isinstance(compiled, types.CodeType):
+                raise ConfidenceLedgerError("n5_executed_frozen_dependency_unverified")
+        else:
+            raise ConfidenceLedgerError("n5_executed_dependency_source_not_established")
+        expected = _loader_code_hashes_by_qualname(compiled).get(code.co_qualname, ())
+        digest = _content_hash(_normalize_code_object(code))
+        if digest not in expected:
+            raise ConfidenceLedgerError("n5_executed_code_source_mismatch")
+        row = (module, code.co_qualname, digest)
+        (executed_rows if index < len(executed_code) else bound_rows).append(row)
+    return {
+        "source_closure_hash": _content_hash(source_rows),
+        "source_module_count": len(source_rows),
+        "loaded_binding_hash": _content_hash(loaded_bindings),
+        "loaded_module_count": len(loaded_bindings),
+        "executed_code": tuple(sorted(set(executed_rows))),
+        "bound_entry_code": tuple(sorted(set(bound_rows))),
+    }
+
+
 def _loaded_code_evidence_projection(manifest: str) -> str:
     """Remove process-late non-local exports from stable runtime evidence."""
 
@@ -15330,8 +15577,14 @@ def _live_defined_code_manifest(
     module_name: str,
     *,
     source_path: Path,
+    selected_qualnames: frozenset[str] | None = None,
 ) -> dict[str, dict[str, object]]:
-    """Capture every live function bound into one authority module namespace."""
+    """Capture all authority bindings, or exactly an execution's selected slots.
+
+    None preserves the original C95 full-census contract. The execution-only
+    selection is applied before normalization, so unconsumed code/defaults do
+    not enter that separate observation's deciding denominator.
+    """
 
     found: dict[str, tuple[types.FunctionType, bool, bool]] = {}
     seen_classes: set[int] = set()
@@ -15388,6 +15641,10 @@ def _live_defined_code_manifest(
             "normalized_binding_hash": _content_hash(_normalize_function_binding(function)),
         }
         for label, (function, defined_locally, globals_match) in sorted(found.items())
+        if selected_qualnames is None
+        or any(
+            label == qualname or label.startswith(qualname + ".") for qualname in selected_qualnames
+        )
     }
 
 

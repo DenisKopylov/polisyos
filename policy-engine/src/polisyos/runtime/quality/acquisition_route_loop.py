@@ -10,6 +10,7 @@ from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validato
 
 from polisyos.core import canon
 from polisyos.core.artifacts import ArtifactID, ArtifactRef
+from polisyos.runtime.quality.acquisition_evaluation import AcquisitionSelectedEvaluation
 from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionActionRecord,
     AcquisitionCostBasisRecord,
@@ -256,6 +257,89 @@ class AcquisitionRouteLoopReceipt(BaseModel):
         return self
 
 
+class AcquisitionRouteLoopReceiptV2(BaseModel):
+    """Versioned terminal separating source admission from selected evaluation."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["AcquisitionRouteLoopReceipt@2.0"] = "AcquisitionRouteLoopReceipt@2.0"
+    receipt_id: str = Field(min_length=1)
+    tenant_id: str = Field(min_length=1)
+    cell_id: str = Field(min_length=1)
+    run_id: str = Field(min_length=1)
+    source_job_id: str = Field(min_length=1)
+    route_id: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    action_generation: int = Field(ge=1)
+    job_id: str = Field(min_length=1)
+    compiled_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    planner_report_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    cost_basis_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    decision_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    coarse_phase: Literal["terminal"] = "terminal"
+    receipt_phase: Literal["terminal"] = "terminal"
+    recovery_state: Literal["complete"] = "complete"
+    terminal_outcome: Literal[
+        "quarantined_no_growth", "reentry_completed", "source_admitted_evaluation_retained"
+    ]
+    predecessor_receipt_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    owner_receipt_refs: tuple[str, ...] = Field(min_length=1)
+    reentry_receipt_ref: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    evaluation_decision_ref: ArtifactRef
+    selected_basis_ref: ArtifactRef
+    selected_evaluation_witness_ref: ArtifactRef
+    selected_evaluation: AcquisitionSelectedEvaluation | None = None
+    current_continuation_ref: ArtifactRef | None = None
+    generated_at: AwareDatetime
+
+    @model_validator(mode="after")
+    def _validate_terminal_truth(self) -> AcquisitionRouteLoopReceiptV2:
+        if self.terminal_outcome == "reentry_completed":
+            if self.reentry_receipt_ref is None or self.current_continuation_ref is not None:
+                raise ValueError("terminal_reentry_receipt_missing_or_retained_continuation")
+        elif self.reentry_receipt_ref is not None:
+            raise ValueError("terminal_cannot_claim_new_reentry")
+        if self.terminal_outcome == "source_admitted_evaluation_retained" and (
+            self.selected_evaluation is None
+            or self.selected_evaluation.basis_ref is None
+            or self.current_continuation_ref is None
+            or self.selected_evaluation.basis_ref != self.selected_basis_ref
+            or self.selected_evaluation.n5_execution_ref != self.selected_evaluation_witness_ref
+        ):
+            raise ValueError("terminal_retained_evaluation_incomplete")
+        for ref, kind in (
+            (self.evaluation_decision_ref, "runtime_quality.acquisition_evaluation_decision"),
+            (self.selected_basis_ref, "runtime_quality.acquisition_evaluation_basis"),
+        ):
+            if (
+                ref.kind != kind
+                or ref.media_type != "application/json"
+                or (ref.manifest_profile_sha256 is None)
+            ):
+                raise ValueError("terminal_evaluation_selected_profile_missing")
+        if self.selected_evaluation_witness_ref.manifest_profile_sha256 is None:
+            raise ValueError("terminal_evaluation_witness_profile_missing")
+        return self
+
+
+def parse_acquisition_route_loop_receipt(
+    value: object,
+) -> AcquisitionRouteLoopReceipt | AcquisitionRouteLoopReceiptV2:
+    """Select the exact versioned reader; legacy serialized meaning is unchanged."""
+    if isinstance(value, (AcquisitionRouteLoopReceipt, AcquisitionRouteLoopReceiptV2)):
+        value = value.model_dump(mode="python")
+    if not isinstance(value, dict):
+        raise ValueError("acquisition_terminal_payload_not_mapping")
+    if value.get("schema_version") == "AcquisitionRouteLoopReceipt@2.0":
+        return AcquisitionRouteLoopReceiptV2.model_validate(value)
+    return AcquisitionRouteLoopReceipt.model_validate(value)
+
+
+AcquisitionTerminalReceipt = AcquisitionRouteLoopReceipt | AcquisitionRouteLoopReceiptV2
+
+
 class AcquisitionRoutePhaseHead(Protocol):
     """Read-back fields required from one durable acquisition phase head."""
 
@@ -274,7 +358,7 @@ class AcquisitionRoutePhaseSink(Protocol):
 
     def persist_terminal(
         self,
-        receipt: AcquisitionRouteLoopReceipt,
+        receipt: AcquisitionTerminalReceipt,
     ) -> AcquisitionRoutePhaseHead: ...
 
     def get_head(
@@ -369,7 +453,7 @@ class _VerifiedActionOutcome(Protocol):
     """Exact verified head and its latest persisted phase or terminal receipt."""
 
     head: _ActionHead
-    latest_receipt: AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt
+    latest_receipt: AcquisitionRoutePhaseReceipt | AcquisitionTerminalReceipt
     executing_phase_ref: str | None
 
 
@@ -694,10 +778,11 @@ class AcquisitionRouteLoop:
                 elif outcomes:
                     latest = outcomes[-1].latest_receipt
                     if not isinstance(
-                        latest, AcquisitionRouteLoopReceipt
+                        latest, (AcquisitionRouteLoopReceipt, AcquisitionRouteLoopReceiptV2)
                     ) or latest.terminal_outcome not in {
                         "quarantined_no_growth",
                         "reentry_completed",
+                        "source_admitted_evaluation_retained",
                     }:
                         raise AcquisitionRouteClosureError(
                             "acquisition_action_generation_not_resolvable"
@@ -721,7 +806,9 @@ class AcquisitionRouteLoop:
                 and snapshot.head.action_generation >= before_action_generation
             ):
                 continue
-            if not isinstance(receipt, AcquisitionRouteLoopReceipt):
+            if not isinstance(
+                receipt, (AcquisitionRouteLoopReceipt, AcquisitionRouteLoopReceiptV2)
+            ):
                 raise AcquisitionRouteClosureError("acquisition_action_outcome_not_terminal")
             if (
                 receipt.tenant_id != self._tenant_id
@@ -735,6 +822,24 @@ class AcquisitionRouteLoop:
             ):
                 raise AcquisitionRouteClosureError("acquisition_action_source_identity_mismatch")
             if receipt.terminal_outcome == "quarantined_no_growth":
+                continue
+            if receipt.terminal_outcome == "source_admitted_evaluation_retained":
+                from polisyos.runtime.quality.acquisition_evaluation_history import (
+                    verify_retained_route_accumulator,
+                )
+
+                verify_retained_route_accumulator(
+                    artifact_store=self._artifact_store,
+                    event_log=self._event_log,
+                    control_store=self._control_store,
+                    snapshot=snapshot,
+                    terminal=receipt,
+                    generation_run=selected_run,
+                    source_cycle=selected_cycle,
+                    design_problem_ref=design_problem_ref,
+                )
+                # The actual selected evaluation tuple was reconciled above;
+                # admission changed, the evaluation accumulator did not.
                 continue
             selected_run, selected_cycle = self._verified_reentry_source(
                 snapshot=snapshot,
@@ -765,7 +870,7 @@ class AcquisitionRouteLoop:
         self,
         *,
         snapshot: object,
-        terminal: AcquisitionRouteLoopReceipt,
+        terminal: AcquisitionTerminalReceipt,
         source_run: GenerationCycleRun,
         source_cycle: GenerationCycleRecord,
         design_problem: DesignProblem,
@@ -805,7 +910,7 @@ class AcquisitionRouteLoop:
             growth_payload = self._read_json_artifact(
                 growth_ref,
                 expected_kind="runtime_quality.acquisition_world_growth_receipt",
-                expected_schema_name="polisyos.runtime.AcquisitionWorldGrowthReceipt",
+                expected_schema_name=AcquisitionWorldGrowthReceipt.ARTIFACT_SCHEMA_NAME,
                 expected_schema_versions=("1.1",),
             )
             if (
@@ -1098,9 +1203,12 @@ __all__ = [
     "AcquisitionRouteClosureError",
     "AcquisitionRouteLoop",
     "AcquisitionRouteLoopReceipt",
+    "AcquisitionRouteLoopReceiptV2",
     "AcquisitionRoutePhaseReceipt",
     "AcquisitionRouteRecoveryRequired",
+    "AcquisitionTerminalReceipt",
     "VerifiedAcquisitionRouteClosure",
+    "parse_acquisition_route_loop_receipt",
     "persist_world_commit_and_reenter",
     "resume_world_committed_reentry",
 ]

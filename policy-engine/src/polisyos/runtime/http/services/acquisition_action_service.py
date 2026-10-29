@@ -606,6 +606,11 @@ class AcquisitionActionService:
                 "terminal_receipt_ref": head.receipt_ref,
             }
         if head.receipt_phase == "world_committed_reentry_pending":
+            if self._production_execution_bridge_installed():
+                completed = self._complete_production_positive_admission(closure)
+                if completed is not None:
+                    self._consume_movement(completed.receipt_ref)
+                    return self._terminal_progress(completed)
             pending = self._read_phase_receipt(head.receipt_ref)
             terminal = resume_world_committed_reentry(
                 sink=sink,
@@ -693,6 +698,11 @@ class AcquisitionActionService:
                 terminal_head = sink.persist_terminal(terminal)
                 self._consume_movement(terminal_head.receipt_ref)
                 return self._terminal_progress(terminal_head)
+            if self._production_execution_bridge_installed():
+                completed = self._complete_production_positive_admission(closure)
+                if completed is not None:
+                    self._consume_movement(completed.receipt_ref)
+                    return self._terminal_progress(completed)
             pending = self._phase_receipt(
                 action_generation=action_generation,
                 closure=closure,
@@ -785,6 +795,11 @@ class AcquisitionActionService:
             terminal_head = sink.persist_terminal(terminal)
             self._consume_movement(terminal_head.receipt_ref)
             return self._terminal_progress(terminal_head)
+        if self._production_execution_bridge_installed():
+            completed = self._complete_production_positive_admission(closure)
+            if completed is not None:
+                self._consume_movement(completed.receipt_ref)
+                return self._terminal_progress(completed)
         pending = self._phase_receipt(
             action_generation=action_generation,
             closure=closure,
@@ -801,6 +816,21 @@ class AcquisitionActionService:
         )
         self._consume_movement(terminal.receipt_ref)
         return self._terminal_progress(terminal)
+
+    def _complete_production_positive_admission(
+        self,
+        closure: VerifiedAcquisitionRouteClosure,
+    ) -> AcquisitionActionHeadRecord | None:
+        """Use only the actual installed production source/evaluation owner."""
+        from .acquisition_surface_execution import WorldBankWDIAcquisitionExecutionPort
+
+        port = self._production_execution_port
+        if (
+            type(port) is not WorldBankWDIAcquisitionExecutionPort
+            or self._execution_port is not port
+        ):
+            return None
+        return port.complete_positive_admission(closure)
 
     def _consume_movement(self, receipt_ref: str) -> None:
         if getattr(self, "_movement_service", None) is not None:

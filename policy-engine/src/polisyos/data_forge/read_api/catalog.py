@@ -247,6 +247,9 @@ if TYPE_CHECKING:
         normalize_acquisition_unit as normalize_acquisition_unit,
     )
     from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        normalized_acquisition_source_body as normalized_acquisition_source_body,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
         resolve_live_temporal_bounds as resolve_live_temporal_bounds,
     )
     from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
@@ -359,6 +362,9 @@ if TYPE_CHECKING:
     )
     from polisyos.data_forge.domains.catalog.knowledge.overlay import (
         default_acquisition_overlay_path as default_acquisition_overlay_path,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+        derive_canonical_observations as derive_canonical_observations,
     )
     from polisyos.data_forge.domains.catalog.knowledge.overlay import (
         open_catalog_read_session as open_catalog_read_session,
@@ -562,6 +568,10 @@ _EXPORTS = {
     "AcquisitionDatasetRegistration": ("polisyos.data_forge.domains.catalog.knowledge.overlay"),
     "BaselineIdentity": "polisyos.data_forge.domains.catalog.knowledge.overlay",
     "BaselineMutationError": "polisyos.data_forge.domains.catalog.knowledge.overlay",
+    "derive_canonical_observations": ("polisyos.data_forge.domains.catalog.knowledge.overlay"),
+    "normalized_acquisition_source_body": (
+        "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
+    ),
     "CanonicalAcquisitionObservation": ("polisyos.data_forge.domains.catalog.knowledge.overlay"),
     "CatalogAcquisitionOverlay": "polisyos.data_forge.domains.catalog.knowledge.overlay",
     "acquisition_overlay_admission_fence": "polisyos.data_forge.domains.catalog.knowledge.overlay",

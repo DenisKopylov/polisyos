@@ -1,0 +1,29 @@
+id = "2026-10-29-technical-inspection-http"
+title = "Add explicit scoped technical-inspection evidence to artifact previews"
+type = "added"
+component = "runtime-http"
+owner = "team-polisyos"
+summary = "Content and schema previews can explicitly select a persisted technical-inspection evidence artifact and its exact manifest profile."
+evidence = ["tests/unit/runtime/http/test_technical_inspection_http.py"]
+compatibility = "Requests without evidence keep their existing admission behavior. Evidence-selected responses require cache revalidation; raw download is not covered."
+change_class = "schema-openapi-abi"
+surface_classification = "public_stable: artifact content and schema preview query parameters"
+migration = "Provide both evidence ID and its selected profile along with the selected source profile."
+limitations = "Technical inspection establishes no closeout, publication, or claim authority. Runtime and generated-contract verification are pending."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/http/services/README.md"]
+runbook_docs = ["src/polisyos/runtime/http/services/README.md"]
+
+[[compatibility_change]]
+id = "technical-inspection-preview-query"
+change_class = "schema-openapi-abi"
+impact = "additive"
+surface = "public_stable: Runtime API artifact content and schema preview query parameters"
+owner = "team-polisyos"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "Content and schema previews accept explicit selected technical-inspection evidence."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = ["src/polisyos/runtime/http/services/README.md"]
+runbook_docs = ["src/polisyos/runtime/http/services/README.md"]

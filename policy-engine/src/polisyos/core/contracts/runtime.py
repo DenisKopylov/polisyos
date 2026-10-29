@@ -3131,6 +3131,103 @@ class RunCandidateSimulationAcquisitionHistoryEntry(BaseModel):
         return self
 
 
+class RunCandidateSimulationRetainedEvaluation(BaseModel):
+    """Original evaluation occurrence retained under a verified Runtime decision.
+
+    These refs describe the prior execution. They never claim that execution
+    consumed the newly admitted acquisition source.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str = Field(min_length=1)
+    candidate_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    design_problem_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    world_model_record_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    evaluation_job_id: str = Field(min_length=1)
+    evaluation_run_id: str = Field(min_length=1)
+    generation_run_id: str = Field(min_length=1)
+    cycle_index: int = Field(ge=0)
+    n4_source_ref: ArtifactRef
+    context_job_ref: ArtifactRef
+    n5_input_ref: ArtifactRef
+    n5_execution_ref: ArtifactRef
+    n5_result_ref: ArtifactRef
+    basis_ref: ArtifactRef
+
+    @model_validator(mode="after")
+    def _verify_selected_refs(self) -> RunCandidateSimulationRetainedEvaluation:
+        for ref, kind in (
+            (self.n4_source_ref, "runtime.quality.n4_candidate_scenario_source"),
+            (self.context_job_ref, "runtime.quality.cycle_substrate_context_job"),
+            (self.n5_input_ref, "runtime.quality.candidate_simulation_n5_input"),
+            (self.n5_execution_ref, "runtime.quality.candidate_simulation_execution"),
+            (self.n5_result_ref, "polisyos.runtime.joint_simulation_result"),
+            (self.basis_ref, "runtime_quality.acquisition_evaluation_basis"),
+        ):
+            if (
+                ref.kind != kind
+                or ref.media_type != "application/json"
+                or ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("candidate_acquisition_retained_evaluation_ref_invalid")
+        return self
+
+
+class RunCandidateSimulationAcquisitionHistoryEntryV3(BaseModel):
+    """Verified source admission with an unchanged, separate evaluation occurrence.
+
+    Runtime resolves the entire source/decision/frontier/fold join before this
+    display DTO is constructed. DTO validation alone is not that verification.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: Literal["policyos.runtime.run_candidate_simulation_acquisition_history.v3"]
+    route_receipt_ref: ArtifactRef
+    route_id: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    action_generation: int = Field(ge=1)
+    terminal_outcome: Literal["source_admitted_evaluation_retained"]
+    admitted_source_ref: ArtifactRef
+    growth_receipt_ref: ArtifactRef
+    evaluation_decision_ref: ArtifactRef
+    current_continuation_ref: ArtifactRef
+    retained_evaluation: RunCandidateSimulationRetainedEvaluation
+    source_admission_status: Literal["admitted"] = "admitted"
+    evaluation_disposition: Literal["retained_prior"] = "retained_prior"
+    reentry_receipt_ref: None = None
+    old_candidate_id: None = None
+    new_candidate_id: None = None
+    new_candidate_source_ref: None = None
+    origin_source_ref: None = None
+    expected_origin_source_ref: None = None
+    reentry_receipt_schema_version: None = None
+    continuation_join_status: None = None
+    origin_source_binding_status: None = None
+    continuation: None = None
+    currentness_status: Literal["not_established"] = "not_established"
+    authority_purpose: Literal["candidate_observation_only"] = "candidate_observation_only"
+    publication_authority: Literal[False] = False
+
+    @model_validator(mode="after")
+    def _verify_retention_refs(self) -> RunCandidateSimulationAcquisitionHistoryEntryV3:
+        for ref, kind in (
+            (self.route_receipt_ref, "runtime_quality.acquisition_route_loop_receipt"),
+            (self.growth_receipt_ref, "runtime_quality.acquisition_world_growth_receipt"),
+            (self.evaluation_decision_ref, "runtime_quality.acquisition_evaluation_decision"),
+            (self.current_continuation_ref, "runtime_quality.acquisition_retained_continuation"),
+        ):
+            if (
+                ref.kind != kind
+                or ref.media_type != "application/json"
+                or ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("candidate_acquisition_retention_ref_invalid")
+        if self.admitted_source_ref.manifest_profile_sha256 is None:
+            raise ValueError("candidate_acquisition_admitted_source_profile_missing")
+        return self
+
+
 class RunCandidateSimulationProjection(BaseModel):
     """Source-bound candidate observations exposed for display, never authority."""
 
@@ -3194,7 +3291,11 @@ class RunCandidateSimulationProjection(BaseModel):
     ) = None
     n5_observations: tuple[RunCandidateSimulationN5Observation, ...] = ()
     recursive_cycle_checkpoint: RunRecursiveCycleCheckpoint | None = None
-    acquisition_history: tuple[RunCandidateSimulationAcquisitionHistoryEntry, ...] = ()
+    acquisition_history: tuple[
+        RunCandidateSimulationAcquisitionHistoryEntry
+        | RunCandidateSimulationAcquisitionHistoryEntryV3,
+        ...,
+    ] = ()
     acquisition_history_limitation_code: (
         Literal[
             "acquisition_n4_source_not_established",

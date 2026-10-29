@@ -424,3 +424,13 @@ method-result adequacy, G acceptance or a change to authority surfaces.
 The fresh schema consumer oracle compares its top-level keys with the producer DTO's
 actual fields and requires declared byte conformance. A schema-only dispatch removal
 is a separate behavioral control; its intact/red/restored runtime checks remain UNRUN.
+
+## Technical inspection evidence
+
+Content and schema previews accept an explicit exact evidence artifact ID and
+manifest profile through the HTTP query. The evidence is independently resolved
+and rechecked against the selected source and current guarded owner scope at each
+consumer gate. This authorizes only technical inspection; it does not confer
+closeout, publication, claim, or raw-download authority. Requests without the
+selector retain the existing authority path. Responses using the selector require
+cache revalidation so a previously admitted scope is not treated as current.

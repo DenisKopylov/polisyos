@@ -575,21 +575,40 @@ def test_missing_and_substituted_envelope_do_not_become_current(packet):
     assert outcome.final_result.feedback["uncertainty_current"] is None
 
 
-def test_same_request_reuses_real_cache_changed_version_executes_callback(packet):
+def test_separate_requests_reexecute_stage_and_keep_prior_result_history(packet):
     store, basis, _, _, stage = packet
     producer = stage(0, _envelope(0.3))
     runtime = FunnelOrchestrator([producer])
     context = _context(packet)
     first = runtime.submit({"a": 1}, context)
-    runtime.advance(first)
+    first_outcome = runtime.advance(first)
+
+    # The same request is a new decision: a changed producer signal must be
+    # observed, while the first ticket retains its actual earlier history.
+    producer.result = replace(producer.result, uncertainty_envelope=_envelope(0.7))
     second = runtime.submit({"a": 1}, context)
-    runtime.advance(second)
-    assert producer.calls == 1
+    second_outcome = runtime.advance(second)
+    assert second.ticket_id != first.ticket_id
+    assert not second.submitted_via_cache
+    assert second.result_reuse_source_ticket_id is None
+    assert producer.calls == 2
+    assert first_outcome.uncertainty_envelope == _envelope(0.3)
+    assert second_outcome.uncertainty_envelope == _envelope(0.7)
+    assert runtime.get_outcome(first).uncertainty_envelope == _envelope(0.3)
+    assert second_outcome.current_uncertainty_envelope is None
+    assert "legacy_v1_observations_route_only" in second_outcome.uncertainty_intake_failures
+
     changed = persist_search_uncertainty(store, basis.model_copy(update={"unit": "USD"}))
+    producer.result = replace(producer.result, uncertainty_envelope=_envelope(0.4))
     third = runtime.submit({"a": 1}, {**context, "uncertainty_basis_ref": changed})
     outcome = runtime.advance(third)
-    assert producer.calls == 2
+    assert third.ticket_id not in {first.ticket_id, second.ticket_id}
+    assert not third.submitted_via_cache
+    assert third.result_reuse_source_ticket_id is None
+    assert producer.calls == 3
+    assert outcome.uncertainty_envelope == _envelope(0.4)
     assert outcome.current_uncertainty_envelope is None
+    assert runtime.get_outcome(first).uncertainty_envelope == _envelope(0.3)
 
 
 def test_selected_manifest_view_change_executes_real_callback(packet):
@@ -655,6 +674,8 @@ def test_pre_dispatch_admission_resolves_native_owner_through_ir_adapter(tmp_pat
         context={"store": CoreToIRArtifactStoreAdapter(store)},
         owned_attempt_association_resolver=None,
         owned_historical_attempt_association_resolver=None,
+        # These incomplete/no-store fixtures have no HTE source join to verify.
+        source_projection_verifier=None,
     )
 
     assert error is None
@@ -706,6 +727,8 @@ def test_pre_dispatch_admission_rejects_store_without_native_search_capabilities
         context={"store": SimpleNamespace()},
         owned_attempt_association_resolver=None,
         owned_historical_attempt_association_resolver=None,
+        # These incomplete/no-store fixtures have no HTE source join to verify.
+        source_projection_verifier=None,
     )
 
     assert result == (None, None, None, "artifact_store_incompatible")
@@ -1559,7 +1582,7 @@ def test_current_read_resolves_persisted_unassessed_payload_and_refuses_removed_
     assert refused.resolved_projection is None
 
 
-def test_completed_result_reuse_reconciles_a_new_owner_task_without_new_assessment(tmp_path):
+def test_separate_request_reexecutes_and_admits_a_new_owner_task(tmp_path):
     from polisyos.core.artifacts import load_core_json_artifact
 
     store = FileSystemCAS(tmp_path / "cas")
@@ -1624,4 +1647,20 @@ def test_completed_result_reuse_reconciles_a_new_owner_task_without_new_assessme
         for item in cold.resolved_projection.selected_unassessed_observations
     )
     assert SearchUncertaintyTicketState(store)._read_row(first.ticket_id) == first_row
-    assert producer.calls == 1
+    assert not first.submitted_via_cache and not second.submitted_via_cache
+    assert first.result_reuse_source_ticket_id is None
+    assert second.result_reuse_source_ticket_id is None
+    assert first.stage_results[0] is not second.stage_results[0]
+    assert (
+        first_outcome.search_uncertainty_current_read.task_admission_ref != cold.task_admission_ref
+    )
+    assert (
+        second_outcome.search_uncertainty_current_read.task_admission_ref == cold.task_admission_ref
+    )
+    assert cold.task_admission.basis_ref is not None
+    assert cold.resolved_projection.selected_unassessed_observations
+    assert all(
+        item.basis_ref == cold.task_admission.basis_ref
+        for item in cold.resolved_projection.selected_unassessed_observations
+    )
+    assert producer.calls == 2

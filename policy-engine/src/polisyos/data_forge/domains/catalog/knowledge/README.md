@@ -165,3 +165,11 @@ identity construction and throughout persisted Fabric capture. The public
 acquisition owner alone classifies the forwarded failure; unrelated optional
 capture failures retain their prior fallback. Empty native sources are errors,
 not unavailable variable counts. This does not establish atomic file custody.
+
+## Candidate historical source normalization
+
+`acquisition_authority.normalized_acquisition_source_body` exposes the existing
+normalization codec for historical candidate-value replay. Live source authority
+and replay share that implementation; the wrapper itself grants no authority,
+currentness, independence or publication permission. The catalog read facade
+also exposes the existing canonical observation derivation owner.

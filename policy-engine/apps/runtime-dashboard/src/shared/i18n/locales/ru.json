@@ -565,6 +565,13 @@
       "candidateSimulation": {
         "acquisitionHistoryTitle": "История получения и повторного запуска",
         "acquisitionHistoryAuthority": "Только сохранённая история кандидатов. Актуальность и право публикации не установлены.",
+        "acquisitionRetainedExplanation": "На момент записанного решения допущенный источник не требовал новой оценки в проверенных пределах. Предыдущая оценка сохраняет исходные входы.",
+        "acquisitionAdmittedSource": "Новый допущенный источник: {ref}",
+        "acquisitionRetainedSource": "Источник предыдущей оценки: {ref}",
+        "acquisitionRetainedCandidate": "Сохранённый кандидат: {candidate}",
+        "acquisitionRetainedOccurrence": "Исходная оценка: запуск {run}, задание {job}, цикл {cycle}",
+        "acquisitionRetentionDecision": "Историческое решение о сохранении оценки: {ref}",
+        "acquisitionSourceReaction": "Реакция на источник в момент решения: {ref}",
         "acquisitionHistoryRefused": "Эту запись истории не удалось проверить, поэтому она скрыта.",
         "acquisitionRoute": "Маршрут {route}, поколение действия {generation}",
         "acquisitionOutcome": "Зафиксированный результат: {outcome}",

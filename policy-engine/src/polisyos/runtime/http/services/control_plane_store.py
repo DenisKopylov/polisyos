@@ -1336,6 +1336,9 @@ class AcquisitionActionHeadRecord:
     predecessor_receipt_ref: str | None
     created_at: datetime
 
+    evaluation_frontier_before_ref: str | None = None
+    evaluation_frontier_ref: str | None = None
+
 
 @dataclass(frozen=True)
 class AcquisitionEvaluationFrontierKey:
@@ -4795,7 +4798,8 @@ class ControlPlaneStore:
             SELECT tenant_id, cell_id, run_id, source_job_id, route_id,
                    action_generation, head_generation, receipt_ref, receipt_sha256,
                    durable_event_id, coarse_phase, receipt_phase, recovery_state,
-                   job_id, predecessor_receipt_ref, created_at
+                   job_id, predecessor_receipt_ref, created_at,
+                   evaluation_frontier_before_ref, evaluation_frontier_ref
             FROM runtime_acquisition_action_heads
             WHERE tenant_id = ? AND cell_id = ? AND run_id = ?
               AND source_job_id = ? AND route_id = ? AND action_generation = ?
@@ -4827,7 +4831,8 @@ class ControlPlaneStore:
             SELECT tenant_id, cell_id, run_id, source_job_id, route_id,
                    action_generation, head_generation, receipt_ref, receipt_sha256,
                    durable_event_id, coarse_phase, receipt_phase, recovery_state,
-                   job_id, predecessor_receipt_ref, created_at
+                   job_id, predecessor_receipt_ref, created_at,
+                   evaluation_frontier_before_ref, evaluation_frontier_ref
             FROM runtime_acquisition_action_heads
             WHERE tenant_id = ? AND cell_id = ? AND run_id = ?
               AND source_job_id = ? AND route_id = ? AND action_generation = ?
@@ -4872,7 +4877,8 @@ class ControlPlaneStore:
                    heads.route_id, heads.action_generation, heads.head_generation,
                    heads.receipt_ref, heads.receipt_sha256, heads.durable_event_id,
                    heads.coarse_phase, heads.receipt_phase, heads.recovery_state,
-                   heads.job_id, heads.predecessor_receipt_ref, heads.created_at
+                   heads.job_id, heads.predecessor_receipt_ref, heads.created_at,
+                   heads.evaluation_frontier_before_ref, heads.evaluation_frontier_ref
             FROM runtime_acquisition_action_heads AS heads
             WHERE heads.tenant_id = ? AND heads.cell_id = ? AND heads.run_id = ?
               AND heads.source_job_id = ? AND heads.route_id = ?
@@ -4916,7 +4922,8 @@ class ControlPlaneStore:
                    heads.route_id, heads.action_generation, heads.head_generation,
                    heads.receipt_ref, heads.receipt_sha256, heads.durable_event_id,
                    heads.coarse_phase, heads.receipt_phase, heads.recovery_state,
-                   heads.job_id, heads.predecessor_receipt_ref, heads.created_at
+                   heads.job_id, heads.predecessor_receipt_ref, heads.created_at,
+                   heads.evaluation_frontier_before_ref, heads.evaluation_frontier_ref
             FROM runtime_acquisition_action_heads AS heads
             WHERE heads.tenant_id = ? AND heads.cell_id = ? AND heads.run_id = ?
               AND heads.source_job_id = ?
@@ -5006,7 +5013,11 @@ class ControlPlaneStore:
                     action_job_id=job_id,
                     fence=fence,
                 )
-                self._advance_acquisition_evaluation_frontier_in_transaction(frontier_cas)
+                committed_frontier = self._advance_acquisition_evaluation_frontier_in_transaction(
+                    frontier_cas
+                )
+            else:
+                committed_frontier = None
             current = self.get_acquisition_action_head(
                 tenant_id=tenant_id,
                 cell_id=cell_id,
@@ -5027,7 +5038,8 @@ class ControlPlaneStore:
             insert_columns = """tenant_id, cell_id, run_id, source_job_id, route_id,
                 action_generation, head_generation, receipt_ref, receipt_sha256,
                 durable_event_id, coarse_phase, receipt_phase, recovery_state,
-                job_id, predecessor_receipt_ref, created_at"""
+                job_id, predecessor_receipt_ref, created_at,
+                evaluation_frontier_before_ref, evaluation_frontier_ref"""
             values = (
                 tenant_id,
                 cell_id,
@@ -5045,13 +5057,15 @@ class ControlPlaneStore:
                 job_id,
                 predecessor_receipt_ref,
                 _iso(created_at),
+                frontier_cas.expected_frontier_ref if frontier_cas is not None else None,
+                committed_frontier.frontier_ref if committed_frontier is not None else None,
             )
             try:
                 if fence is None:
                     affected_rows = self._execute(
                         "INSERT INTO runtime_acquisition_action_heads "
                         f"({insert_columns}) "
-                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                         values,
                     )
                 else:
@@ -5063,7 +5077,7 @@ class ControlPlaneStore:
                     affected_rows = self._execute(
                         "INSERT INTO runtime_acquisition_action_heads "
                         f"({insert_columns}) "
-                        f"SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? "
+                        f"SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? "
                         f"WHERE EXISTS (SELECT 1 FROM control_jobs WHERE {where})",
                         (*values, *where_params),
                     )
@@ -5084,7 +5098,14 @@ class ControlPlaneStore:
                 route_id=route_id,
                 action_generation=action_generation,
             )
-            if loaded is None or loaded.head_generation != next_generation:
+            if (
+                loaded is None
+                or loaded.head_generation != next_generation
+                or loaded.evaluation_frontier_ref
+                != (committed_frontier.frontier_ref if committed_frontier is not None else None)
+                or loaded.evaluation_frontier_before_ref
+                != (frontier_cas.expected_frontier_ref if frontier_cas is not None else None)
+            ):
                 raise RuntimeError("acquisition_action_head_readback_failed")
             return loaded
 
@@ -8046,6 +8067,16 @@ class ControlPlaneStore:
                 else None
             ),
             created_at=_parse_dt(row["created_at"]) or _utc_now(),
+            evaluation_frontier_before_ref=(
+                str(row["evaluation_frontier_before_ref"])
+                if row["evaluation_frontier_before_ref"] is not None
+                else None
+            ),
+            evaluation_frontier_ref=(
+                str(row["evaluation_frontier_ref"])
+                if row["evaluation_frontier_ref"] is not None
+                else None
+            ),
         )
 
     def _row_to_worker_lease(self, row: Any) -> ControlWorkerLeaseRecord:
@@ -8582,6 +8613,8 @@ class ControlPlaneStore:
                         recovery_state TEXT NOT NULL,
                         job_id TEXT NOT NULL,
                         predecessor_receipt_ref TEXT,
+                        evaluation_frontier_before_ref TEXT,
+                        evaluation_frontier_ref TEXT,
                         created_at TEXT NOT NULL,
                         PRIMARY KEY (
                             tenant_id, cell_id, run_id, source_job_id, route_id,
@@ -8792,6 +8825,19 @@ class ControlPlaneStore:
                         ORDER BY created_at ASC, event_id ASC
                         """
                     )
+                    action_head_columns = {
+                        str(row[1])
+                        for row in conn.execute(
+                            "PRAGMA table_info(runtime_acquisition_action_heads)"
+                        )
+                    }
+                    for column in ("evaluation_frontier_before_ref", "evaluation_frontier_ref"):
+                        if column not in action_head_columns:
+                            conn.execute(
+                                "ALTER TABLE runtime_acquisition_action_heads ADD COLUMN "
+                                + column
+                                + " TEXT"
+                            )
                     operation_columns = {
                         str(row[1])
                         for row in conn.execute("PRAGMA table_info(runtime_operation_intents)")
@@ -9022,6 +9068,8 @@ class ControlPlaneStore:
                     recovery_state TEXT NOT NULL,
                     job_id TEXT NOT NULL,
                     predecessor_receipt_ref TEXT,
+                        evaluation_frontier_before_ref TEXT,
+                        evaluation_frontier_ref TEXT,
                     created_at TIMESTAMPTZ NOT NULL,
                     PRIMARY KEY (
                         tenant_id, cell_id, run_id, source_job_id, route_id,
@@ -9029,6 +9077,14 @@ class ControlPlaneStore:
                     )
                 )
                 """
+            )
+            cur.execute(
+                "ALTER TABLE runtime_acquisition_action_heads "
+                "ADD COLUMN IF NOT EXISTS evaluation_frontier_before_ref TEXT"
+            )
+            cur.execute(
+                "ALTER TABLE runtime_acquisition_action_heads "
+                "ADD COLUMN IF NOT EXISTS evaluation_frontier_ref TEXT"
             )
             cur.execute(
                 """

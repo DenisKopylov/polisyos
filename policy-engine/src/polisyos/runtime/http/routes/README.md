@@ -111,3 +111,17 @@ verification. ProgramGraph request references that are excluded from serialized 
 require an actual selected-owner rehydration path; no missing reference or producer attestation is
 inferred here. The synthetic fresh POST, worker, selected-result, GET and N8 tests and dashboard
 semantic tests are authored; runtime and removal evidence must be obtained on the composed tree.
+
+## Acquisition history v3
+
+Fresh run GET dispatches terminal manifests by version before parsing the
+legacy terminal. Route `@2.0` uses
+`acquisition_evaluation_history.verify_acquisition_retention_history`, which
+reopens the selected source, growth, decision, frontier and verified route fold.
+Only its retained projection enters the v3 DTO. Foreign, unknown, incomplete or
+mismatched closure returns typed incomplete history; readable blobs or payload
+flags do not grant a successful join. Legacy-shaped verified v2 terminals use
+the existing no-growth/reentry renderer. Retained rows keep all new-evaluation
+fields null and preserve original evaluation inputs and occurrence identity.
+Currentness remains `not_established`, authority remains
+`candidate_observation_only`, and publication authority remains false.

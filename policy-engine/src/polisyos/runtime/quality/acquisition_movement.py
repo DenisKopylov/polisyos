@@ -17,7 +17,9 @@ from polisyos.core import artifacts, canon, contracts, security
 from polisyos.runtime.quality.acquisition_route_loop import (
     AcquisitionRouteLoop,
     AcquisitionRouteLoopReceipt,
+    AcquisitionRouteLoopReceiptV2,
     AcquisitionRoutePhaseReceipt,
+    parse_acquisition_route_loop_receipt,
 )
 from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthReceipt
 from polisyos.runtime.quality.authority_reconciliation import reconcile_authority_ref
@@ -243,8 +245,8 @@ class AcquisitionMovementService:
                 raise ValueError("movement_source_profile_unverified") from exc
         return raw
 
-    def _supplier(self, ref: str) -> AcquisitionRouteLoopReceipt:
-        receipt = AcquisitionRouteLoopReceipt.model_validate(
+    def _supplier(self, ref: str) -> AcquisitionRouteLoopReceipt | AcquisitionRouteLoopReceiptV2:
+        receipt = parse_acquisition_route_loop_receipt(
             canon.from_canonical_bytes(
                 self._read(ref, "runtime_quality.acquisition_route_loop_receipt")
             )
@@ -262,6 +264,11 @@ class AcquisitionMovementService:
 
     def _derive_movement(self, ref: str) -> AcquisitionMovementArtifact:
         supplier = self._supplier(ref)
+        if supplier.terminal_outcome == "source_admitted_evaluation_retained":
+            # The normal intake still records the observed source/action and
+            # its explicit refusal. It cannot manufacture a new-cycle GY
+            # movement from retained evaluation; GY admission remains separate.
+            raise ValueError("supplier_retained_evaluation_no_new_cycle_movement")
         if supplier.terminal_outcome != "reentry_completed" or supplier.reentry_receipt_ref is None:
             raise ValueError("supplier_no_reentry")
         head = self._control_store.get_acquisition_action_head(

@@ -1,0 +1,16 @@
+id = "2026-10-29-acquisition-owned-evaluation-retention"
+title = "Separate admitted sources from equivalent candidate evaluation occurrences"
+type = "added"
+component = "runtime"
+owner = "team-runtime"
+summary = "Wire shared owner-native basis replay, one actual prepared/consumed N5 configuration, live implementation observation, retained current cheap consequences, and store-derived frontier commit/recovery into the ordinary admitted acquisition path."
+evidence = ["tests/integration/core_runtime/test_acquisition_retained_sequential_served.py", "tests/integration/runtime_quality/test_n5_implementation_witness.py", "tests/integration/core_runtime/test_acquisition_receiver_constructor_served.py", "tests/unit/runtime/http/test_control_plane_store_evaluation_frontier.py", "tests/unit/runtime/quality/test_n5_prepared_configuration_owner.py"]
+compatibility = "Legacy route receipts, no-growth, historical clocks and original evaluation identities retain their meaning. New retained terminals and history require their mandatory schema/client companions."
+change_class = "schema-openapi-abi"
+surface_classification = "public_stable: polisyos.runtime"
+migration = "Apply the complete owner/SQL/history packet and regenerate affected Runtime OpenAPI, clients, dashboard API and public inventory before rollout. Existing SQLite/Postgres action-head rows migrate with absent frontier relation, which cannot authorize retention."
+limitations = "Same-live-process observed controlled NCM profile only. Unsupported basis/native/source facets are not_established; a configuration that cannot be prepared remains a durable recoverable admission without invented N5, while a genuine blocked re-entry keeps its real failure terminal. Candidate observation is not currentness, publication authority, G acceptance, or E02 closure."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/quality/README.md", "src/polisyos/runtime/http/routes/README.md", "apps/runtime-dashboard/README.md"]
+runbook_docs = []

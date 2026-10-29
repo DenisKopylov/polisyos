@@ -1042,8 +1042,10 @@ def _resolver(
     )
 
 
-def _family_receipt(*, scenario: str = "success") -> dict[str, object]:
-    receipt = _authority_family_receipt(_ATTEMPT_ID)
+def _family_receipt(
+    *, scenario: str = "success", attempt_id: str = _ATTEMPT_ID
+) -> dict[str, object]:
+    receipt = _authority_family_receipt(attempt_id)
     carrier = dict(receipt["dry_run_attempts"][0])
     profile = SourceProfileRegistry.get_instance().get(_PROFILE_ID)
     assert profile is not None

@@ -1243,14 +1243,14 @@ class N4CandidateScenarioSourceRecordV2(_StrictModel):
         return self.source_record.l2_confidence_vintage
 
 
-def candidate_scenario_semantic_identity_hash(
+def candidate_scenario_semantic_values(
     *,
     stable_subject_ref: str,
     proposal: n4.N4CandidateProposalSource,
     candidate: n4.N4CandidateScenarioProposalCandidate,
     profile: CandidateSimulationScenarioProfile,
-) -> str:
-    """Hash the stable proposal semantics separately from its refreshed occurrence.
+) -> dict[str, object]:
+    """Prepare stable proposal semantics separately from its refreshed occurrence.
 
     The stable identity binds the original case subject, the complete Trinity
     proposal, the selected intervention, and the profile-selection semantics.
@@ -1283,18 +1283,34 @@ def candidate_scenario_semantic_identity_hash(
             exclude={"baseline_state"},
         ),
     }
+    return {
+        "schema_version": "policyos.runtime.quality.n4_candidate_identity.v1",
+        "stable_subject_ref": stable_subject_ref,
+        "trinity": {
+            "problem_frame": bundle.problem_frame.model_dump(mode="json"),
+            "policy_spec": policy_spec,
+            "model_spec": bundle.model_spec.model_dump(mode="json"),
+        },
+        "selected_intervention": interventions[0].model_dump(mode="json"),
+        "profile_selection": semantic_profile,
+    }
+
+
+def candidate_scenario_semantic_identity_hash(
+    *,
+    stable_subject_ref: str,
+    proposal: n4.N4CandidateProposalSource,
+    candidate: n4.N4CandidateScenarioProposalCandidate,
+    profile: CandidateSimulationScenarioProfile,
+) -> str:
+    """Index the shared stable proposal semantics with the historical hash law."""
     return gy_content_hash(
-        {
-            "schema_version": "policyos.runtime.quality.n4_candidate_identity.v1",
-            "stable_subject_ref": stable_subject_ref,
-            "trinity": {
-                "problem_frame": bundle.problem_frame.model_dump(mode="json"),
-                "policy_spec": policy_spec,
-                "model_spec": bundle.model_spec.model_dump(mode="json"),
-            },
-            "selected_intervention": interventions[0].model_dump(mode="json"),
-            "profile_selection": semantic_profile,
-        }
+        candidate_scenario_semantic_values(
+            stable_subject_ref=stable_subject_ref,
+            proposal=proposal,
+            candidate=candidate,
+            profile=profile,
+        )
     )
 
 

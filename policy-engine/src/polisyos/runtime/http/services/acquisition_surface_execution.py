@@ -38,6 +38,8 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.epoch_deployment import EpochDeployment
     from polisyos.runtime.quality.semantic_epoch import PersistedSemanticEpochProductionReceipt
 
+    from .control_plane_store import AcquisitionActionHeadRecord
+
 
 class _CanonicalAcquisitionAuthority(Protocol):
     registry_path: Path
@@ -618,6 +620,19 @@ class WorldBankWDIAcquisitionExecutionPort:
         return (
             ("not_established", None) if bridge is None else bridge.project_growth_outcome(closure)
         )
+
+    def complete_positive_admission(
+        self,
+        closure: VerifiedAcquisitionRouteClosure,
+    ) -> AcquisitionActionHeadRecord | None:
+        """Dispatch real source admission through the shared evaluation owner."""
+        if self._world_growth_bridge is None:
+            return None
+        from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
+            complete_positive_acquisition_admission,
+        )
+
+        return complete_positive_acquisition_admission(self._world_growth_bridge, closure)
 
     def reenter(
         self,

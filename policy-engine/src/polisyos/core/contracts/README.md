@@ -176,3 +176,13 @@ Missing/legacy/incomplete source basis is `unknown`; withdrawal does not rewrite
 history and readmission never reactivates an old carrier. API/client/generated
 composition belongs to the actual served C106 bridge; these DTOs alone do not
 establish that capability.
+
+## Retained acquisition evaluation history
+
+`RunCandidateSimulationAcquisitionHistoryEntryV3` is a distinct candidate-only
+variant of `RunCandidateSimulationProjection.acquisition_history`. It separates
+the newly admitted source, growth and decision refs from
+`RunCandidateSimulationRetainedEvaluation`, whose refs retain the original
+evaluation occurrence. Legacy unversioned/v2 DTO semantics remain unchanged.
+Shape validation does not establish the Runtime closure, current eligibility,
+currentness, or publication authority.

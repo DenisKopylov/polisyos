@@ -1344,6 +1344,45 @@ class AcquisitionWorldSnapshot(BaseModel):
     design_revalidation_stages: dict[str, tuple[str, ...]] = Field(default_factory=dict)
     substrate_registry: dict[str, Any] | None = None
     world_model_record_ref: str | None = None
+    # These optional fields describe a new admitted source relation to the
+    # retained real evaluation world. Only the actual Runtime basis owner can
+    # establish that relation; this DTO does not grant mutation or retention.
+    current_acquisition_basis_ref: artifacts.ArtifactRef | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
+    current_acquisition_growth_ref: artifacts.ArtifactRef | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
+    current_acquisition_source_ref: artifacts.ArtifactRef | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
+
+    @model_validator(mode="after")
+    def _current_source_relation_shape(self) -> AcquisitionWorldSnapshot:
+        refs = (
+            self.current_acquisition_basis_ref,
+            self.current_acquisition_growth_ref,
+            self.current_acquisition_source_ref,
+        )
+        if any(ref is not None for ref in refs):
+            if any(ref is None or ref.manifest_profile_sha256 is None for ref in refs):
+                raise ValueError("acquisition_planner_current_basis_relation_incomplete")
+            if self.world_model_record_ref is None or self.world_ref != self.world_model_record_ref:
+                raise ValueError("acquisition_planner_retained_world_role_mismatch")
+            if (
+                self.current_acquisition_basis_ref.kind
+                != "runtime_quality.acquisition_evaluation_basis"
+            ):
+                raise ValueError("acquisition_planner_current_basis_kind_invalid")
+            if (
+                self.current_acquisition_growth_ref.kind
+                != "runtime_quality.acquisition_world_growth_receipt"
+            ):
+                raise ValueError("acquisition_planner_current_growth_kind_invalid")
+        return self
 
     @field_validator("known_slots", mode="before")
     @classmethod

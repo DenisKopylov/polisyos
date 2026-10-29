@@ -1,0 +1,30 @@
+id = "2026-10-29-acquired-world-semantic-preparation"
+title = "Share prospective acquired-world and historical source preparation"
+type = "added"
+component = "runtime-quality"
+owner = "team-runtime"
+summary = "Reuse actual model/rule/native/publish/finalizer constructors for write-free candidate world comparison and immutable historical source replay."
+evidence = ["tests/integration/core_runtime/test_acquisition_world_semantic_preparation.py"]
+compatibility = "Existing publication and world wire meanings remain unchanged. New read/preparation ports are candidate values, never current eligibility or retention permission."
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.data_forge.read_api; internal: polisyos.runtime.quality"
+migration = "Compose the observation-owner prerequisite first, regenerate public inventory and run the real prospective/actual/fresh-history oracle before enabling retention."
+api = "Adds shared pure publisher/finalizer meaning and acquired-world preparation/read ports with explicit not_established results for unsupported profiles."
+limitations = "QC-dependent finalization, executable graph families and active SKG references without a complete selected owner relation remain not_established. Runtime tests are required before rollout."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/quality/README.md", "src/polisyos/data_forge/kernel/README.md", "src/polisyos/data_forge/read_api/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "acquired-world-preparation-owner-ports"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_experimental: polisyos.data_forge.read_api"
+owner = "team-runtime"
+version_owner = "team-data-forge"
+deprecation_window = "2 minor releases"
+release_note = "Expose shared publisher/finalizer candidate-meaning constructors and historical binding readback through the runtime-safe facade."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/data_forge/read_api/README.md"]
+runbook_docs = []

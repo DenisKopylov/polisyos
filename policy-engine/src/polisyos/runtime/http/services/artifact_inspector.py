@@ -57,6 +57,7 @@ from polisyos.runtime.quality.authority import (
     AuthoritySurfaceDecision,
     authority_surface_decision,
 )
+from polisyos.runtime.quality.technical_inspection_evidence import TECHNICAL_INSPECTION_PURPOSE
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactManifest
@@ -865,6 +866,7 @@ class ArtifactInspectorService:
         manifest: ArtifactManifest | None = None,
         manifest_read: CoreJsonManifestBoundedRead | None = None,
         allow_candidate_predictive_diagnostic_surface: bool = False,
+        technical_inspection_evidence_ref: ArtifactRef | None = None,
     ) -> ArtifactContentPreview:
         """Return a bounded, redacted content preview for an artifact payload.
 
@@ -879,6 +881,8 @@ class ArtifactInspectorService:
                 clamped to [1024, 2_000_000].
             allow_candidate_predictive_diagnostic_surface: Explicitly admit the
                 reader-materialized predictive diagnostic sidecar. Defaults off.
+            technical_inspection_evidence_ref: Exact selected evidence for the fixed
+                technical-inspection purpose, reverified at this read.
 
         Returns:
             A content preview DTO with mode, truncation metadata, and sanitized
@@ -961,6 +965,7 @@ class ArtifactInspectorService:
             manifest=manifest,
             surface="artifact",
             scope="raw artifact content/download routes",
+            technical_inspection_evidence_ref=technical_inspection_evidence_ref,
         )
         preview = _apply_redaction_hook(
             hooks=self._redaction_hooks,
@@ -1008,11 +1013,14 @@ class ArtifactInspectorService:
         *,
         manifest: ArtifactManifest | None = None,
         manifest_read: CoreJsonManifestBoundedRead | None = None,
+        technical_inspection_evidence_ref: ArtifactRef | None = None,
     ) -> ArtifactSchemaView:
         """Return schema metadata plus top-level JSON keys when available.
 
         Args:
             artifact_id: Canonical CAS artifact identifier.
+            technical_inspection_evidence_ref: Exact selected evidence for the fixed
+                technical-inspection purpose, reverified at this read.
 
         Returns:
             A schema projection derived from the manifest and a bounded
@@ -1094,6 +1102,7 @@ class ArtifactInspectorService:
             manifest=manifest,
             surface="artifact",
             scope="dashboard/public/export packets",
+            technical_inspection_evidence_ref=technical_inspection_evidence_ref,
         )
         return view
 
@@ -1146,10 +1155,17 @@ class ArtifactInspectorService:
         scope: str,
         manifest: ArtifactManifest | None = None,
         artifact_ref: ArtifactRef | None = None,
+        technical_inspection_evidence_ref: ArtifactRef | None = None,
     ) -> None:
         decision = authority_surface_decision(
             payload,
             surface=surface,
+            purpose=(
+                TECHNICAL_INSPECTION_PURPOSE
+                if technical_inspection_evidence_ref is not None
+                else None
+            ),
+            technical_inspection_evidence_ref=technical_inspection_evidence_ref,
             artifact_ref_or_route=f"artifact-inspector://{artifact_id}/{surface}",
             secret_pii_scope=scope,
             block_on_secret_findings=True,

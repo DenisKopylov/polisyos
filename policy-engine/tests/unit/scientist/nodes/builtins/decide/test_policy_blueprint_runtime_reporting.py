@@ -194,10 +194,32 @@ def test_reporting_refusal_keeps_prior_state_and_real_cas_evidence_refs(tmp_path
         params={"prior_state_marker": {"kept": True}},
         artifacts_index={"candidate_ref": candidate_ref},
     )
+    from polisyos.scientist.evidence.sources import EvidenceSourcesConfig
+    from polisyos.scientist.nodes.builtins.decide.policy_runtime_request import PolicyRuntimeRequest
+
+    runtime_request = PolicyRuntimeRequest(
+        candidate=candidate,
+        candidate_ref=candidate_ref,
+        uncertainty_envelope=UncertaintyEnvelope.unknown(source="reporting fixture"),
+        governance_report=None,
+        causal_report=None,
+        distributional_report=None,
+        cross_graph_profile=None,
+        evidence_sources=EvidenceSourcesConfig(),
+        simulation_metrics=None,
+        ambiguity_certificate=None,
+        ambiguity_certificate_ref=None,
+        execution_plan_ref=None,
+        method_catalog_snapshot_ref=None,
+        execution_profile=None,
+        causal_method_fqn=None,
+        causal_method_params={},
+    )
     session = _RuntimeSession(
         ctx=ctx,
         state=state,
         owner=runtime,
+        runtime_request=runtime_request,
         candidate=candidate,
         candidate_ref=candidate_ref,
         uncertainty_envelope=UncertaintyEnvelope.unknown(source="reporting fixture"),
@@ -225,6 +247,8 @@ def test_reporting_refusal_keeps_prior_state_and_real_cas_evidence_refs(tmp_path
             },
         ),
     )
+    assert session.runtime_request.candidate_ref == candidate_ref
+    assert session.runtime_request.method_metric_source_request_status == "absent"
     artifacts_before = _artifact_id_snapshot(ctx.store)
 
     result = finalize_runtime_session(session)

@@ -59,7 +59,7 @@ class WorldSnapshotWriteRequest(_WorldSnapshotWriteModel):
     snapshot_root: Path
     snapshot_id: str = Field(..., min_length=1)
     branch_name: str = Field(..., min_length=1)
-    as_of_valid_time: str = Field(..., min_length=1)
+    as_of_valid_time: str | None = Field(..., min_length=1)
     as_of_tx_time: str = Field(..., min_length=1)
     provenance: dict[str, Any]
     nodes: tuple[WorldSnapshotNodeWrite, ...] = Field(..., min_length=1)

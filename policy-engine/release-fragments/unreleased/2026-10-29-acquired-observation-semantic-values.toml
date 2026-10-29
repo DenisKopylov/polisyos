@@ -1,0 +1,30 @@
+id = "2026-10-29-acquired-observation-semantic-values"
+title = "Share acquired observation semantic projection and preserve unknown valid time"
+type = "changed"
+component = "runtime-quality"
+owner = "team-runtime"
+summary = "Reuse the actual acquired observation preparation, rule producer and canonical source parser for historical candidate comparison; preserve unknown base valid time."
+evidence = ["tests/integration/core_runtime/test_acquisition_observation_semantics.py"]
+compatibility = "Existing acquired payload and full generated rule retain their wire meaning. Fabric snapshot requests keep valid time required while accepting explicit None."
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.data_forge.read_api.catalog; internal: polisyos.runtime.quality"
+migration = "Regenerate and review the public inventory for the added catalog facade functions and broadened Fabric request annotation. Historical comparison consumers must still verify actual execution and present native eligibility."
+api = "Adds historical candidate semantic-value and full-rule replay ports; no new authority or publication status."
+limitations = "Only the one-selected-controlled-numerical-row profile is supported. Unsupported source/codec/row bindings refuse. Historical replay does not establish present native eligibility or evidence independence."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/quality/README.md", "src/polisyos/data_forge/read_api/README.md", "src/polisyos/fabric/world/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "acquired-observation-semantic-owner-ports"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_experimental: polisyos.data_forge.read_api.catalog"
+owner = "team-runtime"
+version_owner = "team-data-forge"
+deprecation_window = "2 minor releases"
+release_note = "Expose existing canonical observation derivation and normalized source codec through the catalog read facade for candidate historical replay."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/data_forge/read_api/README.md"]
+runbook_docs = []

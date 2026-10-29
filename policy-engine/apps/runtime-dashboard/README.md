@@ -115,3 +115,13 @@ shell.
 - [`../../docs/reference/operations/observability-topology.md`](../../docs/reference/operations/observability-topology.md)
 
 Last updated: 2026-04-17
+
+## Acquisition history v3 rollout
+
+The validator accepts the separate v3 retained-evaluation variant alongside
+legacy history. The run overview shows the newly admitted source and original
+evaluation source/occurrence separately and withholds malformed v3 rows. This
+historical decision does not establish currentness or publication authority.
+Regenerate Runtime OpenAPI, the runtime client and dashboard API types together
+before rollout; strict older clients do not understand this new union member.
+The display fixtures are wire-contract examples, not Runtime verifier evidence.

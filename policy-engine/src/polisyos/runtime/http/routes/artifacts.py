@@ -76,6 +76,11 @@ from polisyos.runtime.http.services.artifact_inspector import (
 )
 from polisyos.runtime.http.services.export_replay import EXPORT_REPLAY_RESPONSE_HEADERS
 from polisyos.runtime.quality.authority import authority_surface_decision
+from polisyos.runtime.quality.technical_inspection_evidence import (
+    TECHNICAL_INSPECTION_EVIDENCE_KIND,
+    TECHNICAL_INSPECTION_EVIDENCE_MEDIA_TYPE,
+    TECHNICAL_INSPECTION_PURPOSE,
+)
 
 _PREDICTIVE_COVERAGE_DIAGNOSTIC_SCAN_SCOPE = "dashboard/public/export packets"
 
@@ -206,6 +211,29 @@ def _single_manifest_profile_selection(
             code="invalid_manifest_profile_selector",
         )
     return parsed_value
+
+
+def _technical_inspection_evidence_selection(
+    request: Request, evidence_id: str | None, evidence_profile: str | None
+) -> ArtifactRef | None:
+    """Accept only an explicit, unambiguous full selected evidence reference."""
+    for key in ("technical_inspection_evidence_id", "technical_inspection_evidence_profile_sha256"):
+        if len(request.query_params.getlist(key)) > 1:
+            raise bad_request(
+                "Repeated inspection evidence selector", code="ambiguous_inspection_evidence"
+            )
+    if evidence_id is None and evidence_profile is None:
+        return None
+    if evidence_id is None or evidence_profile is None:
+        raise bad_request(
+            "Both inspection evidence selectors are required", code="incomplete_inspection_evidence"
+        )
+    return ArtifactRef(
+        artifact_id=_parse_artifact_id(evidence_id),
+        kind=TECHNICAL_INSPECTION_EVIDENCE_KIND,
+        media_type=TECHNICAL_INSPECTION_EVIDENCE_MEDIA_TYPE,
+        manifest_profile_sha256=evidence_profile,
+    )
 
 
 def _artifact_ref_for_manifest(manifest: ArtifactManifest) -> ArtifactRef:
@@ -609,11 +637,24 @@ if router is not None:
             max_length=71,
             pattern=r"^sha256:[0-9a-f]{64}$",
         ),
+        technical_inspection_evidence_id: str | None = Query(
+            default=None, description="Exact technical-inspection evidence artifact ID."
+        ),
+        technical_inspection_evidence_profile_sha256: str | None = Query(
+            default=None,
+            description="Exact selected profile of the technical-inspection evidence.",
+            min_length=71,
+            max_length=71,
+            pattern=r"^sha256:[0-9a-f]{64}$",
+        ),
         ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> ArtifactContentResponse | Response:
         manifest_profile_sha256 = _single_manifest_profile_selection(
             request,
             manifest_profile_sha256,
+        )
+        evidence_ref = _technical_inspection_evidence_selection(
+            request, technical_inspection_evidence_id, technical_inspection_evidence_profile_sha256
         )
         parsed_id = _parse_artifact_id(artifact_id)
         tenant_id = enforce_artifact_tenant_access(request, ctx=ctx, artifact_id=parsed_id)
@@ -637,6 +678,11 @@ if router is not None:
                 request,
                 media_type=manifest.media_type,
             )
+            if raw_representation and evidence_ref is not None:
+                raise bad_request(
+                    "Technical-inspection evidence does not authorize raw downloads",
+                    code="inspection_evidence_raw_unsupported",
+                )
             if not raw_representation:
                 _require_json_artifact_profile(manifest, declaration)
             selected_ref = _artifact_ref_for_manifest(manifest)
@@ -666,7 +712,7 @@ if router is not None:
                     request.headers,
                     etag=etag,
                     last_modified=manifest.created_at,
-                    profile_selected=manifest_profile_sha256 is not None,
+                    profile_selected=manifest_profile_sha256 is not None and evidence_ref is None,
                 )
                 if not_modified is not None:
                     add_artifact_link_relations(
@@ -680,7 +726,7 @@ if router is not None:
                     raw_response,
                     etag=etag,
                     last_modified=manifest.created_at,
-                    profile_selected=manifest_profile_sha256 is not None,
+                    profile_selected=manifest_profile_sha256 is not None and evidence_ref is None,
                 )
                 raw_response.headers["X-Manifest-Profile-SHA256"] = (
                     selected_profile or "unqualified"
@@ -703,6 +749,7 @@ if router is not None:
             view = ctx.artifacts.get_content_preview(
                 parsed_id,
                 max_bytes=max_bytes,
+                technical_inspection_evidence_ref=evidence_ref,
                 manifest=manifest,
                 manifest_read=manifest_read,
                 allow_candidate_predictive_diagnostic_surface=(
@@ -742,15 +789,20 @@ if router is not None:
                 artifact_ref_or_route=route_ref,
                 surface="dashboard",
                 scope="raw artifact content/download routes",
+                technical_inspection_evidence_ref=evidence_ref,
                 artifact_store=ctx.store,
                 artifact_id=parsed_id,
                 artifact_ref=_artifact_ref_for_manifest(manifest),
             )
-            not_modified = build_not_modified_response(
-                request.headers,
-                etag=etag,
-                last_modified=manifest.created_at,
-                profile_selected=manifest_profile_sha256 is not None,
+            not_modified = (
+                build_not_modified_response(
+                    request.headers,
+                    etag=etag,
+                    last_modified=manifest.created_at,
+                    profile_selected=manifest_profile_sha256 is not None,
+                )
+                if evidence_ref is None
+                else None
             )
             if not_modified is not None:
                 add_artifact_link_relations(
@@ -772,7 +824,7 @@ if router is not None:
             response,
             etag=etag,
             last_modified=manifest.created_at,
-            profile_selected=manifest_profile_sha256 is not None,
+            profile_selected=manifest_profile_sha256 is not None and evidence_ref is None,
         )
         add_artifact_link_relations(
             response,
@@ -783,7 +835,19 @@ if router is not None:
             request,
             resource_id=str(parsed_id),
             tenant_id=tenant_id,
-            metadata={"max_bytes": max_bytes},
+            metadata={
+                "max_bytes": max_bytes,
+                **(
+                    {
+                        "technical_inspection_subject": _artifact_ref_for_manifest(
+                            manifest
+                        ).model_dump(mode="json"),
+                        "technical_inspection_evidence": evidence_ref.model_dump(mode="json"),
+                    }
+                    if evidence_ref is not None
+                    else {}
+                ),
+            },
         )
         return ArtifactContentResponse(meta=build_meta(request), artifact=view)
 
@@ -922,11 +986,24 @@ if router is not None:
             max_length=71,
             pattern=r"^sha256:[0-9a-f]{64}$",
         ),
+        technical_inspection_evidence_id: str | None = Query(
+            default=None, description="Exact technical-inspection evidence artifact ID."
+        ),
+        technical_inspection_evidence_profile_sha256: str | None = Query(
+            default=None,
+            description="Exact selected profile of the technical-inspection evidence.",
+            min_length=71,
+            max_length=71,
+            pattern=r"^sha256:[0-9a-f]{64}$",
+        ),
         ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> ArtifactSchemaResponse | Response:
         manifest_profile_sha256 = _single_manifest_profile_selection(
             request,
             manifest_profile_sha256,
+        )
+        evidence_ref = _technical_inspection_evidence_selection(
+            request, technical_inspection_evidence_id, technical_inspection_evidence_profile_sha256
         )
         parsed_id = _parse_artifact_id(artifact_id)
         tenant_id = enforce_artifact_tenant_access(request, ctx=ctx, artifact_id=parsed_id)
@@ -947,7 +1024,10 @@ if router is not None:
             declaration = manifest_read.declaration
             _require_json_artifact_profile(manifest, declaration)
             schema_view = ctx.artifacts.get_schema_view(
-                parsed_id, manifest=manifest, manifest_read=manifest_read
+                parsed_id,
+                manifest=manifest,
+                manifest_read=manifest_read,
+                technical_inspection_evidence_ref=evidence_ref,
             )
         except FileNotFoundError as exc:
             raise not_found(str(exc), code="artifact_not_found") from exc
@@ -984,15 +1064,20 @@ if router is not None:
             artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/schema",
             surface="dashboard",
             scope="dashboard/public/export packets",
+            technical_inspection_evidence_ref=evidence_ref,
             artifact_store=ctx.store,
             artifact_id=parsed_id,
             artifact_ref=_artifact_ref_for_manifest(manifest),
         )
-        not_modified = build_not_modified_response(
-            request.headers,
-            etag=etag,
-            last_modified=manifest.created_at,
-            profile_selected=manifest_profile_sha256 is not None,
+        not_modified = (
+            build_not_modified_response(
+                request.headers,
+                etag=etag,
+                last_modified=manifest.created_at,
+                profile_selected=manifest_profile_sha256 is not None,
+            )
+            if evidence_ref is None
+            else None
         )
         if not_modified is not None:
             add_artifact_link_relations(
@@ -1005,7 +1090,7 @@ if router is not None:
             response,
             etag=etag,
             last_modified=manifest.created_at,
-            profile_selected=manifest_profile_sha256 is not None,
+            profile_selected=manifest_profile_sha256 is not None and evidence_ref is None,
         )
         add_artifact_link_relations(
             response,
@@ -1016,6 +1101,16 @@ if router is not None:
             request,
             resource_id=str(parsed_id),
             tenant_id=tenant_id,
+            metadata=(
+                {
+                    "technical_inspection_subject": _artifact_ref_for_manifest(manifest).model_dump(
+                        mode="json"
+                    ),
+                    "technical_inspection_evidence": evidence_ref.model_dump(mode="json"),
+                }
+                if evidence_ref is not None
+                else None
+            ),
         )
         return ArtifactSchemaResponse.model_validate(
             {
@@ -1725,6 +1820,7 @@ def _ensure_surface_admission_allowed(
     artifact_id: ArtifactID | None = None,
     artifact_ref: ArtifactRef | None = None,
     require_cas_integrity: bool = False,
+    technical_inspection_evidence_ref: ArtifactRef | None = None,
 ) -> None:
     if (
         artifact_ref is not None
@@ -1738,6 +1834,8 @@ def _ensure_surface_admission_allowed(
     decision = authority_surface_decision(
         payload,
         surface=surface,
+        purpose=TECHNICAL_INSPECTION_PURPOSE if technical_inspection_evidence_ref else None,
+        technical_inspection_evidence_ref=technical_inspection_evidence_ref,
         artifact_ref_or_route=artifact_ref_or_route,
         secret_pii_scope=scope,
         block_on_secret_findings=True,

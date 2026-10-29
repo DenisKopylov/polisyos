@@ -1,3 +1,4 @@
+import { retainedAcquisitionHistoryFixture } from "@/test/fixtures/retainedAcquisitionHistory";
 import type { QuantityValueOutput } from "@polisyos/runtime-api-client";
 import type { z } from "zod";
 
@@ -900,6 +901,80 @@ describe("runtime API validators", () => {
         },
       }),
     ).toThrow(/unknown generated data-view request profile status/);
+  });
+
+  it("parses retained history separately from a new evaluation and refuses malformed v3", () => {
+    const payload = runDetailsPayload("projection only");
+    const run = mutableRecord(payload.run);
+    const row = retainedAcquisitionHistoryFixture();
+    const candidate = {
+      schema_version: "policyos.runtime.run_candidate_simulation_projection.v1",
+      run_id: "run-projection-mask",
+      artifact_status: "resolved",
+      authority_purpose: "candidate_observation_only",
+      publication_authority: false,
+      source_ref: {
+        artifact_id: `sha256:${"a".repeat(64)}`,
+        kind: "runtime.compiled_recursive_generation_cycle",
+        media_type: "application/json",
+      },
+      source_content_hash: `sha256:${"a".repeat(64)}`,
+      n5_observations: [],
+      acquisition_history: [row],
+      acquisition_history_limitation_code: null,
+    };
+    run.candidate_simulation = candidate;
+    const parsed = runDetailsSchema.parse(payload).run.candidate_simulation!;
+    expect(parsed.acquisition_history[0]).toMatchObject({
+      terminal_outcome: "source_admitted_evaluation_retained",
+      retained_evaluation: {
+        evaluation_job_id: "job-original",
+        cycle_index: 1,
+      },
+      publication_authority: false,
+      currentness_status: "not_established",
+    });
+    for (const change of [
+      {
+        schema_version:
+          "policyos.runtime.run_candidate_simulation_acquisition_history.v4",
+      },
+      { new_candidate_id: "candidate-new" },
+      { continuation: {} },
+      { retained_evaluation: null },
+      { evaluation_decision_ref: null },
+      { current_continuation_ref: undefined },
+      { current_continuation_ref: null },
+      {
+        current_continuation_ref: {
+          ...row.current_continuation_ref,
+          kind: "foreign.artifact",
+        },
+      },
+      {
+        current_continuation_ref: {
+          ...row.current_continuation_ref,
+          manifest_profile_sha256: null,
+        },
+      },
+      { publication_authority: true },
+      { currentness_status: "current" },
+      {
+        admitted_source_ref: {
+          ...row.admitted_source_ref,
+          manifest_profile_sha256: null,
+        },
+      },
+      {
+        retained_evaluation: {
+          ...row.retained_evaluation,
+          n5_execution_ref: null,
+        },
+      },
+    ]) {
+      candidate.acquisition_history = [{ ...row, ...change } as typeof row];
+      expect(() => runDetailsSchema.parse(payload)).toThrow();
+    }
   });
 
   it("preserves verified acquisition history in a freshly parsed run response", () => {

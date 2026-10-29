@@ -1356,3 +1356,155 @@ bytes. The bridge consumes that fresh selected content; an embedded declaration
 or same-shaped selected NCM is insufficient. These are input/codec relations,
 not proof of a selected engine implementation, external native dependency,
 current eligibility or retained-terminal authority.
+
+## Acquired observation semantic values
+
+`data_state_substrate.prepare_acquired_observation_semantic_values` projects one
+real owner preparation; `read_acquired_observation_semantic_values` replays the
+selected acquired DataSnapshot through Core/lineage readers and Data Forge's
+canonical source parser. All typed observation coordinates, dataset version,
+watermark, class and unit-transform evidence remain decisive. Only the verified
+selected row's occurrence `observation_id` is excluded; complete history remains
+in the payload. The source projection count and exactly-one selected row remain
+bound. A different or unsupported source/codec/selection refuses rather than
+using value-only equality.
+
+`acquired_observation_binding_rule` is the original producer's shared full rule
+constructor. `acquired_observation_binding_rule_values` checks the entire
+prepared rule before projecting its known generated `notes` report field.
+`read_acquired_observation_binding_rule` rebuilds the complete historical rule
+for comparison with actual selected Foundry bindings. These values support
+candidate comparison only; native current eligibility, evidence independence
+and publication authority remain separate owner decisions. Unknown base valid
+time stays unknown through the acquired candidate world and Fabric snapshot.
+
+## Prospective acquired-world values
+
+`prepare_acquired_observation_world_semantic_values` and
+`read_acquired_observation_world_semantic_values` return explicit status, predicate
+provenance, reason codes and effective values. The actual acquired-world producer
+uses the same pure model/rules/limitations and native-row constructors. Preparation
+resolves complete numerical state and registry values without emitting a world.
+Historical replay reconciles actual native rows, full model/rule/source relations,
+and the existing Data Forge finalizer before projecting occurrence roles. Active
+SKG references, other executable graphs, QC-dependent finalization and unresolved
+owners remain `not_established`; this is not a generic-world completeness claim.
+
+`replay_acquired_observation_snapshot_preparation` reconstructs the real historical
+preparation from compact base/receipt/passport/boundary/source/row/binding/time
+selectors and optional exact typed activation. It replays immutable admission
+evidence and source bytes, then calls the native producer's shared constructor.
+It emits no DataSnapshot/WMR and grants no current admission or retention permit.
+
+
+## Admitted source occurrence and retained evaluation
+
+The controlled acquired-observation dispatcher separates three owner operations:
+new source/activation/action custody, complete effective native evaluation basis,
+and the selected evaluation occurrence. `AcquisitionEvaluationBasis@1.0` stores
+exact typed native values from the shared Data Forge/Foundry/IR/context owners.
+The digest indexes those bytes; it does not decide equality. Full observations,
+units, rules, relevant times, eligibility and software/backend bindings remain
+decisive. Unknown or unsupported facets yield `not_established` and take the
+existing conservative re-entry path. A source-profile hash or a declared list
+never establishes the basis-completeness predicate.
+
+Only a real selected V5 execution can earn the process-local N5 implementation
+witness. The input owner reopens the selected producer input and reconstructs
+the actual request. Its observer covers the full synchronous controller call,
+including selection, numerical execution and result construction; an interrupted
+observation cannot authorize reuse. The new C95 execution seam binds the full
+static source closure and reconciles the current source-declared slots owning
+the actual observed frames/entry callables. Original C95 authority gates keep
+their full-module census. Current bound port/controller entries, function
+defaults/closures, selected registry/method, actual native image origins and
+numerical policy are reconciled. An unobserved, cross-process, cached-only, or
+unsupported native binding remains `not_established`; serialized positive
+metadata cannot recreate the live producer witness.
+
+A genuinely equivalent current basis retains the exact old WMR/context/N4/N5
+and cycle tuple while running current cheap grounding, scheduler/value, VOI,
+revision and requirement/planner work. Source-reaction diagnostic identities
+are scoped to the actual selected current basis; they do not overwrite the old
+cycle. The final native-admission fence spans the conditional SQL action-head
+and candidate/task frontier write/readback, without enclosing numerical N5.
+The frontier relation comes from that successful store transaction. A retained
+terminal without this actual relation is refused. New epochs have separate
+growth recovery identities; legacy route-only pointers are attributed through
+their actual immutable receipts before reuse.
+
+Fresh run history replays the actual immutable source/activation/native chain,
+full historical basis, selected old evaluation and current cheap continuation.
+It does not require a historical admission to remain currently eligible. The
+public v3 member exposes the new source/growth/decision/current-continuation refs
+and the original retained evaluation tuple. Candidate observation is its only
+authority; currentness stays `not_established` and publication authority false.
+Legacy route receipts/history are read under their original schemas.
+
+This profile does not assert complete meaning for arbitrary executable graphs,
+QC-dependent Data Forge finalization or unresolved source/native codecs. Those
+facets require their real owner relationship before positive retention; they
+continue through conservative execution rather than being equated by markers.
+The real served A→B→B→C oracle, fresh readers and matched property-removal controls
+qualify this mechanism only after composed execution. Source/fixture checks do
+not constitute Runtime PASS, G acceptance, or formal E02 closure.
+
+
+### Receiver configuration and future construction boundary
+
+The supported N5 witness also resolves its actual receiver dependencies. It
+records receiver roots in real execution frames, projects actual attribute-read
+edges and the complete strict controller policy/settings models, and refuses
+instance overrides of source-declared callable slots before running a current
+selector. Equal typed configuration in a new object preserves effective meaning;
+changed settings, dispatch or unsupported storage cannot retain by code markers.
+The selected registry's complete decision/plan is reconciled; current budget
+accounting remains the separately executed current-work guard, not a reason to
+reassign past spend or invent a numerical call.
+
+Fresh construction uses the actual shared preparation owner. `prepare_joint_simulation_configuration` constructs the complete strict policy/settings values once. The immutable selected descriptor is persisted in the basis and passed unchanged through recovery, the acquisition materializer, `GenerationCycleController`, `JointSimulationPort`, and the real horizon controller. The port checks the whole actual receiver configuration before numerical execution. Rebuilding a model after changing a default therefore changes the prepared value; a retained old receiver and unchanged class/code tokens cannot hide that change. A constructor or lookup that ignores or changes the supplied descriptor is refused before NCM. The producer records the complete actual consumed configuration separately from implementation-observation provenance, and the actual-basis owner reconciles it with the saved prepared descriptor.
+
+The existing C95 source-import relation still checks every imported name read by the source-owned construction classes, including the actual port-module lookup of the horizon class. Constructor lookup values and fresh prepared values are separate from observed execution rows; inspecting a constructor does not claim it executed. This extends the existing preparation/consumer chain rather than attesting Pydantic validator internals. Unsupported dynamic/native receiver values, failed preparation, and values that cannot be exactly encoded remain `not_established`; no opaque object is omitted, replaced with a representation, or called equivalent.
+
+An unsupported configuration is recorded as an absent prepared value plus typed reason codes in the scoped basis and decision before the worker reports `acquisition_evaluation_configuration_not_established`. The admitted source/action remains at its real recoverable `outcome_selected` phase; no WMR/context or N5 is manufactured. A genuine later re-entry that is blocked before any selected V5 execution instead completes its real re-entry terminal with an NE basis and new failure frontier. Missing execution is never a reason to retain the old successful evaluation or leave that completed failure permanently pending. Configuration observation runs under the existing observer suspension boundary so introspection is not reported as executed N5 code.
+
+The served oracle uses the actual ordinary source-owned B evaluation from startup through persistence and fresh reads. It performs no temporal restore of production slots. Its negative controls act only after genuine execution, then restore their own scoped mutations. Two successive equivalent admissions precede the changed C source; both retained decisions are read again after the new evaluation. Qualification requires ordinary protected-POST controls distinguishing a real model-default/rebuild change, an unsupported default, a changed constructor and a changed port-module lookup while preserving the old code/class/receiver markers. They must assert the actual prepared/consumed values, real NCM call count, durable action phase and absence of a retained terminal. The prepared-configuration unit oracle and real blocked/no-V5 cold-read oracle accompany this mechanism; the existing earlier served fixture requires its matching error/phase, actual re-entry monitor and full configuration-observation companions before those new controls qualify the composed source. Until then those additional surface controls are `verification_missing`. Source review and formatting establish no Runtime PASS, G acceptance or E02 closure.
+
+
+## Bounded technical artifact inspection
+
+`technical_inspection_evidence.py` persists out-of-band evidence for the exact
+original, authority-free Foundry MethodArtifactOutput CAN.3 view. Both producer
+and fresh consumer re-enter Runtime's current reader owner and the concrete,
+ownership-enforcing CAS resolver. The consumer resolves E and A through bounded
+selected reads and recomputes the whole fact: full selected ref, payload hash,
+owner/canon/schema/input profile, read policies, rule version and current tenant
+and cell. A successful check permits only `technical_artifact_inspection` on
+artifact and dashboard inspection surfaces. The result has no authority boundary
+and explicitly denies runtime closeout, publication and claim evidence. Existing
+secret/PII, integrity, time/source, S12, candidate and explicit authority
+contributors remain composed over both the supplied projection and actual A.
+
+E is encoded with bounded CAN.2 serialization and published using the configured
+CAS handle and its existing transaction owner; A is never reissued or rewritten.
+The CAN.2 transaction/recovery internals are legacy and are not claimed to be a
+bounded publication mechanism. The local-only bounded CAN.3 writer rejects
+ownership-enforcing/guarded backends, so it cannot be used for E here without a
+Core change. Inspection verification is bounded independently of that writer.
+This contract supports only the actual source-owned MethodArtifactOutput CAN.3
+reader; legacy CAN.2 sidecars, arbitrary JSON/binary artifacts, unscoped owners,
+and unsupported CAS owners cannot acquire this evidence. Producer authenticity,
+method adequacy and policy admissibility remain out of scope.
+
+
+Technical inspection additionally qualifies the complete stock enforcing provider:
+the exact native CAS, ownership index, coordinator, layout, manifest and file
+providers and their actual root, ledger, transaction and read-only configuration
+relations. Public-constructor custom ownership-index subclasses cannot establish
+current access merely by preserving the outer enforcement flag. Unsupported
+providers fail with `TechnicalInspectionOwnerNotEstablishedError` before
+protected reads or evidence publication. This is a bounded stock-backend cohort
+under pinned Python source; private/class/interpreter mutation is outside that
+cohort. The configured guard remains the actual I/O handle. The shared surface
+outcome meet also consumes each typed authority contributor's blocking field;
+S12 or time/source downgrades cannot clear a stronger blocking contributor.

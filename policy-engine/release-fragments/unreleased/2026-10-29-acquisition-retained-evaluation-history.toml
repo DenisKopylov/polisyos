@@ -1,0 +1,30 @@
+id = "2026-10-29-acquisition-retained-evaluation-history"
+title = "Expose verified retained evaluation acquisition history"
+type = "added"
+component = "runtime"
+owner = "team-runtime"
+summary = "Add the distinct v3 candidate history variant for a newly admitted source that retains the original evaluation occurrence."
+evidence = ["tests/unit/core/contracts/test_run_candidate_simulation_acquisition_history_v3.py", "apps/runtime-dashboard/src/api/validators.test.ts", "apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.test.tsx"]
+compatibility = "Legacy history DTOs retain their meaning; the history union gains a distinct v3 retained member. Strict old clients require regeneration before rollout."
+change_class = "schema-openapi-abi"
+surface_classification = "public_stable: polisyos.runtime"
+migration = "Regenerate Runtime OpenAPI, runtime API client, dashboard API types and public-surface inventory together before enabling the route terminal emitter."
+api = "Fresh run GET exposes separate admitted source/growth/decision refs and the original retained evaluation tuple through the Runtime owner verifier."
+limitations = "History is candidate observation only; currentness remains not_established and publication authority remains false. Display fixtures do not establish Runtime verification."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/http/routes/README.md", "apps/runtime-dashboard/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "acquisition-history-v3-retained-evaluation"
+change_class = "schema-openapi-abi"
+impact = "additive"
+surface = "public_stable: polisyos.runtime RunCandidateSimulationProjection.acquisition_history"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "2 minor releases"
+release_note = "Acquisition history separates new source admission from the original retained evaluation."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = ["src/polisyos/runtime/http/routes/README.md", "apps/runtime-dashboard/README.md"]
+runbook_docs = []

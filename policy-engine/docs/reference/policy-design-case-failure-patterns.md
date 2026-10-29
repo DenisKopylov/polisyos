@@ -735,3 +735,35 @@ and source metadata; do not change the owner or add an invented compatibility
 wrapper. Prove the real node persists the value and a fresh selected reader
 retains subject, source identities and status. Restoring the incorrect accessor
 must reproduce the same consumer-body red, not a setup/backend failure.
+
+
+### P37/P38/P40 instance: fresh construction is not the old receiver
+
+**Diagnostic question.** Can the next actual constructor choose different
+settings while the old receiver, class, source and code markers remain unchanged?
+`V3-RUNTIME-M1` supplied a concrete variant: changing a Pydantic field default and
+calling `model_rebuild` changes a fresh controller while leaving the old typed
+instance intact. Recording the old instance or a class token therefore does not
+reconcile the configuration that the next real execution will consume.
+
+**Closure move.** Extend the existing pure preparation owner to produce the whole
+typed configuration value, select it before comparison, persist it with the scoped
+basis, and forward the same selected value through recovery and the actual
+materializer/constructor. Compare the complete actual consumer value before
+numerical execution and join the producer's consumed value to that same selected
+preparation. Unsupported preparation/state remains typed `not_established`; never
+omit it, use a representation, substitute defaults or retain old success. Reuse
+source/dispatch reconciliation as a separate relation rather than building a
+general model-validator attestation subsystem. An ordinary protected POST after
+a genuine positive must distinguish default/rebuild and constructor/lookup
+changes; removing the actual consumption check while keeping its markers must
+fail the intended consumer assertion.
+
+Observation has a separate boundary: reading configuration for a witness is not
+executed N5 work. Suspend the existing observer around its own introspection;
+assert that actual controller/engine calls remain observed and observation-only
+reader/preparation calls do not enter executed-code evidence.
+
+This is the same consumed-constructor quantity and observation-context class,
+not a new repair-round count or a G choice. Bounded source review and static
+checks do not establish runtime PASS, G acceptance or formal E02 closure.

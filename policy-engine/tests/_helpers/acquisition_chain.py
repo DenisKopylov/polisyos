@@ -268,6 +268,8 @@ def make_wdi_port_case(
     candidate_scenario_generation=False,
     candidate_generation_recording: dict[str, Any] | None = None,
     reentry_budget_usd: Decimal = Decimal("0.10"),
+    fixture_epoch_id: int | None = None,
+    fixture_attempt_ids: tuple[str, ...] = (_ATTEMPT_ID,),
 ):
     """Create the real port; external policy appointment follows a terminal refusal.
 
@@ -280,13 +282,23 @@ def make_wdi_port_case(
     if previous_case is None:
         repo = tmp_path / "repo"
         entry = _entry()
-        provision = _write_family_receipt(
-            repo,
-            entry_id=entry.entry_id,
-            attempt_id=_ATTEMPT_ID,
-            receipt=_family_receipt(),
+        if not fixture_attempt_ids or len(set(fixture_attempt_ids)) != len(fixture_attempt_ids):
+            raise ValueError("fixture attempts must be distinct and nonempty")
+        provisions = tuple(
+            _write_family_receipt(
+                repo,
+                entry_id=entry.entry_id,
+                attempt_id=attempt_id,
+                receipt=_family_receipt(attempt_id=attempt_id),
+                receipt_path=(
+                    "evidence/worldbank-wdi-live-harness.json"
+                    if index == 0
+                    else f"evidence/worldbank-wdi-live-harness-{index}.json"
+                ),
+            )
+            for index, attempt_id in enumerate(fixture_attempt_ids)
         )
-        authority, _ = _resolver(repo, authority_entry=entry, live_harness_receipts=(provision,))
+        authority, _ = _resolver(repo, authority_entry=entry, live_harness_receipts=provisions)
         registry = read_api.catalog.AcquisitionAuthorityRegistry.model_validate_json(
             authority.registry_path.read_bytes()
         )
@@ -301,6 +313,8 @@ def make_wdi_port_case(
             overlay_path=owner_root / "overlay.duckdb",
             epoch_history_root=owner_root / "epochs",
         )
+        if fixture_epoch_id is not None:
+            args["epoch_id"] = fixture_epoch_id
         selected = AcquisitionWorldGrowthRoute(
             **{
                 name: args[name]
@@ -331,6 +345,11 @@ def make_wdi_port_case(
         )
         args = {**previous_case.call_args, "artifact_store": store}
         selected = previous_case.selected
+        if fixture_epoch_id is not None:
+            args["epoch_id"] = fixture_epoch_id
+            selected = AcquisitionWorldGrowthRoute.model_validate(
+                {**selected.model_dump(mode="python"), "epoch_id": fixture_epoch_id}
+            )
         appointments = previous_case.appointments
         deployment = (
             build_semantic_epoch_native_deployment(appointments[-1].config)

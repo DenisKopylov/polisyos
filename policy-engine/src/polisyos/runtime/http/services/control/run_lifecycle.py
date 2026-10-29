@@ -53,6 +53,7 @@ from polisyos.core.artifacts.protocol import (
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import (
     CanonSpec,
+    to_canonical_bytes,
 )
 from polisyos.core.contracts import (
     CONTROL_PRE_ADMISSION_SETTLEMENT_REQUIRED_PROFILES,
@@ -219,7 +220,9 @@ from polisyos.runtime.http.services.control.workspace_loop_transition import (
 )
 from polisyos.runtime.quality.acquisition_route_loop import (
     AcquisitionRouteLoopReceipt,
+    AcquisitionRouteLoopReceiptV2,
     AcquisitionRoutePhaseReceipt,
+    parse_acquisition_route_loop_receipt,
 )
 from polisyos.runtime.quality.authority import GovernanceMetadata
 from polisyos.runtime.quality.authority_reconciliation import (
@@ -2173,7 +2176,9 @@ class VerifiedAcquisitionActionPhase:
     """One CAS-bound receipt and its exact durable producer event."""
 
     receipt_ref: str
-    receipt: AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt
+    receipt: (
+        AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt | AcquisitionRouteLoopReceiptV2
+    )
     durable_event_id: str
     event: DiagnosticEvent
 
@@ -2183,7 +2188,9 @@ class VerifiedAcquisitionActionOutcome:
     """Snapshot a latest action head and its complete verified phase chain."""
 
     head: AcquisitionActionHeadRecord
-    latest_receipt: AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt
+    latest_receipt: (
+        AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt | AcquisitionRouteLoopReceiptV2
+    )
     executing_phase_ref: str | None
     executing_phase: AcquisitionRoutePhaseReceipt | None
     selection_phase_ref: str | None
@@ -2192,7 +2199,9 @@ class VerifiedAcquisitionActionOutcome:
 
 
 def _require_action_phase_receipt(
-    receipt: AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt,
+    receipt: AcquisitionRoutePhaseReceipt
+    | AcquisitionRouteLoopReceipt
+    | AcquisitionRouteLoopReceiptV2,
 ) -> AcquisitionRoutePhaseReceipt:
     """Refuse any durable replay whose receipt is not a phase record."""
     if not isinstance(receipt, AcquisitionRoutePhaseReceipt):
@@ -2201,7 +2210,9 @@ def _require_action_phase_receipt(
 
 
 def _require_action_selection_phase_receipt(
-    receipt: AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt,
+    receipt: AcquisitionRoutePhaseReceipt
+    | AcquisitionRouteLoopReceipt
+    | AcquisitionRouteLoopReceiptV2,
 ) -> AcquisitionRoutePhaseReceipt:
     """Refuse a durable replay unless it resolved to the expected phase type."""
     if not isinstance(receipt, AcquisitionRoutePhaseReceipt):
@@ -2220,6 +2231,24 @@ class _AcquisitionRouteLoopArtifactStore(ArtifactStore, CoreJSONArtifactProfileR
         *,
         return_selected_profile: bool = False,
     ) -> ArtifactRef: ...
+
+
+def _acquisition_route_receipt_inputs(
+    receipt: AcquisitionRoutePhaseReceipt
+    | AcquisitionRouteLoopReceipt
+    | AcquisitionRouteLoopReceiptV2,
+) -> tuple[str, ...]:
+    """Derive complete event lineage for the actual typed receipt family."""
+    refs = set(receipt.owner_receipt_refs)
+    if receipt.predecessor_receipt_ref is not None:
+        refs.add(receipt.predecessor_receipt_ref)
+    if isinstance(receipt, AcquisitionRouteLoopReceiptV2):
+        from polisyos.runtime.quality.acquisition_evaluation import _typed_record_input_refs
+
+        refs.update(str(ref.artifact_id) for _, ref in _typed_record_input_refs(receipt))
+        if receipt.reentry_receipt_ref is not None:
+            refs.add(receipt.reentry_receipt_ref)
+    return tuple(sorted(refs))
 
 
 class AcquisitionRouteLoopAuthoritySink:
@@ -2245,7 +2274,9 @@ class AcquisitionRouteLoopAuthoritySink:
 
     def get_head(
         self,
-        receipt: AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt,
+        receipt: AcquisitionRoutePhaseReceipt
+        | AcquisitionRouteLoopReceipt
+        | AcquisitionRouteLoopReceiptV2,
     ) -> AcquisitionActionHeadRecord | None:
         """Read the latest exact durable action head for a phase identity."""
 
@@ -2286,9 +2317,12 @@ class AcquisitionRouteLoopAuthoritySink:
             return 1
         latest = outcomes[-1]
         receipt = latest.latest_receipt
-        if not isinstance(receipt, AcquisitionRouteLoopReceipt) or receipt.terminal_outcome not in {
+        if not isinstance(
+            receipt, (AcquisitionRouteLoopReceipt, AcquisitionRouteLoopReceiptV2)
+        ) or receipt.terminal_outcome not in {
             "quarantined_no_growth",
             "reentry_completed",
+            "source_admitted_evaluation_retained",
         }:
             raise ValueError("acquisition_action_generation_not_reopenable")
         return latest.head.action_generation + 1
@@ -2336,7 +2370,9 @@ class AcquisitionRouteLoopAuthoritySink:
             raise ValueError("acquisition_action_scope_mismatch")
         outcomes = tuple(self.verify_action_head(head) for head in heads)
         for outcome in outcomes[:-1]:
-            if not isinstance(outcome.latest_receipt, AcquisitionRouteLoopReceipt):
+            if not isinstance(
+                outcome.latest_receipt, (AcquisitionRouteLoopReceipt, AcquisitionRouteLoopReceiptV2)
+            ):
                 raise ValueError("acquisition_action_generation_predecessor_not_terminal")
         current_heads = tuple(
             sorted(
@@ -2370,12 +2406,16 @@ class AcquisitionRouteLoopAuthoritySink:
 
     @staticmethod
     def _allowed_predecessor_phases(
-        receipt: AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt,
+        receipt: AcquisitionRoutePhaseReceipt
+        | AcquisitionRouteLoopReceipt
+        | AcquisitionRouteLoopReceiptV2,
     ) -> frozenset[str] | None:
         """Return the finite ActionHead predecessor relation for one receipt."""
-        if isinstance(receipt, AcquisitionRouteLoopReceipt):
+        if isinstance(receipt, (AcquisitionRouteLoopReceipt, AcquisitionRouteLoopReceiptV2)):
             if receipt.terminal_outcome == "reentry_completed":
                 return frozenset({"world_committed_reentry_pending"})
+            if receipt.terminal_outcome == "source_admitted_evaluation_retained":
+                return frozenset({"outcome_selected"})
             return frozenset({"executing", "outcome_selected"})
         return {
             "requested": frozenset(),
@@ -2409,7 +2449,7 @@ class AcquisitionRouteLoopAuthoritySink:
             receipt = current.receipt
             phase_name = (
                 "terminal"
-                if isinstance(receipt, AcquisitionRouteLoopReceipt)
+                if isinstance(receipt, (AcquisitionRouteLoopReceipt, AcquisitionRouteLoopReceiptV2))
                 else receipt.receipt_phase
             )
             if phase_name in seen_phases:
@@ -2429,7 +2469,10 @@ class AcquisitionRouteLoopAuthoritySink:
                 previous_receipt = previous.receipt
                 previous_name = (
                     "terminal"
-                    if isinstance(previous_receipt, AcquisitionRouteLoopReceipt)
+                    if isinstance(
+                        previous_receipt,
+                        (AcquisitionRouteLoopReceipt, AcquisitionRouteLoopReceiptV2),
+                    )
                     else previous_receipt.receipt_phase
                 )
                 allowed = self._allowed_predecessor_phases(receipt)
@@ -2456,6 +2499,10 @@ class AcquisitionRouteLoopAuthoritySink:
 
         latest = chain[-1]
         latest_receipt = latest.receipt
+        if isinstance(latest_receipt, AcquisitionRouteLoopReceiptV2) and (
+            head.evaluation_frontier_ref is None
+        ):
+            raise ValueError("acquisition_evaluation_terminal_transaction_relation_missing")
         if (
             head.receipt_ref != head.receipt_sha256
             or latest.receipt_ref != head.receipt_ref
@@ -2512,7 +2559,7 @@ class AcquisitionRouteLoopAuthoritySink:
                 executing.receipt_ref,
                 selection.receipt.owner_receipt_refs,
             )
-        if isinstance(latest_receipt, AcquisitionRouteLoopReceipt):
+        if isinstance(latest_receipt, (AcquisitionRouteLoopReceipt, AcquisitionRouteLoopReceiptV2)):
             if latest_receipt.terminal_outcome == "reentry_completed":
                 if (
                     len(chain) < 2
@@ -2529,8 +2576,12 @@ class AcquisitionRouteLoopAuthoritySink:
 
     @staticmethod
     def _same_action_identity(
-        left: AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt,
-        right: AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt,
+        left: AcquisitionRoutePhaseReceipt
+        | AcquisitionRouteLoopReceipt
+        | AcquisitionRouteLoopReceiptV2,
+        right: AcquisitionRoutePhaseReceipt
+        | AcquisitionRouteLoopReceipt
+        | AcquisitionRouteLoopReceiptV2,
     ) -> bool:
         return all(
             getattr(left, field) == getattr(right, field)
@@ -2563,7 +2614,12 @@ class AcquisitionRouteLoopAuthoritySink:
             raise ValueError("acquisition_action_head_receipt_hash_mismatch")
         manifest = read_core_manifest_profile(self._artifact_store, artifact_id)[0]
         if manifest.kind == "runtime_quality.acquisition_route_loop_receipt":
-            receipt_type = AcquisitionRouteLoopReceipt
+            receipt_type = (
+                AcquisitionRouteLoopReceiptV2
+                if manifest.artifact_schema is not None
+                and manifest.artifact_schema.version == "2.0"
+                else AcquisitionRouteLoopReceipt
+            )
             schema_name = "polisyos.runtime.AcquisitionRouteLoopReceipt"
         elif manifest.kind == "runtime_quality.acquisition_route_phase_receipt":
             receipt_type = AcquisitionRoutePhaseReceipt
@@ -2635,22 +2691,15 @@ class AcquisitionRouteLoopAuthoritySink:
                 raw_payload_bytes=event_payload,
             ).value
         )
-        expected_inputs = tuple(
-            sorted(
-                {
-                    *(
-                        ()
-                        if receipt.predecessor_receipt_ref is None
-                        else (receipt.predecessor_receipt_ref,)
-                    ),
-                    *receipt.owner_receipt_refs,
-                }
-            )
-        )
+        expected_inputs = _acquisition_route_receipt_inputs(receipt)
         expected_event_type = (
-            "polisyos.runtime.acquisition.route_loop.v1"
-            if isinstance(receipt, AcquisitionRouteLoopReceipt)
-            else "polisyos.runtime.acquisition.route_phase.v1"
+            "polisyos.runtime.acquisition.route_loop.v2"
+            if isinstance(receipt, AcquisitionRouteLoopReceiptV2)
+            else (
+                "polisyos.runtime.acquisition.route_loop.v1"
+                if isinstance(receipt, AcquisitionRouteLoopReceipt)
+                else "polisyos.runtime.acquisition.route_phase.v1"
+            )
         )
         expected_blocking = (
             "blocking" if receipt.recovery_state == "reentry_recovery_required" else "non_blocking"
@@ -2698,7 +2747,10 @@ class AcquisitionRouteLoopAuthoritySink:
 
     def _verified_receipt_ref(
         self, receipt_ref: str
-    ) -> tuple[AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt, str]:
+    ) -> tuple[
+        AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt | AcquisitionRouteLoopReceiptV2,
+        str,
+    ]:
         """Retain the receipt reader API while enforcing the full event binding."""
         verified = self._read_verified_action_phase(receipt_ref)
         return verified.receipt, verified.durable_event_id
@@ -2706,7 +2758,7 @@ class AcquisitionRouteLoopAuthoritySink:
     def _verified_generation_head(
         self,
         head: AcquisitionActionHeadRecord,
-    ) -> AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt:
+    ) -> AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt | AcquisitionRouteLoopReceiptV2:
         """Verify the whole generation before using its terminal or current receipt."""
         return self.verify_action_head(head).latest_receipt
 
@@ -3058,30 +3110,47 @@ class AcquisitionRouteLoopAuthoritySink:
 
     def persist_terminal(
         self,
-        receipt: AcquisitionRouteLoopReceipt,
+        receipt: AcquisitionRouteLoopReceipt | AcquisitionRouteLoopReceiptV2,
     ) -> AcquisitionActionHeadRecord:
         """Write and expose a terminal head only after exact loop-receipt readback."""
 
-        typed = AcquisitionRouteLoopReceipt.model_validate(receipt)
+        typed = parse_acquisition_route_loop_receipt(receipt)
         return self._persist_receipt(
             typed,
             artifact_kind="runtime_quality.acquisition_route_loop_receipt",
             schema_name="polisyos.runtime.AcquisitionRouteLoopReceipt",
-            event_type="polisyos.runtime.acquisition.route_loop.v1",
-            event_suffix="loop_terminal",
-            receipt_type=AcquisitionRouteLoopReceipt,
+            event_type=(
+                "polisyos.runtime.acquisition.route_loop.v2"
+                if isinstance(typed, AcquisitionRouteLoopReceiptV2)
+                else "polisyos.runtime.acquisition.route_loop.v1"
+            ),
+            event_suffix=(
+                "loop_terminal_"
+                + hashlib.sha256(
+                    to_canonical_bytes(
+                        typed.model_dump(mode="json"), CanonSpec(forbid_floats=False)
+                    )
+                ).hexdigest()
+                if isinstance(typed, AcquisitionRouteLoopReceiptV2)
+                else "loop_terminal"
+            ),
+            receipt_type=type(typed),
             receipt_label="loop",
         )
 
     def _persist_receipt(
         self,
-        typed: AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt,
+        typed: AcquisitionRoutePhaseReceipt
+        | AcquisitionRouteLoopReceipt
+        | AcquisitionRouteLoopReceiptV2,
         *,
         artifact_kind: str,
         schema_name: str,
         event_type: str,
         event_suffix: str,
-        receipt_type: type[AcquisitionRoutePhaseReceipt] | type[AcquisitionRouteLoopReceipt],
+        receipt_type: type[AcquisitionRoutePhaseReceipt]
+        | type[AcquisitionRouteLoopReceipt]
+        | type[AcquisitionRouteLoopReceiptV2],
         receipt_label: str,
     ) -> AcquisitionActionHeadRecord:
         """Persist one strict receipt family before advancing its shared action head."""
@@ -3098,11 +3167,7 @@ class AcquisitionRouteLoopAuthoritySink:
         payload = typed.model_dump(mode="json")
         canon_spec = CanonSpec(forbid_floats=False)
         generated_at = typed.generated_at.isoformat()
-        input_ref_set = set()
-        if typed.predecessor_receipt_ref is not None:
-            input_ref_set.add(typed.predecessor_receipt_ref)
-        input_ref_set.update(typed.owner_receipt_refs)
-        input_refs = tuple(sorted(input_ref_set))
+        input_refs = _acquisition_route_receipt_inputs(typed)
         result = write_runtime_authority_artifact(
             self._artifact_store,
             self._event_log,
@@ -3205,6 +3270,17 @@ class AcquisitionRouteLoopAuthoritySink:
             or schema.version != typed.schema_version.rsplit("@", 1)[-1]
         ):
             raise RuntimeError(f"acquisition_{receipt_label}_readback_failed")
+        frontier_cas = None
+        if isinstance(typed, AcquisitionRouteLoopReceiptV2):
+            from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
+                acquisition_terminal_frontier_cas,
+            )
+
+            frontier_cas = acquisition_terminal_frontier_cas(
+                typed,
+                artifact_store=self._artifact_store,
+                control_store=self._control_store,
+            )
         head = self._control_store.advance_acquisition_action_head(
             tenant_id=typed.tenant_id,
             cell_id=typed.cell_id,
@@ -3221,6 +3297,7 @@ class AcquisitionRouteLoopAuthoritySink:
             recovery_state=typed.recovery_state,
             job_id=typed.job_id,
             predecessor_receipt_ref=typed.predecessor_receipt_ref,
+            frontier_cas=frontier_cas,
         )
         if self.get_head(typed) != head:
             raise RuntimeError("acquisition_action_head_readback_failed")

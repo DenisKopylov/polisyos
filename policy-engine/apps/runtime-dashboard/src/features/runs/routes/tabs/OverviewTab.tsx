@@ -11,6 +11,7 @@ import {
   type PredictiveCalibrationRequest,
 } from "@/api/hooks/useRunPredictiveCalibration";
 import type { RunArtifactRef, RunDetailsView } from "@/api/validators";
+import { runCandidateSimulationAcquisitionHistoryEntryV3Schema } from "@/api/validators";
 import { isRuntimeApiNotFound } from "@/api/http";
 import { usePermission } from "@/app/authz/AuthzProvider";
 import { buildArtifactHref } from "@/features/artifacts";
@@ -495,6 +496,125 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
           ) : null}
           {acquisitionHistory.map((value, index) => {
             const row = asRecord(value);
+            if (
+              row?.schema_version ===
+              "policyos.runtime.run_candidate_simulation_acquisition_history.v3"
+            ) {
+              const parsed =
+                runCandidateSimulationAcquisitionHistoryEntryV3Schema.safeParse(
+                  row,
+                );
+              if (
+                !projectionKnown ||
+                projection.artifact_status !== "resolved" ||
+                !parsed.success
+              ) {
+                return (
+                  <p
+                    key={index}
+                    data-testid="overview-acquisition-history-refused"
+                  >
+                    {t(
+                      "pages.runs.candidateSimulation.acquisitionHistoryRefused",
+                    )}
+                  </p>
+                );
+              }
+              const retained = parsed.data;
+              const evaluation = retained.retained_evaluation;
+              return (
+                <div
+                  key={index}
+                  className="space-y-1 border-t pt-2"
+                  data-testid="overview-acquisition-history-retained"
+                >
+                  <p>
+                    {t("pages.runs.candidateSimulation.acquisitionRoute", {
+                      route: retained.route_id,
+                      generation: String(retained.action_generation),
+                    })}
+                  </p>
+                  <p>
+                    {t("pages.runs.candidateSimulation.acquisitionOutcome", {
+                      outcome: retained.terminal_outcome,
+                    })}
+                  </p>
+                  <p>
+                    {t(
+                      "pages.runs.candidateSimulation.acquisitionRetainedExplanation",
+                    )}
+                  </p>
+                  <p className="text-xs break-all">
+                    {t(
+                      "pages.runs.candidateSimulation.acquisitionAdmittedSource",
+                      {
+                        ref: retained.admitted_source_ref.artifact_id,
+                      },
+                    )}
+                  </p>
+                  <p className="text-xs break-all">
+                    {t(
+                      "pages.runs.candidateSimulation.acquisitionRetainedSource",
+                      {
+                        ref: evaluation.n4_source_ref.artifact_id,
+                      },
+                    )}
+                  </p>
+                  <p>
+                    {t(
+                      "pages.runs.candidateSimulation.acquisitionRetainedCandidate",
+                      {
+                        candidate: evaluation.candidate_id,
+                      },
+                    )}
+                  </p>
+                  <p>
+                    {t(
+                      "pages.runs.candidateSimulation.acquisitionRetainedOccurrence",
+                      {
+                        run: evaluation.evaluation_run_id,
+                        job: evaluation.evaluation_job_id,
+                        cycle: String(evaluation.cycle_index),
+                      },
+                    )}
+                  </p>
+                  <p className="text-xs break-all">
+                    {t(
+                      "pages.runs.candidateSimulation.acquisitionRetentionDecision",
+                      {
+                        ref: retained.evaluation_decision_ref.artifact_id,
+                      },
+                    )}
+                  </p>
+                  <Link
+                    to={buildArtifactHref(
+                      retained.current_continuation_ref.artifact_id,
+                      {
+                        tab: "content",
+                        artifactRef: retained.current_continuation_ref,
+                      },
+                    )}
+                    data-testid="overview-acquisition-source-reaction-link"
+                    className="text-accent text-xs font-semibold break-all underline"
+                  >
+                    {t(
+                      "pages.runs.candidateSimulation.acquisitionSourceReaction",
+                      {
+                        ref: retained.current_continuation_ref.artifact_id,
+                      },
+                    )}
+                  </Link>
+                  <p>
+                    {t(
+                      "pages.runs.candidateSimulation.acquisitionCurrentness",
+                      {
+                        status: retained.currentness_status,
+                      },
+                    )}
+                  </p>
+                </div>
+              );
+            }
             const reentry = row && asRecord(row.reentry_receipt_ref);
             const newSource = row && asRecord(row.new_candidate_source_ref);
             const originSource = row && asRecord(row.origin_source_ref);

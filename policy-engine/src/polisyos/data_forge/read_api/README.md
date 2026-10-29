@@ -83,3 +83,20 @@ Escaped native DuckDB query/backend errors also use this typed read-source
 family (`catalog_read_native_query_unavailable`); a closed backend is ERROR,
 not evidence of zero observations. The original driver exception is retained
 as the cause.
+
+## Historical acquired source replay
+
+The catalog facade exposes the existing `derive_canonical_observations` owner
+and `normalized_acquisition_source_body`, which delegates to the same normalized
+FetchResult codec used by live acquisition authority. Runtime historical
+candidate replay uses these existing transformations after resolving the exact
+source/passport/boundary bindings; it does not invent a second row parser or
+claim present native admission from a historical source. Unsupported cache
+formats remain a typed refusal.
+
+The runtime-safe facade exposes the existing publisher JSON reader plus
+`prepare_publish_manifest`, `prepare_snapshot_binding_meaning` and
+`read_snapshot_binding_meaning`. Runtime candidate preparation uses these owner
+constructors instead of recreating finalization law or treating generated hashes
+as effective source meaning. Historical binding projection rechecks full emitted
+values before any owner-generated occurrence field is projected.

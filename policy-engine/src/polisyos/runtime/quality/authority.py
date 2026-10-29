@@ -48,6 +48,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.http.services.control.artifacts import (
         AuthorityArtifactIdentityContext,
     )
+    from polisyos.runtime.quality.technical_inspection_evidence import VerifiedTechnicalInspection
 
 
 EvidenceClass = Literal[
@@ -2282,6 +2283,7 @@ def authority_surface_decision(
     artifact_id: object | None = None,
     artifact_ref: core_artifacts.ArtifactRef | None = None,
     require_cas_integrity: bool = False,
+    technical_inspection_evidence_ref: core_artifacts.ArtifactRef | None = None,
     enforce_time_source: bool = True,
     enforce_s12: bool = True,
     enforce_candidate_firewall: bool = True,
@@ -2293,7 +2295,9 @@ def authority_surface_decision(
     This is the single egress gate for Phase 3 surfaces. It preserves the GY-B2
     transition-disposition/AuthorityBoundary check and AND-composes the F2/F3
     admission inputs: secret/PII scan, CAS integrity, time/source envelope
-    disposition, S12 dereference status, and candidate firewall.
+    disposition, S12 dereference status, and candidate firewall. An explicit
+    technical-inspection evidence ref is accepted only after fresh exact-view
+    mechanical verification, for its fixed purpose, without an authority boundary.
     """
 
     artifact_target = artifact_ref if artifact_ref is not None else artifact_id
@@ -2302,34 +2306,116 @@ def authority_surface_decision(
         and artifact_id is not None
         and str(artifact_ref.artifact_id) != str(artifact_id)
     )
-    eval_safety_applies, eval_safety_payload, eval_safety_blocker = (
-        _strict_eval_safety_surface_payload(
+    technical_inspection: VerifiedTechnicalInspection | None = None
+    technical_requested = (
+        purpose == "technical_artifact_inspection" or technical_inspection_evidence_ref is not None
+    )
+    if technical_requested:
+        from polisyos.runtime.quality.technical_inspection_evidence import (
+            TECHNICAL_INSPECTION_DENIED_PURPOSES,
+            verify_technical_inspection_evidence,
+        )
+
+        # This path never enters unbounded envelope/default-view fallbacks. The
+        # source-owned bounded read proves the selected manifest has no authority
+        # header; E is out-of-band mechanical evidence, not a replacement header.
+        eval_safety_applies, eval_safety_payload, eval_safety_blocker = False, None, None
+        authority_payload = payload
+        selected_manifest_has_authority = False
+        selected_manifest_authority_payload = None
+        selected_manifest_authority_error = None
+        base = _authority_boundary_surface_decision(
+            authority_payload,
             surface=surface,
             purpose=purpose,
+            missing_authority_disposition=missing_authority_disposition,
+            missing_boundary_disposition=missing_boundary_disposition,
+        )
+        inspection_error = "technical_inspection_evidence_missing"
+        if purpose != "technical_artifact_inspection" or surface not in {"artifact", "dashboard"}:
+            inspection_error = "technical_inspection_purpose_not_permitted"
+        elif artifact_store is None or artifact_ref is None:
+            inspection_error = "technical_inspection_selected_subject_missing"
+        elif technical_inspection_evidence_ref is not None:
+            try:
+                technical_inspection = verify_technical_inspection_evidence(
+                    artifact_store, artifact_ref, technical_inspection_evidence_ref
+                )
+            except Exception:
+                inspection_error = "technical_inspection_evidence_invalid"
+            else:
+                inspection_error = ""
+        if inspection_error:
+            base = AuthoritySurfaceDecision(
+                surface=surface,
+                purpose=purpose or _default_surface_purpose(surface),
+                status="blocked",
+                authority_result="not_applicable",
+                authority_boundary_ref=None,
+                consumed_authority_boundary=False,
+                may_not_use_for=list(TECHNICAL_INSPECTION_DENIED_PURPOSES),
+                reason=inspection_error,
+                blocking=True,
+                visible_downgrade=True,
+            )
+        elif not _has_authority_surface_signal(
+            _authority_payload(authority_payload),
+            surface_packet=_surface_packet_for(_authority_payload(authority_payload), surface),
+            transition_disposition=base.transition_disposition,
+            authority_result=base.authority_result,
+        ):
+            base = AuthoritySurfaceDecision(
+                surface=surface,
+                purpose="technical_artifact_inspection",
+                status="allowed",
+                authority_result="not_applicable",
+                authority_boundary_ref=None,
+                consumed_authority_boundary=False,
+                may_not_use_for=list(TECHNICAL_INSPECTION_DENIED_PURPOSES),
+                reason="technical_inspection_fact_recomputed",
+                blocking=False,
+                visible_downgrade=False,
+            )
+        else:
+            # Existing explicit authority blockers/downgrades remain contributors.
+            base = base.model_copy(
+                update={
+                    "may_not_use_for": list(
+                        dict.fromkeys(
+                            [*base.may_not_use_for, *TECHNICAL_INSPECTION_DENIED_PURPOSES]
+                        )
+                    ),
+                }
+            )
+    else:
+        eval_safety_applies, eval_safety_payload, eval_safety_blocker = (
+            _strict_eval_safety_surface_payload(
+                surface=surface,
+                purpose=purpose,
+                artifact_store=artifact_store,
+                artifact_id=artifact_target,
+            )
+        )
+        authority_payload = eval_safety_payload or _surface_authority_payload(
+            payload,
             artifact_store=artifact_store,
             artifact_id=artifact_target,
         )
-    )
-    authority_payload = eval_safety_payload or _surface_authority_payload(
-        payload,
-        artifact_store=artifact_store,
-        artifact_id=artifact_target,
-    )
-    (
-        selected_manifest_has_authority,
-        selected_manifest_authority_payload,
-        selected_manifest_authority_error,
-    ) = _selected_manifest_authority_payload(
-        artifact_store=artifact_store,
-        artifact_id=artifact_target,
-    )
-    base = _authority_boundary_surface_decision(
-        authority_payload,
-        surface=surface,
-        purpose=purpose,
-        missing_authority_disposition=missing_authority_disposition,
-        missing_boundary_disposition=missing_boundary_disposition,
-    )
+        (
+            selected_manifest_has_authority,
+            selected_manifest_authority_payload,
+            selected_manifest_authority_error,
+        ) = _selected_manifest_authority_payload(
+            artifact_store=artifact_store,
+            artifact_id=artifact_target,
+        )
+        base = _authority_boundary_surface_decision(
+            authority_payload,
+            surface=surface,
+            purpose=purpose,
+            missing_authority_disposition=missing_authority_disposition,
+            missing_boundary_disposition=missing_boundary_disposition,
+        )
     selected_manifest_decision = (
         _authority_boundary_surface_decision(
             selected_manifest_authority_payload,
@@ -2342,7 +2428,12 @@ def authority_surface_decision(
         else None
     )
     carrier = _authority_payload(authority_payload)
+    gate_payloads = [payload]
+    if technical_inspection is not None:
+        gate_payloads.append(technical_inspection.subject_read.value)
     gate_inputs: list[str] = ["authority_boundary"]
+    if technical_requested:
+        gate_inputs.append("technical_inspection_evidence")
     blocking_reasons: list[str] = []
     downgrade_reasons: list[str] = []
     if artifact_ref_mismatch:
@@ -2380,20 +2471,25 @@ def authority_surface_decision(
         try:
             from polisyos.core import scan_secret_and_pii
 
-            scan = scan_secret_and_pii(
-                payload,
-                scope=secret_pii_scope,
-                artifact_ref_or_route=artifact_ref_or_route or f"{surface}:unknown",
-                redact=False,
-                block_on_findings=block_on_secret_findings,
-            )
+            scans = [
+                scan_secret_and_pii(
+                    gate_payload,
+                    scope=secret_pii_scope,
+                    artifact_ref_or_route=artifact_ref_or_route or f"{surface}:unknown",
+                    redact=False,
+                    block_on_findings=block_on_secret_findings,
+                )
+                for gate_payload in gate_payloads
+            ]
         except Exception as exc:  # pragma: no cover - exercised through route fail-closed tests.
             secret_findings = ["scan_failed_closed"]
             blocking_reasons.append("secret_pii_scan_failed_closed")
             integrity_error = str(exc)
         else:
-            secret_findings = list(scan.finding_kinds)
-            if scan.has_findings:
+            secret_findings = list(
+                dict.fromkeys(finding for scan in scans for finding in scan.finding_kinds)
+            )
+            if any(scan.has_findings for scan in scans):
                 if block_on_secret_findings:
                     blocking_reasons.append("secret_pii_surface_blocked")
                 else:
@@ -2409,6 +2505,12 @@ def authority_surface_decision(
         if artifact_store is None or artifact_target is None:
             integrity_status = "missing_input"
             blocking_reasons.append("cas_integrity_input_missing")
+        elif technical_requested:
+            # Core's sealed bounded subject read already verifies exact selected
+            # manifest and payload integrity; do not reread through legacy verify.
+            integrity_status = "verified" if technical_inspection is not None else "failed"
+            if technical_inspection is None:
+                blocking_reasons.append("technical_inspection_integrity_not_established")
         else:
             try:
                 verification = artifact_store.verify(artifact_target)
@@ -2426,7 +2528,13 @@ def authority_surface_decision(
 
     if enforce_time_source:
         gate_inputs.append("time_source_envelope")
-        time_dispositions = _time_source_dispositions(payload)
+        time_dispositions = list(
+            dict.fromkeys(
+                disposition
+                for gate_payload in gate_payloads
+                for disposition in _time_source_dispositions(gate_payload)
+            )
+        )
         for disposition in time_dispositions:
             if disposition in {
                 TIME_SOURCE_INCONSISTENT_DISPOSITION,
@@ -2438,7 +2546,13 @@ def authority_surface_decision(
 
     if enforce_s12:
         gate_inputs.append("s12_dereference")
-        s12_issue_codes = _s12_dereference_issue_codes(payload)
+        s12_issue_codes = list(
+            dict.fromkeys(
+                issue
+                for gate_payload in gate_payloads
+                for issue in _s12_dereference_issue_codes(gate_payload)
+            )
+        )
         if s12_issue_codes:
             downgrade_reasons.append("s12_reference_candidate_only")
 
@@ -2449,10 +2563,17 @@ def authority_surface_decision(
                 candidate_firewall_issues_for_payload,
             )
 
-            issues = candidate_firewall_issues_for_payload(
-                carrier,
-                surface=surface,
-            )
+            issues = [
+                issue
+                for candidate_payload in (
+                    [carrier, _authority_payload(technical_inspection.subject_read.value)]
+                    if technical_inspection is not None
+                    else [carrier]
+                )
+                for issue in candidate_firewall_issues_for_payload(
+                    candidate_payload, surface=surface
+                )
+            ]
         except Exception as exc:  # pragma: no cover - fail-closed guard.
             candidate_issue_codes = ["candidate_firewall_failed_closed"]
             blocking_reasons.append("candidate_firewall_failed_closed")
@@ -2463,21 +2584,6 @@ def authority_surface_decision(
             ]
             if candidate_issue_codes:
                 blocking_reasons.append("candidate_firewall_blocked")
-
-    status = base.status
-    reason = base.reason
-    blocking = base.blocking
-    visible_downgrade = base.visible_downgrade
-    if blocking_reasons:
-        status = "blocked"
-        reason = blocking_reasons[0]
-        blocking = True
-        visible_downgrade = True
-    elif downgrade_reasons:
-        status = "downgraded" if base.status == "allowed" else base.status
-        reason = downgrade_reasons[0]
-        blocking = False
-        visible_downgrade = True
 
     contributors = [
         AuthoritySurfaceContributor(
@@ -2523,6 +2629,26 @@ def authority_surface_decision(
         )
     if selected_contributor is not None:
         contributors.append(selected_contributor)
+
+    # Meet the actual typed contributors as well as domain gate refusals.
+    # A downgrade can never erase any contributor's blocking bit, even if its
+    # reason was not separately appended to the domain reason lists.
+    blocking_contributors = [item for item in contributors if item.blocking]
+    downgraded_contributors = [item for item in contributors if item.visible_downgrade]
+    status = base.status
+    reason = base.reason
+    blocking = base.blocking
+    visible_downgrade = base.visible_downgrade
+    if blocking_reasons or blocking_contributors:
+        status = "blocked"
+        reason = blocking_reasons[0] if blocking_reasons else blocking_contributors[0].reason
+        blocking = True
+        visible_downgrade = True
+    elif downgrade_reasons or downgraded_contributors:
+        status = "downgraded" if base.status == "allowed" else base.status
+        reason = downgrade_reasons[0] if downgrade_reasons else downgraded_contributors[0].reason
+        blocking = False
+        visible_downgrade = True
 
     primary_authority_result = base.authority_result
     primary_transition_disposition = base.transition_disposition

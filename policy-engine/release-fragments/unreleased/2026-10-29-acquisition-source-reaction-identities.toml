@@ -1,0 +1,17 @@
+id = "2026-10-29-acquisition-source-reaction-identities"
+title = "Scope retained cheap diagnostics to the current source reaction"
+type = "fixed"
+component = "runtime-quality"
+owner = "team-runtime"
+summary = "Namespace real counterexample, revision, refinement, VOI, governance and search records by selected current basis without inventing another evaluated cycle."
+evidence = ["tests/unit/runtime/quality/test_generation_cycle_source_reaction_identities.py"]
+compatibility = "Absent source_reaction_ref preserves legacy IDs and serialized meanings. The optional selected ref is used for namespacing only."
+change_class = "internal"
+surface_classification = "internal: polisyos.runtime.quality.generation_cycle"
+migration = "Populate the retained continuation artifact with the separately returned real diagnostic records and run the first-action source-retention oracle."
+api = "Private diagnostic constructors and the internal cycle adapter accept an optional selected source-reaction basis ref."
+limitations = "The basis namespace does not establish custody, current eligibility, authority or permission to retain."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["docs/reference/acquisition-source-reaction-identities.md"]
+runbook_docs = []

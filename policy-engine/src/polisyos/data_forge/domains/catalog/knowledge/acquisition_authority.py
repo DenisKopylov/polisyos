@@ -1326,7 +1326,7 @@ class CanonicalAcquisitionAuthority:
         """Return deterministic normalized rows after full dual-carrier verification."""
 
         result = self.resolve_live_source_execution(entry_id, evidence, artifact_store)
-        return _normalized_fetch_result_body(result)
+        return normalized_acquisition_source_body(result)
 
     def _verify_live_owner_projection(
         self,
@@ -2092,6 +2092,11 @@ def _normalized_result_row_count(data: object) -> int:
     )
 
 
+def normalized_acquisition_source_body(result: FetchResult[Any]) -> bytes:
+    """Reuse the normalized source codec for historical candidate-value replay."""
+    return _normalized_fetch_result_body(result)
+
+
 def _normalized_fetch_result_body(result: FetchResult[Any]) -> bytes:
     data = result.data
     if isinstance(data, pd.DataFrame):
@@ -2411,6 +2416,7 @@ __all__ = [
     "derive_catalog_unit_from_text",
     "derive_license_disposition",
     "normalize_acquisition_unit",
+    "normalized_acquisition_source_body",
     "resolve_live_temporal_bounds",
     "verify_local_source_rights",
 ]

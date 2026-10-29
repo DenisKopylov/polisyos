@@ -12,6 +12,7 @@ import json
 import os
 import re
 from collections.abc import Sequence  # noqa: TC003
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal  # Pydantic resolves this annotation
 from pathlib import Path
@@ -47,13 +48,23 @@ from polisyos.runtime.quality.semantic_epoch import (
 from polisyos.scientist import BudgetState
 
 if TYPE_CHECKING:
+    from polisyos.foundry.data_plane import InputBindingValuesPreparation
     from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+    from polisyos.runtime.http.services.control_plane_store import ControlJobRecord
+    from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
     from polisyos.runtime.quality.acquisition_route_loop import (
         VerifiedAcquisitionRouteClosure,
     )
+    from polisyos.runtime.quality.candidate_simulation import CandidateSimulationScenarioProfile
+    from polisyos.runtime.quality.cycle_substrate import AcquiredCandidateModelValues
+    from polisyos.runtime.quality.data_state_substrate import AcquiredObservationDataPreparation
     from polisyos.runtime.quality.epoch_deployment import EpochDeployment
     from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        PreparedJointSimulationConfiguration,
+    )
     from polisyos.runtime.quality.open_world_risk import PromotionRuntime
+    from polisyos.runtime.quality.world_model_record import WorldModelRecord
 
 _SHA = r"^sha256:[0-9a-f]{64}$"
 _GROWTH_KIND = "runtime_quality.acquisition_world_growth_receipt"
@@ -383,6 +394,24 @@ def _reentry_operation_namespace(overlay_path: Path) -> Path:
 
     physical = Path(overlay_path).resolve(strict=False)
     return physical.with_name(physical.name + ".reentry-operation.lock-target")
+
+
+@dataclass(frozen=True)
+class AcquisitionCandidatePreparation:
+    """Actual write-free owner inputs shared by comparison and materialization."""
+
+    configured_profile: CandidateSimulationScenarioProfile
+    base_world: WorldModelRecord
+    passport: AdmissionPassport
+    current_job: ControlJobRecord
+    preparation: AcquiredObservationDataPreparation
+    prospective_values: InputBindingValuesPreparation
+    prospective_model: AcquiredCandidateModelValues
+    workspace_dir: Path
+    transaction_time: datetime
+    substrate_registry_ref: artifacts.ArtifactRef | None
+    n5_execution_configuration: PreparedJointSimulationConfiguration | None
+    n5_configuration_reason_codes: tuple[str, ...] = ()
 
 
 class AcquisitionWorldGrowthBridge:
@@ -1546,9 +1575,96 @@ class AcquisitionWorldGrowthBridge:
     def _growth_pointer(
         self, selected: AcquisitionWorldGrowthRoute, *, create: bool = True
     ) -> Path:
+        """Select one epoch's durable attempt, preserving a verified legacy path.
+
+        Epoch identity distinguishes newly commissioned evidence. A repeat of
+        one epoch uses its same pointer and therefore its existing no-growth
+        recovery, not another fetch. A legacy route-only pointer can be used
+        only for the epoch that its actual persisted owner records identify.
+        """
         overlay_path, _ = self._paths(selected, create=create)
-        identity = hashlib.sha256(canon.to_canonical_bytes(list(selected.key))).hexdigest()
-        return overlay_path.parent / (identity + ".growth.json")
+        route_identity = hashlib.sha256(canon.to_canonical_bytes(list(selected.key))).hexdigest()
+        legacy = overlay_path.parent / (route_identity + ".growth.json")
+        epoch_identity = hashlib.sha256(
+            canon.to_canonical_bytes([*selected.key, selected.epoch_id])
+        ).hexdigest()
+        current = overlay_path.parent / (epoch_identity + ".growth.json")
+        legacy_selection = self._legacy_growth_pointer_selection(legacy)
+        if legacy_selection is not None:
+            if legacy_selection.key != selected.key:
+                raise ValueError("acquisition_legacy_growth_pointer_scope_mismatch")
+            if legacy_selection.epoch_id == selected.epoch_id:
+                if self._growth_pointer_has_markers(current):
+                    raise ValueError("acquisition_growth_epoch_pointer_ambiguous")
+                return legacy
+        return current
+
+    @staticmethod
+    def _growth_pointer_has_markers(pointer: Path) -> bool:
+        return any(
+            os.path.lexists(path)
+            for path in (
+                pointer,
+                pointer.with_suffix(".attempt.json"),
+                pointer.with_suffix(".deferred.json"),
+                pointer.with_suffix(".admission.started"),
+            )
+        )
+
+    def _legacy_growth_pointer_selection(self, pointer: Path) -> AcquisitionWorldGrowthRoute | None:
+        """Read the old route-only namespace without trusting its pathname."""
+        if not self._growth_pointer_has_markers(pointer):
+            return None
+
+        def selected_ref(path: Path) -> str:
+            try:
+                payload = json.loads(path.read_text())
+            except (OSError, ValueError) as exc:
+                raise ValueError("acquisition_legacy_growth_pointer_unverified") from exc
+            if (
+                not isinstance(payload, dict)
+                or set(payload) != {"receipt_ref"}
+                or not isinstance(payload["receipt_ref"], str)
+                or re.fullmatch(_SHA, payload["receipt_ref"]) is None
+            ):
+                raise ValueError("acquisition_legacy_growth_pointer_unverified")
+            return payload["receipt_ref"]
+
+        attempt_path = pointer.with_suffix(".attempt.json")
+        deferred_path = pointer.with_suffix(".deferred.json")
+        started_path = pointer.with_suffix(".admission.started")
+        if not os.path.lexists(attempt_path):
+            raise ValueError("acquisition_legacy_growth_attempt_unverified")
+        attempt_ref = selected_ref(attempt_path)
+        attempt = AcquisitionWorldGrowthAttempt.model_validate(
+            self._read(attempt_ref, _ATTEMPT_KIND)
+        )
+        if os.path.lexists(deferred_path):
+            deferred_ref = selected_ref(deferred_path)
+            deferred = AcquisitionWorldGrowthDeferral.model_validate(
+                self._read(deferred_ref, _DEFERRAL_KIND)
+            )
+            if deferred.attempt_ref != attempt_ref:
+                raise ValueError("acquisition_legacy_growth_attempt_mismatch")
+        if os.path.lexists(pointer):
+            try:
+                kind, ref = self._read_outcome_pointer(pointer)
+            except (OSError, ValueError) as exc:
+                raise ValueError("acquisition_legacy_growth_outcome_unverified") from exc
+            if kind == _GROWTH_KIND:
+                outcome = AcquisitionWorldGrowthReceipt.model_validate(self._read(ref, kind))
+            elif kind == _NO_GROWTH_KIND:
+                outcome = AcquisitionWorldGrowthNoGrowthReceipt.model_validate(
+                    self._read(ref, kind)
+                )
+            else:
+                raise ValueError("acquisition_legacy_growth_outcome_unverified")
+            if outcome.selection != attempt.selection:
+                raise ValueError("acquisition_legacy_growth_attempt_mismatch")
+        elif os.path.lexists(started_path):
+            # A started admission without its durable outcome is unresolved.
+            raise ValueError("acquisition_legacy_growth_outcome_not_established")
+        return attempt.selection
 
     @staticmethod
     def _read_outcome_pointer(pointer: Path) -> tuple[str, str]:
@@ -1943,7 +2059,13 @@ class AcquisitionWorldGrowthBridge:
             raise ValueError("acquisition_world_growth_receipt_schema_mismatch")
         return value
 
-    def resume(self, closure: VerifiedAcquisitionRouteClosure, refs: tuple[str, ...]) -> str:
+    def resume(
+        self,
+        closure: VerifiedAcquisitionRouteClosure,
+        refs: tuple[str, ...],
+        *,
+        prepared_n5_configuration: PreparedJointSimulationConfiguration | None = None,
+    ) -> str:
         """Read verified native activation and enter the original case at the next cycle."""
         from polisyos.core.artifacts import load_core_json_artifact
 
@@ -2074,11 +2196,13 @@ class AcquisitionWorldGrowthBridge:
                     overlay=overlay,
                     observation_projection=observation_projection,
                     refresh=refresh,
+                    n5_execution_configuration=prepared_n5_configuration,
                 )
                 controller_kwargs = {
                     "cycle_substrate_context": context,
                     "candidate_simulation_handoff": handoff,
                     "candidate_simulation_currentness_resolver": currentness_resolver,
+                    "_prepared_n5_configuration": prepared_n5_configuration,
                 }
             controller = GenerationCycleController(
                 repo_root=self.repo_root,
@@ -2147,7 +2271,7 @@ class AcquisitionWorldGrowthBridge:
                 self._write_pointer(pointer, ref)
                 return ref
 
-    def _candidate_world_context_handoff(
+    def _prepare_candidate_world_context(
         self,
         *,
         closure: VerifiedAcquisitionRouteClosure,
@@ -2157,29 +2281,41 @@ class AcquisitionWorldGrowthBridge:
             data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection
         ),
         refresh: AcquisitionCandidateWorldRefresh,
-    ) -> tuple[object, object, object]:
-        """Materialize one owner-read-back row and persist a fresh leased context."""
+        n5_execution_configuration: PreparedJointSimulationConfiguration | None = None,
+    ) -> AcquisitionCandidatePreparation:
+        """Resolve the shared prospective data/state/model without any write."""
 
-        from polisyos.runtime.quality.candidate_simulation import (
-            CandidateSimulationContextHandoff,
-        )
         from polisyos.runtime.quality.cycle_substrate import (
             ConfiguredCandidateSimulationContextAdmissionOwner,
-            CycleSubstrateContextArtifactOwner,
         )
         from polisyos.runtime.quality.data_state_substrate import (
             ControlledAcquisitionSlotBinding,
-            build_acquired_observation_candidate_world,
-            materialize_acquired_observation_snapshot,
             prepare_acquired_observation_snapshot,
         )
-        from polisyos.runtime.quality.substrate_registry import (
-            persist_substrate_registry,
+        from polisyos.runtime.quality.joint_simulation_horizon import (
+            PreparedJointSimulationConfiguration,
+            prepare_joint_simulation_configuration,
         )
+        from polisyos.runtime.quality.n5_execution_basis import exact_n5_content_bytes
         from polisyos.runtime.quality.world_model_record import (
             world_model_artifact_views,
         )
 
+        configuration_reasons: tuple[str, ...] = ()
+        try:
+            if n5_execution_configuration is None:
+                n5_execution_configuration = prepare_joint_simulation_configuration()
+            elif type(n5_execution_configuration) is not PreparedJointSimulationConfiguration:
+                raise TypeError("n5_prepared_configuration_untyped")
+            exact_n5_content_bytes(n5_execution_configuration)
+        except (TypeError, ValueError, RuntimeError) as exc:
+            # Preserve a real unsupported preparation as typed NE. No fake
+            # configuration/default or opaque value is serialized as intent.
+            n5_execution_configuration = None
+            configuration_reasons = (
+                "n5_configuration_preparation_not_established",
+                "n5_configuration_preparation_error:" + type(exc).__name__,
+            )
         admission_owner = self.cycle_substrate_context_admission_owner
         control_store = self.control_store
         if (
@@ -2214,12 +2350,7 @@ class AcquisitionWorldGrowthBridge:
         if not self.artifact_store.verify(base_data_snapshot_ref).ok:
             raise ValueError("acquisition_candidate_base_snapshot_unverified")
         substrate_registry_ref = base_world_views.substrate_registry_ref
-        if substrate_registry_ref is None:
-            substrate_registry_ref = persist_substrate_registry(
-                self.artifact_store,
-                configured_profile.context_inputs.substrate_registry,
-            )
-        else:
+        if substrate_registry_ref is not None:
             manifest = self.artifact_store.get_manifest(substrate_registry_ref)
             if manifest.kind != "runtime.quality.production_data_substrate_registry":
                 raise ValueError("acquisition_candidate_substrate_registry_kind_mismatch")
@@ -2295,6 +2426,80 @@ class AcquisitionWorldGrowthBridge:
             source_world_model=base_world,
             state=prospective_values.materialized_state,
         )
+        return AcquisitionCandidatePreparation(
+            configured_profile=configured_profile,
+            base_world=base_world,
+            passport=passport,
+            current_job=current_job,
+            preparation=preparation,
+            prospective_values=prospective_values,
+            prospective_model=prospective_model,
+            workspace_dir=workspace_dir,
+            transaction_time=transaction_time,
+            substrate_registry_ref=substrate_registry_ref,
+            n5_execution_configuration=n5_execution_configuration,
+            n5_configuration_reason_codes=configuration_reasons,
+        )
+
+    def _candidate_world_context_handoff(
+        self,
+        *,
+        closure: VerifiedAcquisitionRouteClosure,
+        growth: AcquisitionWorldGrowthReceipt,
+        overlay: data_forge_read_api.catalog.CatalogAcquisitionOverlay,
+        observation_projection: (
+            data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection
+        ),
+        refresh: AcquisitionCandidateWorldRefresh,
+        n5_execution_configuration: PreparedJointSimulationConfiguration | None = None,
+    ) -> tuple[object, object, object]:
+        """Materialize one owner-read-back row and persist a fresh leased context."""
+
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationContextHandoff,
+        )
+        from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContextArtifactOwner
+        from polisyos.runtime.quality.data_state_substrate import (
+            build_acquired_observation_candidate_world,
+            materialize_acquired_observation_snapshot,
+        )
+        from polisyos.runtime.quality.substrate_registry import persist_substrate_registry
+        from polisyos.runtime.quality.world_model_record import world_model_artifact_views
+
+        prepared = self._prepare_candidate_world_context(
+            closure=closure,
+            growth=growth,
+            overlay=overlay,
+            observation_projection=observation_projection,
+            refresh=refresh,
+            n5_execution_configuration=n5_execution_configuration,
+        )
+        if n5_execution_configuration is not None and prepared.n5_execution_configuration is None:
+            raise ValueError("acquisition_evaluation_configuration_not_established")
+        configured_profile = prepared.configured_profile
+        base_world = prepared.base_world
+        base_data_snapshot_ref = world_model_artifact_views(base_world).data_snapshot_ref
+        preparation = prepared.preparation
+        passport = prepared.passport
+        current_job = prepared.current_job
+        selected_row = next(
+            row
+            for row in observation_projection.observations
+            if row.observation.observation_id == preparation.selected_observation_id
+        )
+        selected_profile_binding = preparation.selected_profile
+        prospective_values = prepared.prospective_values
+        prospective_model = prepared.prospective_model
+        workspace_dir = prepared.workspace_dir
+        transaction_time = prepared.transaction_time
+        substrate_registry_ref = prepared.substrate_registry_ref
+        if substrate_registry_ref is None:
+            substrate_registry_ref = persist_substrate_registry(
+                self.artifact_store,
+                configured_profile.context_inputs.substrate_registry,
+            )
+        admission_owner = self.cycle_substrate_context_admission_owner
+        control_store = self.control_store
         materialization = materialize_acquired_observation_snapshot(
             self.artifact_store,
             base_data_snapshot_ref=base_data_snapshot_ref,

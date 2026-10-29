@@ -244,6 +244,81 @@ class _RuntimeSettings(_StrictModel):
     fabricate_interaction_terms: bool = False
 
 
+class PreparedJointSimulationConfiguration(_StrictModel):
+    """Actual owner-prepared controller values, with no deferred defaults.
+
+    All nested policy/settings values are required. This is candidate execution
+    input data, not an authority receipt or a native-validator attestation.
+    """
+
+    schema_version: Literal["joint_simulation.prepared_configuration.v1"] = (
+        "joint_simulation.prepared_configuration.v1"
+    )
+    policy: JointSimulationControllerPolicy
+    runtime_settings: _RuntimeSettings
+
+
+def prepare_joint_simulation_configuration(
+    *,
+    policy: JointSimulationControllerPolicy | None = None,
+) -> PreparedJointSimulationConfiguration:
+    """Prepare the real typed values once through the constructor's owner.
+
+    The actual constructor consumes this frozen object. Changed model defaults,
+    validators or factories therefore change prepared values, not an opaque
+    identity token. No WMR, context, simulation or artifact is produced here.
+    """
+    if policy is not None and type(policy) is not JointSimulationControllerPolicy:
+        raise TypeError("policy must be a JointSimulationControllerPolicy")
+    return PreparedJointSimulationConfiguration(
+        policy=policy if policy is not None else JointSimulationControllerPolicy(),
+        runtime_settings=_RuntimeSettings(),
+    )
+
+
+def read_joint_simulation_configuration(
+    controller: JointSimulationHorizonController,
+) -> PreparedJointSimulationConfiguration:
+    """Read the actual consumer's whole prepared quantity and live aliases.
+
+    Future fields of the prepared schema remain included by construction. The
+    two existing convenience aliases are read from the actual receiver, rather
+    than trusting that the descriptor's values were consumed unchanged.
+    """
+    if type(controller) is not JointSimulationHorizonController:
+        raise ValueError("n5_prepared_configuration_not_consumed")
+    prepared = controller._prepared_configuration
+    if type(prepared) is not PreparedJointSimulationConfiguration:
+        raise TypeError("n5_prepared_configuration_untyped")
+    if (
+        type(controller.policy) is not JointSimulationControllerPolicy
+        or type(controller._settings) is not _RuntimeSettings
+    ):
+        raise ValueError("n5_prepared_configuration_not_consumed")
+    return prepared.model_copy(
+        update={
+            "policy": controller.policy,
+            "runtime_settings": controller._settings,
+        }
+    )
+
+
+def require_prepared_joint_simulation_configuration(
+    controller: JointSimulationHorizonController,
+    prepared: PreparedJointSimulationConfiguration,
+) -> None:
+    """Require the real constructed consumer to use the complete prepared values."""
+    from polisyos.runtime.quality.n5_execution_basis import exact_n5_content_bytes
+
+    if type(prepared) is not PreparedJointSimulationConfiguration:
+        raise TypeError("n5_prepared_configuration_untyped")
+    if type(controller) is not JointSimulationHorizonController:
+        raise ValueError("n5_prepared_configuration_not_consumed")
+    actual = read_joint_simulation_configuration(controller)
+    if exact_n5_content_bytes(actual) != exact_n5_content_bytes(prepared):
+        raise ValueError("n5_prepared_configuration_not_consumed")
+
+
 class HorizonSpec(_StrictModel):
     """Discrete valid-time horizon requested from the selected engine."""
 
@@ -1658,19 +1733,29 @@ class JointSimulationHorizonController:
         method_registry: MethodRegistry | None = None,
         policy: JointSimulationControllerPolicy | None = None,
         producer_budget_observer: ProducerBudgetObserver | None = None,
+        _prepared_configuration: PreparedJointSimulationConfiguration | None = None,
     ) -> None:
         if policy is not None and not isinstance(policy, JointSimulationControllerPolicy):
             raise TypeError("policy must be a JointSimulationControllerPolicy")
         self._registry = (
             method_registry if method_registry is not None else MethodRegistry.get_instance()
         )
-        self.policy = policy or JointSimulationControllerPolicy()
+        prepared = _prepared_configuration
+        if prepared is None:
+            prepared = prepare_joint_simulation_configuration(policy=policy)
+        elif type(prepared) is not PreparedJointSimulationConfiguration:
+            raise TypeError("n5_prepared_configuration_untyped")
+        elif policy is not None and policy is not prepared.policy:
+            raise ValueError("n5_prepared_policy_conflict")
+        self._prepared_configuration = prepared
+        self.policy = prepared.policy
         if producer_budget_observer is not None and (
             type(producer_budget_observer) is not ProducerBudgetObserver
         ):
             raise TypeError("n5_budget_observer_not_canonical")
         self._producer_budget_observer = producer_budget_observer
-        self._settings = _RuntimeSettings()
+        self._settings = prepared.runtime_settings
+        self._last_n5_implementation_capture: object | None = None
 
     @classmethod
     def for_contract_testing(
@@ -1701,6 +1786,7 @@ class JointSimulationHorizonController:
     def run(self, request: JointSimulationRequest) -> JointSimulationResult:
         """Run individual, pairwise, and joint horizons or fail closed."""
 
+        self._last_n5_implementation_capture = None
         self._validate_world_model_record(request)
         world_input = consume_world_model_record_for_simulation(request.world_model_record)
         for atom in request.intervention_atoms:
@@ -2712,64 +2798,82 @@ class JointSimulationHorizonController:
         if plan.ncm_spec is None or decision.method_fqn is None:
             return []
         method = self._registry.get(decision.method_fqn)
+        # Capture and execute the same concrete selected callable. A later
+        # registry replacement cannot redirect this already prepared call.
+        selected_step = method.pure_step
+
+        from polisyos.runtime.quality.n5_execution_basis import N5ImplementationCapture
+
+        capture = N5ImplementationCapture(
+            method=method,
+            request=request,
+            controller=self,
+            method_fqn=decision.method_fqn,
+        )
 
         def run_once(
             run_level: RunLevel,
             subset: tuple[InterventionAtomBinding, ...],
             replication_seed: int,
         ) -> SimulationTrajectory:
-            intervention = _ncm_intervention(subset, plan)
-            evidence_state, _ = _effective_evidence_state(request)
-            evidence = {
-                _engine_variable(variable, plan): float(value)
-                for variable, value in evidence_state.items()
-            }
-            step = request.horizon.start
-            output = method.pure_step(
-                {
-                    "ncm_query_data": NCMQueryData(
-                        ncm_spec=plan.ncm_spec,
-                        evidence=evidence,
-                        interventions=[intervention],
-                        query_vars=[
-                            _engine_variable(outcome, plan) for outcome in request.selected_outcomes
-                        ],
-                        n_samples=1,
-                    )
-                },
-                {"__seed__": int(replication_seed)},
-            )
-            outcomes = _ncm_outcomes(output, request.selected_outcomes, plan)
-            point = TrajectoryPoint(
-                step=step,
-                outcomes=outcomes,
-                effect={
-                    outcome: _effect_for_outcome(request, outcome, outcomes[outcome])
-                    for outcome in request.selected_outcomes
-                },
-                engine_state={"intervention": dict(intervention)},
-            )
-            return SimulationTrajectory(
-                run_level=run_level,
-                atom_ids=tuple(atom.intervention_id for atom in subset),
-                engine_kind=decision.engine_kind,
-                method_fqn=decision.method_fqn,
-                objective_ref=plan.objective_ref,
-                points=(point,),
-                diagnostics={
-                    "engine": "NCMEngineMethod",
-                    "horizon_loop": False,
-                    "temporal_capability": "static",
-                },
-            )
+            with capture.observe_numerical_call():
+                intervention = _ncm_intervention(subset, plan)
+                evidence_state, _ = _effective_evidence_state(request)
+                evidence = {
+                    _engine_variable(variable, plan): float(value)
+                    for variable, value in evidence_state.items()
+                }
+                step = request.horizon.start
+                output = selected_step(
+                    {
+                        "ncm_query_data": NCMQueryData(
+                            ncm_spec=plan.ncm_spec,
+                            evidence=evidence,
+                            interventions=[intervention],
+                            query_vars=[
+                                _engine_variable(outcome, plan)
+                                for outcome in request.selected_outcomes
+                            ],
+                            n_samples=1,
+                        )
+                    },
+                    {"__seed__": int(replication_seed)},
+                )
+                outcomes = _ncm_outcomes(output, request.selected_outcomes, plan)
+                point = TrajectoryPoint(
+                    step=step,
+                    outcomes=outcomes,
+                    effect={
+                        outcome: _effect_for_outcome(request, outcome, outcomes[outcome])
+                        for outcome in request.selected_outcomes
+                    },
+                    engine_state={"intervention": dict(intervention)},
+                )
+                return SimulationTrajectory(
+                    run_level=run_level,
+                    atom_ids=tuple(atom.intervention_id for atom in subset),
+                    engine_kind=decision.engine_kind,
+                    method_fqn=decision.method_fqn,
+                    objective_ref=plan.objective_ref,
+                    points=(point,),
+                    diagnostics={
+                        "engine": "NCMEngineMethod",
+                        "horizon_loop": False,
+                        "temporal_capability": "static",
+                    },
+                )
 
-        return _run_cached_replicates(
-            request,
-            plan,
-            decision,
-            run_once,
-            producer_budget_observer=self._producer_budget_observer,
-        )
+        with capture:
+            trajectories = _run_cached_replicates(
+                request,
+                plan,
+                decision,
+                run_once,
+                producer_budget_observer=self._producer_budget_observer,
+            )
+        capture.bind_trajectories(trajectories)
+        self._last_n5_implementation_capture = capture
+        return trajectories
 
     def _run_coupled_horizon(
         self,

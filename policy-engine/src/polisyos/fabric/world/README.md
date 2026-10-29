@@ -92,3 +92,11 @@ Run from the repository root (`policy-engine/`).
 - [E2.2 World store contract](../../../../docs/contracts/E2_2_FABRIC_WORLD_STORE_EMIT_FACTS_WORLD_EVENT.md)
 - [E2.3 DuckDB materialization contract](../../../../docs/contracts/E2_3_FABRIC_WORLD_DUCKDB_MATERIALIZATION_V1_0.md)
 - [Fabric tests map](../../../../tests/unit/fabric/README.md)
+
+## Explicit unknown snapshot valid time
+
+`WorldSnapshotWriteRequest.as_of_valid_time` remains a required field and may
+explicitly be `None`. The writer preserves that absence instead of substituting
+transaction time. The existing native snapshot owner may derive a valid-time
+coordinate from actual facts; when acquired facts all have unknown valid time,
+the retained snapshot's valid-time coordinate remains unknown.

@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import json
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Protocol
 
@@ -440,6 +440,155 @@ def world_model_artifact_views(record: WorldModelRecord) -> WorldModelArtifactVi
     )
 
 
+@dataclass(frozen=True)
+class WorldModelOwnerValues:
+    """Read-only resolved WMR inputs; selected input custody remains with the caller."""
+
+    record: WorldModelRecord
+    model_spec: ModelSpec
+    registry_values: dict[str, object]
+    substrate_registry: SubstrateRegistry
+    data_forge_binding: DataForgeBindingRef
+    resolved_fabric_world: FabricWorldRef
+    policy_slot_map: tuple[PolicySlotBinding, ...]
+
+
+def read_world_model_record_owner_values(
+    store: ArtifactStore,
+    *,
+    world_model_record: WorldModelRecord,
+    registry_bundle_ref: ArtifactRef,
+    substrate_registry: SubstrateRegistry | None = None,
+) -> WorldModelOwnerValues:
+    """Reopen embedded world values through their actual owners without writing a world.
+
+    A configured legacy base may supply its real typed substrate registry when
+    no CAS registry view exists. A hash or locator alone cannot supply that value.
+    """
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.core.registry import load_registry_bundle_content
+    from polisyos.ir import ModelSpec
+
+    if type(world_model_record) is not WorldModelRecord:
+        raise WorldModelRecordError("world_semantic_record_untyped")
+    checked = WorldModelRecord.model_validate(world_model_record.model_dump(mode="json"))
+    # The calling source owner binds this embedded WMR to its actual selected
+    # input. A separately persisted WMR artifact is not required by this producer.
+    persisted = checked
+    views = world_model_artifact_views(persisted)
+    if artifact_ref_identity_key(views.registry_bundle_ref) != artifact_ref_identity_key(
+        registry_bundle_ref
+    ):
+        raise WorldModelRecordError("world_semantic_registry_selection_mismatch")
+    registry = load_registry_bundle_content(store, registry_bundle_ref)
+    registry_values: dict[str, object] = {}
+    for field in fields(registry):
+        value = getattr(registry, field.name)
+        if value is None:
+            registry_values[field.name] = None
+        elif isinstance(value, BaseModel):
+            registry_values[field.name] = value.model_dump(mode="json")
+        else:
+            raise WorldModelRecordError("world_semantic_registry_field_not_established", field.name)
+    selected_model = ModelSpec.model_validate(load_core_json_artifact(store, views.model_spec_ref))
+    if (
+        gy_content_hash(selected_model.model_dump(mode="json"))
+        != persisted.simulation_model_ref.model_spec_hash
+    ):
+        raise WorldModelRecordError("world_semantic_model_hash_mismatch")
+    if persisted.producer_ref == (
+        "polisyos.runtime.quality.data_state_substrate.build_acquired_observation_candidate_world"
+    ):
+        simulation = persisted.simulation_model_ref
+        expected_simulation = _prepare_world_simulation_model_ref(
+            model_spec=selected_model,
+            model_spec_ref=views.model_spec_ref,
+            registry_bundle_ref=registry_bundle_ref,
+            mechanism_refs=simulation.mechanism_refs,
+            gcm_refs=simulation.gcm_refs,
+            ncm_refs=simulation.ncm_refs,
+            program_graph_refs=simulation.program_graph_refs,
+        )
+        if simulation != expected_simulation:
+            raise WorldModelRecordError("world_semantic_simulation_ref_mismatch")
+    selected_registry = substrate_registry
+    if views.substrate_registry_ref is not None:
+        selected_registry = load_substrate_registry(store, views.substrate_registry_ref)
+        if substrate_registry is not None and selected_registry != substrate_registry:
+            raise WorldModelRecordError("world_semantic_substrate_registry_mismatch")
+    if selected_registry is None:
+        raise WorldModelRecordError("world_semantic_substrate_values_not_established")
+    resolved_substrate = _resolve_substrate_registry_ref(
+        store,
+        selected_registry,
+        required_sources=(),
+        required_families=(),
+        registry_artifact_ref=views.substrate_registry_ref,
+        loaded_registry=selected_registry,
+    )
+    if (
+        resolved_substrate.content_hash != persisted.substrate_registry_ref.content_hash
+        or resolved_substrate.substrate_version_id
+        != persisted.substrate_registry_ref.substrate_version_id
+    ):
+        raise WorldModelRecordError("world_semantic_substrate_registry_mismatch")
+    slots = _policy_slot_map(
+        registry.slot_registry,
+        policy_slot_ids=tuple(binding.slot_id for binding in persisted.policy_slot_map),
+    )
+    if slots != persisted.policy_slot_map:
+        raise WorldModelRecordError("world_semantic_slot_map_mismatch")
+    binding = _load_data_forge_binding_ref(
+        persisted.data_forge_binding_ref.binding_path or "",
+        role=persisted.data_forge_binding_ref.role,
+    )
+    if binding != persisted.data_forge_binding_ref:
+        raise WorldModelRecordError("world_semantic_data_forge_binding_mismatch")
+    fabric = _resolve_fabric_world_ref(persisted.fabric_world_ref)
+    if fabric != persisted.fabric_world_ref:
+        raise WorldModelRecordError("world_semantic_fabric_readback_mismatch")
+    _resolve_skg_causal_prior_ref(persisted.skg_causal_prior_ref)
+    return WorldModelOwnerValues(
+        record=persisted,
+        model_spec=selected_model,
+        registry_values=registry_values,
+        substrate_registry=selected_registry,
+        data_forge_binding=binding,
+        resolved_fabric_world=fabric,
+        policy_slot_map=slots,
+    )
+
+
+def _prepare_world_simulation_model_ref(
+    *,
+    model_spec: ModelSpec,
+    model_spec_ref: ArtifactRef,
+    registry_bundle_ref: ArtifactRef,
+    mechanism_refs: Sequence[str],
+    gcm_refs: Sequence[str],
+    ncm_refs: Sequence[str],
+    program_graph_refs: Sequence[str],
+) -> SimulationModelRef:
+    """Use the exact builder constructor for all simulation-model reference fields."""
+    return SimulationModelRef(
+        model_spec_ref=str(model_spec_ref.artifact_id),
+        model_spec_hash=gy_content_hash(model_spec.model_dump(mode="json")),
+        model_id=model_spec.model_id,
+        data_snapshot_ref=model_spec.data_snapshot_ref,
+        registry_bundle_ref=str(registry_bundle_ref.artifact_id),
+        mechanism_refs=tuple(mechanism_refs),
+        gcm_refs=tuple(gcm_refs),
+        ncm_refs=tuple(ncm_refs),
+        program_graph_refs=tuple(program_graph_refs),
+        assumptions=tuple(
+            assumption.model_dump(mode="json") for assumption in model_spec.assumptions
+        ),
+        fidelity_level=str(model_spec.fidelity_level.value),
+        calibration_ref=model_spec.calibration_ref,
+        calibrated=model_spec.calibrated,
+    )
+
+
 def build_world_model_record(
     store: ArtifactStore,
     *,
@@ -751,22 +900,14 @@ def build_world_model_record(
         "branch_mode": branch_mode,
         "fabric_world_ref": resolved_fabric_world_ref,
         "data_forge_binding_ref": data_forge_binding_ref,
-        "simulation_model_ref": SimulationModelRef(
-            model_spec_ref=str(model_spec_ref.artifact_id),
-            model_spec_hash=gy_content_hash(model_spec.model_dump(mode="json")),
-            model_id=model_spec.model_id,
-            data_snapshot_ref=model_spec.data_snapshot_ref,
-            registry_bundle_ref=str(registry_bundle_ref.artifact_id),
-            mechanism_refs=tuple(mechanism_refs),
-            gcm_refs=tuple(gcm_refs),
-            ncm_refs=tuple(ncm_refs),
-            program_graph_refs=tuple(program_graph_refs),
-            assumptions=tuple(
-                assumption.model_dump(mode="json") for assumption in model_spec.assumptions
-            ),
-            fidelity_level=str(model_spec.fidelity_level.value),
-            calibration_ref=model_spec.calibration_ref,
-            calibrated=model_spec.calibrated,
+        "simulation_model_ref": _prepare_world_simulation_model_ref(
+            model_spec=model_spec,
+            model_spec_ref=model_spec_ref,
+            registry_bundle_ref=registry_bundle_ref,
+            mechanism_refs=mechanism_refs,
+            gcm_refs=gcm_refs,
+            ncm_refs=ncm_refs,
+            program_graph_refs=program_graph_refs,
         ),
         "foundry_binding_ref": FoundryBindingRef(
             input_bindings_ref=str(input_bindings.input_bindings_ref.artifact_id),

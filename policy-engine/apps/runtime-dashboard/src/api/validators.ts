@@ -1525,6 +1525,114 @@ const runCandidateSimulationAcquisitionContinuationProjectionSchema = z
     }
   });
 
+const runCandidateSimulationRetainedEvaluationSchema = z
+  .object({
+    candidate_id: z.string().min(1),
+    candidate_content_hash: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+    design_problem_ref: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+    world_model_record_hash: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+    evaluation_job_id: z.string().min(1),
+    evaluation_run_id: z.string().min(1),
+    generation_run_id: z.string().min(1),
+    cycle_index: z.number().int().nonnegative(),
+    n4_source_ref: coreArtifactRefSchema,
+    context_job_ref: coreArtifactRefSchema,
+    n5_input_ref: coreArtifactRefSchema,
+    n5_execution_ref: coreArtifactRefSchema,
+    n5_result_ref: coreArtifactRefSchema,
+    basis_ref: coreArtifactRefSchema,
+  })
+  .strict()
+  .superRefine((evaluation, context) => {
+    const expectedKinds = {
+      n4_source_ref: "runtime.quality.n4_candidate_scenario_source",
+      context_job_ref: "runtime.quality.cycle_substrate_context_job",
+      n5_input_ref: "runtime.quality.candidate_simulation_n5_input",
+      n5_execution_ref: "runtime.quality.candidate_simulation_execution",
+      n5_result_ref: "polisyos.runtime.joint_simulation_result",
+      basis_ref: "runtime_quality.acquisition_evaluation_basis",
+    } as const;
+    for (const [field, kind] of Object.entries(expectedKinds)) {
+      const ref = evaluation[field as keyof typeof expectedKinds];
+      if (
+        ref.kind !== kind ||
+        ref.media_type !== "application/json" ||
+        ref.manifest_profile_sha256 == null
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: [field],
+          message: "candidate_acquisition_retained_evaluation_ref_invalid",
+        });
+      }
+    }
+  });
+
+export const runCandidateSimulationAcquisitionHistoryEntryV3Schema = z
+  .object({
+    schema_version: z.literal(
+      "policyos.runtime.run_candidate_simulation_acquisition_history.v3",
+    ),
+    route_receipt_ref: coreArtifactRefSchema,
+    route_id: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+    action_generation: z.number().int().positive(),
+    terminal_outcome: z.literal("source_admitted_evaluation_retained"),
+    admitted_source_ref: coreArtifactRefSchema,
+    growth_receipt_ref: coreArtifactRefSchema,
+    evaluation_decision_ref: coreArtifactRefSchema,
+    current_continuation_ref: coreArtifactRefSchema,
+    retained_evaluation: runCandidateSimulationRetainedEvaluationSchema,
+    source_admission_status: z.literal("admitted").default("admitted"),
+    evaluation_disposition: z
+      .literal("retained_prior")
+      .default("retained_prior"),
+    reentry_receipt_ref: z.null().optional(),
+    old_candidate_id: z.null().optional(),
+    new_candidate_id: z.null().optional(),
+    new_candidate_source_ref: z.null().optional(),
+    origin_source_ref: z.null().optional(),
+    expected_origin_source_ref: z.null().optional(),
+    reentry_receipt_schema_version: z.null().optional(),
+    continuation_join_status: z.null().optional(),
+    origin_source_binding_status: z.null().optional(),
+    continuation: z.null().optional(),
+    currentness_status: z.literal("not_established"),
+    authority_purpose: z.literal("candidate_observation_only"),
+    publication_authority: z.literal(false),
+  })
+  .strict()
+  .superRefine((entry, context) => {
+    const expectedKinds = {
+      route_receipt_ref: "runtime_quality.acquisition_route_loop_receipt",
+      growth_receipt_ref: "runtime_quality.acquisition_world_growth_receipt",
+      evaluation_decision_ref:
+        "runtime_quality.acquisition_evaluation_decision",
+      current_continuation_ref:
+        "runtime_quality.acquisition_retained_continuation",
+    } as const;
+    for (const [field, kind] of Object.entries(expectedKinds)) {
+      const ref = entry[field as keyof typeof expectedKinds];
+      if (
+        ref.kind !== kind ||
+        ref.media_type !== "application/json" ||
+        ref.manifest_profile_sha256 == null
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: [field],
+          message: "candidate_acquisition_retention_ref_invalid",
+        });
+      }
+    }
+    if (entry.admitted_source_ref.manifest_profile_sha256 == null) {
+      context.addIssue({
+        code: "custom",
+        path: ["admitted_source_ref"],
+        message: "candidate_acquisition_admitted_source_profile_missing",
+      });
+    }
+  });
+
 const runCandidateSimulationAcquisitionHistoryEntrySchema = z
   .object({
     route_receipt_ref: coreArtifactRefSchema,
@@ -1897,7 +2005,12 @@ const runCandidateSimulationProjectionSchema = z
       .nullable()
       .optional(),
     acquisition_history: z
-      .array(runCandidateSimulationAcquisitionHistoryEntrySchema)
+      .array(
+        z.union([
+          runCandidateSimulationAcquisitionHistoryEntryV3Schema,
+          runCandidateSimulationAcquisitionHistoryEntrySchema,
+        ]),
+      )
       .default([]),
     acquisition_history_limitation_code: z
       .enum([

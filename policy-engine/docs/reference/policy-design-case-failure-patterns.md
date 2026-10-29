@@ -808,3 +808,46 @@ controller hazard was caught before execution; the I3 R3 instrument actually wro
 the wrong RAW input; synthetic R3/R4 controls and actual R4 boundary readback now
 distinguish the correction. No product/source failure, G acceptance, or closure is
 claimed by this register proposal.
+
+### P31/P37/P38/P40 instance: occurrence and quantity provenance
+
+A selected-name projection misses an added overriding input. A known marker
+string does not prove the present occurrence was transformed: a configured rule
+may match its substrings, and a later raw input may equal a previous marker.
+Close the complete source-input class with the actual transform's opaque owned
+occurrence, complete call reconciliation and the real prepared send obligation.
+Do not weaken a global sanitizer to make bound requests appear idempotent.
+
+Availability is a property of one selected quantity, not values borrowed across
+partial nested and top-level containers. Preserve existing product convenience
+projections separately from raw evidence. Billable reuse zero is not fresh
+provider usage; old counter pairs cannot recover discarded availability.
+Testing-only envelope versions do not change a nested product DTO silently.
+
+A self-rehashed call/usage file proves candidate consistency, not its original
+exchange or historical bill. Run that joint mutation as the declared boundary
+falsifier. Destination admission similarly binds the original complete owned
+path before resolution or emission, including dangling/parent symlinks. Use the
+actual writer and read its complete write set back; exclusive creation alone
+does not establish the owner of a followed pathname.
+
+Cross-owner helpers use documented facades and mandatory governed generated
+companions. A root direction-matrix check does not replace the separate hidden
+import/public-surface gate. These are bounded software repairs and test drafts;
+no G acceptance or formal closure follows from source review.
+
+The same occurrence class reaches actual invocation: entering a byte-bound scope
+is not a single-use call. Consume the shared permit before the first await and
+exercise sequential/concurrent second calls with one real provider dispatch.
+For lifetime, avoid client strong ownership of abandoned prepared/raw inputs;
+let caller-held request/coroutine lifetime and weak pending tracking cover error,
+cancellation and no-await paths structurally. A nullable quantity container is
+unavailable, while an explicitly null declared token is invalid: equal unknown
+budget outcomes do not make their load-bearing audit statuses interchangeable.
+
+Presence is part of a quantity's semantics. A nullable normalized DTO cannot tell
+absent from present-invalid-null, and serializing its optional counters can
+change missing into invalid. Project from actual selected component presence
+through one owner adapter; verify quantity/status/total-basis and canonical
+presence through both replay wire stages. Never emit an inferred total as a
+reported value or let unknown provenance become known in the projection.

@@ -1620,3 +1620,44 @@ not imply that those rows were dropped or that the runtime was executed.
 
 No source authority, observation admissibility, historical retention, or policy
 publication follows from this join.
+
+## N4 source context and versioned candidate replay
+
+Bound N4 owners record source-issued stages rather than infer roles from prompt
+keywords. The actual configured Core transformation is bound as one opaque
+prepared occurrence. Core claims one invocation before its first await, including
+across inherited task contexts. Pending handle ownership is weak; the handle
+retains a source digest instead of an additional full source snapshot. Recorder
+carries its prepared value/handle only in the local request/coroutine,
+removing it before prompt/context/wire processing. Abandoned preparations are
+collectible; live caller-held requests retain their own deferred values. Canonical
+sanitizer behavior remains unchanged. Existing
+`LLMGenerationCall`, proposal/scenario V1/V2/V3 and handoff V1 models remain
+unchanged, including the recorder's historical total-token fallback. Raw
+provider availability is separate from those convenience counters.
+
+An explicit private capture scope records calls once with strict testing-only
+usage evidence V2 inside replay input V3. Nested usage presence/type is preserved;
+the reader never combines independent containers. See the
+[replay input contract](../../../../tools/quality/validation/generation_replay_input.README.md).
+Generic replay snapshots the complete admitted input, keeps legacy/reuse usage
+unknown and never forwards an old reported bill as a fresh provider price.
+Capture content hashes establish supplied candidate consistency only: a joint
+call/usage rehash is an explicit falsifier of historical-authenticity claims.
+Actual exchange/source/readset/backend qualification remains separate. The
+standalone no-store writer is deliberately unqualified candidate input.
+
+The served acquisition fixture's explicit `synthetic_settled_candidate` mode
+declares new test usage under the unchanged current tariff, preserves the
+original error-bearing capture, and calls the original N4 port on reentry.
+Settlement, N5, grounding, compiler/planner and fresh CAS readers remain in the
+real path. The stock sanitizer-enabled factory property is tested separately
+from the existing sanitizer-disabled served profile. Runtime results,
+independent review and G acceptance retain their exact source boundaries.
+
+The V3 replay bridge delegates to the Core presence-preserving projection shared
+with legacy replay. Absent components are omitted, present invalid components
+remain invalid, and inferred totals are not emitted as reported. The actual raw
+wire retains canonical presence; the normalized Gateway DTO is a separate
+convenience view. All availability/alias/partial/total cases have one quantity
+round-trip property and an explicit unknown-provenance ceiling.

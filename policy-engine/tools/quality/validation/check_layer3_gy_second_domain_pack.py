@@ -3934,34 +3934,22 @@ def _n4_capture_responses_from_journal(path: Path) -> list[dict[str, Any]]:
 
 
 def _n4_response_from_call_payload(call: Mapping[str, Any]) -> dict[str, Any]:
-    raw_response = str(call.get("raw_llm_response") or "")
-    call_index = int(call.get("call_index") or 0)
-    return {
-        "call_index": call_index,
-        "role": call.get("role_hint") or f"llm_call_{call_index}",
-        "role_hint": call.get("role_hint"),
-        "status": call.get("status") or "success",
-        "model_id": call.get("model_id"),
-        "provider": call.get("provider"),
-        "prompt_hash": call.get("prompt_hash"),
-        "raw_response": raw_response,
-        "raw_llm_response": raw_response,
-        "raw_response_hash": _hash(raw_response),
-        "parsed": call.get("parsed_json"),
-        "response_format": call.get("response_format"),
-        "usage": {
-            "prompt_tokens": int(call.get("prompt_tokens") or 0),
-            "completion_tokens": int(call.get("completion_tokens") or 0),
-            "total_tokens": int(call.get("total_tokens") or 0),
-        },
-        "error": {
-            "type": call.get("error_type"),
-            "message": call.get("error_message"),
-            "status": call.get("error_status"),
-            "code": call.get("error_code"),
-            "retry_after_s": call.get("retry_after_s"),
-        },
+    """Keep the exact legacy capture projection, with unqualified usage counters.
+
+    Availability is not promised by this historical format. The shared replay
+    intake treats its counts as unknown; new availability uses ReplayCaptureV3.
+    """
+    from tools.quality.validation.generation_replay_input import response_from_call_payload
+
+    row = response_from_call_payload(call)
+    row.pop("wall_seconds")
+    row.pop("cache")
+    row["error"].pop("request_id")
+    row["usage"] = {
+        name: int(call.get(name) or 0)
+        for name in ("prompt_tokens", "completion_tokens", "total_tokens")
     }
+    return row
 
 
 def _n4_journal_call_wall_seconds(path: Path) -> float:

@@ -16,7 +16,20 @@ from typing import TYPE_CHECKING, Any, Literal
 import aiohttp
 
 from polisyos.common.logger import get_logger
+from polisyos.common.producer_request import (
+    capture_producer_payload as _capture_payload,
+)
+from polisyos.common.producer_request import (
+    derive_producer_payload as _derive_payload,
+)
+from polisyos.common.producer_request import (
+    producer_payload as _producer_payload,
+)
+from polisyos.common.producer_request import (
+    validate_prepared_producer_payload as _validate_prepared_payload,
+)
 from polisyos.core.llm import normalize_llm_cost_evidence
+from polisyos.core.llm import parse_llm_usage_quantity as _usage_quantity
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 
 from .prepared_request import (
@@ -30,6 +43,8 @@ logger = get_logger(__name__)
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+
+    from polisyos.common.producer_request import PreparedProducerEmission as _PreparedEmission
 
     from .streaming import StreamChunk
 
@@ -213,6 +228,13 @@ def _dispatch_identity(transport_bytes: bytes, payload_bytes: bytes) -> bytes:
     return freeze_wire_object({"request_sha256": hashlib.sha256(projection).hexdigest()})
 
 
+def _plain_json_payload(previous: dict[str, Any]) -> dict[str, Any]:
+    """The sole source-owned fallback relation: omit unsupported JSON mode only."""
+    if "response_format" not in previous:
+        raise ValueError("gateway_plain_json_projection_without_response_format")
+    return {key: value for key, value in previous.items() if key != "response_format"}
+
+
 class GatewayLLMClient:
     """Small async client for OpenAI-compatible /chat/completions gateways.
 
@@ -270,6 +292,7 @@ class GatewayLLMClient:
             await self._session.close()
             self._session = None
 
+    @_producer_payload
     def completion_request_payload(
         self,
         *,
@@ -330,7 +353,9 @@ class GatewayLLMClient:
     def prepare_cache_request(self, **kwargs: Any) -> PreparedLLMRequest:
         """Freeze payload and transport once; compare the actual successful dispatch."""
         caller = thaw_wire_object(freeze_wire_object(kwargs))
-        payload = self.completion_request_payload(**caller)
+        with _capture_payload(_plain_json_payload) as capture:
+            payload = self.completion_request_payload(**caller)
+            producer_emission = capture.finish(payload)
         generated_nonce = not any(
             key.lower() == "x-idempotency-key" and str(value).strip()
             for key, value in self.extra_headers.items()
@@ -358,6 +383,7 @@ class GatewayLLMClient:
                 timeout_s=thaw_wire_object(transport)["timeout_s"],
                 _prepared_transport=transport,
                 _on_success=successful.append,
+                _producer_emission=producer_emission,
             )
             return PreparedLLMResult(
                 self._parse_completion_payload(
@@ -577,6 +603,7 @@ class GatewayLLMClient:
         timeout_s: float,
         _prepared_transport: bytes | None = None,
         _on_success: Callable[[bytes], None] | None = None,
+        _producer_emission: _PreparedEmission | None = None,
     ) -> dict[str, Any]:
         if _prepared_transport is None:
             generated_nonce = not any(
@@ -597,6 +624,7 @@ class GatewayLLMClient:
         transport = thaw_wire_object(_prepared_transport)
         url, headers = transport["url"], transport["headers"]
         timeout_s = transport["timeout_s"]
+        _validate_prepared_payload(payload, _producer_emission)
         payload_bytes = freeze_wire_object(payload)
         payload = thaw_wire_object(payload_bytes)
         max_retries = transport["max_retries"]
@@ -641,8 +669,13 @@ class GatewayLLMClient:
                             payload,
                         ):
                             self._response_format_unsupported = True
-                            fallback_payload = dict(payload)
-                            fallback_payload.pop("response_format", None)
+                            if _producer_emission is None:
+                                fallback_payload = _plain_json_payload(payload)
+                                fallback_emission = None
+                            else:
+                                fallback_payload, fallback_emission = _derive_payload(
+                                    _producer_emission, payload
+                                )
                             degraded_event = _gateway_degraded(
                                 operation="chat_completion",
                                 reason="response_format_unsupported_retry_plain_json",
@@ -660,6 +693,7 @@ class GatewayLLMClient:
                                 timeout_s=timeout_s,
                                 _prepared_transport=_prepared_transport,
                                 _on_success=_on_success,
+                                _producer_emission=fallback_emission,
                             )
                             events = fallback_response.setdefault("_gateway_degraded_events", [])
                             if isinstance(events, list):
@@ -740,28 +774,14 @@ class GatewayLLMClient:
 
         usage_payload = payload.get("usage")
         cost_usd, cost_status = normalize_llm_cost_evidence(usage_payload, payload)
-        prompt_tokens, prompt_status = _parse_gateway_token_value(
-            usage_payload, "prompt_tokens", "input_tokens"
-        )
-        completion_tokens, completion_status = _parse_gateway_token_value(
-            usage_payload, "completion_tokens", "output_tokens"
-        )
-        total_tokens, total_status = _parse_gateway_token_value(usage_payload, "total_tokens")
-        if "invalid" in {prompt_status, completion_status, total_status}:
-            usage_status: Literal["known", "missing", "invalid"] = "invalid"
-        elif prompt_status == "missing" or completion_status == "missing":
-            usage_status = "missing"
-        else:
-            usage_status = "known"
-        if total_status == "missing":
-            total_tokens = (prompt_tokens or 0) + (completion_tokens or 0)
+        quantity = _usage_quantity(usage_payload, payload)
         usage = GatewayUsage(
-            prompt_tokens=prompt_tokens or 0,
-            completion_tokens=completion_tokens or 0,
-            total_tokens=total_tokens or 0,
+            prompt_tokens=quantity.prompt_tokens or 0,
+            completion_tokens=quantity.completion_tokens or 0,
+            total_tokens=quantity.total_tokens or 0,
             cost_usd=cost_usd,
             cost_status=cost_status,
-            usage_status=usage_status,
+            usage_status=quantity.status,
         )
 
         # Parse tool calls if present

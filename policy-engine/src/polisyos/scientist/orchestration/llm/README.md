@@ -188,3 +188,26 @@ provider authority or accounting completeness is inferred. The existing
 variants pin altered durable-origin refusal. Its Cloud result is source-bound;
 local composition, the remaining Runtime fixture failures and the third
 preparation/reuse removal remain separate verification obligations.
+
+## Source-owned N4 preparation and emission
+
+The actual draft, multipass/consolidation, formalizer and critic owners supply
+stages from control flow. The generic common carrier knows none of this stage
+vocabulary. Scientist exposes exact owner aliases through its existing facade;
+Gateway consumes the governed common/Core boundaries. No private cross-package
+import exception or deep-import ratchet is added.
+
+The recorder receives an opaque prepared-input occurrence from its actual stock
+Core client, then binds source/prepared hashes and the configured transformation
+profile. Core consumes one atomic actual generate permit under the active source scope.
+The client weakly tracks pending opaque inputs; the request/coroutine carries the
+handle without a recorder-owned strong map or serialized raw source snapshot.
+Recorder removes that local carrier before any prompt/context/wire processing.
+The original sanitizer handles every new raw input, even text equal to a previous
+marker; unsupported custom client transformations remain unqualified. Gateway
+checks the complete actual call and an immutable prepared-emission obligation
+at send. The existing JSON-mode fallback changes only `response_format`.
+
+Trace request digests, body seals, prepared dispatch identities and call hashes
+remain distinct quantities. None establishes external issuer authority, law,
+permission, currentness or historical billing.

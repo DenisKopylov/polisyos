@@ -99,3 +99,37 @@ closes the basis only after factory admission is disabled. A timed-out/pending o
 leaves the basis explicitly incomplete; it cannot publish a complete monetary projection.
 This adds no ledger format or provider invoice authority. Unscoped legacy clients keep
 their existing contract.
+
+## Candidate preparation and selected replay quantity
+
+`TracedLLMClient.prepare_producer_input` executes its actual configured
+normalization/privacy transform and returns an opaque, instance-owned, single-use
+`PreparedLLMInput`. The recorder adds only its source context. Under the actual
+producer scope, `prepared_producer_input` reconciles original/prepared hashes,
+profile and complete bytes; generate rechecks those bytes before reusing the
+transformation. The canonical sanitizer is unchanged. Custom regexes may match
+placeholder substrings; a new raw literal equal to a previously issued marker is
+still sanitized normally. Strings never substitute for occurrence provenance.
+
+The governed Core facade exports the one usage-quantity parser and capture
+observation. It selects one complete source container: malformed non-null nested values are invalid, a nullable container remains
+unavailable/missing, partial nested values never borrow outer counts, and supported
+top-level fields are considered only when nested usage is absent. A present null
+token component stays invalid under the existing Gateway contract. Alias presence
+precedence and explicit zero/unknown/invalid survive normal Gateway/Core
+settlement. Legacy call-derived counters remain unknown for replay, regardless
+of magnitude. Provider origin, billable reuse and actual owner event facts stay
+separate; no cache attestation is serialized or borrowed. The existing cost
+estimator, settlement owner and tariff are unchanged.
+
+This lifetime guarantee concerns prepared input occurrences, not erasure of all
+data in a process. Existing reversible sanitizer maps, real call journals and
+caller-held requests/tracebacks retain their own intentional ownership contract.
+The preparation client keeps no strong abandoned-handle/raw-snapshot collection.
+
+The same owner projects replay quantities from selected raw component presence,
+not nullable normalized DTO counters. `replay_llm_usage_payload` omits absent
+fields, normalizes aliases/present values, preserves invalid and never turns a
+derived total into a reported field. Its unknown-provenance ceiling only
+downgrades availability. Legacy and versioned replay use this one adapter;
+qualified quantity/status/total-basis and canonical component presence round-trip.

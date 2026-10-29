@@ -247,3 +247,22 @@ normalizes it; this does not change Foundry's distinct float-hex carrier law.
 The same private traversal also supplies a non-emitting preflight for Core's
 primitive manifest metadata. It charges the complete actual projection before
 the final JSON serializer; it does not introduce another codec or budget owner.
+
+## Candidate producer request boundary
+
+The governed `polisyos.common.producer_request` facade routes the generic
+stdlib-only implementation. Actual owners issue complete prepared calls; async
+scopes reconcile the complete signature-derived quantity and mandatory context.
+The actual Gateway prepares an immutable emission obligation and checks it at
+send, including deferred execution and its closed JSON-only fallback. This
+carrier has no N4 stage vocabulary and authenticates no external issuer.
+
+Core's prepared-input occurrence reuses a transform only after this actual active
+owner scope reconciles its complete call. Text, a flag, or a marker hash does not
+establish that occurrence. New raw input always remains subject to its real
+configured privacy transform.
+
+A Core preparation scope is not itself an invocation permit: the actual Core
+generate entry consumes the shared atomic permit before its first await. The
+Recorder's opaque handle is a reserved local Python argument, removed before the
+common complete wire-call admission; it never enters JSON metadata or digests.

@@ -29,6 +29,7 @@ from polisyos.scientist.agent.protocols import (
 )
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.orchestration.llm import TracedLLMClient
+from polisyos.scientist.orchestration.llm._n4_request import _request_args
 
 logger = get_logger(__name__)
 
@@ -469,10 +470,15 @@ Provide your critique as a JSON object.
         try:
             response = await asyncio.wait_for(
                 self._llm.generate(
-                    system=prompt,
-                    user=user_message,
-                    response_format={"type": "json_object"},
-                    timeout=self._timeout_s,
+                    **_request_args(
+                        self._llm,
+                        stage="critic",
+                        instance="critique",
+                        system=prompt,
+                        user=user_message,
+                        response_format={"type": "json_object"},
+                        timeout=self._timeout_s,
+                    )
                 ),
                 timeout=self._timeout_s + 5.0,
             )

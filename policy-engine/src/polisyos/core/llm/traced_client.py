@@ -18,13 +18,18 @@ import logging
 import threading
 import time
 import uuid
-from collections.abc import Iterator
+import weakref
+from collections.abc import Iterator, Mapping
 from contextlib import contextmanager
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from decimal import Decimal
 from enum import Enum
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, NoReturn
 
+from polisyos.common.producer_request import (
+    owned_producer_request_context,
+    without_producer_request_context,
+)
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.core.observability.pricing import estimate_llm_cost_usd
 from polisyos.core.security.tenant_context import (
@@ -190,6 +195,69 @@ def _default_metrics() -> MetricsRegistry:
     return get_metrics()
 
 
+def _producer_input_bytes(value: object) -> bytes:
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()
+
+
+class PreparedLLMInput:
+    """Opaque single-use occurrence of an actual first-party input transformation.
+
+    This is an in-process candidate-computation obligation, not a serializable
+    credential or an external producer/billing signature.
+    """
+
+    __slots__ = ("__weakref__", "_owner", "_preparation_bytes", "_prepared_bytes", "_source_sha256")
+    _owner: object
+    _source_sha256: str
+    _prepared_bytes: bytes
+    _preparation_bytes: bytes
+
+    def __init__(self) -> None:
+        raise TypeError("prepared LLM inputs are issued by their actual client")
+
+    def __setattr__(self, name: str, value: object) -> NoReturn:
+        raise AttributeError("prepared LLM inputs are immutable")
+
+    def __copy__(self) -> NoReturn:
+        raise TypeError("prepared LLM inputs cannot be copied")
+
+    def __deepcopy__(self, memo: dict[int, object]) -> NoReturn:
+        raise TypeError("prepared LLM inputs cannot be copied")
+
+    def __reduce_ex__(self, protocol: int) -> NoReturn:
+        raise TypeError("prepared LLM inputs cannot be serialized")
+
+    @property
+    def kwargs(self) -> dict[str, Any]:
+        """Return a fresh snapshot of the already transformed quantity."""
+        return json.loads(self._prepared_bytes)
+
+    @property
+    def preparation(self) -> dict[str, Any]:
+        """Return the actual configured preparation descriptor."""
+        return json.loads(self._preparation_bytes)
+
+
+@dataclass
+class _PreparedInvocation:
+    """One actual generate permit shared by context-inheriting asynchronous tasks."""
+
+    call_bytes: bytes
+    _claimed: bool = False
+    _lock: threading.Lock = field(default_factory=threading.Lock, repr=False)
+
+    def claim(self, args: tuple[Any, ...], kwargs: Mapping[str, Any]) -> dict[str, Any]:
+        # No await or provider work precedes this claim. Equality or scope entry
+        # alone cannot distinguish the first invocation from a second one.
+        with self._lock:
+            if self._claimed:
+                raise ValueError("producer_prepared_invocation_already_consumed")
+            self._claimed = True
+        if args or _producer_input_bytes(kwargs) != self.call_bytes:
+            raise ValueError("producer_prepared_call_substituted")
+        return json.loads(self.call_bytes)
+
+
 class TracedLLMClient:
     """
     Observability wrapper for LLM clients.
@@ -260,6 +328,12 @@ class TracedLLMClient:
         self._call_observer = call_observer
         self._observed_call_event_ids: set[str] = set()
         self._prompt_sanitizer = prompt_sanitizer
+        self._producer_input_owner = object()
+        self._producer_inputs: weakref.WeakSet[PreparedLLMInput] = weakref.WeakSet()
+        self._producer_inputs_lock = threading.RLock()
+        self._prepared_producer_call: contextvars.ContextVar[_PreparedInvocation | None] = (
+            contextvars.ContextVar("prepared_producer_llm_input", default=None)
+        )
         self._tracer = tracer if tracer is not None else _default_tracer()
         if metrics is not None:
             self._metrics = metrics
@@ -383,6 +457,101 @@ class TracedLLMClient:
             key: self._prompt_sanitizer.sanitize_payload(value) for key, value in kwargs.items()
         }
         return sanitized_args, sanitized_kwargs
+
+    def prepare_producer_input(self, **kwargs: Any) -> PreparedLLMInput:
+        """Execute the actual input transform once and issue a collectible occurrence.
+
+        The client weakly tracks issuance and keeps only the source digest in
+        the handle. Its caller owns the prepared value's deferred lifetime.
+        This does no provider, budget, cache or network work. Every new raw input,
+        including a literal marker previously emitted by this sanitizer, is
+        transformed normally. No string is treated as proof of preparation.
+
+        Args:
+            **kwargs: Actual source keyword inputs for this client's generate path.
+
+        Returns:
+            An opaque caller-owned prepared occurrence, collectible if abandoned.
+        """
+        from .sanitization import SECRET_PII_DETECTOR_VERSION
+
+        args, normalized = self._normalize_generate_call((), kwargs)
+        args, prepared = self._sanitize_call_args(args, normalized)
+        if args:
+            raise ValueError("producer_source_preparation_positional_result_unsupported")
+        sanitizer = self._prompt_sanitizer
+        descriptor: dict[str, Any] = {
+            "kind": "identity" if sanitizer is None else "first_party_prompt_sanitization",
+            "owner": "polisyos.core.llm.traced_client.TracedLLMClient._sanitize_call_args",
+            "normalization": "configured_generate_call",
+        }
+        if sanitizer is not None:
+            profile = {
+                "detector": SECRET_PII_DETECTOR_VERSION,
+                "placeholder_prefix": sanitizer.placeholder_prefix,
+                "rules": [
+                    (rule.label, rule.pattern.pattern, rule.pattern.flags)
+                    for rule in sanitizer.rules
+                ],
+            }
+            descriptor["profile_sha256"] = hashlib.sha256(
+                _producer_input_bytes(profile)
+            ).hexdigest()
+        result = object.__new__(PreparedLLMInput)
+        object.__setattr__(result, "_owner", self._producer_input_owner)
+        object.__setattr__(
+            result, "_source_sha256", hashlib.sha256(_producer_input_bytes(kwargs)).hexdigest()
+        )
+        object.__setattr__(result, "_prepared_bytes", _producer_input_bytes(prepared))
+        object.__setattr__(result, "_preparation_bytes", _producer_input_bytes(descriptor))
+        with self._producer_inputs_lock:
+            self._producer_inputs.add(result)
+        return result
+
+    @contextmanager
+    def prepared_producer_input(
+        self, prepared: PreparedLLMInput, request: Mapping[str, Any]
+    ) -> Iterator[None]:
+        """Consume exactly one transformed occurrence under its actual producer scope.
+
+        The generic source owner must already have admitted the complete call.
+        It may add only its content-bound context to the prepared input. The
+        normal generate path atomically consumes one actual invocation permit
+        before its first await and verifies complete bytes before reuse.
+
+        Args:
+            prepared: The still-live input occurrence issued by this exact client.
+            request: Complete admitted wire inputs and their source-owned context.
+
+        Yields:
+            A scope allowing one actual generate invocation, including its retries.
+        """
+        if (
+            type(prepared) is not PreparedLLMInput
+            or prepared._owner is not self._producer_input_owner
+        ):
+            raise ValueError("producer_prepared_input_wrong_owner")
+        context = owned_producer_request_context(request)
+        if (
+            _producer_input_bytes(without_producer_request_context(request, context))
+            != prepared._prepared_bytes
+            or context["source_input_sha256"] != prepared._source_sha256
+            or context["prepared_input_sha256"]
+            != hashlib.sha256(prepared._prepared_bytes).hexdigest()
+            or _producer_input_bytes(context["preparation"]) != prepared._preparation_bytes
+        ):
+            raise ValueError("producer_prepared_input_substituted")
+        with self._producer_inputs_lock:
+            if prepared not in self._producer_inputs:
+                raise ValueError("producer_prepared_input_not_issued_or_consumed")
+            self._producer_inputs.remove(prepared)
+        token = self._prepared_producer_call.set(
+            _PreparedInvocation(_producer_input_bytes(request))
+        )
+        try:
+            yield
+        finally:
+            self._prepared_producer_call.reset(token)
 
     def _restore_response(self, response: Any) -> Any:
         if self._prompt_sanitizer is None:
@@ -1365,7 +1534,11 @@ class TracedLLMClient:
                 raise
 
     async def generate(self, *args: Any, **kwargs: Any) -> Any:
-        call_args, call_kwargs = self._normalize_generate_call(args, kwargs)
+        prepared_call = self._prepared_producer_call.get()
+        if prepared_call is None:
+            call_args, call_kwargs = self._normalize_generate_call(args, kwargs)
+        else:
+            call_args, call_kwargs = (), prepared_call.claim(args, kwargs)
         prompt = call_args[0] if call_args else call_kwargs.get("prompt")
         prompt_kwargs = dict(call_kwargs)
         prompt_kwargs.pop("prompt", None)
@@ -1382,10 +1555,14 @@ class TracedLLMClient:
         ) as span:
             producer_intent: tuple[str, str] | None = None
             try:
-                sanitized_args, sanitized_kwargs = self._sanitize_call_args(
-                    call_args,
-                    call_kwargs,
-                )
+                if prepared_call is None:
+                    sanitized_args, sanitized_kwargs = self._sanitize_call_args(
+                        call_args, call_kwargs
+                    )
+                else:
+                    # These exact bytes were transformed by this client before
+                    # source issuance; a raw string or flag cannot enter here.
+                    sanitized_args, sanitized_kwargs = call_args, call_kwargs
                 if not self._cache_settlement_hooks:
                     producer_intent = self._start_direct_producer_event(
                         sanitized_args, sanitized_kwargs, provider, route

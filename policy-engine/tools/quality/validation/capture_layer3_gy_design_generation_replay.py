@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Capture GY-N4 design-generation replay recordings without all-or-nothing writes."""
+"""Capture candidate-only GY-N4 replay inputs in an admitted owned directory."""
 
 from __future__ import annotations
 
@@ -8,8 +8,10 @@ import asyncio
 import importlib
 import json
 import os
+import stat
 import sys
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -44,6 +46,144 @@ generate_design_candidate_bundle_under_a: Any
 contract: Any
 
 
+@dataclass(frozen=True)
+class _OwnedCaptureDestination:
+    """An admitted fresh leaf held relative to its caller-owned directory."""
+
+    owner_root: str
+    filename: str
+    directory_fd: int
+
+    @property
+    def display_path(self) -> str:
+        """Return the admitted lexical destination for diagnostics only."""
+        return os.path.join(self.owner_root, self.filename)
+
+    def write_text_exclusive(self, content: str) -> None:
+        """Create the admitted leaf once; never follow or replace an existing entry."""
+        flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW
+        flags |= getattr(os, "O_CLOEXEC", 0)
+        descriptor = os.open(
+            self.filename,
+            flags,
+            0o600,
+            dir_fd=self.directory_fd,
+        )
+        stream = None
+        try:
+            stream = os.fdopen(descriptor, "w", encoding="utf-8", newline="\n")
+            descriptor = -1
+            with stream:
+                stream.write(content)
+                stream.flush()
+        finally:
+            if descriptor >= 0:
+                os.close(descriptor)
+
+    def close(self) -> None:
+        """Release the directory capability after capture completes."""
+        if self.directory_fd >= 0:
+            os.close(self.directory_fd)
+            object.__setattr__(self, "directory_fd", -1)
+
+
+def _admit_owned_capture_destination(
+    owner_root: str | os.PathLike[str], output_name: str | os.PathLike[str]
+) -> _OwnedCaptureDestination:
+    """Admit one fresh basename beneath an explicit, physical owner directory.
+
+    Every owner-root component is opened from `/` with no-follow directory
+    semantics. The output is a single relative basename held under the resulting
+    directory descriptor, so traversal, parent symlinks, and existing file or
+    dangling-link aliases cannot redirect the write outside that owner.
+    """
+    if (
+        os.name != "posix"
+        or not hasattr(os, "O_NOFOLLOW")
+        or not hasattr(os, "O_DIRECTORY")
+        or os.open not in os.supports_dir_fd
+        or os.stat not in os.supports_dir_fd
+    ):
+        raise RuntimeError("versioned_capture_nofollow_dirfd_unsupported")
+
+    owner_text = os.fspath(owner_root)
+    if (
+        not isinstance(owner_text, str)
+        or not owner_text
+        or not os.path.isabs(owner_text)
+        or owner_text.startswith("//")
+        or os.path.normpath(owner_text) != owner_text
+    ):
+        raise ValueError("versioned_capture_owner_root_must_be_absolute_canonical_path")
+
+    output_text = os.fspath(output_name)
+    if (
+        not isinstance(output_text, str)
+        or not output_text
+        or output_text in {".", ".."}
+        or os.path.isabs(output_text)
+        or os.sep in output_text
+        or (os.altsep is not None and os.altsep in output_text)
+        or "\\" in output_text
+        or "\x00" in output_text
+    ):
+        raise ValueError("versioned_capture_output_must_be_single_relative_filename")
+
+    owner_components = [] if owner_text == os.sep else owner_text[len(os.sep) :].split(os.sep)
+    if any(component in {"", ".", ".."} for component in owner_components):
+        raise ValueError("versioned_capture_owner_root_must_be_absolute_canonical_path")
+
+    directory_flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+    directory_flags |= getattr(os, "O_CLOEXEC", 0)
+    directory_fd = os.open(os.sep, directory_flags)
+    try:
+        for component in owner_components:
+            parent_stat = os.fstat(directory_fd)
+            if parent_stat.st_mode & (stat.S_IWGRP | stat.S_IWOTH) and not (
+                parent_stat.st_mode & stat.S_ISVTX
+            ):
+                raise ValueError("versioned_capture_owner_parent_must_be_sticky_or_private")
+            try:
+                next_fd = os.open(component, directory_flags, dir_fd=directory_fd)
+            except OSError as error:
+                raise ValueError(
+                    "versioned_capture_owner_path_must_be_real_directory_chain"
+                ) from error
+            os.close(directory_fd)
+            directory_fd = next_fd
+
+        owner_stat = os.fstat(directory_fd)
+        if (
+            not stat.S_ISDIR(owner_stat.st_mode)
+            or not hasattr(os, "geteuid")
+            or owner_stat.st_uid != os.geteuid()
+            or owner_stat.st_mode & (stat.S_IWGRP | stat.S_IWOTH)
+        ):
+            raise ValueError(
+                "versioned_capture_owner_directory_not_user_owned_or_group_world_writable"
+            )
+
+        try:
+            os.stat(output_text, dir_fd=directory_fd, follow_symlinks=False)
+        except FileNotFoundError:
+            pass
+        except OSError as error:
+            raise ValueError("versioned_capture_destination_admission_failed") from error
+        else:
+            raise ValueError("versioned_capture_destination_must_be_fresh")
+
+        admitted = _OwnedCaptureDestination(
+            owner_root=owner_text,
+            filename=output_text,
+            directory_fd=directory_fd,
+        )
+        directory_fd = -1
+        return admitted
+    finally:
+        if directory_fd >= 0:
+            os.close(directory_fd)
+
+
 def _load_runtime_symbols() -> None:
     global contract, generate_design_candidate_bundle_under_a, gy_content_hash
     if "contract" in globals():
@@ -60,6 +200,20 @@ def _load_runtime_symbols() -> None:
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parse_args(argv)
+    if args.capture_v3_output is not None:
+        if int(args.attempts) != 1:
+            raise ValueError("versioned_capture_requires_one_isolated_attempt")
+        destination = _admit_owned_capture_destination(
+            args.capture_v3_owner_root,
+            args.capture_v3_output,
+        )
+        try:
+            for key, value in DEFAULT_ENV.items():
+                os.environ.setdefault(key, value)
+            _load_runtime_symbols()
+            return asyncio.run(_run_v3(args, destination))
+        finally:
+            destination.close()
     for key, value in DEFAULT_ENV.items():
         os.environ.setdefault(key, value)
     _load_runtime_symbols()
@@ -79,7 +233,161 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
         help="Optional assertion of the current owner-resolved WMR ref.",
     )
     parser.add_argument("--models", nargs="*", default=list(DEFAULT_MODELS))
-    return parser.parse_args(argv)
+    parser.add_argument(
+        "--capture-v3-output",
+        type=str,
+        default=None,
+        help=(
+            "Opt-in one-attempt candidate capture filename. Must be a fresh basename "
+            "inside --capture-v3-owner-root. The CLI does not provision a producer "
+            "settlement store; replay usage can remain missing, and a successful write "
+            "is not runtime PASS or historical-spend evidence."
+        ),
+    )
+    parser.add_argument(
+        "--capture-v3-owner-root",
+        type=str,
+        default=None,
+        help=(
+            "Existing absolute, canonical, user-owned directory with no symlink "
+            "components and no group/world-writable parent without sticky mode; "
+            "capture-v3 output is confined to one fresh filename there."
+        ),
+    )
+    args = parser.parse_args(argv)
+    if (args.capture_v3_output is None) != (args.capture_v3_owner_root is None):
+        parser.error("--capture-v3-output and --capture-v3-owner-root must be supplied together")
+    return args
+
+
+async def _run_v3(args: argparse.Namespace, destination: _OwnedCaptureDestination) -> int:
+    """Write one candidate-only capture through an admitted owned destination."""
+    if int(args.attempts) != 1:
+        raise ValueError("versioned_capture_requires_one_isolated_attempt")
+    from polisyos.runtime.quality._n4_usage_capture import capture_call_usage
+    from tools.quality.validation.generation_replay_input import build_replay_capture
+
+    repo_root = args.repo_root.resolve()
+    projection = contract._resolve_current_wmr_owner_projection(repo_root)
+    world_ref = _resolve_capture_world_model_record_ref(
+        projection, requested=args.world_model_record_ref
+    )
+    model_id = str(_model_plan(args.models, 1)[0])
+    problem_id = f"{args.problem_id_prefix}_v3_{_timestamp_id()}"
+    problem = contract._design_problem(
+        {"design_problem_id": problem_id, "domain": str(args.domain)}
+    )
+    failure = None
+    organ = None
+    with capture_call_usage() as capture:
+        try:
+            organ = await generate_design_candidate_bundle_under_a(
+                problem,
+                model_id=model_id,
+                repo_root=repo_root,
+                min_diverse_candidates=3,
+                world_model_record_ref=world_ref,
+            )
+        except Exception as error:
+            import traceback
+
+            failure = {"type": type(error).__name__, "traceback": traceback.format_exc()}
+    actual_calls = (
+        [call.model_dump(mode="json") for call in organ.result.llm_calls]
+        if organ is not None
+        else capture.calls
+    )
+    if actual_calls != capture.calls:
+        raise ValueError("versioned_capture_complete_call_denominator_mismatch")
+    if not actual_calls:
+        attempt = {
+            "schema_version": "policyos.testing.design_generation_capture_attempt.v1",
+            "disposition": "no_replay_input_no_provider_call_bytes",
+            "model_id": model_id,
+            "design_problem_id": problem_id,
+            "failure": failure,
+            "actual_result": organ.result.model_dump(mode="json") if organ is not None else None,
+            "authority_scope": "diagnostic_only_not_runtime_acceptance",
+            "usage_qualification": "candidate_quantity_only_committed_settlement_required",
+            "runtime_acceptance": "not_asserted",
+        }
+        destination.write_text_exclusive(json.dumps(attempt, indent=2) + "\n")
+        print(
+            "CAPTURE_V3_NO_CALLS "
+            + json.dumps(
+                {
+                    "path": destination.display_path,
+                    "disposition": attempt["disposition"],
+                    "authority": "candidate_input_only",
+                    "usage_qualification": attempt["usage_qualification"],
+                    "runtime_acceptance": "not_asserted",
+                }
+            ),
+            flush=True,
+        )
+        return 1
+    metadata = {
+        "recorded_at": _now_iso(),
+        "design_problem_id": problem_id,
+        "domain": str(args.domain),
+        "model_id": model_id,
+        "world_model_record_ref": world_ref,
+        "problem_content_ref": gy_content_hash(problem.model_dump(mode="json")),
+        "capture_status": organ.result.status if organ is not None else "capture_exception",
+        "failure": failure,
+        "source_qualification": "separate_runtime_readset_and_receipt_required_for_historical_claims",
+        "usage_qualification": "candidate_quantity_only_committed_settlement_required",
+        "runtime_acceptance": "not_asserted",
+    }
+    try:
+        envelope = build_replay_capture(
+            metadata=metadata, calls=actual_calls, evidence=capture.evidence
+        )
+    except Exception:
+        import traceback
+
+        diagnostic = {
+            "schema_version": "policyos.testing.design_generation_capture_attempt.v1",
+            "disposition": "capture_input_reconciliation_failed_not_replay_input",
+            "metadata": metadata,
+            "source_calls": actual_calls,
+            "call_usage": [row.model_dump(mode="json") for row in capture.evidence],
+            "capture_failures": capture.failures,
+            "traceback": traceback.format_exc(),
+            "authority_scope": "diagnostic_only_not_runtime_acceptance",
+            "usage_qualification": "candidate_quantity_only_committed_settlement_required",
+            "runtime_acceptance": "not_asserted",
+        }
+        destination.write_text_exclusive(json.dumps(diagnostic, indent=2) + "\n")
+        print(
+            "CAPTURE_V3_RECONCILIATION_ERROR "
+            + json.dumps(
+                {
+                    "path": destination.display_path,
+                    "authority": "candidate_input_only",
+                    "usage_qualification": diagnostic["usage_qualification"],
+                    "runtime_acceptance": "not_asserted",
+                }
+            ),
+            flush=True,
+        )
+        return 1
+    destination.write_text_exclusive(envelope.model_dump_json(indent=2) + "\n")
+    print(
+        "CAPTURE_V3_WRITE_CANDIDATE_INPUT "
+        + json.dumps(
+            {
+                "path": destination.display_path,
+                "content_hash": envelope.content_hash,
+                "calls": len(actual_calls),
+                "authority": "candidate_input_only",
+                "usage_qualification": "candidate_quantity_only_committed_settlement_required",
+                "runtime_acceptance": "not_asserted",
+            }
+        ),
+        flush=True,
+    )
+    return 0 if organ is not None and _recordable(organ.result) else 1
 
 
 async def _run(args: argparse.Namespace) -> int:
@@ -352,40 +660,12 @@ def _responses_from_journal(path: Path) -> list[dict[str, Any]]:
 
 
 def _response_from_call_payload(call: dict[str, Any]) -> dict[str, Any]:
-    raw = str(call.get("raw_llm_response") or "")
-    call_index = int(call.get("call_index") or 0)
-    return {
-        "call_index": call_index,
-        "role": call.get("role_hint") or _role_for_index(call_index),
-        "role_hint": call.get("role_hint"),
-        "status": call.get("status") or "success",
-        "model_id": call.get("model_id"),
-        "provider": call.get("provider"),
-        "prompt_hash": call.get("prompt_hash"),
-        "raw_response": raw,
-        "raw_llm_response": raw,
-        "raw_response_hash": gy_content_hash(raw),
-        "parsed": call.get("parsed_json"),
-        "response_format": call.get("response_format"),
-        "usage": {
-            "prompt_tokens": int(call.get("prompt_tokens") or 0),
-            "completion_tokens": int(call.get("completion_tokens") or 0),
-            "total_tokens": int(call.get("total_tokens") or 0),
-        },
-        "wall_seconds": float(call.get("wall_seconds") or 0.0),
-        "error": {
-            "type": call.get("error_type"),
-            "message": call.get("error_message"),
-            "status": call.get("error_status"),
-            "code": call.get("error_code"),
-            "retry_after_s": call.get("retry_after_s"),
-            "request_id": call.get("request_id"),
-        },
-        "cache": {
-            "status": call.get("cache_status"),
-            "key": call.get("cache_key"),
-        },
-    }
+    from tools.quality.validation.generation_replay_input import response_from_call_payload
+
+    row = response_from_call_payload(call)
+    if not call.get("role_hint"):
+        row["role"] = _role_for_index(int(call.get("call_index") or 0))
+    return row
 
 
 def _role_for_index(index: int) -> str:

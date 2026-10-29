@@ -21,6 +21,7 @@ import re
 import time
 from collections import Counter
 from collections.abc import Callable, Mapping, Sequence
+from contextlib import ExitStack
 from dataclasses import dataclass, field, is_dataclass, replace
 from dataclasses import fields as dataclass_fields
 from pathlib import Path
@@ -28,6 +29,7 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.common.producer_request import issue_producer_request_args as _issue_args
 from polisyos.common.serialization import extract_llm_json
 from polisyos.ir import TrinityBundle  # Pydantic resolves the persisted field type
 from polisyos.ir.analytics.interventions import (
@@ -93,6 +95,15 @@ from polisyos.scientist import (
     CritiqueReport,
     DraftResult,
 )  # Pydantic resolves field types
+from polisyos.scientist import (
+    consume_n4_producer_request_context as _n4_call_context,
+)
+from polisyos.scientist import (
+    create_n4_producer_binding as _n4_binding,
+)
+from polisyos.scientist import (
+    n4_producer_request_scope as _n4_binding_scope,
+)
 from polisyos.scientist.agent.critic import create_critic_agent
 from polisyos.scientist.agent.drafter_factory import create_drafter_agent
 from polisyos.scientist.agent.drafter_models import MultiPassConfig
@@ -784,13 +795,56 @@ def derive_n4_candidate_child_problems(
     return tuple(children)
 
 
+_PREPARED_INPUT_KEY = "_polisyos_prepared_llm_input"
+
+
 class RecordingLLMClient:
     """Thin replay wrapper that records prompt hashes and raw model responses."""
 
-    def __init__(self, inner: object, *, model_id: str) -> None:
+    def __init__(
+        self, inner: object, *, model_id: str, producer_problem_ref: str | None = None
+    ) -> None:
         self._inner = inner
         self._model_id = model_id
+        self._producer_request_binding = (
+            _n4_binding(producer_problem_ref, model_id)
+            if producer_problem_ref is not None
+            else None
+        )
         self.calls: list[LLMGenerationCall] = []
+
+    def _issue_producer_request(
+        self, *, stage: str, attempt: int, instance: str | None, request: Mapping[str, Any]
+    ) -> dict[str, Any]:
+        """Issue only after the actual stock client source preparation."""
+        from polisyos.core.llm import TracedLLMClient
+
+        binding = self._producer_request_binding
+        if binding is None:
+            return dict(request)
+        if _PREPARED_INPUT_KEY in request:
+            raise ValueError("producer_prepared_input_namespace_reserved")
+        metadata = request.get("metadata")
+        if isinstance(metadata, Mapping) and "polisyos_producer_request" in metadata:
+            raise ValueError("producer_request_namespace_reserved")
+        handle = None
+        if type(self._inner) is TracedLLMClient:
+            handle = self._inner.prepare_producer_input(**dict(request))
+            prepared, preparation = handle.kwargs, handle.preparation
+        else:
+            prepared, preparation = dict(request), {"kind": "identity"}
+        issued = _issue_args(
+            binding,
+            stage=stage,
+            attempt=attempt,
+            instance=instance,
+            source=request,
+            prepared=prepared,
+            preparation=preparation,
+        )
+        # The request/coroutine owns this local object; the recorder keeps no
+        # pending strong map. It is removed before all wire/hash operations.
+        return {**issued, _PREPARED_INPUT_KEY: handle} if handle is not None else issued
 
     async def list_model_ids(self, *, timeout: float | None = None) -> list[str]:
         method = getattr(self._inner, "list_model_ids", None)
@@ -802,6 +856,12 @@ class RecordingLLMClient:
         return [str(item) for item in result]
 
     async def generate(self, **kwargs: object) -> object:
+        prepared_present = _PREPARED_INPUT_KEY in kwargs
+        prepared_handle = kwargs.pop(_PREPARED_INPUT_KEY, None)
+        if prepared_present and prepared_handle is None:
+            raise ValueError("producer_prepared_input_untyped")
+        if prepared_present and self._producer_request_binding is None:
+            raise ValueError("producer_prepared_input_without_owner")
         prompt_hash = gy_content_hash(
             {
                 "system": kwargs.get("system"),
@@ -815,14 +875,32 @@ class RecordingLLMClient:
                 "metadata": kwargs.get("metadata"),
             }
         )
-        role_hint = _llm_role_hint(kwargs)
+        producer_context = _n4_call_context(kwargs, self._producer_request_binding)
+        role_hint = (
+            producer_context["stage"] if producer_context is not None else _llm_role_hint(kwargs)
+        )
         started = time.monotonic()
         try:
-            result = self._inner.generate(**kwargs)
-            if inspect.isawaitable(result):
-                response = await result
-            else:
-                response = result
+            with ExitStack() as source_scope:
+                source_scope.enter_context(
+                    _n4_binding_scope(self._producer_request_binding, producer_context, kwargs)
+                )
+                if producer_context is not None:
+                    from polisyos.core.llm import TracedLLMClient
+
+                    if type(self._inner) is TracedLLMClient:
+                        if prepared_handle is None:
+                            raise ValueError("producer_prepared_input_occurrence_missing")
+                        source_scope.enter_context(
+                            self._inner.prepared_producer_input(prepared_handle, kwargs)
+                        )
+                    elif prepared_handle is not None:
+                        raise ValueError("producer_prepared_input_unexpected")
+                result = self._inner.generate(**kwargs)
+                if inspect.isawaitable(result):
+                    response = await result
+                else:
+                    response = result
         except BaseException as exc:
             details = _llm_exception_details(exc)
             self._record_call(
@@ -844,7 +922,9 @@ class RecordingLLMClient:
                     error_code=details.get("error_code"),
                     retry_after_s=details.get("retry_after_s"),
                     request_id=details.get("request_id"),
-                )
+                ),
+                response=None,
+                producer_context=producer_context,
             )
             raise
         content = response.content if hasattr(response, "content") else str(response)
@@ -874,13 +954,31 @@ class RecordingLLMClient:
                 wall_seconds=max(0.0, time.monotonic() - started),
                 cache_status=cache_info.get("cache_status"),
                 cache_key=cache_info.get("cache_key"),
-            )
+            ),
+            response=response,
+            producer_context=producer_context,
         )
         return response
 
-    def _record_call(self, call: LLMGenerationCall) -> None:
+    def _record_call(
+        self,
+        call: LLMGenerationCall,
+        *,
+        response: object = None,
+        producer_context: Mapping[str, Any] | None = None,
+    ) -> None:
+        from polisyos.core.llm.cache_settlement import CacheSettlementSession
+        from polisyos.runtime.quality._n4_usage_capture import _observe_call
+
         self.calls.append(call)
         _append_llm_call_journal(call)
+        session = getattr(self._inner, "_cache_settlement_session", None)
+        _observe_call(
+            call.model_dump(mode="json"),
+            response,
+            producer_context=producer_context,
+            cache_settlement_session=session if type(session) is CacheSettlementSession else None,
+        )
 
 
 def _llm_role_hint(kwargs: Mapping[str, object]) -> str | None:
@@ -1566,7 +1664,9 @@ async def _generate_design_candidate_bundle_under_a(
             min_diverse_candidates=min_diverse_candidates,
         ).as_organ_run()
 
-    recording_client = RecordingLLMClient(llm_client, model_id=model_id)
+    recording_client = RecordingLLMClient(
+        llm_client, model_id=model_id, producer_problem_ref=design_problem_ref
+    )
     preflight = await preflight_model_profile(recording_client, model_id=model_id)
     if preflight.status != "supported":
         status: GenerationStatus = (

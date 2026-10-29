@@ -742,6 +742,7 @@ def _produce_served_acquisition_history(
     source_owner_root: Path | None = None,
     include_default_only_compiled_probe: bool = False,
     sequential_oracle=None,
+    provider_mode: str = "recorded_capture",
 ) -> dict[str, str] | None:
     import os
 
@@ -792,6 +793,8 @@ def _produce_served_acquisition_history(
     if selected_source_root == REPO_ROOT.resolve():
         raise ValueError("served_acquisition_candidate_source_root_must_be_fixture_owned")
 
+    if provider_mode not in {"recorded_capture", "synthetic_settled_candidate"}:
+        raise ValueError("served_acquisition_provider_mode_unknown")
     served_n4_recording = acquisition_chain.load_served_wdi_generation_recording()
     served_n4_model_id = str(served_n4_recording["model_id"])
     fiscal_nl_request = acquisition_chain.SERVED_WDI_FISCAL_REQUEST
@@ -895,7 +898,18 @@ def _produce_served_acquisition_history(
         served_n4_recording,
         outcome_variable=recorded_problem.outcome_of_interest.target_variable,
     )
-    served_recorded_candidate_gateway.set_fixture(controlled_recording, problem=recorded_problem)
+    provider_profile = (
+        acquisition_chain.synthetic_served_wdi_provider_profile(
+            served_n4_recording,
+            problem=recorded_problem,
+            evidence_root=tmp_path / "synthetic-provider-exchanges",
+        )
+        if provider_mode == "synthetic_settled_candidate"
+        else None
+    )
+    served_recorded_candidate_gateway.set_fixture(
+        controlled_recording, problem=recorded_problem, provider_profile=provider_profile
+    )
     if catalog_serving_source is None:
         profile, model_declaration = _within_fixture_owner(
             _served_wdi_candidate_profile,
@@ -1077,6 +1091,7 @@ def _produce_served_acquisition_history(
         kwargs["span_support_client"] = _DeterministicSpanSupportClient()
         problem = await original_compiler(**kwargs)
         compiled_problems.append(problem)
+        served_recorded_candidate_gateway.admit_compiled_problem(problem)
         return problem
 
     monkeypatch.setattr(
@@ -1437,6 +1452,9 @@ def _produce_served_acquisition_history(
                 candidate_scenario_generation=candidate_generation_mode[0],
                 candidate_generation_recording=(
                     served_n4_recording if candidate_generation_mode[0] else None
+                ),
+                candidate_provider_gateway=(
+                    served_recorded_candidate_gateway if provider_profile is not None else None
                 ),
                 # The initial route carries one N6-stage cap through restarts.
                 # A compute cap establishes neither authority nor causal coupling.

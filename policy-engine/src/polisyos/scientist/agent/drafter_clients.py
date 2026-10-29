@@ -13,6 +13,7 @@ from polisyos.core.canon import truncated_hash
 from polisyos.scientist.agent.prompts import get_drafter_prompt
 from polisyos.scientist.agent.protocols import CritiqueReport, DraftResult, ProblemFrame
 from polisyos.scientist.orchestration.llm import TracedLLMClient
+from polisyos.scientist.orchestration.llm._n4_request import _request_args
 
 from ._drafter_observations import (
     confidence_request_ref,
@@ -406,9 +407,14 @@ Generate a draft JSON object.
 """
 
         response = await self._llm.generate(
-            system=prompt,
-            user=user_message,
-            response_format={"type": "json_object"},
+            **_request_args(
+                self._llm,
+                stage="draft",
+                instance="draft_policy",
+                system=prompt,
+                user=user_message,
+                response_format={"type": "json_object"},
+            )
         )
 
         content = response.content if hasattr(response, "content") else str(response)

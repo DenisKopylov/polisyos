@@ -8,6 +8,7 @@ SCM and does not establish empirical grounding, source time, S8, or N9 authority
 from __future__ import annotations
 
 import copy
+import gzip
 import hashlib
 import json
 import math
@@ -21,6 +22,7 @@ from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.llm.response import _recorded_usage_payload, _usage_quantity
 from polisyos.ir.artifacts import ArtifactStore
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.design_problem import (
@@ -53,6 +55,128 @@ from tools.quality.validation import (
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
+@dataclass(frozen=True)
+class SyntheticCandidateProviderProfile:
+    """Explicit candidate-only provider inputs, never a historical billing replay.
+
+    Each row is an immutable JSON string carrying its exact parent response key,
+    controlled output identity, source model and synthetic usage declaration.
+    Existing agent validators and cost settlement remain the actual consumers.
+    """
+
+    model_id: str
+    profile_selection_ref: str
+    source_recording_id: str
+    source_recording_content_hash: str
+    controlled_recording_content_hash: str
+    response_rows: tuple[tuple[str, str], ...]
+    evidence_root: Path
+
+    def __post_init__(self) -> None:
+        from polisyos.scientist.orchestration.llm._n4_request import _STAGES
+
+        if {stage for stage, _ in self.response_rows} != _STAGES or len(self.response_rows) != len(
+            _STAGES
+        ):
+            raise ValueError("synthetic_provider_stage_set_incomplete")
+        for _stage, encoded in self.response_rows:
+            row = json.loads(encoded)
+            if row.get("status") != "success" or row.get("source_model_id") != self.model_id:
+                raise ValueError("synthetic_provider_response_source_incompatible")
+            if gy_content_hash(row.get("raw_response")) != row.get("raw_response_hash"):
+                raise ValueError("synthetic_provider_response_content_mismatch")
+            usage = row.get("usage")
+            if (
+                not isinstance(usage, dict)
+                or usage.get("usage_status") != "known"
+                or _usage_quantity(usage).status != "known"
+                or row.get("usage_declaration")
+                != "new_synthetic_test_input_not_provider_measurement"
+                or row.get("legacy_counter_availability") != "not_established"
+            ):
+                raise ValueError("synthetic_provider_usage_not_established")
+            if not row.get("parent_response_hash") or not row.get("parent_role"):
+                raise ValueError("synthetic_provider_response_lineage_missing")
+
+    def descriptor(self) -> dict[str, Any]:
+        """Return the declared input identity without copying source payloads."""
+        rows = [
+            {"stage": stage, "response_sha256": hashlib.sha256(encoded.encode()).hexdigest()}
+            for stage, encoded in self.response_rows
+        ]
+        return {
+            "schema_version": "test.synthetic_candidate_provider.v1",
+            "source_recording_id": self.source_recording_id,
+            "source_recording_content_hash": self.source_recording_content_hash,
+            "controlled_recording_content_hash": self.controlled_recording_content_hash,
+            "configured_model": self.model_id,
+            "profile_selection_ref": self.profile_selection_ref,
+            "usage_basis": "explicit_new_synthetic_values_from_source_counters_not_measured_usage",
+            "cost_scope": "current_configured_model_estimate_not_historical_billing",
+            "authority": "candidate_only_not_external_evidence",
+            "stages": rows,
+        }
+
+    def completion(
+        self,
+        request: dict[str, Any],
+        *,
+        raw_request: bytes,
+        compiled_problem_ref: str | None,
+    ) -> dict[str, Any]:
+        """Validate a source-issued complete request and select its declared response."""
+        from polisyos.scientist.orchestration.llm._n4_request import _read_payload
+
+        context = _read_payload(request)
+        if compiled_problem_ref is None or context["subject_ref"] != compiled_problem_ref:
+            raise ValueError("synthetic_provider_compiled_problem_not_bound")
+        if request.get("model") != self.model_id:
+            raise ValueError("synthetic_provider_model_mismatch")
+        encoded = dict(self.response_rows).get(context["stage"])
+        if encoded is None:
+            raise ValueError("synthetic_provider_stage_unavailable")
+        row = json.loads(encoded)
+        completion = {
+            "id": "synthetic-n4-" + context["context_id"],
+            "object": "chat.completion",
+            "model": self.model_id,
+            "provider": "controlled_synthetic_stage_provider",
+            "choices": [
+                {
+                    "index": 0,
+                    "message": {"role": "assistant", "content": row["raw_response"]},
+                    "finish_reason": "stop",
+                }
+            ],
+            "usage": dict(row["usage"]),
+        }
+        exchange = self.evidence_root / uuid4().hex
+        exchange.mkdir(parents=True, exist_ok=False)
+        response_bytes = json.dumps(completion, sort_keys=True).encode()
+        for name, data in (("request.json.gz", raw_request), ("response.json.gz", response_bytes)):
+            with (
+                (exchange / name).open("xb") as stream,
+                gzip.GzipFile(fileobj=stream, mode="wb", mtime=0) as compressed,
+            ):
+                compressed.write(data)
+        receipt = {
+            "profile": self.descriptor(),
+            "source_response": {
+                "parent_role": row["parent_role"],
+                "parent_response_hash": row["parent_response_hash"],
+                "controlled_response_hash": row["raw_response_hash"],
+                "source_model_id": row["source_model_id"],
+            },
+            "producer_context": context,
+            "request_bytes_sha256": hashlib.sha256(raw_request).hexdigest(),
+            "serialized_response_bytes_sha256": hashlib.sha256(response_bytes).hexdigest(),
+            "delivery": "serialized before send; actual receipt/settlement is a separate consumer",
+        }
+        with (exchange / "receipt.json").open("x", encoding="utf-8") as stream:
+            stream.write(json.dumps(receipt, indent=2) + "\n")
+        return completion
+
+
 class ControlledCandidateGateway:
     """Small OpenAI-compatible local gateway for the real traced-client factory."""
 
@@ -61,6 +185,8 @@ class ControlledCandidateGateway:
         self._recording: dict[str, object] | None = None
         self._problem: dict[str, object] | None = None
         self._n4_cursor = 0
+        self._provider_profile: SyntheticCandidateProviderProfile | None = None
+        self._compiled_problem_ref: str | None = None
 
         class Handler(BaseHTTPRequestHandler):
             owner: ControlledCandidateGateway
@@ -86,7 +212,8 @@ class ControlledCandidateGateway:
                     self._send_json(404, {"error": "not_found"})
                     return
                 try:
-                    request = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
+                    raw_request = self.rfile.read(int(self.headers["Content-Length"]))
+                    request = json.loads(raw_request)
                 except KeyError, TypeError, ValueError, json.JSONDecodeError:
                     self._send_json(400, {"error": "malformed_request"})
                     return
@@ -136,6 +263,24 @@ class ControlledCandidateGateway:
                     return
 
                 with self.owner._lock:
+                    profile = self.owner._provider_profile
+                    compiled_problem_ref = self.owner._compiled_problem_ref
+                if profile is not None:
+                    try:
+                        completion = profile.completion(
+                            request,
+                            raw_request=raw_request,
+                            compiled_problem_ref=compiled_problem_ref,
+                        )
+                    except (TypeError, ValueError) as exc:
+                        self._send_json(
+                            409, {"error": {"type": type(exc).__name__, "message": str(exc)}}
+                        )
+                        return
+                    self._send_json(200, completion)
+                    return
+
+                with self.owner._lock:
                     recording = self.owner._recording
                     if recording is None:
                         response = None
@@ -170,29 +315,22 @@ class ControlledCandidateGateway:
                 if not isinstance(content, str):
                     self._send_json(502, {"error": "synthetic_response_malformed"})
                     return
-                usage = response.get("usage")
-                usage_payload = usage if isinstance(usage, dict) else {}
-                self._send_json(
-                    200,
-                    {
-                        "id": "synthetic-candidate-completion",
-                        "object": "chat.completion",
-                        "model": request.get("model"),
-                        "provider": "controlled_recorded_response",
-                        "choices": [
-                            {
-                                "index": 0,
-                                "message": {"role": "assistant", "content": content},
-                                "finish_reason": "stop",
-                            }
-                        ],
-                        "usage": {
-                            "prompt_tokens": usage_payload.get("prompt_tokens") or 0,
-                            "completion_tokens": usage_payload.get("completion_tokens") or 0,
-                            "total_tokens": usage_payload.get("total_tokens") or 0,
-                        },
-                    },
-                )
+                completion = {
+                    "id": "synthetic-candidate-completion",
+                    "object": "chat.completion",
+                    "model": request.get("model"),
+                    "provider": "controlled_recorded_response",
+                    "choices": [
+                        {
+                            "index": 0,
+                            "message": {"role": "assistant", "content": content},
+                            "finish_reason": "stop",
+                        }
+                    ],
+                }
+                if "usage" in response:
+                    completion["usage"] = _recorded_usage_payload(response["usage"])
+                self._send_json(200, completion)
 
             @staticmethod
             def _compiler_tool_name(request: dict[str, object]) -> str | None:
@@ -246,9 +384,15 @@ class ControlledCandidateGateway:
         recording: dict[str, object],
         *,
         problem: object,
+        provider_profile: SyntheticCandidateProviderProfile | None = None,
     ) -> None:
-        """Select one immutable synthetic overlay and its compiler product."""
+        """Select a historical replay or explicit synthetic provider profile."""
         self._validate_recording(recording)
+        if (
+            provider_profile is not None
+            and type(provider_profile) is not SyntheticCandidateProviderProfile
+        ):
+            raise TypeError("synthetic_provider_profile_untyped")
         model_dump = getattr(problem, "model_dump", None)
         if not callable(model_dump):
             raise TypeError("controlled_gateway_problem_untyped")
@@ -259,6 +403,26 @@ class ControlledCandidateGateway:
             self._recording = copy.deepcopy(recording)
             self._problem = copy.deepcopy(problem_payload)
             self._n4_cursor = 0
+            self._provider_profile = provider_profile
+            self._compiled_problem_ref = None
+
+    def admit_compiled_problem(self, problem: object) -> None:
+        """Bind the actual validated compiler product before profiled N4 calls."""
+        from polisyos.runtime.quality.cycle_substrate import cycle_job_profile_selection_ref
+
+        with self._lock:
+            profile = self._provider_profile
+            if profile is None:
+                return
+            if type(problem) is not DesignProblem:
+                raise TypeError("synthetic_provider_compiler_product_untyped")
+            if cycle_job_profile_selection_ref(problem) != profile.profile_selection_ref:
+                raise ValueError("synthetic_provider_compiler_semantic_scope_mismatch")
+            if self._problem is None or (
+                problem.nl_provenance.raw_request != self._problem["nl_provenance"]["raw_request"]
+            ):
+                raise ValueError("synthetic_provider_compiler_request_mismatch")
+            self._compiled_problem_ref = gy_content_hash(problem.model_dump(mode="json"))
 
     @staticmethod
     def _validate_recording(recording: dict[str, object]) -> None:

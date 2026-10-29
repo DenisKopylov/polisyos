@@ -89,29 +89,25 @@ def controlled_served_wdi_generation_recording(
     responses = controlled.get("responses")
     if not isinstance(responses, list):
         raise ValueError("controlled_candidate_recording_responses_missing")
-    for index in (4, 8):
-        response = responses[index]
-        if not isinstance(response, dict):
-            raise ValueError("controlled_candidate_recording_response_invalid")
-        raw = response.get("raw_response")
-        if not isinstance(raw, str):
-            raise ValueError("controlled_candidate_recording_body_missing")
-        trinity = json.loads(raw)
-        intervention = next(
-            item
-            for item in trinity["policy_spec"]["interventions"]
-            if item.get("kind") == "procurement_shock_intensity"
+    selected_parent_hashes = {
+        "sha256:5290085c97f3bbb3a6c612ce244a0ed21acadf74f8732a099397487068520e37",
+        "sha256:d4a1bcdcbcd4ab0a8fd9a0aa78ad8e1d35fa05846f493b3a3b5adbaa0d06456e",
+    }
+    selected = [
+        response
+        for response in responses
+        if isinstance(response, dict)
+        and response.get("raw_response_hash") in selected_parent_hashes
+    ]
+    if len(selected) != len(selected_parent_hashes):
+        raise ValueError("controlled_candidate_recording_parent_response_set_mismatch")
+    for response in selected:
+        if response.get("status") != "success" or response.get("role") != "formalizer":
+            raise ValueError("controlled_candidate_recording_parent_contract_mismatch")
+        response["raw_response"] = _controlled_wdi_trinity_response(
+            response["raw_response"], outcome_variable=outcome_variable
         )
-        intervention["kind"] = "budget_allocation_multiplier"
-        intervention["params"] = {"multiplier": 2}
-        intervention["notes"] = [
-            "do.target=government.balance sign=increase "
-            f"outcome={outcome_variable} "
-            f"effect_path=government.balance,{outcome_variable}"
-        ]
-        rewritten = json.dumps(trinity, sort_keys=True, separators=(",", ":"))
-        response["raw_response"] = rewritten
-        response["raw_response_hash"] = gy_content_hash(rewritten)
+        response["raw_response_hash"] = gy_content_hash(response["raw_response"])
 
     identity_seed = gy_content_hash(
         {
@@ -134,6 +130,122 @@ def controlled_served_wdi_generation_recording(
     )
     n4_contract._validate_recording_fixture(controlled)
     return controlled
+
+
+def _controlled_wdi_trinity_response(raw: str, *, outcome_variable: str) -> str:
+    """Extend the existing candidate overlay through one semantic transformation."""
+    from polisyos.common.serialization import extract_llm_json_object
+
+    trinity = extract_llm_json_object(raw)
+    interventions = trinity["policy_spec"]["interventions"]
+    selected = [item for item in interventions if item.get("kind") == "procurement_shock_intensity"]
+    if len(selected) != 1:
+        raise ValueError("controlled_candidate_recording_intervention_contract_mismatch")
+    intervention = selected[0]
+    intervention["kind"] = "budget_allocation_multiplier"
+    intervention["params"] = {"multiplier": 2}
+    intervention["notes"] = [
+        "do.target=government.balance sign=increase "
+        f"outcome={outcome_variable} "
+        f"effect_path=government.balance,{outcome_variable}"
+    ]
+    return json.dumps(trinity, sort_keys=True, separators=(",", ":"))
+
+
+def synthetic_served_wdi_provider_profile(
+    recording: dict[str, Any], *, problem: Any, evidence_root: Path
+):
+    """Declare an error-free synthetic software-property profile from retained inputs.
+
+    This is a new provider fixture. Its stage function reuses exact successful
+    parent bodies; it does not replay historical timing, request order or bills.
+    """
+    from polisyos.core.llm.response import _usage_quantity
+    from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.quality.cycle_substrate import cycle_job_profile_selection_ref
+    from tests._helpers.controlled_candidate_profile import SyntheticCandidateProviderProfile
+
+    controlled = controlled_served_wdi_generation_recording(
+        recording, outcome_variable=problem.outcome_of_interest.target_variable
+    )
+    parent_keys = {
+        "draft": (
+            "draft",
+            "sha256:9911e5fdbaa75b9bc23bd4ef978b66c55b95b233058ff06cc97393e2083a9293",
+        ),
+        "drafter_multipass": (
+            "drafter_multipass",
+            "sha256:89a34fcd666092f58acbcd12c2b96322f80d50f59321e71aca203b0c0e4b602c",
+        ),
+        "drafter_consolidation": (
+            "draft",
+            "sha256:9911e5fdbaa75b9bc23bd4ef978b66c55b95b233058ff06cc97393e2083a9293",
+        ),
+        "formalizer": (
+            "formalizer",
+            "sha256:d4a1bcdcbcd4ab0a8fd9a0aa78ad8e1d35fa05846f493b3a3b5adbaa0d06456e",
+        ),
+        "critic": (
+            "critic",
+            "sha256:97f5f0145850de2269c1fd8232a98787a8d748ec887d9e4c12c7188955eb84e2",
+        ),
+    }
+    rows = []
+    for stage, (role, response_hash) in parent_keys.items():
+        matches = [
+            row
+            for row in recording["responses"]
+            if row.get("raw_response_hash") == response_hash and row.get("role") == role
+        ]
+        if len(matches) != 1:
+            raise ValueError("synthetic_provider_parent_response_identity_unresolved")
+        source = matches[0]
+        body = source["raw_response"]
+        if gy_content_hash(body) != response_hash:
+            raise ValueError("synthetic_provider_parent_response_content_mismatch")
+        if stage == "formalizer":
+            body = _controlled_wdi_trinity_response(
+                body, outcome_variable=problem.outcome_of_interest.target_variable
+            )
+        raw_usage = source.get("usage")
+        if not isinstance(raw_usage, dict):
+            raise ValueError("synthetic_provider_explicit_usage_values_missing")
+        # Choose new declared test input values, never infer historical availability.
+        selected_values = {
+            key: raw_usage[key]
+            for key in ("prompt_tokens", "completion_tokens", "total_tokens")
+            if key in raw_usage
+        }
+        quantity = _usage_quantity(selected_values)
+        if quantity.status != "known":
+            raise ValueError("synthetic_provider_explicit_usage_values_invalid")
+        declared_usage = {
+            "prompt_tokens": quantity.prompt_tokens,
+            "completion_tokens": quantity.completion_tokens,
+            "total_tokens": quantity.total_tokens,
+            "usage_status": "known",
+        }
+        row = {
+            "status": source["status"],
+            "source_model_id": source["model_id"],
+            "raw_response": body,
+            "raw_response_hash": gy_content_hash(body),
+            "usage": declared_usage,
+            "legacy_counter_availability": "not_established",
+            "usage_declaration": "new_synthetic_test_input_not_provider_measurement",
+            "parent_role": role,
+            "parent_response_hash": response_hash,
+        }
+        rows.append((stage, json.dumps(row, sort_keys=True, separators=(",", ":"))))
+    return SyntheticCandidateProviderProfile(
+        model_id=str(recording["model_id"]),
+        profile_selection_ref=cycle_job_profile_selection_ref(problem),
+        source_recording_id=str(recording["recording_id"]),
+        source_recording_content_hash=str(recording["recording_content_hash"]),
+        controlled_recording_content_hash=str(controlled["recording_content_hash"]),
+        response_rows=tuple(rows),
+        evidence_root=evidence_root,
+    )
 
 
 def controlled_served_wdi_problem(problem: Any, *, raw_request: str) -> Any:
@@ -267,6 +379,7 @@ def make_wdi_port_case(
     candidate_world_refreshes=(),
     candidate_scenario_generation=False,
     candidate_generation_recording: dict[str, Any] | None = None,
+    candidate_provider_gateway=None,
     reentry_budget_usd: Decimal = Decimal("0.10"),
     fixture_epoch_id: int | None = None,
     fixture_attempt_ids: tuple[str, ...] = (_ATTEMPT_ID,),
@@ -382,7 +495,14 @@ def make_wdi_port_case(
     # Only candidate generation is a fixture; every re-entry owner still runs.
     from polisyos.runtime.quality.generation_cycle import N4GenerationPort
 
-    if candidate_scenario_generation:
+    if candidate_scenario_generation and candidate_provider_gateway is not None:
+        original_generation_port = N4GenerationPort.__call__
+
+        async def fixture_candidates(port, problem, *, cycle_index):
+            candidate_provider_gateway.admit_compiled_problem(problem)
+            return await original_generation_port(port, problem, cycle_index=cycle_index)
+
+    elif candidate_scenario_generation:
         from polisyos.runtime.quality.design_generation import (
             generate_design_candidate_scenario_proposal_under_a,
         )

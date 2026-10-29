@@ -42,6 +42,7 @@ from polisyos.scientist.orchestration.engine.convergence import (
     ConvergenceState,
     ConvergenceValidationError,
 )
+from polisyos.scientist.orchestration.llm._n4_request import _request_args
 
 from ._drafter_formatting import _DrafterFormattingMixin
 from ._drafter_llm import _DrafterLLMMixin
@@ -656,7 +657,12 @@ class MultiPassLLMDrafter(
         ) as span:
             last_error: Exception | None = None
 
+            request_attempt = 0
+
             async def _invoke_once() -> PassExecution:
+                nonlocal request_attempt
+                current_attempt = request_attempt
+                request_attempt += 1
                 user_message = (
                     "Review the draft and return strict JSON with findings. "
                     "Do not include markdown."
@@ -668,9 +674,15 @@ class MultiPassLLMDrafter(
                 )
                 response = await asyncio.wait_for(
                     self._llm.generate(
-                        system=prompt,
-                        user=user_message,
-                        response_format={"type": "json_object"},
+                        **_request_args(
+                            self._llm,
+                            stage="drafter_multipass",
+                            instance=pass_name,
+                            attempt=current_attempt,
+                            system=prompt,
+                            user=user_message,
+                            response_format={"type": "json_object"},
+                        )
                     ),
                     timeout=self._config.pass_timeout_s,
                 )
@@ -773,15 +785,26 @@ class MultiPassLLMDrafter(
         ) as span:
             last_error: Exception | None = None
 
+            request_attempt = 0
+
             async def _invoke_once() -> PassExecution:
+                nonlocal request_attempt
+                current_attempt = request_attempt
+                request_attempt += 1
                 response = await asyncio.wait_for(
                     self._llm.generate(
-                        system=prompt,
-                        user=(
-                            "Integrate findings and return strict JSON of the full revised draft. "
-                            "Do not include markdown."
-                        ),
-                        response_format={"type": "json_object"},
+                        **_request_args(
+                            self._llm,
+                            stage="drafter_consolidation",
+                            instance="consolidation",
+                            attempt=current_attempt,
+                            system=prompt,
+                            user=(
+                                "Integrate findings and return strict JSON of the full revised draft. "
+                                "Do not include markdown."
+                            ),
+                            response_format={"type": "json_object"},
+                        )
                     ),
                     timeout=self._config.pass_timeout_s,
                 )

@@ -14,6 +14,10 @@ import importlib
 from typing import Any
 
 __all__ = [
+    "create_n4_producer_binding",
+    "n4_producer_request_scope",
+    "consume_n4_producer_request_context",
+    "validate_n4_producer_context",
     "decision_packet_invocation_input_refs",
     "require_canonical_decision_packet_invocation",
     "DECISION_PACKET_INVOCATION_KIND",
@@ -58,6 +62,22 @@ __all__ = [
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "create_n4_producer_binding": (
+        "polisyos.scientist.orchestration.llm._n4_request",
+        "_n4_binding",
+    ),
+    "n4_producer_request_scope": (
+        "polisyos.scientist.orchestration.llm._n4_request",
+        "_binding_scope",
+    ),
+    "consume_n4_producer_request_context": (
+        "polisyos.scientist.orchestration.llm._n4_request",
+        "_call_context",
+    ),
+    "validate_n4_producer_context": (
+        "polisyos.scientist.orchestration.llm._n4_request",
+        "_check_n4_context",
+    ),
     "decision_packet_invocation_input_refs": (
         "polisyos.scientist.validation.epoch_certificate_issuance",
         "decision_packet_invocation_input_refs",

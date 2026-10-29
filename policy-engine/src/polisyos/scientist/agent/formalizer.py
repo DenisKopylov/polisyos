@@ -46,6 +46,7 @@ from polisyos.scientist.agent.prompts import get_formalizer_prompt
 from polisyos.scientist.agent.protocols import DraftResult, FormalizerAgent
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.orchestration.llm import TracedLLMClient
+from polisyos.scientist.orchestration.llm._n4_request import _request_args
 
 ZERO_ARTIFACT_REF = f"sha256:{'0' * 64}"
 FINAL_POLICY_CLAIMS_SCHEMA_VERSION = "policyos.scientist.final_policy_claims.v1"
@@ -2024,13 +2025,21 @@ Generate a valid TrinityBundle v{schema_version} JSON.
             try:
                 response = await asyncio.wait_for(
                     self._llm.generate(
-                        system=prompt,
-                        user=attempt_message,
-                        response_format={"type": "json_object"},
-                        plugins=(
-                            [{"id": "response-healing"}] if self._enable_response_healing else None
-                        ),
-                        timeout=self._timeout_s,
+                        **_request_args(
+                            self._llm,
+                            stage="formalizer",
+                            instance="formalize",
+                            attempt=attempt,
+                            system=prompt,
+                            user=attempt_message,
+                            response_format={"type": "json_object"},
+                            plugins=(
+                                [{"id": "response-healing"}]
+                                if self._enable_response_healing
+                                else None
+                            ),
+                            timeout=self._timeout_s,
+                        )
                     ),
                     timeout=self._timeout_s + 5.0,
                 )

@@ -1,0 +1,17 @@
+id = "2026-10-29-n4-source-owned-request-and-usage"
+title = "Bind N4 prepared occurrences and selected candidate replay quantities"
+type = "fixed"
+component = "runtime-quality"
+owner = "team-runtime-quality"
+summary = "Reuse the actual configured Core transformation through weakly owned opaque input occurrences and one atomic generate invocation permit, preserve canonical sanitizer behavior and existing N4 call projections, select one usage container and preserve component presence through replay, and keep opt-in candidate replay evidence versioned."
+evidence = ["src/polisyos/common/producer_request.py", "src/polisyos/core/llm/traced_client.py", "src/polisyos/core/llm/response.py", "src/polisyos/runtime/quality/_n4_usage_capture.py", "tests/unit/core/llm/test_producer_preparation.py", "tests/unit/runtime/quality/test_n4_recorded_usage.py", "architecture/public_surface/contract.toml"]
+compatibility = "Existing product N4 DTOs and recorder total fallback remain exact. Existing valid provider forms, missing/nullable containers and explicit invalid null token components keep their intended availability distinction; supported top-level quantities and explicit selected availability use the declared shared-parser contract. Canonical sanitizer source is unchanged. Testing-only CallUsageEvidenceV2 and ReplayCaptureV3 require their exact readers; legacy file roots refuse the new schema."
+change_class = "python-public-api; persisted-testing-input-format"
+surface_classification = "Additive governed common producer_request entrypoint and exact Core/Scientist owner aliases; candidate computation only, no product HTTP or N4 CAS field."
+migration = "Compose readers/facades first; run the configured public-surface generator and independently review its complete outputs before release. Preserve historical archive bytes and requalify affected source-bound N4/V1 consumers."
+api = "Presence-preserving replay_llm_usage_payload alias shared by legacy and V3; PreparedLLMInput, collectible pending ownership and atomic actual Traced invocation scope; generic common candidate carrier; exact Core quantity and Scientist context aliases; opt-in unqualified capture V3 writer."
+limitations = "Body equality is not external issuer authentication. A jointly rehashed candidate input does not prove capture execution or original provider usage. Standalone no-store capture remains unqualified, and replayed reuse remains unknown."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/quality/README.md", "src/polisyos/core/llm/README.md", "tools/quality/validation/generation_replay_input.README.md"]
+runbook_docs = []

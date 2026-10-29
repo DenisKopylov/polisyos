@@ -143,7 +143,7 @@ facade_mode = "lazy_facade"
 owner = "team-polisyos"
 readme = "src/polisyos/common/README.md"
 reference_doc = "docs/reference/public-surface.md"
-supported_entrypoints = ["polisyos.common", "polisyos.common.text", "polisyos.common.config", "polisyos.common.canonical", "polisyos.common.canonical_profile", "polisyos.common.hashing", "polisyos.common.migrations"]
+supported_entrypoints = ["polisyos.common", "polisyos.common.text", "polisyos.common.config", "polisyos.common.canonical", "polisyos.common.canonical_profile", "polisyos.common.producer_request", "polisyos.common.hashing", "polisyos.common.migrations"]
 major_subsystem = false
 notes = "Shared helper boundary for config, logging, serialization, and migrations."
 

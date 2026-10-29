@@ -1624,3 +1624,113 @@ async def test_authorized_shared_cache_reuse_survives_distinct_run_bindings(
                 cache_reuse_response=counterfeit,
             )
     assert FileBudgetLedger(path).snapshot() == reopened
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "usage", [None, {}, {"prompt_tokens": 2}, {"prompt_tokens": 0, "completion_tokens": 0}]
+)
+async def test_recorded_unknown_usage_cannot_settle_as_an_estimated_zero(
+    tmp_path: Path, usage
+) -> None:
+    from tests._helpers.acquisition_chain import load_served_wdi_generation_recording
+    from tools.quality.validation.check_layer3_gy_design_generation_contract import (
+        RecordedGenerationReplayClient,
+    )
+
+    recording = load_served_wdi_generation_recording()
+    recording["responses"][0]["usage"] = usage
+    middleware = _middleware(tmp_path / "unknown-recorded-usage.json")
+    client = TracedLLMClient(
+        RecordedGenerationReplayClient(recording),
+        model_name=recording["model_id"],
+        tracer=_Tracer(),
+        metrics=_Metrics(),
+        producer_settlement_store=middleware,
+    )
+    response = await client.generate(user="unknown recorded usage")
+    event = response.settlement.event
+    assert event.cost_origin == "unknown"
+    assert event.amount is None
+    assert response.settlement.ack.status == "unknown"
+    record = (
+        FileBudgetLedger(tmp_path / "unknown-recorded-usage.json")
+        .snapshot()
+        .producer_settlements[event.event_id]
+    )
+    assert record.status == "unknown" and record.amount is None
+
+
+@pytest.mark.asyncio
+async def test_real_cache_reuse_capture_cannot_be_replayed_as_a_new_estimated_zero(
+    tmp_path: Path,
+) -> None:
+    from polisyos.runtime.quality._n4_usage_capture import capture_call_usage
+    from polisyos.runtime.quality.design_generation import RecordingLLMClient
+    from tools.quality.validation.check_layer3_gy_design_generation_contract import (
+        RecordedGenerationReplayClient,
+    )
+    from tools.quality.validation.generation_replay_input import build_replay_capture
+
+    live_ledger_path = tmp_path / "live-cache.json"
+    middleware = _middleware(live_ledger_path)
+    provider = _Provider(cost=0.02)
+    cached = CachingLLMClient(
+        provider,
+        cache=InMemoryPromptCache(maxsize=4, default_ttl_s=30),
+        model="fixture-model",
+        ttl_s=30,
+        inflight_timeout_s=2,
+    )
+    client = TracedLLMClient(
+        cached,
+        model_name="fixture-model",
+        tracer=_Tracer(),
+        metrics=_Metrics(),
+        producer_settlement_store=middleware,
+    )
+    recorder = RecordingLLMClient(client, model_id="fixture-model")
+    with capture_call_usage() as captured:
+        await recorder.generate(user="same policy question", temperature=0)
+        await recorder.generate(user="same policy question", temperature=0)
+    assert provider.calls == 1
+    assert captured.evidence[1].observation.source_was_reuse
+    assert captured.evidence[1].observation.billable_usage.prompt_tokens == 0
+    assert captured.evidence[1].observation.normalized_origin_usage.prompt_tokens == 2
+    assert captured.evidence[1].observation.normalized_origin_usage.completion_tokens == 1
+    assert captured.evidence[1].observation.reuse_verification == "verified_live_core_session"
+    envelope = build_replay_capture(
+        metadata={"model_id": "fixture-model", "recorded_at": "fixture"},
+        calls=captured.calls,
+        evidence=captured.evidence,
+    )
+    replay = RecordedGenerationReplayClient(envelope)
+    await replay.generate(user="first recorded row")
+    fresh_ledger_path = tmp_path / "fresh-replay.json"
+    fresh = TracedLLMClient(
+        replay,
+        model_name="fixture-model",
+        tracer=_Tracer(),
+        metrics=_Metrics(),
+        producer_settlement_store=_middleware(fresh_ledger_path),
+    )
+    response = await fresh.generate(user="reuse bytes are not a current reuse capability")
+    assert response.settlement.event.cost_origin == "unknown"
+    assert response.settlement.event.amount is None
+    assert response.settlement.ack.status == "unknown"
+    row = (
+        FileBudgetLedger(fresh_ledger_path)
+        .snapshot()
+        .producer_settlements[response.settlement.event.event_id]
+    )
+    assert row.cost_origin == "unknown" and row.amount is None
+    # Falsify the producer/reuse premise while retaining all other evidence.
+    changed = envelope.model_dump(mode="json")
+    changed["call_usage"][1]["observation"]["source_was_reuse"] = False
+    from polisyos.pdc import gy_content_hash
+
+    changed["content_hash"] = gy_content_hash(
+        {key: value for key, value in changed.items() if key != "content_hash"}
+    )
+    with pytest.raises(ValueError, match="reuse_downgraded_to_provider"):
+        type(envelope).model_validate(changed)

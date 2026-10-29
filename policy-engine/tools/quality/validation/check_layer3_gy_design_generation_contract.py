@@ -23,6 +23,11 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
+from polisyos.core.llm.response import (
+    _recorded_usage_payload,
+    _usage_quantity,
+    extract_llm_response_data,
+)
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.governance.schedule import ScheduleSpec
@@ -68,6 +73,7 @@ from polisyos.scientist.orchestration.llm.gateway_client import (
     GatewayUsage,
 )
 from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
+from tools.quality.validation.generation_replay_input import ReplayCaptureV3
 
 OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_design_generation_contract.json"
 RECORDING_FIXTURE_PATH = (
@@ -117,10 +123,23 @@ def declared_outputs() -> list[str]:
 class RecordedGenerationReplayClient:
     """Test-only replay transport over recorded gateway raw responses."""
 
-    def __init__(self, recording: dict[str, Any]) -> None:
-        self._recording = recording
+    def __init__(self, recording: dict[str, Any] | ReplayCaptureV3) -> None:
+        qualified = None
+        if type(recording) is ReplayCaptureV3:
+            # Frozen models contain mappings: re-admit their complete bytes once,
+            # then retain immutable per-row quantities rather than caller aliases.
+            admitted = ReplayCaptureV3.model_validate_json(recording.model_dump_json())
+            qualified = tuple(
+                json.dumps(admitted.usage_for(index), sort_keys=True, allow_nan=False)
+                for index in range(len(admitted.source_calls))
+            )
+            recording = admitted.recording()
+        if not isinstance(recording, dict) or not isinstance(recording.get("responses"), list):
+            raise ValueError("gy_n4_recording_responses_missing_or_unknown_format")
+        self._recording = json.loads(json.dumps(recording, sort_keys=True, allow_nan=False))
+        self._qualified_usage = qualified
         self._responses = [
-            dict(item) for item in recording.get("responses") or [] if isinstance(item, dict)
+            dict(item) for item in self._recording.get("responses") or [] if isinstance(item, dict)
         ]
         self._cursor = 0
 
@@ -176,16 +195,28 @@ class RecordedGenerationReplayClient:
             raise RuntimeError(
                 f"gy_n4_recorded_raw_response_hash_mismatch:{label}:{actual_hash}!={recorded_hash}"
             )
-        usage = recorded.get("usage")
-        usage_payload = usage if isinstance(usage, dict) else {}
+        wire_usage: dict[str, Any] = {
+            "content": raw,
+            "usage": (
+                json.loads(self._qualified_usage[self._cursor])
+                if self._qualified_usage is not None
+                else _recorded_usage_payload(recorded.get("usage"))
+            ),
+        }
+        observed_usage = extract_llm_response_data(wire_usage)
+        quantity = _usage_quantity(wire_usage["usage"])
         self._cursor += 1
         return GatewayLLMResponse(
             content=raw,
             usage=GatewayUsage(
-                prompt_tokens=int(usage_payload.get("prompt_tokens") or 0),
-                completion_tokens=int(usage_payload.get("completion_tokens") or 0),
-                total_tokens=int(usage_payload.get("total_tokens") or 0),
+                prompt_tokens=quantity.prompt_tokens or 0,
+                completion_tokens=quantity.completion_tokens or 0,
+                total_tokens=quantity.total_tokens or 0,
+                usage_status=observed_usage.usage_status,
+                cost_status="missing",
+                cost_usd=None,
             ),
+            raw=wire_usage,
             model=str(self._recording["model_id"]),
             provider="recorded_gateway_replay",
         )

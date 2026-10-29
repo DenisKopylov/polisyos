@@ -436,6 +436,7 @@ def test_served_acquisition_binds_n7_compiler_and_planner_cas_before_reentry(
         include_b09_evidence=True,
         source_owner_root=source_inputs.root,
         include_default_only_compiled_probe=True,
+        provider_mode="synthetic_settled_candidate",
     )
 
     assert result is not None

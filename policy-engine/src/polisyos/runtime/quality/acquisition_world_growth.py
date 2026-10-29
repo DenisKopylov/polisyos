@@ -2676,7 +2676,16 @@ class AcquisitionWorldGrowthBridge:
     ) -> None:
         """Consume prepared values only after fresh complete state/rule replay."""
 
-        from polisyos.foundry.data_plane import InputBindingValuesPreparation, load_input_bindings
+        from polisyos.core.artifacts import (
+            ArtifactRef,
+            artifact_ref_for_manifest,
+            artifact_ref_identity_key,
+        )
+        from polisyos.foundry.data_plane import (
+            InputBindingValuesPreparation,
+            load_input_bindings,
+            prepare_input_bindings,
+        )
         from polisyos.foundry.execute import load_state_snapshot, state_snapshot_value_projection
         from polisyos.runtime.quality.world_model_record import (
             WorldModelRecord,
@@ -2689,17 +2698,76 @@ class AcquisitionWorldGrowthBridge:
         ):
             raise TypeError("acquisition_prospective_values_untyped")
         actual_world_views = world_model_artifact_views(world_model_record)
+
+        def pin_selected_view(ref: ArtifactRef) -> ArtifactRef:
+            # Resolve the actual default if profileless, then keep using that
+            # exact verified manifest even if the default changes afterwards.
+            if not isinstance(ref, ArtifactRef):
+                raise ValueError("acquisition_prospective_selected_view_unverified")
+            try:
+                manifest = self.artifact_store.get_manifest(ref)
+                selected = artifact_ref_for_manifest(manifest)
+                if (
+                    not self.artifact_store.verify(ref).ok
+                    or not self.artifact_store.verify(selected).ok
+                    or self.artifact_store.get_manifest(ref) != manifest
+                    or self.artifact_store.get_manifest(selected) != manifest
+                ):
+                    raise ValueError("acquisition_prospective_selected_view_unverified")
+                return selected
+            except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                raise ValueError("acquisition_prospective_selected_view_unverified") from exc
+
+        def same_selected_view(owner_ref: ArtifactRef, selected_ref: ArtifactRef) -> bool:
+            # A profileless embedded ref means its actual CAS default, not an
+            # arbitrary matching blob. Compare the two complete verified views.
+            if (
+                not isinstance(owner_ref, ArtifactRef)
+                or owner_ref.artifact_id != selected_ref.artifact_id
+                or owner_ref.kind != selected_ref.kind
+                or owner_ref.media_type != selected_ref.media_type
+            ):
+                return False
+            try:
+                return artifact_ref_identity_key(pin_selected_view(owner_ref)) == (
+                    artifact_ref_identity_key(selected_ref)
+                )
+            except ValueError:
+                return False
+
+        selected_views = {
+            field: pin_selected_view(getattr(actual_world_views, field))
+            for field in ("data_snapshot_ref", "registry_bundle_ref", "bound_state_snapshot_ref")
+        }
+        bindings_ref = pin_selected_view(actual_world_views.input_bindings_ref)
+        actual_bindings = load_input_bindings(self.artifact_store, bindings_ref)
+        for field, selected in selected_views.items():
+            if not same_selected_view(getattr(actual_bindings, field), selected):
+                raise ValueError("acquisition_prospective_binding_source_view_mismatch:" + field)
         actual_state = load_state_snapshot(
-            self.artifact_store, snapshot_ref=actual_world_views.bound_state_snapshot_ref
+            self.artifact_store, snapshot_ref=selected_views["bound_state_snapshot_ref"]
         )
         if state_snapshot_value_projection(actual_state) != state_snapshot_value_projection(
             prospective_values.materialized_state
         ):
             raise ValueError("acquisition_prospective_state_owner_reconciliation_failed")
-        actual_bindings = load_input_bindings(
-            self.artifact_store, actual_world_views.input_bindings_ref
+        sql_ref = actual_bindings.registered_sql_admission_ref
+        if sql_ref is not None:
+            sql_ref = pin_selected_view(sql_ref)
+        replayed = prepare_input_bindings(
+            self.artifact_store,
+            data_snapshot_ref=selected_views["data_snapshot_ref"],
+            registry_bundle_ref=selected_views["registry_bundle_ref"],
+            rules=list(actual_bindings.rules),
+            registered_sql_admission_ref=sql_ref,
         )
-        if actual_bindings.rules != list(prospective_values.effective_rules):
+        if (
+            replayed.effective_rules != prospective_values.effective_rules
+            or replayed.applied_binding_ids != prospective_values.applied_binding_ids
+            or replayed.warnings != prospective_values.warnings
+            or state_snapshot_value_projection(replayed.materialized_state)
+            != state_snapshot_value_projection(actual_state)
+        ):
             raise ValueError("acquisition_prospective_rule_owner_reconciliation_failed")
 
     @staticmethod

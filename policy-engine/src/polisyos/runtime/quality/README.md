@@ -1386,6 +1386,19 @@ candidate comparison only; native current eligibility, evidence independence
 and publication authority remain separate owner decisions. Unknown base valid
 time stays unknown through the acquired candidate world and Fabric snapshot.
 
+The acquired candidate bridge derives selected views from the validated
+world-model record supplied by its builder, then reopens the bindings' data
+snapshot, registry, and bound state against those views using the actual CAS
+default or selected manifest. It consumes pinned views. A profileless default is
+usable only when its exact selected sidecar is present, readable and verifies;
+otherwise reconciliation fails closed.
+It asks the Foundry binding owner to recompute the full ordered rules, applied
+IDs, warnings and materialized state before accepting the prospective values. A different
+serialized rule order can denote the same execution order; changed rule fields
+and changed selected source views remain decisive. This bridge is a bounded
+producer/consumer consistency check, not source permission, historical
+comparison, retention authority, or proof of active SKG consumed values.
+
 ## Prospective acquired-world values
 
 `prepare_acquired_observation_world_semantic_values` and

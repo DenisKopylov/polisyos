@@ -15,6 +15,7 @@ from polisyos.core.artifacts.manifest import (
 )
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
+from polisyos.core.contracts import FoundryInputBindingRule
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.data_forge.kernel.pipeline.manifests import write_publish_manifest
@@ -69,6 +70,7 @@ def _build_record(
     *,
     data_snapshot_factory: Callable[[FileSystemCAS], ArtifactRef] | None = None,
     skg_ref_factory: Callable[[Path], SkgCausalPriorRef] | None = None,
+    foundry_binding_rules: list[FoundryInputBindingRule] | None = None,
 ):
     # Workspace artifacts must not rely on the chosen CAS creating this path.
     tmp_path.mkdir(parents=True, exist_ok=True)
@@ -99,6 +101,7 @@ def _build_record(
         policy_slot_ids=("agents.income", "government.balance"),
         producer_ref="test.world_model_record_builder",
         required_substrate_families=("firm_fundamentals",),
+        foundry_binding_rules=foundry_binding_rules,
     )
     return store, result, model_spec, registry_bundle.bundle_ref
 

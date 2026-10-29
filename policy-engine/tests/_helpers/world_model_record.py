@@ -68,6 +68,7 @@ def _build_record(
     tmp_path: Path,
     *,
     data_snapshot_factory: Callable[[FileSystemCAS], ArtifactRef] | None = None,
+    skg_ref_factory: Callable[[Path], SkgCausalPriorRef] | None = None,
 ):
     # Workspace artifacts must not rely on the chosen CAS creating this path.
     tmp_path.mkdir(parents=True, exist_ok=True)
@@ -84,7 +85,9 @@ def _build_record(
         data_forge_snapshot_binding_path=_write_data_forge_binding(tmp_path),
         data_snapshot_ref=data_snapshot_ref,
         model_spec=model_spec,
-        skg_causal_prior_ref=_skg_ref(tmp_path),
+        skg_causal_prior_ref=(
+            _skg_ref(tmp_path) if skg_ref_factory is None else skg_ref_factory(tmp_path)
+        ),
         substrate_registry=_substrate_registry(),
         region_or_jurisdiction="UA-30",
         population_scope="wartime_msme",

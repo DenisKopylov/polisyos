@@ -2592,7 +2592,8 @@ def build_acquired_observation_candidate_world(
 ) -> AcquiredObservationWorldBuildResult:
     """Extend the existing WMR owner with one admitted row as limited candidate state.
 
-    The prior SKG snapshot is retained byte-for-byte. Its source DataSnapshot
+    The prior SKG reference is retained unchanged; this does not bind its
+    snapshot bytes or establish consumed SKG values. Its source DataSnapshot
     remains the prior version and the resulting WMR carries
     ``causal_coupling_not_established``; this builder never relabels a prior as
     current causal evidence. Fabric facts use unknown valid time and the

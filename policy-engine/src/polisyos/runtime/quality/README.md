@@ -1397,6 +1397,10 @@ Historical replay reconciles actual native rows, full model/rule/source relation
 and the existing Data Forge finalizer before projecting occurrence roles. Active
 SKG references, other executable graphs, QC-dependent finalization and unresolved
 owners remain `not_established`; this is not a generic-world completeness claim.
+The acquired-world producer retains the prior SKG reference, not bound snapshot
+bytes or independently established consumed SKG quantities. A changed database
+at the same path and version can therefore retain the same reference; it is not
+an established equality basis.
 
 `replay_acquired_observation_snapshot_preparation` reconstructs the real historical
 preparation from compact base/receipt/passport/boundary/source/row/binding/time

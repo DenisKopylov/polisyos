@@ -1231,6 +1231,10 @@ def test_valid_delta_output_is_not_marked_missing_or_incomplete(tmp_path, monkey
 
 
 def test_normative_admission_recomputes_denominator_while_markers_stay_true(tmp_path) -> None:
+    from polisyos.scientist.nodes.builtins.simulate.uncertainty_source_projection import (
+        load_science_simulation_result_uncertainty_admission,
+    )
+
     store, ctx, state = _build_node_context(
         tmp_path,
         run_id="R_b194_normative_falsified_denominator",
@@ -1248,7 +1252,8 @@ def test_normative_admission_recomputes_denominator_while_markers_stay_true(tmp_
     produced = PropagateUncertaintyNode().execute(ctx, state)
     assert produced.status == "ok"
     original_sim_ref = produced.state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF]
-    original_sim_payload = from_canonical_bytes(store.get_bytes(original_sim_ref.artifact_id))
+    original_sim_manifest = store.get_manifest(original_sim_ref)
+    original_sim_payload = from_canonical_bytes(store.get_bytes(original_sim_ref))
     sim_result = SimulationResult.model_validate(original_sim_payload)
     envelope = load_uncertainty_envelope(
         _ensure_ir_artifact_store(store), sim_result.uncertainty_envelopes["y"]
@@ -1261,7 +1266,19 @@ def test_normative_admission_recomputes_denominator_while_markers_stay_true(tmp_
     ledger = report["draw_outcome_provenance"]
     assert ledger["outcome_denominator_complete"] is True
     assert ledger["failure_records"] == []
-    producer_before = store.get_manifest(sim_result.propagation_report_ref.artifact_id).producer
+    original_report_ref = sim_result.propagation_report_ref
+    original_report_manifest = store.get_manifest(original_report_ref)
+    producer_before = original_report_manifest.producer
+    original_admission = load_science_simulation_result_uncertainty_admission(
+        store, original_sim_ref, "y"
+    )
+    assert original_admission.admitted is False
+    assert "source_owner_validation_refused" not in original_admission.limitation_codes
+    assert "propagation_draw_denominator_mismatch" not in original_admission.limitation_codes
+    assert original_sim_manifest.artifact_schema is not None
+    assert original_sim_manifest.artifact_schema.version == sim_result.schema_version
+    assert original_report_manifest.artifact_schema is not None
+    assert original_report_manifest.artifact_schema.version == report["schema_version"]
 
     # Keep all eligibility/completeness markers and producer identity unchanged,
     # but falsify the successful denominator the consumer is meant to recompute.
@@ -1271,18 +1288,36 @@ def test_normative_admission_recomputes_denominator_while_markers_stay_true(tmp_
         PutOptions(
             kind="foundry.propagation_report",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.foundry.PropagationReport", version="1.1"),
+            schema=original_report_manifest.artifact_schema,
+            producer=original_report_manifest.producer,
+            inputs=list(original_report_manifest.inputs),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=original_report_ref.manifest_profile_sha256 is not None,
     )
     assert store.get_manifest(forged_report_ref.artifact_id).producer == producer_before
+    assert sum(item.role == "propagation_report" for item in original_sim_manifest.inputs) == 1
+    forged_sim = sim_result.model_copy(update={"propagation_report_ref": forged_report_ref})
     forged_sim_ref = store.put_json(
-        sim_result.model_copy(update={"propagation_report_ref": forged_report_ref}),
+        forged_sim.to_artifact_payload(),
         PutOptions(
             kind="foundry.simulation_result",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.SimulationResult", version="1.1"),
+            schema=original_sim_manifest.artifact_schema,
+            producer=original_sim_manifest.producer,
+            inputs=[
+                item.model_copy(
+                    update={
+                        "artifact_id": forged_report_ref.artifact_id,
+                        "manifest_profile_sha256": forged_report_ref.manifest_profile_sha256,
+                    }
+                )
+                if item.role == "propagation_report"
+                else item
+                for item in original_sim_manifest.inputs
+            ],
         ),
+        return_selected_profile=original_sim_ref.manifest_profile_sha256 is not None,
     )
     trinity_ref = _persist_uncertainty_normative_frame(store)
     normative_state = ExperimentState(
@@ -1291,10 +1326,12 @@ def test_normative_admission_recomputes_denominator_while_markers_stay_true(tmp_
         artifacts_index={ARTIFACT_SIMULATION_RESULT_REF: forged_sim_ref},
     )
     outcome = RunNormativeArbitrationNode().execute(ctx, normative_state)
+    assert outcome.status == "ok"
     result_ref = outcome.state.artifacts_index[ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF]
     result = load_normative_arbitration_result(_ensure_ir_artifact_store(store), result_ref)
 
     assert result.model_completeness is NormativeModelCompleteness.PARTIAL
+    assert not any("source_owner_validation_refused" in item for item in result.warnings)
     assert any("propagation_draw_denominator_mismatch" in item for item in result.warnings)
     proposal = next(
         item for item in result.option_matrix if item.option is ArbitrationOption.PROPOSAL

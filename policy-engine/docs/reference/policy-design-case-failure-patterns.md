@@ -767,3 +767,44 @@ reader/preparation calls do not enter executed-code evidence.
 This is the same consumed-constructor quantity and observation-context class,
 not a new repair-round count or a G choice. Bounded source review and static
 checks do not establish runtime PASS, G acceptance or formal E02 closure.
+
+
+### P38/P40 instance: mutable destination binding redirects a diagnostic write
+
+**Property.** A preparation/controller write changes only its explicitly designated
+run-owned output and leaves every input, dependency, and source-bound artifact
+byte-identical at the observed before/after boundaries.
+
+**Proxy and divergence.** A declared output path, successful preflight, or the
+current value of generic `path`/`manifest_path` is not proof of the eventual write
+destination; a loop can rebind that name to its last input. In
+`LOCAL/raw/e02-execution-20261027/node-consumer-check-ready-r1/run_node_consumer_check.py`,
+`manifest_path` first names `run_dir/receipt.json`, then is rebound by the
+dependency-manifest loop. Static inspection caught the unsafe controller before
+execution; no Node dependency overwrite is claimed. The I3 R3 preparation incident
+actually overwrote the RAW `pytest_execution_profile.py` with plan bytes. Bad bytes
+remain preserved. `repairs/I3-prepare-write-scope-incident-r1/restoration-readback.json`
+records the restored input SHA-256 `3e9c1f7f4b6bb313a1ad4cd8fe43dfbf694e62e244eb9e1c360809dca1f32ad7`; this is the profile's content hash, not the JSON receipt hash.
+
+**Distinguishing control and repair.** The synthetic full-main R3 removal control
+reproduces the wrong destination and changed input. The corrected R4 full-main
+control changes only the intended plan, preserves all six input bytes, and refuses
+symlink and hardlink destinations (`cloud/C156/collection-r1/native-plan-r4/fake-preparer-controls-r2/results.json`,
+SHA-256 `d699d1d3884e3de4606f19d3a9562d4be07d6db98885c4a5bb5e328aa065cdb0`).
+On the actual R4 preparation/run, the wrapper observed all six input path/hash/
+device/inode/mtime identities unchanged at the before/after boundaries
+(`runner-r1/receipt.json`, SHA-256 `fc14ea970882683682cfe10e928ed4bf5384d4fe9583b778a16f6b691c3ca9c4`).
+These checks do not prove no external writer changed-and-restored a byte between
+samples; the sole-writer lease remains part of the evidence boundary.
+
+**Closure move.** Give each role a distinct name (`receipt_path`, `plan_output_path`,
+`input_path`, `dependency_manifest_path`), validate outputs under one run-owned
+root, and compare the complete observed path/input identity sets on success and
+refusal. Keep the actual R4 bounded B83 run and independent review source-bound to
+R35/06b; they are not a pass on the f3bc source or all I3/B83 criteria.
+
+**Class disposition.** This is one mutable-destination/write-scope class: the Node
+controller hazard was caught before execution; the I3 R3 instrument actually wrote
+the wrong RAW input; synthetic R3/R4 controls and actual R4 boundary readback now
+distinguish the correction. No product/source failure, G acceptance, or closure is
+claimed by this register proposal.

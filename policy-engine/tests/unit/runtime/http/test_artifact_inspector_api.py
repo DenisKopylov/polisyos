@@ -1680,9 +1680,66 @@ def test_selected_manifest_authority_controls_all_artifact_http_surfaces(
 def test_default_json_content_and_schema_carry_one_bounded_manifest_selection(
     runtime_api_env, monkeypatch
 ) -> None:
-    # The workflow report intentionally contains a token; use a clean owned JSON artifact.
-    artifact_id = runtime_api_env["root_artifact_id"]
+    runtime_context = runtime_api_env["app"].state.runtime_api_ctx
+    store = runtime_context.store
     client = runtime_api_env["client"]
+    tenant_id = runtime_api_env["tenant_a"]
+    cell_id = runtime_api_env["cell_a"]
+    payload = {"inspection_header_fixture": "clean"}
+    ref, envelope_ref = _put_controlled_authority_profile_view(
+        store,
+        payload,
+        boundary_id="boundary-header-selection",
+        kind="test.inspection_header",
+        schema_name="test.inspection_header",
+        producer=ProducerInfo(component="polisyos.tests.inspection_header", version="1.0.0"),
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+    )
+    artifact_id = str(ref.artifact_id)
+    assert ref.manifest_profile_sha256 is not None
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        assert store.verify(ref).ok
+        assert store.get_bytes(ref) == to_canonical_bytes(payload)
+        manifest = store.get_manifest(ref)
+    assert artifact_manifest_profile_sha256(manifest) == ref.manifest_profile_sha256
+
+    # CAS ownership alone must not admit a subject absent a tenant-scoped run.
+    assert runtime_context.run_index.get_artifact_tenant(artifact_id) is None
+    path = f"/api/v1/artifacts/{artifact_id}/content"
+    unlinked = _runtime_api_request(runtime_api_env, client.get, path)
+    assert unlinked.status_code == 403, unlinked.text
+    assert unlinked.json()["code"] == "artifact_tenant_unscoped"
+
+    # The existing fixture owner writes and indexes the actual run/output link.
+    _record_fixture_owner(
+        store,
+        envelope_ref,
+        ref,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        runtime_api_env=runtime_api_env,
+    )
+    assert runtime_context.run_index.get_artifact_tenant(artifact_id) == tenant_id
+    summaries, page = runtime_context.run_index.list_runs(
+        limit=200, tenant_id=tenant_id, q="R_fixture_artifact_owner_"
+    )
+    assert page.next_cursor is None
+    indexed_runs = [runtime_context.run_index.get_run(summary.run_id) for summary in summaries]
+    assert any(
+        run.details.tenant_id == tenant_id
+        and run.details.cell_id == cell_id
+        and any(
+            output.artifact_id == ref.artifact_id
+            and output.manifest_profile_sha256 == ref.manifest_profile_sha256
+            for output in run.details.root_artifacts
+        )
+        for run in indexed_runs
+    )
+    linked = _runtime_api_request(runtime_api_env, client.get, path)
+    assert linked.status_code == 200, linked.text
+    assert linked.json()["artifact"]["preview"] == payload
+    assert linked.json()["artifact"]["manifest_profile_sha256"] == ref.manifest_profile_sha256
     expected_selector = ArtifactID.model_validate(artifact_id)
     route_reader = artifact_routes.read_core_manifest_profile_bounded
     inspector_reader = inspector_module.read_core_manifest_profile_bounded
@@ -1731,6 +1788,8 @@ def test_default_json_content_and_schema_carry_one_bounded_manifest_selection(
                 "allow_profile_absent": True,
             }
             and selected_read.manifest == default_read.manifest
+            and artifact_manifest_profile_sha256(selected_read.manifest)
+            == ref.manifest_profile_sha256
             and semantic_headers[0] is selected_read
         )
 
@@ -1743,6 +1802,17 @@ def test_default_json_content_and_schema_carry_one_bounded_manifest_selection(
         )
         assert response.status_code == 200, response.text
         assert carries_single_selected_header()
+        if surface == "content":
+            assert response.json()["artifact"]["preview"] == payload
+            assert (
+                response.json()["artifact"]["manifest_profile_sha256"]
+                == ref.manifest_profile_sha256
+            )
+        else:
+            assert response.json()["schema"]["schema_name"] == "test.inspection_header"
+            assert (
+                response.json()["schema"]["manifest_profile_sha256"] == ref.manifest_profile_sha256
+            )
 
     # Property-removal control: discard the carried selected header at the
     # actual semantic read. The response remains valid but the owner must do a

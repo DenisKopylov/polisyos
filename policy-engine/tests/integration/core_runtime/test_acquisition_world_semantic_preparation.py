@@ -2,16 +2,24 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
+from collections.abc import Callable
 from pathlib import Path
 
+import duckdb
 import pytest
 
 from polisyos.core.artifacts import FileSystemCAS
 from polisyos.foundry.data_plane import prepare_json_input_binding_values
 from polisyos.runtime.quality import data_state_substrate as owner
 from polisyos.runtime.quality.substrate_registry import persist_substrate_registry
-from polisyos.runtime.quality.world_model_record import world_model_artifact_views
+from polisyos.runtime.quality.world_model_record import (
+    SkgCausalPriorRef,
+    WorldModelRecord,
+    load_world_model_record,
+    world_model_artifact_views,
+)
 from tests._helpers import world_model_record as world_fixture
 from tests.integration.core_runtime.test_acquisition_data_preparation import _observe_store_writes
 from tests.integration.core_runtime.test_acquisition_observation_semantics import _case
@@ -223,10 +231,79 @@ def test_historical_consumers_refuse_changed_owner_default_view(
     assert preparation_read() == prepared
 
 
-def _world_case(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+def _seed_selected_skg(tmp_path: Path, *, edge_confidence: float | None) -> SkgCausalPriorRef:
+    """Select actual owner-query rows from a test-owned Academic SKG database."""
+    from polisyos.data_forge.domains.academic.knowledge.skg_store import (
+        ensure_skg_schema,
+        next_skg_version,
+    )
+    from polisyos.data_forge.read_api.academic import SKGQuery
+
+    db_path = tmp_path / "academic-skg.duckdb"
+    con = duckdb.connect(str(db_path))
+    try:
+        ensure_skg_schema(con)
+        version_id = next_skg_version(con, description="acquisition-world test fixture")
+        if edge_confidence is not None:
+            con.execute(
+                "INSERT INTO ac_skg_edges "
+                "(edge_id, src, dst, direction, n_articles, article_refs, "
+                "evidence_strength, confidence, scope_conditions) "
+                "VALUES ('test-edge', 'credit', 'survival', 'positive', 1, "
+                "'[]', 'observational', ?, '[]')",
+                [edge_confidence],
+            )
+        row_count = con.execute("SELECT COUNT(*) FROM ac_skg_edges").fetchone()
+        assert row_count == (0 if edge_confidence is None else 1,)
+        con.execute("CHECKPOINT")
+    finally:
+        con.close()
+    query = SKGQuery(db_path=db_path, index_dir=tmp_path / "index")
+    try:
+        assert query.latest_skg_version_id() == version_id
+        snapshot_ref = query.skg_snapshot_ref(version_id=version_id)
+        rows = query.query_edge_priors(min_confidence=0.0, limit=2)
+    finally:
+        query.close()
+    assert snapshot_ref is not None
+    assert len(rows) == (0 if edge_confidence is None else 1)
+    return SkgCausalPriorRef(
+        skg_snapshot_ref=snapshot_ref,
+        skg_version_id=str(version_id),
+        source_data_snapshot_id=world_fixture.SNAPSHOT_ID,
+        edge_prior_refs=tuple(f"skg-edge://{row['edge_id']}" for row in rows),
+    )
+
+
+def _empty_selected_skg(tmp_path: Path) -> SkgCausalPriorRef:
+    return _seed_selected_skg(tmp_path, edge_confidence=None)
+
+
+def _active_selected_skg(tmp_path: Path) -> SkgCausalPriorRef:
+    return _seed_selected_skg(tmp_path, edge_confidence=0.8)
+
+
+def _read_skg_edges(db_path: Path) -> list[dict[str, object]]:
+    from polisyos.data_forge.read_api.academic import SKGQuery
+
+    query = SKGQuery(db_path=db_path, index_dir=db_path.parent / "index")
+    try:
+        return query.query_edge_priors(min_confidence=0.0, limit=2)
+    finally:
+        query.close()
+
+
+def _world_case(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    skg_ref_factory: Callable[[Path], SkgCausalPriorRef] = _empty_selected_skg,
+):
     case = _case(tmp_path / "source")
     monkeypatch.setattr(world_fixture, "FileSystemCAS", lambda _path: case.scenario.store)
-    store, base, _model, _registry = world_fixture._build_record(tmp_path / "base")
+    store, base, _model, _registry = world_fixture._build_record(
+        tmp_path / "base", skg_ref_factory=skg_ref_factory
+    )
     substrate = world_fixture._substrate_registry()
     views = world_model_artifact_views(base.record)
     plan = owner._prepare_acquired_observation_world(
@@ -249,6 +326,12 @@ def test_prospective_world_values_write_nothing_and_match_the_actual_produced_wo
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     case, base, substrate, views, numerical = _world_case(tmp_path, monkeypatch)
+    # Only this WMR's selected-prior facet is empty. Sibling consumers can
+    # independently query the SKG; this fixture makes no claim about them.
+    assert _read_skg_edges(tmp_path / "base" / "academic-skg.duckdb") == []
+    assert base.record.skg_causal_prior_ref.edge_prior_refs == ()
+    assert base.record.skg_causal_prior_ref.transport_score_refs == ()
+    assert base.record.skg_causal_prior_ref.query_trace_refs == ()
     writes = _observe_store_writes(monkeypatch)
     before = owner.prepare_acquired_observation_world_semantic_values(
         store=case.scenario.store,
@@ -274,28 +357,155 @@ def test_prospective_world_values_write_nothing_and_match_the_actual_produced_wo
         workspace_dir=tmp_path / "world",
         transaction_time=case.args["transaction_time"],
     )
+    fresh_store = FileSystemCAS(case.scenario.store.root)
+    persisted_world = load_world_model_record(fresh_store, actual.world_model.record_ref)
+    assert persisted_world == actual.world_model.record
+    assert persisted_world is not actual.world_model.record
     after = owner.read_acquired_observation_world_semantic_values(
-        store=FileSystemCAS(case.scenario.store.root),
-        world_model_record=actual.world_model.record,
+        store=fresh_store,
+        world_model_record=persisted_world,
         registry_bundle_ref=views.registry_bundle_ref,
     )
     assert after["status"] == "established", after
     assert before["effective_values"] == after["effective_values"]
     # Keep every CAS ref and producer marker, but falsify the actual quality output.
-    binding_path = Path(actual.world_model.record.data_forge_binding_ref.binding_path)
+    binding_path = Path(persisted_world.data_forge_binding_ref.binding_path)
     original = binding_path.read_bytes()
     altered = json.loads(original)
     altered["bindings"][0]["quality_gates"][0]["status"] = "fail"
     try:
         binding_path.write_text(json.dumps(altered), encoding="utf-8")
         refused = owner.read_acquired_observation_world_semantic_values(
-            store=case.scenario.store,
-            world_model_record=actual.world_model.record,
+            store=fresh_store,
+            world_model_record=persisted_world,
             registry_bundle_ref=views.registry_bundle_ref,
         )
         assert refused["status"] == "not_established"
     finally:
         binding_path.write_bytes(original)
+
+
+def test_active_skg_change_stays_unknown_when_same_wmr_ref_is_retained(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A live changed owner quantity cannot be equated using WMR refs alone."""
+    case, base, substrate, views, numerical = _world_case(
+        tmp_path, monkeypatch, skg_ref_factory=_active_selected_skg
+    )
+    store = case.scenario.store
+    db_path = tmp_path / "base" / "academic-skg.duckdb"
+    selected = base.record.skg_causal_prior_ref
+    assert selected.edge_prior_refs == ("skg-edge://test-edge",)
+    assert selected.transport_score_refs == () and selected.query_trace_refs == ()
+    original_rows = _read_skg_edges(db_path)
+    assert len(original_rows) == 1
+    assert original_rows[0]["edge_id"] == "test-edge"
+    assert original_rows[0]["confidence"] == pytest.approx(0.8)
+    original_digest = hashlib.sha256(db_path.read_bytes()).hexdigest()
+
+    materialized = owner.materialize_acquired_observation_snapshot(
+        store, **case.args, workspace_dir=case.workspace, prepared=case.prepared
+    )
+    substrate_ref = persist_substrate_registry(store, substrate)
+    actual = owner.build_acquired_observation_candidate_world(
+        store,
+        base_world_model=base.record,
+        substrate_registry=substrate,
+        substrate_registry_artifact_ref=substrate_ref,
+        materialization=materialized,
+        workspace_dir=tmp_path / "world",
+        transaction_time=case.args["transaction_time"],
+    )
+    assert actual.world_model.record.skg_causal_prior_ref == selected
+    record_before = actual.world_model.record.model_dump(mode="json")
+
+    def prospective() -> dict[str, object]:
+        return owner.prepare_acquired_observation_world_semantic_values(
+            store=store,
+            base_world_model_record=base.record,
+            data_preparation=case.prepared,
+            prepared_state_values=numerical,
+            registry_bundle_ref=views.registry_bundle_ref,
+            substrate_registry=substrate,
+        )
+
+    def historical() -> dict[str, object]:
+        fresh_store = FileSystemCAS(store.root)
+        persisted_world = load_world_model_record(fresh_store, actual.world_model.record_ref)
+        assert persisted_world == actual.world_model.record
+        assert persisted_world is not actual.world_model.record
+        return owner.read_acquired_observation_world_semantic_values(
+            store=fresh_store,
+            world_model_record=persisted_world,
+            registry_bundle_ref=views.registry_bundle_ref,
+        )
+
+    def assert_unknown(result: dict[str, object]) -> None:
+        assert result["status"] == "not_established", result
+        assert result["predicate_provenance"] == "not_established"
+        assert result["reason_codes"] == ("acquisition_world_skg_consumed_values_not_established",)
+
+    def shallow_dependency(_store: object, world: WorldModelRecord) -> dict[str, object]:
+        # Counterfactual removal: preserve the exact selected WMR references but
+        # omit the actual active SKG quantity, keeping the rest of the producer
+        # and reader intact. This is not a replacement production backend.
+        assert world.simulation_model_ref.ncm_refs == ()
+        assert world.simulation_model_ref.mechanism_refs == ()
+        assert world.simulation_model_ref.gcm_refs == ()
+        assert world.simulation_model_ref.program_graph_refs == ()
+        return {
+            "ncm_values": (),
+            "skg_causal_prior": world.skg_causal_prior_ref.model_dump(mode="json"),
+        }
+
+    assert_unknown(prospective())
+    assert_unknown(historical())
+    with monkeypatch.context() as removed:
+        removed.setattr(owner, "_acquired_model_dependency_values", shallow_dependency)
+        shallow_before = prospective()
+        shallow_before_read = historical()
+        assert shallow_before["status"] == "established", shallow_before
+        assert shallow_before_read["status"] == "established", shallow_before_read
+        assert shallow_before["effective_values"] == shallow_before_read["effective_values"]
+
+    con = duckdb.connect(str(db_path))
+    try:
+        con.execute("UPDATE ac_skg_edges SET confidence = 0.2 WHERE edge_id = 'test-edge'")
+        con.execute("CHECKPOINT")
+    finally:
+        con.close()
+    changed_rows = _read_skg_edges(db_path)
+    from polisyos.data_forge.read_api.academic import SKGQuery
+
+    query = SKGQuery(db_path=db_path, index_dir=db_path.parent / "index")
+    try:
+        assert query.latest_skg_version_id() == int(selected.skg_version_id)
+        assert query.skg_snapshot_ref(version_id=int(selected.skg_version_id)) == (
+            selected.skg_snapshot_ref
+        )
+    finally:
+        query.close()
+    assert len(changed_rows) == 1 and changed_rows[0]["edge_id"] == "test-edge"
+    assert changed_rows[0]["confidence"] == pytest.approx(0.2)
+    assert changed_rows != original_rows
+    assert hashlib.sha256(db_path.read_bytes()).hexdigest() != original_digest
+    assert actual.world_model.record.model_dump(mode="json") == record_before
+    assert actual.world_model.record.skg_causal_prior_ref == selected
+    assert_unknown(prospective())
+    assert_unknown(historical())
+
+    with monkeypatch.context() as removed:
+        removed.setattr(owner, "_acquired_model_dependency_values", shallow_dependency)
+        shallow_after = prospective()
+        shallow_after_read = historical()
+        assert shallow_after["status"] == "established", shallow_after
+        assert shallow_after_read["status"] == "established", shallow_after_read
+        # The removed gate would report unchanged effective values despite the
+        # real owner's changed source bytes and selected edge confidence.
+        assert shallow_before["effective_values"] == shallow_after["effective_values"]
+        assert shallow_before_read["effective_values"] == shallow_after_read["effective_values"]
+    assert_unknown(prospective())
+    assert_unknown(historical())
 
 
 def test_supplied_state_plan_cannot_self_attest_completeness(

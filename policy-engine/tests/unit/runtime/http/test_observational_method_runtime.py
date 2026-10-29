@@ -5621,9 +5621,11 @@ def test_real_forest_fit_progress_spans_durable_cancel_post(
         url = f"/api/v1/control/jobs/{job_id}/cancel"
         selection_before, _, _ = _selection_get(selected_client, headers)
         before = _r4_snapshot(reader, job_id)
+        calls_before = len(control_calls)
         start_ns = time.monotonic_ns()
         response = selected_client.post(url, json=body, headers=headers)
         end_ns = time.monotonic_ns()
+        observed_store_calls = list(control_calls[calls_before:])
         response_body, response_text = _r4_response_body(response)
         after = _r4_snapshot(reader, job_id)
         selection_after, _, _ = _selection_get(selected_client, headers)
@@ -5651,6 +5653,7 @@ def test_real_forest_fit_progress_spans_durable_cancel_post(
             "status_code": response.status_code,
             "response_body": response_body,
             "response_text": response_text,
+            "store_calls": observed_store_calls,
             "request_start_ns": start_ns,
             "request_end_ns": end_ns,
             "before_snapshot": before,
@@ -5879,22 +5882,21 @@ def test_real_forest_fit_progress_spans_durable_cancel_post(
         from polisyos.core.security.identity import PolicyOSRole, UserIdentityClaims
         from polisyos.core.security.tenant_context import tenant_scope
 
+        issued_claims: dict[str, UserIdentityClaims] = {}
         for token in (bearer, denied_bearer):
-            provider.put_claim(
-                token,
-                UserIdentityClaims(
-                    sub="r4-native-fixture",
-                    tenant_id=tenant,
-                    cell_id=cell_id,
-                    roles=frozenset({PolicyOSRole.ADMIN}),
-                    mfa_verified=True,
-                    iss="https://idp.example",
-                    aud="polisyos-runtime",
-                    exp=9_999_999_999,
-                    iat=1,
-                    jti="r4-native-" + token[-12:],
-                ),
+            issued_claims[token] = UserIdentityClaims(
+                sub="r4-native-fixture",
+                tenant_id=tenant,
+                cell_id=cell_id,
+                roles=frozenset({PolicyOSRole.ADMIN}),
+                mfa_verified=True,
+                iss="https://idp.example",
+                aud="polisyos-runtime",
+                exp=9_999_999_999,
+                iat=1,
+                jti="r4-native-" + token[-12:],
             )
+            provider.put_claim(token, issued_claims[token])
         headers = {"Authorization": f"Bearer {bearer}", "X-Tenant-ID": tenant}
         denied_headers = {
             "Authorization": f"Bearer {denied_bearer}",
@@ -5926,7 +5928,10 @@ def test_real_forest_fit_progress_spans_durable_cancel_post(
             selected = dict(config)
             selected["service_principals"] = [dict(item) for item in config["service_principals"]]
             selected["service_principals"][0].update(
-                tenant_id=tenant, cell_id=cell_id, permissions=permissions
+                subject="r4-native-fixture",
+                tenant_id=tenant,
+                cell_id=cell_id,
+                permissions=permissions,
             )
             return deployment_security.build_deployment_security(
                 deployment_security.DeploymentSecurityConfig.from_mapping(selected)
@@ -5957,6 +5962,66 @@ def test_real_forest_fit_progress_spans_durable_cancel_post(
             }
             if service._worker is not None:
                 service._worker.stop()
+
+            # Actual route action-permission owner only: not an OPA, owned-job,
+            # sealed authority or cancellation receipt.
+            from itertools import pairwise
+
+            from starlette.requests import Request
+
+            from polisyos.runtime.http.authorization import (
+                DEPLOYMENT_SERVICE_AUTHORIZATION_SOURCE,
+                ActionPermissionVerification,
+            )
+            from polisyos.runtime.http.errors import RuntimeHTTPError
+            from polisyos.runtime.http.permissions import RuntimePermission
+            from polisyos.runtime.http.routes.control import _CANCEL_JOB_AUTHZ
+
+            def preflight_action(claims: UserIdentityClaims, grants: Any) -> Any:
+                client.app.state.runtime_deployment_principal_grants = grants
+                req = Request({"type": "http", "app": client.app, "state": {}})
+                req.state.user_claims = claims
+                return _CANCEL_JOB_AUTHZ._authorize(req)
+
+            try:
+                admitted = preflight_action(issued_claims[bearer], allowed_grants)
+                if (
+                    type(admitted) is not ActionPermissionVerification
+                    or admitted.subject != "r4-native-fixture"
+                    or admitted.tenant_id != tenant
+                    or admitted.authorization_source != DEPLOYMENT_SERVICE_AUTHORIZATION_SOURCE
+                    or RuntimePermission.JOBS_CANCEL not in admitted.granted_permissions
+                ):
+                    raise RuntimeError("r4_action_permission_preflight_unestablished")
+                probes = (
+                    (issued_claims[denied_bearer], denied_grants),
+                    (
+                        issued_claims[bearer].model_copy(update={"iss": "https://wrong.example"}),
+                        allowed_grants,
+                    ),
+                    (
+                        issued_claims[bearer].model_copy(update={"cell_id": "foreign-cell"}),
+                        allowed_grants,
+                    ),
+                )
+                for claims, grants in probes:
+                    try:
+                        preflight_action(claims, grants)
+                    except RuntimeHTTPError as exc:
+                        if exc.code != "action_permission_denied":
+                            raise
+                    else:
+                        raise RuntimeError("r4_action_permission_preflight_negative_accepted")
+                observation["permission_preflight"] = {
+                    "state": "PASS",
+                    "scope": "real action permission owner only; not OPA or cancellation authority",
+                    "subject": admitted.subject,
+                    "tenant_id": admitted.tenant_id,
+                    "authorization_source": admitted.authorization_source,
+                    "negative_count": len(probes),
+                }
+            finally:
+                client.app.state.runtime_deployment_principal_grants = allowed_grants
             raw_store = getattr(service._control_store, "_target", service._control_store)
             db_path = Path(raw_store._sqlite_path).resolve()
             reader = ControlPlaneStore(backend="sqlite", sqlite_path=db_path)
@@ -6269,7 +6334,15 @@ def test_real_forest_fit_progress_spans_durable_cancel_post(
                     "body_called_at_ns": time.monotonic_ns(),
                 }
                 control_calls.append(entry)
-                return original_cancel(**kwargs)
+                try:
+                    result = original_cancel(**kwargs)
+                except Exception as exc:
+                    entry["result"] = "exception"
+                    entry["exception_type"] = type(exc).__name__
+                    entry["exception_message"] = str(exc)
+                    raise
+                entry["result"] = "returned"
+                return result
 
             monkeypatch.setattr(raw_store, "cancel_job", observe_cancel)
             worker = ControlWorker(
@@ -6462,7 +6535,18 @@ def test_real_forest_fit_progress_spans_durable_cancel_post(
                     and event.get("kind") == "fit_return"
                     and event.get("success") is True
                 ]
-                if len(eligible_renewals) >= 2 and completed_trees:
+                # Match the checker's strict advancing-expiry premise without
+                # holding or slowing any real fit callback.
+                eligible_renewals.sort(key=lambda row: row["monotonic_ns"])
+                expiries = [row["fresh_lease_expires_at"] for row in eligible_renewals]
+                advancing = (
+                    len(expiries) >= 2
+                    and len({row["monotonic_ns"] for row in eligible_renewals}) >= 2
+                    and all(isinstance(value, str) for value in expiries)
+                    and all(a <= b for a, b in pairwise(expiries))
+                    and expiries[0] < expiries[-1]
+                )
+                if advancing and completed_trees:
                     break
                 if (method_handle is not None and method_handle.done()) or any(
                     event.get("fit_layer") == "forest_dr" and event.get("kind") == "fit_return"
@@ -6673,7 +6757,7 @@ def test_real_forest_fit_progress_spans_durable_cancel_post(
             )
             observation["cancel"].update(
                 {
-                    "authorized": True,
+                    "authorized": False,
                     "post_start_ns": post_start_ns,
                     "post_end_ns": post_end_ns,
                     "status_code": cancel_response.status_code,
@@ -6723,6 +6807,7 @@ def test_real_forest_fit_progress_spans_durable_cancel_post(
                     observation["cancel"]["current_authority_at_entry"] = initial_call[
                         "current_authority"
                     ]
+                    observation["cancel"]["authorized"] = initial_call["current_authority"] is True
                     observation["cancel"]["actual_store_cancel_body_called_at_ns"] = initial_call[
                         "body_called_at_ns"
                     ]

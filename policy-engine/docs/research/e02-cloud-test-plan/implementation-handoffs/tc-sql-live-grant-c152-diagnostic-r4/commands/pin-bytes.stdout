@@ -1,0 +1,1 @@
+{"nodes": {"served": ["tests/integration/runtime/http/test_registered_sql_live_grant.py::test_real_sql_workflows_recheck_current_use_on_every_debug_get"]}, "path_count": 56, "pins_sha256": "bf7fc6acf0ab1ddd8278da9ce8e73e401590ec4d36225a1197ec8c024e2a86d9", "status": "PASS"}

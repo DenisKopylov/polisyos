@@ -1,0 +1,23 @@
+{
+  "cgroup_current_raw": "3525931008",
+  "cgroup_max_raw": "17179869184",
+  "cpu_count": 3,
+  "disk_floor_bytes": 1688509644,
+  "effective_available_bytes": 13653938176,
+  "formula": "effective available is min(MemAvailable, cgroup max-current) when both known; reserve max(512 MiB, 15%); process cap <= 6 GiB; scratch and output floors each max(1 GiB, 5% of their filesystem total), plus 1 GiB initial scratch and 256 MiB initial output allowance; RSS polling is sampled, not a hard kernel limit.",
+  "meminfo_bytes": {
+    "MemAvailable": 17750986752,
+    "MemTotal": 18883018752
+  },
+  "memory_cap_bytes": 6442450944,
+  "output_floor_bytes": 1688509644,
+  "output_free_bytes": 29022961664,
+  "output_path": "/workspace/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/tc-sql-live-grant-c152-diagnostic-r4",
+  "output_total_bytes": 33770192896,
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+  "python": "3.14.4 (main, May  1 2026, 05:51:55) [GCC 13.3.0]",
+  "safe_to_start": true,
+  "scratch_free_bytes": 29022961664,
+  "scratch_path": "/tmp/tmp.SpA1aQvNtB",
+  "scratch_total_bytes": 33770192896
+}

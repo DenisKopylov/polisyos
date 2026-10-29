@@ -1,0 +1,10 @@
+warning: Found both a `uv.toml` file and a `[tool.uv]` section in an adjacent `pyproject.toml`. The `[tool.uv]` section will be ignored in favor of the `uv.toml` file.
+Using CPython 3.14.4 interpreter at: /root/.pyenv/versions/3.14.4/bin/python3.14
+Removed virtual environment at: .venv
+Creating virtual environment at: .venv
+  × Failed to download `psutil==7.2.1`
+  ╰─▶ Network connectivity is disabled, but the
+      requested data wasn't found in the cache for:
+      `https://files.pythonhosted.org/packages/29/f8/40e01c350ad9a2b3cb4e6adbcc8a83b17ee50dd5792102b6142385937db5/psutil-7.2.1-cp36-abi3-manylinux2010_x86_64.manylinux_2_12_x86_64.manylinux_2_28_x86_64.whl`
+  help: `psutil` (v7.2.1) was included because `policy-engine[test]` (v0.1.0)
+        depends on `psutil`

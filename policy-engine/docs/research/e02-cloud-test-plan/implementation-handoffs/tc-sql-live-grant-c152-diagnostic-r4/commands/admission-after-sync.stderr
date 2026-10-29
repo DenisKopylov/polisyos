@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/workspace/polisyos/policy-engine/tools/quality/testing/tc_sql_mc_witness/source_admit.py", line 101, in <module>
+    cache.mkdir()
+    ~~~~~~~~~~~^^
+  File "/root/.pyenv/versions/3.14.4/lib/python3.14/pathlib/__init__.py", line 1011, in mkdir
+    os.mkdir(self, mode)
+    ~~~~~~~~^^^^^^^^^^^^
+FileExistsError: [Errno 17] File exists: '/tmp/tmp.SpA1aQvNtB/admission-after-sync/initial-pycache'

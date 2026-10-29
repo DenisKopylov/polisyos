@@ -1,0 +1,20 @@
+Traceback (most recent call last):
+  File "/root/.pyenv/versions/3.14.4/lib/python3.14/importlib/metadata/__init__.py", line 407, in from_name
+    return next(iter(cls.discover(name=name)))
+StopIteration
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import importlib.metadata as m,importlib.util,json,sys; names=("pytest","pydantic","click","jsonschema","fastapi","httpx"); d={n:{"version":m.version(n),"origin":getattr(importlib.util.find_spec(n),"origin",None)} for n in names}; print(json.dumps({"executable":sys.executable,"prefix":sys.prefix,"base_prefix":sys.base_prefix,"python":sys.version,"packages":d},sort_keys=True)); assert sys.version_info[:2]==(3,14) and m.version("pytest")=="9.0.2" and m.version("pydantic")=="2.12.5" and m.version("click")=="8.3.1" and m.version("jsonschema")=="4.25.1"
+                                                                                                                                                ~~~~~~~~~^^^
+  File "/root/.pyenv/versions/3.14.4/lib/python3.14/importlib/metadata/__init__.py", line 987, in version
+    return distribution(distribution_name).version
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/root/.pyenv/versions/3.14.4/lib/python3.14/importlib/metadata/__init__.py", line 960, in distribution
+    return Distribution.from_name(distribution_name)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/root/.pyenv/versions/3.14.4/lib/python3.14/importlib/metadata/__init__.py", line 409, in from_name
+    raise PackageNotFoundError(name)
+importlib.metadata.PackageNotFoundError: No package metadata was found for pytest

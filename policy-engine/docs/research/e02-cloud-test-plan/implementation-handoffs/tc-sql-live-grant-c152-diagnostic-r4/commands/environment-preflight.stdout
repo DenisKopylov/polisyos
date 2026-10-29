@@ -1,0 +1,68 @@
+2026-10-29T09:57:31Z
+Linux dd1bd7299bee 6.18.55 #1 SMP Wed Oct 14 19:45:18 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux
+Filesystem     1024-blocks    Used Available Capacity Mounted on
+overlay           32978704 2941748  28342852      10% /
+overlay           32978704 2941748  28342852      10% /
+overlay           32978704 2941748  28342852      10% /
+MemTotal:       18440448 kB
+MemFree:        14320304 kB
+MemAvailable:   17339140 kB
+Buffers:          114472 kB
+Cached:          2892264 kB
+SwapCached:            0 kB
+Active:           347688 kB
+Inactive:        2702436 kB
+Active(anon):         28 kB
+Inactive(anon):    73288 kB
+Active(file):     347660 kB
+Inactive(file):  2629148 kB
+Unevictable:       29924 kB
+Mlocked:               0 kB
+SwapTotal:             0 kB
+SwapFree:              0 kB
+Dirty:            267192 kB
+Writeback:             0 kB
+AnonPages:         73412 kB
+Mapped:            88416 kB
+Shmem:                12 kB
+KReclaimable:     394040 kB
+Slab:             457264 kB
+SReclaimable:     394040 kB
+SUnreclaim:        63224 kB
+KernelStack:        1812 kB
+PageTables:         2176 kB
+SecPageTables:         0 kB
+NFS_Unstable:          0 kB
+Bounce:                0 kB
+WritebackTmp:          0 kB
+CommitLimit:     9220224 kB
+Committed_AS:     226348 kB
+VmallocTotal:   34359738367 kB
+VmallocUsed:        2968 kB
+VmallocChunk:          0 kB
+Percpu:              816 kB
+AnonHugePages:         0 kB
+ShmemHugePages:        0 kB
+ShmemPmdMapped:        0 kB
+FileHugePages:    137216 kB
+FilePmdMapped:         0 kB
+Balloon:               0 kB
+HugePages_Total:       0
+HugePages_Free:        0
+HugePages_Rsvd:        0
+HugePages_Surp:        0
+Hugepagesize:       2048 kB
+Hugetlb:               0 kB
+DirectMap4k:       18432 kB
+DirectMap2M:     3252224 kB
+DirectMap1G:    50331648 kB
+17179869184
+3519561728
+/root/.pyenv/shims/python3.14
+Python 3.14.4
+Python 3.14.4
+/root/.local/bin/uv
+uv 0.7.22
+/root/.cache/uv
+/root/.local/share/uv/tools
+UV_NO_PROGRESS

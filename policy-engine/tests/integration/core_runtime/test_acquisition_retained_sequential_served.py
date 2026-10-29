@@ -852,7 +852,9 @@ def test_served_actual_acquisition_retains_equal_b_then_reenters_for_c(
         build_candidate_cycle_substrate_route_inputs,
     )
 
-    source = build_candidate_cycle_substrate_route_inputs(tmp_path / "candidate-source")
+    source = build_candidate_cycle_substrate_route_inputs(
+        tmp_path / "candidate-source", include_owner_slot_manifest=True
+    )
     with _OwnerCallMonitor() as monitor:
         oracle = _SequentialOracle(monkeypatch, monitor)
         result = fixture._produce_served_acquisition_history(
@@ -861,6 +863,7 @@ def test_served_actual_acquisition_retains_equal_b_then_reenters_for_c(
             served_recorded_candidate_gateway,
             source_owner_root=source.root,
             sequential_oracle=oracle,
+            provider_mode="synthetic_settled_candidate",
         )
     assert result is not None and result["run_id"] and result["candidate_id"]
 
@@ -1205,7 +1208,9 @@ def test_retained_join_reopens_persisted_current_source_and_compiler(
             assert reopen(terminal.current_continuation_ref) == continuation
             checked.append("persisted_join_and_removal")
 
-    source = build_candidate_cycle_substrate_route_inputs(tmp_path / "candidate-source")
+    source = build_candidate_cycle_substrate_route_inputs(
+        tmp_path / "candidate-source", include_owner_slot_manifest=True
+    )
     with _OwnerCallMonitor() as monitor:
         oracle = _SequentialOracle(monkeypatch, monitor, after_real_b=verify_retained)
         result = fixture._produce_served_acquisition_history(
@@ -1214,5 +1219,6 @@ def test_retained_join_reopens_persisted_current_source_and_compiler(
             served_recorded_candidate_gateway,
             source_owner_root=source.root,
             sequential_oracle=oracle,
+            provider_mode="synthetic_settled_candidate",
         )
     assert result is not None and checked == ["persisted_join_and_removal"]

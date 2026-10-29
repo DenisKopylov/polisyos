@@ -50,7 +50,9 @@ def _run_genuine_first_b(
         build_candidate_cycle_substrate_route_inputs,
     )
 
-    source = build_candidate_cycle_substrate_route_inputs(tmp_path / "candidate-source")
+    source = build_candidate_cycle_substrate_route_inputs(
+        tmp_path / "candidate-source", include_owner_slot_manifest=True
+    )
     called: list[str] = []
 
     def after_real_b(**values: Any) -> None:
@@ -67,6 +69,7 @@ def _run_genuine_first_b(
             gateway,
             source_owner_root=source.root,
             sequential_oracle=oracle,
+            provider_mode="synthetic_settled_candidate",
         )
     assert result is not None and result["run_id"] and result["candidate_id"]
     assert len(called) == 1, "the callback must follow one genuine first-B witness"

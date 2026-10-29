@@ -218,7 +218,9 @@ def test_blocked_acquisition_reentry_replaces_frontier_and_survives_restart(
         )
         checked.append(positive.job_id)
 
-    source = build_candidate_cycle_substrate_route_inputs(tmp_path / "candidate-source")
+    source = build_candidate_cycle_substrate_route_inputs(
+        tmp_path / "candidate-source", include_owner_slot_manifest=True
+    )
     with _OwnerCallMonitor() as monitor:
         oracle = _SequentialOracle(monkeypatch, monitor, after_real_b=after_real_b)
         result = fixture._produce_served_acquisition_history(
@@ -227,6 +229,7 @@ def test_blocked_acquisition_reentry_replaces_frontier_and_survives_restart(
             served_recorded_candidate_gateway,
             source_owner_root=source.root,
             sequential_oracle=oracle,
+            provider_mode="synthetic_settled_candidate",
         )
     assert result is not None and result["run_id"] and result["candidate_id"]
     assert len(checked) == 1, "the real blocked reentry was not reopened"

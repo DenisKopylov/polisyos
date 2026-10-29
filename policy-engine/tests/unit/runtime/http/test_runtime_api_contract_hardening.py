@@ -2210,30 +2210,42 @@ def test_runtime_contract_gate_rejects_nested_epoch_semantic_corruption(
         "properties"
     ]["title"]
     assert title_schema["const"] == "Authority not appointed"
+    repo_root = Path(__file__).resolve().parents[4]
+
+    def run_checker(path: Path) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(
+            [
+                sys.executable,
+                "tools/ops_runners/runtime/check_runtime_api_contract.py",
+                "--openapi",
+                str(path),
+                "--skip-client-drift",
+            ],
+            cwd=repo_root,
+            env={**os.environ, "PYTHONPATH": f"{repo_root / 'src'}:{repo_root}"},
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+    clean = tmp_path / "runtime_api_v1.clean.openapi.json"
+    clean.write_text(
+        json.dumps(schema, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    baseline = run_checker(clean)
+    assert baseline.returncode == 0, f"{baseline.stdout}\n{baseline.stderr}"
+    assert "Runtime API contract check passed" in baseline.stdout
+
     title_schema["const"] = "Generic error"
     corrupted = tmp_path / "runtime_api_v1.corrupted.openapi.json"
     corrupted.write_text(
         json.dumps(schema, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
-    repo_root = Path(__file__).resolve().parents[4]
+    result = run_checker(corrupted)
 
-    result = subprocess.run(
-        [
-            sys.executable,
-            "tools/ops_runners/runtime/check_runtime_api_contract.py",
-            "--openapi",
-            str(corrupted),
-            "--skip-client-drift",
-        ],
-        cwd=repo_root,
-        env={**os.environ, "PYTHONPATH": f"{repo_root / 'src'}:{repo_root}"},
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-
-    assert result.returncode == 1
+    assert result.returncode == 1, f"{result.stdout}\n{result.stderr}"
     assert "OpenAPI drift detected" in result.stdout
 
 

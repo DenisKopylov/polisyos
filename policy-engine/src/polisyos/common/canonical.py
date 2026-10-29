@@ -159,6 +159,41 @@ class CanonicalResourceLimits:
             raise CanonicalError("canonical_resource_limits_invalid")
 
 
+_BOUNDED_WRITER_TOKEN = object()
+
+
+@dataclass(frozen=True, slots=True, init=False)
+class _BoundedArtifactWriterContext:
+    """Private mechanical context issued after the concrete owner admits a write.
+
+    This proves only a frozen codec/vector binding. Core owns source/consumer
+    admission; this neutral carrier does not appoint an owner or assert readiness.
+    """
+
+    spec_fields: tuple[object, ...]
+    limit_fields: tuple[object, ...]
+    limits: CanonicalResourceLimits
+    token: object
+
+
+def _spec_identity(spec: CanonSpec) -> tuple[object, ...]:
+    return tuple(getattr(spec, field.name) for field in dataclasses.fields(CanonSpec))
+
+
+def _limit_identity(limits: CanonicalResourceLimits) -> tuple[object, ...]:
+    return (limits.policy_id, limits.max_wire_bytes, limits.max_wire_depth, limits.max_elements)
+
+
+def _writer_context_matches(context: object, selected: CanonSpec) -> bool:
+    return (
+        type(context) is _BoundedArtifactWriterContext
+        and getattr(context, "token", None) is _BOUNDED_WRITER_TOKEN
+        and getattr(context, "spec_fields", None) == _spec_identity(selected)
+        and type(getattr(context, "limits", None)) is CanonicalResourceLimits
+        and context.limit_fields == _limit_identity(context.limits)
+    )
+
+
 def _raise_violation(violation_type: type[ValueError], message: str) -> NoReturn:
     raise violation_type(message)
 
@@ -169,6 +204,7 @@ def _admit_canon_spec[CanonSpecT: CanonSpec](
     *,
     violation_type: type[ValueError],
     artifact_writer: bool = False,
+    _artifact_writer_context: _BoundedArtifactWriterContext | None = None,
 ) -> CanonSpecT:
     """Freeze primitive codec fields before any projection or store callbacks.
 
@@ -216,11 +252,36 @@ def _admit_canon_spec[CanonSpecT: CanonSpec](
             _raise_violation(violation_type, "canonical_spec_invalid")
         selected = spec_type(**values)
     if selected.name == "polisyos.canon.json":
-        if artifact_writer and selected.version != "0.2.0":
+        if (
+            artifact_writer
+            and selected.version != "0.2.0"
+            and (
+                selected.version != "0.3.0"
+                or not _writer_context_matches(_artifact_writer_context, selected)
+            )
+        ):
             _raise_violation(violation_type, "canonical_writer_profile_unavailable")
         if selected.version not in ("0.2.0", "0.3.0"):
             _raise_violation(violation_type, "unsupported_canonical_codec_version")
     return selected
+
+
+def _issue_bounded_artifact_writer_context(
+    spec: CanonSpec, limits: CanonicalResourceLimits
+) -> _BoundedArtifactWriterContext:
+    """Freeze mechanical bounds for Core's already selected source-owner context."""
+    selected = _admit_canon_spec(spec, CanonSpec, violation_type=CanonicalError)
+    if selected.name != "polisyos.canon.json" or selected.version != "0.3.0":
+        raise CanonicalError("canonical_bounded_writer_profile_invalid")
+    if type(limits) is not CanonicalResourceLimits:
+        raise CanonicalError("canonical_resource_policy_missing")
+    frozen = CanonicalResourceLimits(*_limit_identity(limits))
+    context = object.__new__(_BoundedArtifactWriterContext)
+    object.__setattr__(context, "spec_fields", _spec_identity(selected))
+    object.__setattr__(context, "limit_fields", _limit_identity(frozen))
+    object.__setattr__(context, "limits", frozen)
+    object.__setattr__(context, "token", _BOUNDED_WRITER_TOKEN)
+    return context
 
 
 def _uses_v3_grammar(spec: CanonSpec) -> bool:
@@ -453,14 +514,16 @@ def to_canonical_bytes(
     return payload.encode("utf-8")
 
 
-def to_bounded_canonical_bytes(
+def _bounded_canonical_encoding(
     obj: object,
     spec: CanonSpec,
     limits: CanonicalResourceLimits,
     *,
     violation_type: type[ValueError] = CanonicalError,
     canonical_types: Collection[str] = _ALL_CANONICAL_TYPES,
-) -> bytes:
+    _primitive_json_only: bool = False,
+    _preflight_only: bool = False,
+) -> tuple[bytes, object]:
     """Snapshot and encode exact callback-free values under one wire vector.
 
     Bytes, lexical JSON elements and container depth are charged incrementally
@@ -638,6 +701,16 @@ def to_bounded_canonical_bytes(
     def clone(value: object, logical_depth: int, wire_depth: int) -> object:
         _check_depth(logical_depth, spec.max_depth, violation_type)
         value_type = type(value)
+        if _primitive_json_only and value_type not in {
+            type(None),
+            bool,
+            int,
+            float,
+            str,
+            list,
+            dict,
+        }:
+            _raise_violation(violation_type, "canonical_bounded_projection_required")
         if value is None:
             take_element()
             take_bytes(4)
@@ -653,6 +726,11 @@ def to_bounded_canonical_bytes(
             string(value)
             return value
         if value_type is float:
+            # The primitive source-owned cohort promises exact values. The
+            # shared historical grammar normalizes signed zero, so this cohort
+            # refuses that native value instead of claiming lossless custody.
+            if _primitive_json_only and value == 0.0 and math.copysign(1.0, value) < 0:
+                _raise_violation(violation_type, "canonical_bounded_projection_required")
             if spec.forbid_nan_inf and not math.isfinite(value):
                 _raise_violation(violation_type, "NaN/Inf forbidden in canonical JSON")
             if spec.forbid_floats:
@@ -767,6 +845,10 @@ def to_bounded_canonical_bytes(
 
     try:
         snapshot = clone(obj, 0, 1)
+        if _preflight_only:
+            # Reuse the same actual grammar accounting without allocating the
+            # final encoded buffer. Core uses this before manifest serializers.
+            return b"", snapshot
         payload = to_canonical_bytes(
             snapshot, spec, violation_type=violation_type, canonical_types=canonical_types
         )
@@ -776,6 +858,25 @@ def to_bounded_canonical_bytes(
         raise violation_type("canonical_bounded_input_changed") from exc
     if len(payload) != byte_count:
         _raise_violation(violation_type, "canonical_wire_accounting_mismatch")
+    return payload, snapshot
+
+
+def to_bounded_canonical_bytes(
+    obj: object,
+    spec: CanonSpec,
+    limits: CanonicalResourceLimits,
+    *,
+    violation_type: type[ValueError] = CanonicalError,
+    canonical_types: Collection[str] = _ALL_CANONICAL_TYPES,
+) -> bytes:
+    """Encode exact callback-free values under the owner's physical wire vector.
+
+    The existing private mechanics also retain their owned snapshot for a scoped
+    artifact writer; ordinary direct codec callers receive bytes as before.
+    """
+    payload, _snapshot = _bounded_canonical_encoding(
+        obj, spec, limits, violation_type=violation_type, canonical_types=canonical_types
+    )
     return payload
 
 

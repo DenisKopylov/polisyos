@@ -1,0 +1,38 @@
+id = "2026-10-29-bounded-method-artifact-writer"
+title = "Add an explicit local bounded method-artifact writer and source-owned inspection"
+type = "added"
+component = "core-foundry-runtime"
+owner = "team-polisyos"
+summary = "An explicitly requested MethodArtifactOutputPayload cohort uses genuine bounded canonical 0.3 admission, actual selected readback and the existing CAS publication owner; fresh Inspector content/schema reads bound their first header."
+evidence = ["tests/unit/core/artifacts/test_owned_json_writer.py", "tests/unit/foundry/execute/test_method_artifact_writer.py", "tests/unit/runtime/http/test_method_artifact_writer_inspector.py"]
+compatibility = "Ordinary JSON writers/default requests stay canonical 0.2. Existing stored bytes/IDs and other cohorts are unchanged. Fresh Inspector content/schema previews refuse over-cap manifests and unbounded-only backends at the existing documented budget; qualified 0.2 interpretation stays unchanged."
+change_class = "python-public-api"
+surface_classification = "public_stable: explicit Foundry execute sidecar request and bounded source-owned read; Core code-owned policy/write/read helpers. Internal: scoped sealed publication mechanics and Inspector source dispatch."
+migration = "Keep exact selected refs. Explicit bounded_v3 sidecar requests support only the declared primitive value/backend domain. Unsupported sidecars remain unavailable without legacy fallback; readers remain usable when writes are disabled."
+limitations = "RAW source proposal. Schema-consumer and schema-only removal checks, native tests, removals, generated freshness/public runtime checks and installed rollback are UNRUN here. No activation evidence, producer authenticity, method adequacy, G acceptance or whole-Q1 closure is claimed."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["docs/reference/canonical-json-profile-reads.md"]
+runbook_docs = ["src/polisyos/common/README.md", "src/polisyos/core/artifacts/README.md", "src/polisyos/foundry/execute/_internal/graph/README.md", "src/polisyos/runtime/http/services/README.md"]
+
+[[compatibility_change]]
+id = "bounded-core-json-writer-facade"
+change_class = "python-public-api"
+impact = "compatible"
+surface = "public_stable: polisyos.core.artifacts bounded writer policy, declaration, write and read facades"
+owner = "team-polisyos"
+version_owner = "team-architecture"
+deprecation_window = "not_applicable"
+release_note = "Adds opt-in bounded Core JSON writer and reader facades while ordinary writers retain their existing default profile."
+generated_client_compatibility = "not_applicable"
+
+[[compatibility_change]]
+id = "bounded-foundry-method-artifact-facade"
+change_class = "python-public-api"
+impact = "compatible"
+surface = "public_stable: polisyos.foundry.execute bounded sidecar read and optional execute codec keyword"
+owner = "team-polisyos"
+version_owner = "team-architecture"
+deprecation_window = "not_applicable"
+release_note = "Adds a bounded MethodArtifactOutput reader and optional execute codec request; existing calls retain the legacy default."
+generated_client_compatibility = "not_applicable"

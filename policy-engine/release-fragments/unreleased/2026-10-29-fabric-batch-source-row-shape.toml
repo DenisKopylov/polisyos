@@ -1,0 +1,34 @@
+id = "2026-10-29-fabric-batch-source-row-shape"
+title = "Keep finite batch source snapshots schema-consistent"
+type = "changed"
+component = "fabric"
+owner = "team-polisyos"
+summary = "Keep the B80 two-source finite-history fixtures row-shape consistent across source versions, so the existing provenance mismatch remains the A rejection discriminator while independently valid B6 progress advances. Pin that mixed row shapes are quarantined and reduce completeness, preventing cursor advancement."
+evidence = [
+  "src/polisyos/fabric/data_plane/README.md",
+  "tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py",
+]
+compatibility = "No runtime API, cursor admission rule, quarantine behavior, or source contract changes. This aligns only synthetic rows with the same field shape and tests the existing completeness gate against a deliberately missing field."
+change_class = "internal"
+surface_classification = "internal: finite batch source-progress fixture and verification"
+migration = "No migration is required."
+api = "No symbol, DTO, or public API is added."
+limitations = "The negative control pins heterogeneous row-shape quarantine and completeness only; it does not establish a source-owned schema policy for all row fields or production source authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "fabric-batch-source-row-shape-fixture"
+change_class = "internal"
+impact = "compatible"
+surface = "internal: finite batch source-progress fixture"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Finite batch replay examples keep identical row fields across source versions; a deliberately mixed row shape still triggers quarantine and blocks cursor advancement through incomplete source data."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

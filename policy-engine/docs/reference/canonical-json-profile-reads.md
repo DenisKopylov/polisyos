@@ -55,3 +55,50 @@ Fabric CAN.2 rows and TC's accepted `.2` artifacts remain independent.
 Runtime acceptance, installed/no-checkout proof, property-removal witnesses and
 G acceptance are separate from this source contract. The current reader proposal
 requires those deciding outputs before a runtime PASS claim.
+
+## Explicit method-sidecar writer cohort
+
+The ordinary `FileSystemCAS.put_json` default stays `0.2.0`; explicit generic
+`0.3.0` writes remain fenced. A caller may explicitly request the existing
+Foundry execute sidecar path with `artifact_output_codec="bounded_v3"`. This
+source-local policy covers only MethodArtifactOutputPayload@1.0 in the stock
+local unsigned CAS without telemetry, quota or custom/enforced owner callbacks.
+There is no automatic writer enablement from a manifest, policy label or ready
+flag. Core revalidates the source policy and actual selected reader behavior
+before publication. Other cohorts remain unqualified.
+
+The sidecar preserves ordinary raw `_type` mappings recursively, including
+escape-shaped maps and explicit nulls. Its declared value domain is exact JSON
+builtins, finite floats except signed negative zero, nonempty exact string keys,
+1,024 logical payload nodes/depth 8 and 4,096-bit integers. It refuses unsupported
+models, callbacks, native Decimal/bytes/carriers and tuple before their
+materialization. The physical bounds are separately 65,536 wire bytes, 7,178
+wire nodes, container depth 28 and 4,096 manifest bytes. Aggregate/ref limits
+remain 4 MiB/8,192. Refusal keeps an explicit unavailable artifact row with no
+`.2` fallback; inventory completion does not promote unavailable sidecars.
+
+`polisyos.foundry.execute.read_method_artifact_output_bounded` and Core's generic
+source-policy bounded reader accept the exact selected output ref independently
+of writer enablement. Fresh ArtifactInspector content/schema previews use the
+public Foundry reader for this cohort after complete owner/profile admission.
+Their first manifest read now enforces the existing Inspector manifest budget;
+over-cap or unbounded-only backends fail before loading. Successful qualified
+`.2` preview behavior is preserved. Raw `put_bytes` import remains distinct from
+owned canonical production. Installed/no-checkout and full rollback qualification
+are separate release evidence; source conformance establishes neither authenticity
+nor external readiness, authority, whole-Q1 completion or G acceptance.
+
+The writer's plain DTO domain excludes all nested or recursive Pydantic models;
+no child callback is qualified by a root model declaration. Its source metadata
+and complete actual manifest projection are wire-preflighted without JSON output
+materialization before the final serializer. These are recomputed properties,
+not readiness labels. Existing `.2` owned-reader metaclass compatibility remains.
+
+Inspector recognizes the known Method kind or source schema before payload
+loading, including joint kind/media substitutions on a selected same-ID view.
+It refuses malformed Method cohort selectors on both content and schema surfaces.
+Unrelated non-JSON selected cohorts may still expose raw text/bytes and metadata
+with `canon_read_status="not_evaluated"`; this does not interpret or admit their
+canonical value. Unknown JSON `.3` semantic inspection remains refused. This
+uses CAN-01's purpose-scoped raw/unqualified boundary and does not globally
+disable existing raw inspection or confer producer authenticity from a label.

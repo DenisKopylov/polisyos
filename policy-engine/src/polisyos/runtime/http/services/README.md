@@ -401,3 +401,26 @@ artifact ID. The existing ledger payload keeps its strict v1 ID-string fields fo
 outputs, and authority handoffs. The scorecard validates that payload and its runtime ledger ref; it
 does not resolve those nested strings against the ledger manifest. Do not treat those legacy strings
 or the ledger's reported handoff status as independent profile-qualified authority evidence.
+
+## Bounded method-sidecar inspection
+
+Fresh content and schema previews obtain the first selected manifest through
+Core's bounded owner port at the existing `INSPECTOR_MANIFEST_MAX_BYTES` limit,
+before a JSON parser or payload loader. An over-cap header or backend lacking
+that bounded port refuses; there is no unbounded load fallback. Qualified `.2`
+content keeps its existing interpretation.
+
+Only `.3` MethodArtifactOutputPayload sidecars route through the public Foundry
+source-owned reader. The kind is a dispatch hint; full actual selected owner,
+media/schema/profile, producer revision, source roles and primitive value domain
+are rechecked before the payload is interpreted. The actual Method kind or
+source schema identifies that cohort even when kind and media are jointly
+substituted; malformed full selectors refuse before payload load. Unknown JSON
+`.3` owners refuse semantic inspection. Truly unrelated non-JSON cohorts retain
+raw byte/text inspection with `canon_read_status="not_evaluated"`; that is an
+unqualified projection, not canonical value or producer admission. This is a content/schema read projection, not producer authenticity,
+method-result adequacy, G acceptance or a change to authority surfaces.
+
+The fresh schema consumer oracle compares its top-level keys with the producer DTO's
+actual fields and requires declared byte conformance. A schema-only dispatch removal
+is a separate behavioral control; its intact/red/restored runtime checks remain UNRUN.

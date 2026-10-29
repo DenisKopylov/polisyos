@@ -65,3 +65,31 @@ non-PURE methods and method reads from lowered mechanism outputs. The dispatcher
 captures only the selected output occurrence for the existing fresh point/unit
 consumer. This limitation is explicit; no general method-to-method dataflow is
 claimed.
+
+## Opt-in method artifact sidecars
+
+Public `execute(..., artifact_output_codec="bounded_v3")` selects only the existing
+`MethodResult.artifacts` → `MethodArtifactOutputPayload@1.0` sidecar chain. Its
+normal default is `legacy`; metric input capture, returned outputs, bundle, state,
+cache and journal writers keep their current profiles. The explicit request is
+not a readiness boolean: Core recomputes the scoped source/backend/value/profile
+and real selected readback before publication. Unsupported artifacts retain an
+`unavailable` row with a limitation; inventory `captured` means keys were inventoried,
+not that each sidecar succeeded. Counters charge successful actual wire bytes.
+
+The existing logical payload domain is at most 1,024 nodes and depth 8, with
+4,096-bit integers, 65,536 wire bytes, 4 MiB aggregate sidecars and 8,192 refs.
+The explicit policy `foundry.method_artifact_output.canon3/1` derives physical wire
+node budget `7N-2+2*field_count = 7,178` and wire container depth
+`1+3*(L+1) = 28`; `CanonSpec.max_depth = L+1 = 9` remains logical. The source
+resource owner adds a 4,096-byte output-manifest cap, with exactly three selected
+source input roles and its revision in existing ProducerInfo. These quantities
+are separate and are enforced against actual bytes/structure, not only formulas.
+
+The cohort accepts exact primitive JSON objects/lists/scalars, finite floats
+except signed negative zero, and nonempty exact string keys. Tuple, Decimal,
+bytes, models/carriers/custom mappings are unqualified and refuse before callback
+or fallback. It does not replace the distinct Foundry static-parameter
+float-hex/bytes/array descriptor projection or enable other `.3` cohorts.
+Public `read_method_artifact_output_bounded` reopens the selected typed sidecar
+even with writes disabled; Inspector uses that source-owned consumer.

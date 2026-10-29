@@ -6,6 +6,10 @@
 
 Working directory: `policy-engine/`.
 
+### DFK native-byte witness
+
+For the bounded I2 Linux invalid-byte Git-path witness, follow [`dfk_byte_witness/README.md`](dfk_byte_witness/README.md). It reuses the existing DFK census and tracked source-admission/C134 capture helpers; it does not close LA-006 or establish whole I2.
+
 ### Local integration stack
 
 ```bash

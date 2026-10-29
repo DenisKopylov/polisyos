@@ -178,7 +178,11 @@ if TYPE_CHECKING:
     from .ir_adapter import ensure_ir_artifact_store as ensure_ir_artifact_store
     from .owned_json import (
         CoreArtifactOwnerProfile,
+        CoreJsonWriterPolicy,
         CoreOwnedModelRead,
+        declare_core_json_writer_policy,
+        put_core_json_artifact_bounded,
+        read_core_json_writer_artifact_bounded,
         validate_owned_core_model_json_artifact,
     )
 
@@ -216,6 +220,10 @@ def __getattr__(name: str) -> Any:
     if name in {
         "CoreArtifactOwnerProfile",
         "CoreOwnedModelRead",
+        "CoreJsonWriterPolicy",
+        "declare_core_json_writer_policy",
+        "put_core_json_artifact_bounded",
+        "read_core_json_writer_artifact_bounded",
         "validate_owned_core_model_json_artifact",
     }:
         owned_json = import_module(".owned_json", __name__)
@@ -368,6 +376,7 @@ __all__ = [
     "CoreJsonManifestBoundedRead",
     "CoreJsonReadBoundsRefusalError",
     "CoreJsonReadLimits",
+    "CoreJsonWriterPolicy",
     "CoreOwnedModelRead",
     "CoreToIRArtifactStoreAdapter",
     "DependencyEdge",
@@ -410,6 +419,7 @@ __all__ = [
     "build_artifact_store",
     "build_cas_integrity_report",
     "compute_key_id",
+    "declare_core_json_writer_policy",
     "decode_core_json_payload",
     "ensure_async_artifact_store",
     "ensure_directory_durable",
@@ -424,11 +434,13 @@ __all__ = [
     "matches_runtime_protocol",
     "matches_runtime_protocol_definition",
     "profile_bound_ref",
+    "put_core_json_artifact_bounded",
     "raise_artifact_read_access_error",
     "read_core_input_manifest_profile_bounded",
     "read_core_json_artifact",
     "read_core_json_artifact_bounded",
     "read_core_json_artifact_bytes",
+    "read_core_json_writer_artifact_bounded",
     "read_core_manifest_profile",
     "read_core_manifest_profile_bounded",
     "require_return_selected_profile_writer",

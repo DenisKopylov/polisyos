@@ -28,12 +28,14 @@ from polisyos.core.artifacts import (
     artifact_ref_for_manifest,
     read_core_json_artifact_bounded,
     read_core_manifest_profile,
+    read_core_manifest_profile_bounded,
 )
 from polisyos.core.artifacts.canonical_profile import CoreJsonReadBoundsRefusalError
 from polisyos.core.canon.canon_json import CORE_TAG_POLICY_ID
 from polisyos.core.contracts.decision_packet_hte import (
     build_decision_packet_legacy_hte_preview,
 )
+from polisyos.core.contracts.foundry import MethodArtifactOutputPayload
 from polisyos.core.contracts.runtime import (
     ArtifactContentPreview,
     ArtifactLineageView,
@@ -92,6 +94,21 @@ def _read_inspector_semantic_json(
     """Read JSON under the fixed Core policy and exact bounded selected CAS view."""
     if type(max_payload_bytes) is not int or max_payload_bytes < 1:
         raise ValueError("inspector_json_read_limit_invalid")
+    header = manifest_read or read_core_manifest_profile_bounded(
+        store, selected_ref, max_manifest_bytes=INSPECTOR_MANIFEST_MAX_BYTES
+    )
+    profile = header.declaration.profile
+    if profile is not None and profile.version == "0.3.0":
+        # Kind only routes to the defining source. Unsupported .3 owners refuse
+        # before opening payload; this Inspector has no generic .3 admission.
+        if selected_ref.kind != MethodArtifactOutputPayload.ARTIFACT_KIND:
+            raise CanonicalProfileRefusalError("canon_profile_reader_policy_mismatch")
+        from polisyos.foundry.execute import read_method_artifact_output_bounded
+
+        owned = read_method_artifact_output_bounded(
+            store, selected_ref, max_bytes=max_payload_bytes
+        )
+        return owned.profile_read
     bounded = read_core_json_artifact_bounded(
         store,
         selected_ref,
@@ -101,7 +118,7 @@ def _read_inspector_semantic_json(
             max_elements=INSPECTOR_JSON_MAX_ELEMENTS,
             max_manifest_bytes=INSPECTOR_MANIFEST_MAX_BYTES,
         ),
-        manifest_read=manifest_read,
+        manifest_read=header,
     )
     profiled = bounded.profile_read
     if profiled.reader_policy_id != CORE_TAG_POLICY_ID:
@@ -873,20 +890,40 @@ class ArtifactInspectorService:
             CanonicalProfileRefusalError: If the selected Core profile is invalid
                 or the JSON payload exceeds the bounded inspection policy.
         """
-        manifest = manifest or (
-            manifest_read.manifest
-            if manifest_read is not None
-            else read_core_manifest_profile(self._store, artifact_id)[0]
-        )
+        if manifest is None:
+            if manifest_read is None:
+                manifest_read = read_core_manifest_profile_bounded(
+                    self._store,
+                    artifact_id,
+                    max_manifest_bytes=INSPECTOR_MANIFEST_MAX_BYTES,
+                )
+            manifest = manifest_read.manifest
         selected_ref = _artifact_ref_for_manifest(manifest)
         preview_limit = _normalize_preview_limit(
             max_bytes,
             default_value=self._default_max_preview_bytes,
         )
         is_json = _is_json_media_type(manifest.media_type)
-        canon_read_status: CanonReadStatus = "not_evaluated" if is_json else "not_applicable"
+        requires_source_owner = (
+            manifest.canon is not None
+            and manifest.canon.version == "0.3.0"
+            and (
+                manifest.kind == MethodArtifactOutputPayload.ARTIFACT_KIND
+                or (
+                    manifest.artifact_schema is not None
+                    and manifest.artifact_schema.name
+                    == MethodArtifactOutputPayload.ARTIFACT_SCHEMA_NAME
+                )
+            )
+        )
+        # Unknown non-JSON cohorts retain raw inspection, explicitly without
+        # canonical interpretation; known Method selectors require their owner.
+        has_uninterpreted_profile = manifest.canon is not None and manifest.canon.version == "0.3.0"
+        canon_read_status: CanonReadStatus = (
+            "not_evaluated" if is_json or has_uninterpreted_profile else "not_applicable"
+        )
         profiled_payload: Any = None
-        if is_json:
+        if is_json or requires_source_owner:
             profiled = _read_inspector_semantic_json(
                 self._store,
                 selected_ref,
@@ -986,18 +1023,38 @@ class ArtifactInspectorService:
             CanonicalProfileRefusalError: If selected JSON exceeds the bounded
                 inspection policy or fails Core profile conformance.
         """
-        manifest = manifest or (
-            manifest_read.manifest
-            if manifest_read is not None
-            else read_core_manifest_profile(self._store, artifact_id)[0]
-        )
+        if manifest is None:
+            if manifest_read is None:
+                manifest_read = read_core_manifest_profile_bounded(
+                    self._store,
+                    artifact_id,
+                    max_manifest_bytes=INSPECTOR_MANIFEST_MAX_BYTES,
+                )
+            manifest = manifest_read.manifest
         schema = manifest.artifact_schema
 
         selected_ref = _artifact_ref_for_manifest(manifest)
         top_keys: list[str] = []
         is_json = _is_json_media_type(manifest.media_type)
-        canon_read_status: CanonReadStatus = "not_evaluated" if is_json else "not_applicable"
-        if is_json:
+        requires_source_owner = (
+            manifest.canon is not None
+            and manifest.canon.version == "0.3.0"
+            and (
+                manifest.kind == MethodArtifactOutputPayload.ARTIFACT_KIND
+                or (
+                    manifest.artifact_schema is not None
+                    and manifest.artifact_schema.name
+                    == MethodArtifactOutputPayload.ARTIFACT_SCHEMA_NAME
+                )
+            )
+        )
+        # Unknown non-JSON cohorts retain raw inspection, explicitly without
+        # canonical interpretation; known Method selectors require their owner.
+        has_uninterpreted_profile = manifest.canon is not None and manifest.canon.version == "0.3.0"
+        canon_read_status: CanonReadStatus = (
+            "not_evaluated" if is_json or has_uninterpreted_profile else "not_applicable"
+        )
+        if is_json or requires_source_owner:
             schema_limit = _normalize_preview_limit(
                 None, default_value=self._default_max_preview_bytes
             )

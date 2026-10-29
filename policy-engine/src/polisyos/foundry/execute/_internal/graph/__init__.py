@@ -10,6 +10,7 @@ import math
 import time
 from collections.abc import Mapping
 from datetime import UTC, datetime
+from functools import lru_cache
 from typing import Any, Literal, Protocol, TypedDict, TypeVar
 
 import jax
@@ -18,7 +19,14 @@ import numpy as np
 from pydantic import TypeAdapter, ValidationError
 
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
-from polisyos.core.artifacts import artifact_ref_for_manifest
+from polisyos.core.artifacts import (
+    CoreArtifactOwnerProfile,
+    CoreJsonReadLimits,
+    CoreJsonWriterPolicy,
+    artifact_ref_for_manifest,
+    declare_core_json_writer_policy,
+    put_core_json_artifact_bounded,
+)
 from polisyos.core.artifacts.environment import (
     EnvironmentManifest,
     EnvironmentManifestRef,
@@ -38,7 +46,7 @@ from polisyos.core.artifacts.protocol import (
     CoreJSONArtifactStore,
 )
 from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.canon import CanonSpec
+from polisyos.core.canon import CanonicalResourceLimits, CanonSpec, CanonViolation
 from polisyos.core.contracts.foundry import (
     METHOD_METRIC_BINDING_LIMIT,
     ConstraintReport,
@@ -427,12 +435,18 @@ def new_method_execution_capture(
     *,
     program_ref: ArtifactRef | ArtifactID | str,
     exec_plan_ref: ArtifactRef | ArtifactID | str,
+    artifact_output_codec: Literal["legacy", "bounded_v3"] = "legacy",
 ) -> MethodExecutionCapture | None:
     """Create a graph metric capture only when the selected ExecPlan binds metrics.
 
     The method-metric binding is admitted through the exact ExecPlan manifest edge;
     the legacy ExecPlan payload remains unchanged.
     """
+    if type(artifact_output_codec) is not str or artifact_output_codec not in (
+        "legacy",
+        "bounded_v3",
+    ):
+        raise ValueError("method_artifact_output_codec_invalid")
     binding_set_ref = _binding_ref_from_exec_plan_manifest(store, exec_plan_ref)
     if binding_set_ref is None:
         return None
@@ -450,6 +464,7 @@ def new_method_execution_capture(
         exec_plan_ref=plan_ref,
         method_metric_binding_set_ref=binding_set_ref,
         method_metric_bindings=tuple(binding_set.bindings),
+        artifact_output_codec=artifact_output_codec,
     )
 
 
@@ -762,6 +777,70 @@ _MAX_METHOD_CAPTURE_LIMITATIONS = 32
 _MAX_METHOD_CAPTURE_MANIFEST_EDGES = 9000
 _MAX_METHOD_CAPTURE_SIDECAR_REFS = 8192
 _MAX_METHOD_CAPTURE_INPUT_BYTES = 32 * 1024 * 1024
+# This output owner adopts its own explicit bounded manifest policy, rather
+# than silently borrowing the independent metric-input manifest limit.
+_METHOD_ARTIFACT_OUTPUT_MANIFEST_BYTES = 4096
+_METHOD_ARTIFACT_OUTPUT_LOGICAL_DEPTH = 8
+_METHOD_ARTIFACT_OUTPUT_MAX_INTEGER_BITS = 4096
+
+
+@lru_cache(maxsize=1)
+def _method_artifact_output_writer_policy() -> CoreJsonWriterPolicy[MethodArtifactOutputPayload]:
+    """Declare the actual sidecar producer's primitive resource domain, not readiness."""
+    schema = SchemaInfo(
+        name=MethodArtifactOutputPayload.ARTIFACT_SCHEMA_NAME,
+        version=MethodArtifactOutputPayload.ARTIFACT_SCHEMA_VERSION,
+    )
+    owner = CoreArtifactOwnerProfile(
+        kind=MethodArtifactOutputPayload.ARTIFACT_KIND,
+        media_type=MethodArtifactOutputPayload.ARTIFACT_MEDIA_TYPE,
+        schema_variants=(schema,),
+        payload_schema_version_by_manifest=(((schema.name, schema.version), "1.0"),),
+    )
+    # N logical payload nodes become at most 7N-2 wire nodes. The fixed DTO
+    # root, all field names and non-payload scalar values add 2*field_count.
+    wire_nodes = (
+        7 * _MAX_METHOD_ARTIFACT_PAYLOAD_ELEMENTS
+        - 2
+        + 2 * len(MethodArtifactOutputPayload.model_fields)
+    )
+    wire_depth = 1 + 3 * (_METHOD_ARTIFACT_OUTPUT_LOGICAL_DEPTH + 1)
+    limits = CanonicalResourceLimits(
+        "foundry.method_artifact_output.canon3/1",
+        _MAX_METHOD_ARTIFACT_PAYLOAD_BYTES,
+        wire_depth,
+        wire_nodes,
+    )
+    return declare_core_json_writer_policy(
+        owner=owner,
+        model=MethodArtifactOutputPayload,
+        producer_component="foundry.execute.method_artifact_output",
+        spec=CanonSpec(
+            version="0.3.0",
+            forbid_floats=False,
+            max_depth=_METHOD_ARTIFACT_OUTPUT_LOGICAL_DEPTH + 1,
+        ),
+        limits=limits,
+        read_limits=CoreJsonReadLimits(
+            limits.max_wire_bytes,
+            limits.max_wire_depth,
+            limits.max_elements,
+            _METHOD_ARTIFACT_OUTPUT_MANIFEST_BYTES,
+        ),
+        input_contracts=(
+            ("program_graph", "foundry.program_graph", "application/json"),
+            ("exec_plan", "foundry.exec_plan", "application/json"),
+            ("method_metric_binding_set", "foundry.method_metric_binding_set", "application/json"),
+        ),
+        value_limits=(
+            "payload",
+            _MAX_METHOD_ARTIFACT_PAYLOAD_ELEMENTS,
+            _METHOD_ARTIFACT_OUTPUT_LOGICAL_DEPTH,
+            _METHOD_ARTIFACT_OUTPUT_MAX_INTEGER_BITS,
+        ),
+    )
+
+
 _METHOD_PRESTATE_IDENTITY_ALGORITHM = "policyos.method_dispatch_input_map.sha256.v1"
 _METHOD_PRESTATE_IDENTITY_DOMAIN = b"policyos.method_dispatch_input_map.sha256.v1\0"
 _RefT = TypeVar("_RefT", bound=ArtifactRef)
@@ -2123,6 +2202,19 @@ def _capture_method_artifacts(
 
     from polisyos.core.artifacts import validate_core_model_json_artifact
 
+    codec = capture.artifact_output_codec
+    if type(codec) is not str or codec not in ("legacy", "bounded_v3"):
+        raise ValueError("method_artifact_output_codec_invalid")
+    requested_v3 = codec == "bounded_v3"
+    if requested_v3:
+        from polisyos.foundry.methods.backends.protocol import MethodResult
+
+        if (
+            type(capture) is not MethodExecutionCapture
+            or type(occurrence) is not MethodExecutionOccurrence
+            or type(method_result) is not MethodResult
+        ):
+            raise ValueError("method_artifact_output_source_unqualified")
     artifacts = getattr(method_result, "artifacts", None)
     if type(artifacts) is not dict:
         return (
@@ -2162,6 +2254,64 @@ def _capture_method_artifacts(
     captured: list[MethodExecutionArtifact] = []
     for artifact_key in sorted(keys):
         raw_payload = artifacts[artifact_key]
+        if requested_v3:
+            try:
+                if type(raw_payload) is not dict:
+                    raise ValueError("method_artifact_output_projection_unqualified")
+                if (
+                    type(capture.sidecar_refs_used) is not int
+                    or capture.sidecar_refs_used < 0
+                    or type(capture.sidecar_bytes_used) is not int
+                    or capture.sidecar_bytes_used < 0
+                    or capture.sidecar_refs_used >= _MAX_METHOD_CAPTURE_SIDECAR_REFS
+                ):
+                    raise ValueError("method_artifact_output_capacity_invalid")
+                remaining = _MAX_METHOD_CAPTURE_SIDECAR_BYTES - capture.sidecar_bytes_used
+                policy = _method_artifact_output_writer_policy()
+                selected, actual_bytes = put_core_json_artifact_bounded(
+                    store,
+                    {
+                        "schema_version": "1.0",
+                        "occurrence_id": occurrence.occurrence_id,
+                        "invocation_id": occurrence.invocation_id,
+                        "node_id": occurrence.node_id,
+                        "artifact_key": artifact_key,
+                        "payload": raw_payload,
+                    },
+                    policy=policy,
+                    inputs=(
+                        capture.program_graph_ref,
+                        capture.exec_plan_ref,
+                        capture.method_metric_binding_set_ref,
+                    ),
+                    max_bytes=min(_MAX_METHOD_ARTIFACT_PAYLOAD_BYTES, remaining),
+                )
+                selected_ref = MethodArtifactOutputRef.model_validate(
+                    selected.artifact_ref.model_dump(mode="python")
+                )
+            except Exception as exc:
+                code = getattr(exc, "code", None)
+                detail = code if type(code) is str else type(exc).__name__
+                if type(exc) is CanonViolation and len(exc.args) == 1 and type(exc.args[0]) is str:
+                    detail = exc.args[0]
+                captured.append(
+                    MethodExecutionArtifact(
+                        artifact_key=artifact_key,
+                        status="unavailable",
+                        limitation=f"method_artifact_capture_failed:{detail}"[:512],
+                    )
+                )
+                continue
+            capture.sidecar_refs_used += 1
+            capture.sidecar_bytes_used += actual_bytes
+            captured.append(
+                MethodExecutionArtifact(
+                    artifact_key=artifact_key,
+                    status="captured",
+                    artifact_ref=selected_ref,
+                )
+            )
+            continue
         if type(raw_payload) is not dict and not isinstance(raw_payload, BaseModel):
             captured.append(
                 MethodExecutionArtifact(

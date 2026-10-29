@@ -4,7 +4,7 @@
 record/replay, streaming and CDC, quarantine, semantic diffs, and benchmark
 reports.
 
-Last updated: 2026-10-25.
+Last updated: 2026-10-29.
 
 ## Purpose
 
@@ -162,7 +162,10 @@ recomputes the actual request key and reconciles provenance. Requests receive on
 a verified predecessor before fetch/persistence. Conditional save compares that
 same predecessor under the existing index lock. Bare legacy cursors do not
 silently upgrade. Partial/failed results retain inspectable evidence and explicit
-scope but do not create completed snapshots or input bindings. The common
+scope but do not create completed snapshots or input bindings. Incremental fixture
+histories must keep one row shape across the full materialized snapshot: a missing
+or extra field can quarantine a row, lower completeness, and correctly prevent
+cursor advancement even when the new delta was fetched and cached. The common
 `ingestion_is_complete` predicate also gates durable partition success/retry,
 live-acquisition consumption and replay comparison; unknown statuses fail closed.
 

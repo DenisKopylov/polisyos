@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 from io import BytesIO
-from typing import Any, TypeVar
+from typing import Any, Literal, TypeVar
 
 import numpy as np
 from pydantic import BaseModel, Field
@@ -145,6 +145,7 @@ class MethodExecutionCapture:
     sidecar_bytes_used: int = 0
     sidecar_refs_used: int = 0
     method_execution_bundle_ref: MethodExecutionBundleRef | None = None
+    artifact_output_codec: Literal["legacy", "bounded_v3"] = "legacy"
 
     def begin_invocation(self) -> str:
         """Allocate a stable invocation id unique within this captured run."""

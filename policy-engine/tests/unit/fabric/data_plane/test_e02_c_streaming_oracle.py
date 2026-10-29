@@ -682,8 +682,16 @@ def test_b80_two_source_failure_then_fresh_snapshot_consumes_both_sources(
         # Preserve the original source-to-artifact counterexample as well as
         # the new actual-consumer controls: valid B6 may advance beside an
         # independently mismatched A10 graph, but A must remain at A9.
-        a10 = {"event_id": "a-event-10", "source_version": "10"}
-        b6 = {"event_id": "b-event-6", "source_version": "6"}
+        a10 = {
+            "event_id": "a-event-10",
+            "source_version": "10",
+            "event_time": "2025-01-02T00:00:00Z",
+        }
+        b6 = {
+            "event_id": "b-event-6",
+            "source_version": "6",
+            "event_time": "2024-01-02T00:00:00Z",
+        }
         write_source_history(readers["source_a"], [("a8", []), ("a9", [a9]), ("a10", [a9, a10])])
         write_source_history(readers["source_b"], [("b4", []), ("b5", [b5]), ("b6", [b5, b6])])
         import polisyos.fabric.ingestion.ingestion as ingestion_module
@@ -709,6 +717,57 @@ def test_b80_two_source_failure_then_fresh_snapshot_consumes_both_sources(
         assert any("partial evidence" in note.lower() for note in partial_evidence["notes"])
     finally:
         registry.shutdown()
+
+
+def test_batch_snapshot_mixed_row_shape_is_quarantined_and_incomplete() -> None:
+    from polisyos.fabric.ingestion.ingestion import _sanitize_fetch_result
+    from polisyos.ir.connectors import DataVersion, FetchResult, VersionStrategy
+
+    timestamp = datetime(2026, 1, 1, tzinfo=UTC)
+    prior = {
+        "event_id": "b-late-event-5",
+        "source_version": "5",
+        "event_time": "2024-01-01T00:00:00Z",
+    }
+    current = {
+        "event_id": "b-event-6",
+        "source_version": "6",
+        "event_time": "2024-01-02T00:00:00Z",
+    }
+
+    def result(rows: list[dict[str, str]]) -> FetchResult[list[dict[str, str]]]:
+        return FetchResult(
+            data=rows,
+            row_count=len(rows),
+            schema_id="fixture.source_b.events",
+            schema_version="1.0.0",
+            version=DataVersion(
+                strategy=VersionStrategy.ETAG,
+                value="b6",
+                timestamp=timestamp,
+            ),
+            fetched_at=timestamp,
+            completeness=1.0,
+        )
+
+    uniform, warnings, quarantined = _sanitize_fetch_result(
+        result([prior, current]), connector_id="fixture.source_b", dataset_id="events"
+    )
+    assert uniform.row_count == 2
+    assert uniform.completeness == 1.0
+    assert warnings == []
+    assert quarantined == 0
+
+    malformed, warnings, quarantined = _sanitize_fetch_result(
+        result([prior, {key: value for key, value in current.items() if key != "event_time"}]),
+        connector_id="fixture.source_b",
+        dataset_id="events",
+    )
+    assert malformed.row_count == 1
+    assert malformed.completeness == 0.5
+    assert "quarantine_applied" in malformed.quality_flags
+    assert len(warnings) == 1
+    assert quarantined == 1
 
 
 @pytest.mark.parametrize("strategy", ["count", "tumbling", "session", "sliding"])

@@ -535,14 +535,23 @@ def test_local_aggregate_distinguishes_unknown_from_declared_unscoped(tmp_path) 
     assert all(
         card.origin_tenant_scope_status is TransferTenantScopeStatus.UNKNOWN for card in results
     )
-    declared_result = fresh.find_transfer_candidates(
+    # The declared card is already in the target namespace, so it is read
+    # locally; transfer discovery must not reinterpret the UNKNOWN namespace.
+    declared_result = fresh.query_with_transfer(
+        LessonQuery(task_family="policy", limit=1), target_context=declared
+    )
+    assert len(declared_result) == 1
+    assert (
+        declared_result[0].origin_tenant_scope_status is TransferTenantScopeStatus.DECLARED_UNSCOPED
+    )
+
+    transfer = fresh.find_transfer_candidates(
         LessonQuery(task_family="policy", limit=10), target_context=declared
     )
-    assert declared_result.candidates
-    assert all(
-        card.origin_tenant_scope_status is TransferTenantScopeStatus.DECLARED_UNSCOPED
-        for card in declared_result.candidates
-    )
+    assert transfer.candidates == []
+    assert [refusal.reason for refusal in transfer.scope_refusals] == [
+        TransferScopeRefusalReason.TENANT_SCOPE_UNKNOWN
+    ]
 
 
 def test_materialize_transfer_refuses_card_self_asserted_authenticated_scope(tmp_path) -> None:

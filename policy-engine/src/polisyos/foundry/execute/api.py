@@ -19,9 +19,11 @@ from pydantic import BaseModel
 
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts import (
+    CoreJsonArtifactBoundedRead,
     RegistryBundlePayload,
     artifact_manifest_profile_sha256,
     ensure_ir_artifact_store,
+    read_core_json_writer_artifact_bounded,
     resolve_manifest_by_profile,
     validate_core_model_json_artifact,
 )
@@ -1279,7 +1281,33 @@ def _build_execution_input_basis(
     return FoundryExecutionInputBasisRef.model_validate(payload_ref.model_dump(mode="python"))
 
 
-def execute(store: ArtifactStore, request: ExecuteRequest) -> ExecuteResult:
+def read_method_artifact_output_bounded(
+    store: object,
+    ref: ArtifactRef,
+    *,
+    max_bytes: int | None = None,
+) -> CoreJsonArtifactBoundedRead:
+    """Consume the actual `.3` method sidecar contract without enabling writing.
+
+    Kind, schema, complete profile, input-role inventory and primitive DTO domain
+    are checked through the defining owner's bounded policy. This is not proof
+    of producer authenticity or a new policy authority role.
+    """
+    from polisyos.foundry.execute._internal.graph import _method_artifact_output_writer_policy
+
+    policy = _method_artifact_output_writer_policy()
+    if max_bytes is not None and (type(max_bytes) is not int or max_bytes < 1):
+        raise CanonicalProfileRefusalError("method_artifact_output_read_limit_invalid")
+    limit = None if max_bytes is None else min(max_bytes, policy.read_limits.max_bytes)
+    return read_core_json_writer_artifact_bounded(store, ref, policy=policy, max_bytes=limit)
+
+
+def execute(
+    store: ArtifactStore,
+    request: ExecuteRequest,
+    *,
+    artifact_output_codec: Literal["legacy", "bounded_v3"] = "legacy",
+) -> ExecuteResult:
     """Execute a compiled Foundry plan from a bound state snapshot.
 
     `request.input_bindings_ref` is treated as the canonical boundary object
@@ -1300,6 +1328,11 @@ def execute(store: ArtifactStore, request: ExecuteRequest) -> ExecuteResult:
             and parameter override artifacts, and receiving runtime outputs.
         request: Execution contract referencing the compiled plan, bound
             input snapshot, registry bundle, and runtime configuration.
+        artifact_output_codec: Source-owned method-sidecar request. ``legacy``
+            preserves default CAN.2 behavior. ``bounded_v3`` requests only the
+            local primitive MethodArtifactOutputPayload cohort; unsupported
+            stores/projections are recorded as unavailable sidecars. It does
+            not activate other writers or establish installed/G acceptance.
 
     Returns:
         `ExecuteResult` with `simulation_result_ref` and derived artifact refs
@@ -1328,6 +1361,11 @@ def execute(store: ArtifactStore, request: ExecuteRequest) -> ExecuteResult:
             simulation_ref = result.simulation_result_ref
         ```
     """
+    if type(artifact_output_codec) is not str or artifact_output_codec not in (
+        "legacy",
+        "bounded_v3",
+    ):
+        raise ValueError("method_artifact_output_codec_invalid")
 
     core_json_store = resolve_core_json_profile_store(store)
     if core_json_store is None:
@@ -1347,6 +1385,7 @@ def execute(store: ArtifactStore, request: ExecuteRequest) -> ExecuteResult:
         store,
         program_ref=exec_plan.program_ref,
         exec_plan_ref=request.exec_plan_ref,
+        artifact_output_codec=artifact_output_codec,
     )
     if method_execution_capture is not None:
         request = request.model_copy(

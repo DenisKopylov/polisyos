@@ -38,6 +38,7 @@ from typing import (
 from pydantic import ValidationError
 
 from polisyos.common.canonical import _admit_canon_spec
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 
 from ..canon import content_hash
 from ..canon.canon_json import (
@@ -185,6 +186,7 @@ if TYPE_CHECKING:
     from ._transfer_ops import CASMemberStream
     from .backends.config import ArtifactStoreConfig
     from .batch_control import BatchAuthorizationLossSignal
+    from .owned_json import _PreparedCoreJsonWrite
 
 
 PutOptions = ArtifactWriteOptions
@@ -3361,10 +3363,36 @@ class FileSystemCAS:
         aid: ArtifactID,
         sha: str,
         return_selected_profile: bool,
+        _json_write_admission: _PreparedCoreJsonWrite | None = None,
     ) -> tuple[bool, str | None, str, DetachedSignature | None, Exception | None]:
         """Publish one blob/view and return its profiles and pre-admitted signature."""
+        if _json_write_admission is not None:
+            from .owned_json import _validate_prepared_core_json_write
+
+            admitted_options = _validate_prepared_core_json_write(self, _json_write_admission)
+            if admitted_options != opts:
+                raise CanonicalProfileRefusalError("core_json_writer_publication_options_mismatch")
         blob_path, default_manifest_path = self._paths(aid)
+
+        def existing_manifest(path: Path) -> tuple[bytes, ArtifactManifest]:
+            if _json_write_admission is None:
+                return path.read_bytes(), self._manifests.read(path)
+            maximum = _json_write_admission.policy.read_limits.max_manifest_bytes
+            raw = self._read_cas_file_no_follow(
+                path, member="manifest", max_bytes=maximum, raise_read_limit=True
+            )
+            return raw, ArtifactManifest.model_validate_json(raw)
+
         with self._coordinator.artifact_lease(aid, exclusive=True) as lease:
+            if _json_write_admission is not None:
+                # This first bounded cohort does not qualify recovery. Refuse
+                # before reading/cleaning/resuming an intent, including a
+                # committed one; legacy publication retains its recovery law.
+                intent_path = self._ownership_index._transaction_intent_path(aid)
+                if intent_path.exists() or intent_path.is_symlink():
+                    raise CanonicalProfileRefusalError(
+                        "core_json_writer_pending_transaction_unqualified"
+                    )
             # Input ownership is mutable owner-generation state. Re-evaluate it
             # under the publication lease immediately before deriving selectors
             # and durable claims; the earlier public-boundary check is only a
@@ -3405,8 +3433,16 @@ class FileSystemCAS:
             )
 
             blob_preexisted = blob_path.exists()
-            if blob_preexisted and _file_content_hash(blob_path) != sha:
-                raise ArtifactIntegrityError(f"Blob sha256 mismatch for {aid}")
+            if blob_preexisted:
+                if _json_write_admission is None:
+                    existing_hash = _file_content_hash(blob_path)
+                else:
+                    existing_blob = self._read_cas_file_no_follow(
+                        blob_path, member="blob", max_bytes=len(data), raise_read_limit=True
+                    )
+                    existing_hash = content_hash(existing_blob)
+                if existing_hash != sha:
+                    raise ArtifactIntegrityError(f"Blob sha256 mismatch for {aid}")
 
             manifest = self._manifests.build(
                 artifact_id=aid,
@@ -3414,7 +3450,17 @@ class FileSystemCAS:
                 sha=sha,
                 opts=opts,
             )
+            if _json_write_admission is not None:
+                from .owned_json import _preflight_prepared_core_json_manifest
+
+                _preflight_prepared_core_json_manifest(self, _json_write_admission, manifest)
             manifest_bytes = self._manifests.to_bytes(manifest)
+            if _json_write_admission is not None:
+                from .owned_json import _validate_prepared_core_json_manifest
+
+                _validate_prepared_core_json_manifest(
+                    self, _json_write_admission, manifest, manifest_bytes
+                )
             profile_sha256 = self._manifests.profile_sha256(manifest)
 
             default_owner_admitted = False
@@ -3433,8 +3479,7 @@ class FileSystemCAS:
             default_bytes: bytes | None = None
             default_profile_sha256: str | None = None
             if not skip_default_manifest and default_manifest_path.exists():
-                default_bytes = default_manifest_path.read_bytes()
-                default_manifest = self._manifests.read(default_manifest_path)
+                default_bytes, default_manifest = existing_manifest(default_manifest_path)
                 _validate_manifest_identity(aid, default_manifest)
                 _validate_read_integrity(aid, data, default_manifest)
                 default_profile_sha256 = self._manifests.profile_sha256(default_manifest)
@@ -3443,8 +3488,7 @@ class FileSystemCAS:
             self._validate_import_destination(view_path, member=view_path.name)
             view_bytes: bytes | None = None
             if view_path.exists():
-                view_bytes = view_path.read_bytes()
-                existing_view = self._manifests.read(view_path)
+                view_bytes, existing_view = existing_manifest(view_path)
                 _validate_manifest_identity(aid, existing_view)
                 _validate_read_integrity(aid, data, existing_view)
                 if self._manifests.profile_projection(existing_view) != (
@@ -3768,6 +3812,32 @@ class FileSystemCAS:
             )
             self._finish_sign_on_put(ref, prepared_signature, signing_error)
             return ref
+
+    def _put_bounded_core_json_write(self, prepared: _PreparedCoreJsonWrite) -> ArtifactRef:
+        """Publish only Core's sealed owner/vector/reader-admitted representation."""
+        from .owned_json import _validate_prepared_core_json_write
+
+        opts = _validate_prepared_core_json_write(self, prepared)
+        data = prepared.data
+        sha = content_hash(data)
+        aid = ArtifactID.from_sha256_hex(sha)
+        self._require_input_owners(opts)
+        _deduplicated, _default, profile, _signature, _signing_error = (
+            self._put_blob_and_manifest_once(
+                data=data,
+                opts=opts,
+                aid=aid,
+                sha=sha,
+                return_selected_profile=True,
+                _json_write_admission=prepared,
+            )
+        )
+        return ArtifactRef(
+            artifact_id=aid,
+            kind=opts.kind,
+            media_type=opts.media_type,
+            manifest_profile_sha256=profile,
+        )
 
     def put_json(
         self,

@@ -479,3 +479,36 @@ A conformant read does not authorize a `.3` artifact writer. The writer fence
 remains until a real owner resource vector and reader/rollback cohort are admitted.
 See the [qualified read contract](../../../../docs/reference/canonical-json-profile-reads.md)
 for carrier returns, limitations and migration.
+
+## Explicit local bounded JSON production
+
+`CoreJsonWriterPolicy` binds a defining source DTO owner, schema/payload-version
+relation, complete `.3` profile, physical write/read vector, logical value domain,
+producer revision and exact selected lineage roles. `put_core_json_artifact_bounded`
+revalidates this frozen policy and source representation, runs the real selected
+Core decoder/model checks on the prospective manifest and bytes, then reuses the
+existing CAS transaction/publication owner. The actual serialized manifest is
+bounded and checked again before transaction intent or staging; an existing
+pending intent is refused before recovery or cleanup on this scoped route.
+
+This route currently supports the stock local FileSystemCAS with signing, quota,
+telemetry and enforced/custom ownership callbacks disabled. Unsupported backends
+refuse before value callbacks or publication. Default `put_json` stays `.2` and
+rejects explicit `.3`; public `put_bytes` retains its separate existing raw import
+contract and does not prove this producer was used. No general `.3` writer
+activation, producer authenticity or external acceptance follows from conformance.
+
+`read_core_json_writer_artifact_bounded` is independent of write activation. It
+checks the full selected kind/media/schema/profile/producer/roles before opening
+the bounded payload, then validates exact primitive values and the typed owner.
+The defining producer owns its policy; a stored label never reconstructs one.
+Installed-package and rollback qualifications remain release gates outside a
+single operation's source-local readback.
+
+The new writer's DTO domain excludes every nested/recursive model branch,
+constructor/post-init hook and callback-bearing schema node. Qualification is
+structural over the complete schema, not a list of named model exceptions. All
+source labels/roles/profile fields and the complete actual manifest projection
+receive non-emitting wire preflight before either manifest serializer. Existing
+`.2` owned reads retain compatible Pydantic-metaclass subclasses; the stricter
+metaclass predicate belongs only to the new writer.

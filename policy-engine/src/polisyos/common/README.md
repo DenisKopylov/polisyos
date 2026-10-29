@@ -227,3 +227,23 @@ version-only behavior. This tuple selects declared codec support, not producer
 authenticity, schema ownership, resource admission or policy authority. Unknown
 versions remain candidates until the concrete owner supplies an interpretation.
 See the [qualified read contract](../../../docs/reference/canonical-json-profile-reads.md).
+
+## Scoped bounded artifact writer mechanics
+
+The private bounded encoder can return its owned primitive snapshot with the same
+bytes calculation. Core may issue a per-call mechanical `.3` writer context for
+an exact `CanonSpec` and resource vector. The context does not appoint an artifact
+owner, producer, ready reader or authority. Core separately validates and seals
+the real source policy, value, selected inputs, backend and actual manifest before
+publication. The public unqualified artifact writer remains `.2`.
+
+The first source-owned JSON sidecar cohort accepts exact JSON builtins only. It
+refuses models, Decimal, bytes, tuple, custom mappings and signed negative zero
+before their projection/serializer callbacks. Generic canonical `.2` and explicit
+bounded native APIs keep their existing contracts. The `.3` primitive cohort
+refuses signed negative zero because historical generic float canonicalization
+normalizes it; this does not change Foundry's distinct float-hex carrier law.
+
+The same private traversal also supplies a non-emitting preflight for Core's
+primitive manifest metadata. It charges the complete actual projection before
+the final JSON serializer; it does not introduce another codec or budget owner.

@@ -510,8 +510,8 @@
                 "path": "src/polisyos/common/canonical.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 37292,
-                "sha256": "6b59fe5415227d58dacb97334317c5d1cf13e3b5abf0ff095157bd42f78811b1"
+                "bytes": 41477,
+                "sha256": "84dafbfed8852efdab14727600ce17dd1bb29783c614216c069adafb2448090c"
               },
               {
                 "path": "src/polisyos/common/canonical",
@@ -1208,8 +1208,8 @@
         {
           "module": "polisyos.core.artifacts",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 131,
-          "known_export_count": 131,
+          "export_count": 135,
+          "known_export_count": 135,
           "exports": [
             "AUTHORITY_ENVELOPE_ARTIFACT_KIND",
             "AUTHORITY_ENVELOPE_SCHEMA_NAME",
@@ -1268,6 +1268,7 @@
             "CoreJsonManifestBoundedRead",
             "CoreJsonReadBoundsRefusalError",
             "CoreJsonReadLimits",
+            "CoreJsonWriterPolicy",
             "CoreOwnedModelRead",
             "CoreToIRArtifactStoreAdapter",
             "DependencyEdge",
@@ -1310,6 +1311,7 @@
             "build_artifact_store",
             "build_cas_integrity_report",
             "compute_key_id",
+            "declare_core_json_writer_policy",
             "decode_core_json_payload",
             "ensure_async_artifact_store",
             "ensure_directory_durable",
@@ -1324,11 +1326,13 @@
             "matches_runtime_protocol",
             "matches_runtime_protocol_definition",
             "profile_bound_ref",
+            "put_core_json_artifact_bounded",
             "raise_artifact_read_access_error",
             "read_core_input_manifest_profile_bounded",
             "read_core_json_artifact",
             "read_core_json_artifact_bounded",
             "read_core_json_artifact_bytes",
+            "read_core_json_writer_artifact_bounded",
             "read_core_manifest_profile",
             "read_core_manifest_profile_bounded",
             "require_return_selected_profile_writer",
@@ -1367,8 +1371,8 @@
                 "path": "src/polisyos/core/artifacts/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 14023,
-                "sha256": "fa040abf9b26519aa18f53a00e1c5025fa1899616a714d2e66663e4bd55b926b"
+                "bytes": 14500,
+                "sha256": "d69366d8f4e73b010bb36c3c3245d636b0080f39455093401763bc2afe03bcb5"
               },
               {
                 "path": "src/polisyos/core/artifacts",
@@ -11281,8 +11285,8 @@
         {
           "module": "polisyos.foundry.execute",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 22,
-          "known_export_count": 22,
+          "export_count": 23,
+          "known_export_count": 23,
           "exports": [
             "BoundedNumericNPZError",
             "BoundedStateSnapshotInputs",
@@ -11298,6 +11302,7 @@
             "admit_execution_source",
             "admit_execution_source_bounded",
             "execute",
+            "read_method_artifact_output_bounded",
             "execution_input_basis_sources",
             "get_state_path",
             "load_state_snapshot",
@@ -11331,8 +11336,8 @@
                 "path": "src/polisyos/foundry/execute/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 4746,
-                "sha256": "a900b8b9e8f43940448ccefd65998d0cac3a4236ad0652a2d20c8e0d222c1208"
+                "bytes": 4928,
+                "sha256": "e0f4ad1093d825993107a00393c30f6646da9fc4106b5741bae3eb45523eb69a"
               },
               {
                 "path": "src/polisyos/foundry/execute",

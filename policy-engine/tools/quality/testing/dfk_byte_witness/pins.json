@@ -1,0 +1,125 @@
+{
+  "schema": "policyos.e02.i2_linux_byte_source_pins.v1",
+  "derivation_cut": {
+    "commit": "ef4eff67881069da6a1809acd7dacacf4489f8b0",
+    "tree": "cf5e8fd7f05a39af01a28f7eca601ee6163fcdef",
+    "meaning": "Provenance cut for this finite selected-path manifest; not the future dispatch source identity. A commissioned task must bind actual published commit/tree separately and requalify every row."
+  },
+  "scope": "Selected tracked inputs for the bounded I2 native Linux invalid-byte Git-path witness; not the full repository readset, whole DFK census, or LA-006 closure.",
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "bytes": 22824,
+      "sha256": "424b84e3280df143219fe27e28149088f9e92b947e4956b2103388e11849e65c",
+      "git_blob": "0f724f52375e8e08321e3f12fcd5244a799e01b8"
+    },
+    {
+      "path": "policy-engine/CONTRIBUTING.md",
+      "bytes": 12253,
+      "sha256": "e78f1bdb99a900f6426f9f451b7e9cbc0e21007eb12012eaf209d89c505f3a1f",
+      "git_blob": "8ff414198e306e671abff1f76f31330a1f29d765"
+    },
+    {
+      "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+      "bytes": 86071,
+      "sha256": "1a586bd182253b82f2ec1d043971776dfbba5b6a8152c76514e7f68cc08d8a5c",
+      "git_blob": "3b6695815f54b5733eeb06fdd539eabbe50b9641"
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "bytes": 648034,
+      "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+      "git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260"
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DFK-01.md",
+      "bytes": 24559,
+      "sha256": "1917f4628c9905461c15a606949e5bb315244773f47e4ac87e545bc8f153f866",
+      "git_blob": "a8fe5f2061473e70a52f7c6a4233422542af499c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+      "bytes": 27989,
+      "sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c",
+      "git_blob": "b06e511735005a9ba72c826c2504c413d32679c2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json",
+      "bytes": 7835,
+      "sha256": "488806f7ffa455a84e311e19b2cc1d207016b587625abf846ddd11753b21cd7d",
+      "git_blob": "a27cf7e78dc7c16df279a5136399ee0a5daeee9a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/QUEUE.json",
+      "bytes": 70335,
+      "sha256": "cad7504de57c5ee14a8959ce87c8ae3a483d863b9d7ecbcbe46e356538ffe0c1",
+      "git_blob": "bcf8a7afc47283cb7f247a740aa65b71644f7fc3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/analysis/criterion-routes.json",
+      "bytes": 179931,
+      "sha256": "08f8dd27542514cc108a48b21bb5fa6bca79c7191fac5c108c1c0e52107a3c74",
+      "git_blob": "ea61cf00850d62bee2713f34e533f9047d8def61"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/schema_fqn_census.py",
+      "bytes": 53134,
+      "sha256": "c12cefb7dda1b82ef0f7e309421c5cbccc6804a3ab60bf27d1aa674f43df7e1a",
+      "git_blob": "247f7d3517146a04bf908b6167e835f020f6c9b9"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_dfk_01.py",
+      "bytes": 82470,
+      "sha256": "7dbe0afc7a53521c7919376c80820b2677e1f9aad70d1c42e2ddd4228b0b5031",
+      "git_blob": "1148ccda5ee8188639a5e6411beab3112a380ecf"
+    },
+    {
+      "path": "policy-engine/tools/cli.py",
+      "bytes": 25923,
+      "sha256": "c8050cd2ab1bc46bd3792ba772470e758efdb8c35bcb28b110eb3ba558b501c9",
+      "git_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e"
+    },
+    {
+      "path": "policy-engine/tools/registry.py",
+      "bytes": 20773,
+      "sha256": "105cba933cdd46143dfa770e6f7e26eec90aead51cc6664ce0afd1aaa1122bc6",
+      "git_blob": "091aced6c84ae80c2d2e33088be4deb72238e68a"
+    },
+    {
+      "path": "policy-engine/tools/quality/testing/tc_sql_mc_witness/source_admit.py",
+      "bytes": 3896,
+      "sha256": "aabe68801ee20cd75e0e2b95f512596a58e0e4ecf2688bdf864c4158e43ec871",
+      "git_blob": "d1a4277fb35b5b23cd2153f3f5efd9f7084673fd"
+    },
+    {
+      "path": "policy-engine/tools/quality/testing/tc_sql_mc_witness/sitecustomize.py",
+      "bytes": 18933,
+      "sha256": "c39de7af3f237eba8fdd7b99c1af5bd95aa73d8c8a3c9dab7ec3dfcba16a8beb",
+      "git_blob": "cf7fc5395b19afff7a7fecc373a186f6c1d3670f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/full-run/e02_observer.py",
+      "bytes": 3666,
+      "sha256": "f42f8469de8ec9fdbc899333d55b20b756efd27805ac1164ddf9c22c68862e7b",
+      "git_blob": "c831cfbadd65b8d3571ac0b7fab0fe6a8459ff47"
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "bytes": 11241,
+      "sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+      "git_blob": "e4bb0ae9d77ae3bbb4b961ddd8f5f7e2e597ca51"
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "bytes": 808851,
+      "sha256": "ccfdca0e741dc77795f5af61871af5d62e73feebf55c7ffb28cd16e55fe207e9",
+      "git_blob": "c34f9273799807fbf0bb95a30668f75a4c4e69a9"
+    },
+    {
+      "path": "policy-engine/pytest.ini",
+      "bytes": 1021,
+      "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+      "git_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a"
+    }
+  ]
+}

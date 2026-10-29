@@ -299,7 +299,7 @@ timestamps
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
 | `polisyos.core` | `src/polisyos/core/__init__.py` | `lazy_facade` | 134 |
-| `polisyos.core.artifacts` | `src/polisyos/core/artifacts/__init__.py` | `lazy_facade` | 131 |
+| `polisyos.core.artifacts` | `src/polisyos/core/artifacts/__init__.py` | `lazy_facade` | 135 |
 | `polisyos.core.canon` | `src/polisyos/core/canon/__init__.py` | `eager_exports` | 12 |
 | `polisyos.core.components` | `src/polisyos/core/components/__init__.py` | `eager_exports` | 63 |
 | `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 780 |
@@ -465,7 +465,7 @@ security
 - Facade: `lazy_facade`
 - Summary: Publish the stable CAS artifact ABI used by manifests, lineage, and signing.
 
-<details><summary>Entrypoint exports (131)</summary>
+<details><summary>Entrypoint exports (135)</summary>
 
 ```text
 AUTHORITY_ENVELOPE_ARTIFACT_KIND
@@ -525,6 +525,7 @@ CoreJsonArtifactBoundedRead
 CoreJsonManifestBoundedRead
 CoreJsonReadBoundsRefusalError
 CoreJsonReadLimits
+CoreJsonWriterPolicy
 CoreOwnedModelRead
 CoreToIRArtifactStoreAdapter
 DependencyEdge
@@ -567,6 +568,7 @@ artifact_reference_parts
 build_artifact_store
 build_cas_integrity_report
 compute_key_id
+declare_core_json_writer_policy
 decode_core_json_payload
 ensure_async_artifact_store
 ensure_directory_durable
@@ -581,11 +583,13 @@ matches_artifact_store_protocol
 matches_runtime_protocol
 matches_runtime_protocol_definition
 profile_bound_ref
+put_core_json_artifact_bounded
 raise_artifact_read_access_error
 read_core_input_manifest_profile_bounded
 read_core_json_artifact
 read_core_json_artifact_bounded
 read_core_json_artifact_bytes
+read_core_json_writer_artifact_bounded
 read_core_manifest_profile
 read_core_manifest_profile_bounded
 require_return_selected_profile_writer
@@ -5022,7 +5026,7 @@ Export total is unknown; the static reader cannot resolve the extension.
 | `polisyos.foundry.analysis` | `src/polisyos/foundry/analysis/__init__.py` | `eager_exports` | 19 |
 | `polisyos.foundry.calibration` | `src/polisyos/foundry/calibration/__init__.py` | `unresolved_exports` | unknown (no names proven) |
 | `polisyos.foundry.data_plane` | `src/polisyos/foundry/data_plane/__init__.py` | `eager_exports` | 23 |
-| `polisyos.foundry.execute` | `src/polisyos/foundry/execute/__init__.py` | `lazy_facade` | 22 |
+| `polisyos.foundry.execute` | `src/polisyos/foundry/execute/__init__.py` | `lazy_facade` | 23 |
 | `polisyos.foundry.methods` | `src/polisyos/foundry/methods/__init__.py` | `eager_exports` | 225 |
 | `polisyos.foundry.methods.backends` | `src/polisyos/foundry/methods/backends/__init__.py` | `lazy_facade` | 25 |
 | `polisyos.foundry.methods.causal` | `src/polisyos/foundry/methods/causal/__init__.py` | `unresolved_exports` | unknown (no names proven) |
@@ -5314,7 +5318,7 @@ resolve_bound_state_snapshot_ref
 - Facade: `lazy_facade`
 - Summary: Stable execute facade for compiled Foundry plans.
 
-<details><summary>Entrypoint exports (22)</summary>
+<details><summary>Entrypoint exports (23)</summary>
 
 ```text
 BoundedNumericNPZError
@@ -5331,6 +5335,7 @@ SnapshotStateLayoutError
 admit_execution_source
 admit_execution_source_bounded
 execute
+read_method_artifact_output_bounded
 execution_input_basis_sources
 get_state_path
 load_state_snapshot

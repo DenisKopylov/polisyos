@@ -102,6 +102,10 @@ export class RuntimeApiClient {
     const query = this.buildQuery({
       max_bytes: params?.max_bytes,
       manifest_profile_sha256: params?.manifest_profile_sha256,
+      technical_inspection_evidence_id:
+        params?.technical_inspection_evidence_id,
+      technical_inspection_evidence_profile_sha256:
+        params?.technical_inspection_evidence_profile_sha256,
     });
     return this.request("GET", path, query, undefined, undefined);
   }
@@ -136,6 +140,10 @@ export class RuntimeApiClient {
     const path = `/api/v1/artifacts/${encodeURIComponent(String(params.artifact_id))}/schema`;
     const query = this.buildQuery({
       manifest_profile_sha256: params?.manifest_profile_sha256,
+      technical_inspection_evidence_id:
+        params?.technical_inspection_evidence_id,
+      technical_inspection_evidence_profile_sha256:
+        params?.technical_inspection_evidence_profile_sha256,
     });
     return this.request("GET", path, query, undefined, undefined);
   }

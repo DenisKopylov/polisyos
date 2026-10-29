@@ -1898,8 +1898,8 @@
         {
           "module": "polisyos.core.contracts",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 780,
-          "known_export_count": 780,
+          "export_count": 782,
+          "known_export_count": 782,
           "exports": [
             "AcceptanceNonReceipt",
             "AcceptanceOutcome",
@@ -2520,6 +2520,8 @@
             "RuleBackend",
             "RuleType",
             "RunCandidateSimulationAcquisitionHistoryEntry",
+            "RunCandidateSimulationAcquisitionHistoryEntryV3",
+            "RunCandidateSimulationRetainedEvaluation",
             "RunCandidateSimulationN5Observation",
             "RunCandidateSimulationProjection",
             "RunDetails",
@@ -2706,8 +2708,8 @@
                 "path": "src/polisyos/core/contracts/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 80058,
-                "sha256": "a377c28475500990cfa036763e4d4391e3477f6c7a96f4f90d365041c1faa2fc"
+                "bytes": 80379,
+                "sha256": "d2edd6c633f7e09560cf0c56d73db5e6c22f5069fd2428cc5cdd87412cf3cee1"
               },
               {
                 "path": "src/polisyos/core/contracts",
@@ -17554,6 +17556,12 @@
                 "result": true
               },
               {
+                "path": "src/polisyos/runtime/quality/acquisition_evaluation_history.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
                 "path": "src/polisyos/runtime/quality/epoch_transition_verification.py",
                 "operation": "is_file",
                 "status": "present",
@@ -17848,6 +17856,12 @@
                 "result": true
               },
               {
+                "path": "src/polisyos/runtime/quality/acquisition_evaluation.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
                 "path": "src/polisyos/runtime/quality/human_review.py",
                 "operation": "is_file",
                 "status": "present",
@@ -18064,6 +18078,12 @@
                 "result": true
               },
               {
+                "path": "src/polisyos/runtime/quality/n5_execution_basis.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
                 "path": "src/polisyos/runtime/quality/epoch_certificate_issuance.py",
                 "operation": "is_file",
                 "status": "present",
@@ -18142,6 +18162,12 @@
                 "result": true
               },
               {
+                "path": "src/polisyos/runtime/quality/acquisition_retained_continuation.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
                 "path": "src/polisyos/runtime/quality/scholar_academic_evidence.py",
                 "operation": "is_file",
                 "status": "present",
@@ -18179,6 +18205,12 @@
               },
               {
                 "path": "src/polisyos/runtime/quality/policy_design_jurisdiction_spine.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/runtime/quality/acquisition_evaluation_dispatch.py",
                 "operation": "is_file",
                 "status": "present",
                 "result": true
@@ -18323,6 +18355,12 @@
               },
               {
                 "path": "src/polisyos/runtime/quality/_generation_cycle_history_schema.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/runtime/quality/technical_inspection_evidence.py",
                 "operation": "is_file",
                 "status": "present",
                 "result": true
@@ -19119,8 +19157,8 @@
         {
           "module": "polisyos.data_forge.read_api",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 26,
-          "known_export_count": 26,
+          "export_count": 30,
+          "known_export_count": 30,
           "exports": [
             "READ_API_SURFACES",
             "UKRAINE_D4_SOURCE_JSON_SNAPSHOT_ROLE_BY_CONTRACT",
@@ -19142,7 +19180,11 @@
             "load_surface",
             "normalize_privacy_compliance_report",
             "pipeline_binding_surface",
+            "prepare_publish_manifest",
+            "prepare_snapshot_binding_meaning",
             "provenance",
+            "read_manifest",
+            "read_snapshot_binding_meaning",
             "surface_module",
             "surfaces",
             "ukraine",
@@ -19173,8 +19215,8 @@
                 "path": "src/polisyos/data_forge/read_api/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 6013,
-                "sha256": "3aa60ef8b6f1ce05b5f96632d99cd6bad5b7a68576f8051e6e6c6802ebab98e5"
+                "bytes": 7171,
+                "sha256": "c856d9d1f53df6b5a0c45998e53b5a0b226d0300dac0afaa48f5fafaad99667e"
               },
               {
                 "path": "src/polisyos/data_forge/read_api/surface_routes.py",
@@ -19588,8 +19630,8 @@
         {
           "module": "polisyos.data_forge.read_api.catalog",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 154,
-          "known_export_count": 154,
+          "export_count": 156,
+          "known_export_count": 156,
           "exports": [
             "AcquisitionAuthorityEntry",
             "AcquisitionAuthorityError",
@@ -19712,6 +19754,7 @@
             "default_acquisition_overlay_path",
             "default_catalog_source_registry_path",
             "default_seed_alignments_path",
+            "derive_canonical_observations",
             "derive_catalog_unit_from_text",
             "derive_license_disposition",
             "embedding_generation_manifest",
@@ -19728,6 +19771,7 @@
             "load_seed_alignments",
             "normalize_acquisition_unit",
             "normalize_country_code",
+            "normalized_acquisition_source_body",
             "open_catalog_read_session",
             "parse_profile_input_coverage",
             "plan_catalog_source_modules",
@@ -19770,8 +19814,8 @@
                 "path": "src/polisyos/data_forge/read_api/catalog.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 62753,
-                "sha256": "de52d03ac64f440ff063b733f34cc178d6af526a53e4463a9cc502904ff70085"
+                "bytes": 63302,
+                "sha256": "314af73a6db4ca0674f23f523f9d71a03a75cf3b3a892516c58d7331ce217925"
               },
               {
                 "path": "src/polisyos/data_forge/read_api/catalog",

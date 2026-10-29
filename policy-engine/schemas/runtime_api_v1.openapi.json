@@ -37297,6 +37297,134 @@
         "title": "RunCandidateSimulationAcquisitionHistoryEntry",
         "type": "object"
       },
+      "RunCandidateSimulationAcquisitionHistoryEntryV3": {
+        "additionalProperties": false,
+        "description": "Verified source admission with an unchanged, separate evaluation occurrence.\n\nRuntime resolves the entire source/decision/frontier/fold join before this\ndisplay DTO is constructed. DTO validation alone is not that verification.",
+        "properties": {
+          "action_generation": {
+            "minimum": 1.0,
+            "title": "Action Generation",
+            "type": "integer"
+          },
+          "admitted_source_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "authority_purpose": {
+            "const": "candidate_observation_only",
+            "default": "candidate_observation_only",
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "continuation": {
+            "title": "Continuation",
+            "type": "null"
+          },
+          "continuation_join_status": {
+            "title": "Continuation Join Status",
+            "type": "null"
+          },
+          "current_continuation_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "currentness_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Currentness Status",
+            "type": "string"
+          },
+          "evaluation_decision_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "evaluation_disposition": {
+            "const": "retained_prior",
+            "default": "retained_prior",
+            "title": "Evaluation Disposition",
+            "type": "string"
+          },
+          "expected_origin_source_ref": {
+            "title": "Expected Origin Source Ref",
+            "type": "null"
+          },
+          "growth_receipt_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "new_candidate_id": {
+            "title": "New Candidate Id",
+            "type": "null"
+          },
+          "new_candidate_source_ref": {
+            "title": "New Candidate Source Ref",
+            "type": "null"
+          },
+          "old_candidate_id": {
+            "title": "Old Candidate Id",
+            "type": "null"
+          },
+          "origin_source_binding_status": {
+            "title": "Origin Source Binding Status",
+            "type": "null"
+          },
+          "origin_source_ref": {
+            "title": "Origin Source Ref",
+            "type": "null"
+          },
+          "publication_authority": {
+            "const": false,
+            "default": false,
+            "title": "Publication Authority",
+            "type": "boolean"
+          },
+          "reentry_receipt_ref": {
+            "title": "Reentry Receipt Ref",
+            "type": "null"
+          },
+          "reentry_receipt_schema_version": {
+            "title": "Reentry Receipt Schema Version",
+            "type": "null"
+          },
+          "retained_evaluation": {
+            "$ref": "#/components/schemas/RunCandidateSimulationRetainedEvaluation"
+          },
+          "route_id": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Route Id",
+            "type": "string"
+          },
+          "route_receipt_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "schema_version": {
+            "const": "policyos.runtime.run_candidate_simulation_acquisition_history.v3",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "source_admission_status": {
+            "const": "admitted",
+            "default": "admitted",
+            "title": "Source Admission Status",
+            "type": "string"
+          },
+          "terminal_outcome": {
+            "const": "source_admitted_evaluation_retained",
+            "title": "Terminal Outcome",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_version",
+          "route_receipt_ref",
+          "route_id",
+          "action_generation",
+          "terminal_outcome",
+          "admitted_source_ref",
+          "growth_receipt_ref",
+          "evaluation_decision_ref",
+          "current_continuation_ref",
+          "retained_evaluation"
+        ],
+        "title": "RunCandidateSimulationAcquisitionHistoryEntryV3",
+        "type": "object"
+      },
       "RunCandidateSimulationChildProfileBinding": {
         "additionalProperties": false,
         "description": "Historical child profile/context binding with currentness left unestablished.",
@@ -38232,7 +38360,14 @@
           "acquisition_history": {
             "default": [],
             "items": {
-              "$ref": "#/components/schemas/RunCandidateSimulationAcquisitionHistoryEntry"
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/RunCandidateSimulationAcquisitionHistoryEntry"
+                },
+                {
+                  "$ref": "#/components/schemas/RunCandidateSimulationAcquisitionHistoryEntryV3"
+                }
+              ]
             },
             "title": "Acquisition History",
             "type": "array"
@@ -38493,6 +38628,88 @@
           "artifact_status"
         ],
         "title": "RunCandidateSimulationProjection",
+        "type": "object"
+      },
+      "RunCandidateSimulationRetainedEvaluation": {
+        "additionalProperties": false,
+        "description": "Original evaluation occurrence retained under a verified Runtime decision.\n\nThese refs describe the prior execution. They never claim that execution\nconsumed the newly admitted acquisition source.",
+        "properties": {
+          "basis_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "candidate_content_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Candidate Content Hash",
+            "type": "string"
+          },
+          "candidate_id": {
+            "minLength": 1,
+            "title": "Candidate Id",
+            "type": "string"
+          },
+          "context_job_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "cycle_index": {
+            "minimum": 0.0,
+            "title": "Cycle Index",
+            "type": "integer"
+          },
+          "design_problem_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Design Problem Ref",
+            "type": "string"
+          },
+          "evaluation_job_id": {
+            "minLength": 1,
+            "title": "Evaluation Job Id",
+            "type": "string"
+          },
+          "evaluation_run_id": {
+            "minLength": 1,
+            "title": "Evaluation Run Id",
+            "type": "string"
+          },
+          "generation_run_id": {
+            "minLength": 1,
+            "title": "Generation Run Id",
+            "type": "string"
+          },
+          "n4_source_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "n5_execution_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "n5_input_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "n5_result_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "world_model_record_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "World Model Record Hash",
+            "type": "string"
+          }
+        },
+        "required": [
+          "candidate_id",
+          "candidate_content_hash",
+          "design_problem_ref",
+          "world_model_record_hash",
+          "evaluation_job_id",
+          "evaluation_run_id",
+          "generation_run_id",
+          "cycle_index",
+          "n4_source_ref",
+          "context_job_ref",
+          "n5_input_ref",
+          "n5_execution_ref",
+          "n5_result_ref",
+          "basis_ref"
+        ],
+        "title": "RunCandidateSimulationRetainedEvaluation",
         "type": "object"
       },
       "RunCompareResponse": {
@@ -51187,6 +51404,45 @@
               "description": "Optional exact manifest profile. Supply at most once; repeated values are ambiguous and rejected.",
               "title": "Manifest Profile Sha256"
             }
+          },
+          {
+            "description": "Exact technical-inspection evidence artifact ID.",
+            "in": "query",
+            "name": "technical_inspection_evidence_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Exact technical-inspection evidence artifact ID.",
+              "title": "Technical Inspection Evidence Id"
+            }
+          },
+          {
+            "description": "Exact selected profile of the technical-inspection evidence.",
+            "in": "query",
+            "name": "technical_inspection_evidence_profile_sha256",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 71,
+                  "minLength": 71,
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Exact selected profile of the technical-inspection evidence.",
+              "title": "Technical Inspection Evidence Profile Sha256"
+            }
           }
         ],
         "responses": {
@@ -52440,6 +52696,45 @@
               ],
               "description": "Optional exact manifest profile. Supply at most once; repeated values are ambiguous and rejected.",
               "title": "Manifest Profile Sha256"
+            }
+          },
+          {
+            "description": "Exact technical-inspection evidence artifact ID.",
+            "in": "query",
+            "name": "technical_inspection_evidence_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Exact technical-inspection evidence artifact ID.",
+              "title": "Technical Inspection Evidence Id"
+            }
+          },
+          {
+            "description": "Exact selected profile of the technical-inspection evidence.",
+            "in": "query",
+            "name": "technical_inspection_evidence_profile_sha256",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 71,
+                  "minLength": 71,
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Exact selected profile of the technical-inspection evidence.",
+              "title": "Technical Inspection Evidence Profile Sha256"
             }
           }
         ],

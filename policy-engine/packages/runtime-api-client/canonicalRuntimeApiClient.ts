@@ -1524,6 +1524,9 @@ export type RunCandidateSimulationAcquisitionContinuationProjection =
 export type RunCandidateSimulationAcquisitionHistoryEntry =
   RuntimeApiComponents["schemas"]["RunCandidateSimulationAcquisitionHistoryEntry"];
 
+export type RunCandidateSimulationAcquisitionHistoryEntryV3 =
+  RuntimeApiComponents["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV3"];
+
 export type RunCandidateSimulationChildProfileBinding =
   RuntimeApiComponents["schemas"]["RunCandidateSimulationChildProfileBinding"];
 
@@ -1541,6 +1544,9 @@ export type RunCandidateSimulationN8ChildSourceBinding =
 
 export type RunCandidateSimulationProjection =
   RuntimeApiComponents["schemas"]["RunCandidateSimulationProjection"];
+
+export type RunCandidateSimulationRetainedEvaluation =
+  RuntimeApiComponents["schemas"]["RunCandidateSimulationRetainedEvaluation"];
 
 export type RunCompareResponse =
   RuntimeApiComponents["schemas"]["RunCompareResponse"];
@@ -2101,11 +2107,16 @@ export class RuntimeApiClient {
     artifact_id: string;
     max_bytes?: number | null;
     manifest_profile_sha256?: string | null;
+    technical_inspection_evidence_id?: string | null;
+    technical_inspection_evidence_profile_sha256?: string | null;
   }): Promise<ArtifactContentResponse> {
     const path = `/api/v1/artifacts/${encodeURIComponent(String(params.artifact_id))}/content`;
     const query = this.buildQuery({
       max_bytes: params.max_bytes,
       manifest_profile_sha256: params.manifest_profile_sha256,
+      technical_inspection_evidence_id: params.technical_inspection_evidence_id,
+      technical_inspection_evidence_profile_sha256:
+        params.technical_inspection_evidence_profile_sha256,
     });
     return this.request<ArtifactContentResponse>(
       "GET",
@@ -2168,10 +2179,15 @@ export class RuntimeApiClient {
   async getArtifactSchema(params: {
     artifact_id: string;
     manifest_profile_sha256?: string | null;
+    technical_inspection_evidence_id?: string | null;
+    technical_inspection_evidence_profile_sha256?: string | null;
   }): Promise<ArtifactSchemaResponse> {
     const path = `/api/v1/artifacts/${encodeURIComponent(String(params.artifact_id))}/schema`;
     const query = this.buildQuery({
       manifest_profile_sha256: params.manifest_profile_sha256,
+      technical_inspection_evidence_id: params.technical_inspection_evidence_id,
+      technical_inspection_evidence_profile_sha256:
+        params.technical_inspection_evidence_profile_sha256,
     });
     return this.request<ArtifactSchemaResponse>(
       "GET",

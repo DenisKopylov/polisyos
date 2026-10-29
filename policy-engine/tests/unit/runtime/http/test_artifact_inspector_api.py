@@ -22,6 +22,7 @@ from polisyos_tests_runtime_http_conftest import (
 from pydantic import ValidationError
 
 import polisyos.runtime.http.routes.artifacts as artifact_routes
+import polisyos.runtime.http.services.artifact_inspector as inspector_module
 from polisyos.core.artifacts import (
     PutOptions,
     SchemaInfo,
@@ -1174,13 +1175,6 @@ def test_selected_manifest_authority_controls_all_artifact_http_surfaces(
                     },
                 }
             )
-        default_envelope = envelope_ref(f"{label}-default", denied=default_denied)
-        selected_envelope = envelope_ref(
-            f"{label}-selected",
-            denied=selected_denied,
-            denied_purpose=selected_denied_purpose,
-            kind=selected_envelope_kind,
-        )
 
         def write_options(
             ref: ArtifactRef,
@@ -1193,16 +1187,28 @@ def test_selected_manifest_authority_controls_all_artifact_http_surfaces(
                 authority=authority_override or authority_link(ref),
             )
 
-        default_ref = store.put_json(
-            payload,
-            write_options(default_envelope),
-            return_selected_profile=True,
-        )
-        selected_ref = store.put_json(
-            payload,
-            write_options(selected_envelope, selected_authority_link),
-            return_selected_profile=True,
-        )
+        # Write under the real fixture owner, including when this payload ID
+        # already belongs to an earlier selected view in the same test.
+        with tenant_scope(
+            None, tenant_id=runtime_api_env["tenant_a"], cell_id=runtime_api_env["cell_a"]
+        ):
+            default_envelope = envelope_ref(f"{label}-default", denied=default_denied)
+            selected_envelope = envelope_ref(
+                f"{label}-selected",
+                denied=selected_denied,
+                denied_purpose=selected_denied_purpose,
+                kind=selected_envelope_kind,
+            )
+            default_ref = store.put_json(
+                payload,
+                write_options(default_envelope),
+                return_selected_profile=True,
+            )
+            selected_ref = store.put_json(
+                payload,
+                write_options(selected_envelope, selected_authority_link),
+                return_selected_profile=True,
+            )
         assert default_ref.artifact_id == selected_ref.artifact_id
         assert selected_ref.manifest_profile_sha256 is not None
         _record_fixture_owner(
@@ -1677,38 +1683,80 @@ def test_default_json_content_and_schema_carry_one_bounded_manifest_selection(
     artifact_id = runtime_api_env["workflow_report_artifact_id"]
     client = runtime_api_env["client"]
     expected_selector = ArtifactID.model_validate(artifact_id)
-    original_reader = artifact_routes.read_core_manifest_profile_bounded
-    calls: list[dict[str, object]] = []
+    route_reader = artifact_routes.read_core_manifest_profile_bounded
+    inspector_reader = inspector_module.read_core_manifest_profile_bounded
+    semantic_reader = inspector_module._read_inspector_semantic_json
+    route_reads: list[tuple[object, dict[str, object], object]] = []
+    inspector_reads: list[object] = []
+    semantic_headers: list[object] = []
 
-    def observe_bounded_selection(store, selector, **kwargs):
-        assert selector == expected_selector
-        calls.append(dict(kwargs))
-        return original_reader(store, selector, **kwargs)
+    def observe_route(store, selector, **kwargs):
+        result = route_reader(store, selector, **kwargs)
+        route_reads.append((selector, dict(kwargs), result))
+        return result
 
-    def forbidden_legacy_resolution(*_args, **_kwargs):
-        raise AssertionError("HTTP default JSON inspection must use the bounded selector")
+    def observe_inspector(store, selector, **kwargs):
+        inspector_reads.append(selector)
+        return inspector_reader(store, selector, **kwargs)
 
-    monkeypatch.setattr(
-        artifact_routes, "read_core_manifest_profile_bounded", observe_bounded_selection
-    )
-    monkeypatch.setattr(
-        artifact_routes, "_resolve_raw_artifact_manifest", forbidden_legacy_resolution
-    )
-    monkeypatch.setattr(artifact_routes, "_resolve_artifact_manifest", forbidden_legacy_resolution)
+    def observe_semantic(store, selector, *, max_payload_bytes, manifest_read=None):
+        semantic_headers.append(manifest_read)
+        return semantic_reader(
+            store, selector, max_payload_bytes=max_payload_bytes, manifest_read=manifest_read
+        )
 
-    content = client.get(f"/api/v1/artifacts/{artifact_id}/content")
-    schema = client.get(f"/api/v1/artifacts/{artifact_id}/schema")
-    assert content.status_code == 200, content.text
-    assert schema.status_code == 200, schema.text
-    assert calls == [
-        {
-            "max_manifest_bytes": artifact_routes.INSPECTOR_MANIFEST_MAX_BYTES,
-            "manifest_profile_sha256": None,
-            "allow_profile_absent": True,
-        },
-        {
-            "max_manifest_bytes": artifact_routes.INSPECTOR_MANIFEST_MAX_BYTES,
-            "manifest_profile_sha256": None,
-            "allow_profile_absent": True,
-        },
-    ]
+    monkeypatch.setattr(artifact_routes, "read_core_manifest_profile_bounded", observe_route)
+    monkeypatch.setattr(inspector_module, "read_core_manifest_profile_bounded", observe_inspector)
+    monkeypatch.setattr(inspector_module, "_read_inspector_semantic_json", observe_semantic)
+
+    def carries_single_selected_header() -> bool:
+        if len(route_reads) != 2 or len(semantic_headers) != 1 or inspector_reads:
+            return False
+        default_selector, default_options, default_read = route_reads[0]
+        selected_selector, selected_options, selected_read = route_reads[1]
+        return (
+            default_selector == expected_selector
+            and selected_selector == expected_selector
+            and default_options
+            == {
+                "max_manifest_bytes": artifact_routes.INSPECTOR_MANIFEST_MAX_BYTES,
+                "manifest_profile_sha256": None,
+                "allow_profile_absent": True,
+            }
+            and selected_options
+            == {
+                "max_manifest_bytes": artifact_routes.INSPECTOR_MANIFEST_MAX_BYTES,
+                "manifest_profile_sha256": artifact_manifest_profile_sha256(default_read.manifest),
+                "allow_profile_absent": True,
+            }
+            and selected_read.manifest == default_read.manifest
+            and semantic_headers[0] is selected_read
+        )
+
+    for surface in ("content", "schema"):
+        route_reads.clear()
+        inspector_reads.clear()
+        semantic_headers.clear()
+        response = _runtime_api_request(
+            runtime_api_env, client.get, f"/api/v1/artifacts/{artifact_id}/{surface}"
+        )
+        assert response.status_code == 200, response.text
+        assert carries_single_selected_header()
+
+    # Property-removal control: discard the carried selected header at the
+    # actual semantic read. The response remains valid but the owner must do a
+    # fresh bounded selection, which the invariant above must detect.
+    def discard_header(store, selector, *, max_payload_bytes, manifest_read=None):
+        return observe_semantic(store, selector, max_payload_bytes=max_payload_bytes)
+
+    monkeypatch.setattr(inspector_module, "_read_inspector_semantic_json", discard_header)
+    for surface in ("content", "schema"):
+        route_reads.clear()
+        inspector_reads.clear()
+        semantic_headers.clear()
+        response = _runtime_api_request(
+            runtime_api_env, client.get, f"/api/v1/artifacts/{artifact_id}/{surface}"
+        )
+        assert response.status_code == 200, response.text
+        assert len(inspector_reads) == 1
+        assert not carries_single_selected_header()

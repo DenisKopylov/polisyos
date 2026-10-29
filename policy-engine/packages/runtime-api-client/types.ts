@@ -16983,6 +16983,85 @@ export interface components {
             terminal_outcome: "reentry_completed" | "quarantined_no_growth";
         };
         /**
+         * RunCandidateSimulationAcquisitionHistoryEntryV3
+         * @description Verified source admission with an unchanged, separate evaluation occurrence.
+         *
+         *     Runtime resolves the entire source/decision/frontier/fold join before this
+         *     display DTO is constructed. DTO validation alone is not that verification.
+         */
+        RunCandidateSimulationAcquisitionHistoryEntryV3: {
+            /** Action Generation */
+            action_generation: number;
+            admitted_source_ref: components["schemas"]["ArtifactRef-Output"];
+            /**
+             * Authority Purpose
+             * @default candidate_observation_only
+             * @constant
+             */
+            authority_purpose: "candidate_observation_only";
+            /** Continuation */
+            continuation?: null;
+            /** Continuation Join Status */
+            continuation_join_status?: null;
+            current_continuation_ref: components["schemas"]["ArtifactRef-Output"];
+            /**
+             * Currentness Status
+             * @default not_established
+             * @constant
+             */
+            currentness_status: "not_established";
+            evaluation_decision_ref: components["schemas"]["ArtifactRef-Output"];
+            /**
+             * Evaluation Disposition
+             * @default retained_prior
+             * @constant
+             */
+            evaluation_disposition: "retained_prior";
+            /** Expected Origin Source Ref */
+            expected_origin_source_ref?: null;
+            growth_receipt_ref: components["schemas"]["ArtifactRef-Output"];
+            /** New Candidate Id */
+            new_candidate_id?: null;
+            /** New Candidate Source Ref */
+            new_candidate_source_ref?: null;
+            /** Old Candidate Id */
+            old_candidate_id?: null;
+            /** Origin Source Binding Status */
+            origin_source_binding_status?: null;
+            /** Origin Source Ref */
+            origin_source_ref?: null;
+            /**
+             * Publication Authority
+             * @default false
+             * @constant
+             */
+            publication_authority: false;
+            /** Reentry Receipt Ref */
+            reentry_receipt_ref?: null;
+            /** Reentry Receipt Schema Version */
+            reentry_receipt_schema_version?: null;
+            retained_evaluation: components["schemas"]["RunCandidateSimulationRetainedEvaluation"];
+            /** Route Id */
+            route_id: string;
+            route_receipt_ref: components["schemas"]["ArtifactRef-Output"];
+            /**
+             * Schema Version
+             * @constant
+             */
+            schema_version: "policyos.runtime.run_candidate_simulation_acquisition_history.v3";
+            /**
+             * Source Admission Status
+             * @default admitted
+             * @constant
+             */
+            source_admission_status: "admitted";
+            /**
+             * Terminal Outcome
+             * @constant
+             */
+            terminal_outcome: "source_admitted_evaluation_retained";
+        };
+        /**
          * RunCandidateSimulationChildProfileBinding
          * @description Historical child profile/context binding with currentness left unestablished.
          */
@@ -17261,7 +17340,7 @@ export interface components {
              * Acquisition History
              * @default []
              */
-            acquisition_history: components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntry"][];
+            acquisition_history: (components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntry"] | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV3"])[];
             /** Acquisition History Limitation Code */
             acquisition_history_limitation_code?: ("acquisition_n4_source_not_established" | "acquisition_action_history_not_observed" | "acquisition_action_history_incomplete" | "acquisition_action_history_integrity_not_established" | "acquisition_reentry_source_not_established") | null;
             /**
@@ -17329,6 +17408,37 @@ export interface components {
             /** Source Content Hash */
             source_content_hash?: string | null;
             source_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+        };
+        /**
+         * RunCandidateSimulationRetainedEvaluation
+         * @description Original evaluation occurrence retained under a verified Runtime decision.
+         *
+         *     These refs describe the prior execution. They never claim that execution
+         *     consumed the newly admitted acquisition source.
+         */
+        RunCandidateSimulationRetainedEvaluation: {
+            basis_ref: components["schemas"]["ArtifactRef-Output"];
+            /** Candidate Content Hash */
+            candidate_content_hash: string;
+            /** Candidate Id */
+            candidate_id: string;
+            context_job_ref: components["schemas"]["ArtifactRef-Output"];
+            /** Cycle Index */
+            cycle_index: number;
+            /** Design Problem Ref */
+            design_problem_ref: string;
+            /** Evaluation Job Id */
+            evaluation_job_id: string;
+            /** Evaluation Run Id */
+            evaluation_run_id: string;
+            /** Generation Run Id */
+            generation_run_id: string;
+            n4_source_ref: components["schemas"]["ArtifactRef-Output"];
+            n5_execution_ref: components["schemas"]["ArtifactRef-Output"];
+            n5_input_ref: components["schemas"]["ArtifactRef-Output"];
+            n5_result_ref: components["schemas"]["ArtifactRef-Output"];
+            /** World Model Record Hash */
+            world_model_record_hash: string;
         };
         /**
          * RunCompareResponse
@@ -22043,6 +22153,10 @@ export interface operations {
                 max_bytes?: number | null;
                 /** @description Optional exact manifest profile. Supply at most once; repeated values are ambiguous and rejected. */
                 manifest_profile_sha256?: string | null;
+                /** @description Exact technical-inspection evidence artifact ID. */
+                technical_inspection_evidence_id?: string | null;
+                /** @description Exact selected profile of the technical-inspection evidence. */
+                technical_inspection_evidence_profile_sha256?: string | null;
             };
             header?: never;
             path: {
@@ -22438,6 +22552,10 @@ export interface operations {
             query?: {
                 /** @description Optional exact manifest profile. Supply at most once; repeated values are ambiguous and rejected. */
                 manifest_profile_sha256?: string | null;
+                /** @description Exact technical-inspection evidence artifact ID. */
+                technical_inspection_evidence_id?: string | null;
+                /** @description Exact selected profile of the technical-inspection evidence. */
+                technical_inspection_evidence_profile_sha256?: string | null;
             };
             header?: never;
             path: {

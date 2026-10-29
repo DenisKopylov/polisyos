@@ -302,7 +302,7 @@ timestamps
 | `polisyos.core.artifacts` | `src/polisyos/core/artifacts/__init__.py` | `lazy_facade` | 135 |
 | `polisyos.core.canon` | `src/polisyos/core/canon/__init__.py` | `eager_exports` | 12 |
 | `polisyos.core.components` | `src/polisyos/core/components/__init__.py` | `eager_exports` | 63 |
-| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 780 |
+| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 782 |
 | `polisyos.core.governance` | `src/polisyos/core/governance/__init__.py` | `eager_exports` | 5 |
 | `polisyos.core.llm` | `src/polisyos/core/llm/__init__.py` | `eager_exports` | 20 |
 | `polisyos.core.llm.cache_settlement` | `src/polisyos/core/llm/cache_settlement.py` | `eager_exports` | 8 |
@@ -714,7 +714,7 @@ validate_metadata
 - Facade: `lazy_facade`
 - Summary: Lazy facade for the stable DTOs shared across PolicyOS subsystem boundaries.
 
-<details><summary>Entrypoint exports (780)</summary>
+<details><summary>Entrypoint exports (782)</summary>
 
 ```text
 AcceptanceNonReceipt
@@ -1336,6 +1336,8 @@ ResearchIntentRef
 RuleBackend
 RuleType
 RunCandidateSimulationAcquisitionHistoryEntry
+RunCandidateSimulationAcquisitionHistoryEntryV3
+RunCandidateSimulationRetainedEvaluation
 RunCandidateSimulationN5Observation
 RunCandidateSimulationProjection
 RunDetails
@@ -9015,9 +9017,9 @@ validate_web_evidence_source_binding
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
 | `polisyos.data_forge` | `src/polisyos/data_forge/__init__.py` | `lazy_facade` | 49 |
-| `polisyos.data_forge.read_api` | `src/polisyos/data_forge/read_api/__init__.py` | `lazy_facade` | 26 |
+| `polisyos.data_forge.read_api` | `src/polisyos/data_forge/read_api/__init__.py` | `lazy_facade` | 30 |
 | `polisyos.data_forge.read_api.academic` | `src/polisyos/data_forge/read_api/academic.py` | `lazy_facade` | 110 |
-| `polisyos.data_forge.read_api.catalog` | `src/polisyos/data_forge/read_api/catalog.py` | `lazy_facade` | 154 |
+| `polisyos.data_forge.read_api.catalog` | `src/polisyos/data_forge/read_api/catalog.py` | `lazy_facade` | 156 |
 | `polisyos.data_forge.read_api.legal` | `src/polisyos/data_forge/read_api/legal.py` | `lazy_facade` | 61 |
 | `polisyos.data_forge.read_api.ukraine` | `src/polisyos/data_forge/read_api/ukraine.py` | `lazy_facade` | 75 |
 
@@ -9089,7 +9091,7 @@ write_snapshot_provenance_manifest
 - Facade: `lazy_facade`
 - Summary: Stable runtime-safe Data Forge read APIs.
 
-<details><summary>Entrypoint exports (26)</summary>
+<details><summary>Entrypoint exports (30)</summary>
 
 ```text
 READ_API_SURFACES
@@ -9112,7 +9114,11 @@ legal
 load_surface
 normalize_privacy_compliance_report
 pipeline_binding_surface
+prepare_publish_manifest
+prepare_snapshot_binding_meaning
 provenance
+read_manifest
+read_snapshot_binding_meaning
 surface_module
 surfaces
 ukraine
@@ -9251,7 +9257,7 @@ validate_claim_adjudication_input_batch
 - Facade: `lazy_facade`
 - Summary: Runtime-safe read API for catalog Data Forge artifacts.
 
-<details><summary>Entrypoint exports (154)</summary>
+<details><summary>Entrypoint exports (156)</summary>
 
 ```text
 AcquisitionAuthorityEntry
@@ -9375,6 +9381,7 @@ confidence_layer_vintage_for_snapshot_digest
 default_acquisition_overlay_path
 default_catalog_source_registry_path
 default_seed_alignments_path
+derive_canonical_observations
 derive_catalog_unit_from_text
 derive_license_disposition
 embedding_generation_manifest
@@ -9391,6 +9398,7 @@ load_derivation_catalog_selection
 load_seed_alignments
 normalize_acquisition_unit
 normalize_country_code
+normalized_acquisition_source_body
 open_catalog_read_session
 parse_profile_input_coverage
 plan_catalog_source_modules

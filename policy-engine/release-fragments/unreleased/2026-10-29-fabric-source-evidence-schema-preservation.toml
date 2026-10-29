@@ -1,0 +1,19 @@
+id = "2026-10-29-fabric-source-evidence-schema-preservation"
+title = "Preserve typed schemas in source evidence projections"
+type = "fixed"
+component = "fabric"
+owner = "team-polisyos"
+summary = "Use the persisted ArtifactManifest.artifact_schema for complete source collections and partial evidence projections; refuse missing schema information before writing a derived artifact."
+evidence = [
+  "src/polisyos/fabric/ingestion/_source_evidence_schema.py",
+  "src/polisyos/fabric/ingestion/source_collection.py",
+  "src/polisyos/fabric/ingestion/source_progress.py",
+  "tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py",
+  "tests/unit/fabric/data_plane/test_source_progress.py",
+]
+compatibility = "Valid persisted evidence keeps its existing schema name and version. Evidence manifests without a typed schema now fail closed before derived collection or partial-scope artifacts are written; no schema is guessed from payload type."
+change_class = "internal"
+surface_classification = "internal: Fabric ingestion artifact producers"
+migration = "No artifact rewrite is required. A source-evidence manifest without schema information must be regenerated through its existing typed producer before projection."
+api = "No public DTO or facade changes."
+limitations = "This preserves schema identity at two Fabric projection boundaries. It does not establish source provenance, currentness, rights, or external authority."

@@ -1,5 +1,7 @@
 # E02 continuation planning checkpoint — 27 October 2026
 
+**Latest dated progress — R24, 29 October 2026:** [PROGRESS-20261029-r24.md](PROGRESS-20261029-r24.md), with the 00:32:17 UTC native evidence cut and a separate later R25 tools-publication note. Earlier snapshots below retain their own sources; E02/G acceptance remains unfinished.
+
 **Latest progress — 29 October 2026 (Kyiv):** [PROGRESS-20261029.md](PROGRESS-20261029.md) and [R23 receipt summary](evidence/local-execution-r23/summary.json), as of 2026-10-28 22:39:17 UTC. This source-bound snapshot supersedes the current-status wording below; earlier R20/R21 and pause notes remain dated history. E02 and G acceptance remain unfinished.
 
 **Execution resumed after disk review.** See [RESUMED-20261028.md](RESUMED-20261028.md) for the current source admission, active proof front and bounded resource policy. The earlier R18/R20 and pause records below are dated history.

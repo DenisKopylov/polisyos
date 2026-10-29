@@ -10215,6 +10215,12 @@
                 "operation": "is_dir",
                 "status": "present",
                 "result": false
+              },
+              {
+                "path": "src/polisyos/fabric/ingestion/_source_evidence_schema.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
               }
             ],
             "unresolved_by_construction": [

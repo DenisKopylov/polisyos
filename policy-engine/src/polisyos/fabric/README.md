@@ -306,3 +306,8 @@ snapshot/audit therefore carry shape and workflow basis `not_established`;
 legacy name-derived definite shape and routing notes are withheld on this route.
 The default single-connector behavior is unchanged. A future shape projection
 requires an independently admitted typed design basis, not a column-name rule.
+
+Source collection and partial source-scope evidence projections reuse the private
+`ingestion/_source_evidence_schema.py` helper. They preserve the selected persisted
+manifest's typed `artifact_schema` and refuse a missing schema before derived writes;
+this check does not establish source provenance or currentness.

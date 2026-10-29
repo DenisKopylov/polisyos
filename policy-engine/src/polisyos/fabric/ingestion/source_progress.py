@@ -32,6 +32,7 @@ from polisyos.fabric.connectors.contracts.source_contract import (
     SourceProgressContract,
 )
 from polisyos.fabric.connectors.types import FetchError
+from polisyos.fabric.ingestion._source_evidence_schema import require_source_evidence_schema
 from polisyos.ir.connectors import DataVersion, FetchRequest, FetchResult, VersionStrategy
 
 if TYPE_CHECKING:
@@ -845,6 +846,7 @@ def project_partial_source_scope(
 
     evidence = EvidenceBundle.model_validate(load_core_json_artifact(store, evidence_ref))
     manifest = store.get_manifest(evidence_ref)
+    evidence_schema = require_source_evidence_schema(manifest)
     inputs = [input_ref_from_artifact_ref(evidence_ref, role="source_evidence")]
     steps = list(evidence.transforms)
     notes = [
@@ -887,7 +889,7 @@ def project_partial_source_scope(
         ArtifactWriteOptions(
             kind=evidence_ref.kind,
             media_type="application/json",
-            schema=manifest.schema,
+            schema=evidence_schema,
             governance=manifest.governance,
             inputs=inputs,
         ),

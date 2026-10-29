@@ -179,9 +179,13 @@ A's complete state to a fresh Snapshot B. The materializer reconciles the entire
 original EvidenceBundle source set, every persisted contribution/provenance and
 its source witness. Foundry's real snapshot loader calls `load_source_collection`
 to verify the same denominator before ordinary explicit source-path bindings.
-Omitting a source or row while retaining declarations is a hard refusal. The
-existing single-source live acquisition cached-result format is unchanged;
-other multi-source snapshot callers must provide a reconciled materializer.
+Omitting a source or row while retaining declarations is a hard refusal. Both
+complete collections and partial evidence projections preserve the persisted
+evidence schema through `ArtifactManifest.artifact_schema`; a missing typed
+schema fails before writing a derived artifact instead of inferring one from the
+payload or Pydantic's `schema` method. The existing single-source live
+acquisition cached-result format is unchanged; other multi-source snapshot
+callers must provide a reconciled materializer.
 
 Streaming proof is confined to the canonical EventStream JSONL file producer.
 Its actual configured file must resolve to the owner-bound transport file, and

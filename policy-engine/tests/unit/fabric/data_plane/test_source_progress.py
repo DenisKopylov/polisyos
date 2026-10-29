@@ -7,7 +7,6 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
-from tests._helpers.source_progress import SOURCE_TIME, finite_source_reader
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
@@ -21,6 +20,7 @@ from polisyos.fabric.ingestion.source_progress import (
     resolve_source_progress_frame,
 )
 from polisyos.ir.connectors import DataVersion, FetchRequest, FetchResult, VersionStrategy
+from tests._helpers.source_progress import SOURCE_TIME, finite_source_reader
 
 
 def _owner(tmp_path: Path) -> FiniteSourceProgressReader:
@@ -405,3 +405,60 @@ async def test_finite_stream_scope_survives_actual_chunk_and_window_consumption(
             assert {row["event_id"] for row in restored.current.rows} == {"A", "B"}
     finally:
         await registry.shutdown_async()
+
+
+def test_source_evidence_schema_uses_persisted_typed_field_and_refuses_absence(
+    tmp_path: Path,
+) -> None:
+    from polisyos.core.artifacts.manifest import SchemaInfo
+    from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+    from polisyos.core.contracts.fabric import EvidenceBundle, EvidenceBundleRef
+    from polisyos.fabric.ingestion._source_evidence_schema import (
+        require_source_evidence_schema,
+    )
+    from polisyos.fabric.ingestion.source_collection import materialize_source_collection
+    from polisyos.fabric.ingestion.source_progress import project_partial_source_scope
+
+    store = FileSystemCAS(tmp_path / "cas")
+    expected = SchemaInfo(name="fabric.evidence_bundle", version="1.0")
+    typed_ref = store.put_json(
+        EvidenceBundle(),
+        ArtifactWriteOptions(
+            kind="fabric.evidence_bundle",
+            media_type="application/json",
+            schema=expected,
+        ),
+        return_selected_profile=True,
+    )
+    typed_manifest = store.get_manifest(typed_ref)
+    assert require_source_evidence_schema(typed_manifest) == expected
+
+    missing_ref = store.put_json(
+        EvidenceBundle(),
+        ArtifactWriteOptions(kind="fabric.evidence_bundle", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    missing_manifest = store.get_manifest(missing_ref)
+    assert missing_manifest.artifact_schema is None
+    with pytest.raises(ValueError, match="no schema information"):
+        require_source_evidence_schema(missing_manifest)
+
+    before_projection = set(map(str, store.iter_artifact_ids()))
+    with pytest.raises(ValueError, match="no schema information"):
+        project_partial_source_scope(
+            store,
+            EvidenceBundleRef.model_validate(missing_ref.model_dump(mode="python")),
+            frames={},
+            advanced=set(),
+        )
+    assert set(map(str, store.iter_artifact_ids())) == before_projection
+
+    with pytest.raises(ValueError, match="no schema information"):
+        materialize_source_collection(
+            store=store,
+            evidence_ref=EvidenceBundleRef.model_validate(missing_ref.model_dump(mode="python")),
+            datasets=(),
+            persisted_results={},
+            frames={},
+        )
+    assert set(map(str, store.iter_artifact_ids())) == before_projection

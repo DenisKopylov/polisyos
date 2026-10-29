@@ -337,6 +337,7 @@ def test_b79_finite_file_replay_uses_only_its_admitted_persisted_cursor(
     """Actual file replay proves portable progress; it makes no live REST claim."""
     from copy import deepcopy
 
+    from polisyos.core.artifacts.manifest import SchemaInfo
     from polisyos.fabric.data_plane.modes import run_batch_incremental
     from polisyos.fabric.ingestion import resolve_ingestion_dependencies
     from polisyos.fabric.ingestion.source_progress import ReconciledSourceFrame
@@ -394,6 +395,10 @@ def test_b79_finite_file_replay_uses_only_its_admitted_persisted_cursor(
         write_source_history(reader, [('"etag-prior"', []), ('"etag-next"', [row])])
         result = run()
         assert result.status == "completed" and result.cursor_ref is not None
+        assert result.evidence_bundle_ref is not None
+        assert FileSystemCAS(cas_root).get_manifest(
+            result.evidence_bundle_ref
+        ).artifact_schema == SchemaInfo(name="fabric.evidence_bundle", version="1.0")
         assert observed[-1].incremental_since.value == '"etag-prior"'
         current = CursorStore(FileSystemCAS(cas_root)).find_latest_cursor("rest.json", "dataset")
         assert current.watermark_value == '"etag-next"'
@@ -610,6 +615,10 @@ def test_b80_two_source_failure_then_fresh_snapshot_consumes_both_sources(
         phase["value"] = "retry"
         complete = run()
         assert complete.status == "completed" and complete.data_snapshot_ref is not None
+        assert complete.evidence_bundle_ref is not None
+        assert FileSystemCAS(cas_root).get_manifest(
+            complete.evidence_bundle_ref
+        ).artifact_schema == SchemaInfo(name="fabric.evidence_bundle", version="1.0")
         assert observed == [
             ("fixture.source_a", None),
             ("fixture.source_b", None),

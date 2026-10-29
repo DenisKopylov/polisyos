@@ -22,6 +22,7 @@ from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec, content_hash, to_canonical_bytes
 from polisyos.core.contracts.fabric import EvidenceBundle, EvidenceBundleRef
 from polisyos.core.contracts.provenance import ProvenanceCoreGraph, RelationType
+from polisyos.fabric.ingestion._source_evidence_schema import require_source_evidence_schema
 from polisyos.ir.connectors import DataVersion
 
 if TYPE_CHECKING:
@@ -95,6 +96,7 @@ def materialize_source_collection(
 
     evidence = EvidenceBundle.model_validate(load_core_json_artifact(store, evidence_ref))
     source_manifest = store.get_manifest(evidence_ref)
+    source_schema = require_source_evidence_schema(source_manifest)
     if not datasets or len(datasets) != len(set(datasets)):
         raise ValueError("source collection requires unique actual source identities")
     if set(persisted_results) != set(datasets) or set(frames) != set(datasets):
@@ -206,7 +208,7 @@ def materialize_source_collection(
         ArtifactWriteOptions(
             kind=evidence_ref.kind,
             media_type="application/json",
-            schema=source_manifest.schema,
+            schema=source_schema,
             governance=source_manifest.governance,
             inputs=[
                 input_ref_from_artifact_ref(evidence_ref, role="source_evidence"),

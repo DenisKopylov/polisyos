@@ -23,6 +23,15 @@ the FastAPI runtime surface, with focused HTTP and mirror-contract suites.
 - `tests/unit/runtime/http/`: tests for runs, timeline, debug, control, artifacts,
   review, auth, and OpenAPI hardening.
 
+Runtime HTTP tests that materialize data-backed catalog readers should select a
+test-owned catalog snapshot through `CatalogServingSourceSelection`. The shared
+`build_runtime_api_env_with_fixture_catalog` helper creates an offline
+candidate-only catalog below `tmp_path` when no explicit source selection is
+provided. It preserves explicit selections and leaves production source
+identity and fresh-reader checks enabled. Keep the selected path/readback and a
+fail-closed missing-source or publish-receipt case in the affected suite; do
+not make a no-op retrieval service stand in for catalog-backed request behavior.
+
 - `tests/unit/runtime/mirror_contracts/`: runtime mirror-contract coverage.
 
 - `tests/unit/runtime/http/conftest.py` for HTTP-specific fixtures.

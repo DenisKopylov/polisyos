@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import hashlib
 from collections import Counter
+from collections.abc import Iterator
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qs, urlsplit
 
@@ -10,6 +12,8 @@ import pytest
 from _helpers.runtime_http import (
     _put_fixture_authority_envelope,
     _runtime_fixture_authority_boundary,
+    build_runtime_api_env_with_fixture_catalog,
+    close_runtime_api_env,
 )
 from polisyos_tests_runtime_http_conftest import (
     _record_fixture_owner,
@@ -44,6 +48,35 @@ from polisyos.runtime.quality.evaluation_safety import (
     EvalSafetySurfaceDisposition,
     evaluation_safety_metrics_projection_identity,
 )
+
+
+@pytest.fixture
+def runtime_api_env(tmp_path: Path, pytestconfig: pytest.Config) -> Iterator[dict[str, object]]:
+    """Use an owner-built temporary catalog for artifact-inspector requests."""
+    project_root = pytestconfig.rootpath.resolve(strict=True)
+    env = build_runtime_api_env_with_fixture_catalog(
+        tmp_path,
+        include_test_client=True,
+        app_kwargs={"repo_root": project_root},
+    )
+    try:
+        yield env
+    finally:
+        close_runtime_api_env(env)
+
+
+def test_artifact_inspector_fixture_reads_its_selected_catalog(runtime_api_env) -> None:
+    service = runtime_api_env["app"].state._control_service
+    selection = service._catalog_source_selection
+    graph = service._retrieval._dataset_catalog
+    assert selection is not None
+    assert graph is not None
+    database_path = selection.snapshot_root / "datasets" / "graph" / "dataset_catalog.duckdb"
+    assert database_path.is_file()
+    assert graph.database_path.resolve() == database_path.resolve()
+    source_identity = graph.read_source_identity[0]
+    assert source_identity.source_path == str(database_path.resolve())
+    assert source_identity.byte_size > 0
 
 
 def _put_controlled_authority_profile_view(

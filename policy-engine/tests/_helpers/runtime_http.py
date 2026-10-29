@@ -2202,6 +2202,40 @@ def build_runtime_api_env(
     )
 
 
+def build_runtime_api_env_with_fixture_catalog(
+    tmp_path: Path,
+    *,
+    app_kwargs: dict[str, object] | None = None,
+    include_test_client: bool = True,
+    raise_server_exceptions: bool = True,
+) -> dict[str, object]:
+    """Build a runtime HTTP fixture with an isolated candidate catalog by default.
+
+    An explicit ``catalog_source_selection`` in ``app_kwargs`` is preserved. The
+    default fixture source is owner-built below ``tmp_path`` so catalog readers
+    retain their normal source-identity checks without depending on production
+    catalog bytes.
+    """
+    selected_app_kwargs = dict(app_kwargs or {})
+    if selected_app_kwargs.get("catalog_source_selection") is None:
+        from _helpers.candidate_cycle_source_profile import (
+            build_candidate_cycle_catalog_serving_source,
+        )
+
+        fixture_root = tmp_path / "catalog-fixture"
+        fixture_root.mkdir(parents=True, exist_ok=True)
+        selection, _source_paths = build_candidate_cycle_catalog_serving_source(
+            fixture_root
+        )
+        selected_app_kwargs["catalog_source_selection"] = selection
+    return build_runtime_api_env(
+        tmp_path,
+        include_test_client=include_test_client,
+        app_kwargs=selected_app_kwargs,
+        raise_server_exceptions=raise_server_exceptions,
+    )
+
+
 @pytest.fixture
 def runtime_api_env(tmp_path: Path, pytestconfig: pytest.Config):
     if TestClient is None:  # pragma: no cover

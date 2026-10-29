@@ -28,6 +28,7 @@ from pydantic import (
     model_validator,
 )
 
+from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, input_ref_from_artifact_ref
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.foundry.execute.executor import (
@@ -948,6 +949,23 @@ def _physical_run_ref(
     return gy_content_hash(payload)
 
 
+def _physical_spec_digest(physical_run_ref: object) -> str:
+    """Project a canonical SHA-256 run ref to the v1 work observation digest.
+
+    The Core identifier parser supplies the existing SHA-256 grammar; parsing
+    a run ref here does not claim that a CAS artifact exists for this digest.
+    """
+    if type(physical_run_ref) is not str:
+        raise JointSimulationControllerError("n5_physical_run_ref_invalid")
+    try:
+        parsed = ArtifactID.model_validate(physical_run_ref)
+    except (TypeError, ValueError) as exc:
+        raise JointSimulationControllerError("n5_physical_run_ref_invalid") from exc
+    if str(parsed) != physical_run_ref:
+        raise JointSimulationControllerError("n5_physical_run_ref_invalid")
+    return parsed.hex
+
+
 def _aggregate_replicated_trajectory(
     trajectories: Sequence[SimulationTrajectory],
     seeds: Sequence[int],
@@ -1126,6 +1144,7 @@ def _run_cached_replicates(
     for run_level, raw_subset in _atom_subsets(request.intervention_atoms):
         subset = tuple(raw_subset)
         physical_ref = _physical_run_ref(request, plan, decision, subset)
+        physical_digest = _physical_spec_digest(physical_ref)
         reused = physical_ref in cache
         if not reused:
             replicated: list[SimulationTrajectory] = []
@@ -1177,7 +1196,7 @@ def _run_cached_replicates(
                 work = PhysicalSimulationWorkObservation(
                     invocation_id=invocation_id,
                     event_id=uuid4().hex,
-                    physical_spec_ref=physical_ref,
+                    physical_spec_ref=physical_digest,
                     effective_seed=seed,
                     status="completed" if error is None else "failed",
                     started_at=started_at,
@@ -1378,7 +1397,19 @@ class JointSimulationResult(_StrictModel):
     def physical_work_observations(self) -> tuple[PhysicalSimulationWorkObservation, ...]:
         """Reconcile persisted work/event references, not a self-reported count."""
         raw = self.diagnostics.get("physical_work_observations")
+        capture_status = self.diagnostics.get("physical_work_capture_status")
+        units = self.diagnostics.get("physical_work_units")
         if raw is None:
+            if (
+                capture_status == "observed"
+                or (units is not None and (type(units) is not int or units != 0))
+                or self.diagnostics.get("producer_budget_observations")
+                or any(
+                    trajectory.diagnostics.get("physical_work_event_ids")
+                    for trajectory in self.trajectories
+                )
+            ):
+                raise ValueError("n5_physical_work_observations_missing")
             return ()
         if type(raw) is not list:
             raise ValueError("n5_physical_work_observations_not_a_sequence")
@@ -1386,7 +1417,7 @@ class JointSimulationResult(_StrictModel):
         ids = [item.event_id for item in observations]
         if len(ids) != len(set(ids)):
             raise ValueError("n5_physical_work_observation_duplicate")
-        if self.diagnostics.get("physical_work_units") != len(observations):
+        if type(units) is not int or units != len(observations):
             raise ValueError("n5_physical_work_unit_count_mismatch")
         if self.diagnostics.get("physical_work_unit") != "physical_simulation_invocation":
             raise ValueError("n5_physical_work_unit_invalid")
@@ -1410,21 +1441,54 @@ class JointSimulationResult(_StrictModel):
                 item.budget_source_basis_digest not in bases
             ):
                 raise ValueError("n5_physical_work_budget_source_missing")
-        if self.diagnostics.get("physical_work_capture_status") != "observed":
-            if observations or bases:
+        if capture_status != "observed":
+            if (
+                observations
+                or bases
+                or any(
+                    trajectory.diagnostics.get("physical_work_event_ids")
+                    for trajectory in self.trajectories
+                )
+            ):
                 raise ValueError("n5_unknown_capture_cannot_claim_observations")
             return ()
+        root_seeds = self.diagnostics.get("replication_seeds")
+        requested = self.diagnostics.get("requested_replications")
+        if (
+            type(requested) is not int
+            or requested < 1
+            or not isinstance(root_seeds, list | tuple)
+            or len(root_seeds) != requested
+            or any(type(seed) is not int for seed in root_seeds)
+            or len(set(root_seeds)) != len(root_seeds)
+            or any(item.effective_seed not in root_seeds for item in observations)
+        ):
+            raise ValueError("n5_physical_work_root_seed_basis_invalid")
         for trajectory in self.trajectories:
             physical_ref = trajectory.diagnostics.get("physical_run_ref")
-            event_refs = trajectory.diagnostics.get("physical_work_event_ids", ())
-            expected_seeds = tuple(trajectory.diagnostics.get("replication_seeds", ()))
+            event_refs = trajectory.diagnostics.get("physical_work_event_ids")
+            trajectory_seeds = trajectory.diagnostics.get("replication_seeds")
+            if (
+                not isinstance(event_refs, list | tuple)
+                or any(type(ref) is not str for ref in event_refs)
+                or not isinstance(trajectory_seeds, list | tuple)
+                or any(type(seed) is not int for seed in trajectory_seeds)
+                or tuple(trajectory_seeds) != tuple(root_seeds)
+            ):
+                raise ValueError("n5_physical_work_replication_binding_mismatch")
+            expected_seeds = tuple(root_seeds)
             actual_seeds = []
             for ref in event_refs:
                 parsed = known.get(ref)
                 if parsed is None or parsed.status != "completed":
                     raise ValueError("n5_physical_work_trajectory_binding_mismatch")
                 if parsed.physical_spec_ref != physical_ref:
-                    raise ValueError("n5_physical_work_spec_binding_mismatch")
+                    try:
+                        physical_digest = _physical_spec_digest(physical_ref)
+                    except JointSimulationControllerError as exc:
+                        raise ValueError("n5_physical_work_spec_binding_mismatch") from exc
+                    if parsed.physical_spec_ref != physical_digest:
+                        raise ValueError("n5_physical_work_spec_binding_mismatch")
                 actual_seeds.append(parsed.effective_seed)
             if tuple(actual_seeds) != expected_seeds:
                 raise ValueError("n5_physical_work_replication_binding_mismatch")
@@ -1432,8 +1496,7 @@ class JointSimulationResult(_StrictModel):
 
     @model_validator(mode="after")
     def _versioned_state_consumption(self) -> JointSimulationResult:
-        if "physical_work_observations" in self.diagnostics:
-            _ = self.physical_work_observations
+        _ = self.physical_work_observations
         if self.receipt.schema_version != self.schema_version:
             raise ValueError("joint_simulation_receipt_schema_mismatch")
         if self.schema_version == JOINT_SIMULATION_HORIZON_V1_SCHEMA_VERSION:
@@ -2173,6 +2236,9 @@ class JointSimulationHorizonController:
         if type(request) is not JointSimulationRequest or type(result) is not JointSimulationResult:
             raise JointSimulationControllerError("selected_plan_execution_binding_missing")
         try:
+            # model_copy can bypass Pydantic validation; revisit the same
+            # actual work/event owner used by fresh result construction.
+            _ = result.physical_work_observations
             actual = result.model_dump(mode="json", exclude={"receipt"})
             payload = result.content_bound_payload()
             if not payload:

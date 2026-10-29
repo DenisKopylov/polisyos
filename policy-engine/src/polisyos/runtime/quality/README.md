@@ -174,6 +174,24 @@ Boundary notes:
   physical origin and unit are not resolved. These candidate limitations are
   retained through N8 and the served observation. Replicate exceptions abort
   before aggregation and CAS persistence; no partial-attempt ledger is promised.
+  Physical-work v1 retains its 64-hex `physical_spec_ref`; the selected run and
+  trajectory retain the canonical `sha256:<hex>` reference. The actual work owner
+  validates that reference with the Core SHA-256 identifier parser before the
+  call, and the result reader reconciles its digest with each referenced work
+  event. In-memory selected-result and candidate projection consumers revisit
+  the same observation owner even when a copied model bypassed validation. An
+  observed capture requires its actual work rows and reconciles each trajectory's
+  event/seed sequence against the root replication basis; a legacy unknown
+  capture cannot claim missing events. Earlier v1/v2 records that claimed an
+  observed capture without the full root/trajectory seed and event basis now
+  refuse; a legacy unobserved result with no event claim remains readable.
+  Legacy v1 exact bare-to-bare event joins remain readable without a
+  selected request; current selected-request verification still requires the
+  canonical run ref. Other algorithms, malformed refs, and unequal digests
+  refuse. A reader update must precede
+  emission to independently deployed consumers: an older reader compares the
+  two representations literally. The digest is not a claim that a CAS artifact
+  exists, a monetary charge, or scientific validation.
 - When a selected ExecPlan carries the compiled `method_metric_bindings` manifest
   edge, the program-graph horizon shares one Foundry `MethodExecutionCapture`
   across every step in a physical run. It snapshots each actual pre-dispatch

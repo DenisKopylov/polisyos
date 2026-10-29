@@ -1302,6 +1302,9 @@ def _joint_simulation_port_outcome(
     )
     if not unsupported:
         try:
+            # This candidate projection is also used without a request;
+            # consume the same work/event guard as the selected-result owner.
+            _ = result.physical_work_observations
             if request is not None:
                 # Recording adapters may expose only run(); the canonical
                 # Horizon verifier remains the source of the binding check.

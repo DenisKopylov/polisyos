@@ -6,6 +6,7 @@ from typing import Any, cast, get_args
 
 import pytest
 
+from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.foundry.methods.catalog.causal.ncm_engine import NCMEngineMethod
 from polisyos.runtime.quality.generation_cycle import _joint_simulation_port_outcome
 from polisyos.runtime.quality.joint_simulation_horizon import (
@@ -503,7 +504,32 @@ def _reissue_result_with_trajectory_ref(
 ) -> JointSimulationResult:
     """Produce a self-consistent forged receipt so the physical join, not a stale hash, is tested."""
     payload = result.model_dump(mode="json", exclude={"receipt"})
-    payload["trajectories"][0]["diagnostics"]["physical_run_ref"] = ref
+    target = payload["trajectories"][0]["diagnostics"]
+    selected_events = set(target.get("physical_work_event_ids", ()))
+    assert selected_events
+    target["physical_run_ref"] = ref
+    if ref is None:
+        # A missing physical ref cannot carry a valid observed-work join. Test
+        # the selected-plan guard with capture explicitly unavailable instead.
+        payload["diagnostics"]["physical_work_capture_status"] = "not_established"
+        payload["diagnostics"]["physical_work_observations"] = []
+        payload["diagnostics"]["physical_work_units"] = 0
+        payload["diagnostics"]["producer_budget_observations"] = {}
+        payload["diagnostics"]["budget_admission_status"] = "not_established"
+        for trajectory in payload["trajectories"]:
+            trajectory["diagnostics"].pop("physical_work_event_ids", None)
+    else:
+        # Retain a valid work join while changing the physical ref. Shared
+        # role projections must change together; selected-plan replay still
+        # has to reject this self-consistent foreign run.
+        foreign_digest = ArtifactID.model_validate(ref).hex
+        for observation in payload["diagnostics"]["physical_work_observations"]:
+            if observation["event_id"] in selected_events:
+                observation["physical_spec_ref"] = foreign_digest
+        for trajectory in payload["trajectories"]:
+            diag = trajectory["diagnostics"]
+            if selected_events.intersection(diag.get("physical_work_event_ids", ())):
+                diag["physical_run_ref"] = ref
     receipt = build_content_bound_simulation_receipt(
         engine_kind=result.receipt.engine_kind, payload=payload, diagnostics=payload["diagnostics"]
     )

@@ -240,3 +240,9 @@ The test runners already support native sharding:
 - `playwright`: `playwright test --shard=<index>/<count>`.
 
 The policy and recommended boundaries are described in [`tests/TESTING_POLICY.md`](../../../tests/TESTING_POLICY.md).
+
+### TC SQL/MC portable witness
+
+The internal [TC SQL/MC witness recipe](tc_sql_mc_witness/README.md) uses tracked
+source-admission, bounded observer and subprocess harness files for an explicitly
+commissioned synthetic pytest run. It adds no automatic CI or public CLI dispatch.

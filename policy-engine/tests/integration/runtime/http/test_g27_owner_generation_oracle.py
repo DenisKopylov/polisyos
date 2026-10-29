@@ -272,25 +272,138 @@ def test_g27_real_sql_withdraw_a_after_b_fresh_owner(g27_env, tmp_path):
 
 def test_g27_retry_conflict_gap(g27_env, monkeypatch):
     env = g27_env
-    results = _prepare_sources(env)
-    command = _withdraw_a(env, results)
-    committed = _commit(env, "withdrawals", command)
-    snapshot = committed_snapshot(env["cas_root"])
-    assert _commit(env, "withdrawals", command) == committed
-    assert committed_snapshot(env["cas_root"]) == snapshot
-    failures = []
+    attempts = []
+    observation_errors = []
     real_commit = source_admission_state._SourceAdmissionStateStore._commit
 
-    def observe_actual_commit(*args, **kwargs):
+    def retain_observation(value):
         try:
-            return real_commit(*args, **kwargs)
-        except ValueError as exc:
-            failures.append(str(exc))
+            return env["oracle"].cas.note(value)
+        except Exception as exc:
+            observation_errors.append(type(exc).__name__)
+            return None
+
+    def observe_actual_commit(store, command, *args, **kwargs):
+        attempt = {"command": copy.deepcopy(command)}
+        attempts.append(attempt)
+        sequence = retain_observation(
+            {
+                "kind": "commit_call",
+                "command": attempt["command"],
+                "predicate_provenance": "not_established",
+            }
+        )
+        try:
+            receipt = real_commit(store, command, *args, **kwargs)
+        except BaseException as exc:
+            attempt.update(outcome="raised", error_type=type(exc).__name__, error_message=str(exc))
+            retain_observation(
+                {
+                    "kind": "commit_result",
+                    "call_sequence": sequence,
+                    "outcome": "raised",
+                    "error_type": attempt["error_type"],
+                    "error_message": attempt["error_message"],
+                    "predicate_provenance": "not_established",
+                }
+            )
             raise
+        try:
+            receipt_json = receipt.model_dump(mode="json")
+        except Exception as exc:
+            observation_errors.append(type(exc).__name__)
+            receipt_json = None
+        attempt.update(outcome="returned", receipt=receipt_json)
+        retain_observation(
+            {
+                "kind": "commit_result",
+                "call_sequence": sequence,
+                "outcome": "returned",
+                "receipt": receipt_json,
+                "predicate_provenance": "not_established",
+            }
+        )
+        return receipt
 
     monkeypatch.setattr(
         source_admission_state._SourceAdmissionStateStore, "_commit", observe_actual_commit
     )
+    results = _prepare_sources(env)
+    assert not observation_errors, "G27_COMMIT_OBSERVATION_ERROR"
+    command = _withdraw_a(env, results)
+    before = committed_snapshot(env["cas_root"])
+    state = env["owner"]._source_admission._state
+    assert state._fault is None
+    fault_roots = []
+
+    def interrupt_before_publish(point):
+        if point != "before_root_publish":
+            return
+        try:
+            member = env["oracle"].cas.preserve(state.root_path.read_bytes())
+        except Exception as exc:
+            observation_errors.append(type(exc).__name__)
+            member = None
+        fault_roots.append(member)
+        retain_observation(
+            {
+                "kind": "commit_fault_observation",
+                "point": point,
+                "root_member": member,
+                "predicate_provenance": "not_established",
+            }
+        )
+        raise OSError("g27-test-interrupted-before-root")
+
+    call_count = len(attempts)
+    monkeypatch.setattr(state, "_fault", interrupt_before_publish)
+    try:
+        interrupted, observed = _exchange(env, "withdrawals", command)
+    finally:
+        monkeypatch.setattr(state, "_fault", None)
+    reconciled = False
+    try:
+        assert not observation_errors, "G27_COMMIT_OBSERVATION_ERROR"
+        assert interrupted.status_code >= 400, interrupted.text
+        assert len(attempts) == call_count + 1
+        aborted = attempts[-1]
+        assert aborted["outcome"] == "raised" and aborted["error_type"] == "OSError"
+        assert aborted["error_message"] == "g27-test-interrupted-before-root"
+        assert aborted["command"]["event_id"] == command["event_id"]
+        assert aborted["command"]["target"] == command["target"]
+        assert aborted["command"]["expected_predecessor"] == command["expected_predecessor"]
+        assert fault_roots == [before["root_digest"].removeprefix("sha256:")]
+        assert committed_snapshot(env["cas_root"]) == before
+        assert command["event_id"] not in before["events"]
+        reconciled = True
+    finally:
+        env["oracle"].cas.finish_response(observed, reconciled=reconciled)
+
+    call_count = len(attempts)
+    committed = _commit(env, "withdrawals", command)
+    assert not observation_errors, "G27_COMMIT_OBSERVATION_ERROR"
+    assert len(attempts) == call_count + 1
+    first = attempts[-1]
+    assert first["command"] == aborted["command"]
+    snapshot = committed_snapshot(env["cas_root"])
+    assert snapshot["root"]["generation"] == before["root"]["generation"] + 1
+    assert snapshot["root_digest"] != before["root_digest"]
+    assert set(snapshot["events"]) == set(before["events"]) | {command["event_id"]}
+    assert all(snapshot["events"][key] == value for key, value in before["events"].items())
+    assert first["outcome"] == "returned" and first["receipt"] == committed["receipt"]
+    assert first["command"] == snapshot["events"][command["event_id"]]["command"]
+
+    call_count = len(attempts)
+    retried = _commit(env, "withdrawals", command)
+    assert not observation_errors, "G27_COMMIT_OBSERVATION_ERROR"
+    assert len(attempts) == call_count + 1
+    retry = attempts[-1]
+    assert retry["outcome"] == "returned"
+    assert retry["command"] == first["command"]
+    assert retry["receipt"] == first["receipt"] == retried["receipt"]
+    assert retried == committed
+    assert committed_snapshot(env["cas_root"]) == snapshot
+
     variants = [
         (
             {**command, "target": results["b"]["response"]["receipt"]["carrier"]},
@@ -307,12 +420,19 @@ def test_g27_retry_conflict_gap(g27_env, monkeypatch):
         ),
     ]
     for body, expected_error in variants:
-        failures.clear()
+        call_count = len(attempts)
         response, observed = _exchange(env, "withdrawals", body)
         reconciled = False
         try:
+            assert not observation_errors, "G27_COMMIT_OBSERVATION_ERROR"
             assert response.status_code >= 400, response.text
-            assert failures == [expected_error], "the real authorized commit was not reached"
+            assert len(attempts) == call_count + 1
+            failed = attempts[-1]
+            assert failed["outcome"] == "raised" and failed["error_type"] == "ValueError"
+            assert failed["error_message"] == expected_error
+            assert failed["command"]["event_id"] == body["event_id"]
+            assert failed["command"]["target"] == body["target"]
+            assert failed["command"]["expected_predecessor"] == body["expected_predecessor"]
             assert committed_snapshot(env["cas_root"]) == snapshot
             reconciled = True
         finally:

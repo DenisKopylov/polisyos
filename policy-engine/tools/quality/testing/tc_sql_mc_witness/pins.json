@@ -543,5 +543,11 @@
     "policy-engine/src/polisyos/scientist/nodes/builtins/data/bind_foundry_inputs.py",
     "policy-engine/tests/unit/runtime/http/conftest.py"
   ],
-  "tree": "54a66fd6ecd2e92bf79b4e8a67a5cee5ecad2386"
+  "tree": "54a66fd6ecd2e92bf79b4e8a67a5cee5ecad2386",
+  "assertion_rewriter": {
+    "distribution_relative_path": "_pytest/assertion/rewrite.py",
+    "source_bytes": 48206,
+    "source_sha256": "376adab93672026552858ffaca009cbef553f082f2e4dee87ace75e7966d4b10",
+    "version": "9.0.2"
+  }
 }

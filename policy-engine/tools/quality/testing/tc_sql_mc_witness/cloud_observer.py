@@ -203,6 +203,10 @@ def pytest_configure(config: pytest.Config) -> None:
     """Attach bounded owner returns to the startup first-party code census."""
     if CAPTURE is None or not CAPTURE.started:
         raise pytest.UsageError("startup_actual_code_capture_missing")
+    # Source-admitted pins freeze the actual supported assertion producer image.
+    CAPTURE.assertion_compiler_pin = json.loads((_OUT / "pins.json").read_bytes()).get(
+        "assertion_rewriter"
+    )
     if _PHASE in {"served", "sql_aba", "sql_workflow", "sql_purpose", "mc_refusal"}:
         CAPTURE.select_returns(_selected_return, _record_return, config)
     else:

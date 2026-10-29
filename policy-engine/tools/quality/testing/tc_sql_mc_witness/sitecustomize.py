@@ -12,6 +12,7 @@ import ast
 import atexit
 import contextlib
 import hashlib
+import importlib.metadata
 import importlib.util
 import json
 import marshal
@@ -20,7 +21,7 @@ import sys
 import threading
 from collections.abc import Callable
 from pathlib import Path
-from types import CodeType, FrameType, ModuleType
+from types import CodeType, FrameType, FunctionType, ModuleType
 from typing import Any
 
 
@@ -51,8 +52,11 @@ class ActualCodeCapture:
         self.targets: dict[int, CodeType] = {}
         self.target_predicate: Callable[[CodeType], bool] = lambda code: False
         self.return_consumer: Callable[[FrameType, object], None] | None = None
+        self.start_consumer: Callable[[FrameType], None] | None = None
         self.assertion_config: Any = None
         self.compiler_identity: dict[str, Any] | None = None
+        self.assertion_compiler_pin: dict[str, Any] | None = None
+        self.rewritten_compilations: dict[tuple[str, bool, str], list[CodeType]] = {}
         self.lock = threading.RLock()
         self.started = False
 
@@ -74,6 +78,23 @@ class ActualCodeCapture:
         self.started = True
         sys.monitoring.set_events(self.TOOL_ID, events.PY_START)
 
+    def select_starts(
+        self,
+        predicate: Callable[[CodeType], bool],
+        consumer: Callable[[FrameType], None],
+        assertion_config: object,
+    ) -> None:
+        """Consume one authenticated first start per CodeType, before its body.
+
+        Selection precedes start and is exclusive with return selection. This
+        witnesses entry even if the body raises; it never counts all calls.
+        """
+        if self.started or self.return_consumer is not None:
+            raise RuntimeError("select_starts_before_capture_start_without_returns")
+        self.target_predicate = predicate
+        self.start_consumer = consumer
+        self.assertion_config = assertion_config
+
     def select_returns(
         self,
         predicate: Callable[[CodeType], bool],
@@ -81,6 +102,8 @@ class ActualCodeCapture:
         assertion_config: object,
     ) -> None:
         """Enable local returns for actual selected code, including earlier discoveries."""
+        if self.start_consumer is not None:
+            raise RuntimeError("selected_start_mode_cannot_mix_returns")
         self.target_predicate = predicate
         self.return_consumer = consumer
         self.assertion_config = assertion_config
@@ -190,6 +213,11 @@ class ActualCodeCapture:
             self.non_targets[id(code)] = code
             return sys.monitoring.DISABLE
         with self.lock:
+            # A second thread can enter before the first callback returns DISABLE.
+            # Source capture and first-start consumption still happen once.
+            cached = self.codes.get(id(code))
+            if cached is not None and cached[0] is code:
+                return sys.monitoring.DISABLE
             row = self._entry(code, frame)
             self.codes[id(code)] = (code, row)
             self.bindings[id(code)] = (
@@ -197,7 +225,16 @@ class ActualCodeCapture:
                 frame.f_globals,
             )
             if selected and self._verify(code, row):
-                self._enable_returns(code)
+                if sys.getprofile() is not None:
+                    self._error("selected_thread_private_profile_present")
+                elif self.start_consumer is not None:
+                    try:
+                        self.start_consumer(frame)
+                        row["selected_first_start_consumed"] = True
+                    except Exception as exc:
+                        self._error("start_consumer_error", exception=type(exc).__name__)
+                else:
+                    self._enable_returns(code)
         # PY_RETURN is local for targets; PY_START never repeats per code object.
         return sys.monitoring.DISABLE
 
@@ -207,6 +244,99 @@ class ActualCodeCapture:
             if isinstance(value, CodeType):
                 result.extend(self._walk(value))
         return result
+
+    def _compiler_owned_functions(self, module: ModuleType) -> list[FunctionType]:
+        """Enumerate Python bodies owned by one producer module, without imports."""
+        pending = list(vars(module).values())
+        seen: set[int] = set()
+        functions = []
+        while pending:
+            value = pending.pop()
+            if id(value) in seen:
+                continue
+            seen.add(id(value))
+            if isinstance(value, (staticmethod, classmethod)):
+                pending.append(value.__func__)
+            elif isinstance(value, property):
+                pending.extend(item for item in (value.fget, value.fset, value.fdel) if item)
+            elif isinstance(value, FunctionType) and value.__globals__ is vars(module):
+                functions.append(value)
+            elif isinstance(value, type):
+                pending.extend(vars(value).values())
+        return functions
+
+    def _assertion_rewriter(self) -> Callable[..., object] | None:
+        """Bind the actual installed producer to a frozen profile and source image.
+
+        This authenticates that module's Python bodies, not its external imports,
+        native compiler, or the complete pytest environment.
+        """
+        compiler = sys.modules.get("_pytest.assertion.rewrite")
+        if compiler is None or self.assertion_compiler_pin is None:
+            return None
+        if not isinstance(compiler, ModuleType):
+            raise ValueError("assertion_compiler_module_not_established")
+        pin = self.assertion_compiler_pin
+        distribution = importlib.metadata.distribution("pytest")
+        path = Path(compiler.__file__).resolve(strict=True)
+        relative = Path(pin["distribution_relative_path"])
+        if relative.is_absolute() or ".." in relative.parts:
+            raise ValueError("assertion_compiler_distribution_path_not_relative")
+        distribution_root = Path(distribution.locate_file("")).resolve(strict=True)
+        expected_path = (distribution_root / relative).resolve(strict=True)
+        if not expected_path.is_relative_to(distribution_root):
+            raise ValueError("assertion_compiler_origin_outside_distribution")
+        origin = getattr(getattr(compiler, "__spec__", None), "origin", None)
+        if (
+            distribution.version != pin["version"]
+            or path != expected_path
+            or not origin
+            or Path(origin).resolve(strict=True) != path
+        ):
+            raise ValueError("assertion_compiler_version_or_origin_mismatch")
+        source = path.read_bytes()
+        digest = hashlib.sha256(source).hexdigest()
+        if digest != pin["source_sha256"] or len(source) != pin["source_bytes"]:
+            raise ValueError("assertion_compiler_source_pin_mismatch")
+        compiler_key = (str(path), False)
+        if compiler_key not in self.compilations:
+            self.compilations[compiler_key] = self._walk(
+                compile(source, str(path), "exec", dont_inherit=True, optimize=sys.flags.optimize)
+            )
+        expected_codes = self.compilations[compiler_key]
+        rewrite = getattr(compiler, "rewrite_asserts", None)
+        functions = self._compiler_owned_functions(compiler)
+        if (
+            not isinstance(rewrite, FunctionType)
+            or rewrite.__globals__ is not vars(compiler)
+            or rewrite not in functions
+        ):
+            raise ValueError("assertion_compiler_callable_globals_mismatch")
+        for function in functions:
+            if Path(function.__code__.co_filename).resolve(strict=True) != path or not any(
+                function.__code__ == expected for expected in expected_codes
+            ):
+                raise ValueError("assertion_compiler_actual_code_mismatch")
+        self.compiler_identity = {
+            "distribution": "pytest",
+            "version": distribution.version,
+            "path": str(path),
+            "origin": str(Path(origin).resolve(strict=True)),
+            "bytes": len(source),
+            "sha256": digest,
+            "callable_code_sha256": hashlib.sha256(marshal.dumps(rewrite.__code__)).hexdigest(),
+            "module_owned_python_bodies_verified": len(functions),
+            "assertion_pass_hook": bool(
+                self.assertion_config and self.assertion_config.getini("enable_assertion_pass_hook")
+            ),
+            "basis": "recomputed_source_pin_and_actual_python_code",
+            "unresolved_by_construction": [
+                "external_imports",
+                "native_compiler",
+                "complete_pytest_environment",
+            ],
+        }
+        return rewrite
 
     def _verify(self, code: CodeType, row: dict[str, Any]) -> bool:
         if row.get("origin_error") or row["source_read"] not in {"READ", "CACHED_BOUND_READ"}:
@@ -218,32 +348,35 @@ class ActualCodeCapture:
         )
         key = (path, flag)
         try:
+            source = self.sources[path]
             if key not in self.compilations:
-                source = self.sources[path]
-                candidates = self._walk(
+                self.compilations[key] = self._walk(
                     compile(source, path, "exec", dont_inherit=True, optimize=sys.flags.optimize)
                 )
-                compiler = sys.modules.get("_pytest.assertion.rewrite")
-                if compiler is not None and "/tests/" in path:
-                    compiler_path = Path(compiler.__file__).resolve(strict=True)
-                    self.compiler_identity = {
-                        "path": str(compiler_path),
-                        "sha256": hashlib.sha256(compiler_path.read_bytes()).hexdigest(),
-                        "assertion_pass_hook": flag,
-                    }
-                    syntax = ast.parse(source, filename=path)
-                    compiler.rewrite_asserts(syntax, source, path, self.assertion_config)
-                    candidates.extend(
-                        self._walk(
+            row["compilation_match"] = any(code == expected for expected in self.compilations[key])
+            row["compilation_image"] = "source" if row["compilation_match"] else "not_established"
+            if not row["compilation_match"]:
+                rewrite = self._assertion_rewriter()
+                if rewrite is not None:
+                    # Recompute the admitted producer image for the actual source.
+                    # Directory/namespace membership is not an eligibility proxy.
+                    rewritten_key = (path, flag, self.compiler_identity["sha256"])
+                    if rewritten_key not in self.rewritten_compilations:
+                        syntax = ast.parse(source, filename=path)
+                        rewrite(syntax, source, path, self.assertion_config)
+                        self.rewritten_compilations[rewritten_key] = self._walk(
                             compile(
                                 syntax, path, "exec", dont_inherit=True, optimize=sys.flags.optimize
                             )
                         )
+                    row["compilation_match"] = any(
+                        code == expected for expected in self.rewritten_compilations[rewritten_key]
                     )
-                self.compilations[key] = candidates
-            row["compilation_match"] = any(code == expected for expected in self.compilations[key])
+                    if row["compilation_match"]:
+                        row["compilation_image"] = "pinned_pytest_assertion_rewrite"
+                        row["compiler_source_sha256"] = self.compiler_identity["sha256"]
         except Exception as exc:
-            row.update(compilation_match=False, compilation_error=type(exc).__name__)
+            row.update(compilation_match=False, compilation_error=f"{type(exc).__name__}:{exc}")
         return bool(row["compilation_match"])
 
     def _returned(self, code: CodeType, offset: int, value: object) -> None:
@@ -310,6 +443,22 @@ class ActualCodeCapture:
             "selected_return_callbacks": self.return_callbacks,
             "code_census_complete_for_observed_events": not failures and not self.errors,
             "codes": rows,
+            "selected_observation_mode": "first_start"
+            if self.start_consumer is not None
+            else "returns"
+            if self.return_consumer is not None
+            else "none",
+            "observed_selected_return_codes": [
+                row
+                for code, row in self.codes.values()
+                if self.return_consumer is not None and self.target_predicate(code)
+            ],
+            "observed_selected_first_start_codes": [
+                row
+                for code, row in self.codes.values()
+                if self.start_consumer is not None and self.target_predicate(code)
+            ],
+            "qualification_scope": "Per-code results and observed selected first-start/return witnesses; whole-census completeness is separate from semantic test outcomes.",
             "errors": self.errors,
             "assertion_compiler": self.compiler_identity,
             "source_reads": self.source_identities,

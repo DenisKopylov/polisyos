@@ -802,6 +802,9 @@ def _real_acq01_route(
     target_world_slots: tuple[str, ...] = ("agents.income",),
     requirement_ref: str = "data-requirement:acq-01-file-tabular",
     artifact_store: Any | None = None,
+    execution_scope_binding: Any | None = None,
+    prior_context: Any | None = None,
+    selected_metric: str | None = None,
 ) -> Any:
     """Build one recorded WorldBank route through the existing owners.
 
@@ -848,15 +851,27 @@ def _real_acq01_route(
         build_worldbank_fetch_owner,
     )
 
+    family = selected_metric if selected_metric is not None else "metric.test"
     data_spec = _fixture_data_requirement_spec().model_copy(
         update={
             "requirement_id": requirement_ref,
             "claim_id": f"claim:{requirement_ref.removeprefix('data-requirement:')}",
-            "required_data_families": ("metric.test",),
+            "required_data_families": (family,),
         }
     )
+    if prior_context is not None:
+        from polisyos.runtime.quality.cycle_substrate import revalidate_cycle_substrate_context
+
+        prior_context = revalidate_cycle_substrate_context(prior_context)
+        if (
+            prior_context.design_problem_ref != gy_content_hash(problem.model_dump(mode="json"))
+            or prior_context.domain != problem.domain
+        ):
+            raise ValueError("acq01_fixture_prior_context_problem_mismatch")
     capture_root = tmp_path / "capture"
     with build_worldbank_fetch_owner(capture_root, artifact_store=artifact_store) as owner:
+        if selected_metric is not None and selected_metric != owner.plan.metric_id:
+            raise ValueError("acq01_fixture_selected_metric_mismatch")
         resolved = owner.service.resolve(
             DataResolveRequest(
                 data_needs=[DataNeed(metric=owner.plan.metric_id)],
@@ -893,7 +908,8 @@ def _real_acq01_route(
             measurement_execution_binding,
         )
 
-        execution_scope_binding = measurement_execution_binding(tmp_path)
+        if execution_scope_binding is None:
+            execution_scope_binding = measurement_execution_binding(tmp_path)
         measurement_root = MeasurementRootProducer(
             artifact_store=store,
             execution_scope_binding=execution_scope_binding,
@@ -918,7 +934,9 @@ def _real_acq01_route(
         )
         snapshot_id = str(evidence.payload.payload_ref.artifact_id)
 
-        baseline_registry = _substrate_registry()
+        baseline_registry = (
+            prior_context.substrate_registry if prior_context is not None else _substrate_registry()
+        )
         baseline_registry_ref = persist_substrate_registry(store, baseline_registry)
         source_workspace = tmp_path / "selected-substrate-source-workspace"
         source_workspace.mkdir()
@@ -937,7 +955,7 @@ def _real_acq01_route(
         )
         registration = SubstrateRegistration(
             source_id="acquisition:acq-01-file-tabular",
-            family_id="metric.test",
+            family_id=family,
             layer=SubstrateLayer.L4,
             coverage=SubstrateCoverage(
                 coverage_score=0.42,
@@ -987,35 +1005,76 @@ def _real_acq01_route(
             world_root,
             snapshot_id=snapshot_id,
         )
-        registry_bundle = build_default_registry_bundle(store)
-        model_spec = _model_spec(data_snapshot_ref, registry_bundle.bundle_ref)
+        prior_world = prior_context.world_model_record if prior_context is not None else None
+        if prior_world is None:
+            registry_ref = build_default_registry_bundle(store).bundle_ref
+        else:
+            from polisyos.core.registry import load_registry_bundle_content
+            from polisyos.runtime.quality.world_model_record import world_model_artifact_views
+
+            registry_ref = world_model_artifact_views(prior_world).registry_bundle_ref
+            # ACQ-01 route v1 carries the bundle ID through ModelSpec but has
+            # no field for its selected manifest profile. Refuse rather than
+            # silently re-resolve a different default at reentry.
+            if registry_ref.manifest_profile_sha256 is not None:
+                raise ValueError("acq01_fixture_prior_registry_profile_unrepresentable")
+            selected = load_registry_bundle_content(store, registry_ref)
+            if selected.bundle_ref != registry_ref:
+                raise ValueError("acq01_fixture_prior_registry_view_mismatch")
+        model_spec = _model_spec(data_snapshot_ref, registry_ref)
+        policy_slots = (
+            tuple(row.slot_id for row in prior_world.policy_slot_map)
+            if prior_world is not None
+            else tuple(dict.fromkeys(("agents.income", "government.balance", *target_world_slots)))
+        )
+        if not set(target_world_slots).issubset(policy_slots):
+            raise ValueError("acq01_fixture_target_not_in_prior_world")
+        region = prior_world.region_or_jurisdiction if prior_world is not None else "UA-30"
+        population = (
+            prior_world.population_scope
+            if prior_world is not None
+            else "recorded_file_tabular_fixture"
+        )
+        domain = prior_world.policy_domain if prior_world is not None else "fiscal_credit"
+        valid_time = (
+            prior_world.valid_time_scope if prior_world is not None else "2026-09-22/2026-09-22"
+        )
+        tx_time = (
+            prior_world.tx_time_scope if prior_world is not None else "2026-09-22T00:00:00+00:00"
+        )
+        resolution = prior_world.resolution if prior_world is not None else "row"
+        branch_mode = prior_world.branch_mode if prior_world is not None else BranchMode.OBSERVED
         world_build = build_world_model_record(
             store,
             fabric_world_ref=_fabric_ref(world_root, snapshot_id=snapshot_id),
             data_forge_snapshot_binding_path=data_forge_binding_path,
             data_snapshot_ref=data_snapshot_ref,
             model_spec=model_spec,
+            registry_bundle_artifact_ref=registry_ref,
             skg_causal_prior_ref=_skg_ref(world_root, snapshot_id=snapshot_id),
             substrate_registry=route_registry,
-            region_or_jurisdiction="UA-30",
-            population_scope="recorded_file_tabular_fixture",
-            policy_domain="fiscal_credit",
-            valid_time_scope="2026-09-22/2026-09-22",
-            tx_time_scope="2026-09-22T00:00:00+00:00",
-            resolution="row",
-            branch_mode=BranchMode.OBSERVED,
-            policy_slot_ids=tuple(
-                dict.fromkeys(("agents.income", "government.balance", *target_world_slots))
-            ),
+            region_or_jurisdiction=region,
+            population_scope=population,
+            policy_domain=domain,
+            valid_time_scope=valid_time,
+            tx_time_scope=tx_time,
+            resolution=resolution,
+            branch_mode=branch_mode,
+            policy_slot_ids=policy_slots,
             producer_ref="tests.unit.remediation.test_acq_01.real_route",
-            required_substrate_families=("metric.test",),
+            required_substrate_families=(family,),
             substrate_registry_artifact_ref=route_registry_ref,
             _loaded_substrate_registry=route_registry,
         )
+        if (
+            prior_world is not None
+            and world_build.record.policy_slot_map != prior_world.policy_slot_map
+        ):
+            raise ValueError("acq01_fixture_prior_slot_binding_mismatch")
         selected_entry_hashes = tuple(
             entry.entry_content_hash
             for entry in route_registry.entries
-            if entry.family_id == "metric.test"
+            if entry.family_id == family
         )
         context = build_cycle_substrate_context(
             design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
@@ -1071,19 +1130,17 @@ def _real_acq01_route(
                         world_root,
                         snapshot_id=snapshot_id,
                     ).model_dump(mode="json"),
-                    "region_or_jurisdiction": "UA-30",
-                    "population_scope": "recorded_file_tabular_fixture",
-                    "policy_domain": "fiscal_credit",
-                    "valid_time_scope": "2026-09-22/2026-09-22",
-                    "tx_time_scope": "2026-09-22T00:00:00+00:00",
-                    "resolution": "row",
-                    "branch_mode": BranchMode.OBSERVED.value,
-                    "policy_slot_ids": list(
-                        dict.fromkeys(("agents.income", "government.balance", *target_world_slots))
-                    ),
+                    "region_or_jurisdiction": region,
+                    "population_scope": population,
+                    "policy_domain": domain,
+                    "valid_time_scope": valid_time,
+                    "tx_time_scope": tx_time,
+                    "resolution": resolution,
+                    "branch_mode": branch_mode.value,
+                    "policy_slot_ids": list(policy_slots),
                     "producer_ref": "tests.unit.remediation.test_acq_01.real_route",
                     "data_forge_role": "academic",
-                    "required_substrate_families": ["metric.test"],
+                    "required_substrate_families": [family],
                 },
             },
         }
@@ -1126,6 +1183,8 @@ def _real_acq01_route(
 def _real_acq01_before_context(
     tmp_path: Path,
     problem: DesignProblem,
+    *,
+    artifact_store: Any | None = None,
 ) -> Any:
     """Build the content-bound pre-acquisition context from existing owners."""
 
@@ -1134,7 +1193,7 @@ def _real_acq01_before_context(
         _substrate_registry,
     )
 
-    _, world_build, _, _ = _build_record(tmp_path / "before")
+    _, world_build, _, _ = _build_record(tmp_path / "before", artifact_store=artifact_store)
     registry = _substrate_registry()
     selected_entry_hashes = tuple(entry.entry_content_hash for entry in registry.entries)
     return build_cycle_substrate_context(
@@ -2714,3 +2773,139 @@ def test_n7_core_json_readers_preserve_base_store_refusal_boundary(
             )
         assert str(recorded_refusal.value) == "recorded_binding_unreadable"
         assert base_only.read_calls == 0
+
+
+def test_acq01_fixture_reuses_selected_store_and_prior_owner_context(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The fixture preserves selected inputs without claiming N7 reentry."""
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from tests._helpers.measurement_execution_binding import measurement_execution_binding
+
+    problem = _problem(problem_id="acq01_selected_owner_fixture")
+    store = FileSystemCAS(tmp_path / "selected-cas")
+    prior = _real_acq01_before_context(tmp_path, problem, artifact_store=store)
+    candidate = _fixture_candidate(
+        problem,
+        world_ref=prior.world_model_record.world_model_record_id,
+        target_world_slots=("agents.income",),
+        candidate_id="candidate_metric_test",
+    )
+    binding = measurement_execution_binding(tmp_path)
+    with _real_acq01_route(
+        tmp_path,
+        problem,
+        candidate_content_hash=candidate.atom.content_hash,
+        artifact_store=store,
+        execution_scope_binding=binding,
+        prior_context=prior,
+        selected_metric="gdp",
+    ) as route:
+        assert route.store is store
+        assert route.execution_scope_binding is binding
+        payload = route.owner_artifact.payload["acq01_route"]
+        assert payload["build_inputs"]["required_substrate_families"] == ["gdp"]
+        assert payload["build_inputs"]["policy_slot_ids"] == [
+            row.slot_id for row in prior.world_model_record.policy_slot_map
+        ]
+        for field in (
+            "region_or_jurisdiction",
+            "population_scope",
+            "policy_domain",
+            "valid_time_scope",
+            "tx_time_scope",
+            "resolution",
+            "branch_mode",
+        ):
+            assert getattr(route.world_build.record, field) == getattr(
+                prior.world_model_record, field
+            )
+        assert route.world_build.record.policy_slot_map == prior.world_model_record.policy_slot_map
+        assert store.get_bytes(route.data_snapshot_ref)
+        assert store.get_bytes(route.registry_ref)
+
+    with (
+        pytest.raises(ValueError, match="acq01_fixture_selected_metric_mismatch"),
+        _real_acq01_route(
+            tmp_path / "wrong",
+            problem,
+            candidate_content_hash=candidate.atom.content_hash,
+            selected_metric="not-the-catalog-metric",
+        ),
+    ):
+        raise AssertionError("the mismatched selected metric must refuse before fetch")
+
+    foreign_problem = _problem(problem_id="acq01_foreign_problem")
+    with (
+        pytest.raises(ValueError, match="acq01_fixture_prior_context_problem_mismatch"),
+        _real_acq01_route(
+            tmp_path / "foreign",
+            foreign_problem,
+            candidate_content_hash=candidate.atom.content_hash,
+            artifact_store=store,
+            prior_context=prior,
+            selected_metric="gdp",
+        ),
+    ):
+        raise AssertionError("the foreign problem must refuse before fetch")
+
+    # Build a real alternate registry with the same slot IDs and a different
+    # binding. The producer mutation changes the actual selected bundle, not
+    # the prior-world declaration; the full-slot comparison must refuse.
+    from polisyos.core.registry import build_registry_bundle
+    from polisyos.ir.kernel import (
+        DEFAULT_CONSTRAINT_REGISTRY,
+        DEFAULT_MECHANISM_REGISTRY,
+        DEFAULT_MERGE_RULE_REGISTRY,
+        DEFAULT_METRIC_REGISTRY,
+        DEFAULT_SELECTOR_FIELD_REGISTRY,
+        DEFAULT_SLOT_REGISTRY,
+        DEFAULT_UNITS_REGISTRY,
+        SlotKind,
+    )
+    from polisyos.runtime.quality import world_model_record as world_owner
+
+    slots = dict(DEFAULT_SLOT_REGISTRY.slots)
+    original_slot = slots["agents.income"]
+    other_kind = SlotKind.FLOW if original_slot.kind != SlotKind.FLOW else SlotKind.STOCK
+    slots["agents.income"] = original_slot.model_copy(update={"kind": other_kind})
+    altered_registry = DEFAULT_SLOT_REGISTRY.model_copy(update={"slots": slots})
+    alternate = build_registry_bundle(
+        store,
+        slot_registry=altered_registry,
+        merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+        mechanism_registry=DEFAULT_MECHANISM_REGISTRY,
+        constraint_registry=DEFAULT_CONSTRAINT_REGISTRY,
+        selector_field_registry=DEFAULT_SELECTOR_FIELD_REGISTRY,
+        metric_registry=DEFAULT_METRIC_REGISTRY,
+        units_registry=DEFAULT_UNITS_REGISTRY,
+    )
+    real_world_build = world_owner.build_world_model_record
+
+    def build_with_wrong_slots(*args: Any, **kwargs: Any) -> Any:
+        kwargs["model_spec"] = kwargs["model_spec"].model_copy(
+            update={"registry_bundle_ref": str(alternate.bundle_ref.artifact_id)}
+        )
+        kwargs["registry_bundle_artifact_ref"] = alternate.bundle_ref
+        built = real_world_build(*args, **kwargs)
+        assert [row.slot_id for row in built.record.policy_slot_map] == [
+            row.slot_id for row in prior.world_model_record.policy_slot_map
+        ]
+        assert built.record.policy_slot_map != prior.world_model_record.policy_slot_map
+        return built
+
+    with monkeypatch.context() as local:
+        local.setattr(world_owner, "build_world_model_record", build_with_wrong_slots)
+        with (
+            pytest.raises(ValueError, match="acq01_fixture_prior_slot_binding_mismatch"),
+            _real_acq01_route(
+                tmp_path / "wrong-slots",
+                problem,
+                candidate_content_hash=candidate.atom.content_hash,
+                artifact_store=store,
+                execution_scope_binding=binding,
+                prior_context=prior,
+                selected_metric="gdp",
+            ),
+        ):
+            raise AssertionError("the changed same-ID slot binding must refuse")

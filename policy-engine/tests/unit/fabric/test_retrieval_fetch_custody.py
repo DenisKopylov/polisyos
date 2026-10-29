@@ -246,23 +246,25 @@ def build_real_fetch_owner(
         service._fastlane.resolve = lambda needs: FastLaneResolveResult(
             fetch_plans=(plan,), candidates=(), warnings=()
         )
-    yield SimpleNamespace(
-        service=service,
-        graph=graph,
-        graph_path=graph_path,
-        plan=plan,
-        rows=rows,
-        requests=requests,
-        payload=payload,
-        preview_reject=preview_reject,
-        store=service.artifact_store,
-        providers=providers,
-        curated_dir=tmp_path,
-        cas_root=tmp_path / "cas",
-        overlay_path=overlay_path,
-        result_updates=result_updates,
-    )
-    graph.close()
+    try:
+        yield SimpleNamespace(
+            service=service,
+            graph=graph,
+            graph_path=graph_path,
+            plan=plan,
+            rows=rows,
+            requests=requests,
+            payload=payload,
+            preview_reject=preview_reject,
+            store=service.artifact_store,
+            providers=providers,
+            curated_dir=tmp_path,
+            cas_root=tmp_path / "cas",
+            overlay_path=overlay_path,
+            result_updates=result_updates,
+        )
+    finally:
+        graph.close()
 
 
 @contextmanager
@@ -416,7 +418,7 @@ def build_recorded_file_fetch_owner(
 
 
 @contextmanager
-def build_worldbank_fetch_owner(tmp_path):
+def build_worldbank_fetch_owner(tmp_path, *, artifact_store=None):
     """Run the committed WDI HTTP fixture against its exact graph-bound plan.
 
     Publisher currentness is witnessed separately through the complete catalog fixture.
@@ -548,6 +550,7 @@ def build_worldbank_fetch_owner(tmp_path):
             patch_fastlane=False,
             metric_id="gdp",
             dataset_records=[record],
+            artifact_store=artifact_store,
         ) as owner:
             owner.plan = owner.plan.model_copy(
                 update={"profile_id": "worldbank_wdi", "filters": {"country": ["US", "DE"]}}
@@ -571,6 +574,18 @@ def build_worldbank_fetch_owner(tmp_path):
             owner.http_responses = responses
             owner.catalog_record = record
             yield owner
+
+
+def test_real_fetch_owner_closes_graph_on_consumer_error(tmp_path):
+    import duckdb
+
+    with pytest.raises(RuntimeError, match="fixture consumer failed"):
+        with build_real_fetch_owner(tmp_path) as owner:
+            connection = owner.graph._store._con
+            raise RuntimeError("fixture consumer failed")
+
+    with pytest.raises(duckdb.ConnectionException):
+        connection.execute("SELECT 1")
 
 
 @pytest.fixture
@@ -1650,3 +1665,26 @@ def test_persisted_fetch_replay_uses_one_atomic_current_profile_snapshot(tmp_pat
         assert set(observed_urls) == {str(owner.csv_path)}
         assert resolved.source_agreement == "recomputed"
         assert resolved.fetch_receipt_ref == executed.fetch_receipt_ref
+
+
+def test_worldbank_fetch_owner_persists_into_the_supplied_cas(tmp_path: Path) -> None:
+    """The recorded connector's real fetch receipts use the selected store."""
+    store = FileSystemCAS(tmp_path / "selected-cas")
+    with build_worldbank_fetch_owner(tmp_path / "capture", artifact_store=store) as owner:
+        assert owner.store is store
+        resolved = owner.service.resolve(
+            DataResolveRequest(
+                data_needs=[DataNeed(metric=owner.plan.metric_id)],
+                mode="fastlane",
+                catalog_run_profile="prod_full",
+            )
+        )
+        result = owner.service.execute_fetch_plans(
+            list(resolved.fetch_plans), persist_payload=True, allow_fallback=False
+        )
+        assert len(result.previews) == 1
+        preview = result.previews[0]
+        assert preview.fetch_receipt_ref is not None
+        assert preview.metric.payload_ref is not None
+        assert store.get_bytes(preview.fetch_receipt_ref)
+        assert store.get_bytes(preview.metric.payload_ref)

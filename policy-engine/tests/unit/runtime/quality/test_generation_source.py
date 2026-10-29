@@ -585,7 +585,7 @@ async def test_served_candidate_reader_reconciles_inner_scope_without_changing_v
 
 
 def test_synthetic_cg2_contract_mechanism_remains_non_promotable(tmp_path):
-    """A v2 synthetic seed may exercise mechanics only in its explicit contract lane."""
+    """Law-free structural mechanics may bind only in the synthetic contract lane."""
     from polisyos.runtime.quality.grounding_bind import (
         GroundingBindGate,
         resolve_grounding_decision_promotability,
@@ -595,9 +595,14 @@ def test_synthetic_cg2_contract_mechanism_remains_non_promotable(tmp_path):
     from polisyos.runtime.quality.promotion_sequence import (
         _cg2_resolution_is_contract_lane_bind,
     )
-    from tests.unit.runtime.quality.test_grounding_bind import _pure_synonym_probe, _reference
+    from tests.unit.runtime.quality.test_grounding_bind import (
+        _assert_structural_contract_bind,
+        _pure_synonym_probe,
+        _reference,
+    )
 
-    reference = _reference()
+    # Explicitly test lever mechanics; this fixture asserts no legal correspondence.
+    reference = _reference(include_legal_associations=False)
     engine = GroundingRelationEngine(reference)
     relation = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="corr-synthetic")
     decision = GroundingBindGate.for_contract_testing(
@@ -628,6 +633,7 @@ def test_synthetic_cg2_contract_mechanism_remains_non_promotable(tmp_path):
         encoding="utf-8",
     )
 
+    _assert_structural_contract_bind(reference, engine, relation, decision)
     assert decision.synthetic is True
     assert mechanical.reason == "synthetic_input_cannot_grant_authority"
     assert not mechanical.promotable

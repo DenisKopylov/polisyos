@@ -628,7 +628,8 @@ def test_cg2_refuses_unknown_schema_after_credal_constructor_bypass() -> None:
 
 
 def test_contract_testing_bind_resolves_non_promotable() -> None:
-    reference = _reference()
+    # No legal correspondence is asserted by this structural software fixture.
+    reference = _reference(include_legal_associations=False)
     engine = GroundingRelationEngine(reference)
     cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="cg2-dto-test")
     decision = GroundingBindGate.for_contract_testing(
@@ -641,6 +642,7 @@ def test_contract_testing_bind_resolves_non_promotable() -> None:
         reference,
     )
 
+    _assert_structural_contract_bind(reference, engine, cg1, decision)
     assert decision.decision == "bind"
     assert decision.production_promotable is False
     assert resolution.store_authority_scope == "contract_testing"
@@ -648,14 +650,103 @@ def test_contract_testing_bind_resolves_non_promotable() -> None:
     assert resolution.reason == "synthetic_input_cannot_grant_authority"
 
 
-def _reference(*, include_duplicate_tax_alias: bool = False) -> CredalReference:
+def test_declared_legal_association_still_refuses_contract_seed_bind() -> None:
+    """A contract seed cannot close a declared law-to-lever support dependency."""
+    reference = _reference()
+    engine = GroundingRelationEngine(reference)
+    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="cg2-declared-law")
+    decision = GroundingBindGate.for_contract_testing(
+        reference,
+        calibration_seed_anchor=True,
+    ).certificate_for(cg1)
+
+    # Assert the real consumer outcome before inspecting its explanation.
+    assert decision.decision == "abstain"
+    assert decision.decisive_reason == "robust_singleton_empty"
+    assert decision.synthetic is True
+    assert decision.production_promotable is False
+    assert decision.calibration.decisive_freeze is False
+    assert decision.revalidation.status == "passed"
+    assert decision.safe_t.safe_atom_ids == ()
+    assert decision.open_obligations == ("admissibility_closed",)
+    exact = [item for item in decision.safe_t.candidates if item.relation == "exact"]
+    assert len(exact) == 1
+    assert exact[0].safe is False
+    assert exact[0].reason == "support_not_confirmed"
+    law_key = "L6_LEX_INTERVENTION_MAP::tax_relief_statute"
+    assert exact[0].support_statuses[law_key] == "incomplete"
+    lifted = reference.reference_lift(exact[0].support_edge_scope)
+    assert lifted[law_key]["source_relation_refusal"] == {
+        "code": "legal_source_relation_verification_not_established",
+        "status": "verification_missing",
+    }
+    for resolver in (
+        resolve_grounding_decision_promotability,
+        resolve_grounding_decision_promotability_for_contract_testing,
+    ):
+        resolution = resolver(decision, reference)
+        assert resolution.decision == "abstain"
+        assert resolution.promotable is False
+
+
+def _assert_structural_contract_bind(reference, engine, relation, decision) -> None:
+    """Check the complete structural input and actual candidate-only consumer result."""
+    assert not any(
+        edge.modality == "L6_LEX_INTERVENTION_MAP" for edge in reference.essential_edges.values()
+    )
+    assert engine.reference_atoms
+    assert all(
+        not key.startswith("L6_LEX_INTERVENTION_MAP::")
+        for atom in engine.reference_atoms
+        for key in atom.edge_scope
+    )
+    assert relation.atom_signature_or_bundle
+    assert all(
+        not key.startswith("L6_LEX_INTERVENTION_MAP::")
+        for atom in relation.atom_signature_or_bundle.values()
+        for key in atom["edge_scope"]
+    )
+    assert decision.decision == "bind"
+    assert decision.synthetic is True
+    assert decision.authority_scope == "contract_testing"
+    assert decision.production_promotable is False
+    assert decision.calibration.decisive_freeze is False
+    assert decision.safe_t.safe_atom_ids == (decision.bound_atom_id,)
+    assert decision.safe_t.robust_singleton is True
+    assert not decision.open_obligations
+    bound = [item for item in decision.safe_t.candidates if item.atom_id == decision.bound_atom_id]
+    assert len(bound) == 1
+    assert bound[0].safe is True
+    assert bound[0].reason == "safe_across_all_admissible_completions"
+    assert bound[0].support_statuses
+    assert all(value == "confirmed" for value in bound[0].support_statuses.values())
+
+
+def _reference(
+    *,
+    include_duplicate_tax_alias: bool = False,
+    include_legal_associations: bool = True,
+) -> CredalReference:
+    """Build synthetic lever mechanics, optionally declaring candidate legal associations.
+
+    Law-free input exercises only structural contract-testing mechanics. Declared
+    legal associations retain the real owner's unresolved source-relation gate.
+    """
     edges = [
         _operator_edge("tax_relief_rate", minimum=0.0, maximum=0.5, unit="ratio"),
         _target_edge("tax_relief_rate", "global.tax_rate"),
-        _lex_edge("tax_relief_statute", "tax_relief_rate"),
+        *(
+            [_lex_edge("tax_relief_statute", "tax_relief_rate")]
+            if include_legal_associations
+            else []
+        ),
         _operator_edge("budget_allocation_multiplier", minimum=0.0, maximum=2.0, unit="ratio"),
         _target_edge("budget_allocation_multiplier", "government.balance"),
-        _lex_edge("budget_law", "budget_allocation_multiplier"),
+        *(
+            [_lex_edge("budget_law", "budget_allocation_multiplier")]
+            if include_legal_associations
+            else []
+        ),
         _world_slot("global.tax_rate", unit="ratio"),
         _world_slot("government.balance", unit="usd"),
         _world_slot("household_cells.disposable_income", unit="usd"),
@@ -669,7 +760,11 @@ def _reference(*, include_duplicate_tax_alias: bool = False) -> CredalReference:
             [
                 _operator_edge("tax_credit_rate", minimum=0.0, maximum=0.5, unit="ratio"),
                 _target_edge("tax_credit_rate", "global.tax_rate"),
-                _lex_edge("tax_credit_statute", "tax_credit_rate"),
+                *(
+                    [_lex_edge("tax_credit_statute", "tax_credit_rate")]
+                    if include_legal_associations
+                    else []
+                ),
             ]
         )
     edge_index = {edge.key: edge for edge in edges}

@@ -20,6 +20,9 @@ from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.runtime.http.services.control.run_lifecycle import (
     _validate_direct_method_execution_selection_artifacts,
 )
+from tests._helpers.observational_source_runtime import (
+    selected_source_runtime_api_env as selected_source_runtime_api_env,
+)
 from tests.unit.runtime.http import test_observational_method_runtime as fixture
 
 
@@ -190,12 +193,13 @@ def test_selected_cas_candidate_replays_full_wire_and_keeps_semantic_mismatch_re
     ],
 )
 def test_public_worker_producer_and_fresh_candidate_reader_require_wire_admission(
-    runtime_api_env: dict[str, Any],
+    request: pytest.FixtureRequest,
     monkeypatch: pytest.MonkeyPatch,
     protocol: str,
     normalization: str,
 ) -> None:
     """Reuse the actual public producer/worker oracle, then remove only JSON wire admission."""
+    runtime_api_env = request.getfixturevalue("selected_source_runtime_api_env")
     accepted: list[dict[str, Any]] = []
     post = fixture._post_runtime_api_as_fixture_owner
 

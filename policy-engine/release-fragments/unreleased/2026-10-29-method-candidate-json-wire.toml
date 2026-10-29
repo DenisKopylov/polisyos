@@ -11,6 +11,6 @@ surface_classification = "Additive method on the existing exported MethodExecuti
 migration = "Compose the Core reader before the Runtime consumer, run defining CAS/public-worker and removal controls, then review actual public inventory and affected generated-family checks under the canonical owner."
 limitations = "The reader does not grant artifact custody, institutional authority or scientific validity. A completed JSON round-trip does not establish cancellation during native compute."
 generated_client_compatibility = "not_applicable"
-public_surface_inventory_reviewed = false
+public_surface_inventory_reviewed = true
 migration_docs = ["src/polisyos/core/contracts/README.md", "src/polisyos/runtime/http/README.md"]
 runbook_docs = []

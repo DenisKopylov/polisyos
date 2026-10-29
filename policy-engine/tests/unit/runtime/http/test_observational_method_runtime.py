@@ -6023,7 +6023,7 @@ def test_real_forest_fit_progress_spans_durable_cancel_post(
                 "n_estimators": 128,
                 "cv_folds": 2,
                 "subforest_size": 4,
-                "random_state": 73,
+                # Omit the untyped nullable override; the owner supplies its seed policy.
                 "n_jobs": 1,
             }
             request_body = {

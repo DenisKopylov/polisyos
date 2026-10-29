@@ -26,6 +26,18 @@ literals, and user-defined key behavior remain ambiguous and do not become an em
 from the selected source-bound importer values; it does not issue or renew owner review
 metadata in `dynamic.toml`.
 
+A selected source class can retain its nominal, unshadowed identity after an
+opaque call or store invalidates its mutable-member summary. Deferred-call
+analysis then conservatively treats every tracked importer/guarded root as
+relevant: a later rebind still refuses inventory, while an unchanged namespace
+is not rejected merely because an ordinary exception class escaped. The temporal
+predicate follows the full finite selected-base closure, including every joined
+alternative and nested binding carrier. Unknown bases, unsupported leaves,
+decorators/metaclasses and bounded traversal uncertainty conservatively widen the
+root set; they never establish absence of effects. Model, field and method
+summaries remain invalidated and cannot authorize importer selection. This is a static selected-source/temporal guarantee, not proof of
+arbitrary code injected by an external callback or of runtime class immutability.
+
 ## Docs lifecycle removed-reference scan
 
 `check_docs_lifecycle.py` keeps the lifecycle checker and CLI surface. Its removed-stub reference scan is implemented by `docs_lifecycle_reference_scan.py`; the facade supplies the current repository enumerator, reader, selector, finding type, and path formatter through a typed dependency value. This preserves injected test enumerators without mutating scanner module globals. The scan receipt remains scoped to this one check. Excluded, opaque, or malformed inputs continue to produce partial or ambiguous coverage rather than a complete lifecycle-gate claim.

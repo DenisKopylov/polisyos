@@ -1,0 +1,4 @@
+type = "fixed"
+area = "tools"
+summary = "Preserve nominal source class identity while refusing deferred importer rebinds across unknown class and inherited effects."
+notes = "The temporal check conservatively follows selected bases and all joined carriers; field/model summaries remain invalidated. Static selected-source scope only; arbitrary externally injected code and current owner review authority are not established."

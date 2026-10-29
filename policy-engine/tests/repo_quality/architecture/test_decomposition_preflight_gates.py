@@ -11920,3 +11920,157 @@ def __getattr__(name):
     assert "TypeError" in runtime.stderr  # noqa: S101
     with pytest.raises(preflight.DynamicImportCollectionError):
         preflight.collect_dynamic_imports()
+
+
+def test_dynamic_deferred_escaped_class_keeps_known_inventory_without_field_authority(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A nominal exception constructor is not a mutable field-summary authority."""
+    _dynamic_import_internal_modules_fixture(
+        tmp_path,
+        monkeypatch,
+        {
+            "polisyos.__init__": "",
+            "polisyos.refusal": """from importlib import import_module
+from opaque_vendor import inspect_class
+
+class RefusalError(ValueError):
+    pass
+
+inspect_class(RefusalError)
+
+def refuse():
+    raise RefusalError("declared_refusal")
+
+def selected():
+    return import_module("deferred_escaped_class_selected_target")
+""",
+        },
+    )
+
+    entries = preflight.collect_dynamic_imports()
+    assert [entry["pattern"] for entry in entries] == ["deferred_escaped_class_selected_target"]
+
+    paths = preflight._dynamic_source_paths("src")
+    context = preflight._dynamic_read_source_context(paths)
+    bindings = preflight._DynamicImportSourceBindings(paths, source_context=context)
+    source_module = "polisyos.refusal"
+    identity = source_module + ".RefusalError"
+    environment = bindings._module_environment(source_module, ())
+    assert environment is not None
+    bindings.invalidate_source_classes((identity,))
+    assert (
+        bindings._source_class_definition(
+            identity,
+            current_module=source_module,
+            current_environment=environment,
+            stack=(),
+        )
+        is None
+    )
+    assert (
+        bindings._source_class_identity_definition(
+            identity,
+            current_module=source_module,
+            current_environment=environment,
+            stack=(),
+        )
+        is not None
+    )
+
+
+@pytest.mark.parametrize("changed_root", ["importlib", "selected_alias"])
+@pytest.mark.parametrize(
+    ("class_declarations", "escaped_class"),
+    [
+        ("class RefusalError: pass", "RefusalError"),
+        ("class Parent: pass\nclass RefusalError(Parent): pass", "Parent"),
+        (
+            "class Parent: pass\nclass Middle(Parent): pass\nclass RefusalError(Middle): pass",
+            "Parent",
+        ),
+        (
+            "class Left: pass\nclass Right: pass\nclass RefusalError(Left, Right): pass",
+            "Right",
+        ),
+        (
+            "class Parent: pass\nclass Other: pass\n"
+            "if uncertain:\n    Base = Parent\nelse:\n    Base = Other\n"
+            "class RefusalError(Base): pass",
+            "Parent",
+        ),
+    ],
+    ids=["direct", "inherited", "transitive", "multiple", "joined-base"],
+)
+def test_dynamic_deferred_escaped_class_refuses_changed_importer_and_removal(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    changed_root: str,
+    class_declarations: str,
+    escaped_class: str,
+) -> None:
+    """Opaque class/base effects retain the complete tracked importer quantity."""
+    _dynamic_import_internal_modules_fixture(
+        tmp_path,
+        monkeypatch,
+        {
+            "polisyos.__init__": "",
+            "polisyos.refusal": """import importlib
+from importlib import import_module as selected_alias
+from opaque_vendor import inspect_class
+
+@@DECLARATIONS@@
+
+inspect_class(@@ESCAPED@@)
+
+def refuse():
+    raise RefusalError("declared_refusal")
+
+@@ROOT@@ = inspect_class
+""".replace("@@ROOT@@", changed_root)
+            .replace("@@DECLARATIONS@@", class_declarations)
+            .replace("@@ESCAPED@@", escaped_class),
+        },
+    )
+
+    with pytest.raises(preflight.DynamicImportCollectionError, match="proven importer rebind"):
+        preflight.collect_dynamic_imports()
+
+    with monkeypatch.context() as removed:
+        removed.setattr(
+            preflight._DynamicImportSourceScanner,
+            "_deferred_scope_importer_names",
+            lambda _self, _deferred, _environment: frozenset(),
+        )
+        assert preflight.collect_dynamic_imports() == []
+
+    with pytest.raises(preflight.DynamicImportCollectionError, match="proven importer rebind"):
+        preflight.collect_dynamic_imports()
+
+
+def test_dynamic_deferred_unescaped_class_keeps_precise_unrelated_root_boundary(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A source-known constructor need not read every unrelated importer alias."""
+    _dynamic_import_internal_modules_fixture(
+        tmp_path,
+        monkeypatch,
+        {
+            "polisyos.__init__": "",
+            "polisyos.refusal": """from importlib import import_module as selected_alias
+from opaque_vendor import inspect_class
+
+class RefusalError:
+    pass
+
+def refuse():
+    raise RefusalError("declared_refusal")
+
+selected_alias = inspect_class
+""",
+        },
+    )
+
+    assert preflight.collect_dynamic_imports() == []

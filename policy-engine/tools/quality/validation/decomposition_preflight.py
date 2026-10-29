@@ -2816,6 +2816,22 @@ class _DynamicImportSourceBindings:
         """Find a unique, still-bound source class by its fully qualified name."""
         if source_name in self.invalidated_source_classes:
             return None
+        return self._source_class_identity_definition(
+            source_name,
+            current_module=current_module,
+            current_environment=current_environment,
+            stack=stack,
+        )
+
+    def _source_class_identity_definition(
+        self,
+        source_name: str,
+        *,
+        current_module: str,
+        current_environment: Mapping[str, _DynamicImportBinding],
+        stack: tuple[tuple[str, str], ...],
+    ) -> tuple[str, ast.ClassDef, Mapping[str, _DynamicImportBinding]] | None:
+        """Resolve nominal source identity without admitting mutable field summaries."""
         source_module, separator, class_name = source_name.rpartition(".")
         if not separator or not self._has_module(source_module):
             return None
@@ -4089,8 +4105,9 @@ class _DynamicImportSourceBindings:
         current_environment: Mapping[str, _DynamicImportBinding],
         stack: tuple[tuple[str, str], ...],
         seen: frozenset[str] = frozenset(),
+        unknown_is_effect: bool = False,
     ) -> bool:
-        """Check whether a source class or any source base has an opaque effect."""
+        """Check a finite source-base closure, conservatively bounding unknown effects."""
         if source_name in self.invalidated_source_classes:
             return True
         if source_name in seen or len(seen) >= 24:
@@ -4102,24 +4119,46 @@ class _DynamicImportSourceBindings:
             stack=stack,
         )
         if definition is None:
-            return False
+            return unknown_is_effect
         module, class_node, environment = definition
+        if unknown_is_effect and (class_node.decorator_list or class_node.keywords):
+            return True
         next_seen = seen | {source_name}
         for base in class_node.bases:
             base_expression = base.value if isinstance(base, ast.Subscript) else base
             binding = self._expression_binding(base_expression, environment, module, stack)
-            if (
-                binding.origin_name is not None
-                and binding.origin_name.startswith("polisyos.")
-                and self._source_class_has_effect(
-                    binding.origin_name,
-                    current_module=module,
-                    current_environment=environment,
-                    stack=stack,
-                    seen=next_seen,
+            alternatives = _dynamic_binding_nodes(binding)
+            if unknown_is_effect and (
+                len(alternatives) > _DYNAMIC_COMPREHENSION_VALUE_LIMIT
+                or any(
+                    item.kind not in {"other", "union"}
+                    or (item.kind == "union" and not item.items)
+                    or (
+                        item.kind == "other"
+                        and (
+                            item.origin_name is None or not item.origin_name.startswith("polisyos.")
+                        )
+                    )
+                    for item in alternatives
                 )
             ):
                 return True
+            for alternative in alternatives:
+                origin = alternative.origin_name
+                if (
+                    alternative.kind == "other"
+                    and origin is not None
+                    and origin.startswith("polisyos.")
+                    and self._source_class_has_effect(
+                        origin,
+                        current_module=module,
+                        current_environment=environment,
+                        stack=stack,
+                        seen=next_seen,
+                        unknown_is_effect=unknown_is_effect,
+                    )
+                ):
+                    return True
         return False
 
     @staticmethod
@@ -10519,7 +10558,7 @@ class _DynamicImportSourceScanner:
                                 (),
                             )
                             class_definition = (
-                                self.source_bindings._source_class_definition(
+                                self.source_bindings._source_class_identity_definition(
                                     identity,
                                     current_module=source_module,
                                     current_environment=source_environment,
@@ -10529,6 +10568,19 @@ class _DynamicImportSourceScanner:
                                 else None
                             )
                             if class_definition is not None:
+                                if self.source_bindings._source_class_has_effect(
+                                    identity,
+                                    current_module=source_module,
+                                    current_environment=source_environment,
+                                    stack=(),
+                                    unknown_is_effect=True,
+                                ):
+                                    # Escaping the class invalidates its mutable member
+                                    # summary, not its still-bound source identity. With
+                                    # unknown effects every tracked importer root matters.
+                                    relevant.update(self._observed_importer_binding_names)
+                                    relevant.update(_DYNAMIC_IMPORT_GUARDED_ROOTS)
+                                    continue
                                 relevant.update(
                                     self._source_class_invocation_read_names(
                                         call,

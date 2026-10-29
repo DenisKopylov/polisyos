@@ -3,7 +3,15 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.machinery
+import importlib.metadata
 import json
+import os
+import sqlite3
+import sys
+import threading
+import time
+from contextlib import contextmanager
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, cast
@@ -948,11 +956,11 @@ def test_http_post_rejects_empty_present_observational_data_source(
 
 def _runtime_hte_source_payload(
     *,
+    n_obs: int = 40,
     source_label: str = "synthetic_candidate",
     source_only_sample_id: str | None = None,
 ) -> dict[str, object]:
     """Build a source payload whose field set follows the actual HTE producer DTO."""
-    n_obs = 40
     sample_ids = [f"candidate-{index}" for index in range(n_obs)]
     if source_only_sample_id is not None:
         sample_ids[0] = source_only_sample_id
@@ -980,6 +988,7 @@ def _put_runtime_observational_source(
     tenant_context: ArtifactTenantContextInfo | None = None,
     owner_scope: tuple[str, str] | None = None,
     source_label: str = "synthetic_candidate",
+    n_obs: int = 40,
     inputs: tuple[InputRef, ...] = (),
     source_only_sample_id: str | None = None,
     contract_target_id: str = "foundry.causal.hte_observational_data.v1",
@@ -990,6 +999,7 @@ def _put_runtime_observational_source(
     contract_payload = _runtime_hte_source_payload(
         source_label=source_label,
         source_only_sample_id=source_only_sample_id,
+        n_obs=n_obs,
     )
 
     def put_source() -> ArtifactRef:
@@ -4868,3 +4878,2359 @@ def test_two_real_completed_ex_ante_sources_are_reselected_by_fresh_planner(
     assert revoked.status_code == 200, revoked.text
     assert revoked.json()["candidate_comparison"]["status"] == "verification_missing"
     assert revoked.json()["candidate_comparison"]["frontier_candidate_hashes"] == []
+
+
+_R4_JOB_SNAPSHOT_ROW_CAP = 1024
+
+
+def _r4_json_value(value: Any) -> Any:
+    """Convert persisted rows and typed refs to bounded JSON values."""
+    if hasattr(value, "model_dump"):
+        return value.model_dump(mode="json")
+    if isinstance(value, Path):
+        return str(value)
+    if hasattr(value, "isoformat"):
+        return value.isoformat()
+    if hasattr(value, "value"):
+        return value.value
+    raise TypeError(f"unsupported R4 evidence value: {type(value).__name__}")
+
+
+def _r4_snapshot(reader: Any, job_id: str) -> dict[str, Any]:
+    """Read one complete SQLite job row plus its event and outbox rows."""
+    db_path = Path(reader._sqlite_path).resolve()
+    with sqlite3.connect(f"file:{db_path}?mode=ro", uri=True, timeout=5.0) as conn:
+        conn.row_factory = sqlite3.Row
+        conn.execute("BEGIN")
+        job = conn.execute(
+            "SELECT * FROM control_jobs WHERE job_id = ?",
+            (job_id,),
+        ).fetchone()
+        progress = conn.execute(
+            "SELECT * FROM control_job_progress WHERE job_id = ? ORDER BY job_id LIMIT ?",
+            (job_id, _R4_JOB_SNAPSHOT_ROW_CAP + 1),
+        ).fetchall()
+        events = conn.execute(
+            "SELECT * FROM control_job_events WHERE job_id = ? ORDER BY event_id LIMIT ?",
+            (job_id, _R4_JOB_SNAPSHOT_ROW_CAP + 1),
+        ).fetchall()
+        outbox = conn.execute(
+            "SELECT * FROM control_outbox_events WHERE job_id = ? ORDER BY event_id LIMIT ?",
+            (job_id, _R4_JOB_SNAPSHOT_ROW_CAP + 1),
+        ).fetchall()
+    if any(len(rows) > _R4_JOB_SNAPSHOT_ROW_CAP for rows in (progress, events, outbox)):
+        raise RuntimeError("r4_job_snapshot_row_cap_exceeded")
+    return {
+        "job_row": None if job is None else dict(job),
+        "progress": [dict(row) for row in progress],
+        "events": [dict(row) for row in events],
+        "outbox": [dict(row) for row in outbox],
+    }
+
+
+def _r4_snapshot_hash(snapshot: dict[str, Any]) -> str:
+    """Hash the exact agreed snapshot JSON encoding."""
+    encoded = json.dumps(snapshot, sort_keys=True, separators=(",", ":")).encode()
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _r4_response_body(response: Any) -> tuple[Any, str]:
+    """Preserve decoded JSON when possible and exact response text in all cases."""
+    try:
+        return response.json(), response.text
+    except ValueError:
+        return {"non_json": response.text}, response.text
+
+
+def _r4_run_selection(response_body: Any) -> Any:
+    """Extract, without inventing a value, the public selected-run projection."""
+    try:
+        return response_body["run"]["method_execution_selection"]
+    except (KeyError, TypeError):
+        return None
+
+
+def _r4_module_readset() -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Hash only actually loaded modules in the named numerical backend families."""
+    python_rows: list[dict[str, Any]] = []
+    native_rows: list[dict[str, Any]] = []
+    families = (
+        "econml",
+        "sklearn",
+        "numpy",
+        "scipy",
+        "joblib",
+        "threadpoolctl",
+        "numba",
+        "lightgbm",
+    )
+    native_suffixes = (*importlib.machinery.EXTENSION_SUFFIXES, ".dylib", ".so")
+    for name, module in sorted(sys.modules.items()):
+        if not any(name == family or name.startswith(family + ".") for family in families):
+            continue
+        origin = getattr(getattr(module, "__spec__", None), "origin", None)
+        if not isinstance(origin, str):
+            continue
+        path = Path(origin).resolve()
+        is_native = str(path).endswith(native_suffixes)
+        if not is_native and path.suffix != ".py" and not path.name.endswith(".pyc"):
+            continue
+        try:
+            digest = hashlib.sha256()
+            count = 0
+            with path.open("rb") as stream:
+                for block in iter(lambda: stream.read(1024 * 1024), b""):
+                    count += len(block)
+                    digest.update(block)
+            row = {
+                "name": name,
+                "origin": str(path),
+                "sha256": digest.hexdigest(),
+                "bytes": count,
+            }
+        except OSError as exc:
+            row = {
+                "name": name,
+                "origin": str(path),
+                "sha256": None,
+                "error": f"{type(exc).__name__}: {exc}",
+            }
+        (native_rows if is_native else python_rows).append(row)
+    return python_rows, native_rows
+
+
+def _r4_mach_nested_sample(sample: dict[str, Any]) -> dict[str, Any]:
+    """Keep raw Mach return codes/times and a recomputable CPU total."""
+    return {
+        "monotonic_ns": sample.get("monotonic_ns"),
+        "return_code": sample.get("return_code"),
+        "returned_count": sample.get("returned_count"),
+        "user_time": {
+            "seconds": sample.get("user_time_seconds"),
+            "microseconds": sample.get("user_time_microseconds"),
+        },
+        "system_time": {
+            "seconds": sample.get("system_time_seconds"),
+            "microseconds": sample.get("system_time_microseconds"),
+        },
+        "thread_cpu_microseconds": sample.get("thread_cpu_microseconds"),
+        "struct_size_bytes": sample.get("struct_size_bytes"),
+        "error": sample.get("error"),
+    }
+
+
+def _r4_native_inflight_classification(record: dict[str, Any]) -> str:
+    """Classify only from native origins, paired fit events, and persisted timings."""
+    native = record.get("native", {})
+    cancel = record.get("cancel", {})
+    executor = record.get("executor", {})
+    worker = executor.get("occupied_worker", {})
+    events = native.get("grf_tree_fit_events", [])
+    entries = [event for event in events if event.get("kind") == "fit_enter"]
+    returns = [
+        event
+        for event in events
+        if event.get("kind") == "fit_return" and event.get("success") is True
+    ]
+    started = cancel.get("post_start_ns")
+    ended = cancel.get("post_end_ns")
+    if type(started) is not int or type(ended) is not int or not events:
+        return "INCONCLUSIVE"
+    paired_spans = any(
+        entry.get("fit_call_id") == returned.get("fit_call_id")
+        and entry.get("tree_identity") == returned.get("tree_identity")
+        and entry.get("pid") == worker.get("pid")
+        and entry.get("thread_id") == worker.get("thread_id")
+        and entry.get("native_thread_id") == worker.get("native_thread_id")
+        and entry.get("monotonic_ns", 0) < started
+        and returned.get("monotonic_ns", 0) > ended
+        for entry in entries
+        for returned in returns
+    )
+    before_return = any(event.get("monotonic_ns", 0) < started for event in returns)
+    after_return = any(event.get("monotonic_ns", 0) > ended for event in returns)
+    outer_returns = [
+        event
+        for event in native.get("forest_dr_fit_events", [])
+        if event.get("kind") == "fit_return" and event.get("success") is True
+    ]
+    readback_at = cancel.get("fresh_sqlite_readback", {}).get("monotonic_ns")
+    outer_after_readback = any(
+        event.get("monotonic_ns", 0) > (readback_at or 0) for event in outer_returns
+    )
+    native_bound = bool(native.get("loaded_native_modules")) and bool(
+        native.get("fit_original", {}).get("source_sha256")
+    )
+    if not (
+        native_bound
+        and paired_spans
+        and before_return
+        and after_return
+        and cancel.get("future_unfinished_at_response") is True
+        and outer_after_readback
+    ):
+        return "INCONCLUSIVE"
+    bracket = cancel.get("worker_cpu_bracket", {})
+    delta = bracket.get("thread_cpu_delta_microseconds")
+    if bracket.get("available") is True and type(delta) is int and delta > 0:
+        return "PASS"
+    return "BOUNDED_NATIVE_IN_FLIGHT"
+
+
+def _r4_durable_cancel_signature(record: dict[str, Any]) -> tuple[Any, ...]:
+    """Recompute durable cancellation from persisted rows, independent of native facts."""
+    snapshot = record.get("final", {}).get("snapshot", {})
+    job = snapshot.get("job_row") or {}
+    events = snapshot.get("events", [])
+    outbox = snapshot.get("outbox", [])
+    return (
+        job.get("state"),
+        sum(row.get("event_type") == "job_cancelled" for row in events),
+        sum(row.get("topic") == "control.job.cancelled" for row in outbox),
+        sum(row.get("event_type") in {"job_completed", "job_failed"} for row in events),
+        job.get("method_execution_selection_json"),
+    )
+
+
+def test_real_forest_fit_progress_spans_durable_cancel_post(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Observe real served ForestDR native work across an authorized cancel POST."""
+    import pytest
+
+    case_id = "policyos.e02.r4.native_forest_fit_cancel.v1"
+    nodeid = (
+        "tests/unit/runtime/http/test_observational_method_runtime.py::"
+        "test_real_forest_fit_progress_spans_durable_cancel_post"
+    )
+    evidence_root_raw = os.environ.get("POLISYOS_C96_EVIDENCE_DIR", "")
+    evidence_root = Path(evidence_root_raw).expanduser().resolve() if evidence_root_raw else None
+    native_dir = evidence_root / "native" if evidence_root is not None else tmp_path / "native"
+    native_dir.mkdir(parents=True, exist_ok=True)
+    observation_path = native_dir / "fixture-observation.json"
+    observation: dict[str, Any] = {
+        "schema": case_id,
+        "case": {
+            "test_nodeid": nodeid,
+            "stage": "starting",
+            "verdict": {
+                "backend_load": "UNRUN",
+                "method_execution": "UNRUN",
+                "durable_cancel": "UNRUN",
+                "bounded_native_in_flight": "UNRUN",
+                "native_activity": "UNRUN",
+            },
+        },
+        "process": {
+            "pid": os.getpid(),
+            "ppid": os.getppid(),
+            "executable": sys.executable,
+            "argv": list(sys.argv),
+            "source": {
+                "head": os.environ.get("POLISYOS_C96_EXPECTED_HEAD", ""),
+                "tree": os.environ.get("POLISYOS_C96_EXPECTED_TREE", ""),
+                "test_path": Path(__file__)
+                .resolve()
+                .relative_to(Path(__file__).resolve().parents[5])
+                .as_posix(),
+                "test_sha256": hashlib.sha256(Path(__file__).resolve().read_bytes()).hexdigest(),
+                "loaded_python_readset_path": str(native_dir / "loaded-python-readset.json"),
+                "loaded_python_readset_sha256": "",
+            },
+        },
+        "sqlite": {"database_path": "", "path_is_under_case_sandbox": False},
+        "input": {
+            "source_ref": {},
+            "cas_root": "",
+            "payload_path": "",
+            "payload_file_bytes": 0,
+            "payload_file_sha256": "",
+            "manifest_path": "",
+            "manifest_sha256": "",
+            "manifest_profile_sha256": "",
+            "source_kind": "ir.observation_method_input",
+            "rows": 2000,
+            "source_authority": "fixture_synthetic_candidate",
+            "sample_ids_unique": False,
+        },
+        "method": {
+            "requested_fqn": "causal.hte.forest_dr@1.1.0",
+            "effective_fqn": "",
+            "effective_params": {},
+            "resource_policy_ref": {},
+            "resource_policy_digest": "",
+            "admission_binding_status": "",
+            "dispatch_binding_status": "",
+            "job_id": "",
+            "run_id": "",
+            "attempt": 0,
+            "lease_owner": "",
+            "lease_expires_at": "",
+            "intent_cas": {},
+            "launch": {},
+            "observational_run_intent_artifact": {},
+            "work_descriptor": {
+                "job_id": "",
+                "run_id": "",
+                "attempt": 0,
+                "requested_source_ref": {},
+                "observational_run_intent_ref": {},
+            },
+        },
+        "executor": {
+            "profile": {"capacity": 2, "queue_capacity": 2, "revision": ""},
+            "object_type": "",
+            "object_id": 0,
+            "submit_owner": {},
+            "occupied_worker": {
+                "pid": 0,
+                "thread_id": 0,
+                "native_thread_id": 0,
+                "thread_name": "",
+                "is_current_shared_executor_worker": False,
+                "mach_thread_port": None,
+            },
+            "nonnumeric_peer": {
+                "mode": "event_wait",
+                "numeric_work": False,
+                "enter_ns": None,
+                "release_ns": None,
+                "exit_ns": None,
+                "pid": None,
+                "thread_id": None,
+                "native_thread_id": None,
+                "is_current_shared_executor_worker": False,
+                "release_observed": None,
+            },
+            "shared_execution_handle": {
+                "captured": False,
+                "type": "",
+                "future_id": 0,
+                "done_at_post_end": None,
+                "completion_status": "UNRUN",
+                "typed_outcome": None,
+            },
+            "queue": {
+                "follower_future_type": "",
+                "follower_future_id": 0,
+                "pending_when_fit_active": False,
+                "overflow_error_code": "",
+                "overflow_capacity": 0,
+                "overflow_queue_capacity": 0,
+                "overflow_queue_depth": 0,
+                "body_entered_before_fit_return": False,
+                "full_observed_ns": None,
+                "physical_workers": None,
+                "queued_jobs": None,
+                "outstanding_jobs": None,
+                "follower_events": [],
+            },
+        },
+        "native": {
+            "econml_version": "",
+            "econml_module_origin": "",
+            "econml_module_sha256": "",
+            "forest_dr_class": "econml.dr.ForestDRLearner",
+            "forest_dr_module_origin": "",
+            "forest_dr_module_sha256": "",
+            "grftree_class": "econml.grf._base_grftree.GRFTree",
+            "forest_dr_defining_class": "",
+            "forest_dr_public_import_alias": "econml.dr.ForestDRLearner",
+            "grftree_module_origin": "",
+            "grftree_module_sha256": "",
+            "loaded_native_modules": [],
+            "fit_original": {},
+            "forest_dr_fit_original": {},
+            "forest_dr_fit_events": [],
+            "grf_tree_fit_events": [],
+        },
+        "lease": {"initial_readback": {}, "renewals": []},
+        "negatives": [],
+        "cancel": {
+            "current_authority_at_entry": False,
+            "authorized": False,
+            "post_start_ns": 0,
+            "post_end_ns": 0,
+            "actual_store_cancel_entry_ns": 0,
+            "status_code": 0,
+            "url": "",
+            "request_url": "",
+            "request_body": {},
+            "body": {},
+            "response_body": {},
+            "request_wire_utf8": "",
+            "response_text": "",
+            "authority": {},
+            "authorized_actor": "",
+            "tenant_id": "",
+            "cell_id": "",
+            "actual_store_cancel_body_called_at_ns": 0,
+            "worker_cpu_bracket": {
+                "method": "mach_THREAD_BASIC_INFO",
+                "available": False,
+                "pid": 0,
+                "thread_id": 0,
+                "native_thread_id": 0,
+                "mach_thread_port": None,
+                "flavor": 3,
+                "count": 10,
+                "struct_size_bytes": 40,
+                "resolution_microseconds": 1,
+                "before": {},
+                "after": {},
+                "thread_cpu_delta_microseconds": None,
+                "error": None,
+            },
+            "future_unfinished_at_response": None,
+            "database_path": "",
+            "fresh_sqlite_readback": {
+                "monotonic_ns": 0,
+                "snapshot": {},
+                "snapshot_sha256": "",
+                "verified_cancelled_record": False,
+            },
+            "fresh_http_get": {
+                "method": "GET",
+                "url": "",
+                "request_url": "",
+                "monotonic_ns": 0,
+                "status_code": 0,
+                "body": {},
+                "response_text": "",
+            },
+            "fresh_run_get": {
+                "method": "GET",
+                "url": "",
+                "request_url": "",
+                "monotonic_ns": 0,
+                "status_code": 0,
+                "body": {},
+                "response_text": "",
+            },
+            "retry": {
+                "method": "POST",
+                "url": "",
+                "request_url": "",
+                "monotonic_ns": 0,
+                "status_code": 0,
+                "request_body": {},
+                "request_wire_utf8": "",
+                "body": {},
+                "response_text": "",
+            },
+            "selection_snapshot": None,
+        },
+        "result": {
+            "fit_natural_return_ns": None,
+            "method_work_return_ns": None,
+            "handler_disposition": "",
+            "handler_errors": [],
+            "shared_execution_failure": None,
+            "shared_execution_outcome": None,
+            "candidate_outcome": None,
+            "method_result_ref": None,
+            "method_evidence_ref": None,
+            "cas_readback_status": "not_observed",
+            "selection_status": "withheld_or_absent",
+            "selection_attempt": None,
+            "fresh_get_status": None,
+            "fresh_get_selection": None,
+            "semantic_estimate_valid": False,
+        },
+        "final": {
+            "fresh_sqlite_readback_monotonic_ns": 0,
+            "database_path": "",
+            "snapshot": {},
+            "snapshot_sha256": "",
+            "cancel_event_count": 0,
+            "cancel_outbox_count": 0,
+            "completed_or_failed_terminal_count": 0,
+            "selection_status": "withheld_or_absent",
+            "selection_attempt": None,
+            "stale_write_refused": {
+                "progress": False,
+                "manifest": False,
+                "terminal": False,
+            },
+            "stale_write_results": {
+                key: {
+                    "called": False,
+                    "refused": False,
+                    "exception_type": None,
+                    "exception_message": None,
+                    "body_entered": False,
+                }
+                for key in ("progress", "manifest", "terminal")
+            },
+            "queued_body_entered_after_fit_return": False,
+            "queued_body_entered_after_peer_release": False,
+        },
+        "errors": [],
+    }
+
+    env: dict[str, Any] | None = None
+    reader: Any = None
+    client: Any = None
+    client_lifespan_entered = False
+    service: Any = None
+    raw_store: Any = None
+    worker: Any = None
+    dispatch_thread: threading.Thread | None = None
+    queue_future: Any = None
+    queue_future2: Any = None
+    peer_future: Any = None
+    peer_started = threading.Event()
+    peer_release = threading.Event()
+    method_handle: Any = None
+    test_started_monotonic = time.monotonic()
+    observer: Any = None
+    native_events: list[dict[str, Any]] = []
+    sample_before: dict[str, Any] = {}
+    sample_after: dict[str, Any] = {}
+    renewals_lock = threading.Lock()
+    control_calls: list[dict[str, Any]] = []
+    worker_errors: list[dict[str, Any]] = []
+    queued_body_returns: list[dict[str, int]] = []
+    module_readset_cache: tuple[list[dict[str, Any]], list[dict[str, Any]]] | None = None
+    source_ref: Any = None
+    job_id = ""
+    run_id = ""
+    worker_id = "r4-native-control-worker"
+    attempt = 0
+    lease_owner = ""
+    fit_return_event: dict[str, Any] | None = None
+
+    def _save() -> None:
+        nonlocal module_readset_cache
+        if observer is not None:
+            while True:
+                try:
+                    native_events.append(observer.events.get_nowait())
+                except Exception:
+                    break
+            worker_identity = observer.worker
+            if isinstance(worker_identity, dict):
+                observation["executor"]["occupied_worker"].update(
+                    {
+                        key: worker_identity.get(key)
+                        for key in (
+                            "pid",
+                            "thread_id",
+                            "native_thread_id",
+                            "thread_name",
+                            "is_current_shared_executor_worker",
+                            "mach_thread_port",
+                        )
+                    }
+                )
+            observation["native"]["forest_dr_fit_events"] = [
+                event
+                for event in native_events
+                if event.get("kind") in {"fit_enter", "fit_return"}
+                and event.get("fit_layer") == "forest_dr"
+            ]
+            observation["native"]["grf_tree_fit_events"] = [
+                event
+                for event in native_events
+                if event.get("kind") in {"fit_enter", "fit_return"}
+                and event.get("fit_layer") == "grf_tree"
+            ]
+        try:
+            if module_readset_cache is None:
+                module_readset_cache = _r4_module_readset()
+            python_modules, native_modules = module_readset_cache
+            readset_path = Path(observation["process"]["source"]["loaded_python_readset_path"])
+            readset_bytes = json.dumps(
+                {
+                    "pid": os.getpid(),
+                    "scope": "loaded Python modules in econml/sklearn/numpy/scipy/joblib/threadpoolctl/numba/lightgbm families only",
+                    "modules": python_modules,
+                },
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode()
+            readset_path.write_bytes(readset_bytes)
+            observation["process"]["source"]["loaded_python_readset_sha256"] = hashlib.sha256(
+                readset_bytes
+            ).hexdigest()
+            observation["native"]["loaded_native_modules"] = native_modules
+        except Exception as exc:
+            observation["errors"].append(
+                {
+                    "stage": "module_readset",
+                    "type": type(exc).__name__,
+                    "message": str(exc),
+                }
+            )
+        if reader is not None:
+            try:
+                db_path = Path(reader._sqlite_path).resolve()
+                observation["sqlite"]["database_path"] = str(db_path)
+                observation["sqlite"]["path_is_under_case_sandbox"] = bool(
+                    evidence_root is not None and db_path.is_relative_to(evidence_root)
+                )
+            except Exception as exc:
+                observation["errors"].append(
+                    {
+                        "stage": "sqlite_path",
+                        "type": type(exc).__name__,
+                        "message": str(exc),
+                    }
+                )
+        try:
+            observation_path.write_text(
+                json.dumps(observation, sort_keys=True, indent=2, default=_r4_json_value) + "\n",
+                encoding="utf-8",
+            )
+        except Exception as exc:
+            # The runner will preserve stdout/stderr if the case-owned filesystem itself failed.
+            observation["errors"].append(
+                {
+                    "stage": "evidence_write",
+                    "type": type(exc).__name__,
+                    "message": str(exc),
+                }
+            )
+
+    def _release_peer() -> None:
+        if not peer_release.is_set():
+            observation["executor"]["nonnumeric_peer"]["release_ns"] = time.monotonic_ns()
+            peer_release.set()
+
+    @contextmanager
+    def _draining_client(selected_client: Any) -> Any:
+        """Keep the real app alive until its observed worker settles naturally."""
+        with selected_client:
+            try:
+                yield
+            finally:
+                _release_peer()
+                observation["teardown"] = {
+                    "drain_started_ns": time.monotonic_ns(),
+                    "outcome": "waiting",
+                }
+                # The reviewed outer supervisor starts before this test and
+                # terminates the isolated process tree at its 600-second cap.
+                # The later internal bound also protects an unsupervised run.
+                end = test_started_monotonic + 600.0
+                while True:
+                    dispatch_alive = dispatch_thread is not None and dispatch_thread.is_alive()
+                    method_busy = method_handle is not None and not method_handle.done()
+                    queued_busy = any(
+                        future is not None and not future.done()
+                        for future in (queue_future, queue_future2)
+                    )
+                    peer_busy = peer_future is not None and not peer_future.done()
+                    if not (dispatch_alive or method_busy or queued_busy or peer_busy):
+                        _capture_completed_method_failure()
+                        observation["result"]["handler_errors"] = list(worker_errors)
+                        observation["teardown"].update(
+                            {
+                                "outcome": "naturally_settled",
+                                "drain_finished_ns": time.monotonic_ns(),
+                                "dispatch_alive": False,
+                                "method_busy": False,
+                                "queued_busy": False,
+                                "peer_busy": False,
+                            }
+                        )
+                        break
+                    if time.monotonic() >= end:
+                        observation["case"]["stage"] = "drain_timeout"
+                        observation["errors"].append(
+                            {
+                                "stage": "client_drain",
+                                "type": "TimeoutError",
+                                "message": "active worker did not settle before isolated test deadline",
+                            }
+                        )
+                        observation["teardown"].update(
+                            {
+                                "outcome": "ERROR_active_worker_at_deadline",
+                                "drain_finished_ns": time.monotonic_ns(),
+                                "dispatch_alive": dispatch_alive,
+                                "method_busy": method_busy,
+                                "queued_busy": queued_busy,
+                                "peer_busy": peer_busy,
+                            }
+                        )
+                        _save()
+                        sys.stderr.write(
+                            "R4 native witness: active worker did not settle within isolated bound\n"
+                        )
+                        sys.stderr.flush()
+                        os._exit(124)
+                    time.sleep(0.05)
+
+    def _next_native_event(timeout_s: float) -> dict[str, Any]:
+        deadline = time.monotonic() + timeout_s
+        while True:
+            remaining = deadline - time.monotonic()
+            if dispatch_done.is_set() and method_handle is None:
+                observation["result"]["handler_errors"] = list(worker_errors)
+                observation["result"]["handler_disposition"] = "dispatch_returned_without_handle"
+                _skip_with_partial(
+                    "dispatch_finished_without_method",
+                    "dispatch ended before a method handle was captured; native witness is unrun",
+                )
+            if method_handle is not None and method_handle.done():
+                _skip_with_partial(
+                    "method_finished_before_tree",
+                    "the method completed without an observed GRFTree entry",
+                )
+            if remaining <= 0:
+                _skip_with_partial(
+                    "tree_entry_not_observed",
+                    "real GRFTree.fit entry was not observed in bound",
+                )
+            try:
+                event = observer.events.get(timeout=min(remaining, 0.2))
+            except __import__("queue").Empty:
+                continue
+            native_events.append(event)
+            if event.get("kind") == "fit_enter" and event.get("fit_layer") == "grf_tree":
+                return event
+
+    def _selection_get(
+        selected_client: Any, selected_headers: dict[str, str]
+    ) -> tuple[Any, str, int]:
+        url = f"/api/v1/runs/{run_id}"
+        response = selected_client.get(url, headers=selected_headers)
+        body, raw_text = _r4_response_body(response)
+        return (
+            {
+                "method": "GET",
+                "url": url,
+                "request_url": str(response.request.url),
+                "status_code": response.status_code,
+                "body": body,
+                "response_text": raw_text,
+            },
+            raw_text,
+            response.status_code,
+        )
+
+    def _capture_negative(
+        *,
+        kind: str,
+        selected_client: Any,
+        headers: dict[str, str],
+        body: dict[str, Any],
+    ) -> dict[str, Any]:
+        url = f"/api/v1/control/jobs/{job_id}/cancel"
+        selection_before, _, _ = _selection_get(selected_client, headers)
+        before = _r4_snapshot(reader, job_id)
+        start_ns = time.monotonic_ns()
+        response = selected_client.post(url, json=body, headers=headers)
+        end_ns = time.monotonic_ns()
+        response_body, response_text = _r4_response_body(response)
+        after = _r4_snapshot(reader, job_id)
+        selection_after, _, _ = _selection_get(selected_client, headers)
+        before_row = before.get("job_row") or {}
+        after_row = after.get("job_row") or {}
+        # A legitimate heartbeat may extend only the lease expiry while the worker stays live.
+        normalized_before = dict(before_row)
+        normalized_after = dict(after_row)
+        normalized_before.pop("lease_expires_at", None)
+        normalized_after.pop("lease_expires_at", None)
+        unchanged = (
+            normalized_before == normalized_after
+            and before.get("progress") == after.get("progress")
+            and before.get("events") == after.get("events")
+            and before.get("outbox") == after.get("outbox")
+            and _r4_run_selection(selection_before["body"])
+            == _r4_run_selection(selection_after["body"])
+        )
+        return {
+            "kind": kind,
+            "url": url,
+            "request_url": str(response.request.url),
+            "request_body": body,
+            "request_wire_utf8": response.request.content.decode("utf-8"),
+            "status_code": response.status_code,
+            "response_body": response_body,
+            "response_text": response_text,
+            "request_start_ns": start_ns,
+            "request_end_ns": end_ns,
+            "before_snapshot": before,
+            "before_snapshot_sha256": _r4_snapshot_hash(before),
+            "after_snapshot": after,
+            "after_snapshot_sha256": _r4_snapshot_hash(after),
+            "zero_protected_effects": unchanged,
+            "event_count_delta": len(after["events"]) - len(before["events"]),
+            "outbox_count_delta": len(after["outbox"]) - len(before["outbox"]),
+            "selection_before": _r4_run_selection(selection_before["body"]),
+            "selection_after": _r4_run_selection(selection_after["body"]),
+            "selection_before_http": selection_before,
+            "selection_after_http": selection_after,
+            "selection_unchanged": (
+                _r4_run_selection(selection_before["body"])
+                == _r4_run_selection(selection_after["body"])
+            ),
+        }
+
+    def _capture_completed_method_failure() -> None:
+        """Retain the real bounded shared failure, if the handle has completed."""
+        if method_handle is None or not method_handle.done():
+            return
+        try:
+            completion = method_handle.result(timeout=0)
+            observation["executor"]["shared_execution_handle"]["completion_status"] = (
+                completion.status
+            )
+            actual_value = completion.value
+            if completion.status == "completed" and actual_value is not None:
+                candidate = getattr(actual_value, "candidate_outcome", None)
+                observation["result"]["shared_execution_outcome"] = {
+                    "type": type(actual_value).__module__ + "." + type(actual_value).__qualname__,
+                    "job_id": getattr(actual_value, "job_id", None),
+                    "run_id": getattr(actual_value, "run_id", None),
+                    "attempt": getattr(actual_value, "attempt", None),
+                    "candidate_status": getattr(candidate, "status", None),
+                }
+            failure = completion.failure
+            if failure is not None:
+                observation["result"]["shared_execution_failure"] = {
+                    "exception_type": failure.exception_type,
+                    "message_excerpt": failure.message_excerpt,
+                    "code": failure.code,
+                    "retryable": failure.retryable,
+                }
+        except Exception as exc:
+            observation["errors"].append(
+                {
+                    "stage": "completed_handle_readback",
+                    "type": type(exc).__name__,
+                    "message": str(exc),
+                }
+            )
+
+    def _skip_with_partial(stage: str, reason: str) -> None:
+        """Persist actual early timing/state as INCONCLUSIVE before pytest skips."""
+        observation["case"]["stage"] = stage
+        observation["case"]["verdict"]["bounded_native_in_flight"] = "INCONCLUSIVE"
+        observation["case"]["verdict"]["native_activity"] = "INCONCLUSIVE"
+        # The peer is no longer needed once the premise is lost. Free capacity
+        # before diagnostic GET/cleanup, without changing the real fit.
+        _release_peer()
+        if observer is not None:
+            while True:
+                try:
+                    native_events.append(observer.events.get_nowait())
+                except Exception:
+                    break
+        outer_return = next(
+            (
+                event
+                for event in native_events
+                if event.get("kind") == "fit_return" and event.get("fit_layer") == "forest_dr"
+            ),
+            None,
+        )
+        observation["result"]["fit_natural_return_ns"] = (
+            outer_return.get("monotonic_ns") if outer_return else None
+        )
+        observation["result"]["method_work_return_ns"] = (
+            time.monotonic_ns() if method_handle is not None and method_handle.done() else None
+        )
+        observation["executor"]["shared_execution_handle"]["done_at_post_end"] = (
+            method_handle.done() if method_handle is not None else None
+        )
+        observation["executor"]["shared_execution_handle"]["completion_status"] = (
+            "completed_before_cancel"
+            if method_handle is not None and method_handle.done()
+            else "UNRUN"
+        )
+        _capture_completed_method_failure()
+        observation["result"]["handler_errors"] = list(worker_errors)
+        selected_job = reader.get_job(job_id) if reader is not None and job_id else None
+        if selected_job is not None:
+            snapshot = _r4_snapshot(reader, job_id)
+            observation["final"].update(
+                {
+                    "fresh_sqlite_readback_monotonic_ns": time.monotonic_ns(),
+                    "database_path": str(Path(reader._sqlite_path).resolve()),
+                    "snapshot": snapshot,
+                    "snapshot_sha256": _r4_snapshot_hash(snapshot),
+                    "selection_status": (
+                        "selected"
+                        if selected_job.method_execution_selection
+                        else "withheld_or_absent"
+                    ),
+                    "selection_attempt": (
+                        selected_job.attempt if selected_job.method_execution_selection else None
+                    ),
+                }
+            )
+            observation["result"]["selection_status"] = observation["final"]["selection_status"]
+        if client is not None and run_id:
+            run_response, _, _ = _selection_get(client, headers)
+            observation["result"]["fresh_get_status"] = run_response["status_code"]
+            observation["result"]["fresh_get_selection"] = _r4_run_selection(run_response["body"])
+            observation["cancel"]["fresh_run_get"] = {
+                **run_response,
+                "monotonic_ns": time.monotonic_ns(),
+            }
+        pytest.skip(reason)
+
+    class _R4ObservedSemanticError(AssertionError):
+        """Keep a completed observed semantic failure distinct from harness errors."""
+
+    try:
+        if evidence_root is None:
+            raise RuntimeError("POLISYOS_C96_EVIDENCE_DIR_not_set")
+        expected_head = os.environ.get("POLISYOS_C96_EXPECTED_HEAD", "")
+        expected_tree = os.environ.get("POLISYOS_C96_EXPECTED_TREE", "")
+        if not expected_head or not expected_tree:
+            raise RuntimeError("expected_source_head_or_tree_not_bound")
+        for env_name in (
+            "OMP_NUM_THREADS",
+            "OPENBLAS_NUM_THREADS",
+            "MKL_NUM_THREADS",
+            "NUMEXPR_NUM_THREADS",
+        ):
+            if os.environ.get(env_name) != "1":
+                raise RuntimeError(f"{env_name}_must_equal_1")
+
+        from polisyos.common import async_tools
+        from polisyos.runtime.http import deployment_security
+        from polisyos.runtime.http.cancellation_admission import (
+            is_current_cancellation_authority,
+        )
+        from polisyos.runtime.http.services.control_plane_store import (
+            ControlJobLeaseLostError,
+            ControlPlaneStore,
+        )
+        from polisyos.runtime.http.services.control_worker import ControlWorker
+        from polisyos.runtime.quality.substrate_registry import (
+            CatalogServingSourceSelection,
+        )
+        from tests._helpers.r4_native_fit_observer import (
+            FitObserver,
+            callable_record,
+            mach_thread_basic_info_sample,
+            source_file_record,
+        )
+        from tests._helpers.runtime_http import (
+            build_runtime_api_env,
+            close_runtime_api_env,
+            deployment_security_config_mapping,
+        )
+        from tests.unit.runtime.http import test_runtime_api_authz as authz
+        from tests.unit.runtime.quality.test_catalog_source_identity import (
+            _selected_fixture,
+        )
+
+        revision = "r4-native-fit-cancel-capacity2-r2"
+        profile = async_tools.SharedExecutorProfile(capacity=2, queue_capacity=2, revision=revision)
+        async_tools.configure_shared_executor_profile(profile)
+        executor = async_tools.get_shared_executor()
+        observation["executor"]["profile"]["revision"] = revision
+        observation["executor"]["object_type"] = (
+            type(executor).__module__ + "." + type(executor).__qualname__
+        )
+        observation["executor"]["object_id"] = id(executor)
+        code_root, owner_root, selected_source = _selected_fixture(native_dir / "catalog")
+        catalog_selection = CatalogServingSourceSelection(
+            snapshot_root=selected_source.snapshot_root,
+            source_owner_root=owner_root,
+            database_relative_path=selected_source.database_path.relative_to(
+                selected_source.snapshot_root
+            ),
+            catalog_run_profile="prod_full",
+        )
+        env = build_runtime_api_env(
+            native_dir / "runtime-env",
+            include_test_client=False,
+            app_kwargs={
+                "repo_root": code_root,
+                "catalog_source_selection": catalog_selection,
+                "process_worker_capacity": 2,
+                "process_worker_profile_revision": revision,
+            },
+            raise_server_exceptions=False,
+        )
+        original_app_factory = authz.create_runtime_api_app
+
+        def app_factory(**kwargs: Any) -> Any:
+            kwargs.setdefault("repo_root", code_root)
+            kwargs.setdefault("catalog_source_selection", catalog_selection)
+            kwargs["process_worker_capacity"] = 2
+            kwargs["process_worker_profile_revision"] = revision
+            return original_app_factory(**kwargs)
+
+        monkeypatch.setattr(authz, "create_runtime_api_app", app_factory)
+        client, cell, provider = authz._build_secure_client(
+            env,
+            opa_client=authz._AllowOPA(),
+            claims_by_token={},
+            raise_server_exceptions=False,
+            repo_root=code_root,
+            catalog_source_selection=catalog_selection,
+        )
+        env["client"] = client
+        bearer = authz._fixture_bearer("r4-native-authorized")
+        denied_bearer = authz._fixture_bearer("r4-native-denied")
+        tenant = str(env["tenant_a"])
+        cell_id = cell.cell_id
+        from polisyos.core.artifacts.manifest import ArtifactRef
+        from polisyos.core.contracts.runtime import ObservationalRunIntent
+        from polisyos.core.security.identity import PolicyOSRole, UserIdentityClaims
+        from polisyos.core.security.tenant_context import tenant_scope
+
+        for token in (bearer, denied_bearer):
+            provider.put_claim(
+                token,
+                UserIdentityClaims(
+                    sub="r4-native-fixture",
+                    tenant_id=tenant,
+                    cell_id=cell_id,
+                    roles=frozenset({PolicyOSRole.ADMIN}),
+                    mfa_verified=True,
+                    iss="https://idp.example",
+                    aud="polisyos-runtime",
+                    exp=9_999_999_999,
+                    iat=1,
+                    jti="r4-native-" + token[-12:],
+                ),
+            )
+        headers = {"Authorization": f"Bearer {bearer}", "X-Tenant-ID": tenant}
+        denied_headers = {
+            "Authorization": f"Bearer {denied_bearer}",
+            "X-Tenant-ID": tenant,
+        }
+        config = deployment_security_config_mapping(native_dir)
+        registry_path = native_dir / "cells.json"
+        registry_path.write_text(
+            json.dumps(
+                {
+                    "cells": [cell.model_dump(mode="json")],
+                    "tenants": [
+                        {
+                            "tenant_id": item,
+                            "name": "R4 synthetic tenant",
+                            "tier": cell.tier.value,
+                            "region": cell.region,
+                            "cell_id": cell_id,
+                        }
+                        for item in (tenant, str(env["tenant_b"]))
+                    ],
+                }
+            ),
+            encoding="utf-8",
+        )
+        config["cell_registry_path"] = str(registry_path)
+
+        def build_grants(permissions: list[str]) -> Any:
+            selected = dict(config)
+            selected["service_principals"] = [dict(item) for item in config["service_principals"]]
+            selected["service_principals"][0].update(
+                tenant_id=tenant, cell_id=cell_id, permissions=permissions
+            )
+            return deployment_security.build_deployment_security(
+                deployment_security.DeploymentSecurityConfig.from_mapping(selected)
+            ).principal_grants
+
+        allowed_grants = build_grants(["runs.launch", "runs.view", "jobs.cancel"])
+        denied_grants = build_grants(["runs.launch", "runs.view"])
+        client.app.state.runtime_deployment_principal_grants = allowed_grants
+        client.app.state.control_job_cancellation_rollout_enabled = True
+        authz._install_authorization_audit_capture(client)
+        with _draining_client(client):
+            client_lifespan_entered = True
+            service = client.app.state._control_service
+            actual_catalog_source = service._catalog_serving_source
+            if (
+                actual_catalog_source.database_path != selected_source.database_path
+                or actual_catalog_source.snapshot_root != selected_source.snapshot_root
+            ):
+                raise RuntimeError("actual_served_catalog_source_differs_from_selected_fixture")
+            observation["catalog"] = {
+                "selected_database_path": str(selected_source.database_path),
+                "served_database_path": str(actual_catalog_source.database_path),
+                "selected_snapshot_root": str(selected_source.snapshot_root),
+                "served_snapshot_root": str(actual_catalog_source.snapshot_root),
+                "source_owner_root": str(owner_root),
+                "selected_and_served_paths_match": True,
+                "authority": "fixture_synthetic_candidate",
+            }
+            if service._worker is not None:
+                service._worker.stop()
+            raw_store = getattr(service._control_store, "_target", service._control_store)
+            db_path = Path(raw_store._sqlite_path).resolve()
+            reader = ControlPlaneStore(backend="sqlite", sqlite_path=db_path)
+            observation["sqlite"].update(
+                {
+                    "database_path": str(db_path),
+                    "path_is_under_case_sandbox": db_path.is_relative_to(evidence_root),
+                }
+            )
+            if not db_path.is_relative_to(evidence_root):
+                raise RuntimeError("control_database_escaped_case_sandbox")
+
+            from polisyos.core.artifacts.store import FileSystemCAS
+
+            cas = FileSystemCAS(env["cas_root"])
+            owner_scope = (tenant, cell_id)
+            source_ref = _put_runtime_observational_source(
+                service,
+                owner_scope=owner_scope,
+                n_obs=2000,
+            )
+            source_payload = _runtime_hte_source_payload(n_obs=2000)
+            artifact_hex = source_ref.artifact_id.hex
+            payload_path = (
+                Path(env["cas_root"])
+                / "artifacts"
+                / "sha256"
+                / artifact_hex[:2]
+                / artifact_hex[2:4]
+                / f"{artifact_hex}.blob"
+            ).resolve()
+            profile_hash = source_ref.manifest_profile_sha256
+            if not profile_hash:
+                raise RuntimeError("source_manifest_profile_missing")
+            manifest_path = Path(
+                cas._manifest_path_for_ref(source_ref.artifact_id, profile_hash)
+            ).resolve()
+            payload_bytes = payload_path.read_bytes()
+            manifest_bytes = manifest_path.read_bytes()
+            persisted_envelope = json.loads(payload_bytes)
+            persisted_payload = persisted_envelope["contract_payload"]
+            sample_ids = persisted_payload["sample_ids"]
+            observation["input"].update(
+                {
+                    "source_ref": source_ref.model_dump(mode="json"),
+                    "cas_root": str(Path(env["cas_root"]).resolve()),
+                    "payload_path": str(payload_path),
+                    "payload_file_bytes": len(payload_bytes),
+                    "payload_file_sha256": hashlib.sha256(payload_bytes).hexdigest(),
+                    "manifest_path": str(manifest_path),
+                    "manifest_sha256": hashlib.sha256(manifest_bytes).hexdigest(),
+                    "manifest_profile_sha256": profile_hash,
+                    "rows": len(sample_ids),
+                    "sample_ids_unique": len(set(sample_ids)) == len(sample_ids),
+                    "observed_source_payload_sha256": hashlib.sha256(
+                        json.dumps(source_payload, sort_keys=True, separators=(",", ":")).encode()
+                    ).hexdigest(),
+                }
+            )
+            if len(sample_ids) != 2000 or len(set(sample_ids)) != 2000:
+                raise RuntimeError("served_input_payload_row_or_sample_id_binding_mismatch")
+
+            method_params = {
+                "n_estimators": 128,
+                "cv_folds": 2,
+                "subforest_size": 4,
+                "random_state": 73,
+                "n_jobs": 1,
+            }
+            request_body = {
+                "observational_input": {
+                    "protocol": "method_input_envelope_v1",
+                    "source_ref": source_ref.model_dump(mode="json"),
+                    "method": {
+                        "fqn": "causal.hte.forest_dr@1.1.0",
+                        "params": method_params,
+                    },
+                }
+            }
+
+            # Import the real implementation only inside the eventual runtime node.
+            try:
+                import econml
+                from econml.dr import ForestDRLearner
+                from econml.grf._base_grftree import GRFTree
+            except (ImportError, OSError) as exc:
+                observation["case"]["stage"] = "backend_import_unavailable"
+                observation["case"]["verdict"]["backend_load"] = "UNAVAILABLE"
+                observation["errors"].append(
+                    {
+                        "stage": "backend_import",
+                        "type": type(exc).__name__,
+                        "message": str(exc),
+                    }
+                )
+                pytest.skip(f"EconML runtime import unavailable: {type(exc).__name__}: {exc}")
+            observation["case"]["verdict"]["backend_load"] = "PASS"
+            econml_version = importlib.metadata.version("econml")
+            forest_dr_fit = ForestDRLearner.fit
+            grftree_fit = GRFTree.fit
+            observer = FitObserver(is_shared_worker=executor.is_current_worker)
+            observation["native"].update(
+                {
+                    "econml_version": econml_version,
+                    "econml_module_origin": str(Path(econml.__file__).resolve()),
+                    "econml_module_sha256": source_file_record(econml.__file__)["sha256"],
+                    "forest_dr_defining_class": (
+                        ForestDRLearner.__module__ + "." + ForestDRLearner.__qualname__
+                    ),
+                    "forest_dr_public_import_alias": "econml.dr.ForestDRLearner",
+                    "forest_dr_module_origin": str(
+                        Path(sys.modules[ForestDRLearner.__module__].__file__).resolve()
+                    ),
+                    "forest_dr_module_sha256": source_file_record(
+                        sys.modules[ForestDRLearner.__module__].__file__
+                    )["sha256"],
+                    "forest_dr_fit_original": callable_record(forest_dr_fit),
+                    "grftree_class": GRFTree.__module__ + "." + GRFTree.__qualname__,
+                    "grftree_module_origin": str(
+                        Path(sys.modules[GRFTree.__module__].__file__).resolve()
+                    ),
+                    "grftree_module_sha256": source_file_record(
+                        sys.modules[GRFTree.__module__].__file__
+                    )["sha256"],
+                    "fit_original": callable_record(grftree_fit),
+                }
+            )
+            monkeypatch.setattr(ForestDRLearner, "fit", observer.wrap_forest_dr_fit(forest_dr_fit))
+            monkeypatch.setattr(GRFTree, "fit", observer.wrap_grftree_fit(grftree_fit))
+            # Submit the normal public job request; no direct estimator or backend call.
+            launch_start_ns = time.monotonic_ns()
+            launch_response = _post_runtime_api_as_fixture_owner(
+                env, "/api/v1/control/runs", json=request_body, headers=headers
+            )
+            launch_end_ns = time.monotonic_ns()
+            launch_body, launch_text = _r4_response_body(launch_response)
+            observation["method"]["launch"] = {
+                "url": "/api/v1/control/runs",
+                "request_url": str(launch_response.request.url),
+                "request_body": request_body,
+                "request_wire_utf8": launch_response.request.content.decode("utf-8"),
+                "start_ns": launch_start_ns,
+                "end_ns": launch_end_ns,
+                "status_code": launch_response.status_code,
+                "response_body": launch_body,
+                "response_text": launch_text,
+            }
+            if launch_response.status_code != 200 or launch_body.get("status") != "accepted":
+                observation["case"]["stage"] = "public_admission_refused"
+                observation["case"]["verdict"]["method_execution"] = "INCONCLUSIVE"
+                pytest.skip("served observational admission did not accept the proposed profile")
+            job_id = str(launch_body["job_id"])
+            run_id = str(launch_body["run_id"])
+            intent_ref = ArtifactRef.model_validate(launch_body["observational_run_intent_ref"])
+            intent_hex = intent_ref.artifact_id.hex
+            intent_blob_path = (
+                Path(env["cas_root"])
+                / "artifacts"
+                / "sha256"
+                / intent_hex[:2]
+                / intent_hex[2:4]
+                / f"{intent_hex}.blob"
+            ).resolve()
+            intent_manifest_path = Path(
+                cas._manifest_path_for_ref(
+                    intent_ref.artifact_id, intent_ref.manifest_profile_sha256
+                )
+            ).resolve()
+            intent_bytes = intent_blob_path.read_bytes()
+            intent_manifest_bytes = intent_manifest_path.read_bytes()
+            with tenant_scope(None, tenant_id=tenant, cell_id=cell_id):
+                intent = ObservationalRunIntent.model_validate(
+                    service._read_bounded_intent_artifact(intent_ref)
+                )
+            observation["method"]["observational_run_intent_artifact"] = {
+                "ref": intent_ref.model_dump(mode="json"),
+                "blob_path": str(intent_blob_path),
+                "blob_bytes": len(intent_bytes),
+                "blob_sha256": hashlib.sha256(intent_bytes).hexdigest(),
+                "manifest_path": str(intent_manifest_path),
+                "manifest_bytes": len(intent_manifest_bytes),
+                "manifest_sha256": hashlib.sha256(intent_manifest_bytes).hexdigest(),
+                "manifest_profile_sha256": intent_ref.manifest_profile_sha256,
+                "payload_sha256": hashlib.sha256(
+                    json.dumps(
+                        intent.artifact_payload(), sort_keys=True, separators=(",", ":")
+                    ).encode()
+                ).hexdigest(),
+            }
+            observation["method"]["intent_cas"] = {
+                "ref": intent_ref.model_dump(mode="json"),
+                "cas_root": str(Path(env["cas_root"]).resolve()),
+                "payload_path": str(intent_blob_path),
+                "payload_file_bytes": len(intent_bytes),
+                "payload_file_sha256": hashlib.sha256(intent_bytes).hexdigest(),
+                "manifest_path": str(intent_manifest_path),
+                "manifest_file_bytes": len(intent_manifest_bytes),
+                "manifest_sha256": hashlib.sha256(intent_manifest_bytes).hexdigest(),
+                "manifest_profile_sha256": intent_ref.manifest_profile_sha256,
+                "payload_sha256": hashlib.sha256(
+                    json.dumps(
+                        intent.artifact_payload(), sort_keys=True, separators=(",", ":")
+                    ).encode()
+                ).hexdigest(),
+            }
+            job = reader.get_job(job_id)
+            if job is None or job.state != "pending":
+                raise RuntimeError("freshly_admitted_job_not_pending")
+            observation["method"].update(
+                {
+                    "job_id": job_id,
+                    "run_id": run_id,
+                    "effective_fqn": intent.method_fqn,
+                    "effective_params": dict(intent.resolved_params),
+                    "resource_policy_ref": intent.resource_policy_ref.model_dump(mode="json"),
+                    "resource_policy_digest": intent.resource_policy_digest,
+                    "admission_binding_status": "recomputed_from_admitted_intent",
+                }
+            )
+
+            backend = service._method_backend
+            original_submit = backend.submit_method_execution_work
+            handle_box: dict[str, Any] = {}
+
+            def capture_submit(work: Any) -> Any:
+                nonlocal method_handle
+                descriptor = {
+                    "job_id": work.job_id,
+                    "run_id": work.run_id,
+                    "attempt": work.attempt,
+                    "requested_source_ref": work.requested_source_ref.model_dump(mode="json"),
+                    "observational_run_intent_ref": work.observational_run_intent_ref.model_dump(
+                        mode="json"
+                    ),
+                }
+                returned_handle = original_submit(work)
+                method_handle = returned_handle
+                handle_box["handle"] = returned_handle
+                observation["method"]["work_descriptor"] = descriptor
+                observation["method"]["dispatch_binding_status"] = "captured_actual_submit_work"
+                observation["executor"]["submit_owner"] = callable_record(original_submit)
+                observation["executor"]["shared_execution_handle"].update(
+                    {
+                        "captured": True,
+                        "type": type(returned_handle).__module__
+                        + "."
+                        + type(returned_handle).__qualname__,
+                        "future_id": id(getattr(returned_handle, "_future", returned_handle)),
+                    }
+                )
+                return returned_handle
+
+            monkeypatch.setattr(backend, "submit_method_execution_work", capture_submit)
+            original_renew = raw_store.renew_job_lease
+
+            def record_renew(**kwargs: Any) -> bool:
+                result = original_renew(**kwargs)
+                renewed_ns = time.monotonic_ns()
+                current = reader.get_job(job_id)
+                with renewals_lock:
+                    observation["lease"]["renewals"].append(
+                        {
+                            "monotonic_ns": renewed_ns,
+                            "readback_monotonic_ns": time.monotonic_ns(),
+                            "expected_attempt": kwargs.get("expected_attempt"),
+                            "result": result,
+                            "fresh_owner": current.lease_owner if current else None,
+                            "fresh_attempt": current.attempt if current else None,
+                            "fresh_lease_expires_at": (
+                                current.lease_expires_at.isoformat()
+                                if current and current.lease_expires_at
+                                else None
+                            ),
+                        }
+                    )
+                return result
+
+            monkeypatch.setattr(raw_store, "renew_job_lease", record_renew)
+            original_cancel = raw_store.cancel_job
+
+            def observe_cancel(**kwargs: Any) -> Any:
+                proof = kwargs.get("authorization_proof")
+                verification = getattr(proof, "verification", None)
+                bound = getattr(proof, "bound_resource", None)
+                selectors = (
+                    dict(getattr(bound, "canonical_selectors", {})) if bound is not None else {}
+                )
+                raw_cell_selector = selectors.get("cell_id")
+                try:
+                    actual_cell_id = (
+                        json.loads(raw_cell_selector)
+                        if isinstance(raw_cell_selector, str)
+                        else None
+                    )
+                except ValueError:
+                    actual_cell_id = None
+                entry = {
+                    "monotonic_ns": time.monotonic_ns(),
+                    "current_authority": is_current_cancellation_authority(proof),
+                    "operation_id": kwargs.get("operation_id"),
+                    "expected_attempt": kwargs.get("expected_attempt"),
+                    "expected_lease_owner": kwargs.get("expected_lease_owner"),
+                    "authorized_actor": getattr(verification, "subject", None),
+                    "tenant_id": getattr(verification, "tenant_id", None),
+                    "bound_job_id_selector": selectors.get("job_id"),
+                    "bound_cell_id_selector": raw_cell_selector,
+                    "cell_id": actual_cell_id,
+                    "body_sha256": getattr(bound, "body_sha256", None),
+                    "body_called": True,
+                    "body_called_at_ns": time.monotonic_ns(),
+                }
+                control_calls.append(entry)
+                return original_cancel(**kwargs)
+
+            monkeypatch.setattr(raw_store, "cancel_job", observe_cancel)
+            worker = ControlWorker(
+                store=service._control_store,
+                handler=service._process_control_job,
+                worker_id=worker_id,
+                lease_seconds=2,
+            )
+            worker._heartbeat_interval_s = 0.05
+            dispatch_done = threading.Event()
+
+            def dispatch() -> None:
+                try:
+                    worker.dispatch_once()
+                except BaseException as exc:
+                    worker_errors.append(
+                        {
+                            "type": type(exc).__name__,
+                            "message": str(exc),
+                            "monotonic_ns": time.monotonic_ns(),
+                        }
+                    )
+                finally:
+                    dispatch_done.set()
+
+            dispatch_thread = threading.Thread(
+                target=dispatch, name="r4-native-control-dispatch", daemon=True
+            )
+            dispatch_thread.start()
+            running_deadline = time.monotonic() + 30.0
+            running = None
+            while time.monotonic() < running_deadline:
+                running = reader.get_job(job_id)
+                if running is not None and running.state == "running":
+                    break
+                if dispatch_done.is_set() and method_handle is None:
+                    observation["result"]["handler_errors"] = list(worker_errors)
+                    observation["result"]["handler_disposition"] = (
+                        "dispatch_returned_without_handle"
+                    )
+                    _skip_with_partial(
+                        "dispatch_finished_without_method",
+                        "dispatch ended before an observed live lease or method handle",
+                    )
+                dispatch_done.wait(0.002)
+            if running is None or running.state != "running" or not running.lease_owner:
+                observation["case"]["stage"] = "worker_lease_not_observed"
+                pytest.skip("the real ControlWorker did not establish a fresh lease in bound")
+            attempt = running.attempt
+            lease_owner = str(running.lease_owner)
+            observation["method"].update(
+                {
+                    "attempt": attempt,
+                    "lease_owner": lease_owner,
+                    "lease_expires_at": running.lease_expires_at.isoformat()
+                    if running.lease_expires_at
+                    else None,
+                }
+            )
+            observation["lease"]["initial_readback"] = {
+                "state": running.state,
+                "attempt": attempt,
+                "lease_owner": lease_owner,
+                "lease_expires_at": running.lease_expires_at.isoformat()
+                if running.lease_expires_at
+                else None,
+            }
+
+            # Wait only in the test thread. The actual fit wrapper never blocks.
+            _next_native_event(600.0)
+            observer_worker = observer.worker
+            if not isinstance(observer_worker, dict):
+                raise RuntimeError("shared_worker_identity_not_observed")
+            if not observer_worker.get("is_current_shared_executor_worker"):
+                raise RuntimeError("GRFTree.fit_did_not_run_on_shared_executor_worker")
+
+            # This distinct nonnumeric peer occupies the second physical slot
+            # only after the real selected native fit has entered. It never
+            # stands in for fit progress and is released after the POST.
+            def nonnumeric_peer() -> None:
+                observation["executor"]["nonnumeric_peer"].update(
+                    {
+                        "pid": os.getpid(),
+                        "thread_id": threading.get_ident(),
+                        "native_thread_id": threading.get_native_id(),
+                        "enter_ns": time.monotonic_ns(),
+                        "is_current_shared_executor_worker": async_tools.is_current_shared_executor_worker(),
+                    }
+                )
+                peer_started.set()
+                released = peer_release.wait(timeout=600.0)
+                observation["executor"]["nonnumeric_peer"].update(
+                    {
+                        "exit_ns": time.monotonic_ns(),
+                        "release_observed": released,
+                    }
+                )
+
+            peer_future = executor.submit(nonnumeric_peer)
+            if not peer_started.wait(timeout=30.0):
+                _skip_with_partial(
+                    "peer_not_observed", "nonnumeric second worker did not start in bound"
+                )
+            if method_handle is not None and method_handle.done():
+                _skip_with_partial(
+                    "fit_finished_before_negatives", "real method finished before pool saturation"
+                )
+
+            # Queue both owner-configured FIFO slots behind the actual fit and peer.
+            def queued_follower(follower_id: int) -> None:
+                queued_body_returns.append(
+                    {
+                        "follower_id": follower_id,
+                        "monotonic_ns": time.monotonic_ns(),
+                        "pid": os.getpid(),
+                        "thread_id": threading.get_ident(),
+                    }
+                )
+
+            queue_future = executor.submit(queued_follower, 1)
+            queue_future2 = executor.submit(queued_follower, 2)
+            queue_pending = all(
+                not future.done() and not future.running()
+                for future in (queue_future, queue_future2)
+            )
+            full_observed_ns = time.monotonic_ns()
+            observation["executor"]["queue"].update(
+                {
+                    "follower_future_type": type(queue_future).__module__
+                    + "."
+                    + type(queue_future).__qualname__,
+                    "follower_future_id": id(queue_future),
+                    "second_follower_future_id": id(queue_future2),
+                    "pending_when_fit_active": queue_pending,
+                    "full_observed_ns": full_observed_ns,
+                }
+            )
+            try:
+                executor.submit(lambda: None)
+            except async_tools.SharedExecutorBackpressureError as exc:
+                observation["executor"]["queue"].update(
+                    {
+                        "overflow_error_code": exc.code,
+                        "overflow_capacity": exc.capacity,
+                        "overflow_queue_capacity": exc.queue_capacity,
+                        "overflow_queue_depth": exc.queue_depth,
+                        "full_observed_ns": time.monotonic_ns(),
+                    }
+                )
+            else:
+                observation["executor"]["queue"]["overflow_error_code"] = "not_raised"
+            observation["executor"]["queue"]["submit_owner"] = callable_record(executor.submit)
+            with executor._admission_lock:
+                observation["executor"]["queue"].update(
+                    {
+                        "physical_workers": executor._physical_workers,
+                        "queued_jobs": executor._queued_jobs,
+                        "outstanding_jobs": executor._outstanding_jobs,
+                    }
+                )
+            if (
+                not queue_pending
+                or observation["executor"]["queue"]["overflow_error_code"]
+                != "shared_executor_queue_full"
+            ):
+                _skip_with_partial(
+                    "saturation_premise_missing",
+                    "real shared queue was not observed full while the fit was running",
+                )
+
+            # Wait in the test thread for natural progress and two real lease
+            # renewals after the queue becomes full. Never pause a fit callback.
+            full_at = observation["executor"]["queue"]["full_observed_ns"]
+            progress_deadline = test_started_monotonic + 600.0
+            while True:
+                with renewals_lock:
+                    eligible_renewals = [
+                        row
+                        for row in observation["lease"]["renewals"]
+                        if row["monotonic_ns"] > full_at
+                        and row["result"] is True
+                        and row["expected_attempt"] == attempt
+                        and row["fresh_attempt"] == attempt
+                        and row["fresh_owner"] == lease_owner
+                    ]
+                completed_trees = [
+                    event
+                    for event in native_events
+                    if event.get("fit_layer") == "grf_tree"
+                    and event.get("kind") == "fit_return"
+                    and event.get("success") is True
+                ]
+                if len(eligible_renewals) >= 2 and completed_trees:
+                    break
+                if (method_handle is not None and method_handle.done()) or any(
+                    event.get("fit_layer") == "forest_dr" and event.get("kind") == "fit_return"
+                    for event in native_events
+                ):
+                    _skip_with_partial(
+                        "fit_finished_before_negatives",
+                        "real method completed before the saturated progress premise",
+                    )
+                if time.monotonic() >= progress_deadline:
+                    _skip_with_partial(
+                        "live_renewal_premise_missing",
+                        "two renewed leases and real tree progress were not observed in the bounded test interval",
+                    )
+                try:
+                    event = observer.events.get(timeout=0.02)
+                    native_events.append(event)
+                except __import__("queue").Empty:
+                    pass
+
+            # Preserve the exact still-running scope before both HTTP negatives.
+            running = reader.get_job(job_id)
+            if running is None or running.state != "running" or running.attempt != attempt:
+                _skip_with_partial(
+                    "fit_finished_before_negatives",
+                    "fit/lease no longer running before the live negative controls",
+                )
+            stale_body = {
+                "expected_lease_owner": lease_owner,
+                "expected_attempt": max(0, attempt - 1),
+                "operation_id": "r4-native-stale-attempt",
+            }
+            stale_negative = _capture_negative(
+                kind="stale_attempt",
+                selected_client=client,
+                headers=headers,
+                body=stale_body,
+            )
+            observation["negatives"].append(stale_negative)
+            after_stale_negative = reader.get_job(job_id)
+            if (
+                after_stale_negative is None
+                or after_stale_negative.state != "running"
+                or after_stale_negative.attempt != attempt
+                or after_stale_negative.lease_owner != lease_owner
+            ):
+                _skip_with_partial(
+                    "fit_finished_during_negative_controls",
+                    "fit/lease changed during the stale-attempt control; INCONCLUSIVE",
+                )
+            denied_body = {
+                "expected_lease_owner": lease_owner,
+                "expected_attempt": attempt,
+                "operation_id": "r4-native-denied-permission",
+            }
+            client.app.state.runtime_deployment_principal_grants = denied_grants
+            denied_negative = _capture_negative(
+                kind="denied_permission",
+                selected_client=client,
+                headers=denied_headers,
+                body=denied_body,
+            )
+            observation["negatives"].append(denied_negative)
+            client.app.state.runtime_deployment_principal_grants = allowed_grants
+            after_negatives = reader.get_job(job_id)
+            observation["negatives_running_scope"] = {
+                "state": after_negatives.state if after_negatives else None,
+                "attempt": after_negatives.attempt if after_negatives else None,
+                "lease_owner": after_negatives.lease_owner if after_negatives else None,
+            }
+
+            # A naturally finished model is a bounded INCONCLUSIVE candidate. Do not
+            # cancel a terminal job or reinterpret this timing as a product defect.
+            while True:
+                try:
+                    native_events.append(observer.events.get_nowait())
+                except Exception:
+                    break
+            early_fit_return = next(
+                (
+                    event
+                    for event in native_events
+                    if event.get("kind") == "fit_return" and event.get("fit_layer") == "forest_dr"
+                ),
+                None,
+            )
+            after_negatives = reader.get_job(job_id)
+            if (
+                early_fit_return is not None
+                or (method_handle is not None and method_handle.done())
+                or after_negatives is None
+                or after_negatives.state != "running"
+                or after_negatives.attempt != attempt
+                or after_negatives.lease_owner != lease_owner
+            ):
+                observation["case"]["stage"] = "fit_finished_before_cancel"
+                observation["case"]["verdict"]["bounded_native_in_flight"] = "INCONCLUSIVE"
+                observation["case"]["verdict"]["native_activity"] = "INCONCLUSIVE"
+                observation["result"]["fit_natural_return_ns"] = (
+                    early_fit_return.get("monotonic_ns") if early_fit_return else None
+                )
+                observation["result"]["method_work_return_ns"] = (
+                    time.monotonic_ns()
+                    if method_handle is not None and method_handle.done()
+                    else None
+                )
+                observation["executor"]["shared_execution_handle"]["done_at_post_end"] = (
+                    method_handle.done() if method_handle is not None else None
+                )
+                observation["executor"]["shared_execution_handle"]["completion_status"] = (
+                    "completed_before_cancel"
+                    if method_handle is not None and method_handle.done()
+                    else "UNRUN"
+                )
+                _release_peer()
+                _capture_completed_method_failure()
+                partial = _r4_snapshot(reader, job_id)
+                observation["final"].update(
+                    {
+                        "fresh_sqlite_readback_monotonic_ns": time.monotonic_ns(),
+                        "database_path": str(db_path),
+                        "snapshot": partial,
+                        "snapshot_sha256": _r4_snapshot_hash(partial),
+                        "selection_status": (
+                            "withheld_or_absent"
+                            if not after_negatives or not after_negatives.method_execution_selection
+                            else "selected"
+                        ),
+                        "selection_attempt": (
+                            after_negatives.attempt
+                            if after_negatives and after_negatives.method_execution_selection
+                            else None
+                        ),
+                    }
+                )
+                observation["result"]["selection_status"] = observation["final"]["selection_status"]
+                run_body, _, _ = _selection_get(client, headers)
+                observation["result"]["fresh_get_status"] = run_body["status_code"]
+                observation["result"]["fresh_get_selection"] = _r4_run_selection(run_body["body"])
+                pytest.skip(
+                    "natural fit completion or lost live lease before cancellation; INCONCLUSIVE"
+                )
+
+            # Query the actual same worker port around the unmodified public POST.
+            port = observer_worker.get("mach_thread_port")
+            observation["executor"]["occupied_worker"].update(
+                {
+                    "pid": observer_worker.get("pid"),
+                    "thread_id": observer_worker.get("thread_id"),
+                    "native_thread_id": observer_worker.get("native_thread_id"),
+                    "thread_name": observer_worker.get("thread_name"),
+                    "is_current_shared_executor_worker": observer_worker.get(
+                        "is_current_shared_executor_worker"
+                    ),
+                    "mach_thread_port": port,
+                }
+            )
+            if type(port) is int and port > 0:
+                sample_before = mach_thread_basic_info_sample(port)
+            else:
+                sample_before = {
+                    "error": observer_worker.get("mach_port_error") or "port_unavailable"
+                }
+            cancel_url = f"/api/v1/control/jobs/{job_id}/cancel"
+            cancel_body = {
+                "expected_lease_owner": lease_owner,
+                "expected_attempt": attempt,
+                "operation_id": "r4-native-authorized-cancel",
+            }
+            post_start_ns = time.monotonic_ns()
+            cancel_response = client.post(cancel_url, json=cancel_body, headers=headers)
+            post_end_ns = time.monotonic_ns()
+            future_done_at_response = method_handle.done() if method_handle is not None else None
+            if type(port) is int and port > 0:
+                sample_after = mach_thread_basic_info_sample(port)
+            else:
+                sample_after = {
+                    "error": observer_worker.get("mach_port_error") or "port_unavailable"
+                }
+            # The POST has returned; release the explicitly held peer so the
+            # real method's later guarded CAS work is not artificially starved.
+            _release_peer()
+            cancel_body_wire, cancel_text = _r4_response_body(cancel_response)
+            same_identity = all(
+                observer_worker.get(field) is not None
+                for field in (
+                    "pid",
+                    "thread_id",
+                    "native_thread_id",
+                    "mach_thread_port",
+                )
+            )
+            cpu_before = _r4_mach_nested_sample(sample_before)
+            cpu_after = _r4_mach_nested_sample(sample_after)
+            before_cpu = cpu_before.get("thread_cpu_microseconds")
+            after_cpu = cpu_after.get("thread_cpu_microseconds")
+            cpu_delta = (
+                after_cpu - before_cpu
+                if type(before_cpu) is int and type(after_cpu) is int
+                else None
+            )
+            bracket_error = sample_before.get("error") or sample_after.get("error")
+            bracket_available = (
+                same_identity
+                and cpu_before.get("return_code") == 0
+                and cpu_after.get("return_code") == 0
+                and cpu_delta is not None
+            )
+            observation["cancel"].update(
+                {
+                    "authorized": True,
+                    "post_start_ns": post_start_ns,
+                    "post_end_ns": post_end_ns,
+                    "status_code": cancel_response.status_code,
+                    "url": cancel_url,
+                    "request_url": str(cancel_response.request.url),
+                    "request_body": cancel_body,
+                    "body": cancel_body_wire,
+                    "request_wire_utf8": cancel_response.request.content.decode("utf-8"),
+                    "response_body": cancel_body_wire,
+                    "response_text": cancel_text,
+                    "worker_cpu_bracket": {
+                        "method": "mach_THREAD_BASIC_INFO",
+                        "available": bracket_available,
+                        "pid": observer_worker.get("pid"),
+                        "thread_id": observer_worker.get("thread_id"),
+                        "native_thread_id": observer_worker.get("native_thread_id"),
+                        "mach_thread_port": port,
+                        "flavor": 3,
+                        "count": 10,
+                        "struct_size_bytes": 40,
+                        "resolution_microseconds": 1,
+                        "before": cpu_before,
+                        "after": cpu_after,
+                        "thread_cpu_delta_microseconds": cpu_delta,
+                        "error": bracket_error,
+                    },
+                    "future_unfinished_at_response": (
+                        not future_done_at_response if future_done_at_response is not None else None
+                    ),
+                    "database_path": str(db_path),
+                }
+            )
+            observation["executor"]["shared_execution_handle"]["done_at_post_end"] = (
+                future_done_at_response
+            )
+            if control_calls:
+                positive_calls = [
+                    item
+                    for item in control_calls
+                    if item.get("operation_id") == cancel_body["operation_id"]
+                ]
+                if positive_calls:
+                    initial_call = positive_calls[0]
+                    observation["cancel"]["actual_store_cancel_entry_ns"] = initial_call[
+                        "monotonic_ns"
+                    ]
+                    observation["cancel"]["current_authority_at_entry"] = initial_call[
+                        "current_authority"
+                    ]
+                    observation["cancel"]["actual_store_cancel_body_called_at_ns"] = initial_call[
+                        "body_called_at_ns"
+                    ]
+                    observation["cancel"]["authority"] = {
+                        "authorized_actor": initial_call["authorized_actor"],
+                        "tenant_id": initial_call["tenant_id"],
+                        "bound_job_id_selector": initial_call["bound_job_id_selector"],
+                        "bound_cell_id_selector": initial_call["bound_cell_id_selector"],
+                        "body_sha256": initial_call["body_sha256"],
+                        "operation_id": initial_call["operation_id"],
+                        "expected_lease_owner": initial_call["expected_lease_owner"],
+                        "expected_attempt": initial_call["expected_attempt"],
+                    }
+                    observation["cancel"]["authorized_actor"] = initial_call["authorized_actor"]
+                    observation["cancel"]["tenant_id"] = initial_call["tenant_id"]
+                    observation["cancel"]["cell_id"] = initial_call["cell_id"]
+
+            fresh_cancel_snapshot = _r4_snapshot(reader, job_id)
+            observed_after_cancel = reader.get_job(job_id)
+            fresh_cancel_readback_ns = time.monotonic_ns()
+            fresh_job = None
+            fresh_verification_error = None
+            if observed_after_cancel is None:
+                _skip_with_partial(
+                    "fit_finished_during_cancel",
+                    "fresh job disappeared; current attempt is not established",
+                )
+            if observed_after_cancel.state == "cancelled":
+                try:
+                    fresh_job = reader.get_cancelled_job_verified_record(job_id)
+                except ControlJobLeaseLostError as exc:
+                    # Preserve the owner's actual rejection with raw rows. A
+                    # different unexpected exception remains an instrument error.
+                    fresh_verification_error = {"type": type(exc).__name__, "message": str(exc)}
+                fresh_cancel_readback_ns = time.monotonic_ns()
+            elif (
+                observed_after_cancel.state != "running"
+                or observed_after_cancel.attempt != attempt
+                or observed_after_cancel.lease_owner != lease_owner
+            ):
+                _skip_with_partial(
+                    "fit_finished_during_cancel",
+                    "the original live attempt is no longer established after cancellation",
+                )
+            # A still-running same attempt is retained as an actual candidate red.
+            # Do not retry or run stale-owner mutations against a live owner.
+            observation["cancel"]["fresh_sqlite_readback"] = {
+                "monotonic_ns": fresh_cancel_readback_ns,
+                "snapshot": fresh_cancel_snapshot,
+                "snapshot_sha256": _r4_snapshot_hash(fresh_cancel_snapshot),
+                "subsequent_job_read": {
+                    "job_id": observed_after_cancel.job_id,
+                    "run_id": observed_after_cancel.run_id,
+                    "state": observed_after_cancel.state,
+                    "attempt": observed_after_cancel.attempt,
+                    "lease_owner": observed_after_cancel.lease_owner,
+                },
+                "verified_cancelled_record": fresh_job is not None
+                and fresh_job.state == "cancelled",
+                "verification_error": fresh_verification_error,
+            }
+            fresh_job_url = f"/api/v1/control/jobs/{job_id}"
+            fresh_get_response = client.get(fresh_job_url, headers=headers)
+            fresh_get_body, fresh_get_text = _r4_response_body(fresh_get_response)
+            observation["cancel"]["fresh_http_get"] = {
+                "method": "GET",
+                "url": fresh_job_url,
+                "monotonic_ns": time.monotonic_ns(),
+                "status_code": fresh_get_response.status_code,
+                "body": fresh_get_body,
+                "request_url": str(fresh_get_response.request.url),
+                "response_text": fresh_get_text,
+            }
+            run_get, _, _ = _selection_get(client, headers)
+            run_get["monotonic_ns"] = time.monotonic_ns()
+            observation["cancel"]["fresh_run_get"] = run_get
+            observation["cancel"]["selection_snapshot"] = _r4_run_selection(run_get["body"])
+
+            if fresh_job is not None:
+                retry_start_ns = time.monotonic_ns()
+                retry_response = client.post(cancel_url, json=cancel_body, headers=headers)
+                retry_body, retry_text = _r4_response_body(retry_response)
+                observation["cancel"]["retry"] = {
+                    "method": "POST",
+                    "url": cancel_url,
+                    "monotonic_ns": retry_start_ns,
+                    "status_code": retry_response.status_code,
+                    "request_body": cancel_body,
+                    "request_wire_utf8": retry_response.request.content.decode("utf-8"),
+                    "request_url": str(retry_response.request.url),
+                    "body": retry_body,
+                    "response_text": retry_text,
+                }
+
+            # Supplementary old-owner guarded writes run only after durable fencing.
+            def stale_operation(name: str, operation: Any) -> None:
+                record = {
+                    "called": True,
+                    "refused": False,
+                    "exception_type": None,
+                    "exception_message": None,
+                    "body_entered": False,
+                    "returned_normally": None,
+                }
+                try:
+                    operation(record)
+                    record["returned_normally"] = True
+                except Exception as exc:
+                    record["returned_normally"] = False
+                    record["exception_type"] = type(exc).__name__
+                    record["exception_message"] = str(exc)
+                    record["refused"] = isinstance(exc, ControlJobLeaseLostError)
+                observation["final"]["stale_write_results"][name] = record
+                observation["final"]["stale_write_refused"][name] = record["refused"]
+
+            def progress_write(record: dict[str, Any]) -> None:
+                record["body_entered"] = None
+                service._control_store.update_progress_state(
+                    job_id=job_id,
+                    state="running",
+                    progress={"r4_stale_probe": True},
+                    expected_lease_owner=lease_owner,
+                    expected_attempt=attempt,
+                )
+
+            def manifest_write(record: dict[str, Any]) -> None:
+                with service._control_store.job_execution_fence(
+                    job_id=job_id,
+                    worker_id=worker_id,
+                    attempt=attempt,
+                ):
+                    record["body_entered"] = True
+                    service._control_store.update_manifest_ref(
+                        job_id=job_id,
+                        capability_manifest_ref=str(fresh_job.capability_manifest_ref),
+                    )
+
+            def terminal_write(record: dict[str, Any]) -> None:
+                record["body_entered"] = None
+                service._control_store.complete_job(
+                    job_id=job_id,
+                    run_id=run_id,
+                    expected_lease_owner=lease_owner,
+                    expected_attempt=attempt,
+                )
+
+            if fresh_job is not None:
+                stale_operation("progress", progress_write)
+                stale_operation("manifest", manifest_write)
+                stale_operation("terminal", terminal_write)
+
+            # Wait outside the native fit callback for the actual outer model return.
+            wait_deadline = time.monotonic() + 600.0
+            while time.monotonic() < wait_deadline and fit_return_event is None:
+                try:
+                    event = observer.events.get(
+                        timeout=min(0.5, max(0.001, wait_deadline - time.monotonic()))
+                    )
+                except Exception:
+                    if (
+                        dispatch_done.is_set()
+                        and method_handle is not None
+                        and method_handle.done()
+                    ):
+                        break
+                    continue
+                native_events.append(event)
+                if event.get("fit_layer") == "forest_dr" and event.get("kind") == "fit_return":
+                    fit_return_event = event
+            if fit_return_event is not None:
+                observation["result"]["fit_natural_return_ns"] = fit_return_event.get(
+                    "monotonic_ns"
+                )
+            if fit_return_event is not None and method_handle is not None:
+                completion_deadline = test_started_monotonic + 600.0
+                while not method_handle.done() and time.monotonic() < completion_deadline:
+                    time.sleep(0.02)
+                while (
+                    any(
+                        future is not None and not future.done()
+                        for future in (queue_future, queue_future2)
+                    )
+                    and time.monotonic() < completion_deadline
+                ):
+                    time.sleep(0.02)
+            observation["result"]["method_work_return_ns"] = (
+                time.monotonic_ns() if method_handle is not None and method_handle.done() else None
+            )
+            if method_handle is not None and method_handle.done():
+                try:
+                    completion = method_handle.result(timeout=0)
+                    observation["executor"]["shared_execution_handle"]["completion_status"] = (
+                        completion.status
+                    )
+                    _capture_completed_method_failure()
+                    if completion.status == "completed":
+                        from polisyos.scientist.compute.runner import (
+                            MethodExecutionRefOutcome,
+                        )
+
+                        actual = completion.value
+                        if type(actual) is MethodExecutionRefOutcome:
+                            candidate = actual.candidate_outcome
+                            observation["result"]["candidate_outcome"] = (
+                                candidate.model_dump(mode="json") if candidate is not None else None
+                            )
+                            observation["result"]["method_result_ref"] = (
+                                actual.method_result_ref.model_dump(mode="json")
+                            )
+                            observation["result"]["method_evidence_ref"] = (
+                                actual.method_evidence_ref.model_dump(mode="json")
+                            )
+                            observation["result"]["selection_attempt"] = actual.attempt
+                            observation["executor"]["shared_execution_handle"]["typed_outcome"] = {
+                                "type": type(actual).__module__ + "." + type(actual).__qualname__,
+                                "job_id": actual.job_id,
+                                "run_id": actual.run_id,
+                                "attempt": actual.attempt,
+                                "requested_source_ref": actual.requested_source_ref.model_dump(
+                                    mode="json"
+                                ),
+                                "observational_run_intent_ref": actual.observational_run_intent_ref.model_dump(
+                                    mode="json"
+                                ),
+                                "candidate_outcome": observation["result"]["candidate_outcome"],
+                                "method_result_ref": observation["result"]["method_result_ref"],
+                                "method_evidence_ref": observation["result"]["method_evidence_ref"],
+                            }
+                            with tenant_scope(None, tenant_id=tenant, cell_id=cell_id):
+                                result_bytes = cas.get_bytes(actual.method_result_ref.artifact_id)
+                                evidence_bytes = cas.get_bytes(
+                                    actual.method_evidence_ref.artifact_id
+                                )
+                            observation["result"]["cas_readback_status"] = "bytes_reloaded"
+                            observation["result"]["cas_readback_sha256"] = {
+                                "method_result": hashlib.sha256(result_bytes).hexdigest(),
+                                "method_evidence": hashlib.sha256(evidence_bytes).hexdigest(),
+                            }
+                            observation["result"]["semantic_estimate_valid"] = bool(
+                                candidate is not None
+                                and candidate.status == "success"
+                                and candidate.sample_size == 2000
+                                and candidate.point_estimate is not None
+                                and candidate.confidence_interval is not None
+                                and all(
+                                    map(
+                                        __import__("math").isfinite,
+                                        (
+                                            candidate.point_estimate,
+                                            *candidate.confidence_interval,
+                                        ),
+                                    )
+                                )
+                            )
+                        else:
+                            observation["executor"]["shared_execution_handle"]["typed_outcome"] = {
+                                "type": type(actual).__module__ + "." + type(actual).__qualname__
+                            }
+                except Exception as exc:
+                    # Numerical/result CAS readback is optional for the cancellation
+                    # property. Preserve its failure without fabricating a result;
+                    # an actual handle read failure is separately captured by the drain.
+                    observation["result"]["cas_readback_status"] = "UNAVAILABLE"
+                    observation["result"]["optional_outcome_readback_error"] = {
+                        "type": type(exc).__name__,
+                        "message": str(exc),
+                    }
+            elif method_handle is not None:
+                observation["executor"]["shared_execution_handle"]["completion_status"] = (
+                    "still_running_at_bound"
+                )
+            if dispatch_thread is not None:
+                while (
+                    dispatch_thread.is_alive() and time.monotonic() < test_started_monotonic + 600.0
+                ):
+                    dispatch_thread.join(timeout=0.2)
+            observation["result"]["handler_errors"] = worker_errors
+            observation["result"]["handler_disposition"] = (
+                "dispatch_returned" if dispatch_done.is_set() else "handler_not_returned_at_bound"
+            )
+
+            final_readback_ns = time.monotonic_ns()
+            final_snapshot = _r4_snapshot(reader, job_id)
+            final_job = reader.get_job(job_id)
+            final_run_get, _, _ = _selection_get(client, headers)
+            final_selection = _r4_run_selection(final_run_get["body"])
+            events = final_snapshot["events"]
+            outbox = final_snapshot["outbox"]
+            observation["final"].update(
+                {
+                    "fresh_sqlite_readback_monotonic_ns": final_readback_ns,
+                    "database_path": str(db_path),
+                    "snapshot": final_snapshot,
+                    "snapshot_sha256": _r4_snapshot_hash(final_snapshot),
+                    "cancel_event_count": sum(
+                        row.get("event_type") == "job_cancelled" for row in events
+                    ),
+                    "cancel_outbox_count": sum(
+                        row.get("topic") == "control.job.cancelled" for row in outbox
+                    ),
+                    "completed_or_failed_terminal_count": sum(
+                        row.get("event_type") in {"job_completed", "job_failed"} for row in events
+                    ),
+                    "selection_status": (
+                        final_selection.get("status")
+                        if isinstance(final_selection, dict)
+                        else "withheld_or_absent"
+                    ),
+                    "selection_attempt": final_job.attempt
+                    if final_job and final_job.method_execution_selection
+                    else None,
+                    "queued_body_entered_after_fit_return": bool(
+                        fit_return_event is not None
+                        and queued_body_returns
+                        and queued_body_returns[0]["monotonic_ns"]
+                        > fit_return_event.get("monotonic_ns", 0)
+                    ),
+                    "queued_body_entered_after_peer_release": bool(
+                        len(queued_body_returns) == 2
+                        and observation["executor"]["nonnumeric_peer"]["release_ns"] is not None
+                        and all(
+                            row["monotonic_ns"]
+                            > observation["executor"]["nonnumeric_peer"]["release_ns"]
+                            for row in queued_body_returns
+                        )
+                    ),
+                }
+            )
+            if fit_return_event is not None and queued_body_returns:
+                observation["executor"]["queue"]["body_entered_before_fit_return"] = (
+                    queued_body_returns[0]["monotonic_ns"]
+                    <= fit_return_event.get("monotonic_ns", 0)
+                )
+            observation["executor"]["queue"]["follower_events"] = list(queued_body_returns)
+            observation["result"]["selection_status"] = observation["final"]["selection_status"]
+            observation["result"]["fresh_get_status"] = final_run_get["status_code"]
+            observation["result"]["fresh_get_selection"] = final_selection
+            observation["case"]["verdict"]["durable_cancel"] = (
+                "PASS"
+                if final_job is not None
+                and final_job.state == "cancelled"
+                and observation["final"]["cancel_event_count"] == 1
+                and observation["final"]["cancel_outbox_count"] == 1
+                and observation["final"]["completed_or_failed_terminal_count"] == 0
+                and not final_job.method_execution_selection
+                else "FAIL"
+            )
+            observation["case"]["verdict"]["method_execution"] = (
+                "OBSERVED" if fit_return_event is not None else "INCONCLUSIVE"
+            )
+            observation["case"]["stage"] = "complete"
+
+            # Recompute from actual origins/events first, then falsify the decisive
+            # native evidence while retaining every superficial HTTP/queue marker.
+            observation["native"]["forest_dr_fit_events"] = [
+                event for event in native_events if event.get("fit_layer") == "forest_dr"
+            ]
+            observation["native"]["grf_tree_fit_events"] = [
+                event for event in native_events if event.get("fit_layer") == "grf_tree"
+            ]
+            module_readset_cache = _r4_module_readset()
+            observation["native"]["loaded_native_modules"] = module_readset_cache[1]
+            native_classification = _r4_native_inflight_classification(observation)
+            stripped = json.loads(json.dumps(observation))
+            stripped["native"]["loaded_native_modules"] = []
+            stripped["native"]["fit_original"] = {}
+            stripped["native"]["forest_dr_fit_original"] = {}
+            stripped["native"]["grf_tree_fit_events"] = []
+            stripped["cancel"]["worker_cpu_bracket"]["available"] = False
+            stripped["cancel"]["worker_cpu_bracket"]["thread_cpu_delta_microseconds"] = None
+            stripped["cancel"]["worker_cpu_bracket"]["before"] = {}
+            stripped["cancel"]["worker_cpu_bracket"]["after"] = {}
+            removed_classification = _r4_native_inflight_classification(stripped)
+            fake = json.loads(json.dumps(stripped))
+            fake["native"]["grf_tree_fit_events"] = [
+                {
+                    "kind": "fit_return",
+                    "success": True,
+                    "sequence": 1,
+                    "fit_call_id": 1,
+                    "tree_identity": 1,
+                    "pid": observer_worker.get("pid"),
+                    "thread_id": observer_worker.get("thread_id"),
+                    "native_thread_id": observer_worker.get("native_thread_id"),
+                    "monotonic_ns": observation["cancel"]["post_end_ns"] + 1,
+                }
+            ]
+            fake_classification = _r4_native_inflight_classification(fake)
+            durable_signature_before = _r4_durable_cancel_signature(observation)
+            durable_signature_after = _r4_durable_cancel_signature(stripped)
+            observation["native_removal_falsifier"] = {
+                "retained_http_status": observation["cancel"]["status_code"],
+                "retained_queue_error": observation["executor"]["queue"]["overflow_error_code"],
+                "native_evidence_removed": True,
+                "native_classification_before": native_classification,
+                "native_classification_after_removal": removed_classification,
+                "present_but_fake_classification": fake_classification,
+                "durable_signature_unchanged": durable_signature_before == durable_signature_after,
+                "classifier_implementation": "_r4_native_inflight_classification_from_raw_events",
+            }
+            observation["case"]["verdict"]["bounded_native_in_flight"] = (
+                "PASS"
+                if native_classification in {"PASS", "BOUNDED_NATIVE_IN_FLIGHT"}
+                else "INCONCLUSIVE"
+            )
+            observation["case"]["verdict"]["native_activity"] = (
+                "PASS" if native_classification == "PASS" else "INCONCLUSIVE"
+            )
+
+            # Collect all completed evidence before reporting an observed red.
+            # The controller separately qualifies authority, in-flight timing,
+            # race boundaries and stored carriers before attributing a failure.
+            if not (
+                observation["cancel"]["future_unfinished_at_response"] is True
+                and fit_return_event is not None
+                and fit_return_event.get("monotonic_ns", 0) > post_end_ns
+            ):
+                observation["case"]["stage"] = "insufficient_live_overlap"
+                observation["case"]["verdict"]["bounded_native_in_flight"] = "INCONCLUSIVE"
+                pytest.skip("real native fit did not span cancellation and natural return")
+            semantic_failures = []
+            if fresh_job is None:
+                semantic_failures.append(
+                    "first_cancel_left_same_attempt_running"
+                    if observed_after_cancel.state == "running"
+                    else "cancelled_record_failed_owner_verification"
+                )
+            elif observation["case"]["verdict"]["durable_cancel"] != "PASS":
+                semantic_failures.append("final_cancellation_or_publication_fence_missing")
+            if observation["negatives"][0]["status_code"] < 400:
+                semantic_failures.append("stale_attempt_request_accepted")
+            if observation["negatives"][1]["status_code"] != 403:
+                semantic_failures.append("denied_permission_request_not_forbidden")
+            for name, detail in observation["final"]["stale_write_results"].items():
+                if detail.get("called") and detail.get("returned_normally") is True:
+                    semantic_failures.append("stale_" + name + "_returned_normally")
+            if observation["cancel"]["status_code"] != 200:
+                semantic_failures.append("authorized_cancel_response_not_200")
+            observation["case"]["semantic_failures"] = semantic_failures
+            if semantic_failures:
+                raise _R4ObservedSemanticError(", ".join(semantic_failures))
+
+    except pytest.skip.Exception:
+        observation["case"]["stage"] = observation["case"].get("stage") or "skipped"
+        raise
+    except _R4ObservedSemanticError:
+        # Keep stage=complete and the actual JUnit failure for independent classification.
+        raise
+    except BaseException as exc:
+        interrupted_stage = observation["case"].get("stage")
+        observation["case"]["stage"] = "error"
+        observation["errors"].append(
+            {
+                "stage": interrupted_stage,
+                "type": type(exc).__name__,
+                "message": str(exc),
+            }
+        )
+        raise
+    finally:
+        if worker is not None:
+            try:
+                worker.stop()
+            except Exception as exc:
+                observation["errors"].append(
+                    {
+                        "stage": "worker_stop",
+                        "type": type(exc).__name__,
+                        "message": str(exc),
+                    }
+                )
+        if dispatch_thread is not None and dispatch_thread.is_alive():
+            dispatch_thread.join(timeout=1.0)
+        if reader is not None:
+            try:
+                reader.close()
+            except Exception as exc:
+                observation["errors"].append(
+                    {
+                        "stage": "reader_close",
+                        "type": type(exc).__name__,
+                        "message": str(exc),
+                    }
+                )
+        if env is not None:
+            try:
+                if client_lifespan_entered:
+                    # `with client` already exited the secure app lifespan.
+                    env["client"] = None
+                close_runtime_api_env(env)
+            except Exception as exc:
+                observation["errors"].append(
+                    {
+                        "stage": "runtime_env_close",
+                        "type": type(exc).__name__,
+                        "message": str(exc),
+                    }
+                )
+        observation["native"]["forest_dr_fit_events"] = [
+            event
+            for event in native_events
+            if event.get("kind") in {"fit_enter", "fit_return"}
+            and event.get("fit_layer") == "forest_dr"
+        ]
+        observation["native"]["grf_tree_fit_events"] = [
+            event
+            for event in native_events
+            if event.get("kind") in {"fit_enter", "fit_return"}
+            and event.get("fit_layer") == "grf_tree"
+        ]
+        _save()

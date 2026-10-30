@@ -43,6 +43,7 @@ if TYPE_CHECKING:
 
     from polisyos.core.run.child_custody import (
         ChildComputationCustody,
+        ChildStagingScope,
         PrivateChildHandoff,
     )
     from polisyos.core.run.manifest import RunInvocationImplementationIdentity
@@ -208,10 +209,12 @@ class _AdmittedChildDispatch:
         grant: _BorrowedExecutionGrant,
         *,
         fence: Any | None = None,
+        scope: ChildStagingScope | None = None,
     ) -> None:
         self._owner = owner
         self._grant = grant
         self._fence = fence
+        self._scope = scope
         self._params = _finite_json(params)
         self._spec = owner.bound_node.spec.model_copy(deep=True)
 
@@ -233,7 +236,12 @@ class _AdmittedChildDispatch:
         # This is a short owner decision; producer code runs outside the lock.
         if self._fence is None:
             raise ValueError("child_control_dispatch_owner_not_appointed")
-        self._fence.admit_producer()
+        if self._scope is None:
+            self._fence.admit_producer()
+        else:
+            if ctx.store is not self._scope.store:
+                raise ValueError("child_dispatch_scope_store_mismatch")
+            self._fence.admit_producer(self._scope)
         if ctx.foundry is not None:
             from polisyos.scientist.orchestration.engine.child_foundry import (
                 _CHILD_FOUNDRY_DISPATCH_TOKEN,
@@ -301,7 +309,8 @@ _PARENT_SEAL_TOKEN = object()
 class _ParentAttemptSeal:
     """Engine-held result of reconciling the actual pending parent invocation."""
 
-    __slots__ = ("binding", "dispatch", "grant", "root", "selections")
+    __slots__ = ("binding", "dispatch", "grant", "input_state_json", "root", "selections")
+    input_state_json: bytes
 
     def __init__(
         self,
@@ -309,6 +318,7 @@ class _ParentAttemptSeal:
         binding: ChildComputationBinding,
         dispatch: _AdmittedChildDispatch,
         grant: _BorrowedExecutionGrant,
+        input_state_json: bytes,
         selections: _AdmittedSourceSelections,
         *,
         token: object,
@@ -319,6 +329,7 @@ class _ParentAttemptSeal:
         object.__setattr__(self, "binding", binding.model_copy(deep=True))
         object.__setattr__(self, "dispatch", dispatch)
         object.__setattr__(self, "grant", grant)
+        object.__setattr__(self, "input_state_json", input_state_json)
         object.__setattr__(self, "selections", selections)
 
     def __setattr__(self, name: str, value: object) -> None:
@@ -441,6 +452,7 @@ def _hold_admitted_parent_dispatch(
         binding,
         _AdmittedChildDispatch(owner, params, grant),
         grant,
+        _finite_json(basis_state.model_dump(mode="json")),
         _AdmittedSourceSelections(basis_state),
         token=_PARENT_SEAL_TOKEN,
     )
@@ -505,6 +517,44 @@ class _ApprovedChildPorts:
     lex: Any = None
     eval_safety_execution_context: Any = None
     eval_safety_verifier: Any = None
+
+
+_STAGE_B_SESSION_TOKEN = object()
+
+
+class _ManagedStageBSession:
+    """Expose the appointed candidate operation without exposing the parent grant.
+
+    This restricted interface is for the held parent builtin. It is not a
+    sandbox against reflective access to Python process internals.
+    """
+
+    __slots__ = ("__runner",)
+
+    def __init__(self, runner: _ManagedChildRunner, *, token: object) -> None:
+        if token is not _STAGE_B_SESSION_TOKEN or type(runner) is not _ManagedChildRunner:
+            raise TypeError("child_stage_b_session_not_appointed")
+        object.__setattr__(self, "_ManagedStageBSession__runner", runner)
+
+    def __getattribute__(self, name: str) -> Any:
+        if name == "_ManagedStageBSession__runner":
+            raise AttributeError(name)
+        return object.__getattribute__(self, name)
+
+    def __setattr__(self, name: str, value: object) -> None:
+        raise AttributeError("child Stage B session is immutable")
+
+    def __delattr__(self, name: str) -> None:
+        raise AttributeError("child Stage B session is immutable")
+
+    def evaluate_candidate(
+        self, candidate_payload: dict[str, Any], parent_state: ExperimentState
+    ) -> PrivateChildHandoff:
+        """Run one candidate on the fixed, independently admitted child template."""
+        runner: object = object.__getattribute__(self, "_ManagedStageBSession__runner")
+        if not isinstance(runner, _ManagedChildRunner) or type(runner) is not _ManagedChildRunner:
+            raise ValueError("child_stage_b_session_owner_changed")
+        return runner._execute_stage_b_candidate(candidate_payload, parent_state)
 
 
 class _ManagedChildRunner:
@@ -591,6 +641,7 @@ class _ManagedChildRunner:
             )["budgets"]
         )
         self._grant = parent_seal.grant
+        self._parent_input = parent_seal.input_state_json
         self._deadline = monotonic_deadline
         self._projection_key = projection_key
         self._handoffs: list[PrivateChildHandoff] = []
@@ -599,6 +650,94 @@ class _ManagedChildRunner:
         self, config: SubWorkflowConfig, parent_state: ExperimentState
     ) -> PrivateChildHandoff:
         """Execute the appointed SubWorkflow mapping inside the private child."""
+        return self._execute_subworkflow(config, parent_state)
+
+    def stage_b_session(self) -> _ManagedStageBSession:
+        """Restrict the admitted runner to the canonical Stage B template."""
+        self._require_stage_b_template()
+        return _ManagedStageBSession(self, token=_STAGE_B_SESSION_TOKEN)
+
+    def _require_stage_b_template(self) -> None:
+        from polisyos.core.run.worker_lifecycle import (
+            ChildRuntimeCapability,
+            _require_fixed_runtime_child_control,
+        )
+        from polisyos.scientist.nodes.builtins.planning.child_stage_b import (
+            _PROJECTION_KEY,
+            stage_b_child_template,
+        )
+        from polisyos.scientist.orchestration.engine.protocol import NodeSpec
+
+        custody = self._custody
+        control = _require_fixed_runtime_child_control(custody._fence)
+        ChildRuntimeCapability.for_parent(custody._root, session=custody, runtime_control=control)
+        intent = custody._job_intent
+        locator = custody._job_intent_locator
+        verifier = custody._job_owner_appointment
+        if (
+            not custody._guarded_root_required
+            or custody._guarded_reader_service is None
+            or custody._parent is None
+            or intent is None
+            or locator is None
+            or verifier is None
+            or control._job_verifier_for_core() is not verifier
+        ):
+            raise ValueError("child_stage_b_runtime_session_not_appointed")
+        verifier.verify_intent(locator, intent.recompute())
+        ChildRuntimeCapability.for_parent(custody._root, session=custody, runtime_control=control)
+        config, members = stage_b_child_template()
+        if (
+            self._projection_key != _PROJECTION_KEY
+            or _finite_json(config.model_dump(mode="json")) != self._config_bytes
+            or len(members) != len(self._members)
+        ):
+            raise ValueError("child_stage_b_template_not_appointed")
+        for node in members:
+            spec = getattr(node, "spec", None)
+            if not isinstance(spec, NodeSpec):
+                raise ValueError("child_stage_b_member_not_appointed")
+            member = self._members.get(str(spec.metadata.component_id))
+            if (
+                member is None
+                or member.expected_type is not type(node)
+                or type(member.registered) is not type(node)
+            ):
+                raise ValueError("child_stage_b_member_not_appointed")
+            member.require_unchanged()
+        self._grant.require_parent(**_resource_parent_fields(self._binding))
+
+    def _execute_stage_b_candidate(
+        self, candidate_payload: dict[str, Any], parent_state: ExperimentState
+    ) -> PrivateChildHandoff:
+        from polisyos.scientist.nodes.builtins.planning.child_stage_b import (
+            stage_b_child_template,
+        )
+        from polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search import (
+            _candidate_payload_without_hash,
+        )
+        from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
+
+        if type(candidate_payload) is not dict:
+            raise ValueError("child_stage_b_candidate_invalid")
+        _require_finite_data(candidate_payload)
+        candidate = json.loads(_finite_json(candidate_payload))
+        PolicyCandidateSchema.model_validate(_candidate_payload_without_hash(candidate))
+        # Recheck the fixed members and parent for every dynamic evaluator call.
+        self._require_stage_b_template()
+        if _finite_json(parent_state.model_dump(mode="json")) != self._parent_input:
+            raise ValueError("child_parent_input_state_changed")
+        admitted_state = ExperimentState.model_validate_json(self._parent_input)
+        config, _ = stage_b_child_template()
+        return self._execute_subworkflow(config, admitted_state, candidate_payload=candidate)
+
+    def _execute_subworkflow(
+        self,
+        config: SubWorkflowConfig,
+        parent_state: ExperimentState,
+        *,
+        candidate_payload: dict[str, Any] | None = None,
+    ) -> PrivateChildHandoff:
         from polisyos.scientist.orchestration.engine.sub_workflow import _write_to_state
 
         raise_if_job_execution_interrupted()
@@ -625,6 +764,12 @@ class _ManagedChildRunner:
         # This serializes all mapped values before running any producer; no mutable
         # parent alias is passed across the child boundary.
         child_input = _state_copy(child_input, run_id=parent_state.run_id)
+        if candidate_payload is not None:
+            from polisyos.scientist.nodes.builtins.planning.child_stage_b import _CANDIDATE_KEY
+
+            if _CANDIDATE_KEY in child_input.params:
+                raise ValueError("child_stage_b_candidate_input_reserved")
+            child_input.params[_CANDIDATE_KEY] = candidate_payload
         return self._grant.run_child(lambda: self._run_serial(child_input))
 
     def _run_serial(self, child_input: ExperimentState) -> PrivateChildHandoff:
@@ -665,7 +810,11 @@ class _ManagedChildRunner:
                 owner = _capture_configured_component_owner(member.registered, dict(inv.params))
                 registry.register(
                     _AdmittedChildDispatch(
-                        owner, dict(inv.params), self._grant, fence=self._custody._fence
+                        owner,
+                        dict(inv.params),
+                        self._grant,
+                        fence=self._custody._fence,
+                        scope=scope,
                     )
                 )
             state = _state_copy(child_input, run_id=scope.run.run_manifest.run_id)

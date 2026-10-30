@@ -7,6 +7,7 @@ import hashlib
 import inspect
 import json
 import math
+import threading
 import uuid
 from collections.abc import Callable, Mapping
 from contextvars import ContextVar
@@ -1369,6 +1370,18 @@ class _VerifiedMethodMetricProjectionAdmissionProtocol(Protocol):
 class _RuntimeOriginCapturingFoundryPort:
     """Delegate Foundry calls while retaining a bounded receipt of actual graph outputs."""
 
+    _SCOPE_FIELDS = frozenset({"_delegate", "_job_id", "_run_id", "_attempt", "_lease_owner"})
+
+    def __setattr__(self, name: str, value: object) -> None:
+        if name in self._SCOPE_FIELDS and name in self.__dict__:
+            raise AttributeError("runtime Foundry capture scope is immutable")
+        object.__setattr__(self, name, value)
+
+    def __delattr__(self, name: str) -> None:
+        if name in self._SCOPE_FIELDS:
+            raise AttributeError("runtime Foundry capture scope is immutable")
+        object.__delattr__(self, name)
+
     def __init__(
         self,
         *,
@@ -1520,6 +1533,128 @@ class _RuntimeOriginCapturingFoundryPort:
                 for emitted_refs in self._emissions
             ):
                 self._emissions.append(selected_refs)
+
+
+_RUNTIME_LEGACY_CHILD_PARENT_TOKEN = object()
+
+
+class _RuntimeLegacyChildParent:
+    """Retain a live Runtime parent for later Core appointment; grants no work."""
+
+    __slots__ = (
+        "__admission",
+        "__budget",
+        "__cas",
+        "__cas_binding",
+        "__control",
+        "__control_binding",
+        "__foundry",
+        "__foundry_delegate",
+        "__thread_id",
+    )
+
+    def __setattr__(self, name: str, value: object) -> None:
+        if hasattr(self, name):
+            raise AttributeError("runtime child parent binding is immutable")
+        object.__setattr__(self, name, value)
+
+    def __delattr__(self, name: str) -> None:
+        raise AttributeError("runtime child parent binding is immutable")
+
+    def __init__(
+        self,
+        *,
+        control: object,
+        cas: object,
+        budget: object,
+        foundry: object,
+        token: object,
+    ) -> None:
+        from polisyos.runtime.http.resilience import (
+            GuardedDependencyProxy,
+            _require_runtime_control_store_guard,
+            _require_runtime_filesystem_guard,
+        )
+        from polisyos.runtime.http.services.control.child_execution_budget import _AttemptBudget
+        from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
+
+        if (
+            token is not _RUNTIME_LEGACY_CHILD_PARENT_TOKEN
+            or type(control) is not GuardedDependencyProxy
+            or type(cas) is not GuardedDependencyProxy
+            or type(budget) is not _AttemptBudget
+            or type(foundry) is not _RuntimeOriginCapturingFoundryPort
+            or type(foundry._delegate) is not DefaultFoundryPort
+            or budget.control_store is not control
+        ):
+            raise ValueError("runtime_child_parent_not_established")
+        control_binding = _require_runtime_control_store_guard(control)
+        cas_binding = _require_runtime_filesystem_guard(cas)
+        admission = control.current_execution_job_admission()
+        self.__admission = self._admission_identity(admission)
+        self.__budget = budget
+        self.__cas = cas
+        self.__cas_binding = cas_binding
+        self.__control = control
+        self.__control_binding = control_binding
+        self.__foundry = foundry
+        self.__foundry_delegate = foundry._delegate
+        self.__thread_id = threading.get_ident()
+        self._require_current()
+
+    @staticmethod
+    def _admission_identity(admission: ControlJobExecutionAdmission) -> tuple[object, ...]:
+        job = admission.job
+        return (
+            job.job_id,
+            job.run_id,
+            job.kind,
+            job.attempt,
+            job.lease_owner,
+            job.effective_execution_profile,
+            job.capability_manifest_ref,
+            json.dumps(job.policy_flags, sort_keys=True, separators=(",", ":"), allow_nan=False),
+            admission.scope,
+            admission.admission_capability_manifest_ref,
+            admission.manifest_pointer_state,
+        )
+
+    def _require_current(self) -> None:
+        """Recheck the live worker, complete job profile and actual registrations."""
+        from polisyos.runtime.http.resilience import (
+            _require_runtime_control_store_guard,
+            _require_runtime_filesystem_guard,
+        )
+        from polisyos.runtime.http.services.control.child_execution_budget import (
+            _require_attempt_budget,
+        )
+
+        budget = self.__budget
+        if threading.get_ident() != self.__thread_id:
+            raise ValueError("runtime_child_parent_thread_mismatch")
+        if (
+            _require_attempt_budget(budget.job_id, budget.run_id, budget.attempt) is not budget
+            or _require_runtime_control_store_guard(self.__control) is not self.__control_binding
+            or _require_runtime_filesystem_guard(self.__cas) is not self.__cas_binding
+            or self.__foundry._delegate is not self.__foundry_delegate
+            or (
+                self.__foundry._job_id,
+                self.__foundry._run_id,
+                self.__foundry._attempt,
+                self.__foundry._lease_owner,
+            )
+            != (budget.job_id, budget.run_id, budget.attempt, budget.interrupt.worker_id)
+        ):
+            raise ValueError("runtime_child_parent_binding_changed")
+        if self.__control.read_child_attempt_budget(budget.job_id, budget.attempt) != budget.claim:
+            raise ValueError("runtime_child_parent_budget_claim_changed")
+        admission = self.__control.current_execution_job_admission()
+        if self._admission_identity(admission) != self.__admission or (
+            admission.job.job_id,
+            admission.job.run_id,
+            admission.attempt,
+        ) != (budget.job_id, budget.run_id, budget.attempt):
+            raise ValueError("runtime_child_parent_admission_changed")
 
 
 def _graph_source_ref_tuple_identity(
@@ -11725,8 +11860,9 @@ class ControlPlaneService(
                 attempt=job.attempt,
                 lease_owner=job.lease_owner,
             )
-        try:
-            final_state = run_experiment(
+
+        def invoke_scientist() -> dict[str, Any]:
+            return run_experiment(
                 execution_payload,
                 store=self._artifact_store,
                 foundry=foundry_capture,
@@ -11740,6 +11876,32 @@ class ControlPlaneService(
                 method_metric_selection_owner=self if job is not None else None,
                 completed_method_hte_selection_owner=self if job is not None else None,
             )
+
+        try:
+            from polisyos.runtime.http.services.control.child_execution_budget import (
+                _CURRENT as _CURRENT_CHILD_BUDGET,
+            )
+            from polisyos.runtime.http.services.control.child_execution_budget import (
+                _require_attempt_budget,
+            )
+
+            if job is not None and _CURRENT_CHILD_BUDGET.get() is not None:
+                from polisyos.core.run.worker_lifecycle import _runtime_child_parent_scope
+
+                if foundry_capture is None or job.run_id is None:
+                    raise ValueError("runtime_child_parent_scope_not_established")
+                budget = _require_attempt_budget(job.job_id, job.run_id, job.attempt)
+                parent = _RuntimeLegacyChildParent(
+                    control=self._control_store,
+                    cas=self._artifact_store,
+                    budget=budget,
+                    foundry=foundry_capture,
+                    token=_RUNTIME_LEGACY_CHILD_PARENT_TOKEN,
+                )
+                with _runtime_child_parent_scope(parent):
+                    final_state = invoke_scientist()
+            else:
+                final_state = invoke_scientist()
             if not isinstance(final_state, dict):
                 raise TypeError("legacy_scientist_workflow_final_state_not_mapping")
         except Exception as exc:

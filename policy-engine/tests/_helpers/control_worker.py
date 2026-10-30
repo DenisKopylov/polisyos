@@ -7,6 +7,9 @@ from typing import TYPE_CHECKING
 from uuid import uuid4
 
 if TYPE_CHECKING:
+    from polisyos.runtime.http.services.control.child_execution_budget import (
+        ChildExecutionBudgetPolicy,
+    )
     from polisyos.runtime.http.services.control_plane_store import (
         ControlJobRecord,
         ControlPlaneStore,
@@ -32,6 +35,7 @@ def dispatch_one_control_job(
     store: ControlPlaneStore,
     handler: Callable[[ControlJobRecord], None],
     expected_job_id: str | None = None,
+    child_execution_budget_policy: ChildExecutionBudgetPolicy | None = None,
 ) -> str | None:
     """Lease and dispatch one queued job through the real embedded worker.
 
@@ -40,6 +44,8 @@ def dispatch_one_control_job(
         handler: The service's production job handler.
         expected_job_id: If supplied, fail before invoking the handler when the
             next queued job is not the expected job.
+        child_execution_budget_policy: Optional explicit duration policy for the
+            real worker's child computation attempt.
 
     Returns:
         The dispatched job ID, or ``None`` when no job was available.
@@ -62,6 +68,7 @@ def dispatch_one_control_job(
         store=store,
         handler=dispatch_expected,
         worker_id=f"test-control-worker-{uuid4().hex[:12]}",
+        child_execution_budget_policy=child_execution_budget_policy,
     )
     try:
         dispatched = worker.dispatch_once()

@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import inspect
+from contextlib import contextmanager
+from contextvars import ContextVar
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -96,6 +98,58 @@ class WorkerRunSnapshot:
 _WORKER_VIEW_TOKEN = object()
 _CAPABILITY_TOKEN = object()
 _CHILD_CAPABILITY_TOKEN = object()
+_RUNTIME_CHILD_PARENT: ContextVar[object | None] = ContextVar(
+    "core_runtime_child_parent", default=None
+)
+
+
+def _require_fixed_runtime_child_parent(parent: object) -> None:
+    """Reconcile the fixed Runtime parent before the Engine can appoint a session."""
+    from polisyos.core.components._provider_origin import _callable_source
+
+    descriptor = inspect.getattr_static(type(parent), "_require_current", None)
+    try:
+        module, source = _callable_source(descriptor)
+        expected = (
+            Path(__file__).resolve().parents[2]
+            / "runtime"
+            / "http"
+            / "services"
+            / "control"
+            / "run_lifecycle.py"
+        ).resolve(strict=True)
+    except Exception as exc:
+        raise ValueError("child_runtime_parent_origin_not_established") from exc
+    if (
+        not callable(descriptor)
+        or module.__name__ != "polisyos.runtime.http.services.control.run_lifecycle"
+        or source != expected
+        or module.__dict__.get("_RuntimeLegacyChildParent") is not type(parent)
+        or inspect.getattr_static(parent, "_require_current", None) is not descriptor
+    ):
+        raise ValueError("child_runtime_parent_origin_not_established")
+    descriptor(parent)
+
+
+@contextmanager
+def _runtime_child_parent_scope(parent: object) -> Iterator[None]:
+    """Retain one source-verified Runtime parent only for its live worker body."""
+    if _RUNTIME_CHILD_PARENT.get() is not None:
+        raise ValueError("child_runtime_parent_scope_nested")
+    _require_fixed_runtime_child_parent(parent)
+    token = _RUNTIME_CHILD_PARENT.set(parent)
+    try:
+        yield
+    finally:
+        _RUNTIME_CHILD_PARENT.reset(token)
+
+
+def _current_runtime_child_parent() -> object | None:
+    """Return only the current fixed parent; this does not mint a child session."""
+    parent = _RUNTIME_CHILD_PARENT.get()
+    if parent is not None:
+        _require_fixed_runtime_child_parent(parent)
+    return parent
 
 
 def _require_fixed_runtime_child_control(control: object) -> _ChildControlOwner:

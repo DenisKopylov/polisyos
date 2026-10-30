@@ -1379,10 +1379,20 @@ class _ChildComputationPublicationFence:
         ) as exc:
             raise _unknown_child_scope_admission(claim, locator) from exc
 
-    def admit_producer(self) -> None:
+    def admit_producer(self, scope: ChildStagingScope | None = None) -> None:
         """Make a short actual-job and borrowed-capacity producer decision."""
+        from polisyos.core.run.child_custody import ChildStagingScope, _ManagedStore
+
         if self._grant is None or self._binding is None:
             raise ControlJobExecutionAdmissionError("child_resource_grant_required")
+        if scope is not None:
+            if type(scope) is not ChildStagingScope or type(scope.store) is not _ManagedStore:
+                raise ControlJobExecutionAdmissionError("child_producer_scope_invalid")
+            scope.store._check_producer_scope(scope)
+            if scope.binding.model_dump(
+                exclude={"child_invocation_id"}
+            ) != self._binding.model_dump(exclude={"child_invocation_id"}):
+                raise ControlJobExecutionAdmissionError("child_producer_scope_parent_mismatch")
         with self._store._job_transaction():
             self._reconcile()
             current = self._store.current_execution_job_admission()
@@ -2696,6 +2706,84 @@ class ControlPlaneStore:
         if self._has_active_job_transaction():
             raise ControlJobExecutionAdmissionError("child_release_fresh_read_required")
         self._verify_child_job_event(locator, claim, kind="authorization")
+
+    def _admit_child_producer(self, *, control_operation: _ChildControlOperation) -> None:
+        """Decide one Core-owned producer admission against the live SQLite row."""
+        from polisyos.core.artifacts.child_release import ChildReleaseUnavailableError
+
+        try:
+            self._admit_child_producer_checked(control_operation=control_operation)
+        except ChildReleaseUnavailableError as exc:
+            raise ControlJobExecutionAdmissionError("child_producer_owner_refused") from exc
+
+    def _admit_child_producer_checked(self, *, control_operation: _ChildControlOperation) -> None:
+        """Run the bounded owner decision on the registered control worker."""
+        from polisyos.core.artifacts.child_release import (
+            ChildJobSessionClaim,
+            ChildReleaseUnavailableError,
+        )
+        from polisyos.core.run.child_custody import _ChildControlOperation
+
+        if type(control_operation) is not _ChildControlOperation:
+            raise ControlJobExecutionAdmissionError("child_producer_operation_invalid")
+        if self.backend != "sqlite" or self._has_active_job_transaction():
+            raise ControlJobExecutionAdmissionError("child_producer_backend_unsupported")
+        preview = control_operation._preview()
+        if type(preview) is not ChildJobSessionClaim:
+            raise ControlJobExecutionAdmissionError("child_producer_claim_invalid")
+        with self._job_transaction():
+            current = self.current_execution_job_admission()
+            control_operation._check_admission(current)
+            with control_operation._decision():
+                locator = control_operation._producer_locator()
+                self._verify_child_job_event(locator, preview, kind="session")
+                session_row = self._child_event_row(
+                    locator.job_id, self._child_job_event_type("session", preview)
+                )
+                if session_row is None:
+                    raise ControlJobExecutionAdmissionError("child_release_intent_missing")
+                session_payload = json.loads(str(session_row["payload_json"]))
+                if (session_payload["job_attempt"], session_payload["lease_owner"]) != (
+                    current.attempt,
+                    current.job.lease_owner,
+                ):
+                    raise ControlJobExecutionAdmissionError("child_producer_session_lease_changed")
+                conn = self._human_decision_transaction.sqlite_connection
+                if conn is None:
+                    raise ControlJobExecutionAdmissionError("child_producer_sqlite_required")
+
+                def resource_current(lease_expiry: str) -> int:
+                    now = datetime.now(timezone.utc)
+                    try:
+                        if type(lease_expiry) is not str:
+                            return 0
+                        expiry = datetime.fromisoformat(lease_expiry.replace("Z", "+00:00"))
+                        if (
+                            expiry.tzinfo is None
+                            or expiry.utcoffset() is None
+                            or expiry <= now
+                            or preview.deadline <= now
+                        ):
+                            return 0
+                        control_operation._require_active()
+                    except (RuntimeError, ValueError, TypeError, ChildReleaseUnavailableError):
+                        return 0
+                    return 1
+
+                conn.create_function("child_producer_resource_current", 1, resource_current)
+                with control_operation._producer_registration():
+                    owner_bytes = control_operation._admit(preview)
+                    owner_claim = ChildJobSessionClaim.model_validate_json(owner_bytes)
+                    if owner_claim != preview:
+                        raise ControlJobExecutionAdmissionError("child_producer_claim_changed")
+                    row = self._fetchone(
+                        "SELECT job_id FROM control_jobs WHERE job_id = ? AND state = 'running' "
+                        "AND lease_owner = ? AND attempt = ? AND lease_expires_at IS NOT NULL "
+                        "AND child_producer_resource_current(lease_expires_at) = 1",
+                        (current.job.job_id, current.job.lease_owner, current.attempt),
+                    )
+                    if row is None:
+                        raise ControlJobLeaseLostError("child_producer_admission_refused")
 
     def _publish_child_release_head(self, *, control_operation: _ChildControlOperation) -> None:
         """Fence one Core-owned head write with the actual SQLite job row."""

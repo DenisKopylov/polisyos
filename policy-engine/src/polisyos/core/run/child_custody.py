@@ -691,6 +691,34 @@ class _ManagedStore:
     def _written(self) -> tuple[ArtifactRef, ...]:
         return tuple(ArtifactRef.model_validate_json(raw) for raw in self.__writes.values())
 
+    def _check_producer_scope(self, scope: object) -> None:
+        """Reconcile this exact admitted scope before a producer decision."""
+        if (
+            type(scope) is not ChildStagingScope
+            or scope.store is not self
+            or scope.scope_id != self.__scope_id
+            or self.__owner._scopes.get(self.__scope_id) is not scope
+            or self.__scope_id in self.__owner._prepared_scopes
+            or not self.__writable
+        ):
+            raise ChildReleaseUnavailableError("child_producer_scope_not_current")
+        self.__owner._require_store_active(self.__scope_id, writing=True)
+
+    def _issue_guarded_producer_operation(
+        self, scope: object, control: object
+    ) -> _ChildControlOperation:
+        """Issue one Core-owned decision for the actual guarded control worker."""
+        from .worker_lifecycle import ChildRuntimeCapability, _require_fixed_runtime_child_control
+
+        self._check_producer_scope(scope)
+        owner = self.__owner
+        fixed_control = _require_fixed_runtime_child_control(control)
+        ChildRuntimeCapability.for_parent(owner._root, session=owner, runtime_control=fixed_control)
+        intent = owner._job_intent
+        if type(intent) is not ChildJobSessionIntent or type(scope) is not ChildStagingScope:
+            raise ChildReleaseUnavailableError("child_producer_session_not_current")
+        return owner._issue_control_operation(intent, fixed_control, kind="producer", scope=scope)
+
     def _require_owned_release_profile(self, ref: ArtifactRef, manifest: ArtifactManifest) -> None:
         """Reconcile a private run artifact against this scope's actual writes."""
         source, selected = self._resolve(ref)
@@ -1746,6 +1774,10 @@ class _ChildControlOperation:
         "__owner",
         "__parent_thread",
         "__publication_ready",
+        "__scope",
+        "__scope_info_snapshot",
+        "__scope_input_snapshot",
+        "__scope_root_snapshot",
         "__used",
     )
 
@@ -1754,17 +1786,23 @@ class _ChildControlOperation:
         owner: ChildComputationCustody,
         handle: ChildJobSessionIntent | ChildJobReleaseCandidate | ChildPreparedScope,
         claim: ChildJobSessionClaim | ChildJobReleaseClaim | ChildJobScopeClaim,
-        kind: Literal["session", "authorization", "scope", "publication"],
+        kind: Literal["session", "authorization", "scope", "publication", "producer"],
         control: _ChildControlOwner,
         liveness: _BorrowedControlLiveness,
         *,
         token: object,
         locator: ChildJobReleaseLocator | None = None,
+        scope: ChildStagingScope | None = None,
+        scope_root_snapshot: tuple[bytes, bytes] | None = None,
     ) -> None:
         if token is not _CHILD_CONTROL_OPERATION_TOKEN:
             raise ChildReleaseUnavailableError("control_operation_not_owner_issued")
-        if (kind == "publication") != (type(locator) is ChildJobReleaseLocator):
+        if (kind in {"publication", "producer"}) != (type(locator) is ChildJobReleaseLocator):
             raise ChildReleaseUnavailableError("control_operation_locator_invalid")
+        if (kind == "producer") != (
+            type(scope) is ChildStagingScope and scope_root_snapshot is not None
+        ):
+            raise ChildReleaseUnavailableError("control_operation_scope_invalid")
         self.__owner = owner
         self.__handle = handle
         self.__kind = kind
@@ -1775,6 +1813,14 @@ class _ChildControlOperation:
         self.__parent_thread = threading.get_ident()
         self.__active_thread: int | None = None
         self.__publication_ready = False
+        self.__scope = scope
+        self.__scope_info_snapshot = (
+            _model_snapshot(owner._infos[scope.scope_id]) if scope is not None else None
+        )
+        self.__scope_input_snapshot = (
+            scope.store._admission_refs_snapshot() if scope is not None else None
+        )
+        self.__scope_root_snapshot = scope_root_snapshot
         self.__used = False
 
     def _require_worker(self, owner: ChildComputationCustody) -> None:
@@ -1809,6 +1855,7 @@ class _ChildControlOperation:
             "authorization": ChildJobReleaseClaim,
             "scope": ChildJobScopeClaim,
             "publication": ChildJobReleaseClaim,
+            "producer": ChildJobSessionClaim,
         }[self.__kind]
         return model.model_validate_json(self.__claim_snapshot)
 
@@ -1837,6 +1884,60 @@ class _ChildControlOperation:
                 yield
             finally:
                 self.__active_thread = None
+                if self.__kind == "producer" and owner._lock.acquire(blocking=False):
+                    try:
+                        if owner._control_operations.get(id(self)) is self:
+                            del owner._control_operations[id(self)]
+                    finally:
+                        owner._lock.release()
+
+    def _retired_producer(self) -> bool:
+        """Allow bounded pruning after a read-only producer decision ends."""
+        return self.__kind == "producer" and self.__used and self.__active_thread is None
+
+    def _require_producer_scope(self) -> None:
+        owner = self.__owner
+        scope = self.__scope
+        snapshot = self.__scope_root_snapshot
+        if type(scope) is not ChildStagingScope or snapshot is None:
+            raise ChildReleaseUnavailableError("child_producer_scope_not_current")
+        self._require_worker(owner)
+        with _try_root_custody_locks(owner):
+            if (
+                owner._state != "open"
+                or owner._scopes.get(scope.scope_id) is not scope
+                or scope.scope_id in owner._prepared_scopes
+                or scope.scope_id in owner._revoked
+                or scope.scope_id not in owner._bindings
+                or _model_snapshot(owner._bindings[scope.scope_id]) != snapshot[1]
+                or scope.scope_id not in owner._infos
+                or _model_snapshot(owner._infos[scope.scope_id]) != self.__scope_info_snapshot
+                or scope.run._closed
+                or scope.run._suspended
+                or scope.store._admission_refs_snapshot() != self.__scope_input_snapshot
+            ):
+                raise ChildReleaseUnavailableError("child_producer_scope_not_current")
+            owner._require_root_snapshot(scope.binding, snapshot, control_operation=self)
+
+    @contextmanager
+    def _producer_registration(self) -> Iterator[None]:
+        """Order the actual row decision against scope and guard transitions."""
+        owner = self.__owner
+        self._require_worker(owner)
+        with _try_root_custody_locks(owner):
+            reader = owner._guarded_reader_service
+            if self.__kind != "producer" or reader is None:
+                raise ChildReleaseUnavailableError("child_producer_scope_not_current")
+            with reader.control_publication_registration(self.__control):
+                self._require_producer_scope()
+                yield
+
+    def _producer_locator(self) -> ChildJobReleaseLocator:
+        """Return this decision's owner-selected committed session locator."""
+        self._require_worker(self.__owner)
+        if self.__kind != "producer" or self.__locator_snapshot is None:
+            raise ChildReleaseUnavailableError("child_producer_session_not_current")
+        return ChildJobReleaseLocator.model_validate_json(self.__locator_snapshot)
 
     def _admit(
         self, claim: ChildJobSessionClaim | ChildJobReleaseClaim | ChildJobScopeClaim
@@ -1854,10 +1955,12 @@ class _ChildControlOperation:
         ):
             return self.__handle._admission_for_control(claim, self)
         if (
-            self.__kind == "session"
+            self.__kind in {"session", "producer"}
             and type(self.__handle) is ChildJobSessionIntent
             and type(claim) is ChildJobSessionClaim
         ):
+            if self.__kind == "producer":
+                self._require_producer_scope()
             return self.__handle._admission(claim, control_operation=self)
         if (
             self.__kind in {"authorization", "publication"}
@@ -2546,8 +2649,9 @@ class ChildComputationCustody:
         handle: ChildJobSessionIntent | ChildJobReleaseCandidate | ChildPreparedScope,
         control: _ChildControlOwner,
         *,
-        kind: Literal["session", "authorization", "scope", "publication"],
+        kind: Literal["session", "authorization", "scope", "publication", "producer"],
         locator: ChildJobReleaseLocator | None = None,
+        scope: ChildStagingScope | None = None,
     ) -> _ChildControlOperation:
         """Record one owner-checked guarded decision before dispatch."""
         from polisyos.common.borrowed_execution import _BorrowedControlLiveness
@@ -2560,11 +2664,19 @@ class ChildComputationCustody:
             "authorization": ChildJobReleaseCandidate,
             "scope": ChildPreparedScope,
             "publication": ChildJobReleaseCandidate,
+            "producer": ChildJobSessionIntent,
         }[kind]
         control_identity: object = control
         if self._fence is not control_identity or type(handle) is not expected_type:
             raise ChildReleaseUnavailableError("control_operation_owner_mismatch")
-        if kind == "publication":
+        if (kind == "producer") != (type(scope) is ChildStagingScope):
+            raise ChildReleaseUnavailableError("control_operation_scope_invalid")
+        if kind == "producer":
+            if locator is not None or type(self._job_intent_locator) is not ChildJobReleaseLocator:
+                raise ChildReleaseUnavailableError("control_operation_locator_invalid")
+            locator = self._job_intent_locator
+            claim = handle.recompute()
+        elif kind == "publication":
             if (
                 type(handle) is not ChildJobReleaseCandidate
                 or type(locator) is not ChildJobReleaseLocator
@@ -2576,7 +2688,7 @@ class ChildComputationCustody:
                 raise ChildReleaseUnavailableError("control_operation_locator_invalid")
             claim = handle.recompute()
         if (
-            (kind == "session" and self._job_intent is not handle)
+            (kind in {"session", "producer"} and self._job_intent is not handle)
             or (kind in {"authorization", "publication"} and self._job_candidate is not handle)
             or (
                 kind == "scope"
@@ -2590,13 +2702,29 @@ class ChildComputationCustody:
         liveness = control._control_liveness_for_core(self)
         if type(liveness) is not _BorrowedControlLiveness:
             raise ChildReleaseUnavailableError("control_operation_liveness_not_established")
+        scope_snapshot = self._root_preflight(scope.binding) if scope is not None else None
         with self._lock:
             key = (kind, id(handle))
+            if kind == "producer":
+                for identity, item in tuple(self._control_operations.items()):
+                    if item._retired_producer():
+                        del self._control_operations[identity]
             if (
-                key in self._control_issued
+                (kind != "producer" and key in self._control_issued)
                 or self._state
                 != ("preparing" if kind in {"authorization", "publication"} else "open")
                 or len(self._control_issued) >= _JOB_COLLECTION_MAX_ITEMS
+                or len(self._control_operations) >= _JOB_COLLECTION_MAX_ITEMS
+                or (
+                    scope is not None
+                    and (
+                        self._scopes.get(scope.scope_id) is not scope
+                        or scope.scope_id in self._prepared_scopes
+                        or scope.scope_id in self._revoked
+                        or scope.scope_id not in self._bindings
+                        or scope.scope_id not in self._infos
+                    )
+                )
             ):
                 raise ChildReleaseUnavailableError("control_operation_already_issued")
             operation = _ChildControlOperation(
@@ -2608,8 +2736,11 @@ class ChildComputationCustody:
                 liveness,
                 token=_CHILD_CONTROL_OPERATION_TOKEN,
                 locator=locator,
+                scope=scope,
+                scope_root_snapshot=scope_snapshot,
             )
-            self._control_issued[key] = handle
+            if kind != "producer":
+                self._control_issued[key] = handle
             self._control_operations[id(operation)] = operation
         return operation
 

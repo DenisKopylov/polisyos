@@ -9,7 +9,7 @@ import hashlib
 import logging
 import time
 from datetime import UTC, datetime, timedelta
-from threading import Event
+from threading import Event, Thread
 from typing import TYPE_CHECKING
 from uuid import uuid4
 
@@ -505,6 +505,9 @@ def _two_children(
         monotonic_deadline=grant.deadline_monotonic,
         projection_key="projection",
     )
+    with pytest.raises(ValueError, match="child_runtime_control_origin_not_established"):
+        session.stage_b_session()
+    assert not _Producer.hidden_refs
     with pytest.raises(ValueError, match="child_effect_port_owner_not_established"):
         _ManagedChildRunner(
             custody=custody,
@@ -630,6 +633,256 @@ def test_held_parent_dispatch_reconciles_real_pending_attempt(tmp_path: Path) ->
             )
     finally:
         guard.close()
+
+
+def test_dynamic_stage_b_candidate_uses_real_guarded_private_session(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The selected input is copied only into a Core-appointed private child."""
+    import polisyos.common.async_tools as async_tools
+    from polisyos.core.artifacts.canonical_profile import CoreJsonReadLimits
+    from polisyos.ir.governance.policy_spec import PolicySpec
+    from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
+    from polisyos.ir.model_layer.model_spec import ModelSpec
+    from polisyos.ir.trinity import TrinityBundle
+    from polisyos.runtime.http.resilience import (
+        _bootstrap_guarded_child_control_fence,
+        _bootstrap_guarded_child_custody,
+        guard_runtime_cas,
+        guard_runtime_control_store,
+    )
+    from polisyos.runtime.http.services.control.child_execution_budget import (
+        ChildExecutionBudgetPolicy,
+        _require_attempt_budget,
+    )
+    from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+    from polisyos.runtime.http.services.control_worker import ControlWorker
+    from polisyos.scientist.nodes.builtins.planning.child_stage_b import (
+        StageBPrepareNode,
+        stage_b_child_template,
+    )
+    from polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search import (
+        RunHierarchicalPolicySearchNode,
+    )
+    from polisyos.scientist.orchestration.engine.child_output_closure import (
+        TypedChildOutputClosureResolver,
+    )
+    from polisyos.scientist.orchestration.engine.component_identity import (
+        capture_engine_component_identity,
+    )
+    from polisyos.scientist.policy_design.schema import (
+        PolicyCandidateSchema,
+        TargetPopulationSpec,
+        load_policy_candidate_schema,
+    )
+    from tests.unit.runtime.http.test_child_control_authorization import _job
+
+    control = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "control.sqlite3")
+    attempt = _job(control, kind="workflow_run")
+    job = control.get_job("job-a")
+    assert job is not None
+    guarded_control = guard_runtime_control_store(control)
+    served = FileSystemCAS(tmp_path / "served", ownership_enforced=False)
+    guarded_cas = guard_runtime_cas(served)
+    shared = async_tools._SharedExecutor(max_workers=1, max_queued=0)
+    monkeypatch.setattr(async_tools, "_RUN_CORO_SYNC_EXECUTOR", shared)
+    guard = BlockingDependencyGuard(
+        dependency_name="stage-b-parent",
+        timeout_seconds=90,
+        breaker=CircuitBreaker("stage-b-parent"),
+        executor=shared,
+    )
+
+    def exercise(grant: _BorrowedExecutionGrant) -> None:
+        registry = build_default_registry_bundle(guarded_cas, return_selected_profile=True)
+        data = guarded_cas.put_json(
+            {"population": 1},
+            PutOptions(kind="test.data", media_type="application/json"),
+            return_selected_profile=True,
+        )
+        candidate = PolicyCandidateSchema(
+            candidate_id="dynamic_candidate",
+            trinity_bundle=TrinityBundle(
+                problem_frame=ProblemFrame(problem_id="problem_one", domain=ProblemDomain.SOCIAL),
+                policy_spec=PolicySpec(policy_id="policy_one", interventions=[]),
+                model_spec=ModelSpec(model_id="model_one", data_snapshot_ref=str(data.artifact_id)),
+            ),
+            target_population=TargetPopulationSpec(population_id="all", description="All"),
+        )
+        parent_state = ExperimentState(
+            run_id="run-a",
+            inputs={"data_snapshot_ref": data},
+            params={"kept": 1},
+        )
+        parent_state.params["policy_candidate_schema"] = candidate.model_copy(
+            update={"candidate_id": "parent_candidate"}
+        )
+        root = RunContext.start(
+            guarded_cas,
+            registry.bundle_ref,
+            run_id="run-a",
+            run_dir=served.root / "runs" / "run-a",
+            tenant_id="tenant-a",
+            cell_id="cell-a",
+            control_job_id="job-a",
+        )
+        config, members = stage_b_child_template()
+        projection_key = "child_stage_b_projection_ref"
+        template = _finite_json(
+            {"sub_workflow": config.model_dump(mode="json"), "projection_key": projection_key}
+        )
+        parent = RunHierarchicalPolicySearchNode()
+        parent_id = str(parent.spec.metadata.component_id)
+        workflow_ref, state_ref, parent_state = _parent_inputs(
+            guarded_cas, parent.spec.metadata.component_id, state=parent_state
+        )
+        identity = capture_engine_component_identity(parent, parent_id, {})
+        assert identity is not None
+        attempt_id = str(uuid4())
+        basis = root._record_runtime_invocation_started(
+            attempt_id=attempt_id,
+            attempt_number=1,
+            workflow_spec_ref=workflow_ref,
+            node_alias="parent",
+            component_id=parent_id,
+            input_state_ref=state_ref,
+            implementation_identity=identity,
+        )
+        binding = ChildComputationBinding(
+            root_run_id="run-a",
+            control_job_id="job-a",
+            parent_attempt_id=attempt_id,
+            parent_basis_ref=basis,
+            tenant_id="tenant-a",
+            cell_id="cell-a",
+            policy_id="fixture-stage-b",
+            policy_version="1",
+            template_sha256="sha256:" + hashlib.sha256(template).hexdigest(),
+            admission_id=attempt_id,
+            child_invocation_id="parent",
+            admission_generation=attempt,
+            deadline=datetime.now(UTC) + timedelta(seconds=60),
+        )
+        seal = _hold_admitted_parent_dispatch(
+            root, binding, parent, parent, {}, grant, parent_state
+        )
+        fence = _bootstrap_guarded_child_control_fence(root, guarded_control, grant, binding)
+        resolver = TypedChildOutputClosureResolver(
+            limits=CoreJsonReadLimits(
+                max_bytes=4_000_000,
+                max_depth=50,
+                max_elements=100_000,
+                max_manifest_bytes=1_000_000,
+            )
+        )
+        custody, reader = _bootstrap_guarded_child_custody(
+            root,
+            staging_root=tmp_path / "private",
+            closure_resolver=resolver,
+            publication_fence=fence,
+        )
+        try:
+            intent = custody.job_session_intent(binding)
+            custody.bind_job_intent(intent, fence.begin_session(intent))
+            parent_store = custody.parent_store(binding, input_refs=(data,))
+            parent_context = ExecutionContext(
+                store=parent_store,
+                run=_StagedParentRun(root, custody, parent_store),
+                logger=logging.getLogger("stage-b-test"),
+            )
+            observed: list[ArtifactRef] = []
+            original_prepare = StageBPrepareNode.execute
+
+            def record_prepared(self, ctx, state):
+                outcome = original_prepare(self, ctx, state)
+                selected = outcome.state.artifacts_index["child_stage_b_selected_candidate_ref"]
+                assert load_policy_candidate_schema(ctx.store, selected) == candidate
+                with pytest.raises(FileNotFoundError):
+                    served.get_bytes(selected)
+                observed.append(selected)
+                return outcome
+
+            monkeypatch.setattr(StageBPrepareNode, "execute", record_prepared)
+
+            class LookalikePrepare:
+                @property
+                def spec(self):
+                    return StageBPrepareNode().spec
+
+                def execute(self, ctx, state):
+                    pytest.fail("a same-ID sibling reached the child producer")
+
+            def runner_for(selected_members: tuple[object, ...]) -> _ManagedChildRunner:
+                return _ManagedChildRunner(
+                    custody=custody,
+                    parent_seal=seal,
+                    config=config,
+                    bootstrap_members={
+                        str(node.spec.metadata.component_id): _MemberAtBootstrap.capture(
+                            node, type(node)
+                        )
+                        for node in selected_members
+                    },
+                    allowed_inputs=(data,),
+                    parent_context=parent_context,
+                    approved_ports=_ApprovedChildPorts(),
+                    inherited_budgets={},
+                    monotonic_deadline=grant.deadline_monotonic,
+                    projection_key=projection_key,
+                )
+
+            with pytest.raises(ValueError, match="child_stage_b_member_not_appointed"):
+                runner_for((LookalikePrepare(), *members[1:])).stage_b_session()
+            session = runner_for(members).stage_b_session()
+            assert not hasattr(session, "_grant") and not hasattr(session, "__dict__")
+            assert not hasattr(session, "_ManagedStageBSession__runner")
+            foreign_errors: list[BaseException] = []
+
+            def use_from_foreign_thread() -> None:
+                try:
+                    session.evaluate_candidate(candidate.model_dump(mode="json"), parent_state)
+                except BaseException as exc:
+                    foreign_errors.append(exc)
+
+            foreign = Thread(target=use_from_foreign_thread)
+            foreign.start()
+            foreign.join(timeout=5)
+            assert not foreign.is_alive()
+            assert len(foreign_errors) == 1
+            assert str(foreign_errors[0]) == "child_read_owner_thread_mismatch"
+            changed = parent_state.model_copy(deep=True)
+            changed.params["kept"] = 2
+            with pytest.raises(ValueError, match="child_parent_input_state_changed"):
+                session.evaluate_candidate(candidate.model_dump(mode="json"), changed)
+            assert not observed
+            before = parent_state.model_dump(mode="json")
+            with pytest.raises(ValueError, match="child_workflow_not_successful"):
+                session.evaluate_candidate(candidate.model_dump(mode="json"), parent_state)
+            assert parent_state.model_dump(mode="json") == before
+            assert len(observed) == 1
+        finally:
+            reader.close()
+
+    def handler(_job_record: object) -> None:
+        budget = _require_attempt_budget("job-a", "run-a", attempt)
+        completion = guard.create_parent_completion(guarded_control, budget)
+        guard.run_with_parent_admission(
+            exercise, deadline_monotonic=budget.deadline_monotonic, completion=completion
+        )
+
+    worker = ControlWorker(
+        store=guarded_control,
+        handler=handler,
+        worker_id="worker-a",
+        child_execution_budget_policy=ChildExecutionBudgetPolicy("stage-b-test", "1", 90),
+    )
+    try:
+        worker._run_with_lease_heartbeat(job)
+    finally:
+        guard.close()
+        guarded_cas.close()
+        guarded_control.close()
+        shared.shutdown(wait=True)
 
 
 def _held_parent(tmp_path: Path, grant: _BorrowedExecutionGrant) -> None:

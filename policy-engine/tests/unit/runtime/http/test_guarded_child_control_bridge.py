@@ -33,6 +33,240 @@ if TYPE_CHECKING:
     from polisyos.common.borrowed_execution import _BorrowedExecutionGrant
 
 
+@pytest.mark.parametrize(
+    ("budgeted", "transition"),
+    [(True, None), (False, None), (True, "cas"), (True, "control"), (True, "budget")],
+)
+def test_legacy_workflow_uses_the_actual_budgeted_parent_owner(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, budgeted: bool, transition: str | None
+) -> None:
+    """The real legacy route carries only a live worker-appointed parent owner."""
+    from polisyos.core.artifacts import FileSystemCAS
+    from polisyos.core.run import worker_lifecycle
+    from polisyos.runtime.http.resilience import guard_runtime_cas
+    from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+    from polisyos.scientist import api
+
+    control = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "control.sqlite3")
+    attempt = _job(control, kind="workflow_run")
+    job = control.get_job("job-a")
+    assert job is not None
+    guarded_control = guard_runtime_control_store(control)
+    guarded_cas = guard_runtime_cas(FileSystemCAS(tmp_path / "served", ownership_enforced=False))
+    shared = async_tools._SharedExecutor(max_workers=1, max_queued=0)
+    monkeypatch.setattr(async_tools, "_RUN_CORO_SYNC_EXECUTOR", shared)
+    service = object.__new__(ControlPlaneService)
+    service._artifact_store = guarded_cas
+    service._control_store = guarded_control
+    service._epoch_certificate_issuance_owner = None
+    service._evaluation_safety_admission_verifier = None
+    monkeypatch.setattr(service, "_legacy_scientist_final_state_ref", lambda **_: None)
+    observed: list[tuple[object, bool, object]] = []
+
+    def observe_actual_route(_state, *, store, foundry, **_kwargs):
+        getter = getattr(worker_lifecycle, "_current_runtime_child_parent", lambda: None)
+        owner = getter()
+        if owner is not None:
+            owner._require_current()
+            assert not hasattr(owner, "grant")
+            with (
+                pytest.raises(ValueError, match="child_runtime_parent_scope_nested"),
+                worker_lifecycle._runtime_child_parent_scope(owner),
+            ):
+                pytest.fail("a node replaced the Runtime parent")
+            failures: list[BaseException] = []
+
+            def use_from_foreign_thread():
+                try:
+                    owner._require_current()
+                except BaseException as exc:
+                    failures.append(exc)
+
+            foreign = threading.Thread(target=use_from_foreign_thread)
+            foreign.start()
+            foreign.join(timeout=5)
+            assert not foreign.is_alive()
+            assert len(failures) == 1
+            assert isinstance(failures[0], (RuntimeError, ValueError))
+            with pytest.raises(AttributeError, match="scope is immutable"):
+                foundry._delegate = object()
+            if transition == "budget":
+                event = control._child_event_row("job-a", f"child.budget.attempt.{attempt}")
+                assert event is not None
+                original = str(event["payload_json"])
+                changed = json.loads(original)
+                changed["duration_seconds"] += 1
+                with control._job_transaction():
+                    control._execute(
+                        "UPDATE control_job_events SET payload_json = ? WHERE event_id = ?",
+                        (json.dumps(changed), event["event_id"]),
+                    )
+                try:
+                    with pytest.raises(
+                        ValueError, match="runtime_child_parent_budget_claim_changed"
+                    ):
+                        owner._require_current()
+                finally:
+                    with control._job_transaction():
+                        control._execute(
+                            "UPDATE control_job_events SET payload_json = ? WHERE event_id = ?",
+                            (original, event["event_id"]),
+                        )
+            elif transition is not None:
+                from polisyos.runtime.http import resilience
+
+                registry, proxy = (
+                    (resilience._RUNTIME_FILESYSTEM_GUARDS, guarded_cas)
+                    if transition == "cas"
+                    else (resilience._RUNTIME_CONTROL_STORE_GUARDS, guarded_control)
+                )
+                original = registry.pop(proxy)
+                registry[proxy] = original
+                with pytest.raises(ValueError, match="guard_binding_changed"):
+                    owner._require_current()
+        observed.append((owner, async_tools.owns_shared_executor_slot(shared), foundry))
+        assert store is guarded_cas
+        return {"run_id": "run-a", "artifacts_index": {}}
+
+    monkeypatch.setattr(api, "run_experiment", observe_actual_route)
+    worker = ControlWorker(
+        store=guarded_control,
+        handler=lambda actual: service._run_legacy_scientist_workflow({}, job=actual),
+        worker_id="worker-a",
+        child_execution_budget_policy=(
+            ChildExecutionBudgetPolicy("child-test", "1", 30) if budgeted else None
+        ),
+    )
+    try:
+        worker._run_with_lease_heartbeat(job)
+        assert len(observed) == 1
+        owner, on_shared_worker, foundry = observed[0]
+        assert (owner is not None, on_shared_worker) == (budgeted, False)
+        assert type(foundry).__name__ == "_RuntimeOriginCapturingFoundryPort"
+        if budgeted:
+            assert control.read_child_attempt_budget("job-a", attempt) is not None
+            with pytest.raises((RuntimeError, ValueError)):
+                owner._require_current()
+        else:
+            assert control.read_child_attempt_budget("job-a", attempt) is None
+    finally:
+        guarded_cas.close()
+        guarded_control.close()
+        shared.shutdown(wait=True)
+
+
+def test_core_runtime_parent_scope_refuses_a_lookalike_owner() -> None:
+    """A callable currentness marker cannot appoint the Runtime parent."""
+    from polisyos.core.run.worker_lifecycle import _runtime_child_parent_scope
+
+    class Lookalike:
+        def _require_current(self):
+            return None
+
+    with (
+        pytest.raises(ValueError, match="child_runtime_parent_origin_not_established"),
+        _runtime_child_parent_scope(Lookalike()),
+    ):
+        pytest.fail("lookalike parent entered Core scope")
+
+
+def test_control_test_dispatch_forwards_an_explicit_child_budget(tmp_path: Path) -> None:
+    """The shared fixture can appoint the real worker's durable budget explicitly."""
+    from tests._helpers.control_worker import dispatch_one_control_job
+
+    control = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "control.sqlite3")
+    _job(control, kind="workflow_run")
+    with control._job_transaction():
+        control._execute(
+            "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+            ("2000-01-01T00:00:00+00:00", "job-a"),
+        )
+    guarded = guard_runtime_control_store(control)
+    seen = []
+
+    def handler(job):
+        budget = _require_attempt_budget(job.job_id, "run-a", job.attempt)
+        seen.append(budget.claim)
+
+    try:
+        selected = dispatch_one_control_job(
+            store=guarded,
+            handler=handler,
+            expected_job_id="job-a",
+            child_execution_budget_policy=ChildExecutionBudgetPolicy("fixture-compute", "1", 30),
+        )
+        assert selected == "job-a"
+        assert len(seen) == 1
+        claim = control.read_child_attempt_budget("job-a", seen[0].attempt)
+        assert claim == seen[0]
+        assert (claim.policy_id, claim.policy_version, claim.duration_seconds) == (
+            "fixture-compute",
+            "1",
+            30,
+        )
+    finally:
+        guarded.close()
+
+
+@pytest.mark.parametrize("foreign", ["cas", "control"])
+def test_legacy_child_parent_rejects_unregistered_guards_before_body(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, foreign: str
+) -> None:
+    """A matching proxy shape cannot substitute for a live Runtime registration."""
+    from polisyos.core.artifacts import FileSystemCAS
+    from polisyos.runtime.http.resilience import build_runtime_cas_guard, guard_runtime_cas
+    from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+    from polisyos.runtime.http.services.control.workspace_loop_transition import (
+        _LegacyScientistWorkflowError,
+    )
+    from polisyos.scientist import api
+
+    control = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "control.sqlite3")
+    _job(control, kind="workflow_run")
+    job = control.get_job("job-a")
+    assert job is not None
+    guarded_control = guard_runtime_control_store(control)
+    guarded_cas = guard_runtime_cas(FileSystemCAS(tmp_path / "served", ownership_enforced=False))
+    fake = GuardedDependencyProxy(
+        target=object(),
+        guard=(
+            build_runtime_cas_guard() if foreign == "cas" else build_runtime_control_store_guard()
+        ),
+    )
+    service = object.__new__(ControlPlaneService)
+    service._artifact_store = fake if foreign == "cas" else guarded_cas
+    service._control_store = fake if foreign == "control" else guarded_control
+    service._epoch_certificate_issuance_owner = None
+    service._evaluation_safety_admission_verifier = None
+    monkeypatch.setattr(service, "_legacy_scientist_final_state_ref", lambda **_: None)
+    calls: list[object] = []
+
+    def produce(*args, **kwargs):
+        calls.append(args)
+        return {"run_id": "run-a", "artifacts_index": {}}
+
+    monkeypatch.setattr(api, "run_experiment", produce)
+    worker = ControlWorker(
+        store=guarded_control,
+        handler=lambda actual: service._run_legacy_scientist_workflow({}, job=actual),
+        worker_id="worker-a",
+        child_execution_budget_policy=ChildExecutionBudgetPolicy("child-test", "1", 30),
+    )
+    try:
+        reason = (
+            "registered_sql_guard_binding_not_established"
+            if foreign == "cas"
+            else "runtime_child_parent_not_established"
+        )
+        with pytest.raises(_LegacyScientistWorkflowError, match=reason):
+            worker._run_with_lease_heartbeat(job)
+        assert not calls
+    finally:
+        fake.close()
+        guarded_cas.close()
+        guarded_control.close()
+
+
 def test_control_guard_registration_binds_actual_factory_and_executor(tmp_path: Path) -> None:
     """A lookalike proxy cannot establish the control executor's origin."""
     from polisyos.runtime.http.resilience import (

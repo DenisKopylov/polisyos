@@ -49,13 +49,13 @@ if TYPE_CHECKING:
         SignatureVerifyingArtifactStore,
         VerificationReport,
     )
-    from polisyos.core.artifacts._transfer_ops import ImportPublication
     from polisyos.core.artifacts.child_release import (
         ChildJobReleaseClaim,
         ChildJobReleaseLocator,
         ChildJobScopeClaim,
         ChildJobSessionClaim,
     )
+    from polisyos.core.artifacts.store import ImportPublication
     from polisyos.core.run.child_custody import (
         ChildComputationBinding,
         ChildComputationCustody,
@@ -1551,6 +1551,19 @@ class _RuntimeGuardedChildFence:
                     recovery, scope_claim_json=claim_json, scope_locator=locator
                 ) from exc
             raise
+
+    def admit_producer(self, scope: object) -> None:
+        """Admit one producer through Core and the exact registered job guard."""
+        from polisyos.core.run.child_custody import ChildStagingScope, _ManagedStore
+
+        self._require_parent()
+        if type(scope) is not ChildStagingScope or type(scope.store) is not _ManagedStore:
+            raise ValueError("guarded_child_producer_scope_invalid")
+        operation = scope.store._issue_guarded_producer_operation(scope, self)
+        result = self._control_proxy._admit_child_producer(control_operation=operation)
+        self._require_parent()
+        if result is not None:
+            raise ValueError("guarded_child_producer_result_invalid")
 
 
 def _child_parent_basis_json(ref: object) -> str:

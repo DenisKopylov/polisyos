@@ -8,6 +8,7 @@ import re
 from collections.abc import Iterable
 from datetime import UTC, datetime, timedelta
 from enum import Enum
+from hashlib import sha256
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Any, Literal, cast
@@ -925,7 +926,8 @@ class LessonRegistry:
 
     def garbage_collect(self, ttl_days: int | None = None) -> int:
         active_ttl = max(1, int(ttl_days or self._transfer_policy.ttl_days))
-        archive_cutoff = datetime.now(UTC) - timedelta(days=active_ttl * 2)
+        now = datetime.now(UTC)
+        archive_cutoff = now - timedelta(days=active_ttl * 2)
         removed = 0
         for path_binding, path in self._iter_index_paths():
             snapshot = self._load_scoped_index(path_binding, path)
@@ -934,15 +936,14 @@ class LessonRegistry:
                 raise TransferScopeRefusedError(
                     [_scope_refusal(path, TransferScopeRefusalReason.LEGACY_PATH_UNBOUND)]
                 )
-            before = len(snapshot.entries)
+            previous_entries = snapshot.entries
             snapshot.entries = [
-                self._demoted_entry(entry, ttl_days=active_ttl)
+                self._demoted_entry(entry, ttl_days=active_ttl, now=now)
                 for entry in snapshot.entries
                 if not entry.invalidated and self._activity_anchor(entry) >= archive_cutoff
             ]
-            delta = before - len(snapshot.entries)
-            if delta:
-                removed += delta
+            removed += len(previous_entries) - len(snapshot.entries)
+            if snapshot.entries != previous_entries:
                 self._persist_index(snapshot, context=namespace_context, path=path)
         return removed
 
@@ -1004,7 +1005,6 @@ class LessonRegistry:
         snapshot = self.index_snapshot(context=target_context)
         results: list[LessonCard] = []
         now = datetime.now(UTC)
-        mutated = False
         for entry in self._sorted_entries(snapshot):
             if entry.invalidated:
                 continue
@@ -1014,12 +1014,13 @@ class LessonRegistry:
             if not self._matches_query(card, query):
                 continue
             results.append(card)
-            entry.last_accessed_at = now
-            mutated = True
+            self._record_access(
+                entry,
+                index_path=self._index_path_for_context(target_context),
+                now=now,
+            )
             if len(results) >= query.limit:
                 break
-        if mutated:
-            self._persist_index(snapshot, context=target_context)
         return results
 
     def _query_local_aggregated(
@@ -1033,7 +1034,6 @@ class LessonRegistry:
             tuple[
                 tuple[bool, float, int, float],
                 LessonIndexEntry,
-                LessonIndexSnapshot,
                 TransferContext,
             ]
         ] = []
@@ -1065,33 +1065,23 @@ class LessonRegistry:
                             -float(entry.last_seen.timestamp()),
                         ),
                         entry,
-                        snapshot,
                         namespace_context,
                     )
                 )
 
         results: list[LessonCard] = []
-        mutated_snapshots: dict[
-            tuple[str, str, str], tuple[LessonIndexSnapshot, TransferContext]
-        ] = {}
-        for _, entry, snapshot, namespace_context in sorted(candidates, key=lambda item: item[0]):
+        for _, entry, namespace_context in sorted(candidates, key=lambda item: item[0]):
             card = self._materialize_query_card(entry, now=now, source_context=namespace_context)
             if not self._matches_query(card, query):
                 continue
             results.append(card)
-            entry.last_accessed_at = now
-            mutated_snapshots[
-                (
-                    namespace_context.tenant_partition,
-                    namespace_context.task_family,
-                    namespace_context.domain,
-                )
-            ] = (snapshot, namespace_context)
+            self._record_access(
+                entry,
+                index_path=self._index_path_for_context(namespace_context),
+                now=now,
+            )
             if len(results) >= query.limit:
                 break
-
-        for snapshot, namespace_context in mutated_snapshots.values():
-            self._persist_index(snapshot, context=namespace_context)
         return results
 
     def _aggregate_local_snapshot(
@@ -1385,8 +1375,11 @@ class LessonRegistry:
         entry: LessonIndexEntry,
         *,
         ttl_days: int,
+        now: datetime,
     ) -> LessonIndexEntry:
-        age = max(timedelta(), datetime.now(UTC) - self._activity_anchor(entry))
+        card = load_lesson_card(self._store, entry.artifact_ref)
+        evidence_anchor = self._evidence_anchor(entry, card)
+        age = max(timedelta(), now - evidence_anchor)
         if age > timedelta(days=ttl_days):
             return entry.model_copy(update={"trust_level": LessonTrustLevel.LOW_CONFIDENCE})
         return entry
@@ -1395,6 +1388,28 @@ class LessonRegistry:
     def _activity_anchor(entry: LessonIndexEntry) -> datetime:
         """Return the usage clock used only for retention and garbage collection."""
         return entry.last_accessed_at or entry.last_seen
+
+    @staticmethod
+    def _access_path(index_path: Path, lesson_id: str) -> Path:
+        """Return the opaque per-lesson path for its retention-only access hint."""
+        digest = sha256(lesson_id.encode("utf-8")).hexdigest()
+        return index_path.parent / "access" / f"{digest}.txt"
+
+    @classmethod
+    def _record_access(cls, entry: LessonIndexEntry, *, index_path: Path, now: datetime) -> None:
+        """Persist a daily-throttled retention hint without rewriting evidence indexes."""
+        last_accessed_at = entry.last_accessed_at
+        if (
+            last_accessed_at is None
+            or last_accessed_at.tzinfo is None
+            or last_accessed_at.utcoffset() is None
+            or now - last_accessed_at >= timedelta(days=1)
+        ):
+            cls._write_bytes(
+                now.isoformat().encode("utf-8"),
+                path=cls._access_path(index_path, entry.lesson_id),
+            )
+        entry.last_accessed_at = now
 
     @staticmethod
     def _evidence_anchor(entry: LessonIndexEntry, card: LessonCard) -> datetime:
@@ -1500,8 +1515,7 @@ class LessonRegistry:
         )
 
     @staticmethod
-    def _write_index_file(snapshot: LessonIndexSnapshot, *, path: Path) -> None:
-        payload = snapshot.model_dump_json(indent=2).encode("utf-8")
+    def _write_bytes(payload: bytes, *, path: Path) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         with NamedTemporaryFile(
             mode="wb",
@@ -1515,6 +1529,11 @@ class LessonRegistry:
             os.fsync(tmp.fileno())
             tmp_path = Path(tmp.name)
         os.replace(tmp_path, path)
+
+    @staticmethod
+    def _write_index_file(snapshot: LessonIndexSnapshot, *, path: Path) -> None:
+        payload = snapshot.model_dump_json(indent=2).encode("utf-8")
+        LessonRegistry._write_bytes(payload, path=path)
 
     def _load_scoped_index(
         self, path_binding: TransferPathBinding, path: Path
@@ -1546,9 +1565,28 @@ class LessonRegistry:
             )
         return snapshot
 
-    @staticmethod
-    def _load_index_file(path: Path) -> LessonIndexSnapshot:
-        return LessonIndexSnapshot.model_validate_json(path.read_text(encoding="utf-8"))
+    @classmethod
+    def _load_index_file(cls, path: Path) -> LessonIndexSnapshot:
+        snapshot = LessonIndexSnapshot.model_validate_json(path.read_text(encoding="utf-8"))
+        for entry in snapshot.entries:
+            try:
+                accessed_at = datetime.fromisoformat(
+                    cls._access_path(path, entry.lesson_id).read_text(encoding="utf-8")
+                )
+            except (OSError, ValueError):
+                continue
+            if accessed_at.tzinfo is None or accessed_at.utcoffset() is None:
+                continue
+            persisted_access = entry.last_accessed_at
+            if (
+                persisted_access is None
+                or persisted_access.tzinfo is None
+                or persisted_access.utcoffset() is None
+            ):
+                entry.last_accessed_at = accessed_at
+            else:
+                entry.last_accessed_at = max(persisted_access, accessed_at)
+        return snapshot
 
     @classmethod
     def load_snapshot(

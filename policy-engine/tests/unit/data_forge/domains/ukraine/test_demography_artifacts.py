@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+import hashlib
 import json
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 import pytest
@@ -15,6 +16,11 @@ from polisyos.data_forge.read_api.ukraine import (
 
 if TYPE_CHECKING:
     from pathlib import Path
+
+    from polisyos.data_forge.domains.ukraine.demography.source_inventory import (
+        DemographyRoleProjection,
+        ResolvedDemographySource,
+    )
 
 
 def _write_json(path: Path, payload: dict) -> None:
@@ -90,6 +96,73 @@ def test_ukraine_data_shim_reads_reconciled_targets(tmp_path: Path) -> None:
     payload = load_reconciled_targets(root)
     assert payload["state_ids"] == ["male:0-17", "female:0-17"]
     assert payload["target_state_totals"] == [50.0, 45.0]
+
+
+def test_historical_reader_keeps_captured_member_bytes_after_paths_change(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A resolved historical bundle must retain its values and limited provenance."""
+    from polisyos.data_forge.domains.ukraine import demography
+
+    root = tmp_path / "historical_mutation"
+    targets = root / "demography" / "targets.json"
+    priors = root / "demography" / "transition_priors.json"
+    _write_json(
+        targets,
+        {
+            "state_ids": ["state:a", "state:b"],
+            "target_state_totals": [10.0, 20.0],
+            "entrant_state_totals": [0.0, 0.0],
+        },
+    )
+    _write_json(priors, {"transition_prior_matrix": [[0.8, 0.2], [0.1, 0.9]]})
+    identity_input = {
+        "layout": "new",
+        "members": {
+            "targets.json": hashlib.sha256(targets.read_bytes()).hexdigest(),
+            "priors.json": hashlib.sha256(priors.read_bytes()).hexdigest(),
+        },
+    }
+    identity_bytes = json.dumps(
+        identity_input, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+    ).encode()
+    expected_identity = f"legacy:{hashlib.sha256(identity_bytes).hexdigest()}"
+    real_role_reader = demography.read_demography_role
+    changed = False
+
+    def mutate_after_resolution(
+        resolved: ResolvedDemographySource,
+        role: Literal["targets", "priors", "donor"],
+    ) -> DemographyRoleProjection:
+        nonlocal changed
+        if not changed:
+            changed = True
+            _write_json(
+                targets,
+                {
+                    "state_ids": ["state:a", "state:b"],
+                    "target_state_totals": [90.0, 80.0],
+                    "entrant_state_totals": [0.0, 0.0],
+                },
+            )
+            _write_json(priors, {"transition_prior_matrix": [[0.3, 0.7], [0.6, 0.4]]})
+        return real_role_reader(resolved, role)
+
+    monkeypatch.setattr(demography, "read_demography_role", mutate_after_resolution)
+    request = HistoricalLayoutRequest(kind="historical_layout", root=root, layout="new")
+    captured = load_demography_artifacts(source=request)
+    monkeypatch.setattr(demography, "read_demography_role", real_role_reader)
+    fresh = load_demography_artifacts(source=request)
+
+    assert captured.target_state_totals.tolist() == [10.0, 20.0]
+    assert captured.transition_prior_matrix.tolist() == [[0.8, 0.2], [0.1, 0.9]]
+    assert captured.source_evidence.source_identity == expected_identity
+    assert captured.source_evidence.source_status == "legacy_limited"
+    assert captured.source_evidence.member_content_binding_provenance == "not_established"
+    assert captured.source_evidence.source_currentness_provenance == "not_established"
+    assert fresh.target_state_totals.tolist() == [90.0, 80.0]
+    assert fresh.transition_prior_matrix.tolist() == [[0.3, 0.7], [0.6, 0.4]]
+    assert fresh.source_evidence.source_identity != expected_identity
 
 
 def test_historical_omitted_entrant_totals_keep_bounded_legacy_projection(

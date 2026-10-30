@@ -58,12 +58,24 @@ need their own grain and consumer requalification.
 A D2 pre-publication reader failure cannot use an unbounded full-frame fallback
 when the decoded allocation and concurrent residency are not bounded. The failed
 stage records the underlying error and confirmed partial scratch counts and
-paths with scratch integrity `not_established`. After a reader failure, a hash
-is checked before the source path is reopened; that check alone does not bind the
-bytes read after reopen. A safe successful full-read profile, immutable or
-otherwise read-bound restart, and the replacement-after-check control remain to
-be established. These results alone do not establish source authority,
-currentness, or promotion eligibility.
+paths with scratch integrity `not_established`. Each observation member is
+copied in bounded chunks to a private temporary file, whose actual bytes must
+match the source's pre-copy SHA-256 before the first batch. The initial reader
+and any restart read that same file. The copy is capped at the opened source's
+initial size, checked against the D2 disk hint when supplied, and admitted only
+if the temporary filesystem has enough free space with a reserve. The disk hint
+bounds this copy, not the stage's cumulative disk use. Each iterator holds one
+member's copy at a time; it is removed on completion, failure, or generator
+cancellation. Concurrent disk use can still cause a write failure, and a
+memory-backed temporary filesystem can charge the copy to memory.
+
+Small self-generated Parquet tests cover mutation, replacement, and ABA during
+streaming and retain the downstream shard and verified-read checks. They do not
+establish production-size resource behavior, a successful full-read profile,
+producer authenticity, source currentness, an atomic multi-member generation,
+or promotion eligibility. Since the pre-copy digest itself comes from the
+mutable path, matching reads do not prove that even one member was captured
+atomically from a single producer generation.
 
 
 ## Catalog source failure family

@@ -9,7 +9,12 @@ published prefix.
 
 from __future__ import annotations
 
+import hashlib
+import os
+import shutil
+import tempfile
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 import pandas as pd
@@ -258,35 +263,268 @@ def test_small_real_parquet_reader_preserves_metric_counts_and_snapshot_values(
     assert sum(len(metric_frame) for _, _, _, metric_frame in emitted) == 8
 
 
-def test_partial_resume_aborts_when_normalized_snapshot_changes(
+@pytest.mark.parametrize(
+    ("mutation", "restart"),
+    [
+        ("overwrite", False),
+        ("replace", False),
+        ("overwrite", True),
+        ("replace", True),
+        ("aba", True),
+    ],
+)
+def test_stream_and_retry_read_same_parquet_snapshot_after_source_mutation(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    mutation: str,
+    restart: bool,
 ) -> None:
-    """A changed input cannot be resumed as though it were the old snapshot."""
+    """Streaming and retry use the captured bytes even when the live path changes."""
     pytest.importorskip("pyarrow")
+    import pyarrow as pa
+    import pyarrow.parquet as parquet
+
     from polisyos.data_forge.domains.ukraine.builders import sources
 
     config, source, frame = _config(tmp_path)
     artifact = config.build_root.normalized_dir / source.source_id / source.normalized_artifact
+    alternative = artifact.with_name("alternative.parquet")
+    original = artifact.with_name("original.parquet")
+    changed = frame.copy()
+    changed["metric_a"] += 1_000
+    changed["metric_b"] += 1_000
+    for path, data in ((original, frame), (alternative, changed)):
+        parquet.write_table(
+            pa.Table.from_pandas(data, preserve_index=False),
+            path,
+            compression="NONE",
+            use_dictionary=False,
+            row_group_size=2,
+        )
+    first_bytes = original.read_bytes()
+    other_bytes = alternative.read_bytes()
+    assert len(first_bytes) == len(other_bytes)
+    artifact.write_bytes(first_bytes)
+    stamp = artifact.stat()
+    expected_digest = hashlib.sha256(first_bytes).hexdigest()
 
-    class MutatingParquetFile:
-        """Mutate the input only after the first published batch."""
+    def publish(payload: bytes, *, replacement: bool) -> None:
+        if replacement:
+            candidate = artifact.with_name("replacement.parquet")
+            candidate.write_bytes(payload)
+            os.utime(candidate, ns=(stamp.st_atime_ns, stamp.st_mtime_ns))
+            os.replace(candidate, artifact)
+        else:
+            artifact.write_bytes(payload)
+            os.utime(artifact, ns=(stamp.st_atime_ns, stamp.st_mtime_ns))
 
-        def __init__(self, _path: Path) -> None:
-            pass
+    real_reader = parquet.ParquetFile
+    read_digests: list[str] = []
 
-        def iter_batches(self, *, batch_size: int, columns: list[str] | None = None):
-            del batch_size, columns
-            yield _batch(frame.iloc[:2], size=2)
-            artifact.write_bytes(artifact.read_bytes() + b"changed-after-yield")
-            raise OSError("controlled reader failure after input mutation")
+    class FailAfterFirstBatch:
+        def __init__(self, reader: Any) -> None:
+            self.reader = reader
 
+        def iter_batches(self, **kwargs: Any):
+            kwargs["batch_size"] = 2
+            batches = iter(self.reader.iter_batches(**kwargs))
+            yield next(batches)
+            publish(other_bytes, replacement=mutation != "overwrite")
+            if mutation == "aba":
+                publish(first_bytes, replacement=True)
+            if restart:
+                raise OSError("controlled post-publication failure")
+            yield from batches
+
+    def reopening_reader(reader_input: Any, *args: Any, **kwargs: Any) -> Any:
+        attempt = len(read_digests)
+        if mutation == "aba" and attempt == 1:
+            # The old implementation checks A, opens B, then the path returns
+            # to A while the opened inode still points at B.
+            publish(other_bytes, replacement=True)
+        if isinstance(reader_input, (str, Path)):
+            captured = Path(reader_input).read_bytes()
+        else:
+            position = reader_input.tell()
+            reader_input.seek(0)
+            captured = reader_input.read()
+            reader_input.seek(position)
+        read_digests.append(hashlib.sha256(captured).hexdigest())
+        reader = real_reader(reader_input, *args, **kwargs)
+        if mutation == "aba" and attempt == 1:
+            publish(first_bytes, replacement=True)
+        return FailAfterFirstBatch(reader) if attempt == 0 else reader
+
+    monkeypatch.setattr(parquet, "ParquetFile", reopening_reader)
+    emitted = list(sources._iter_observation_metric_frames(config))
+
+    assert read_digests == [expected_digest] * (2 if restart else 1)
+    assert artifact.stat().st_size == stamp.st_size
+    assert artifact.stat().st_mtime_ns == stamp.st_mtime_ns
+    actual = {
+        (str(row.metric_id), str(row.observation_id)): row.observed_value
+        for _, _, _, metric_frame in emitted
+        for row in metric_frame.itertuples(index=False)
+    }
+    assert actual == {
+        (metric, f"obs.partial_yield_witness.{metric}.{index:08d}"): value
+        for metric, values in (
+            ("metric_a", [10.0, 20.0, 30.0, 40.0]),
+            ("metric_b", [100.0, 200.0, 300.0, 400.0]),
+        )
+        for index, value in enumerate(values)
+    }
+    assert sum(len(metric_frame) for _, _, _, metric_frame in emitted) == 8
+
+
+def test_source_mutation_during_snapshot_capture_is_rejected_before_yield(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The snapshot digest must match the bytes hashed before its capture."""
+    pytest.importorskip("pyarrow")
+    import pyarrow as pa
     import pyarrow.parquet as parquet
 
-    monkeypatch.setattr(parquet, "ParquetFile", MutatingParquetFile)
+    from polisyos.data_forge.domains.ukraine.builders import sources
 
+    config, source, frame = _config(tmp_path)
+    artifact = config.build_root.normalized_dir / source.source_id / source.normalized_artifact
+    changed = frame.copy()
+    changed["metric_a"] += 1_000
+    replacement = artifact.with_name("changed.parquet")
+    for path, data in ((artifact, frame), (replacement, changed)):
+        parquet.write_table(
+            pa.Table.from_pandas(data, preserve_index=False),
+            path,
+            compression="NONE",
+            use_dictionary=False,
+        )
+    other_bytes = replacement.read_bytes()
+    assert len(other_bytes) == artifact.stat().st_size
+    initial_stat = artifact.stat()
+    real_hash = sources.sha256_file
+
+    def hash_then_mutate(path: Path, **kwargs: Any) -> str:
+        digest = real_hash(path, **kwargs)
+        artifact.write_bytes(other_bytes)
+        os.utime(artifact, ns=(initial_stat.st_atime_ns, initial_stat.st_mtime_ns))
+        return digest
+
+    monkeypatch.setattr(sources, "sha256_file", hash_then_mutate)
     with pytest.raises(RuntimeError, match="snapshot"):
-        list(sources._iter_observation_metric_frames(config))
+        next(iter(sources._iter_observation_metric_frames(config)))
+
+
+def test_snapshot_refuses_insufficient_disk_budget_before_copy(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A large member cannot start an unadmitted temporary copy."""
+    pytest.importorskip("pyarrow")
+    from polisyos.data_forge.domains.ukraine.builders import sources
+
+    config, _, _ = _config(tmp_path)
+    config.stages[StageId.D2.value].resource_budget.disk_gib = 1 / 1024**3
+
+    def forbidden_snapshot(*args: Any, **kwargs: Any) -> None:
+        raise AssertionError("temporary copy started before disk admission")
+
+    monkeypatch.setattr(tempfile, "TemporaryFile", forbidden_snapshot)
+    with pytest.raises(RuntimeError, match=r"snapshot.*(disk|budget)"):
+        next(iter(sources._iter_observation_metric_frames(config)))
+
+
+def test_snapshot_refuses_when_temporary_filesystem_lacks_capacity(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A missing stage hint does not waive the actual free-space check."""
+    pytest.importorskip("pyarrow")
+    from polisyos.data_forge.domains.ukraine.builders import sources
+
+    config, _, _ = _config(tmp_path)
+
+    def no_free_space(_path: Any) -> SimpleNamespace:
+        return SimpleNamespace(free=0)
+
+    def forbidden_snapshot(*args: Any, **kwargs: Any) -> None:
+        raise AssertionError("temporary copy started without free space")
+
+    monkeypatch.setattr(shutil, "disk_usage", no_free_space)
+    monkeypatch.setattr(tempfile, "TemporaryFile", forbidden_snapshot)
+    with pytest.raises(RuntimeError, match=r"snapshot.*disk"):
+        next(iter(sources._iter_observation_metric_frames(config)))
+
+
+def test_snapshot_capture_rejects_source_growth_and_closes_temporary_file(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Growth after admission cannot increase the temporary file beyond its bound."""
+    pytest.importorskip("pyarrow")
+    from polisyos.data_forge.domains.ukraine.builders import sources
+
+    config, source, _ = _config(tmp_path)
+    artifact = config.build_root.normalized_dir / source.source_id / source.normalized_artifact
+    original_size = artifact.stat().st_size
+    real_hash = sources.sha256_file
+    real_temporary_file = tempfile.TemporaryFile
+    snapshots: list[Any] = []
+    bytes_written = 0
+
+    class TrackedSnapshot:
+        def __init__(self) -> None:
+            self.handle = real_temporary_file(mode="w+b")
+            snapshots.append(self.handle)
+
+        def __enter__(self) -> TrackedSnapshot:
+            return self
+
+        def __exit__(self, *args: Any) -> None:
+            self.handle.close()
+
+        def write(self, data: bytes) -> int:
+            nonlocal bytes_written
+            bytes_written += len(data)
+            return self.handle.write(data)
+
+    def hash_then_grow(path: Path, **kwargs: Any) -> str:
+        digest = real_hash(path, **kwargs)
+        with artifact.open("ab") as handle:
+            handle.write(b"more data")
+        return digest
+
+    monkeypatch.setattr(sources, "sha256_file", hash_then_grow)
+    monkeypatch.setattr(tempfile, "TemporaryFile", lambda **_kwargs: TrackedSnapshot())
+    with pytest.raises(RuntimeError, match="snapshot source grew"):
+        next(iter(sources._iter_observation_metric_frames(config)))
+    assert bytes_written == original_size
+    assert len(snapshots) == 1 and snapshots[0].closed
+
+
+def test_snapshot_closes_on_consumer_cancellation(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Stopping after a yielded frame releases the private temporary file."""
+    pytest.importorskip("pyarrow")
+    from polisyos.data_forge.domains.ukraine.builders import sources
+
+    config, _, _ = _config(tmp_path)
+    real_temporary_file = tempfile.TemporaryFile
+    snapshots: list[Any] = []
+
+    def tracked_temporary_file(*args: Any, **kwargs: Any) -> Any:
+        handle = real_temporary_file(*args, **kwargs)
+        snapshots.append(handle)
+        return handle
+
+    monkeypatch.setattr(tempfile, "TemporaryFile", tracked_temporary_file)
+    frames = iter(sources._iter_observation_metric_frames(config))
+    next(frames)
+    assert len(snapshots) == 1
+    assert not snapshots[0].closed
+    frames.close()
+    assert snapshots[0].closed
 
 
 def test_build_d2_materializes_unique_observation_shards_and_counts(
@@ -358,7 +596,8 @@ def test_build_d2_materializes_unique_observation_shards_and_counts(
 
     real_parquet_file = parquet.ParquetFile
     target = config.build_root.normalized_dir / source.source_id / source.normalized_artifact
-    target_opens: list[Path] = []
+    target_opens: list[str] = []
+    target_digest = hashlib.sha256(target.read_bytes()).hexdigest()
 
     class FailOnceAfterFirstBatch:
         def __init__(self, reader: Any) -> None:
@@ -371,8 +610,15 @@ def test_build_d2_materializes_unique_observation_shards_and_counts(
 
     def recovering_reader(path: Any, *args: Any, **kwargs: Any) -> Any:
         reader = real_parquet_file(path, *args, **kwargs)
-        if isinstance(path, (str, Path)) and Path(path) == target:
-            target_opens.append(Path(path))
+        if isinstance(path, (str, Path)):
+            is_target = Path(path) == target
+        else:
+            position = path.tell()
+            path.seek(0)
+            is_target = hashlib.sha256(path.read()).hexdigest() == target_digest
+            path.seek(position)
+        if is_target:
+            target_opens.append(target_digest)
             if len(target_opens) == 1:
                 return FailOnceAfterFirstBatch(reader)
         return reader

@@ -3,8 +3,14 @@
 from __future__ import annotations
 
 import gc
+import hashlib
 import json
+import math
+import os
 import shutil
+import stat
+import tempfile
+from contextlib import contextmanager
 from datetime import date, timedelta
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -108,7 +114,8 @@ from .observation import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
+    from collections.abc import Iterable, Iterator, Sequence
+    from typing import BinaryIO
 
 _PANEL_OBSERVATIONAL_CONTRACT_ID = "foundry.causal.panel_observational_data.v1"
 _DYNAMIC_TREATMENT_CONTRACT_ID = "foundry.causal.dynamic_treatment_data.v1"
@@ -1409,6 +1416,57 @@ class ObservationStagePartialError(RuntimeError):
         super().__init__("d2_observation_stage_incomplete: " + " <- ".join(chain))
 
 
+@contextmanager
+def _verified_observation_snapshot(
+    artifact_path: Path, *, disk_budget_gib: float | None
+) -> Iterator[BinaryIO]:
+    """Capture one bounded, hash-verified source for all reader attempts.
+
+    The temporary file consumes at most the source's initial size on the
+    temporary filesystem and is unlinked when its handle closes. The D2 disk
+    hint bounds this copy, not all other stage output. Free space is checked
+    with a reserve, but concurrent writers can still exhaust the filesystem.
+    """
+    with artifact_path.open("rb") as source:
+        source_stat = os.fstat(source.fileno())
+        if not stat.S_ISREG(source_stat.st_mode):
+            raise RuntimeError("observation_snapshot_source_not_regular")
+        source_size = source_stat.st_size
+        free_bytes = shutil.disk_usage(tempfile.gettempdir()).free
+        reserve_bytes = max(64 * 1024 * 1024, free_bytes // 10)
+        admitted_bytes = max(0, free_bytes - reserve_bytes)
+        if disk_budget_gib is not None:
+            if not math.isfinite(disk_budget_gib) or disk_budget_gib <= 0:
+                raise RuntimeError("observation_snapshot_disk_budget_not_established")
+            admitted_bytes = min(admitted_bytes, int(disk_budget_gib * 1024**3))
+        if source_size > admitted_bytes:
+            raise RuntimeError(
+                "observation_snapshot_disk_budget_unavailable: "
+                f"source_bytes={source_size}, admitted_bytes={admitted_bytes}, "
+                f"free_bytes={free_bytes}, reserve_bytes={reserve_bytes}"
+            )
+
+        source_sha256 = sha256_file(artifact_path)
+        with tempfile.TemporaryFile(mode="w+b") as snapshot:
+            remaining = source_size
+            while remaining:
+                chunk = source.read(min(1024 * 1024, remaining))
+                if not chunk:
+                    raise RuntimeError(
+                        "normalized observation snapshot source shrank during capture"
+                    )
+                snapshot.write(chunk)
+                remaining -= len(chunk)
+            if source.read(1):
+                raise RuntimeError("normalized observation snapshot source grew during capture")
+            snapshot.flush()
+            snapshot.seek(0)
+            if hashlib.file_digest(snapshot, "sha256").hexdigest() != source_sha256:
+                raise RuntimeError("normalized observation snapshot changed during capture")
+            snapshot.seek(0)
+            yield snapshot
+
+
 def _iter_observation_metric_frames(
     config: PipelineConfig,
 ) -> Iterable[tuple[SourceConfig, str, int, pd.DataFrame]]:
@@ -1445,92 +1503,92 @@ def _iter_observation_metric_frames(
         batch_index = 0
         row_offset = 0
         emitted_metric_ids: set[str] = set()
-        snapshot_sha256 = sha256_file(artifact_path)
-        phase = "reader"
-        try:
-            import pyarrow.parquet as pq
+        stage = config.stages.get(StageId.D2.value)
+        disk_budget_gib = stage.resource_budget.disk_gib if stage is not None else None
+        with _verified_observation_snapshot(
+            artifact_path, disk_budget_gib=disk_budget_gib
+        ) as snapshot:
+            phase = "reader"
+            try:
+                import pyarrow.parquet as pq
 
-            parquet_file = pq.ParquetFile(artifact_path)
-            for batch in parquet_file.iter_batches(batch_size=100_000, columns=requested_columns):
-                phase = "conversion"
-                frame = batch.to_pandas()
-                phase = "mapper"
-                for metric_id, metric_frame in _observation_metric_frames_from_frame(
-                    source,
-                    frame,
-                    row_offset=row_offset,
+                parquet_file = pq.ParquetFile(snapshot)
+                for batch in parquet_file.iter_batches(
+                    batch_size=100_000, columns=requested_columns
                 ):
-                    yield source, metric_id, batch_index, metric_frame
-                    emitted_metric_ids.add(metric_id)
-                row_offset += len(frame)
-                batch_index += 1
-                emitted_metric_ids.clear()
-                del frame
-                phase = "reader"
-        except (ImportError, OSError) as read_error:
-            if isinstance(read_error, (PermissionError, FileNotFoundError)):
-                raise
-            if phase != "reader":
-                raise
-            if sha256_file(artifact_path) != snapshot_sha256:
-                raise RuntimeError(
-                    "normalized observation artifact changed during streaming; "
-                    "cannot resume from an unconfirmed snapshot"
-                ) from read_error
+                    phase = "conversion"
+                    frame = batch.to_pandas()
+                    phase = "mapper"
+                    for metric_id, metric_frame in _observation_metric_frames_from_frame(
+                        source,
+                        frame,
+                        row_offset=row_offset,
+                    ):
+                        yield source, metric_id, batch_index, metric_frame
+                        emitted_metric_ids.add(metric_id)
+                    row_offset += len(frame)
+                    batch_index += 1
+                    emitted_metric_ids.clear()
+                    del frame
+                    phase = "reader"
+            except (ImportError, OSError) as read_error:
+                if isinstance(read_error, (PermissionError, FileNotFoundError)):
+                    raise
+                if phase != "reader":
+                    raise
 
-            if row_offset == 0 and not emitted_metric_ids:
-                # A stage hint is not a bound on decoded Parquet + Pandas and
-                # concurrent residency. Refuse before any full-frame allocation.
-                stage = config.stages.get(StageId.D2.value)
-                budget_gib = stage.resource_budget.memory_gib if stage is not None else None
-                raise ObservationFullReadBudgetUnavailableError(
-                    source_id=source.source_id, budget_gib=budget_gib, cause=read_error
-                ) from read_error
+                if row_offset == 0 and not emitted_metric_ids:
+                    # A stage hint is not a bound on decoded Parquet + Pandas and
+                    # concurrent residency. Refuse before any full-frame allocation.
+                    budget_gib = stage.resource_budget.memory_gib if stage is not None else None
+                    raise ObservationFullReadBudgetUnavailableError(
+                        source_id=source.source_id, budget_gib=budget_gib, cause=read_error
+                    ) from read_error
 
-            # A reader failure after publication must resume from the same
-            # immutable snapshot.  Re-open the streaming reader and discard
-            # complete batches already accounted for.  When the failure was
-            # between metric frames, the per-batch metric cursor removes only
-            # the metric(s) already yielded; equal values are never deduped.
-            resumed_row_offset = 0
-            pending_metric_ids = set(emitted_metric_ids)
-            parquet_file = pq.ParquetFile(artifact_path)
-            for batch in parquet_file.iter_batches(batch_size=100_000, columns=requested_columns):
-                frame = batch.to_pandas()
-                batch_start = resumed_row_offset
-                batch_end = batch_start + len(frame)
-                if batch_end <= row_offset:
+                # Restart against the captured bytes and skip the confirmed
+                # cursor; equal source values are never treated as duplicates.
+                resumed_row_offset = 0
+                pending_metric_ids = set(emitted_metric_ids)
+                snapshot.seek(0)
+                parquet_file = pq.ParquetFile(snapshot)
+                for batch in parquet_file.iter_batches(
+                    batch_size=100_000, columns=requested_columns
+                ):
+                    frame = batch.to_pandas()
+                    batch_start = resumed_row_offset
+                    batch_end = batch_start + len(frame)
+                    if batch_end <= row_offset:
+                        resumed_row_offset = batch_end
+                        del frame
+                        continue
+
+                    effective_row_offset = batch_start
+                    if batch_start < row_offset:
+                        frame = frame.iloc[row_offset - batch_start :].reset_index(drop=True)
+                        effective_row_offset = row_offset
+
+                    for metric_id, metric_frame in _observation_metric_frames_from_frame(
+                        source,
+                        frame,
+                        row_offset=effective_row_offset,
+                    ):
+                        if effective_row_offset == row_offset and metric_id in pending_metric_ids:
+                            pending_metric_ids.remove(metric_id)
+                            continue
+                        yield source, metric_id, batch_index, metric_frame
+                    batch_index += 1
                     resumed_row_offset = batch_end
                     del frame
-                    continue
-
-                effective_row_offset = batch_start
-                if batch_start < row_offset:
-                    frame = frame.iloc[row_offset - batch_start :].reset_index(drop=True)
-                    effective_row_offset = row_offset
-
-                for metric_id, metric_frame in _observation_metric_frames_from_frame(
-                    source,
-                    frame,
-                    row_offset=effective_row_offset,
-                ):
-                    if effective_row_offset == row_offset and metric_id in pending_metric_ids:
-                        pending_metric_ids.remove(metric_id)
-                        continue
-                    yield source, metric_id, batch_index, metric_frame
-                batch_index += 1
-                resumed_row_offset = batch_end
-                del frame
-            if pending_metric_ids:
-                raise RuntimeError(
-                    "stream restart ended before the pending observation metric cursor; "
-                    f"original_error={type(read_error).__name__}: {read_error}"
-                ) from read_error
-            if resumed_row_offset < row_offset:
-                raise RuntimeError(
-                    "stream restart ended before the confirmed observation cursor; "
-                    f"original_error={type(read_error).__name__}: {read_error}"
-                ) from read_error
+                if pending_metric_ids:
+                    raise RuntimeError(
+                        "stream restart ended before the pending observation metric cursor; "
+                        f"original_error={type(read_error).__name__}: {read_error}"
+                    ) from read_error
+                if resumed_row_offset < row_offset:
+                    raise RuntimeError(
+                        "stream restart ended before the confirmed observation cursor; "
+                        f"original_error={type(read_error).__name__}: {read_error}"
+                    ) from read_error
 
 
 def _build_observation_frame(config: PipelineConfig) -> pd.DataFrame:

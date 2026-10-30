@@ -260,3 +260,23 @@ marked envelope has no second wrapper. The fresh subject reader must retain its
 state-slot subject, exact selected calibration/source refs and candidate-only,
 non-gating status. This repair changes neither propagation arithmetic nor source
 qualification; later report/consumer outcomes still need actual verification.
+
+### Selected Stage B and completed method sources
+
+The internal Stage B observation producer retains its complete JSON result and
+selected candidate, evaluation, and simulation references. Candidate source
+bindings reconcile supported ModelSpec ID-only inputs with owner-selected state
+profiles; unsupported nested semantics remain limited. Completed method metric
+projection metadata is decoded as a strict typed source record. Its writer
+matches the record and observations against the ephemeral owner-issued basis and
+persists the selected candidate, source-state and projection-vector edges. Later
+context-backed persistence reselects the source through the current Runtime owner.
+These bindings establish neither policy authority nor a complete Stage B/frontier
+closure; unsupported dynamic output remains unavailable for child release.
+
+A current projection write also requires the live backend's nonserializable
+per-evaluation result binding, which pins the actual candidate and score-bearing
+vector. The Runtime source owner is reselected before writing. A resumed result
+without that live binding is limited; historical source artifacts remain readable
+under their independent existing rights. These rules do not make an old result
+current merely because a new run exists.

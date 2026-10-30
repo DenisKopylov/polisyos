@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Buffer, Iterable, Mapping
-from dataclasses import dataclass, fields, is_dataclass, replace
+from dataclasses import dataclass, field, fields, is_dataclass, replace
 from enum import Enum
 from pathlib import Path
 from typing import (
@@ -514,6 +514,7 @@ class PolicyRuntimeEvaluationArtifact:
     evaluation_vector: PolicyEvaluationVector
     fidelity: str
     provenance: PolicyRuntimeProvenance
+    completed_projection_binding: object | None = field(default=None, repr=False, compare=False)
 
 
 @dataclass(frozen=True)
@@ -606,6 +607,8 @@ class _MethodMetricProjectionCapabilitySlot:
     """Non-serializable storage reserved for one in-process admission capability."""
 
     __slots__ = (
+        "_policyos_completed_evaluation_bindings",
+        "_policyos_completed_work_bindings",
         "_policyos_method_metric_projection_basis",
         "_policyos_method_metric_projection_candidate_ref",
     )
@@ -621,6 +624,8 @@ class ProductionPolicyEvaluationBackend(_MethodMetricProjectionCapabilitySlot):
     backend_kind: str = "production"
 
     def __post_init__(self) -> None:
+        object.__setattr__(self, "_policyos_completed_evaluation_bindings", ())
+        object.__setattr__(self, "_policyos_completed_work_bindings", ())
         object.__setattr__(self, "_policyos_method_metric_projection_basis", None)
         object.__setattr__(self, "_policyos_method_metric_projection_candidate_ref", None)
 
@@ -658,9 +663,190 @@ class ProductionPolicyEvaluationBackend(_MethodMetricProjectionCapabilitySlot):
             raise ValueError("method_metric_projection_candidate_ref_without_basis")
         if basis is not None and candidate_ref is None:
             raise ValueError("method_metric_projection_candidate_ref_missing")
+        object.__setattr__(self, "_policyos_completed_evaluation_bindings", ())
+        object.__setattr__(self, "_policyos_completed_work_bindings", ())
         object.__setattr__(self, "_policyos_method_metric_projection_basis", basis)
         object.__setattr__(self, "_policyos_method_metric_projection_candidate_ref", candidate_ref)
         return self
+
+    def bind_completed_work_packet(
+        self,
+        *,
+        store: object,
+        packet_ref: ArtifactRef,
+        evaluation: PolicyEvaluationVector,
+        candidate_ref: ArtifactRef,
+        run_id: str,
+        ticket_id: str,
+        candidate_hash: str,
+        attempt_id: str,
+        fidelity: str,
+        _record: bool = True,
+    ) -> None:
+        """Bind a packet emitted by this live backend to its actual evaluation."""
+        from polisyos.core.artifacts.canonical_profile import (
+            CoreJsonReadLimits,
+            read_core_json_artifact_bounded,
+            read_core_manifest_profile_bounded,
+            validate_core_model_bounded_read,
+        )
+        from polisyos.core.artifacts.manifest import artifact_ref_identity_key
+
+        matching = [
+            item
+            for item in self._policyos_completed_evaluation_bindings
+            if _runtime_method_metrics._completed_projection_evaluation_binding_matches(
+                item, evaluation=evaluation, candidate_ref=candidate_ref
+            )
+        ]
+        if (
+            len(matching) != 1
+            or type(packet_ref) is not ArtifactRef
+            or not packet_ref.manifest_profile_sha256
+        ):
+            raise ValueError("completed_projection_work_binding_unavailable")
+        limits = CoreJsonReadLimits(
+            max_bytes=8 * 1024 * 1024,
+            max_depth=128,
+            max_elements=1000000,
+            max_manifest_bytes=16 * 1024 * 1024,
+        )
+        mr = read_core_manifest_profile_bounded(
+            store, packet_ref, max_manifest_bytes=limits.max_manifest_bytes
+        )
+        manifest = mr.manifest
+        schema = manifest.artifact_schema
+        if (
+            manifest.kind,
+            manifest.media_type,
+            schema.name if schema else None,
+            schema.version if schema else None,
+        ) != (
+            "scientist.search.funnel_native_work_packet",
+            "application/json",
+            "polisyos.scientist.search.FunnelExecutedWorkPacket",
+            "1.1",
+        ):
+            raise ValueError("completed_projection_work_packet_schema_invalid")
+        packet = validate_core_model_bounded_read(
+            FunnelExecutedWorkPacket,
+            read_core_json_artifact_bounded(store, packet_ref, limits=limits, manifest_read=mr),
+        )
+        if (
+            packet.run_id != run_id
+            or packet.ticket_id != ticket_id
+            or packet.candidate_hash != candidate_hash
+            or packet.evaluation_attempt_id != attempt_id
+            or packet.fidelity != fidelity
+            or artifact_ref_identity_key(packet.candidate_ref)
+            != artifact_ref_identity_key(candidate_ref)
+        ):
+            raise ValueError("completed_projection_work_packet_identity_mismatch")
+        expected = {
+            "candidate": (str(candidate_ref.artifact_id), candidate_ref.manifest_profile_sha256),
+            "source_result": (
+                str(packet.source_result_ref.artifact_id),
+                packet.source_result_ref.manifest_profile_sha256,
+            ),
+        }
+        actual = {
+            edge.role: (str(edge.artifact_id), edge.manifest_profile_sha256)
+            for edge in manifest.inputs
+        }
+        if len(manifest.inputs) != 2 or actual != expected:
+            raise ValueError("completed_projection_work_packet_inputs_mismatch")
+        result_mr = read_core_manifest_profile_bounded(
+            store, packet.source_result_ref, max_manifest_bytes=limits.max_manifest_bytes
+        )
+        result_schema = result_mr.manifest.artifact_schema
+        if (
+            result_mr.manifest.kind,
+            result_schema.name if result_schema else None,
+            result_schema.version if result_schema else None,
+        ) != (
+            "scientist.policy_evaluation_vector",
+            "polisyos.scientist.policy_design.PolicyEvaluationVector",
+            "1.3",
+        ):
+            raise ValueError("completed_projection_work_result_schema_invalid")
+        result = validate_core_model_bounded_read(
+            PolicyEvaluationVector,
+            read_core_json_artifact_bounded(
+                store, packet.source_result_ref, limits=limits, manifest_read=result_mr
+            ),
+        )
+        if result.model_dump(mode="json") != evaluation.model_dump(mode="json"):
+            raise ValueError("completed_projection_work_result_mismatch")
+        if not _record:
+            return
+        record = (
+            matching[0],
+            artifact_ref_identity_key(packet_ref),
+            ticket_id,
+            candidate_hash,
+            store,
+            run_id,
+            attempt_id,
+            fidelity,
+        )
+        if len(self._policyos_completed_work_bindings) >= 256:
+            raise ValueError("completed_projection_live_binding_limit")
+        object.__setattr__(
+            self,
+            "_policyos_completed_work_bindings",
+            (*self._policyos_completed_work_bindings, record),
+        )
+
+    def select_completed_evaluation_binding(
+        self,
+        *,
+        evaluation: PolicyEvaluationVector,
+        candidate_ref: ArtifactRef,
+        packet_ref: ArtifactRef | None,
+        ticket_id: str | None,
+        candidate_hash: str | None,
+    ) -> object | None:
+        """Select an actual bound packet/result for this ticket and live backend."""
+        from polisyos.core.artifacts.manifest import artifact_ref_identity_key
+
+        if (
+            type(packet_ref) is not ArtifactRef
+            or not packet_ref.manifest_profile_sha256
+            or not ticket_id
+            or not candidate_hash
+        ):
+            return None
+        matches = [
+            record
+            for record in self._policyos_completed_work_bindings
+            for binding, packet_key, bound_ticket, bound_hash, _store, _run, _attempt, _fidelity in (
+                record,
+            )
+            if packet_key == artifact_ref_identity_key(packet_ref)
+            and bound_ticket == ticket_id
+            and bound_hash == candidate_hash
+            and _runtime_method_metrics._completed_projection_evaluation_binding_matches(
+                binding, evaluation=evaluation, candidate_ref=candidate_ref
+            )
+        ]
+        if len(matches) > 1:
+            raise ValueError("completed_projection_live_binding_ambiguous")
+        if not matches:
+            return None
+        binding, _key, _ticket, _hash, store, run_id, attempt_id, fidelity = matches[0]
+        self.bind_completed_work_packet(
+            store=store,
+            packet_ref=packet_ref,
+            evaluation=evaluation,
+            candidate_ref=candidate_ref,
+            run_id=run_id,
+            ticket_id=ticket_id,
+            candidate_hash=candidate_hash,
+            attempt_id=attempt_id,
+            fidelity=fidelity,
+            _record=False,
+        )
+        return binding
 
     def evaluate(
         self,
@@ -747,6 +933,7 @@ class ProductionPolicyEvaluationBackend(_MethodMetricProjectionCapabilitySlot):
                 _runtime_method_metrics.attach_completed_method_metric_observation_projection(
                     evaluation_vector,
                     candidate_ref=method_metric_projection_candidate_ref,
+                    evaluated_candidate=candidate,
                     basis=method_metric_projection_basis,
                 )
             )
@@ -776,12 +963,32 @@ class ProductionPolicyEvaluationBackend(_MethodMetricProjectionCapabilitySlot):
             runtime_execution=runtime_execution,
         )
         evaluation_vector = evaluation_vector.with_score_source_results(simulation_results)
+        completed_projection_binding = None
+        if method_metric_projection_basis is not None:
+            completed_projection_binding = (
+                _runtime_method_metrics._issue_completed_projection_evaluation_binding(
+                    evaluation_vector,
+                    evaluated_candidate=candidate,
+                    candidate_ref=method_metric_projection_candidate_ref,
+                    basis=method_metric_projection_basis,
+                )
+            )
+        if completed_projection_binding is not None:
+            existing = self._policyos_completed_evaluation_bindings
+            if len(existing) >= 256:
+                raise ValueError("completed_projection_live_binding_limit")
+            object.__setattr__(
+                self,
+                "_policyos_completed_evaluation_bindings",
+                (*existing, completed_projection_binding),
+            )
         return PolicyRuntimeEvaluationArtifact(
             simulation_metrics=metrics,
             simulation_results=simulation_results,
             evaluation_vector=evaluation_vector,
             fidelity=fidelity,
             provenance=provenance,
+            completed_projection_binding=completed_projection_binding,
         )
 
 
@@ -920,10 +1127,46 @@ def persist_policy_evaluation_vector(
     *,
     candidate_ref: ArtifactRef,
     evaluation_vector: PolicyEvaluationVector,
+    completed_projection_basis: object | None = None,
+    completed_projection_binding: object | None = None,
 ) -> ArtifactRef:
-    """Persist a policy-evaluation vector through the execution context store."""
+    """Persist a policy-evaluation vector through the execution context store.
+
+    On a re-persisted completed projection, source_run_id is only a lookup key:
+    the current Runtime owner reselects the whole basis, after which the writer
+    compares its complete projection with the owner-issued result.
+    """
+    if "completed_method_metric_projection" in evaluation_vector.metadata:
+        owner = ctx.method_metric_selection_owner
+        if owner is None:
+            raise ValueError("completed_projection_owner_unavailable")
+        if completed_projection_basis is None:
+            projection = _runtime_method_metrics.CompletedMethodMetricProjection.model_validate(
+                evaluation_vector.metadata["completed_method_metric_projection"]
+            )
+            read = _runtime_method_metrics.read_completed_admitted_method_metric_projection(
+                ctx.store,
+                owner=owner,
+                source_run_id=projection.source_run_id,
+                candidate_ref=candidate_ref,
+                tenant_id=ctx.run.tenant_id,
+                cell_id=ctx.run.cell_id,
+            )
+            if read.status != "selected" or read.basis is None:
+                raise ValueError("completed_projection_current_owner_not_selected")
+            completed_projection_basis = read.basis
+        elif (
+            getattr(completed_projection_basis, "_selection_owner", None) is not owner
+            or getattr(completed_projection_basis, "_tenant_id", None) != ctx.run.tenant_id
+            or getattr(completed_projection_basis, "_cell_id", None) != ctx.run.cell_id
+        ):
+            raise ValueError("completed_projection_owner_scope_mismatch")
     return _runtime_artifacts._persist_policy_evaluation_vector_impl(
-        ctx, candidate_ref=candidate_ref, evaluation_vector=evaluation_vector
+        ctx,
+        candidate_ref=candidate_ref,
+        evaluation_vector=evaluation_vector,
+        completed_projection_basis=completed_projection_basis,
+        completed_projection_binding=completed_projection_binding,
     )
 
 
@@ -932,10 +1175,16 @@ def persist_policy_evaluation_vector_to_store(
     *,
     candidate_ref: ArtifactRef,
     evaluation_vector: PolicyEvaluationVector,
+    completed_projection_basis: object | None = None,
+    completed_projection_binding: object | None = None,
 ) -> ArtifactRef:
     """Persist a native policy-runtime evaluation vector to the supplied CAS."""
     return _runtime_artifacts._persist_policy_evaluation_vector_to_store_impl(
-        store, candidate_ref=candidate_ref, evaluation_vector=evaluation_vector
+        store,
+        candidate_ref=candidate_ref,
+        evaluation_vector=evaluation_vector,
+        completed_projection_basis=completed_projection_basis,
+        completed_projection_binding=completed_projection_binding,
     )
 
 

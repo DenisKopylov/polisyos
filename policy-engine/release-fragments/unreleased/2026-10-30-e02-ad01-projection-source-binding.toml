@@ -1,0 +1,30 @@
+id = "2026-10-30-e02-ad01-projection-source-binding"
+title = "Bind completed method projections to selected sources"
+type = "changed"
+component = "scientist"
+owner = "team-polisyos"
+summary = "Preserve exact selected source edges when writing completed method projections."
+evidence = ["tests/unit/scientist/nodes/builtins/decide/test_completed_projection_source_edges.py"]
+compatibility = "A completed method projection requires an owner-issued current basis for persistence."
+change_class = "internal"
+surface_classification = "internal"
+migration = "Live re-persistence uses its backend-issued result binding and reselects through the current Runtime owner; resumed v1.3 remains limited."
+api = "Internal selected source records carry candidate, experiment-state and projection-vector profiles; a live per-evaluation binding prevents reassociation of a detached vector."
+limitations = "Candidate-grade only; retained historical sources remain independently readable. Full child release, parent frontier and scientific authority remain separately verified."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/scientist/nodes/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "ad01-selected-projection-source-binding"
+change_class = "internal"
+impact = "internal"
+surface = "internal: scientist policy runtime evaluation persistence"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Completed method projections persist their exact owner-bound selected source references."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/scientist/nodes/README.md"]
+runbook_docs = []

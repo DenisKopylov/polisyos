@@ -396,7 +396,29 @@ class _PolicyRuntimeWorkflowEngine(WorkflowEngine):
             fidelity=self._fidelity,
             evaluation_attempt_id=evaluation_attempt_id,
             runtime_artifact=runtime_artifact,
+            completed_projection_basis=getattr(
+                self._backend, "_policyos_method_metric_projection_basis", None
+            ),
         )
+        if (
+            work_packet_ref is not None
+            and runtime_artifact.completed_projection_binding is not None
+        ):
+            identity = initial_state.get("policy_runtime_work_identity")
+            selected_candidate = maybe_artifact_ref(initial_state.get("policy_candidate_ref"))
+            if not isinstance(identity, Mapping) or selected_candidate is None:
+                raise ValueError("completed_projection_work_identity_unavailable")
+            self._backend.bind_completed_work_packet(
+                store=initial_state.get("store"),
+                packet_ref=work_packet_ref,
+                evaluation=runtime_artifact.evaluation_vector,
+                candidate_ref=selected_candidate,
+                run_id=str(identity.get("run_id") or ""),
+                ticket_id=str(identity.get("ticket_id") or ""),
+                candidate_hash=str(identity.get("candidate_hash") or ""),
+                attempt_id=evaluation_attempt_id,
+                fidelity=self._fidelity,
+            )
         feedback: dict[str, Any] = {
             "verdict": "APPROVE" if runtime_artifact.evaluation_vector.feasible else "REJECT",
             "fidelity_engine": self._fidelity,
@@ -542,6 +564,8 @@ def _policy_promotion_runner(
     candidate: PolicyCandidateSchema,
     candidate_ref: ArtifactRef,
     context: dict[str, Any],
+    *,
+    runtime_backend: ProductionPolicyEvaluationBackend | None = None,
 ) -> Any:
     evidence_ref = context.get("promotion_evidence_bundle_ref")
     if not isinstance(evidence_ref, ArtifactRef):
@@ -557,6 +581,7 @@ def _policy_promotion_runner(
             ctx,
             candidate_ref=candidate_ref,
             context=context,
+            runtime_backend=runtime_backend,
         )
         provenance = _extract_level4_policy_runtime_provenance(context)
         if evaluation_vector is None or evaluation_ref is None:
@@ -829,11 +854,36 @@ def _extract_level4_policy_runtime_provenance(
     }
 
 
+def _completed_live_evaluation_binding(
+    backend: object | None,
+    evaluation: PolicyEvaluationVector,
+    candidate_ref: ArtifactRef,
+    *,
+    packet_ref: ArtifactRef | None,
+    ticket_id: str | None,
+    candidate_hash: str | None,
+) -> object | None:
+    """Find a live owner binding without admitting a serialized claim."""
+    if "completed_method_metric_projection" not in evaluation.metadata:
+        return None
+    lookup = getattr(backend, "select_completed_evaluation_binding", None)
+    if not callable(lookup):
+        return None
+    return lookup(
+        evaluation=evaluation,
+        candidate_ref=candidate_ref,
+        packet_ref=packet_ref,
+        ticket_id=ticket_id,
+        candidate_hash=candidate_hash,
+    )
+
+
 def _extract_level4_policy_evaluation(
     ctx: ExecutionContext,
     *,
     candidate_ref: ArtifactRef,
     context: dict[str, Any],
+    runtime_backend: ProductionPolicyEvaluationBackend | None = None,
 ) -> tuple[PolicyEvaluationVector | None, ArtifactRef | None]:
     stage4 = context.get("_funnel_L4_result")
     if stage4 is None:
@@ -849,6 +899,21 @@ def _extract_level4_policy_evaluation(
         ctx,
         candidate_ref=candidate_ref,
         evaluation_vector=evaluation,
+        completed_projection_basis=(
+            None
+            if runtime_backend is None
+            else getattr(runtime_backend, "_policyos_method_metric_projection_basis", None)
+        ),
+        completed_projection_binding=_completed_live_evaluation_binding(
+            runtime_backend,
+            evaluation,
+            candidate_ref,
+            packet_ref=getattr(stage4, "executed_work_packet_ref", None),
+            ticket_id=context.get("_funnel_ticket_id"),
+            candidate_hash=(context.get("policy_runtime_work_identity") or {}).get(
+                "candidate_hash"
+            ),
+        ),
     )
     return evaluation, ref
 
@@ -971,6 +1036,7 @@ def _resolve_runtime_policy_evaluation(
     candidate_ref: ArtifactRef,
     outcome: FunnelOutcome,
     fallback: PolicyEvaluationVector,
+    runtime_backend: ProductionPolicyEvaluationBackend | None = None,
 ) -> tuple[PolicyEvaluationVector, ArtifactRef | None]:
     stage4 = outcome.stage_results.get(4)
     if stage4 is None:
@@ -985,6 +1051,19 @@ def _resolve_runtime_policy_evaluation(
         ctx,
         candidate_ref=candidate_ref,
         evaluation_vector=evaluation,
+        completed_projection_basis=(
+            None
+            if runtime_backend is None
+            else getattr(runtime_backend, "_policyos_method_metric_projection_basis", None)
+        ),
+        completed_projection_binding=_completed_live_evaluation_binding(
+            runtime_backend,
+            evaluation,
+            candidate_ref,
+            packet_ref=getattr(stage4, "executed_work_packet_ref", None),
+            ticket_id=outcome.ticket_id,
+            candidate_hash=outcome.candidate_hash,
+        ),
     )
     return evaluation, ref
 

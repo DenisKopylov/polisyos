@@ -11,7 +11,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Protocol, SupportsIndex, cast
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, model_validator
 
 from polisyos.core.artifacts import (
     ArtifactID,
@@ -37,7 +37,7 @@ from polisyos.core.artifacts.manifest import (
     InputRef,
     artifact_ref_identity_key,
 )
-from polisyos.core.canon import CanonSpec
+from polisyos.core.canon import CanonSpec, content_hash, to_canonical_bytes
 from polisyos.scientist.methods.search.objective import (
     MethodMetricObservation,
     MethodMetricPredicateEvidence,
@@ -166,7 +166,10 @@ class _CompletedMethodMetricProjectionBasis(_EphemeralMethodMetricCapability):
     verifier_revision: str
     verifier_implementation_sha256: str
     __slots__ = (
+        "_cell_id",
         "_seal",
+        "_selection_owner",
+        "_tenant_id",
         "method_execution_bundle_ref",
         "method_metric_binding_set_ref",
         "observations",
@@ -196,6 +199,9 @@ class _CompletedMethodMetricProjectionBasis(_EphemeralMethodMetricCapability):
         observations: tuple[MethodMetricObservation, ...],
         verifier_revision: str,
         verifier_implementation_sha256: str,
+        selection_owner: CompletedMethodMetricSelectionOwner,
+        tenant_id: str,
+        cell_id: str,
         _seal: object,
     ) -> None:
         if _seal is not _COMPLETED_METHOD_METRIC_PROJECTION_SEAL:
@@ -208,6 +214,13 @@ class _CompletedMethodMetricProjectionBasis(_EphemeralMethodMetricCapability):
             raise ValueError("completed_method_metric_basis_attempt_invalid")
         if not observations:
             raise ValueError("completed_method_metric_basis_observations_missing")
+        if not isinstance(selection_owner, CompletedMethodMetricSelectionOwner):
+            raise ValueError("completed_projection_owner_invalid")
+        if not tenant_id or not cell_id:
+            raise ValueError("completed_projection_owner_scope_invalid")
+        object.__setattr__(self, "_selection_owner", selection_owner)
+        object.__setattr__(self, "_tenant_id", tenant_id)
+        object.__setattr__(self, "_cell_id", cell_id)
         object.__setattr__(self, "source_run_id", source_run_id)
         object.__setattr__(
             self,
@@ -502,6 +515,9 @@ def read_completed_admitted_method_metric_projection(
             observations=read_result.observations,
             verifier_revision=association.verifier_revision,
             verifier_implementation_sha256=association.verifier_implementation_sha256,
+            selection_owner=owner,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
             _seal=_COMPLETED_METHOD_METRIC_PROJECTION_SEAL,
         )
     except (TypeError, ValueError):
@@ -527,10 +543,228 @@ def read_completed_admitted_method_metric_projection(
     return CompletedMethodMetricProjectionReadResult(status="selected", basis=basis)
 
 
+class CompletedMethodMetricProjection(BaseModel):
+    """Typed candidate-grade source projection; fresh use still needs owner readmission."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    source_run_id: StrictStr = Field(min_length=1)
+    source_candidate_ref: SelectedMethodMetricArtifactRef
+    source_experiment_state_ref: SelectedMethodMetricArtifactRef
+    projection_vector_ref: SelectedMethodMetricArtifactRef
+    verifier_revision: StrictStr = Field(min_length=1)
+    verifier_implementation_sha256: StrictStr = Field(min_length=1)
+    authority_status: Literal["candidate_only"]
+    score_status: Literal["not_established"]
+
+    @model_validator(mode="after")
+    def validate_source_kinds(self) -> CompletedMethodMetricProjection:
+        """Keep each selected source within its source-owner artifact family."""
+        for ref, kind in (
+            (self.source_candidate_ref, "scientist.policy_design.candidate"),
+            (self.source_experiment_state_ref, "scientist.experiment_state"),
+            (self.projection_vector_ref, "scientist.policy_evaluation_vector"),
+        ):
+            if ref.kind != kind or ref.media_type != "application/json":
+                raise ValueError("completed_projection_source_kind_mismatch")
+        return self
+
+
+def _completed_projection_metadata(
+    basis: _CompletedMethodMetricProjectionBasis,
+) -> dict[str, object]:
+    """Project the owner-held exact source identities and candidate grades."""
+    return CompletedMethodMetricProjection.model_validate(
+        {
+            "source_run_id": basis.source_run_id,
+            "source_candidate_ref": basis.candidate_ref.model_dump(mode="json"),
+            "source_experiment_state_ref": basis.source_state_ref.model_dump(mode="json"),
+            "projection_vector_ref": basis.vector_ref.model_dump(mode="json"),
+            "verifier_revision": basis.verifier_revision,
+            "verifier_implementation_sha256": basis.verifier_implementation_sha256,
+            "authority_status": "candidate_only",
+            "score_status": "not_established",
+        }
+    ).model_dump(mode="json")
+
+
+_COMPLETED_EVALUATION_BINDING_SEAL = object()
+
+
+class _CompletedProjectionEvaluationBinding(_EphemeralMethodMetricCapability):
+    """In-process association emitted by the actual candidate evaluation owner."""
+
+    __slots__ = (
+        "_seal",
+        "base_metadata_bytes",
+        "base_metadata_keys",
+        "body_sha256",
+        "candidate_key",
+        "candidate_schema_hash",
+    )
+
+    def __init__(
+        self,
+        *,
+        candidate_ref: ArtifactRef,
+        candidate_schema_hash: str,
+        evaluation: PolicyEvaluationVector,
+        _seal: object,
+    ) -> None:
+        if _seal is not _COMPLETED_EVALUATION_BINDING_SEAL:
+            raise ValueError("completed_projection_evaluation_binding_not_owner_issued")
+        object.__setattr__(self, "_seal", _seal)
+        object.__setattr__(self, "candidate_key", artifact_ref_identity_key(candidate_ref))
+        object.__setattr__(self, "candidate_schema_hash", candidate_schema_hash)
+        object.__setattr__(self, "body_sha256", _completed_evaluation_body_hash(evaluation))
+        serialized_metadata = evaluation.model_dump(mode="json")["metadata"]
+        object.__setattr__(self, "base_metadata_keys", tuple(sorted(serialized_metadata)))
+        object.__setattr__(
+            self,
+            "base_metadata_bytes",
+            to_canonical_bytes(serialized_metadata, CanonSpec(forbid_floats=False)),
+        )
+
+
+def _completed_evaluation_body_hash(evaluation: PolicyEvaluationVector) -> str:
+    """Bind the actual score-bearing vector body; metadata remains separately checked."""
+    return content_hash(
+        to_canonical_bytes(
+            evaluation.model_dump(mode="json", exclude={"metadata"}), CanonSpec(forbid_floats=False)
+        )
+    )
+
+
+def _completed_projection_evaluation_binding_matches(
+    binding: object, *, evaluation: PolicyEvaluationVector, candidate_ref: ArtifactRef
+) -> bool:
+    """Match an actual owner-issued live result to its exact candidate and body."""
+    if (
+        type(binding) is not _CompletedProjectionEvaluationBinding
+        or binding._seal is not _COMPLETED_EVALUATION_BINDING_SEAL
+        or binding.candidate_key != artifact_ref_identity_key(candidate_ref)
+        or binding.body_sha256 != _completed_evaluation_body_hash(evaluation)
+    ):
+        return False
+    base_keys = set(binding.base_metadata_keys)
+    serialized_metadata = evaluation.model_dump(mode="json")["metadata"]
+    permitted_additions = {
+        "evidence_source_statuses",
+        "policy_runtime_source_measurement",
+        "counterfactual_gate_summary",
+        "candidate_hash",
+    }
+    return (
+        base_keys.issubset(serialized_metadata)
+        and (
+            "candidate_hash" not in serialized_metadata
+            or serialized_metadata["candidate_hash"] == binding.candidate_schema_hash
+        )
+        and not (set(serialized_metadata) - base_keys - permitted_additions)
+        and to_canonical_bytes(
+            {key: serialized_metadata[key] for key in base_keys}, CanonSpec(forbid_floats=False)
+        )
+        == binding.base_metadata_bytes
+    )
+
+
+def _issue_completed_projection_evaluation_binding(
+    evaluation: PolicyEvaluationVector,
+    *,
+    evaluated_candidate: object,
+    candidate_ref: ArtifactRef,
+    basis: object,
+) -> object:
+    """Issue only on the live backend path after actual candidate/content comparison."""
+    from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
+
+    if (
+        type(basis) is not _CompletedMethodMetricProjectionBasis
+        or basis._seal is not _COMPLETED_METHOD_METRIC_PROJECTION_SEAL
+    ):
+        raise ValueError("completed_projection_owner_basis_required")
+    if type(evaluated_candidate) is not PolicyCandidateSchema:
+        raise ValueError("completed_projection_actual_candidate_required")
+    selected = _selected_ref(candidate_ref, kind="scientist.policy_design.candidate")
+    if not _same_selected_ref(selected, basis.candidate_ref):
+        raise ValueError("completed_projection_candidate_selection_mismatch")
+    if (
+        content_hash(to_canonical_bytes(evaluated_candidate, CanonSpec(forbid_floats=False)))
+        != selected.artifact_id.hex
+    ):
+        raise ValueError("completed_projection_evaluated_candidate_mismatch")
+    if evaluation.candidate_id != evaluated_candidate.candidate_id:
+        raise ValueError("completed_projection_evaluated_vector_mismatch")
+    return _CompletedProjectionEvaluationBinding(
+        candidate_ref=selected,
+        candidate_schema_hash=evaluated_candidate.candidate_hash(),
+        evaluation=evaluation,
+        _seal=_COMPLETED_EVALUATION_BINDING_SEAL,
+    )
+
+
+def completed_projection_input_refs(
+    evaluation: PolicyEvaluationVector,
+    *,
+    candidate_ref: ArtifactRef,
+    basis: object | None,
+    store: object,
+    evaluation_binding: object | None,
+) -> tuple[tuple[str, ArtifactRef], ...]:
+    """Bind a current owner source to the actual in-process evaluation result."""
+    raw = evaluation.metadata.get("completed_method_metric_projection")
+    if raw is None and "completed_method_metric_projection" not in evaluation.metadata:
+        if basis is not None:
+            raise ValueError("completed_projection_basis_without_projection")
+        return ()
+    if (
+        type(basis) is not _CompletedMethodMetricProjectionBasis
+        or basis._seal is not _COMPLETED_METHOD_METRIC_PROJECTION_SEAL
+    ):
+        raise ValueError("completed_projection_owner_basis_required")
+    selected_candidate = _selected_ref(candidate_ref, kind="scientist.policy_design.candidate")
+    if not _same_selected_ref(selected_candidate, basis.source_candidate_ref.materialize()):
+        raise ValueError("completed_projection_candidate_selection_mismatch")
+    expected = _completed_projection_metadata(basis)
+    if (
+        type(raw) is not dict
+        or raw != expected
+        or evaluation.method_metric_observations != basis.observations
+    ):
+        raise ValueError("completed_projection_owner_basis_mismatch")
+    if not _completed_projection_evaluation_binding_matches(
+        evaluation_binding, evaluation=evaluation, candidate_ref=candidate_ref
+    ):
+        raise ValueError("completed_projection_evaluation_binding_mismatch")
+    refreshed = read_completed_admitted_method_metric_projection(
+        store,
+        owner=basis._selection_owner,
+        source_run_id=basis.source_run_id,
+        candidate_ref=basis.candidate_ref,
+        tenant_id=basis._tenant_id,
+        cell_id=basis._cell_id,
+    )
+    current = refreshed.basis
+    if (
+        refreshed.status != "selected"
+        or current is None
+        or current.cache_source_identity() != basis.cache_source_identity()
+        or _completed_projection_metadata(current) != expected
+        or current.observations != basis.observations
+    ):
+        raise ValueError("completed_projection_current_owner_not_selected")
+    return (
+        ("completed_projection_source_candidate", basis.candidate_ref),
+        ("completed_projection_source_state", basis.source_state_ref),
+        ("completed_projection_vector", basis.vector_ref),
+    )
+
+
 def attach_completed_method_metric_observation_projection(
     evaluation: PolicyEvaluationVector,
     *,
     candidate_ref: ArtifactRef,
+    evaluated_candidate: object,
     basis: object,
 ) -> PolicyEvaluationVector:
     """Attach owner-selected observations to the matching candidate evaluation vector.
@@ -550,19 +784,21 @@ def attach_completed_method_metric_observation_projection(
     )
     if not _same_selected_ref(selected_candidate, basis.source_candidate_ref.materialize()):
         raise _InvalidProjectionError("completed_method_metric_candidate_does_not_match_evaluation")
+    from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
+
+    if type(evaluated_candidate) is not PolicyCandidateSchema:
+        raise ValueError("completed_projection_actual_candidate_required")
+    actual_digest = content_hash(
+        to_canonical_bytes(evaluated_candidate, CanonSpec(forbid_floats=False))
+    )
+    if actual_digest != selected_candidate.artifact_id.hex:
+        raise ValueError("completed_projection_evaluated_candidate_mismatch")
+    if evaluation.candidate_id != evaluated_candidate.candidate_id:
+        raise ValueError("completed_projection_evaluated_vector_mismatch")
     if evaluation.method_metric_observations:
         raise _InvalidProjectionError("evaluation_already_contains_method_metric_observations")
     metadata = dict(evaluation.metadata)
-    metadata["completed_method_metric_projection"] = {
-        "source_run_id": basis.source_run_id,
-        "source_candidate_ref": basis.candidate_ref.model_dump(mode="json"),
-        "source_experiment_state_ref": basis.source_state_ref.model_dump(mode="json"),
-        "projection_vector_ref": basis.vector_ref.model_dump(mode="json"),
-        "verifier_revision": basis.verifier_revision,
-        "verifier_implementation_sha256": basis.verifier_implementation_sha256,
-        "authority_status": "candidate_only",
-        "score_status": "not_established",
-    }
+    metadata["completed_method_metric_projection"] = _completed_projection_metadata(basis)
     payload = evaluation.model_dump(mode="python")
     payload["method_metric_observations"] = basis.observations
     payload["metadata"] = metadata

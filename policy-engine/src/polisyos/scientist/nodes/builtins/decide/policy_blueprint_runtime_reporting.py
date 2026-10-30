@@ -996,6 +996,7 @@ def finalize_runtime_session(session: _RuntimeSession) -> NodeOutcome:
         candidate_ref=session.candidate_ref,
         outcome=outcome,
         fallback=session.selection_vector,
+        runtime_backend=session.runtime_backend,
     )
     final_replay_bundle_ref = session.replay_bundle_ref
     final_replay_verification_ref = None

@@ -63,6 +63,7 @@ from polisyos.scientist.methods.search.objective import (
     ObjectiveScoreStatus,
     SourceMetricObservation,
     method_metric_observation_input_refs,
+    recompute_source_government_balance,
     source_observation_input_refs,
 )
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_metrics import (
@@ -168,12 +169,16 @@ def _persist_policy_evaluation_vector_impl(
     *,
     candidate_ref: ArtifactRef,
     evaluation_vector: PolicyEvaluationVector,
+    completed_projection_basis: object | None = None,
+    completed_projection_binding: object | None = None,
 ) -> ArtifactRef:
     """Persist policy evaluation vector helper."""
     return _persist_policy_evaluation_vector_to_store_impl(
         ctx.store,
         candidate_ref=candidate_ref,
         evaluation_vector=evaluation_vector,
+        completed_projection_basis=completed_projection_basis,
+        completed_projection_binding=completed_projection_binding,
     )
 
 
@@ -182,12 +187,34 @@ def _persist_policy_evaluation_vector_to_store_impl(
     *,
     candidate_ref: ArtifactRef,
     evaluation_vector: PolicyEvaluationVector,
+    completed_projection_basis: object | None = None,
+    completed_projection_binding: object | None = None,
 ) -> ArtifactRef:
     """Persist a native policy-runtime evaluation vector to the supplied CAS."""
+    from polisyos.scientist.nodes.builtins.decide.policy_runtime_method_metrics import (
+        completed_projection_input_refs,
+    )
+
     inputs = [input_ref_from_artifact_ref(candidate_ref, role="candidate")]
+    inputs.extend(
+        input_ref_from_artifact_ref(ref, role=role)
+        for role, ref in completed_projection_input_refs(
+            evaluation_vector,
+            candidate_ref=candidate_ref,
+            basis=completed_projection_basis,
+            store=store,
+            evaluation_binding=completed_projection_binding,
+        )
+    )
     raw_observation = evaluation_vector.metadata.get("policy_runtime_source_measurement")
     if raw_observation is not None:
         observation = SourceMetricObservation.model_validate(raw_observation)
+        if observation.source_status == "observed":
+            recomputed = recompute_source_government_balance(store, observation)
+            if recomputed.model_dump(mode="json", exclude_none=False) != observation.model_dump(
+                mode="json", exclude_none=False
+            ):
+                raise ValueError("policy_runtime_source_measurement_not_recomputed")
         inputs.extend(
             input_ref_from_artifact_ref(ref, role=role)
             for role, ref in source_observation_input_refs(observation)

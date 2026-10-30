@@ -501,6 +501,10 @@ def prepare_runtime_session(
         ctx,
         candidate_ref=candidate_ref,
         evaluation_vector=selection_vector,
+        completed_projection_basis=getattr(
+            runtime_backend, "_policyos_method_metric_projection_basis", None
+        ),
+        completed_projection_binding=selection_artifact.completed_projection_binding,
     )
     runtime_artifacts_index = dict(state.artifacts_index)
     ambiguity_certificate_ref = runtime_request.ambiguity_certificate_ref
@@ -664,6 +668,7 @@ def run_runtime_funnel(session: _RuntimeSession) -> None:
                 candidate,
                 candidate_ref,
                 context,
+                runtime_backend=session.runtime_backend,
             ),
             promotion_owner_recheck=lambda _candidate, context: (
                 owner._policy_promotion_owner_recheck(
@@ -785,6 +790,7 @@ def _persist_policy_runtime_work_packet(
     fidelity: object,
     evaluation_attempt_id: str,
     runtime_artifact: PolicyRuntimeEvaluationArtifact,
+    completed_projection_basis: object | None = None,
 ) -> tuple[ArtifactRef | None, str | None]:
     """Persist an invocation packet only when actual runtime identity is available."""
     identity = initial_state.get("policy_runtime_work_identity")
@@ -916,6 +922,8 @@ def _persist_policy_runtime_work_packet(
         store,
         candidate_ref=candidate_ref,
         evaluation_vector=runtime_artifact.evaluation_vector,
+        completed_projection_basis=completed_projection_basis,
+        completed_projection_binding=runtime_artifact.completed_projection_binding,
     )
     packet = FunnelExecutedWorkPacket(
         run_id=run_id,

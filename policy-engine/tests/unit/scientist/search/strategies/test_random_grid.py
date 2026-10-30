@@ -43,6 +43,48 @@ def test_grid_state_roundtrip(simple_space: SearchSpace) -> None:
     assert third_from_original.params == third_from_restored.params
 
 
+@pytest.mark.parametrize("points, maximum", [(4, 10), (8, 4)])
+def test_grid_refuses_changed_generation_configuration_before_mutation(
+    simple_space: SearchSpace, points: int, maximum: int
+) -> None:
+    source = GridSearchStrategy(space=simple_space, points_per_dim=8, max_candidates=10, seed=7)
+    for _ in range(3):
+        source.suggest([])
+    target = GridSearchStrategy(
+        space=simple_space, points_per_dim=points, max_candidates=maximum, seed=99
+    )
+    before = target.get_state().to_artifact()
+    with pytest.raises(ValueError, match="Grid checkpoint"):
+        target.set_state(StrategyState.from_artifact(source.get_state().to_artifact()))
+    assert target.get_state().to_artifact() == before
+
+
+@pytest.mark.parametrize("cursor", ["bad", -1, True, 9])
+def test_grid_rejects_malformed_cursor_before_base_state_mutation(
+    simple_space: SearchSpace, cursor: object
+) -> None:
+    source = GridSearchStrategy(space=simple_space, points_per_dim=8, seed=7)
+    state = StrategyState.from_artifact(source.get_state().to_artifact())
+    state.iteration = 9
+    state.metadata["cursor"] = cursor
+    target = GridSearchStrategy(space=simple_space, points_per_dim=8, seed=99)
+    before = target.get_state().to_artifact()
+    with pytest.raises(ValueError, match="Grid checkpoint"):
+        target.set_state(state)
+    assert target.get_state().to_artifact() == before
+
+
+def test_grid_refuses_legacy_snapshot_without_complete_generation_basis(
+    simple_space: SearchSpace,
+) -> None:
+    target = GridSearchStrategy(space=simple_space, points_per_dim=8)
+    state = StrategyState.from_artifact(target.get_state().to_artifact())
+    state.metadata.pop("grid_state_version", None)
+    state.metadata.pop("max_candidates", None)
+    with pytest.raises(ValueError, match="Grid checkpoint"):
+        target.set_state(state)
+
+
 def test_random_state_json_roundtrip_preserves_next_values_and_rejects_wrong_version(
     simple_space: SearchSpace,
 ) -> None:

@@ -28,7 +28,7 @@ from polisyos.scientist.orchestration.engine.budget import BudgetState
 from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
 from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 from tests._helpers.control_worker import dispatch_one_control_job
-from tests._helpers.runtime_http import _build_control_service
+from tests._helpers.runtime_http import _build_control_service, _valid_intake_for_mode
 from tests._helpers.world_model_record import _build_record, _substrate_registry
 from tests.unit.runtime.http.control_service_test_support import (
     bound_nl_authorization_proof,
@@ -89,6 +89,7 @@ async def _exercise(
     resolve_child=False,
     naive_axis=None,
     replay_missing_rows=False,
+    simulate_only=True,
 ):
     store, built, _model, _registry_ref = _build_record(tmp_path / "world")
     world = built.record
@@ -164,17 +165,22 @@ async def _exercise(
             capture_world_read,
         )
     try:
+        request_context = {
+            "temporal_scope_context_world_read_bindings": {"caller-forged": {"status": "verified"}}
+        }
+        if simulate_only:
+            # Existing typed candidate intake selects the server's admitted
+            # simulation route; the authenticated job owner issues its scope.
+            request_context["evaluation_safety_attempt"] = _valid_intake_for_mode(
+                "simulate_only"
+            ).model_dump(mode="json")
         request = NaturalLanguageRunRequest.model_validate(
             {
                 "request": "Inspect the selected fixture world as a candidate.",
                 "llm_model": "simulated-qwen",
                 "target_world_scope_profile_id": "tc-fixture-world",
                 "temporal_scope": scope,
-                "context": {
-                    "temporal_scope_context_world_read_bindings": {
-                        "caller-forged": {"status": "verified"}
-                    }
-                },
+                "context": request_context,
             }
         )
         claims = _fixture_claims()
@@ -238,6 +244,12 @@ async def _exercise(
             observed["trusted_at_entry"] = deepcopy(kwargs["trusted_source_context"])
             observed["compiler_at_entry"] = deepcopy(kwargs["context"])
             resolver = kwargs["cycle_substrate_context_resolver"]
+            if not simulate_only:
+                assert kwargs["execution_intent"] == "candidate_only"
+                assert resolver is None
+                observed["phase"] = "candidate_only_without_context_resolver"
+                raise RuntimeError(_STOP)
+            assert kwargs["execution_intent"] == "simulate_only"
             assert resolver is not None
             observed["phase"] = "context_resolver_present"
             root_problem = _problem_for_world(world)
@@ -368,6 +380,22 @@ def _assert_actual_context_read(response, observed, world):
         assert binding[field] == "not_established"
     assert binding["query_limit_per_mode"] == 100_000
     return binding
+
+
+@pytest.mark.asyncio
+async def test_candidate_only_retains_temporal_intent_without_simulation_resolver(
+    tmp_path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    service, _launch, _world, observed, response = await _exercise(
+        tmp_path, monkeypatch, simulate_only=False
+    )
+    try:
+        assert observed["phase"] == "candidate_only_without_context_resolver"
+        assert observed["compiler_route"]["context_resolver_is_none"] is True
+        assert response.progress.get("temporal_scope_request_binding") is not None
+        assert response.progress.get("temporal_scope_context_world_read_bindings", {}) == {}
+    finally:
+        service.close()
 
 
 @pytest.mark.asyncio

@@ -2288,15 +2288,16 @@ def build_runtime_api_env_with_fixture_catalog(
 
 
 @pytest.fixture
-def runtime_api_env(tmp_path: Path, pytestconfig: pytest.Config):
+def runtime_api_env(tmp_path: Path, pytestconfig: pytest.Config, monkeypatch: pytest.MonkeyPatch):
     if TestClient is None:  # pragma: no cover
         pytest.skip("fastapi is not installed")
 
     project_root = Path(pytestconfig.rootpath).resolve(strict=True)
-    env = build_runtime_api_env(
+    env = build_runtime_api_env_with_fixture_catalog(
         tmp_path,
         include_test_client=True,
         app_kwargs={"repo_root": project_root},
+        monkeypatch=monkeypatch,
     )
     try:
         yield env

@@ -1,0 +1,17 @@
+id = "2026-10-31-e02-source-bound-module-facades"
+title = "Retain source-bound module facade continuity"
+type = "changed"
+component = "platform"
+owner = "team-polisyos"
+summary = "Record bounded source-bound module subclasses and their observed import bindings without invoking their getters."
+evidence = ["tests/unit/runtime/quality/test_loaded_module_facades.py", "tests/unit/runtime/quality/test_observed_binding_diagnostic.py"]
+compatibility = "Unrecorded class bindings and unsupported mutable class or callable state remain unqualified; ordinary imports can continue as candidate work."
+change_class = "internal"
+surface_classification = "internal: local tooling launch and diagnostic evidence"
+migration = "No persisted receipt or risk scope is rewritten."
+api = "The early source recorder can retain selected source-bound module facade roles and report their observed import bindings."
+limitations = "Class-construction provider and origin remain unqualified: a substituted class builder can return a same-name class while structural retention passes. Observed bindings and class continuity do not establish N7/N9 authority. Lazy export resolution, external and native providers, decision-state currentness, protected use, and issuer predicates remain unestablished. The selected environment's default pytest assertion-rewriting finder still fails capture closed."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["tools/README.md"]
+runbook_docs = []

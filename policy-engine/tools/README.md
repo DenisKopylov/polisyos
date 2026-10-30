@@ -18,6 +18,14 @@ initializer only when its source matches those selected bytes. A mismatch may
 still run as candidate work, without producing qualifying execution evidence.
 The host uses the checkout's existing `.venv`; tests and non-Python data are
 outside this source selection.
+Module subclasses can be retained when their class hierarchy and callable
+surfaces are bound in selected initializer namespaces. The recorder reads their
+module dictionaries without invoking subclass getters, and refuses unbound
+classes or unsupported mutable class and callable state. This does not prove
+which class-construction provider produced a class: a substituted empty class
+with matching module metadata can remain structurally bound. The retained
+diagnostic therefore does not establish class construction provenance, lazy
+export resolution, or provider state through a protected operation.
 In the selected environment, pytest's default assertion-rewriting finder changes
 its session state and causes the capture to fail closed. A Protocol control with
 `--assert=plain --noconftest` can collect evidence, but does not qualify the

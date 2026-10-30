@@ -21,8 +21,8 @@ import subprocess
 import sys
 from contextlib import suppress
 from pathlib import Path
-from types import FunctionType, ModuleType
-from typing import TYPE_CHECKING
+from types import CodeType, FunctionType, GetSetDescriptorType, ModuleType
+from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -126,8 +126,8 @@ def _source_export_candidates(
         if isinstance(node, ast.Import):
             for alias in node.names:
                 local = alias.asname or alias.name.partition(".")[0]
-                provider = alias.name if alias.asname else alias.name.partition(".")[0]
-                aliases.setdefault(local, set()).add(provider)
+                import_provider = alias.name if alias.asname else alias.name.partition(".")[0]
+                aliases.setdefault(local, set()).add(import_provider)
         elif isinstance(node, ast.ImportFrom):
             try:
                 provider = (
@@ -254,8 +254,11 @@ def _selected_snapshot() -> tuple[
                 "uv.lock",
                 "pyproject.toml",
             ):
-                path = _PRODUCT / relative
-                if path.resolve(strict=True) != path or path.read_bytes() != content:
+                source_path = _PRODUCT / relative
+                if (
+                    source_path.resolve(strict=True) != source_path
+                    or source_path.read_bytes() != content
+                ):
                     raise RuntimeError(f"selected_host_input_mismatch:{relative}")
                 extras[relative] = content
     finally:
@@ -401,7 +404,9 @@ if hashlib.sha256(source).hexdigest() != request["host_sha256"]:
 module = types.ModuleType("_polisyos_early_host")
 module.__file__ = request["host_path"]
 sys.modules[module.__name__] = module
-exec(compile(source, module.__file__, "exec", dont_inherit=True), module.__dict__)
+host_code = compile(source, module.__file__, "exec", dont_inherit=True)
+module.__dict__["_HOST_EXECUTION_CODE"] = host_code
+exec(host_code, module.__dict__)
 raise SystemExit(module._child_main(channel, request))
 """
 
@@ -495,6 +500,256 @@ def _launch(mode: str, argv: Sequence[str]) -> int:
         child.close()
 
 
+def _retained_recorder_surface(
+    recorder: ModuleType, recorder_code: CodeType
+) -> tuple[
+    type[object],
+    tuple[tuple[str, object], ...],
+    tuple[tuple[str, object], ...],
+    tuple[tuple[object, ...], ...],
+    tuple[tuple[object, ...], ...],
+]:
+    """Retain the recorder's source-owned callable and class surface.
+
+    Mutable values reachable from those bindings, external modules and use-time
+    mutation ownership remain separate, unestablished premises.
+    """
+
+    recorder_type = recorder.__dict__["SourceExecutionCapture"]
+    if not isinstance(recorder_type, type):
+        raise RuntimeError("recorder_type_unavailable")
+    code_tree: list[CodeType] = []
+    pending = [recorder_code]
+    while pending:
+        code = pending.pop()
+        code_tree.append(code)
+        pending.extend(value for value in code.co_consts if type(value) is CodeType)
+    descriptors: list[tuple[str, object]] = []
+    referenced_names: set[str] = set()
+    pending_functions: list[FunctionType] = []
+    pending_classes: list[type[object]] = [recorder_type]
+    seen_functions: set[int] = set()
+    seen_classes: set[int] = set()
+    function_holds: list[tuple[object, ...]] = []
+    class_holds: list[tuple[object, ...]] = []
+
+    def descriptor_functions(value: object) -> tuple[FunctionType, ...]:
+        if type(value) is FunctionType:
+            return (value,)
+        if type(value) is property:
+            return cast(
+                "tuple[FunctionType, ...]",
+                tuple(
+                    function
+                    for function in (value.fget, value.fset, value.fdel)
+                    if function is not None
+                ),
+            )
+        if type(value) is classmethod:
+            return (cast("FunctionType", value.__func__),)
+        if type(value) is staticmethod:
+            return (cast("FunctionType", value.__func__),)
+        return ()
+
+    for name, value in type.__getattribute__(recorder_type, "__dict__").items():
+        if type(value) not in (FunctionType, property, classmethod, staticmethod):
+            continue
+        functions = descriptor_functions(value)
+        if type(name) is not str or any(
+            type(function) is not FunctionType
+            or not any(function.__code__ is code for code in code_tree)
+            or function.__globals__ is not recorder.__dict__
+            for function in functions
+        ):
+            raise RuntimeError("recorder_descriptor_not_source_owned")
+        descriptors.append((name, value))
+
+    while pending_functions or pending_classes:
+        if pending_classes:
+            cls = pending_classes.pop()
+            if id(cls) in seen_classes:
+                continue
+            seen_classes.add(id(cls))
+            namespace = type.__getattribute__(cls, "__dict__")
+            bases = type.__getattribute__(cls, "__bases__")
+            fields = tuple(namespace.items())
+            class_holds.append((cls, bases, fields))
+            for _, value in fields:
+                pending_functions.extend(descriptor_functions(value))
+            continue
+        function = pending_functions.pop()
+        if type(function) is not FunctionType or id(function) in seen_functions:
+            continue
+        seen_functions.add(id(function))
+        kwdefaults = function.__kwdefaults__
+        if kwdefaults is not None and (
+            type(kwdefaults) is not dict or any(type(key) is not str for key in kwdefaults)
+        ):
+            raise RuntimeError("recorder_function_defaults_unsupported")
+        kwitems = () if kwdefaults is None else tuple(kwdefaults.items())
+        closure = function.__closure__
+        cells: list[tuple[object, bool, object]] = []
+        for cell in closure or ():
+            try:
+                cells.append((cell, True, cell.cell_contents))
+            except ValueError:
+                cells.append((cell, False, None))
+        function_holds.append(
+            (
+                function,
+                function.__code__,
+                function.__defaults__,
+                kwdefaults,
+                kwitems,
+                closure,
+                tuple(cells),
+            )
+        )
+        if function.__globals__ is recorder.__dict__:
+            names = _code_names(function.__code__)
+            referenced_names.update(names)
+            for name in names:
+                value = recorder.__dict__.get(name)
+                if type(value) is FunctionType and value.__globals__ is recorder.__dict__:
+                    pending_functions.append(value)
+                elif (
+                    type(value) is type
+                    and type.__getattribute__(value, "__module__") == recorder.__name__
+                ):
+                    pending_classes.append(value)
+    globals_ = tuple(
+        (name, recorder.__dict__[name])
+        for name in sorted(referenced_names)
+        if name in recorder.__dict__
+    )
+    return recorder_type, tuple(descriptors), globals_, tuple(function_holds), tuple(class_holds)
+
+
+def _code_names(root: CodeType) -> set[str]:
+    """Return the names referenced by a function's nested compiler code tree."""
+
+    names: set[str] = set()
+    pending = [root]
+    while pending:
+        code = pending.pop()
+        names.update(code.co_names)
+        pending.extend(item for item in code.co_consts if type(item) is CodeType)
+    return names
+
+
+def _same_named_references(expected: object, observed: object) -> bool:
+    if type(expected) is not tuple or type(observed) is not tuple or len(expected) != len(observed):
+        return False
+    return all(
+        type(left) is tuple
+        and type(right) is tuple
+        and len(left) == len(right) == 2
+        and type(left[0]) is str
+        and type(right[0]) is str
+        and left[0] == right[0]
+        and left[1] is right[1]
+        for left, right in zip(expected, observed, strict=True)
+    )
+
+
+def _same_recorder_surface(expected: object, observed: object) -> bool:
+    """Compare the retained recorder surface without calling its functions."""
+
+    if (
+        type(expected) is not tuple
+        or type(observed) is not tuple
+        or len(expected) != 5
+        or len(observed) != 5
+    ):
+        return False
+    if (
+        expected[0] is not observed[0]
+        or not _same_named_references(expected[1], observed[1])
+        or not _same_named_references(expected[2], observed[2])
+        or any(
+            type(rows) is not tuple for rows in (expected[3], observed[3], expected[4], observed[4])
+        )
+    ):
+        return False
+    functions = {id(row[0]): row for row in observed[3] if type(row) is tuple and len(row) == 7}
+    classes = {id(row[0]): row for row in observed[4] if type(row) is tuple and len(row) == 3}
+    if len(functions) != len(expected[3]) or len(classes) != len(expected[4]):
+        return False
+    for held in expected[3]:
+        if type(held) is not tuple or len(held) != 7:
+            return False
+        current = functions.get(id(held[0]))
+        if (
+            current is None
+            or any(held[index] is not current[index] for index in (0, 1, 2, 3, 5))
+            or not _same_named_references(held[4], current[4])
+            or type(held[6]) is not tuple
+            or type(current[6]) is not tuple
+            or len(held[6]) != len(current[6])
+            or any(
+                type(left) is not tuple
+                or type(right) is not tuple
+                or len(left) != 3
+                or len(right) != 3
+                or any(a is not b for a, b in zip(left, right, strict=True))
+                for left, right in zip(held[6], current[6], strict=True)
+            )
+        ):
+            return False
+    for held in expected[4]:
+        if type(held) is not tuple or len(held) != 3:
+            return False
+        current_class = classes.get(id(held[0]))
+        if (
+            current_class is None
+            or held[0] is not current_class[0]
+            or type(held[1]) is not tuple
+            or type(current_class[1]) is not tuple
+            or len(held[1]) != len(current_class[1])
+            or any(a is not b for a, b in zip(held[1], current_class[1], strict=True))
+            or not _same_named_references(held[2], current_class[2])
+        ):
+            return False
+    return True
+
+
+def _recorder_surface_unchanged(session: dict[str, object]) -> bool:
+    """Reconcile retained recorder callables before the host invokes any."""
+
+    recorder = session.get("recorder")
+    recorder_code = session.get("recorder_code")
+    expected = session.get("recorder_surface")
+    capture = session.get("capture")
+    if (
+        type(recorder) is not ModuleType
+        or type(recorder_code) is not CodeType
+        or type(expected) is not tuple
+        or len(expected) != 5
+        or type(expected[0]) is not type
+        or type(capture) is not expected[0]
+    ):
+        return False
+    try:
+        class_namespace = type.__getattribute__(expected[0], "__dict__")
+        if type(class_namespace.get("__dict__")) is not GetSetDescriptorType:
+            return False
+        namespace = object.__getattribute__(capture, "__dict__")
+        if type(namespace) is not dict or type(expected[1]) is not tuple:
+            return False
+        if any(
+            type(row) is not tuple or len(row) != 2 or type(row[0]) is not str
+            for row in expected[1]
+        ):
+            return False
+        descriptor_names = {row[0] for row in expected[1]}
+        if any(type(key) is str and key in descriptor_names for key in namespace):
+            return False
+        observed = _retained_recorder_surface(recorder, recorder_code)
+        return _same_recorder_surface(expected, observed)
+    except (AttributeError, KeyError, RuntimeError, TypeError, ValueError):
+        return False
+
+
 def _child_main(channel: socket.socket, request: dict[str, object]) -> int:
     global _HOST_SESSION
     if not (sys.flags.isolated and sys.flags.no_site and sys.flags.dont_write_bytecode):
@@ -515,12 +770,17 @@ def _child_main(channel: socket.socket, request: dict[str, object]) -> int:
     exec(recorder_code, recorder.__dict__)  # noqa: S102
     sources = {
         name: recorder.ExpectedSource(relative, digest)
-        for name, (relative, digest) in request["sources"].items()
+        for name, (relative, digest) in cast(
+            "dict[str, tuple[str, str]]", request["sources"]
+        ).items()
     }
     capture = None
     capture_failure = None
     try:
-        exports = {name: set(bindings) for name, bindings in request["exports"].items()}
+        exports = {
+            name: set(bindings)
+            for name, bindings in cast("dict[str, list[str]]", request["exports"]).items()
+        }
         # The owner handoff is a private bootstrap protocol, not a domain-symbol
         # exception. It is retained before the owner module completes.
         exports.setdefault("polisyos.runtime.quality.confidence_ledger", set()).update(
@@ -534,6 +794,17 @@ def _child_main(channel: socket.socket, request: dict[str, object]) -> int:
         # later recorder module adopt imports from this failed startup.
         if recorder._PROCESS_OWNER_SLOT not in sys.__dict__:
             sys.__dict__[recorder._PROCESS_OWNER_SLOT] = object()
+    host_code = globals().get("_HOST_EXECUTION_CODE")
+    if type(host_code) is not CodeType:
+        raise RuntimeError("host_execution_code_unavailable")
+    recorder_surface = _retained_recorder_surface(recorder, recorder_code)
+    (
+        recorder_type,
+        recorder_descriptors,
+        recorder_globals,
+        recorder_functions,
+        recorder_classes,
+    ) = recorder_surface
     # Strong live references stay in this child; a serialized request or parent
     # process cannot provide an installed capture to a different process.
     profile = _measure_profile()
@@ -544,10 +815,20 @@ def _child_main(channel: socket.socket, request: dict[str, object]) -> int:
         "parent_pid": os.getppid(),
         "channel": channel,
         "recorder": recorder,
+        "host_code": host_code,
+        "recorder_code": recorder_code,
+        "recorder_type": recorder_type,
+        "recorder_descriptors": recorder_descriptors,
+        "recorder_globals": recorder_globals,
+        "recorder_functions": recorder_functions,
+        "recorder_classes": recorder_classes,
+        "recorder_surface": recorder_surface,
         "capture": capture,
         "profile": profile,
         "source_frame": request["source_frame"],
-        "unparsed_sources": tuple(request["unparsed_sources"]),
+        "host_sha256": request["host_sha256"],
+        "recorder_sha256": request["recorder_sha256"],
+        "unparsed_sources": tuple(cast("list[str]", request["unparsed_sources"])),
         "phase": "collecting" if capture_failure is None else "failed",
         "last_owner_diagnostic": None
         if capture_failure is None
@@ -560,7 +841,7 @@ def _child_main(channel: socket.socket, request: dict[str, object]) -> int:
     sys.path[:0] = [str(_PRODUCT / "src"), str(_PRODUCT), str(site)]
     channel.sendall(b"installed\n" if capture_failure is None else b"candidate\n")
     mode = str(request["mode"])
-    arguments = list(request["argv"])
+    arguments = list(cast("list[str]", request["argv"]))
     return _invoke_entry(mode, arguments)
 
 
@@ -569,6 +850,13 @@ def _attach_tools_handoff() -> None:
 
     session = _HOST_SESSION
     if type(session) is not dict or session["phase"] != "collecting":
+        return
+    if not _recorder_surface_unchanged(session):
+        session["phase"] = "failed"
+        session["last_owner_diagnostic"] = {
+            "status": "not_established",
+            "failure": "host_recorder_surface_changed",
+        }
         return
     capture = session["capture"]
     try:
@@ -666,6 +954,13 @@ def handoff_if_ready() -> None:
         return
     if session["pid"] != os.getpid() or session["parent_pid"] != os.getppid():
         session["phase"] = "failed"
+        return
+    if not _recorder_surface_unchanged(session):
+        session["phase"] = "failed"
+        session["last_owner_diagnostic"] = {
+            "status": "not_established",
+            "failure": "host_recorder_surface_changed",
+        }
         return
     module = sys.modules.get("polisyos.runtime.quality.confidence_ledger")
     if type(module) is not ModuleType:

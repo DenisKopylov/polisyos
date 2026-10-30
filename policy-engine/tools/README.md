@@ -18,6 +18,9 @@ initializer only when its source matches those selected bytes. A mismatch may
 still run as candidate work, without producing qualifying execution evidence.
 The host uses the checkout's existing `.venv`; tests and non-Python data are
 outside this source selection.
+The unified tools dispatcher offers the host another diagnostic handoff after
+a preflight lookup or tool import has loaded the ledger. An unavailable or
+unverified handoff leaves the command in the candidate band.
 The shell supplies a minimal environment, so configurations needed by services
 must be admitted separately. A recorder or diagnostic alone does not establish
 N9 authority: provider, decision-state, currentness, and protected-use premises

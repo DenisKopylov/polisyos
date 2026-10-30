@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import dis
+import hashlib
 import importlib
 import inspect
 import json
@@ -15,11 +17,208 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from enum import StrEnum
 from pathlib import Path
-from typing import Any
+from types import CodeType, FunctionType, ModuleType
+from typing import Any, cast
 
 from .fs import _open_absolute_directory, active_secure_output_root
 
 _SHELL_CONTROL_SNIPPETS = ("&&", "||", ";", "|", "`", "$(", "<", ">", "\n", "\r")
+_HOST_HANDOFF: FunctionType | None = None
+_HOST_HANDOFF_ANCHOR: FunctionType | None = None
+_HOST_HANDOFF_GLOBALS: dict[str, object] | None = None
+
+
+def _passive_host_lookup(mapping: object, name: str) -> object | None:
+    """Read an exact string key without calling candidate equality methods."""
+
+    if type(mapping) is not dict:
+        return None
+    try:
+        for key, value in cast("dict[object, object]", mapping).items():
+            if type(key) is str and key == name:
+                return value
+    except RuntimeError:
+        return None
+    return None
+
+
+def _same_compiled_value(left: object, right: object) -> bool:
+    """Compare compiler values without invoking equality on candidate objects."""
+
+    if type(left) is not type(right):
+        return False
+    if type(left) is CodeType:
+        fields = (
+            "co_argcount",
+            "co_posonlyargcount",
+            "co_kwonlyargcount",
+            "co_nlocals",
+            "co_stacksize",
+            "co_flags",
+            "co_code",
+            "co_names",
+            "co_varnames",
+            "co_freevars",
+            "co_cellvars",
+            "co_name",
+            "co_qualname",
+            "co_filename",
+            "co_firstlineno",
+            "co_linetable",
+            "co_exceptiontable",
+            "co_consts",
+        )
+        return all(
+            _same_compiled_value(getattr(left, field), getattr(right, field)) for field in fields
+        )
+    if type(left) is tuple:
+        if type(right) is not tuple:
+            return False
+        return len(left) == len(right) and all(
+            _same_compiled_value(a, b) for a, b in zip(left, right, strict=True)
+        )
+    if type(left) is frozenset:
+        if type(right) is not frozenset:
+            return False
+        allowed = (type(None), bool, int, float, complex, str, bytes, tuple, frozenset)
+        if any(type(item) not in allowed for item in (*left, *right)):
+            return False
+        # Compiler-produced frozenset constants contain only recursively safe
+        # immutable values; reject any nested unsupported object before equality.
+        return all(_same_compiled_value(item, item) for item in (*left, *right)) and left == right
+    if type(left) is slice:
+        if type(right) is not slice:
+            return False
+        return all(
+            _same_compiled_value(a, b)
+            for a, b in zip(
+                (left.start, left.stop, left.step),
+                (right.start, right.stop, right.step),
+                strict=True,
+            )
+        )
+    if type(left) in (type(None), bool, int, float, complex, str, bytes):
+        return left == right
+    return left is Ellipsis and right is Ellipsis
+
+
+def _offer_host_handoff() -> None:
+    """Offer a late diagnostic handoff only to the selected early-host code.
+
+    The handoff does not establish authority. Direct or counterfeit callers can
+    continue candidate work without an authenticated host callback.
+    """
+
+    callback = _HOST_HANDOFF
+    host = _passive_host_lookup(sys.modules, "_polisyos_early_host")
+    session = _passive_host_lookup(sys.__dict__, "_polisyos_loaded_host_v1")
+    if (
+        type(callback) is not FunctionType
+        or callback is not _HOST_HANDOFF_ANCHOR
+        or type(host) is not ModuleType
+        or type(session) is not dict
+        or callback.__globals__ is not host.__dict__
+        or _HOST_HANDOFF_GLOBALS is not host.__dict__
+        or _passive_host_lookup(host.__dict__, "handoff_if_ready") is not callback
+        or _passive_host_lookup(host.__dict__, "_HOST_SESSION") is not session
+        or _passive_host_lookup(session, "handoff") is not callback
+    ):
+        return
+    phase = _passive_host_lookup(session, "phase")
+    pid = _passive_host_lookup(session, "pid")
+    parent_pid = _passive_host_lookup(session, "parent_pid")
+    host_code = _passive_host_lookup(session, "host_code")
+    expected_sha = _passive_host_lookup(session, "host_sha256")
+    if (
+        type(phase) is not str
+        or phase != "collecting"
+        or type(pid) is not int
+        or pid != os.getpid()
+        or type(parent_pid) is not int
+        or parent_pid != os.getppid()
+        or type(host_code) is not CodeType
+        or host_code is not _passive_host_lookup(host.__dict__, "_HOST_EXECUTION_CODE")
+        or type(expected_sha) is not str
+    ):
+        return
+    host_path = Path(__file__).resolve().parents[1] / "authority_bootstrap.py"
+    git_env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+    git_env.update(
+        GIT_OPTIONAL_LOCKS="0",
+        GIT_CONFIG_NOSYSTEM="1",
+        GIT_CONFIG_GLOBAL="/dev/null",
+        GIT_NO_REPLACE_OBJECTS="1",
+    )
+    try:
+        source = host_path.read_bytes()
+        selected = subprocess.run(
+            [
+                "/usr/bin/git",
+                "-C",
+                str(host_path.parents[2]),
+                "show",
+                "HEAD:policy-engine/tools/authority_bootstrap.py",
+            ],
+            env=git_env,
+            capture_output=True,
+            check=True,
+            timeout=30,
+        ).stdout
+        compiled = compile(source, str(host_path), "exec", dont_inherit=True)
+        if (
+            source != selected
+            or hashlib.sha256(source).hexdigest() != expected_sha
+            or not _same_compiled_value(host_code, compiled)
+        ):
+            return
+    except (OSError, SyntaxError, TypeError, ValueError, subprocess.SubprocessError):
+        return
+    code_tree: list[CodeType] = []
+    pending_codes = [host_code]
+    while pending_codes:
+        code = pending_codes.pop()
+        code_tree.append(code)
+        pending_codes.extend(item for item in code.co_consts if type(item) is CodeType)
+    pending_functions = [("handoff_if_ready", callback)]
+    seen: set[int] = set()
+    while pending_functions:
+        name, function = pending_functions.pop()
+        if id(function) in seen:
+            continue
+        seen.add(id(function))
+        matches = [code for code in code_tree if code.co_qualname == name]
+        if (
+            len(matches) != 1
+            or function.__code__ is not matches[0]
+            or function.__globals__ is not host.__dict__
+        ):
+            return
+        nested = [function.__code__]
+        while nested:
+            code = nested.pop()
+            for instruction in dis.get_instructions(code):
+                if instruction.opname not in {
+                    "LOAD_GLOBAL",
+                    "LOAD_NAME",
+                    "LOAD_FROM_DICT_OR_GLOBALS",
+                }:
+                    continue
+                referenced = instruction.argval
+                if type(referenced) is not str:
+                    return
+                value = _passive_host_lookup(host.__dict__, referenced)
+                source_functions = [item for item in code_tree if item.co_qualname == referenced]
+                if source_functions:
+                    if (
+                        len(source_functions) != 1
+                        or type(value) is not FunctionType
+                        or value.__globals__ is not host.__dict__
+                        or value.__code__ is not source_functions[0]
+                    ):
+                        return
+                    pending_functions.append((referenced, value))
+            nested.extend(item for item in code.co_consts if type(item) is CodeType)
+    callback()
 
 
 class ToolStatus(StrEnum):
@@ -382,6 +581,7 @@ def invoke_tool_main(spec: ToolSpec, argv: Sequence[str] | None = None) -> int:
         module = importlib.import_module(spec.module)
     except Exception as exc:  # pragma: no cover - exact import failure varies by optional extra.
         raise ToolExecutionError(f"failed to import {spec.module}: {exc}") from exc
+    _offer_host_handoff()
 
     try:
         target = getattr(module, spec.callable_name)

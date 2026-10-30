@@ -225,6 +225,27 @@ class ChildRuntimeCapability:
         _require_fixed_runtime_child_control(self.__control)
         return session._issue_control_operation(candidate, self.__control, kind="authorization")
 
+    def _issue_publication_operation(self, candidate: object, locator: object) -> object:
+        """Issue the fixed head-commit decision after job authorization."""
+        from polisyos.core.artifacts.child_release import ChildJobReleaseLocator
+
+        from .child_custody import ChildComputationCustody, ChildJobReleaseCandidate
+
+        session = self.__session
+        control_identity: object = self.__control
+        if (
+            type(session) is not ChildComputationCustody
+            or type(candidate) is not ChildJobReleaseCandidate
+            or type(locator) is not ChildJobReleaseLocator
+            or session._root is not self.__run
+            or session._fence is not control_identity
+        ):
+            raise ValueError("child_runtime_session_owner_changed")
+        _require_fixed_runtime_child_control(self.__control)
+        return session._issue_control_operation(
+            candidate, self.__control, kind="publication", locator=locator
+        )
+
 
 class WorkerRunView(RunContext):
     """A RunContext-compatible view that stages work without lifecycle authority."""

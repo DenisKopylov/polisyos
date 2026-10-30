@@ -13,18 +13,20 @@ import json
 import os
 import stat
 import threading
-from datetime import datetime
+from contextlib import contextmanager
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, JsonValue, field_validator
 
 from ..canon import CanonSpec, to_canonical_bytes
-from ._atomic_write import AtomicFileWriter, ensure_directory_durable
+from ._atomic_write import AtomicFileWriter, _PreparedAtomicReplace, ensure_directory_durable
 from ._manifest_lifecycle import ManifestLifecycle
 from .manifest import ArtifactChildReleaseInfo, ArtifactManifest, ArtifactRef
 from .ownership import ArtifactUnavailableError
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
     from pathlib import Path
 
     from .ids import ArtifactID
@@ -681,6 +683,54 @@ def require_enrolled_child_release(
         raise ChildReleaseUnavailableError("enrolled_view_not_selected")
 
 
+class _PreparedChildRelease:
+    """A ledger-owned, exact head staged before the final owner decision."""
+
+    def __init__(
+        self,
+        ledger: _ChildReleaseLedger,
+        release_ref: ArtifactRef,
+        authorization: ChildJobReleaseLocator | None,
+        data: bytes,
+    ) -> None:
+        self._ledger = ledger
+        self._release_ref = release_ref.model_copy(deep=True)
+        self._authorization = authorization.model_copy(deep=True) if authorization else None
+        self._write = _PreparedAtomicReplace(ledger.path, data)
+
+    def publish(
+        self,
+        ledger: _ChildReleaseLedger,
+        release_ref: ArtifactRef,
+        authorization: ChildJobReleaseLocator | None,
+        *,
+        not_after: datetime | None,
+    ) -> None:
+        if (
+            ledger is not self._ledger
+            or ledger._prepared is not self
+            or self._write._path != ledger.path
+            or release_ref != self._release_ref
+            or authorization != self._authorization
+        ):
+            raise ChildReleaseUnavailableError("prepared_release_owner_changed")
+        if (
+            not_after is None
+            or not_after.tzinfo is None
+            or not_after.utcoffset() is None
+            or datetime.now(UTC) >= not_after
+        ):
+            raise ChildReleaseUnavailableError("prepared_release_deadline_expired")
+        self._write.replace(not_after=not_after)
+
+    def sync_parent(self) -> None:
+        """Reconcile the directory durability outside the owner decision."""
+        self._write.sync_parent()
+
+    def close(self) -> None:
+        self._write.close()
+
+
 class _ChildReleaseLedger:
     """Core operational owner using one atomic head for a selected parent release."""
 
@@ -690,6 +740,7 @@ class _ChildReleaseLedger:
         self.root_run_id = root_run_id
         self.store_identity = child_store_identity(self.root)
         self.path = _head_path(self.root, release_id)
+        self._prepared: _PreparedChildRelease | None = None
         _safe_directory(self.root, self.path.parent)
         head = _ChildReleaseHead(
             release_id=release_id,
@@ -730,10 +781,49 @@ class _ChildReleaseLedger:
             ):
                 raise ChildReleaseUnavailableError("enrollment_conflict")
 
+    @contextmanager
+    def prepare_commit(
+        self, release_ref: ArtifactRef, *, job_authorization: ChildJobReleaseLocator
+    ) -> Iterator[_PreparedChildRelease]:
+        """Stage the exact head and sync its bytes before any job-owner fence."""
+        if self._prepared is not None:
+            raise ChildReleaseUnavailableError("release_head_already_prepared")
+        current = self.head()
+        if current.status != "pending":
+            raise ChildReleaseUnavailableError("release_session_not_pending")
+        updated = current.model_copy(
+            update={
+                "status": "released",
+                "release_ref": release_ref,
+                "job_authorization": job_authorization,
+            }
+        )
+        prepared = _PreparedChildRelease(
+            self, release_ref, job_authorization, updated.model_dump_json().encode()
+        )
+        self._prepared = prepared
+        try:
+            yield prepared
+        finally:
+            if self._prepared is prepared:
+                self._prepared = None
+            prepared.close()
+
     def commit(
-        self, release_ref: ArtifactRef, *, job_authorization: ChildJobReleaseLocator | None = None
+        self,
+        release_ref: ArtifactRef,
+        *,
+        job_authorization: ChildJobReleaseLocator | None = None,
+        require_prepared: bool = False,
+        not_after: datetime | None = None,
     ) -> bool:
         """Commit once; reconcile exact durable bytes if the acknowledgement is lost."""
+        if require_prepared:
+            prepared = self._prepared
+            if prepared is None:
+                raise ChildReleaseUnavailableError("release_head_not_prepared")
+            prepared.publish(self, release_ref, job_authorization, not_after=not_after)
+            return False
         current = self.head()
         if current.status == "released":
             # A reread alone does not establish the earlier writer's durability.

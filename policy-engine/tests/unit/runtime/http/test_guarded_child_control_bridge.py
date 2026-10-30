@@ -92,6 +92,8 @@ def _run_owned_fixture(
     attempt = _job(control, kind="workflow_run")
     job = control.get_job("job-a")
     assert job is not None
+    if probe in {"head_expired_during_write", "head_expired_during_stat"}:
+        monkeypatch.setenv("POLISYOS_RUNTIME_CONTROL_STORE_TIMEOUT_SECONDS", "6")
     guarded_control = guard_runtime_control_store(control)
     shared = async_tools._SharedExecutor(max_workers=1, max_queued=0)
     monkeypatch.setattr(async_tools, "_RUN_CORO_SYNC_EXECUTOR", shared)
@@ -140,7 +142,27 @@ def _run_owned_fixture(
         guarded_control.close()
 
 
-@pytest.mark.parametrize("probe", ["normal", "scope", "suspend_inflight", "timeout"])
+@pytest.mark.parametrize(
+    "probe",
+    [
+        "normal",
+        "scope",
+        "suspend_inflight",
+        "timeout",
+        "lost_commit_ack",
+        "head_parent_sync_failure",
+        "head_timeout",
+        "head_timeout_after_replace",
+        "head_lease_contention",
+        "head_expired_during_write",
+        "head_expired_during_stat",
+        "head_staging_lease_change",
+        "head_staging_parent_revocation",
+        "head_control_proxy",
+        "head_control_guard",
+        "head_control_registry",
+    ],
+)
 def test_registered_control_guard_preserves_child_owner_admission(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, probe: str
 ) -> None:
@@ -455,6 +477,44 @@ def test_revoked_parent_cannot_publish_after_authorization_readback(
         with pytest.raises(ChildParentSettlementError) as unknown:
             _run_owned_fixture(tmp_path, monkeypatch, "normal")
     assert revoked.is_set()
+    receipt = unknown.value.receipt
+    head = _ChildReleaseLedger(tmp_path / "served", receipt.release_id, receipt.root_run_id).head()
+    assert head.status == "pending"
+
+
+def test_changed_job_lease_cannot_publish_after_authorization_readback(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A durable lease change wins before the release head is published."""
+    from contextlib import contextmanager
+
+    from polisyos.core.artifacts.child_release import _ChildReleaseLedger
+    from polisyos.core.run.child_custody import ChildParentSettlementError
+    from polisyos.runtime.http import resilience
+
+    consume = resilience._RuntimeGuardedChildFence.local_consumption
+    changed = threading.Event()
+
+    @contextmanager
+    def change_lease(fence):
+        if not changed.is_set():
+            fresh = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "control.sqlite3")
+            assert (
+                fresh._execute(
+                    "UPDATE control_jobs SET lease_owner = ? WHERE job_id = ?",
+                    ("other-worker", "job-a"),
+                )
+                == 1
+            )
+            changed.set()
+        with consume(fence):
+            yield
+
+    with monkeypatch.context() as patch:
+        patch.setattr(resilience._RuntimeGuardedChildFence, "local_consumption", change_lease)
+        with pytest.raises(ChildParentSettlementError) as unknown:
+            _run_owned_fixture(tmp_path, monkeypatch, "normal")
+    assert changed.is_set()
     receipt = unknown.value.receipt
     head = _ChildReleaseLedger(tmp_path / "served", receipt.release_id, receipt.root_run_id).head()
     assert head.status == "pending"

@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import threading
 import time
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -489,6 +489,301 @@ def _exercise_job(
             assert (copies, commits) == (1, 1)
             return
 
+        if probe == "head_parent_sync_failure":
+            from polisyos.core.artifacts import _atomic_write
+
+            original_sync = _atomic_write.fsync_directory
+            attempts = 0
+
+            def fail_head_parent(path):
+                nonlocal attempts
+                if path == custody._ledger.path.parent:
+                    attempts += 1
+                    raise OSError("head directory sync unavailable")
+                return original_sync(path)
+
+            with monkeypatch.context() as patch:
+                patch.setattr(_atomic_write, "fsync_directory", fail_head_parent)
+                with pytest.raises(ChildParentSettlementError) as unknown:
+                    custody.release_parent((), blob)
+                assert unknown.value.receipt.release_outcome == "release_visible_durability_unknown"
+                assert unknown.value.recovery is not None
+                fresh = FileSystemCAS(raw.root, ownership_enforced=False)
+                with pytest.raises(
+                    ChildReleaseUnavailableError, match="release_durability_unavailable"
+                ):
+                    fresh.get_bytes(blob)
+            assert fresh.get_bytes(blob) == b"private bytes"
+            with pytest.raises(ChildParentSettlementError):
+                custody.release_parent((), blob)
+            assert attempts >= 1
+            return
+
+        if probe in {"head_timeout", "head_timeout_after_replace"}:
+            entered = threading.Event()
+            resume = threading.Event()
+            commits = 0
+            original_commit = custody._ledger.commit
+
+            def block_commit(*args, **kwargs):
+                nonlocal commits
+                commits += 1
+                result = None
+                if probe == "head_timeout_after_replace":
+                    result = original_commit(*args, **kwargs)
+                entered.set()
+                assert resume.wait(10)
+                if probe == "head_timeout":
+                    return original_commit(*args, **kwargs)
+                return result
+
+            def release_after_timeout() -> None:
+                try:
+                    assert entered.wait(5)
+                    threading.Event().wait(2.5)
+                finally:
+                    resume.set()
+
+            monkeypatch.setattr(custody._ledger, "commit", block_commit)
+            worker = threading.Thread(target=release_after_timeout)
+            worker.start()
+            try:
+                with pytest.raises(ChildParentSettlementError) as unknown:
+                    custody.release_parent((), blob)
+            finally:
+                resume.set()
+                worker.join(timeout=10)
+            assert not worker.is_alive() and entered.is_set()
+            assert unknown.value.recovery is not None
+            fresh = FileSystemCAS(raw.root, ownership_enforced=False)
+            if probe == "head_timeout_after_replace":
+                assert unknown.value.receipt.release_outcome == "release_visible_durability_unknown"
+                assert fresh.get_bytes(blob) == b"private bytes"
+            else:
+                assert unknown.value.receipt.release_outcome == "release_state_unknown"
+                with pytest.raises((FileNotFoundError, ChildReleaseUnavailableError)):
+                    fresh.get_bytes(blob)
+            with pytest.raises(ChildParentSettlementError):
+                custody.release_parent((), blob)
+            assert commits == 1
+            return
+
+        if probe in {"head_staging_lease_change", "head_staging_parent_revocation"}:
+            from polisyos.core.artifacts._atomic_write import _PreparedAtomicReplace
+
+            entered = threading.Event()
+            resume = threading.Event()
+            changed = threading.Event()
+            failures: list[BaseException] = []
+            original_init = _PreparedAtomicReplace.__init__
+            fresh_control = ControlPlaneStore(
+                backend="sqlite", sqlite_path=tmp_path / "control.sqlite3"
+            )
+
+            def block_staging(prepared, path, data):
+                entered.set()
+                assert resume.wait(5)
+                original_init(prepared, path, data)
+
+            def change_owner() -> None:
+                try:
+                    assert entered.wait(5)
+                    assert root._worker_merge_lock.acquire(timeout=1)
+                    root._worker_merge_lock.release()
+                    if probe == "head_staging_lease_change":
+                        assert (
+                            fresh_control._execute(
+                                "UPDATE control_jobs SET lease_owner = ? WHERE job_id = ?",
+                                ("other-worker", "job-a"),
+                            )
+                            == 1
+                        )
+                    else:
+                        fence._grant._attempt.revoke()
+                    changed.set()
+                except BaseException as exc:
+                    failures.append(exc)
+                finally:
+                    resume.set()
+
+            monkeypatch.setattr(_PreparedAtomicReplace, "__init__", block_staging)
+            worker = threading.Thread(target=change_owner)
+            worker.start()
+            try:
+                with pytest.raises(ChildParentSettlementError):
+                    custody.release_parent((), blob)
+            finally:
+                resume.set()
+                worker.join(timeout=5)
+            assert not worker.is_alive() and changed.is_set() and not failures
+            fresh = FileSystemCAS(raw.root, ownership_enforced=False)
+            with pytest.raises((FileNotFoundError, ChildReleaseUnavailableError)):
+                fresh.get_bytes(blob)
+            return
+
+        if probe == "head_lease_contention":
+            entered = threading.Event()
+            started = threading.Event()
+            changed = threading.Event()
+            committed = threading.Event()
+            failures: list[BaseException] = []
+            original_commit = custody._ledger.commit
+            fresh_control = ControlPlaneStore(
+                backend="sqlite", sqlite_path=tmp_path / "control.sqlite3"
+            )
+
+            def commit_under_contention(*args, **kwargs):
+                entered.set()
+                assert started.wait(5)
+                assert not changed.wait(0.2)
+                result = original_commit(*args, **kwargs)
+                committed.set()
+                return result
+
+            def change_lease() -> None:
+                try:
+                    assert entered.wait(5)
+                    started.set()
+                    assert (
+                        fresh_control._execute(
+                            "UPDATE control_jobs SET lease_owner = ? WHERE job_id = ?",
+                            ("other-worker", "job-a"),
+                        )
+                        == 1
+                    )
+                    assert committed.is_set()
+                    changed.set()
+                except BaseException as exc:
+                    failures.append(exc)
+
+            monkeypatch.setattr(custody._ledger, "commit", commit_under_contention)
+            worker = threading.Thread(target=change_lease)
+            worker.start()
+            try:
+                custody.release_parent((), blob)
+            finally:
+                worker.join(timeout=10)
+            assert not worker.is_alive() and changed.is_set() and not failures
+            return
+
+        if probe in {"head_expired_during_write", "head_expired_during_stat"}:
+            from polisyos.core.artifacts import _atomic_write
+            from polisyos.runtime.http import resilience
+
+            original_local = resilience._RuntimeGuardedChildFence.local_consumption
+            original_commit = custody._ledger.commit
+            original_stat = _atomic_write.os.stat
+            expires: list[datetime] = []
+            entered_operation = threading.Event()
+            parent_thread = threading.get_ident()
+
+            @contextmanager
+            def expire_after_decision(active_fence):
+                if not expires:
+                    expires.append(datetime.now(UTC) + timedelta(seconds=1))
+                    fresh_control = ControlPlaneStore(
+                        backend="sqlite", sqlite_path=tmp_path / "control.sqlite3"
+                    )
+                    assert (
+                        fresh_control._execute(
+                            "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                            (expires[0].isoformat(), "job-a"),
+                        )
+                        == 1
+                    )
+                with original_local(active_fence):
+                    yield
+
+            def commit_after_expiry(*args, **kwargs):
+                assert expires
+                entered_operation.set()
+                remaining = (expires[0] - datetime.now(UTC)).total_seconds()
+                if remaining > 0:
+                    time.sleep(remaining + 0.02)
+                return original_commit(*args, **kwargs)
+
+            def stat_after_expiry(path, *args, **kwargs):
+                if (
+                    expires
+                    and threading.get_ident() != parent_thread
+                    and str(path).startswith(str(custody._ledger.path) + ".tmp-")
+                ):
+                    entered_operation.set()
+                    remaining = (expires[0] - datetime.now(UTC)).total_seconds()
+                    if remaining > 0:
+                        time.sleep(remaining + 0.02)
+                return original_stat(path, *args, **kwargs)
+
+            monkeypatch.setattr(
+                resilience._RuntimeGuardedChildFence, "local_consumption", expire_after_decision
+            )
+            if probe == "head_expired_during_write":
+                monkeypatch.setattr(custody._ledger, "commit", commit_after_expiry)
+            else:
+                monkeypatch.setattr(_atomic_write.os, "stat", stat_after_expiry)
+            with suppress(ChildParentSettlementError):
+                custody.release_parent((), blob)
+            assert entered_operation.is_set()
+            fresh = FileSystemCAS(raw.root, ownership_enforced=False)
+            with pytest.raises((FileNotFoundError, ChildReleaseUnavailableError)):
+                fresh.get_bytes(blob)
+            return
+
+        if probe in {"head_control_proxy", "head_control_guard", "head_control_registry"}:
+            from polisyos.core.artifacts._atomic_write import _PreparedAtomicReplace
+            from polisyos.core.artifacts.child_release import _read_head
+            from polisyos.runtime.http import resilience
+
+            entered = threading.Event()
+            started = threading.Event()
+            changed = threading.Event()
+            published = threading.Event()
+            failures: list[BaseException] = []
+            original_replace = _PreparedAtomicReplace.replace
+            replacement = ControlPlaneStore(
+                backend="sqlite", sqlite_path=tmp_path / "control.sqlite3"
+            )
+
+            def observed_replace(prepared, **kwargs):
+                entered.set()
+                assert started.wait(5)
+                assert not changed.wait(0.2)
+                result = original_replace(prepared, **kwargs)
+                published.set()
+                return result
+
+            def change_control() -> None:
+                try:
+                    assert entered.wait(5)
+                    started.set()
+                    if probe == "head_control_proxy":
+                        original = control._target
+                        control._target = replacement
+                        control._target = original
+                    elif probe == "head_control_guard":
+                        original = control._guard._timeout_seconds
+                        control._guard._timeout_seconds = original + 1
+                        control._guard._timeout_seconds = original
+                    else:
+                        binding = resilience._RUNTIME_CONTROL_STORE_GUARDS.pop(control)
+                        resilience._RUNTIME_CONTROL_STORE_GUARDS[control] = binding
+                    assert published.is_set()
+                    changed.set()
+                except BaseException as exc:
+                    failures.append(exc)
+
+            monkeypatch.setattr(_PreparedAtomicReplace, "replace", observed_replace)
+            worker = threading.Thread(target=change_control)
+            worker.start()
+            try:
+                with suppress(ChildParentSettlementError):
+                    custody.release_parent((), blob)
+            finally:
+                worker.join(timeout=5)
+            assert not worker.is_alive() and changed.is_set() and not failures
+            assert _read_head(raw.root, custody._release_id).status == "released"
+            return
+
         if probe == "publication_aba":
             authorize = fence.authorize_release
 
@@ -509,12 +804,14 @@ def _exercise_job(
             return
 
         if probe == "publication_root_contention":
+            from polisyos.core.run import child_custody
+
             root_held = threading.Event()
             root_waiting = threading.Event()
             guard_changed = threading.Event()
             failures: list[str] = []
             authorize = fence.authorize_release
-            transition = root._parent_state_transition_lease
+            try_locks = child_custody._try_root_custody_locks
 
             def hold_root() -> None:
                 with root._worker_merge_lock:
@@ -533,16 +830,16 @@ def _exercise_job(
             mutator = threading.Thread(target=change_guard)
 
             @contextmanager
-            def observed_transition(*args, **kwargs):
+            def observed_try_locks(*args, **kwargs):
                 root_waiting.set()
-                with transition(*args, **kwargs):
+                with try_locks(*args, **kwargs):
                     yield
 
             def authorize_then_contend(candidate):
                 locator = authorize(candidate)
                 holder.start()
                 assert root_held.wait(5)
-                monkeypatch.setattr(root, "_parent_state_transition_lease", observed_transition)
+                monkeypatch.setattr(child_custody, "_try_root_custody_locks", observed_try_locks)
                 mutator.start()
                 return locator
 

@@ -1458,6 +1458,21 @@ class _ChildComputationPublicationFence:
             candidate, self._grant, self, kind="authorization"
         )
 
+    def publish_head(
+        self,
+        candidate: ChildJobReleaseCandidate,
+        locator: ChildJobReleaseLocator,
+        claim: ChildJobReleaseClaim,
+    ) -> None:
+        """Commit the selected head inside the actual current-job transaction."""
+        with self.publication():
+            self._store._verify_child_job_event(locator, claim, kind="authorization")
+            current = self._store.current_execution_job_admission()
+            lease_expires_at = current.job.lease_expires_at
+            if lease_expires_at is None:
+                raise ControlJobLeaseLostError("child_publication_lease_missing")
+            candidate._commit_head_local(locator, claim, lease_expires_at)
+
     @contextmanager
     def publication(self) -> Iterator[None]:
         """Hold the real job row fence for only the release head transition."""
@@ -2681,6 +2696,33 @@ class ControlPlaneStore:
         if self._has_active_job_transaction():
             raise ControlJobExecutionAdmissionError("child_release_fresh_read_required")
         self._verify_child_job_event(locator, claim, kind="authorization")
+
+    def _publish_child_release_head(self, *, control_operation: _ChildControlOperation) -> None:
+        """Fence one Core-owned head write with the actual SQLite job row."""
+        from polisyos.core.artifacts.child_release import ChildJobReleaseClaim
+        from polisyos.core.run.child_custody import _ChildControlOperation
+
+        if type(control_operation) is not _ChildControlOperation:
+            raise ControlJobExecutionAdmissionError("child_publication_operation_invalid")
+        if self.backend != "sqlite" or self._has_active_job_transaction():
+            raise ControlJobExecutionAdmissionError("child_publication_backend_unsupported")
+        preview = control_operation._preview()
+        if type(preview) is not ChildJobReleaseClaim:
+            raise ControlJobExecutionAdmissionError("child_publication_claim_invalid")
+        with self._job_transaction():
+            current = self.current_execution_job_admission()
+            control_operation._check_admission(current)
+            with control_operation._decision():
+                locator, claim = control_operation._publication_parameters()
+                if claim != preview:
+                    raise ControlJobExecutionAdmissionError("child_publication_claim_changed")
+                self._verify_child_job_event(locator, claim, kind="authorization")
+                current = self.current_execution_job_admission()
+                control_operation._check_admission(current)
+                lease_expires_at = current.job.lease_expires_at
+                if lease_expires_at is None:
+                    raise ControlJobLeaseLostError("child_publication_lease_missing")
+                control_operation._commit_publication(locator, claim, lease_expires_at)
 
     def _record_child_scope(
         self,

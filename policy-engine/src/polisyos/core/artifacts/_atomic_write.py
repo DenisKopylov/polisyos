@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import os
+import stat
 import uuid
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -16,6 +18,88 @@ class AtomicFileDurabilityError(OSError):
     def __init__(self, message: str, *, replaced: bool) -> None:
         super().__init__(message)
         self.replaced = replaced
+
+
+class _PreparedAtomicReplace:
+    """One owner-prepared file, with the data sync separated from replacement."""
+
+    def __init__(self, path: Path, data: bytes) -> None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        self._path = path
+        self._tmp = path.with_suffix(path.suffix + f".tmp-{uuid.uuid4().hex}")
+        self._replaced = False
+        self._closed = False
+        self._temp_identity: tuple[int, int] | None = None
+        try:
+            descriptor = os.open(self._tmp, os.O_RDWR | os.O_CREAT | os.O_EXCL, 0o600)
+            try:
+                initial = os.fstat(descriptor)
+                self._temp_identity = (initial.st_dev, initial.st_ino)
+                handle = os.fdopen(descriptor, "w+b")
+            except BaseException:
+                os.close(descriptor)
+                raise
+            with handle:
+                handle.write(data)
+                handle.flush()
+                os.fsync(handle.fileno())
+                handle.seek(0)
+                if handle.read() != data:
+                    raise OSError("prepared_atomic_write_content_mismatch")
+                self._identity = self._file_identity(os.fstat(handle.fileno()))
+        except BaseException:
+            self.close()
+            raise
+
+    @staticmethod
+    def _file_identity(info: os.stat_result) -> tuple[int, ...]:
+        return (
+            info.st_dev,
+            info.st_ino,
+            info.st_mode,
+            info.st_size,
+            info.st_mtime_ns,
+            info.st_ctime_ns,
+        )
+
+    def replace(self, *, not_after: datetime | None = None) -> None:
+        """Replace the bound path once with the verified prepared file."""
+        if self._closed or self._replaced:
+            raise OSError("prepared_atomic_write_not_current")
+        info = os.stat(self._tmp, follow_symlinks=False)
+        if not stat.S_ISREG(info.st_mode) or self._file_identity(info) != self._identity:
+            raise OSError("prepared_atomic_write_changed")
+        if not_after is not None and (
+            not_after.tzinfo is None
+            or not_after.utcoffset() is None
+            or datetime.now(UTC) >= not_after
+        ):
+            raise OSError("prepared_atomic_write_deadline_expired")
+        os.replace(self._tmp, self._path)
+        self._replaced = True
+
+    def sync_parent(self) -> None:
+        """Confirm durability after replacement; a failure preserves unknown visibility."""
+        if self._closed or not self._replaced:
+            raise OSError("prepared_atomic_write_not_replaced")
+        try:
+            fsync_directory(self._path.parent)
+        except OSError as exc:
+            raise AtomicFileDurabilityError(
+                "atomic replacement published but parent fsync failed", replaced=True
+            ) from exc
+
+    def close(self) -> None:
+        """Close the product write lifecycle without removing the published file."""
+        self._closed = True
+        if self._replaced or self._temp_identity is None:
+            return
+        try:
+            current = os.stat(self._tmp, follow_symlinks=False)
+        except FileNotFoundError:
+            return
+        if (current.st_dev, current.st_ino) == self._temp_identity:
+            self._tmp.unlink(missing_ok=True)
 
 
 def fsync_directory(path: Path) -> None:

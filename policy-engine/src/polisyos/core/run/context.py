@@ -19,7 +19,7 @@ from typing import TYPE_CHECKING, Protocol, cast
 from polisyos.common.logger import get_logger
 from polisyos.common.serialization import fast_json_dumps
 
-from ..artifacts import ManifestLifecycle
+from ..artifacts import ManifestLifecycle, artifact_ref_identity_key
 from ..artifacts._atomic_write import AtomicFileWriter
 from ..artifacts.manifest import (
     ArtifactManifest,
@@ -2233,8 +2233,10 @@ class RunContext:
             run_id=self.run_manifest.run_id,
         )
         recorded_inputs, recorded_outputs = self._owner_refs_from_records(records)
-        if recorded_inputs != tuple(self.run_manifest.inputs) or recorded_outputs != tuple(
-            self.run_manifest.outputs
+        if tuple(map(artifact_ref_identity_key, recorded_inputs)) != tuple(
+            map(artifact_ref_identity_key, self.run_manifest.inputs)
+        ) or tuple(map(artifact_ref_identity_key, recorded_outputs)) != tuple(
+            map(artifact_ref_identity_key, self.run_manifest.outputs)
         ):
             raise _FinalizeRecoveryError("run_owner_refs_trace_manifest_mismatch")
         return records

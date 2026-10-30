@@ -516,6 +516,60 @@ def test_run_context_emits_trace_and_writes_run_manifest(
     assert (run_dir / ".finalize-journal.json").exists() is False
 
 
+@pytest.mark.parametrize("changed_side", ["inputs", "outputs"])
+def test_owner_trace_matches_typed_refs_by_full_selected_identity(
+    store: FileSystemCAS, tmp_path: Path, producer: Any, env_info: Any, changed_side: str
+) -> None:
+    """Decoded trace refs may lose their subclass but never their selected profile."""
+    from polisyos.core.contracts.scientist import DecisionPacketRef
+
+    bundle_ref = _bootstrap_registry_bundle(store, selected_profile=True)
+    ctx = RunContext.start(
+        store=store,
+        registry_bundle=bundle_ref,
+        producer=producer,
+        env=env_info,
+        run_dir=tmp_path / "runs" / f"typed-ref-{changed_side}",
+    )
+    refs = [
+        store.put_json(
+            {"same": "bytes"},
+            PutOptions(
+                kind="scientist.decision_packet",
+                media_type="application/json",
+                schema=SchemaInfo(name=f"tests.Packet{name}", version="1"),
+            ),
+            return_selected_profile=True,
+        )
+        for name in ("A", "B")
+    ]
+    assert refs[0].artifact_id == refs[1].artifact_id
+    assert refs[0].manifest_profile_sha256 != refs[1].manifest_profile_sha256
+    typed = [DecisionPacketRef.model_validate(ref.model_dump()) for ref in refs]
+    ctx.add_input(typed[0])
+    ctx.add_output(typed[0])
+    ctx.add_input(typed[1])
+    ctx.add_output(typed[1])
+    records = ctx._read_runtime_owner_trace()
+    recorded_inputs, recorded_outputs = ctx._owner_refs_from_records(records)
+    assert type(recorded_inputs[0]) is ArtifactRef
+    assert type(recorded_outputs[0]) is ArtifactRef
+    selected = getattr(ctx.run_manifest, changed_side)
+    selected[0] = typed[1]
+    with pytest.raises(
+        run_context._FinalizeRecoveryError, match="run_owner_refs_trace_manifest_mismatch"
+    ):
+        ctx._read_runtime_owner_trace()
+    selected[0] = typed[0]
+    selected.reverse()
+    with pytest.raises(
+        run_context._FinalizeRecoveryError, match="run_owner_refs_trace_manifest_mismatch"
+    ):
+        ctx._read_runtime_owner_trace()
+    selected.reverse()
+    ctx.finalize()
+
+
 @pytest.mark.parametrize(
     ("first_operation", "second_operation"),
     [("load", "load"), ("recover", "load")],

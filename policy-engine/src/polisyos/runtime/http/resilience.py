@@ -1291,6 +1291,27 @@ class _RuntimeGuardedChildFence:
             raise ValueError("guarded_child_release_locator_invalid")
         return locator
 
+    def publish_head(self, candidate: object, locator: object, claim: object) -> None:
+        """Dispatch one Core-owned head decision to the actual guarded job owner."""
+        from polisyos.core.artifacts.child_release import (
+            ChildJobReleaseClaim,
+            ChildJobReleaseLocator,
+        )
+        from polisyos.core.run.child_custody import ChildJobReleaseCandidate
+
+        self._require_parent()
+        if (
+            type(candidate) is not ChildJobReleaseCandidate
+            or type(locator) is not ChildJobReleaseLocator
+            or type(claim) is not ChildJobReleaseClaim
+        ):
+            raise ValueError("guarded_child_publication_invalid")
+        operation = candidate._prepare_guarded_publication(self, locator, claim)
+        result = self._control_proxy._publish_child_release_head(control_operation=operation)
+        self._require_parent()
+        if result is not None:
+            raise ValueError("guarded_child_publication_result_invalid")
+
     def admit_prepared_scope(self, prepared: object) -> object:
         """Commit and reconcile one Core-owned child-scope decision."""
         from polisyos.core.artifacts.child_release import ChildJobReleaseLocator, ChildJobScopeClaim
@@ -1412,6 +1433,8 @@ class ChildGuardedReadOwner:
 
         if type(session) is not ChildComputationCustody:
             raise TypeError("child_read_session_type_invalid")
+        if type(served_proxy) is not GuardedDependencyProxy:
+            raise ValueError("registered_sql_guard_binding_not_established")
         served = _require_runtime_filesystem_guard(served_proxy)
         if served.backend is not session._served or type(session._stage) is not FileSystemCAS:
             raise ValueError("child_read_backend_owner_mismatch")
@@ -1464,6 +1487,24 @@ class ChildGuardedReadOwner:
             ):
                 stack.enter_context(lock)
             self.require_registration()
+            yield
+
+    @contextmanager
+    def control_publication_registration(self, control: object) -> Iterator[None]:
+        """Fence exact CAS registrations for the registered control worker."""
+        if type(control) is not _RuntimeGuardedChildFence:
+            raise ValueError("guarded_child_control_worker_not_established")
+        with ExitStack() as stack:
+            for lock in (
+                control._control_proxy._runtime_lock,
+                control._control_registration.guard._runtime_lock,
+                self._served_proxy._runtime_lock,
+                self._served_registration.guard._runtime_lock,
+                self._stage_proxy._runtime_lock,
+                self._stage_registration.guard._runtime_lock,
+            ):
+                stack.enter_context(lock)
+            self.require_control_registration(control)
             yield
 
     def _claim(self, capability: object) -> tuple[object, ArtifactRef]:

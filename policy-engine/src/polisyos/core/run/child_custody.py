@@ -120,6 +120,15 @@ class ChildPublicationFence(Protocol):
         """Commit exact job-owner release authorization after live admission."""
         ...
 
+    def publish_head(
+        self,
+        candidate: ChildJobReleaseCandidate,
+        locator: ChildJobReleaseLocator,
+        claim: ChildJobReleaseClaim,
+    ) -> None:
+        """Commit the exact selected head while the actual job lease is fenced."""
+        ...
+
     def publication(self) -> AbstractContextManager[None]:
         """Join currentness verification and Core's durable release-head commit."""
         ...
@@ -307,6 +316,9 @@ class _ChildGuardedReadService(Protocol):
 
     def publication_registration(self) -> AbstractContextManager[None]:
         """Order the short release-head decision against registration changes."""
+
+    def control_publication_registration(self, control: object) -> AbstractContextManager[None]:
+        """Fence the same registrations on the admitted control worker."""
 
     def read_manifest(
         self,
@@ -1707,8 +1719,10 @@ class _ChildControlOperation:
         "__handle",
         "__kind",
         "__liveness",
+        "__locator_snapshot",
         "__owner",
         "__parent_thread",
+        "__publication_ready",
         "__used",
     )
 
@@ -1717,22 +1731,27 @@ class _ChildControlOperation:
         owner: ChildComputationCustody,
         handle: ChildJobSessionIntent | ChildJobReleaseCandidate | ChildPreparedScope,
         claim: ChildJobSessionClaim | ChildJobReleaseClaim | ChildJobScopeClaim,
-        kind: Literal["session", "authorization", "scope"],
+        kind: Literal["session", "authorization", "scope", "publication"],
         control: _ChildControlOwner,
         liveness: _BorrowedControlLiveness,
         *,
         token: object,
+        locator: ChildJobReleaseLocator | None = None,
     ) -> None:
         if token is not _CHILD_CONTROL_OPERATION_TOKEN:
             raise ChildReleaseUnavailableError("control_operation_not_owner_issued")
+        if (kind == "publication") != (type(locator) is ChildJobReleaseLocator):
+            raise ChildReleaseUnavailableError("control_operation_locator_invalid")
         self.__owner = owner
         self.__handle = handle
         self.__kind = kind
         self.__claim_snapshot = _model_snapshot(claim)
         self.__control = control
         self.__liveness = liveness
+        self.__locator_snapshot = _model_snapshot(locator) if locator is not None else None
         self.__parent_thread = threading.get_ident()
         self.__active_thread: int | None = None
+        self.__publication_ready = False
         self.__used = False
 
     def _require_worker(self, owner: ChildComputationCustody) -> None:
@@ -1753,7 +1772,11 @@ class _ChildControlOperation:
         self.__control._require_control_worker()
         self.__liveness._require_current()
         with self.__owner._lock:
-            if self.__used or self.__owner._control_operations.get(id(self)) is not self:
+            if (
+                self.__used
+                or self.__owner._control_operations.get(id(self)) is not self
+                or (self.__kind == "publication" and not self.__publication_ready)
+            ):
                 raise ChildReleaseUnavailableError("control_operation_not_current")
         return self._claim_model()
 
@@ -1762,6 +1785,7 @@ class _ChildControlOperation:
             "session": ChildJobSessionClaim,
             "authorization": ChildJobReleaseClaim,
             "scope": ChildJobScopeClaim,
+            "publication": ChildJobReleaseClaim,
         }[self.__kind]
         return model.model_validate_json(self.__claim_snapshot)
 
@@ -1813,7 +1837,7 @@ class _ChildControlOperation:
         ):
             return self.__handle._admission(claim, control_operation=self)
         if (
-            self.__kind == "authorization"
+            self.__kind in {"authorization", "publication"}
             and type(self.__handle) is ChildJobReleaseCandidate
             and type(claim) is ChildJobReleaseClaim
         ):
@@ -1841,6 +1865,70 @@ class _ChildControlOperation:
         if threading.get_ident() != self.__parent_thread or self.__kind != "scope":
             raise ChildReleaseUnavailableError("control_operation_parent_thread_mismatch")
         return self.__owner._recovery_locator(), self.__claim_snapshot
+
+    def _mark_publication_ready(self) -> None:
+        """Arm one owner-checked head decision on the original parent thread."""
+        owner = self.__owner
+        claim = self._claim_model()
+        if (
+            threading.get_ident() != self.__parent_thread
+            or self.__kind != "publication"
+            or self.__publication_ready
+            or self.__used
+            or owner._control_operations.get(id(self)) is not self
+            or type(self.__handle) is not ChildJobReleaseCandidate
+            or type(claim) is not ChildJobReleaseClaim
+        ):
+            raise ChildReleaseUnavailableError("control_publication_not_current")
+        self.__handle.admission(claim)
+        self.__publication_ready = True
+
+    def _publication_parameters(self) -> tuple[ChildJobReleaseLocator, ChildJobReleaseClaim]:
+        """Resolve only the exact owner-issued locator and selected release claim."""
+        self._require_worker(self.__owner)
+        claim = self._claim_model()
+        if (
+            self.__kind != "publication"
+            or not self.__publication_ready
+            or self.__locator_snapshot is None
+            or type(claim) is not ChildJobReleaseClaim
+        ):
+            raise ChildReleaseUnavailableError("control_publication_not_current")
+        return ChildJobReleaseLocator.model_validate_json(self.__locator_snapshot), claim
+
+    def _commit_publication(
+        self,
+        locator: ChildJobReleaseLocator,
+        claim: ChildJobReleaseClaim,
+        lease_expires_at: datetime,
+    ) -> None:
+        """Commit only this operation's selected head on the registered worker."""
+        owner = self.__owner
+        expected_locator, expected_claim = self._publication_parameters()
+        if locator != expected_locator or claim != expected_claim:
+            raise ChildReleaseUnavailableError("control_publication_claim_changed")
+        with _try_root_custody_locks(owner):
+            reader = owner._guarded_reader_service
+            if reader is None or type(self.__handle) is not ChildJobReleaseCandidate:
+                raise ChildReleaseUnavailableError("control_publication_owner_missing")
+            with reader.control_publication_registration(self.__control):
+                self.__handle._admission(claim, control_operation=self)
+                self._require_worker(owner)
+                now = datetime.now(UTC)
+                if (
+                    type(lease_expires_at) is not datetime
+                    or lease_expires_at.tzinfo is None
+                    or lease_expires_at.utcoffset() is None
+                    or lease_expires_at <= now
+                    or claim.deadline <= now
+                ):
+                    raise ChildReleaseUnavailableError("control_publication_lease_expired")
+                owner._ledger.commit(
+                    claim.release_ref,
+                    job_authorization=locator,
+                    require_prepared=True,
+                    not_after=min(lease_expires_at, claim.deadline),
+                )
 
 
 def _preflight_raw_shape(pending: list[object]) -> None:
@@ -2037,6 +2125,50 @@ class ChildJobReleaseCandidate:
             if owner._job_candidate is not self or self.__claim_snapshot is None:
                 raise ChildReleaseUnavailableError("job_release_candidate_not_recomputed")
             return ChildJobReleaseClaim.model_validate_json(self.__claim_snapshot)
+
+    def _prepare_guarded_publication(
+        self, control: object, locator: ChildJobReleaseLocator, claim: ChildJobReleaseClaim
+    ) -> _ChildControlOperation:
+        """Arm a fixed head decision before dispatch to the guarded job owner."""
+        from .worker_lifecycle import ChildRuntimeCapability
+
+        owner = self.__owner
+        capability = ChildRuntimeCapability.for_parent(
+            owner._root, session=owner, runtime_control=control
+        )
+        operation = capability._issue_publication_operation(self, locator)
+        if type(operation) is not _ChildControlOperation or self.authorized_claim() != claim:
+            raise ChildReleaseUnavailableError("control_operation_not_owner_issued")
+        registration = (
+            owner._guarded_reader_service.publication_registration()
+            if owner._guarded_reader_service is not None
+            else nullcontext()
+        )
+        with _try_root_custody_locks(owner), owner._local_consumption(), registration:
+            operation._mark_publication_ready()
+        return operation
+
+    def _commit_head_local(
+        self,
+        locator: ChildJobReleaseLocator,
+        claim: ChildJobReleaseClaim,
+        lease_expires_at: datetime,
+    ) -> None:
+        """Commit one head inside the original-thread job publication fence."""
+        owner = self.__owner
+        registration = (
+            owner._guarded_reader_service.publication_registration()
+            if owner._guarded_reader_service is not None
+            else nullcontext()
+        )
+        with _try_root_custody_locks(owner), owner._local_consumption(), registration:
+            self.admission(claim)
+            owner._ledger.commit(
+                claim.release_ref,
+                job_authorization=locator,
+                require_prepared=True,
+                not_after=min(lease_expires_at, claim.deadline),
+            )
 
     def _issue_guarded_operation(self, control: object) -> _ChildControlOperation:
         from .worker_lifecycle import ChildRuntimeCapability
@@ -2390,7 +2522,8 @@ class ChildComputationCustody:
         handle: ChildJobSessionIntent | ChildJobReleaseCandidate | ChildPreparedScope,
         control: _ChildControlOwner,
         *,
-        kind: Literal["session", "authorization", "scope"],
+        kind: Literal["session", "authorization", "scope", "publication"],
+        locator: ChildJobReleaseLocator | None = None,
     ) -> _ChildControlOperation:
         """Record one owner-checked guarded decision before dispatch."""
         from polisyos.common.borrowed_execution import _BorrowedControlLiveness
@@ -2402,14 +2535,25 @@ class ChildComputationCustody:
             "session": ChildJobSessionIntent,
             "authorization": ChildJobReleaseCandidate,
             "scope": ChildPreparedScope,
+            "publication": ChildJobReleaseCandidate,
         }[kind]
         control_identity: object = control
         if self._fence is not control_identity or type(handle) is not expected_type:
             raise ChildReleaseUnavailableError("control_operation_owner_mismatch")
-        claim = handle.recompute()
+        if kind == "publication":
+            if (
+                type(handle) is not ChildJobReleaseCandidate
+                or type(locator) is not ChildJobReleaseLocator
+            ):
+                raise ChildReleaseUnavailableError("control_operation_owner_mismatch")
+            claim = handle.authorized_claim()
+        else:
+            if locator is not None:
+                raise ChildReleaseUnavailableError("control_operation_locator_invalid")
+            claim = handle.recompute()
         if (
             (kind == "session" and self._job_intent is not handle)
-            or (kind == "authorization" and self._job_candidate is not handle)
+            or (kind in {"authorization", "publication"} and self._job_candidate is not handle)
             or (
                 kind == "scope"
                 and (
@@ -2426,12 +2570,20 @@ class ChildComputationCustody:
             key = (kind, id(handle))
             if (
                 key in self._control_issued
-                or self._state != ("preparing" if kind == "authorization" else "open")
+                or self._state
+                != ("preparing" if kind in {"authorization", "publication"} else "open")
                 or len(self._control_issued) >= _JOB_COLLECTION_MAX_ITEMS
             ):
                 raise ChildReleaseUnavailableError("control_operation_already_issued")
             operation = _ChildControlOperation(
-                self, handle, claim, kind, control, liveness, token=_CHILD_CONTROL_OPERATION_TOKEN
+                self,
+                handle,
+                claim,
+                kind,
+                control,
+                liveness,
+                token=_CHILD_CONTROL_OPERATION_TOKEN,
+                locator=locator,
             )
             self._control_issued[key] = handle
             self._control_operations[id(operation)] = operation
@@ -3150,6 +3302,8 @@ class ChildComputationCustody:
                 ),
             )
             job_authorization: ChildJobReleaseLocator | None = None
+            candidate: ChildJobReleaseCandidate | None = None
+            claim: ChildJobReleaseClaim | None = None
             if self._binding.control_job_id is not None:
                 if self._fence is None or self._job_intent_locator is None:
                     raise ChildReleaseUnavailableError("job_release_authority_bridge_unavailable")
@@ -3168,37 +3322,24 @@ class ChildComputationCustody:
                 )
                 if result is not None:
                     raise ChildReleaseUnavailableError("job_owner_verifier_protocol_invalid")
-            local_tail = self._root_preflight(self._binding)
-            fence = (
-                self._fence.publication()
-                if self._fence is not None and job_authorization is None
-                else nullcontext()
-            )
-            registration = (
-                self._guarded_reader_service.publication_registration()
-                if self._guarded_reader_service is not None
-                else nullcontext()
-            )
-            with (
-                fence,
-                self._root._parent_state_transition_lease(run_scoped=False),
-                self._lock,
-                self._local_consumption(),
-                registration,
+            self._root_preflight(self._binding)
+            if (
+                self._fence is None
+                or job_authorization is None
+                or candidate is None
+                or claim is None
             ):
-                if job_authorization is None:
-                    self._require_root_snapshot(self._binding, local_tail)
-                else:
-                    # The exact Root/candidate check and owner head commit share
-                    # this transition; a parent close cannot win between them.
-                    candidate.admission(claim)
-                if self._state != "preparing":
-                    raise ChildReleaseUnavailableError("session_revoked_during_copy")
+                raise ChildReleaseUnavailableError("job_release_authority_bridge_unavailable")
+            # Prepare and sync the exact head before the short job-owner decision.
+            # The directory-sync acknowledgement follows the guarded replace.
+            with self._ledger.prepare_commit(
+                claim.release_ref, job_authorization=job_authorization
+            ) as prepared:
                 commit_attempted = True
-                self._ledger.commit(record_ref, job_authorization=job_authorization)
+                self._fence.publish_head(candidate, job_authorization, claim)
+                prepared.sync_parent()
+            with self._lock:
                 receipt = replace(candidate_receipt, release_outcome="released")
-                # Set before context exit: a lost DB/fence acknowledgement after
-                # the durable CAS commit must retain the committed receipt.
                 self._receipt = receipt
                 self._state = "released"
             # The job DB fence is no longer held. Each actual Root operation uses

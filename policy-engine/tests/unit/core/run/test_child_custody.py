@@ -11,6 +11,7 @@ from pydantic import BaseModel, ConfigDict
 
 from polisyos.core.artifacts.child_release import (
     _CHILD_STAGING_TOKEN,
+    ChildJobReleaseLocator,
     ChildReleaseRecord,
     ChildReleaseUnavailableError,
     _ChildReleaseHead,
@@ -237,3 +238,54 @@ def test_release_head_root_loss_is_typed_unavailable(
         with pytest.raises(ChildReleaseUnavailableError, match="served_owner_unavailable"):
             _read_head(ledger.root, ledger.release_id)
     root.finalize()
+
+
+def test_prepared_release_is_bound_to_ledger_ref_and_authorization(tmp_path: Path) -> None:
+    """A prepared head cannot be redirected to another owner or selected claim."""
+    first_store = FileSystemCAS(tmp_path / "first", ownership_enforced=False)
+    other_store = FileSystemCAS(tmp_path / "other", ownership_enforced=False)
+    ref = first_store.put_bytes(
+        b"release",
+        PutOptions(kind="tests.release", media_type="application/octet-stream"),
+        return_selected_profile=True,
+    )
+    ledger = _ChildReleaseLedger(first_store.root, "a" * 32, "root")
+    other = _ChildReleaseLedger(other_store.root, "b" * 32, "root")
+    locator = ChildJobReleaseLocator(job_id="job", event_id=1)
+    later = datetime.now(UTC) + timedelta(minutes=1)
+    with ledger.prepare_commit(ref, job_authorization=locator) as prepared:
+        with pytest.raises(ChildReleaseUnavailableError, match="prepared_release_owner_changed"):
+            ledger.commit(
+                ref.model_copy(update={"kind": "tests.other"}),
+                job_authorization=locator,
+                require_prepared=True,
+                not_after=later,
+            )
+        with pytest.raises(ChildReleaseUnavailableError, match="prepared_release_owner_changed"):
+            ledger.commit(
+                ref,
+                job_authorization=ChildJobReleaseLocator(job_id="job", event_id=2),
+                require_prepared=True,
+                not_after=later,
+            )
+        other._prepared = prepared
+        try:
+            with pytest.raises(
+                ChildReleaseUnavailableError, match="prepared_release_owner_changed"
+            ):
+                other.commit(ref, job_authorization=locator, require_prepared=True, not_after=later)
+        finally:
+            other._prepared = None
+        with pytest.raises(ChildReleaseUnavailableError, match="prepared_release_deadline_expired"):
+            ledger.commit(
+                ref,
+                job_authorization=locator,
+                require_prepared=True,
+                not_after=datetime.now(UTC) - timedelta(seconds=1),
+            )
+        assert _read_head(first_store.root, "a" * 32).status == "pending"
+        ledger.commit(ref, job_authorization=locator, require_prepared=True, not_after=later)
+        prepared.sync_parent()
+        with pytest.raises(OSError, match="prepared_atomic_write_not_current"):
+            ledger.commit(ref, job_authorization=locator, require_prepared=True, not_after=later)
+    assert _read_head(first_store.root, "a" * 32).release_ref == ref

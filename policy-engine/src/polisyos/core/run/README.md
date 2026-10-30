@@ -22,9 +22,12 @@ owner. Core records one-use session, scope, and release decisions that the
 registered control worker can consume without receiving the parent's execution
 grant. This factory does not establish the origin of the earlier custody
 appointment or appoint a production child workflow.
-The job lease is freshly checked before local consumption, but that SQLite
-observation is not atomic with the subsequent CAS-head commit. A lease-row
-change not yet reflected in parent revocation remains unestablished there.
+For the local SQLite route, Core prepares and syncs the exact release-head bytes
+before the final decision. The real job-row transaction and parent liveness fence
+then cover the final lease check and atomic replacement; directory durability is
+acknowledged afterwards. The lease deadline is checked immediately before the
+replacement call, but a delayed operating-system call can cross that deadline.
+Production appointment remains blocked.
 
 The parent admits a receipt only through the existing Core
 `RunContext.merge_worker_events` writer. That path rechecks the active owner,
@@ -40,7 +43,9 @@ external worker transports, or callers that bypass the Core receipt writer.
 
 `RunContext.read_runtime_owner_output_refs()` replays the persisted Core run-start
 record and owner-snapshot chain, then requires the full ordered input/output event
-refs to match the current manifest. It is useful when a downstream consumer must
+identities, including selected profiles, to match the current manifest. Typed
+reference subclasses may decode as the base reference without changing identity.
+It is useful when a downstream consumer must
 prove a selected output was added through the owner writer; it does not attest an
 external producer, policy authority, or deployment identity.
 ## Workflow node lifecycle view

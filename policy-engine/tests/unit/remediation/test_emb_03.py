@@ -2393,3 +2393,370 @@ def test_local_owned_runtime_material_producer_get_post_and_callable_falsifier(
         assert _total_knn_calls() == knn_calls_before_member_change
 
     assert app.state.runtime_container.legal_query_encoder_provider is provider
+
+
+def _fixture_legal_runtime_owner(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    *,
+    seed: int = 17,
+    encoded_batches: list[tuple[str, ...]] | None = None,
+) -> tuple[legal_read_api.LegalRuntimeMaterialOwner, list[tuple[str, ...]]]:
+    """Build an offline, limited test profile for the real Legal material owner.
+
+    The manifest and model identity are fixture-only. The distribution root is
+    reduced to packaging to keep this program-level witness small; the normal
+    runtime and source verifiers still run, but this is not a production profile.
+    """
+    if importlib_metadata.version("sentence-transformers") != "2.7.0":
+        pytest.skip("the fixture uses the supported SentenceTransformers 2.7.0 API")
+    torch = pytest.importorskip("torch")
+    transformers = pytest.importorskip("transformers")
+    sentence_transformers = pytest.importorskip("sentence_transformers")
+
+    fixture_model_id = "test/fixture-legal-bert"
+    fixture_revision = "1" * 40
+    cache_root = tmp_path / "fixture-profile" / "hf-cache"
+    snapshot = (
+        cache_root
+        / f"models--{fixture_model_id.replace('/', '--')}"
+        / "snapshots"
+        / fixture_revision
+    )
+    snapshot.mkdir(parents=True)
+    model_seed = tmp_path / "fixture-model-seed"
+    model_seed.mkdir()
+    vocab = model_seed / "vocab.txt"
+    vocab.write_text(
+        "[PAD]\n[UNK]\n[CLS]\n[SEP]\n[MASK]\nFACT\nCabinet\n"
+        "budget\nrevised\nnewest\nwithdrawn\nsets\n",
+        encoding="utf-8",
+    )
+    tokenizer = transformers.BertTokenizerFast(vocab_file=str(vocab), do_lower_case=False)
+    tokenizer.save_pretrained(model_seed)
+    with torch.random.fork_rng(devices=[]):
+        torch.manual_seed(seed)
+        model = transformers.BertModel(
+            transformers.BertConfig(
+                vocab_size=12,
+                hidden_size=1024,
+                num_hidden_layers=0,
+                num_attention_heads=16,
+                intermediate_size=64,
+                max_position_embeddings=128,
+            )
+        )
+        model.save_pretrained(model_seed)
+    transformer = sentence_transformers.models.Transformer(str(model_seed), max_seq_length=64)
+    pooling = sentence_transformers.models.Pooling(1024)
+    fixture_model = sentence_transformers.SentenceTransformer(
+        modules=[transformer, pooling], device="cpu"
+    )
+    fixture_model.save(str(snapshot))
+    # These two generated files are optional to model loading and are omitted
+    # from the fixture so every remaining byte is in the nine-member manifest.
+    (snapshot / "README.md").unlink()
+    (snapshot / "config_sentence_transformers.json").unlink()
+    files = sorted(path for path in snapshot.rglob("*") if path.is_file())
+    assert len(files) == 9
+    members = []
+    for path in files:
+        content = path.read_bytes()
+        members.append(
+            {
+                "name": path.relative_to(snapshot).as_posix(),
+                "sha256": hashlib.sha256(content).hexdigest(),
+                "size_bytes": len(content),
+            }
+        )
+    manifest = json.dumps(
+        {
+            "revision": fixture_revision,
+            "named_file_count": len(members),
+            "logical_bytes": sum(cast("int", member["size_bytes"]) for member in members),
+            "files": members,
+        },
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    manifest_path = tmp_path / "fixture-profile" / "asset-file-manifest.txt"
+    manifest_path.write_bytes(manifest)
+    monkeypatch.setattr(legal_runtime_material, "LEGAL_CONTROLLED_MODEL_ID", fixture_model_id)
+    monkeypatch.setattr(legal_runtime_material, "LEGAL_CONTROLLED_MODEL_REVISION", fixture_revision)
+    monkeypatch.setattr(
+        legal_runtime_material,
+        "LEGAL_CONTROLLED_MODEL_REFERENCE",
+        f"{fixture_model_id}@{fixture_revision}",
+    )
+    monkeypatch.setattr(
+        legal_runtime_material,
+        "LEGAL_CONTROLLED_MANIFEST_SHA256",
+        hashlib.sha256(manifest).hexdigest(),
+    )
+    monkeypatch.setattr(legal_runtime_material, "_RUNTIME_ROOT_DISTRIBUTIONS", ("packaging",))
+
+    if encoded_batches is None:
+        encoded_batches = []
+        recorded = encoded_batches
+        original_encode = sentence_transformers.SentenceTransformer.encode
+
+        def recording_encode(
+            model: object, texts: list[str], *args: object, **kwargs: object
+        ) -> object:
+            recorded.append(tuple(texts))
+            return original_encode(model, texts, *args, **kwargs)
+
+        monkeypatch.setattr(sentence_transformers.SentenceTransformer, "encode", recording_encode)
+    owner = legal_read_api.LegalRuntimeMaterialOwner.from_profile_root(manifest_path.parent)
+    return owner, encoded_batches
+
+
+def test_fixture_runtime_flat_legacy_changed_text_rebuild_and_fresh_http_query(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """A historical flat pair cannot admit stale rows into a fresh Legal query."""
+    try:
+        importlib_metadata.version("sentence-transformers")
+        from fastapi.testclient import TestClient
+    except (importlib_metadata.PackageNotFoundError, ModuleNotFoundError):
+        pytest.skip("the fixture runtime and HTTP test dependencies are unavailable")
+    import hnswlib
+    import torch
+
+    monkeypatch.setenv("POLISYOS_CACHE_HOME", (tmp_path / "runtime-cache").as_posix())
+    owner, encoded_batches = _fixture_legal_runtime_owner(monkeypatch, tmp_path)
+    handle = owner.resolve_encoder()
+    db_path = tmp_path / "lex_knowledge_graph.duckdb"
+    _prepare_legal_vector_db(db_path)
+    _prepare_candidate_trust_tier(db_path)
+    with duckdb.connect(str(db_path)) as con:
+        con.execute(
+            "INSERT INTO lex_facts SELECT 'fact-withdrawn', subject_en, subject_uk, predicate, "
+            "object_en, object_uk, 'budget withdrawn', norm_type, action_canon, norm_type_canon, "
+            "condition_text_uk, exception_text_uk, procedure_text_uk, thresholds_json, "
+            "source_quote_uk, trust_tier FROM lex_facts WHERE fact_id = 'fact-1'"
+        )
+
+    def projected_facts() -> list[tuple[str, str]]:
+        with duckdb.connect(str(db_path), read_only=True) as con:
+            rows = con.execute(
+                "SELECT fact_id, subject_en, subject_uk, predicate, object_en, object_uk, "
+                "fact_text, norm_type, action_canon, norm_type_canon, condition_text_uk, "
+                "exception_text_uk, procedure_text_uk, thresholds_json, source_quote_uk "
+                "FROM lex_facts ORDER BY fact_id"
+            ).fetchall()
+        return [(str(row[0]), legal_projection.fact_embedding_text(row[1:])) for row in rows]
+
+    legacy_rows = projected_facts()
+    legacy_vectors = np.asarray(
+        handle.encode_for_generation(
+            [text for _identifier, text in legacy_rows],
+            batch_size=1,
+            show_progress_bar=False,
+            normalize_embeddings=True,
+        ),
+        dtype=np.float32,
+    )
+    np.savez(
+        tmp_path / "lex_fact_embeddings.npz",
+        ids=np.asarray([identifier for identifier, _text in legacy_rows]),
+        vectors=legacy_vectors,
+    )
+    legacy_index = hnswlib.Index(space="cosine", dim=1024)
+    legacy_index.init_index(max_elements=len(legacy_rows), ef_construction=100, M=16)
+    legacy_index.add_items(legacy_vectors, np.arange(len(legacy_rows)))
+    legacy_index.save_index(str(tmp_path / "lex_fact_index.hnsw"))
+    legacy_ref = resolve_embedding_generation(
+        tmp_path / ".legal_embedding_generations" / "lex_fact_embeddings",
+        legacy_embeddings_path=tmp_path / "lex_fact_embeddings.npz",
+        legacy_index_path=tmp_path / "lex_fact_index.hnsw",
+    )
+    assert legacy_ref is not None and legacy_ref.status == "legacy" and not legacy_ref.selected
+
+    counted_indexes: list[_CountingIndex] = []
+    original_load = LegalKnowledgeStore._load_fact_index
+
+    def counted_load(store: LegalKnowledgeStore) -> tuple[object, list[str], object]:
+        index, ids, generation = original_load(store)
+        counted = _CountingIndex(index)
+        store._fact_index = counted
+        counted_indexes.append(counted)
+        return counted, ids, generation
+
+    monkeypatch.setattr(LegalKnowledgeStore, "_load_fact_index", counted_load)
+    provider = LegalQueryEncoderProvider(runtime_material_owner=owner)
+    app = create_runtime_api_app(
+        cas_root=tmp_path / "runtime-cas",
+        allow_fixture_identity=True,
+        enable_security_middlewares=False,
+        container_overrides=RuntimeContainerOverrides(legal_query_encoder_provider=provider),
+    )
+    with TestClient(app) as client:
+        legacy_profile = client.get(
+            "/api/v1/control/lex/search-profile", params={"output_dir": str(tmp_path)}
+        ).json()
+        assert legacy_profile["status"] == "refused"
+        assert legacy_profile["refusal_code"] == "selected_generation_unavailable"
+        before_missing = len(encoded_batches)
+        missing = client.post(
+            "/api/v1/control/lex/search",
+            json={"query": "budget", "top_k": 1, "output_dir": str(tmp_path)},
+        ).json()
+        assert missing["search_mode"] == "text"
+        assert missing["vector_refusal_code"] == "query_profile_unavailable"
+        assert len(encoded_batches) == before_missing
+
+        with duckdb.connect(str(db_path)) as con:
+            con.execute(
+                "UPDATE lex_facts SET fact_text = 'budget revised' WHERE fact_id = 'fact-1'"
+            )
+            con.execute("DELETE FROM lex_facts WHERE fact_id = 'fact-withdrawn'")
+        first = legal_embedder.build_local_embeddings_and_indexes(
+            db_path=db_path, output_dir=tmp_path, runtime_material_owner=owner, incremental=True
+        )
+        assert (first.facts_embedded, first.facts_skipped) == (1, 0)
+        first_ref = resolve_embedding_generation(
+            tmp_path / ".legal_embedding_generations" / "lex_fact_embeddings"
+        )
+        assert first_ref is not None and first_ref.selected and first_ref.ids == ("fact-1",)
+        with np.load(first_ref.embeddings_path, allow_pickle=True) as data:
+            first_vector = np.asarray(data["vectors"], dtype=np.float32)[0].copy()
+        assert not np.allclose(first_vector, legacy_vectors[0])
+        current_text = projected_facts()[0][1]
+        recomputed = handle.encode_for_generation(
+            [current_text], batch_size=1, show_progress_bar=False, normalize_embeddings=True
+        )
+        assert np.allclose(first_vector, np.asarray(recomputed, dtype=np.float32)[0])
+
+        profile = client.get(
+            "/api/v1/control/lex/search-profile", params={"output_dir": str(tmp_path)}
+        ).json()
+        assert profile["status"] == "available"
+        intent = profile["query_generation_intent"]
+        request = {
+            "query": current_text,
+            "top_k": 1,
+            "output_dir": str(tmp_path),
+            "query_generation_intent": intent,
+        }
+
+        def knn_calls() -> int:
+            return sum(index.knn_calls for index in counted_indexes)
+
+        positive = client.post("/api/v1/control/lex/search", json=request).json()
+        assert positive["search_mode"] == "vector" and positive["vector_refusal_code"] is None
+        assert [(row["fact_id"], row["fact_text"]) for row in positive["results"]] == [
+            ("fact-1", "budget revised")
+        ]
+        assert positive["legal_relation_refusal"]["status"] == "verification_missing"
+        assert knn_calls() == 1
+
+        graph = LegalKnowledgeGraph(
+            db_path,
+            tmp_path,
+            query_profile=_legal_query_profiles(tmp_path),
+            query_runtime_material_owner=owner,
+        )
+        try:
+            assert [
+                row.entity_id for row in graph.search_entities("budget", min_similarity=0.0)
+            ] == ["entity-target"]
+            assert [
+                row.provision_id for row in graph.search_provisions("budget", min_similarity=0.0)
+            ] == ["provision-1"]
+        finally:
+            graph.close()
+
+        parameter = next(handle._model.parameters())
+        with torch.no_grad():
+            original_weight = float(parameter.view(-1)[0].item())
+            parameter.view(-1)[0].add_(1)
+        before_encoder, before_knn = len(encoded_batches), knn_calls()
+        try:
+            wrong_encoder = client.post("/api/v1/control/lex/search", json=request).json()
+        finally:
+            with torch.no_grad():
+                parameter.view(-1)[0].fill_(original_weight)
+        assert wrong_encoder["vector_refusal_code"] == "query_encoder_runtime_material_changed"
+        assert wrong_encoder["search_mode"] == "text"
+        assert len(encoded_batches) == before_encoder and knn_calls() == before_knn
+
+        with duckdb.connect(str(db_path)) as con:
+            con.execute("UPDATE lex_facts SET fact_text = 'budget newest' WHERE fact_id = 'fact-1'")
+        before_encoder, before_knn = len(encoded_batches), knn_calls()
+        changed = client.post("/api/v1/control/lex/search", json=request).json()
+        assert changed["search_mode"] == "text"
+        assert changed["vector_refusal_code"] == "selected_generation_membership_mismatch"
+        assert len(encoded_batches) == before_encoder and knn_calls() == before_knn
+
+        # The same IDs and inventory remain; removing only the content check
+        # lets this changed row reach the encoder and native HNSW.
+        with monkeypatch.context() as removal:
+            removal.setattr(
+                legal_read_api, "generation_basis_matches_members", lambda *a, **k: True
+            )
+            bypassed = client.post("/api/v1/control/lex/search", json=request).json()
+        assert bypassed["search_mode"] == "vector" and bypassed["vector_refusal_code"] is None
+        assert len(encoded_batches) == before_encoder + 1 and knn_calls() == before_knn + 1
+        assert bypassed["results"][0]["fact_text"] == "budget newest"
+
+        second = legal_embedder.build_local_embeddings_and_indexes(
+            db_path=db_path, output_dir=tmp_path, runtime_material_owner=owner, incremental=True
+        )
+        assert (second.facts_embedded, second.facts_skipped) == (1, 0)
+        assert (second.entities_embedded, second.entities_skipped) == (0, 1)
+        assert (second.provisions_embedded, second.provisions_skipped) == (0, 1)
+        before_encoder, before_knn = len(encoded_batches), knn_calls()
+        stale = client.post("/api/v1/control/lex/search", json=request).json()
+        assert stale["vector_refusal_code"] == "query_profile_stale_or_mismatched"
+        assert len(encoded_batches) == before_encoder and knn_calls() == before_knn
+        fresh_profile = client.get(
+            "/api/v1/control/lex/search-profile", params={"output_dir": str(tmp_path)}
+        ).json()
+        assert fresh_profile["status"] == "available"
+        assert fresh_profile["query_generation_intent"] != intent
+        fresh = client.post(
+            "/api/v1/control/lex/search",
+            json={
+                **request,
+                "query": projected_facts()[0][1],
+                "query_generation_intent": fresh_profile["query_generation_intent"],
+            },
+        ).json()
+        assert fresh["search_mode"] == "vector" and fresh["vector_refusal_code"] is None
+        assert [(row["fact_id"], row["fact_text"]) for row in fresh["results"]] == [
+            ("fact-1", "budget newest")
+        ]
+        assert len(encoded_batches) == before_encoder + 1 and knn_calls() == before_knn + 1
+
+        # A second owner loads a different real fixture model under the same
+        # model label, dimensions, and settings. The selected generation was
+        # produced by the first owner, so its matching intent cannot admit it.
+        other_owner, _ = _fixture_legal_runtime_owner(
+            monkeypatch, tmp_path / "other", seed=29, encoded_batches=encoded_batches
+        )
+        other_handle = other_owner.resolve_encoder()
+        assert other_handle.get_sentence_embedding_dimension() == 1024
+        assert other_handle.asset_identity != handle.asset_identity
+        other_app = create_runtime_api_app(
+            cas_root=tmp_path / "other-runtime-cas",
+            allow_fixture_identity=True,
+            enable_security_middlewares=False,
+            container_overrides=RuntimeContainerOverrides(
+                legal_query_encoder_provider=LegalQueryEncoderProvider(
+                    runtime_material_owner=other_owner
+                )
+            ),
+        )
+        before_encoder, before_knn = len(encoded_batches), knn_calls()
+        with TestClient(other_app) as other_client:
+            mismatched = other_client.post(
+                "/api/v1/control/lex/search",
+                json={
+                    **request,
+                    "query_generation_intent": fresh_profile["query_generation_intent"],
+                },
+            ).json()
+        assert mismatched["search_mode"] == "text"
+        assert mismatched["vector_refusal_code"] == "query_encoder_runtime_material_changed"
+        assert len(encoded_batches) == before_encoder and knn_calls() == before_knn

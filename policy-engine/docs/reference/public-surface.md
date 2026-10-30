@@ -340,7 +340,7 @@ timestamps
 | `polisyos.core.security` | `src/polisyos/core/security/__init__.py` | `lazy_facade` | 113 |
 | `polisyos.core.trace` | `src/polisyos/core/trace/__init__.py` | `eager_exports` | 6 |
 | `polisyos.core.registry` | `src/polisyos/core/registry/__init__.py` | `lazy_facade` | 12 |
-| `polisyos.core.run.worker_lifecycle` | `src/polisyos/core/run/worker_lifecycle.py` | `eager_exports` | 4 |
+| `polisyos.core.run.worker_lifecycle` | `src/polisyos/core/run/worker_lifecycle.py` | `eager_exports` | 5 |
 
 #### `polisyos.core`
 
@@ -1831,9 +1831,10 @@ load_registry_bundle_payload
 - Facade: `eager_exports`
 - Summary: Core-owned boundary for staging and admitting run-worker receipts.
 
-<details><summary>Entrypoint exports (4)</summary>
+<details><summary>Entrypoint exports (5)</summary>
 
 ```text
+ChildRuntimeCapability
 WorkerDispatchBinding
 WorkerLifecycleCapability
 WorkerRunSnapshot

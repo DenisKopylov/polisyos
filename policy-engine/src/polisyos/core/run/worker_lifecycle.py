@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import inspect
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from pathlib import Path
+from typing import TYPE_CHECKING, cast
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.trace import JsonlTraceSink
@@ -13,9 +15,9 @@ from .manifest import RunManifest
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
-    from pathlib import Path
 
     from polisyos.core.artifacts.protocol import ArtifactStore
+    from polisyos.core.run.child_custody import _ChildControlOwner
     from polisyos.core.security.access_scope import AccessScope
     from polisyos.core.trace.record import TraceRecord
     from polisyos.core.trace.sink import TraceSink
@@ -87,6 +89,141 @@ class WorkerRunSnapshot:
 
 _WORKER_VIEW_TOKEN = object()
 _CAPABILITY_TOKEN = object()
+_CHILD_CAPABILITY_TOKEN = object()
+
+
+def _require_fixed_runtime_child_control(control: object) -> _ChildControlOwner:
+    """Reconcile the fixed Runtime registrar's source and real guard lookup."""
+    from polisyos.core.components._provider_origin import _callable_source
+
+    descriptor = inspect.getattr_static(type(control), "_require_parent", None)
+    try:
+        module, source = _callable_source(descriptor)
+        expected = (
+            Path(__file__).resolve().parents[2] / "runtime" / "http" / "resilience.py"
+        ).resolve(strict=True)
+        lookup = module.__dict__.get("_require_runtime_control_store_guard")
+        lookup_module, lookup_source = _callable_source(lookup)
+    except Exception as exc:
+        raise ValueError("child_runtime_control_origin_not_established") from exc
+    if (
+        module.__name__ != "polisyos.runtime.http.resilience"
+        or source != expected
+        or lookup_module is not module
+        or lookup_source != expected
+        or module.__dict__.get("_RuntimeGuardedChildFence") is not type(control)
+        or inspect.getattr_static(control, "_require_parent", None) is not descriptor
+    ):
+        raise ValueError("child_runtime_control_origin_not_established")
+    # The exact class is established against its Runtime implementation above.
+    return cast("_ChildControlOwner", control)
+
+
+class ChildRuntimeCapability:
+    """Core-owned child purpose for one actual parent and guarded control owner.
+
+    This separate capability does not extend worker receipt authority. It is
+    created only after the current Core session and fixed Runtime control owner
+    have been independently reconciled; it does not itself publish results.
+    """
+
+    __slots__ = ("__control", "__run", "__session")
+
+    def __setattr__(self, name: str, value: object) -> None:
+        if hasattr(self, name):
+            raise AttributeError("child runtime capability binding is immutable")
+        object.__setattr__(self, name, value)
+
+    def __delattr__(self, name: str) -> None:
+        raise AttributeError("child runtime capability binding is immutable")
+
+    def __init__(
+        self, run: RunContext, session: object, control: _ChildControlOwner, *, _token: object
+    ) -> None:
+        if _token is not _CHILD_CAPABILITY_TOKEN:
+            raise TypeError("child runtime capabilities are created by their factory")
+        self.__run = run
+        self.__session = session
+        self.__control = control
+
+    @classmethod
+    def for_parent(
+        cls, run: object, *, session: object, runtime_control: object
+    ) -> ChildRuntimeCapability:
+        """Bind one live Core session to its fixed, source-verified Runtime owner.
+
+        Args:
+            run: The exact active Core run, not a worker or node view.
+            session: The Core-owned child session already bound to that run.
+            runtime_control: Its fixed Runtime control owner.
+
+        Returns:
+            A child-purpose capability scoped to this actual parent session.
+
+        Raises:
+            ValueError: If the owner, attempt, service, or guard is not current.
+        """
+        from .child_custody import ChildComputationCustody
+
+        if (
+            type(run) is not RunContext
+            or type(session) is not ChildComputationCustody
+            or session._root is not run
+            or session._fence is not runtime_control
+            or session._binding is None
+        ):
+            raise ValueError("child_runtime_parent_owner_not_established")
+        control = _require_fixed_runtime_child_control(runtime_control)
+        session._check_root(session._binding)
+        return cls(run, session, control, _token=_CHILD_CAPABILITY_TOKEN)
+
+    def _issue_session_operation(self, intent: object) -> object:
+        """Issue a one-use session decision from the retained Core owner."""
+        from .child_custody import ChildComputationCustody, ChildJobSessionIntent
+
+        session = self.__session
+        control_identity: object = self.__control
+        if (
+            type(session) is not ChildComputationCustody
+            or type(intent) is not ChildJobSessionIntent
+            or session._root is not self.__run
+            or session._fence is not control_identity
+        ):
+            raise ValueError("child_runtime_session_owner_changed")
+        _require_fixed_runtime_child_control(self.__control)
+        return session._issue_control_operation(intent, self.__control, kind="session")
+
+    def _issue_scope_operation(self, prepared: object) -> object:
+        """Issue a one-use scope decision from the retained Core owner."""
+        from .child_custody import ChildComputationCustody, ChildPreparedScope
+
+        session = self.__session
+        control_identity: object = self.__control
+        if (
+            type(session) is not ChildComputationCustody
+            or type(prepared) is not ChildPreparedScope
+            or session._root is not self.__run
+            or session._fence is not control_identity
+        ):
+            raise ValueError("child_runtime_session_owner_changed")
+        _require_fixed_runtime_child_control(self.__control)
+        return session._issue_control_operation(prepared, self.__control, kind="scope")
+
+    def _issue_release_operation(self, candidate: object) -> object:
+        """Issue a one-use release decision from the retained Core owner."""
+        from .child_custody import ChildComputationCustody, ChildJobReleaseCandidate
+
+        session = self.__session
+        control_identity: object = self.__control
+        if (
+            type(session) is not ChildComputationCustody
+            or type(candidate) is not ChildJobReleaseCandidate
+            or session._root is not self.__run
+            or session._fence is not control_identity
+        ):
+            raise ValueError("child_runtime_session_owner_changed")
+        _require_fixed_runtime_child_control(self.__control)
+        return session._issue_control_operation(candidate, self.__control, kind="authorization")
 
 
 class WorkerRunView(RunContext):
@@ -528,6 +665,7 @@ class WorkerLifecycleCapability:
 
 
 __all__ = [
+    "ChildRuntimeCapability",
     "WorkerDispatchBinding",
     "WorkerLifecycleCapability",
     "WorkerRunSnapshot",

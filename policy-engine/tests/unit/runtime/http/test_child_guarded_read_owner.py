@@ -8,6 +8,7 @@ import time
 from contextlib import contextmanager
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 import pytest
@@ -46,6 +47,9 @@ from polisyos.runtime.http.resilience import (
 )
 from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
 from tests.unit.runtime.http.test_child_control_authorization import _job, _Resolver
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 @pytest.mark.parametrize(
@@ -129,6 +133,12 @@ def _exercise_job(
     grant: _BorrowedExecutionGrant,
     monkeypatch: pytest.MonkeyPatch,
     probe: str,
+    *,
+    fence_factory: Callable[
+        [RunContext, object, _BorrowedExecutionGrant, ChildComputationBinding], Any
+    ]
+    | None = None,
+    before_session: Callable[..., None] | None = None,
 ) -> None:
     raw = FileSystemCAS(
         tmp_path / "served", tenant_id="tenant-a", cell_id="cell-a", ownership_enforced=False
@@ -191,7 +201,11 @@ def _exercise_job(
             basis.model_dump(mode="json"), sort_keys=True, separators=(",", ":"), ensure_ascii=True
         ),
     )
-    fence = control.child_computation_publication_fence(grant=grant, binding=binding)
+    fence = (
+        control.child_computation_publication_fence(grant=grant, binding=binding)
+        if fence_factory is None
+        else fence_factory(root, control, grant, binding)
+    )
     custody, reader = _bootstrap_guarded_child_custody(
         root,
         staging_root=tmp_path / "private",
@@ -201,6 +215,13 @@ def _exercise_job(
     _install_child_job_owner(
         custody._ledger.store_identity, control, token=_JOB_OWNER_BOOTSTRAP_TOKEN
     )
+    if before_session is not None:
+        try:
+            before_session(root, control, custody, reader, fence, grant, binding)
+        finally:
+            reader.close()
+            served.close()
+        return
     intent = custody.job_session_intent(binding)
     custody.bind_job_intent(intent, fence.begin_session(intent))
     release = threading.Event()

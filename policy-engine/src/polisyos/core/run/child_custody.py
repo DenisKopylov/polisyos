@@ -55,6 +55,8 @@ if TYPE_CHECKING:
     from collections.abc import Iterator, Mapping, Sequence
     from pathlib import Path
 
+    from polisyos.common.borrowed_execution import _BorrowedControlLiveness
+
     from ..artifacts._integrity_ops import ArtifactBoundedManifestRead, VerificationReport
     from ..artifacts.canonical_profile import (
         CoreJsonArtifactBoundedRead,
@@ -108,6 +110,10 @@ class ChildPublicationFence(Protocol):
 
     def check_active(self) -> None:
         """Refuse a revoked, expired or superseded actual execution admission."""
+        ...
+
+    def local_consumption(self) -> AbstractContextManager[None]:
+        """Fence a short local owner transition against parent revocation."""
         ...
 
     def authorize_release(self, candidate: ChildJobReleaseCandidate) -> ChildJobReleaseLocator:
@@ -295,6 +301,9 @@ class _ChildGuardedReadService(Protocol):
 
     def require_registration(self) -> None:
         """Reconcile the actual guarded registrations before owner decisions."""
+
+    def require_control_registration(self, control: object) -> None:
+        """Reconcile the same registrations on an admitted control worker."""
 
     def publication_registration(self) -> AbstractContextManager[None]:
         """Order the short release-head decision against registration changes."""
@@ -1353,7 +1362,9 @@ class ChildPreparedScope:
         with _try_root_custody_locks(self.__owner):
             yield
 
-    def _owned_claim(self) -> ChildJobScopeClaim:
+    def _owned_claim(
+        self, *, control_operation: _ChildControlOperation | None = None
+    ) -> ChildJobScopeClaim:
         """Recompute the exact locally owned scope claim without external I/O."""
         owner = self.__owner
         scope = self.__scope
@@ -1382,7 +1393,9 @@ class ChildPreparedScope:
             or binding.cell_id is None
         ):
             raise ChildReleaseUnavailableError("prepared_scope_not_current")
-        owner._require_root_snapshot(scope.binding, self.__root_snapshot)
+        owner._require_root_snapshot(
+            scope.binding, self.__root_snapshot, control_operation=control_operation
+        )
         session = ChildJobSessionClaim(
             release_id=owner._release_id,
             root_run_id=binding.root_run_id,
@@ -1417,16 +1430,39 @@ class ChildPreparedScope:
             self.__claim_snapshot = _model_snapshot(claim)
             return ChildJobScopeClaim.model_validate_json(self.__claim_snapshot)
 
+    def _issue_guarded_operation(self, control: object) -> _ChildControlOperation:
+        from .worker_lifecycle import ChildRuntimeCapability
+
+        owner = self.__owner
+        capability = ChildRuntimeCapability.for_parent(
+            owner._root, session=owner, runtime_control=control
+        )
+        operation = capability._issue_scope_operation(self)
+        if type(operation) is not _ChildControlOperation:
+            raise ChildReleaseUnavailableError("control_operation_not_owner_issued")
+        return operation
+
     def admit(
         self, claim: ChildJobScopeClaim, *, expected_parent: ChildComputationBinding
     ) -> bytes:
         """Freeze the local decision before the job owner inserts its event."""
+        return self._admission(claim, expected_parent=expected_parent, control_operation=None)
+
+    def _admission(
+        self,
+        claim: ChildJobScopeClaim,
+        *,
+        expected_parent: ChildComputationBinding,
+        control_operation: _ChildControlOperation | None,
+    ) -> bytes:
         if (
-            threading.get_ident() != self.__thread_id
+            (threading.get_ident() != self.__thread_id and control_operation is None)
             or type(claim) is not ChildJobScopeClaim
             or type(expected_parent) is not ChildComputationBinding
         ):
             raise ChildReleaseUnavailableError("prepared_scope_claim_invalid")
+        if control_operation is not None:
+            control_operation._require_worker(self.__owner)
         _preflight_raw_shape([expected_parent])
         parent_snapshot = _bounded_snapshot(
             expected_parent.model_dump(mode="json", exclude={"child_invocation_id"})
@@ -1442,12 +1478,36 @@ class ChildPreparedScope:
                 )
                 != self.__parent_snapshot
                 or _model_snapshot(claim) != self.__claim_snapshot
-                or _model_snapshot(self._owned_claim()) != self.__claim_snapshot
+                or _model_snapshot(self._owned_claim(control_operation=control_operation))
+                != self.__claim_snapshot
             ):
                 raise ChildReleaseUnavailableError("prepared_scope_claim_changed")
             self.__admitted = True
             decision = self.__claim_snapshot
         return decision
+
+    def _admission_for_control(
+        self, claim: ChildJobScopeClaim, operation: _ChildControlOperation
+    ) -> bytes:
+        binding = self.__owner._binding
+        if binding is None:
+            raise ChildReleaseUnavailableError("prepared_scope_parent_missing")
+        return self._admission(claim, expected_parent=binding, control_operation=operation)
+
+    def _check_control_current(
+        self, claim: ChildJobScopeClaim, operation: _ChildControlOperation
+    ) -> None:
+        operation._require_worker(self.__owner)
+        with self._short_decision():
+            if (
+                not self.__admitted
+                or self.__claim_snapshot is None
+                or type(claim) is not ChildJobScopeClaim
+                or _model_snapshot(claim) != self.__claim_snapshot
+                or _model_snapshot(self._owned_claim(control_operation=operation))
+                != self.__claim_snapshot
+            ):
+                raise ChildReleaseUnavailableError("prepared_scope_claim_changed")
 
     def complete(self, locator: ChildJobReleaseLocator) -> ChildStagingScope:
         """Reconcile the committed job-owner event, then transfer the scope once."""
@@ -1463,7 +1523,19 @@ class ChildPreparedScope:
             raise ChildReleaseUnavailableError("job_owner_verifier_protocol_invalid")
         if _model_snapshot(locator) != locator_snapshot:
             raise ChildReleaseUnavailableError("prepared_scope_locator_changed")
-        with owner._root._parent_state_transition_lease(run_scoped=False), owner._lock:
+        if owner._root_preflight(self.__scope.binding) != self.__root_snapshot:
+            raise ChildReleaseUnavailableError("prepared_scope_parent_changed")
+        registration = (
+            owner._guarded_reader_service.publication_registration()
+            if owner._guarded_reader_service is not None
+            else nullcontext()
+        )
+        with (
+            owner._root._parent_state_transition_lease(run_scoped=False),
+            owner._lock,
+            owner._local_consumption(),
+            registration,
+        ):
             if _model_snapshot(self._owned_claim()) != self.__claim_snapshot:
                 raise ChildReleaseUnavailableError("prepared_scope_claim_changed")
             scope = self.__scope
@@ -1556,14 +1628,31 @@ class ChildJobSessionIntent:
             self.__claim_snapshot = _model_snapshot(claim)
             return claim.model_copy(deep=True)
 
+    def _issue_guarded_operation(self, control: object) -> _ChildControlOperation:
+        from .worker_lifecycle import ChildRuntimeCapability
+
+        owner = self.__owner
+        capability = ChildRuntimeCapability.for_parent(
+            owner._root, session=owner, runtime_control=control
+        )
+        operation = capability._issue_session_operation(self)
+        if type(operation) is not _ChildControlOperation:
+            raise ChildReleaseUnavailableError("control_operation_not_owner_issued")
+        return operation
+
     def admission(self, claim: ChildJobSessionClaim) -> bytes:
         """Freeze the local Root decision before the actual job-owner transaction."""
+        return self._admission(claim, control_operation=None)
+
+    def _admission(
+        self, claim: ChildJobSessionClaim, *, control_operation: _ChildControlOperation | None
+    ) -> bytes:
         owner = self.__owner
         with _try_root_custody_locks(owner):
             if owner._root._active_lease is None:
                 raise ChildReleaseUnavailableError("root_active_lease_missing")
             owner._root._require_active_lease_owner()
-            owner._require_guarded_owner_identity()
+            owner._require_guarded_owner_identity(control_operation=control_operation)
             if (
                 owner._job_intent is not self
                 or owner._state != "open"
@@ -1593,6 +1682,165 @@ class ChildJobSessionIntent:
                 raise ChildReleaseUnavailableError("job_session_admission_stale")
             decision = self.__claim_snapshot
         return decision
+
+
+_CHILD_CONTROL_OPERATION_TOKEN = object()
+
+
+class _ChildControlOwner(Protocol):
+    def _require_control_worker(self) -> None: ...
+
+    def _check_control_admission(self, admission: object) -> None: ...
+
+    def _control_liveness_for_core(
+        self, owner: ChildComputationCustody
+    ) -> _BorrowedControlLiveness: ...
+
+
+class _ChildControlOperation:
+    """One Core-recorded decision for the exact guarded control worker."""
+
+    __slots__ = (
+        "__active_thread",
+        "__claim_snapshot",
+        "__control",
+        "__handle",
+        "__kind",
+        "__liveness",
+        "__owner",
+        "__parent_thread",
+        "__used",
+    )
+
+    def __init__(
+        self,
+        owner: ChildComputationCustody,
+        handle: ChildJobSessionIntent | ChildJobReleaseCandidate | ChildPreparedScope,
+        claim: ChildJobSessionClaim | ChildJobReleaseClaim | ChildJobScopeClaim,
+        kind: Literal["session", "authorization", "scope"],
+        control: _ChildControlOwner,
+        liveness: _BorrowedControlLiveness,
+        *,
+        token: object,
+    ) -> None:
+        if token is not _CHILD_CONTROL_OPERATION_TOKEN:
+            raise ChildReleaseUnavailableError("control_operation_not_owner_issued")
+        self.__owner = owner
+        self.__handle = handle
+        self.__kind = kind
+        self.__claim_snapshot = _model_snapshot(claim)
+        self.__control = control
+        self.__liveness = liveness
+        self.__parent_thread = threading.get_ident()
+        self.__active_thread: int | None = None
+        self.__used = False
+
+    def _require_worker(self, owner: ChildComputationCustody) -> None:
+        control: object = self.__control
+        if (
+            owner is not self.__owner
+            or self.__active_thread != threading.get_ident()
+            or self.__active_thread == self.__parent_thread
+            or owner._control_operations.get(id(self)) is not self
+            or owner._fence is not control
+        ):
+            raise ChildReleaseUnavailableError("control_operation_not_current")
+        self.__control._require_control_worker()
+        self.__liveness._require_current()
+
+    def _preview(self) -> ChildJobSessionClaim | ChildJobReleaseClaim | ChildJobScopeClaim:
+        """Return the detached owner claim only to the registered control worker."""
+        self.__control._require_control_worker()
+        self.__liveness._require_current()
+        with self.__owner._lock:
+            if self.__used or self.__owner._control_operations.get(id(self)) is not self:
+                raise ChildReleaseUnavailableError("control_operation_not_current")
+        return self._claim_model()
+
+    def _claim_model(self) -> ChildJobSessionClaim | ChildJobReleaseClaim | ChildJobScopeClaim:
+        model = {
+            "session": ChildJobSessionClaim,
+            "authorization": ChildJobReleaseClaim,
+            "scope": ChildJobScopeClaim,
+        }[self.__kind]
+        return model.model_validate_json(self.__claim_snapshot)
+
+    def _check_admission(self, admission: object) -> None:
+        self.__control._require_control_worker()
+        self.__liveness._require_current()
+        self.__control._check_control_admission(admission)
+
+    @contextmanager
+    def _decision(self) -> Iterator[None]:
+        """Consume the operation once under actual parent-attempt liveness."""
+        owner = self.__owner
+        self.__control._require_control_worker()
+        with self.__liveness._admission():
+            if not owner._lock.acquire(blocking=False):
+                raise ChildReleaseUnavailableError("control_operation_owner_busy")
+            try:
+                if self.__used or owner._control_operations.get(id(self)) is not self:
+                    raise ChildReleaseUnavailableError("control_operation_not_current")
+                self.__used = True
+                self.__active_thread = threading.get_ident()
+            finally:
+                owner._lock.release()
+            try:
+                self._require_worker(owner)
+                yield
+            finally:
+                self.__active_thread = None
+
+    def _admit(
+        self, claim: ChildJobSessionClaim | ChildJobReleaseClaim | ChildJobScopeClaim
+    ) -> bytes:
+        self._require_worker(self.__owner)
+        if (
+            type(claim) is not type(self._claim_model())
+            or _model_snapshot(claim) != self.__claim_snapshot
+        ):
+            raise ChildReleaseUnavailableError("control_operation_claim_changed")
+        if (
+            self.__kind == "scope"
+            and type(self.__handle) is ChildPreparedScope
+            and type(claim) is ChildJobScopeClaim
+        ):
+            return self.__handle._admission_for_control(claim, self)
+        if (
+            self.__kind == "session"
+            and type(self.__handle) is ChildJobSessionIntent
+            and type(claim) is ChildJobSessionClaim
+        ):
+            return self.__handle._admission(claim, control_operation=self)
+        if (
+            self.__kind == "authorization"
+            and type(self.__handle) is ChildJobReleaseCandidate
+            and type(claim) is ChildJobReleaseClaim
+        ):
+            return self.__handle._admission(claim, control_operation=self)
+        raise ChildReleaseUnavailableError("control_operation_claim_changed")
+
+    def _require_active(self) -> None:
+        self._require_worker(self.__owner)
+        claim = self._claim_model()
+        if (
+            self.__kind == "scope"
+            and type(self.__handle) is ChildPreparedScope
+            and type(claim) is ChildJobScopeClaim
+        ):
+            self.__handle._check_control_current(claim, self)
+        else:
+            self._admit(claim)
+
+    def _recovery(self) -> ChildRecoveryLocator | None:
+        if threading.get_ident() != self.__parent_thread:
+            raise ChildReleaseUnavailableError("control_operation_parent_thread_mismatch")
+        return self.__owner._recovery_locator()
+
+    def _scope_recovery(self) -> tuple[ChildRecoveryLocator | None, bytes]:
+        if threading.get_ident() != self.__parent_thread or self.__kind != "scope":
+            raise ChildReleaseUnavailableError("control_operation_parent_thread_mismatch")
+        return self.__owner._recovery_locator(), self.__claim_snapshot
 
 
 def _preflight_raw_shape(pending: list[object]) -> None:
@@ -1790,14 +2038,31 @@ class ChildJobReleaseCandidate:
                 raise ChildReleaseUnavailableError("job_release_candidate_not_recomputed")
             return ChildJobReleaseClaim.model_validate_json(self.__claim_snapshot)
 
+    def _issue_guarded_operation(self, control: object) -> _ChildControlOperation:
+        from .worker_lifecycle import ChildRuntimeCapability
+
+        owner = self.__owner
+        capability = ChildRuntimeCapability.for_parent(
+            owner._root, session=owner, runtime_control=control
+        )
+        operation = capability._issue_release_operation(self)
+        if type(operation) is not _ChildControlOperation:
+            raise ChildReleaseUnavailableError("control_operation_not_owner_issued")
+        return operation
+
     def admission(self, claim: ChildJobReleaseClaim) -> bytes:
         """Freeze the local release decision before the actual job-owner transaction."""
+        return self._admission(claim, control_operation=None)
+
+    def _admission(
+        self, claim: ChildJobReleaseClaim, *, control_operation: _ChildControlOperation | None
+    ) -> bytes:
         owner = self.__owner
         with _try_root_custody_locks(owner):
             if owner._root._active_lease is None:
                 raise ChildReleaseUnavailableError("root_active_lease_missing")
             owner._root._require_active_lease_owner()
-            owner._require_guarded_owner_identity()
+            owner._require_guarded_owner_identity(control_operation=control_operation)
             binding = owner._binding
             if (
                 owner._job_candidate is not self
@@ -1931,6 +2196,8 @@ class ChildComputationCustody:
         self._job_allowed_scopes: frozenset[str] = frozenset()
         self._job_intent: ChildJobSessionIntent | None = None
         self._job_intent_locator: ChildJobReleaseLocator | None = None
+        self._control_operations: dict[int, _ChildControlOperation] = {}
+        self._control_issued: dict[tuple[str, int], object] = {}
         if self._fence is not None:
             m = root_run.run_manifest
             if (
@@ -2000,6 +2267,15 @@ class ChildComputationCustody:
         if self._fence is not None:
             self._fence.check_active()
 
+    @contextmanager
+    def _local_consumption(self) -> Iterator[None]:
+        """Hold the actual parent admission only for a short Core transition."""
+        if self._fence is None:
+            yield
+        else:
+            with self._fence.local_consumption():
+                yield
+
     def _root_preflight(self, binding: ChildComputationBinding) -> tuple[bytes, bytes]:
         """Resolve actual currentness before taking the local custody lock."""
         tail = _model_snapshot(self._root._runtime_invocation_tail_ref)
@@ -2015,10 +2291,14 @@ class ChildComputationCustody:
         return tail, binding_snapshot
 
     def _require_root_snapshot(
-        self, binding: ChildComputationBinding, snapshot: tuple[bytes, bytes]
+        self,
+        binding: ChildComputationBinding,
+        snapshot: tuple[bytes, bytes],
+        *,
+        control_operation: _ChildControlOperation | None = None,
     ) -> None:
         """Recheck in-memory owner state under the local lock, without DB or CAS I/O."""
-        self._require_guarded_owner_identity()
+        self._require_guarded_owner_identity(control_operation=control_operation)
         m = self._root.run_manifest
         if (
             self._root._closed
@@ -2089,7 +2369,9 @@ class ChildComputationCustody:
             self._guarded_reader_service = service
             self._guarded_reader_identity = service
 
-    def _require_guarded_owner_identity(self) -> None:
+    def _require_guarded_owner_identity(
+        self, *, control_operation: _ChildControlOperation | None = None
+    ) -> None:
         if self._guarded_reader_service is not self._guarded_reader_identity:
             raise ChildReleaseUnavailableError("guarded_reader_owner_changed")
         if self._guarded_root_required and (
@@ -2097,7 +2379,63 @@ class ChildComputationCustody:
         ):
             raise ChildReleaseUnavailableError("guarded_root_owner_changed")
         if self._guarded_reader_service is not None:
-            self._guarded_reader_service.require_registration()
+            if control_operation is None:
+                self._guarded_reader_service.require_registration()
+            else:
+                control_operation._require_worker(self)
+                self._guarded_reader_service.require_control_registration(self._fence)
+
+    def _issue_control_operation(
+        self,
+        handle: ChildJobSessionIntent | ChildJobReleaseCandidate | ChildPreparedScope,
+        control: _ChildControlOwner,
+        *,
+        kind: Literal["session", "authorization", "scope"],
+    ) -> _ChildControlOperation:
+        """Record one owner-checked guarded decision before dispatch."""
+        from polisyos.common.borrowed_execution import _BorrowedControlLiveness
+
+        from .worker_lifecycle import _require_fixed_runtime_child_control
+
+        _require_fixed_runtime_child_control(control)
+        expected_type = {
+            "session": ChildJobSessionIntent,
+            "authorization": ChildJobReleaseCandidate,
+            "scope": ChildPreparedScope,
+        }[kind]
+        control_identity: object = control
+        if self._fence is not control_identity or type(handle) is not expected_type:
+            raise ChildReleaseUnavailableError("control_operation_owner_mismatch")
+        claim = handle.recompute()
+        if (
+            (kind == "session" and self._job_intent is not handle)
+            or (kind == "authorization" and self._job_candidate is not handle)
+            or (
+                kind == "scope"
+                and (
+                    type(claim) is not ChildJobScopeClaim
+                    or self._prepared_scopes.get(claim.scope_id) is not handle
+                )
+            )
+        ):
+            raise ChildReleaseUnavailableError("control_operation_owner_mismatch")
+        liveness = control._control_liveness_for_core(self)
+        if type(liveness) is not _BorrowedControlLiveness:
+            raise ChildReleaseUnavailableError("control_operation_liveness_not_established")
+        with self._lock:
+            key = (kind, id(handle))
+            if (
+                key in self._control_issued
+                or self._state != ("preparing" if kind == "authorization" else "open")
+                or len(self._control_issued) >= _JOB_COLLECTION_MAX_ITEMS
+            ):
+                raise ChildReleaseUnavailableError("control_operation_already_issued")
+            operation = _ChildControlOperation(
+                self, handle, claim, kind, control, liveness, token=_CHILD_CONTROL_OPERATION_TOKEN
+            )
+            self._control_issued[key] = handle
+            self._control_operations[id(operation)] = operation
+        return operation
 
     def job_session_intent(self, binding: ChildComputationBinding) -> ChildJobSessionIntent:
         """Create the owner-held parent locator before any child computation."""
@@ -2830,7 +3168,7 @@ class ChildComputationCustody:
                 )
                 if result is not None:
                     raise ChildReleaseUnavailableError("job_owner_verifier_protocol_invalid")
-            local_tail = self._root_preflight(self._binding) if job_authorization is None else None
+            local_tail = self._root_preflight(self._binding)
             fence = (
                 self._fence.publication()
                 if self._fence is not None and job_authorization is None
@@ -2845,6 +3183,7 @@ class ChildComputationCustody:
                 fence,
                 self._root._parent_state_transition_lease(run_scoped=False),
                 self._lock,
+                self._local_consumption(),
                 registration,
             ):
                 if job_authorization is None:

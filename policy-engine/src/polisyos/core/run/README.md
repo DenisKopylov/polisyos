@@ -15,6 +15,17 @@ slot. The existing public `trace_path` projection remains readable for execution
 and cache consumers, and the view detaches mutable manifest reads. Returning a
 path does not sandbox filesystem access through that reference.
 
+`ChildRuntimeCapability` is a separate child-purpose capability; a worker
+receipt does not issue it. Its current factory reconciles an existing Core
+child session with the live parent and fixed, source-verified Runtime control
+owner. Core records one-use session, scope, and release decisions that the
+registered control worker can consume without receiving the parent's execution
+grant. This factory does not establish the origin of the earlier custody
+appointment or appoint a production child workflow.
+The job lease is freshly checked before local consumption, but that SQLite
+observation is not atomic with the subsequent CAS-head commit. A lease-row
+change not yet reflected in parent revocation remains unestablished there.
+
 The parent admits a receipt only through the existing Core
 `RunContext.merge_worker_events` writer. That path rechecks the active owner,
 dispatch identity, current owner snapshot, selected-profile artifact bytes,

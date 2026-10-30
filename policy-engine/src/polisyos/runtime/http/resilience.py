@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import contextvars
 import hashlib
+import json
 import math
 import os
 import sqlite3
@@ -32,6 +33,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
     from pathlib import Path
 
+    from polisyos.common.borrowed_execution import _BorrowedControlLiveness
     from polisyos.core.artifacts import (
         ArtifactID,
         ArtifactMemberReceipt,
@@ -49,6 +51,7 @@ if TYPE_CHECKING:
     )
     from polisyos.core.artifacts._transfer_ops import ImportPublication
     from polisyos.core.run.child_custody import ChildComputationCustody
+    from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
     from polisyos.scientist.validation.source_admission_owner import _RegisteredSourceAdmissionOwner
 
 from polisyos.common.async_tools import create_dependency_executor
@@ -824,8 +827,8 @@ def build_runtime_opa_async_guard() -> AsyncDependencyGuard:
 
 
 @dataclass(frozen=True, slots=True)
-class _RuntimeFilesystemGuardBinding:
-    backend: FileSystemCAS
+class _RuntimeGuardBinding:
+    backend: object
     guard: BlockingDependencyGuard
     snapshot: _BlockingGuardSnapshot
     breaker: object
@@ -836,12 +839,25 @@ class _RuntimeFilesystemGuardBinding:
     unavailable_exception_predicate: object
     proxy_revision: object
     guard_revision: object
+    guard_lifecycle_revision: object
     registration_revision: object
+
+
+@dataclass(frozen=True, slots=True)
+class _RuntimeFilesystemGuardBinding(_RuntimeGuardBinding):
+    backend: FileSystemCAS
+
+
+@dataclass(frozen=True, slots=True)
+class _RuntimeControlStoreGuardBinding(_RuntimeGuardBinding):
+    backend: ControlPlaneStore
 
 
 # Capture the actual Runtime implementation, not an instance-supplied runner.
 _RUNTIME_CAS_GUARD_FACTORY = build_runtime_cas_guard
 _RUNTIME_CAS_GUARD_FACTORY_CODE = build_runtime_cas_guard.__code__
+_RUNTIME_CONTROL_GUARD_FACTORY = build_runtime_control_store_guard
+_RUNTIME_CONTROL_GUARD_FACTORY_CODE = build_runtime_control_store_guard.__code__
 _RUNTIME_BLOCKING_GUARD_CODE = BlockingDependencyGuard._run_snapshot.__code__
 _ACTIVE_REGISTERED_ACQUISITION_GUARD: contextvars.ContextVar[
     tuple[BlockingDependencyGuard, _BlockingGuardSnapshot, Callable[[Future[Any]], None]] | None
@@ -862,24 +878,18 @@ def _run_guarded_dependency[T](
 _RUNTIME_FILESYSTEM_GUARDS_LOCK = threading.RLock()
 
 
-class _RuntimeFilesystemGuardRegistry(
-    MutableMapping[GuardedDependencyProxy, _RuntimeFilesystemGuardBinding]
-):
+class _RuntimeGuardRegistry[B: _RuntimeGuardBinding](MutableMapping[GuardedDependencyProxy, B]):
     """Keep each registration's identity invalid after removal or replacement."""
 
     def __init__(self) -> None:
-        self._entries: WeakKeyDictionary[GuardedDependencyProxy, _RuntimeFilesystemGuardBinding] = (
-            WeakKeyDictionary()
-        )
+        self._entries: WeakKeyDictionary[GuardedDependencyProxy, B] = WeakKeyDictionary()
         self._revisions: WeakKeyDictionary[GuardedDependencyProxy, object] = WeakKeyDictionary()
 
-    def __getitem__(self, key: GuardedDependencyProxy) -> _RuntimeFilesystemGuardBinding:
+    def __getitem__(self, key: GuardedDependencyProxy) -> B:
         with _RUNTIME_FILESYSTEM_GUARDS_LOCK:
             return self._entries[key]
 
-    def __setitem__(
-        self, key: GuardedDependencyProxy, value: _RuntimeFilesystemGuardBinding
-    ) -> None:
+    def __setitem__(self, key: GuardedDependencyProxy, value: B) -> None:
         with key._runtime_lock, _RUNTIME_FILESYSTEM_GUARDS_LOCK:
             self._revisions[key] = (
                 object() if key in self._revisions else value.registration_revision
@@ -899,14 +909,76 @@ class _RuntimeFilesystemGuardRegistry(
         with _RUNTIME_FILESYSTEM_GUARDS_LOCK:
             return len(self._entries)
 
-    def is_current(
-        self, key: GuardedDependencyProxy, binding: _RuntimeFilesystemGuardBinding
-    ) -> bool:
+    def is_current(self, key: GuardedDependencyProxy, binding: B) -> bool:
         with _RUNTIME_FILESYSTEM_GUARDS_LOCK:
             return self._revisions.get(key) is binding.registration_revision
 
 
-_RUNTIME_FILESYSTEM_GUARDS = _RuntimeFilesystemGuardRegistry()
+_RUNTIME_FILESYSTEM_GUARDS = _RuntimeGuardRegistry[_RuntimeFilesystemGuardBinding]()
+_RUNTIME_CONTROL_STORE_GUARDS = _RuntimeGuardRegistry[_RuntimeControlStoreGuardBinding]()
+
+
+def _guard_binding_changed(
+    guarded_store: GuardedDependencyProxy, binding: _RuntimeGuardBinding
+) -> bool:
+    """Compare every dependency that the actual registered guard will use."""
+    return (
+        type(binding.guard) is not BlockingDependencyGuard
+        or guarded_store._runtime_binding_revision is not binding.proxy_revision
+        or binding.guard._runtime_binding_revision is not binding.guard_revision
+        or binding.guard._runtime_lifecycle_revision is not binding.guard_lifecycle_revision
+        or binding.guard._closed
+        or guarded_store._target is not binding.backend
+        or guarded_store._guard is not binding.guard
+        or binding.guard._dependency_name != binding.snapshot.dependency_name
+        or binding.guard._breaker is not binding.breaker
+        or binding.guard._executor is not binding.executor
+        or binding.guard._execution is not binding.execution
+        or binding.guard._timeout_seconds != binding.timeout_seconds
+        or binding.guard._unavailable_exception_types != binding.unavailable_exception_types
+        or binding.guard._unavailable_exception_predicate
+        is not binding.unavailable_exception_predicate
+    )
+
+
+def _capture_guard_binding[B: _RuntimeGuardBinding](
+    binding_type: type[B],
+    *,
+    backend: object,
+    proxy: GuardedDependencyProxy,
+    guard: BlockingDependencyGuard,
+) -> B:
+    """Snapshot the exact factory-produced proxy and its actual dependencies."""
+    return binding_type(
+        backend=backend,
+        guard=guard,
+        snapshot=_BlockingGuardSnapshot(
+            dependency_name=guard._dependency_name,
+            timeout_seconds=guard._timeout_seconds,
+            breaker=guard._breaker,
+            executor=guard._executor,
+            execution=guard._execution,
+            unavailable_exception_types=guard._unavailable_exception_types,
+            unavailable_exception_predicate=guard._unavailable_exception_predicate,
+        ),
+        breaker=guard._breaker,
+        executor=guard._executor,
+        execution=guard._execution,
+        timeout_seconds=guard._timeout_seconds,
+        unavailable_exception_types=guard._unavailable_exception_types,
+        unavailable_exception_predicate=guard._unavailable_exception_predicate,
+        proxy_revision=proxy._runtime_binding_revision,
+        guard_revision=guard._runtime_binding_revision,
+        guard_lifecycle_revision=guard._runtime_lifecycle_revision,
+        registration_revision=object(),
+    )
+
+
+def _require_runtime_guard_open(binding: _RuntimeGuardBinding) -> None:
+    """Preserve the existing unavailable error for a currently closed guard."""
+    if binding.guard._closed:
+        name = binding.snapshot.dependency_name
+        raise RuntimeDependencyUnavailableError(name, detail=f"{name} dependency guard is closed")
 
 
 def _require_runtime_filesystem_guard(
@@ -923,25 +995,361 @@ def _require_runtime_filesystem_guard(
         )
     if binding is None:
         raise ValueError("registered_sql_guard_binding_not_established")
+    _require_runtime_guard_open(binding)
     if (
         type(binding.backend) is not FileSystemCAS
-        or type(binding.guard) is not BlockingDependencyGuard
         or not registration_current
-        or guarded_store._runtime_binding_revision is not binding.proxy_revision
-        or binding.guard._runtime_binding_revision is not binding.guard_revision
-        or guarded_store._target is not binding.backend
-        or guarded_store._guard is not binding.guard
-        or binding.guard._dependency_name != binding.snapshot.dependency_name
-        or binding.guard._breaker is not binding.breaker
-        or binding.guard._executor is not binding.executor
-        or binding.guard._execution is not binding.execution
-        or binding.guard._timeout_seconds != binding.timeout_seconds
-        or binding.guard._unavailable_exception_types != binding.unavailable_exception_types
-        or binding.guard._unavailable_exception_predicate
-        is not binding.unavailable_exception_predicate
+        or _guard_binding_changed(guarded_store, binding)
     ):
         raise ValueError("registered_sql_guard_binding_changed")
     return binding
+
+
+def _require_runtime_control_store_guard(
+    guarded_store: object,
+) -> _RuntimeControlStoreGuardBinding:
+    """Reconcile the actual registered control-store proxy and executor."""
+    from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+
+    if type(guarded_store) is not GuardedDependencyProxy:
+        raise ValueError("registered_control_guard_binding_not_established")
+    with _RUNTIME_FILESYSTEM_GUARDS_LOCK:
+        binding = _RUNTIME_CONTROL_STORE_GUARDS.get(guarded_store)
+        registration_current = binding is not None and _RUNTIME_CONTROL_STORE_GUARDS.is_current(
+            guarded_store, binding
+        )
+    if binding is None:
+        raise ValueError("registered_control_guard_binding_not_established")
+    _require_runtime_guard_open(binding)
+    if (
+        type(binding.backend) is not ControlPlaneStore
+        or not registration_current
+        or _guard_binding_changed(guarded_store, binding)
+    ):
+        raise ValueError("registered_control_guard_binding_changed")
+    return binding
+
+
+class _RuntimeGuardedChildFence:
+    """Bind a child owner to the actual guarded control job and parent worker."""
+
+    __slots__ = (
+        "_admission",
+        "_binding",
+        "_budget",
+        "_cas_proxy",
+        "_cas_registration",
+        "_control_proxy",
+        "_control_registration",
+        "_grant",
+        "_root",
+        "_thread_id",
+        "cell_id",
+        "control_job_id",
+        "root_run_id",
+        "tenant_id",
+    )
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        if hasattr(self, name):
+            raise AttributeError("guarded child control binding is immutable")
+        object.__setattr__(self, name, value)
+
+    def __delattr__(self, name: str) -> None:
+        raise AttributeError("guarded child control binding is immutable")
+
+    def __init__(
+        self,
+        root: object,
+        guarded_control: object,
+        grant: _BorrowedExecutionGrant,
+        binding: object,
+    ) -> None:
+        from polisyos.core.run.child_custody import ChildComputationBinding
+        from polisyos.core.run.context import RunContext
+        from polisyos.runtime.http.services.control.child_execution_budget import (
+            _require_attempt_budget,
+        )
+        from polisyos.runtime.http.services.control_plane_store import ControlJobExecutionAdmission
+
+        if (
+            type(root) is not RunContext
+            or type(guarded_control) is not GuardedDependencyProxy
+            or type(grant) is not _BorrowedExecutionGrant
+            or type(binding) is not ChildComputationBinding
+            or binding.control_job_id is None
+        ):
+            raise ValueError("guarded_child_control_parent_not_established")
+        control = _require_runtime_control_store_guard(guarded_control)
+        cas = _require_runtime_filesystem_guard(root.store)
+        root._require_active_lease_owner()
+        root._validate_run_owner_binding()
+        fields = {
+            "run_id": binding.root_run_id,
+            "job_id": binding.control_job_id,
+            "attempt_id": binding.parent_attempt_id,
+            "basis_ref": _child_parent_basis_json(binding.parent_basis_ref),
+        }
+        grant.require_parent(**fields)
+        admission = guarded_control.current_execution_job_admission()
+        if type(admission) is not ControlJobExecutionAdmission:
+            raise ValueError("guarded_child_control_admission_not_established")
+        budget = _require_attempt_budget(
+            binding.control_job_id, binding.root_run_id, admission.attempt
+        )
+        if (
+            budget.control_store is not guarded_control
+            or grant._attempt.transition_lock is not budget.transition_lock
+            or grant._attempt.budget_uncertain is not budget.uncertain
+            or grant._attempt.lease_lost is not budget.interrupt.lost
+            or guarded_control.read_child_attempt_budget(binding.control_job_id, admission.attempt)
+            != budget.claim
+        ):
+            raise ValueError("guarded_child_control_budget_owner_mismatch")
+        self._root = root
+        self._control_proxy = guarded_control
+        self._control_registration = control
+        self._cas_proxy = root.store
+        self._cas_registration = cas
+        self._grant = grant
+        self._binding = binding.model_copy(deep=True)
+        self._admission = admission
+        self._budget = budget
+        self._thread_id = threading.get_ident()
+        self.root_run_id = binding.root_run_id
+        self.control_job_id = binding.control_job_id
+        self.tenant_id = binding.tenant_id
+        self.cell_id = binding.cell_id
+        self.check_active()
+
+    def _require_parent(self) -> None:
+        from polisyos.runtime.http.services.control.child_execution_budget import (
+            _require_attempt_budget,
+        )
+
+        if threading.get_ident() != self._thread_id:
+            raise ValueError("guarded_child_control_parent_thread_mismatch")
+        if (
+            self._root.store is not self._cas_proxy
+            or self._root._active_lease is None
+            or self._root._closed
+            or self._root._suspended
+            or _require_runtime_filesystem_guard(self._cas_proxy) is not self._cas_registration
+            or _require_runtime_control_store_guard(self._control_proxy)
+            is not self._control_registration
+            or _require_attempt_budget(
+                self.control_job_id, self.root_run_id, self._admission.attempt
+            )
+            is not self._budget
+        ):
+            raise ValueError("guarded_child_control_owner_changed")
+        self._root._require_active_lease_owner()
+        self._grant.require_parent(
+            run_id=self.root_run_id,
+            job_id=self.control_job_id,
+            attempt_id=self._binding.parent_attempt_id,
+            basis_ref=_child_parent_basis_json(self._binding.parent_basis_ref),
+        )
+
+    def check_active(self) -> None:
+        """Recheck the live job through its guard and the original parent worker."""
+        self._require_parent()
+        current = self._control_proxy.current_execution_job_admission()
+        self._check_admission(current)
+        self._require_parent()
+
+    @contextmanager
+    def local_consumption(self) -> Iterator[None]:
+        """Order a short Core consumption against revocation and guard changes.
+
+        The caller holds the Root/custody locks first. Job reads and copying
+        finish before this guard; the original parent grant stays thread-affine.
+        """
+        with (
+            self._control_proxy._runtime_lock,
+            self._control_registration.guard._runtime_lock,
+            self._grant.publication(),
+        ):
+            self._require_parent()
+            yield
+
+    def _check_admission(self, current: object) -> None:
+        from polisyos.runtime.http.services.control_plane_store import ControlJobExecutionAdmission
+
+        expected = self._admission
+        if (
+            type(current) is not ControlJobExecutionAdmission
+            or current.job.job_id != expected.job.job_id
+            or current.job.run_id != expected.job.run_id
+            or current.job.lease_owner != expected.job.lease_owner
+            or current.attempt != expected.attempt
+            or current.scope != expected.scope
+            or current.job.effective_execution_profile != expected.job.effective_execution_profile
+            or current.admission_capability_manifest_ref
+            != expected.admission_capability_manifest_ref
+            or (
+                current.job.run_id,
+                current.job.job_id,
+                current.scope.tenant_id,
+                current.scope.cell_id,
+            )
+            != (self.root_run_id, self.control_job_id, self.tenant_id, self.cell_id)
+        ):
+            raise ValueError("guarded_child_control_admission_changed")
+
+    def _check_control_admission(self, current: object) -> None:
+        self._require_control_worker()
+        self._check_admission(current)
+
+    def _control_liveness_for_core(self, owner: object) -> _BorrowedControlLiveness:
+        """Project current parent liveness for a Core-owned one-use decision."""
+        from polisyos.core.run.child_custody import ChildComputationCustody
+
+        self._require_parent()
+        control_identity: object = self
+        if type(owner) is not ChildComputationCustody or (
+            owner._root is not self._root or owner._fence is not control_identity
+        ):
+            raise ValueError("guarded_child_control_session_mismatch")
+        return self._grant._control_liveness(
+            run_id=self.root_run_id,
+            job_id=self.control_job_id,
+            attempt_id=self._binding.parent_attempt_id,
+            basis_ref=_child_parent_basis_json(self._binding.parent_basis_ref),
+        )
+
+    def _require_control_worker(self) -> None:
+        """Check the exact live registered guard execution, without parent authority."""
+        if (
+            threading.get_ident() == self._thread_id
+            or _require_runtime_control_store_guard(self._control_proxy)
+            is not self._control_registration
+        ):
+            raise ValueError("guarded_child_control_worker_not_established")
+        current = getattr(self._control_registration.guard._execution, "attempt", None)
+        if type(current) is not _BlockingAttempt:
+            raise ValueError("guarded_child_control_worker_not_established")
+        with current.transition_lock:
+            if current.revoked or time.monotonic() >= current.deadline:
+                raise ValueError("guarded_child_control_worker_not_established")
+
+    def begin_session(self, intent: object) -> object:
+        """Commit one Core-owned session decision through the actual guard."""
+        from polisyos.core.artifacts.child_release import ChildJobReleaseLocator
+        from polisyos.core.run.child_custody import (
+            ChildComputationOutcomeUnknown,
+            ChildJobSessionIntent,
+            ChildSessionAdmissionUnknown,
+        )
+
+        self._require_parent()
+        if type(intent) is not ChildJobSessionIntent:
+            raise ValueError("guarded_child_session_intent_invalid")
+        operation = intent._issue_guarded_operation(self)
+        recovery = operation._recovery()
+        attempted = threading.Event()
+        committed = threading.Event()
+        try:
+            locator = self._control_proxy._record_child_job_event(
+                None,
+                None,
+                None,
+                kind="session",
+                control_operation=operation,
+                on_transaction_attempt=attempted.set,
+                on_transaction_committed=committed.set,
+            )
+            self._require_parent()
+            if type(locator) is not ChildJobReleaseLocator:
+                raise ValueError("guarded_child_session_locator_invalid")
+            return locator
+        except BaseException as exc:
+            if isinstance(exc, ChildComputationOutcomeUnknown):
+                raise
+            if (
+                isinstance(exc, RuntimeDependencyTimeoutError | RuntimeDependencyUnavailableError)
+                or committed.is_set()
+                or (attempted.is_set() and isinstance(exc, OSError | sqlite3.Error))
+            ):
+                raise ChildSessionAdmissionUnknown(recovery) from exc
+            raise
+
+    def authorize_release(self, candidate: object) -> object:
+        """Commit one Core-owned release decision through the actual guard."""
+        from polisyos.core.artifacts.child_release import ChildJobReleaseLocator
+        from polisyos.core.run.child_custody import ChildJobReleaseCandidate
+
+        self._require_parent()
+        if type(candidate) is not ChildJobReleaseCandidate:
+            raise ValueError("guarded_child_release_candidate_invalid")
+        operation = candidate._issue_guarded_operation(self)
+        locator = self._control_proxy._record_child_job_event(
+            None, None, None, kind="authorization", control_operation=operation
+        )
+        self._require_parent()
+        if type(locator) is not ChildJobReleaseLocator:
+            raise ValueError("guarded_child_release_locator_invalid")
+        return locator
+
+    def admit_prepared_scope(self, prepared: object) -> object:
+        """Commit and reconcile one Core-owned child-scope decision."""
+        from polisyos.core.artifacts.child_release import ChildJobReleaseLocator, ChildJobScopeClaim
+        from polisyos.core.run.child_custody import (
+            ChildComputationOutcomeUnknown,
+            ChildPreparedScope,
+            ChildScopeAdmissionUnknown,
+        )
+
+        self._require_parent()
+        if type(prepared) is not ChildPreparedScope:
+            raise ValueError("guarded_child_scope_invalid")
+        operation = prepared._issue_guarded_operation(self)
+        recovery, claim_json = operation._scope_recovery()
+        locator: ChildJobReleaseLocator | None = None
+        try:
+            result = self._control_proxy._record_child_scope(control_operation=operation)
+            if (
+                type(result) is not tuple
+                or len(result) != 2
+                or type(result[0]) is not ChildJobReleaseLocator
+                or type(result[1]) is not ChildJobScopeClaim
+                or result[1] != ChildJobScopeClaim.model_validate_json(claim_json)
+            ):
+                raise ValueError("guarded_child_scope_locator_invalid")
+            locator = result[0]
+            self._require_parent()
+            return prepared.complete(locator)
+        except BaseException as exc:
+            if isinstance(exc, ChildComputationOutcomeUnknown):
+                raise
+            if (
+                isinstance(exc, RuntimeDependencyTimeoutError | RuntimeDependencyUnavailableError)
+                or locator is not None
+            ):
+                raise ChildScopeAdmissionUnknown(
+                    recovery, scope_claim_json=claim_json, scope_locator=locator
+                ) from exc
+            raise
+
+
+def _child_parent_basis_json(ref: object) -> str:
+    from polisyos.core.artifacts import ArtifactRef
+
+    if type(ref) is not ArtifactRef or not ref.manifest_profile_sha256:
+        raise ValueError("guarded_child_parent_basis_invalid")
+    return json.dumps(
+        ref.model_dump(mode="json"), sort_keys=True, separators=(",", ":"), ensure_ascii=True
+    )
+
+
+def _bootstrap_guarded_child_control_fence(
+    root: object,
+    guarded_control: object,
+    grant: _BorrowedExecutionGrant,
+    binding: object,
+) -> _RuntimeGuardedChildFence:
+    """Bind the actual Runtime control guard to the current parent attempt."""
+    return _RuntimeGuardedChildFence(root, guarded_control, grant, binding)
 
 
 def run_guarded_cas_operation[T](guarded_store: object, operation: Callable[[], T]) -> T:
@@ -1022,6 +1430,16 @@ class ChildGuardedReadOwner:
         """Recheck both exact registry entries before Core owner decisions."""
         if threading.get_ident() != self._owner_thread:
             raise ValueError("child_read_owner_thread_mismatch")
+        self._check_registrations()
+
+    def require_control_registration(self, control: object) -> None:
+        """Recheck registrations for a Core-owned operation on its control worker."""
+        if type(control) is not _RuntimeGuardedChildFence:
+            raise ValueError("guarded_child_control_worker_not_established")
+        control._require_control_worker()
+        self._check_registrations()
+
+    def _check_registrations(self) -> None:
         if (
             _require_runtime_filesystem_guard(self._served_proxy) is not self._served_registration
             or _require_runtime_filesystem_guard(self._stage_proxy) is not self._stage_registration
@@ -1559,34 +1977,32 @@ def guard_runtime_cas(target: Any) -> GuardedDependencyProxy:
         and type(guard) is BlockingDependencyGuard
         and type(guard._breaker) is CircuitBreaker
     ):
-        binding = _RuntimeFilesystemGuardBinding(
-            backend=target,
-            guard=guard,
-            snapshot=_BlockingGuardSnapshot(
-                dependency_name=guard._dependency_name,
-                timeout_seconds=guard._timeout_seconds,
-                breaker=guard._breaker,
-                executor=guard._executor,
-                execution=guard._execution,
-                unavailable_exception_types=guard._unavailable_exception_types,
-                unavailable_exception_predicate=guard._unavailable_exception_predicate,
-            ),
-            breaker=guard._breaker,
-            executor=guard._executor,
-            execution=guard._execution,
-            timeout_seconds=guard._timeout_seconds,
-            unavailable_exception_types=guard._unavailable_exception_types,
-            unavailable_exception_predicate=guard._unavailable_exception_predicate,
-            proxy_revision=proxy._runtime_binding_revision,
-            guard_revision=guard._runtime_binding_revision,
-            registration_revision=object(),
+        binding = _capture_guard_binding(
+            _RuntimeFilesystemGuardBinding, backend=target, proxy=proxy, guard=guard
         )
         _RUNTIME_FILESYSTEM_GUARDS[proxy] = binding
     return proxy
 
 
 def guard_runtime_control_store(target: Any) -> GuardedDependencyProxy:
-    return GuardedDependencyProxy(target=target, guard=build_runtime_control_store_guard())
+    from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+
+    if build_runtime_control_store_guard is _RUNTIME_CONTROL_GUARD_FACTORY:
+        factory = FunctionType(_RUNTIME_CONTROL_GUARD_FACTORY_CODE, globals())
+        guard = factory()
+    else:
+        guard = build_runtime_control_store_guard()
+    proxy = GuardedDependencyProxy(target=target, guard=guard)
+    if (
+        type(target) is ControlPlaneStore
+        and build_runtime_control_store_guard is _RUNTIME_CONTROL_GUARD_FACTORY
+        and type(guard) is BlockingDependencyGuard
+        and type(guard._breaker) is CircuitBreaker
+    ):
+        _RUNTIME_CONTROL_STORE_GUARDS[proxy] = _capture_guard_binding(
+            _RuntimeControlStoreGuardBinding, backend=target, proxy=proxy, guard=guard
+        )
+    return proxy
 
 
 __all__ = [

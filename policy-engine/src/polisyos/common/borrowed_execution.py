@@ -62,6 +62,56 @@ class _BlockingAttempt:
             self.revoked = True
 
 
+_CONTROL_LIVENESS_TOKEN = object()
+
+
+class _BorrowedControlLiveness:
+    """Read-only liveness of an owner-verified attempt, not an execution grant.
+
+    Core may retain this inside a separately owner-issued, one-use operation
+    handle. It cannot run work, admit a child, or publish an effect by itself.
+    """
+
+    __slots__ = ("__attempt", "__binding", "__grant_identity")
+
+    def __init__(
+        self,
+        attempt: _BlockingAttempt,
+        binding: tuple[str, str | None, str, str],
+        grant_identity: int,
+        *,
+        token: object,
+    ) -> None:
+        if token is not _CONTROL_LIVENESS_TOKEN:
+            raise TypeError("borrowed_control_liveness_not_owner_issued")
+        self.__attempt = attempt
+        self.__binding = binding
+        self.__grant_identity = grant_identity
+
+    def _require_current(self) -> None:
+        """Reconcile the original live attempt without transferring its grant."""
+        attempt = self.__attempt
+        with attempt.transition_lock:
+            grant = attempt.grant
+            if (
+                attempt.revoked
+                or grant is None
+                or id(grant) != self.__grant_identity
+                or grant._parent_binding != self.__binding
+                or time.monotonic() >= attempt.deadline
+                or (attempt.budget_uncertain is not None and attempt.budget_uncertain.is_set())
+                or (attempt.lease_lost is not None and attempt.lease_lost.is_set())
+            ):
+                raise RuntimeError("borrowed_execution_admission_not_current")
+
+    @contextmanager
+    def _admission(self) -> Iterator[None]:
+        """Order one short owner decision against actual attempt revocation."""
+        with self.__attempt.transition_lock:
+            self._require_current()
+            yield
+
+
 class _BorrowedExecutionGrant:
     """Thread-affine continuation of an actual running guard worker.
 
@@ -113,6 +163,19 @@ class _BorrowedExecutionGrant:
                 basis_ref,
             ):
                 raise RuntimeError("borrowed_execution_parent_binding_mismatch")
+
+    def _control_liveness(
+        self, *, run_id: str, job_id: str | None, attempt_id: str, basis_ref: str
+    ) -> _BorrowedControlLiveness:
+        """Capture only liveness after checking the actual owning thread and basis."""
+        binding = (run_id, job_id, attempt_id, basis_ref)
+        with self._attempt.transition_lock:
+            self._check_locked()
+            if self._parent_binding != binding:
+                raise RuntimeError("borrowed_execution_parent_binding_mismatch")
+            return _BorrowedControlLiveness(
+                self._attempt, binding, id(self), token=_CONTROL_LIVENESS_TOKEN
+            )
 
     @property
     def deadline_monotonic(self) -> float:

@@ -4176,9 +4176,10 @@
         {
           "module": "polisyos.core.run.worker_lifecycle",
           "facade_mode_observed": "eager_exports",
-          "export_count": 4,
-          "known_export_count": 4,
+          "export_count": 5,
+          "known_export_count": 5,
           "exports": [
+            "ChildRuntimeCapability",
             "WorkerDispatchBinding",
             "WorkerLifecycleCapability",
             "WorkerRunSnapshot",
@@ -4208,8 +4209,8 @@
                 "path": "src/polisyos/core/run/worker_lifecycle.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 19637,
-                "sha256": "2ba6f518ea40315f879aaa12ba9b73f64ac4d1da7cf15d2002f1e9feef90d01a"
+                "bytes": 25772,
+                "sha256": "8d483eb0a8ba217535ec570f429e1c0882503b97b99a52d713e239a151a61eed"
               },
               {
                 "path": "src/polisyos/core/run/worker_lifecycle",

@@ -798,6 +798,133 @@ def test_native_forecast_survives_persisted_report_readback(tmp_path, monkeypatc
         load_native_forecast(FileSystemCAS(store.root), forecast_ref, request_ref)
 
 
+def test_native_report_reaches_persisted_reissued_decision_packet(tmp_path):
+    """A later Engine packet consumes the real selected report and refuses a forgery."""
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.core.run.manifest import RunManifest
+    from polisyos.ir.analytics.backtest import persist_backtest_report
+    from polisyos.scientist.methods.backtesting.native_replay import load_native_backtest_report
+    from polisyos.scientist.nodes.builtins.decide.decision_packet.builder import (
+        BuildDecisionPacketNode,
+    )
+    from polisyos.scientist.nodes.builtins.governance.run_governance import RunGovernanceNode
+    from polisyos.scientist.nodes.builtins.planning.run_evaluator import RunEvaluatorNode
+    from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_BACKTEST_REPORT_REF
+    from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor, WorkflowReport
+    from polisyos.scientist.orchestration.engine.registry import NodeRegistry
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
+    from polisyos.scientist.orchestration.workflows.builder import build_execution_context
+    from polisyos.scientist.orchestration.workflows.default import default_workflow_spec
+
+    store, plan = _fixture(tmp_path, count=1)
+    _, report_ref = BacktestOrchestrator(cas=store).run_with_ref([plan])
+    reader = FileSystemCAS(store.root)
+    report_ref = ArtifactRef.model_validate(report_ref.model_dump(mode="json"))
+    report = load_native_backtest_report(reader, report_ref)
+
+    # Keep the report's source edges and residual statistics valid while making
+    # one comparison disagree with its selected native trajectory.
+    scenario = report.scenarios[0]
+    assert report.prediction_mode_effective == "scientist"
+    assert scenario.metadata["native_workflow_status"] == "ok"
+    assert [row.y_pred for row in scenario.outcome_comparisons] == pytest.approx([1.5, 1.0])
+    first = scenario.outcome_comparisons[0]
+    shifted_truth = -first.y_true
+    shifted_prediction = shifted_truth + (first.y_pred - first.y_true)
+    shifted = first.model_copy(update={"y_pred": shifted_prediction, "y_true": shifted_truth})
+    forged_scenario = scenario.model_copy(
+        update={"outcome_comparisons": [shifted, *scenario.outcome_comparisons[1:]]}
+    )
+    forged_report = report.model_copy(update={"scenarios": [forged_scenario]})
+    forged_ref = ArtifactRef.model_validate(
+        persist_backtest_report(
+            ensure_ir_artifact_store(reader),
+            forged_report,
+            inputs=reader.get_manifest(report_ref).inputs,
+        ).model_dump(mode="json")
+    )
+    with pytest.raises(ValueError, match="predictions differ from verified trajectory"):
+        load_native_backtest_report(reader, forged_ref)
+
+    # Reissue through the actual default workflow's governance/evaluation/packet
+    # invocations, after the producer has returned the selected report. Only
+    # unrelated earlier nodes are excluded from this bounded later execution.
+    default = default_workflow_spec()
+    invocations = {node.alias: node for node in default.nodes}
+    workflow = default.model_copy(
+        update={
+            "nodes": [
+                invocations["run_governance"].model_copy(update={"depends_on": []}),
+                invocations["run_evaluator"],
+                invocations["refresh_governance"],
+                invocations["build_decision_packet"].model_copy(
+                    update={"depends_on": ["refresh_governance"]}
+                ),
+            ],
+            "required_binds": ["run_id"],
+        }
+    )
+    registry_ref = ArtifactRef.model_validate(plan.scientist_state["inputs"]["registry_bundle_ref"])
+
+    def issue_packet(selected_report_ref, run_id):
+        context = build_execution_context(reader, registry_ref, run_id=run_id)
+        registry = NodeRegistry()
+        for node in (RunGovernanceNode(), RunEvaluatorNode(), BuildDecisionPacketNode()):
+            registry.register(node)
+        initial = ExperimentState(
+            run_id=run_id,
+            inputs={"registry_bundle_ref": registry_ref},
+            artifacts_index={ARTIFACT_BACKTEST_REPORT_REF: selected_report_ref},
+            params={"random_seed": 12},
+        )
+        result = WorkflowExecutor(context, registry).execute(workflow, initial)
+        assert result.run_ref is not None
+        fresh_store = FileSystemCAS(store.root)
+        run = RunManifest.model_validate(load_core_json_artifact(fresh_store, result.run_ref))
+        finalization_ref = next(
+            ref for ref in run.outputs if ref.kind == "scientist.workflow_state_finalization"
+        )
+        finalization = load_core_json_artifact(fresh_store, finalization_ref)
+        final_state = ExperimentState.model_validate(
+            load_core_json_artifact(
+                fresh_store, ArtifactRef.model_validate(finalization["final_state_ref"])
+            )
+        )
+        workflow_ref = final_state.reports_index["workflow_report"]
+        persisted_workflow = WorkflowReport.model_validate(
+            load_core_json_artifact(fresh_store, workflow_ref)
+        )
+        records = {node.alias: node for node in persisted_workflow.nodes}
+        assert {alias: node.status for alias, node in records.items()} == {
+            "run_governance": "ok",
+            "run_evaluator": "ok",
+            "refresh_governance": "ok",
+            "build_decision_packet": "ok",
+        }
+        packet_ref = final_state.artifacts_index["decision_packet_ref"]
+        assert packet_ref in records["build_decision_packet"].artifacts
+        assert packet_ref in run.outputs
+        assert input_ref_from_artifact_ref(selected_report_ref, role="backtest.report_ref") in (
+            fresh_store.get_manifest(packet_ref).inputs
+        )
+        packet = load_core_json_artifact(fresh_store, packet_ref)
+        assert packet["governance"]["currentness"] == "current"
+        assert packet["backtest"]["report_ref"] == str(selected_report_ref.artifact_id)
+        return packet["backtest"]
+
+    good = issue_packet(report_ref, "native-packet-positive")
+    assert good["backtest_report_status"] == "available"
+    assert good["overall_rmse"] == report.overall_rmse
+    assert good["degraded"] and not good["trust_eligible"]
+    assert good["trust_score"] is None
+
+    bad = issue_packet(forged_ref, "native-packet-forged")
+    assert bad["backtest_report_status"] == "unavailable"
+    assert not bad["trust_eligible"]
+    assert bad["trust_score"] is None
+    assert "overall_rmse" not in bad
+
+
 def test_native_mixed_with_legacy_cohort_reopens_selected_report(tmp_path, monkeypatch):
     """A native batch can census a real legacy cohort without changing legacy-only writes."""
     from polisyos.ir.analytics.backtest import persist_backtest_report

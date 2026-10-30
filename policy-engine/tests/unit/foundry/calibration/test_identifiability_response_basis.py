@@ -2237,7 +2237,7 @@ def test_response_reader_does_not_reinterpret_new_batch_basis_as_v1_0(tmp_path):
     )
     response = load_execute_response_basis_candidate(store, selected)
     assert isinstance(response, ExecuteResponseBasisCandidate)
-    source_basis = admit_execution_source(store, selected).basis
+    source_basis = admit_execution_source(store, source).basis
     registry = load_registry_bundle_content(store, source_basis.runtime_registry_ref)
     graph = ProgramGraph.model_validate(
         from_canonical_bytes(store.get_bytes(source_basis.program_graph_ref))

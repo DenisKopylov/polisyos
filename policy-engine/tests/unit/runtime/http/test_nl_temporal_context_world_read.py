@@ -290,7 +290,7 @@ async def _exercise(
                 raise AssertionError("same-ref replay consumed a changed Fabric view")
             if resolve_child:
                 child_fields = root_problem.model_dump(mode="json")
-                child_fields["design_problem_id"] += "-child"
+                child_fields["design_problem_id"] += "_child"
                 child_fields["problem_statement"] += " Resolve a distinct child input."
                 child_problem = type(root_problem).model_validate(child_fields)
                 observed["contexts"].append(resolver(child_problem))

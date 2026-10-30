@@ -7,7 +7,7 @@ Current organization and status: [E02-WORK-PLAN.md](../../../../../E02-WORK-PLAN
 - Original owners: [TASKS](unified-local-2026-10-09/TASKS.json), [coverage](../closure-decisions/coverage.json), source bundles and their exact criterion occurrences. Preserve the 26 rows and repeated occurrences; never replace them with helper/patch counts.
 - Use `results/query.py`, baseline cells and the existing owner/route indices for a concrete failure question, not a full-history context dump. Baseline PASS/FAIL belongs to its source, input and backend, not every later candidate. Read original producer/artifact/bridge/consumer and the relevant failure-register entries.
 - Preserve accepted G decisions and historical closures. LLM output and fixtures remain candidates, not invented law/issuer/permission/calibration/currentness. Missing authority limits the affected claim, not unrelated engineering.
-- The latest user instruction controls execution/publication scope. The earlier main preservation delivery is complete. Current work authorizes operating-instruction corrections only; product composition/publication, branch retirement and cloud tasks remain paused until resumed. Do not infer cleanup or another external action from a workflow template.
+- The latest user instruction controls execution/publication scope. The earlier main preservation delivery is complete. Active task scope and pauses are recorded only in the root work plan; follow the latest explicit execution authorization. Do not infer cleanup or another external action from a workflow template.
 
 ## Visible authorship and useful parallelism
 

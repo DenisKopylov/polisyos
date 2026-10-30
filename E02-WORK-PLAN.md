@@ -1,6 +1,6 @@
 # E02 work plan: visible development, composition and branch retirement
 
-**Status:** operating-instruction corrections authorized and applied on 30 October 2026. Product composition, branch retirement, environment work and cloud tasks remain paused. This instruction-only checkpoint does not start those operations. A later execution authorization uses this plan without another general planning round.
+**Status:** execution resumed by the user on 30 October 2026. Product composition, regression checks and safe retirement of reviewed branches are authorized. Work remains local; no cloud tasks or filesystem cleanup are authorized.
 
 **Goal:** integrate useful existing work into tested product behavior in `origin/main`, remove obsolete branches, and replace hidden development and repetitive paperwork with one visible work cycle.
 
@@ -10,7 +10,7 @@
 
 Use the existing `/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos` checkout on `codex/e02-unified-local-20261009`; publish ready product changes to `origin/main`. The older local `main` is occupied by `8dda`. Reattach the app/review view to the canonical workspace first. Fast-forward an idle clean local-main worktree later, after checking untracked collisions; do not move its occupied ref behind its back. Do not develop in the primary or G checkout.
 
-This is the **only current execution plan/status document** after approval. Original [TASKS](policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json) and [criterion coverage](policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json) remain the requirements. Historical plans stay as references. Edit current status here in place; Git supplies history. No dated progress copies, plan per helper or replacement C/R-number backlog.
+This is the **only current execution plan/status document**. Original [TASKS](policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json) and [criterion coverage](policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json) remain the requirements. Historical plans stay as references. Edit current status here in place; Git supplies history. No dated progress copies, plan per helper or replacement C/R-number backlog.
 
 | Area | Rule |
 | --- | --- |
@@ -119,7 +119,7 @@ Use persistent, correctly named domain owners; default Luna for suitable finite 
 ## 7. Execution sequence after approval
 
 - [x] **Correct the instructions:** apply section 2's repository-level workflow and skill-routing corrections. This is the authorized instruction-only change.
-- [ ] **Make the workspace visible:** bind the app to the canonical checkout before product work resumes; no checkout recreation.
+- [ ] **Workspace visibility:** attachment tool refused the canonical worktree because it is owned by another task. Continue with explicit canonical paths; no checkout recreation or ownership bypass. Open canonical files/reviews directly while app attachment is unresolved.
 - [ ] **Start integration and curation together:** begin section 4's ready lanes and the finite mechanism/ref review. The first checkpoint is integrated TC/spawn checks plus a real V3 diagnosis while child/N7 work progresses—not another source-only packet.
 - [ ] **Retire resolved branch groups:** transfer useful code, verify reachability/tips/protections, delete conditionally and read back. No waiting for unrelated E02 acceptance.
 - [ ] **Finish original routes:** maintain the single checklist below and original occurrence mapping; close internal producer/bridge/consumer defects and identify exact genuinely external inputs after real attempts.
@@ -137,7 +137,7 @@ No product source or tests are changed by this instruction checkpoint; the entri
 | DEC0 | Execute already selected decisions; ask G only genuine unresolved semantic choices. |
 | Q0 | Reconcile the individual original occurrences and useful legacy mechanisms; no aggregate source-inventory closure. |
 | Q1 | Complete CAN.3 affected readers, state/Foundry/cache and installed migration; preserve accepted CAN.2. |
-| Q2 | Complete TC selected-context/member closure and actual API/client/generated/installed consumers. |
+| Q2 | TC child-ID fixture integrated: normal module 17 PASS, 13.21 s, including fresh child read and missing-Fabric-row refusal (outputs `_cache/e02/tc`). Continue selected-member/API/client/generated/installed consumers. |
 | R1 | Finish required real-child contours and basis invalidation beyond the verified single contour. |
 | R2 | Preserve accepted B87/B89; keep provenance correction separate and recheck genuinely affected changes only. |
 | R3 | Observe the current original producer/cache pilot, then resolve and run the affected original 14-case routes. |

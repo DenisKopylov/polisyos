@@ -1285,8 +1285,8 @@
         {
           "module": "polisyos.core.artifacts",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 135,
-          "known_export_count": 135,
+          "export_count": 136,
+          "known_export_count": 136,
           "exports": [
             "AUTHORITY_ENVELOPE_ARTIFACT_KIND",
             "AUTHORITY_ENVELOPE_SCHEMA_NAME",
@@ -1377,6 +1377,7 @@
             "SignatureVerificationStatus",
             "SignatureVerifyingArtifactStore",
             "SigningConfig",
+            "VerifiableArtifactReader",
             "VerificationReport",
             "WarningRecord",
             "aload_core_json_artifact",
@@ -1448,8 +1449,8 @@
                 "path": "src/polisyos/core/artifacts/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 14500,
-                "sha256": "d69366d8f4e73b010bb36c3c3245d636b0080f39455093401763bc2afe03bcb5"
+                "bytes": 14562,
+                "sha256": "81c423202e396199b19a6bba6fa2293fba0b02618560e1b046b12e04e04c04d6"
               },
               {
                 "path": "src/polisyos/core/artifacts",

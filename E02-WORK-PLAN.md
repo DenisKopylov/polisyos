@@ -78,6 +78,67 @@ Reuse the existing [ref inventory](policy-engine/docs/research/e02-cloud-test-pl
 
 Decision table format in this same file: `mechanism | refs/tips via inventory | keep/adapt/reject/defer | resulting commit/test or obstacle | retired refs`. Later remove duplicated delivery archives from the current tree only after content decisions, useful-code transfer and verified historical access, via an ordinary reviewed commit. Do not rewrite history or delete historical RAW/filesystems now.
 
+### Composition and retirement results (30 October)
+
+- TC fixture correction: `fa32c74dd8e0b1d6f42b53a652f57e6edaae71cd`, normal pytest module 17 PASS; published and read back in both main and the author branch.
+- V3 refusal/round-trip repair: `70f7b636f`, independently reviewed two-path behavior, 9 focused + 8 guard/history + 1 served + 1 source-semantic fresh-reader PASS. Reviewed source/test hashes match committed bytes. The separate live-versus-historical family-matcher fix continues.
+- One annotated published archival tag `archive/e02-before-composition-20261030` peels to `0741080cfc026077483f551333f853203b33d52d`. It protects the initial branch history, without claiming semantic incorporation.
+- First retirement batch: **127 local refs + 15 remote refs / 137 unique reviewed tips**, atomically compared against their reviewed SHA and reread absent. Current/main/G/deployment and every registered worktree ref were excluded, including prunable registrations. Complete inventories after this batch: **351 local heads / 207 remote heads**. Ref deletion is not meaningful disk reclamation.
+
+Content disposition for this batch: current canonical mechanisms and mirrored tests account for the behavior, or stronger guards supersede the endpoint; lexical/research-only material is historical. Reject unproven REST cursor forwarding, permissive DoWhy/PAG/CAN alternatives and weaker backtest admission; retain history through the tag. Canonical owners include DFI facade/selection, CAS transfer/profile/read owner, Catalog/legal projection, Search lifecycle/stopping, generation context/frontier/history, calibration/uncertainty, forecast/backtest, migration and schema contracts. Original unfinished criteria remain in section 8. Unique useful untransferred E02 source/tests remain on old refs or an exact named active representative.
+
+<details><summary>First batch reviewed tip set (exact refs follow the existing inventory and occupied-ref exclusions)</summary>
+
+`0197fe58 051dbdf2 0a00a1f4 0af60cb5 0b38bd05 0ca14b75 0e65b08e 0e987eaf 126885e9 135288c6 13c4af3f 15a04c44 167674c7 16d54e8b 172e791c 19405cd2 1dca66fd 1ed15b0e 20692bbe 233ad9ba 26c014f8 285f0b67 2ac640c9 2b548c44 2eebc0b2 3181beff 31838cda 32b539f7 34ee268f 36e864a8 375b090b 38ae8518 397a449e 3c937944 3cc7d2cb 3dde887e 3fc84a34 44e35ecd 44e8f492 45fe660b 4b4656b8 4e9b3f2e 527f8551 537124e0 5610eba4 57405dc0 5ac91950 5c10f120 5e0c8018 62cb804f 63e21470 6486e6a6 6602fbd0 66136425 668e091f 689acc0c 6a391aec 6bb8b7f7 6ccd51e6 713d2edf 72c38fff 72ca933a 754357d1 77166daa 77739ce1 7798c5fc 79c2d82a 7a48a2a3 7d5b4f15 834c9fbc 8520e63c 88b34d1b 8a6f82e6 8b5067c7 8d652c86 8e588cbb 8f3d9753 90409a5b 94571bd8 9a952415 9b91395b a239f6f4 a502741e a5bf3d53 a7204961 ae4befed b4e72621 b69685b7 b72c7c8d b7c72683 b815e46f ba56fb46 ba5946eb bb78b2b6 bc3911f0 bcbe3ab8 bd949d39 be5383e7 bf1eca0d c1e3dd51 c6ada1e5 c886f63b c8c2319d cb9be630 cd73f360 d40d5713 d47ee070 d4fb677a d8d68550 da58bd54 dd17d149 dd2e9476 ded00804 dfaadaac e0d8a926 e182bd19 e18c23f3 e25b3c8d e4fab345 e7dc1655 e81077ce e8adb07e e9ab35ab ec412aff ef3f208d ef9eafef f0fae836 f293396e f73360bc f7af77f3 f7f9484b f857fa5a fba62c46 fc0f012a fcf164eb fd00ddba fe510123`
+
+</details>
+
+`_cache/e02` stores current run output, never hidden source. An additional Trash pass moved four inactive caches (9,852 KiB); no environments, production originals or code/docs were moved.
+
+### Full finite curation and second retirement batch
+
+The original inventory contains **478 local heads + 318 local remote-tracking refs** (796 refs / 700 unique SHAs), and **222 remote heads / 221 unique SHAs**. Their SHA intersection is 220: **701 unique SHAs in the union**, not 701 branch tips. The existing manifest selects 232 maximal tips; the sorted remaining set contains 469 SHAs. Thirty-six direct slices and 24 leaf slices reviewed these respective sets; root corrected three mistaken direct-slot assignments before using them.
+
+All 469 remaining positions were accounted for: **438 content-eligible / 31 retained**. Positions are zero-based in `sorted((local_inventory_SHA union remote_inventory_SHA) minus manifest_tip_SHA)`, using the pinned existing inventory files. Eligible inclusive ranges: `0-7, 9-12, 14-63, 65-73, 75-76, 78-101, 103-107, 109-114, 116-117, 119-156, 158-208, 210-212, 214-218, 220-234, 236-257, 259-265, 267-268, 270-277, 279-290, 292-310, 312-315, 317-337, 339-340, 342-347, 349-356, 358-361, 363-410, 412-413, 415-428, 430-431, 433-434, 436-468`. This exact set is replayable without another inventory/report. The retained positions below are the complement.
+
+Second conditional batch deleted **268 local + 108 remote branches**; all read back absent. It also verified 119 corresponding/stale origin tracking refs absent (108 removed by normal push, 11 removed with explicit SHA comparison). The archive's peeled target, live tips, GitHub protected/default refs and every registered worktree were reread before mutation. Protected/occupied refs remain. Cumulative branch deletions: **395 local + 123 remote**. Complete post-batch inventories: **83 local heads / 99 remote heads**. Additional maximal tips still need composition; these counts are neither capability counts nor E02 closure.
+
+Deliberate history-only deferrals include obsolete review/receipt/research packets whose original requirements remain in TASKS/coverage, and out-of-scope R9/GY/Atlas planning. Do not implement those future stages. Unique useful unfinished E02 source/tests are held; an open requirement in prose alone never justifies discarding its implementation ref. The identical native-replay portion of c40b2f57 is represented by retained 56417347; its distinct Bayesian bridge is already adapted.
+
+| Remaining-set index / tip | Why retained / next owner action |
+| --- | --- |
+| 8 / `052e7632` | Conditioned GP checkpoint equivalence and fake-restore control |
+| 13 / `082c28ef` | Policy-worker durable BudgetMiddleware admission |
+| 64 / `273616d3` | Neural CAS resume and nested RL state |
+| 74 / `2acc4c81` | Welfare GE-bound withholding and typed uniform carriers |
+| 77 / `2c773afb` | Next-owner requirement packet needs explicit reconciliation |
+| 102 / `3d18f37a` | Compiler/prompt-cache invalidation and settlement controls |
+| 108 / `3e762fba` | Lesson read/access-write throttling without full-index CAS snapshots |
+| 115 / `415621e8` | Broad D source/test endpoint not fully reconciled |
+| 118 / `42987be6` | C05 embedded source patch and facade companions |
+| 157 / `56417347` | Native predictive replay and admission; also represents identical c40b2f57 replay files |
+| 209 / `6e9bb8a2` | Final-artifact verifier and semantic controls |
+| 213 / `6f1e5e7a` | Fresh GET N8 replay and cross-process integration |
+| 219 / `70d05813` | Spawned worker removed-journal negative |
+| 235 / `789e9e90` | Streaming capacity-removal oracle |
+| 258 / `86584ad1` | Nested RNG restoration and persisted Sobol test |
+| 266 / `89f0520e` | Exact paid-ledger cache-custody reconciliation and conflict negatives |
+| 269 / `8ae1d552` | Unowned empty-subdirectory refusal control |
+| 278 / `8f58d734` | Persisted DOE receipt and fresh CAS sensitivity consumer |
+| 291 / `93d62af8` | Recursive simulation/N8/N5 CAS and hard-admission controls |
+| 311 / `a2276d5a` | Sampling admission and UQP/UQS controls |
+| 316 / `a30eb1a8` | IID/Bernstein, persisted DOE and native replay |
+| 338 / `b2dcf0ee` | Federation/backtest/calibration proposals need owner composition |
+| 341 / `b36168bc` | Bootstrap/pnpm/release-glob regression controls |
+| 348 / `b6b0d415` | Native replay implementation and tests |
+| 357 / `bc532b30` | Nested RL checkpoint, decay and plateau controls |
+| 362 / `c07f1be6` | Persisted welfare-draw lineage and reconciliation |
+| 411 / `e0c004fb` | Broad historical source/test endpoint lacks semantic crosswalk |
+| 414 / `e3f0103c` | Checkpoint sidecar cleanup/fsync/concurrent-reader tests |
+| 429 / `ed065a94` | Persisted code-graph identity and durable worker budget |
+| 432 / `ee6f2fb6` | Calibration, sampling, DOE, backtest, DDM and FRC source/tests |
+| 435 / `f07058a3` | Gaussian oracles now independently reviewed; commit the active test before retiring this ref |
+
 ## 4. First product composition front
 
 Select behavior against current owners, not the newest SHA or largest diff. Quick verification repairs and critical integrations run together; an unrelated lane's final acceptance is not a prerequisite.
@@ -157,7 +218,7 @@ This table records integrated results and next outcomes. During execution add th
 | V2 | Complete actual N4 children, N6 frontier/history and fresh reader with sibling/budget controls. |
 | V3 | Composed the three-failure repair in generation_cycle and its mirrored tests: N6-owned JSON array round-trip, refusal preservation and unbound-route suppression; scheduled tax-receipt positive plus unscheduled firm_survival negative. Independent review GO; 9 focused + 8 guard/history + 1 served COV PASS, normal pytest/JAX CPU profile, synthetic fixture data, full outputs once at `policy-engine/_cache/e02/v3/`. Source-semantic-enabled fresh-route consumer also PASS (1 case, 11.59 s, `_cache/e02/v3/semantic.*`). Wrong-family matcher red remains open with attribution not established; its live/historical repair is the next canonical-owner slice. No overall V3/G closure. |
 | V4 | N7 early launcher/recorder prerequisite integrated under six explicit paths: selected-role bindings, loader/remove-reimport controls, honest candidate fallback for test/diagnose when Git selection is unavailable. Independent GO; 25 source-level cases PASS (22 recorder + 3 bootstrap), outputs once `_cache/e02/n7/recorder-4.*`. This issues no authority. Next committed-HEAD launcher smoke, then real host/provider/stdlib/native and through-use qualification. Ordinary product alias-finder insertion currently refuses capture; reconcile its actual owner, do not weaken mutation detection. |
-| V5 | Preserve actual typed units/uncertainty through report/history; finish distinct GP/native and B157 paths. |
+| V5 | Independent Gaussian oracles integrated in the canonical Monte Carlo tests: exact axis/draw covariance, singular support, invalid-before-callback and joint non-authority. Full module 34 PASS (7.83 s, peak RSS ~537 MiB, CPU/one-thread profile), independent GO, output once `_cache/e02/gaussian/pytest.log`. No source owner changed. Explicit historical recipe fields, production joint provenance/units, persisted consumers and distinct GP/native/B157 routes remain. |
 | V6 | Establish valid exact-profile A/A then intended A/B and B13 basis/sibling behavior. |
 | V7 | Derive measured coverage from actual observations and preserve its meaning through the fresh served result. |
 | DX0 | Freeze actual package assets/origins and complete required native/installed/source-wheel/sdist/archive proofs. |

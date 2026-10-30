@@ -787,6 +787,7 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
         report_ref_media_type: str | None = None,
         node_ref_kind: str | None = None,
         node_ref_media_type: str | None = None,
+        node_ref_override: ArtifactRef | None = None,
         node_ref_conflicting_kind: str | None = None,
         node_ref_conflicting_media_type: str | None = None,
     ) -> Any:
@@ -848,7 +849,9 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
                     rebound_nodes.append(node)
                 continue
             node_artifacts = [
-                candidate_ref if ref.artifact_id == simulation_ref.artifact_id else ref
+                (node_ref_override or candidate_ref)
+                if ref.artifact_id == simulation_ref.artifact_id
+                else ref
                 for ref in node.artifacts
             ]
             if node_ref_kind is not None or node_ref_media_type is not None:
@@ -925,6 +928,80 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
             experiment_state_ref=state_ref,
             workflow_report_ref=report_ref,
         )
+
+    # Bind the actual producer bytes to the current exact view at this test
+    # boundary. If the producer returned a legacy profileless ref, this does
+    # not attest which manifest view the earlier producer selected.
+    with tenant_scope(None, tenant_id=_TENANT_ID, cell_id=_CELL_ID):
+        exact_simulation_ref = ArtifactRef.model_validate(
+            profile_bound_ref(store, simulation_ref).model_dump(mode="python")
+        )
+        actual_bytes = store.get_bytes(exact_simulation_ref)
+        actual_manifest = store.get_manifest(exact_simulation_ref)
+        alternate_ref = store.put_bytes(
+            actual_bytes,
+            PutOptions(
+                kind=exact_simulation_ref.kind,
+                media_type=exact_simulation_ref.media_type,
+                schema=actual_manifest.artifact_schema,
+                producer=ProducerInfo(
+                    component="polisyos.tests.res03.profile_adversary", version="1"
+                ),
+                tenant_context=actual_manifest.tenant_context,
+            ),
+            return_selected_profile=True,
+        )
+        assert store.verify(exact_simulation_ref).ok
+        assert store.verify(alternate_ref).ok
+        assert store.get_bytes(alternate_ref) == actual_bytes
+    assert exact_simulation_ref.manifest_profile_sha256 is not None
+    assert alternate_ref.artifact_id == exact_simulation_ref.artifact_id
+    assert alternate_ref.manifest_profile_sha256 != exact_simulation_ref.manifest_profile_sha256
+
+    exact_run = _run_rebound_to(exact_simulation_ref)
+    conflicting_run = _run_rebound_to(exact_simulation_ref, node_ref_override=alternate_ref)
+    candidate_url = f"/api/v1/debug/runs/{run_id}/nodes/run_simulation/simulation-result"
+    selector_params = (None, {"artifact_id": str(exact_simulation_ref.artifact_id)})
+    for params in selector_params:
+        with patch.object(runtime_context.run_index, "get_run", return_value=exact_run):
+            exact_response = client.get(candidate_url, params=params)
+        assert exact_response.status_code == 200, exact_response.text
+        exact_debug = exact_response.json()["debug"]
+        assert ArtifactRef.model_validate(exact_debug["artifact_ref"]) == exact_simulation_ref
+        assert exact_debug["authority_status"] == "non_authority"
+    for params in selector_params:
+        with patch.object(runtime_context.run_index, "get_run", return_value=conflicting_run):
+            conflicting_response = client.get(candidate_url, params=params)
+        assert conflicting_response.status_code == 409, conflicting_response.text
+        assert conflicting_response.json()["code"] == "simulation_result_node_binding_mismatch"
+        assert "debug" not in conflicting_response.json()
+
+    # Remove only the profile portion of the binding check. The real served
+    # consumer must then reveal the A/B escape with its success markers intact.
+    from polisyos.runtime.http.services import debug as debug_service
+
+    def identity_without_profile(
+        expected: ArtifactRef, candidates: tuple[ArtifactRef, ...]
+    ) -> None:
+        expected_identity = (expected.artifact_id, expected.kind, expected.media_type)
+        assert candidates and all(
+            (candidate.artifact_id, candidate.kind, candidate.media_type) == expected_identity
+            for candidate in candidates
+        )
+
+    with (
+        patch.object(
+            debug_service, "_require_exact_artifact_ref_binding", identity_without_profile
+        ),
+        patch.object(runtime_context.run_index, "get_run", return_value=conflicting_run),
+    ):
+        exposed_response = client.get(candidate_url)
+    assert exposed_response.status_code == 200, exposed_response.text
+    exposed = exposed_response.json()["debug"]
+    assert ArtifactRef.model_validate(exposed["artifact_ref"]) == exact_simulation_ref
+    assert exposed["projection_class"] == "candidate_reference_only"
+    assert exposed["authority_status"] == "non_authority"
+    assert exposed["integrity_status"] == "verified"
 
     unscoped_ref = store.put_json_unscoped(
         simulation_result.model_copy(

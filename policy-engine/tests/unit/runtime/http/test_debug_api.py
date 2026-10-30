@@ -938,3 +938,64 @@ def test_simulation_result_http_requires_exact_identity_for_every_same_id_node_r
             assert "debug" not in payload, f"{case_name}: {payload}"
             if expected_code is not None:
                 assert payload["code"] == expected_code, f"{case_name}: {payload}"
+
+
+@pytest.mark.parametrize("removed_check", ["profile", "unique_node"])
+def test_simulation_result_http_matrix_detects_removed_binding_checks(
+    simulation_result_api_env,
+    monkeypatch: pytest.MonkeyPatch,
+    removed_check: str,
+) -> None:
+    """Removing either binding property exposes a result despite unchanged markers."""
+    from polisyos.runtime.http.services import debug as debug_service
+
+    client = simulation_result_api_env["client"]
+    get = client.get
+    responses = []
+
+    def observed_get(*args, **kwargs):
+        response = get(*args, **kwargs)
+        responses.append(response)
+        return response
+
+    monkeypatch.setattr(client, "get", observed_get)
+    if removed_check == "profile":
+
+        def identity_without_profile(expected, candidates):
+            expected_identity = (expected.artifact_id, expected.kind, expected.media_type)
+            if not candidates or any(
+                (candidate.artifact_id, candidate.kind, candidate.media_type) != expected_identity
+                for candidate in candidates
+            ):
+                raise SimulationResultProjectionError(
+                    "simulation_result_node_binding_mismatch", "conflicting reference"
+                )
+
+        monkeypatch.setattr(
+            debug_service, "_require_exact_artifact_ref_binding", identity_without_profile
+        )
+        expected_failure = "node_only_valid_b_default"
+        expected_count = 3
+    else:
+
+        def first_named_node(payload, *, alias):
+            return next((row for row in payload["nodes"] if row.get("alias") == alias), None)
+
+        monkeypatch.setattr(debug_service, "_unique_workflow_report_node", first_named_node)
+        expected_failure = "duplicate_alias_same_ref_default"
+        expected_count = 15
+
+    with pytest.raises(AssertionError, match=f"{expected_failure}:"):
+        test_simulation_result_http_requires_exact_identity_for_every_same_id_node_ref(
+            simulation_result_api_env
+        )
+
+    assert len(responses) == expected_count
+    assert [response.status_code for response in responses[:2]] == [200, 200]
+    assert responses[-1].status_code == 200
+    positive = responses[0].json()["debug"]
+    exposed = responses[-1].json()["debug"]
+    assert exposed["artifact_ref"] == positive["artifact_ref"]
+    assert exposed["projection_class"] == "candidate_reference_only"
+    assert exposed["authority_status"] == "non_authority"
+    assert exposed["integrity_status"] == "verified"

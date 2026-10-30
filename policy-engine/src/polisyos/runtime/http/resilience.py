@@ -10,6 +10,7 @@ import os
 import sqlite3
 import threading
 import time
+from collections.abc import Iterator, MutableMapping
 from concurrent.futures import (
     CancelledError as FutureCancelledError,
 )
@@ -20,6 +21,7 @@ from concurrent.futures import (
 from concurrent.futures import (
     TimeoutError as FutureTimeoutError,
 )
+from contextlib import ExitStack, contextmanager
 from dataclasses import dataclass, replace
 from functools import wraps
 from types import FunctionType
@@ -206,6 +208,51 @@ class _GuardCompletionHandle:
 class BlockingDependencyGuard:
     """Protect one blocking dependency with timeout and a circuit breaker."""
 
+    _BINDING_FIELDS = frozenset(
+        {
+            "_dependency_name",
+            "_timeout_seconds",
+            "_breaker",
+            "_executor",
+            "_execution",
+            "_unavailable_exception_types",
+            "_unavailable_exception_predicate",
+        }
+    )
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        if (
+            name in {"_runtime_binding_revision", "_runtime_lifecycle_revision", "_runtime_lock"}
+            and name in self.__dict__
+        ):
+            raise AttributeError("runtime guard binding state is owner-controlled")
+        if name in BlockingDependencyGuard._BINDING_FIELDS | {"_closed"} and name in self.__dict__:
+            with self._runtime_lock:
+                revision = (
+                    "_runtime_lifecycle_revision"
+                    if name == "_closed"
+                    else "_runtime_binding_revision"
+                )
+                object.__setattr__(self, revision, object())
+                object.__setattr__(self, name, value)
+            return
+        object.__setattr__(self, name, value)
+
+    def __delattr__(self, name: str) -> None:
+        if name in {"_runtime_binding_revision", "_runtime_lifecycle_revision", "_runtime_lock"}:
+            raise AttributeError("runtime guard binding state is owner-controlled")
+        if name in BlockingDependencyGuard._BINDING_FIELDS | {"_closed"} and name in self.__dict__:
+            with self._runtime_lock:
+                revision = (
+                    "_runtime_lifecycle_revision"
+                    if name == "_closed"
+                    else "_runtime_binding_revision"
+                )
+                object.__setattr__(self, revision, object())
+                object.__delattr__(self, name)
+            return
+        object.__delattr__(self, name)
+
     def __init__(
         self,
         *,
@@ -218,6 +265,7 @@ class BlockingDependencyGuard:
         unavailable_exception_types: tuple[type[BaseException], ...] = (),
         unavailable_exception_predicate: Callable[[BaseException], bool] | None = None,
     ) -> None:
+        self._runtime_lock = threading.RLock()
         self._dependency_name = dependency_name
         # Blocking dependencies routinely pay thread handoff + filesystem/SQLite
         # scheduling overhead, so a 50ms floor is too aggressive and can trip the
@@ -238,6 +286,8 @@ class BlockingDependencyGuard:
         self._unavailable_exception_types = unavailable_exception_types
         self._unavailable_exception_predicate = unavailable_exception_predicate
         self._execution = threading.local()
+        self._runtime_binding_revision = object()
+        self._runtime_lifecycle_revision = object()
 
     def _snapshot(self) -> _BlockingGuardSnapshot:
         return _BlockingGuardSnapshot(
@@ -602,9 +652,31 @@ class AsyncDependencyGuard:
 class GuardedDependencyProxy:
     """Wrap a dependency object so each callable is guarded by timeout/breaker policy."""
 
+    def __setattr__(self, name: str, value: Any) -> None:
+        if name in {"_runtime_binding_revision", "_runtime_lock"} and name in self.__dict__:
+            raise AttributeError("runtime proxy binding state is owner-controlled")
+        if name in {"_target", "_guard"} and name in self.__dict__:
+            with self._runtime_lock:
+                object.__setattr__(self, "_runtime_binding_revision", object())
+                object.__setattr__(self, name, value)
+            return
+        object.__setattr__(self, name, value)
+
+    def __delattr__(self, name: str) -> None:
+        if name in {"_runtime_binding_revision", "_runtime_lock"}:
+            raise AttributeError("runtime proxy binding state is owner-controlled")
+        if name in {"_target", "_guard"} and name in self.__dict__:
+            with self._runtime_lock:
+                object.__setattr__(self, "_runtime_binding_revision", object())
+                object.__delattr__(self, name)
+            return
+        object.__delattr__(self, name)
+
     def __init__(self, *, target: Any, guard: BlockingDependencyGuard) -> None:
+        self._runtime_lock = threading.RLock()
         self._target = target
         self._guard = guard
+        self._runtime_binding_revision = object()
 
     def run_operation(self, operation: Callable[[], T]) -> T:
         """Run a complete operation, including its transaction, on one worker."""
@@ -762,6 +834,9 @@ class _RuntimeFilesystemGuardBinding:
     timeout_seconds: float
     unavailable_exception_types: tuple[type[BaseException], ...]
     unavailable_exception_predicate: object
+    proxy_revision: object
+    guard_revision: object
+    registration_revision: object
 
 
 # Capture the actual Runtime implementation, not an instance-supplied runner.
@@ -784,10 +859,54 @@ def _run_guarded_dependency[T](
     return cast("T", run(guard, snapshot, func, *args, **kwargs))
 
 
-_RUNTIME_FILESYSTEM_GUARDS: WeakKeyDictionary[
-    GuardedDependencyProxy, _RuntimeFilesystemGuardBinding
-] = WeakKeyDictionary()
 _RUNTIME_FILESYSTEM_GUARDS_LOCK = threading.RLock()
+
+
+class _RuntimeFilesystemGuardRegistry(
+    MutableMapping[GuardedDependencyProxy, _RuntimeFilesystemGuardBinding]
+):
+    """Keep each registration's identity invalid after removal or replacement."""
+
+    def __init__(self) -> None:
+        self._entries: WeakKeyDictionary[GuardedDependencyProxy, _RuntimeFilesystemGuardBinding] = (
+            WeakKeyDictionary()
+        )
+        self._revisions: WeakKeyDictionary[GuardedDependencyProxy, object] = WeakKeyDictionary()
+
+    def __getitem__(self, key: GuardedDependencyProxy) -> _RuntimeFilesystemGuardBinding:
+        with _RUNTIME_FILESYSTEM_GUARDS_LOCK:
+            return self._entries[key]
+
+    def __setitem__(
+        self, key: GuardedDependencyProxy, value: _RuntimeFilesystemGuardBinding
+    ) -> None:
+        with key._runtime_lock, _RUNTIME_FILESYSTEM_GUARDS_LOCK:
+            self._revisions[key] = (
+                object() if key in self._revisions else value.registration_revision
+            )
+            self._entries[key] = value
+
+    def __delitem__(self, key: GuardedDependencyProxy) -> None:
+        with key._runtime_lock, _RUNTIME_FILESYSTEM_GUARDS_LOCK:
+            del self._entries[key]
+            self._revisions[key] = object()
+
+    def __iter__(self) -> Iterator[GuardedDependencyProxy]:
+        with _RUNTIME_FILESYSTEM_GUARDS_LOCK:
+            return iter(tuple(self._entries))
+
+    def __len__(self) -> int:
+        with _RUNTIME_FILESYSTEM_GUARDS_LOCK:
+            return len(self._entries)
+
+    def is_current(
+        self, key: GuardedDependencyProxy, binding: _RuntimeFilesystemGuardBinding
+    ) -> bool:
+        with _RUNTIME_FILESYSTEM_GUARDS_LOCK:
+            return self._revisions.get(key) is binding.registration_revision
+
+
+_RUNTIME_FILESYSTEM_GUARDS = _RuntimeFilesystemGuardRegistry()
 
 
 def _require_runtime_filesystem_guard(
@@ -799,11 +918,17 @@ def _require_runtime_filesystem_guard(
         raise ValueError("registered_sql_guard_binding_not_established")
     with _RUNTIME_FILESYSTEM_GUARDS_LOCK:
         binding = _RUNTIME_FILESYSTEM_GUARDS.get(guarded_store)
+        registration_current = binding is not None and _RUNTIME_FILESYSTEM_GUARDS.is_current(
+            guarded_store, binding
+        )
     if binding is None:
         raise ValueError("registered_sql_guard_binding_not_established")
     if (
         type(binding.backend) is not FileSystemCAS
         or type(binding.guard) is not BlockingDependencyGuard
+        or not registration_current
+        or guarded_store._runtime_binding_revision is not binding.proxy_revision
+        or binding.guard._runtime_binding_revision is not binding.guard_revision
         or guarded_store._target is not binding.backend
         or guarded_store._guard is not binding.guard
         or binding.guard._dependency_name != binding.snapshot.dependency_name
@@ -852,6 +977,27 @@ def run_guarded_cas_member(
 class ChildGuardedReadOwner:
     """Fixed guarded read service retained by one trusted Core custody session."""
 
+    __slots__ = (
+        "_owner_thread",
+        "_served_backend",
+        "_served_lifecycle",
+        "_served_proxy",
+        "_served_registration",
+        "_session",
+        "_stage_backend",
+        "_stage_lifecycle",
+        "_stage_proxy",
+        "_stage_registration",
+    )
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        if hasattr(self, name):
+            raise AttributeError("child guarded service binding is immutable")
+        object.__setattr__(self, name, value)
+
+    def __delattr__(self, name: str) -> None:
+        raise AttributeError("child guarded service binding is immutable")
+
     def __init__(self, session: object, served_proxy: object) -> None:
         from polisyos.core.artifacts import FileSystemCAS
         from polisyos.core.run.child_custody import ChildComputationCustody
@@ -865,8 +1011,42 @@ class ChildGuardedReadOwner:
         self._owner_thread = threading.get_ident()
         self._served_backend = served.backend
         self._served_proxy = served_proxy
+        self._served_registration = served
+        self._served_lifecycle = served.guard._runtime_lifecycle_revision
         self._stage_backend = session._stage
         self._stage_proxy = guard_runtime_cas(self._stage_backend)
+        self._stage_registration = _require_runtime_filesystem_guard(self._stage_proxy)
+        self._stage_lifecycle = self._stage_registration.guard._runtime_lifecycle_revision
+
+    def require_registration(self) -> None:
+        """Recheck both exact registry entries before Core owner decisions."""
+        if threading.get_ident() != self._owner_thread:
+            raise ValueError("child_read_owner_thread_mismatch")
+        if (
+            _require_runtime_filesystem_guard(self._served_proxy) is not self._served_registration
+            or _require_runtime_filesystem_guard(self._stage_proxy) is not self._stage_registration
+            or self._served_registration.guard._runtime_lifecycle_revision
+            is not self._served_lifecycle
+            or self._stage_registration.guard._runtime_lifecycle_revision
+            is not self._stage_lifecycle
+            or self._served_registration.guard._closed
+            or self._stage_registration.guard._closed
+        ):
+            raise ValueError("child_read_guard_binding_changed")
+
+    @contextmanager
+    def publication_registration(self) -> Iterator[None]:
+        """Order one short owner-head commit against registration transitions."""
+        with ExitStack() as stack:
+            for lock in (
+                self._served_proxy._runtime_lock,
+                self._served_registration.guard._runtime_lock,
+                self._stage_proxy._runtime_lock,
+                self._stage_registration.guard._runtime_lock,
+            ):
+                stack.enter_context(lock)
+            self.require_registration()
+            yield
 
     def _claim(self, capability: object) -> tuple[object, ArtifactRef]:
         from polisyos.core.artifacts import ArtifactRef
@@ -1397,9 +1577,11 @@ def guard_runtime_cas(target: Any) -> GuardedDependencyProxy:
             timeout_seconds=guard._timeout_seconds,
             unavailable_exception_types=guard._unavailable_exception_types,
             unavailable_exception_predicate=guard._unavailable_exception_predicate,
+            proxy_revision=proxy._runtime_binding_revision,
+            guard_revision=guard._runtime_binding_revision,
+            registration_revision=object(),
         )
-        with _RUNTIME_FILESYSTEM_GUARDS_LOCK:
-            _RUNTIME_FILESYSTEM_GUARDS[proxy] = binding
+        _RUNTIME_FILESYSTEM_GUARDS[proxy] = binding
     return proxy
 
 

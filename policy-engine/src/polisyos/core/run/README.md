@@ -81,3 +81,13 @@ then admits its one-use handle under the actual short job and grant owners. Only
 a confirmed owner decision may complete the handle and hand the scope to a node.
 A failed decision revokes and suspends its private run outside those locks. The
 local handle does not establish DB currentness or ongoing resource availability.
+
+For a Runtime-guarded session, the served and private-stage registrations are
+rechecked at Core owner decisions, and the appointed service's bindings are
+write-once. Changing and restoring a registered proxy,
+guard dependency, guard lifecycle, or registry entry invalidates that session;
+the short release-head transition is ordered against those changes. A lost
+commit acknowledgement remains an unknown settlement, even if a fresh reader
+can resolve the committed selected artifact. These checks do not establish the
+origin of the Runtime appointment or a production child invocation. They do
+not prevent hostile direct Python mutation of internal objects or registries.

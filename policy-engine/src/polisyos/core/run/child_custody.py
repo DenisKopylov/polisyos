@@ -293,6 +293,12 @@ _CHILD_GUARDED_READER_BOOTSTRAP_TOKEN = object()
 class _ChildGuardedReadService(Protocol):
     """Fixed Runtime-appointed reader; no caller-provided worker callbacks."""
 
+    def require_registration(self) -> None:
+        """Reconcile the actual guarded registrations before owner decisions."""
+
+    def publication_registration(self) -> AbstractContextManager[None]:
+        """Order the short release-head decision against registration changes."""
+
     def read_manifest(
         self,
         capability: ChildOneRefReadCapability,
@@ -2090,6 +2096,8 @@ class ChildComputationCustody:
             self._guarded_reader_service is None or self._root.store is not self._guarded_root_proxy
         ):
             raise ChildReleaseUnavailableError("guarded_root_owner_changed")
+        if self._guarded_reader_service is not None:
+            self._guarded_reader_service.require_registration()
 
     def job_session_intent(self, binding: ChildComputationBinding) -> ChildJobSessionIntent:
         """Create the owner-held parent locator before any child computation."""
@@ -2828,7 +2836,17 @@ class ChildComputationCustody:
                 if self._fence is not None and job_authorization is None
                 else nullcontext()
             )
-            with fence, self._root._parent_state_transition_lease(run_scoped=False), self._lock:
+            registration = (
+                self._guarded_reader_service.publication_registration()
+                if self._guarded_reader_service is not None
+                else nullcontext()
+            )
+            with (
+                fence,
+                self._root._parent_state_transition_lease(run_scoped=False),
+                self._lock,
+                registration,
+            ):
                 if job_authorization is None:
                     self._require_root_snapshot(self._binding, local_tail)
                 else:

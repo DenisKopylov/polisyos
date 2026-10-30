@@ -31,7 +31,11 @@ from polisyos.core.artifacts.ir_adapter import ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.registry import build_default_registry_bundle
-from polisyos.core.run.child_custody import ChildComputationBinding, ChildGuardedReadUnknown
+from polisyos.core.run.child_custody import (
+    ChildComputationBinding,
+    ChildGuardedReadUnknown,
+    ChildParentSettlementError,
+)
 from polisyos.core.run.context import RunContext
 from polisyos.fabric.connectors.resilience.circuit_breaker import CircuitBreaker
 from polisyos.runtime.http.errors import RuntimeDependencyTimeoutError
@@ -44,7 +48,53 @@ from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
 from tests.unit.runtime.http.test_child_control_authorization import _job, _Resolver
 
 
-@pytest.mark.parametrize("probe", ["normal", "timeout", "scope"])
+@pytest.mark.parametrize(
+    "attribute",
+    [
+        "_dependency_name",
+        "_timeout_seconds",
+        "_breaker",
+        "_executor",
+        "_execution",
+        "_unavailable_exception_types",
+        "_unavailable_exception_predicate",
+    ],
+)
+def test_guard_registration_does_not_revive_after_dependency_aba(
+    tmp_path: Path, attribute: str
+) -> None:
+    from polisyos.runtime.http.resilience import _require_runtime_filesystem_guard
+
+    guarded = guard_runtime_cas(FileSystemCAS(tmp_path / "cas"))
+    original = getattr(guarded._guard, attribute)
+    try:
+        setattr(guarded._guard, attribute, object())
+        setattr(guarded._guard, attribute, original)
+        with pytest.raises(ValueError, match="registered_sql_guard_binding_changed"):
+            _require_runtime_filesystem_guard(guarded)
+    finally:
+        guarded.close()
+
+
+@pytest.mark.parametrize(
+    "probe",
+    [
+        "normal",
+        "timeout",
+        "scope",
+        "proxy_aba",
+        "guard_aba",
+        "guard_closed_aba",
+        "registry_aba",
+        "service_rebinding",
+        "service_slots",
+        "publication_aba",
+        "publication_transition",
+        "publication_root_contention",
+        "suspend_inflight",
+        "lost_commit_ack",
+    ],
+)
 def test_sqlite_job_guarded_actual_consumer(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, probe: str
 ) -> None:
@@ -160,6 +210,83 @@ def _exercise_job(
     )
     try:
         managed = custody.parent_store(binding, input_refs=(source_ref,))
+        if probe == "service_slots":
+            for field in type(reader).__slots__:
+                with pytest.raises(AttributeError, match="binding is immutable"):
+                    setattr(reader, field, getattr(reader, field))
+            with pytest.raises(AttributeError, match="binding is immutable"):
+                reader.require_registration = lambda: None
+            assert managed.has(source_ref)
+            return
+        if probe == "service_rebinding":
+            from polisyos.runtime.http.resilience import _require_runtime_filesystem_guard
+
+            replacement = guard_runtime_cas(raw)
+            try:
+
+                def should_not_read(*_args, **_kwargs):
+                    raise AssertionError("replacement registration reached the CAS operation")
+
+                def replace_and_read() -> None:
+                    reader._served_proxy = replacement
+                    reader._served_registration = _require_runtime_filesystem_guard(replacement)
+                    reader._served_lifecycle = replacement._guard._runtime_lifecycle_revision
+                    managed.has(source_ref)
+
+                monkeypatch.setattr(FileSystemCAS, "has", should_not_read)
+                with pytest.raises((AttributeError, ValueError)):
+                    replace_and_read()
+            finally:
+                replacement.close()
+            return
+        if probe == "publication_transition":
+            entered = threading.Event()
+            changed = threading.Event()
+
+            def mutate_guard() -> None:
+                entered.set()
+                served._guard._timeout_seconds += 1
+                changed.set()
+
+            with reader.publication_registration():
+                worker = threading.Thread(target=mutate_guard)
+                worker.start()
+                assert entered.wait(2)
+                assert not changed.wait(0.1)
+                reader.require_registration()
+            assert changed.wait(2)
+            worker.join()
+            with pytest.raises(ValueError, match="registered_sql_guard_binding_changed"):
+                managed.has(source_ref)
+            return
+        if probe in {"proxy_aba", "guard_aba", "guard_closed_aba", "registry_aba"}:
+            if probe == "proxy_aba":
+                original = served._target
+                served._target = FileSystemCAS(tmp_path / "other")
+                served._target = original
+            elif probe == "guard_aba":
+                original = served._guard._timeout_seconds
+                served._guard._timeout_seconds = original + 1
+                served._guard._timeout_seconds = original
+            elif probe == "guard_closed_aba":
+                served._guard.close()
+                served._guard._closed = False
+            else:
+                from polisyos.runtime.http import resilience
+
+                original = resilience._RUNTIME_FILESYSTEM_GUARDS.pop(served)
+                resilience._RUNTIME_FILESYSTEM_GUARDS[served] = original
+
+            def should_not_read(*_args, **_kwargs):
+                raise AssertionError("revoked registration reached the CAS operation")
+
+            monkeypatch.setattr(FileSystemCAS, "has", should_not_read)
+            with pytest.raises(
+                ValueError,
+                match=r"registered_sql_guard_binding_changed|child_read_guard_binding_changed",
+            ):
+                managed.has(source_ref)
+            return
         if probe == "scope":
             child_binding = binding.model_copy(update={"child_invocation_id": "child"})
             with pytest.raises(
@@ -241,6 +368,42 @@ def _exercise_job(
             PutOptions(kind="tests.child.value", media_type="application/octet-stream"),
             return_selected_profile=True,
         )
+        if probe == "suspend_inflight":
+            from polisyos.core.run.context import _FinalizeRecoveryError
+
+            entered = threading.Event()
+            resume = threading.Event()
+            failures: list[BaseException] = []
+            original_has = FileSystemCAS.has
+
+            def blocked_has(store, *args, **kwargs):
+                if store is custody._stage:
+                    entered.set()
+                    assert resume.wait(5)
+                return original_has(store, *args, **kwargs)
+
+            def suspend_parent() -> None:
+                try:
+                    assert entered.wait(5)
+                    root.suspend_for_resume()
+                except BaseException as exc:
+                    failures.append(exc)
+                finally:
+                    resume.set()
+
+            monkeypatch.setattr(FileSystemCAS, "has", blocked_has)
+            worker = threading.Thread(target=suspend_parent)
+            worker.start()
+            with pytest.raises((ChildReleaseUnavailableError, _FinalizeRecoveryError)):
+                managed.has(blob)
+            worker.join(timeout=5)
+            assert not worker.is_alive() and not failures and root._suspended
+            with pytest.raises((ChildReleaseUnavailableError, _FinalizeRecoveryError)):
+                custody.release_parent((), blob)
+            fresh = FileSystemCAS(raw.root, ownership_enforced=False)
+            with pytest.raises((FileNotFoundError, ChildReleaseUnavailableError)):
+                fresh.get_bytes(blob)
+            return
         assert managed.get_bytes(blob) == b"private bytes"
         assert managed.has(blob)
         assert managed.verify(blob).ok
@@ -273,6 +436,105 @@ def _exercise_job(
             assert receipt.projection_ref == blob
             fresh = FileSystemCAS(raw.root, ownership_enforced=False)
             assert fresh.get_bytes(blob) == b"private bytes"
+            return
+
+        if probe == "lost_commit_ack":
+            copies = 0
+            commits = 0
+            original_copy = FileSystemCAS._publish_child_release_profiles
+            original_commit = custody._ledger.commit
+
+            def observe_copy(*args, **kwargs):
+                nonlocal copies
+                copies += 1
+                return original_copy(*args, **kwargs)
+
+            def commit_then_lose_ack(*args, **kwargs):
+                nonlocal commits
+                commits += 1
+                original_commit(*args, **kwargs)
+                raise OSError("lost acknowledgement after durable release head")
+
+            monkeypatch.setattr(FileSystemCAS, "_publish_child_release_profiles", observe_copy)
+            monkeypatch.setattr(custody._ledger, "commit", commit_then_lose_ack)
+            with pytest.raises(ChildParentSettlementError) as unknown:
+                custody.release_parent((), blob)
+            assert unknown.value.receipt.release_outcome == "release_visible_durability_unknown"
+            assert unknown.value.recovery is not None
+            fresh = FileSystemCAS(raw.root, ownership_enforced=False)
+            assert fresh.get_bytes(blob) == b"private bytes"
+            with pytest.raises(ChildParentSettlementError):
+                custody.release_parent((), blob)
+            assert (copies, commits) == (1, 1)
+            return
+
+        if probe == "publication_aba":
+            authorize = fence.authorize_release
+
+            def authorize_then_change_guard(candidate):
+                locator = authorize(candidate)
+                original = served._guard._timeout_seconds
+                served._guard._timeout_seconds = original + 1
+                served._guard._timeout_seconds = original
+                return locator
+
+            monkeypatch.setattr(fence, "authorize_release", authorize_then_change_guard)
+            with pytest.raises(ChildParentSettlementError) as unknown:
+                custody.release_parent((), blob)
+            assert unknown.value.receipt.release_outcome == "release_state_unknown"
+            fresh = FileSystemCAS(raw.root, ownership_enforced=False)
+            with pytest.raises((FileNotFoundError, ChildReleaseUnavailableError)):
+                fresh.get_bytes(blob)
+            return
+
+        if probe == "publication_root_contention":
+            root_held = threading.Event()
+            root_waiting = threading.Event()
+            guard_changed = threading.Event()
+            failures: list[str] = []
+            authorize = fence.authorize_release
+            transition = root._parent_state_transition_lease
+
+            def hold_root() -> None:
+                with root._worker_merge_lock:
+                    root_held.set()
+                    if not guard_changed.wait(2):
+                        failures.append("guard mutation blocked while waiting for Root")
+
+            def change_guard() -> None:
+                if not root_waiting.wait(5):
+                    failures.append("publication did not reach Root")
+                    return
+                served._guard._timeout_seconds += 1
+                guard_changed.set()
+
+            holder = threading.Thread(target=hold_root)
+            mutator = threading.Thread(target=change_guard)
+
+            @contextmanager
+            def observed_transition(*args, **kwargs):
+                root_waiting.set()
+                with transition(*args, **kwargs):
+                    yield
+
+            def authorize_then_contend(candidate):
+                locator = authorize(candidate)
+                holder.start()
+                assert root_held.wait(5)
+                monkeypatch.setattr(root, "_parent_state_transition_lease", observed_transition)
+                mutator.start()
+                return locator
+
+            monkeypatch.setattr(fence, "authorize_release", authorize_then_contend)
+            with pytest.raises(ChildParentSettlementError):
+                custody.release_parent((), blob)
+            holder.join(timeout=5)
+            mutator.join(timeout=5)
+            assert not holder.is_alive() and not mutator.is_alive()
+            assert not failures and guard_changed.is_set()
+            fresh = FileSystemCAS(raw.root, ownership_enforced=False)
+            with pytest.raises((FileNotFoundError, ChildReleaseUnavailableError)):
+                fresh.get_bytes(blob)
             return
 
         entered = threading.Event()

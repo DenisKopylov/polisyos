@@ -110,6 +110,96 @@ def test_pending_unknown_estimated_reported_zero_and_reuse_survive_reopen(tmp_pa
     }
 
 
+@pytest.mark.parametrize("damage", ["key", "provider", "provider_missing"])
+def test_committed_producer_receipt_requires_exact_identity_on_read_and_write(
+    tmp_path: Path, damage: str
+) -> None:
+    path = tmp_path / "identity.json"
+    owner = _middleware(path)
+    event = owner.settle_producer_event_safe(
+        "producer",
+        _dig("request"),
+        _dig("payload"),
+        key="run",
+        model="m",
+        provider="p",
+        amount=Decimal("0.02"),
+        cost_origin="reported",
+    )
+    original = FileBudgetLedger(path).snapshot()
+    assert original.producer_settlements[event.event_id] == event
+    assert original.spend_receipts[event.event_id].provider == event.provider
+
+    wire = json.loads(path.read_bytes())
+    receipt = wire["spend_receipts"][event.event_id]
+    if damage == "key":
+        receipt["key"] = "other"
+        wire["state"]["spent"]["other"] = "0.02"
+    elif damage == "provider":
+        receipt["provider"] = "other"
+        wire["state"]["provider_spent"]["other"] = "0.02"
+    else:
+        receipt.pop("provider")
+    path.write_text(json.dumps(wire), encoding="utf-8")
+    damaged = path.read_bytes()
+
+    fresh = FileBudgetLedger(path)
+    for read in (
+        fresh.snapshot,
+        lambda: fresh.resolve_producer_event(event.event_id),
+        lambda: fresh.resolve_spend(event.event_id),
+    ):
+        with pytest.raises(
+            ValueError, match="committed producer outcome requires its exact spend receipt"
+        ):
+            read()
+    with pytest.raises(
+        ValueError, match="committed producer outcome requires its exact spend receipt"
+    ):
+        owner.settle_producer_event_safe(
+            event.event_id,
+            event.request_digest,
+            event.payload_digest,
+            key=event.key,
+            model=event.model,
+            provider=event.provider,
+            amount=event.amount,
+            cost_origin=event.cost_origin,
+        )
+    assert path.read_bytes() == damaged
+
+
+def test_legacy_producer_and_standalone_nullable_receipt_remain_readable(tmp_path: Path) -> None:
+    path = tmp_path / "legacy-12.json"
+    owner = _middleware(path)
+    producer = owner.settle_producer_event_safe(
+        "producer",
+        _dig("legacy-request"),
+        _dig("legacy-payload"),
+        key="run",
+        model="m",
+        provider="p",
+        amount=Decimal("0.02"),
+        cost_origin="reported",
+    )
+    standalone = owner.settle_spend_safe(
+        "standalone", "run", Decimal("0.01"), payload_digest=_dig("standalone")
+    )
+    wire = json.loads(path.read_bytes())
+    wire["schema_version"] = "1.2"
+    wire.pop("compute_reservations", None)
+    path.write_text(json.dumps(wire), encoding="utf-8")
+    before = path.read_bytes()
+
+    reopened = FileBudgetLedger(path).snapshot()
+    assert json.loads(before)["schema_version"] == "1.2"
+    assert reopened.producer_settlements[producer.event_id] == producer
+    assert reopened.spend_receipts[standalone.event_id] == standalone
+    assert standalone.provider is None
+    assert reopened.state.spent["run"] == Decimal("0.03")
+    assert path.read_bytes() == before
+
+
 @pytest.mark.parametrize(
     "origin_state",
     ["absent", "pending", "foreign", "request_mismatch", "model_mismatch", "provider_mismatch"],

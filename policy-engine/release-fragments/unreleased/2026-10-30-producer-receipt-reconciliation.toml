@@ -1,0 +1,15 @@
+id = "2026-10-30-producer-receipt-reconciliation"
+title = "Reconcile producer spend receipt identity on ledger reads"
+type = "fixed"
+component = "scientist-engine"
+owner = "team-policyos-runtime"
+summary = "Committed producer records require their local spend receipt to match the budget key and provider as well as the existing event, amount, and payload digest checks."
+evidence = ["src/polisyos/scientist/orchestration/engine/budget_ledger.py", "tests/unit/scientist/orchestration/engine/test_budget_ledger_producer_events.py", "tests/unit/remediation/test_llm_01.py"]
+compatibility = "Valid existing snapshots remain readable, including legacy producer rows and standalone receipts without a provider. Inconsistent committed producer records now fail ledger reads instead of providing a committed cache-reuse acknowledgment."
+change_class = "persisted ledger validation"
+surface_classification = "public_stable: polisyos.scientist.orchestration.engine"
+migration = "Reconcile a refused ledger with its actual local accounting owner before using it; do not silently rewrite an unresolved receipt."
+limitations = "Matching local rows do not authenticate a jointly altered ledger or establish provider invoices, pricing authority, or permission for new work."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/scientist/orchestration/llm/README.md"]
+runbook_docs = []

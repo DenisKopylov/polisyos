@@ -68,6 +68,31 @@ Runtime producer, request-payload input, tenant/cell, and candidate-only job/run
 existing job response. This is requested-view identity only; actual data-view consumption and
 policy/legal admissibility require their independent owners and remain limited until admitted.
 
+For an explicit immutable snapshot with matching aware valid/transaction instants, the
+application-owned NL context factory installs a verifier on the existing current-job context
+reader. Candidate, generic-only and recursive paths use that same reader. A scoped write
+returns its exact selected manifest profile; that reference is carried through the generic
+handoff and family. Before the temporal callback the reader reconstructs the complete current
+writer profile from the selected bytes and write contract, and refuses a missing or different
+profile even when the payload bytes match. After lease/profile/content/source checks, actual
+Fabric owner-query rows must reconcile to the WMR's digest/count before the context is returned.
+Unsupported selection or mismatch withholds that context; omission retains the prior route.
+Naive instants acquire no host timezone.
+
+The fenced `temporal_scope_context_world_read_bindings` progress map retains each content-bound
+request/job/problem/exact-context admission. Root, child and legitimate same-problem reissues
+are distinct actual inputs; an existing entry cannot be overwritten. Keyed
+`runtime_quality_artifact_refs["temporal_context_candidate:<key>"]` selects each exact context
+view for fresh job/artifact readers. A changed same-ref replay fails the job with
+`nl_temporal_scope_context_world_read_replay_changed`; the earlier immutable verified entry is a
+historical admission observation, not a fresh currentness assertion. This is context admission,
+not evidence that the earlier NL problem compiler consumed a later mutable dictionary update.
+The WMR owner's two ordered
+world-node queries are each capped at 100,000 rows; complete-world row membership remains
+`not_established`. Numerical N5 consumption, immutable mutable-branch replay, full closure,
+source currentness and legal authority also remain unestablished. Branch/scenario selections
+and scopes lacking an explicit snapshot are explicitly limited at this bounded consumer.
+
 ## Observational source custody
 
 `control/observational_source_access.py` reconciles an authenticated request,

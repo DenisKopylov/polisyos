@@ -6368,6 +6368,7 @@ class ControlPlaneStore:
 
         current_projection_keys = (
             "temporal_scope_request_binding",
+            "temporal_scope_context_world_read_bindings",
             "runtime_quality_refs",
             "runtime_quality_artifact_refs",
             "runtime_quality_projection",
@@ -7177,6 +7178,61 @@ class ControlPlaneStore:
                 progress["runtime_quality_artifact_refs"] = {
                     **updated_refs,
                     "time_context_ref": source_refs["time_context_ref"],
+                }
+            binding_set_key = "temporal_scope_context_world_read_bindings"
+            existing_bindings = existing.progress.get(binding_set_key, {}) if existing else {}
+            incoming_bindings = progress.get(binding_set_key, {})
+            if not isinstance(existing_bindings, Mapping) or not isinstance(
+                incoming_bindings, Mapping
+            ):
+                raise ControlJobLeaseLostError("nl_temporal_scope_context_world_read_set_invalid")
+            if existing_bindings or incoming_bindings:
+                retained = dict(existing_bindings)
+                for invocation_key, value in incoming_bindings.items():
+                    if invocation_key in retained and retained[invocation_key] != value:
+                        raise ControlJobLeaseLostError(
+                            "nl_temporal_scope_context_world_read_progress_binding_conflict"
+                        )
+                    retained[invocation_key] = value
+                source_refs = (
+                    existing.progress.get("runtime_quality_artifact_refs", {}) if existing else {}
+                )
+                updated_refs = progress.get("runtime_quality_artifact_refs", {})
+                if not isinstance(source_refs, Mapping) or not isinstance(updated_refs, Mapping):
+                    raise ControlJobLeaseLostError(
+                        "nl_temporal_scope_context_world_read_refs_invalid"
+                    )
+                retained_refs = dict(updated_refs)
+                for invocation_key, value in retained.items():
+                    if (
+                        not isinstance(invocation_key, str)
+                        or not isinstance(value, Mapping)
+                        or value.get("invocation_key") != invocation_key
+                        or not isinstance(value.get("context_job_ref"), Mapping)
+                    ):
+                        raise ControlJobLeaseLostError(
+                            "nl_temporal_scope_context_world_read_entry_invalid"
+                        )
+                    ref_key = "temporal_context_candidate:" + invocation_key
+                    declared_ref = value["context_job_ref"]
+                    if invocation_key in existing_bindings:
+                        if source_refs.get(ref_key) != declared_ref:
+                            raise ControlJobLeaseLostError(
+                                "nl_temporal_scope_context_world_read_ref_missing"
+                            )
+                        if ref_key in retained_refs and retained_refs[ref_key] != declared_ref:
+                            raise ControlJobLeaseLostError(
+                                "nl_temporal_scope_context_world_read_ref_conflict"
+                            )
+                    elif retained_refs.get(ref_key) != declared_ref:
+                        raise ControlJobLeaseLostError(
+                            "nl_temporal_scope_context_world_read_ref_missing"
+                        )
+                    retained_refs[ref_key] = declared_ref
+                progress = {
+                    **progress,
+                    binding_set_key: retained,
+                    "runtime_quality_artifact_refs": retained_refs,
                 }
             progress = append_evidence_spine_handoff(
                 progress,

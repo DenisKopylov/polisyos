@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import re
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Protocol, TypeGuard, cast
@@ -2656,9 +2656,14 @@ class CycleSubstrateContextArtifactOwner:
         *,
         store: artifacts.VerifiableArtifactReader,
         control_store: _CurrentControlJobExecutionOwner | None = None,
+        context_admission_verifier: Callable[[artifacts.ArtifactRef, CycleSubstrateContext], bool]
+        | None = None,
     ) -> None:
         self._store = store
         self._control_store = control_store
+        # Installed by the application-owned NL job factory, never a request
+        # field or serialized verified marker. Unscoped legacy readers omit it.
+        self._context_admission_verifier = context_admission_verifier
 
     def _writer(self) -> artifacts.ArtifactStore:
         """Require a complete writer on the supplied owner before persistence."""
@@ -2738,11 +2743,15 @@ class CycleSubstrateContextArtifactOwner:
             verified_nl_job_scope=verified_nl_job_scope,
             execution_admission=execution_admission,
         )
-        return writer.put_json(
-            _serialize_cycle_substrate_context_job_artifact(artifact),
-            _context_job_write_options(artifact),
-            canon_spec=_CONTEXT_JOB_CANON,
-        )
+        payload = _serialize_cycle_substrate_context_job_artifact(artifact)
+        options = _context_job_write_options(artifact)
+        if self._context_admission_verifier is not None:
+            # Carry the profile selected inside this write to every consumer;
+            # reading the default later cannot establish the writer's identity.
+            return writer.put_json(
+                payload, options, canon_spec=_CONTEXT_JOB_CANON, return_selected_profile=True
+            )
+        return writer.put_json(payload, options, canon_spec=_CONTEXT_JOB_CANON)
 
     def resolve_for_current_job(
         self,
@@ -2778,6 +2787,11 @@ class CycleSubstrateContextArtifactOwner:
             execution_admission=execution_admission,
         )
         expected_problem_ref = cycle_job_design_problem_ref(problem)
+        if self._context_admission_verifier is not None and ref.manifest_profile_sha256 is None:
+            raise CycleSubstrateContextOwnerError(
+                "cycle_substrate_context_job_selected_profile_required"
+            )
+
         if not self._store.verify(ref).ok:
             raise CycleSubstrateContextOwnerError(
                 "cycle_substrate_context_job_cas_integrity_failed"
@@ -2808,6 +2822,21 @@ class CycleSubstrateContextArtifactOwner:
             raise CycleSubstrateContextOwnerError(
                 "cycle_substrate_context_job_owner_profile_mismatch"
             )
+        if self._context_admission_verifier is not None:
+            # Reconstruct the complete current writer profile, including the
+            # versioned integrity projection, before admitting this exact ref.
+            expected_manifest = artifacts.expected_artifact_manifest_for_write(
+                artifact_id=ref.artifact_id,
+                data=body,
+                opts=_context_job_write_options(artifact),
+                created_at=manifest.created_at,
+            )
+            if artifacts.artifact_manifest_profile_sha256(expected_manifest) != (
+                ref.manifest_profile_sha256
+            ):
+                raise CycleSubstrateContextOwnerError(
+                    "cycle_substrate_context_job_selected_profile_mismatch"
+                )
         if type(artifact) is CycleSubstrateContextJobArtifactV5:
             if repo_root is None:
                 raise CycleSubstrateContextOwnerError(
@@ -2829,6 +2858,12 @@ class CycleSubstrateContextArtifactOwner:
                 raise CycleSubstrateContextOwnerError(
                     "candidate_cycle_source_profile_resolve_owner_refused", str(exc)
                 ) from exc
+        if self._context_admission_verifier is not None:
+            admitted = self._context_admission_verifier(ref, artifact.context)
+            if admitted is not True:
+                raise CycleSubstrateContextOwnerError(
+                    "cycle_substrate_context_temporal_read_not_established"
+                )
         return artifact
 
     def resolve_historical_job_artifact(

@@ -1,0 +1,14 @@
+id = "2026-10-30-e02-temporal-context-world-read"
+title = "Verify selected snapshot rows before NL context admission"
+type = "fixed"
+component = "runtime"
+owner = "team-policyos-runtime"
+summary = "Snapshot-selected NL requests reconcile aware time axes and actual bounded WMR owner queries through one current-context admission hook shared by candidate, generic and recursive readers. Scoped writers carry their exact selected context profile through handoffs; readers reconstruct the current owner profile and reject same-bytes alternate views. Fenced progress retains historical exact context admissions and changed same-ref replay fails the job. Complete-world rows, early compiler consumption, numerical N5 use and full temporal closure remain unestablished."
+evidence = [
+  "src/polisyos/runtime/http/services/control/temporal_scope.py",
+  "src/polisyos/runtime/http/services/control/job_nl_admission.py",
+  "src/polisyos/runtime/quality/cycle_substrate.py",
+  "src/polisyos/runtime/http/services/control_plane_store.py",
+  "tests/unit/runtime/http/test_nl_temporal_context_world_read.py",
+  "tests/integration/runtime_quality/test_tc_generic_context_admission_served.py",
+]

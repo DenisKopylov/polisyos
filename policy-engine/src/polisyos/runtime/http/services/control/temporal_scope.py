@@ -41,6 +41,7 @@ if TYPE_CHECKING:
         ControlJobExecutionScope,
         ControlJobRecord,
     )
+    from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
 
 TEMPORAL_SCOPE_KIND = "runtime.temporal_scope"
 TEMPORAL_SCOPE_SCHEMA = "polisyos.runtime.TemporalScope"
@@ -252,3 +253,204 @@ def materialize_temporal_scope_for_job(
         store=store, job=job, scope=scope, created=created, payload=payload, binding=binding
     )
     return binding
+
+
+class TemporalScopeContextWorldReadBinding(BaseModel):
+    """Bind an actual WMR-owner read to one admitted temporal context input.
+
+    This record qualifies context admission only. It does not establish N5
+    numerical consumption, immutable branch replay, or full closure membership.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal["polisyos.runtime.temporal_scope_context_world_read.v1"] = (
+        "polisyos.runtime.temporal_scope_context_world_read.v1"
+    )
+    consumer_stage: Literal["cycle_substrate_context_admission"] = (
+        "cycle_substrate_context_admission"
+    )
+    authority_purpose: Literal["candidate_context_input_verification_only"] = (
+        "candidate_context_input_verification_only"
+    )
+    status: Literal["verified", "not_established"]
+    predicate_basis: Literal["recomputed", "not_established"]
+    request_binding: TemporalScopeRequestBinding
+    invocation_key: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    design_problem_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    context_job_ref: ArtifactRef
+    context_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    world_model_record_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    interpretation_rule: Literal["wmr_exact_snapshot_and_branch_asof_owner_read.v1"] = (
+        "wmr_exact_snapshot_and_branch_asof_owner_read.v1"
+    )
+    resolved_snapshot_id: str | None = None
+    content_query_digest: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    content_query_row_count: int | None = Field(default=None, ge=1)
+    limitation_codes: tuple[str, ...] = ()
+    n5_numeric_consumption: Literal["not_established"] = "not_established"
+    immutable_branch_replay: Literal["not_established"] = "not_established"
+    same_input_closure_membership: Literal["not_established"] = "not_established"
+    query_limit_per_mode: Literal[100_000] = 100_000
+    complete_world_row_membership: Literal["not_established"] = "not_established"
+    nl_problem_compiler_consumption: Literal["not_established"] = "not_established"
+
+
+def resolve_temporal_scope_context_world_read(
+    *,
+    store: ArtifactStore,
+    job: ControlJobRecord,
+    scope: ControlJobExecutionScope,
+    created: Mapping[str, Any],
+    payload: Mapping[str, Any],
+    request_binding: TemporalScopeRequestBinding,
+    context_job_ref: ArtifactRef,
+    context: CycleSubstrateContext,
+) -> TemporalScopeContextWorldReadBinding:
+    """Verify a snapshot-selected request against actual WMR owner rows.
+
+    Only an explicit snapshot and matching declared time axes are supported by
+    this bounded admission consumer. Other selections remain limited; the
+    caller must withhold this context rather than consume its configured view.
+    The selected current-job context owner must have issued ``context`` before
+    this function is called. Its immutable artifact remains the input carrier.
+    """
+    from datetime import UTC, datetime
+
+    from polisyos.runtime.quality.cycle_substrate import (
+        revalidate_cycle_substrate_context,
+    )
+    from polisyos.runtime.quality.world_model_record import (
+        WorldModelRecordError,
+        read_world_model_record_owner_values,
+        world_model_artifact_views,
+    )
+
+    selected_scope = resolve_temporal_scope_for_job(
+        store=store,
+        job=job,
+        scope=scope,
+        created=created,
+        payload=payload,
+        binding=request_binding,
+    )
+    checked_context = revalidate_cycle_substrate_context(context)
+    world = checked_context.world_model_record
+    selected_context_ref = _selected_ref(
+        context_job_ref.model_dump(mode="json"),
+        kind="runtime.quality.cycle_substrate_context_job",
+    )
+    # The job owner has already performed selected current-job replay. Re-read
+    # the immutable bytes here so a substituted context cannot carry its gate.
+    from polisyos.runtime.quality.cycle_substrate import (
+        parse_cycle_substrate_context_job_artifact,
+    )
+
+    selected_payload = read_core_json_artifact(store, selected_context_ref).value
+    if not isinstance(selected_payload, Mapping):
+        raise ValueError("nl_temporal_scope_context_payload_not_object")
+    selected_context = parse_cycle_substrate_context_job_artifact(selected_payload)
+    if (
+        selected_context.context != checked_context
+        or selected_context.job_id != request_binding.job_id
+        or selected_context.run_id != request_binding.run_id
+        or selected_context.tenant_id != request_binding.tenant_id
+        or selected_context.cell_id != request_binding.cell_id
+    ):
+        raise ValueError("nl_temporal_scope_context_job_binding_mismatch")
+    from polisyos.pdc import gy_content_hash
+
+    # Root, child and legitimate same-problem reissues coexist. Every exact
+    # owner-issued context is independently checked and retained. Its key is
+    # content-bound; an earlier admitted identity cannot be overwritten.
+    invocation_key = gy_content_hash(
+        {
+            "consumer_stage": "cycle_substrate_context_admission",
+            "job_id": request_binding.job_id,
+            "run_id": request_binding.run_id,
+            "tenant_id": request_binding.tenant_id,
+            "cell_id": request_binding.cell_id,
+            "request_content_hash": request_binding.request_content_hash,
+            "design_problem_ref": checked_context.design_problem_ref,
+            "context_job_ref": selected_context_ref.model_dump(mode="json"),
+            "context_content_hash": checked_context.content_hash,
+        }
+    )
+    common: dict[str, Any] = {
+        "request_binding": request_binding,
+        "invocation_key": invocation_key,
+        "design_problem_ref": checked_context.design_problem_ref,
+        "context_job_ref": selected_context_ref,
+        "context_content_hash": checked_context.content_hash,
+        "world_model_record_hash": world.content_hash,
+    }
+
+    def limited(code: str) -> TemporalScopeContextWorldReadBinding:
+        return TemporalScopeContextWorldReadBinding(
+            **common,
+            status="not_established",
+            predicate_basis="not_established",
+            limitation_codes=(code,),
+        )
+
+    if selected_scope.get("scenario_id") is not None:
+        return limited("nl_temporal_scope_context_scenario_unsupported")
+    if selected_scope.get("branch") is not None:
+        return limited("nl_temporal_scope_context_mutable_branch_replay_not_established")
+    snapshot_id = selected_scope.get("snapshot_id")
+    if snapshot_id is None:
+        return limited("nl_temporal_scope_context_explicit_snapshot_required")
+    fabric = world.fabric_world_ref
+    if snapshot_id != fabric.snapshot_id:
+        return limited("nl_temporal_scope_context_snapshot_mismatch")
+    for requested_key, actual_value in (
+        ("valid_at", fabric.as_of_valid_time),
+        ("tx_at", fabric.as_of_tx_time),
+    ):
+        requested_value = selected_scope.get(requested_key)
+        if requested_value is None:
+            continue
+        if actual_value is None:
+            return limited("nl_temporal_scope_context_time_axis_not_established")
+        try:
+            requested_instant = datetime.fromisoformat(str(requested_value))
+            actual_instant = datetime.fromisoformat(str(actual_value))
+        except ValueError:
+            return limited("nl_temporal_scope_context_time_axis_not_established")
+        if (
+            requested_instant.tzinfo is None
+            or requested_instant.utcoffset() is None
+            or actual_instant.tzinfo is None
+            or actual_instant.utcoffset() is None
+        ):
+            return limited("nl_temporal_scope_context_time_axis_timezone_not_established")
+        if requested_instant.astimezone(UTC) != actual_instant.astimezone(UTC):
+            return limited("nl_temporal_scope_context_time_axis_mismatch")
+    try:
+        owner_values = read_world_model_record_owner_values(
+            store,
+            world_model_record=world,
+            registry_bundle_ref=world_model_artifact_views(world).registry_bundle_ref,
+            substrate_registry=checked_context.substrate_registry,
+        )
+    except WorldModelRecordError as exc:
+        return limited(f"nl_temporal_scope_context_world_read_refused:{exc.code}")
+    except OSError:
+        return limited("nl_temporal_scope_context_world_read_unavailable")
+    actual = owner_values.resolved_fabric_world
+    if (
+        owner_values.record != world
+        or actual != fabric
+        or actual.content_query_digest is None
+        or actual.content_query_row_count is None
+        or actual.content_query_row_count < 1
+    ):
+        return limited("nl_temporal_scope_context_world_read_not_reconciled")
+    return TemporalScopeContextWorldReadBinding(
+        **common,
+        status="verified",
+        predicate_basis="recomputed",
+        resolved_snapshot_id=actual.snapshot_id,
+        content_query_digest=actual.content_query_digest,
+        content_query_row_count=actual.content_query_row_count,
+    )

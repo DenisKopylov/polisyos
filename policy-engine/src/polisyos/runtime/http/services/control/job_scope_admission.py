@@ -108,6 +108,8 @@ _NL_JOB_OWNER_CONTEXT_KEYS = frozenset(
         "temporal_scope",
         "temporal_scope_artifact_ref",
         "temporal_scope_request_binding",
+        "temporal_scope_context_world_read_binding",
+        "temporal_scope_context_world_read_bindings",
         "time_context_ref",
     }
 )

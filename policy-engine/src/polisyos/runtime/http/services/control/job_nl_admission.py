@@ -19,6 +19,8 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from polisyos.core import run
+    from polisyos.core.artifacts import ArtifactRef
+    from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
     from polisyos.runtime.quality.design_problem import DesignProblem
 
     from ..control_plane_store import (
@@ -374,6 +376,91 @@ class ControlNLJobAdmissionMixin:
         context.trusted_source_context.update(selected_context)
         context.compiler_context.update(selected_context)
 
+    def _prepare_control_nl_temporal_world_read(
+        self,
+        context: _ControlNLJobContext,
+        *,
+        selected_context: object,
+        selected_context_ref: object,
+    ) -> bool:
+        """Fence and expose an actual context-owner read before context use."""
+        if "temporal_scope" not in context.payload:
+            return True
+        from polisyos.core.artifacts import ArtifactRef
+        from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
+
+        from .temporal_scope import (
+            TemporalScopeRequestBinding,
+            resolve_temporal_scope_context_world_read,
+        )
+
+        if type(selected_context) is not CycleSubstrateContext or not isinstance(
+            selected_context_ref, ArtifactRef
+        ):
+            raise TypeError("nl_temporal_scope_context_input_untyped")
+        self._require_current_generation_job_attempt(context.job)
+        admission = self._control_store.current_execution_job_admission()
+        if admission.scope != context.execution_scope:
+            raise ControlJobLeaseLostError("nl_temporal_scope_execution_scope_changed")
+        request_binding = TemporalScopeRequestBinding.model_validate(
+            admission.job.progress.get("temporal_scope_request_binding")
+        )
+        read_binding = resolve_temporal_scope_context_world_read(
+            store=self._artifact_store,
+            job=admission.job,
+            scope=admission.scope,
+            created=self._control_store.get_job_created_event_payload(context.job.job_id),
+            payload=context.payload,
+            request_binding=request_binding,
+            context_job_ref=selected_context_ref,
+            context=selected_context,
+        )
+        self._require_current_generation_job_attempt(context.job)
+        current = self._control_store.current_execution_job_admission()
+        if current.scope != admission.scope:
+            raise ControlJobLeaseLostError("nl_temporal_scope_execution_scope_changed")
+        values = read_binding.model_dump(mode="json")
+        invocation_key = read_binding.invocation_key
+        existing_bindings = current.job.progress.get(
+            "temporal_scope_context_world_read_bindings", {}
+        )
+        if not isinstance(existing_bindings, Mapping):
+            raise ValueError("nl_temporal_scope_context_world_read_set_invalid")
+        bindings = dict(existing_bindings)
+        prior = bindings.get(invocation_key)
+        if prior is not None and prior != values:
+            raise ValueError("nl_temporal_scope_context_world_read_replay_changed")
+        bindings[invocation_key] = values
+        refs = dict(current.job.progress.get("runtime_quality_artifact_refs") or {})
+        ref_key = "temporal_context_candidate:" + invocation_key
+        ref_values = selected_context_ref.model_dump(mode="json")
+        prior_ref = refs.get(ref_key)
+        if prior_ref is not None and prior_ref != ref_values:
+            raise ValueError("nl_temporal_scope_context_world_ref_replay_changed")
+        refs[ref_key] = ref_values
+        self._control_store.update_progress_state(
+            job_id=context.job.job_id,
+            state="running",
+            progress={
+                **current.job.progress,
+                "temporal_scope_context_world_read_bindings": bindings,
+                "runtime_quality_artifact_refs": refs,
+            },
+            expected_lease_owner=current.job.lease_owner,
+            expected_attempt=current.attempt,
+        )
+        readback = self._control_store.current_execution_job_admission()
+        if (
+            readback.job.progress.get("temporal_scope_context_world_read_bindings") != bindings
+            or readback.job.progress.get("runtime_quality_artifact_refs", {}).get(ref_key)
+            != ref_values
+        ):
+            raise ValueError("nl_temporal_scope_context_world_read_linkage_mismatch")
+        # NL problem compilation has already consumed trusted_source_context.
+        # This later fact belongs to context admission and durable job progress;
+        # mutating that earlier compiler dictionary cannot prove consumption.
+        return read_binding.status == "verified"
+
     def _prepare_control_nl_candidate_context(self, context: _ControlNLJobContext) -> None:
         """Bind candidate simulation callbacks to the admitted job and scope."""
         job = context.job
@@ -390,6 +477,21 @@ class ControlNLJobAdmissionMixin:
         generic_admission_owner = self._generic_cycle_simulation_admission_owner
         generic_root_profile_id = self._generic_cycle_simulation_root_profile_id
         context_artifact_owner = None
+        temporal_context_refs: dict[str, ArtifactRef] = {}
+
+        def verify_temporal_context(
+            selected_ref: ArtifactRef, selected_context: CycleSubstrateContext
+        ) -> bool:
+            admitted = self._prepare_control_nl_temporal_world_read(
+                context,
+                selected_context=selected_context,
+                selected_context_ref=selected_ref,
+            )
+            if admitted:
+                temporal_context_refs[selected_context.content_hash] = selected_ref
+            return admitted
+
+        temporal_verifier = verify_temporal_context if "temporal_scope" in context.payload else None
         from polisyos.runtime.quality.cycle_substrate import (
             ConfiguredCandidateSimulationContextAdmissionOwner,
         )
@@ -444,6 +546,7 @@ class ControlNLJobAdmissionMixin:
             context_artifact_owner = CycleSubstrateContextArtifactOwner(
                 store=self._artifact_store,
                 control_store=self._control_store,
+                context_admission_verifier=temporal_verifier,
             )
             if configured_candidate_owner:
                 from polisyos.runtime.quality.recursive_generation_cycle import (
@@ -491,14 +594,26 @@ class ControlNLJobAdmissionMixin:
                     problem=problem,
                     verified_nl_job_scope=verified_nl_job_scope,
                 )
-                replayed = context_owner.resolve_for_current_job(
-                    context_ref,
-                    problem=problem,
-                    repo_root=self._repo_root,
-                    verified_nl_job_scope=verified_nl_job_scope,
-                )
+                from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContextOwnerError
+
+                try:
+                    replayed = context_owner.resolve_for_current_job(
+                        context_ref,
+                        problem=problem,
+                        repo_root=self._repo_root,
+                        verified_nl_job_scope=verified_nl_job_scope,
+                    )
+                except CycleSubstrateContextOwnerError as exc:
+                    if exc.code == "cycle_substrate_context_temporal_read_not_established":
+                        return None
+                    raise
                 if replayed.context.content_hash != admitted_context.content_hash:
                     raise RuntimeError("cycle_substrate_context_job_replay_changed_content")
+                if temporal_verifier is not None:
+                    selected_ref = temporal_context_refs.get(replayed.context.content_hash)
+                    if selected_ref is None:
+                        raise RuntimeError("nl_temporal_scope_context_owner_gate_not_observed")
+                    context_ref = selected_ref
                 cycle_substrate_context_job_ref = str(context_ref.artifact_id)
                 context.cycle_substrate_context_job_ref = cycle_substrate_context_job_ref
                 context.cycle_substrate_context_job_selected_ref = context_ref
@@ -578,6 +693,7 @@ class ControlNLJobAdmissionMixin:
                 context_artifact_owner = CycleSubstrateContextArtifactOwner(
                     store=self._artifact_store,
                     control_store=self._control_store,
+                    context_admission_verifier=temporal_verifier,
                 )
             if recursive_leaf_context_owner is None:
                 from polisyos.runtime.quality.recursive_generation_cycle import (
@@ -601,44 +717,51 @@ class ControlNLJobAdmissionMixin:
                 """Issue the configured generic parent handoff for an exact problem key."""
                 if cycle_job_profile_selection_ref(problem) != root_profile.profile_selection_ref:
                     return None
-                offer = generic_admission_owner.admit_context(
-                    generic_simulation_profile_id=generic_root_profile_id,
-                    problem=problem,
-                    job_id=job.job_id,
-                    run_id=str(job.run_id),
-                    tenant_id=bound_tenant_id,
-                    cell_id=bound_cell_id,
-                    verified_nl_job_scope=verified_nl_job_scope,
-                )
-                handoff = generic_admission_owner.persist_handoff(
-                    offer=offer,
-                    problem=problem,
-                    job_id=job.job_id,
-                    run_id=str(job.run_id),
-                    tenant_id=bound_tenant_id,
-                    cell_id=bound_cell_id,
-                    verified_nl_job_scope=verified_nl_job_scope,
-                    context_owner=context_artifact_owner,
-                    repo_root=self._repo_root,
-                )
-                replayed = generic_admission_owner.resolve_handoff(
-                    handoff=handoff,
-                    problem=problem,
-                    verified_nl_job_scope=verified_nl_job_scope,
-                    context_owner=context_artifact_owner,
-                    repo_root=self._repo_root,
-                )
-                if replayed != handoff:
-                    raise RuntimeError("generic_cycle_simulation_handoff_replay_changed")
-                if handoff.n4_child_profile_family_ref is not None:
-                    generic_admission_owner.resolve_child_profile_family(
-                        handoff.n4_child_profile_family_ref,
-                        parent_handoff=handoff,
-                        parent_problem=problem,
+                from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContextOwnerError
+
+                try:
+                    offer = generic_admission_owner.admit_context(
+                        generic_simulation_profile_id=generic_root_profile_id,
+                        problem=problem,
+                        job_id=job.job_id,
+                        run_id=str(job.run_id),
+                        tenant_id=bound_tenant_id,
+                        cell_id=bound_cell_id,
+                        verified_nl_job_scope=verified_nl_job_scope,
+                    )
+                    handoff = generic_admission_owner.persist_handoff(
+                        offer=offer,
+                        problem=problem,
+                        job_id=job.job_id,
+                        run_id=str(job.run_id),
+                        tenant_id=bound_tenant_id,
+                        cell_id=bound_cell_id,
                         verified_nl_job_scope=verified_nl_job_scope,
                         context_owner=context_artifact_owner,
                         repo_root=self._repo_root,
                     )
+                    replayed = generic_admission_owner.resolve_handoff(
+                        handoff=handoff,
+                        problem=problem,
+                        verified_nl_job_scope=verified_nl_job_scope,
+                        context_owner=context_artifact_owner,
+                        repo_root=self._repo_root,
+                    )
+                    if replayed != handoff:
+                        raise RuntimeError("generic_cycle_simulation_handoff_replay_changed")
+                    if handoff.n4_child_profile_family_ref is not None:
+                        generic_admission_owner.resolve_child_profile_family(
+                            handoff.n4_child_profile_family_ref,
+                            parent_handoff=handoff,
+                            parent_problem=problem,
+                            verified_nl_job_scope=verified_nl_job_scope,
+                            context_owner=context_artifact_owner,
+                            repo_root=self._repo_root,
+                        )
+                except CycleSubstrateContextOwnerError as exc:
+                    if exc.code == "cycle_substrate_context_temporal_read_not_established":
+                        return None
+                    raise
                 generic_handoff_binding["handoff"] = handoff
                 generic_handoff_binding["problem"] = problem
                 context.start_core_attempt()

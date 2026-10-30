@@ -1679,3 +1679,20 @@ remain invalid, and inferred totals are not emitted as reported. The actual raw
 wire retains canonical presence; the normalized Gateway DTO is a separate
 convenience view. All availability/alias/partial/total cases have one quantity
 round-trip property and an explicit unknown-provenance ceiling.
+
+
+### Configured N5 and acquisition requirements
+
+Configured candidate and generic N5 paths retain their candidate-only value and
+promotion limitations. A current requirement reconciled by the existing N7 source-gap
+owner to the selected candidate, problem, producer observation and revision may
+still escalate to the existing compiler/planner. Escalation is an attempt at
+source/checkpoint admission; it grants neither an acquisition action nor retained
+evaluation authority. Missing or mismatched gaps retain the configured stop.
+
+For grounding COV gaps, the shared binder recomputes the complete canonical gap
+from the enclosing observation's report, issue and evidence basis and the current
+problem's authority scope. Matching source/request DTOs alone do not establish
+that join. This reconciles observed candidate context; it does not verify external
+producer authenticity. Persisted content/provenance and protected claims remain
+with the existing downstream compiler/planner and action/retention owners.

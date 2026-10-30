@@ -1,0 +1,4 @@
+type = "fixed"
+area = "runtime"
+summary = "Preserve candidate acquisition escalation for a requirement reconciled with the current observation."
+notes = "Configured candidate and generic N5 handoffs reuse the existing N7 source-gap binder and compiler/planner. Grounding COV gaps are reconstructed from the actual enclosing report, issues, evidence and current subject. Missing or mismatched requirements retain the configured stop. N5-only value, N8/N9 authority, source-emission defaults, protected source admission and the separate WDI criterion remain unchanged. Composed planner-to-fresh-reader verification remains required."

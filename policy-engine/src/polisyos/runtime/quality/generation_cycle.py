@@ -2327,7 +2327,11 @@ def _n7_bound_source_gap(
     design_problem_basis_ref: str,
     acquisition_request: Mapping[str, Any],
 ) -> tuple[AcquisitionRequirementGap | None, str | None]:
-    """Bind a source gap to actual cycle/retained owner fields, not its labels alone."""
+    """Reconcile candidate routing with the current observation and subject.
+
+    This is an observed-context join, not independent producer verification.
+    Protected claims still require the downstream persisted source admission.
+    """
     raw_present = "requirement_gap" in acquisition_request
     source_gap = _cycle_acquisition_requirement(grounding, value_port)
     if source_gap is None:
@@ -2344,6 +2348,25 @@ def _n7_bound_source_gap(
         source_gap = AcquisitionRequirementGap.model_validate(source_gap.model_dump(mode="json"))
     except (TypeError, ValueError):
         return None, "unbound_requirement_input_refused"
+    if grounding.acquisition_requirement is not None:
+        # Reconstruct the whole COV producer basis from the enclosing current
+        # observation, not from the gap's own self-consistent declaration.
+        if not grounding.report_ref:
+            return None, "unbound_requirement_input_refused"
+        try:
+            observed_gap = grounding_coverage_requirement_gap(
+                candidate_id=grounding.candidate_id,
+                candidate_content_hash=selected_candidate_content_hash,
+                design_problem_ref=_problem_ref(problem),
+                issue_codes=grounding.issue_codes,
+                evidence_refs=grounding.evidence_refs,
+                authority_level=problem.authority_profile.requested_authority_level,
+                grounding_report_ref=grounding.report_ref,
+            )
+        except (TypeError, ValueError):
+            return None, "unbound_requirement_input_refused"
+        if source_gap.model_dump(mode="json") != observed_gap.model_dump(mode="json"):
+            return None, "unbound_requirement_input_refused"
     if request_gap.model_dump(mode="json") != source_gap.model_dump(mode="json"):
         return None, "unbound_requirement_input_refused"
     driver = acquisition_request.get("driver")
@@ -14626,7 +14649,30 @@ class GenerationCycleController:
             prior_terminal_kind=terminal_kind,
             budget_state=state["budget_state"],
         )
-        if self._candidate_simulation_handoff is not None:
+        # A configured N5-only value projection cannot close N8 or N9, but it
+        # must not suppress a current producer-bound requirement from grounding.
+        # This only permits the existing compiler/planner to attempt its full
+        # source/checkpoint admission; it grants no acquisition or reuse right.
+        source_gap = None
+        gap_refusal = "requirement_gap_not_compiled"
+        acquisition_request = revision.strategy_payload.get("acquisition_request")
+        if terminal_kind == SearchTerminalKind.ACQUISITION_REQUIRED.value and isinstance(
+            acquisition_request, Mapping
+        ):
+            source_gap, gap_refusal = _n7_bound_source_gap(
+                problem,
+                grounding=grounding,
+                value_port=state["value_port"],
+                selected_candidate_ref=candidate_id,
+                selected_candidate_content_hash=_candidate_content_hash(candidate),
+                design_problem_basis_ref=(
+                    placeholder_cycle.design_problem_basis_ref
+                    or placeholder_cycle.design_problem_ref
+                ),
+                acquisition_request=acquisition_request,
+            )
+        preserve_requirement_escalation = source_gap is not None and gap_refusal is None
+        if self._candidate_simulation_handoff is not None and not preserve_requirement_escalation:
             candidate_reason = (
                 "candidate_scenario_n5_only"
                 if state["value_port"].status == "value_pending_n8"
@@ -14641,7 +14687,10 @@ class GenerationCycleController:
                     "reason": candidate_reason,
                 }
             )
-        elif self._generic_cycle_simulation_handoff is not None:
+        elif (
+            self._generic_cycle_simulation_handoff is not None
+            and not preserve_requirement_escalation
+        ):
             generic_reason = (
                 "generic_cycle_simulation_candidate_only"
                 if state["value_port"].status == "value_conditional"

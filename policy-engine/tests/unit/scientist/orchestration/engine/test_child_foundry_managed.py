@@ -60,12 +60,198 @@ from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 from tests.unit.runtime.http.test_child_control_authorization import _job
 from tests.unit.scientist.orchestration.engine.test_admitted_subworkflow_custody import (
+    _SPEC,
     _parent_inputs,
     _Resolver,
 )
 
 if TYPE_CHECKING:
     from pathlib import Path
+
+
+@pytest.mark.parametrize("operation", ["compile", "execute"])
+def test_same_component_id_cannot_appoint_a_foreign_foundry_producer(
+    tmp_path: Path, operation: str
+) -> None:
+    """A sibling cannot acquire the builtin's Foundry scope by copying its ID."""
+    from types import SimpleNamespace
+
+    from polisyos.core.artifacts.store import PutOptions
+    from polisyos.core.contracts.foundry import ExecPlanRef, FoundryInputBindingsRef
+    from polisyos.scientist.nodes.builtins.compile.compile_foundry import CompileFoundryNode
+    from polisyos.scientist.nodes.builtins.simulate.run_simulation import RunSimulationNode
+    from polisyos.scientist.orchestration.engine.child_computation import _AdmittedChildDispatch
+    from polisyos.scientist.orchestration.engine.component_identity import (
+        _capture_configured_component_owner,
+    )
+    from tests.unit.scientist.orchestration.engine.test_child_foundry import _Fence, _LocalFoundry
+
+    store = FileSystemCAS(tmp_path / "cas")
+    policy = store.put_json(
+        {"policy": 1},
+        PutOptions(kind="ir.trinity_bundle", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    guard = BlockingDependencyGuard(
+        dependency_name="child-foundry-alias-test",
+        timeout_seconds=30,
+        breaker=CircuitBreaker("child-foundry-alias-test"),
+        executor=get_shared_executor(),
+    )
+
+    class AliasProducer:
+        @property
+        def spec(self):
+            node = CompileFoundryNode() if operation == "compile" else RunSimulationNode()
+            return node.spec
+
+        def execute(self, ctx, state):
+            del state
+            if operation == "compile":
+                return ctx.foundry.compile(
+                    ctx.store, CompileRequest(input_kind="trinity", policy_ref=policy)
+                )
+            return ctx.foundry.execute(
+                ctx.store,
+                ExecuteRequest(
+                    exec_plan_ref=ExecPlanRef(artifact_id=policy.artifact_id),
+                    input_bindings_ref=FoundryInputBindingsRef(artifact_id=policy.artifact_id),
+                ),
+            )
+
+    def exercise(grant):
+        port = _ScopedChildFoundryPort(
+            delegate=_LocalFoundry(),
+            store=store,
+            grant=grant,
+            fence=_Fence(),
+            reconcile_owner=lambda: None,
+        )
+        node = AliasProducer()
+        dispatch = _AdmittedChildDispatch(
+            _capture_configured_component_owner(node, {}), {}, grant, fence=_Fence()
+        )
+        with pytest.raises(ValueError, match="child_foundry_builtin_owner_not_established"):
+            dispatch.execute(
+                SimpleNamespace(store=store, foundry=port), ExperimentState(run_id="r")
+            )
+
+    try:
+        guard.run_with_parent_admission(exercise, deadline_monotonic=time.monotonic() + 30)
+    finally:
+        guard.close()
+
+
+def test_canonical_held_compiler_reaches_its_scoped_foundry_port(tmp_path: Path) -> None:
+    """The genuine held builtin can still use the selected store through its port."""
+    from types import SimpleNamespace
+
+    from polisyos.core.artifacts.store import PutOptions
+    from polisyos.scientist.nodes.builtins.compile.compile_foundry import CompileFoundryNode
+    from polisyos.scientist.orchestration.engine.child_computation import _AdmittedChildDispatch
+    from polisyos.scientist.orchestration.engine.component_identity import (
+        _capture_configured_component_owner,
+    )
+    from tests.unit.scientist.orchestration.engine.test_child_foundry import _Fence, _LocalFoundry
+
+    store = FileSystemCAS(tmp_path / "cas")
+    policy = store.put_json(
+        {"policy": 1},
+        PutOptions(kind="ir.trinity_bundle", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    guard = BlockingDependencyGuard(
+        dependency_name="child-foundry-builtin-test",
+        timeout_seconds=30,
+        breaker=CircuitBreaker("child-foundry-builtin-test"),
+        executor=get_shared_executor(),
+    )
+
+    def exercise(grant):
+        port = _ScopedChildFoundryPort(
+            delegate=_LocalFoundry(),
+            store=store,
+            grant=grant,
+            fence=_Fence(),
+            reconcile_owner=lambda: None,
+        )
+        node = CompileFoundryNode()
+        dispatch = _AdmittedChildDispatch(
+            _capture_configured_component_owner(node, {}), {}, grant, fence=_Fence()
+        )
+        outcome = dispatch.execute(
+            SimpleNamespace(store=store, foundry=port),
+            ExperimentState(run_id="r", inputs={"trinity_bundle_ref": policy}),
+        )
+        assert outcome.status == "ok"
+        assert store.get_bytes(outcome.artifacts[0])
+
+    try:
+        guard.run_with_parent_admission(exercise, deadline_monotonic=time.monotonic() + 30)
+    finally:
+        guard.close()
+
+
+def test_held_compiler_refuses_an_unappointed_foundry_port_before_work(tmp_path: Path) -> None:
+    """A raw Foundry port cannot escape the child's operation-scoped boundary."""
+    from contextlib import contextmanager
+    from types import SimpleNamespace
+
+    from polisyos.core.artifacts.store import PutOptions
+    from polisyos.core.contracts.foundry import CompileResult
+    from polisyos.scientist.nodes.builtins.compile.compile_foundry import CompileFoundryNode
+    from polisyos.scientist.orchestration.engine.child_computation import _AdmittedChildDispatch
+    from polisyos.scientist.orchestration.engine.component_identity import (
+        _capture_configured_component_owner,
+    )
+    from tests.unit.scientist.orchestration.engine.test_child_foundry import _Fence
+
+    store = FileSystemCAS(tmp_path / "cas")
+    policy = store.put_json(
+        {"policy": 1},
+        PutOptions(kind="ir.trinity_bundle", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    calls: list[str] = []
+
+    class RawFoundry:
+        @contextmanager
+        def _producer_scope(self, *_args, **_kwargs):
+            yield
+
+        def compile(self, destination, request):
+            del request
+            calls.append("compile")
+            ref = destination.put_json(
+                {"report": "unscoped"},
+                PutOptions(kind="test.child_compile_report", media_type="application/json"),
+                return_selected_profile=True,
+            )
+            return CompileResult(ok=True, compile_report_ref=ref)
+
+    guard = BlockingDependencyGuard(
+        dependency_name="child-foundry-unappointed-test",
+        timeout_seconds=30,
+        breaker=CircuitBreaker("child-foundry-unappointed-test"),
+        executor=get_shared_executor(),
+    )
+
+    def exercise(grant):
+        node = CompileFoundryNode()
+        dispatch = _AdmittedChildDispatch(
+            _capture_configured_component_owner(node, {}), {}, grant, fence=_Fence()
+        )
+        with pytest.raises(ValueError, match="child_foundry_port_not_appointed"):
+            dispatch.execute(
+                SimpleNamespace(store=store, foundry=RawFoundry()),
+                ExperimentState(run_id="r", inputs={"trinity_bundle_ref": policy}),
+            )
+        assert not calls
+
+    try:
+        guard.run_with_parent_admission(exercise, deadline_monotonic=time.monotonic() + 30)
+    finally:
+        guard.close()
 
 
 def test_real_foundry_uses_private_selected_store_and_does_not_publish(tmp_path: Path) -> None:
@@ -198,6 +384,50 @@ def test_real_foundry_uses_private_selected_store_and_does_not_publish(tmp_path:
         # State branching wraps refs in journaled subclasses. The owner must
         # still reconcile all four selected fields against its own scope.
         assert scope.store.get_bytes(selected_trinity)
+
+        from polisyos.scientist.nodes.builtins.compile.compile_foundry import CompileFoundryNode
+        from polisyos.scientist.nodes.builtins.simulate.run_simulation import RunSimulationNode
+        from polisyos.scientist.orchestration.engine.child_computation import _AdmittedChildDispatch
+        from polisyos.scientist.orchestration.engine.component_identity import (
+            _capture_configured_component_owner,
+        )
+
+        compiler = CompileFoundryNode()
+        dispatch = _AdmittedChildDispatch(
+            _capture_configured_component_owner(compiler, {}), {}, grant, fence=fence
+        )
+        compiled_node = dispatch.execute(context, prepared.state)
+        assert compiled_node.status == "ok", compiled_node.error
+        assert compiled_node.state.artifacts_index["exec_plan_ref"].manifest_profile_sha256
+        simulator = RunSimulationNode()
+        simulation_dispatch = _AdmittedChildDispatch(
+            _capture_configured_component_owner(simulator, {}), {}, grant, fence=fence
+        )
+        simulated_node = simulation_dispatch.execute(context, compiled_node.state)
+        assert simulated_node.status == "ok", simulated_node.error
+        assert simulated_node.state.artifacts_index["simulation_result_ref"].manifest_profile_sha256
+
+        class SiblingProducer:
+            @property
+            def spec(self):
+                return _SPEC
+
+            def execute(self, ctx, _state):
+                return ctx.foundry.compile(
+                    ctx.store,
+                    CompileRequest(
+                        input_kind="trinity",
+                        policy_ref=selected_trinity,
+                        registry_bundle_ref=registry.bundle_ref,
+                    ),
+                )
+
+        sibling = SiblingProducer()
+        sibling_dispatch = _AdmittedChildDispatch(
+            _capture_configured_component_owner(sibling, {}), {}, grant, fence=fence
+        )
+        with pytest.raises(ValueError, match="child_foundry_operation_not_admitted"):
+            sibling_dispatch.execute(context, prepared.state)
 
         class ForgedRef(ArtifactRef):
             def model_dump(self, **_kwargs: object):

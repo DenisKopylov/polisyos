@@ -234,6 +234,37 @@ class _AdmittedChildDispatch:
         if self._fence is None:
             raise ValueError("child_control_dispatch_owner_not_appointed")
         self._fence.admit_producer()
+        if ctx.foundry is not None:
+            from polisyos.scientist.orchestration.engine.child_foundry import (
+                _CHILD_FOUNDRY_DISPATCH_TOKEN,
+                _COMPILE_NODE,
+                _EXECUTE_NODE,
+                _ScopedChildFoundryPort,
+            )
+
+            if type(ctx.foundry) is not _ScopedChildFoundryPort:
+                raise ValueError("child_foundry_port_not_appointed")
+            node_id = str(self._spec.metadata.component_id)
+            if node_id in {
+                _COMPILE_NODE,
+                _EXECUTE_NODE,
+            }:
+                from polisyos.scientist.nodes.builtins.compile.compile_foundry import (
+                    CompileFoundryNode,
+                )
+                from polisyos.scientist.nodes.builtins.simulate.run_simulation import (
+                    RunSimulationNode,
+                )
+
+                builtin = CompileFoundryNode if node_id == _COMPILE_NODE else RunSimulationNode
+                if (
+                    type(self._owner.registered_node) is not builtin
+                    or type(self._owner.bound_node) is not builtin
+                    or self._owner.implementation.node_type is not builtin
+                ):
+                    raise ValueError("child_foundry_builtin_owner_not_established")
+                with ctx.foundry._producer_scope(node_id, _token=_CHILD_FOUNDRY_DISPATCH_TOKEN):
+                    return self._owner.execute(ctx, state)
         return self._owner.execute(ctx, state)
 
 

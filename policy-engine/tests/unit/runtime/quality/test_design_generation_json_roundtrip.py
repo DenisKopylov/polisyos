@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from polisyos.core.artifacts import canon
+from polisyos.core import canon
 from polisyos.runtime.quality import design_generation as n4
 
 REPO_ROOT = Path(__file__).resolve().parents[4]

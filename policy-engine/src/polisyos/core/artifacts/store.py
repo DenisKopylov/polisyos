@@ -106,10 +106,12 @@ from ._signature_ops import (
 )
 from ._transfer_ops import (
     ExportReport,
-    ImportPublication,
     ImportReport,
     TransferAdmission,
     TransferMemberSnapshot,
+)
+from ._transfer_ops import (
+    ImportPublication as ImportPublication,
 )
 from ._transfer_ops import (
     artifact_id_from_member as _artifact_id_from_member,
@@ -1000,6 +1002,26 @@ class FileSystemCAS:
             ownership_requires_scope=ownership_requires_scope,
             ownership_index=ownership_index,
             read_only=False,
+        )
+
+    def has_stock_component_types(self) -> bool:
+        """Check the exact stock component classes of this filesystem CAS.
+
+        This checks type shape only; callers must independently establish
+        configuration, filesystem relations, access enforcement, and authority.
+
+        Returns:
+            Whether this owner and its five components use the exact stock types.
+        """
+        from .ownership import _RootTransactionCoordinator
+
+        return (
+            type(self) is FileSystemCAS
+            and type(self._ownership_index) is ArtifactOwnershipIndex
+            and type(self._coordinator) is _RootTransactionCoordinator
+            and type(self._layout) is _CASPathLayout
+            and type(self._files) is _AtomicFileWriter
+            and type(self._manifests) is _ManifestLifecycle
         )
 
     @classmethod

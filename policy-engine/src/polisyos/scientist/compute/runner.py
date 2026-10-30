@@ -1535,7 +1535,7 @@ class MethodBackend:
                 }
                 slot_names = signature.input_slot_names
                 if "hte_data" in slot_names:
-                    from polisyos.foundry.methods.catalog.causal._econml_adapter import (
+                    from polisyos.foundry.methods.catalog.causal import (
                         build_hte_data,
                     )
 

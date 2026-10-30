@@ -420,6 +420,11 @@ against Trinity and retains the full merge/check operator plane. It writes no CA
 objects and issues no completion, observation or publication authority. Enabled
 intervention mechanisms remain outside this bounded replay profile.
 
+The `polisyos.foundry.compile.build_method_housekeeping_nodes` facade delegates
+to the compiler's canonical merge/check node and edge builder for one method,
+including collision handling. It does not validate the supplied node's kind or
+semantic inputs, and grants no execution, completion, or publication authority.
+
 The `polisyos.foundry.compile` facade exposes `program_graph_input_refs` and
 `execution_plan_input_refs`, the same ordered selected-edge builders used by the
 Trinity compiler writer, together with the existing `TreasuryPlan` and

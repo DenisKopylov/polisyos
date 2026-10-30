@@ -206,6 +206,12 @@ validity, scientific qualification, calibration, or publication authority.
 
 ### HTE observational input admission
 
+`polisyos.foundry.methods.catalog.causal.build_hte_data` delegates to the
+existing typed HTE observational adapter, preserving its input validation and
+array conversions. It constructs method inputs and confers no source,
+causal-identification, or publication authority.
+
+
 `polisyos.foundry.data_plane.prepare_hte_observational_input` is the Foundry
 owner for two explicit source protocols: a selected-profile
 `ir.observation_method_input` envelope, or an explicitly requested legacy

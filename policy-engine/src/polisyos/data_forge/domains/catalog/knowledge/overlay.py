@@ -28,13 +28,15 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 from polisyos.core import artifacts, canon, contracts, scan_secret_and_pii
 from polisyos.fabric import data_plane as fabric_data_plane
-from polisyos.fabric.connectors.types._units_base import (
+from polisyos.fabric.connectors.types.units import (
+    PREFIX_FACTORS,
     STANDARD_UNITS,
     SUPERSCRIPT_MAP,
     BaseUnit,
+    Unit,
+    UnitConversionError,
+    UnitParseError,
 )
-from polisyos.fabric.connectors.types._units_prefixes import PREFIX_FACTORS
-from polisyos.fabric.connectors.types.units import Unit, UnitConversionError, UnitParseError
 
 ArtifactID = artifacts.ArtifactID
 ArtifactRef = artifacts.ArtifactRef

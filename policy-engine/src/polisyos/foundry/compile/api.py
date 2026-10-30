@@ -19,7 +19,9 @@ from polisyos.core.contracts.foundry import (
     CompileResult,
     LoweredIR,
     LoweredIRRef,
+    ProgramEdge,
     ProgramGraph,
+    ProgramNode,
 )
 from polisyos.foundry._artifact_capabilities import resolve_core_json_profile_store
 from polisyos.ir.kernel import ConstraintRegistry
@@ -123,6 +125,25 @@ def _compile_exception(
         derived_refs=[],
         notes=notes,
     )
+
+
+def build_method_housekeeping_nodes(
+    method: ProgramNode,
+) -> tuple[list[ProgramNode], list[ProgramEdge]]:
+    """Build the compiler-owned housekeeping closure for one candidate node.
+
+    This does not validate the node kind or its semantic inputs; callers must
+    admit the method before using the resulting graph as execution evidence.
+
+    Args:
+        method: The selected method node whose surrounding closure is requested.
+
+    Returns:
+        The canonical housekeeping nodes and edges with no constraints.
+    """
+    from ._graph import _build_op_nodes
+
+    return _build_op_nodes([method], [])
 
 
 def replay_method_program_graph(

@@ -12,6 +12,7 @@ from polisyos.ir.analytics.causal import (
     PlaceboResult,
 )
 
+from ._econml_adapter import build_hte_data
 from ._registry_boot import register_causal_methods
 from .advanced_designs import (
     BunchingEstimator,
@@ -285,6 +286,7 @@ def ensure_causal_methods_registered(registry: MethodRegistry | None = None) -> 
 
 
 __all__ = [
+    "build_hte_data",
     "CausalEffectReport",
     "CausalMethod",
     "DiagnosticTest",

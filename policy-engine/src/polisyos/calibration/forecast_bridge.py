@@ -212,6 +212,7 @@ _TRIVIAL_IDENTITY_VALUES = frozenset(
 
 _OBSERVATION_BLOCKERS = frozenset(
     {
+        "backtest_source_not_established",
         "interval_bounds_missing",
         "interval_bounds_partial",
         "within_ci_missing",
@@ -234,6 +235,7 @@ _OBSERVATION_BLOCKERS = frozenset(
 )
 _PERSISTENCE_ALLOWED_LIMITATIONS = frozenset(
     {
+        "backtest_source_not_established",
         "calibration_floor_not_met",
         "zero_observation_denominator",
         "nominal_confidence_only",
@@ -478,7 +480,10 @@ def _produce_empirical_calibration_evidence(
         observation_issues,
     ) = _recompute_and_reconcile(report)
 
-    issues = list(observation_issues)
+    # The report reader can reconcile arithmetic, but there is currently no
+    # owner that compares each row with the selected forecast and holdout.
+    # A report's own metadata cannot establish that missing relation.
+    issues = [*observation_issues, "backtest_source_not_established"]
     report_profile_issues = (
         ("report_profile_not_established",)
         if require_selected_profiles and validated_report_ref.manifest_profile_sha256 is None
@@ -516,7 +521,12 @@ def _produce_empirical_calibration_evidence(
         issues.extend(provenance_issues)
 
     pass_rate = recomputed_numerator / recomputed_denominator if recomputed_denominator else None
-    if context is not None and pass_rate is not None and pass_rate < context.calibration_threshold:
+    if (
+        context is not None
+        and pass_rate is not None
+        and pass_rate < context.calibration_threshold
+        and "backtest_source_not_established" not in issues
+    ):
         issues.append("calibration_floor_not_met")
 
     failure_codes = _dedupe(issues)
@@ -564,7 +574,7 @@ def _produce_empirical_calibration_evidence(
         calibration_window_start=context.calibration_window_start if context else None,
         calibration_window_end=context.calibration_window_end if context else None,
         evidence_kind=(
-            "observed_interval_comparisons" if recomputed_denominator else "unavailable"
+            "observed_interval_comparisons" if empirical_observations_available else "unavailable"
         ),
         empirical_observations_available=empirical_observations_available,
         context_bound=context_bound,

@@ -40,8 +40,8 @@ backtest explicitly records that no supported multi-run projection exists and
 uses a naive diagnostic fallback; it does not average replicas into a scalar or
 replicate one scalar across the horizon.
 
-The opt-in `params.backtest_native_forecast` path supports an ordered, single
-model trajectory. It requires selected source, candidate, Trinity and registry
+The opt-in `params.backtest_native_forecast` path supports ordered model
+trajectories. It requires selected source, candidate, Trinity and registry
 views, explicit prefix-only binding rules, registered target slots and units, and
 matching source coordinates. Supplied outcomes must equal the withheld target
 values in that selected source. It derives a Trinity bound to the historical
@@ -55,18 +55,50 @@ The public `load_backtest_report_for_consumption` admits legacy reports through
 the IR owner and routes native reports through this verification. The low-level
 IR report loader refuses a native report; its explicitly named candidate reader
 only admits the typed bytes for subsequent verification. The decision-packet
-reader uses the guarded loader. Calibration-validation and Runtime predictive
-calibration continue to refuse native reports at the IR boundary; native
-calibration and interval evidence are outside this replay's supported scope.
-The independently assembled backtest matrix refuses native plans until it can
-retain the selected trajectory and cohort edges. In a mixed native/legacy
-batch, every Scientist cohort receives an exact selected profile; a legacy-only
-batch retains its existing profile behavior.
-The bounded coverage inspector marks any cohort-backed report, including a
-legacy cohort, as not measured because it does not verify cohort semantics.
-Native multi-replica projection is unsupported and refuses before workflow
-dispatch, recording the requested count and zero starts. A failed selected
-native execution is unavailable rather than a substituted forecast. If the
+reader uses the guarded loader. Calibration validation refuses native plans
+before its scoring pipeline, and Runtime predictive calibration continues to
+refuse native reports at the IR boundary. Native calibration and interval
+evidence are outside this replay's supported scope.
+The backtest matrix retains the same selected native trajectory and cohort
+edges as the ordinary producer. A native-containing kind remains a calibration
+gap: neither the matrix nor the leaderboard supplies a composite promotion
+score. The leaderboard resolves the selected report through its configured CAS
+and reconciles the kind census, scores and gaps before using a Matrix result.
+An absent store, unselected or unreadable report, or inconsistent Matrix result
+cannot supply a composite or promotion eligibility. A resolved, consistent
+legacy Matrix retains its arithmetic as candidate diagnostic only. Its report
+rows are not independently reconciled to a persisted forecast and holdout
+source; Matrix and leaderboard carry `backtest_matrix_source_not_established`,
+and C5b cannot promote until that producer and reconciliation path exists.
+The shared trust projection withholds eligibility, score and grade as
+`not_established` even when the report's exact-zero arithmetic reconciles;
+that internal calculation does not establish source authority. New Matrix
+reports and fresh reads of historical Matrix reports withhold trust markers;
+the explicit raw candidate reader can still expose the stored historical bytes.
+The backtest CLI projects the same limited trust status rather than printing
+stored report-internal trust scores.
+C5b records missing source verification as a low-confidence opportunity,
+while an observed governance, adversarial or critical stress failure remains
+a failure lesson.
+Unbound leaderboard ranking cannot retain an input composite; callers may pass
+the corresponding Matrix by entry ID for a fresh diagnostic recomputation.
+Every Scientist cohort produced by the Matrix receives an exact selected profile, including
+legacy cohorts; the ordinary legacy-only backtest producer keeps its existing
+profile behavior and withholds trust without a reconciled source. Historical
+raw candidate bytes may retain report-internal trust markers; those markers do
+not establish the original forecast/holdout source binding.
+The bounded coverage inspector marks reports as not measured when their rows
+cannot be reconciled to selected forecast and holdout sources. It also does not
+verify cohort semantics; the raw report remains available for technical inspection.
+For multiple native replicas, the selected historical plan fixes the requested
+cohort size, and each replica has a separate run and seed. Only a complete
+cohort projects a pointwise arithmetic mean; the reader reopens every selected
+request, trajectory, workflow and shared input basis before recomputing it.
+This is an average of the retained simulations, not a prediction interval or
+an assertion of independent draws. A failed multi-replica cohort remains
+unavailable with its full denominator and retained trajectories; survivors are
+not averaged. A failed selected native execution is unavailable rather than a
+substituted forecast. If the
 simulation node succeeds but the surrounding workflow later fails, the report
 retains its verified values as `scientist_candidate`, records the actual failed
 workflow and replica count, and stays degraded and ineligible for trust. The
@@ -74,9 +106,9 @@ native report reader reopens the workflow and cohort before accepting that statu
 The selected run manifest links the engine's finalization and run-specific
 workflow specification to the report; the reader checks the complete node
 census and terminal status against that selected specification.
-For an unavailable request, the requested and started replica counts are
-marked `not_established`: the original plan and no-dispatch fact are not
-independently established by the persisted report.
+For an unavailable request, the requested and started replica counts remain
+marked `not_established`: even where a selected plan is retained, the original
+producer input and attempted-start facts are not independently established.
 
 These are predictive model outputs with no inferred intervals or trust authority.
 Each step reinitializes Foundry with the same seed; the temporal stochastic law

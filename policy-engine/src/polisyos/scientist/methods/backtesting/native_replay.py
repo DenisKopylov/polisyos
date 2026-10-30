@@ -158,6 +158,20 @@ class NativeForecastTrajectory(BaseModel):
     values: dict[str, list[float]]
 
 
+class _NativeReplicaProjection(BaseModel):
+    """Describe a complete cohort's arithmetic projection without interval claims."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    method: Literal["arithmetic_mean_complete_cohort_v1"]
+    plan_ref: cas.ArtifactRef
+    forecast_refs: list[cas.ArtifactRef] = Field(min_length=2)
+
+
+_NATIVE_PLAN_KIND = "scientist.backtest.historical_validation_plan"
+_NATIVE_PLAN_SCHEMA = "polisyos.scientist.backtesting.HistoricalValidationPlan"
+
+
 def _selected(ref: cas.ArtifactRef) -> cas.ArtifactRef:
     if ref.manifest_profile_sha256 is None:
         raise ValueError("native replay requires selected artifact profiles")
@@ -222,6 +236,87 @@ def _put(
             return_selected_profile=True,
         )
     )
+
+
+def _persist_native_plan(
+    store: cas.ArtifactStore, plan: HistoricalValidationPlan
+) -> cas.ArtifactRef:
+    """Retain the actual typed request that fixes the cohort denominator."""
+    state = plan.scientist_state
+    if not isinstance(state, dict) or not isinstance(state.get("inputs"), dict):
+        raise ValueError("native replay plan inputs are missing")
+    inputs = state["inputs"]
+    return _put(
+        store,
+        plan,
+        kind=_NATIVE_PLAN_KIND,
+        schema=_NATIVE_PLAN_SCHEMA,
+        version="1.0",
+        inputs=[
+            (cas.ArtifactRef.model_validate(inputs[key]), role)
+            for key, role in (
+                ("data_snapshot_ref", "source_snapshot"),
+                ("trinity_bundle_ref", "original_trinity"),
+                ("registry_bundle_ref", "registry"),
+            )
+        ],
+    )
+
+
+def _mean_native_values(values: list[dict[str, list[float]]]) -> dict[str, list[float]]:
+    """Recompute a pointwise mean only over a complete, aligned selected cohort."""
+    if not values:
+        raise ValueError("native replica projection has no trajectories")
+    metrics = set(values[0])
+    if not metrics or any(set(item) != metrics for item in values):
+        raise ValueError("native replica projection metric axes differ")
+    result: dict[str, list[float]] = {}
+    for metric in sorted(metrics):
+        size = len(values[0][metric])
+        if not size or any(len(item[metric]) != size for item in values):
+            raise ValueError("native replica projection time axes differ")
+        rows = [item[metric] for item in values]
+        if any(not math.isfinite(value) for row in rows for value in row):
+            raise ValueError("native replica projection contains nonfinite values")
+        result[metric] = [
+            math.fsum(row[index] / len(rows) for row in rows) for index in range(size)
+        ]
+    return result
+
+
+def _require_shared_native_basis(requests: list[NativeForecastRequest]) -> None:
+    """Require exact shared selections while allowing each run and seed to differ."""
+    if not requests:
+        raise ValueError("native replica projection has no requests")
+    first = requests[0].model_dump(mode="json", exclude={"run_id", "seed"})
+    if any(
+        request.model_dump(mode="json", exclude={"run_id", "seed"}) != first
+        for request in requests[1:]
+    ):
+        raise ValueError("native replica shared execution basis differs")
+
+
+def _require_shared_native_execution(forecasts: list[NativeForecastTrajectory]) -> None:
+    """Allow only the per-replica binding and seed to vary in submitted execution."""
+    if not forecasts:
+        raise ValueError("native replica projection has no executions")
+
+    def basis(
+        forecast: NativeForecastTrajectory,
+    ) -> tuple[dict[str, Any], tuple[str, ...], tuple[str, ...]]:
+        request = forecast.submitted_execution.model_dump(
+            mode="json", exclude={"input_bindings_ref"}
+        )
+        request["exec_config"].pop("seed")
+        return (
+            request,
+            forecast.submitted_request_fields_set,
+            forecast.submitted_exec_config_fields_set,
+        )
+
+    first = basis(forecasts[0])
+    if any(basis(forecast) != first for forecast in forecasts[1:]):
+        raise ValueError("native replica submitted execution differs across cohort")
 
 
 def _project_source(
@@ -983,6 +1078,437 @@ def _load_native_workflow_report(
     return payload
 
 
+def _load_native_plan(
+    store: cas.CoreJSONArtifactStore, ref: cas.ArtifactRef
+) -> HistoricalValidationPlan:
+    from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan
+
+    manifest = store.get_manifest(_selected(ref))
+    if (
+        manifest.kind != _NATIVE_PLAN_KIND
+        or manifest.media_type != "application/json"
+        or manifest.artifact_schema != cas.SchemaInfo(name=_NATIVE_PLAN_SCHEMA, version="1.0")
+    ):
+        raise ValueError("native replica plan profile mismatch")
+    plan = cas.validate_core_model_json_artifact(HistoricalValidationPlan, store, ref)
+    state = plan.scientist_state
+    if not isinstance(state, dict) or not isinstance(state.get("inputs"), dict):
+        raise ValueError("native replica plan inputs are missing")
+    for key, role in (
+        ("data_snapshot_ref", "source_snapshot"),
+        ("trinity_bundle_ref", "original_trinity"),
+        ("registry_bundle_ref", "registry"),
+    ):
+        _edge(store, ref, cas.ArtifactRef.model_validate(state["inputs"].get(key)), role)
+    return plan
+
+
+def _check_native_plan_request(
+    store: cas.CoreJSONArtifactStore,
+    plan: HistoricalValidationPlan,
+    request: NativeForecastRequest,
+    *,
+    index: int,
+) -> None:
+    from polisyos.scientist.methods.backtesting.plan import PredictionSource
+
+    state = plan.scientist_state
+    if not isinstance(state, dict) or set(state) - {"run_id", "inputs", "params"}:
+        raise ValueError("native replica plan state mismatch")
+    inputs, params = state.get("inputs"), state.get("params")
+    if (
+        not isinstance(inputs, dict)
+        or set(inputs) != {"data_snapshot_ref", "trinity_bundle_ref", "registry_bundle_ref"}
+        or not isinstance(params, dict)
+        or set(params)
+        - {
+            "workflow_id",
+            "foundry_input_binding_rules",
+            PROFILE_KEY,
+            "random_seed",
+            "n_simulation_runs",
+        }
+        or params.get("workflow_id", "scientist_default") != "scientist_default"
+        or plan.prediction_source is not PredictionSource.SCIENTIST
+        or plan.masking_strategy.value not in {"drop_post", "truncate"}
+    ):
+        raise ValueError("native replica plan scope mismatch")
+    base_seed = plan.random_seed if plan.random_seed is not None else params.get("random_seed", 0)
+    if type(base_seed) is not int or request.seed != base_seed + index - 1:
+        raise ValueError("native replica plan seed mismatch")
+    if (
+        cas.ArtifactRef.model_validate(inputs["data_snapshot_ref"]) != request.source_snapshot_ref
+        or cas.ArtifactRef.model_validate(inputs["trinity_bundle_ref"])
+        != request.original_trinity_ref
+        or cas.ArtifactRef.model_validate(inputs["registry_bundle_ref"]) != request.registry_ref
+        or NativeForecastProfile.model_validate(params[PROFILE_KEY]) != request.profile
+        or [
+            FoundryInputBindingRule.model_validate(item)
+            for item in params["foundry_input_binding_rules"]
+        ]
+        != request.rules
+        or plan.historical_data_ref != str(request.source_data_ref.artifact_id)
+        or set(plan.target_metrics) != {target.metric for target in request.profile.targets}
+        or set(plan.ground_truth_outcomes) != set(plan.target_metrics)
+    ):
+        raise ValueError("native replica request differs from selected plan")
+    source_data = cas.load_core_json_artifact(store, request.source_data_ref)
+    if (
+        not isinstance(source_data, dict)
+        or OutcomeMasker._resolve_cutoff(source_data, plan) != request.cutoff
+        or (plan.intervention_date and plan.intervention_date != request.profile.origin)
+        or _source_holdout(source_data, request.profile, request.cutoff)
+        != plan.ground_truth_outcomes
+    ):
+        raise ValueError("native replica selected plan holdout mismatch")
+
+
+def _selected_replica_evidence(
+    store: cas.CoreJSONArtifactStore, cohort_ref: cas.ArtifactRef, replica: Any, *, index: int
+) -> tuple[dict[str, Any], list[dict[str, Any]]] | None:
+    """Reconcile every retained cohort edge and workflow, including failures."""
+    expected_roles = set()
+    if replica.physical_request is not None:
+        request = ExecuteRequest.model_validate(replica.physical_request)
+        for ref, role in (
+            (request.exec_plan_ref, f"replica_{index}_exec_plan"),
+            (request.input_bindings_ref, f"replica_{index}_input_bindings"),
+        ):
+            _edge(store, cohort_ref, ref, role)
+            expected_roles.add(role)
+    for ref, role in (
+        (replica.simulation_result_ref, f"replica_{index}_simulation_result"),
+        (replica.metrics_ref, f"replica_{index}_metrics"),
+        (replica.workflow_report_ref, f"replica_{index}_workflow_report"),
+        (replica.run_manifest_ref, f"replica_{index}_run_manifest"),
+    ):
+        if ref is not None:
+            _edge(store, cohort_ref, ref, role)
+            expected_roles.add(role)
+    actual_roles = [
+        edge.role
+        for edge in store.get_manifest(cohort_ref).inputs
+        if edge.role.startswith(f"replica_{index}_")
+    ]
+    if len(actual_roles) != len(expected_roles) or set(actual_roles) != expected_roles:
+        raise ValueError("native replica retained evidence census mismatch")
+    if replica.workflow_report_ref is None or replica.run_manifest_ref is None:
+        return None
+    workflow = _load_native_workflow_report(
+        store, replica.workflow_report_ref, replica.run_manifest_ref
+    )
+    failures = [
+        {
+            "alias": node.get("alias"),
+            "status": node.get("status"),
+            "error": node.get("error") if isinstance(node.get("error"), dict) else None,
+        }
+        for node in workflow["nodes"]
+        if isinstance(node, dict) and node.get("status") == "fail"
+    ]
+    if (
+        replica.index != index
+        or replica.workflow_started is not True
+        or workflow.get("run_id") != replica.run_id
+        or workflow.get("status") != replica.workflow_status
+        or failures != replica.workflow_failures
+    ):
+        raise ValueError("native report workflow status or forecast evidence mismatch")
+    return workflow, failures
+
+
+def _verify_native_replica(
+    store: cas.CoreJSONArtifactStore,
+    cohort_ref: cas.ArtifactRef,
+    cohort: Any,
+    replica: Any,
+    forecast_ref: cas.ArtifactRef,
+    request_ref: cas.ArtifactRef,
+    *,
+    index: int,
+) -> tuple[NativeForecastTrajectory, NativeForecastRequest, list[dict[str, Any]]]:
+    """Reconcile one selected trajectory to its real workflow and cohort record."""
+    from polisyos.scientist.methods.backtesting.orchestrator import _resolve_replica_failure
+
+    forecast, request = load_native_forecast(store, forecast_ref, request_ref)
+    if cas.artifact_ref_identity_key(cohort.masked_data_snapshot_ref) != (
+        cas.artifact_ref_identity_key(request.data_snapshot_ref)
+    ):
+        raise ValueError("native report replica cohort differs from request")
+    _edge(store, cohort_ref, forecast_ref, f"native_forecast:{index}")
+    selected_workflow = _selected_replica_evidence(store, cohort_ref, replica, index=index)
+    if selected_workflow is None:
+        raise ValueError("native report workflow evidence is missing")
+    workflow, failures = selected_workflow
+    simulation_nodes = [
+        node
+        for node in workflow["nodes"]
+        if isinstance(node, dict) and node.get("alias") == "run_simulation"
+    ]
+    if (
+        workflow.get("run_id") != request.run_id
+        or replica.run_id != request.run_id
+        or replica.seed != request.seed
+        or len(simulation_nodes) != 1
+        or simulation_nodes[0].get("status") != "ok"
+        or not any(
+            cas.ArtifactRef.model_validate(ref) == forecast_ref
+            for ref in simulation_nodes[0].get("artifacts", [])
+        )
+    ):
+        raise ValueError("native report workflow status or forecast evidence mismatch")
+    final_ref = forecast.simulation_refs[-1]
+    final_admission = admit_execution_source(store, final_ref)
+    final_basis = final_admission.basis
+    if replica.simulation_result_ref is None or replica.metrics_ref is None:
+        raise ValueError("native report replica execution outputs are missing")
+    expected_failure = (
+        None
+        if replica.workflow_status == "ok"
+        else _resolve_replica_failure(
+            None, failures, f"scientist_workflow_status:{replica.workflow_status}"
+        )
+    )
+    if (
+        replica.index != index
+        or replica.workflow_started is not True
+        or replica.status != ("completed" if replica.workflow_status == "ok" else "failed")
+        or replica.failure != expected_failure
+        or replica.seed_source != "exec_config.seed"
+        or cas.artifact_ref_identity_key(replica.simulation_result_ref)
+        != cas.artifact_ref_identity_key(final_ref)
+        or cas.artifact_ref_identity_key(replica.metrics_ref)
+        != cas.artifact_ref_identity_key(final_admission.simulation_result.metrics_ref)
+        or final_basis is None
+        or replica.physical_request != final_basis.request.model_dump(mode="json")
+    ):
+        raise ValueError("native report replica status or candidate limitation mismatch")
+    return forecast, request, failures
+
+
+def _load_selected_native_cohort(store: cas.CoreJSONArtifactStore, ref: cas.ArtifactRef) -> Any:
+    from polisyos.scientist.methods.backtesting.orchestrator import _BacktestReplicaCohort
+
+    manifest = store.get_manifest(_selected(ref))
+    if (
+        manifest.kind != "scientist.backtest.replica_cohort"
+        or manifest.media_type != "application/json"
+        or manifest.artifact_schema
+        != cas.SchemaInfo(name="polisyos.scientist.backtesting.ReplicaCohort", version="1.0")
+    ):
+        raise ValueError("native report replica cohort profile mismatch")
+    cohort = cas.validate_core_model_json_artifact(_BacktestReplicaCohort, store, ref)
+    _edge(store, ref, cohort.masked_data_snapshot_ref, "masked_data")
+    replica_prefixes = tuple(f"replica_{item.index}_" for item in cohort.replicas)
+    if any(
+        edge.role.startswith("replica_") and not edge.role.startswith(replica_prefixes)
+        for edge in manifest.inputs
+    ):
+        raise ValueError("native replica retained evidence census mismatch")
+    return cohort
+
+
+def _reconcile_complete_native_cohort(
+    store: cas.CoreJSONArtifactStore,
+    cohort_ref: cas.ArtifactRef,
+    projection: _NativeReplicaProjection,
+) -> tuple[Any, list[NativeForecastTrajectory], list[NativeForecastRequest]]:
+    """Reopen the selected complete cohort for both publication and fresh reads."""
+    cohort = _load_selected_native_cohort(store, cohort_ref)
+    _edge(store, cohort_ref, projection.plan_ref, "native_plan")
+    plan = _load_native_plan(store, projection.plan_ref)
+    count = len(projection.forecast_refs)
+    if (
+        plan.plan_id != cohort.plan_id
+        or plan.n_simulation_runs != count
+        or cohort.requested_count != count
+        or cohort.started_count != count
+        or cohort.foundry_execute_count != count
+        or cohort.completed_count != count
+        or cohort.failed_count != 0
+        or len(cohort.replicas) != count
+        or [replica.index for replica in cohort.replicas] != list(range(1, count + 1))
+        or len({replica.run_id for replica in cohort.replicas}) != count
+        or len({cas.artifact_ref_identity_key(ref) for ref in projection.forecast_refs}) != count
+    ):
+        raise ValueError("native replica projection cohort census mismatch")
+    cohort_roles = [
+        edge.role
+        for edge in store.get_manifest(cohort_ref).inputs
+        if edge.role.startswith("native_forecast:")
+    ]
+    if sorted(cohort_roles) != sorted(f"native_forecast:{index}" for index in range(1, count + 1)):
+        raise ValueError("native replica projection trajectory census mismatch")
+
+    forecasts: list[NativeForecastTrajectory] = []
+    requests: list[NativeForecastRequest] = []
+    for index, (replica, forecast_ref) in enumerate(
+        zip(cohort.replicas, projection.forecast_refs, strict=True), start=1
+    ):
+        stored_forecast = cas.validate_core_model_json_artifact(
+            NativeForecastTrajectory, store, _selected(forecast_ref)
+        )
+        forecast, request, _ = _verify_native_replica(
+            store,
+            cohort_ref,
+            cohort,
+            replica,
+            forecast_ref,
+            stored_forecast.request_ref,
+            index=index,
+        )
+        _check_native_plan_request(store, plan, request, index=index)
+        if replica.status != "completed":
+            raise ValueError("native replica projection includes an incomplete workflow")
+        forecasts.append(forecast)
+        requests.append(request)
+    _require_shared_native_basis(requests)
+    _require_shared_native_execution(forecasts)
+    return cohort, forecasts, requests
+
+
+def _verify_native_projection(
+    store: cas.CoreJSONArtifactStore,
+    report_ref: cas.ArtifactRef,
+    cohort_ref: cas.ArtifactRef,
+    scenario: Any,
+    scenario_reasons: list[str],
+) -> list[str]:
+    """Reconcile the report's mean against the selected complete cohort."""
+    projection = _NativeReplicaProjection.model_validate(
+        scenario.metadata.get("native_replica_projection")
+    )
+    if any(
+        key in scenario.metadata
+        for key in (
+            "native_forecast_ref",
+            "native_request_ref",
+            "native_workflow_status",
+            "native_workflow_failures",
+            "native_requested_replicas",
+            "native_started_replicas",
+            "native_requested_count_status",
+            "native_started_count_status",
+        )
+    ):
+        raise ValueError("native replica projection contains conflicting scenario fields")
+    cohort, forecasts, requests = _reconcile_complete_native_cohort(store, cohort_ref, projection)
+    if cohort.plan_id != scenario.scenario_id:
+        raise ValueError("native replica projection cohort census mismatch")
+    roles = []
+    for index, forecast_ref in enumerate(projection.forecast_refs, start=1):
+        role = f"native_forecast:{scenario.scenario_id}:{index}"
+        _edge(store, report_ref, forecast_ref, role)
+        roles.append(role)
+    first = requests[0]
+    if (
+        scenario.metadata.get("prediction_source_effective") != "scientist"
+        or scenario.metadata.get("degraded") is not True
+        or scenario.metadata.get("native_forecast_purpose") != first.profile.purpose
+        or scenario.metadata.get("native_randomness_scope") != first.randomness_scope
+        or scenario.metadata.get("native_limitations") != first.limitations
+        or any(request.limitations != first.limitations for request in requests)
+        or scenario.metadata.get("native_foundry_step_count")
+        != sum(len(forecast.simulation_refs) for forecast in forecasts)
+        or "native_predictive_simulation_only" not in scenario_reasons
+        or any(limitation not in scenario_reasons for limitation in first.limitations)
+    ):
+        raise ValueError("native replica projection limitations or step count mismatch")
+    actual: dict[str, list[float]] = {}
+    truth: dict[str, list[float]] = {}
+    for row in scenario.outcome_comparisons:
+        if row.ci_lower is not None or row.ci_upper is not None or row.within_ci is not None:
+            raise ValueError("native replay does not establish predictive intervals")
+        actual.setdefault(row.metric_name, []).append(row.y_pred)
+        truth.setdefault(row.metric_name, []).append(row.y_true)
+    mean = _mean_native_values([forecast.values for forecast in forecasts])
+    if actual != mean or scenario.compared_count != sum(len(values) for values in mean.values()):
+        raise ValueError("native report predictions differ from verified replica projection")
+    source = cas.load_core_json_artifact(store, first.source_data_ref)
+    if not isinstance(source, dict) or truth != _source_holdout(
+        source, first.profile, first.cutoff
+    ):
+        raise ValueError("native report outcomes differ from selected source holdout")
+    return roles
+
+
+def _verify_unavailable_native_cohort(
+    store: cas.CoreJSONArtifactStore,
+    cohort_ref: cas.ArtifactRef,
+    cohort: Any,
+    scenario_id: str,
+    requested: int,
+    started: int,
+) -> None:
+    """Check retained successful trajectories without projecting a partial cohort."""
+    if (
+        cohort.plan_id != scenario_id
+        or cohort.requested_count != requested
+        or cohort.started_count != started
+        or cohort.failed_count < 1
+        or [replica.index for replica in cohort.replicas] != list(range(1, requested + 1))
+        or len({replica.run_id for replica in cohort.replicas}) != requested
+        or sum(replica.workflow_started for replica in cohort.replicas) != started
+        or cohort.foundry_execute_count
+        != sum(replica.physical_request is not None for replica in cohort.replicas)
+        or any(replica.status == "failed" and not replica.failure for replica in cohort.replicas)
+    ):
+        raise ValueError("native unavailable scenario cohort denominator mismatch")
+    plan = None
+    if requested > 1:
+        plan_ref = _edge_ref(store, cohort_ref, "native_plan", _NATIVE_PLAN_KIND)
+        plan = _load_native_plan(store, plan_ref)
+        if plan.plan_id != scenario_id or plan.n_simulation_runs != requested:
+            raise ValueError("native unavailable scenario selected plan mismatch")
+
+    roles = [
+        edge.role
+        for edge in store.get_manifest(cohort_ref).inputs
+        if edge.role.startswith("native_forecast:")
+    ]
+    valid_roles = {f"native_forecast:{index}" for index in range(1, requested + 1)}
+    if len(roles) != len(set(roles)) or not set(roles) <= valid_roles:
+        raise ValueError("native unavailable scenario trajectory census mismatch")
+    requests: list[NativeForecastRequest] = []
+    forecasts: list[NativeForecastTrajectory] = []
+    for replica in cohort.replicas:
+        role = f"native_forecast:{replica.index}"
+        if role not in roles:
+            selected_workflow = _selected_replica_evidence(
+                store, cohort_ref, replica, index=replica.index
+            )
+            if replica.status == "completed":
+                raise ValueError("native completed replica trajectory is missing")
+            if selected_workflow is not None:
+                workflow, _ = selected_workflow
+                simulation = next(
+                    node for node in workflow["nodes"] if node["alias"] == "run_simulation"
+                )
+                if simulation["status"] == "ok":
+                    raise ValueError("native succeeded simulation trajectory is missing")
+            continue
+        forecast_ref = _edge_ref(store, cohort_ref, role, NativeForecastTrajectory.ARTIFACT_KIND)
+        stored = cas.validate_core_model_json_artifact(
+            NativeForecastTrajectory, store, forecast_ref
+        )
+        forecast, request, _ = _verify_native_replica(
+            store,
+            cohort_ref,
+            cohort,
+            replica,
+            forecast_ref,
+            stored.request_ref,
+            index=replica.index,
+        )
+        if plan is not None:
+            _check_native_plan_request(store, plan, request, index=replica.index)
+        requests.append(request)
+        forecasts.append(forecast)
+    if requests:
+        _require_shared_native_basis(requests)
+        _require_shared_native_execution(forecasts)
+
+
 def load_native_backtest_report(
     store: cas.CoreJSONArtifactStore, report_ref: cas.ArtifactRef
 ) -> BacktestReport:
@@ -993,21 +1519,6 @@ def load_native_backtest_report(
     """
     from polisyos.ir.analytics.backtest import load_backtest_report_candidate
     from polisyos.ir.registry.refs import BacktestReportRef
-    from polisyos.scientist.methods.backtesting.orchestrator import (
-        _BacktestReplicaCohort,
-        _resolve_replica_failure,
-    )
-
-    def selected_cohort_model(cohort_ref: cas.ArtifactRef) -> _BacktestReplicaCohort:
-        cohort_manifest = store.get_manifest(_selected(cohort_ref))
-        if (
-            cohort_manifest.kind != "scientist.backtest.replica_cohort"
-            or cohort_manifest.media_type != "application/json"
-            or cohort_manifest.artifact_schema
-            != cas.SchemaInfo(name="polisyos.scientist.backtesting.ReplicaCohort", version="1.0")
-        ):
-            raise ValueError("native report replica cohort profile mismatch")
-        return cas.validate_core_model_json_artifact(_BacktestReplicaCohort, store, cohort_ref)
 
     report = load_backtest_report_candidate(
         cas.ensure_ir_artifact_store(store),
@@ -1057,7 +1568,7 @@ def load_native_backtest_report(
     valid_cohort_roles = {f"replica_cohort:{scenario_id}" for scenario_id in scenario_ids}
     if len(set(cohort_roles)) != len(cohort_roles) or not set(cohort_roles) <= valid_cohort_roles:
         raise ValueError("native report scenario cohort edge census differs from scenarios")
-    native_fields = {
+    single_native_fields = {
         "native_forecast_ref",
         "native_request_ref",
         "native_forecast_purpose",
@@ -1067,6 +1578,7 @@ def load_native_backtest_report(
         "native_randomness_scope",
         "native_limitations",
     }
+    native_fields = single_native_fields | {"native_replica_projection"}
     native_count = 0
     unavailable_count = 0
     verified_roles: list[str] = []
@@ -1082,7 +1594,7 @@ def load_native_backtest_report(
                 store, report_ref, cohort_role, "scientist.backtest.replica_cohort"
             )
             cohort_names_native = any(
-                edge.role.startswith("native_forecast:")
+                edge.role == "native_plan" or edge.role.startswith("native_forecast:")
                 for edge in store.get_manifest(selected_cohort).inputs
             )
         raw_forecast = scenario.metadata.get("native_forecast_ref")
@@ -1097,7 +1609,11 @@ def load_native_backtest_report(
             or forecast_role in native_roles
             or cohort_names_native
         )
-        if not is_native:
+        if not is_native or (
+            scenario_mode == "scientist_unavailable"
+            and raw_forecast is None
+            and scenario.metadata.get("native_replica_projection") is None
+        ):
             unavailable = (
                 "native_requested_replicas" in scenario.metadata
                 or "native_started_replicas" in scenario.metadata
@@ -1127,14 +1643,13 @@ def load_native_backtest_report(
                     or scenario.metadata.get("native_started_count_status") != "not_established"
                 ):
                     raise ValueError("native unavailable scenario denominator or status mismatch")
-                if requested > 1:
+                if started == 0:
                     valid_reason = (
-                        started == 0 and "native_replica_projection_unsupported" in scenario_reasons
-                    )
-                elif started == 0:
-                    valid_reason = any(
-                        reason.startswith("native_forecast_unavailable:")
-                        for reason in scenario_reasons
+                        "native_replica_projection_unsupported" in scenario_reasons
+                        or any(
+                            reason.startswith("native_forecast_unavailable:")
+                            for reason in scenario_reasons
+                        )
                     )
                 else:
                     valid_reason = "scientist_replica_cohort_incomplete" in scenario_reasons
@@ -1148,122 +1663,62 @@ def load_native_backtest_report(
                     if cohort_edges or "replica_cohort_ref" in scenario.metadata:
                         raise ValueError("native unavailable scenario has an unstarted cohort")
                 else:
-                    if requested != 1 or len(cohort_edges) != 1:
+                    if len(cohort_edges) != 1:
                         raise ValueError("native unavailable scenario cohort is missing")
                     cohort_ref = cas.ArtifactRef.model_validate(
                         scenario.metadata.get("replica_cohort_ref")
                     )
                     _edge(store, report_ref, cohort_ref, cohort_role)
-                    cohort = selected_cohort_model(cohort_ref)
-                    if (
-                        cohort.plan_id != scenario.scenario_id
-                        or cohort.requested_count != requested
-                        or cohort.started_count != started
-                        or cohort.completed_count != 0
-                        or cohort.failed_count != requested
-                        or sum(record.workflow_started for record in cohort.replicas) != started
-                        or cohort.foundry_execute_count
-                        != sum(record.physical_request is not None for record in cohort.replicas)
-                    ):
-                        raise ValueError("native unavailable scenario cohort denominator mismatch")
+                    cohort = _load_selected_native_cohort(store, cohort_ref)
+                    _verify_unavailable_native_cohort(
+                        store, cohort_ref, cohort, scenario.scenario_id, requested, started
+                    )
                 unavailable_count += 1
             elif scenario_mode == "scientist_candidate" or any(
                 reason.startswith("native_") for reason in scenario_reasons
             ):
                 raise ValueError("native scenario trajectory metadata is missing")
             continue
-        if not native_fields.issubset(scenario.metadata) or raw_forecast is None:
+        projection_payload = scenario.metadata.get("native_replica_projection")
+        if projection_payload is not None:
+            cohort_ref = cas.ArtifactRef.model_validate(scenario.metadata.get("replica_cohort_ref"))
+            _edge(store, report_ref, cohort_ref, cohort_role)
+            verified_roles.extend(
+                _verify_native_projection(store, report_ref, cohort_ref, scenario, scenario_reasons)
+            )
+            native_count += 1
+            continue
+        if not single_native_fields.issubset(scenario.metadata) or raw_forecast is None:
             raise ValueError("native scenario trajectory metadata is missing")
         forecast_ref = cas.ArtifactRef.model_validate(raw_forecast)
         request_ref = cas.ArtifactRef.model_validate(scenario.metadata.get("native_request_ref"))
         _edge(store, report_ref, forecast_ref, forecast_role)
-        forecast, request = load_native_forecast(store, forecast_ref, request_ref)
-        step_count = scenario.metadata.get("native_foundry_step_count")
-        if type(step_count) is not int or step_count != len(forecast.simulation_refs):
-            raise ValueError("native report step count differs from verified trajectory")
         cohort_ref = cas.ArtifactRef.model_validate(scenario.metadata.get("replica_cohort_ref"))
         _edge(store, report_ref, cohort_ref, cohort_role)
-        cohort = selected_cohort_model(cohort_ref)
+        cohort = _load_selected_native_cohort(store, cohort_ref)
         if (
             cohort.plan_id != scenario.scenario_id
             or cohort.requested_count != 1
             or cohort.started_count != 1
             or cohort.foundry_execute_count != 1
             or len(cohort.replicas) != 1
-            or cas.artifact_ref_identity_key(cohort.masked_data_snapshot_ref)
-            != cas.artifact_ref_identity_key(request.data_snapshot_ref)
         ):
             raise ValueError("native report replica cohort differs from request")
         replica = cohort.replicas[0]
-        _edge(store, cohort_ref, forecast_ref, "native_forecast:1")
-        if replica.workflow_report_ref is None:
-            raise ValueError("native report workflow evidence is missing")
-        _edge(store, cohort_ref, replica.workflow_report_ref, "replica_1_workflow_report")
-        if replica.run_manifest_ref is None:
-            raise ValueError("native report replica run manifest is missing")
-        _edge(store, cohort_ref, replica.run_manifest_ref, "replica_1_run_manifest")
-        workflow = _load_native_workflow_report(
-            store, replica.workflow_report_ref, replica.run_manifest_ref
+        forecast, request, failures = _verify_native_replica(
+            store, cohort_ref, cohort, replica, forecast_ref, request_ref, index=1
         )
-        failures = [
-            {
-                "alias": node.get("alias"),
-                "status": node.get("status"),
-                "error": node.get("error") if isinstance(node.get("error"), dict) else None,
-            }
-            for node in workflow["nodes"]
-            if isinstance(node, dict) and node.get("status") == "fail"
-        ]
-        simulation_nodes = [
-            node
-            for node in workflow["nodes"]
-            if isinstance(node, dict) and node.get("alias") == "run_simulation"
-        ]
+        step_count = scenario.metadata.get("native_foundry_step_count")
+        if type(step_count) is not int or step_count != len(forecast.simulation_refs):
+            raise ValueError("native report step count differs from verified trajectory")
+        expected_mode = "scientist" if replica.workflow_status == "ok" else "scientist_candidate"
         if (
-            workflow.get("run_id") != request.run_id
-            or replica.run_id != request.run_id
-            or replica.seed != request.seed
-            or workflow.get("status") != replica.workflow_status
-            or failures != replica.workflow_failures
-            or scenario.metadata.get("native_workflow_status") != replica.workflow_status
+            scenario.metadata.get("native_workflow_status") != replica.workflow_status
             or scenario.metadata.get("native_workflow_failures") != failures
-            or len(simulation_nodes) != 1
-            or simulation_nodes[0].get("status") != "ok"
-            or not any(
-                cas.ArtifactRef.model_validate(ref) == forecast_ref
-                for ref in simulation_nodes[0].get("artifacts", [])
-            )
         ):
             raise ValueError("native report workflow status or forecast evidence mismatch")
-        expected_status = "completed" if replica.workflow_status == "ok" else "failed"
-        expected_mode = "scientist" if replica.workflow_status == "ok" else "scientist_candidate"
-        final_ref = forecast.simulation_refs[-1]
-        final_admission = admit_execution_source(store, final_ref)
-        final_basis = final_admission.basis
-        if replica.simulation_result_ref is None or replica.metrics_ref is None:
-            raise ValueError("native report replica execution outputs are missing")
-        _edge(store, cohort_ref, replica.simulation_result_ref, "replica_1_simulation_result")
-        _edge(store, cohort_ref, replica.metrics_ref, "replica_1_metrics")
-        expected_failure = (
-            None
-            if replica.workflow_status == "ok"
-            else _resolve_replica_failure(
-                None, failures, f"scientist_workflow_status:{replica.workflow_status}"
-            )
-        )
         if (
-            replica.index != 1
-            or replica.workflow_started is not True
-            or replica.status != expected_status
-            or replica.failure != expected_failure
-            or replica.seed_source != "exec_config.seed"
-            or cas.artifact_ref_identity_key(replica.simulation_result_ref)
-            != cas.artifact_ref_identity_key(final_ref)
-            or cas.artifact_ref_identity_key(replica.metrics_ref)
-            != cas.artifact_ref_identity_key(final_admission.simulation_result.metrics_ref)
-            or final_basis is None
-            or replica.physical_request != final_basis.request.model_dump(mode="json")
-            or scenario.metadata.get("prediction_source_effective") != expected_mode
+            scenario.metadata.get("prediction_source_effective") != expected_mode
             or scenario.metadata.get("degraded") is not True
             or (
                 replica.workflow_status != "ok"

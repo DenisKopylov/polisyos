@@ -225,10 +225,10 @@ def test_backtest_report_persist_round_trip(tmp_path) -> None:
     assert loaded.report_id == "BT_test"
     assert loaded.n_scenarios == 1
     assert loaded.metric_diagnostics_are_source_bound()
-    assert loaded.has_source_bound_exact_zero_metrics()
-    assert loaded.trust_eligible
-    assert loaded.trust_score == report.trust_score
-    assert loaded.trust_grade == report.trust_grade
+    assert not loaded.has_source_bound_exact_zero_metrics()
+    assert not loaded.trust_eligible
+    assert loaded.trust_score is None and loaded.trust_grade is None
+    assert "backtest_source_not_established" in loaded.degraded_reasons
 
 
 def test_unbound_legacy_backtest_grade_is_refused_and_persists_as_limited(tmp_path) -> None:
@@ -297,3 +297,14 @@ def test_report_loader_requires_native_verification_but_keeps_legacy_metadata(tm
     with pytest.raises(NativeBacktestVerificationRequiredError):
         load_backtest_report(store, candidate_ref)
     assert load_backtest_report_candidate(store, candidate_ref).report_id == "legacy"
+
+    projection_only = legacy.model_copy(
+        update={
+            "scenarios": [
+                scenario.model_copy(update={"metadata": {"native_replica_projection": {}}})
+            ]
+        }
+    )
+    projection_ref = persist_backtest_report(store, projection_only)
+    with pytest.raises(NativeBacktestVerificationRequiredError):
+        load_backtest_report(store, projection_ref)

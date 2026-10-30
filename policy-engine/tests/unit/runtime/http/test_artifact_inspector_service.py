@@ -126,7 +126,9 @@ def test_predictive_content_sidecar_requires_the_candidate_surface_opt_in(
         opted_in_preview.predictive_coverage_diagnostic.source_materialization
         == "reader_materialized"
     )
-    assert opted_in_preview.predictive_coverage_diagnostic.measurement_status == "measured"
+    assert opted_in_preview.predictive_coverage_diagnostic.measurement_status == "not_measured"
+    assert opted_in_preview.predictive_coverage_diagnostic.reason_code == "unsupported_report_scope"
+    assert opted_in_preview.predictive_coverage_diagnostic.scenarios == []
 
     # Preserve the exact report bytes and put native evidence only in the
     # selected cohort edge. The bounded preview cannot verify that trajectory.
@@ -200,7 +202,7 @@ def test_predictive_content_sidecar_requires_the_candidate_surface_opt_in(
     # measurement even when native metadata and edges have been stripped.
     from copy import deepcopy
 
-    for marker in ("scenario_mode", "report_mode", "reason"):
+    for marker in ("scenario_mode", "report_mode", "reason", "replica_projection"):
         changed_payload = deepcopy(payload)
         if marker == "scenario_mode":
             changed_payload["prediction_mode_effective"] = "mixed"
@@ -209,10 +211,12 @@ def test_predictive_content_sidecar_requires_the_candidate_surface_opt_in(
             }
         elif marker == "report_mode":
             changed_payload["prediction_mode_effective"] = "scientist_unavailable"
-        else:
+        elif marker == "reason":
             changed_payload["degraded_reasons"].append(
                 "one-scenario: native_temporal_mapping_not_established"
             )
+        else:
+            changed_payload["scenarios"][0]["metadata"] = {"native_replica_projection": {}}
         changed_ref = store.put_json(
             changed_payload,
             PutOptions(

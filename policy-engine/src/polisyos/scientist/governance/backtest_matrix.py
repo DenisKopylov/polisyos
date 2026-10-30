@@ -19,7 +19,7 @@ import numpy as np
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.artifacts.manifest import InputRef
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.backtest import BacktestReportRef
 from polisyos.ir.analytics.backtest import BacktestReport, BacktestScenario, persist_backtest_report
@@ -28,12 +28,17 @@ from polisyos.ir.observation.contracts import ObservationFamily
 from polisyos.scientist.methods.backtesting.orchestrator import (
     BacktestOrchestrator,
     _collapse_modes,
+    _plan_requests_native,
     _resolve_manifest_inputs,
     _resolve_report_id,
+    _scenario_report_inputs,
     _trust_scorer_profile,
 )
-from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan, PredictionSource
+from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan
 from polisyos.scientist.methods.backtesting.trust_scorer import TrustScorer
+
+_NATIVE_PREDICTIVE_GAP_PREFIX = "native_predictive_simulation_only:"
+_SOURCE_NOT_ESTABLISHED = "backtest_matrix_source_not_established"
 
 
 class BacktestKind(str, Enum):
@@ -86,8 +91,8 @@ class BacktestKindResult(BaseModel):
 class BacktestMatrixResult(BaseModel):
     """Aggregate calibration-governance view over all required backtest kinds.
 
-    `gap_flags` enumerates missing evidence channels, `composite_score` provides
-    the promotion score, and `backtest_report_ref` links to the persisted replay
+    `gap_flags` enumerates missing evidence channels, `composite_score` is a
+    candidate diagnostic, and `backtest_report_ref` links to the persisted replay
     artifact for audit and downstream leaderboard scoring.
     """
 
@@ -122,6 +127,109 @@ class BacktestDiagnosticProjection:
     metric_diagnostics: list[dict[str, Any]] | None
     detected_biases: list[dict[str, Any]] | None
     reason: str | None = None
+
+
+def _admit_matrix_for_leaderboard(
+    store: Any, matrix: BacktestMatrixResult
+) -> tuple[bool, list[str]]:
+    """Admit diagnostic arithmetic from a selected, internally consistent report."""
+    from polisyos.ir.analytics.backtest import (
+        NativeBacktestVerificationRequiredError,
+        load_backtest_report,
+    )
+
+    ref = matrix.backtest_report_ref
+    if store is None or ref is None or ref.manifest_profile_sha256 is None:
+        return False, ["backtest_matrix_report_not_established"]
+    try:
+        ir_store = _ensure_ir_artifact_store(store)
+        report = load_backtest_report(ir_store, ref)
+        edges = [
+            edge
+            for edge in ir_store.get_manifest(ref).inputs
+            if edge.role.startswith("replica_cohort:")
+        ]
+        expected_cohorts = {
+            f"replica_cohort:{scenario.scenario_id}": ArtifactRef.model_validate(value)
+            for scenario in report.scenarios
+            if (value := scenario.metadata.get("replica_cohort_ref")) is not None
+        }
+        if (
+            len(edges) != len(expected_cohorts)
+            or {edge.role for edge in edges} != set(expected_cohorts)
+            or any(
+                edge.manifest_profile_sha256 is None
+                or expected_cohorts[edge.role].kind != "scientist.backtest.replica_cohort"
+                or expected_cohorts[edge.role].media_type != "application/json"
+                or str(edge.artifact_id) != str(expected_cohorts[edge.role].artifact_id)
+                or edge.manifest_profile_sha256
+                != expected_cohorts[edge.role].manifest_profile_sha256
+                for edge in edges
+            )
+        ):
+            return False, ["backtest_matrix_report_not_established"]
+    except NativeBacktestVerificationRequiredError:
+        return False, ["native_predictive_simulation_not_calibration"]
+    except Exception:
+        return False, ["backtest_matrix_report_not_established"]
+
+    trust = verify_backtest_trust_projection(report)
+    reasons = [_SOURCE_NOT_ESTABLISHED]
+    if report.degraded or trust.status != "recomputed" or not trust.eligible:
+        reasons.append("backtest_matrix_report_not_trust_eligible")
+    if (
+        report.report_id != matrix.report_id
+        or "metric_diagnostics" not in report.model_fields_set
+        or report.metadata.get("required_backtest_kinds") != [kind.value for kind in BacktestKind]
+        or len(matrix.kind_results) != len(BacktestKind)
+        or {item.kind for item in matrix.kind_results} != set(BacktestKind)
+        or len({scenario.scenario_id for scenario in report.scenarios}) != len(report.scenarios)
+    ):
+        return False, ["backtest_matrix_report_mismatch"]
+    by_kind: dict[BacktestKind, list[BacktestScenario]] = defaultdict(list)
+    try:
+        for scenario in report.scenarios:
+            by_kind[BacktestKind(scenario.metadata["backtest_kind"])].append(scenario)
+    except (KeyError, TypeError, ValueError):
+        return False, ["backtest_matrix_report_mismatch"]
+    summary = report.metadata.get("backtest_kinds")
+    if not isinstance(summary, dict) or set(summary) != {kind.value for kind in BacktestKind}:
+        return False, ["backtest_matrix_report_mismatch"]
+    for item in matrix.kind_results:
+        scenarios = by_kind[item.kind]
+        expected_score = _score_backtest_scenarios(scenarios) if scenarios else None
+        expected_status = "ok" if scenarios else "gap"
+        if (
+            item.status != expected_status
+            or (bool(scenarios) and expected_score is None)
+            or item.n_plans != len(scenarios)
+            or item.n_scenarios != len(scenarios)
+            or item.scenario_ids != [scenario.scenario_id for scenario in scenarios]
+            or not _same_optional_float(item.score, expected_score)
+            or (item.gap_flag is not None if scenarios else not item.gap_flag)
+            or summary.get(item.kind.value)
+            != {"status": item.status, "score": item.score, "gap_flag": item.gap_flag}
+        ):
+            return False, ["backtest_matrix_report_mismatch"]
+    gaps = [item.gap_flag for item in matrix.kind_results if item.gap_flag is not None]
+    scores = [item for item in matrix.kind_results if item.score is not None]
+    expected_composite = _mean_defined(item.score for item in matrix.kind_results)
+    expected_worst = (
+        min(
+            scores,
+            key=lambda item: (item.score if item.score is not None else 1.0, item.kind.value),
+        ).kind
+        if scores
+        else None
+    )
+    if (
+        [flag for flag in matrix.gap_flags if flag != _SOURCE_NOT_ESTABLISHED] != gaps
+        or matrix.gap_flags.count(_SOURCE_NOT_ESTABLISHED) > 1
+        or not _same_optional_float(matrix.composite_score, expected_composite)
+        or matrix.worst_kind != expected_worst
+    ):
+        return False, ["backtest_matrix_report_mismatch"]
+    return True, reasons
 
 
 def _same_optional_float(actual: float | None, expected: float | None) -> bool:
@@ -323,7 +431,7 @@ def verify_backtest_diagnostic_projection(
 
 
 def verify_backtest_trust_projection(report: BacktestReport) -> BacktestTrustProjection:
-    """Recompute trust before C5b, matrix, or packet projection."""
+    """Reconcile internal trust arithmetic and withhold unbound source authority."""
     if report.metadata.get("purpose") == "candidate_diagnostic":
         return BacktestTrustProjection(
             "unavailable", False, None, None, "candidate_diagnostic_not_for_trust"
@@ -331,6 +439,10 @@ def verify_backtest_trust_projection(report: BacktestReport) -> BacktestTrustPro
     diagnostics = verify_backtest_diagnostic_projection(report)
     if not diagnostics.recomputed:
         return BacktestTrustProjection("unavailable", False, None, None, diagnostics.reason)
+    if report.metadata.get("source_reconciliation_status") == "not_established":
+        return BacktestTrustProjection(
+            "not_established", False, None, None, "backtest_source_not_established"
+        )
     if not report.has_source_bound_exact_zero_metrics():
         return BacktestTrustProjection(
             "unavailable", False, None, None, "source_metrics_not_trust_eligible"
@@ -359,7 +471,9 @@ def verify_backtest_trust_projection(report: BacktestReport) -> BacktestTrustPro
         return BacktestTrustProjection(
             "unavailable", False, None, None, "trust_score_marker_mismatch"
         )
-    return BacktestTrustProjection("recomputed", True, score, grade)
+    return BacktestTrustProjection(
+        "not_established", False, None, None, "backtest_source_not_established"
+    )
 
 
 class BacktestMatrixRunner:
@@ -434,20 +548,20 @@ class BacktestMatrixRunner:
         supplied_roles = (metadata or {}).get("selected_split_roles")
         if supplied_roles is not None and supplied_roles != selected_split_roles:
             raise ValueError("report request does not match selected split role bundles")
+        if {
+            "backtest_kinds",
+            "required_backtest_kinds",
+            "source_reconciliation_status",
+        }.intersection(metadata or {}):
+            raise ValueError("computed backtest matrix metadata is reserved")
 
         materialized_plans = {
             kind: [HistoricalValidationPlan.model_validate(payload) for payload in bundle.plans]
             for kind, bundle in bundles.items()
         }
-        for plans in materialized_plans.values():
-            for plan in plans:
-                params = (plan.scientist_state or {}).get("params", {})
-                if (
-                    plan.prediction_source is PredictionSource.SCIENTIST
-                    and isinstance(params, dict)
-                    and "backtest_native_forecast" in params
-                ):
-                    raise ValueError("native replay requires the selected backtest report producer")
+        has_native = any(
+            _plan_requests_native(plan) for plans in materialized_plans.values() for plan in plans
+        )
         scenario_groups: dict[BacktestKind, list[BacktestScenario]] = defaultdict(list)
         kind_results: list[BacktestKindResult] = []
         report_scenarios: list[BacktestScenario] = []
@@ -504,7 +618,9 @@ class BacktestMatrixRunner:
                     requested_mode,
                     effective_mode,
                     scenario_degraded_reasons,
-                ) = self._orchestrator._run_single_scenario(scenario_plan)
+                ) = self._orchestrator._run_single_scenario(
+                    scenario_plan, select_cohort_profiles=True
+                )
                 scenario.metadata = {
                     **dict(scenario.metadata),
                     "backtest_kind": kind.value,
@@ -528,15 +644,24 @@ class BacktestMatrixRunner:
                 report_scenarios.append(scenario)
                 requested_modes.append(requested_mode)
                 effective_modes.append(effective_mode)
-                degraded_reasons.extend(str(item) for item in scenario_degraded_reasons)
+                degraded_reasons.extend(
+                    f"{scenario_plan.plan_id}: {item}" if has_native else str(item)
+                    for item in scenario_degraded_reasons
+                )
                 notes.extend(str(item) for item in scenario_warnings)
 
             scenarios_for_kind = scenario_groups[kind]
+            native_kind = any(_plan_requests_native(plan) for plan in plans)
+            native_gap = f"{_NATIVE_PREDICTIVE_GAP_PREFIX}{kind.value}" if native_kind else None
+            if native_gap is not None:
+                gap_flags.append(native_gap)
+                notes.append("Native model simulation does not establish promotion calibration.")
             kind_results.append(
                 BacktestKindResult(
                     kind=kind,
-                    status="ok",
-                    score=_score_backtest_scenarios(scenarios_for_kind),
+                    status="gap" if native_kind else "ok",
+                    score=None if native_kind else _score_backtest_scenarios(scenarios_for_kind),
+                    gap_flag=native_gap,
                     n_plans=len(plans),
                     n_scenarios=len(scenarios_for_kind),
                     scenario_ids=[scenario.scenario_id for scenario in scenarios_for_kind],
@@ -555,6 +680,7 @@ class BacktestMatrixRunner:
             scenarios=report_scenarios,
             plans=report_plans,
             metadata={
+                **dict(metadata or {}),
                 "backtest_kinds": {
                     result.kind.value: {
                         "status": result.status,
@@ -565,27 +691,40 @@ class BacktestMatrixRunner:
                 },
                 "required_backtest_kinds": [kind.value for kind in BacktestKind],
                 "selected_split_roles": dict(selected_split_roles),
-                **dict(metadata or {}),
+                "source_reconciliation_status": "not_established",
             },
             prediction_mode_requested=_collapse_modes(requested_modes),
             prediction_mode_effective=_collapse_modes(effective_modes),
             degraded_reasons=degraded_reasons,
         )
+        report._withhold_unreconciled_source_trust()
+        if has_native:
+            report = self._orchestrator._validate_trust_projection_before_persist(report)
         report_ref = persist_backtest_report(
-            _ensure_ir_artifact_store(self._store), report, inputs=manifest_inputs
+            _ensure_ir_artifact_store(self._store),
+            report,
+            inputs=[
+                *(manifest_inputs or []),
+                *_scenario_report_inputs(report_scenarios),
+            ]
+            or None,
         )
         report.cas_artifact_id = str(report_ref.artifact_id)
-        composite_score = _mean_defined(result.score for result in kind_results)
+        composite_score = (
+            None if has_native else _mean_defined(result.score for result in kind_results)
+        )
         scored_results = [result for result in kind_results if result.score is not None]
         worst_kind = (
             min(
                 scored_results,
                 key=lambda item: (item.score if item.score is not None else 1.0, item.kind.value),
             ).kind
-            if scored_results
+            if scored_results and not has_native
             else None
         )
         trust_projection = verify_backtest_trust_projection(report)
+        if not has_native:
+            gap_flags.append(_SOURCE_NOT_ESTABLISHED)
         return BacktestMatrixResult(
             report_id=report.report_id,
             backtest_report_ref=report_ref,
@@ -597,6 +736,8 @@ class BacktestMatrixRunner:
                 "n_present_kinds": sum(1 for result in kind_results if result.status == "ok"),
                 "report_degraded": report.degraded or not trust_projection.eligible,
                 "report_trust_eligible": trust_projection.eligible,
+                "source_reconciliation_status": "not_established",
+                "composite_score_purpose": "candidate_diagnostic" if not has_native else None,
             },
         )
 

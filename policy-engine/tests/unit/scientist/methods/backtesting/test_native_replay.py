@@ -34,7 +34,75 @@ from polisyos.scientist.policy_design.schema import (
 )
 
 
-def _fixture(tmp_path, *, count=3, horizon=2):
+def _favorable_leaderboard_inputs():
+    from polisyos.ir.analytics.interference import (
+        ExposureMappingType,
+        InterferenceCertificate,
+        InterferenceEffectDecomposition,
+        InterferenceMethod,
+        NetworkInterferenceReport,
+    )
+    from polisyos.ir.observation.contract_compilers import SpecificationCurveInput
+    from polisyos.scientist.governance.calibration import (
+        CalibrationAdversarialResult,
+        CalibrationGovernanceReport,
+    )
+    from polisyos.scientist.governance.stress_scenarios import StressScenarioResult
+    from polisyos.scientist.methods.discovery.utility_judge import (
+        DownstreamUtilityReport,
+        HypothesisUtilityScore,
+    )
+
+    return dict(
+        candidate_ref=None,
+        governance_report=CalibrationGovernanceReport(
+            verdict="approve",
+            adversarial_results=[
+                CalibrationAdversarialResult(
+                    alias="strategic_gaming_adversarial",
+                    suite_id="strategic_gaming_v1",
+                    required=True,
+                    status="passed",
+                )
+            ],
+        ),
+        calibration_fit_score=0.9,
+        stress_scenarios=StressScenarioResult(report_id="stress", robustness_score=0.9),
+        specification_curve_input=SpecificationCurveInput(
+            specification_ids=["s1", "s2"], estimates=[0.4, 0.35], standard_errors=[0.1, 0.1]
+        ),
+        downstream_utility_report=DownstreamUtilityReport(
+            scores=[
+                HypothesisUtilityScore(
+                    hypothesis_id="h1",
+                    identification_status="identified",
+                    identifiability_score=1.0,
+                    stability_score=0.8,
+                    transportability_score=0.9,
+                    composite_score=0.9,
+                    rank=1,
+                )
+            ],
+            recommended_shortlist=["h1"],
+        ),
+        network_interference_report=NetworkInterferenceReport(
+            method=InterferenceMethod.PARTIAL_IPW,
+            status="success",
+            effects=InterferenceEffectDecomposition(
+                direct_effect=0.2, spillover_effect=0.05, total_effect=0.25, n_units=10, n_treated=4
+            ),
+            exposure_mapping=ExposureMappingType.FRACTIONAL,
+            n_units=10,
+            n_treated=4,
+        ),
+        interference_certificate=InterferenceCertificate(
+            supported_query_family="spillover", fallback_mode="pairwise", reduction_error_bound=0.05
+        ),
+        strategic_summary={"fallback_mode": "exact_equilibrium"},
+    )
+
+
+def _fixture(tmp_path, *, count=3, horizon=2, mechanism="income_tax", mechanism_params=None):
     store = FileSystemCAS(tmp_path / "cas")
     registry = build_default_registry_bundle(store, return_selected_profile=True)
     history = {
@@ -68,7 +136,7 @@ def _fixture(tmp_path, *, count=3, horizon=2):
         interventions=[
             InterventionSpec(
                 intervention_id="tax",
-                kind="income_tax",
+                kind=mechanism,
                 target={
                     "kind": "predicate",
                     "field": "id",
@@ -76,7 +144,9 @@ def _fixture(tmp_path, *, count=3, horizon=2):
                     "value": 0,
                 },
                 schedule={"start_step": 0, "duration_steps": 2},
-                params={"rate": Decimal("0.25")},
+                params=mechanism_params
+                if mechanism_params is not None
+                else {"rate": Decimal("0.25")},
             )
         ],
     )
@@ -927,10 +997,36 @@ def test_native_report_reaches_persisted_reissued_decision_packet(tmp_path):
 
 def test_native_mixed_with_legacy_cohort_reopens_selected_report(tmp_path, monkeypatch):
     """A native batch can census a real legacy cohort without changing legacy-only writes."""
-    from polisyos.ir.analytics.backtest import persist_backtest_report
+    import logging
+
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.core.run.context import RunContext
+    from polisyos.ir.analytics.backtest import load_backtest_report, persist_backtest_report
+    from polisyos.ir.observation.bundles import BacktestPlanBundle, ContractCompatibilityTarget
     from polisyos.ir.trinity import load_trinity_bundle_artifact
     from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
+    from polisyos.scientist.governance.backtest_matrix import (
+        BacktestKind,
+        BacktestMatrixRunner,
+        _admit_matrix_for_leaderboard,
+        verify_backtest_diagnostic_projection,
+    )
+    from polisyos.scientist.governance.calibration_leaderboard import CalibrationLeaderboard
+    from polisyos.scientist.governance.calibration_validation import (
+        CalibrationValidationBundle,
+        load_calibration_validation_bundle,
+        persist_calibration_validation_bundle,
+    )
     from polisyos.scientist.methods.backtesting.native_replay import load_native_backtest_report
+    from polisyos.scientist.nodes.builtins.decide.decision_packet.builder import (
+        BuildDecisionPacketNode,
+    )
+    from polisyos.scientist.nodes.builtins.state_keys import (
+        ARTIFACT_BACKTEST_REPORT_REF,
+        ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF,
+    )
+    from polisyos.scientist.orchestration.engine.context import ExecutionContext
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
 
     store, plan = _fixture(tmp_path, count=1, horizon=1)
     legacy = plan.model_copy(deep=True, update={"plan_id": "legacy"})
@@ -1004,6 +1100,118 @@ def test_native_mixed_with_legacy_cohort_reopens_selected_report(tmp_path, monke
     incomplete = persist_backtest_report(ensure_ir_artifact_store(reader), report, inputs=inputs)
     with pytest.raises(ValueError, match="selected"):
         load_native_backtest_report(reader, ArtifactRef.model_validate(incomplete.model_dump()))
+
+    # Retain the genuine legacy cohort while replacing both report rows with an
+    # exact-zero claim. The current legacy owner has no source reconciliation.
+    actual_legacy = report.scenarios[1]
+    assert actual_legacy.outcome_comparisons
+    assert actual_legacy.outcome_comparisons[0].y_true != 123456.0
+
+    def forge_rows(decorated_plan, **_kwargs):
+        scenario = orchestrator._evaluator.evaluate(
+            scenario_id=decorated_plan.plan_id,
+            scenario_label=decorated_plan.plan_label,
+            y_pred={"income": [123456.0]},
+            y_true={"income": [123456.0]},
+            metadata=dict(actual_legacy.metadata),
+        )
+        return scenario, [], "scientist", "scientist", []
+
+    monkeypatch.setattr(orchestrator, "_run_single_scenario", forge_rows)
+    bundle = BacktestPlanBundle(
+        contract_target=ContractCompatibilityTarget(
+            contract_id="legacy_cohort_forgery", contract_fqn="polisyos.tests.BacktestPlanBundle"
+        ),
+        required_fields=["income"],
+        plans=[legacy.model_dump(mode="json")],
+    )
+    forged_matrix = BacktestMatrixRunner(store, orchestrator=orchestrator).run(
+        dict.fromkeys(BacktestKind, bundle)
+    )
+    forged_report = load_backtest_report(
+        ensure_ir_artifact_store(reader), forged_matrix.backtest_report_ref
+    )
+    assert all(
+        row.y_true == row.y_pred == 123456.0
+        for item in forged_report.scenarios
+        for row in item.outcome_comparisons
+    )
+    assert not forged_report.trust_eligible
+    assert verify_backtest_diagnostic_projection(forged_report).recomputed
+    assert forged_matrix.metadata["report_trust_eligible"] is False
+    assert all(
+        item.metadata["replica_cohort_ref"] == legacy_cohort.model_dump(mode="json")
+        for item in forged_report.scenarios
+    )
+    admitted, reasons = _admit_matrix_for_leaderboard(reader, forged_matrix)
+    assert admitted and reasons == [
+        "backtest_matrix_source_not_established",
+        "backtest_matrix_report_not_trust_eligible",
+    ]
+    entry = CalibrationLeaderboard(store=reader).build_entry(
+        run_id="forged_legacy_rows",
+        backtest_matrix=forged_matrix,
+        **_favorable_leaderboard_inputs(),
+    )
+    assert entry.metrics.composite_score is not None
+    assert entry.metrics.gap_flags == [
+        "backtest_matrix_source_not_established",
+        "backtest_matrix_report_not_trust_eligible",
+    ]
+    assert not entry.metrics.eligible_for_promotion
+    assert entry.metadata["composite_score_purpose"] == "candidate_diagnostic"
+
+    # Reopen that forged report through the real persisted C5b and packet
+    # consumers; neither may turn its exact-zero rows into trust authority.
+    validation = CalibrationValidationBundle(
+        run_id="legacy_cohort_forgery",
+        candidate_ref=legacy_candidate,
+        governance_verdict="approve",
+        status="completed",
+        backtest_matrix=forged_matrix,
+        leaderboard_entry=entry,
+    )
+    forged_matrix_ref = ArtifactRef.model_validate(forged_matrix.backtest_report_ref.model_dump())
+    validation_ref = persist_calibration_validation_bundle(
+        reader,
+        validation,
+        inputs=list(reader.get_manifest(forged_matrix_ref).inputs),
+        return_selected_profile=True,
+    )
+    validation_read = load_calibration_validation_bundle(reader, validation_ref)
+    summary = validation_read.readout_summary()
+    assert summary["backtest_report_status"] == "available"
+    assert summary["backtest_trust_status"] == "not_established"
+    assert summary["backtest_trust_score"] is None
+    assert not summary["eligible_for_promotion"]
+
+    packet_run = RunContext.start(
+        store=reader, registry_bundle=registry_ref, run_id="R_legacy_forgery"
+    )
+    packet_ctx = ExecutionContext(store=reader, run=packet_run, logger=logging.getLogger(__name__))
+    packet_state = ExperimentState(
+        run_id="R_legacy_forgery",
+        inputs={
+            "trinity_bundle_ref": ArtifactRef.model_validate(legacy_trinity_ref.model_dump()),
+            "registry_bundle_ref": registry_ref,
+            "data_snapshot_ref": legacy_snapshot,
+        },
+        artifacts_index={
+            ARTIFACT_BACKTEST_REPORT_REF: forged_matrix_ref,
+            ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF: ArtifactRef.model_validate(
+                validation_ref.model_dump()
+            ),
+        },
+    )
+    packet_outcome = BuildDecisionPacketNode().execute(packet_ctx, packet_state)
+    assert packet_outcome.status == "ok"
+    packet = load_core_json_artifact(reader, packet_outcome.artifacts[0])
+    assert packet["backtest"]["trust_score_status"] == "not_established"
+    assert not packet["backtest"]["trust_eligible"]
+    assert packet["backtest"]["trust_score"] is None
+    assert packet["trust_profile"]["backtest_trust_score"] is None
+    assert packet["calibration_validation"]["summary"]["backtest_trust_status"] == "not_established"
+    assert not packet["calibration_validation"]["summary"]["eligible_for_promotion"]
 
 
 def test_native_seed_preserves_compiled_audit_posture_and_step_limit(tmp_path, monkeypatch):
@@ -1285,7 +1493,705 @@ def test_native_admission_refuses_unscoped_inputs_before_workflow(tmp_path, monk
     assert any(expected_reason in reason for reason in report.degraded_reasons)
 
 
-def test_native_multiple_replicas_are_explicitly_unsupported_before_work(tmp_path, monkeypatch):
+def test_native_replica_mean_requires_complete_aligned_finite_axes():
+    from polisyos.scientist.methods.backtesting.native_replay import _mean_native_values
+
+    assert _mean_native_values([{"income": [0.0, 4.0]}, {"income": [2.0, 8.0]}]) == {
+        "income": [1.0, 6.0]
+    }
+    assert _mean_native_values([{"income": [1e308]}, {"income": [1e308]}]) == {"income": [1e308]}
+    with pytest.raises(ValueError, match="metric axes differ"):
+        _mean_native_values([{"income": [1.0]}, {"other": [1.0]}])
+    with pytest.raises(ValueError, match="time axes differ"):
+        _mean_native_values([{"income": [1.0]}, {"income": [1.0, 2.0]}])
+    with pytest.raises(ValueError, match="nonfinite"):
+        _mean_native_values([{"income": [float("nan")]}, {"income": [2.0]}])
+
+
+def test_native_replica_plan_reopens_selected_input_and_refuses_missing_edge(tmp_path):
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.scientist.methods.backtesting.native_replay import (
+        _load_native_plan,
+        _persist_native_plan,
+    )
+
+    store, plan = _fixture(tmp_path, count=2, horizon=1)
+    ref = _persist_native_plan(store, plan)
+    reader = FileSystemCAS(store.root)
+    assert _load_native_plan(reader, ref) == plan
+    manifest = reader.get_manifest(ref)
+    stripped = reader.put_json(
+        load_core_json_artifact(reader, ref),
+        PutOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=manifest.artifact_schema,
+            inputs=[edge for edge in manifest.inputs if edge.role != "registry"],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    with pytest.raises(ValueError, match="exact lineage mismatch: registry"):
+        _load_native_plan(reader, stripped)
+
+
+def test_native_multi_replica_report_reopens_and_reconciles_complete_cohort(tmp_path):
+    from copy import deepcopy
+
+    import jax
+
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.foundry.compile.randomization import stable_hash
+    from polisyos.ir.analytics.backtest import persist_backtest_report
+    from polisyos.scientist.methods.backtesting.native_replay import (
+        NativeForecastTrajectory,
+        _load_native_plan,
+        _require_shared_native_basis,
+        _require_shared_native_execution,
+        load_native_backtest_report,
+        load_native_forecast,
+    )
+
+    def labor_draw(seed):
+        key = jax.random.PRNGKey(seed)
+        for salt in (stable_hash("stream:default"), stable_hash("node:tax")):
+            key = jax.random.fold_in(key, salt & 0xFFFFFFFF)
+            key = jax.random.fold_in(key, salt >> 32)
+        step_key = jax.random.split(key)[1]
+        employment_key = jax.random.split(step_key, 3)[0]
+        return float(jax.random.uniform(employment_key, shape=(1,))[0])
+
+    draws = [labor_draw(seed) for seed in (12, 13)]
+    assert abs(draws[0] - draws[1]) > 1e-5
+    threshold = Decimal(str((draws[0] + draws[1]) / 2.0))
+    store, plan = _fixture(
+        tmp_path,
+        count=2,
+        horizon=1,
+        mechanism="labor_market",
+        mechanism_params={"employment_threshold": threshold},
+    )
+    _, ref = BacktestOrchestrator(cas=store).run_with_ref([plan])
+    reader = FileSystemCAS(store.root)
+    report_ref = ArtifactRef.model_validate(ref.model_dump(mode="json"))
+    report = load_native_backtest_report(reader, report_ref)
+    scenario = report.scenarios[0]
+    projection = scenario.metadata["native_replica_projection"]
+    assert projection["method"] == "arithmetic_mean_complete_cohort_v1"
+    forecast_refs = [ArtifactRef.model_validate(item) for item in projection["forecast_refs"]]
+    plan_ref = ArtifactRef.model_validate(projection["plan_ref"])
+    assert _load_native_plan(reader, plan_ref).n_simulation_runs == 2
+    cohort_ref = ArtifactRef.model_validate(scenario.metadata["replica_cohort_ref"])
+    cohort = load_core_json_artifact(reader, cohort_ref)
+    assert (cohort["requested_count"], cohort["started_count"]) == (2, 2)
+    assert (cohort["completed_count"], cohort["failed_count"]) == (2, 0)
+    assert [item["seed"] for item in cohort["replicas"]] == [12, 13]
+    assert len({item["run_id"] for item in cohort["replicas"]}) == 2
+    forecasts = []
+    requests = []
+    for forecast_ref in forecast_refs:
+        stored = NativeForecastTrajectory.model_validate(
+            load_core_json_artifact(reader, forecast_ref)
+        )
+        forecast, request = load_native_forecast(reader, forecast_ref, stored.request_ref)
+        forecasts.append(forecast)
+        requests.append(request)
+    assert len(forecasts) == 2
+    _require_shared_native_basis(requests)
+    _require_shared_native_execution(forecasts)
+    altered_execution = forecasts[1].submitted_execution.model_copy(
+        update={
+            "exec_config": forecasts[1].submitted_execution.exec_config.model_copy(
+                update={"mode": "audit"}
+            )
+        }
+    )
+    with pytest.raises(ValueError, match="submitted execution differs across cohort"):
+        _require_shared_native_execution(
+            [
+                forecasts[0],
+                forecasts[1].model_copy(update={"submitted_execution": altered_execution}),
+            ]
+        )
+    trinity_ref = requests[1].trinity_ref
+    trinity_manifest = reader.get_manifest(trinity_ref)
+    sibling = reader.put_bytes(
+        reader.get_bytes(trinity_ref),
+        PutOptions(
+            kind=trinity_manifest.kind,
+            media_type=trinity_manifest.media_type,
+            schema=trinity_manifest.artifact_schema,
+            canon=trinity_manifest.canon,
+            inputs=trinity_manifest.inputs,
+            producer=ProducerInfo(component="test.replica-sibling", version="1.0"),
+        ),
+        return_selected_profile=True,
+    )
+    assert sibling.artifact_id == trinity_ref.artifact_id
+    assert sibling.manifest_profile_sha256 != trinity_ref.manifest_profile_sha256
+    with pytest.raises(ValueError, match="shared execution basis differs"):
+        _require_shared_native_basis(
+            [requests[0], requests[1].model_copy(update={"trinity_ref": sibling})]
+        )
+    individual = [forecast.values["income"][0] for forecast in forecasts]
+    assert individual[0] != individual[1]
+    observed_mean = scenario.outcome_comparisons[0].y_pred
+    assert observed_mean == pytest.approx((individual[0] + individual[1]) / 2.0)
+    assert observed_mean not in individual
+    assert scenario.metadata["native_foundry_step_count"] == 2
+    assert report.degraded and not report.trust_eligible
+    assert all(
+        row.ci_lower is None and row.ci_upper is None for row in scenario.outcome_comparisons
+    )
+
+    report_inputs = reader.get_manifest(report_ref).inputs
+    missing_edge = persist_backtest_report(
+        ensure_ir_artifact_store(reader),
+        report,
+        inputs=[edge for edge in report_inputs if edge.role != "native_forecast:native:2"],
+    )
+    with pytest.raises(ValueError, match="exact lineage mismatch: native_forecast:native:2"):
+        load_native_backtest_report(reader, ArtifactRef.model_validate(missing_edge.model_dump()))
+
+    def republish(ref, payload, inputs):
+        manifest = reader.get_manifest(ref)
+        return reader.put_json(
+            payload,
+            PutOptions(
+                kind=manifest.kind,
+                media_type=manifest.media_type,
+                schema=manifest.artifact_schema,
+                inputs=inputs,
+            ),
+            canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=False),
+            return_selected_profile=True,
+        )
+
+    def rebind_report(new_cohort, *, new_projection=None):
+        metadata = dict(scenario.metadata)
+        metadata["replica_cohort_ref"] = new_cohort.model_dump(mode="json")
+        if new_projection is not None:
+            metadata["native_replica_projection"] = new_projection
+        altered = report.model_copy(
+            update={"scenarios": [scenario.model_copy(update={"metadata": metadata})]}
+        )
+        ref = persist_backtest_report(
+            ensure_ir_artifact_store(reader),
+            altered,
+            inputs=[
+                input_ref_from_artifact_ref(new_cohort, role=edge.role)
+                if edge.role == "replica_cohort:native"
+                else edge
+                for edge in report_inputs
+            ],
+        )
+        return ArtifactRef.model_validate(ref.model_dump(mode="json"))
+
+    cohort_inputs = reader.get_manifest(cohort_ref).inputs
+    without_mask = republish(
+        cohort_ref, cohort, [edge for edge in cohort_inputs if edge.role != "masked_data"]
+    )
+    with pytest.raises(ValueError, match="exact lineage mismatch: masked_data"):
+        load_native_backtest_report(reader, rebind_report(without_mask))
+    without_second = republish(
+        cohort_ref,
+        cohort,
+        [edge for edge in cohort_inputs if edge.role != "native_forecast:2"],
+    )
+    with pytest.raises(ValueError, match="trajectory census mismatch"):
+        load_native_backtest_report(reader, rebind_report(without_second))
+
+    changed_plan = load_core_json_artifact(reader, plan_ref)
+    changed_plan["n_simulation_runs"] = 3
+    changed_plan_ref = republish(plan_ref, changed_plan, reader.get_manifest(plan_ref).inputs)
+    changed_cohort = republish(
+        cohort_ref,
+        cohort,
+        [
+            input_ref_from_artifact_ref(changed_plan_ref, role=edge.role)
+            if edge.role == "native_plan"
+            else edge
+            for edge in cohort_inputs
+        ],
+    )
+    changed_projection = deepcopy(projection)
+    changed_projection["plan_ref"] = changed_plan_ref.model_dump(mode="json")
+    with pytest.raises(ValueError, match="cohort census mismatch"):
+        load_native_backtest_report(
+            reader, rebind_report(changed_cohort, new_projection=changed_projection)
+        )
+
+    changed_cohort_payload = deepcopy(cohort)
+    changed_cohort_payload["replicas"][1]["seed"] = 12
+    changed_cohort = republish(cohort_ref, changed_cohort_payload, cohort_inputs)
+    with pytest.raises(ValueError, match="workflow status or forecast evidence mismatch"):
+        load_native_backtest_report(reader, rebind_report(changed_cohort))
+
+    first = scenario.outcome_comparisons[0]
+    shifted_truth = -first.y_true
+    shifted = first.model_copy(
+        update={
+            "y_true": shifted_truth,
+            "y_pred": shifted_truth + (first.y_pred - first.y_true),
+        }
+    )
+    forged = report.model_copy(
+        update={"scenarios": [scenario.model_copy(update={"outcome_comparisons": [shifted]})]}
+    )
+    forged_ref = persist_backtest_report(
+        ensure_ir_artifact_store(reader), forged, inputs=report_inputs
+    )
+    with pytest.raises(ValueError, match="predictions differ from verified replica projection"):
+        load_native_backtest_report(reader, ArtifactRef.model_validate(forged_ref.model_dump()))
+
+
+def test_native_multi_replica_refuses_different_real_execution_postures(tmp_path, monkeypatch):
+    from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
+    from polisyos.scientist.nodes.builtins.simulate.run_simulation import RunSimulationNode
+
+    store, plan = _fixture(tmp_path, count=2, horizon=1)
+    original_node = RunSimulationNode.execute
+    original_foundry = DefaultFoundryPort.execute
+    calls = []
+
+    def vary_posture(node, ctx, state):
+        if state.params.get("random_seed") == 13:
+            node = replace(node, exec_config=node.exec_config.model_copy(update={"mode": "audit"}))
+        return original_node(node, ctx, state)
+
+    def observe(port, actual_store, request):
+        result = original_foundry(port, actual_store, request)
+        calls.append((request.exec_config.seed, request.exec_config.mode, result.ok))
+        return result
+
+    monkeypatch.setattr(RunSimulationNode, "execute", vary_posture)
+    monkeypatch.setattr(DefaultFoundryPort, "execute", observe)
+    with pytest.raises(ValueError, match="submitted execution differs across cohort"):
+        BacktestOrchestrator(cas=store).run_with_ref([plan])
+    assert calls == [(12, "dev", True), (13, "audit", True)]
+
+
+def test_native_multi_replica_failure_preserves_full_cohort_without_survivor_mean(
+    tmp_path, monkeypatch
+):
+    from copy import deepcopy
+
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.ir.analytics.backtest import persist_backtest_report
+    from polisyos.scientist.methods.backtesting.native_replay import load_native_backtest_report
+    from polisyos.scientist.nodes.builtins.decide.decision_packet.builder import (
+        BuildDecisionPacketNode,
+    )
+    from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome
+
+    store, plan = _fixture(tmp_path, count=2, horizon=1)
+    original = BuildDecisionPacketNode.execute
+
+    def fail_second(node, ctx, state):
+        if state.params.get("random_seed") == 13:
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(code="native_second_failure", message="controlled later failure"),
+            )
+        return original(node, ctx, state)
+
+    monkeypatch.setattr(BuildDecisionPacketNode, "execute", fail_second)
+    _, ref = BacktestOrchestrator(cas=store).run_with_ref([plan])
+    reader = FileSystemCAS(store.root)
+    report_ref = ArtifactRef.model_validate(ref.model_dump(mode="json"))
+    report = load_native_backtest_report(reader, report_ref)
+    scenario = report.scenarios[0]
+    assert report.prediction_mode_effective == "scientist_unavailable"
+    assert not report.trust_eligible and not scenario.outcome_comparisons
+    assert scenario.metadata["native_requested_count_status"] == "not_established"
+    assert scenario.metadata["native_started_count_status"] == "not_established"
+    cohort_ref = ArtifactRef.model_validate(scenario.metadata["replica_cohort_ref"])
+    cohort = load_core_json_artifact(reader, cohort_ref)
+    assert (cohort["requested_count"], cohort["started_count"]) == (2, 2)
+    assert (cohort["completed_count"], cohort["failed_count"]) == (1, 1)
+    assert cohort["replicas"][1]["failure"] == "native_second_failure: controlled later failure"
+
+    manifest = reader.get_manifest(cohort_ref)
+    for removed_role, reason in (
+        ("native_forecast:1", "completed replica trajectory is missing"),
+        ("native_forecast:2", "succeeded simulation trajectory is missing"),
+        ("masked_data", "exact lineage mismatch: masked_data"),
+        ("replica_2_exec_plan", "exact lineage mismatch: replica_2_exec_plan"),
+        ("replica_2_input_bindings", "exact lineage mismatch: replica_2_input_bindings"),
+        ("replica_2_simulation_result", "exact lineage mismatch: replica_2_simulation_result"),
+        ("replica_2_metrics", "exact lineage mismatch: replica_2_metrics"),
+        ("replica_2_workflow_report", "exact lineage mismatch: replica_2_workflow_report"),
+        ("replica_2_run_manifest", "exact lineage mismatch: replica_2_run_manifest"),
+    ):
+        stripped = reader.put_json(
+            cohort,
+            PutOptions(
+                kind=manifest.kind,
+                media_type=manifest.media_type,
+                schema=manifest.artifact_schema,
+                inputs=[edge for edge in manifest.inputs if edge.role != removed_role],
+            ),
+            canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=False),
+            return_selected_profile=True,
+        )
+        metadata = {**scenario.metadata, "replica_cohort_ref": stripped.model_dump(mode="json")}
+        altered = report.model_copy(
+            update={"scenarios": [scenario.model_copy(update={"metadata": metadata})]}
+        )
+        altered_ref = persist_backtest_report(
+            ensure_ir_artifact_store(reader),
+            altered,
+            inputs=[
+                input_ref_from_artifact_ref(stripped, role=edge.role)
+                if edge.role == "replica_cohort:native"
+                else edge
+                for edge in reader.get_manifest(report_ref).inputs
+            ],
+        )
+        with pytest.raises(ValueError, match=reason):
+            load_native_backtest_report(
+                reader, ArtifactRef.model_validate(altered_ref.model_dump())
+            )
+
+    # A retained failed workflow must agree with its cohort record even when
+    # its selected trajectory edge was removed.
+    forged_cohort = deepcopy(cohort)
+    forged_cohort["replicas"][1]["workflow_status"] = "ok"
+    forged_cohort["replicas"][1]["workflow_failures"] = []
+    forged_ref = reader.put_json(
+        forged_cohort,
+        PutOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=manifest.artifact_schema,
+            inputs=[edge for edge in manifest.inputs if edge.role != "native_forecast:2"],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=False),
+        return_selected_profile=True,
+    )
+    forged_metadata = {
+        **scenario.metadata,
+        "replica_cohort_ref": forged_ref.model_dump(mode="json"),
+    }
+    forged_report = report.model_copy(
+        update={"scenarios": [scenario.model_copy(update={"metadata": forged_metadata})]}
+    )
+    forged_report_ref = persist_backtest_report(
+        ensure_ir_artifact_store(reader),
+        forged_report,
+        inputs=[
+            input_ref_from_artifact_ref(forged_ref, role=edge.role)
+            if edge.role == "replica_cohort:native"
+            else edge
+            for edge in reader.get_manifest(report_ref).inputs
+        ],
+    )
+    with pytest.raises(ValueError, match="workflow status or forecast evidence mismatch"):
+        load_native_backtest_report(
+            reader, ArtifactRef.model_validate(forged_report_ref.model_dump())
+        )
+
+    # Removing payload pointers does not hide the still-selected workflow edges.
+    hidden_workflow = deepcopy(cohort)
+    hidden_workflow["replicas"][1]["workflow_report_ref"] = None
+    hidden_workflow["replicas"][1].pop("run_manifest_ref")
+    hidden_ref = reader.put_json(
+        hidden_workflow,
+        PutOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=manifest.artifact_schema,
+            inputs=[edge for edge in manifest.inputs if edge.role != "native_forecast:2"],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=False),
+        return_selected_profile=True,
+    )
+    hidden_metadata = {
+        **scenario.metadata,
+        "replica_cohort_ref": hidden_ref.model_dump(mode="json"),
+    }
+    hidden_report = report.model_copy(
+        update={"scenarios": [scenario.model_copy(update={"metadata": hidden_metadata})]}
+    )
+    hidden_report_ref = persist_backtest_report(
+        ensure_ir_artifact_store(reader),
+        hidden_report,
+        inputs=[
+            input_ref_from_artifact_ref(hidden_ref, role=edge.role)
+            if edge.role == "replica_cohort:native"
+            else edge
+            for edge in reader.get_manifest(report_ref).inputs
+        ],
+    )
+    with pytest.raises(ValueError, match="retained evidence census mismatch"):
+        load_native_backtest_report(
+            reader, ArtifactRef.model_validate(hidden_report_ref.model_dump())
+        )
+
+
+def test_native_multi_replica_matrix_reopens_but_cannot_score_promotion(tmp_path, monkeypatch):
+    import polisyos.scientist.methods.backtesting.orchestrator as orchestrator_module
+    from polisyos.calibration.forecast_bridge import _load_verified_report
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.ir.analytics.backtest import (
+        NativeBacktestVerificationRequiredError,
+        load_backtest_report,
+        persist_backtest_report,
+    )
+    from polisyos.ir.observation.bundles import BacktestPlanBundle, ContractCompatibilityTarget
+    from polisyos.scientist.governance.backtest_matrix import BacktestKind, BacktestMatrixRunner
+    from polisyos.scientist.governance.calibration_leaderboard import CalibrationLeaderboard
+    from polisyos.scientist.methods.backtesting.native_replay import (
+        load_backtest_report_for_consumption,
+    )
+
+    store, plan = _fixture(tmp_path, count=2, horizon=1)
+    supplied = plan.model_copy(
+        deep=True,
+        update={
+            "plan_id": "supplied",
+            "prediction_source": PredictionSource.PROVIDED,
+            "predicted_outcomes": {"income": [1.5]},
+            "scientist_state": None,
+            "n_simulation_runs": 1,
+        },
+    )
+
+    def bundle(selected_plan):
+        return BacktestPlanBundle(
+            contract_target=ContractCompatibilityTarget(
+                contract_id="test_native_matrix", contract_fqn="polisyos.tests.BacktestPlanBundle"
+            ),
+            required_fields=["income"],
+            plans=[selected_plan.model_dump(mode="json")],
+        )
+
+    result = BacktestMatrixRunner(store).run(
+        {BacktestKind.MACRO: bundle(plan), BacktestKind.CELL: bundle(supplied)}
+    )
+    assert result.backtest_report_ref is not None
+    reader = FileSystemCAS(store.root)
+    report = load_backtest_report_for_consumption(reader, result.backtest_report_ref)
+    assert report.prediction_mode_effective == "mixed"
+    assert not report.trust_eligible and report.degraded
+    native = next(item for item in report.scenarios if item.scenario_id == "macro:native")
+    assert len(native.metadata["native_replica_projection"]["forecast_refs"]) == 2
+    assert [row.y_pred for row in native.outcome_comparisons] == pytest.approx([1.5])
+    assert result.composite_score is None and result.worst_kind is None
+    assert "native_predictive_simulation_only:macro" in result.gap_flags
+    macro = next(item for item in result.kind_results if item.kind is BacktestKind.MACRO)
+    assert macro.status == "gap" and macro.score is None
+    assert report.metadata["backtest_kinds"]["macro"]["status"] == "gap"
+    assert report.metadata["backtest_kinds"]["macro"]["score"] is None
+    favorable_inputs = _favorable_leaderboard_inputs()
+    leaderboard = CalibrationLeaderboard(store=reader)
+    entry = leaderboard.build_entry(
+        run_id="native_matrix_consumer", backtest_matrix=result, **favorable_inputs
+    )
+    assert entry.metrics.backtest_matrix_score is None
+    assert entry.metrics.composite_score is None
+    assert not entry.metrics.eligible_for_promotion
+    assert "native_predictive_simulation_not_calibration" in entry.metrics.gap_flags
+
+    # Keep the genuine selected native report while forging every public gap/score.
+    forged = result.model_copy(deep=True)
+    forged.gap_flags = []
+    forged.composite_score = 1.0
+    for item in forged.kind_results:
+        item.status, item.gap_flag, item.score = "ok", None, 1.0
+    forged_entry = leaderboard.build_entry(
+        run_id="native_matrix_forgery", backtest_matrix=forged, **favorable_inputs
+    )
+    assert forged_entry.metrics.backtest_matrix_score is None
+    assert forged_entry.metrics.composite_score is None
+    assert not forged_entry.metrics.eligible_for_promotion
+    assert forged_entry.metrics.gap_flags == [
+        "missing_metric:backtest_matrix_score",
+        "native_predictive_simulation_not_calibration",
+    ]
+
+    # The compatibility reader can read an ambiguous legacy-shaped report, but
+    # its unresolved cohort edge cannot establish a leaderboard source.
+    stripped_native = native.model_copy(
+        update={
+            "metadata": {
+                key: value
+                for key, value in native.metadata.items()
+                if not key.startswith("native_")
+            }
+        }
+    )
+    stripped_report = report.model_copy(
+        update={
+            "scenarios": [
+                stripped_native if item.scenario_id == native.scenario_id else item
+                for item in report.scenarios
+            ],
+            "degraded_reasons": [
+                reason
+                for reason in report.degraded_reasons
+                if not reason.startswith("native_") and ": native_" not in reason
+            ],
+        }
+    )
+    original_core_ref = ArtifactRef.model_validate(
+        result.backtest_report_ref.model_dump(mode="json")
+    )
+    original_cohort_ref = ArtifactRef.model_validate(native.metadata["replica_cohort_ref"])
+    cohort_manifest = reader.get_manifest(original_cohort_ref)
+    assert any(edge.role == "native_plan" for edge in cohort_manifest.inputs)
+    stripped_cohort_ref = reader.put_json(
+        load_core_json_artifact(reader, original_cohort_ref),
+        PutOptions(
+            kind=cohort_manifest.kind,
+            media_type=cohort_manifest.media_type,
+            schema=cohort_manifest.artifact_schema,
+            inputs=[
+                edge
+                for edge in cohort_manifest.inputs
+                if not edge.role.startswith("native_forecast:")
+            ],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=False),
+        return_selected_profile=True,
+    )
+    selected_plan_scenario = stripped_native.model_copy(
+        update={
+            "metadata": {
+                **stripped_native.metadata,
+                "replica_cohort_ref": stripped_cohort_ref.model_dump(mode="json"),
+            }
+        }
+    )
+    selected_plan_report = stripped_report.model_copy(
+        update={
+            "scenarios": [
+                selected_plan_scenario if item.scenario_id == native.scenario_id else item
+                for item in stripped_report.scenarios
+            ]
+        }
+    )
+    selected_plan_ref = persist_backtest_report(
+        ensure_ir_artifact_store(reader),
+        selected_plan_report,
+        inputs=[
+            input_ref_from_artifact_ref(stripped_cohort_ref, role=edge.role)
+            if edge.role == "replica_cohort:macro:native"
+            else edge
+            for edge in reader.get_manifest(original_core_ref).inputs
+            if not edge.role.startswith("native_forecast:")
+        ],
+    )
+    with pytest.raises(NativeBacktestVerificationRequiredError):
+        load_backtest_report(ensure_ir_artifact_store(reader), selected_plan_ref)
+    with pytest.raises(ValueError, match="native scenario trajectory metadata is missing"):
+        load_backtest_report_for_consumption(reader, selected_plan_ref)
+    retained_plan_matrix = forged.model_copy(update={"backtest_report_ref": selected_plan_ref})
+    retained_plan_entry = leaderboard.build_entry(
+        run_id="retained_native_plan", backtest_matrix=retained_plan_matrix, **favorable_inputs
+    )
+    assert retained_plan_entry.metrics.composite_score is None
+    assert not retained_plan_entry.metrics.eligible_for_promotion
+    assert "native_predictive_simulation_not_calibration" in retained_plan_entry.metrics.gap_flags
+
+    ambiguous_ref = persist_backtest_report(
+        ensure_ir_artifact_store(reader),
+        stripped_report,
+        inputs=[
+            edge.model_copy(update={"manifest_profile_sha256": None})
+            if edge.role == "replica_cohort:macro:native"
+            else edge
+            for edge in reader.get_manifest(original_core_ref).inputs
+            if not edge.role.startswith("native_forecast:")
+        ],
+    )
+    load_backtest_report(ensure_ir_artifact_store(reader), ambiguous_ref)
+    ambiguous = forged.model_copy(update={"backtest_report_ref": ambiguous_ref})
+    ambiguous_entry = leaderboard.build_entry(
+        run_id="ambiguous_cohort_forgery", backtest_matrix=ambiguous, **favorable_inputs
+    )
+    assert ambiguous_entry.metrics.composite_score is None
+    assert not ambiguous_entry.metrics.eligible_for_promotion
+    assert "backtest_matrix_report_not_established" in ambiguous_entry.metrics.gap_flags
+    with pytest.raises(NativeBacktestVerificationRequiredError):
+        _load_verified_report(reader, result.backtest_report_ref)
+
+    report_ref = ArtifactRef.model_validate(result.backtest_report_ref.model_dump(mode="json"))
+    stripped = persist_backtest_report(
+        ensure_ir_artifact_store(reader),
+        report,
+        inputs=[
+            edge
+            for edge in reader.get_manifest(report_ref).inputs
+            if edge.role != "native_forecast:macro:native:2"
+        ],
+    )
+    with pytest.raises(ValueError, match="native_forecast:macro:native:2"):
+        load_backtest_report_for_consumption(reader, stripped)
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("conflicting matrix metadata reached the native producer")
+
+    monkeypatch.setattr(orchestrator_module, "run_experiment", forbidden)
+    for metadata in (
+        {"backtest_kinds": {"macro": {"status": "ok", "score": 1}}},
+        {"source_reconciliation_status": "recomputed"},
+    ):
+        with pytest.raises(ValueError, match="computed backtest matrix metadata is reserved"):
+            BacktestMatrixRunner(store).run({BacktestKind.MACRO: bundle(plan)}, metadata=metadata)
+
+
+def test_native_without_cutoff_is_unavailable_without_dispatch_or_predictions(
+    tmp_path, monkeypatch
+):
+    import polisyos.scientist.methods.backtesting.orchestrator as orchestrator_module
+    from polisyos.ir.observation.bundles import BacktestPlanBundle, ContractCompatibilityTarget
+    from polisyos.scientist.governance.backtest_matrix import BacktestKind, BacktestMatrixRunner
+    from polisyos.scientist.methods.backtesting.native_replay import (
+        load_backtest_report_for_consumption,
+    )
+
+    store, plan = _fixture(tmp_path, count=2, horizon=1)
+    plan = plan.model_copy(
+        update={
+            "intervention_date": "",
+            "intervention_step": None,
+            "pre_intervention_periods": None,
+        }
+    )
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("a native plan without a cutoff reached the workflow")
+
+    monkeypatch.setattr(orchestrator_module, "run_experiment", forbidden)
+    _, ref = BacktestOrchestrator(cas=store).run_with_ref([plan])
+    reader = FileSystemCAS(store.root)
+    report = load_backtest_report_for_consumption(reader, ref)
+    assert report.prediction_mode_effective == "scientist_unavailable"
+    assert not report.scenarios[0].outcome_comparisons
+    assert not report.trust_eligible
+    assert any(
+        "native_forecast_unavailable:historical_cutoff_missing" in r
+        for r in report.degraded_reasons
+    )
+
+    bundle = BacktestPlanBundle(
+        contract_target=ContractCompatibilityTarget(
+            contract_id="native_no_cutoff", contract_fqn="polisyos.tests.BacktestPlanBundle"
+        ),
+        required_fields=["income"],
+        plans=[plan.model_dump(mode="json")],
+    )
+    matrix = BacktestMatrixRunner(store).run({BacktestKind.MACRO: bundle})
+    assert matrix.composite_score is None
+    assert "native_predictive_simulation_only:macro" in matrix.gap_flags
+    matrix_report = load_backtest_report_for_consumption(reader, matrix.backtest_report_ref)
+    assert not matrix_report.scenarios[0].outcome_comparisons
+    assert not matrix_report.trust_eligible
+
+
+def test_native_multi_replica_admission_failure_is_unavailable_before_work(tmp_path, monkeypatch):
     import polisyos.scientist.methods.backtesting.orchestrator as orchestrator_module
     from polisyos.ir.analytics.backtest import persist_backtest_report
     from polisyos.scientist.methods.backtesting.native_replay import (
@@ -1297,9 +2203,10 @@ def test_native_multiple_replicas_are_explicitly_unsupported_before_work(tmp_pat
     from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_BACKTEST_REPORT_REF
 
     store, plan = _fixture(tmp_path, count=7)
+    plan.scientist_state["params"]["foundry_input_binding_rules"][0]["source_path"] = "income.2"
 
     def forbidden(*args, **kwargs):
-        pytest.fail("unsupported native replica projection reached the workflow")
+        pytest.fail("unadmitted native replica request reached the workflow")
 
     monkeypatch.setattr(orchestrator_module, "run_experiment", forbidden)
     _, report_ref = BacktestOrchestrator(cas=store).run_with_ref([plan])
@@ -1320,6 +2227,29 @@ def test_native_multiple_replicas_are_explicitly_unsupported_before_work(tmp_pat
     assert section is not None and section["backtest_report_status"] == "available"
     assert section["prediction_mode_effective"] == "scientist_unavailable"
     assert not section["trust_eligible"]
+
+    # A persisted pre-extension refusal remains readable as limited historical
+    # data; its requested count was never independently established.
+    historical = report.model_copy(
+        update={
+            "degraded_reasons": [
+                reason
+                for reason in report.degraded_reasons
+                if ": native_forecast_unavailable:" not in reason
+            ]
+            + ["native: native_replica_projection_unsupported"]
+        }
+    )
+    historical_ref = persist_backtest_report(
+        ensure_ir_artifact_store(reader),
+        historical,
+        inputs=reader.get_manifest(ArtifactRef.model_validate(report_ref.model_dump())).inputs,
+    )
+    historical_read = load_backtest_report_for_consumption(reader, historical_ref)
+    assert (
+        historical_read.scenarios[0].metadata["native_requested_count_status"] == "not_established"
+    )
+    assert not historical_read.trust_eligible
 
     # There is no persisted input plan for the pre-dispatch refusal. A changed
     # count is therefore explicitly unestablished, never trusted as a fact.
@@ -1663,7 +2593,7 @@ def test_native_post_simulation_failure_and_joint_status_forgery(tmp_path, monke
     not_started = deepcopy(cohort)
     not_started["replicas"][0]["workflow_started"] = False
     not_started_ref = write_cohort(not_started, cohort_manifest.inputs)
-    with pytest.raises(ValueError, match="replica status or candidate limitation mismatch"):
+    with pytest.raises(ValueError, match="workflow status or forecast evidence mismatch"):
         load_native_backtest_report(reader, write_report(not_started_ref, claim_ok=False))
 
 
@@ -1861,3 +2791,54 @@ def test_fresh_report_rejects_one_native_trajectory_removed_from_two_scenarios(
             load_backtest_report(ensure_ir_artifact_store(reader), mixed_ref)
         with pytest.raises(ValueError, match="selected lineage missing"):
             load_backtest_report_for_consumption(reader, mixed_ref)
+
+
+@pytest.mark.parametrize(
+    "statuses", [("completed",), ("completed", "completed"), ("completed", "failed")]
+)
+def test_native_cohort_writer_supplies_typed_selected_ref_to_every_projection_branch(
+    tmp_path, statuses
+):
+    """The real IR mapping writer bridges to a fresh native cohort reader."""
+    from polisyos.scientist.methods.backtesting.native_replay import _load_selected_native_cohort
+    from polisyos.scientist.methods.backtesting.orchestrator import (
+        _BacktestReplicaCohort,
+        _BacktestReplicaRecord,
+    )
+
+    store = FileSystemCAS(tmp_path / "cohort-writer-cas")
+    masked = store.put_json(
+        {"masked": True},
+        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    cohort = _BacktestReplicaCohort(
+        plan_id="cohort-return-shape",
+        masked_data_snapshot_ref=masked.model_dump(mode="json"),
+        requested_count=len(statuses),
+        started_count=len(statuses),
+        foundry_execute_count=0,
+        completed_count=statuses.count("completed"),
+        failed_count=statuses.count("failed"),
+        replicas=[
+            _BacktestReplicaRecord(
+                index=index,
+                run_id=f"cohort-{index}",
+                seed=index,
+                workflow_started=True,
+                status=status,
+            )
+            for index, status in enumerate(statuses, start=1)
+        ],
+    )
+    ref = BacktestOrchestrator(cas=store)._persist_replica_cohort(
+        cohort,
+        inputs=[input_ref_from_artifact_ref(masked, role="masked_data")],
+        select_profile=True,
+    )
+    assert isinstance(ref, ArtifactRef)
+    assert ref.manifest_profile_sha256 is not None
+    assert store.verify(ref).ok
+    fresh = FileSystemCAS(store.root)
+    assert _load_selected_native_cohort(fresh, ref) == cohort
+    assert fresh.get_manifest(ref).inputs[0].artifact_id == masked.artifact_id

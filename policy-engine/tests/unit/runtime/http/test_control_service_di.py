@@ -5538,7 +5538,10 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         assert association["profile_join_status"] == "profileless_legacy"
         assert association.get("value_data_profile_ref") is None
         assert association.get("forecast_profile_member_ref") is None
-        assert association["evidence_reason_codes"] == []
+        assert "backtest_source_not_established" in association["evidence_reason_codes"]
+        assert association["schema_version"] == (
+            "polisyos.runtime.predictive_calibration_association.v5"
+        )
         assert association["candidate_source_ref"] == body["candidate_source_ref"]
         assert association["assessment"] == "limited"
         assert association["authority_scope"] == "predictive_only"
@@ -5772,8 +5775,8 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
 
     # Hold prediction inputs, interval geometry, and method/run context constant;
     # only the run-rooted held-out observations differ. The second default-app
-    # POST persists the real owner's empirical grade, and a new default app must
-    # reopen that same grade from the association/report/evidence chain.
+    # POST preserves those distinct diagnostics while fresh publication/readback
+    # withhold empirical authority until the row-to-source relation is verified.
     comparison_body = {
         **body,
         "intent_id": "ui-intent-r228-e2e-2",
@@ -5800,7 +5803,7 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         comparison_reopened_result = comparison_reopened_response.json()
         assert comparison_reopened_result["association"] == comparison_post_result["association"]
         assert (
-            "calibration_floor_not_met"
+            "backtest_source_not_established"
             in comparison_reopened_result["association"]["evidence_reason_codes"]
         )
         assert_persisted_evidence_identity(
@@ -5849,7 +5852,7 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
     assert comparison_association["profile_join_status"] == "profileless_legacy"
     assert comparison_association.get("value_data_profile_ref") is None
     assert comparison_association.get("forecast_profile_member_ref") is None
-    assert "calibration_floor_not_met" in comparison_association["evidence_reason_codes"]
+    assert "backtest_source_not_established" in comparison_association["evidence_reason_codes"]
     assert comparison_association["intent_id"] == comparison_body["intent_id"]
     assert comparison_association["request_sha256"] != association["request_sha256"]
     assert comparison_association["observed_source_ref"] == selected_observed_sources[1]
@@ -5875,12 +5878,22 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         (association, first_owner),
         (comparison_association, comparison_owner),
     ):
-        assert stored["observed_numerator"] == owner_result.coverage_numerator
-        assert stored["observed_denominator"] == owner_result.coverage_denominator == 4
-        assert stored["owner_suitability"] == owner_result.empirical_suitability
-        assert stored["s10"]["numerator"] == owner_result.coverage_numerator
-        assert stored["s10"]["denominator"] == owner_result.coverage_denominator
-        assert stored["s10"]["observed_pass_rate"] == owner_result.empirical_coverage
+        # The owner retains row arithmetic as diagnostics, without proving its
+        # forecast/held-out source values. The public candidate is not a measurement.
+        assert owner_result.coverage_denominator == 4
+        assert stored["observed_numerator"] is None
+        assert stored["observed_denominator"] is None
+        assert stored["observed_hit_rate"] is None
+        assert stored["owner_suitability"] == "limited"
+        assert "backtest_source_not_established" in stored["evidence_reason_codes"]
+        assert stored["s10"]["numerator"] is None
+        assert stored["s10"]["denominator"] is None
+        assert stored["s10"]["observed_pass_rate"] is None
+        assert stored["s10"]["calibration_record_ref"] is None
+        assert stored["s10"]["calibration_status"] == "blocked"
+        assert "s10://calibration/fail-closed/backtest_source_not_established" in (
+            stored["s10"]["limitation_refs"]
+        )
         assert stored["assessment"] == "limited"
         assert stored["authority_scope"] == "predictive_only"
         assert stored["s10"]["counterfactual_credibility"] == "not_established"
@@ -5891,17 +5904,12 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
             "counterfactual_credibility_status",
         ):
             assert stored[field] == "not_established"
-    assert association["owner_suitability"] != comparison_association["owner_suitability"]
-    assert (
-        association["s10"]["calibration_status"]
-        != comparison_association["s10"]["calibration_status"]
-    )
+    assert association["owner_suitability"] == comparison_association["owner_suitability"]
     assert association["s10"]["forecast_tier"] == "blocked"
     assert comparison_association["s10"]["forecast_tier"] == "blocked"
-    assert (
-        association["s10"]["calibration_status"]
-        != (comparison_association["s10"]["calibration_status"])
-    )
+    assert association["s10"]["calibration_status"] == comparison_association["s10"][
+        "calibration_status"
+    ]
     assert (
         association["s10"]["limitation_refs"] == (comparison_association["s10"]["limitation_refs"])
     )
@@ -5925,7 +5933,7 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
     )
     assert comparison_reopened_result["association"] == comparison_association
     assert comparison_reopened_result["association"]["s10"] == comparison_association["s10"]
-    assert comparison_reopened_result["association"]["s10"] != reopened_result["association"]["s10"]
+    assert comparison_reopened_result["association"]["s10"] == reopened_result["association"]["s10"]
 
     # The selected EMP-01 route consumes a profile issued from the actual
     # Data Forge owner above. Its profile and aligned observed series were

@@ -266,6 +266,7 @@ def _predictive_coverage_preview(
     # their unverified comparisons or trust optional scenario markers alone.
     native_fields = {
         "native_forecast_ref",
+        "native_replica_projection",
         "native_request_ref",
         "native_forecast_purpose",
         "native_workflow_status",
@@ -418,12 +419,16 @@ def _predictive_coverage_preview(
             )
         )
 
-    measured = any(item.interval_evaluated_count > 0 for item in summaries)
+    # Even a structurally consistent legacy report can replace its comparison
+    # rows while retaining selected source edges. This bounded preview does not
+    # reconcile those rows to the selected forecast and held-out source values.
+    # Keep shape/corruption diagnostics above, but do not publish row-only
+    # arithmetic as measured observations.
     return PredictiveCoverageDiagnosticPreview(
         **shared,
-        measurement_status="measured" if measured else "not_measured",
-        reason_code="none" if measured else "no_evaluated_intervals",
-        scenarios=summaries,
+        measurement_status="not_measured",
+        reason_code="unsupported_report_scope",
+        scenarios=[],
     )
 
 

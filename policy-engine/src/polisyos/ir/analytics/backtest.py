@@ -768,6 +768,16 @@ class BacktestReport(BaseModel):
             )
         )
 
+    def _withhold_unreconciled_source_trust(self) -> None:
+        """Limit trust where forecast and holdout provenance cannot be replayed."""
+        self.metadata["source_reconciliation_status"] = "not_established"
+        self.degraded = True
+        if "backtest_source_not_established" not in self.degraded_reasons:
+            self.degraded_reasons.append("backtest_source_not_established")
+        self.trust_eligible = False
+        self.trust_score = None
+        self.trust_grade = None
+
     def _refuse_unbound_legacy_trust(self) -> None:
         """Keep legacy reports readable while removing trust that lacks source binding."""
         self.trust_eligible = False
@@ -861,6 +871,7 @@ def load_backtest_report(store: ArtifactStore, ref: BacktestReportRef) -> Backte
     report = load_backtest_report_candidate(store, ref)
     native_fields = {
         "native_forecast_ref",
+        "native_replica_projection",
         "native_request_ref",
         "native_forecast_purpose",
         "native_workflow_status",
@@ -920,10 +931,13 @@ def load_backtest_report(store: ArtifactStore, ref: BacktestReportRef) -> Backte
             )
             for item in input_edges(cohort):
                 cohort_role = field(item, "role")
-                if isinstance(cohort_role, str) and cohort_role.startswith("native_forecast:"):
+                if isinstance(cohort_role, str) and (
+                    cohort_role == "native_plan" or cohort_role.startswith("native_forecast:")
+                ):
                     raise NativeBacktestVerificationRequiredError(
                         "native_backtest_requires_trajectory_verification"
                     )
+    report._withhold_unreconciled_source_trust()
     return report
 
 

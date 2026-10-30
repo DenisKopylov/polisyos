@@ -3,15 +3,93 @@ title = "Retain selected native predictive replay as a limited candidate"
 type = "added"
 component = "scientist"
 owner = "team-polisyos"
-summary = "Bind a historical prefix to a derived Trinity, execute a selected Foundry trajectory, and reconcile its persisted native report on fresh read."
+summary = "Bind a historical prefix to a derived Trinity, execute selected Foundry trajectories, and reconcile complete native cohorts and reports on fresh read."
 evidence = ["src/polisyos/scientist/methods/backtesting/native_replay.py", "tests/unit/scientist/methods/backtesting/test_native_replay.py"]
-compatibility = "The native replay is opt-in. Unsupported multiple-replica requests and native matrix aggregation refuse before dispatch. A completed simulation with a later workflow failure remains a degraded scientist_candidate with the failed replica retained. Legacy-only cohort profile behavior is retained."
+compatibility = "The native replay is opt-in. Complete multiple-replica cohorts project a pointwise arithmetic mean; an incomplete cohort remains unavailable with its denominator and survivors retained. Native-containing matrix and leaderboard composites remain unavailable. Resolved consistent legacy Matrix scores remain candidate diagnostics with source reconciliation not established and no promotion. Unresolvable or inconsistent matrix results have no composite. A single completed simulation with a later workflow failure remains a degraded scientist_candidate with the failed replica retained. Legacy-only backtest cohort profile behavior is retained."
 change_class = "python-public-api"
 surface_classification = "Additive Foundry execute and Scientist guarded-reader facades, selected-run callback, and explicitly unverified IR candidate read. The ordinary IR reader refuses native reports that require higher-layer verification."
 migration = "Existing legacy reports require no migration. Native report consumers use the guarded Scientist reader and selected source, workflow, and report profiles."
-limitations = "Model simulation only; each step reinitializes Foundry with the same seed, and the temporal stochastic law is not established. No inferred prediction intervals, empirical calibration, producer authenticity, external source authenticity, temporal provenance, causal authority or trust eligibility. The fixture is not production provenance. The bounded coverage inspector does not measure any cohort-backed report, including legacy cohorts."
+limitations = "Model simulation only; each replica reinitializes Foundry with its seed at every step, and neither temporal stochastic continuity nor independence across replicas is established. No inferred prediction intervals, empirical calibration, producer authenticity, external source authenticity, temporal provenance, causal authority or trust eligibility. The fixture is not production provenance. The bounded coverage inspector does not measure reports without reconciled forecast and holdout source values, or verify cohort semantics."
 public_surface_inventory_reviewed = false
-migration_docs = ["src/polisyos/foundry/README.md", "src/polisyos/scientist/methods/backtesting/README.md", "src/polisyos/scientist/README.md", "src/polisyos/ir/analytics/README.md"]
+migration_docs = ["src/polisyos/foundry/README.md", "src/polisyos/scientist/methods/backtesting/README.md", "src/polisyos/scientist/README.md", "src/polisyos/ir/analytics/README.md", "src/polisyos/calibration/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-calibration-forecast-source-boundary"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_experimental: polisyos.calibration.produce_empirical_calibration_evidence, polisyos.calibration.persist_empirical_calibration_evidence, and polisyos.calibration.load_empirical_calibration_evidence"
+owner = "team-polisyos"
+version_owner = "team-architecture"
+deprecation_window = "Selected report row arithmetic remains diagnostic. Fresh evidence is limited until forecast and holdout rows are reconciled to their selected sources; previously affirmative evidence is refused on read if it cannot be reproduced under that limitation."
+release_note = "The forecast bridge withholds empirical availability and calibration pass when report rows are not reconciled with selected source values."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/calibration/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-leaderboard-selected-matrix-admission"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_stable: polisyos.scientist.governance.CalibrationLeaderboard"
+owner = "team-polisyos"
+version_owner = "team-architecture"
+deprecation_window = "Pass the configured CAS as store. A selected, internally consistent legacy report supports candidate diagnostic arithmetic only; unselected, unresolved, native or inconsistent reports have no composite. Promotion requires a future forecast/holdout source reconciler. Rank callers must pass selected Matrix results by entry ID to retain diagnostic composites."
+release_note = "Leaderboard scoring resolves selected Matrix arithmetic and records the missing forecast/holdout source reconciliation. It does not grant promotion."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/scientist/methods/backtesting/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-backtest-matrix-selected-cohorts"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_stable: polisyos.scientist.governance.BacktestMatrixRunner"
+owner = "team-polisyos"
+version_owner = "team-architecture"
+deprecation_window = "Do not supply the computed backtest_kinds, required_backtest_kinds or source_reconciliation_status metadata keys; Matrix results now retain selected Scientist cohort edges."
+release_note = "Matrix reports reserve computed metadata, retain selected cohort lineage, and withhold trust when forecast/holdout source reconciliation is not established, including historical canonical readback. Native-containing kinds and their composite remain unscored."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/scientist/methods/backtesting/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-calibration-validation-native-refusal"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_stable: polisyos.scientist.governance.CalibrationValidationRunner"
+owner = "team-polisyos"
+version_owner = "team-architecture"
+deprecation_window = "Native predictive simulation plans remain outside empirical calibration. Legacy scores remain diagnostic until their forecast and holdout sources can be reconciled."
+release_note = "Calibration validation refuses a native predictive plan before scoring, limits legacy readouts until forecast/holdout source reconciliation exists, and records missing verification as an opportunity rather than a candidate failure."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/scientist/methods/backtesting/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-backtest-cli-trust-projection"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_stable: polisyos.scientist.methods.backtesting.cli.run_backtest_command"
+owner = "team-polisyos"
+version_owner = "team-architecture"
+deprecation_window = "CLI output now includes trust status and withholds score and grade while forecast and holdout source reconciliation is not established."
+release_note = "The backtest CLI uses the shared trust projection instead of printing unverified report-internal trust markers."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/scientist/methods/backtesting/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-backtest-report-trust-boundary"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_stable: polisyos.scientist.methods.backtesting.BacktestOrchestrator, polisyos.ir.analytics.backtest.load_backtest_report, and polisyos.scientist.governance.backtest_matrix.verify_backtest_trust_projection"
+owner = "team-polisyos"
+version_owner = "team-architecture"
+deprecation_window = "Backtest production and canonical fresh reads withhold trust claims; the explicitly named raw candidate reader remains available for historical technical inspection. Forecast and holdout source reconciliation is required before trust can be established."
+release_note = "Backtest production, canonical readback and the shared trust projection withhold eligibility, score and grade when source reconciliation is not established."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/scientist/methods/backtesting/README.md"]
 runbook_docs = []
 
 [[compatibility_change]]
@@ -90,4 +168,18 @@ deprecation_window = "not_applicable"
 release_note = "Expose the existing Foundry state-delta application through its execute facade."
 generated_client_compatibility = "not_applicable"
 migration_docs = ["src/polisyos/foundry/README.md"]
+runbook_docs = []
+
+
+[[compatibility_change]]
+id = "e02-predictive-association-unavailable-observations"
+change_class = "schema-openapi-abi"
+impact = "breaking"
+surface = "PredictiveCalibrationAssociation v5"
+owner = "team-polisyos"
+version_owner = "team-runtime"
+deprecation_window = "Versioned v5 candidate projection; v2-v4 artifacts retain historical bytes and cannot establish current observation authority."
+release_note = "Use null observed counts and rates, limited suitability and blocked S10 without a calibration record when source values are not independently reconciled. Preserve the exact source limitation on publication and fresh readback."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = ["src/polisyos/calibration/README.md"]
 runbook_docs = []

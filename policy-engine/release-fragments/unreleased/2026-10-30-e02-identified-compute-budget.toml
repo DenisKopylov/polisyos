@@ -1,0 +1,21 @@
+id = "2026-10-30-e02-identified-compute-budget"
+title = "Record identified compute reservations and their actual settlement atomically"
+type = "added"
+component = "scientist-engine"
+owner = "team-policyos-runtime"
+summary = "FileBudgetLedger supports durable identified compute reservations, unknown-cost retention, atomic actual settlement, and exact same-event acknowledgement reconciliation under the existing ledger owner."
+evidence = [
+  "src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+  "tests/unit/scientist/orchestration/engine/test_budget_compute_reservations.py",
+  "tests/unit/scientist/orchestration/engine/test_budget_ledger_producer_events.py",
+  "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+]
+compatibility = "Complete valid legacy snapshots through 1.5 remain readable. New mutations write schema 1.6; an older reader that does not support 1.6 must refuse it rather than assume no reservations. Legacy aggregate release and commit cannot consume an identified pending reservation."
+change_class = "python-public-api"
+surface_classification = "public_stable: scientist.orchestration.engine FileBudgetLedger"
+migration = "Deploy a reader supporting schema 1.6 before a writer emits it. Retain the exact event and request identity across unknown acknowledgement and reconcile against the same ledger owner; the same-event reserve result is not permission to redispatch work."
+limitations = "This is local ledger accounting, not an appointed Foundry pricing or actual-cost authority, permission to run new work, external invoice, effects reconciliation, multi-host filesystem guarantee, or E02 closure."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []

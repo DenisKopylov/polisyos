@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import socket
 import tempfile
 import threading
@@ -24,13 +25,14 @@ from polisyos.scientist.orchestration.engine.budget import BudgetState
 
 _CANONICAL_LEDGER_CONTRACT = "scientist.multi_host_budget_ledger.v1"
 _COORDINATION_MODE = "shared_posix_file_lock"
-_SNAPSHOT_VERSION = "1.5"
+_SNAPSHOT_VERSION = "1.6"
 
 __all__ = [
     "BudgetLedger",
     "BudgetLedgerMutation",
     "BudgetLedgerMutationResult",
     "BudgetLedgerSnapshot",
+    "BudgetLedgerComputeReservation",
     "BudgetLedgerWriter",
     "BudgetLedgerSpendReceipt",
     "BudgetLedgerProducerRecord",
@@ -66,6 +68,9 @@ class BudgetLedgerMutation(BaseModel):
         "settle_spend",
         "begin_producer_event",
         "settle_producer_event",
+        "reserve_compute",
+        "settle_compute",
+        "mark_compute_unknown",
     ]
     key: str | None = None
     amount: Decimal | None = None
@@ -389,6 +394,37 @@ class BudgetLedgerSettlementOutcomeUnknownError(RuntimeError):
         )
 
 
+class BudgetLedgerComputeReservation(BaseModel):
+    """One durable, identified compute reservation and its eventual actual charge."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    event_id: str = Field(min_length=1)
+    request_digest: str = Field(pattern=r"^[0-9a-f]{64}$")
+    key: str = Field(min_length=1)
+    reserved_amount: Decimal
+    status: Literal["reserved", "unknown", "settled"]
+    actual_amount: Decimal | None = None
+    settlement_digest: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    revision: int = Field(ge=0)
+
+    @model_validator(mode="after")
+    def _validate_status(self) -> BudgetLedgerComputeReservation:
+        if not self.reserved_amount.is_finite() or self.reserved_amount <= 0:
+            raise ValueError("compute_reservation_amount_must_be_positive_and_finite")
+        if self.status in {"reserved", "unknown"} and (
+            self.actual_amount is not None or self.settlement_digest is not None
+        ):
+            raise ValueError("compute_reservation_pending_has_settlement")
+        if self.status == "settled" and (
+            self.actual_amount is None
+            or not self.actual_amount.is_finite()
+            or self.actual_amount < 0
+            or self.settlement_digest is None
+        ):
+            raise ValueError("compute_reservation_settlement_incomplete")
+        return self
+
+
 class BudgetLedgerSnapshot(BaseModel):
     """Persisted budget ledger state."""
 
@@ -408,6 +444,10 @@ class BudgetLedgerSnapshot(BaseModel):
     )
     producer_settlements: dict[str, BudgetLedgerProducerRecord] = Field(
         default_factory=dict, json_schema_extra={"introduced_in": "1.2"}
+    )
+    # Legacy pre-1.6 snapshots have no identified compute reservation records.
+    compute_reservations: dict[str, BudgetLedgerComputeReservation] = Field(
+        default_factory=dict, json_schema_extra={"introduced_in": "1.6"}
     )
 
 
@@ -485,6 +525,7 @@ def _decode_snapshot(raw: str) -> BudgetLedgerSnapshot:
         "1.2",
         "1.3",
         "1.4",
+        "1.5",
         _SNAPSHOT_VERSION,
     }:
         raise ValueError("budget ledger schema_version is missing or unsupported")
@@ -520,6 +561,29 @@ def _decode_snapshot(raw: str) -> BudgetLedgerSnapshot:
                 raise ValueError("committed producer outcome requires its exact spend receipt")
             if receipt.payload_digest != record.payload_digest:
                 raise ValueError("producer settlement and spend receipt digest disagree")
+    identified_reserved: dict[str, Decimal] = {}
+    for event_id, record in (snapshot.compute_reservations or {}).items():
+        if record.event_id != event_id or record.revision > snapshot.revision:
+            raise ValueError("compute reservation identity/revision disagrees with snapshot")
+        if event_id in snapshot.producer_settlements:
+            raise ValueError("compute reservation conflicts with producer event")
+        receipt = snapshot.spend_receipts.get(event_id)
+        if record.status in {"reserved", "unknown"}:
+            if receipt is not None:
+                raise ValueError("pending compute reservation already has spend receipt")
+            identified_reserved[record.key] = (
+                identified_reserved.get(record.key, Decimal(0)) + record.reserved_amount
+            )
+        elif (
+            receipt is None
+            or receipt.key != record.key
+            or receipt.amount != record.actual_amount
+            or receipt.payload_digest != record.settlement_digest
+        ):
+            raise ValueError("settled compute reservation requires exact spend receipt")
+    for key, amount in identified_reserved.items():
+        if snapshot.state.reserved.get(key, Decimal(0)) < amount:
+            raise ValueError("identified reservations exceed aggregate reserved amount")
     _validate_producer_settlement_origin_graph(snapshot.producer_settlements)
     for key, amount in amounts.items():
         if snapshot.state.spent.get(key, Decimal("0")) < amount:
@@ -575,6 +639,20 @@ class BudgetLedger(Protocol):
         provider: str | None = None,
     ) -> BudgetLedgerSpendReceipt: ...
     def resolve_spend(self, event_id: str) -> BudgetLedgerSpendReceipt | None: ...
+
+    def reserve_compute(
+        self, event_id: str, request_digest: str, key: str, amount: Decimal
+    ) -> BudgetLedgerComputeReservation: ...
+
+    def settle_compute(
+        self, event_id: str, request_digest: str, settlement_digest: str, amount: Decimal
+    ) -> BudgetLedgerComputeReservation: ...
+
+    def mark_compute_unknown(
+        self, event_id: str, request_digest: str
+    ) -> BudgetLedgerComputeReservation: ...
+
+    def resolve_compute(self, event_id: str) -> BudgetLedgerComputeReservation | None: ...
     def begin_producer_event(
         self,
         event_id: str,
@@ -764,6 +842,210 @@ class FileBudgetLedger:
             operation=apply,
         )
 
+    def reserve_compute(
+        self, event_id: str, request_digest: str, key: str, amount: Decimal
+    ) -> BudgetLedgerComputeReservation:
+        """Reserve a priced upper budget once under the durable ledger lock."""
+        candidate = BudgetLedgerComputeReservation(
+            event_id=event_id,
+            request_digest=request_digest,
+            key=key,
+            reserved_amount=amount,
+            status="reserved",
+            revision=0,
+        )
+        with self._thread_lock, self._file_lock(exclusive=True):
+            snapshot = self._load_snapshot()
+            if snapshot is None:
+                raise FileNotFoundError("budget ledger requires explicit bootstrap")
+            existing = snapshot.compute_reservations.get(event_id)
+            if existing is not None:
+                if (
+                    existing.request_digest != request_digest
+                    or existing.key != key
+                    or existing.reserved_amount != amount
+                ):
+                    raise ValueError("compute_reservation_event_conflict")
+                self._confirm_compute_durability(event_id, snapshot)
+                return existing
+            if event_id in snapshot.spend_receipts or event_id in snapshot.producer_settlements:
+                raise ValueError("compute_reservation_event_conflict")
+            if any(
+                item.key == key and item.status in {"reserved", "unknown"}
+                for item in snapshot.compute_reservations.values()
+            ):
+                raise ValueError("compute_budget_unresolved_reservation")
+            state = _branch_budget_state(snapshot.state)
+            if state.remaining(key) is None:
+                raise ValueError("compute_budget_limit_not_configured")
+            if not state.reserve(key, amount):
+                raise ValueError("compute_budget_exhausted")
+            record = candidate.model_copy(update={"revision": snapshot.revision + 1})
+            records = dict(snapshot.compute_reservations)
+            records[event_id] = record
+            try:
+                written = self._persist_snapshot(
+                    self._build_snapshot(
+                        state=state,
+                        revision=record.revision,
+                        recent_mutations=[
+                            *snapshot.recent_mutations,
+                            self._build_mutation(
+                                revision=record.revision,
+                                operation="reserve_compute",
+                                key=key,
+                                amount=amount,
+                                applied_amount=amount,
+                                reserved=True,
+                            ),
+                        ],
+                        spend_receipts=snapshot.spend_receipts,
+                        producer_settlements=snapshot.producer_settlements,
+                        compute_reservations=records,
+                    )
+                )
+            except OSError as exc:
+                raise BudgetLedgerSettlementOutcomeUnknownError(event_id, request_digest) from exc
+            return written.compute_reservations[event_id]
+
+    def settle_compute(
+        self, event_id: str, request_digest: str, settlement_digest: str, amount: Decimal
+    ) -> BudgetLedgerComputeReservation:
+        """Atomically consume one identified reservation and charge actual work once."""
+        if type(amount) is not Decimal or not amount.is_finite() or amount < 0:
+            raise ValueError("compute_actual_cost_must_be_finite_and_nonnegative")
+        if re.fullmatch(r"[0-9a-f]{64}", settlement_digest) is None:
+            raise ValueError("compute_settlement_digest_invalid")
+        with self._thread_lock, self._file_lock(exclusive=True):
+            snapshot = self._load_snapshot()
+            if snapshot is None:
+                raise FileNotFoundError("budget ledger requires explicit bootstrap")
+            existing = snapshot.compute_reservations.get(event_id)
+            if existing is None or existing.request_digest != request_digest:
+                raise ValueError("compute_reservation_missing_or_conflicting")
+            if existing.status == "settled":
+                if (
+                    existing.actual_amount != amount
+                    or existing.settlement_digest != settlement_digest
+                ):
+                    raise ValueError("compute_settlement_event_conflict")
+                self._confirm_compute_durability(event_id, snapshot)
+                return existing
+            if event_id in snapshot.spend_receipts:
+                raise ValueError("compute_settlement_receipt_conflict")
+            state = _branch_budget_state(snapshot.state)
+            if state.release(existing.key, existing.reserved_amount) != existing.reserved_amount:
+                raise ValueError("compute_reservation_balance_invalid")
+            state.record_spend(existing.key, amount)
+            revision = snapshot.revision + 1
+            record = existing.model_copy(
+                update={
+                    "status": "settled",
+                    "actual_amount": amount,
+                    "settlement_digest": settlement_digest,
+                    "revision": revision,
+                }
+            )
+            records = dict(snapshot.compute_reservations)
+            records[event_id] = record
+            receipts = dict(snapshot.spend_receipts)
+            receipts[event_id] = BudgetLedgerSpendReceipt(
+                event_id=event_id,
+                payload_digest=settlement_digest,
+                key=existing.key,
+                amount=amount,
+                revision=revision,
+            )
+            try:
+                written = self._persist_snapshot(
+                    self._build_snapshot(
+                        state=state,
+                        revision=revision,
+                        recent_mutations=[
+                            *snapshot.recent_mutations,
+                            self._build_mutation(
+                                revision=revision,
+                                operation="settle_compute",
+                                key=existing.key,
+                                amount=amount,
+                                applied_amount=amount,
+                            ),
+                        ],
+                        spend_receipts=receipts,
+                        producer_settlements=snapshot.producer_settlements,
+                        compute_reservations=records,
+                    )
+                )
+            except OSError as exc:
+                raise BudgetLedgerSettlementOutcomeUnknownError(
+                    event_id, settlement_digest
+                ) from exc
+            return written.compute_reservations[event_id]
+
+    def mark_compute_unknown(
+        self, event_id: str, request_digest: str
+    ) -> BudgetLedgerComputeReservation:
+        """Retain the reservation when actual work cost cannot be established."""
+        with self._thread_lock, self._file_lock(exclusive=True):
+            snapshot = self._load_snapshot()
+            if snapshot is None:
+                raise FileNotFoundError("budget ledger requires explicit bootstrap")
+            existing = snapshot.compute_reservations.get(event_id)
+            if existing is None or existing.request_digest != request_digest:
+                raise ValueError("compute_reservation_missing_or_conflicting")
+            if existing.status == "settled":
+                raise ValueError("compute_settlement_already_known")
+            if existing.status == "unknown":
+                self._confirm_compute_durability(event_id, snapshot)
+                return existing
+            revision = snapshot.revision + 1
+            record = existing.model_copy(update={"status": "unknown", "revision": revision})
+            records = dict(snapshot.compute_reservations)
+            records[event_id] = record
+            try:
+                written = self._persist_snapshot(
+                    self._build_snapshot(
+                        state=snapshot.state,
+                        revision=revision,
+                        recent_mutations=[
+                            *snapshot.recent_mutations,
+                            self._build_mutation(
+                                revision=revision,
+                                operation="mark_compute_unknown",
+                                key=existing.key,
+                            ),
+                        ],
+                        spend_receipts=snapshot.spend_receipts,
+                        producer_settlements=snapshot.producer_settlements,
+                        compute_reservations=records,
+                    )
+                )
+            except OSError as exc:
+                raise BudgetLedgerSettlementOutcomeUnknownError(event_id, request_digest) from exc
+            return written.compute_reservations[event_id]
+
+    def _confirm_compute_durability(self, event_id: str, snapshot: BudgetLedgerSnapshot) -> None:
+        try:
+            _fsync_dir(self._path.parent)
+            confirmed = self._load_snapshot()
+        except OSError as exc:
+            raise BudgetLedgerSettlementOutcomeUnknownError(event_id, "readback") from exc
+        if confirmed != snapshot:
+            raise BudgetLedgerSettlementOutcomeUnknownError(event_id, "readback")
+
+    def resolve_compute(self, event_id: str) -> BudgetLedgerComputeReservation | None:
+        """Reread this owner's durable record; absent does not prove zero work."""
+        with self._thread_lock, self._file_lock(exclusive=True):
+            snapshot = self._load_snapshot()
+            if snapshot is None:
+                raise FileNotFoundError("budget ledger requires explicit bootstrap")
+            if event_id not in snapshot.compute_reservations and (
+                event_id in snapshot.spend_receipts or event_id in snapshot.producer_settlements
+            ):
+                raise ValueError("budget_event_kind_conflict")
+            self._confirm_compute_durability(event_id, snapshot)
+            return snapshot.compute_reservations.get(event_id)
+
     def settle_spend(
         self,
         event_id: str,
@@ -795,6 +1077,8 @@ class FileBudgetLedger:
                     raise FileNotFoundError(
                         "budget ledger requires explicit load_or_bootstrap before use"
                     )
+                if event_id in snapshot.compute_reservations:
+                    raise ValueError("budget_event_kind_conflict")
                 existing = snapshot.spend_receipts.get(event_id)
                 if existing is not None:
                     identity = ("event_id", "payload_digest", "key", "amount", "provider")
@@ -828,6 +1112,7 @@ class FileBudgetLedger:
                             recent_mutations=mutations,
                             spend_receipts=receipts,
                             producer_settlements=snapshot.producer_settlements,
+                            compute_reservations=snapshot.compute_reservations,
                         )
                     )
                 except OSError as exc:
@@ -856,6 +1141,8 @@ class FileBudgetLedger:
                     raise FileNotFoundError(
                         "budget ledger requires explicit load_or_bootstrap before use"
                     )
+                if event_id in snapshot.compute_reservations:
+                    raise ValueError("budget_event_kind_conflict")
                 existing = snapshot.producer_settlements.get(event_id)
                 if existing is not None:
                     if (
@@ -903,6 +1190,7 @@ class FileBudgetLedger:
                             recent_mutations=mutations,
                             spend_receipts=snapshot.spend_receipts,
                             producer_settlements=settlements,
+                            compute_reservations=snapshot.compute_reservations,
                         )
                     )
                 except OSError as exc:
@@ -972,6 +1260,8 @@ class FileBudgetLedger:
                     raise FileNotFoundError(
                         "budget ledger requires explicit load_or_bootstrap before use"
                     )
+                if event_id in snapshot.compute_reservations:
+                    raise ValueError("budget_event_kind_conflict")
                 _validate_producer_settlement_origin_graph(snapshot.producer_settlements)
                 existing_record = snapshot.producer_settlements.get(event_id)
                 if existing_record is not None:
@@ -1082,6 +1372,7 @@ class FileBudgetLedger:
                             recent_mutations=mutations,
                             spend_receipts=receipts,
                             producer_settlements=settlements,
+                            compute_reservations=snapshot.compute_reservations,
                         )
                     )
                 except OSError as exc:
@@ -1096,6 +1387,8 @@ class FileBudgetLedger:
             snapshot = self._load_snapshot()
         if snapshot is None:
             raise FileNotFoundError("budget ledger requires explicit load_or_bootstrap before use")
+        if event_id in snapshot.compute_reservations:
+            raise ValueError("budget_event_kind_conflict")
         return snapshot.producer_settlements.get(event_id)
 
     def list_producer_events_for_run(
@@ -1122,6 +1415,8 @@ class FileBudgetLedger:
             snapshot = self._load_snapshot()
         if snapshot is None:
             raise FileNotFoundError("budget ledger requires explicit load_or_bootstrap before use")
+        if event_id in snapshot.compute_reservations:
+            raise ValueError("budget_event_kind_conflict")
         return snapshot.spend_receipts.get(event_id)
 
     @contextmanager
@@ -1162,6 +1457,18 @@ class FileBudgetLedger:
                         "budget ledger requires explicit load_or_bootstrap before use"
                     )
                 snapshot = self._normalize_snapshot(snapshot)
+                if mutation_kind in {"release", "commit_reservation"}:
+                    identified_floor = sum(
+                        (
+                            record.reserved_amount
+                            for record in snapshot.compute_reservations.values()
+                            if record.status in {"reserved", "unknown"} and record.key == key
+                        ),
+                        Decimal(0),
+                    )
+                    available = snapshot.state.reserved.get(key, Decimal(0)) - identified_floor
+                    if amount > available and identified_floor > 0:
+                        raise ValueError("legacy_mutation_cannot_consume_identified_reservation")
                 state = _branch_budget_state(snapshot.state)
                 result = operation(state)
                 revision = snapshot.revision + 1
@@ -1184,6 +1491,7 @@ class FileBudgetLedger:
                         recent_mutations=tuple(mutations[-self._mutation_history_limit :]),
                         spend_receipts=snapshot.spend_receipts,
                         producer_settlements=snapshot.producer_settlements,
+                        compute_reservations=snapshot.compute_reservations,
                     )
                 )
                 return BudgetLedgerMutationResult(
@@ -1238,6 +1546,7 @@ class FileBudgetLedger:
         recent_mutations: tuple[BudgetLedgerMutation, ...] | list[BudgetLedgerMutation] = (),
         spend_receipts: dict[str, BudgetLedgerSpendReceipt] | None = None,
         producer_settlements: dict[str, BudgetLedgerProducerRecord] | None = None,
+        compute_reservations: dict[str, BudgetLedgerComputeReservation] | None = None,
     ) -> BudgetLedgerSnapshot:
         return BudgetLedgerSnapshot(
             canonical_contract=_CANONICAL_LEDGER_CONTRACT,
@@ -1250,6 +1559,7 @@ class FileBudgetLedger:
             state=state,
             spend_receipts=dict(spend_receipts or {}),
             producer_settlements=dict(producer_settlements or {}),
+            compute_reservations=dict(compute_reservations or {}),
         )
 
     def _build_mutation(
@@ -1265,6 +1575,9 @@ class FileBudgetLedger:
             "settle_spend",
             "begin_producer_event",
             "settle_producer_event",
+            "reserve_compute",
+            "settle_compute",
+            "mark_compute_unknown",
         ],
         key: str | None = None,
         amount: Decimal | None = None,

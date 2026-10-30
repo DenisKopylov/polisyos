@@ -67,8 +67,8 @@ control removes only required-field admission inside the child process; the
 same consumer tests must then fail. These witnesses do not establish power-loss
 or multi-host filesystem guarantees.
 
-The ledger writer's current snapshot version is `1.5`; complete valid `1.0` through
-`1.4` snapshots remain readable. Unknown versions, contracts and coordination modes
+The ledger writer's current snapshot version is `1.6`; complete valid `1.0` through
+`1.5` snapshots remain readable. Unknown versions, contracts and coordination modes
 are rejected. Version `1.2` introduced producer settlement records; `1.3` added
 server-issued run binding, `1.4` added attempt attribution, and `1.5` adds an optional
 `BudgetLedgerCacheReuseAdmission`. Existing receipts keep their original accounting
@@ -92,6 +92,16 @@ an uncertain acknowledgement. A missing receipt means unknown settlement;
 filesystem failure raises `BudgetLedgerSettlementOutcomeUnknownError` rather
 than reporting zero spend. This contract acknowledges local ledger accounting;
 an external provider needs its own receipt or status/idempotency contract.
+
+The internal identified-compute reservation path stores a stable event and request
+digest under the same durable ledger lock. It converts the reservation and records
+the actual charge in one snapshot transaction; exact retries reconcile the durable
+record and conflicting retries refuse. An unresolved reservation or unknown cost
+blocks further work on that budget key. Legacy release/commit operations can use
+only the aggregate amount above the identified reservation floor. A same-ID reservation retry is only a receipt lookup, not permission to
+rerun physical work. A missing record does not establish zero cost. These mechanics
+do not appoint a compute-price source or authorize Foundry: until an actual trusted
+pricing/measurement owner is established, the child profile remains refused.
 
 Before external provider work, `admit_provider_intent_safe(...)` atomically
 reserves every configured budget key and persists a `provider_in_flight` record

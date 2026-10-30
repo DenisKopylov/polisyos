@@ -93,7 +93,7 @@ def test_pending_unknown_estimated_reported_zero_and_reuse_survive_reopen(tmp_pa
     )
 
     reopened = FileBudgetLedger(path).snapshot()
-    assert reopened.schema_version == "1.5"
+    assert reopened.schema_version == "1.6"
     assert reopened.producer_settlements["pending"].status == "unknown"
     assert reopened.producer_settlements["pending"].amount is None
     assert reopened.producer_settlements["estimated"] == estimated
@@ -606,4 +606,4 @@ def test_legacy_14_reader_does_not_require_new_reuse_admission(tmp_path: Path) -
         cost_origin="reuse",
         origin_event_id=source.event_id,
     )
-    assert FileBudgetLedger(path).snapshot().schema_version == "1.5"
+    assert FileBudgetLedger(path).snapshot().schema_version == "1.6"

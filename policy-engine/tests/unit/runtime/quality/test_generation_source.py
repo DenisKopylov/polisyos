@@ -2396,6 +2396,21 @@ def test_current_effect_bridge_binds_actual_historical_emitter_epoch(
     monkeypatch.setitem(sys.modules, name, historical)
     raw_module = historical_owner_bytes(PROMOTION_EMITTER_BASE_BLOB)
     exec(compile(raw_module, historical.__file__, "exec"), historical.__dict__)  # noqa: S102
+
+    # The old emitter imports a private helper from the live module. Adapt only
+    # its old no-selected-profile call to the current transport; do not claim
+    # that this new execution recovers an actual historical CAS artifact.
+    transport_kinds = []
+
+    def historical_transport(*, store, value, kind):
+        assert kind in {
+            historical._EFFECT_OBLIGATION_SOURCE_KIND,
+            historical._PROMOTION_EVIDENCE_BRIDGE_KIND,
+        }
+        transport_kinds.append(kind)
+        return current._persist_model(store=store, value=value, kind=kind, selected_profile=False)
+
+    monkeypatch.setattr(historical, "_persist_model", historical_transport)
     old_input = historical.CanonicalPromotionInput(
         design_problem_binding=historical.N9DesignProblemBinding.from_problem(problem),
         candidate_summary=_source_summary(organ),
@@ -2407,7 +2422,15 @@ def test_current_effect_bridge_binds_actual_historical_emitter_epoch(
         promotion_input=old_input,
         **{name: getattr(writer, name) for name in type(writer).model_fields},
     )
+    assert transport_kinds == [
+        historical._EFFECT_OBLIGATION_SOURCE_KIND,
+        historical._PROMOTION_EVIDENCE_BRIDGE_KIND,
+    ]
     old_bridge = json.loads(store.get_bytes(old_ref.artifact_id))
+    assert (
+        old_bridge["schema_version"]
+        == "policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v2"
+    )
     old_raw = store.get_bytes(old_bridge["source_artifact_id"])
     old_body = json.loads(old_raw)
     assert old_body["schema_version"] == (
@@ -2415,16 +2438,15 @@ def test_current_effect_bridge_binds_actual_historical_emitter_epoch(
     )
     old_manifest = store.get_manifest(artifacts.ArtifactID(old_bridge["source_artifact_id"]))
     assert old_manifest.canon is None
-    parsed = current._read_model(
-        store=store,
-        ref=artifacts.ArtifactRef(
-            artifact_id=artifacts.ArtifactID(old_bridge["source_artifact_id"]),
-            kind=current._EFFECT_OBLIGATION_SOURCE_KIND,
-            media_type="application/vnd.polisyos.chronology+json",
-        ),
-        model=current._EffectObligationProducerRecord,
-        kind=current._EFFECT_OBLIGATION_SOURCE_KIND,
-    )
+    assert old_manifest.kind == current._EFFECT_OBLIGATION_SOURCE_KIND
+    assert old_manifest.media_type == "application/vnd.polisyos.chronology+json"
+    assert old_manifest.artifact_schema is None
+    assert store.verify(artifacts.ArtifactID(old_bridge["source_artifact_id"])).ok
+    assert "sha256:" + hashlib.sha256(old_raw).hexdigest() == old_bridge["source_artifact_id"]
+    # This is a bounded historical-wire parse, not current profile admission.
+    # Current _read_model correctly refuses this unselected legacy view.
+    parsed = current._EffectObligationProducerRecord.model_validate_json(old_raw)
+    assert parsed.schema_version == old_body["schema_version"]
     _, _, observed = current._persist_model(
         store=store,
         value=parsed,
@@ -2458,6 +2480,29 @@ def test_current_effect_bridge_binds_actual_historical_emitter_epoch(
     live = current.N9PromotionEvidenceBridgeRecord.model_validate_json(
         store.get_bytes(live_ref.artifact_id)
     )
+    # A current owner must reject an explicitly declared old source epoch
+    # before consuming that source, even with the actual historical body.
+    declared_old = live.model_copy(update={"source_schema_ref": old_body["schema_version"]})
+    old_source_ref = artifacts.ArtifactRef(
+        artifact_id=artifacts.ArtifactID(old_bridge["source_artifact_id"]),
+        kind=current._EFFECT_OBLIGATION_SOURCE_KIND,
+        media_type="application/vnd.polisyos.chronology+json",
+    )
+    with pytest.raises(ValueError, match="effect_obligation_bridge_source_invalid"):
+        owner._resolve_effect_record(
+            declared_old, promotion_input=promotion_input, source_ref=old_source_ref
+        )
+    # The old unselected bridge is refused by a new repository instance too.
+    fresh_owner = current.N9PromotionEvidenceBridgeRepository(
+        store=artifacts.FileSystemCAS(tmp_path / "cas")
+    )
+    assert (
+        fresh_owner.resolve(
+            bridge_ref=old_ref, promotion_input=promotion_input, evidence_kind="effect_obligation"
+        ).status
+        == "not_established"
+    )
+
     misleading = live.model_copy(
         update={
             "source_artifact_id": old_bridge["source_artifact_id"],
@@ -2467,6 +2512,12 @@ def test_current_effect_bridge_binds_actual_historical_emitter_epoch(
         }
     )
     assert misleading.source_schema_ref == current._EFFECT_OBLIGATION_SOURCE_SCHEMA_VERSION
+    assert parsed.schema_version != misleading.source_schema_ref
+    # No selected or canonical profile is fabricated for the old source.
+    with pytest.raises(ValueError, match="chronology_artifact_profile_mismatch"):
+        owner._resolve_effect_record(
+            misleading, promotion_input=promotion_input, source_ref=old_source_ref
+        )
     changed_ref, _, _ = current._persist_model(
         store=store,
         value=misleading,

@@ -6294,6 +6294,7 @@ def _observed_source_bindings(
     reached = frozenset(graph.reached_sources)
     parsed_sources: dict[str, ast.Module] = {}
     imports_by_line: dict[str, dict[int, list[ast.ImportFrom]]] = {}
+    namespaces: dict[str, Mapping[str, object]] = {}
     provider_digests: dict[str, str] = {}
     matched: dict[tuple[str, str, str], set[tuple[str, str]]] = {}
     disagreements: set[tuple[str, str, str, str]] = set()
@@ -6314,12 +6315,7 @@ def _observed_source_bindings(
         if event.caller_code is not importer.code:
             # Function-local imports are not module-global binding claims.
             continue
-        if (
-            type(importer.module) is not types.ModuleType
-            or type(provider.module) is not types.ModuleType
-            or event.importer is not importer.module
-            or event.provider is not provider.module
-        ):
+        if event.importer is not importer.module or event.provider is not provider.module:
             raise ValueError("imported_module_observation_mismatch")
         for symbol in event.requested_exports:
             if type(symbol) is not str or not symbol.isidentifier():
@@ -6337,8 +6333,16 @@ def _observed_source_bindings(
                 imports_by_line=imports_by_line,
             )
             for alias in aliases:
-                current_provider = _passive_capture_lookup(provider.module.__dict__, symbol)
-                current_consumer = _passive_capture_lookup(importer.module.__dict__, alias)
+                provider_namespace = namespaces.get(event.provider_name)
+                if provider_namespace is None:
+                    provider_namespace = capture.retained_module_namespace(event.provider_name)
+                    namespaces[event.provider_name] = provider_namespace
+                importer_namespace = namespaces.get(event.importer_name)
+                if importer_namespace is None:
+                    importer_namespace = capture.retained_module_namespace(event.importer_name)
+                    namespaces[event.importer_name] = importer_namespace
+                current_provider = _passive_capture_lookup(provider_namespace, symbol)
+                current_consumer = _passive_capture_lookup(importer_namespace, alias)
                 if (
                     event_value is not retained
                     or current_provider is not retained

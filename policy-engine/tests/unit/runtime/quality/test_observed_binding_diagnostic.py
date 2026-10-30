@@ -6,16 +6,22 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 _PRODUCT = Path(__file__).resolve().parents[4]
 
 
-def test_observed_bindings_refuse_a_restored_consumer_spoof(tmp_path: Path) -> None:
+@pytest.mark.parametrize("module_facade", [False, True], ids=["standard", "source_owned_facade"])
+def test_observed_bindings_refuse_a_restored_consumer_spoof(
+    tmp_path: Path, module_facade: bool
+) -> None:
     """Recorded provider and aliased consumer objects remain equal by identity."""
     program = r"""
 import __future__, ast, hashlib, importlib, pathlib, sys, types, typing
 product = pathlib.Path(sys.argv[1])
 root = pathlib.Path(sys.argv[2])
 mode = sys.argv[3]
+module_facade = sys.argv[4] == 'facade'
 sys.path.insert(0, str(product))
 from tools import loaded_execution_capture as recorder
 from tools.loaded_execution_capture import CaptureError, ExpectedSource, SourceExecutionCapture
@@ -31,7 +37,12 @@ class Capability(Protocol):
 '''),
     'observed_binding.facade': ('observed_binding/facade.py', b'''from . import hidden as local_helper
 from .provider import Capability as Alias
-'''),
+''' + (b'''import sys, types
+class Facade(types.ModuleType):
+    def __getattribute__(self, name):
+        return types.ModuleType.__getattribute__(self, name)
+sys.modules[__name__].__class__ = Facade
+''' if module_facade else b'')),
     'observed_binding.consumer': ('observed_binding/consumer.py', b'from .facade import Alias as Chosen\nfrom .facade import Alias as Other\n'),
 }
 for relative, source in files.values():
@@ -111,7 +122,18 @@ else:
         case_root = tmp_path / mode
         case_root.mkdir()
         result = subprocess.run(
-            [sys.executable, "-I", "-S", "-B", "-c", program, str(_PRODUCT), str(case_root), mode],
+            [
+                sys.executable,
+                "-I",
+                "-S",
+                "-B",
+                "-c",
+                program,
+                str(_PRODUCT),
+                str(case_root),
+                mode,
+                "facade" if module_facade else "standard",
+            ],
             capture_output=True,
             text=True,
             check=False,

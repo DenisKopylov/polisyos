@@ -72,6 +72,85 @@ def _passive_binding_matches(mapping: object, key: str, expected: object) -> boo
     return found and actual is expected
 
 
+def _is_module_object(value: object) -> bool:
+    """Recognize a real module by its static type hierarchy."""
+
+    value_type = type(value)
+    if value_type is ModuleType:
+        return True
+    if type(value_type) is not type:
+        return False
+    mro = type.__getattribute__(value_type, "__mro__")
+    return type(mro) is tuple and any(cls is ModuleType for cls in mro)
+
+
+def _raw_module_namespace(module: object) -> dict[str, object] | None:
+    """Read a module dictionary without dispatching a subclass's getters."""
+
+    module_type = type(module)
+    if module_type is not ModuleType:
+        if type(module_type) is not type:
+            return None
+        mro = type.__getattribute__(module_type, "__mro__")
+        if type(mro) is not tuple:
+            return None
+        for cls in mro:
+            if cls is ModuleType:
+                break
+            if (
+                type(cls) is not type
+                or _passive_lookup(type.__getattribute__(cls, "__dict__"), "__dict__")[0]
+            ):
+                return None
+        else:
+            return None
+    try:
+        namespace = ModuleType.__getattribute__(module, "__dict__")
+    except (AttributeError, TypeError):
+        return None
+    return namespace if type(namespace) is dict else None
+
+
+def _module_class_plain_value(value: object) -> bool:
+    """Limit non-callable facade class fields to simple immutable values."""
+
+    primitive = (type(None), bool, int, float, complex, str, bytes)
+    if type(value) in primitive:
+        return True
+    if type(value) is tuple:
+        return all(type(item) in primitive for item in cast("tuple[object, ...]", value))
+    if type(value) is frozenset:
+        return all(type(item) in primitive for item in cast("frozenset[object]", value))
+    return False
+
+
+def _module_callable_state_supported(function: FunctionType, cls: type[object]) -> bool:
+    """Refuse opaque mutable defaults and closure cells on facade methods."""
+
+    defaults = function.__defaults__
+    if defaults is not None and (
+        type(defaults) is not tuple or any(not _module_class_plain_value(item) for item in defaults)
+    ):
+        return False
+    kwdefaults = function.__kwdefaults__
+    if kwdefaults is not None and (
+        type(kwdefaults) is not dict
+        or any(
+            type(key) is not str or not _module_class_plain_value(value)
+            for key, value in kwdefaults.items()
+        )
+    ):
+        return False
+    for cell in function.__closure__ or ():
+        try:
+            value = cell.cell_contents
+        except ValueError:
+            return False
+        if value is not cls and not _module_class_plain_value(value):
+            return False
+    return True
+
+
 def _finder_descriptor_functions(value: object) -> tuple[FunctionType, ...] | None:
     """Read supported descriptor representations without invoking them."""
 
@@ -234,13 +313,14 @@ class FailedImportEvidence:
 
 
 @dataclass(frozen=True, slots=True)
-class _SourceFinderClass:
-    """One source-executed class in the selected finder method's MRO."""
+class _SourceBoundClass:
+    """A class bound in a selected module, with retained structure and methods."""
 
     cls: type[object]
     owner: ModuleType
     owner_name: str
     class_name: str
+    qualified_name: str
     source_code: CodeType
     bases: tuple[type[object], ...]
     fields: tuple[tuple[str, object], ...]
@@ -254,11 +334,21 @@ class _SourceOwnedFinder:
     finder: object
     finder_type: type[object]
     resolution_order: tuple[type[object], ...]
-    classes: tuple[_SourceFinderClass, ...]
+    classes: tuple[_SourceBoundClass, ...]
     method: FunctionType
     method_code: CodeType
     instance_namespace: dict[str, object]
     instance_fields: tuple[tuple[str, object], ...]
+
+
+@dataclass(frozen=True, slots=True)
+class _SourceBoundModuleClass:
+    """A module-bound subclass with a complete retained MRO."""
+
+    module: ModuleType
+    module_type: type[object]
+    resolution_order: tuple[type[object], ...]
+    classes: tuple[_SourceBoundClass, ...]
 
 
 @dataclass(frozen=True, slots=True)
@@ -644,6 +734,7 @@ class SourceExecutionCapture:
         self._meta_path_object: list[object] | None = None
         self._admitted_meta_path: tuple[object, ...] = ()
         self._source_owned_finders: dict[int, _SourceOwnedFinder] = {}
+        self._source_owned_module_classes: dict[str, _SourceBoundModuleClass] = {}
         self._phase: Literal["new", "collecting", "failed", "closed"] = "new"
         self._closed = False
         self._failure: str | None = None
@@ -958,6 +1049,7 @@ class SourceExecutionCapture:
             self._event_anchors,
             self._failed_event_anchors,
             self._source_owned_finders,
+            self._source_owned_module_classes,
         )
         for holder in holders:
             if type(holder) is dict:
@@ -999,6 +1091,33 @@ class SourceExecutionCapture:
             or not required_modules.issubset(self._sources)
         ):
             raise CaptureError("capture_required_set_invalid")
+        if type(self._source_owned_module_classes) is not dict:
+            self._fail("retained_module_changed")
+            raise CaptureError("retained_module_changed")
+        required = set(required_modules)
+        pending_owners = list(required_modules)
+        while pending_owners:
+            name = pending_owners.pop()
+            reference = self._source_owned_module_classes.get(name)
+            if reference is None:
+                continue
+            if (
+                type(reference) is not _SourceBoundModuleClass
+                or type(reference.classes) is not tuple
+                or any(
+                    type(item) is not _SourceBoundClass
+                    or type(item.owner_name) is not str
+                    or item.owner_name not in self._sources
+                    for item in reference.classes
+                )
+            ):
+                self._fail("retained_module_changed")
+                raise CaptureError("retained_module_changed")
+            for item in reference.classes:
+                if item.owner_name not in required:
+                    required.add(item.owner_name)
+                    pending_owners.append(item.owner_name)
+        required_modules = frozenset(required)
         if any(name in self._pending for name in required_modules):
             raise CaptureError("capture_incomplete")
         if (
@@ -1052,7 +1171,7 @@ class SourceExecutionCapture:
                     object.__getattribute__(record, field) is not original
                     for field, original in zip(_EXECUTION_FIELDS, anchor[1], strict=True)
                 )
-                or type(record.module) is not ModuleType
+                or self._module_namespace(record.module) is None
                 or type(record.spec) is not importlib.machinery.ModuleSpec
                 or type(record.loader) is not _CapturedSourceLoader
                 or type(record.watched_exports) is not MappingProxyType
@@ -1108,7 +1227,7 @@ class SourceExecutionCapture:
         anchor = self._execution_anchors[module_name]
         original = next((value for key, value in anchor[2] if key == name), _MISSING)
         captured = _passive_lookup(record.watched_exports, name)
-        current = _passive_lookup(record.module.__dict__, name)
+        current = _passive_lookup(self._module_namespace(record.module), name)
         if original is _MISSING:
             self._fail("provider_export_not_recorded")
             raise CaptureError("provider_export_not_recorded")
@@ -1121,6 +1240,16 @@ class SourceExecutionCapture:
             self._fail("retained_export_changed")
             raise CaptureError("retained_export_changed")
         return original
+
+    def retained_module_namespace(self, module_name: str) -> Mapping[str, object]:
+        """Return a passive live view of one reconciled source-owned module."""
+
+        self.assert_retained(frozenset({module_name}))
+        namespace = self._module_namespace(self._completed[module_name].module)
+        if namespace is None:
+            self._fail("retained_module_changed")
+            raise CaptureError("retained_module_changed")
+        return MappingProxyType(namespace)
 
     def assert_binding(
         self,
@@ -1139,7 +1268,7 @@ class SourceExecutionCapture:
         self.assert_retained(frozenset({importer_name, provider_name}))
         importer = self.completed(importer_name)
         retained = self.completed_binding(provider_name, provider_attribute)
-        namespace = importer.module.__dict__
+        namespace = self._module_namespace(importer.module)
         found, observed = _passive_lookup(namespace, importer_attribute)
         if not found or observed is not retained:
             self._fail("consumer_binding_changed")
@@ -1187,6 +1316,22 @@ class SourceExecutionCapture:
             if name in reached:
                 continue
             reached.add(name)
+            if type(self._source_owned_module_classes) is not dict:
+                self._fail("retained_module_changed")
+                raise CaptureError("retained_module_changed")
+            reference = self._source_owned_module_classes.get(name)
+            if reference is not None:
+                if (
+                    type(reference) is not _SourceBoundModuleClass
+                    or type(reference.classes) is not tuple
+                    or any(
+                        type(item) is not _SourceBoundClass or type(item.owner_name) is not str
+                        for item in reference.classes
+                    )
+                ):
+                    self._fail("retained_module_changed")
+                    raise CaptureError("retained_module_changed")
+                pending.extend(item.owner_name for item in reference.classes)
             parent = name.rpartition(".")[0]
             if parent in self._sources:
                 pending.append(parent)
@@ -1200,10 +1345,15 @@ class SourceExecutionCapture:
                 else:
                     external.add(event.provider_name)
                 for value in event.retained_exports.values():
-                    if type(value) is ModuleType:
-                        found, exported_name = _passive_lookup(value.__dict__, "__name__")
+                    if not _is_module_object(value):
+                        continue
+                    namespace = self._module_namespace(value)
+                    if namespace is not None:
+                        found, exported_name = _passive_lookup(namespace, "__name__")
                         if found and type(exported_name) is str and exported_name in self._sources:
                             pending.append(exported_name)
+                    else:
+                        unresolved.add((name, "imported_module_unqualified"))
             for event in failed_by_importer.get(name, ()):
                 failed.add((name, event.provider_name))
                 if event.provider_name in self._sources:
@@ -1322,9 +1472,11 @@ class SourceExecutionCapture:
         self.assert_retained(frozenset(required))
         if event.provider_name in self._sources:
             self.completed_binding(event.provider_name, provider_export)
+        importer_namespace = self._module_namespace(event.importer)
+        provider_namespace = self._module_namespace(event.provider)
         if (
-            type(event.importer) is not ModuleType
-            or type(event.provider) is not ModuleType
+            importer_namespace is None
+            or provider_namespace is None
             or _passive_lookup(sys.modules, event.importer_name)[1] is not event.importer
             or _passive_lookup(sys.modules, event.provider_name)[1] is not event.provider
         ):
@@ -1334,8 +1486,6 @@ class SourceExecutionCapture:
         if not found:
             self._fail("import_event_binding_unresolved")
             raise CaptureError("import_event_binding_unresolved")
-        provider_namespace = event.provider.__dict__
-        importer_namespace = event.importer.__dict__
         provider_found, current_provider = _passive_lookup(provider_namespace, provider_export)
         importer_found, current_importer = _passive_lookup(importer_namespace, importer_attribute)
         if (
@@ -1405,6 +1555,194 @@ class SourceExecutionCapture:
         builtins.__import__ = observed_import
         importlib.import_module = observed_import_module
 
+    def _source_class_reference(
+        self,
+        cls: type[object],
+        *,
+        context_module: ModuleType | None,
+        visiting: set[int],
+        module_class: bool,
+    ) -> _SourceBoundClass | None:
+        """Retain class structure bound in a selected module namespace.
+
+        This binds owner metadata and method code to selected source. It does
+        not prove which class-construction provider produced the class object.
+        """
+
+        if module_class and type(cls) is not type:
+            return None
+        owner_name = type.__getattribute__(cls, "__module__")
+        class_name = type.__getattribute__(cls, "__name__")
+        qualified_name = type.__getattribute__(cls, "__qualname__")
+        fields = type.__getattribute__(cls, "__dict__")
+        bases = type.__getattribute__(cls, "__bases__")
+        if (
+            type(owner_name) is not str
+            or type(class_name) is not str
+            or type(qualified_name) is not str
+            or type(bases) is not tuple
+            or owner_name not in self._sources
+        ):
+            return None
+        owner = self._pending.get(owner_name)
+        code = self._pending_codes.get(owner_name)
+        if owner is None:
+            completed = self._completed.get(owner_name)
+            if completed is None:
+                return None
+            owner, code = completed.module, completed.code
+        namespace = (
+            _raw_module_namespace(owner)
+            if owner is context_module
+            else self._module_namespace(owner, visiting=visiting)
+        )
+        if (
+            namespace is None
+            or type(code) is not CodeType
+            or _passive_lookup(sys.modules, owner_name)[1] is not owner
+            or _passive_lookup(namespace, class_name)[1] is not cls
+        ):
+            return None
+        functions: list[tuple[object, ...]] = []
+        for value in fields.values():
+            accessors = _finder_descriptor_functions(value)
+            if accessors is None:
+                if module_class and not _module_class_plain_value(value):
+                    return None
+                continue
+            for function in accessors:
+                if (
+                    type(function) is not FunctionType
+                    or function.__globals__ is not namespace
+                    or not self._code_belongs_to(code, function.__code__)
+                    or (module_class and not _module_callable_state_supported(function, cls))
+                ):
+                    return None
+                held = _finder_callable_hold(function)
+                if held is None:
+                    return None
+                functions.append(held)
+        return _SourceBoundClass(
+            cls,
+            owner,
+            owner_name,
+            class_name,
+            qualified_name,
+            code,
+            bases,
+            tuple(fields.items()),
+            tuple(functions),
+        )
+
+    def _source_class_matches(
+        self,
+        item: _SourceBoundClass,
+        *,
+        context_module: ModuleType | None,
+        visiting: set[int],
+    ) -> bool:
+        if type(item) is not _SourceBoundClass:
+            return False
+        fields = type.__getattribute__(item.cls, "__dict__")
+        bases = type.__getattribute__(item.cls, "__bases__")
+        owner = self._pending.get(item.owner_name)
+        code = self._pending_codes.get(item.owner_name)
+        if owner is None:
+            completed = self._completed.get(item.owner_name)
+            if completed is None:
+                return False
+            owner, code = completed.module, completed.code
+        namespace = (
+            _raw_module_namespace(owner)
+            if owner is context_module
+            else self._module_namespace(owner, visiting=visiting)
+        )
+        class_name = type.__getattribute__(item.cls, "__name__")
+        qualified_name = type.__getattribute__(item.cls, "__qualname__")
+        return bool(
+            namespace is not None
+            and type(class_name) is str
+            and class_name == item.class_name
+            and type(qualified_name) is str
+            and qualified_name == item.qualified_name
+            and type(bases) is tuple
+            and len(bases) == len(item.bases)
+            and all(actual is held for actual, held in zip(bases, item.bases, strict=True))
+            and owner is item.owner
+            and code is item.source_code
+            and _passive_lookup(sys.modules, item.owner_name)[1] is item.owner
+            and _passive_lookup(namespace, item.class_name)[1] is item.cls
+            and len(fields) == len(item.fields)
+            and all(_passive_binding_matches(fields, name, value) for name, value in item.fields)
+            and all(_finder_callable_unchanged(held) for held in item.functions)
+        )
+
+    def _module_namespace(
+        self, module: object, *, visiting: set[int] | None = None
+    ) -> dict[str, object] | None:
+        """Return a passive namespace for a held module-bound class hierarchy."""
+
+        namespace = _raw_module_namespace(module)
+        if namespace is None:
+            return None
+        found, name = _passive_lookup(namespace, "__name__")
+        if not found or type(name) is not str:
+            return None
+        if type(self._source_owned_module_classes) is not dict:
+            return None
+        reference = self._source_owned_module_classes.get(name)
+        if reference is not None and type(reference) is not _SourceBoundModuleClass:
+            return None
+        if type(module) is ModuleType:
+            return None if reference is not None and reference.module is module else namespace
+        if visiting is None:
+            visiting = set()
+        key = id(module)
+        if key in visiting:
+            return None
+        visiting.add(key)
+        try:
+            module_type = type(module)
+            mro = type.__getattribute__(module_type, "__mro__")
+            if reference is None:
+                if self._pending.get(name) is not module:
+                    return None
+                classes: list[_SourceBoundClass] = []
+                for cls in mro:
+                    if cls is ModuleType:
+                        break
+                    item = self._source_class_reference(
+                        cls,
+                        context_module=cast("ModuleType", module),
+                        visiting=visiting,
+                        module_class=True,
+                    )
+                    if item is None:
+                        return None
+                    classes.append(item)
+                else:
+                    return None
+                reference = _SourceBoundModuleClass(
+                    cast("ModuleType", module), module_type, mro, tuple(classes)
+                )
+                self._source_owned_module_classes[name] = reference
+            if (
+                reference.module is not module
+                or reference.module_type is not module_type
+                or len(mro) != len(reference.resolution_order)
+                or any(a is not b for a, b in zip(mro, reference.resolution_order, strict=True))
+                or not all(
+                    self._source_class_matches(
+                        item, context_module=cast("ModuleType", module), visiting=visiting
+                    )
+                    for item in reference.classes
+                )
+            ):
+                return None
+            return namespace
+        finally:
+            visiting.remove(key)
+
     def _source_finder_reference(self, finder: object) -> _SourceOwnedFinder | None:
         """Retain the source-executed resolution path of the actual finder."""
 
@@ -1426,61 +1764,15 @@ class SourceExecutionCapture:
         if type(namespace) is not dict or any(type(key) is not str for key in namespace):
             return None
         instance_fields = tuple(namespace.items())
-        classes: list[_SourceFinderClass] = []
+        classes: list[_SourceBoundClass] = []
         for cls in mro:
-            owner_name = type.__getattribute__(cls, "__module__")
-            class_name = type.__getattribute__(cls, "__name__")
             fields = type.__getattribute__(cls, "__dict__")
-            bases = type.__getattribute__(cls, "__bases__")
-            if (
-                type(owner_name) is not str
-                or type(class_name) is not str
-                or type(bases) is not tuple
-                or owner_name not in self._sources
-            ):
-                return None
-            owner = self._pending.get(owner_name)
-            code = self._pending_codes.get(owner_name)
-            if owner is None:
-                completed = self._completed.get(owner_name)
-                if completed is None:
-                    return None
-                owner, code = completed.module, completed.code
-            if (
-                type(owner) is not ModuleType
-                or type(code) is not CodeType
-                or _passive_lookup(sys.modules, owner_name)[1] is not owner
-                or _passive_lookup(owner.__dict__, class_name)[1] is not cls
-            ):
-                return None
-            functions: list[tuple[object, ...]] = []
-            for value in fields.values():
-                accessors = _finder_descriptor_functions(value)
-                if accessors is None:
-                    continue
-                for function in accessors:
-                    if (
-                        type(function) is not FunctionType
-                        or function.__globals__ is not owner.__dict__
-                        or not self._code_belongs_to(code, function.__code__)
-                    ):
-                        return None
-                    held = _finder_callable_hold(function)
-                    if held is None:
-                        return None
-                    functions.append(held)
-            classes.append(
-                _SourceFinderClass(
-                    cls,
-                    owner,
-                    owner_name,
-                    class_name,
-                    code,
-                    bases,
-                    tuple(fields.items()),
-                    tuple(functions),
-                )
+            item = self._source_class_reference(
+                cls, context_module=None, visiting=set(), module_class=False
             )
+            if item is None:
+                return None
+            classes.append(item)
             found, descriptor = _passive_lookup(fields, "find_spec")
             if not found:
                 continue
@@ -1492,8 +1784,8 @@ class SourceExecutionCapture:
             method = accessors[0]
             if (
                 type(method) is not FunctionType
-                or method.__globals__ is not owner.__dict__
-                or not self._code_belongs_to(code, method.__code__)
+                or method.__globals__ is not _raw_module_namespace(item.owner)
+                or not self._code_belongs_to(item.source_code, method.__code__)
             ):
                 return None
             return _SourceOwnedFinder(
@@ -1522,31 +1814,11 @@ class SourceExecutionCapture:
             or reference.method.__code__ is not reference.method_code
         ):
             return False
-        for item in reference.classes:
-            fields = type.__getattribute__(item.cls, "__dict__")
-            bases = type.__getattribute__(item.cls, "__bases__")
-            owner = self._pending.get(item.owner_name)
-            code = self._pending_codes.get(item.owner_name)
-            if owner is None:
-                completed = self._completed.get(item.owner_name)
-                if completed is None:
-                    return False
-                owner, code = completed.module, completed.code
-            if (
-                type(bases) is not tuple
-                or len(bases) != len(item.bases)
-                or any(actual is not held for actual, held in zip(bases, item.bases, strict=True))
-                or owner is not item.owner
-                or code is not item.source_code
-                or _passive_lookup(sys.modules, item.owner_name)[1] is not item.owner
-                or _passive_lookup(item.owner.__dict__, item.class_name)[1] is not item.cls
-                or len(fields) != len(item.fields)
-                or any(
-                    not _passive_binding_matches(fields, name, value) for name, value in item.fields
-                )
-                or not all(_finder_callable_unchanged(held) for held in item.functions)
-            ):
-                return False
+        if not all(
+            self._source_class_matches(item, context_module=None, visiting=set())
+            for item in reference.classes
+        ):
+            return False
         namespace = object.__getattribute__(reference.finder, "__dict__")
         return bool(
             namespace is reference.instance_namespace
@@ -1625,7 +1897,7 @@ class SourceExecutionCapture:
         if importer is None:
             completed = self._completed.get(name)
             importer = completed.module if completed is not None else None
-        if type(importer) is not ModuleType or importer.__dict__ is not namespace:
+        if importer is None or self._module_namespace(importer) is not namespace:
             self._importer_fail(name, "importer_execution_not_recorded")
             return None
         root_code = (
@@ -1670,7 +1942,7 @@ class SourceExecutionCapture:
             or level < 0
             or (fromlist is not None and type(fromlist) not in (tuple, list))
             or (fromlist is not None and any(type(name) is not str for name in fromlist))
-            or type(returned) is not ModuleType
+            or self._module_namespace(returned) is None
         ):
             self._importer_fail(selected[0], "import_event_shape_unsupported")
             return
@@ -1679,7 +1951,7 @@ class SourceExecutionCapture:
             self._importer_fail(selected[0], "import_event_package_unresolved")
             return
         _, provider = _passive_lookup(sys.modules, provider_name)
-        if type(provider) is not ModuleType:
+        if self._module_namespace(provider) is None:
             self._importer_fail(selected[0], "import_event_provider_unresolved")
             return
         self._retain_import_event(
@@ -1687,8 +1959,8 @@ class SourceExecutionCapture:
             caller.f_code,
             caller.f_lineno,
             provider_name,
-            provider,
-            returned,
+            cast("ModuleType", provider),
+            cast("ModuleType", returned),
             tuple(fromlist or ()),
             route,
         )
@@ -1697,10 +1969,11 @@ class SourceExecutionCapture:
         selected = self._selected_importer(caller)
         if selected is None:
             return
-        if type(returned) is not ModuleType:
+        namespace = self._module_namespace(returned)
+        if namespace is None:
             self._importer_fail(selected[0], "import_event_provider_unresolved")
             return
-        _, provider_name = _passive_lookup(returned.__dict__, "__name__")
+        _, provider_name = _passive_lookup(namespace, "__name__")
         if (
             type(provider_name) is not str
             or _passive_lookup(sys.modules, provider_name)[1] is not returned
@@ -1712,8 +1985,8 @@ class SourceExecutionCapture:
             caller.f_code,
             caller.f_lineno,
             provider_name,
-            returned,
-            returned,
+            cast("ModuleType", returned),
+            cast("ModuleType", returned),
             (),
             "import_module",
         )
@@ -1762,7 +2035,10 @@ class SourceExecutionCapture:
         exports: tuple[str, ...],
         route: Literal["builtin_import", "import_module"],
     ) -> None:
-        namespace = provider.__dict__
+        namespace = self._module_namespace(provider)
+        if namespace is None:
+            self._importer_fail(selected[0], "import_event_provider_unresolved")
+            return
         selected_exports: dict[str, object] = {}
         unresolved_names: list[str] = []
         for name in exports:
@@ -1847,7 +2123,9 @@ class SourceExecutionCapture:
             or self._pending_codes.get(name) is not code
         ):
             raise CaptureError("module_initialization_invalid")
-        namespace = module.__dict__
+        namespace = self._module_namespace(module)
+        if namespace is None:
+            raise CaptureError("module_initialization_invalid")
         _, spec = _passive_lookup(namespace, "__spec__")
         if type(spec) is not importlib.machinery.ModuleSpec:
             raise CaptureError("module_initialization_invalid")
@@ -1936,12 +2214,13 @@ class SourceExecutionCapture:
         """Inspect exact builtin representations without candidate comparisons."""
 
         if (
-            type(module) is not ModuleType
-            or type(spec) is not importlib.machinery.ModuleSpec
+            type(spec) is not importlib.machinery.ModuleSpec
             or type(loader) is not _CapturedSourceLoader
         ):
             return False
-        namespace = module.__dict__
+        namespace = self._module_namespace(module)
+        if namespace is None:
+            return False
         spec_fields = object.__getattribute__(spec, "__dict__")
         loader_fields = object.__getattribute__(loader, "__dict__")
         fields = (

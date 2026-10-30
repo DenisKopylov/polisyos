@@ -426,7 +426,8 @@ describe("useRunDetailSummary", () => {
     ]);
     expect(result.current.primaryDecisionArtifactId).toBe("artifact-3");
     expect(result.current.blockerCount).toBe(1);
-    expect(result.current.decisionHeadline).toBe("APPROVE");
+    expect(result.current.decisionHeadline).toBe("common.unknown");
+    expect(result.current.pipeline?.evaluator?.verdict).toBe("APPROVE");
     expect(result.current.decisionScore.point).toBeNull();
     expect(result.current.decisionScoreStyle).toEqual({});
     expect(result.current.impactRows).toEqual([

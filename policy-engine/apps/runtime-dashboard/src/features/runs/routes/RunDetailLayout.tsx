@@ -253,16 +253,13 @@ function RunInspectorContent() {
       mainUncertainty:
         summary.primaryIssue?.message?.trim() ||
         "No runtime or governance diagnostic was returned.",
-      primaryVerdict:
-        summary.decisionView?.verdict ??
-        summary.pipeline?.evaluator?.verdict ??
-        null,
+      primaryVerdict: summary.decisionView?.verdict ?? null,
       strongestEvidence,
       transportStatus: summary.transportStatus,
     };
   }, [summary]);
   const evaluatorGrade = presentDecisionGradeLabel(
-    summary.pipeline?.evaluator?.verdict ?? summary.decisionView?.verdict,
+    summary.pipeline?.evaluator?.verdict,
   );
   const packetGrade = presentDecisionGradeLabel(screenDecision.primaryVerdict);
   const primaryUncertaintyMetric = useMemo(() => {

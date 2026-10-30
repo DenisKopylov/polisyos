@@ -1199,6 +1199,100 @@ describe("run detail surfaces", () => {
     expect(screen.queryByTestId("run-replan-link")).not.toBeInTheDocument();
   });
 
+  it("keeps an absent decision packet unknown when the evaluator approves", async () => {
+    const summary = createSummary();
+    useRunInspectorMock.mockReturnValue(
+      createSummary({
+        decisionHeadline: "common.unknown",
+        decisionView: null,
+        pipeline: {
+          ...summary.pipeline,
+          evaluator: { ...summary.pipeline.evaluator, verdict: "APPROVE" },
+        },
+      }),
+    );
+
+    renderNestedRunDetail("/runs/run-1/overview");
+
+    const evaluatorGrade = await screen.findByTestId("run-evaluator-grade");
+    expect(evaluatorGrade).toHaveTextContent("APPROVE");
+    expect(evaluatorGrade).toHaveAttribute(
+      "data-owner-decision-grade",
+      "APPROVE",
+    );
+    expect(screen.getByTestId("run-packet-grade")).toHaveTextContent(
+      "common.unknown",
+    );
+    expect(
+      within(screen.getByTestId("run-decision-packet")).getAllByText(
+        "common.unknown",
+      ).length,
+    ).toBeGreaterThan(1);
+  });
+
+  it("keeps packet rejection separate from evaluator approval", async () => {
+    const summary = createSummary();
+    useRunInspectorMock.mockReturnValue(
+      createSummary({
+        decisionView: { ...summary.decisionView, verdict: "REJECT" },
+        pipeline: {
+          ...summary.pipeline,
+          evaluator: { ...summary.pipeline.evaluator, verdict: "APPROVE" },
+        },
+      }),
+    );
+
+    renderNestedRunDetail("/runs/run-1/overview");
+
+    const evaluatorGrade = await screen.findByTestId("run-evaluator-grade");
+    const packetGrade = screen.getByTestId("run-packet-grade");
+    expect(evaluatorGrade).toHaveAttribute(
+      "data-owner-decision-grade",
+      "APPROVE",
+    );
+    expect(packetGrade).toHaveAttribute("data-owner-decision-grade", "REJECT");
+    expect(evaluatorGrade).toHaveTextContent("APPROVE");
+    expect(packetGrade).toHaveTextContent("REJECT");
+  });
+
+  it("does not label a packet verdict as evaluator output when no evaluator exists", async () => {
+    const selectedRef: EvidenceArtifactRef = {
+      artifact_id: "artifact-1",
+      kind: "scientist.decision_packet",
+      media_type: "application/json",
+      manifest_profile_sha256: `sha256:${"e".repeat(64)}`,
+    };
+    const selectedSummary = selectedDecisionSummary(selectedRef);
+    const packetOnlySummary = {
+      ...selectedSummary,
+      decisionView: { ...selectedSummary.decisionView, verdict: "REJECT" },
+      pipeline: { ...selectedSummary.pipeline, evaluator: undefined },
+    };
+    useRunInspectorMock.mockReturnValue(packetOnlySummary);
+
+    const runDetail = renderNestedRunDetail("/runs/run-1/overview");
+
+    const runEvaluatorGrade = await screen.findByTestId("run-evaluator-grade");
+    expect(runEvaluatorGrade).toHaveTextContent("common.unknown");
+    expect(runEvaluatorGrade).not.toHaveAttribute("data-owner-decision-grade");
+    expect(screen.getByTestId("run-packet-grade")).toHaveAttribute(
+      "data-owner-decision-grade",
+      "REJECT",
+    );
+
+    runDetail.unmount();
+    useRunInspectorMock.mockReturnValue(packetOnlySummary);
+    renderRoute("/runs/run-1/overview", "/runs/:runId/:tab", <OverviewTab />);
+
+    const overviewEvaluatorGrade = await screen.findByTestId(
+      "overview-evaluator-grade",
+    );
+    expect(overviewEvaluatorGrade).toHaveTextContent("common.unknown");
+    expect(overviewEvaluatorGrade).not.toHaveAttribute(
+      "data-owner-decision-grade",
+    );
+  });
+
   it("keeps the open run status label opaque and neutral", async () => {
     useRunInspectorMock.mockReturnValue(
       createSummary({

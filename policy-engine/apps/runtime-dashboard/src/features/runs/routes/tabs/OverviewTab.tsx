@@ -62,7 +62,7 @@ function DecisionPanelContent({
   const { t, label } = useI18n();
   const summary = useRunInspector();
   const evaluatorGrade = presentDecisionGradeLabel(
-    summary.pipeline?.evaluator?.verdict ?? summary.decisionView?.verdict,
+    summary.pipeline?.evaluator?.verdict,
   );
   const decisionArtifactQuery = useSuspenseArtifactContent(artifactRef, {
     maxBytes: 256 * 1024,

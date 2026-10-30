@@ -486,3 +486,19 @@ termination, process failure and audit crash durability remain outside this prop
 The defining test changes an ordinary secure app's deployment-security alias after
 primary policy, exercising the unmodified guard's real unregistered-installation
 refusal. It does not claim coverage of every genuine factory configuration.
+
+
+An authorized cancellation request whose optimistic attempt/lease identity or
+operation disposition conflicts with durable job state returns the existing typed
+409 problem surface (`control_job_cancellation_conflict`). Only cancellation's
+specific precondition/race conflict subtype receives this translation. General
+worker publication lease loss and post-write integrity failures retain their
+internal-error behavior. A conflict does not mutate the job/progress/event/outbox
+state or assert physical process termination. The current cancellation and its
+identical retry retain their existing behavior.
+
+For an already cancelled job, the existing durable receipt verifier reconciles the
+complete row, creation identity, cancellation progress, source event and outbox
+before a new request is compared. A malformed or inconsistent persisted receipt
+remains an internal error even when a different client request would otherwise
+conflict; it is never reclassified as409 from plausible progress fields.

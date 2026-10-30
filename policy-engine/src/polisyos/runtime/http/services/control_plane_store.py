@@ -1232,6 +1232,13 @@ class ControlJobLeaseLostError(RuntimeError):
     """Raised when a worker attempts to write outside its live job lease."""
 
 
+class ControlJobCancellationConflictError(ControlJobLeaseLostError):
+    """A cancellation request's optimistic identity conflicts with durable job state.
+
+    This excludes worker publication lease loss and post-write integrity failures.
+    """
+
+
 class ControlJobExecutionAdmissionError(RuntimeError):
     """Raised when a leased job's creation record cannot establish its identity."""
 
@@ -6860,32 +6867,42 @@ class ControlPlaneStore:
                 raise ControlJobExecutionAdmissionError(
                     "control_job_cancellation_scope_not_established"
                 )
-            cancellation = record.progress.get("cancellation")
             if record.state == "cancelled":
+                # Classify client conflict only against a fully established
+                # durable receipt, including source event and outbox. Integrity
+                # failures remain internal even when the new request differs.
+                verified = self.get_cancelled_job_verified_record(job_id)
+                cancellation = verified.progress["cancellation"]
                 if (
-                    not isinstance(cancellation, dict)
-                    or cancellation.get("authorized_actor") != authorized_actor
+                    cancellation.get("authorized_actor") != authorized_actor
                     or cancellation.get("tenant_id") != authorized_tenant_id
                     or cancellation.get("operation_id") != operation_id
                     or cancellation.get("body_sha256") != bound.body_sha256
                     or cancellation.get("expected_attempt") != expected_attempt
                     or cancellation.get("expected_lease_owner") != expected_lease_owner
                 ):
-                    raise ControlJobLeaseLostError("control job cancellation identity changed")
-                verified = self.get_cancelled_job_verified_record(job_id)
+                    raise ControlJobCancellationConflictError(
+                        "control job cancellation identity changed"
+                    )
                 if not is_current_cancellation_authority(authorization_proof):
                     raise ControlJobExecutionAdmissionError(
                         "control_job_cancellation_scope_expired"
                     )
                 return verified
             if record.state in {"completed", "failed"}:
-                raise ControlJobLeaseLostError("control job already has a terminal disposition")
+                raise ControlJobCancellationConflictError(
+                    "control job already has a terminal disposition"
+                )
             if record.state == "running" and (
                 expected_lease_owner != record.lease_owner or expected_attempt != record.attempt
             ):
-                raise ControlJobLeaseLostError("control job cancellation attempt is stale")
+                raise ControlJobCancellationConflictError(
+                    "control job cancellation attempt is stale"
+                )
             if record.state == "pending" and expected_lease_owner is not None:
-                raise ControlJobLeaseLostError("pending control job has no leased attempt")
+                raise ControlJobCancellationConflictError(
+                    "pending control job has no leased attempt"
+                )
             if not is_current_cancellation_authority(authorization_proof):
                 raise ControlJobExecutionAdmissionError("control_job_cancellation_scope_expired")
             now = _utc_now()
@@ -6906,7 +6923,7 @@ class ControlPlaneStore:
                 ),
             )
             if affected != 1:
-                raise ControlJobLeaseLostError("control job changed during cancellation")
+                raise ControlJobCancellationConflictError("control job changed during cancellation")
             progress = dict(record.progress)
             progress["cancellation"] = {
                 "authorized_actor": authorized_actor,
@@ -9711,6 +9728,7 @@ class ControlPlaneStore:
 __all__ = [
     "ControlDeadLetterRecord",
     "ControlDiagnosticEventRecord",
+    "ControlJobCancellationConflictError",
     "ControlJobExecutionAdmission",
     "ControlJobExecutionAdmissionError",
     "ControlJobExecutionScope",

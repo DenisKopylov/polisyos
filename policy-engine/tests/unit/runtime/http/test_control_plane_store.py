@@ -2093,6 +2093,10 @@ def test_cancelled_job_rejects_unbound_progress_and_preserves_disposition(
 
 
 def test_cancellation_refuses_unknown_scope_and_stale_attempt(tmp_path: Path) -> None:
+    from polisyos.runtime.http.services.control_plane_store import (
+        ControlJobCancellationConflictError,
+    )
+
     store = _make_store(tmp_path)
     job = _create_execution_admission_job(store, execution_scope=_job_execution_scope())
     leased = store.lease_next_job(worker_id="worker-a", lease_seconds=30)
@@ -2112,7 +2116,7 @@ def test_cancellation_refuses_unknown_scope_and_stale_attempt(tmp_path: Path) ->
             expected_lease_owner="worker-a",
             expected_attempt=leased.attempt,
         )
-    with pytest.raises(ControlJobLeaseLostError):
+    with pytest.raises(ControlJobCancellationConflictError, match="cancellation attempt is stale"):
         _sql_cancel(
             store,
             job_id=job.job_id,

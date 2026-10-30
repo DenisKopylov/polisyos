@@ -71,7 +71,13 @@ from polisyos.runtime.http.dependencies import (
     get_runtime_api_context,
     set_authz_resource,
 )
-from polisyos.runtime.http.errors import bad_request, forbidden, not_found, service_unavailable
+from polisyos.runtime.http.errors import (
+    bad_request,
+    conflict,
+    forbidden,
+    not_found,
+    service_unavailable,
+)
 from polisyos.runtime.http.execution_policy import RuntimePrincipal
 from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.routes._export_replay import bind_export_replay_or_conflict
@@ -82,6 +88,7 @@ from polisyos.runtime.http.services.control.generation_cycle import (
 )
 from polisyos.runtime.http.services.control.lex_search_profile import LexSearchProfileResponse
 from polisyos.runtime.http.services.control.lex_search_projection import LexSearchResponse
+from polisyos.runtime.http.services.control_plane_store import ControlJobCancellationConflictError
 from polisyos.runtime.http.services.export_replay import EXPORT_REPLAY_RESPONSE_HEADERS
 from polisyos.runtime.http.services.sae_spatial_service import SAESpatialService
 from polisyos.runtime.http.step_up import StepUpClass, require_step_up
@@ -600,6 +607,19 @@ if router is not None:
         response_model=ControlJobResponse,
         operation_id="cancel_control_job",
         summary="Fence publication authority for one control job attempt",
+        responses={
+            409: {
+                "description": (
+                    "The cancellation identity conflicts with the current job attempt "
+                    "or disposition."
+                ),
+                "content": {
+                    "application/problem+json": {
+                        "schema": {"$ref": "#/components/schemas/RuntimeApiProblem"}
+                    }
+                },
+            }
+        },
         dependencies=[Depends(_CANCEL_JOB_AUTHZ)],
     )
     def cancel_control_job(
@@ -628,12 +648,15 @@ if router is not None:
                 code="control_job_cancellation_authorization_not_current",
             )
         with cancellation_request_scope(request, proof):
-            return _get_control_service(request).cancel_job(
-                job_id=job_id,
-                request=body,
-                authorization_proof=proof,
-                request_id=ensure_request_id(request),
-            )
+            try:
+                return _get_control_service(request).cancel_job(
+                    job_id=job_id,
+                    request=body,
+                    authorization_proof=proof,
+                    request_id=ensure_request_id(request),
+                )
+            except ControlJobCancellationConflictError as exc:
+                raise conflict(str(exc), code="control_job_cancellation_conflict") from exc
 
     @router.get(
         "/admission-attempts/by-idempotency-key",

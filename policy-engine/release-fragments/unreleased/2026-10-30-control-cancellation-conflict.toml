@@ -1,0 +1,16 @@
+id = "2026-10-30-control-cancellation-conflict"
+title = "Return typed conflicts for stale control cancellation identities"
+type = "fixed"
+component = "runtime-http"
+owner = "team-runtime"
+summary = "Map the control store's cancellation-specific optimistic-state conflict subtype to HTTP 409 after the existing route authorization. Preserve generic worker lease failures as internal errors."
+evidence = ["src/polisyos/runtime/http/services/control_plane_store.py", "src/polisyos/runtime/http/routes/control.py", "tests/unit/runtime/http/test_control_job_cancellation_conflict.py", "tests/unit/runtime/http/test_control_plane_store.py"]
+compatibility = "Additive specific lease-error subclass preserves existing base catches; current cancellation and identical retry remain unchanged. Stale cancellation identities receive typed409 instead of500. No permission or physical-stop semantics change. Already-cancelled records are fully reconciled against their durable source event/outbox before comparing client identity; corrupted receipts remain internal errors."
+change_class = "schema-openapi-abi"
+surface_classification = "Existing cancellation route adds explicit409 problem response; generated/public companions mapped and UNRUN."
+migration = "Review and regenerate registered OpenAPI/client/public inventory owners; run cheap real-store current/stale HTTP controls."
+limitations = "RAW runtime UNRUN. Native P4 remains INCONCLUSIVE; no numerical fit rerun or physical termination claim."
+generated_client_compatibility = "Existing response DTO unchanged; registered generation and drift checks required."
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/http/README.md"]
+runbook_docs = []

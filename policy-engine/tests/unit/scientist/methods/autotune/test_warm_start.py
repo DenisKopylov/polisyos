@@ -209,6 +209,9 @@ class _MemoryVectorIndex:
         del embedding
         self._records[key] = metadata
 
+    def lookup_metadata(self, key: str) -> dict[str, object] | None:
+        return self._records.get(key)
+
     def query(
         self, embedding: list[float], top_k: int
     ) -> list[tuple[str, float, dict[str, object]]]:
@@ -618,6 +621,19 @@ class TestTransferLearningManagerWarmStart:
         assert evaluations[0].metadata["source_candidate_id"] == candidate_id
         assert "direction" in evaluations[0].metadata["transfer_error"]
 
+    def test_history_cache_refuses_changed_selected_blob(self, tmp_path):
+        manager, sources = _manager_with_history(
+            tmp_path, {"source": [_stored_eval(_artifact_id("a"), 0.8, "source")]}
+        )
+        source = sources["source"]
+        assert manager.get_warm_start_evaluations([source], target_fingerprint=source)
+        assert manager._eval_cache
+        blob, _ = manager._store.store._paths(source.history_ref.artifact_id)
+        blob.write_bytes(b"changed history bytes while preserving its selected manifest")
+        with pytest.raises(ValueError, match="live CAS verification failed"):
+            manager.get_warm_start_evaluations([source], target_fingerprint=source)
+        assert not manager._eval_cache
+
     def test_history_cache_identity_includes_selected_manifest_profile(self, tmp_path):
         store = FileSystemCAS(tmp_path / "cas")
         source = _complete_fingerprint("source-run", embedding=[0.1])
@@ -643,6 +659,11 @@ class TestTransferLearningManagerWarmStart:
         manager = TransferLearningManager(counted_store, _MemoryVectorIndex())
         first_view = source.model_copy(update={"history_ref": first_ref})
         second_view = source.model_copy(update={"history_ref": second_ref})
+
+        with pytest.raises(ValueError, match="duplicate source run"):
+            manager.get_warm_start_evaluations(
+                [first_view, second_view], max_evals=2, target_fingerprint=source
+            )
 
         assert [
             row.candidate_id

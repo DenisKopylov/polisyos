@@ -240,6 +240,14 @@ class TransferLearningManager:
         ) or not self._has_complete_binding_basis(target_fingerprint):
             return []
 
+        seen_runs: set[str] = set()
+        for source in similar_runs:
+            if not isinstance(source, RunFingerprint):
+                raise ValueError("Transfer history selection contains an invalid source")
+            if source.run_id in seen_runs:
+                raise ValueError("Transfer history selection contains a duplicate source run")
+            seen_runs.add(source.run_id)
+
         prepared: list[list[Evaluation]] = []
         for fp in similar_runs:
             if not self._binding_matches(target_fingerprint, fp):
@@ -848,12 +856,21 @@ class TransferLearningManager:
         raw_payload_bytes: bytes | None = None,
     ) -> tuple[list[dict[str, Any]], bytes]:
         """Verify the selected Core bytes and bind their complete history identity."""
-        from polisyos.core.artifacts import read_core_json_artifact
+        from polisyos.core.artifacts import VerificationReport, read_core_json_artifact
 
         if ref.kind != "search.transfer.history" or ref.media_type != "application/json":
             raise ValueError("Transfer history ref has an unexpected kind or media type")
         if not self._has_complete_binding_basis(expected_fingerprint):
             raise ValueError("Transfer history read requires a complete expected run fingerprint")
+        if raw_payload_bytes is not None:
+            # The supplied bytes are the prior cached payload. Re-hashing them alone
+            # cannot establish that the selected live CAS member still has those bytes.
+            verify = getattr(self._store, "verify", None)
+            if not callable(verify):
+                raise ValueError("Transfer history cache requires live CAS verification")
+            report = verify(ref)
+            if not isinstance(report, VerificationReport) or not report.ok:
+                raise ValueError("Transfer history cache live CAS verification failed")
         try:
             read = read_core_json_artifact(
                 self._store,

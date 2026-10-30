@@ -70,6 +70,94 @@ assert capture.failed
     assert result.returncode == 0, result.stderr
 
 
+def test_separate_package_search_lists_remain_bound(tmp_path: Path) -> None:
+    """Retain both legitimate search lists and reject changes to either."""
+    program = r"""
+import hashlib
+import pathlib
+import sys
+sys.path.insert(0, sys.argv[1])
+from tools.loaded_execution_capture import CaptureError, ExpectedSource, SourceExecutionCapture
+root = pathlib.Path(sys.argv[2])
+source = b'''import sys
+__package__ = __name__
+__path__ = []
+__spec__.submodule_search_locations = []
+class Finder:
+    def find_spec(self, fullname, path=None, target=None):
+        return None
+finder = Finder()
+sys.meta_path.append(finder)
+'''
+(root / 'independent_paths.py').write_bytes(source)
+capture = SourceExecutionCapture(root, {
+    'independent_paths': ExpectedSource('independent_paths.py', hashlib.sha256(source).hexdigest())
+})
+capture.install()
+sys.path.insert(0, str(root))
+import independent_paths
+assert independent_paths.__path__ is not independent_paths.__spec__.submodule_search_locations
+capture.assert_retained(frozenset({'independent_paths'}))
+original_path = independent_paths.__path__
+original_spec_path = independent_paths.__spec__.submodule_search_locations
+# MUTATION
+"""
+    cases = {
+        "valid": "",
+        "path-replaced": "independent_paths.__path__ = []",
+        "spec-replaced": "independent_paths.__spec__.submodule_search_locations = []",
+        "path-changed": "independent_paths.__path__.append('changed')",
+        "spec-changed": "independent_paths.__spec__.submodule_search_locations.append('changed')",
+    }
+    for label, mutation in cases.items():
+        case_root = tmp_path / label
+        case_root.mkdir()
+        if mutation:
+            mutation += r"""
+try:
+    capture.assert_retained(frozenset({'independent_paths'}))
+except CaptureError as exc:
+    assert str(exc) == 'retained_module_changed'
+else:
+    raise AssertionError('changed package search metadata was accepted')
+assert capture.failed
+original_path[:] = []
+original_spec_path[:] = []
+independent_paths.__path__ = original_path
+independent_paths.__spec__.submodule_search_locations = original_spec_path
+try:
+    capture.assert_retained(frozenset({'independent_paths'}))
+except CaptureError:
+    pass
+else:
+    raise AssertionError('restored package metadata erased the failed capture')
+"""
+        result = _run(case_root, program.replace("# MUTATION", mutation))
+        assert result.returncode == 0, f"{label}: {result.stderr}"
+    removal_root = tmp_path / "metadata-check-removed"
+    removal_root.mkdir()
+    removal = _run(
+        removal_root,
+        program.replace(
+            "# MUTATION",
+            """capture._metadata_matches = lambda *args: True
+independent_paths.__path__ = []
+try:
+    capture.assert_retained(frozenset({'independent_paths'}))
+except CaptureError:
+    pass
+else:
+    raise AssertionError('changed package search metadata was accepted')
+""",
+        ),
+    )
+    print(f"package metadata check removal exit: {removal.returncode}")
+    print(removal.stdout, end="")
+    print(removal.stderr, end="")
+    assert removal.returncode != 0
+    assert "changed package search metadata was accepted" in removal.stderr
+
+
 def test_unknown_finder_cannot_be_erased_by_restore_and_reimport(tmp_path: Path) -> None:
     """An unqualified finder cannot be retroactively replaced by a clean import."""
     program = r"""

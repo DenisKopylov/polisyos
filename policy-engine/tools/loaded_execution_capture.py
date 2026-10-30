@@ -80,6 +80,7 @@ class ModuleExecution:
     origin: str
     package: str
     search_locations: tuple[str, ...] | None
+    package_search_locations: tuple[str, ...] | None
     watched_exports: Mapping[str, object]
 
 
@@ -164,6 +165,7 @@ _EXECUTION_FIELDS = (
     "origin",
     "package",
     "search_locations",
+    "package_search_locations",
     "watched_exports",
 )
 
@@ -667,6 +669,9 @@ class SourceExecutionCapture:
                 record.origin,
                 record.package,
                 record.search_locations,
+                record.package_search_locations,
+                anchor[3],
+                anchor[4],
             ):
                 self._fail("retained_module_changed")
                 raise CaptureError("retained_module_changed")
@@ -1328,10 +1333,26 @@ class SourceExecutionCapture:
         ):
             raise CaptureError("module_initialization_invalid")
         search_locations = None if locations is None else tuple(locations)
+        package_path = _passive_lookup(namespace, "__path__")[1]
+        if locations is None:
+            package_search_locations = None
+        elif type(package_path) is not list or any(type(item) is not str for item in package_path):
+            raise CaptureError("module_initialization_invalid")
+        else:
+            package_search_locations = tuple(package_path)
         package = name if search_locations is not None else name.rpartition(".")[0]
         selected_origin = str(self._selected_path(self._sources[name]))
         if not self._metadata_matches(
-            name, module, loader, spec, selected_origin, package, search_locations
+            name,
+            module,
+            loader,
+            spec,
+            selected_origin,
+            package,
+            search_locations,
+            package_search_locations,
+            locations,
+            package_path,
         ):
             raise CaptureError("module_initialization_invalid")
         names = self._exports.get(name, frozenset())
@@ -1354,10 +1375,17 @@ class SourceExecutionCapture:
             selected_origin,
             package,
             search_locations,
+            package_search_locations,
             retained,
         )
         fields = tuple(object.__getattribute__(record, field) for field in _EXECUTION_FIELDS)
-        self._execution_anchors[name] = (record, fields, tuple(values.items()))
+        self._execution_anchors[name] = (
+            record,
+            fields,
+            tuple(values.items()),
+            locations,
+            package_path,
+        )
         self._completed[name] = record
         del self._pending[name]
         del self._pending_codes[name]
@@ -1372,6 +1400,9 @@ class SourceExecutionCapture:
         origin: str,
         package: str,
         search_locations: tuple[str, ...] | None,
+        package_search_locations: tuple[str, ...] | None,
+        original_spec_locations: object,
+        original_package_path: object,
     ) -> bool:
         """Inspect exact builtin representations without candidate comparisons."""
 
@@ -1407,11 +1438,16 @@ class SourceExecutionCapture:
         locations = _passive_lookup(spec_fields, "submodule_search_locations")[1]
         if search_locations is None:
             return locations is None and not _passive_lookup(namespace, "__path__")[0]
+        package_path = _passive_lookup(namespace, "__path__")[1]
         return (
             type(locations) is list
+            and locations is original_spec_locations
             and all(type(item) is str for item in locations)
             and tuple(locations) == search_locations
-            and _passive_lookup(namespace, "__path__")[1] is locations
+            and type(package_path) is list
+            and package_path is original_package_path
+            and all(type(item) is str for item in package_path)
+            and tuple(package_path) == package_search_locations
         )
 
     def _fail(self, reason: str) -> None:

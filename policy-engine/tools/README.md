@@ -18,6 +18,10 @@ initializer only when its source matches those selected bytes. A mismatch may
 still run as candidate work, without producing qualifying execution evidence.
 The host uses the checkout's existing `.venv`; tests and non-Python data are
 outside this source selection.
+In the selected environment, pytest's default assertion-rewriting finder changes
+its session state and causes the capture to fail closed. A Protocol control with
+`--assert=plain --noconftest` can collect evidence, but does not qualify the
+default profile.
 For installed Python providers encountered by normal imports, the host may
 download the corresponding wheel named in the committed `uv.lock` into memory
 and compare its locked digest, metadata, and source member with installed bytes.

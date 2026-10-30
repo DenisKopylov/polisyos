@@ -217,7 +217,7 @@ export function useRunDetailSummary(
       : ({} as CSSProperties);
 
   const decisionHeadline = getDecisionHeadline(
-    decisionView?.verdict ?? pipeline?.evaluator?.verdict ?? null,
+    decisionView?.verdict ?? null,
     blockerCount,
     t,
   );

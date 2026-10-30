@@ -95,11 +95,11 @@ describe("run comparison helpers", () => {
     const summary = {
       artifactRefs: [{ artifact_id: "artifact-1", kind: "decision_card" }],
       blockerCount: 1,
-      decisionHeadline: "Approve with conditions",
+      decisionHeadline: "Reject with conditions",
       decisionScore: score(0.81),
       decisionView: {
         confidence: "HIGH",
-        verdict: "APPROVE",
+        verdict: "REJECT",
       },
       evidenceContext: {
         fetchPlans: [{ planId: "plan-1" }],
@@ -147,9 +147,10 @@ describe("run comparison helpers", () => {
     expect(report).toMatchObject({
       decisionConfidence: "HIGH",
       mainUncertainty: "Pending legal confirmation",
-      primaryVerdict: "APPROVE",
+      primaryVerdict: "REJECT",
       runId: "run-1",
     });
+    expect(deck.verdict.verdict).toBe("REJECT");
     expect(deck.cover.title).toContain("run-1");
     expect(deck.metrics.cards).toHaveLength(4);
     expect(deck.evidence.provenance).toContain("world-bank");
@@ -225,7 +226,7 @@ describe("run comparison helpers", () => {
     ).not.toMatch(/\b(?:ratify|hold|recommendation)\b/iu);
   });
 
-  it("does not promote a run terminal status into a decision verdict", () => {
+  it("keeps a missing packet verdict unknown despite evaluator approval and run status", () => {
     const summary = {
       artifactRefs: [],
       blockerCount: 0,
@@ -235,7 +236,7 @@ describe("run comparison helpers", () => {
       evidenceContext: { fetchPlans: [], promotionCandidates: [] },
       governanceIssues: [],
       impactRows: [],
-      pipeline: { evaluator: { verdict: null } },
+      pipeline: { evaluator: { verdict: "APPROVE" } },
       run: {
         run_id: "run-status-only",
         source_kind: "core_run",
@@ -245,10 +246,13 @@ describe("run comparison helpers", () => {
     } as never;
 
     const report = buildRunReportSnapshot(summary, []);
+    const deck = buildRunDeckSnapshot(summary, report);
 
     expect(report.primaryVerdict).toBeNull();
-    expect(buildRunDeckSnapshot(summary, report).verdict.verdict).toBe(
-      "Unknown",
-    );
+    expect(report.decisionHeadline).toBe("Unknown owner decision");
+    expect(deck.verdict).toMatchObject({
+      headline: "Unknown owner decision",
+      verdict: "Unknown",
+    });
   });
 });

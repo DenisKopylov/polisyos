@@ -159,11 +159,7 @@ function pickStrongestEvidence(summary: RunDetailSummary) {
 }
 
 function resolvePrimaryVerdict(summary: RunDetailSummary) {
-  return (
-    summary.decisionView?.verdict ??
-    summary.pipeline?.evaluator?.verdict ??
-    null
-  );
+  return summary.decisionView?.verdict ?? null;
 }
 
 function resolveDecisionConfidence(summary: RunDetailSummary) {

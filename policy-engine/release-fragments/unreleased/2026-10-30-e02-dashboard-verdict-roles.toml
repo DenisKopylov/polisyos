@@ -1,0 +1,15 @@
+id = "2026-10-30-e02-dashboard-verdict-roles"
+title = "Keep packet and evaluator verdicts separate"
+type = "fixed"
+component = "runtime-dashboard"
+owner = "team-policyos-runtime"
+summary = "Run summaries, layout and report snapshots use the packet verdict for the decision and the evaluator verdict for planning evaluation. An absent packet remains unknown instead of inheriting evaluator approval."
+evidence = ["apps/runtime-dashboard/src/features/runs/routes/useRunDetailSummary.ts", "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx", "apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx", "apps/runtime-dashboard/src/features/runs/domain/compare.ts", "apps/runtime-dashboard/src/features/runs/routes/useRunDetailSummary.test.tsx", "apps/runtime-dashboard/src/features/runs/routes/runDetailSurfaces.test.tsx", "apps/runtime-dashboard/src/features/runs/domain/compare.test.ts"]
+compatibility = "No API or persisted-format change; only cross-role display fallbacks are removed."
+change_class = "internal"
+surface_classification = "internal: internal-only"
+migration = "No migration is required."
+limitations = "Display role separation does not itself establish report currentness or publication authority."
+generated_client_compatibility = "not_applicable"
+migration_docs = []
+runbook_docs = []

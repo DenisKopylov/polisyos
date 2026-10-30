@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from polisyos.data_forge.read_api.academic import PreparedSKGRead
     from polisyos.pdc import EvalSafetyVerifierPort, EvaluationExecutionContext
     from polisyos.scientist.evidence.claims.head_index import ClaimLedgerOwnerPort
+    from polisyos.scientist.orchestration.engine.input_ports import NodeInputSelection
     from polisyos.scientist.orchestration.engine.metrics_protocol import (
         EngineMetricsCollector,
     )
@@ -86,9 +87,14 @@ class LexPort(Protocol):
 class MethodMetricProjectionAssociation(Protocol):
     """Runtime-owned projection association selected for an authorized run."""
 
-    vector_ref: ArtifactRef
-    verifier_revision: str
-    verifier_implementation_sha256: str
+    @property
+    def vector_ref(self) -> ArtifactRef: ...
+
+    @property
+    def verifier_revision(self) -> str: ...
+
+    @property
+    def verifier_implementation_sha256(self) -> str: ...
 
 
 @runtime_checkable
@@ -283,6 +289,7 @@ class ExecutionContext:
         kw_only=True,
         repr=False,
     )
+    _node_input_selection: NodeInputSelection | None = field(default=None, kw_only=True, repr=False)
     _engine_invocation: _EngineInvocationBinding | None = field(
         default=None,
         kw_only=True,
@@ -300,6 +307,10 @@ def _load_engine_owned_invocation_input_state(
     A present binding must match the run-owner invocation record, its workflow node,
     and the selected-profile input-state artifact read back from CAS.
     """
+    if getattr(ctx, "_node_input_selection", None) is not None:
+        from polisyos.scientist.orchestration.engine.input_ports import _read_scoped_node_input
+
+        return _read_scoped_node_input(ctx, state)
     from polisyos.core.canon import from_canonical_bytes
     from polisyos.scientist.orchestration.engine.state import (
         ExperimentState as _ExperimentState,
@@ -367,6 +378,9 @@ def _load_engine_owned_invocation_input_state(
         or state_manifest.artifact_schema.version != basis_state.schema_version
     ):
         raise ValueError("runtime_candidate_input_state_basis_mismatch")
+    from polisyos.scientist.orchestration.engine.input_ports import validate_node_input_basis
+
+    validate_node_input_basis(ctx.store, basis, basis_state)
     return basis_state
 
 

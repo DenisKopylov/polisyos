@@ -7,15 +7,18 @@ release signature. Those remain separate custody evidence.
 
 from __future__ import annotations
 
+import dis
 import hashlib
+import importlib
 import inspect
 import marshal
 import math
 import os
 import re
+import sys
 import time
 import types
-from dataclasses import dataclass
+from dataclasses import dataclass, fields, is_dataclass
 from pathlib import Path
 from types import CodeType
 from typing import Any
@@ -35,22 +38,36 @@ class _BuiltinOwner:
     node_type: type[Any]
     execute_function: types.FunctionType
     execute_code: CodeType
+    execute_async_function: types.FunctionType | None
+    execute_async_code: CodeType | None
+    input_contract_sha256: str | None
     bind_function: types.FunctionType | None
     bind_code: CodeType | None
     spec_descriptor: property
     spec_accessor_code: CodeType
     spec_sha256: str
     module_source_sha256: str
+    input_callback_owners: tuple[tuple[str, types.FunctionType | None, CodeType | None], ...] = ()
+    input_contract_json: bytes | None = None
+    input_definition_bindings: tuple[_DefinitionBinding, ...] = ()
+    input_definition_sha256: str | None = None
+    input_class_sha256: str | None = None
 
 
 # Import-time references are held independently of the mutable registry. The
 # executor imports this module before workflow execution and plugin discovery.
-def _load_builtin_node_types() -> tuple[type[Any], type[Any], type[Any], type[Any], type[Any]]:
+def _load_builtin_node_types() -> tuple[type[Any], ...]:
     from polisyos.scientist.nodes.builtins.causal.resolve_transport import (
         RunTransportabilityNode,
     )
+    from polisyos.scientist.nodes.builtins.decide.build_verified_policy_body import (
+        BuildVerifiedPolicyBodyNode,
+    )
     from polisyos.scientist.nodes.builtins.decide.build_verified_policy_report import (
         BuildVerifiedPolicyReportNode,
+    )
+    from polisyos.scientist.nodes.builtins.decide.select_policy_candidate import (
+        SelectPolicyCandidateNode,
     )
     from polisyos.scientist.nodes.builtins.governance.run_governance import (
         RunGovernanceNode,
@@ -61,7 +78,9 @@ def _load_builtin_node_types() -> tuple[type[Any], type[Any], type[Any], type[An
     )
 
     return (
+        BuildVerifiedPolicyBodyNode,
         BuildVerifiedPolicyReportNode,
+        SelectPolicyCandidateNode,
         RunGovernanceNode,
         RunTransportabilityNode,
         RunHierarchicalPolicySearchNode,
@@ -70,7 +89,9 @@ def _load_builtin_node_types() -> tuple[type[Any], type[Any], type[Any], type[An
 
 
 (
+    _BuildVerifiedPolicyBodyNode,
     _BuildVerifiedPolicyReportNode,
+    _SelectPolicyCandidateNode,
     _RunGovernanceNode,
     _RunTransportabilityNode,
     _RunHierarchicalPolicySearchNode,
@@ -128,10 +149,307 @@ def _module_source_digest(node_type: type[Any]) -> str:
     return _digest_bytes(Path(source).read_bytes())
 
 
+def _input_callback_owners(
+    node_type: type[Any],
+) -> tuple[tuple[str, types.FunctionType | None, CodeType | None], ...]:
+    callbacks = []
+    for name in ("prepare_cache_input", "validate_cache_hit"):
+        function = _function_from_descriptor(inspect.getattr_static(node_type, name, None))
+        callbacks.append((name, function, function.__code__ if function is not None else None))
+    return tuple(callbacks)
+
+
+@dataclass(frozen=True)
+class _DefinitionBinding:
+    """One actual definition binding read by the selected producer/source owners."""
+
+    namespace: dict[str, Any] | types.ModuleType
+    name: str
+    value_sha256: str
+
+    def current(self) -> object:
+        if isinstance(self.namespace, types.ModuleType):
+            if sys.modules.get(self.namespace.__name__) is not self.namespace:
+                raise ValueError("engine_component_dependency_module_changed")
+            return getattr(self.namespace, self.name)
+        return self.namespace[self.name]
+
+
+def _definition_projection(
+    value: object, files: dict[str, str], active: set[int] | None = None
+) -> object:
+    """Bind code, DTO definitions and frozen owner profiles without invoking work."""
+    active = set() if active is None else active
+    if id(value) in active:
+        return ["cycle", f"{id(value):x}"]
+    active = {*active, id(value)}
+    if value is None or type(value) in (str, int, float, bool):
+        return value
+    if isinstance(value, bytes):
+        return ["bytes", value.hex()]
+    if isinstance(value, types.ModuleType):
+        return ["module", value.__name__, f"{id(value):x}"]
+    if isinstance(value, types.FunctionType):
+        source = inspect.getsourcefile(value)
+        if source is not None and Path(source).is_file() and source not in files:
+            files[source] = _digest_bytes(Path(source).read_bytes())
+        return [
+            "function",
+            _callable_code_token(value),
+            _code_sha256(value),
+            _definition_projection(value.__defaults__, files, active),
+            _definition_projection(value.__kwdefaults__, files, active),
+            [
+                _definition_projection(cell.cell_contents, files, active)
+                for cell in value.__closure__ or ()
+            ],
+        ]
+    if isinstance(value, type):
+        functions = {}
+        constants = {}
+        for name, member in vars(value).items():
+            function = _function_from_descriptor(member)
+            if function is not None:
+                functions[name] = _definition_projection(function, files, active)
+            elif not name.startswith("_") and type(member) in (
+                str,
+                int,
+                float,
+                bool,
+                tuple,
+                frozenset,
+            ):
+                constants[name] = _definition_projection(member, files, active)
+        compiled = {
+            name: f"{id(vars(value)[name]):x}"
+            for name in ("__pydantic_validator__", "__pydantic_serializer__")
+            if name in vars(value)
+        }
+        return [
+            "class",
+            value.__module__,
+            value.__qualname__,
+            f"{id(value):x}",
+            functions,
+            constants,
+            compiled,
+        ]
+    from pydantic import BaseModel
+
+    if isinstance(value, BaseModel):
+        return ["model", f"{id(type(value)):x}", value.model_dump(mode="json")]
+    if is_dataclass(value) and not isinstance(value, type):
+        return [
+            "owner",
+            f"{id(value):x}",
+            {
+                field.name: _definition_projection(getattr(value, field.name), files, active)
+                for field in fields(value)
+            },
+        ]
+    if isinstance(value, dict):
+        return {
+            str(key): _definition_projection(item, files, active) for key, item in value.items()
+        }
+    if isinstance(value, (tuple, list, frozenset)):
+        return [_definition_projection(item, files, active) for item in value]
+    return ["object", f"{id(value):x}"]
+
+
+def _definition_sha256(value: object) -> str:
+    files: dict[str, str] = {}
+    projection = _definition_projection(value, files)
+    return _digest_value({"definition": projection, "sources": files})
+
+
+def _definition_value(value: object) -> bool:
+    from pydantic import BaseModel
+
+    return (
+        value is None
+        or type(value) in (str, int, float, bool, bytes, tuple, frozenset)
+        or isinstance(value, (types.FunctionType, types.ModuleType, type, BaseModel))
+        or (
+            is_dataclass(value)
+            and getattr(vars(type(value)).get("__dataclass_params__"), "frozen", False) is True
+        )
+    )
+
+
+def _source_owner_function(function: types.FunctionType, producer_module: str) -> bool:
+    module = function.__module__
+    return (
+        module == producer_module
+        or (
+            module.startswith("polisyos.scientist.")
+            and not module.startswith("polisyos.scientist.orchestration.engine.")
+        )
+        or module in {"polisyos.ir.trinity.loaders", "polisyos.ir.analytics.causal"}
+    )
+
+
+def _input_definition_bindings(node_type: type[Any]) -> tuple[_DefinitionBinding, ...]:
+    """Follow referenced domain helper definitions to existing generic owner seams.
+
+    Core/IR JSON validators, artifact stores and Engine input owners are terminal
+    owners. This binds their called entrypoints, not arbitrary transitive Python,
+    external libraries, process memory or a deployment image.
+    """
+    roots = [
+        function
+        for name in (
+            "spec",
+            "bind",
+            "execute",
+            "execute_async",
+            "prepare_cache_input",
+            "validate_cache_hit",
+        )
+        if (function := _function_from_descriptor(inspect.getattr_static(node_type, name, None)))
+        is not None
+    ]
+    pending = list(roots)
+    visited: set[int] = set()
+    bindings: dict[tuple[int, str], _DefinitionBinding] = {}
+
+    def remember(namespace: dict[str, Any] | types.ModuleType, name: str, value: object) -> None:
+        if not _definition_value(value):
+            return
+        key = (id(namespace), name)
+        if key not in bindings:
+            bindings[key] = _DefinitionBinding(namespace, name, _definition_sha256(value))
+            if isinstance(value, types.FunctionType) and _source_owner_function(
+                value, node_type.__module__
+            ):
+                pending.append(value)
+
+    while pending:
+        function = pending.pop()
+        if id(function) in visited:
+            continue
+        visited.add(id(function))
+        codes = [function.__code__]
+        while codes:
+            code = codes.pop()
+            codes.extend(value for value in code.co_consts if isinstance(value, CodeType))
+            imported = None
+            for instruction in dis.get_instructions(code):
+                name = instruction.argval
+                if (
+                    instruction.opname in {"LOAD_GLOBAL", "LOAD_NAME"}
+                    and name in function.__globals__
+                ):
+                    value = function.__globals__[name]
+                    remember(function.__globals__, name, value)
+                    if isinstance(value, types.ModuleType):
+                        for member in code.co_names:
+                            if member in vars(value):
+                                remember(value, member, vars(value)[member])
+                elif instruction.opname == "IMPORT_NAME" and isinstance(name, str) and name:
+                    imported = importlib.import_module(name)
+                elif (
+                    instruction.opname == "IMPORT_FROM"
+                    and imported is not None
+                    and isinstance(name, str)
+                ):
+                    remember(imported, name, getattr(imported, name))
+    return tuple(bindings.values())
+
+
+def _require_owner_definition(
+    owner: _BuiltinOwner,
+) -> tuple[types.FunctionType, types.FunctionType | None, types.FunctionType]:
+    node_type = owner.node_type
+    execute_function = _function_from_descriptor(inspect.getattr_static(node_type, "execute", None))
+    bind_function = _function_from_descriptor(inspect.getattr_static(node_type, "bind", None))
+    spec_descriptor = inspect.getattr_static(node_type, "spec", None)
+    spec_function = _function_from_descriptor(spec_descriptor)
+    if spec_descriptor is not owner.spec_descriptor or spec_function is None:
+        raise ValueError("engine_component_spec_descriptor_changed")
+    if (
+        execute_function is not owner.execute_function
+        or execute_function.__code__ is not owner.execute_code
+        or bind_function is not owner.bind_function
+        or (bind_function.__code__ if bind_function is not None else None) is not owner.bind_code
+        or spec_function.__code__ is not owner.spec_accessor_code
+    ):
+        raise ValueError("engine_component_callable_changed")
+    execute_async = _function_from_descriptor(
+        inspect.getattr_static(node_type, "execute_async", None)
+    )
+    if (
+        execute_async is not owner.execute_async_function
+        or (execute_async.__code__ if execute_async is not None else None)
+        is not owner.execute_async_code
+    ):
+        raise ValueError("engine_component_async_callable_changed")
+    if _module_source_digest(node_type) != owner.module_source_sha256:
+        raise ValueError("engine_component_source_changed")
+    if owner.input_contract_sha256 is not None:
+        for name, function, code in owner.input_callback_owners:
+            current = _function_from_descriptor(inspect.getattr_static(node_type, name, None))
+            if (
+                current is not function
+                or (current.__code__ if current is not None else None) is not code
+            ):
+                raise ValueError("engine_component_input_callback_changed")
+        if _definition_sha256(node_type) != owner.input_class_sha256:
+            raise ValueError("engine_component_input_class_changed")
+        for binding in owner.input_definition_bindings:
+            if _definition_sha256(binding.current()) != binding.value_sha256:
+                raise ValueError("engine_component_input_dependency_changed")
+    return execute_function, bind_function, spec_function
+
+
+def _require_input_bind_keys(owner: _BuiltinOwner, params: dict[str, Any]) -> None:
+    if owner.input_contract_json is not None:
+        from polisyos.scientist.orchestration.engine.protocol import NodeInputContract
+
+        contract = NodeInputContract.model_validate_json(owner.input_contract_json)
+        if (
+            contract.component_id != owner.component_id
+            or _digest_value(contract.model_dump(mode="json")) != owner.input_contract_sha256
+            or set(params) - set(contract.bind_param_keys)
+        ):
+            raise ValueError("engine_component_input_bind_params_invalid")
+
+
+def _require_input_definition(node: object, params: dict[str, Any]) -> _BuiltinOwner | None:
+    owner = next(
+        (
+            value
+            for value in _OWNERS.values()
+            if value.node_type is type(node) and value.input_contract_sha256 is not None
+        ),
+        None,
+    )
+    if owner is not None:
+        _require_owner_definition(owner)
+        _require_input_bind_keys(owner, params)
+    return owner
+
+
+def _preflight_registered_input(
+    node: object, component_id: str, params: dict[str, Any]
+) -> bytes | None:
+    owner = _OWNERS.get(component_id)
+    by_type = _require_input_definition(node, params)
+    if by_type is None and (owner is None or owner.input_contract_sha256 is None):
+        return None
+    if owner is None or owner is not by_type or type(node) is not owner.node_type:
+        raise ValueError("engine_component_input_registration_changed")
+    if capture_engine_component_identity(node, component_id, {}) is None:
+        raise ValueError("engine_component_input_registration_changed")
+    return owner.input_contract_json
+
+
 def _owner(node_type: type[Any]) -> _BuiltinOwner:
     instance = node_type()
     spec_descriptor = inspect.getattr_static(node_type, "spec", None)
     execute_function = _function_from_descriptor(inspect.getattr_static(node_type, "execute", None))
+    execute_async_function = _function_from_descriptor(
+        inspect.getattr_static(node_type, "execute_async", None)
+    )
     bind_function = _function_from_descriptor(inspect.getattr_static(node_type, "bind", None))
     if not isinstance(spec_descriptor, property) or execute_function is None:
         raise TypeError("engine_component_owner_contract_incomplete")
@@ -140,24 +458,66 @@ def _owner(node_type: type[Any]) -> _BuiltinOwner:
         raise TypeError("engine_component_spec_accessor_missing")
     spec = instance.spec
     spec_sha256 = _digest_value(spec.model_dump(mode="json"))
+    input_contract = getattr(spec, "input_contract", None)
+    definition_bindings = (
+        _input_definition_bindings(node_type) if input_contract is not None else ()
+    )
     return _BuiltinOwner(
         component_id=str(spec.metadata.component_id),
         node_type=node_type,
         execute_function=execute_function,
         execute_code=execute_function.__code__,
+        execute_async_function=execute_async_function,
+        execute_async_code=(
+            execute_async_function.__code__ if execute_async_function is not None else None
+        ),
+        input_contract_sha256=(
+            _digest_value(spec.input_contract.model_dump(mode="json"))
+            if hasattr(spec, "input_contract")
+            else None
+        ),
         bind_function=bind_function,
         bind_code=(bind_function.__code__ if bind_function is not None else None),
         spec_descriptor=spec_descriptor,
         spec_accessor_code=spec_function.__code__,
         spec_sha256=spec_sha256,
         module_source_sha256=_module_source_digest(node_type),
+        input_callback_owners=_input_callback_owners(node_type),
+        input_contract_json=(
+            to_canonical_bytes(input_contract.model_dump(mode="json"), _CANON)
+            if input_contract is not None
+            else None
+        ),
+        input_definition_bindings=definition_bindings,
+        input_definition_sha256=(
+            _digest_value(
+                {
+                    "class": _definition_sha256(node_type),
+                    "bindings": [
+                        (
+                            binding.namespace.__name__
+                            if isinstance(binding.namespace, types.ModuleType)
+                            else binding.namespace.get("__name__"),
+                            binding.name,
+                            binding.value_sha256,
+                        )
+                        for binding in definition_bindings
+                    ],
+                }
+            )
+            if input_contract is not None
+            else None
+        ),
+        input_class_sha256=(_definition_sha256(node_type) if input_contract is not None else None),
     )
 
 
 _OWNERS = {
     owner.component_id: owner
     for owner in (
+        _owner(_BuildVerifiedPolicyBodyNode),
         _owner(_BuildVerifiedPolicyReportNode),
+        _owner(_SelectPolicyCandidateNode),
         _owner(_RunGovernanceNode),
         _owner(_RunTransportabilityNode),
         _owner(_RunHierarchicalPolicySearchNode),
@@ -190,22 +550,8 @@ def _identity_for(
     params: dict[str, Any],
 ) -> RunInvocationImplementationIdentity:
     node_type = owner.node_type
-    execute_function = _function_from_descriptor(inspect.getattr_static(node_type, "execute", None))
-    bind_function = _function_from_descriptor(inspect.getattr_static(node_type, "bind", None))
-    spec_descriptor = inspect.getattr_static(node_type, "spec", None)
-    if spec_descriptor is not owner.spec_descriptor:
-        raise ValueError("engine_component_spec_descriptor_changed")
-    spec_function = _function_from_descriptor(spec_descriptor)
-    if execute_function is None or spec_function is None:
-        raise ValueError("engine_component_callable_identity_not_established")
-    if (
-        execute_function is not owner.execute_function
-        or execute_function.__code__ is not owner.execute_code
-        or bind_function is not owner.bind_function
-        or (bind_function.__code__ if bind_function is not None else None) is not owner.bind_code
-        or spec_function.__code__ is not owner.spec_accessor_code
-    ):
-        raise ValueError("engine_component_callable_changed")
+    execute_function, bind_function, spec_function = _require_owner_definition(owner)
+    _require_input_bind_keys(owner, params)
     spec = spec_function(node)
     spec_sha256 = _digest_value(spec.model_dump(mode="json"))
     if spec_sha256 != owner.spec_sha256:
@@ -250,23 +596,9 @@ def capture_engine_component_identity(
     node_type = owner.node_type
     if type(node) is not node_type:
         return None
-    if inspect.getattr_static(node_type, "execute", None) is not owner.execute_function:
-        return None
-    if inspect.getattr_static(node_type, "bind", None) is not owner.bind_function:
-        return None
-    if inspect.getattr_static(node_type, "spec", None) is not owner.spec_descriptor:
-        return None
-    if (
-        owner.execute_function.__code__ is not owner.execute_code
-        or (owner.bind_function.__code__ if owner.bind_function is not None else None)
-        is not owner.bind_code
-        or owner.spec_accessor_code is not owner.spec_descriptor.fget.__code__
-    ):
-        return None
     try:
-        spec_function = _function_from_descriptor(owner.spec_descriptor)
-        if spec_function is None:
-            return None
+        _execute_function, _bind_function, spec_function = _require_owner_definition(owner)
+        _require_input_bind_keys(owner, params)
         expected = _bound_owner_instance(owner, params)
         if type(expected) is not node_type or vars(expected) != vars(node):
             return None
@@ -297,6 +629,8 @@ def matches_engine_component_identity(
     ):
         return False
     try:
+        _require_owner_definition(owner)
+        _require_input_bind_keys(owner, params)
         expected = _bound_owner_instance(owner, params)
         return identity == _identity_for(owner, expected, params)
     except Exception:
@@ -359,9 +693,10 @@ def matches_spawned_timeout_worker_component_identity(
             current = object.__getattribute__(run_view, "_EngineNodeRunView__target")
             if type(current) is not _AttemptRunFacade:
                 return False
-            worker_run = _resolve_exact_worker_run_view(current)
-            if worker_run is None:
+            resolved_worker_run = _resolve_exact_worker_run_view(current)
+            if resolved_worker_run is None:
                 return False
+            worker_run = resolved_worker_run
         else:
             return False
 
@@ -577,6 +912,8 @@ def _capture_configured_component_owner(
     ):
         raise ValueError("child_component_actual_bind_changed")
     if bind_params and bind_function is not None:
+        if not callable(binder):
+            raise ValueError("child_component_actual_bind_changed")
         produced = binder(bind_params)
         bound_node = registered_node if produced is None else produced
     else:
@@ -589,6 +926,9 @@ def _capture_configured_component_owner(
         raise ValueError("child_component_binding_type_changed")
     spec_descriptor = inspect.getattr_static(node_type, "spec", None)
     execute_function = _function_from_descriptor(inspect.getattr_static(node_type, "execute", None))
+    execute_async_function = _function_from_descriptor(
+        inspect.getattr_static(node_type, "execute_async", None)
+    )
     spec_function = _function_from_descriptor(spec_descriptor)
     if (
         not isinstance(spec_descriptor, property)
@@ -599,17 +939,57 @@ def _capture_configured_component_owner(
     spec = spec_function(bound_node)
     if not isinstance(spec, NodeSpec):
         raise TypeError("child_component_spec_invalid")
+    input_contract = getattr(spec, "input_contract", None)
+    definition_bindings = (
+        _input_definition_bindings(node_type) if input_contract is not None else ()
+    )
     owner = _BuiltinOwner(
         component_id=str(spec.metadata.component_id),
         node_type=node_type,
         execute_function=execute_function,
         execute_code=execute_function.__code__,
+        execute_async_function=execute_async_function,
+        execute_async_code=(
+            execute_async_function.__code__ if execute_async_function is not None else None
+        ),
+        input_contract_sha256=(
+            _digest_value(spec.input_contract.model_dump(mode="json"))
+            if hasattr(spec, "input_contract")
+            else None
+        ),
         bind_function=bind_function,
         bind_code=bind_function.__code__ if bind_function is not None else None,
         spec_descriptor=spec_descriptor,
         spec_accessor_code=spec_function.__code__,
         spec_sha256=_digest_value(spec.model_dump(mode="json")),
         module_source_sha256=_module_source_digest(node_type),
+        input_callback_owners=_input_callback_owners(node_type),
+        input_contract_json=(
+            to_canonical_bytes(input_contract.model_dump(mode="json"), _CANON)
+            if input_contract is not None
+            else None
+        ),
+        input_definition_bindings=definition_bindings,
+        input_definition_sha256=(
+            _digest_value(
+                {
+                    "class": _definition_sha256(node_type),
+                    "bindings": [
+                        (
+                            binding.namespace.__name__
+                            if isinstance(binding.namespace, types.ModuleType)
+                            else binding.namespace.get("__name__"),
+                            binding.name,
+                            binding.value_sha256,
+                        )
+                        for binding in definition_bindings
+                    ],
+                }
+            )
+            if input_contract is not None
+            else None
+        ),
+        input_class_sha256=(_definition_sha256(node_type) if input_contract is not None else None),
     )
     actual_execute = _require_actual_configured_dispatch(bound_node, owner)
     captured = _ConfiguredComponentIdentityOwner(

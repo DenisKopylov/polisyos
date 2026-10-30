@@ -96,6 +96,67 @@ class NodeSpec(BaseModel):
     produces: list[str] = Field(default_factory=list, description="Logical artifact keys")
 
 
+class NodeInputContract(BaseModel):
+    """Versioned physical input selected for one exact component contract.
+
+    This declares a projection, not appointment or authority. The Engine admits
+    it only with the selected source-owned implementation and persists its exact
+    predecessor and attempt basis before invoking the producer.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["1.0"] = "1.0"
+    contract_id: str = Field(min_length=1)
+    component_id: str = Field(min_length=1)
+    state_paths: tuple[str, ...]
+    bind_param_keys: tuple[str, ...] = ()
+    artifact_ref_paths: tuple[str, ...] = ()
+
+    @model_validator(mode="after")
+    def _validate_projection(self) -> NodeInputContract:
+        if "run_id" not in self.state_paths or len(set(self.state_paths)) != len(self.state_paths):
+            raise ValueError("node_input_contract_path_population_invalid")
+        mapping_fields = {
+            "params",
+            "inputs",
+            "artifacts_index",
+            "reports_index",
+            "budgets",
+            "causal_method_params",
+        }
+        for path in self.state_paths:
+            parts = path.split(".")
+            if (
+                not path
+                or any(not part or "*" in part or part.startswith("_") for part in parts)
+                or parts[0] not in ExperimentState.model_fields
+                or (len(parts) > 1 and parts[0] not in mapping_fields)
+            ):
+                raise ValueError("node_input_contract_path_invalid")
+        if len(set(self.artifact_ref_paths)) != len(self.artifact_ref_paths) or set(
+            self.artifact_ref_paths
+        ) - set(self.state_paths):
+            raise ValueError("node_input_contract_artifact_paths_invalid")
+        if len(set(self.bind_param_keys)) != len(self.bind_param_keys) or any(
+            not key or key.startswith("_") for key in self.bind_param_keys
+        ):
+            raise ValueError("node_input_contract_bind_keys_invalid")
+        return self
+
+
+class InputAwareNodeSpec(NodeSpec):
+    """Opt in to an Engine-enforced input projection without changing legacy specs."""
+
+    input_contract: NodeInputContract
+
+    @model_validator(mode="after")
+    def _validate_input_component(self) -> InputAwareNodeSpec:
+        if self.input_contract.component_id != str(self.metadata.component_id):
+            raise ValueError("node_input_contract_component_mismatch")
+        return self
+
+
 class NodeOutputRule(BaseModel):
     """Availability of a declared output; ordinary outputs remain required."""
 

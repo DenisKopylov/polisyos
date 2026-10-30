@@ -17,6 +17,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from polisyos.common.logger import get_logger
 from polisyos.common.serialization import to_python_data
 from polisyos.common.timestamps import utc_now
+from polisyos.core.artifacts import artifact_manifest_profile_sha256
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
     ArtifactTenantContextInfo,
@@ -581,6 +582,8 @@ class NodeResultCache:
             LEGACY_NODE_CACHE_ENTRY_SCHEMA_VERSION,
             NODE_CACHE_ENTRY_SCHEMA_VERSION,
         }
+        if entry_manifest.artifact_schema is None:
+            raise ValueError("cache_entry: schema_missing")
         manifest_schema_version = entry_manifest.artifact_schema.version
 
         if entry.outcome_payload is not None and entry.outcome_ref is not None:
@@ -631,6 +634,11 @@ class NodeResultCache:
             output_aware=output_aware,
             producer_state=decoded.state,
         )
+        selected_entry_ref = entry_ref.model_copy(
+            update={"manifest_profile_sha256": artifact_manifest_profile_sha256(entry_manifest)},
+            deep=True,
+        )
+        object.__setattr__(decoded, "_polisyos_cache_entry_ref", selected_entry_ref)
         return entry, decoded, proof_valid
 
     def _validate_entry_scope(self, entry: NodeCacheEntry, manifest: Any) -> None:

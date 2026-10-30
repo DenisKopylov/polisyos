@@ -27,8 +27,10 @@ from polisyos.core.artifacts.async_store import ensure_async_artifact_store
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
     ArtifactTenantContextInfo,
+    InputRef,
     SchemaInfo,
     WarningRecord,
+    input_ref_from_artifact_ref,
 )
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec
@@ -48,7 +50,10 @@ from polisyos.scientist.orchestration.engine.condition import (
     ConditionSyntaxError,
     evaluate_condition,
 )
-from polisyos.scientist.orchestration.engine.context import _EngineInvocationBinding
+from polisyos.scientist.orchestration.engine.context import (
+    _EngineInvocationBinding,
+    _load_engine_owned_invocation_input_state,
+)
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.orchestration.engine.errors import (
     NodeTimeoutError,
@@ -88,6 +93,13 @@ from polisyos.scientist.orchestration.engine.finalization import (
 from polisyos.scientist.orchestration.engine.idempotency import (
     NodeResultCache,
     compute_idempotency_key,
+)
+from polisyos.scientist.orchestration.engine.input_ports import (
+    NodeInputPortError,
+    _NodeInputPort,
+    admit_node_input_port,
+    input_basis_options,
+    preflight_node_input_port,
 )
 from polisyos.scientist.orchestration.engine.protocol import (
     CacheHitValidator,
@@ -1789,20 +1801,27 @@ class AsyncWorkflowExecutor:
         """Execute a single node with cache, retry, timeout, metrics."""
         self._guard_workflow_admission(operation=f"node.{alias}", execution_state="not_admitted")
         try:
-            node = bind_node_params(self._registry.get(inv.node_id), inv.params)
-        except NodeBindError as exc:
+            registered_node = self._registry.get(inv.node_id)
+            preflight_node_input_port(registered_node, str(inv.node_id), dict(inv.params or {}))
+            node = bind_node_params(registered_node, inv.params)
+            input_port = admit_node_input_port(node, state, dict(inv.params or {}))
+        except (NodeBindError, NodeInputPortError) as exc:
             self._ctx.logger.exception("Node %s bind failed", alias)
             return (
                 NodeOutcome(
                     status="fail",
                     state=state,
                     error=NodeError(
-                        code="node.bind_failed",
+                        code=(
+                            "node.input_port_refused"
+                            if isinstance(exc, NodeInputPortError)
+                            else "node.bind_failed"
+                        ),
                         message=str(exc),
                         details={
-                            "node": exc.node_label,
-                            "param_keys": list(exc.param_keys),
-                            "type": exc.error_type,
+                            "node": getattr(exc, "node_label", str(inv.node_id)),
+                            "param_keys": list(getattr(exc, "param_keys", tuple(inv.params or {}))),
+                            "type": getattr(exc, "error_type", type(exc).__name__),
                         },
                     ),
                 ),
@@ -1810,9 +1829,10 @@ class AsyncWorkflowExecutor:
                 False,
                 None,
             )
+        node_input_state = input_port.projected if input_port is not None else state
         try:
             branch = branch_state(
-                state,
+                node_input_state,
                 write_paths=getattr(node.spec, "state_writes", ()),
                 enforce_write_scope=True,
             )
@@ -1873,12 +1893,15 @@ class AsyncWorkflowExecutor:
 
         # Cache check
         cache_key: str | None = None
+        cache_bind_params = dict(inv.params or {})
+        if input_port is not None:
+            cache_bind_params["__engine_input_port"] = input_port.cache_binding()
         if _should_cache(node_id):
             try:
                 cache_key = compute_idempotency_key(
                     spec=node.spec,
-                    state=state,
-                    bind_params=inv.params,
+                    state=node_input_state,
+                    bind_params=cache_bind_params,
                 )
             except (AttributeError, TypeError, ValueError) as exc:
                 _executor_degraded(
@@ -1932,8 +1955,10 @@ class AsyncWorkflowExecutor:
                     cache_hit_valid = await run_blocking_async(
                         _validate_cached_node_hit,
                         node,
-                        self._ctx,
-                        snapshot_state(state),
+                        input_port.callback_context(self._ctx)
+                        if input_port is not None
+                        else self._ctx,
+                        snapshot_state(node_input_state),
                         cached_outcome.model_copy(deep=True),
                         timeout_seconds=self._remaining_deadline_seconds(cache_deadline),
                         unbounded=cache_deadline is None,
@@ -1961,7 +1986,7 @@ class AsyncWorkflowExecutor:
                 merged_cached_state = _merge_cached_outcome_state(
                     alias=alias,
                     node=node,
-                    base_state=state,
+                    base_state=node_input_state,
                     outcome=cached_outcome,
                 )
             except StateReplayIncompatible as exc:
@@ -1995,6 +2020,9 @@ class AsyncWorkflowExecutor:
                 )
                 outcome = cached_outcome.model_copy(update={"state": merged_cached_state})
 
+        if cache_hit and input_port is not None:
+            await self._record_input_port_cache_replay(input_port, outcome, alias=alias)
+
         if cached_outcome is None:
             try:
                 self._check_budget(alias, budget_key="run")
@@ -2022,6 +2050,8 @@ class AsyncWorkflowExecutor:
                 else None
             )
             attempt_basis_refs: dict[str, tuple[ArtifactRef, int]] = {}
+            attempt_inputs: dict[str, ExperimentState] = {}
+            attempt_input_refs: dict[str, ArtifactRef] = {}
             workflow_payload = workflow.model_dump_json()
             workflow_spec_ref = self._workflow_spec_ref
             if workflow_spec_ref is None or self._workflow_spec_payload != workflow_payload:
@@ -2043,14 +2073,19 @@ class AsyncWorkflowExecutor:
                 selected_params: dict[str, Any] = selected_params_snapshot,
             ) -> str:
                 attempt_id = str(uuid4())
-                input_state_ref = await self._persist_state(
+                input_state_ref = await self._persist_node_attempt_input(
+                    input_port,
                     attempt_state,
-                    return_selected_profile=True,
+                    alias=alias,
+                    attempt_id=attempt_id,
+                    attempt_number=attempt_number,
                 )
-                implementation_identity = capture_engine_component_identity(
-                    selected_node,
-                    node_id,
-                    selected_params,
+                attempt_inputs[attempt_id] = attempt_state
+                attempt_input_refs[attempt_id] = input_state_ref
+                implementation_identity = (
+                    input_port.require_current()
+                    if input_port is not None
+                    else capture_engine_component_identity(selected_node, node_id, selected_params)
                 )
                 basis_ref = self._ctx.run._record_runtime_invocation_started(
                     attempt_id=attempt_id,
@@ -2072,6 +2107,21 @@ class AsyncWorkflowExecutor:
                 if basis is None:
                     raise ValueError("run_invocation_attempt_basis_missing")
                 basis_ref, attempt_number = basis
+                attempt_inputs.pop(attempt_id, None)
+                attempt_input_refs.pop(attempt_id, None)
+                if input_port is not None and attempt_outcome is not None:
+                    try:
+                        input_port.validate_outcome(attempt_outcome)
+                    except BaseException:
+                        self._ctx.run._record_runtime_invocation_completed(
+                            attempt_id=attempt_id,
+                            attempt_number=attempt_number,
+                            basis_ref=basis_ref,
+                            status="unknown",
+                            outcome_state_ref=None,
+                            output_refs=[],
+                        )
+                        raise
                 outcome_state_ref = (
                     await self._persist_state(
                         attempt_outcome.state,
@@ -2100,7 +2150,7 @@ class AsyncWorkflowExecutor:
                 attempt_basis = attempt_bases.get(attempt_id)
                 if attempt_basis is None:
                     raise ValueError("run_invocation_attempt_context_basis_missing")
-                return replace(
+                bound_context = replace(
                     self._ctx,
                     _engine_invocation=_EngineInvocationBinding(
                         run_id=selected_run_id,
@@ -2108,6 +2158,18 @@ class AsyncWorkflowExecutor:
                         basis_ref=attempt_basis[0],
                     ),
                 )
+                attempt_input = attempt_inputs[attempt_id]
+                if input_port is not None:
+                    input_port.require_current()
+                    _load_engine_owned_invocation_input_state(bound_context, attempt_input)
+                    bound_context = input_port.attempt_context(
+                        bound_context,
+                        node_alias=alias,
+                        attempt_id=attempt_id,
+                        basis_ref=attempt_basis[0],
+                        input_state_ref=attempt_input_refs[attempt_id],
+                    )
+                return bound_context
 
             try:
                 raw_outcome = await execute_with_retry_async(
@@ -2345,6 +2407,8 @@ class AsyncWorkflowExecutor:
                 "artifacts": _completed_producer_value(outcome.artifacts),
             }
         )
+        if input_port is not None:
+            outcome = input_port.merge_outcome(outcome)
         return outcome, duration_ms, cache_hit, cache_entry_ref
 
     async def _handle_tier_checkpoint(
@@ -2679,11 +2743,105 @@ class AsyncWorkflowExecutor:
             return_selected_profile=return_selected_profile,
         )
 
+    async def _persist_node_attempt_input(
+        self,
+        port: _NodeInputPort | None,
+        state: ExperimentState,
+        *,
+        alias: str,
+        attempt_id: str,
+        attempt_number: int,
+        source_cache_entry_ref: ArtifactRef | None = None,
+    ) -> ArtifactRef:
+        if port is None:
+            return await self._persist_state(state, return_selected_profile=True)
+        predecessor_ref = await self._persist_state(port.predecessor, return_selected_profile=True)
+        basis = port.basis(
+            predecessor_ref=predecessor_ref,
+            attempt_state=state,
+            node_alias=alias,
+            attempt_id=attempt_id,
+            attempt_number=attempt_number,
+            source_cache_entry_ref=source_cache_entry_ref,
+        )
+        basis_ref = await self._put_workflow_artifact(
+            basis,
+            input_basis_options(basis),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        return await self._persist_state(
+            state,
+            return_selected_profile=True,
+            inputs=[input_ref_from_artifact_ref(basis_ref, role="node_input_basis")],
+        )
+
+    async def _record_input_port_cache_replay(
+        self, port: _NodeInputPort, outcome: NodeOutcome, *, alias: str
+    ) -> None:
+        source_ref = getattr(outcome, "_polisyos_cache_entry_ref", None)
+        if type(source_ref) is not ArtifactRef or source_ref.manifest_profile_sha256 is None:
+            raise NodeInputPortError("node_input_cache_source_not_established")
+        port.validate_outcome(outcome)
+        workflow_ref = self._workflow_spec_ref
+        if workflow_ref is None:
+            raise NodeInputPortError("node_input_workflow_basis_missing")
+        attempt_id = str(uuid4())
+        input_ref = await self._persist_node_attempt_input(
+            port,
+            port.projected,
+            alias=alias,
+            attempt_id=attempt_id,
+            attempt_number=1,
+            source_cache_entry_ref=source_ref,
+        )
+        basis_ref = self._ctx.run._record_runtime_invocation_started(
+            attempt_id=attempt_id,
+            attempt_number=1,
+            workflow_spec_ref=workflow_ref,
+            node_alias=alias,
+            component_id=port.contract.component_id,
+            input_state_ref=input_ref,
+            implementation_identity=port.require_current(),
+        )
+        try:
+            selected_context = replace(
+                self._ctx,
+                _engine_invocation=_EngineInvocationBinding(
+                    run_id=port.projected.run_id, attempt_id=attempt_id, basis_ref=basis_ref
+                ),
+            )
+            _load_engine_owned_invocation_input_state(selected_context, port.projected)
+            outcome_ref = await self._persist_state(outcome.state, return_selected_profile=True)
+            self._guard_workflow_admission(
+                operation=f"node.{alias}.replay", execution_state="unknown"
+            )
+            port.require_current()
+        except BaseException:
+            self._ctx.run._record_runtime_invocation_completed(
+                attempt_id=attempt_id,
+                attempt_number=1,
+                basis_ref=basis_ref,
+                status="unknown",
+                outcome_state_ref=None,
+                output_refs=[],
+            )
+            raise
+        self._ctx.run._record_runtime_invocation_completed(
+            attempt_id=attempt_id,
+            attempt_number=1,
+            basis_ref=basis_ref,
+            status=outcome.status,
+            outcome_state_ref=outcome_ref,
+            output_refs=list(outcome.artifacts),
+        )
+
     async def _persist_state(
         self,
         state: ExperimentState,
         *,
         return_selected_profile: bool = False,
+        inputs: list[InputRef] | None = None,
     ) -> ArtifactRef:
         return await self._put_workflow_artifact(
             state.model_dump(),
@@ -2694,6 +2852,7 @@ class AsyncWorkflowExecutor:
                     name="polisyos.scientist.orchestration.engine.ExperimentState",
                     version=state.schema_version,
                 ),
+                inputs=inputs,
             ),
             canon_spec=CanonSpec(forbid_floats=False),
             return_selected_profile=return_selected_profile,

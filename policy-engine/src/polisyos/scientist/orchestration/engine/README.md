@@ -49,6 +49,68 @@ Smoke-tested:
 uv run pytest tests/unit/scientist/orchestration/engine/test_condition.py tests/unit/scientist/orchestration/engine/test_retry.py tests/unit/scientist/orchestration/engine/test_state_merge.py -q
 ```
 
+## Selected builtin input ports
+
+`InputAwareNodeSpec` extends the existing node contract with a versioned
+`NodeInputContract`. Only the independently held exact builtin implementation
+may use this port. Unknown versions, a removed contract, changed code or changed
+cache callbacks refuse before producer execution; ordinary `NodeSpec` nodes
+retain their existing behavior. `state_reads` remains a cache dependency hint
+and does not itself restrict input.
+
+For selected input-aware components, the Engine checks the actual held type,
+class/spec/bind descriptors, source definitions and permitted bind keys before
+invoking the spec or binder. The actual bound instance is reconciled afterward.
+A changed definition or an unsupported input contract cannot run a protected
+binding callback and then fail only at producer admission. Legacy unopted
+registry discovery and binding retain their existing behavior.
+
+The executor projects declared state paths into a detached `ExperimentState`
+before callbacks. Only explicit `artifact_ref_paths` enroll readable CAS
+references, with the complete selected profile; ref-shaped values buried in
+candidate metadata remain data. The scoped CAS delegates admitted operations
+to the existing store and permits this producer's selected writes. It denies
+unselected profiles, basis/predecessor traversal and unrestricted inventory.
+The run view provides that scoped store, trace emission and artifact tenant
+context; run manifests, ledgers, owner histories and filesystem paths are not
+node inputs. Effect ports, prepared graph reads, audit/metrics/tracer and memory
+handles are cleared for this profile. If a cache preparer returns a real graph
+read, the Engine retains it for source bookkeeping; restricted cache validators,
+rebind callbacks and producer calls still receive freshly narrowed contexts.
+
+Before each real attempt, the existing run owner records its selected projected
+input. A `scientist.node_input_basis` lineage edge binds that input to the exact
+full predecessor, component implementation, versioned contract, bind parameters
+and attempt. Its implementation-dependency digest binds the held producer/domain
+helper callables, DTO classes and fixed owner-profile definitions as well as the
+primary class. The code-derived dependency closure follows source wrappers to
+the existing Core/IR JSON validators, artifact-store and Engine-input owner
+entrypoints. Those generic owners are the declared stopping point; this is not
+an assertion about arbitrary transitive libraries or dynamic Python. Engine
+validation reads and reconciles that basis before invoking the node. The full predecessor remains with the executor; only declared writes
+merge back through the existing mutation journal and state merge owner. Hidden
+state and archived history survive unchanged. Cache replay binds the physical
+input and implementation in its key and creates a fresh run-owned attempt with
+the exact verified selected cache-entry occurrence as provenance.
+
+`read_input_port_basis(ctx, state)` accepts only the unchanged persisted
+projection and returns safe input/attempt coordinates. It returns no predecessor
+content or read grant. These coordinates can bind a candidate artifact's lineage;
+they do not establish authority, currentness or successful completion by a caller.
+Upstream authority admission remains an Engine-owner operation.
+
+The supported boundary is an exact trusted builtin in the selected in-process
+profile, through its state, CAS and run APIs. It does not isolate arbitrary
+Python introspection, process memory, plugins, filesystem access or deployment
+images. Unsupported code cannot obtain this profile. Both executors, retries,
+cache replay and native async deadlines retain the physical port. The existing
+closed synchronous process-timeout worker cannot transport this profile yet;
+it refuses before node work rather than serializing unrestricted store/run
+owners. The mirrored input-port tests exercise the actual Engine/CAS path,
+contract/source/attempt/profile corruption, context/lineage escapes, projection
+removal and interrupted cache publication. The existing run-attempt audit is
+the surface for this internal contract; no new HTTP or dashboard API is added.
+
 ## Persisted Budget Admission
 
 `FileBudgetLedger` requires an explicit `load_or_bootstrap(initial_state)` before

@@ -16,7 +16,7 @@ from uuid import uuid4
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts import ArtifactWriteOptions, FileSystemCAS
+from polisyos.core.artifacts import ArtifactWriteOptions, FileSystemCAS, input_ref_from_artifact_ref
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
     InputRef,
@@ -32,7 +32,10 @@ from polisyos.core.contracts.skip_blockers import (
     classify_optional_analytic_node,
 )
 from polisyos.core.run.child_custody import ChildComputationOutcomeUnknown
-from polisyos.data_forge.read_api.academic import retained_skg_source_binding
+from polisyos.data_forge.read_api.academic import (
+    RetainedSKGSnapshotError,
+    retained_skg_source_binding,
+)
 from polisyos.scientist.methods.research_dag.persistence import persist_research_dag
 from polisyos.scientist.methods.research_dag.projections import (
     SELECTED_RESEARCH_DAG_WORKFLOWS,
@@ -51,7 +54,10 @@ from polisyos.scientist.orchestration.engine.condition import (
     ConditionSyntaxError,
     evaluate_condition,
 )
-from polisyos.scientist.orchestration.engine.context import _EngineInvocationBinding
+from polisyos.scientist.orchestration.engine.context import (
+    _EngineInvocationBinding,
+    _load_engine_owned_invocation_input_state,
+)
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.orchestration.engine.errors import (
     CycleDetectedError,
@@ -73,6 +79,13 @@ from polisyos.scientist.orchestration.engine.idempotency import (
     NodeResultCache,
     compute_idempotency_key,
 )
+from polisyos.scientist.orchestration.engine.input_ports import (
+    NodeInputPortError,
+    _NodeInputPort,
+    admit_node_input_port,
+    input_basis_options,
+    preflight_node_input_port,
+)
 from polisyos.scientist.orchestration.engine.protocol import (
     CacheHitValidator,
     CacheInputPreparer,
@@ -89,7 +102,6 @@ from polisyos.scientist.orchestration.engine.retry import (
 )
 from polisyos.scientist.orchestration.engine.skg_snapshot import (
     SNAPSHOT_INPUT_KEY,
-    RetainedSKGSnapshotError,
     bind_retained_skg_workflow_input,
     prepare_retained_skg_read,
     retain_prepared_skg_read,
@@ -1198,8 +1210,11 @@ class WorkflowExecutor:
                     continue
 
             try:
-                node = _bind_node_params(self._registry.get(inv.node_id), inv.params)
-            except NodeBindError as exc:
+                registered_node = self._registry.get(inv.node_id)
+                preflight_node_input_port(registered_node, str(inv.node_id), dict(inv.params or {}))
+                node = _bind_node_params(registered_node, inv.params)
+                input_port = admit_node_input_port(node, state, dict(inv.params or {}))
+            except (NodeBindError, NodeInputPortError) as exc:
                 self._ctx.logger.exception("Node %s bind failed", alias)
                 record = NodeRunRecord(
                     alias=alias,
@@ -1207,12 +1222,16 @@ class WorkflowExecutor:
                     status="fail",
                     duration_ms=0,
                     error=NodeError(
-                        code="node.bind_failed",
+                        code=(
+                            "node.input_port_refused"
+                            if isinstance(exc, NodeInputPortError)
+                            else "node.bind_failed"
+                        ),
                         message=str(exc),
                         details={
-                            "node": exc.node_label,
-                            "param_keys": list(exc.param_keys),
-                            "type": exc.error_type,
+                            "node": getattr(exc, "node_label", str(inv.node_id)),
+                            "param_keys": list(getattr(exc, "param_keys", tuple(inv.params or {}))),
+                            "type": getattr(exc, "error_type", type(exc).__name__),
                         },
                     ),
                 )
@@ -1236,6 +1255,7 @@ class WorkflowExecutor:
                 if workflow.error_policy == "fail_fast":
                     break
                 continue
+            node_input_state = input_port.projected if input_port is not None else state
             span_attrs = {
                 "polisyos.run_id": state.run_id,
                 "polisyos.workflow_id": workflow.workflow_id,
@@ -1274,8 +1294,12 @@ class WorkflowExecutor:
                 retained_ref: ArtifactRef | None = None
                 query_execution_marker: int | None = None
                 connection_query_fingerprints: tuple[str, ...] = ()
-                node_context = self._ctx
+                node_context = (
+                    input_port.callback_context(self._ctx) if input_port is not None else self._ctx
+                )
                 cache_bind_params = dict(inv.params or {})
+                if input_port is not None:
+                    cache_bind_params["__engine_input_port"] = input_port.cache_binding()
                 set_span_attribute(span, "polisyos.node.cache.enabled", cache_enabled)
 
                 if cache_enabled:
@@ -1286,7 +1310,7 @@ class WorkflowExecutor:
                             try:
                                 if replay_source_ref is None:
                                     prepared_read = node.prepare_cache_input(
-                                        _node_facing_context(self._ctx), state
+                                        _node_facing_context(node_context), node_input_state
                                     )
                                 else:
                                     if not isinstance(self._ctx.store, FileSystemCAS):
@@ -1309,7 +1333,7 @@ class WorkflowExecutor:
                                 else:
                                     node_resources.callback(prepared_read.close)
                                     node_context = replace(
-                                        self._ctx,
+                                        node_context,
                                         prepared_skg_read=prepared_read,
                                     )
                                     cache_bind_params["prepared_skg_read"] = (
@@ -1351,7 +1375,7 @@ class WorkflowExecutor:
                         if cache_bypass_reason is None:
                             cache_key = compute_idempotency_key(
                                 spec=node.spec,
-                                state=state,
+                                state=node_input_state,
                                 bind_params=cache_bind_params,
                             )
                     except (CanonViolation, ValueError, TypeError) as exc:
@@ -1384,7 +1408,12 @@ class WorkflowExecutor:
                     prepared_read.close()
                     try:
                         rebound_read = node.prepare_cache_input(
-                            _node_facing_context(self._ctx), state
+                            _node_facing_context(
+                                input_port.callback_context(self._ctx)
+                                if input_port is not None
+                                else node_context
+                            ),
+                            node_input_state,
                         )
                     except Exception as exc:
                         raise RetainedSKGSnapshotError(
@@ -1397,7 +1426,7 @@ class WorkflowExecutor:
                         raise RetainedSKGSnapshotError("retained_skg_live_source_rebind_unstable")
                     prepared_read = rebound_read
                     node_resources.callback(prepared_read.close)
-                    node_context = replace(self._ctx, prepared_skg_read=prepared_read)
+                    node_context = replace(node_context, prepared_skg_read=prepared_read)
                     cache_key = None
                     if cache_bypass_reason is None:
                         cache_bypass_reason = _CACHE_BYPASS_PREPARED_READ
@@ -1430,7 +1459,12 @@ class WorkflowExecutor:
                     cached_outcome = self._cache.get(cache_key)
                     if cached_outcome is not None and isinstance(node, CacheHitValidator):
                         cache_hit_valid = _validate_cached_node_hit(
-                            node, node_context, state, cached_outcome
+                            node,
+                            input_port.callback_context(self._ctx)
+                            if input_port is not None
+                            else node_context,
+                            node_input_state,
+                            cached_outcome,
                         )
                         if not cache_hit_valid:
                             self._cache.discard(cache_key)
@@ -1524,7 +1558,7 @@ class WorkflowExecutor:
                         merged_cached_state = _merge_cached_outcome_state(
                             alias=alias,
                             node=node,
-                            base_state=state,
+                            base_state=node_input_state,
                             outcome=cached_outcome,
                         )
                     except StateReplayIncompatible as exc:
@@ -1625,10 +1659,15 @@ class WorkflowExecutor:
                                 },
                             )
 
+                if cache_hit and input_port is not None:
+                    self._record_input_port_cache_replay(
+                        input_port, outcome, workflow_ref=workflow_ref, alias=alias
+                    )
+
                 if cached_outcome is None:
                     retry_policy = inv.retry or RetryPolicy()
                     branched_state = branch_state(
-                        state,
+                        node_input_state,
                         write_paths=getattr(node.spec, "state_writes", ()),
                         enforce_write_scope=True,
                     )
@@ -1639,6 +1678,8 @@ class WorkflowExecutor:
                         ",".join(branched_state.journal.isolated_paths),
                     )
                     attempt_basis_refs: dict[str, tuple[ArtifactRef, int]] = {}
+                    attempt_inputs: dict[str, ExperimentState] = {}
+                    attempt_input_refs: dict[str, ArtifactRef] = {}
 
                     selected_params_snapshot = dict(inv.params or {})
 
@@ -1652,11 +1693,22 @@ class WorkflowExecutor:
                         attempt_bases: dict[str, tuple[ArtifactRef, int]] = attempt_basis_refs,
                         selected_node: object = node,
                         selected_params: dict[str, Any] = selected_params_snapshot,
+                        selected_port: _NodeInputPort | None = input_port,
+                        selected_inputs: dict[str, ExperimentState] = attempt_inputs,
+                        selected_input_refs: dict[str, ArtifactRef] = attempt_input_refs,
                     ) -> str:
                         attempt_id = str(uuid4())
-                        input_state_ref = self._persist_state(
+                        input_state_ref = self._persist_node_attempt_input(
+                            selected_port,
                             attempt_state,
-                            return_selected_profile=True,
+                            alias=selected_alias,
+                            attempt_id=attempt_id,
+                            attempt_number=attempt_number,
+                        )
+                        selected_inputs[attempt_id] = attempt_state
+                        selected_input_refs[attempt_id] = input_state_ref
+                        implementation_identity = capture_engine_component_identity(
+                            selected_node, selected_component_id, selected_params
                         )
                         if self._admitted_child:
                             from polisyos.scientist.orchestration.engine.child_computation import (
@@ -1666,12 +1718,8 @@ class WorkflowExecutor:
                             if type(selected_node) is not _AdmittedChildDispatch:
                                 raise ValueError("child_dispatch_owner_missing")
                             implementation_identity = selected_node.implementation_identity()
-                        else:
-                            implementation_identity = capture_engine_component_identity(
-                                selected_node,
-                                selected_component_id,
-                                selected_params,
-                            )
+                        elif selected_port is not None:
+                            implementation_identity = selected_port.require_current()
                         basis_ref = self._ctx.run._record_runtime_invocation_started(
                             attempt_id=attempt_id,
                             attempt_number=attempt_number,
@@ -1689,11 +1737,29 @@ class WorkflowExecutor:
                         attempt_outcome: NodeOutcome | None,
                         *,
                         attempt_bases: dict[str, tuple[ArtifactRef, int]] = attempt_basis_refs,
+                        selected_port: _NodeInputPort | None = input_port,
+                        selected_inputs: dict[str, ExperimentState] = attempt_inputs,
+                        selected_input_refs: dict[str, ArtifactRef] = attempt_input_refs,
                     ) -> None:
                         basis = attempt_bases.pop(attempt_id, None)
                         if basis is None:
                             raise ValueError("run_invocation_attempt_basis_missing")
                         basis_ref, attempt_number = basis
+                        selected_inputs.pop(attempt_id, None)
+                        selected_input_refs.pop(attempt_id, None)
+                        if selected_port is not None and attempt_outcome is not None:
+                            try:
+                                selected_port.validate_outcome(attempt_outcome)
+                            except BaseException:
+                                self._ctx.run._record_runtime_invocation_completed(
+                                    attempt_id=attempt_id,
+                                    attempt_number=attempt_number,
+                                    basis_ref=basis_ref,
+                                    status="unknown",
+                                    outcome_state_ref=None,
+                                    output_refs=[],
+                                )
+                                raise
                         outcome_state_ref = (
                             self._persist_state(
                                 attempt_outcome.state,
@@ -1723,18 +1789,37 @@ class WorkflowExecutor:
                         selected_context: ExecutionContext = node_context,
                         attempt_bases: dict[str, tuple[ArtifactRef, int]] = attempt_basis_refs,
                         selected_run_id: str = self._ctx.run.run_manifest.run_id,
+                        selected_alias: str = alias,
+                        selected_port: _NodeInputPort | None = input_port,
+                        selected_inputs: dict[str, ExperimentState] = attempt_inputs,
+                        selected_input_refs: dict[str, ArtifactRef] = attempt_input_refs,
                     ) -> ExecutionContext:
                         attempt_basis = attempt_bases.get(attempt_id)
                         if attempt_basis is None:
                             raise ValueError("run_invocation_attempt_context_basis_missing")
-                        return replace(
+                        bound_context = replace(
                             selected_context,
+                            store=self._ctx.store,
+                            run=self._ctx.run,
+                            _node_input_selection=None,
                             _engine_invocation=_EngineInvocationBinding(
                                 run_id=selected_run_id,
                                 attempt_id=attempt_id,
                                 basis_ref=attempt_basis[0],
                             ),
                         )
+                        attempt_input = selected_inputs[attempt_id]
+                        if selected_port is not None:
+                            selected_port.require_current()
+                            _load_engine_owned_invocation_input_state(bound_context, attempt_input)
+                            bound_context = selected_port.attempt_context(
+                                bound_context,
+                                node_alias=selected_alias,
+                                attempt_id=attempt_id,
+                                basis_ref=attempt_basis[0],
+                                input_state_ref=selected_input_refs[attempt_id],
+                            )
+                        return bound_context
 
                     try:
                         if prepared_read is not None:
@@ -1808,7 +1893,7 @@ class WorkflowExecutor:
                             ),
                         )
 
-                    if outcome.status == "fail":
+                    if outcome.status == "fail" and input_port is None:
                         state = _preserve_retry_spend(state, outcome.state)
                         outcome = outcome.model_copy(update={"state": state})
 
@@ -2002,6 +2087,8 @@ class WorkflowExecutor:
                         "artifacts": _completed_producer_value(outcome.artifacts),
                     }
                 )
+                if input_port is not None:
+                    outcome = input_port.merge_outcome(outcome)
                 duration_ms = int((time.perf_counter() - started) * 1000)
                 if self._ctx.metrics is not None:
                     self._ctx.metrics.record_node_completed(
@@ -2345,11 +2432,104 @@ class WorkflowExecutor:
             return_selected_profile=return_selected_profile,
         )
 
+    def _persist_node_attempt_input(
+        self,
+        port: _NodeInputPort | None,
+        state: ExperimentState,
+        *,
+        alias: str,
+        attempt_id: str,
+        attempt_number: int,
+        source_cache_entry_ref: ArtifactRef | None = None,
+    ) -> ArtifactRef:
+        if port is None:
+            return self._persist_state(state, return_selected_profile=True)
+        predecessor_ref = self._persist_state(port.predecessor, return_selected_profile=True)
+        basis = port.basis(
+            predecessor_ref=predecessor_ref,
+            attempt_state=state,
+            node_alias=alias,
+            attempt_id=attempt_id,
+            attempt_number=attempt_number,
+            source_cache_entry_ref=source_cache_entry_ref,
+        )
+        basis_ref = self._ctx.store.put_json(
+            basis,
+            input_basis_options(basis),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        return self._persist_state(
+            state,
+            return_selected_profile=True,
+            inputs=[input_ref_from_artifact_ref(basis_ref, role="node_input_basis")],
+        )
+
+    def _record_input_port_cache_replay(
+        self,
+        port: _NodeInputPort,
+        outcome: NodeOutcome,
+        *,
+        workflow_ref: ArtifactRef,
+        alias: str,
+    ) -> None:
+        source_ref = getattr(outcome, "_polisyos_cache_entry_ref", None)
+        if type(source_ref) is not ArtifactRef or source_ref.manifest_profile_sha256 is None:
+            raise NodeInputPortError("node_input_cache_source_not_established")
+        port.validate_outcome(outcome)
+        attempt_id = str(uuid4())
+        input_ref = self._persist_node_attempt_input(
+            port,
+            port.projected,
+            alias=alias,
+            attempt_id=attempt_id,
+            attempt_number=1,
+            source_cache_entry_ref=source_ref,
+        )
+        basis_ref = self._ctx.run._record_runtime_invocation_started(
+            attempt_id=attempt_id,
+            attempt_number=1,
+            workflow_spec_ref=workflow_ref,
+            node_alias=alias,
+            component_id=port.contract.component_id,
+            input_state_ref=input_ref,
+            implementation_identity=port.require_current(),
+        )
+        try:
+            selected_context = replace(
+                self._ctx,
+                _engine_invocation=_EngineInvocationBinding(
+                    run_id=port.projected.run_id, attempt_id=attempt_id, basis_ref=basis_ref
+                ),
+            )
+            _load_engine_owned_invocation_input_state(selected_context, port.projected)
+            outcome_ref = self._persist_state(outcome.state, return_selected_profile=True)
+            port.require_current()
+        except BaseException:
+            self._ctx.run._record_runtime_invocation_completed(
+                attempt_id=attempt_id,
+                attempt_number=1,
+                basis_ref=basis_ref,
+                status="unknown",
+                outcome_state_ref=None,
+                output_refs=[],
+            )
+            raise
+        self._ctx.run._record_runtime_invocation_completed(
+            attempt_id=attempt_id,
+            attempt_number=1,
+            basis_ref=basis_ref,
+            status=outcome.status,
+            outcome_state_ref=outcome_ref,
+            output_refs=list(outcome.artifacts),
+        )
+
     def _persist_state(
         self,
         state: ExperimentState,
         *,
         return_selected_profile: bool = False,
+        inputs: list[InputRef] | None = None,
     ) -> ArtifactRef:
         return self._ctx.store.put_json(
             state.model_dump(),
@@ -2360,6 +2540,7 @@ class WorkflowExecutor:
                     name="polisyos.scientist.orchestration.engine.ExperimentState",
                     version=state.schema_version,
                 ),
+                inputs=inputs,
             ),
             canon_spec=CanonSpec(forbid_floats=False),
             return_selected_profile=return_selected_profile,

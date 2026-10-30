@@ -4,8 +4,10 @@ import logging
 from datetime import date
 from unittest.mock import patch
 
+import numpy as np
 import pytest
 
+from polisyos.core.artifacts import PutOptions
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
@@ -38,6 +40,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_BOUNDS_BUNDLE_REF,
     ARTIFACT_CAUSAL_EXECUTION_BUNDLE_REF,
     ARTIFACT_DYNAMIC_TREATMENT_REGIME_REF,
+    ARTIFACT_EFFECT_TRAJECTORY_BUNDLE_REF,
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
@@ -314,3 +317,112 @@ def test_run_causal_contract_execution_task_assertion_is_not_swallowed(tmp_path)
     ):
         with pytest.raises(AssertionError, match="task validator invariant"):
             RunCausalContractExecutionNode().execute(ctx, state)
+
+
+@pytest.mark.parametrize("foreign_profile", [False, True])
+def test_temporal_bundle_selected_profile_flows_into_fresh_aggregate(
+    tmp_path, monkeypatch, foreign_profile: bool
+) -> None:
+    import polisyos.scientist.nodes.builtins.causal.run_causal_contract_execution as execution
+    from polisyos.ir.analytics.dynamic_regime import (
+        ContinuousTimeQuery,
+        TemporalQueryMode,
+        load_effect_trajectory_bundle,
+    )
+    from polisyos.ir.model_layer.canon import CanonViolation
+    from polisyos.ir.registry.refs import EffectTrajectoryBundleRef
+
+    ctx = _build_ctx(tmp_path, run_id="R_temporal_selected_profile")
+    rng = np.random.default_rng(918)
+    treatments = rng.integers(0, 2, size=(64, 3))
+    covariates = rng.normal(0.0, 0.2, size=(64, 3, 1))
+    data = DynamicTreatmentData(
+        outcome=2.0 * treatments.sum(axis=1) + covariates[:, 0, 0],
+        treatment_sequence=treatments,
+        covariate_sequence=covariates,
+        time_ids=[0.0, 1.0, 2.0],
+        variable_names=["state"],
+    )
+    query = ContinuousTimeQuery(
+        query_mode=TemporalQueryMode.OPTIMAL_POLICY_DISCOVERY,
+        outcome_process="state",
+        horizon_start=0.0,
+        horizon_end=2.0,
+        time_scale="days",
+        metadata={"preferred_backend": "linear_sde"},
+    )
+    state = ExperimentState(
+        run_id="R_temporal_selected_profile",
+        params={
+            "temporal_dtr_tasks": [
+                {
+                    "task_id": "temporal_selected_profile",
+                    "dynamic_treatment_data": data.model_dump(mode="json"),
+                    "continuous_time_query": query.model_dump(mode="json"),
+                    "params": {"n_bootstrap": 20},
+                }
+            ]
+        },
+    )
+    original_producer = execution.CausalEngine.temporal_causal_effect
+    producer_refs = []
+
+    def real_producer_with_profile_control(self, *args, **kwargs):
+        trajectory = original_producer(self, *args, **kwargs)
+        selected_ref = EffectTrajectoryBundleRef.model_validate(
+            trajectory.metadata["effect_bundle_artifact_ref"]
+        )
+        producer_refs.append(selected_ref)
+        if foreign_profile:
+            alternate = ctx.store.put_bytes(
+                ctx.store.get_bytes(selected_ref),
+                PutOptions(kind="benchmark.foreign_temporal_bundle", media_type="application/json"),
+                return_selected_profile=True,
+            )
+            assert str(alternate.artifact_id) == str(selected_ref.artifact_id)
+            assert alternate.manifest_profile_sha256 != selected_ref.manifest_profile_sha256
+            trajectory.metadata["effect_bundle_artifact_ref"] = selected_ref.model_copy(
+                update={"manifest_profile_sha256": alternate.manifest_profile_sha256}
+            ).model_dump(mode="json")
+        return trajectory
+
+    monkeypatch.setattr(
+        execution.CausalEngine, "temporal_causal_effect", real_producer_with_profile_control
+    )
+    aggregate_writer = execution.persist_causal_execution_bundle
+    aggregate_emissions = []
+
+    def record_real_aggregate_write(*args, **kwargs):
+        aggregate_emissions.append(True)
+        return aggregate_writer(*args, **kwargs)
+
+    monkeypatch.setattr(execution, "persist_causal_execution_bundle", record_real_aggregate_write)
+    if foreign_profile:
+        with pytest.raises(CanonViolation):
+            RunCausalContractExecutionNode().execute(ctx, state)
+        assert len(producer_refs) == 1
+        assert not aggregate_emissions
+        return
+
+    outcome = RunCausalContractExecutionNode().execute(ctx, state)
+    assert outcome.status == "ok"
+    assert len(producer_refs) == len(aggregate_emissions) == 1
+    selected_ref = producer_refs[0]
+    served_ref = outcome.state.artifacts_index[ARTIFACT_EFFECT_TRAJECTORY_BUNDLE_REF]
+    assert served_ref.model_dump(mode="json") == selected_ref.model_dump(mode="json")
+    aggregate_ref = outcome.state.artifacts_index[ARTIFACT_CAUSAL_EXECUTION_BUNDLE_REF]
+    fresh_store = FileSystemCAS(tmp_path)
+    fresh_bundle = load_causal_execution_bundle(
+        _ensure_ir_artifact_store(fresh_store),
+        CausalExecutionBundleRef.model_validate(aggregate_ref.model_dump(mode="json")),
+    )
+    assert fresh_bundle.temporal_results[0].effect_trajectory_bundle_ref == selected_ref
+    load_effect_trajectory_bundle(_ensure_ir_artifact_store(fresh_store), selected_ref)
+    inputs_by_role = {edge.role: edge for edge in fresh_store.get_manifest(aggregate_ref).inputs}
+    for role, ref in (
+        ("effect_trajectory_bundle", selected_ref),
+        ("dynamic_treatment_regime", fresh_bundle.temporal_results[0].dynamic_treatment_regime_ref),
+    ):
+        assert ref is not None
+        assert str(inputs_by_role[role].artifact_id) == str(ref.artifact_id)
+        assert inputs_by_role[role].manifest_profile_sha256 == ref.manifest_profile_sha256

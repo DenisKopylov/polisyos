@@ -11,6 +11,19 @@ catalog family, not a public subsystem facade: stable access flows through
 method registration, the exported causal names in `__init__.py`, and the
 broader `polisyos.foundry.methods` facade.
 
+Temporal `CausalEngine` results retain the legacy `effect_bundle_artifact_id` and
+also carry `effect_bundle_artifact_ref`, the exact selected profile returned by
+the producer's bundle write. Fresh consumers should use that full reference and
+preserve the selected profiles of its child references. This is persistence and
+replay evidence, not proof that the estimated trajectory is causally valid.
+Temporal benchmarks use the existing Core-to-IR store adapter and withhold public
+claim eligibility when any registered case or required acceptance check fails;
+smoke mode does not turn an execution error or numerical failure into a pass.
+Scientist's causal-contract compiler keeps the DTR estimator and temporal backend
+selections separate, resolves the producer-selected bundle before aggregate
+publication, and retains selected profiles in the execution entry and aggregate
+lineage. An ID-only legacy producer result cannot establish that trajectory link.
+
 ## Role in System
 
 - **Depends on:** `polisyos.foundry.methods`, `polisyos.ir.analytics.causal`

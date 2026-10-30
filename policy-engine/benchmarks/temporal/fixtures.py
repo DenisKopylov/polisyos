@@ -4,12 +4,14 @@ from __future__ import annotations
 
 import tempfile
 from dataclasses import dataclass, field
+from math import erfc, sqrt
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 
 from benchmarks.temporal.common import TemporalBenchmarkFixture
+from polisyos.core.artifacts import ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
 from polisyos.foundry.methods.catalog.causal.protocols import (
@@ -38,7 +40,7 @@ from polisyos.ir.analytics.dynamic_regime import (
     load_temporal_intervention_trajectory,
     persist_temporal_intervention_trajectory,
 )
-from polisyos.ir.artifacts import get_json_artifact
+from polisyos.ir.artifacts import ArtifactStore, get_json_artifact
 from polisyos.ir.registry.refs import (
     ArtifactRefModel,
     DynamicTreatmentRegimeRef,
@@ -340,7 +342,7 @@ def _engine_temporal_trajectory(
     query_mode: TemporalQueryMode = TemporalQueryMode.FIXED_INTERVENTION,
 ) -> EngineTemporalExecution:
     with tempfile.TemporaryDirectory(prefix="temporal-bench-") as tmpdir:
-        store = FileSystemCAS(Path(tmpdir) / "cas")
+        store = ensure_ir_artifact_store(FileSystemCAS(Path(tmpdir) / "cas"))
         intervention_ref = (
             None
             if intervention is None
@@ -379,28 +381,30 @@ def _engine_temporal_trajectory(
 
 
 def _engine_acceptance_checks(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     trajectory: TemporalTrajectoryResult,
     *,
     expects_fallback: bool = False,
     requires_policy_lineage: bool = False,
 ) -> tuple[dict[str, bool], dict[str, Any]]:
     bundle = trajectory.effect_bundle
-    effect_bundle_artifact_id = trajectory.metadata.get("effect_bundle_artifact_id")
+    effect_bundle_artifact_ref = trajectory.metadata.get("effect_bundle_artifact_ref")
     artifact_loadability = False
     policy_lineage_complete = True
     reload_summary: dict[str, Any] = {
         "artifacts_expected": True,
-        "bundle_artifact_id": effect_bundle_artifact_id,
+        "bundle_artifact_ref": effect_bundle_artifact_ref,
     }
-    if bundle is not None and effect_bundle_artifact_id is not None:
+    if bundle is not None and effect_bundle_artifact_ref is not None:
         try:
-            bundle_ref = EffectTrajectoryBundleRef(artifact_id=str(effect_bundle_artifact_id))
+            bundle_ref = EffectTrajectoryBundleRef.model_validate(effect_bundle_artifact_ref)
+            if not bundle_ref.manifest_profile_sha256:
+                raise ValueError("temporal_bundle_selected_profile_missing")
             restored_bundle = load_effect_trajectory_bundle(store, bundle_ref)
             restored_query = load_continuous_time_query(store, restored_bundle.query_ref)
-            get_json_artifact(store, restored_bundle.trajectory_ref.artifact_id)
-            get_json_artifact(store, restored_bundle.confidence_band_ref.artifact_id)
-            get_json_artifact(store, restored_bundle.solver_diagnostics_ref.artifact_id)
+            get_json_artifact(store, restored_bundle.trajectory_ref)
+            get_json_artifact(store, restored_bundle.confidence_band_ref)
+            get_json_artifact(store, restored_bundle.solver_diagnostics_ref)
 
             intervention_payload = restored_bundle.metadata.get("intervention_artifact_ref")
             if (
@@ -606,8 +610,10 @@ def _gold_g_formula_always_vs_never():
 
 
 def _gold_dtr_optimal_vs_baseline():
+    data = _dynamic_dtr_data()
+    expected_effect_path = _known_dtr_optimal_state_effect(data)
     execution = _engine_temporal_trajectory(
-        data=_dynamic_dtr_data(),
+        data=data,
         intervention=None,
         outcome_process="state",
         horizon_end=2.0,
@@ -619,8 +625,8 @@ def _gold_dtr_optimal_vs_baseline():
         scenario_id="dtr_optimal_vs_baseline",
         scenario_label="DTR optimal-regime trajectory vs baseline",
         trajectory=trajectory,
-        expected_effect_path=[0.0, 0.35, 0.55],
-        expected_integral_effect=0.625,
+        expected_effect_path=expected_effect_path,
+        expected_integral_effect=float(np.trapezoid(expected_effect_path)),
         thresholds=TemporalThresholds(
             max_path_rmse=0.35,
             max_integral_effect_abs_error=0.35,
@@ -637,6 +643,23 @@ def _gold_dtr_optimal_vs_baseline():
             **execution.metadata,
         },
     )
+
+
+def _known_dtr_optimal_state_effect(data: DynamicTreatmentData) -> tuple[float, float, float]:
+    """Integrate the fixture's known SCM for its empirical initial population.
+
+    Treating positive state adds 0.45; treating nonpositive state subtracts 0.20.
+    The optimal rule therefore treats only positive state. At the second step,
+    integrate the known Gaussian transition noise analytically, independently of
+    the fitted Q policy and the estimated transition/trajectory implementations.
+    """
+    initial_state = data.covariate_sequence[:, 0, 0]
+    first_effect = float(0.45 * np.mean(initial_state > 0.0))
+    first_mean = 0.55 * initial_state + 0.45 * (initial_state > 0.0)
+    positive_probability = float(
+        np.mean([0.5 * erfc(-float(mean) / (0.25 * sqrt(2.0))) for mean in first_mean])
+    )
+    return 0.0, first_effect, 0.55 * first_effect + 0.45 * positive_probability
 
 
 def _gold_discrete_fallback_alignment():

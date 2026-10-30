@@ -54,12 +54,13 @@ def _check_temporal_result(result: TemporalEvaluationResult) -> bool:
 
 def build_gold_scorecard(evaluations: Sequence[TemporalEvaluationResult]) -> dict[str, Any]:
     summary = summarize_temporal_evaluations(evaluations)
-    engine_route_coverage_rate = _acceptance_rate(evaluations, "engine_route_used")
-    bundle_presence_rate = _acceptance_rate(evaluations, "bundle_present")
-    artifact_loadability_rate = _acceptance_rate(evaluations, "artifact_loadability")
+    engine_route_coverage_rate = _acceptance_rate(evaluations, "engine_route_used", required=True)
+    bundle_presence_rate = _acceptance_rate(evaluations, "bundle_present", required=True)
+    artifact_loadability_rate = _acceptance_rate(evaluations, "artifact_loadability", required=True)
     diagnostics_artifact_presence_rate = _acceptance_rate(
         evaluations,
         "diagnostics_artifact_present",
+        required=True,
     )
     policy_cases = [
         item for item in evaluations if bool(item.metadata.get("requires_policy_lineage"))
@@ -67,7 +68,7 @@ def build_gold_scorecard(evaluations: Sequence[TemporalEvaluationResult]) -> dic
     policy_lineage_rate = _acceptance_rate(
         policy_cases or evaluations,
         "policy_lineage_complete",
-        default=1.0,
+        required=True,
     )
     fallback_cases = [
         item for item in evaluations if bool(item.gating_checks.get("fallback_required"))
@@ -75,7 +76,7 @@ def build_gold_scorecard(evaluations: Sequence[TemporalEvaluationResult]) -> dic
     truthful_fallback_disclosure_rate = _acceptance_rate(
         fallback_cases or evaluations,
         "truthful_fallback_disclosure",
-        default=1.0,
+        required=True,
     )
     return {
         **summary,
@@ -138,11 +139,14 @@ def _acceptance_rate(
     key: str,
     *,
     default: float = 0.0,
+    required: bool = False,
 ) -> float:
-    keyed = [item for item in evaluations if key in item.acceptance_checks]
-    if not keyed:
+    applicable = (
+        evaluations if required else [item for item in evaluations if key in item.acceptance_checks]
+    )
+    if not applicable:
         return float(default)
-    values = [1.0 if bool(item.acceptance_checks.get(key)) else 0.0 for item in keyed]
+    values = [1.0 if bool(item.acceptance_checks.get(key)) else 0.0 for item in applicable]
     return float(sum(values) / len(values))
 
 

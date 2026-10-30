@@ -6339,6 +6339,102 @@ const predictiveCalibrationArtifactRefSchema = z
   })
   .strict();
 
+// These are declared wire locators, not resolved or verified calibration evidence.
+const predictiveCalibrationEvidenceLocatorSchema = z.union([
+  z
+    .string()
+    .min(1)
+    .refine((value) => value === value.trim(), {
+      message: "Evidence reference must not be empty or padded",
+    }),
+  predictiveCalibrationArtifactRefSchema,
+]);
+
+const predictiveCalibrationAuthorityBoundarySchema = z
+  .object({
+    boundary_id: z
+      .string()
+      .regex(/^[a-z][a-z0-9_.-]*$/)
+      .nullable()
+      .optional(),
+    authoritative_for: z.array(z.string()).min(1).max(20),
+    may_not_use_for: z.array(z.string()).min(1).max(20),
+    source_authority: z.enum([
+      "deterministic_producer",
+      "governed_config",
+      "human_governance",
+      "llm_candidate",
+      "llm_critic",
+      "llm_drafter",
+    ]),
+    posture: z.enum(["shadow", "advisory", "governed", "production"]),
+    rule_version_refs: z.array(z.string()).min(1).max(20),
+    evidence_kind: z
+      .enum([
+        "measurement",
+        "derivation",
+        "proxy",
+        "transport",
+        "bounds",
+        "simulation",
+        "elicitation",
+        "incomparable_meet",
+      ])
+      .nullable()
+      .optional(),
+    decision_grade: z
+      .enum([
+        "unsupported",
+        "descriptive_only",
+        "advisory_admissible",
+        "decision_admissible",
+      ])
+      .nullable()
+      .optional(),
+    evidence_basis: z
+      .object({
+        // These owner DTO fields carry heterogeneous typed evidence, not authority grants.
+        producer_roots: z.array(z.unknown()).max(80).optional(),
+        method_refs: z.array(z.string()).max(80).optional(),
+        calibration_refs: z
+          .array(predictiveCalibrationEvidenceLocatorSchema)
+          .max(80)
+          .optional(),
+        counterexamples_closed: z.array(z.unknown()).max(80).optional(),
+      })
+      .strict()
+      .nullable()
+      .optional(),
+    known_limits: z.array(z.string()).max(80).optional(),
+  })
+  .strict()
+  .superRefine((boundary, ctx) => {
+    if (
+      boundary.source_authority.startsWith("llm_") &&
+      boundary.posture !== "shadow"
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        message: "LLM authority must remain shadow",
+      });
+    }
+    // Match the owner's declaration consistency; parsing never verifies provenance
+    // or grants the declared grade/posture any authority in the dashboard.
+    if (
+      boundary.evidence_kind === "simulation" &&
+      ["advisory_admissible", "decision_admissible"].includes(
+        boundary.decision_grade ?? "",
+      ) &&
+      !boundary.evidence_basis?.calibration_refs?.length
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        message:
+          "Simulation boundary is missing declared calibration references",
+      });
+    }
+  });
+
 const predictiveCalibrationS10Schema = z
   .object({
     calibration_status: z.enum([
@@ -6348,20 +6444,29 @@ const predictiveCalibrationS10Schema = z
       "not_applicable_non_observable",
       "insufficient_history",
     ]),
-    forecast_tier: z.string().min(1),
+    forecast_tier: z.string().min(1).max(120),
     counterfactual_credibility: z.literal("not_established"),
-    numerator: z.number().int().nonnegative(),
-    denominator: z.number().int().nonnegative(),
-    observed_pass_rate: z.number().min(0).max(1),
+    numerator: z.number().int().nonnegative().nullable(),
+    denominator: z.number().int().nonnegative().nullable(),
+    observed_pass_rate: z.number().min(0).max(1).nullable(),
     calibration_record_ref: z.string().nullable(),
+    outcome_binding_status: z.literal("not_established").nullable().optional(),
+    limitation_refs: z.array(z.string()).optional(),
+    authority_boundary: predictiveCalibrationAuthorityBoundarySchema
+      .nullable()
+      .optional(),
+    may_not_use_for: z.array(z.string()).min(1).max(20).nullable().optional(),
   })
   .strict();
 
 const predictiveCalibrationAssociationSchema = z
   .object({
-    schema_version: z.literal(
+    schema_version: z.enum([
       "polisyos.runtime.predictive_calibration_association.v2",
-    ),
+      "polisyos.runtime.predictive_calibration_association.v3",
+      "polisyos.runtime.predictive_calibration_association.v4",
+      "polisyos.runtime.predictive_calibration_association.v5",
+    ]),
     event_id: z.string().min(1),
     intent_id: z.string().min(1).max(120),
     request_sha256: z.string().regex(/^[0-9a-f]{64}$/),
@@ -6379,30 +6484,124 @@ const predictiveCalibrationAssociationSchema = z
     backtest_report_ref: predictiveCalibrationArtifactRefSchema,
     empirical_evidence_ref: predictiveCalibrationArtifactRefSchema,
     uncertainty_bundle_ref: predictiveCalibrationArtifactRefSchema,
+    value_data_profile_ref: predictiveCalibrationArtifactRefSchema
+      .nullable()
+      .optional(),
+    forecast_profile_member_ref: predictiveCalibrationArtifactRefSchema
+      .nullable()
+      .optional(),
+    profile_join_status: z
+      .enum(["joined_candidate", "profileless_legacy"])
+      .optional(),
     assessment: z.literal("limited"),
     authority_scope: z.literal("predictive_only"),
     issuer_status: z.literal("not_established"),
     source_time_status: z.literal("not_established"),
     population_scope_status: z.literal("not_established"),
     counterfactual_credibility_status: z.literal("not_established"),
-    observed_numerator: z.number().int().nonnegative(),
-    observed_denominator: z.number().int().positive(),
-    observed_hit_rate: z.number().min(0).max(1),
+    observed_numerator: z.number().int().nonnegative().nullable(),
+    observed_denominator: z.number().int().positive().nullable(),
+    observed_hit_rate: z.number().min(0).max(1).nullable(),
     nominal_confidence_level: z.number().gt(0).lt(1).nullable(),
     owner_suitability: z.enum(["supported", "limited", "blocked"]),
     s10: predictiveCalibrationS10Schema,
     evidence_reason_codes: z.array(z.string()),
-    may_not_use_for: z.array(
-      z.enum([
-        "promotion",
-        "publication",
-        "policy_selection",
-        "causal_effect_claim",
-      ]),
-    ),
+    may_not_use_for: z.array(z.string()).min(1).max(40),
     created_at: z.iso.datetime({ offset: true }),
   })
-  .strict();
+  .strict()
+  .superRefine((association, ctx) => {
+    const reject = (message: string) =>
+      ctx.addIssue({ code: "custom", message });
+    const isCurrent =
+      association.schema_version ===
+      "polisyos.runtime.predictive_calibration_association.v5";
+    const sourceUnavailable = association.evidence_reason_codes.includes(
+      "backtest_source_not_established",
+    );
+    const observed = [
+      association.observed_numerator,
+      association.observed_denominator,
+      association.observed_hit_rate,
+    ];
+    if (
+      isCurrent &&
+      sourceUnavailable &&
+      observed.some((value) => value !== null)
+    ) {
+      reject("Unavailable observations cannot carry numeric claims");
+    }
+    if (observed.some((value) => value === null)) {
+      if (observed.some((value) => value !== null)) {
+        reject("Observed values must be a complete tuple");
+      }
+      if (
+        !isCurrent ||
+        !sourceUnavailable ||
+        !association.s10.limitation_refs?.includes(
+          "s10://calibration/fail-closed/backtest_source_not_established",
+        )
+      ) {
+        reject(
+          "Unavailable observations require the current source limitation",
+        );
+      }
+      if (
+        association.owner_suitability !== "limited" ||
+        association.s10.calibration_status !== "blocked" ||
+        association.s10.forecast_tier !== "blocked" ||
+        association.s10.calibration_record_ref !== null ||
+        association.s10.numerator !== null ||
+        association.s10.denominator !== null ||
+        association.s10.observed_pass_rate !== null
+      ) {
+        reject("Unavailable observations cannot carry calibration claims");
+      }
+    }
+    const profile = association.value_data_profile_ref;
+    const member = association.forecast_profile_member_ref;
+    if (Boolean(profile) !== Boolean(member)) {
+      reject("Value profile and forecast member must be selected together");
+    }
+    if (profile && member) {
+      if (
+        association.profile_join_status !== "joined_candidate" ||
+        profile.kind !== "runtime.value_data_profile" ||
+        member.kind !== "runtime.forecast_profile_member" ||
+        profile.media_type !== "application/json" ||
+        member.media_type !== "application/json"
+      ) {
+        reject("Invalid selected forecast profile binding");
+      }
+    } else if (
+      association.profile_join_status !== undefined &&
+      association.profile_join_status !== "profileless_legacy"
+    ) {
+      reject("Profileless association cannot claim a profile join");
+    }
+    // v2 remains readable as historical diagnostics; it does not gain v5 observations.
+    if (
+      association.schema_version !==
+      "polisyos.runtime.predictive_calibration_association.v2"
+    ) {
+      const s10 = association.s10;
+      if (
+        s10.outcome_binding_status !== "not_established" ||
+        !s10.limitation_refs?.includes(
+          "s10://calibration/fail-closed/n4_outcome_target_binding_not_established",
+        ) ||
+        s10.forecast_tier !== "blocked" ||
+        !s10.authority_boundary ||
+        !s10.may_not_use_for ||
+        JSON.stringify(s10.authority_boundary.may_not_use_for) !==
+          JSON.stringify(s10.may_not_use_for) ||
+        JSON.stringify(association.may_not_use_for) !==
+          JSON.stringify(s10.may_not_use_for)
+      ) {
+        reject("Missing or inconsistent N4 outcome authority boundary");
+      }
+    }
+  });
 
 export const predictiveCalibrationResponseSchema = z
   .object({

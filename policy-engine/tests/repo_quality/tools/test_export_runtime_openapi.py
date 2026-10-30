@@ -228,7 +228,7 @@ def test_openapi_renderer_uses_the_assigned_runtime_store_root(
     }
 
 
-def test_predictive_calibration_openapi_example_is_limited_and_unresolved() -> None:
+def test_predictive_calibration_openapi_example_is_limited_and_unresolved(tmp_path: Path) -> None:
     """Do not turn placeholder calibration handles into current or authoritative evidence."""
     from pydantic import TypeAdapter
 
@@ -246,10 +246,39 @@ def test_predictive_calibration_openapi_example_is_limited_and_unresolved() -> N
     assert candidate.model_dump(mode="json") == json.loads(response_wire)
     assert candidate.association.assessment == "limited"
     assert candidate.association.authority_scope == "predictive_only"
-    assert candidate.association.s10.calibration_status == "insufficient_history"
+    assert candidate.association.s10.calibration_status == "blocked"
+    assert candidate.association.s10.forecast_tier == "blocked"
+    assert candidate.association.observed_numerator is None
+    assert candidate.association.observed_denominator is None
+    assert candidate.association.observed_hit_rate is None
+    assert candidate.association.s10.numerator is None
+    assert candidate.association.s10.denominator is None
+    assert candidate.association.s10.observed_pass_rate is None
+    assert candidate.association.s10.calibration_record_ref is None
+    assert "backtest_source_not_established" in candidate.association.evidence_reason_codes
+    assert (
+        "s10://calibration/fail-closed/backtest_source_not_established"
+        in candidate.association.s10.limitation_refs
+    )
     assert candidate.association.issuer_status == "not_established"
     assert candidate.association.source_time_status == "not_established"
     assert candidate.association.population_scope_status == "not_established"
     assert candidate.association.counterfactual_credibility_status == "not_established"
-    assert candidate.association_ref.manifest_profile_sha256 is None
+    assert candidate.association_ref.manifest_profile_sha256 is not None
+    for reference in (
+        candidate.association.run_manifest_ref,
+        candidate.association.candidate_source_ref,
+        candidate.association.observed_source_ref,
+        candidate.association.model_spec_ref,
+        candidate.association.policy_spec_ref,
+        candidate.association.calibration_rule_ref,
+        candidate.association.backtest_report_ref,
+        candidate.association.empirical_evidence_ref,
+        candidate.association.uncertainty_bundle_ref,
+    ):
+        assert reference.manifest_profile_sha256 is not None
+    assert "deterministic synthetic" in example["description"]
+    assert "no stored profile or provenance" in example["description"]
     assert "not persisted or reopenable evidence" in example["description"]
+    # Retain this compact actual owner wire for cross-language parser verification.
+    (tmp_path / "predictive-calibration-example.json").write_text(response_wire, encoding="utf-8")

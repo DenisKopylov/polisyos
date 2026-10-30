@@ -13889,3 +13889,697 @@ def test_n7_dotted_source_driver_preserves_versioned_and_legacy_replay() -> None
         acquisition_request={**new_request, "driver": "retained_family"},
     )
     assert refusal == "unbound_requirement_input_refused"
+
+
+@pytest.mark.asyncio
+async def test_n7_grounding_gap_with_unestablished_basis_survives_fresh_reader(
+    tmp_path: Path,
+) -> None:
+    """A real missing-CGF gap yields an honest persisted refusal, not a job error."""
+    from dataclasses import replace
+
+    from polisyos.runtime.quality.acquisition_planner import (
+        AcquisitionPlannerBindingError,
+        AcquisitionPlannerReport,
+        load_acquisition_planner_report,
+        plan_evidence_acquisition,
+        run_acquisition_closed_loop,
+        validate_persisted_data_requirement_compilation_report,
+    )
+
+    class _ObserveOwner:
+        def __init__(self) -> None:
+            self.calls: list[object] = []
+
+        def acquire(self, *, record: object, compiled_requirement_spec: object) -> None:
+            self.calls.append((record, compiled_requirement_spec))
+
+    class _WithoutDisposition:
+        async def __call__(self, problem: DesignProblem, *, cycle_index: int) -> Any:
+            generated = await _CgfGenerationPort()(problem, cycle_index=cycle_index)
+            return replace(generated, grounding_dispositions=())
+
+    problem = _problem("n7_unestablished_grounding_gap")
+    owner = _ObserveOwner()
+    controller = GenerationCycleController(
+        generation_port=_WithoutDisposition(),
+        acquisition_owner_gateway=owner,
+        generated_at=datetime(2026, 10, 30, tzinfo=UTC),
+        grounding_port=PolicyGroundingPort(),
+        value_port=PendingN8ValuePort(),
+        authority_scope="contract_testing",
+        repo_root=tmp_path,
+    )
+    run = await controller.run(problem, budget_state=_budget(), max_cycles=1)
+    cycle = run.cycles[0]
+    assert cycle.terminal_kind == "acquisition_required"
+    assert cycle.grounding.acquisition_requirement is not None
+    assert "cgf_disposition_missing" in cycle.grounding.issue_codes
+    assert cycle.acquisition_routing_report is not None
+    assert cycle.acquisition_routing_report_ref is not None
+    assert controller._source_repository is not None
+    fresh = FileSystemCAS.open_existing_read_only(tmp_path / ".tmp/n6-generation-source-cas")
+    report = load_acquisition_planner_report(fresh, cycle.acquisition_routing_report_ref)
+    assert report == cycle.acquisition_routing_report
+    assert report.requirement_basis_binding is not None
+    resolution = report.requirement_basis_binding.resolution
+    assert resolution.state == resolution.basis_grade == "not_established"
+    assert report.status == "blocked"
+    assert report.basis_limitation_code == "requirement_basis_not_established"
+    assert report.cost_estimation_status == "not_estimated"
+    assert report.acquisition_records == ()
+    assert cycle.acquisition_receipt is None
+    assert cycle.acquisition_cost_basis_record is None
+    assert owner.calls == []
+    # A caller may still explore this real source gap as a candidate, but its
+    # unestablished compiler basis must survive both planner and DTO reader.
+    candidate = plan_evidence_acquisition(
+        run_id="unestablished-candidate",
+        gaps=(cycle.grounding.acquisition_requirement.to_acquisition_gap(),),
+        requirement_basis_binding=report.requirement_basis_binding,
+        generated_at=report.generated_at,
+    )
+    assert candidate.status == "warn"
+    assert candidate.basis_limitation_code == "requirement_basis_not_established_candidate_only"
+    candidate_payload = candidate.model_dump(mode="json")
+    assert AcquisitionPlannerReport.model_validate(candidate_payload) == candidate
+    with pytest.raises(ValueError, match="acquisition_planner_basis_limitation_grade_mismatch"):
+        AcquisitionPlannerReport.model_validate(
+            {**candidate_payload, "basis_limitation_code": "consumer_declared_basis_candidate_only"}
+        )
+    planned = controller._plan_n7_requirement_gap_if_requested(problem, cycle=cycle)
+    assert planned is not None
+    assert controller._source_repository is not None
+    with pytest.raises(
+        AcquisitionPlannerBindingError, match="n7_basis_refusal_must_not_dispatch_owner"
+    ):
+        run_acquisition_closed_loop(
+            run_id=planned.report.run_id,
+            acquisition_request=planned.acquisition_request,
+            data_requirement_specs=planned.basis.specs,
+            world_snapshot=planned.world_snapshot,
+            capability_requirement_resolutions=planned.basis.capability_resolutions,
+            requirement_basis_binding=planned.report.requirement_basis_binding,
+            design_problem=problem,
+            owner_gateway=owner,
+            generated_at=planned.report.generated_at,
+            planner_report=planned.report,
+            planner_report_ref=planned.report_ref,
+            artifact_store=controller._source_repository.store,
+            require_persisted_planner_report=True,
+        )
+    assert owner.calls == []
+    assert (
+        validate_persisted_data_requirement_compilation_report(
+            fresh, report.requirement_basis_binding
+        )
+        == ()
+    )
+    assert (
+        generation_cycle_module.GenerationCycleRecord.model_validate(cycle.model_dump(mode="json"))
+        == cycle
+    )
+
+
+def test_n7_candidate_basis_missing_route_refuses_and_reopens_with_strict_readback(
+    tmp_path: Path,
+) -> None:
+    """A real candidate compiler plus a different source gap cannot imply authority."""
+    from polisyos.runtime.quality.acquisition_planner import (
+        AcquisitionPlannerReport,
+        bind_acquisition_planner_report,
+        load_acquisition_planner_report,
+        n7_planner_input_content_hash,
+        persist_and_verify_acquisition_planner_report,
+        persist_and_verify_data_requirement_compilation_report,
+        plan_evidence_acquisition,
+        validate_persisted_acquisition_planner_report,
+    )
+
+    problem = _problem("n7_candidate_missing_route")
+    request = {"required_data_families": ("basis_family_a",)}
+    basis = GenerationCycleController()._n7_data_requirement_basis_with_report(
+        problem, acquisition_request=request
+    )
+    assert basis.compilation_report.requirement_basis.state == "established"
+    assert basis.compilation_report.requirement_basis.basis_grade == "consumer_asserted"
+    assert basis.specs
+    store = FileSystemCAS(tmp_path / "candidate-basis-cas")
+    binding = persist_and_verify_data_requirement_compilation_report(
+        store, basis.compilation_report, expected_scenario_id=problem.design_problem_id
+    )
+    source_gap = l1_variable_availability_requirement_gap(
+        candidate_id="candidate-a",
+        candidate_content_hash="sha256:" + "1" * 64,
+        design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+        availability=L1VariableAvailability(
+            variable_id="different_family_b",
+            status="unavailable",
+            dataset_count=0,
+            metric_binding_count=0,
+            observation_count=0,
+            coverage_ref="repo://test/different-family-b",
+        ),
+        authority_level=problem.authority_profile.requested_authority_level,
+    )
+    routed, reason = generation_cycle_module._n7_route_compiler_gaps(
+        source_gap=source_gap,
+        specs=basis.specs,
+        capability_resolutions=basis.capability_resolutions,
+        strict_family=True,
+    )
+    assert routed == ()
+    assert reason == "requirement_gap_not_compiled"
+    generated_at = datetime(2026, 10, 30, tzinfo=UTC)
+    world = AcquisitionWorldSnapshot(world_ref="world://candidate-basis")
+    context_hash = n7_planner_input_content_hash(
+        run_id="candidate-basis-route",
+        acquisition_request=request,
+        compiled_requirement_specs=basis.specs,
+        world_snapshot=world,
+        capability_requirement_resolutions=basis.capability_resolutions,
+        requirement_basis_binding=binding,
+        design_problem=problem,
+        generated_at=generated_at,
+    )
+    candidate = plan_evidence_acquisition(
+        run_id="candidate-positive",
+        gaps=[gap.to_acquisition_gap() for gap in basis.routed_compiler_gaps],
+        generated_at=generated_at,
+        requirement_basis_binding=binding,
+    )
+    assert candidate.acquisition_records
+    assert candidate.status == "warn"
+    assert candidate.basis_limitation_code == "consumer_declared_basis_candidate_only"
+    with pytest.raises(ValueError, match="acquisition_planner_basis_limitation_grade_mismatch"):
+        AcquisitionPlannerReport.model_validate(
+            {
+                **candidate.model_dump(mode="json"),
+                "basis_limitation_code": "requirement_basis_not_established_candidate_only",
+            }
+        )
+    assert any(
+        gate["code"] == "acquisition_planner_candidate_basis" and gate["status"] == "warn"
+        for gate in acquisition_planner_module.acquisition_planner_scorecard_gates(
+            candidate, canary_kind="production"
+        )
+    )
+    report = plan_evidence_acquisition(
+        run_id="candidate-basis-route",
+        gaps=(),
+        generated_at=generated_at,
+        requirement_basis_binding=binding,
+    )
+    assert report.status == "blocked"
+    assert report.basis_limitation_code == "unbound_requirement_input_refused"
+    assert report.authority_boundary["provided_gap_set"] == (
+        "empty",
+        "source_compiler_route_completeness_not_established",
+    )
+    assert report.cost_estimation_status == "not_estimated"
+    assert report.acquisition_records == ()
+    report = bind_acquisition_planner_report(report, planning_context_hash=context_hash)
+    ref = persist_and_verify_acquisition_planner_report(store, report)
+    fresh = FileSystemCAS.open_existing_read_only(tmp_path / "candidate-basis-cas")
+    loaded = load_acquisition_planner_report(fresh, ref)
+    assert loaded == report
+    issues = validate_persisted_acquisition_planner_report(
+        fresh,
+        ref,
+        loaded,
+        expected_scenario_id=problem.design_problem_id,
+        expected_compiled_requirement_ref=source_gap.compiled_requirement_ref,
+    )
+    assert {issue["code"] for issue in issues} == {
+        "acquisition_planner_basis_refusal",
+        "acquisition_compiled_requirement_not_in_basis",
+    }
+
+    payload = loaded.model_dump(mode="json")
+    for bad, message in (
+        (
+            {**payload, "basis_limitation_code": "requirement_gap_not_compiled"},
+            "acquisition_planner_empty_gap_basis_mismatch",
+        ),
+        ({**payload, "status": "pass"}, "acquisition_planner_basis_refusal_must_block"),
+    ):
+        with pytest.raises(ValueError, match=message):
+            AcquisitionPlannerReport.model_validate(bad)
+
+
+def test_n7_candidate_mixed_report_retains_blocked_severity_after_reopen(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A blocked record dominates a candidate basis warning on the fresh DTO."""
+    from polisyos.runtime.quality.acquisition_planner import (
+        AcquisitionPlannerReport,
+        bind_acquisition_planner_report,
+        load_acquisition_planner_report,
+        n7_planner_input_content_hash,
+        persist_and_verify_acquisition_planner_report,
+        persist_and_verify_data_requirement_compilation_report,
+        plan_evidence_acquisition,
+    )
+
+    original = _problem("n7_candidate_blocked_mix")
+    problem = original.model_copy(
+        update={
+            "authority_profile": original.authority_profile.model_copy(
+                update={"requested_authority_level": "production"}
+            )
+        }
+    )
+    request = {"required_data_families": ("firm_survival",)}
+    basis = GenerationCycleController()._n7_data_requirement_basis_with_report(
+        problem, acquisition_request=request
+    )
+    assert basis.compilation_report.requirement_basis.basis_grade == "consumer_asserted"
+    store = FileSystemCAS(tmp_path / "blocked-mix-cas")
+    binding = persist_and_verify_data_requirement_compilation_report(
+        store, basis.compilation_report, expected_scenario_id=problem.design_problem_id
+    )
+    source_gap = l1_variable_availability_requirement_gap(
+        candidate_id="candidate-a",
+        candidate_content_hash="sha256:" + "2" * 64,
+        design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+        availability=L1VariableAvailability(
+            variable_id="firm_survival",
+            status="unavailable",
+            dataset_count=0,
+            metric_binding_count=0,
+            observation_count=0,
+            coverage_ref="repo://test/firm-survival",
+        ),
+        authority_level=problem.authority_profile.requested_authority_level,
+    )
+    compiled, limitation = generation_cycle_module._n7_route_compiler_gaps(
+        source_gap=source_gap,
+        specs=basis.specs,
+        capability_resolutions=basis.capability_resolutions,
+        strict_family=True,
+    )
+    assert limitation is None
+    assert compiled
+    first_gaps = generation_cycle_module._n7_source_semantic_planning_gaps(
+        source_gap=source_gap,
+        compiler_gaps=compiled,
+        specs=basis.specs,
+    )
+    other_source = l1_variable_availability_requirement_gap(
+        candidate_id="candidate-b",
+        candidate_content_hash="sha256:" + "4" * 64,
+        design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+        availability=L1VariableAvailability(
+            variable_id="firm_survival",
+            status="unavailable",
+            dataset_count=0,
+            metric_binding_count=0,
+            observation_count=0,
+            coverage_ref="repo://test/firm-survival-second-candidate",
+        ),
+        authority_level=problem.authority_profile.requested_authority_level,
+    )
+    other_compiled, other_limitation = generation_cycle_module._n7_route_compiler_gaps(
+        source_gap=other_source,
+        specs=basis.specs,
+        capability_resolutions=basis.capability_resolutions,
+        strict_family=True,
+    )
+    assert other_limitation is None
+    other_gaps = generation_cycle_module._n7_source_semantic_planning_gaps(
+        source_gap=other_source,
+        compiler_gaps=other_compiled,
+        specs=basis.specs,
+    )
+    gaps = (*first_gaps, *other_gaps)
+    # The first ranked action is ineligible; the second gap defaults to an
+    # eligible acquisition. The blocked report must dispatch neither.
+
+    voi = {
+        "decisions": [
+            {
+                "decision_id": "voi:blocked-candidate-gap",
+                "recommended_action": "survey",
+                "metadata": {
+                    "requirement_gap_id": source_gap.requirement_gap_id,
+                    "acquisition_strategy": "survey",
+                },
+                "expected_value": 1,
+                "expected_cost": 0,
+            }
+        ]
+    }
+    generated_at = datetime(2026, 10, 30, tzinfo=UTC)
+    with pytest.raises(
+        acquisition_planner_module.AcquisitionPlannerBindingError,
+        match="n7_blocked_candidate_reader_rollout_not_admitted",
+    ):
+        plan_evidence_acquisition(
+            run_id="blocked-mix",
+            gaps=gaps,
+            voi_report=voi,
+            generated_at=generated_at,
+            requirement_basis_binding=binding,
+        )
+    legacy_shape = plan_evidence_acquisition(
+        run_id="blocked-mix",
+        gaps=gaps,
+        voi_report=voi,
+        generated_at=generated_at,
+    )
+    new_reader_value = AcquisitionPlannerReport.model_validate(
+        {
+            **legacy_shape.model_dump(mode="json"),
+            "requirement_basis_binding": binding.model_dump(mode="json"),
+            "basis_limitation_code": "consumer_declared_basis_candidate_only",
+        }
+    )
+    with pytest.raises(
+        acquisition_planner_module.AcquisitionPlannerBindingError,
+        match="n7_blocked_candidate_reader_rollout_not_admitted",
+    ):
+        acquisition_planner_module.persist_acquisition_planner_report(store, new_reader_value)
+    monkeypatch.setattr(
+        acquisition_planner_module, "_N7_BLOCKED_CANDIDATE_REPORT_EMISSION_ENABLED", True
+    )
+    report = plan_evidence_acquisition(
+        run_id="blocked-mix",
+        gaps=gaps,
+        voi_report=voi,
+        generated_at=generated_at,
+        requirement_basis_binding=binding,
+    )
+    assert report.status == "blocked"
+    assert any(row.status == "blocked" for row in report.acquisition_records)
+    assert any(row.status != "blocked" for row in report.acquisition_records)
+    assert report.basis_limitation_code == "consumer_declared_basis_candidate_only"
+    assert report.cost_estimation_status is None
+    context_hash = n7_planner_input_content_hash(
+        run_id="blocked-mix",
+        acquisition_request=request,
+        compiled_requirement_specs=basis.specs,
+        world_snapshot=AcquisitionWorldSnapshot(world_ref="world://blocked-mix"),
+        capability_requirement_resolutions=basis.capability_resolutions,
+        requirement_basis_binding=binding,
+        design_problem=problem,
+        generated_at=generated_at,
+    )
+    report = bind_acquisition_planner_report(report, planning_context_hash=context_hash)
+    ref = persist_and_verify_acquisition_planner_report(store, report)
+    fresh = FileSystemCAS.open_existing_read_only(tmp_path / "blocked-mix-cas")
+    loaded = load_acquisition_planner_report(fresh, ref)
+    assert loaded == report
+
+    class _ObserveOwner:
+        def __init__(self) -> None:
+            self.calls: list[object] = []
+
+        def acquire(self, *, record: object, compiled_requirement_spec: object) -> None:
+            self.calls.append((record, compiled_requirement_spec))
+
+    owner = _ObserveOwner()
+    with pytest.raises(
+        acquisition_planner_module.AcquisitionPlannerBindingError,
+        match="n7_basis_refusal_must_not_dispatch_owner",
+    ):
+        acquisition_planner_module.run_acquisition_closed_loop(
+            run_id="blocked-mix",
+            acquisition_request=request,
+            data_requirement_specs=basis.specs,
+            world_snapshot=AcquisitionWorldSnapshot(world_ref="world://blocked-mix"),
+            capability_requirement_resolutions=basis.capability_resolutions,
+            requirement_basis_binding=binding,
+            design_problem=problem,
+            owner_gateway=owner,
+            generated_at=generated_at,
+            planner_report=loaded,
+            planner_report_ref=ref,
+            artifact_store=store,
+            require_persisted_planner_report=True,
+        )
+    assert owner.calls == []
+    # The old v1 reader admitted a warn report with a blocked row and no
+    # limitation; preserve its bytes, but its new consumer must fail closed.
+    legacy = AcquisitionPlannerReport.model_validate(
+        {**loaded.model_dump(mode="json"), "status": "warn", "basis_limitation_code": None}
+    )
+    legacy = bind_acquisition_planner_report(legacy, planning_context_hash=context_hash)
+    legacy_ref = acquisition_planner_module.persist_acquisition_planner_report(store, legacy)
+    legacy_bytes = store.get_bytes(legacy_ref)
+    legacy_read = load_acquisition_planner_report(fresh, legacy_ref)
+    assert legacy_read == legacy
+    assert fresh.get_bytes(legacy_ref) == legacy_bytes
+    assert store.get_manifest(legacy_ref).artifact_schema.version == "1.1"
+    gates = acquisition_planner_module.acquisition_planner_scorecard_gates(
+        legacy_read, canary_kind="production"
+    )
+    gate = next(gate for gate in gates if gate["code"] == "acquisition_planner_basis_inconsistent")
+    assert gate["status"] == "fail"
+    assert gate["blocking"]
+    assert gate["evidence_ref"] is None
+    from polisyos.runtime.quality import scorecard as scorecard_owner
+
+    failure = scorecard_owner._blocking_failure_from_gate(gate)
+    assert failure["code"] == "acquisition_planner_basis_inconsistent"
+
+
+def test_n7_provided_empty_gap_set_does_not_claim_known_route_absence(
+    tmp_path: Path,
+) -> None:
+    """A real routable compiler/source pair survives an omitted caller gap."""
+    from polisyos.runtime.quality.acquisition_planner import (
+        bind_acquisition_planner_report,
+        load_acquisition_planner_report,
+        n7_planner_input_content_hash,
+        persist_and_verify_acquisition_planner_report,
+        persist_and_verify_data_requirement_compilation_report,
+        plan_evidence_acquisition,
+        validate_persisted_acquisition_planner_report,
+    )
+    from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
+
+    problem = _problem("n7_omitted_routable_gap")
+    request = {
+        "required_data_families": ("production_msme_panel",),
+        "required_constructs": ("firm_survival",),
+    }
+    resolver = RequirementToCapabilityResolver.governed_fixture(REPO_ROOT)
+    basis = GenerationCycleController(
+        capability_resolver=resolver
+    )._n7_data_requirement_basis_with_report(problem, acquisition_request=request)
+    resolution = basis.compilation_report.requirement_basis
+    assert resolution.state == "established"
+    assert resolution.basis_grade == "recomputed"
+    store = FileSystemCAS(tmp_path / "omitted-gap-cas")
+    binding = persist_and_verify_data_requirement_compilation_report(
+        store, basis.compilation_report, expected_scenario_id=problem.design_problem_id
+    )
+    source = l1_variable_availability_requirement_gap(
+        candidate_id="candidate-omitted-gap",
+        candidate_content_hash="sha256:" + "3" * 64,
+        design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+        availability=L1VariableAvailability(
+            variable_id="production_msme_panel",
+            status="unavailable",
+            dataset_count=0,
+            metric_binding_count=0,
+            observation_count=0,
+            coverage_ref="repo://test/omitted-gap",
+        ),
+        authority_level=problem.authority_profile.requested_authority_level,
+    )
+    routed, reason = generation_cycle_module._n7_route_compiler_gaps(
+        source_gap=source,
+        specs=basis.specs,
+        capability_resolutions=basis.capability_resolutions,
+        strict_family=True,
+    )
+    assert reason is None
+    assert routed
+    matched = next(
+        row for row in routed if source.requirement_gap_id in row.scenario_requirement_refs
+    )
+    timestamp = datetime(2026, 10, 30, tzinfo=UTC)
+    run_id = "n7-omitted-routable-gap"
+    context_hash = n7_planner_input_content_hash(
+        run_id=run_id,
+        acquisition_request=request,
+        compiled_requirement_specs=basis.specs,
+        world_snapshot=AcquisitionWorldSnapshot(world_ref="world://omitted-gap"),
+        capability_requirement_resolutions=basis.capability_resolutions,
+        requirement_basis_binding=binding,
+        design_problem=problem,
+        generated_at=timestamp,
+    )
+    positive = plan_evidence_acquisition(
+        run_id=run_id,
+        gaps=[row.to_acquisition_gap() for row in routed],
+        requirement_basis_binding=binding,
+        generated_at=timestamp,
+    )
+    omitted = plan_evidence_acquisition(
+        run_id=run_id,
+        gaps=(),
+        requirement_basis_binding=binding,
+        generated_at=timestamp,
+    )
+    assert positive.acquisition_records
+    assert omitted.acquisition_records == ()
+    assert omitted.status == "blocked"
+    assert omitted.cost_estimation_status == "not_estimated"
+    assert omitted.basis_limitation_code == "unbound_requirement_input_refused"
+    assert omitted.authority_boundary["provided_gap_set"] == (
+        "empty",
+        "source_compiler_route_completeness_not_established",
+    )
+    assert omitted.basis_limitation_code != "requirement_gap_not_compiled"
+    positive = bind_acquisition_planner_report(positive, planning_context_hash=context_hash)
+    omitted = bind_acquisition_planner_report(omitted, planning_context_hash=context_hash)
+    assert positive.planning_binding_hash != omitted.planning_binding_hash
+    positive_ref = persist_and_verify_acquisition_planner_report(store, positive)
+    omitted_ref = persist_and_verify_acquisition_planner_report(store, omitted)
+    fresh = FileSystemCAS.open_existing_read_only(tmp_path / "omitted-gap-cas")
+    assert load_acquisition_planner_report(fresh, positive_ref) == positive
+    assert load_acquisition_planner_report(fresh, omitted_ref) == omitted
+    assert not validate_persisted_acquisition_planner_report(
+        fresh,
+        positive_ref,
+        positive,
+        expected_scenario_id=problem.design_problem_id,
+        expected_compiled_requirement_ref=matched.compiled_requirement_ref,
+    )
+    assert {
+        issue["code"]
+        for issue in validate_persisted_acquisition_planner_report(
+            fresh,
+            omitted_ref,
+            omitted,
+            expected_scenario_id=problem.design_problem_id,
+            expected_compiled_requirement_ref=matched.compiled_requirement_ref,
+        )
+    } == {"acquisition_planner_basis_refusal"}
+
+
+def test_n7_unbound_empty_input_without_compiler_binding_cannot_complete() -> None:
+    """An empty caller input is blocked even without a compiler binding."""
+    from polisyos.runtime.quality.acquisition_planner import (
+        AcquisitionPlannerBindingError,
+        AcquisitionPlannerReport,
+        acquisition_planner_scorecard_gates,
+        plan_evidence_acquisition,
+        run_acquisition_closed_loop,
+    )
+
+    report = plan_evidence_acquisition(run_id="no-compiler", gaps=())
+    assert report.status == "blocked"
+    assert report.requirement_basis_binding is None
+    assert report.basis_limitation_code is None
+    # The v1 schema forbids a cost status without a basis limitation. The
+    # existing boundary map explicitly preserves the unestimated outcome.
+    assert report.cost_estimation_status is None
+    assert report.authority_boundary["provided_gap_set"] == (
+        "empty",
+        "source_compiler_route_completeness_not_established",
+    )
+    assert report.authority_boundary["cost_estimation"] == ("not_estimated",)
+    assert AcquisitionPlannerReport.model_validate(report.model_dump(mode="json")) == report
+    gates = acquisition_planner_scorecard_gates(report, canary_kind="production")
+    assert any(gate["status"] == "fail" and gate["blocking"] for gate in gates)
+    with pytest.raises(
+        AcquisitionPlannerBindingError, match="n7_basis_refusal_must_not_dispatch_owner"
+    ):
+        run_acquisition_closed_loop(
+            run_id="no-compiler",
+            acquisition_request={},
+            data_requirement_specs=(),
+            world_snapshot=AcquisitionWorldSnapshot(world_ref="world://no-compiler"),
+        )
+
+
+@pytest.mark.asyncio
+async def test_n7_blocked_candidate_plan_does_not_cost_or_dispatch(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The real generation path keeps a blocked mixed candidate uncosted."""
+    from polisyos.runtime.quality.acquisition_planner import load_acquisition_planner_report
+
+    class _ObserveOwner:
+        def __init__(self) -> None:
+            self.calls: list[object] = []
+
+        def acquire(self, *, record: object, compiled_requirement_spec: object) -> None:
+            self.calls.append((record, compiled_requirement_spec))
+
+    original = _problem("n7_blocked_candidate_generation")
+    problem = original.model_copy(
+        update={
+            "authority_profile": original.authority_profile.model_copy(
+                update={"requested_authority_level": "production"}
+            )
+        }
+    )
+    owner = _ObserveOwner()
+    controller = GenerationCycleController(
+        generation_port=_CgfGenerationPort(),
+        value_port=_DataGapValuePort(),
+        authority_scope="contract_testing",
+        repo_root=tmp_path,
+        acquisition_owner_gateway=owner,
+        generated_at=datetime(2026, 10, 30, tzinfo=UTC),
+    )
+    run = await controller.run(problem, budget_state=_budget(), max_cycles=1)
+    cycle = run.cycles[0]
+    assert cycle.acquisition_routing_report is not None
+    assert cycle.acquisition_routing_report.basis_limitation_code == (
+        "consumer_declared_basis_candidate_only"
+    )
+    original_planner = generation_cycle_module.plan_evidence_acquisition
+
+    def _plan_with_ineligible_ranking(**kwargs: Any) -> Any:
+        gap = kwargs["gaps"][0]
+        assert gap.mandatory_gate_state.value == "non_overridable"
+        return original_planner(
+            **kwargs,
+            voi_report={
+                "decisions": [
+                    {
+                        "decision_id": "voi:ineligible-data-survey",
+                        "metadata": {
+                            "requirement_gap_id": gap.gap_id,
+                            "acquisition_strategy": "survey",
+                        },
+                        "expected_value": 1,
+                        "expected_cost": 0,
+                    }
+                ]
+            },
+        )
+
+    monkeypatch.setattr(
+        acquisition_planner_module, "_N7_BLOCKED_CANDIDATE_REPORT_EMISSION_ENABLED", True
+    )
+    monkeypatch.setattr(generation_cycle_module, "_N7_SOURCE_SEMANTIC_EMISSION_ENABLED", True)
+    monkeypatch.setattr(
+        generation_cycle_module, "plan_evidence_acquisition", _plan_with_ineligible_ranking
+    )
+    planned = controller._plan_n7_requirement_gap_if_requested(problem, cycle=cycle)
+    assert planned is not None
+    assert planned.report.status == "blocked"
+    assert planned.report.basis_limitation_code == "consumer_declared_basis_candidate_only"
+    assert planned.cost_basis is None
+    assert controller._source_repository is not None
+    fresh = FileSystemCAS.open_existing_read_only(tmp_path / ".tmp/n6-generation-source-cas")
+    assert load_acquisition_planner_report(fresh, planned.report_ref) == planned.report
+    assert (
+        controller._run_n7_acquisition_if_requested(
+            problem,
+            cycle=cycle,
+            planner_report=planned.report,
+            planner_report_ref=planned.report_ref,
+            planned_route=planned,
+        )
+        is None
+    )
+    assert owner.calls == []

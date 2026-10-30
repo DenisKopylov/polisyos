@@ -132,6 +132,7 @@ from polisyos.runtime.quality._generation_cycle_history_schema import (
     FROZEN_N6_HISTORY_SCHEMA,
 )
 from polisyos.runtime.quality.acquisition_planner import (
+    _N7_BLOCKING_BASIS_LIMITATION_CODES,
     _N7_SOURCE_JOIN_RULE,
     AcquisitionCostBasisRecord,
     AcquisitionGap,
@@ -425,6 +426,7 @@ _N7_ROUTING_FAILURE_CODES = frozenset(
         "n7_planner_report_persistence_refused",
         "n7_planner_report_persistence_unavailable",
         "n7_planner_report_binding_refused",
+        "n7_planner_reader_rollout_not_admitted",
         "n7_compiler_report_persistence_refused",
         "n7_compiler_report_persistence_unavailable",
         "n7_compiler_report_binding_refused",
@@ -2577,11 +2579,7 @@ class GenerationCycleRecord(_StrictModel):
             if (
                 self.acquisition_routing_report.status == "blocked"
                 and self.acquisition_routing_report.basis_limitation_code
-                in {
-                    "requirement_basis_not_established",
-                    "requirement_gap_not_compiled",
-                    "unbound_requirement_input_refused",
-                }
+                in _N7_BLOCKING_BASIS_LIMITATION_CODES
                 and self.acquisition_routing_report.cost_estimation_status == "not_estimated"
                 and self.acquisition_routing_report.requirement_basis_binding is not None
                 and self.acquisition_cost_basis_record is None
@@ -9565,11 +9563,10 @@ class GenerationCycleController:
         basis = planned_route.basis
         world_snapshot = planned_route.world_snapshot
         basis_binding = planned_route.report.requirement_basis_binding
-        if planner_report is not None and planner_report.basis_limitation_code in {
-            "requirement_basis_not_established",
-            "requirement_gap_not_compiled",
-            "unbound_requirement_input_refused",
-        }:
+        if planner_report is not None and (
+            planner_report.status == "blocked"
+            or planner_report.basis_limitation_code in _N7_BLOCKING_BASIS_LIMITATION_CODES
+        ):
             # This is a typed, persisted refusal. It carries no fabricated gap,
             # no estimate of zero, and no owner dispatch.
             return None
@@ -9800,84 +9797,27 @@ class GenerationCycleController:
             )
             if planner_input_values.planner_content_hash() != context_hash:
                 raise GenerationCycleError("retained_planner_actual_input_mismatch")
-        if basis.unbound_input_fields:
-            report = AcquisitionPlannerReport(
-                run_id=run_id,
-                generated_at=planning_generated_at,
-                acquisition_records=(),
-                status="blocked",
-                summary={
-                    "record_count": 0,
-                    "limited": 0,
-                    "blocked": 0,
-                    "accepted_deficit": 0,
-                    "acquire": 0,
-                    "rerun": 0,
-                },
-                authority_boundary={},
-                requirement_basis_binding=basis_binding,
-                basis_limitation_code="unbound_requirement_input_refused",
-                cost_estimation_status="not_estimated",
-            )
-        elif basis.routing_limitation_code is not None:
-            report = AcquisitionPlannerReport(
-                run_id=run_id,
-                generated_at=planning_generated_at,
-                acquisition_records=(),
-                status="blocked",
-                summary={
-                    "record_count": 0,
-                    "limited": 0,
-                    "blocked": 0,
-                    "accepted_deficit": 0,
-                    "acquire": 0,
-                    "rerun": 0,
-                },
-                authority_boundary={},
-                requirement_basis_binding=basis_binding,
-                basis_limitation_code=basis.routing_limitation_code,
-                cost_estimation_status="not_estimated",
-            )
-        elif gaps:
-            report = plan_evidence_acquisition(
-                run_id=run_id,
-                gaps=gaps,
-                generated_at=planning_generated_at,
-                requirement_basis_binding=basis_binding,
-            )
-            basis_state = basis_binding.resolution
-            if basis_state.state != "established":
-                report = report.model_copy(
-                    update={
-                        "status": "warn" if report.status == "pass" else report.status,
-                        "basis_limitation_code": (
-                            "requirement_basis_not_established_candidate_only"
-                        ),
-                    }
-                )
-            elif basis_state.basis_grade == "consumer_asserted":
-                report = report.model_copy(
-                    update={
-                        "status": "warn" if report.status == "pass" else report.status,
-                        "basis_limitation_code": "consumer_declared_basis_candidate_only",
-                    }
-                )
-            elif basis_state.basis_grade in {
-                "institutionally_supplied",
-                "not_established",
-            }:
-                report = report.model_copy(
-                    update={
-                        "status": "warn" if report.status == "pass" else report.status,
-                        "basis_limitation_code": "non_authority_grade_basis_candidate_only",
-                    }
-                )
-        else:
-            basis_is_authority_grade = (
-                basis_binding.resolution.state == "established"
-                and basis_binding.resolution.basis_grade
-                in {"recomputed", "independently_reconciled"}
-            )
+        if basis.routing_limitation_code not in {
+            None,
+            "requirement_gap_not_compiled",
+            "unbound_requirement_input_refused",
+        }:
+            raise GenerationCycleError("n7_planner_report_binding_refused")
+        if basis.unbound_input_fields or basis.routing_limitation_code is not None or not gaps:
+            if (
+                basis.unbound_input_fields
+                or basis.routing_limitation_code == "unbound_requirement_input_refused"
+            ):
+                limitation = "unbound_requirement_input_refused"
+                route_scope = "selected_requirement_input_not_bound"
+            elif basis_binding.resolution.state == "not_established":
+                limitation = "requirement_basis_not_established"
+                route_scope = "source_compiler_route_completeness_not_established"
+            else:
+                # No unique bound route is a failure to bind the input, not
+                # proof that no compiler requirement exists.
+                limitation = "unbound_requirement_input_refused"
+                route_scope = "source_compiler_route_completeness_not_established"
             report = AcquisitionPlannerReport(
                 run_id=run_id,
                 generated_at=planning_generated_at,
@@ -9893,15 +9833,31 @@ class GenerationCycleController:
                     "acquire": 0,
                     "rerun": 0,
                 },
-                authority_boundary={},
+                authority_boundary={
+                    "authoritative_for": ("planner_report_record_set_empty",),
+                    "may_not_use_for": ("source_compiler_route_absence", "acquisition_dispatch"),
+                    "provided_gap_set": (
+                        "empty" if not gaps else "withheld_due_to_refusal",
+                        route_scope,
+                    ),
+                    "cost_estimation": ("not_estimated",),
+                },
                 requirement_basis_binding=basis_binding,
-                basis_limitation_code=(
-                    "requirement_gap_not_compiled"
-                    if basis_is_authority_grade
-                    else "requirement_basis_not_established"
-                ),
+                basis_limitation_code=limitation,
                 cost_estimation_status="not_estimated",
             )
+        else:
+            try:
+                report = plan_evidence_acquisition(
+                    run_id=run_id,
+                    gaps=gaps,
+                    generated_at=planning_generated_at,
+                    requirement_basis_binding=basis_binding,
+                )
+            except AcquisitionPlannerBindingError as exc:
+                if str(exc) == "n7_blocked_candidate_reader_rollout_not_admitted":
+                    raise GenerationCycleError("n7_planner_reader_rollout_not_admitted") from exc
+                raise
         report = bind_acquisition_planner_report(report, planning_context_hash=context_hash)
         route_ref = (
             basis.routed_source_gap.requirement_gap_id
@@ -9924,7 +9880,7 @@ class GenerationCycleController:
                 missing_distribution=distributions[0],
                 strategy=record.recommended_strategy,
             )
-            if record is not None and len(distributions) == 1
+            if report.status != "blocked" and record is not None and len(distributions) == 1
             else None
         )
         try:

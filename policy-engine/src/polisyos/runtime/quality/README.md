@@ -1208,6 +1208,39 @@ behavior and do not change persisted schemas. A verified candidate report is
 not external custody or authority; the generated public-surface inventory and
 independent G acceptance remain pending for this source candidate.
 
+An empty gap set supplied to the public planner establishes only the supplied
+set's emptiness; it does not establish that no source/compiler route exists.
+The planner blocks dispatch and marks cost unestimated, using the existing
+`unbound_requirement_input_refused` code when a basis binding is present.
+Without a binding the existing v1 DTO cannot carry that code or cost field, so
+its authority boundary declares both the empty supplied set and the unknown
+route. The generation owner reuses `requirement_basis_not_established` for an
+unestablished basis; a missing or ambiguous bound route uses the existing
+unbound-input refusal. Neither proves route absence. Candidate bases retain the
+matching candidate-only limitation, and a blocked action cannot be softened to
+warn or dispatched because another action is runnable.
+
+The v1 reader continues to decode previously accepted reports without rewriting
+CAS bytes. Consumers refuse legacy reports whose candidate basis lacks its
+limitation, whose blocked row is downgraded, or whose empty set appears to pass.
+Existing reader validation is extended to admit a blocked status with an
+existing candidate-only limitation. The producer and persistence writer keep
+that newly readable combination disabled until all v1 readers in the deployment
+are updated and the reader-first rollout is admitted; otherwise they refuse
+instead of emitting a report older readers cannot decode. The rollout switch is
+not a caller-supplied attestation. Historical reports remain diagnostic evidence,
+not authority for a new route.
+
+The cycle's persisted report/ref pair and the route-loop consumer use the real
+CAS artifact; the scorecard report-only intake cannot infer that reference and
+emits no report-level evidence ref. Empty refusal has no acquisition-record
+runtime event, so the record-based deficit projection cannot represent it
+without a real event. Carrying the verified report ref into the existing status
+surface, together with a real event where a deficit requires one, remains
+`bridge_missing` for that surface; the report-level scorecard gate blocks it
+where the report is supplied. This does not establish external custody, source
+truth, route completeness, or a costed route.
+
 ## DataSnapshot owner-family admission
 
 `data_snapshot_lineage.py` is the Runtime verifier for the three supported

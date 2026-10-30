@@ -206,13 +206,13 @@ def test_served_cov_seed_reaches_persisted_refusal_without_cost_or_authority(
         refs = tuple(spec.requirement_id for spec in compiler.specs)
         if refs:
             for ref in refs:
-                assert not validate_persisted_acquisition_planner_report(
+                assert validate_persisted_acquisition_planner_report(
                     fresh,
                     report_ref,
                     loaded,
                     expected_scenario_id=problem.design_problem_id,
                     expected_compiled_requirement_ref=ref,
-                )
+                ) == ({"code": "acquisition_planner_basis_refusal"},)
         else:
             assert validate_persisted_acquisition_planner_report(
                 fresh,
@@ -220,13 +220,18 @@ def test_served_cov_seed_reaches_persisted_refusal_without_cost_or_authority(
                 loaded,
                 expected_scenario_id=problem.design_problem_id,
                 expected_compiled_requirement_ref=gap.compiled_requirement_ref,
-            ) == ({"code": "acquisition_compiled_requirement_not_in_basis"},)
+            ) == (
+                {"code": "acquisition_planner_basis_refusal"},
+                {"code": "acquisition_compiled_requirement_not_in_basis"},
+            )
         # Current owner input has no acquire_data:<family> selector. Its COV
         # acquisition family is not a fabricated distribution/data-source family.
         assert gap.metadata["issue_codes"] == ["cgf_disposition_missing"]
         assert cycle_owner._requirement_missing_distributions(gap) == ()
+        assert binding.resolution.state == "not_established"
+        assert binding.resolution.basis_grade == "not_established"
         assert loaded.status == "blocked"
-        assert loaded.basis_limitation_code == "requirement_gap_not_compiled"
+        assert loaded.basis_limitation_code == "requirement_basis_not_established"
         assert loaded.cost_estimation_status == "not_estimated"
         assert loaded.acquisition_records == ()
         assert cycle.acquisition_cost_basis_record is None

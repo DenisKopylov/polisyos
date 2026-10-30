@@ -1094,6 +1094,45 @@ class AcquisitionRequirementBasisBinding(BaseModel):
         return self
 
 
+# Enable only after every reader of v1 planner reports accepts an existing
+# candidate-only limitation paired with the stronger blocked status.
+_N7_BLOCKED_CANDIDATE_REPORT_EMISSION_ENABLED = False
+_N7_CANDIDATE_BASIS_LIMITATION_CODES = frozenset(
+    {
+        "requirement_basis_not_established_candidate_only",
+        "consumer_declared_basis_candidate_only",
+        "non_authority_grade_basis_candidate_only",
+    }
+)
+_N7_BLOCKING_BASIS_LIMITATION_CODES = frozenset(
+    {
+        "requirement_basis_not_established",
+        "requirement_gap_not_compiled",
+        "unbound_requirement_input_refused",
+    }
+)
+
+
+def _n7_candidate_basis_limitation(
+    resolution: DataRequirementBasisResolution,
+) -> (
+    Literal[
+        "requirement_basis_not_established_candidate_only",
+        "consumer_declared_basis_candidate_only",
+        "non_authority_grade_basis_candidate_only",
+    ]
+    | None
+):
+    """Retain the actual candidate grade without upgrading the bound basis."""
+    if resolution.state == "not_established":
+        return "requirement_basis_not_established_candidate_only"
+    if resolution.basis_grade == "consumer_asserted":
+        return "consumer_declared_basis_candidate_only"
+    if resolution.basis_grade in {"institutionally_supplied", "not_established"}:
+        return "non_authority_grade_basis_candidate_only"
+    return None
+
+
 class AcquisitionPlannerReport(BaseModel):
     """Run-level acquisition planner report."""
 
@@ -1156,23 +1195,13 @@ class AcquisitionPlannerReport(BaseModel):
             if self.status not in {"warn", "blocked"}:
                 raise ValueError("acquisition_planner_basis_limitation_status_mismatch")
             resolution = self.requirement_basis_binding.resolution
-            expected_candidate_grade = {
-                "requirement_basis_not_established_candidate_only": (
-                    resolution.state == "not_established"
-                ),
-                "consumer_declared_basis_candidate_only": (
-                    resolution.state == "established"
-                    and resolution.basis_grade == "consumer_asserted"
-                ),
-                "non_authority_grade_basis_candidate_only": (
-                    resolution.state == "established"
-                    and resolution.basis_grade == "institutionally_supplied"
-                ),
-            }
-            if self.basis_limitation_code in expected_candidate_grade:
-                if not expected_candidate_grade[self.basis_limitation_code]:
+            if self.basis_limitation_code in _N7_CANDIDATE_BASIS_LIMITATION_CODES:
+                if self.basis_limitation_code != _n7_candidate_basis_limitation(resolution):
                     raise ValueError("acquisition_planner_basis_limitation_grade_mismatch")
-                if self.status != "warn" or self.cost_estimation_status is not None:
+                if (
+                    self.status not in {"warn", "blocked"}
+                    or self.cost_estimation_status is not None
+                ):
                     raise ValueError("acquisition_planner_candidate_basis_status_mismatch")
             if self.basis_limitation_code in {
                 "requirement_basis_not_established",
@@ -1196,6 +1225,28 @@ class AcquisitionPlannerReport(BaseModel):
         elif self.cost_estimation_status is not None:
             raise ValueError("acquisition_planner_cost_status_without_basis_limitation")
         return self
+
+
+def _n7_report_basis_issue(report: AcquisitionPlannerReport) -> str | None:
+    """Bound older report meanings at consumers without rewriting their bytes."""
+    if report.status != "blocked" and any(
+        record.status == "blocked" for record in report.acquisition_records
+    ):
+        return "blocked_record_status_mismatch"
+    if not report.acquisition_records and report.status != "blocked":
+        return "provided_gap_set_route_unverified"
+    binding = report.requirement_basis_binding
+    if binding is None or not report.acquisition_records:
+        return None
+    expected = _n7_candidate_basis_limitation(binding.resolution)
+    if expected is not None and report.basis_limitation_code != expected:
+        return "candidate_basis_limitation_missing"
+    return None
+
+
+def _n7_report_is_empty_refusal(report: AcquisitionPlannerReport) -> bool:
+    """A blocked empty report cannot dispatch or become a completed receipt."""
+    return report.status == "blocked" and not report.acquisition_records
 
 
 class AcquisitionPlan(BaseModel):
@@ -1578,11 +1629,9 @@ class AcquisitionReceipt(BaseModel):
             and self.requirement_basis_binding != self.planner_report.requirement_basis_binding
         ):
             raise ValueError("acquisition_receipt_requirement_basis_binding_mismatch")
-        if self.planner_report.basis_limitation_code in {
-            "requirement_basis_not_established",
-            "requirement_gap_not_compiled",
-            "unbound_requirement_input_refused",
-        } and (self.owner_artifacts or self.status != "blocked"):
+        if self.planner_report.basis_limitation_code in _N7_BLOCKING_BASIS_LIMITATION_CODES and (
+            self.owner_artifacts or self.status != "blocked"
+        ):
             raise ValueError("acquisition_receipt_empty_basis_cannot_complete")
         if not self.content_hash:
             object.__setattr__(self, "content_hash", _receipt_content_hash(self))
@@ -2249,14 +2298,46 @@ def plan_evidence_acquisition(
     )
     summary = _report_summary(records)
     status = "blocked" if summary["blocked"] else "warn" if summary["limited"] else "pass"
+    limitation = None
+    cost_status = None
+    boundary = _authority_boundary()
+    if not records:
+        # The public planner receives a supplied set, not a complete route
+        # reconciliation. Its emptiness does not prove a compiler gap absent.
+        status = "blocked"
+        boundary["authoritative_for"] = ("provided_gap_set_empty",)
+        boundary["may_not_use_for"] = (
+            *boundary["may_not_use_for"],
+            "source_compiler_route_absence",
+            "acquisition_dispatch",
+        )
+        boundary["provided_gap_set"] = (
+            "empty",
+            "source_compiler_route_completeness_not_established",
+        )
+        boundary["cost_estimation"] = ("not_estimated",)
+        if requirement_basis_binding is not None:
+            limitation = "unbound_requirement_input_refused"
+            cost_status = "not_estimated"
+    elif requirement_basis_binding is not None:
+        limitation = _n7_candidate_basis_limitation(requirement_basis_binding.resolution)
+        if limitation is not None:
+            if status == "blocked" and not _N7_BLOCKED_CANDIDATE_REPORT_EMISSION_ENABLED:
+                raise AcquisitionPlannerBindingError(
+                    "n7_blocked_candidate_reader_rollout_not_admitted"
+                )
+            if status == "pass":
+                status = "warn"
     report = AcquisitionPlannerReport(
         run_id=run_id,
         generated_at=_utc(generated_at),
         acquisition_records=records,
         status=status,
         summary=summary,
-        authority_boundary=_authority_boundary(),
+        authority_boundary=boundary,
         requirement_basis_binding=requirement_basis_binding,
+        basis_limitation_code=limitation,
+        cost_estimation_status=cost_status,
     )
     if planning_context_hash is None:
         return report
@@ -2678,6 +2759,14 @@ def run_acquisition_closed_loop(
             )
         ):
             raise AcquisitionPlannerBindingError("acquisition_planner_report_binding_mismatch")
+        # Refuse a blocked or inconsistent supplied plan before looking for a
+        # dispatch gateway. Denial does not rely on this report as authority.
+        if (
+            planner_report.status == "blocked"
+            or planner_report.basis_limitation_code in _N7_BLOCKING_BASIS_LIMITATION_CODES
+            or _n7_report_basis_issue(planner_report) is not None
+        ):
+            raise AcquisitionPlannerBindingError("n7_basis_refusal_must_not_dispatch_owner")
         expected_records = tuple(
             (gap.requirement_gap_id, gap.compiled_requirement_ref) for gap in gaps
         )
@@ -2746,11 +2835,11 @@ def run_acquisition_closed_loop(
         )
         if basis_issues:
             raise AcquisitionPlannerBindingError(json.dumps(basis_issues, sort_keys=True))
-    if planner_report.basis_limitation_code in {
-        "requirement_basis_not_established",
-        "requirement_gap_not_compiled",
-        "unbound_requirement_input_refused",
-    }:
+    if (
+        planner_report.status == "blocked"
+        or planner_report.basis_limitation_code in _N7_BLOCKING_BASIS_LIMITATION_CODES
+        or _n7_report_basis_issue(planner_report) is not None
+    ):
         raise AcquisitionPlannerBindingError("n7_basis_refusal_must_not_dispatch_owner")
     gateway = owner_gateway or RecordedAcquisitionOwnerGateway(artifacts_by_requirement={})
     counter = network_counter or getattr(gateway, "network_counter", None)
@@ -2835,7 +2924,9 @@ def run_acquisition_closed_loop(
     real_grounding_results = projection.real_grounding_result_count
     no_result_costed_gap = real_grounding_results == 0 and bool(owner_artifacts)
     status: Literal["completed", "completed_no_results", "blocked"]
-    if real_grounding_results:
+    if planner_report.status == "blocked":
+        status = "blocked"
+    elif real_grounding_results:
         status = "completed"
     elif fail_closed and (
         not owner_artifacts
@@ -2943,6 +3034,11 @@ def validate_acquisition_receipt(
     except ValueError as exc:
         return ({"code": "acquisition_receipt_invalid", "error": str(exc)},)
     issues: list[dict[str, Any]] = []
+    basis_issue = _n7_report_basis_issue(normalized.planner_report)
+    if basis_issue is not None:
+        issues.append({"code": "acquisition_planner_basis_inconsistent", "reason": basis_issue})
+    if normalized.planner_report.status == "blocked" and normalized.status != "blocked":
+        issues.append({"code": "acquisition_receipt_blocked_report_status_mismatch"})
     if not acquisition_receipt_has_verified_emission(normalized):
         issues.append({"code": "acquisition_receipt_current_context_replay_unavailable"})
     if normalized.planner_report.run_id != normalized.run_id:
@@ -4239,6 +4335,16 @@ def validate_persisted_acquisition_planner_report(
     if type(report) is not AcquisitionPlannerReport:
         return ({"code": "acquisition_planner_report_untyped"},)
     issues = list(_validate_persisted_planner_report(store=store, ref=ref, report=report))
+    if (
+        report.basis_limitation_code in _N7_BLOCKING_BASIS_LIMITATION_CODES
+        or _n7_report_is_empty_refusal(report)
+    ):
+        issues.append({"code": "acquisition_planner_basis_refusal"})
+    elif report.status == "blocked":
+        issues.append({"code": "acquisition_planner_report_blocked"})
+    basis_issue = _n7_report_basis_issue(report)
+    if basis_issue is not None:
+        issues.append({"code": "acquisition_planner_basis_inconsistent", "reason": basis_issue})
     if (
         report.planning_context_hash is None
         or report.planning_binding_hash is None
@@ -5832,6 +5938,12 @@ def persist_acquisition_planner_report(
 ) -> artifacts.ArtifactRef:
     """Persist an acquisition planner report as a first-class CAS artifact."""
 
+    if (
+        not _N7_BLOCKED_CANDIDATE_REPORT_EMISSION_ENABLED
+        and report.status == "blocked"
+        and report.basis_limitation_code in _N7_CANDIDATE_BASIS_LIMITATION_CODES
+    ):
+        raise AcquisitionPlannerBindingError("n7_blocked_candidate_reader_rollout_not_admitted")
     return store.put_json(
         report,
         artifacts.PutOptions(
@@ -6086,6 +6198,58 @@ def acquisition_planner_scorecard_gates(
     reports = _coerce_reports(report_or_quality_evidence)
     gates: list[dict[str, Any]] = []
     for report in reports:
+        issue = _n7_report_basis_issue(report)
+        if issue is not None or report.status == "blocked":
+            gates.append(
+                {
+                    "name": "policy_design_acquisition_planner",
+                    "stage": "runtime",
+                    "code": (
+                        "acquisition_planner_basis_inconsistent"
+                        if issue is not None
+                        else "acquisition_planner_basis_refusal"
+                        if _n7_report_is_empty_refusal(report)
+                        else "acquisition_planner_report_blocked"
+                    ),
+                    "status": "fail",
+                    "layer": ACQUISITION_PLANNER_GATE_LAYER,
+                    "phase": ACQUISITION_PLANNER_GATE_PHASE,
+                    "message": issue
+                    or (
+                        "No route is established from the provided gap set."
+                        if _n7_report_is_empty_refusal(report)
+                        else "The acquisition planner report remains blocked."
+                    ),
+                    # This API receives report content only; the compiler CAS
+                    # ref is not evidence of the persisted planner report.
+                    "evidence_ref": None,
+                    "next_action": "Reconcile the source and compiler route before dispatch.",
+                    "blocking": True,
+                    "closeout_effect": "closeout_blocked",
+                    "publication_effect": "blocked",
+                    "owner": "polisyos.runtime.quality.acquisition_planner",
+                }
+            )
+        elif report.basis_limitation_code in _N7_CANDIDATE_BASIS_LIMITATION_CODES:
+            gates.append(
+                {
+                    "name": "policy_design_acquisition_planner",
+                    "stage": "runtime",
+                    "code": "acquisition_planner_candidate_basis",
+                    "status": "warn",
+                    "layer": ACQUISITION_PLANNER_GATE_LAYER,
+                    "phase": ACQUISITION_PLANNER_GATE_PHASE,
+                    "message": "The acquisition basis is candidate-only.",
+                    # This API receives report content only; the compiler CAS
+                    # ref is not evidence of the persisted planner report.
+                    "evidence_ref": None,
+                    "next_action": "Keep this route candidate-only until its basis is verified.",
+                    "blocking": False,
+                    "closeout_effect": "candidate_only",
+                    "publication_effect": "candidate_only",
+                    "owner": "polisyos.runtime.quality.acquisition_planner",
+                }
+            )
         for record in report.acquisition_records:
             gates.append(_scorecard_gate(record, canary_kind=canary_kind))
     return gates

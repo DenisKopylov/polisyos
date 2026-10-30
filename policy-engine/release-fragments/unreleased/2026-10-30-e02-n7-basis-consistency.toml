@@ -1,0 +1,17 @@
+id = "2026-10-30-e02-n7-basis-consistency"
+title = "Preserve acquisition basis and blocked route semantics"
+type = "fixed"
+component = "runtime"
+owner = "team-policyos-runtime"
+summary = "Acquisition reports preserve their actual basis grade, block empty or inconsistent supplied plans and do not claim compiler route absence from an empty caller gap set."
+evidence = ["src/polisyos/runtime/quality/acquisition_planner.py", "src/polisyos/runtime/quality/generation_cycle.py", "tests/unit/runtime/quality/test_generation_cycle.py", "tests/integration/core_runtime/test_acquisition_cov_seed_served.py"]
+compatibility = "Existing v1 reports remain readable without rewriting their bytes; consumers refuse legacy reports with inconsistent basis or status. The newly readable blocked plus candidate-only combination is not emitted by the planner or persistence writer until reader rollout is admitted."
+change_class = "internal"
+surface_classification = "Existing N7 planner, generation cycle, persisted artifacts, route-loop consumer and report-level scorecard gates; record-based deficit projection has no event for an empty report."
+migration = "No historical artifact rewrite. Upgrade and verify all deployed v1 readers before enabling blocked candidate report emission; replan inconsistent historical reports from their bound inputs."
+api = "The v1 field shape and literal set are unchanged. Existing candidate-only limitation codes may be paired with blocked status by the extended reader only; writer emission is disabled by default."
+limitations = "An empty provided gap set does not prove source/compiler route absence. A report-only scorecard input has no verified planner report ref; the existing cycle carries the real CAS ref. Runtime, generated-client and rollout checks remain pending."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

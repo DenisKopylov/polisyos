@@ -851,3 +851,43 @@ change missing into invalid. Project from actual selected component presence
 through one owner adapter; verify quantity/status/total-basis and canonical
 presence through both replay wire stages. Never emit an inferred total as a
 reported value or let unknown provenance become known in the projection.
+
+
+### P38/P40 instance: shape uncertainty is not executable provenance
+
+**Diagnostic question.** Does a source analyzer preserve a real negative capability through
+lossy projections, or manufacture executable identity from every ambiguous value? The latter
+can make ordinary scalar projections refuse while still missing a deferred object passed into
+a selected function that ignores its argument.
+
+**Closure move.** Normalize actual payload origins over immutable semantic children, preserve
+those origins at type-erasing joins, and enforce unsupported selected-object payloads at the
+shared call intake. Keep unresolved operator callability separate from executable payload
+identity. Verify scalar and exact-projection positives together with unknown joins, deferred
+payload escapes, callback effects and semantic removal/restoration controls. A passing bounded
+subset does not clear a source-wide collector or a native compatibility cohort; retain their
+actual input denominator and unresolved boundary separately.
+
+### P31/P38/P40 instance: implicit effects and shape-erased carriers
+
+**Diagnostic question.** Does a protected reconstructed body reach an object protocol through
+syntax other than an explicit call, or can a real code origin disappear when an output carrier
+loses its finite shape? A boolean result and a guarded bit are not evidence that neither happened.
+
+**Closure move.** Apply one default-deny post-body intake to the current expression, statement,
+and operator grammar, allow implicit protocols only on proven immutable builtin literals, and
+carry protected context through selected helpers. Preserve actual output-member origins when
+sequence or mapping shape is erased. Do not attach callee, condition, or known mapping-value
+origins to outputs they do not enter. Check refusals together with pure-literal, no-sink, and
+non-payload sibling cases. The bounded analysis does not establish arbitrary object lifetime,
+finalizer, ambient-concurrency or external protocol equivalence.
+
+
+**R13 bounded precision disposition.** A selected-source import name and the observed
+module-write set do not independently establish the runtime module object's identity,
+attribute protocol, and member stability at the protected use. The post-body intake therefore
+retains a conservative module-attribute refusal even after explicit call transfer. Its
+actual-collector counterexample must be retained alongside a direct-import positive; do not
+call this legacy/native compatibility clearance. The smallest missing capability is a
+use-site proof of receiver identity and stable attribute dispatch across the selected source
+context; the existing abstract module binding and named-write tracker do not provide it.

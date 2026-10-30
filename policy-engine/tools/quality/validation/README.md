@@ -141,15 +141,28 @@ selected body/callback effect transfer, not arbitrary Python runtime equivalence
 execution. In particular, the actual Runtime guard's opaque executor/context route is still a
 bounded limitation; recognizing its constructor does not establish full collection clearance.
 
-The binding constructor now normalizes that negative quantity for every ordinary construction
-and `dataclasses.replace`: binding-valued fields and nested carriers are derived from the actual
-dataclass fields, executable carriers become guarded, and guarded unknown/ambiguous fallback
-values retain intrinsic negative capability after exact identity was discarded. Exact selected
-source alternatives remain a finite join and still require real body/context admission. This is
-a conservative partial-unknown semantics; an unproven guarded value can no longer clear an escape
-merely because it lacks an exact importer identity. Importer-origin identity itself is unchanged.
-Broader native compatibility verification is required before adoption; this normalization is not
-a claim of complete Python object-protocol modeling or actual executor/context clearance.
+The binding constructor aggregates actual negative capability across immutable semantic
+children and nested containers. Each child has already normalized its own payload, so the
+aggregate is complete by construction without repeatedly walking the whole dependency graph.
+A bound callable owns its receiver; a receiver retained only as analysis context for an
+ordinary result does not become that result's executable payload. Shape ambiguity by itself
+has no executable origin. Type-erasing projections preserve actual origin through the shared
+unknown-projection/join law; a bare guarded fallback cannot manufacture code identity.
+
+A verified selected class whose constructor or value protocol cannot be summarized retains
+an opaque-payload capability when its inputs carry an actual importer, importer namespace,
+executable source value or another opaque payload. That capability follows aliases, containers
+and unknown joins and refuses selected-call intake even when the selected body ignores the
+argument. An ordinary scalar payload and an unconsumed deferred object remain non-failing.
+An unselected symbol is not promoted to a verified class merely because the existing abstract
+interpreter represented its result as an object.
+
+Unmodeled operator results retain a separate unresolved-callability fact for direct invocation.
+During protected reconstructed-body transfer, unsupported unary, binary and rich-comparison
+operator dispatch refuses rather than hiding implicit callbacks. This does not establish
+arbitrary Python object-protocol equivalence in ordinary declaration analysis. The existing
+opaque executor/context boundary remains unsupported and fail-closed before protected
+reconstruction or invocation; constructor recognition alone does not clear Runtime resilience.
 
 Unknown joins retain executable origin through the existing guarded-origin transfer, including
 nested containers, reflective selections, return/storage escapes and unresolved call targets.
@@ -171,3 +184,23 @@ path. Nominal selected identity alone does not establish absence of mutation. Mo
 source-body calls keep the existing transfer engine; unknown deferred effects fail closed until a
 sound transfer exists. This is a bounded limitation, not a claim that arbitrary cross-entrypoint
 runtime ordering or externally injected code is modeled.
+
+Protected selected source bodies pass a default-deny AST intake for implicit protocols. Unknown
+expression, statement, and operator forms refuse; truth tests, formatting, hashing, subscripting,
+iteration and other implicit effects are admitted only where their relevant literal operands are
+immutable builtins. Explicit calls still use the existing call-transfer owner, and protected
+context is carried into a selected helper in another module. The post-body intake also applies
+its own syntax-bound refusal after explicit call transfer: module attributes are refused unless
+their receiver is an immutable literal, even when the call transfer recognizes the importer. An
+abstract module name and selected-source write census do not independently verify a runtime
+module object's identity, attribute protocol, and slot stability at the use. Precise admission would
+require such use-site evidence; it is not supplied by this source analysis. Direct imported-call
+bindings remain a separate supported path. This bounded limitation is not native compatibility
+clearance, and arbitrary object lifetimes, finalizers, ambient concurrency, and external protocols
+remain unmodeled.
+
+When finite carrier shape is erased, the sequence and mapping constructors retain actual member
+origins. Comprehensions retain the produced element, key and value, not their control inputs. A
+known mapping spread into a sequence contributes keys, never unrelated values. Exact pure scalar
+projections retain their existing ability to drop origins. Bounded fixture checks do not establish
+source-wide or native clearance.

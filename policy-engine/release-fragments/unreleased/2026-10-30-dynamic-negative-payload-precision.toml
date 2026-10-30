@@ -1,0 +1,8 @@
+id = "2026-10-30-dynamic-negative-payload-precision"
+title = "Preserve dynamic source payload provenance"
+type = "fixed"
+component = "repository-quality"
+owner = "team-architecture"
+summary = "Retain actual executable payload origins through shape-erasing source analysis."
+evidence = ["tests/repo_quality/architecture/test_dynamic_code_reconstitution.py", "tools/quality/validation/README.md"]
+limitations = "Protected reconstructed bodies conservatively refuse module attribute access without independently established receiver and slot stability. Arbitrary object lifetimes, finalizers, ambient concurrency, and external protocols are not modeled; source-wide and native clearance require separate verification."

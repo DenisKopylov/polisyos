@@ -703,6 +703,8 @@ class _DynamicImportBinding:
     function_builtins: _DynamicImportBinding | None = None
     closure_names: tuple[str, ...] = ()
     source_execution_origins: tuple[str, ...] = ()
+    opaque_payload_origins: tuple[str, ...] = ()
+    callable_result_unresolved: bool = False
 
     def __post_init__(self) -> None:
         self._normalize_negative_execution()
@@ -721,6 +723,7 @@ class _DynamicImportBinding:
             "source_closure",
         }
         origins = set(self.source_execution_origins)
+        opaque_origins = set(self.opaque_payload_origins)
         if self.kind in executable_kinds:
             origin = self.code_origin
             origins.add(
@@ -728,7 +731,11 @@ class _DynamicImportBinding:
             )
         # Derive the entire carrier set from the dataclass, not a second hand-maintained
         # list of binding fields. All normal construction and replace() pass here.
-        pending = [getattr(self, field.name) for field in dataclass_fields(self)]
+        pending = [
+            getattr(self, field.name)
+            for field in dataclass_fields(self)
+            if field.name != "receiver" or self.kind == "callable"
+        ]
         seen: set[int] = {id(self)}
         while pending:
             value = pending.pop()
@@ -737,6 +744,7 @@ class _DynamicImportBinding:
                     continue
                 seen.add(id(value))
                 origins.update(value.source_execution_origins)
+                opaque_origins.update(value.opaque_payload_origins)
                 if value.kind in executable_kinds:
                     origin = value.code_origin
                     origins.add(
@@ -744,18 +752,18 @@ class _DynamicImportBinding:
                         if origin is not None
                         else value.kind
                     )
-                pending.extend(getattr(value, field.name) for field in dataclass_fields(value))
+                # Immutable children are canonical by their own construction. Their
+                # aggregate origins are the induction step; rewalking dependency graphs
+                # would confuse an analysis receiver with a runtime payload and cost O(n²).
             elif isinstance(value, (tuple, list)):
                 pending.extend(value)
             elif isinstance(value, dict):
                 pending.extend(value.keys())
                 pending.extend(value.values())
-        if origins:
+        if origins or opaque_origins:
             object.__setattr__(self, "guarded", True)
-        if self.guarded and self.kind in {"unknown", "ambiguous"}:
-            # Existing guarded fallbacks deliberately erase exact identity. Preserve
-            # their negative meaning, without inventing an importer/body authority.
-            origins.add("guarded_unknown")
+        if opaque_origins:
+            object.__setattr__(self, "opaque_payload_origins", tuple(sorted(opaque_origins)))
         if origins:
             object.__setattr__(self, "source_execution_origins", tuple(sorted(origins)))
 
@@ -975,18 +983,14 @@ def _dynamic_join_with_guarded_origin(
     if trusted_result:
         return result
     execution_origins = {
-        origin
-        for binding in bindings
-        for current in _dynamic_binding_nodes(binding)
-        for origin in current.source_execution_origins
+        origin for binding in bindings for origin in binding.source_execution_origins
     }
     execution_origins.update(
-        f"{current.code_origin.context_identity}:{current.code_origin.identity}"
-        if current.code_origin is not None
-        else current.kind
+        f"{binding.code_origin.context_identity}:{binding.code_origin.identity}"
+        if binding.code_origin is not None
+        else binding.kind
         for binding in bindings
-        for current in _dynamic_binding_nodes(binding)
-        if current.kind
+        if binding.kind
         in {"source_method", "source_code", "reconstructed_function", "source_closure"}
     )
     importer_origins = {
@@ -1013,7 +1017,16 @@ def _dynamic_join_with_guarded_origin(
         if binding.module_registry_origins:
             module_registry_names.update(binding.module_registry_names or ())
 
+    opaque_origins = {origin for binding in bindings for origin in binding.opaque_payload_origins}
+
     def retain_provenance(value: _DynamicImportBinding) -> _DynamicImportBinding:
+        if opaque_origins:
+            value = replace(
+                value,
+                opaque_payload_origins=tuple(
+                    sorted(set(value.opaque_payload_origins) | opaque_origins)
+                ),
+            )
         if execution_origins:
             value = replace(
                 value,
@@ -1068,13 +1081,33 @@ def _dynamic_join_with_guarded_origin(
         )
 
     result = retain_provenance(result)
+    if result.kind in {"unknown", "ambiguous", "union"} and any(
+        item.callable_result_unresolved
+        for binding in bindings
+        for item in _dynamic_binding_nodes(binding)
+    ):
+        result = replace(result, callable_result_unresolved=True)
     if result.guarded or result.kind == "ambiguous":
         return result
     if not any(binding.guarded or binding.kind == "ambiguous" for binding in bindings):
         return result
+    if result.kind == "other" and not (
+        importer_origins
+        or unresolved_origins
+        or temporal_origins
+        or execution_origins
+        or opaque_origins
+    ):
+        return result
     if result.kind in {"sequence", "iterable", "mapping", "object", "union"}:
         return retain_provenance(replace(result, guarded=True))
     return retain_provenance(_DYNAMIC_AMBIGUOUS)
+
+
+def _dynamic_unknown_projection(binding: _DynamicImportBinding) -> _DynamicImportBinding:
+    """Lose shape without losing actual importer or executable payload provenance."""
+    result = _DYNAMIC_AMBIGUOUS if binding.guarded else _DYNAMIC_UNKNOWN
+    return _dynamic_join_with_guarded_origin((binding,), result)
 
 
 _DYNAMIC_TYPE_CHECKING_MODULE_ORIGIN = "typing-type-checking-module"
@@ -1272,12 +1305,13 @@ def _is_guarded_importer_binding(binding: _DynamicImportBinding) -> bool:
     )
 
 
-def _dynamic_has_source_execution(binding: _DynamicImportBinding) -> bool:
+def _dynamic_has_guarded_payload(binding: _DynamicImportBinding) -> bool:
     """Keep executable source values fail-closed at unsupported escape boundaries."""
-    return any(
-        item.source_execution_origins
-        or item.kind in {"source_method", "source_code", "reconstructed_function", "source_closure"}
-        for item in _dynamic_binding_nodes(binding)
+    return bool(
+        binding.source_execution_origins
+        or binding.opaque_payload_origins
+        or binding.kind
+        in {"source_method", "source_code", "reconstructed_function", "source_closure"}
     )
 
 
@@ -1293,7 +1327,7 @@ def _is_unresolved_importer_binding(binding: _DynamicImportBinding) -> bool:
     ):
         return False
     return binding.kind in {"ambiguous", "unknown", "union"} and (
-        _is_guarded_importer_binding(binding) or _dynamic_has_source_execution(binding)
+        _is_guarded_importer_binding(binding) or _dynamic_has_guarded_payload(binding)
     )
 
 
@@ -1311,48 +1345,145 @@ def _dynamic_unresolved_importer_binding(
     )
 
 
+def _dynamic_immutable_literal(node: ast.AST | None) -> bool:
+    """Recognize syntax whose value and protocols are immutable builtins."""
+    if isinstance(node, ast.Constant):
+        return type(node.value) in {
+            type(None),
+            bool,
+            int,
+            float,
+            complex,
+            str,
+            bytes,
+            type(Ellipsis),
+        }
+    if isinstance(node, ast.Tuple) and isinstance(node.ctx, ast.Load):
+        return all(_dynamic_immutable_literal(item) for item in node.elts)
+    return False
+
+
 def _dynamic_function_has_unmodeled_implicit_dispatch(
     function: ast.FunctionDef | ast.AsyncFunctionDef,
     environment: Mapping[str, _DynamicImportBinding],
 ) -> bool:
-    """Detect callable bodies whose implicit Python dispatch is outside the summary."""
+    """Fail closed on any AST form without an admitted implicit-effect rule.
+
+    Explicit calls remain the source scanner's responsibility. Pure operations are
+    admitted only on immutable literal operands; names may have been rebound.
+    Unknown future expression, statement, and operator classes are refused.
+    """
+    del environment
+    allowed_ops = (
+        ast.Add,
+        ast.Sub,
+        ast.Mult,
+        ast.MatMult,
+        ast.Div,
+        ast.Mod,
+        ast.Pow,
+        ast.LShift,
+        ast.RShift,
+        ast.BitOr,
+        ast.BitXor,
+        ast.BitAnd,
+        ast.FloorDiv,
+        ast.Invert,
+        ast.Not,
+        ast.UAdd,
+        ast.USub,
+        ast.And,
+        ast.Or,
+        ast.Eq,
+        ast.NotEq,
+        ast.Lt,
+        ast.LtE,
+        ast.Gt,
+        ast.GtE,
+        ast.Is,
+        ast.IsNot,
+        ast.In,
+        ast.NotIn,
+    )
     for node in ast.walk(function):
-        if isinstance(
-            node,
-            (
-                ast.AsyncFor,
-                ast.AsyncWith,
-                ast.Await,
-                ast.BinOp,
-                ast.Compare,
-                ast.For,
-                ast.GeneratorExp,
-                ast.IfExp,
-                ast.ListComp,
-                ast.Match,
-                ast.SetComp,
-                ast.Subscript,
-                ast.UnaryOp,
-                ast.While,
-                ast.With,
-                ast.YieldFrom,
-            ),
-        ):
-            return True
-        if isinstance(node, ast.Attribute):
-            if not isinstance(node.value, ast.Name):
+        if isinstance(node, (ast.operator, ast.unaryop, ast.boolop, ast.cmpop)):
+            if not isinstance(node, allowed_ops):
                 return True
-            receiver = environment.get(node.value.id, _DYNAMIC_UNKNOWN)
-            if receiver.kind not in {"module", "none"} and not (
-                receiver.kind == "other"
-                and receiver.literal_key_known
-                and receiver.literal_key is None
-            ):
+        elif isinstance(node, ast.stmt):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                if node is not function and (
+                    node.decorator_list
+                    or any(not _dynamic_immutable_literal(v) for v in node.args.defaults)
+                    or any(
+                        v is not None and not _dynamic_immutable_literal(v)
+                        for v in node.args.kw_defaults
+                    )
+                ):
+                    return True
+            elif isinstance(node, ast.Assign):
+                if any(not isinstance(target, ast.Name) for target in node.targets):
+                    return True
+            elif isinstance(node, ast.AnnAssign):
+                if not isinstance(node.target, ast.Name):
+                    return True
+            elif isinstance(node, (ast.If, ast.Assert)):
+                if not _dynamic_immutable_literal(node.test):
+                    return True
+            elif not isinstance(node, (ast.Return, ast.Expr, ast.Pass, ast.Global, ast.Nonlocal)):
                 return True
-        if isinstance(node, ast.If) and (
-            not isinstance(node.test, ast.Constant) or not isinstance(node.test.value, bool)
-        ):
-            return True
+        elif isinstance(node, ast.expr):
+            if isinstance(node, (ast.Name, ast.Constant, ast.JoinedStr)):
+                continue
+            if isinstance(node, ast.Call):
+                if any(keyword.arg is None for keyword in node.keywords):
+                    return True
+            elif isinstance(node, (ast.List, ast.Tuple)):
+                pass
+            elif isinstance(node, ast.Set):
+                if not all(_dynamic_immutable_literal(v) for v in node.elts):
+                    return True
+            elif isinstance(node, ast.Dict):
+                if any(key is None or not _dynamic_immutable_literal(key) for key in node.keys):
+                    return True
+            elif isinstance(node, ast.Starred):
+                if not _dynamic_immutable_literal(node.value):
+                    return True
+            elif isinstance(node, ast.BoolOp):
+                if not all(_dynamic_immutable_literal(v) for v in node.values[:-1]):
+                    return True
+            elif isinstance(node, ast.IfExp):
+                if not _dynamic_immutable_literal(node.test):
+                    return True
+            elif isinstance(node, ast.UnaryOp):
+                if not _dynamic_immutable_literal(node.operand):
+                    return True
+            elif isinstance(node, ast.BinOp):
+                if not (
+                    _dynamic_immutable_literal(node.left) and _dynamic_immutable_literal(node.right)
+                ):
+                    return True
+            elif isinstance(node, ast.Compare):
+                if not all(isinstance(op, (ast.Is, ast.IsNot)) for op in node.ops) and not all(
+                    _dynamic_immutable_literal(v) for v in (node.left, *node.comparators)
+                ):
+                    return True
+            elif isinstance(node, ast.Attribute):
+                if not _dynamic_immutable_literal(node.value):
+                    return True
+            elif isinstance(node, ast.Subscript):
+                if not (
+                    _dynamic_immutable_literal(node.value)
+                    and _dynamic_immutable_literal(node.slice)
+                ):
+                    return True
+            elif isinstance(node, ast.FormattedValue):
+                if not _dynamic_immutable_literal(node.value):
+                    return True
+            elif isinstance(node, ast.NamedExpr):
+                if not isinstance(node.target, ast.Name):
+                    return True
+            else:
+                return True
     return False
 
 
@@ -1657,7 +1788,9 @@ def _dynamic_attribute_binding(
                 guarded=binding.guarded,
                 receiver=binding,
             )
-        return _DYNAMIC_AMBIGUOUS if binding.guarded else _DYNAMIC_OTHER
+        return _dynamic_join_with_guarded_origin(
+            (binding,), _DYNAMIC_AMBIGUOUS if binding.guarded else _DYNAMIC_OTHER
+        )
     if binding.kind == "ambiguous":
         candidate = _dynamic_namespace_member_candidate(binding, attribute)
         if candidate is not None:
@@ -1792,11 +1925,12 @@ def _dynamic_sequence_binding(
     guarded: bool = False,
     component_names: tuple[str | None, ...] | None = None,
     sequence_type: Literal["list", "tuple"] | None = None,
+    erased_members: Sequence[_DynamicImportBinding] = (),
 ) -> _DynamicImportBinding:
-    """Return an iterable value whose importer provenance stays attached to its items."""
+    """Retain actual member origins when finite sequence shape is unavailable."""
     materialized = tuple(items) if items is not None else None
     has_guarded_item = any(item.guarded or item.kind == "ambiguous" for item in materialized or ())
-    return _DynamicImportBinding(
+    result = _DynamicImportBinding(
         kind,
         guarded=guarded or has_guarded_item,
         items=materialized,
@@ -1804,6 +1938,7 @@ def _dynamic_sequence_binding(
         immutable=sequence_type == "tuple",
         sequence_type=sequence_type,
     )
+    return _dynamic_join_with_guarded_origin(erased_members, result) if erased_members else result
 
 
 def _dynamic_union_binding(
@@ -2039,7 +2174,7 @@ def _dynamic_binding_is_same_module_namespace_refinement(
 
 def _dynamic_binding_is_proven_nonimporter(binding: _DynamicImportBinding) -> bool:
     """Prove a bounded builtin value cannot carry a dynamic importer."""
-    if binding.guarded or binding.kind == "ambiguous" or _dynamic_has_source_execution(binding):
+    if binding.guarded or binding.kind == "ambiguous" or _dynamic_has_guarded_payload(binding):
         return False
     if binding.kind in {
         "string",
@@ -2119,8 +2254,9 @@ def _dynamic_mapping_binding(
     *,
     guarded: bool = False,
     immutable: bool = False,
+    erased_members: Sequence[_DynamicImportBinding] = (),
 ) -> _DynamicImportBinding:
-    """Return a mapping value while retaining key iteration and value provenance."""
+    """Retain actual member origins when finite mapping shape is unavailable."""
     materialized_keys = tuple(keys) if keys is not None else None
     materialized_values = tuple(values) if values is not None else None
     members = tuple(materialized_keys or ()) + tuple(materialized_values or ())
@@ -2132,13 +2268,15 @@ def _dynamic_mapping_binding(
     ):
         materialized_keys = None
         materialized_values = None
-    return _DynamicImportBinding(
+        erased_members = (*erased_members, *members)
+    result = _DynamicImportBinding(
         "mapping",
         guarded=guarded or any(item.guarded or item.kind == "ambiguous" for item in members),
         items=materialized_keys,
         values=materialized_values,
         immutable=immutable,
     )
+    return _dynamic_join_with_guarded_origin(erased_members, result) if erased_members else result
 
 
 def _dynamic_normalize_literal_mapping_binding(
@@ -2148,9 +2286,9 @@ def _dynamic_normalize_literal_mapping_binding(
 ) -> _DynamicImportBinding:
     """Collapse source-known literal keys with Python dict insertion semantics."""
     if mapping.kind != "mapping" or mapping.items is None or mapping.values is None:
-        return _DYNAMIC_AMBIGUOUS
+        return _dynamic_unknown_projection(mapping)
     if len(mapping.items) != len(mapping.values):
-        return _DYNAMIC_AMBIGUOUS
+        return _dynamic_unknown_projection(mapping)
 
     effective_keys: list[_DynamicImportBinding] = []
     effective_values: list[_DynamicImportBinding] = []
@@ -2158,7 +2296,7 @@ def _dynamic_normalize_literal_mapping_binding(
     for key, value in zip(mapping.items, mapping.values, strict=True):
         key_known, key_value = _dynamic_binding_literal_key_value(key)
         if not key_known:
-            return _DYNAMIC_AMBIGUOUS
+            return _dynamic_unknown_projection(mapping)
         if key_value in key_indexes:
             # Python dict equality lets True/1 and equal tuple components collide.
             # Updating a key replaces its value while retaining the first key's
@@ -4837,11 +4975,9 @@ class _DynamicImportSourceBindings:
                 if argument_values is not None and keyword.arg in argument_values
                 else values[positional_count + index]
             )
-            fields[keyword.arg] = replace(
-                _DYNAMIC_DEFERRED,
-                name=value.name,
-                guarded=value.guarded,
-                origin_name=value.origin_name,
+            fields[keyword.arg] = _dynamic_join_with_guarded_origin(
+                (value,),
+                replace(_DYNAMIC_DEFERRED, name=value.name, origin_name=value.origin_name),
             )
 
         keys = tuple(_dynamic_string_binding(name) for name in fields)
@@ -4851,6 +4987,19 @@ class _DynamicImportSourceBindings:
             guarded=any(value.guarded for value in values),
             items=keys,
             values=tuple(fields.values()),
+            opaque_payload_origins=(source_name,)
+            if self._source_class_definition(
+                source_name, current_module=module, current_environment=environment, stack=stack
+            )
+            is not None
+            and any(
+                _is_guarded_importer_binding(value)
+                or _dynamic_import_namespace_origins(value)
+                or _dynamic_has_guarded_payload(value)
+                or value.opaque_payload_origins
+                for value in values
+            )
+            else (),
         )
 
     def _source_class_instance_binding(
@@ -5954,13 +6103,30 @@ class _DynamicImportSourceBindings:
                 )
             return value
         if isinstance(node, ast.Tuple | ast.List | ast.Set):
-            if any(isinstance(item, ast.Starred) for item in node.elts):
-                return _DYNAMIC_AMBIGUOUS
             items = tuple(
-                self._expression_binding(item, environment, module, stack) for item in node.elts
+                self._expression_binding(
+                    item.value if isinstance(item, ast.Starred) else item,
+                    environment,
+                    module,
+                    stack,
+                )
+                for item in node.elts
             )
-            if any(item.kind in {"unknown", "ambiguous"} for item in items):
-                return _DYNAMIC_AMBIGUOUS
+            if any(isinstance(item, ast.Starred) for item in node.elts) or any(
+                item.kind in {"unknown", "ambiguous"} for item in items
+            ):
+                carriers = tuple(
+                    member
+                    for syntax, value in zip(node.elts, items, strict=True)
+                    for member in (
+                        value.items
+                        if isinstance(syntax, ast.Starred)
+                        and value.kind in {"mapping", "namespace"}
+                        and value.items is not None
+                        else (value,)
+                    )
+                )
+                return _dynamic_join_with_guarded_origin(carriers, _DYNAMIC_AMBIGUOUS)
             return _dynamic_sequence_binding(
                 items,
                 kind="iterable" if isinstance(node, ast.Set) else "sequence",
@@ -5969,32 +6135,42 @@ class _DynamicImportSourceBindings:
                     if isinstance(node, ast.Tuple)
                     else None
                 ),
-                sequence_type=(
-                    "tuple"
-                    if isinstance(node, ast.Tuple)
-                    else "list"
-                    if isinstance(node, ast.List)
-                    else None
-                ),
+                sequence_type="tuple"
+                if isinstance(node, ast.Tuple)
+                else "list"
+                if isinstance(node, ast.List)
+                else None,
             )
         if isinstance(node, ast.Dict):
             keys: list[_DynamicImportBinding] = []
             values: list[_DynamicImportBinding] = []
+            carriers: list[_DynamicImportBinding] = []
+            shape_known = True
             for key_node, value_node in zip(node.keys, node.values, strict=True):
                 value = self._expression_binding(value_node, environment, module, stack)
+                carriers.append(value)
                 if key_node is None:
-                    if value.kind != "mapping" or value.items is None or value.values is None:
-                        return _DYNAMIC_AMBIGUOUS
-                    keys.extend(value.items)
-                    values.extend(value.values)
+                    if (
+                        value.kind == "mapping"
+                        and value.items is not None
+                        and value.values is not None
+                    ):
+                        keys.extend(value.items)
+                        values.extend(value.values)
+                    else:
+                        shape_known = False
                     continue
                 key = self._expression_binding(key_node, environment, module, stack)
-                if key.kind in {"unknown", "ambiguous"} or value.kind in {"unknown", "ambiguous"}:
-                    return _DYNAMIC_AMBIGUOUS
+                carriers.append(key)
+                shape_known = (
+                    shape_known
+                    and key.kind not in {"unknown", "ambiguous"}
+                    and value.kind not in {"unknown", "ambiguous"}
+                )
                 keys.append(key)
                 values.append(value)
-            if len(keys) > _DYNAMIC_COMPREHENSION_VALUE_LIMIT:
-                return _DYNAMIC_AMBIGUOUS
+            if not shape_known or len(keys) > _DYNAMIC_COMPREHENSION_VALUE_LIMIT:
+                return _dynamic_join_with_guarded_origin(carriers, _DYNAMIC_AMBIGUOUS)
             return _dynamic_mapping_binding(keys, values)
         if isinstance(node, ast.Call):
             callee = self._expression_binding(node.func, environment, module, stack)
@@ -7137,11 +7313,24 @@ class _DynamicImportSourceScanner:
     def _unknown_binding(_name: str) -> _DynamicImportBinding:
         return _DYNAMIC_UNKNOWN
 
+    def _unmodeled_operator_result(
+        self, node: ast.AST, operands: Sequence[_DynamicImportBinding]
+    ) -> _DynamicImportBinding:
+        """Refuse implicit opaque dispatch during protected body transfer."""
+        if self._source_code_depth:
+            raise DynamicImportCollectionError(
+                f"{self.relative_path}:{node.lineno}: reconstructed source invocation "
+                "reaches opaque operator dispatch"
+            )
+        return _dynamic_join_with_guarded_origin(
+            operands, replace(_DYNAMIC_AMBIGUOUS, callable_result_unresolved=True)
+        )
+
     def _reject_guarded_escape(
         self, binding: _DynamicImportBinding, node: ast.AST, boundary: str
     ) -> None:
         self._invalidate_source_function_code((binding,))
-        if _is_guarded_importer_binding(binding) or _dynamic_has_source_execution(binding):
+        if _is_guarded_importer_binding(binding) or _dynamic_has_guarded_payload(binding):
             raise DynamicImportCollectionError(
                 f"{self.relative_path}:{getattr(node, 'lineno', 1)}: guarded importer value "
                 f"escapes through {boundary}; value flow at this boundary is unsupported"
@@ -7772,7 +7961,7 @@ class _DynamicImportSourceScanner:
                     _DynamicImportBinding("boolean"),
                     trusted_result=True,
                 )
-            return _dynamic_join_with_guarded_origin((operand,), _DYNAMIC_AMBIGUOUS)
+            return self._unmodeled_operator_result(node, (operand,))
         if isinstance(node, ast.BinOp):
             operands = (
                 self._expression_binding(
@@ -7904,7 +8093,7 @@ class _DynamicImportSourceScanner:
                 # arguments. Known importer provenance and custom object operands
                 # remain ambiguous above.
                 return _DYNAMIC_UNKNOWN
-            return _dynamic_join_with_guarded_origin(operands, _DYNAMIC_AMBIGUOUS)
+            return self._unmodeled_operator_result(node, operands)
         if isinstance(node, ast.Name):
             return self._lookup(node.id, environment)
         if isinstance(node, ast.Attribute):
@@ -8086,6 +8275,7 @@ class _DynamicImportSourceScanner:
             items: list[_DynamicImportBinding] = []
             shape_known = True
             guarded = False
+            payloads: list[_DynamicImportBinding] = []
             for element in node.elts:
                 if isinstance(element, ast.Starred):
                     spread = self._expression_binding(
@@ -8095,6 +8285,13 @@ class _DynamicImportSourceScanner:
                         scope_info,
                         comprehension_outer=comprehension_outer,
                     )
+                    # A mapping spread produces keys, not its values. Retain the
+                    # actual key carrier when its shape is known, not the mapping's
+                    # unrelated value provenance.
+                    if spread.kind in {"mapping", "namespace"} and spread.items is not None:
+                        payloads.extend(spread.items)
+                    else:
+                        payloads.append(spread)
                     if spread.kind in {"mapping", "namespace"}:
                         guarded = (
                             guarded
@@ -8130,6 +8327,7 @@ class _DynamicImportSourceScanner:
                     comprehension_outer=comprehension_outer,
                 )
                 items.append(item)
+                payloads.append(item)
                 guarded = guarded or item.guarded or item.kind == "ambiguous"
             kind: Literal["sequence", "iterable"] = (
                 "iterable" if isinstance(node, ast.Set) else "sequence"
@@ -8146,6 +8344,7 @@ class _DynamicImportSourceScanner:
                 kind=kind,
                 guarded=guarded,
                 component_names=component_names,
+                erased_members=payloads if not shape_known else (),
                 sequence_type=(
                     "tuple"
                     if isinstance(node, ast.Tuple)
@@ -8175,6 +8374,7 @@ class _DynamicImportSourceScanner:
             values: list[_DynamicImportBinding] = []
             shape_known = True
             guarded = False
+            payloads: list[_DynamicImportBinding] = []
             for key_node, value_node in zip(node.keys, node.values, strict=True):
                 value = self._expression_binding(
                     value_node,
@@ -8183,6 +8383,7 @@ class _DynamicImportSourceScanner:
                     scope_info,
                     comprehension_outer=comprehension_outer,
                 )
+                payloads.append(value)
                 if key_node is None:
                     guarded = guarded or value.guarded or value.kind == "ambiguous"
                     if (
@@ -8211,12 +8412,14 @@ class _DynamicImportSourceScanner:
                     )
                 keys.append(key)
                 values.append(value)
+                payloads.append(key)
                 guarded = guarded or key.guarded or key.kind == "ambiguous"
                 guarded = guarded or value.guarded or value.kind == "ambiguous"
             mapping = _dynamic_mapping_binding(
                 keys if shape_known else None,
                 values if shape_known else None,
                 guarded=guarded,
+                erased_members=payloads if not shape_known else (),
             )
             if (
                 mapping.items is not None
@@ -8258,6 +8461,30 @@ class _DynamicImportSourceScanner:
                 )
                 for keyword in node.keywords
             )
+            builtin_protocol_call = (
+                callee.name is not None
+                and callee.name.startswith("builtins.")
+                and callee.name not in DYNAMIC_CALL_NAMES
+            ) or (
+                callee.kind == "other"
+                and isinstance(node.func, ast.Name)
+                and node.func.id == "len"
+                and "len" not in environment
+            )
+            if (
+                self._source_code_depth
+                and builtin_protocol_call
+                and (
+                    any(not _dynamic_immutable_literal(argument) for argument in node.args)
+                    or any(
+                        not _dynamic_immutable_literal(keyword.value) for keyword in node.keywords
+                    )
+                )
+            ):
+                raise DynamicImportCollectionError(
+                    f"{self.relative_path}:{node.lineno}: reconstructed source body "
+                    "has opaque implicit dispatch"
+                )
             call_values = list(argument_bindings)
             if isinstance(node.func, ast.Attribute) and callee.receiver is not None:
                 call_values.append(callee.receiver)
@@ -8401,7 +8628,7 @@ class _DynamicImportSourceScanner:
                         }
                     )
                     if function_targets:
-                        if _dynamic_has_source_execution(argument_bindings[0]):
+                        if _dynamic_has_guarded_payload(argument_bindings[0]):
                             raise DynamicImportCollectionError(
                                 f"{self.relative_path}:{node.lineno}: reconstructed callable mutation is unsupported"
                             )
@@ -8949,7 +9176,7 @@ class _DynamicImportSourceScanner:
                 if mapping.kind != "mapping":
                     return _DYNAMIC_AMBIGUOUS
                 if not isinstance(node.args[0], ast.Dict) and not mapping.immutable:
-                    return _DYNAMIC_AMBIGUOUS if mapping.guarded else _DYNAMIC_UNKNOWN
+                    return _dynamic_unknown_projection(mapping)
                 return _dynamic_immutable_literal_mapping_binding(mapping)
             if callee.kind == "callable" and callee.name == "builtins.getattr":
                 if len(argument_bindings) < 2:
@@ -9076,7 +9303,7 @@ class _DynamicImportSourceScanner:
                         f"{self.relative_path}:{node.lineno}: {constructor}() receives an "
                         "unsupported importer-bearing iterable"
                     )
-                return _DYNAMIC_UNKNOWN
+                return _dynamic_unknown_projection(iterable)
             if callee.kind == "callable" and callee.name in {
                 f"builtins.{name}" for name in _DYNAMIC_CAPABILITY_PREDICATES
             }:
@@ -9226,7 +9453,7 @@ class _DynamicImportSourceScanner:
                     f"{self.relative_path}:{node.lineno}: reconstructed source invocation "
                     "reaches opaque callable dispatch"
                 )
-            for binding in argument_bindings:
+            for binding in call_values:
                 for item in _dynamic_binding_nodes(binding):
                     if item.kind == "source_function" and item.origin_name is not None:
                         self._invalidated_function_code.add(item.origin_name)
@@ -9452,7 +9679,7 @@ class _DynamicImportSourceScanner:
                     _DynamicImportBinding("boolean"),
                     trusted_result=True,
                 )
-            return _dynamic_join_with_guarded_origin(operands, _DYNAMIC_AMBIGUOUS)
+            return self._unmodeled_operator_result(node, operands)
         if isinstance(node, (ast.Yield, ast.YieldFrom)):
             value_node = getattr(node, "value", None)
             value = (
@@ -9481,7 +9708,7 @@ class _DynamicImportSourceScanner:
             if isinstance(child, ast.expr)
         ]
         if any(binding.guarded or binding.kind == "ambiguous" for binding in child_values):
-            return _DYNAMIC_AMBIGUOUS
+            return _dynamic_join_with_guarded_origin(child_values, _DYNAMIC_AMBIGUOUS)
         return _DYNAMIC_OTHER
 
     @staticmethod
@@ -9724,6 +9951,7 @@ class _DynamicImportSourceScanner:
                 or key.kind == "ambiguous"
                 or value.guarded
                 or value.kind == "ambiguous",
+                erased_members=(key, value),
             )
         else:
             element = self._expression_binding(
@@ -9737,6 +9965,7 @@ class _DynamicImportSourceScanner:
                 None,
                 kind="iterable" if isinstance(node, ast.SetComp) else "sequence",
                 guarded=element.guarded or element.kind == "ambiguous",
+                erased_members=(element,),
                 sequence_type="list" if isinstance(node, ast.ListComp) else None,
             )
 
@@ -10147,7 +10376,7 @@ class _DynamicImportSourceScanner:
                         delete=delete,
                     )
                 return
-            child_value = _DYNAMIC_AMBIGUOUS if value.guarded else _DYNAMIC_UNKNOWN
+            child_value = _dynamic_unknown_projection(value)
             for element in target.elts:
                 self._assign_target(
                     element.value if isinstance(element, ast.Starred) else element,
@@ -10531,20 +10760,36 @@ class _DynamicImportSourceScanner:
         awaited: bool,
     ) -> _DynamicImportBinding | None:
         """Join finite, selected source-function alternatives in their own namespaces."""
+        selected_external = (
+            bool(self._source_code_depth)
+            and callee.kind == "other"
+            and callee.origin_name is not None
+            and self.source_bindings is not None
+            and self.source_bindings._source_function_definition(callee.origin_name) is not None
+        )
         alternatives = (
             callee.items
             if callee.kind == "union" and callee.items is not None
             else (callee,)
             if callee.kind in {"source_function", "reconstructed_function", "source_closure"}
+            or selected_external
             else ()
         )
         function_bindings = tuple(
             binding
             for binding in alternatives
             if binding.kind in {"source_function", "reconstructed_function", "source_closure"}
+            or selected_external
         )
         if not function_bindings:
             return None
+        if any(
+            binding.opaque_payload_origins for binding in (*argument_bindings, *function_bindings)
+        ):
+            raise DynamicImportCollectionError(
+                f"{self.relative_path}:{node.lineno}: guarded importer value escapes through "
+                "a call argument; unresolved source-object payload has no invocation summary"
+            )
         source_code_call = any(
             binding.kind in {"reconstructed_function", "source_closure"}
             for binding in function_bindings
@@ -10680,6 +10925,8 @@ class _DynamicImportSourceScanner:
                 previous_active_environment = scanner._active_module_environment
                 previous_builtins = scanner._active_code_builtins
                 previous_code_depth = scanner._source_code_depth
+                # A selected helper in another module still executes on the protected path.
+                scanner._source_code_depth = max(previous_code_depth, self._source_code_depth)
                 if binding.kind in {"reconstructed_function", "source_closure"}:
                     if scanner._source_code_opaque_effect:
                         raise DynamicImportCollectionError(
@@ -11383,7 +11630,11 @@ class _DynamicImportSourceScanner:
                 f"{self.relative_path}:{node.lineno}: source-visible dynamic code execution "
                 f"through {binding.name} is unresolved"
             )
-        elif _is_guarded_importer_binding(binding) or _dynamic_has_source_execution(binding):
+        elif (
+            binding.callable_result_unresolved
+            or _is_guarded_importer_binding(binding)
+            or _dynamic_has_guarded_payload(binding)
+        ):
             raise DynamicImportCollectionError(
                 f"{self.relative_path}:{node.lineno}: dynamic importer binding is ambiguous or unresolved"
             )
@@ -11662,7 +11913,7 @@ class _DynamicImportSourceScanner:
             if any(alias.name == "*" for alias in node.names):
                 for name, value in tuple(environment.items()):
                     if value.guarded:
-                        environment[name] = _DYNAMIC_AMBIGUOUS
+                        environment[name] = _dynamic_unknown_projection(value)
                 for name in _DYNAMIC_IMPORT_GUARDED_ROOTS:
                     unknown = self._unknown_binding(name)
                     self._note_importer_binding_write(
@@ -12020,9 +12271,7 @@ class _DynamicImportSourceScanner:
         if isinstance(node, ast.Return):
             if node.value is not None:
                 returned = self._expression_binding(node.value, environment, pending, scope_info)
-                if _is_guarded_importer_binding(returned) or _dynamic_has_source_execution(
-                    returned
-                ):
+                if _is_guarded_importer_binding(returned) or _dynamic_has_guarded_payload(returned):
                     raise DynamicImportCollectionError(
                         f"{self.relative_path}:{node.lineno}: guarded importer value escapes through a function return"
                     )
@@ -12178,7 +12427,7 @@ class _DynamicImportSourceScanner:
                 for name in self._pattern_names(pattern):
                     self._assign_match_capture(
                         name,
-                        _DYNAMIC_AMBIGUOUS,
+                        _dynamic_unknown_projection(value),
                         pattern,
                         environment,
                         pending,
@@ -12199,7 +12448,7 @@ class _DynamicImportSourceScanner:
             for name in self._pattern_names(pattern):
                 self._assign_match_capture(
                     name,
-                    _DYNAMIC_AMBIGUOUS,
+                    _dynamic_unknown_projection(value),
                     pattern,
                     environment,
                     pending,

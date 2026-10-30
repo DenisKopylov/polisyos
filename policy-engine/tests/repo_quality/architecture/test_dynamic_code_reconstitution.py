@@ -14,7 +14,11 @@ PREFIX = "from types import FunctionType\nfrom importlib import import_module\n"
 BODY = 'def body(callback):\n    return callback("bridge_callback")\n'
 CONSTRUCT = "CODE = body.__code__\nrun = FunctionType(CODE, globals())\n"
 CASES = {
-    "noop": (PREFIX + "def body():\n    return None\n" + CONSTRUCT + "run()\n", set(), None),
+    "noop": (
+        PREFIX + "def body():\n    return None\n" + CONSTRUCT + "run()\n",
+        set(),
+        None,
+    ),
     "literal": (
         PREFIX
         + 'def body():\n    return import_module("bridge_literal")\n'
@@ -23,7 +27,11 @@ CASES = {
         {"bridge_literal"},
         None,
     ),
-    "callback": (PREFIX + BODY + CONSTRUCT + "run(import_module)\n", {"bridge_callback"}, None),
+    "callback": (
+        PREFIX + BODY + CONSTRUCT + "run(import_module)\n",
+        {"bridge_callback"},
+        None,
+    ),
     "code-alias": (
         PREFIX
         + BODY
@@ -104,7 +112,11 @@ CASES = {
         None,
         "defaults, closure",
     ),
-    "opaque-code": (PREFIX + "run = FunctionType(opaque_code, globals())\n", None, "code origin"),
+    "opaque-code": (
+        PREFIX + "run = FunctionType(opaque_code, globals())\n",
+        None,
+        "code origin",
+    ),
     "foreign-globals": (
         PREFIX + BODY + "CODE = body.__code__\nrun = FunctionType(CODE, {})\n",
         None,
@@ -153,7 +165,11 @@ CASES = {
         None,
         "closure cells",
     ),
-    "reconstructed-escape": (PREFIX + BODY + CONSTRUCT + "opaque(run)\n", None, "escapes"),
+    "reconstructed-escape": (
+        PREFIX + BODY + CONSTRUCT + "opaque(run)\n",
+        None,
+        "escapes",
+    ),
     "original-default-not-borrowed": (
         PREFIX
         + 'def body(callback=None):\n    return callback("bridge_default")\n'
@@ -400,6 +416,61 @@ CASES = {
 }
 
 
+# A deferred constructor can hide a real payload without proving its value protocol.
+_DEFERRED_OBJECT = """from importlib import import_module
+from pydantic import BaseModel
+class Carrier(BaseModel):
+    loader: object
+    def __getattribute__(self, name):
+        return super().__getattribute__(name)
+def consume(value):
+    return None
+"""
+for _name, _projection in {
+    "direct": "value",
+    "list": "[value]",
+    "tuple": "(value,)",
+    "mapping": '{"value": value}',
+}.items():
+    CASES[f"deferred-object-selected-consumer-{_name}"] = (
+        _DEFERRED_OBJECT + "value = Carrier(loader=import_module)\n" + f"consume({_projection})\n",
+        None,
+        "guarded importer value escapes through a call argument",
+    )
+CASES["deferred-object-no-sink"] = (
+    _DEFERRED_OBJECT + "value = Carrier(loader=import_module)\n",
+    set(),
+    None,
+)
+CASES["deferred-object-scalar-consumer"] = (
+    _DEFERRED_OBJECT + 'consume(Carrier(loader="ordinary"))\n',
+    set(),
+    None,
+)
+for _name, _projection in {
+    "unpack": "first, second = value, 1\nopaque(first)\n",
+    "unknown-unpack": "def expose(unknown):\n    if callable(None):\n        values = [value]\n    else:\n        values = unknown\n    first, = values\n    opaque(first)\n",
+    "dict-unpack": 'def expose(unknown):\n    if callable(None):\n        values = {"code": value}\n    else:\n        values = unknown\n    opaque({**values})\n',
+    "star-import": "from unseen import *\nopaque(value)\n",
+}.items():
+    CASES[f"real-code-unknown-projection-{_name}"] = (
+        "def body():\n    return None\nvalue = body.__code__\n" + _projection,
+        None,
+        "escapes|unresolved",
+    )
+
+
+for _operator in ("left + right", "-left", "left == right"):
+    CASES[f"protected-opaque-operator-{_operator}"] = (
+        PREFIX
+        + f"def body(left, right):\n    return {_operator}\n"
+        + CONSTRUCT
+        + "run(unknown_left, unknown_right)\n",
+        None,
+        "opaque operator dispatch",
+    )
+
+
 def collect_case(root: Path, source: str) -> list[dict]:
     """Select a real byte-backed fixture root without executing its source modules."""
     for scope in ("src", "tools", "apps", "packages"):
@@ -477,9 +548,8 @@ def test_dynamic_code_join_provenance_removal_is_semantic(
 
     with monkeypatch.context() as patch:
         patch.setattr(preflight, "_dynamic_join_with_guarded_origin", removed)
-        # Constructor normalization independently retains guarded unknown meaning.
-        with pytest.raises(preflight.DynamicImportCollectionError, match="escapes"):
-            collect_case(tmp_path / "removed", source)
+        # Keep every marker and source byte; remove only the actual origin transfer.
+        assert collect_case(tmp_path / "removed", source) == []
     assert preflight._dynamic_join_with_guarded_origin is transfer
     with pytest.raises(preflight.DynamicImportCollectionError, match="escapes"):
         collect_case(tmp_path / "restored", source)
@@ -495,9 +565,317 @@ def test_dynamic_code_normalization_removal_is_semantic(
     normalize = preflight._DynamicImportBinding._normalize_negative_execution
     with monkeypatch.context() as patch:
         patch.setattr(
-            preflight._DynamicImportBinding, "_normalize_negative_execution", lambda _self: None
+            preflight._DynamicImportBinding,
+            "_normalize_negative_execution",
+            lambda _self: None,
         )
         assert collect_case(tmp_path / "removed", source) == []
     assert preflight._DynamicImportBinding._normalize_negative_execution is normalize
     with pytest.raises(preflight.DynamicImportCollectionError, match="escapes"):
         collect_case(tmp_path / "restored", source)
+
+
+def test_dynamic_deferred_payload_removal_is_semantic(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Erase only the payload capability; retain source, importer and constructor."""
+    source = CASES["deferred-object-selected-consumer-direct"][0]
+    with pytest.raises(preflight.DynamicImportCollectionError, match="a call argument"):
+        collect_case(tmp_path / "positive", source)
+    transfer = preflight._DynamicImportSourceBindings._deferred_source_class_instance_binding
+
+    def removed(self, *args, **kwargs):
+        return replace(transfer(self, *args, **kwargs), opaque_payload_origins=())
+
+    with monkeypatch.context() as patch:
+        patch.setattr(
+            preflight._DynamicImportSourceBindings,
+            "_deferred_source_class_instance_binding",
+            removed,
+        )
+        assert collect_case(tmp_path / "removed", source) == []
+    assert (
+        preflight._DynamicImportSourceBindings._deferred_source_class_instance_binding is transfer
+    )
+    with pytest.raises(preflight.DynamicImportCollectionError, match="a call argument"):
+        collect_case(tmp_path / "restored", source)
+
+
+_R12_PROTECTED = "from types import FunctionType\ndef body(value):\n    return {expression}\nCODE = body.__code__\nrun = FunctionType(CODE, globals())\ndef later(value):\n    return run(value)\n"
+_R12_CASES = {
+    "truth-and": (_R12_PROTECTED.format(expression="value and None"), "opaque implicit dispatch"),
+    "truth-or": (_R12_PROTECTED.format(expression="value or None"), "opaque implicit dispatch"),
+    "format": (_R12_PROTECTED.format(expression='f"{value}"'), "opaque implicit dispatch"),
+    "set-hash": (_R12_PROTECTED.format(expression="{value}"), "opaque implicit dispatch"),
+    "dict-hash": (_R12_PROTECTED.format(expression="{value: None}"), "opaque implicit dispatch"),
+    "builtins-bool": (_R12_PROTECTED.format(expression="bool(value)"), "opaque callable dispatch"),
+    "safe-truth": (_R12_PROTECTED.format(expression="True and None"), None),
+    "safe-tuple-index": (_R12_PROTECTED.format(expression="(1, 2)[0]"), None),
+    "known-code-unknown-star": (
+        "def body():\n    return None\ndef expose(unknown):\n    if callable(None):\n        value = [body.__code__]\n    else:\n        value = unknown\n    opaque([*value])\n",
+        "escapes",
+    ),
+    "known-code-star-suffix": (
+        "def body():\n    return None\ndef expose(unknown):\n    opaque([body.__code__, *unknown])\n",
+        "escapes",
+    ),
+    "unknown-code-dict-comp": (
+        "def body():\n    return None\ndef expose(unknown):\n    opaque({x: body.__code__ for x in unknown})\n",
+        "escapes",
+    ),
+    "unknown-code-list-comp": (
+        "def body():\n    return None\ndef expose(unknown):\n    opaque([body.__code__ for x in unknown])\n",
+        "escapes",
+    ),
+    "mapping-spread-keys-not-values": (
+        'def body():\n    return None\ndef expose(unknown):\n    opaque([*{"safe": body.__code__}, *unknown])\n',
+        None,
+    ),
+    "unused-code-carrier": (
+        "def body():\n    return None\ndef expose(unknown):\n    value = [body.__code__, *unknown]\n",
+        None,
+    ),
+    "control-only-code": (
+        "def body():\n    return None\ndef expose(unknown):\n    if body.__code__:\n        result = [1, *unknown]\n    else:\n        result = [2, *unknown]\n    opaque(result)\n",
+        None,
+    ),
+}
+
+
+@pytest.mark.parametrize("name", _R12_CASES)
+def test_dynamic_protected_implicit_and_carrier_projection(name: str, tmp_path: Path) -> None:
+    """Protected effects refuse, while only values entering carriers retain origins."""
+    source, refusal = _R12_CASES[name]
+    if refusal is not None:
+        with pytest.raises(preflight.DynamicImportCollectionError, match=refusal):
+            collect_case(tmp_path, source)
+    else:
+        assert collect_case(tmp_path, source) == []
+
+
+def test_protected_implicit_intake_removal_is_semantic(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Removing the intake alone restores the original empty inventory escape."""
+    source = _R12_CASES["truth-and"][0]
+    with pytest.raises(preflight.DynamicImportCollectionError, match="opaque implicit dispatch"):
+        collect_case(tmp_path / "positive", source)
+    original = preflight._dynamic_function_has_unmodeled_implicit_dispatch
+    with monkeypatch.context() as patch:
+        patch.setattr(
+            preflight, "_dynamic_function_has_unmodeled_implicit_dispatch", lambda *_: False
+        )
+        assert collect_case(tmp_path / "removed", source) == []
+    assert preflight._dynamic_function_has_unmodeled_implicit_dispatch is original
+    with pytest.raises(preflight.DynamicImportCollectionError, match="opaque implicit dispatch"):
+        collect_case(tmp_path / "restored", source)
+
+
+def test_shape_erasure_member_transfer_removal_is_semantic(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Removing erased-member transfer alone restores the original carrier escape."""
+    source = _R12_CASES["known-code-unknown-star"][0]
+    with pytest.raises(preflight.DynamicImportCollectionError, match="escapes"):
+        collect_case(tmp_path / "positive", source)
+    original = preflight._dynamic_sequence_binding
+
+    def removed(items, **kwargs):
+        kwargs.pop("erased_members", None)
+        return original(items, **kwargs)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(preflight, "_dynamic_sequence_binding", removed)
+        assert collect_case(tmp_path / "removed", source) == []
+    assert preflight._dynamic_sequence_binding is original
+    with pytest.raises(preflight.DynamicImportCollectionError, match="escapes"):
+        collect_case(tmp_path / "restored", source)
+
+
+@pytest.mark.parametrize(("expression", "refuses"), [("value and None", True), ("None", False)])
+def test_protected_cross_module_selected_helper(
+    expression: str, refuses: bool, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A selected helper retains the caller's protected implicit-effect boundary."""
+    for scope in ("src", "tools", "apps", "packages"):
+        (tmp_path / scope).mkdir(parents=True, exist_ok=True)
+    package = tmp_path / "src/polisyos"
+    package.mkdir()
+    (package / "__init__.py").write_text("", encoding="utf-8")
+    (package / "helper.py").write_text(
+        f"def check(value):\n    return {expression}\n", encoding="utf-8"
+    )
+    (package / "bridge.py").write_text(
+        "from types import FunctionType\nfrom polisyos.helper import check\n"
+        "def body(value):\n    return check(value)\nCODE = body.__code__\n"
+        "run = FunctionType(CODE, globals())\ndef later(value):\n    return run(value)\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(preflight, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(preflight, "SRC_ROOT", tmp_path / "src")
+    if refuses:
+        with pytest.raises(
+            preflight.DynamicImportCollectionError, match="opaque implicit dispatch"
+        ):
+            preflight.collect_dynamic_imports()
+    else:
+        assert preflight.collect_dynamic_imports() == []
+
+
+@pytest.mark.parametrize(
+    ("argument", "refusal"),
+    [("value", "opaque implicit dispatch"), ("True", None)],
+)
+def test_protected_resolved_builtin_truth_protocol(
+    argument: str, refusal: str | None, tmp_path: Path
+) -> None:
+    """A resolved builtin conversion requires a pure operand, not an unknown object."""
+    source = (
+        "from types import FunctionType\n"
+        "from builtins import bool as truth\n"
+        "def body(value):\n"
+        f"    return truth({argument})\n"
+        "CODE = body.__code__\n"
+        "run = FunctionType(CODE, globals())\n"
+        "def later(value):\n"
+        "    return run(value)\n"
+    )
+    if refusal is not None:
+        with pytest.raises(preflight.DynamicImportCollectionError, match=refusal):
+            collect_case(tmp_path, source)
+    else:
+        assert collect_case(tmp_path, source) == []
+
+
+@pytest.mark.parametrize("module_alias", ["importlib", "loader"])
+def test_protected_module_receiver_refuses_without_identity_proof(
+    module_alias: str, tmp_path: Path
+) -> None:
+    """Record the bounded module-attribute precision loss through the collector."""
+    import_stmt = (
+        "import importlib\n" if module_alias == "importlib" else "import importlib as loader\n"
+    )
+    source = (
+        import_stmt + "from types import FunctionType\n"
+        "def body():\n"
+        f"    return {module_alias}.import_module('bridge_module')\n"
+        "CODE = body.__code__\n"
+        "run = FunctionType(CODE, globals())\n"
+        "run()\n"
+    )
+    with pytest.raises(preflight.DynamicImportCollectionError, match="opaque implicit dispatch"):
+        collect_case(tmp_path, source)
+
+
+def test_protected_unknown_receiver_refuses(tmp_path: Path) -> None:
+    """An unverified object cannot inherit the admitted module receiver's authority."""
+    source = (
+        "from types import FunctionType\n"
+        "def body(value):\n"
+        "    return value.attr('bridge')\n"
+        "CODE = body.__code__\n"
+        "run = FunctionType(CODE, globals())\n"
+        "def later(value):\n"
+        "    return run(value)\n"
+    )
+    with pytest.raises(
+        preflight.DynamicImportCollectionError,
+        match=r"opaque (callable|implicit) dispatch",
+    ):
+        collect_case(tmp_path, source)
+
+
+def test_protected_rebound_module_slot_does_not_emit_old_import(tmp_path: Path) -> None:
+    """The refused module form must not emit an old target after slot replacement."""
+    base = (
+        "import importlib\n"
+        "from types import FunctionType\n"
+        "{before}"
+        "def body():\n"
+        "    return importlib.import_module('bridge_module')\n"
+        "CODE = body.__code__\n"
+        "run = FunctionType(CODE, globals())\n"
+        "run()\n"
+    )
+    with pytest.raises(preflight.DynamicImportCollectionError, match="opaque implicit dispatch"):
+        collect_case(tmp_path / "stable-module", base.format(before=""))
+    replacement = "def replacement(name):\n    return None\nimportlib.import_module = replacement\n"
+    error_message = ""
+    try:
+        changed = collect_case(tmp_path / "changed", base.format(before=replacement))
+    except preflight.DynamicImportCollectionError as error:
+        error_message = str(error)
+        changed = []
+    if error_message:
+        assert any(
+            word in error_message
+            for word in ("opaque", "mutat", "unresolved", "ambiguous", "unsupported")
+        )
+    else:
+        assert changed == []
+
+
+@pytest.mark.parametrize("variant", ["shadowed-parameter", "rebound-global"])
+def test_protected_module_receiver_uses_actual_invocation_binding(
+    variant: str, tmp_path: Path
+) -> None:
+    """A module-shaped snapshot cannot authorize a different receiver at a use."""
+    stable = (
+        "import importlib\n"
+        "from types import FunctionType\n"
+        "def body():\n"
+        "    return importlib.import_module('bridge_module')\n"
+        "CODE = body.__code__\n"
+        "run = FunctionType(CODE, globals())\n"
+        "run()\n"
+    )
+    with pytest.raises(preflight.DynamicImportCollectionError, match="opaque implicit dispatch"):
+        collect_case(tmp_path / "stable-module", stable)
+    if variant == "shadowed-parameter":
+        unsafe = (
+            "import importlib\n"
+            "from types import FunctionType\n"
+            "def body(importlib):\n"
+            "    return importlib.import_module('bridge_module')\n"
+            "CODE = body.__code__\n"
+            "run = FunctionType(CODE, globals())\n"
+            "def later(value):\n"
+            "    return run(value)\n"
+        )
+    else:
+        unsafe = (
+            "import importlib\n"
+            "from types import FunctionType\n"
+            "def body():\n"
+            "    return importlib.import_module('bridge_module')\n"
+            "CODE = body.__code__\n"
+            "run = FunctionType(CODE, globals())\n"
+            "importlib = unknown\n"
+            "run()\n"
+        )
+    with pytest.raises(
+        preflight.DynamicImportCollectionError,
+        match=(
+            r"reconstructed source (?:invocation reaches opaque callable|"
+            r"body has opaque implicit) dispatch|"
+            r"dynamic importer binding is ambiguous or unresolved through a call target"
+        ),
+    ):
+        collect_case(tmp_path / "unsafe", unsafe)
+
+
+def test_protected_direct_importer_binding_transfers_effect(tmp_path: Path) -> None:
+    """A direct selected importer still emits its source-bound target."""
+    source = (
+        "from importlib import import_module\n"
+        "from types import FunctionType\n"
+        "def body():\n"
+        "    return import_module('bridge_module')\n"
+        "CODE = body.__code__\n"
+        "run = FunctionType(CODE, globals())\n"
+        "run()\n"
+    )
+    entries = collect_case(tmp_path, source)
+    assert {entry["pattern"] for entry in entries} == {"bridge_module"}
+    assert all(entry["call"] == "importlib.import_module" for entry in entries)
+    assert all(entry["source_file"] == "src/polisyos/bridge.py" for entry in entries)

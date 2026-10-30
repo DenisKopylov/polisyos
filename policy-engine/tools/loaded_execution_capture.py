@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import _imp
 import builtins
+import gc
 import hashlib
 import importlib
 import importlib.abc
@@ -32,7 +33,7 @@ from types import (
     MappingProxyType,
     ModuleType,
 )
-from typing import TYPE_CHECKING, Literal, cast
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Mapping, Sequence
@@ -312,7 +313,7 @@ class SourceCaptureDiagnostic:
     proof_schema: Literal["policyos.runtime.confidence_ledger.loaded_execution_capture.v1"]
     identity_rule: Literal["canonical-source-execution/1"]
     status: Literal["not_established"]
-    phase: Literal["new", "collecting", "failed"]
+    phase: Literal["new", "collecting", "failed", "closed"]
     runtime_profile_id: None
     first_unestablished_premise: Literal["appointed_profile"]
     failed_premise: str | None
@@ -424,7 +425,7 @@ class _CaptureFinder(importlib.abc.MetaPathFinder):
         if not capture._same_process():
             capture._fail("capture_inherited_across_fork")
             return None
-        if capture.failed:
+        if capture._phase != "collecting":
             # Candidate imports may continue, but this process can never promote
             # the failed capture into authority.
             return None
@@ -492,7 +493,7 @@ class _ExternalCaptureFinder(importlib.abc.MetaPathFinder):
         if (
             selector is None
             or capture._selecting_external
-            or capture.failed
+            or capture._phase != "collecting"
             or not capture._same_process()
             or fullname.partition(".")[0] in capture._package_roots
             or fullname in capture._module_failures
@@ -643,7 +644,8 @@ class SourceExecutionCapture:
         self._meta_path_object: list[object] | None = None
         self._admitted_meta_path: tuple[object, ...] = ()
         self._source_owned_finders: dict[int, _SourceOwnedFinder] = {}
-        self._phase: Literal["new", "collecting", "failed"] = "new"
+        self._phase: Literal["new", "collecting", "failed", "closed"] = "new"
+        self._closed = False
         self._failure: str | None = None
         self._pending: dict[str, ModuleType] = {}
         self._pending_codes: dict[str, CodeType] = {}
@@ -658,6 +660,8 @@ class SourceExecutionCapture:
         self._failed_event_anchors: dict[int, tuple[object, ...]] = {}
         self._import_hook: object | None = None
         self._import_module_hook: object | None = None
+        self._prior_import: object | None = None
+        self._prior_import_module: object | None = None
         if set(self._exports) - self._sources.keys():
             raise ValueError("capture_export_selection_invalid")
         for expected in self._sources.values():
@@ -818,6 +822,7 @@ class SourceExecutionCapture:
                     raise CaptureError("capture_preexisting_import_hooks_unsupported")
                 self._initial_meta_path = tuple(sys.meta_path)
                 sys.meta_path.insert(0, self._finder)
+                self._meta_path_object = sys.meta_path
                 if self._external_finder is not None:
                     if (
                         type.__getattribute__(_PATH_FINDER, "__dict__").get("find_spec")
@@ -844,7 +849,6 @@ class SourceExecutionCapture:
 
                     self._path_finder_descriptor = classmethod(observed_path_find_spec)
                     type.__setattr__(_PATH_FINDER, "find_spec", self._path_finder_descriptor)
-                self._meta_path_object = sys.meta_path
                 self._admitted_meta_path = tuple(sys.meta_path)
                 self._phase = "collecting"
                 self._install_import_hooks()
@@ -864,6 +868,119 @@ class SourceExecutionCapture:
             return self._completed[module_name]
         except KeyError as exc:
             raise CaptureError("module_not_completed") from exc
+
+    def close(self) -> None:
+        """End the capture generation and release live evidence after its use.
+
+        Closing cannot grant authority or permit a second capture in this process.
+        Hooks are restored only when their held identities still match; a changed
+        hook remains untouched and makes the terminal capture fail closed.
+        """
+
+        self._require_same_process()
+        if self._phase == "new" or self._closed:
+            raise CaptureError("capture_not_collecting")
+        _imp.acquire_lock()
+        failure: str | None = None
+        try:
+            if type(self._pending) is not dict:
+                raise CaptureError("capture_record_invalid")
+            if self._pending:
+                raise CaptureError("capture_incomplete")
+            if _passive_lookup(sys.__dict__, _PROCESS_OWNER_SLOT)[1] is not self:
+                failure = "capture_process_owner_changed"
+                if not _passive_lookup(sys.__dict__, _PROCESS_OWNER_SLOT)[0]:
+                    sys.__dict__[_PROCESS_OWNER_SLOT] = self
+            if self._phase == "collecting" and (
+                sys.meta_path is not self._meta_path_object
+                or type(sys.meta_path) is not list
+                or len(sys.meta_path) != len(self._admitted_meta_path)
+                or any(
+                    actual is not held
+                    for actual, held in zip(sys.meta_path, self._admitted_meta_path, strict=True)
+                )
+            ):
+                failure = failure or "capture_finder_changed"
+            if self._phase == "collecting" and (
+                type(self._source_owned_finders) is not dict
+                or any(
+                    type(ref) is not _SourceOwnedFinder or not self._source_finder_matches(ref)
+                    for ref in self._source_owned_finders.values()
+                )
+            ):
+                failure = failure or "capture_finder_state_changed"
+            self._closed = True
+            self._phase = "closed"
+            if self._meta_path_object is not None:
+                if (
+                    sys.meta_path is not self._meta_path_object
+                    or type(sys.meta_path) is not list
+                    or sum(finder is self._finder for finder in sys.meta_path) != 1
+                ):
+                    failure = failure or "capture_finder_changed"
+                else:
+                    sys.meta_path[:] = [
+                        finder for finder in sys.meta_path if finder is not self._finder
+                    ]
+            if self._path_finder_descriptor is not None:
+                if (
+                    type.__getattribute__(_PATH_FINDER, "__dict__").get("find_spec")
+                    is self._path_finder_descriptor
+                ):
+                    type.__setattr__(_PATH_FINDER, "find_spec", _PATH_FINDER_DESCRIPTOR)
+                else:
+                    failure = failure or "capture_path_finder_changed"
+            if self._import_hook is not None:
+                if builtins.__import__ is self._import_hook and self._prior_import is not None:
+                    builtins.__import__ = cast("Any", self._prior_import)
+                else:
+                    failure = failure or "capture_import_hook_changed"
+            if self._import_module_hook is not None:
+                if (
+                    importlib.import_module is self._import_module_hook
+                    and self._prior_import_module is not None
+                ):
+                    importlib.import_module = cast("Any", self._prior_import_module)
+                else:
+                    failure = failure or "capture_import_hook_changed"
+        finally:
+            _imp.release_lock()
+        holders = (
+            self._pending,
+            self._pending_codes,
+            self._completed,
+            self._execution_anchors,
+            self._module_failures,
+            self._importer_failures,
+            self._code_trees,
+            self._import_events,
+            self._failed_imports,
+            self._event_anchors,
+            self._failed_event_anchors,
+            self._source_owned_finders,
+        )
+        for holder in holders:
+            if type(holder) is dict:
+                dict.clear(holder)
+            elif type(holder) is list:
+                list.clear(holder)
+            else:
+                failure = failure or "capture_record_invalid"
+        self._initial_meta_path = ()
+        self._admitted_meta_path = ()
+        self._meta_path_object = None
+        self._path_finder_descriptor = None
+        self._external_source_selector = None
+        self._import_hook = None
+        self._import_module_hook = None
+        self._prior_import = None
+        self._prior_import_module = None
+        gc.collect()
+        if failure is not None or self._failure is not None:
+            self._phase = "failed"
+            self._failure = self._failure or failure
+        if failure is not None:
+            raise CaptureError(failure)
 
     def assert_retained(self, required_modules: frozenset[str]) -> None:
         """Reconcile completed anchors for a nonempty, independently derived set.
@@ -1233,6 +1350,8 @@ class SourceExecutionCapture:
     def _install_import_hooks(self) -> None:
         original_import = builtins.__import__
         original_import_module = importlib.import_module
+        self._prior_import = original_import
+        self._prior_import_module = original_import_module
 
         def observed_import(
             name: str,

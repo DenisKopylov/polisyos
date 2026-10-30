@@ -36,6 +36,10 @@ must be admitted separately. A recorder or diagnostic alone does not establish
 N9 authority: provider, decision-state, currentness, and protected-use premises
 remain the confidence ledger's responsibility. Direct console scripts and
 module invocations remain candidate routes until they use the early host.
+After the target returns and its output is flushed, the host closes the capture,
+releases its live execution holds, and restores its own import hooks. A closed or
+failed capture cannot support a later authority decision or be restarted in the
+same process. An in-progress initializer prevents closing.
 
 ## Where to Start
 

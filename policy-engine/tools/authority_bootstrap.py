@@ -36,8 +36,16 @@ from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Protocol
 
     import pytest
+
+    class _CaptureLifecycle(Protocol):
+        @property
+        def failed(self) -> bool: ...
+
+        def close(self) -> None: ...
+
 
 _PRODUCT = Path(__file__).resolve().parents[1]
 _REPOSITORY = _PRODUCT.parent
@@ -1133,7 +1141,32 @@ def _child_main(channel: socket.socket, request: dict[str, object]) -> int:
     channel.sendall(b"installed\n" if capture_failure is None else b"candidate\n")
     mode = str(request["mode"])
     arguments = list(cast("list[str]", request["argv"]))
-    return _invoke_entry(mode, arguments)
+    try:
+        return _invoke_entry(mode, arguments)
+    finally:
+        try:
+            sys.stdout.flush()
+            sys.stderr.flush()
+        finally:
+            _close_host_capture(session)
+
+
+def _close_host_capture(session: dict[str, object]) -> None:
+    """Release a verified capture after its target and output are complete."""
+
+    capture = session.get("capture")
+    if capture is None:
+        return
+    if not _recorder_surface_unchanged(session):
+        session["phase"] = "failed"
+        raise RuntimeError("host_recorder_surface_changed")
+    lifecycle = cast("_CaptureLifecycle", capture)
+    try:
+        lifecycle.close()
+    except BaseException:
+        session["phase"] = "failed"
+        raise
+    session["phase"] = "failed" if lifecycle.failed else "closed"
 
 
 def _attach_tools_handoff() -> None:

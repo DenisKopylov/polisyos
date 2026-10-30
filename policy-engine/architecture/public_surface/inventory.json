@@ -4209,8 +4209,8 @@
                 "path": "src/polisyos/core/run/worker_lifecycle.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 26757,
-                "sha256": "bc5225b318bb9aa8f72ab3336a2edf51b2e0c2b9e3fb6af7784120defc7eb17d"
+                "bytes": 29833,
+                "sha256": "8eadf5cca0ca0e3aae1172ed6d4d4a8f37a48264de6f49d61299813668fbcf48"
               },
               {
                 "path": "src/polisyos/core/run/worker_lifecycle",

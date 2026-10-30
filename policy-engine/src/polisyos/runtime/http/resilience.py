@@ -27,7 +27,7 @@ from dataclasses import dataclass, replace
 from functools import wraps
 from types import FunctionType
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
-from weakref import WeakKeyDictionary, WeakSet
+from weakref import WeakKeyDictionary, WeakSet, ref
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
@@ -50,7 +50,13 @@ if TYPE_CHECKING:
         VerificationReport,
     )
     from polisyos.core.artifacts._transfer_ops import ImportPublication
-    from polisyos.core.run.child_custody import ChildComputationCustody
+    from polisyos.core.artifacts.child_release import (
+        ChildJobReleaseClaim,
+        ChildJobReleaseLocator,
+        ChildJobScopeClaim,
+        ChildJobSessionClaim,
+    )
+    from polisyos.core.run.child_custody import ChildComputationBinding, ChildComputationCustody
     from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
     from polisyos.scientist.validation.source_admission_owner import _RegisteredSourceAdmissionOwner
 
@@ -846,11 +852,13 @@ class _RuntimeGuardBinding:
 @dataclass(frozen=True, slots=True)
 class _RuntimeFilesystemGuardBinding(_RuntimeGuardBinding):
     backend: FileSystemCAS
+    child_service: _RuntimeChildCasService | None = None
 
 
 @dataclass(frozen=True, slots=True)
 class _RuntimeControlStoreGuardBinding(_RuntimeGuardBinding):
     backend: ControlPlaneStore
+    child_verifier: _RuntimeChildJobVerifier | None = None
 
 
 # Capture the actual Runtime implementation, not an instance-supplied runner.
@@ -916,6 +924,158 @@ class _RuntimeGuardRegistry[B: _RuntimeGuardBinding](MutableMapping[GuardedDepen
 
 _RUNTIME_FILESYSTEM_GUARDS = _RuntimeGuardRegistry[_RuntimeFilesystemGuardBinding]()
 _RUNTIME_CONTROL_STORE_GUARDS = _RuntimeGuardRegistry[_RuntimeControlStoreGuardBinding]()
+_RUNTIME_CHILD_VERIFIER_TOKEN = object()
+_RUNTIME_CHILD_CAS_SERVICE_TOKEN = object()
+
+
+class _RuntimeChildCasService:
+    """Fixed child service issued with one actual Runtime CAS registration."""
+
+    __slots__ = ("__proxy_ref", "__registration_revision")
+
+    def __init__(
+        self,
+        proxy: GuardedDependencyProxy,
+        binding: _RuntimeFilesystemGuardBinding,
+        *,
+        token: object,
+    ) -> None:
+        if token is not _RUNTIME_CHILD_CAS_SERVICE_TOKEN:
+            raise ValueError("runtime_child_cas_registration_required")
+        self.__proxy_ref = ref(proxy)
+        self.__registration_revision = binding.registration_revision
+
+    def __setattr__(self, name: str, value: object) -> None:
+        if hasattr(self, name):
+            raise AttributeError("runtime child CAS service binding is immutable")
+        object.__setattr__(self, name, value)
+
+    def __delattr__(self, name: str) -> None:
+        raise AttributeError("runtime child CAS service binding is immutable")
+
+    def _current(self) -> tuple[GuardedDependencyProxy, _RuntimeFilesystemGuardBinding]:
+        proxy = self.__proxy_ref()
+        if type(proxy) is not GuardedDependencyProxy:
+            raise ValueError("runtime_child_cas_registration_lost")
+        binding = _require_runtime_filesystem_guard(proxy)
+        if (
+            binding.registration_revision is not self.__registration_revision
+            or binding.child_service is not self
+        ):
+            raise ValueError("runtime_child_cas_registration_changed")
+        return proxy, binding
+
+    def _backend_for_store(self, guarded_store: object) -> FileSystemCAS:
+        """Resolve the actual backend only for the exact registered proxy."""
+        proxy, binding = self._current()
+        if guarded_store is not proxy:
+            raise ValueError("runtime_child_cas_proxy_not_established")
+        self._current()
+        return binding.backend
+
+    def _reader_for_session(self, session: object) -> ChildGuardedReadOwner:
+        """Create the fixed guarded reader for its actual Core custody session."""
+        from polisyos.core.run.child_custody import ChildComputationCustody
+
+        proxy, binding = self._current()
+        if (
+            type(session) is not ChildComputationCustody
+            or session._root.store is not proxy
+            or session._served is not binding.backend
+        ):
+            raise ValueError("runtime_child_cas_session_not_established")
+        reader = ChildGuardedReadOwner(session, proxy)
+        try:
+            self._current()
+        except BaseException:
+            reader.close()
+            raise
+        return reader
+
+
+def _require_runtime_child_cas_service(guarded_store: object) -> _RuntimeChildCasService:
+    """Resolve only the child service issued with the actual CAS registration."""
+    binding = _require_runtime_filesystem_guard(guarded_store)
+    service = binding.child_service
+    if type(service) is not _RuntimeChildCasService or service._current()[0] is not guarded_store:
+        raise ValueError("runtime_child_cas_registration_not_established")
+    return service
+
+
+class _RuntimeChildJobVerifier:
+    """One fixed verifier issued with the actual Runtime control registration."""
+
+    __slots__ = ("__proxy_ref", "__registration_revision")
+
+    def __init__(
+        self,
+        proxy: GuardedDependencyProxy,
+        binding: _RuntimeControlStoreGuardBinding,
+        *,
+        token: object,
+    ) -> None:
+        if token is not _RUNTIME_CHILD_VERIFIER_TOKEN:
+            raise ValueError("runtime_child_verifier_registration_required")
+        self.__proxy_ref = ref(proxy)
+        self.__registration_revision = binding.registration_revision
+
+    def __setattr__(self, name: str, value: object) -> None:
+        if hasattr(self, name):
+            raise AttributeError("runtime child verifier binding is immutable")
+        object.__setattr__(self, name, value)
+
+    def __delattr__(self, name: str) -> None:
+        raise AttributeError("runtime child verifier binding is immutable")
+
+    def _current_proxy(self) -> GuardedDependencyProxy:
+        proxy = self.__proxy_ref()
+        if type(proxy) is not GuardedDependencyProxy:
+            raise ValueError("runtime_child_verifier_registration_lost")
+        binding = _require_runtime_control_store_guard(proxy)
+        if (
+            binding.registration_revision is not self.__registration_revision
+            or binding.child_verifier is not self
+        ):
+            raise ValueError("runtime_child_verifier_registration_changed")
+        return proxy
+
+    def verify_intent(self, locator: ChildJobReleaseLocator, claim: ChildJobSessionClaim) -> None:
+        """Verify the exact committed session through the registered control guard."""
+        proxy = self._current_proxy()
+        result = proxy.verify_intent(locator, claim)
+        self._current_proxy()
+        if result is not None:
+            raise ValueError("runtime_child_verifier_result_invalid")
+
+    def verify_scope(self, locator: ChildJobReleaseLocator, claim: ChildJobScopeClaim) -> None:
+        """Verify the exact committed scope through the registered control guard."""
+        proxy = self._current_proxy()
+        result = proxy.verify_scope(locator, claim)
+        self._current_proxy()
+        if result is not None:
+            raise ValueError("runtime_child_verifier_result_invalid")
+
+    def verify_release(self, locator: ChildJobReleaseLocator, claim: ChildJobReleaseClaim) -> None:
+        """Verify the exact release authorization through the registered control guard."""
+        proxy = self._current_proxy()
+        result = proxy.verify_release(locator, claim)
+        self._current_proxy()
+        if result is not None:
+            raise ValueError("runtime_child_verifier_result_invalid")
+
+
+def _require_runtime_child_job_verifier(guarded_control: object) -> _RuntimeChildJobVerifier:
+    """Resolve only the service created by this control-guard registration."""
+    binding = _require_runtime_control_store_guard(guarded_control)
+    if type(guarded_control) is not GuardedDependencyProxy:
+        raise ValueError("registered_control_guard_binding_not_established")
+    verifier = binding.child_verifier
+    if (
+        type(verifier) is not _RuntimeChildJobVerifier
+        or verifier._current_proxy() is not guarded_control
+    ):
+        raise ValueError("runtime_child_verifier_registration_not_established")
+    return verifier
 
 
 def _guard_binding_changed(
@@ -1157,6 +1317,25 @@ class _RuntimeGuardedChildFence:
         current = self._control_proxy.current_execution_job_admission()
         self._check_admission(current)
         self._require_parent()
+
+    def _parent_binding_for_core(self, root: object) -> ChildComputationBinding:
+        """Return this actual registered parent's binding to its Core owner."""
+        from polisyos.core.run.child_custody import ChildComputationBinding
+
+        if root is not self._root:
+            raise ValueError("guarded_child_control_parent_changed")
+        self.check_active()
+        binding = self._binding.model_copy(deep=True)
+        if type(binding) is not ChildComputationBinding:
+            raise ValueError("guarded_child_control_binding_changed")
+        return binding
+
+    def _job_verifier_for_core(self) -> _RuntimeChildJobVerifier:
+        """Resolve the fixed job verifier issued with this control registration."""
+        self._require_parent()
+        verifier = _require_runtime_child_job_verifier(self._control_proxy)
+        self._require_parent()
+        return verifier
 
     @contextmanager
     def local_consumption(self) -> Iterator[None]:
@@ -1828,6 +2007,16 @@ def _bootstrap_guarded_child_custody(
         _guarded_root_binding=root_binding,
     )
     reader = _bootstrap_child_guarded_read_owner(session, served_proxy)
+    if type(publication_fence) is _RuntimeGuardedChildFence:
+        from polisyos.core.run.worker_lifecycle import ChildRuntimeCapability
+
+        try:
+            ChildRuntimeCapability._appoint_runtime_job_owner(
+                root_run, session=session, runtime_control=publication_fence
+            )
+        except BaseException:
+            reader.close()
+            raise
     return session, reader
 
 
@@ -2021,7 +2210,10 @@ def guard_runtime_cas(target: Any) -> GuardedDependencyProxy:
         binding = _capture_guard_binding(
             _RuntimeFilesystemGuardBinding, backend=target, proxy=proxy, guard=guard
         )
-        _RUNTIME_FILESYSTEM_GUARDS[proxy] = binding
+        child_service = _RuntimeChildCasService(
+            proxy, binding, token=_RUNTIME_CHILD_CAS_SERVICE_TOKEN
+        )
+        _RUNTIME_FILESYSTEM_GUARDS[proxy] = replace(binding, child_service=child_service)
     return proxy
 
 
@@ -2040,9 +2232,11 @@ def guard_runtime_control_store(target: Any) -> GuardedDependencyProxy:
         and type(guard) is BlockingDependencyGuard
         and type(guard._breaker) is CircuitBreaker
     ):
-        _RUNTIME_CONTROL_STORE_GUARDS[proxy] = _capture_guard_binding(
+        binding = _capture_guard_binding(
             _RuntimeControlStoreGuardBinding, backend=target, proxy=proxy, guard=guard
         )
+        verifier = _RuntimeChildJobVerifier(proxy, binding, token=_RUNTIME_CHILD_VERIFIER_TOKEN)
+        _RUNTIME_CONTROL_STORE_GUARDS[proxy] = replace(binding, child_verifier=verifier)
     return proxy
 
 

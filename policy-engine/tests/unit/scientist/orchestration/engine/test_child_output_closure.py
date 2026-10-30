@@ -250,6 +250,114 @@ def test_real_evaluation_producer_reconciles_typed_source_observation(tmp_path: 
     }
 
 
+def test_actual_objective_stack_vector_is_closed_without_opaque_channel_metadata(
+    tmp_path: Path,
+) -> None:
+    """The real objective producer's channels are read through their typed owner."""
+    from dataclasses import replace
+
+    from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
+        persist_policy_evaluation_vector_to_store,
+    )
+    from polisyos.scientist.policy_design.objectives import ObjectiveStack, PolicyEvaluationBundle
+
+    store = FileSystemCAS(tmp_path / "cas")
+    data, registry, hidden = (
+        _put(store, {"data": 1}),
+        _put(store, {"registry": 1}),
+        _put(store, {"hidden": 1}),
+    )
+    candidate = _candidate(data, registry)
+    selected = persist_stage_b_candidate(store, candidate, {"data": data, "registry": registry})
+    vector = ObjectiveStack().evaluate(
+        PolicyEvaluationBundle(candidate=candidate, simulation_metrics={"policy_value": 1.0})
+    )
+    assert vector.primary and vector.secondary and vector.hard_constraints
+    evaluation = persist_policy_evaluation_vector_to_store(
+        store, candidate_ref=selected, evaluation_vector=vector
+    )
+    owner = _OwnerReadFixture(
+        store,
+        {
+            "candidate": selected,
+            "model_primary_data_snapshot": data,
+            "model_primary_registry": registry,
+        },
+        prior=(data, registry),
+    )
+    resolved = _resolver().resolve(owner, evaluation)
+    assert {artifact_ref_identity_key(ref) for ref in resolved} == {
+        artifact_ref_identity_key(selected),
+        artifact_ref_identity_key(data),
+        artifact_ref_identity_key(registry),
+    }
+
+    primary = dict(vector.primary)
+    primary["policy_value"] = primary["policy_value"].model_copy(
+        update={"metadata": {"opaque": hidden.model_dump(mode="json")}}
+    )
+    tainted = vector.model_copy(update={"primary": primary})
+    tainted_ref = persist_policy_evaluation_vector_to_store(
+        store, candidate_ref=selected, evaluation_vector=tainted
+    )
+    with pytest.raises(
+        ChildOutputClosureRefusalError, match="child_output_candidate_field_unsupported"
+    ):
+        _resolver().resolve(owner, tainted_ref)
+
+    mismatched = vector.model_copy(update={"candidate_id": "another_candidate"})
+    mismatched_ref = persist_policy_evaluation_vector_to_store(
+        store, candidate_ref=selected, evaluation_vector=mismatched
+    )
+    with pytest.raises(
+        ChildOutputClosureRefusalError, match="child_output_candidate_selection_mismatch"
+    ):
+        _resolver().resolve(owner, mismatched_ref)
+
+    wrong_group = vector.model_copy(update={"secondary": vector.primary})
+    wrong_group_ref = persist_policy_evaluation_vector_to_store(
+        store, candidate_ref=selected, evaluation_vector=wrong_group
+    )
+    with pytest.raises(
+        ChildOutputClosureRefusalError, match="child_output_objective_channel_invalid"
+    ):
+        _resolver().resolve(owner, wrong_group_ref)
+
+    hidden_metadata = vector.model_copy(
+        update={"metadata": {**vector.metadata, "policy_family": hidden.model_dump(mode="json")}}
+    )
+    hidden_metadata_ref = persist_policy_evaluation_vector_to_store(
+        store, candidate_ref=selected, evaluation_vector=hidden_metadata
+    )
+    with pytest.raises(
+        ChildOutputClosureRefusalError, match="child_output_evaluation_metadata_unsupported"
+    ):
+        _resolver().resolve(owner, hidden_metadata_ref)
+
+    assert vector.score_assessment is not None
+    unbound_score = vector.model_copy(
+        update={"score_assessment": replace(vector.score_assessment, source_field_names=("x",))}
+    )
+    unbound_score_ref = persist_policy_evaluation_vector_to_store(
+        store, candidate_ref=selected, evaluation_vector=unbound_score
+    )
+    with pytest.raises(
+        ChildOutputClosureRefusalError, match="child_output_score_assessment_unsupported"
+    ):
+        _resolver().resolve(owner, unbound_score_ref)
+
+    opaque_score = vector.model_copy(
+        update={"score_source": {"hidden": hidden.model_dump(mode="json")}}
+    )
+    opaque_score_ref = persist_policy_evaluation_vector_to_store(
+        store, candidate_ref=selected, evaluation_vector=opaque_score
+    )
+    with pytest.raises(
+        ChildOutputClosureRefusalError, match="child_output_candidate_field_unsupported"
+    ):
+        _resolver().resolve(owner, opaque_score_ref)
+
+
 def test_evaluation_typed_source_sibling_missing_edge_refuses(tmp_path: Path) -> None:
     from polisyos.core.artifacts.manifest import SchemaInfo
     from polisyos.scientist.methods.search.objective import SourceMetricObservation

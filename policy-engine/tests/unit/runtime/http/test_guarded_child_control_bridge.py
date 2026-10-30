@@ -35,7 +35,10 @@ if TYPE_CHECKING:
 
 def test_control_guard_registration_binds_actual_factory_and_executor(tmp_path: Path) -> None:
     """A lookalike proxy cannot establish the control executor's origin."""
-    from polisyos.runtime.http.resilience import _require_runtime_control_store_guard
+    from polisyos.runtime.http.resilience import (
+        _require_runtime_child_job_verifier,
+        _require_runtime_control_store_guard,
+    )
 
     control = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "control.sqlite3")
     registered = guard_runtime_control_store(control)
@@ -45,8 +48,13 @@ def test_control_guard_registration_binds_actual_factory_and_executor(tmp_path: 
         assert binding.backend is control
         assert binding.guard is registered._guard
         assert binding.executor is registered._guard._executor
+        verifier = _require_runtime_child_job_verifier(registered)
+        assert verifier is binding.child_verifier
+        assert _require_runtime_child_job_verifier(registered) is verifier
         with pytest.raises(ValueError, match="registered_control_guard_binding_not_established"):
             _require_runtime_control_store_guard(lookalike)
+        with pytest.raises(ValueError, match="registered_control_guard_binding_not_established"):
+            _require_runtime_child_job_verifier(lookalike)
     finally:
         lookalike.close()
         registered.close()
@@ -147,6 +155,13 @@ def _run_owned_fixture(
     [
         "normal",
         "scope",
+        "runtime_core_appointment",
+        "runtime_cas_service",
+        "runtime_cas_service_registry_aba",
+        "runtime_job_verifier",
+        "runtime_job_verifier_registry_aba",
+        "runtime_job_verifier_scope",
+        "runtime_job_verifier_release",
         "suspend_inflight",
         "timeout",
         "lost_commit_ack",
@@ -499,14 +514,20 @@ def test_changed_job_lease_cannot_publish_after_authorization_readback(
     def change_lease(fence):
         if not changed.is_set():
             fresh = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "control.sqlite3")
-            assert (
-                fresh._execute(
-                    "UPDATE control_jobs SET lease_owner = ? WHERE job_id = ?",
-                    ("other-worker", "job-a"),
-                )
-                == 1
+            event = fresh._fetchone(
+                "SELECT event_id FROM control_job_events WHERE job_id = ? "
+                "AND event_type LIKE 'child.release.authorization.%'",
+                ("job-a",),
             )
-            changed.set()
+            if event is not None:
+                assert (
+                    fresh._execute(
+                        "UPDATE control_jobs SET lease_owner = ? WHERE job_id = ?",
+                        ("other-worker", "job-a"),
+                    )
+                    == 1
+                )
+                changed.set()
         with consume(fence):
             yield
 
@@ -539,8 +560,14 @@ def test_parent_revoked_at_local_consumption_is_refused(
 
     @contextmanager
     def revoke_before_decision(fence):
-        entered.set()
-        fence._grant._attempt.revoke()
+        fresh = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "control.sqlite3")
+        event = fresh._fetchone(
+            "SELECT event_id FROM control_job_events WHERE job_id = ? AND event_type LIKE ?",
+            ("job-a", f"child.release.{'scope' if operation == 'scope' else 'authorization'}.%"),
+        )
+        if event is not None and not entered.is_set():
+            entered.set()
+            fence._grant._attempt.revoke()
         with original(fence):
             yield
 

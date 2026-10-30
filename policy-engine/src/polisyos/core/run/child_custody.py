@@ -63,6 +63,7 @@ if TYPE_CHECKING:
         CoreJsonManifestBoundedRead,
         CoreJsonReadLimits,
     )
+    from ..artifacts.child_release import ChildJobOwnerVerifier
     from ..artifacts.protocol import ArtifactReader
     from ..artifacts.store import (
         ArtifactMemberReceipt,
@@ -1700,6 +1701,12 @@ _CHILD_CONTROL_OPERATION_TOKEN = object()
 
 
 class _ChildControlOwner(Protocol):
+    def _require_parent(self) -> None: ...
+
+    def _parent_binding_for_core(self, root: object) -> ChildComputationBinding: ...
+
+    def _job_verifier_for_core(self) -> ChildJobOwnerVerifier: ...
+
     def _require_control_worker(self) -> None: ...
 
     def _check_control_admission(self, admission: object) -> None: ...
@@ -2312,6 +2319,7 @@ class ChildComputationCustody:
         self._transfer_capability: ChildSelectedTransferCapability | None = None
         self._guarded_reader_service: _ChildGuardedReadService | None = None
         self._guarded_reader_identity: _ChildGuardedReadService | None = None
+        self._job_owner_appointment: ChildJobOwnerVerifier | None = None
         self._infos: dict[str, ArtifactChildReleaseInfo] = {}
         self._bindings: dict[str, ChildComputationBinding] = {}
         self._writes: dict[tuple[str, str, str, str], tuple[ArtifactRef, str]] = {}

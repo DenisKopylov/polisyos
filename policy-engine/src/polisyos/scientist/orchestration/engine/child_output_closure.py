@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import math
+from dataclasses import fields
 from typing import TYPE_CHECKING
 
 from pydantic import BaseModel
@@ -14,11 +16,15 @@ from polisyos.core.artifacts.canonical_profile import (
     validate_core_model_bounded_read,
 )
 from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
-from polisyos.scientist.methods.search.objective import SourceMetricObservation
+from polisyos.scientist.methods.search.objective import (
+    ObjectiveScoreAssessment,
+    ObjectiveScoreStatus,
+    SourceMetricObservation,
+)
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_method_metrics import (
     CompletedMethodMetricProjection,
 )
-from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
+from polisyos.scientist.policy_design.objectives import ObjectiveKind, PolicyEvaluationVector
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 
 if TYPE_CHECKING:
@@ -32,6 +38,7 @@ class ChildOutputClosureRefusalError(ValueError):
 # Complete source field sets. A schema extension refuses until reviewed.
 _FIELDS = {
     "PolicyEvaluationVector": "candidate_id primary hard_constraints secondary penalties feasible blocking_reasons metadata score_assessment score_source method_metric_observations",
+    "ObjectiveChannelValue": "name kind value direction weight threshold status source metadata expected_unit",
     "SourceMetricObservation": "schema_version source_status predicate_status metric_id slot_id value unit_id scope quantity_kind simulation_step time_basis source_result_ref source_metrics_ref source_snapshot_ref objective_id objective_status objective_value limitation",
     "MethodMetricSourceUnit": "dimension symbol scale",
     "MethodMetricPredicateEvidence": "predicate_id classification evidence_ref evidence_sha256 limitation",
@@ -108,7 +115,31 @@ def _check_stage_b_metadata(metadata: dict[str, object]) -> None:
         "candidate_hash",
         "counterfactual_gate_summary",
         "completed_method_metric_projection",
+        "policy_family",
+        "statistical_uncertainty",
+        "transport_uncertainty",
+        "budget_ratio",
+        "ambiguity_certificate_status",
+        "ambiguity_set_type",
+        "price_of_ambiguity",
     }:
+        raise ChildOutputClosureRefusalError("child_output_evaluation_metadata_unsupported")
+    family = metadata.get("policy_family")
+    if family is not None and type(family) is not str:
+        raise ChildOutputClosureRefusalError("child_output_evaluation_metadata_unsupported")
+    for name in ("statistical_uncertainty", "transport_uncertainty", "budget_ratio"):
+        if name in metadata:
+            value = metadata[name]
+            if (
+                isinstance(value, bool)
+                or not isinstance(value, (int, float))
+                or not math.isfinite(value)
+            ):
+                raise ChildOutputClosureRefusalError("child_output_evaluation_metadata_unsupported")
+    if any(
+        metadata.get(name) is not None
+        for name in ("ambiguity_certificate_status", "ambiguity_set_type", "price_of_ambiguity")
+    ):
         raise ChildOutputClosureRefusalError("child_output_evaluation_metadata_unsupported")
     if "candidate_hash" in metadata and (
         type(metadata["candidate_hash"]) is not str or not metadata["candidate_hash"]
@@ -142,6 +173,63 @@ def _check_stage_b_metadata(metadata: dict[str, object]) -> None:
         raise ChildOutputClosureRefusalError("child_output_gate_summary_unsupported")
 
 
+def _check_unscored_objectives(vector: PolicyEvaluationVector) -> None:
+    """Admit typed channels and an explicitly unestablished assessment only."""
+    names: set[str] = set()
+    for group, kind in (
+        (vector.primary, ObjectiveKind.PRIMARY),
+        (vector.hard_constraints, ObjectiveKind.HARD_CONSTRAINT),
+        (vector.secondary, ObjectiveKind.SECONDARY),
+        (vector.penalties, ObjectiveKind.PENALTY),
+    ):
+        for name, channel in group.items():
+            _check(
+                channel,
+                "ObjectiveChannelValue",
+                "name kind value direction weight threshold status source expected_unit",
+            )
+            if (
+                name != channel.name
+                or name in names
+                or channel.kind is not kind
+                or not math.isfinite(channel.value)
+                or not math.isfinite(channel.weight)
+                or (channel.threshold is not None and not math.isfinite(channel.threshold))
+            ):
+                raise ChildOutputClosureRefusalError("child_output_objective_channel_invalid")
+            names.add(name)
+    assessment = vector.score_assessment
+    if assessment is None:
+        return
+    if (
+        type(assessment) is not ObjectiveScoreAssessment
+        or {field.name for field in fields(assessment)}
+        != {
+            "objective_ref",
+            "rule_spec",
+            "required_input_groups",
+            "source_field_names",
+            "source_values",
+            "source_sha256",
+            "value",
+            "status",
+            "limitation",
+            "source_unit_bindings",
+        }
+        or assessment.status is not ObjectiveScoreStatus.NOT_ESTABLISHED
+        or assessment.objective_ref is not None
+        or assessment.rule_spec is not None
+        or assessment.required_input_groups
+        or assessment.source_field_names
+        or assessment.source_values
+        or assessment.source_sha256 is not None
+        or assessment.value is not None
+        or assessment.source_unit_bindings
+        or (assessment.limitation is not None and type(assessment.limitation) is not str)
+    ):
+        raise ChildOutputClosureRefusalError("child_output_score_assessment_unsupported")
+
+
 class TypedChildOutputClosureResolver:
     """Bounded profile; unsupported schemas and semantic fields refuse."""
 
@@ -168,16 +256,28 @@ class TypedChildOutputClosureResolver:
             raise ChildOutputClosureRefusalError("child_output_owner_state_binding_unavailable")
         visiting: set[tuple[str, str, str, str | None]] = set()
         done: dict[tuple[str, str, str, str | None], ArtifactRef] = {}
+        candidate_ids: dict[tuple[str, str, str, str | None], str] = {}
 
-        def visit(ref: ArtifactRef) -> None:
+        def visit(ref: ArtifactRef, *, expected_candidate_id: str | None = None) -> None:
             key = artifact_ref_identity_key(ref)
             if key in visiting:
                 raise ChildOutputClosureRefusalError("child_output_cycle")
             if key in done:
+                if (
+                    expected_candidate_id is not None
+                    and candidate_ids.get(key) != expected_candidate_id
+                ):
+                    raise ChildOutputClosureRefusalError(
+                        "child_output_candidate_selection_mismatch"
+                    )
                 return
             if len(visiting) + len(done) >= 256:
                 raise ChildOutputClosureRefusalError("child_output_graph_limit")
-            if key != artifact_ref_identity_key(projection_ref) and prior(ref) is True:
+            if (
+                key != artifact_ref_identity_key(projection_ref)
+                and expected_candidate_id is None
+                and prior(ref) is True
+            ):
                 done[key] = ref
                 return
             visiting.add(key)
@@ -218,6 +318,14 @@ class TypedChildOutputClosureResolver:
                 candidate = validate_core_model_bounded_read(PolicyCandidateSchema, read)
                 if candidate.schema_version != PolicyCandidateSchema.ARTIFACT_SCHEMA_VERSION:
                     raise ChildOutputClosureRefusalError("child_output_payload_version_mismatch")
+                if (
+                    expected_candidate_id is not None
+                    and candidate.candidate_id != expected_candidate_id
+                ):
+                    raise ChildOutputClosureRefusalError(
+                        "child_output_candidate_selection_mismatch"
+                    )
+                candidate_ids[key] = candidate.candidate_id
                 for role, embedded_id in _candidate_sources(candidate):
                     required_roles.add(role)
                     owner_ref = selected_source(role)
@@ -241,9 +349,10 @@ class TypedChildOutputClosureResolver:
                 _check(
                     vector,
                     "PolicyEvaluationVector",
-                    "candidate_id feasible blocking_reasons metadata method_metric_observations",
+                    "candidate_id primary hard_constraints secondary penalties feasible blocking_reasons metadata score_assessment method_metric_observations",
                 )
                 _check_stage_b_metadata(vector.metadata)
+                _check_unscored_objectives(vector)
                 if bool(vector.method_metric_observations) != (identity[3] == "1.3"):
                     raise ChildOutputClosureRefusalError("child_output_evaluation_version_mismatch")
                 owner_ref = selected_source("candidate")
@@ -255,6 +364,8 @@ class TypedChildOutputClosureResolver:
                     candidate_edge
                 ) != artifact_ref_identity_key(owner_ref):
                     raise ChildOutputClosureRefusalError("child_output_payload_input_mismatch")
+                if vector.candidate_id is not None:
+                    visit(owner_ref, expected_candidate_id=vector.candidate_id)
                 payload_refs: list[tuple[str, ArtifactRef]] = []
                 raw_source = vector.metadata.get("policy_runtime_source_measurement")
                 if raw_source is not None:

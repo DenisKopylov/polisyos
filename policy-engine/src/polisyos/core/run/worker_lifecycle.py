@@ -115,6 +115,18 @@ def _require_fixed_runtime_child_control(control: object) -> _ChildControlOwner:
         or inspect.getattr_static(control, "_require_parent", None) is not descriptor
     ):
         raise ValueError("child_runtime_control_origin_not_established")
+    for name in ("_parent_binding_for_core", "_job_verifier_for_core"):
+        selected = inspect.getattr_static(type(control), name, None)
+        try:
+            selected_module, selected_source = _callable_source(selected)
+        except Exception as exc:
+            raise ValueError("child_runtime_control_origin_not_established") from exc
+        if (
+            selected_module is not module
+            or selected_source != expected
+            or inspect.getattr_static(control, name, None) is not selected
+        ):
+            raise ValueError("child_runtime_control_origin_not_established")
     # The exact class is established against its Runtime implementation above.
     return cast("_ChildControlOwner", control)
 
@@ -176,6 +188,59 @@ class ChildRuntimeCapability:
         control = _require_fixed_runtime_child_control(runtime_control)
         session._check_root(session._binding)
         return cls(run, session, control, _token=_CHILD_CAPABILITY_TOKEN)
+
+    @classmethod
+    def _appoint_runtime_job_owner(
+        cls, run: object, *, session: object, runtime_control: object
+    ) -> None:
+        """Bind one live Core session to the Runtime-registered job verifier."""
+        from .child_custody import ChildComputationCustody
+
+        if (
+            type(run) is not RunContext
+            or type(session) is not ChildComputationCustody
+            or session._root is not run
+            or session._fence is not runtime_control
+        ):
+            raise ValueError("child_runtime_parent_owner_not_established")
+        control = _require_fixed_runtime_child_control(runtime_control)
+        binding = control._parent_binding_for_core(run)
+        session._admit_binding(binding)
+        cls.for_parent(run, session=session, runtime_control=control)._appoint_job_owner()
+
+    def _appoint_job_owner(self) -> None:
+        """Consume this session's one-shot fixed verifier appointment in Core."""
+        from polisyos.core.artifacts.child_release import (
+            _JOB_OWNER_BOOTSTRAP_TOKEN,
+            _install_child_job_owner,
+        )
+
+        from .child_custody import ChildComputationCustody, _try_root_custody_locks
+
+        session = self.__session
+        if type(session) is not ChildComputationCustody or session._root is not self.__run:
+            raise ValueError("child_runtime_session_owner_changed")
+        control = _require_fixed_runtime_child_control(self.__control)
+        binding = session._binding
+        reader = session._guarded_reader_service
+        if binding is None or reader is None:
+            raise ValueError("child_runtime_session_owner_changed")
+        snapshot = session._root_preflight(binding)
+        with (
+            _try_root_custody_locks(session),
+            session._local_consumption(),
+            reader.publication_registration(),
+        ):
+            session._require_root_snapshot(binding, snapshot)
+            if session._job_owner_appointment is not None:
+                raise ValueError("child_runtime_appointment_already_consumed")
+            if session._state != "open" or session._job_intent is not None:
+                raise ValueError("child_runtime_appointment_not_current")
+            verifier = control._job_verifier_for_core()
+            session._job_owner_appointment = verifier
+            _install_child_job_owner(
+                session._ledger.store_identity, verifier, token=_JOB_OWNER_BOOTSTRAP_TOKEN
+            )
 
     def _issue_session_operation(self, intent: object) -> object:
         """Issue a one-use session decision from the retained Core owner."""

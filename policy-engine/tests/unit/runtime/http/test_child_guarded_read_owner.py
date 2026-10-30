@@ -80,6 +80,27 @@ def test_guard_registration_does_not_revive_after_dependency_aba(
         guarded.close()
 
 
+def test_child_cas_service_requires_the_actual_registered_proxy(tmp_path: Path) -> None:
+    from polisyos.runtime.http.resilience import (
+        GuardedDependencyProxy,
+        _require_runtime_child_cas_service,
+        build_runtime_cas_guard,
+        guard_runtime_cas,
+    )
+
+    backend = FileSystemCAS(tmp_path / "cas")
+    registered = guard_runtime_cas(backend)
+    lookalike = GuardedDependencyProxy(target=backend, guard=build_runtime_cas_guard())
+    try:
+        service = _require_runtime_child_cas_service(registered)
+        assert _require_runtime_child_cas_service(registered) is service
+        with pytest.raises(ValueError, match="registered_sql_guard_binding_not_established"):
+            _require_runtime_child_cas_service(lookalike)
+    finally:
+        lookalike.close()
+        registered.close()
+
+
 @pytest.mark.parametrize(
     "probe",
     [
@@ -212,9 +233,10 @@ def _exercise_job(
         closure_resolver=_Resolver(),
         publication_fence=fence,
     )
-    _install_child_job_owner(
-        custody._ledger.store_identity, control, token=_JOB_OWNER_BOOTSTRAP_TOKEN
-    )
+    if fence_factory is None:
+        _install_child_job_owner(
+            custody._ledger.store_identity, control, token=_JOB_OWNER_BOOTSTRAP_TOKEN
+        )
     if before_session is not None:
         try:
             before_session(root, control, custody, reader, fence, grant, binding)
@@ -223,13 +245,68 @@ def _exercise_job(
             served.close()
         return
     intent = custody.job_session_intent(binding)
-    custody.bind_job_intent(intent, fence.begin_session(intent))
+    intent_locator = fence.begin_session(intent)
+    custody.bind_job_intent(intent, intent_locator)
     release = threading.Event()
     finished = threading.Event()
     limits = CoreJsonReadLimits(
         max_bytes=4096, max_depth=20, max_elements=100, max_manifest_bytes=100000
     )
     try:
+        if probe == "runtime_core_appointment":
+            from polisyos.core.artifacts.child_release import _child_job_owner
+            from polisyos.core.run.worker_lifecycle import ChildRuntimeCapability
+            from polisyos.runtime.http.resilience import _require_runtime_child_job_verifier
+
+            assert _child_job_owner(custody._ledger.store_identity) is (
+                _require_runtime_child_job_verifier(control)
+            )
+            capability = ChildRuntimeCapability.for_parent(
+                root, session=custody, runtime_control=fence
+            )
+            with pytest.raises(ValueError, match="child_runtime_appointment_already_consumed"):
+                capability._appoint_job_owner()
+            return
+        if probe in {"runtime_cas_service", "runtime_cas_service_registry_aba"}:
+            from polisyos.runtime.http import resilience
+
+            service = resilience._require_runtime_child_cas_service(served)
+            assert service._backend_for_store(root.store) is raw
+            with pytest.raises(ValueError, match="runtime_child_cas_proxy_not_established"):
+                service._backend_for_store(object())
+            with pytest.raises(ValueError, match="runtime_child_cas_session_not_established"):
+                service._reader_for_session(object())
+            actual_reader = service._reader_for_session(custody)
+            try:
+                actual_reader.require_registration()
+            finally:
+                actual_reader.close()
+            if probe == "runtime_cas_service_registry_aba":
+                registered = resilience._RUNTIME_FILESYSTEM_GUARDS.pop(served)
+                resilience._RUNTIME_FILESYSTEM_GUARDS[served] = registered
+                with pytest.raises(ValueError, match="registered_sql_guard_binding_changed"):
+                    service._backend_for_store(root.store)
+            return
+        if probe in {"runtime_job_verifier", "runtime_job_verifier_registry_aba"}:
+            from polisyos.runtime.http import resilience
+            from polisyos.runtime.http.services.control_plane_store import (
+                ControlJobExecutionAdmissionError,
+            )
+
+            verifier = resilience._require_runtime_child_job_verifier(control)
+            with pytest.raises(AttributeError, match="binding is immutable"):
+                verifier._RuntimeChildJobVerifier__registration_revision = object()
+            claim = intent.recompute()
+            verifier.verify_intent(intent_locator, claim)
+            wrong_claim = claim.model_copy(update={"parent_attempt_id": "foreign-attempt"})
+            with pytest.raises(ControlJobExecutionAdmissionError):
+                verifier.verify_intent(intent_locator, wrong_claim)
+            if probe == "runtime_job_verifier_registry_aba":
+                registered = resilience._RUNTIME_CONTROL_STORE_GUARDS.pop(control)
+                resilience._RUNTIME_CONTROL_STORE_GUARDS[control] = registered
+                with pytest.raises(ValueError, match="registered_control_guard_binding_changed"):
+                    verifier.verify_intent(intent_locator, claim)
+            return
         managed = custody.parent_store(binding, input_refs=(source_ref,))
         if probe == "service_slots":
             for field in type(reader).__slots__:
@@ -308,7 +385,7 @@ def _exercise_job(
             ):
                 managed.has(source_ref)
             return
-        if probe == "scope":
+        if probe in {"scope", "runtime_job_verifier_scope"}:
             child_binding = binding.model_copy(update={"child_invocation_id": "child"})
             with pytest.raises(
                 ChildReleaseUnavailableError, match="direct_child_scope_admission_unsupported"
@@ -335,6 +412,10 @@ def _exercise_job(
             row = control._child_event_row("job-a", f"child.release.scope.{claim.scope_id}")
             assert row is not None
             locator = ChildJobReleaseLocator(job_id="job-a", event_id=int(row["event_id"]))
+            if probe == "runtime_job_verifier_scope":
+                from polisyos.runtime.http.resilience import _require_runtime_child_job_verifier
+
+                _require_runtime_child_job_verifier(control).verify_scope(locator, claim)
             ControlPlaneStore(backend="sqlite", sqlite_path=control._sqlite_path).verify_scope(
                 locator, claim
             )
@@ -452,9 +533,17 @@ def _exercise_job(
                 read_core_json_artifact_bounded(managed, ref, limits=limits)
             assert isinstance(removed.value.__cause__, ChildReleaseUnavailableError)
             assert "guarded_direct_read_operation_unavailable" in str(removed.value.__cause__)
-        if probe == "normal":
+        if probe in {"normal", "runtime_job_verifier_release"}:
             receipt = custody.release_parent((), blob)
             assert receipt.projection_ref == blob
+            if probe == "runtime_job_verifier_release":
+                from polisyos.runtime.http.resilience import _require_runtime_child_job_verifier
+
+                assert receipt.job_authorization_locator is not None
+                assert custody._job_candidate is not None
+                _require_runtime_child_job_verifier(control).verify_release(
+                    receipt.job_authorization_locator, custody._job_candidate.authorized_claim()
+                )
             fresh = FileSystemCAS(raw.root, ownership_enforced=False)
             assert fresh.get_bytes(blob) == b"private bytes"
             return

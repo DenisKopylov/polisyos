@@ -192,9 +192,26 @@ def _add_low_stakes_probe(client, executed: list[bool], *, suffix: str) -> None:
         return {"mutated": True}
 
 
+def _build_fixture_secure_client(runtime_api_env, **kwargs):
+    """Build a secure app against the same catalog source as its fixture app."""
+    fixture_app = runtime_api_env.get("app")
+    runtime_container = getattr(getattr(fixture_app, "state", None), "runtime_container", None)
+    config = getattr(runtime_container, "config", None)
+    repo_root = getattr(config, "repo_root", None)
+    catalog_source_selection = getattr(config, "catalog_source_selection", None)
+    if not isinstance(repo_root, Path) or catalog_source_selection is None:
+        raise AssertionError("runtime_api_env_catalog_source_context_missing")
+    return _build_secure_client(
+        runtime_api_env,
+        repo_root=repo_root,
+        catalog_source_selection=catalog_source_selection,
+        **kwargs,
+    )
+
+
 def _secure_probe_client(runtime_api_env, *, opa_client, suffix: str, roles=None):
     bearer = _fixture_bearer(suffix)
-    client, cell, provider = _build_secure_client(
+    client, cell, provider = _build_fixture_secure_client(
         runtime_api_env,
         opa_client=opa_client,
         claims_by_token={},
@@ -296,7 +313,7 @@ def test_acquisition_get_rego_denies_same_permission_proxy_before_projection(
 ) -> None:
     opa = _AcquisitionRegoMutationOPA(proxy_resource_class)
     bearer = _fixture_bearer(f"acquisition-proxy-{proxy_resource_class}")
-    client, cell, provider = _build_secure_client(
+    client, cell, provider = _build_fixture_secure_client(
         runtime_api_env,
         opa_client=opa,
         claims_by_token={},
@@ -444,7 +461,7 @@ def test_unbound_resource_denial_emits_one_terminal_audit(
 def test_missing_identity_denial_is_appended_without_unbound_authority_claims(
     runtime_api_env,
 ) -> None:
-    client, _cell, _provider = _build_secure_client(
+    client, _cell, _provider = _build_fixture_secure_client(
         runtime_api_env,
         opa_client=_AllowOPA(),
         claims_by_token={},
@@ -637,7 +654,7 @@ def test_run_ownership_denial_remains_denied_when_access_audit_append_fails(
     runtime_api_env,
 ) -> None:
     bearer = _fixture_bearer("run-ownership-audit-append-failure")
-    client, cell, provider = _build_secure_client(
+    client, cell, provider = _build_fixture_secure_client(
         runtime_api_env,
         opa_client=_AllowOPA(),
         claims_by_token={},
@@ -677,7 +694,7 @@ def test_tenant_boundary_metric_records_only_verified_mismatches(
     tenant_b = str(runtime_api_env["tenant_b"])
     bearer_a = _fixture_bearer("tenant-boundary-metric-a")
     bearer_b = _fixture_bearer("tenant-boundary-metric-b")
-    client, cell, identity_provider = _build_secure_client(
+    client, cell, identity_provider = _build_fixture_secure_client(
         runtime_api_env,
         opa_client=_AllowOPA(),
         claims_by_token={},
@@ -792,7 +809,7 @@ def test_unscoped_run_ownership_denial_is_persisted(
     from polisyos.runtime.http.services.run_index import IndexedRunRecord
 
     bearer = _fixture_bearer("unscoped-run-ownership-denial")
-    client, cell, provider = _build_secure_client(
+    client, cell, provider = _build_fixture_secure_client(
         runtime_api_env,
         opa_client=_AllowOPA(),
         claims_by_token={},
@@ -866,7 +883,7 @@ def test_artifact_ownership_denial_is_persisted_for_request_principal(
     other_tenant_key: str,
 ) -> None:
     bearer = _fixture_bearer(f"artifact-ownership-denial-{artifact_key}")
-    client, cell, provider = _build_secure_client(
+    client, cell, provider = _build_fixture_secure_client(
         runtime_api_env,
         opa_client=_AllowOPA(),
         claims_by_token={},

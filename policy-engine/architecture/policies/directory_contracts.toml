@@ -74,6 +74,14 @@ id = "documentation"
 description = "Markdown, TOML index, and supporting prose/reference material."
 
 [[file_kind]]
+id = "external_oracle_source"
+description = "Development-only independent comparison oracles that are not imported by the product runtime."
+
+[[file_kind]]
+id = "external_worker_source"
+description = "Separately packaged worker implementation selected only through explicit runtime configuration; not a product API."
+
+[[file_kind]]
 id = "frontend_source"
 description = "TypeScript, JavaScript, CSS, HTML, package manifests, and frontend test source."
 
@@ -140,6 +148,14 @@ description = "Docs IA section, ADR set, plan lifecycle folder, runbook area, or
 [[child_directory_kind]]
 id = "example_project"
 description = "Installable example or tutorial with its own README and runnable entrypoint."
+
+[[child_directory_kind]]
+id = "external_worker_profile"
+description = "Separately pinned external worker profile with its own protocol, environment and runtime boundary."
+
+[[child_directory_kind]]
+id = "oracle_profile"
+description = "Independently pinned development-only oracle profile with its own inputs, reference and output path."
 
 [[child_directory_kind]]
 id = "frontend_workspace"
@@ -404,6 +420,25 @@ policy = "documentation_evidence_replay_only"
 owner = "team-docs"
 allowed_reason = "Tracked Python witnesses accompany research and verification receipts; ignored scratch is outside the tracked denominator."
 product_import_policy = "src/polisyos product code must not import docs."
+
+[[contract]]
+path = "dev-oracles"
+status = "active"
+role = "Independently pinned development-only comparison oracles; their results do not establish production authority."
+owner = "team-quality"
+lifecycle_class = "development_oracle_workspace"
+topology_category = "source"
+topology_commit_policy = "committed"
+allowed_file_kinds = ["documentation", "external_oracle_source"]
+allowed_child_directory_kinds = ["oracle_profile"]
+python_import_policy = "not_importable_as_product_root"
+generated_output_policy = "Oracle outputs use a separate ignored scratch path and are not committed by default."
+committed_data_policy = "No production inputs; only bounded synthetic or public reference inputs with source and scope documented."
+readme_index_requirement = "Every oracle profile documents independent setup, inputs, reference, output and authority limits."
+max_root_loose_files = 1
+root_loose_file_policy = "Only README.md may be loose at root; each oracle lives in a named profile directory."
+ignored_descendant_retention = "separately_recreatable_profile_environments_and_scratch"
+evidence_or_generated_artifact_promotion_path = "dev-oracles/<profile>/README.md and reviewed compact results under docs/archive/reports/"
 
 [[contract]]
 path = "vendor"
@@ -977,6 +1012,25 @@ max_root_loose_files = 0
 root_loose_file_policy = "No committed loose files; root is fully ignored."
 ignored_descendant_retention = "local_environment"
 evidence_or_generated_artifact_promotion_path = "none"
+
+[[contract]]
+path = "workers"
+status = "active"
+role = "Separately packaged external computation workers selected only through explicit runtime configuration."
+owner = "team-runtime"
+lifecycle_class = "external_worker_workspace"
+topology_category = "source"
+topology_commit_policy = "committed"
+allowed_file_kinds = ["documentation", "external_worker_source"]
+allowed_child_directory_kinds = ["external_worker_profile"]
+python_import_policy = "not_importable_as_product_root"
+generated_output_policy = "Worker outputs remain under their configured runtime owner and are not stored as source artifacts here."
+committed_data_policy = "No production data or credentials; worker profiles contain source, protocol and dependency locks only."
+readme_index_requirement = "Every worker profile documents protocol, exact environment, configured consumer and candidate-only limits."
+max_root_loose_files = 1
+root_loose_file_policy = "Only README.md may be loose at root; worker code and locks live in named profiles."
+ignored_descendant_retention = "separately_recreatable_profile_environments_and_scratch"
+evidence_or_generated_artifact_promotion_path = "workers/<profile>/README.md and its source-qualified consumer tests"
 
 [phase_1_3_report_only_overlay]
 status = "report_only"

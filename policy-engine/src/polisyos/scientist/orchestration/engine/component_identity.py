@@ -21,7 +21,7 @@ from types import CodeType
 from typing import Any
 from uuid import uuid4
 
-from polisyos.core.canon import CanonSpec, to_canonical_bytes
+from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.run.manifest import RunInvocationImplementationIdentity
 
 _CANON = CanonSpec(forbid_floats=False, sort_keys=True, exclude_none=False)
@@ -446,3 +446,168 @@ __all__ = [
     "matches_engine_component_identity",
     "matches_spawned_timeout_worker_component_identity",
 ]
+
+
+@dataclass(frozen=True)
+class _ConfiguredComponentIdentityOwner:
+    """Retain the actual authorized bind result and selected callable in this process.
+
+    This is implementation evidence, not an issuer or a grant. The appointed
+    admission owner must authorize reconstruction before calling the capture
+    function. No closure/global/transitive or hostile-concurrency claim follows.
+    """
+
+    registered_node: object
+    bound_node: object
+    registered_state_sha256: str
+    bound_state_sha256: str
+    params_sha256: str
+    params_json: bytes
+    defaults_sha256: str
+    implementation: _BuiltinOwner
+    bound_execute: types.MethodType
+
+    def reconcile(
+        self,
+        registered_node: object,
+        bound_node: object,
+        params: dict[str, Any],
+    ) -> RunInvocationImplementationIdentity:
+        """Reconcile only the actual retained bind result and its held method."""
+        if registered_node is not self.registered_node:
+            raise ValueError("child_component_registration_changed")
+        if bound_node is not self.bound_node:
+            raise ValueError("child_component_bound_object_changed")
+        if _node_attributes_sha256(registered_node) != self.registered_state_sha256:
+            raise ValueError("child_component_registered_state_changed")
+        if _digest_value(params) != self.params_sha256:
+            raise ValueError("child_component_dispatch_params_changed")
+        if type(bound_node) is not self.implementation.node_type:
+            raise ValueError("child_component_runtime_type_changed")
+        _require_actual_configured_dispatch(bound_node, self.implementation)
+        identity = _identity_for(self.implementation, bound_node, params)
+        if identity.bound_state_sha256 != self.bound_state_sha256:
+            raise ValueError("child_component_bound_state_changed")
+        function = self.bound_execute.__func__
+        if _digest_value((function.__defaults__, function.__kwdefaults__)) != self.defaults_sha256:
+            raise ValueError("child_component_callable_defaults_changed")
+        return identity
+
+    def execute(self, ctx: Any, state: Any) -> Any:
+        """Use the actual held checked bound method, without a fresh attribute lookup."""
+        params = from_canonical_bytes(self.params_json)
+        if not isinstance(params, dict):
+            raise ValueError("child_component_owned_params_invalid")
+        self.reconcile(self.registered_node, self.bound_node, params)
+        return _invoke_configured_dispatch(self, ctx, state)
+
+
+def _invoke_configured_dispatch(
+    owner: _ConfiguredComponentIdentityOwner,
+    ctx: Any,
+    state: Any,
+) -> Any:
+    """Invoke the original bound target; do not clone code or look execute up again."""
+    return owner.bound_execute(ctx, state)
+
+
+def _require_actual_configured_dispatch(node: object, owner: _BuiltinOwner) -> types.MethodType:
+    """Reconcile attribute lookup with the actual class descriptor being captured."""
+    execute = getattr(node, "execute", None)
+    if (
+        not isinstance(execute, types.MethodType)
+        or execute.__self__ is not node
+        or execute.__func__ is not owner.execute_function
+    ):
+        raise ValueError("child_component_actual_dispatch_changed")
+    actual_spec = getattr(node, "spec", None)
+    spec_function = _function_from_descriptor(owner.spec_descriptor)
+    if spec_function is None or actual_spec is None:
+        raise ValueError("child_component_actual_spec_missing")
+    if _digest_value(actual_spec.model_dump(mode="json")) != _digest_value(
+        spec_function(node).model_dump(mode="json")
+    ):
+        raise ValueError("child_component_actual_spec_changed")
+    return execute
+
+
+def _capture_configured_component_owner(
+    registered_node: object,
+    params: dict[str, Any],
+) -> _ConfiguredComponentIdentityOwner:
+    """Perform the admitted real bind and capture its exact produced implementation.
+
+    Call only after the engine owner grants this member reconstruction. This
+    function neither appoints that owner nor authorizes a component. It takes no
+    independently supplied bound result: relation to the registration/parameters
+    is recomputed by invoking the held registered binder. The resulting selected
+    method is held and used by managed dispatch. This trusted local profile does
+    not isolate mutable globals, closures, collaborators or concurrent Python.
+    """
+    from polisyos.scientist.orchestration.engine.protocol import NodeSpec
+
+    params_json = to_canonical_bytes(params, _CANON)
+    bind_params = from_canonical_bytes(params_json)
+    if not isinstance(bind_params, dict):
+        raise TypeError("child_component_params_invalid")
+    registered_state = _node_attributes_sha256(registered_node)
+    node_type = type(registered_node)
+    bind_function = _function_from_descriptor(inspect.getattr_static(node_type, "bind", None))
+    binder = getattr(registered_node, "bind", None)
+    if bind_function is not None and (
+        not isinstance(binder, types.MethodType)
+        or binder.__self__ is not registered_node
+        or binder.__func__ is not bind_function
+    ):
+        raise ValueError("child_component_actual_bind_changed")
+    if bind_params and bind_function is not None:
+        produced = binder(bind_params)
+        bound_node = registered_node if produced is None else produced
+    else:
+        bound_node = registered_node
+    if _digest_value(bind_params) != _digest_value(params):
+        raise ValueError("child_component_bind_mutated_params")
+    if _node_attributes_sha256(registered_node) != registered_state:
+        raise ValueError("child_component_bind_mutated_registration")
+    if type(bound_node) is not node_type:
+        raise ValueError("child_component_binding_type_changed")
+    spec_descriptor = inspect.getattr_static(node_type, "spec", None)
+    execute_function = _function_from_descriptor(inspect.getattr_static(node_type, "execute", None))
+    spec_function = _function_from_descriptor(spec_descriptor)
+    if (
+        not isinstance(spec_descriptor, property)
+        or execute_function is None
+        or spec_function is None
+    ):
+        raise ValueError("child_component_implementation_not_established")
+    spec = spec_function(bound_node)
+    if not isinstance(spec, NodeSpec):
+        raise TypeError("child_component_spec_invalid")
+    owner = _BuiltinOwner(
+        component_id=str(spec.metadata.component_id),
+        node_type=node_type,
+        execute_function=execute_function,
+        execute_code=execute_function.__code__,
+        bind_function=bind_function,
+        bind_code=bind_function.__code__ if bind_function is not None else None,
+        spec_descriptor=spec_descriptor,
+        spec_accessor_code=spec_function.__code__,
+        spec_sha256=_digest_value(spec.model_dump(mode="json")),
+        module_source_sha256=_module_source_digest(node_type),
+    )
+    actual_execute = _require_actual_configured_dispatch(bound_node, owner)
+    captured = _ConfiguredComponentIdentityOwner(
+        registered_node=registered_node,
+        bound_node=bound_node,
+        registered_state_sha256=registered_state,
+        bound_state_sha256=_node_attributes_sha256(bound_node),
+        params_sha256=_digest_value(params),
+        params_json=params_json,
+        defaults_sha256=_digest_value(
+            (execute_function.__defaults__, execute_function.__kwdefaults__)
+        ),
+        implementation=owner,
+        bound_execute=actual_execute,
+    )
+    captured.reconcile(registered_node, bound_node, params)
+    return captured

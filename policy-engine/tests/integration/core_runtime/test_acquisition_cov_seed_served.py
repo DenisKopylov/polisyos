@@ -135,6 +135,17 @@ def test_served_cov_seed_reaches_persisted_refusal_without_cost_or_authority(
         assert n5_input.profile.context_inputs.substrate_registry.model_dump(mode="json") == (
             expected_registry.model_dump(mode="json")
         )
+        inputs = n5_input.profile.context_inputs
+        expected_selected = {
+            entry.entry_content_hash
+            for entry in expected_registry.resolve(family_id="firm_fundamentals")
+        }
+        assert set(inputs.selected_registry_entry_hashes) == expected_selected
+        assert {
+            entry.entry_content_hash
+            for entry in inputs.world_model_record.substrate_registry_ref.resolved_entries
+        } == expected_selected
+        assert expected_selected < {entry.entry_content_hash for entry in expected_registry.entries}
         candidate_source = GenerationSourceRepository(fresh).load_candidate_scenario_source_for_n5(
             n5_input.n4_source_ref,
             expected_run_id=run_id,

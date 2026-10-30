@@ -398,7 +398,14 @@ def _served_wdi_candidate_profile(
     slot_units = {binding.slot_id: binding.unit for binding in base_world.record.policy_slot_map}
     target_baseline = float(base_world.bound_global_state.government_balance)
     outcome_baseline = float(base_world.bound_global_state.tax_rate)
-    selected_hashes = tuple(entry.entry_content_hash for entry in substrate_registry.entries)
+    # Inventory admission and model selection have distinct owners. Keep the
+    # complete registry; use only entries actually resolved by the WMR builder.
+    selected_hashes = tuple(
+        sorted(
+            entry.entry_content_hash
+            for entry in base_world.record.substrate_registry_ref.resolved_entries
+        )
+    )
     substrate_input_hash = gy_content_hash(
         {
             "purpose": "served-controlled-candidate-profile",

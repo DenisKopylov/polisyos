@@ -2,11 +2,17 @@
 
 from __future__ import annotations
 
+import math
 import random
-from dataclasses import dataclass
+from collections.abc import Mapping
+from dataclasses import asdict, dataclass
 from typing import Protocol
 
-from polisyos.scientist.methods.search.strategies.base import SearchStrategy
+from polisyos.scientist.methods.search.strategies.base import (
+    SearchStrategy,
+    _decode_python_random_state,
+    _encode_python_random_state,
+)
 from polisyos.scientist.methods.search.strategies.space import SearchSpace
 from polisyos.scientist.methods.search.strategies.types import (
     Evaluation,
@@ -29,6 +35,17 @@ class LinearDecay:
     start: float = 1.0
     end: float = 0.1
     n_steps: int = 100
+
+    def __post_init__(self) -> None:
+        if (
+            type(self.n_steps) is not int
+            or self.n_steps < 1
+            or any(
+                type(value) not in (int, float) or not math.isfinite(value) or not 0 <= value <= 1
+                for value in (self.start, self.end)
+            )
+        ):
+            raise ValueError("Linear exploration schedule is invalid")
 
     def __call__(self, iteration: int) -> float:
         if iteration >= self.n_steps:
@@ -60,7 +77,8 @@ class RLStrategyWrapper:
         self._base = base_strategy
         self._space = space
         self._config = config or RLConfig()
-        self._rng = random.Random(self._config.seed)
+        self._seed = self._config.seed
+        self._rng = random.Random(self._seed)
         self._iteration = 0
 
     def suggest(
@@ -87,19 +105,60 @@ class RLStrategyWrapper:
         return StrategyState(
             strategy_name="RLStrategyWrapper",
             iteration=self._iteration,
-            rng_state={"python": self._rng.getstate()},
+            rng_state={"python": _encode_python_random_state(self._rng.getstate())},
             model_state=base_state.model_state,
             metadata={
+                "rl_state_version": 1,
+                "seed": self._seed,
+                "space": self._space.sobol_space_fingerprint(),
+                "schedule": self._schedule_basis(),
                 "base_strategy": base_state.strategy_name,
                 "base_state": base_state.to_artifact().decode("utf-8"),
             },
         )
 
     def set_state(self, state: StrategyState) -> None:
+        meta = state.metadata
+        if (
+            not isinstance(meta, Mapping)
+            or not isinstance(state.rng_state, Mapping)
+            or state.strategy_name != "RLStrategyWrapper"
+            or type(state.iteration) is not int
+            or state.iteration < 0
+            or type(meta.get("rl_state_version")) is not int
+            or meta["rl_state_version"] != 1
+            or type(meta.get("seed")) is not int
+            or meta.get("space") != self._space.sobol_space_fingerprint()
+            or meta.get("schedule") != self._schedule_basis()
+            or not isinstance(meta.get("base_state"), str)
+        ):
+            raise ValueError("RL checkpoint basis is invalid or incompatible")
+        rng_state = _decode_python_random_state(state.rng_state.get("python"))
+        try:
+            nested = StrategyState.from_artifact(meta["base_state"].encode("utf-8"))
+        except (AttributeError, TypeError, ValueError) as exc:
+            raise ValueError("RL nested checkpoint is malformed") from exc
+        if (
+            nested.strategy_name != meta.get("base_strategy")
+            or nested.strategy_name != self._base.get_state().strategy_name
+            or nested.model_state != state.model_state
+        ):
+            raise ValueError("RL nested strategy identity/model changed")
+        # Validate wrapper-owned fields before delegating to the nested strategy's decoder.
+        # Each nested owner remains responsible for its own restore semantics.
+        random.Random().setstate(rng_state)
+        self._base.set_state(nested)
+        self._rng.setstate(rng_state)
         self._iteration = state.iteration
-        rng_state = state.rng_state.get("python")
-        if rng_state is not None:
-            self._rng.setstate(rng_state)
+        self._seed = meta["seed"]
+
+    def _schedule_basis(self) -> dict[str, object]:
+        schedule = self._config.exploration_schedule
+        if type(schedule) is not LinearDecay:
+            raise ValueError("RL checkpoint requires a supported versioned schedule")
+        # A caller can mutate a dataclass after construction; revalidate at the boundary.
+        schedule.__post_init__()
+        return {"profile": "linear_decay.v1", **asdict(schedule)}
 
     def _explore_random(self) -> PolicyCandidate:
         vector = tuple(self._rng.random() for _ in range(self._space.dim))

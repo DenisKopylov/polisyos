@@ -1,0 +1,16 @@
+id = "2026-10-30-e02-rl-checkpoint-resume"
+title = "Restore nested search strategy checkpoints"
+type = "fixed"
+component = "scientist"
+owner = "E02"
+summary = "The RL exploration wrapper restores its own versioned random state and delegates the recorded nested state to its owning search strategy."
+evidence = ["tests/unit/scientist/search/strategies/test_rl_checkpoint.py", "tests/unit/scientist/search/strategies/test_random_grid.py"]
+compatibility = "Versioned wrapper checkpoints bind the search space, linear-decay schedule and nested strategy identity. Grid checkpoints bind grid size, candidate cap and cursor before mutation. Incomplete legacy wrapper/Grid snapshots and unsupported custom-schedule checkpoints are refused."
+change_class = "internal"
+surface_classification = "internal: Scientist search strategy wrapper"
+migration = "Start a new checkpoint from the running selected strategy when the historical wrapper snapshot lacks a versioned basis."
+limitations = "The nested strategy remains responsible for validating its own configuration, model and restore behavior. Bayesian continuation is tested for matching no-fit Sobol configuration; other Bayesian configuration compatibility and failure atomicity are not established. The checkpoint does not prove policy or source authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/scientist/methods/search/README.md"]
+runbook_docs = []

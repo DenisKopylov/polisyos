@@ -19,6 +19,20 @@ logic used by policy-design and promotion workflows.
 - Promotion funnel and rollout logic: [`funnel/`](funnel/), [`readiness.py`](readiness.py), and [`promotion_evidence.py`](promotion_evidence.py)
 - Strategy implementations: [`strategies/`](strategies/)
 
+The RL exploration wrapper's versioned checkpoint carries its Python random
+state and the selected nested strategy state. Restore checks the search space,
+linear-decay schedule and nested strategy/model identity before delegating to
+the nested strategy's decoder. Untyped legacy wrapper snapshots and custom
+exploration schedules lack this basis and are refused for checkpoint restore;
+custom schedules can still be used without checkpointing. Nested owners remain
+responsible for validating their own configuration and restore behavior. Grid
+checkpoints bind both `points_per_dim` and `max_candidates` and validate the
+cursor before changing any state; older Grid snapshots without these fields
+are refused. The Bayesian no-fit Sobol continuation is tested for a matching
+configuration; other Bayesian configuration compatibility and failure
+atomicity are not established by the wrapper. This checkpoint is a
+reproducibility aid, not evidence of a policy or source authority.
+
 ## Public Entrypoints
 
 - Root contract surface in [`contracts.py`](contracts.py): `SearchService`, `CandidateProposal`, `EvaluationBundle`, and `TellResult`

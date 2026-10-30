@@ -3,13 +3,16 @@
 from __future__ import annotations
 
 import itertools
+from collections.abc import Mapping
 
 from polisyos.scientist.methods.search.strategies.base import BaseSearchStrategy
 from polisyos.scientist.methods.search.strategies.errors import StrategyExhaustedError
+from polisyos.scientist.methods.search.strategies.space import SearchSpace
 from polisyos.scientist.methods.search.strategies.types import (
     Evaluation,
     ParameterType,
     PolicyCandidate,
+    StrategyState,
 )
 
 
@@ -18,11 +21,11 @@ class GridSearchStrategy(BaseSearchStrategy):
 
     def __init__(
         self,
-        space,
+        space: SearchSpace,
         seed: int = 42,
         points_per_dim: int = 5,
         max_candidates: int = 5000,
-    ):
+    ) -> None:
         super().__init__(space=space, seed=seed)
         if points_per_dim < 2:
             raise ValueError("points_per_dim must be >= 2")
@@ -50,18 +53,38 @@ class GridSearchStrategy(BaseSearchStrategy):
             source_strategy="grid",
         )
 
-    def get_state(self):
+    def get_state(self) -> StrategyState:
         state = super().get_state()
         state.metadata = {
             **state.metadata,
+            "grid_state_version": 1,
             "cursor": self._cursor,
             "points_per_dim": self._points_per_dim,
+            "max_candidates": self._max_candidates,
         }
         return state
 
-    def set_state(self, state):
+    def set_state(self, state: StrategyState) -> None:
+        metadata = state.metadata
+        if not isinstance(metadata, Mapping):
+            raise ValueError("Grid checkpoint metadata must be an object")
+        version = metadata.get("grid_state_version")
+        points = metadata.get("points_per_dim")
+        maximum = metadata.get("max_candidates")
+        cursor = metadata.get("cursor")
+        if (
+            type(version) is not int
+            or version != 1
+            or type(points) is not int
+            or points != self._points_per_dim
+            or type(maximum) is not int
+            or maximum != self._max_candidates
+            or type(cursor) is not int
+            or not 0 <= cursor <= len(self._grid_params)
+        ):
+            raise ValueError("Grid checkpoint generation basis or cursor is invalid")
         super().set_state(state)
-        self._cursor = int(state.metadata.get("cursor", 0))
+        self._cursor = cursor
 
     def _build_grid_params(self) -> list[dict[str, object]]:
         per_dim_values: list[list[object]] = []

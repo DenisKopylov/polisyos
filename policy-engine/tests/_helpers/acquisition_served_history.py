@@ -8,6 +8,7 @@ import json
 import sys
 import time
 import uuid
+from collections.abc import Callable
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
@@ -743,6 +744,7 @@ def _produce_served_acquisition_history(
     include_default_only_compiled_probe: bool = False,
     sequential_oracle=None,
     provider_mode: str = "recorded_capture",
+    seed_only_observer: Callable[..., None] | None = None,
 ) -> dict[str, str] | None:
     import os
 
@@ -1331,6 +1333,18 @@ def _produce_served_acquisition_history(
                 _within_fixture_owner(control._artifact_store.get_bytes, job.payload_ref)
             )
             assert persisted_job_payload["llm_models"] == [served_n4_model_id]
+            if seed_only_observer is not None:
+                # This explicit test hook observes the real completed NL/N5
+                # producer before the existing WDI-only route continuation.
+                _within_fixture_owner(
+                    seed_only_observer,
+                    control=control,
+                    job=job,
+                    run_id=run_id,
+                    cas_root=cas_root,
+                    profile_selection_ref=profile.profile_selection_ref,
+                )
+                return {"run_id": run_id, "job_id": seed_job_id}
             closure, request = _within_fixture_owner(
                 resolve_completed_wdi_route,
                 control,

@@ -15,9 +15,13 @@ manifest module.
 
 - **Registry** - migrations are registered per artifact and chained by version.
 - **Executor** - `migrate_artifact()` applies the chain to a target version.
+  An optional `selected_edges` mapping supplies per-call version edges, merged
+  into a snapshot of the registered artifact graph, without changing the global
+  registry. Callers without this option retain the existing registry behavior.
 - **Manifest compatibility** - the old `dataset_manifest` import path remains
-  temporarily registered without importing Fabric; the canonical callback and
-  CLI registration live under `polisyos.fabric.identity.migrations`.
+  temporarily registered without importing Fabric; the canonical callback is
+  owned by `polisyos.fabric.identity.migrations`. The operational CLI supplies
+  its contract-selected callback through the per-call edge.
 
 ## Public API
 

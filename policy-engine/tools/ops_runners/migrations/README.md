@@ -2,7 +2,21 @@
 
 Operational and format migrations for artifacts and data stores.
 Canonical contracts live in `ops/migrations/migration-contracts.toml`; helper
-CLIs fail closed if their `helper_binding` or target class path is missing.
+CLIs fail closed if their unique `helper_binding`, target class, workspace path,
+or declared artifact converter cannot be resolved. The artifact CLI executes the
+selected callable. Dataset manifest calls use a per-call Common migration edge,
+so concurrent calls cannot replace each other's converter through the shared registry.
+
+The contract loader selects the source checkout by module ancestry. An installed
+runner without that ancestry may read the contract from the current workspace;
+its source directory is not added to the installed runner's import path. The
+layout check establishes neither workspace authenticity nor installed-code
+provenance. The current tests exercise an installed-shaped path in the existing
+editable environment; an installed wheel run remains a separate check.
+
+Conversion, path normalization, strict target DTO validation, and provenance or
+admission are separate operations; a successful conversion is not evidence that
+an artifact is admissible for another use.
 
 ## Scripts
 

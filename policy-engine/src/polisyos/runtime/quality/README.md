@@ -1375,6 +1375,14 @@ or same-shaped selected NCM is insufficient. These are input/codec relations,
 not proof of a selected engine implementation, external native dependency,
 current eligibility or retained-terminal authority.
 
+`GenerationSourceRepository` and `CycleSubstrateContextArtifactOwner` accept the Core
+`VerifiableArtifactReader` capability for selected replay. This says verification is
+available; each reader still performs its own actual verification and profile/lineage
+checks. Persistence requires the supplied owner to satisfy the existing full `ArtifactStore`
+port through a typed fail-closed writer accessor. A read-only CAS cannot persist through
+these combined owners. The N5 result loader needs only `ArtifactReader`; its actual selected
+manifest, bytes and semantic checks are unchanged.
+
 ## Acquired observation semantic values
 
 `data_state_substrate.prepare_acquired_observation_semantic_values` projects one

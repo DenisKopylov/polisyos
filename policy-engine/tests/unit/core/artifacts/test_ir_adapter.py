@@ -561,6 +561,12 @@ def test_static_ir_adapter_cannot_launder_missing_core_json_reader(tmp_path) -> 
     )
     adapter = CoreToIRArtifactStoreAdapter(BaseOnlyFacade(owner))
 
+    # Legacy full-store adapter advertises this forwarding method structurally.
+    # Its real owner lacks the port; the matcher and actual read still refuse.
+    # This pre-existing behavior is a bounded residual outside narrow-reader admission.
+    from polisyos.core.artifacts import RawManifestBytesReader
+
+    assert isinstance(adapter, RawManifestBytesReader)
     assert not matches_artifact_store_protocol(adapter, CoreJSONArtifactStore)
     with pytest.raises(TypeError, match="must expose get_raw_manifest_bytes"):
         get_json_artifact(adapter, ref)

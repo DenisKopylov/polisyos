@@ -44,7 +44,13 @@ from .manifest import (
 from .manifest import (
     ArtifactRef as CoreArtifactRef,
 )
-from .protocol import matches_runtime_protocol, runtime_protocol_requirements
+from .protocol import (
+    RawManifestBytesReader,
+    VerifiableArtifactReader,
+    matches_runtime_protocol,
+    matches_runtime_protocol_definition,
+    runtime_protocol_requirements,
+)
 from .write_contract import ArtifactWriteOptions
 
 if TYPE_CHECKING:
@@ -1017,7 +1023,85 @@ def _emit_selected_core_write(
 
 
 @dataclass(frozen=True, slots=True)
-class CoreToIRArtifactStoreAdapter:
+class _CoreToIRArtifactReadMethods:
+    """Adapt existing Core reads and exact selectors without writer capabilities."""
+
+    store: VerifiableArtifactReader
+
+    def get_bytes(self, artifact_id: ArtifactSelector | CoreArtifactRef) -> bytes:
+        return self.store.get_bytes(_coerce_core_artifact_selector(artifact_id))
+
+    def has(self, artifact_id: ArtifactSelector | CoreArtifactRef) -> bool:
+        return self.store.has(_coerce_core_artifact_selector(artifact_id))
+
+    def get_manifest(self, artifact_id: ArtifactSelector | CoreArtifactRef) -> ArtifactManifest:
+        return self.store.get_manifest(_coerce_core_artifact_selector(artifact_id))
+
+    def get_manifest_by_profile(
+        self,
+        artifact_id: ArtifactID | str,
+        manifest_profile_sha256: str,
+    ) -> ArtifactManifest:
+        """Resolve a selected manifest view from its profile-bearing lineage edge."""
+        aid = ArtifactID.model_validate(artifact_id)
+        resolver = getattr(self.store, "get_manifest_by_profile", None)
+        if callable(resolver):
+            return ArtifactManifest.model_validate(resolver(aid, manifest_profile_sha256))
+        manifest = ArtifactManifest.model_validate(self.store.get_manifest(aid))
+        from ._manifest_lifecycle import ManifestLifecycle
+
+        if ManifestLifecycle.profile_sha256(manifest) != manifest_profile_sha256:
+            raise TypeError("Core artifact store cannot resolve a non-default manifest profile")
+        return manifest
+
+    def get_raw_manifest_bytes(
+        self,
+        artifact_id: ArtifactSelector | CoreArtifactRef,
+        *,
+        manifest_profile_sha256: str | None = None,
+    ) -> bytes:
+        """Delegate exact raw sidecar access to the wrapped Core owner."""
+        reader = getattr(self.store, "get_raw_manifest_bytes", None)
+        if not callable(reader):
+            raise TypeError("Core artifact store must expose get_raw_manifest_bytes for IR reads")
+        selected = _coerce_core_artifact_selector(artifact_id)
+        raw = reader(
+            selected,
+            **(
+                {"manifest_profile_sha256": manifest_profile_sha256}
+                if manifest_profile_sha256 is not None
+                else {}
+            ),
+        )
+        if not isinstance(raw, bytes):
+            raise TypeError("Core get_raw_manifest_bytes() must return bytes")
+        return raw
+
+    def get_manifest_bytes(self, artifact_id: ArtifactSelector | CoreArtifactRef) -> bytes:
+        """Return the exact selected raw sidecar bytes from the wrapped Core owner."""
+        return self.get_raw_manifest_bytes(artifact_id)
+
+    def verify(self, artifact_id: ArtifactSelector | CoreArtifactRef) -> VerificationReport:
+        """Verify a selector against its exact Core artifact and manifest view."""
+        return self.store.verify(_coerce_core_artifact_selector(artifact_id))
+
+
+@dataclass(frozen=True, slots=True)
+class _CoreToIRArtifactReaderAdapter(_CoreToIRArtifactReadMethods):
+    """Admit an actual raw-capable Core reader without adding writable methods."""
+
+    def __post_init__(self) -> None:
+        if not (
+            matches_runtime_protocol_definition(self.store, VerifiableArtifactReader)
+            and matches_runtime_protocol_definition(self.store, RawManifestBytesReader)
+        ):
+            raise TypeError(
+                "Core read-only IR adapter requires get_raw_manifest_bytes and verifiable reads"
+            )
+
+
+@dataclass(frozen=True, slots=True)
+class CoreToIRArtifactStoreAdapter(_CoreToIRArtifactReadMethods):
     """Adapt a core CAS store so IR helpers can consume it without concrete coupling."""
 
     store: CoreArtifactStore
@@ -1101,63 +1185,6 @@ class CoreToIRArtifactStoreAdapter:
             return _emit_selected_core_write(self.store, data, write_options)
         return self.store.put_bytes(data, write_options)
 
-    def get_bytes(self, artifact_id: ArtifactSelector | CoreArtifactRef) -> bytes:
-        return self.store.get_bytes(_coerce_core_artifact_selector(artifact_id))
-
-    def has(self, artifact_id: ArtifactSelector | CoreArtifactRef) -> bool:
-        return self.store.has(_coerce_core_artifact_selector(artifact_id))
-
-    def get_manifest(self, artifact_id: ArtifactSelector | CoreArtifactRef) -> ArtifactManifest:
-        return self.store.get_manifest(_coerce_core_artifact_selector(artifact_id))
-
-    def get_manifest_by_profile(
-        self,
-        artifact_id: ArtifactID | str,
-        manifest_profile_sha256: str,
-    ) -> ArtifactManifest:
-        """Resolve a selected manifest view from its profile-bearing lineage edge."""
-        aid = ArtifactID.model_validate(artifact_id)
-        resolver = getattr(self.store, "get_manifest_by_profile", None)
-        if callable(resolver):
-            return ArtifactManifest.model_validate(resolver(aid, manifest_profile_sha256))
-        manifest = ArtifactManifest.model_validate(self.store.get_manifest(aid))
-        from ._manifest_lifecycle import ManifestLifecycle
-
-        if ManifestLifecycle.profile_sha256(manifest) != manifest_profile_sha256:
-            raise TypeError("Core artifact store cannot resolve a non-default manifest profile")
-        return manifest
-
-    def get_raw_manifest_bytes(
-        self,
-        artifact_id: ArtifactSelector | CoreArtifactRef,
-        *,
-        manifest_profile_sha256: str | None = None,
-    ) -> bytes:
-        """Delegate exact raw sidecar access to the wrapped Core owner."""
-        reader = getattr(self.store, "get_raw_manifest_bytes", None)
-        if not callable(reader):
-            raise TypeError("Core artifact store must expose get_raw_manifest_bytes for IR reads")
-        selected = _coerce_core_artifact_selector(artifact_id)
-        raw = reader(
-            selected,
-            **(
-                {"manifest_profile_sha256": manifest_profile_sha256}
-                if manifest_profile_sha256 is not None
-                else {}
-            ),
-        )
-        if not isinstance(raw, bytes):
-            raise TypeError("Core get_raw_manifest_bytes() must return bytes")
-        return raw
-
-    def get_manifest_bytes(self, artifact_id: ArtifactSelector | CoreArtifactRef) -> bytes:
-        """Return the exact selected raw sidecar bytes from the wrapped Core owner."""
-        return self.get_raw_manifest_bytes(artifact_id)
-
-    def verify(self, artifact_id: ArtifactSelector | CoreArtifactRef) -> VerificationReport:
-        """Verify a selector against its exact Core artifact and manifest view."""
-        return self.store.verify(_coerce_core_artifact_selector(artifact_id))
-
     def iter_artifact_ids(self) -> list[Any]:
         return list(self.store.iter_artifact_ids())
 
@@ -1169,24 +1196,34 @@ def ensure_ir_artifact_store(
 
 
 @overload
+def ensure_ir_artifact_store(
+    store: VerifiableArtifactReader,
+) -> _CoreToIRArtifactReadMethods: ...
+
+
+@overload
 def ensure_ir_artifact_store(store: IRArtifactStore) -> IRArtifactStore: ...
 
 
 def ensure_ir_artifact_store(
-    store: IRArtifactStore | CoreArtifactStore,
-) -> IRArtifactStore:
-    """Return an IR-compatible store, wrapping core stores when needed."""
+    store: IRArtifactStore | CoreArtifactStore | VerifiableArtifactReader,
+) -> IRArtifactStore | _CoreToIRArtifactReadMethods:
+    """Adapt Core read or write capabilities without upgrading a read-only owner."""
 
-    if isinstance(store, CoreToIRArtifactStoreAdapter):
+    if isinstance(store, (CoreToIRArtifactStoreAdapter, _CoreToIRArtifactReaderAdapter)):
         return store
-    from polisyos.core.artifacts.protocol import (
-        ArtifactStore as RuntimeCoreArtifactStore,
-    )
+    from polisyos.core.artifacts.protocol import ArtifactStore as RuntimeCoreArtifactStore
 
-    if isinstance(store, RuntimeCoreArtifactStore) or matches_artifact_store_protocol(
-        store, RuntimeCoreArtifactStore
-    ):
-        return CoreToIRArtifactStoreAdapter(cast("CoreArtifactStore", store))
+    def is_core_store(value: object) -> TypeGuard[CoreArtifactStore]:
+        return matches_runtime_protocol_definition(value, RuntimeCoreArtifactStore)
+
+    def is_core_reader(value: object) -> TypeGuard[VerifiableArtifactReader]:
+        return matches_runtime_protocol_definition(value, VerifiableArtifactReader)
+
+    if is_core_store(store):
+        return CoreToIRArtifactStoreAdapter(store)
+    if is_core_reader(store):
+        return _CoreToIRArtifactReaderAdapter(store)
     return cast("IRArtifactStore", store)
 
 
@@ -1209,7 +1246,7 @@ def matches_artifact_store_protocol[ProtocolT](
     """
     candidate = value
     if (
-        isinstance(value, CoreToIRArtifactStoreAdapter)
+        isinstance(value, _CoreToIRArtifactReadMethods)
         and runtime_protocol_requirements(protocol).get("get_raw_manifest_bytes") is True
     ):
         candidate = value.store

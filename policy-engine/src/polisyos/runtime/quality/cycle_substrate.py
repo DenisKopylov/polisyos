@@ -12,7 +12,7 @@ import re
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Protocol, cast
+from typing import TYPE_CHECKING, Any, Literal, Protocol, TypeGuard, cast
 
 from pydantic import (
     BaseModel,
@@ -2654,11 +2654,21 @@ class CycleSubstrateContextArtifactOwner:
     def __init__(
         self,
         *,
-        store: artifacts.ArtifactStore,
+        store: artifacts.VerifiableArtifactReader,
         control_store: _CurrentControlJobExecutionOwner | None = None,
     ) -> None:
         self._store = store
         self._control_store = control_store
+
+    def _writer(self) -> artifacts.ArtifactStore:
+        """Require a complete writer on the supplied owner before persistence."""
+
+        def is_writer(value: object) -> TypeGuard[artifacts.ArtifactStore]:
+            return artifacts.matches_runtime_protocol_definition(value, artifacts.ArtifactStore)
+
+        if not is_writer(self._store):
+            raise TypeError("cycle_substrate_context_writer_unavailable")
+        return self._store
 
     def _current_job_execution_binding(
         self,
@@ -2702,6 +2712,7 @@ class CycleSubstrateContextArtifactOwner:
         repository root; the static V1 context reader remains unchanged.
         """
 
+        writer = self._writer()
         if self._control_store is None:
             raise CycleSubstrateContextOwnerError(
                 "cycle_substrate_context_current_job_owner_unavailable"
@@ -2727,7 +2738,7 @@ class CycleSubstrateContextArtifactOwner:
             verified_nl_job_scope=verified_nl_job_scope,
             execution_admission=execution_admission,
         )
-        return self._store.put_json(
+        return writer.put_json(
             _serialize_cycle_substrate_context_job_artifact(artifact),
             _context_job_write_options(artifact),
             canon_spec=_CONTEXT_JOB_CANON,

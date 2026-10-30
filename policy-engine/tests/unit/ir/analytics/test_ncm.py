@@ -225,6 +225,39 @@ def test_candidate_ncm_is_derived_from_declared_baseline_and_selected_view(
             expected_declaration_ref=declaration_ref,
         )
         assert loaded_from_read_only.model_dump(mode="json") == spec.model_dump(mode="json")
+        fresh_read_only = FileSystemCAS.open_existing_read_only(tmp_path / "candidate-ncm-cas")
+        adapted_read_only = _ensure_ir_artifact_store(fresh_read_only)
+        assert not isinstance(adapted_read_only, CoreToIRArtifactStoreAdapter)
+        assert not hasattr(adapted_read_only, "put_bytes")
+        assert not hasattr(adapted_read_only, "put_json")
+        assert _ensure_ir_artifact_store(adapted_read_only) is adapted_read_only
+        read_repository = GenerationSourceRepository(fresh_read_only)
+        with pytest.raises(TypeError, match="generation_source_writer_unavailable"):
+            read_repository.persist_candidate_model_declaration(
+                declaration=declaration,
+                job_id=job_id,
+                run_id=run_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+            )
+        with pytest.raises(TypeError, match="generation_source_writer_unavailable"):
+            read_repository.persist_candidate_ncm_selected_view(
+                ncm_spec=spec,
+                declaration_ref=declaration_ref,
+                job_id=job_id,
+                run_id=run_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                profile_content_hash=declaration.profile_content_hash,
+            )
+        actual_fresh_ncm = load_ncm_spec_selected_view(
+            adapted_read_only,
+            selected_ref,
+            expected_tenant_id=tenant_id,
+            expected_cell_id=cell_id,
+            expected_declaration_ref=declaration_ref,
+        )
+        _assert_complete_native_selected_values(loaded, actual_fresh_ncm)
         loaded_default_view = load_ncm_spec_selected_view(
             _ensure_ir_artifact_store(store),
             default_view_ref,
@@ -256,6 +289,22 @@ def test_candidate_ncm_is_derived_from_declared_baseline_and_selected_view(
             )
 
         stripped_selector = selected_ref.model_copy(update={"manifest_profile_sha256": None})
+        with pytest.raises(ValueError, match="ncm_selected_view_manifest_mismatch"):
+            load_ncm_spec_selected_view(
+                adapted_read_only,
+                stripped_selector,
+                expected_tenant_id=tenant_id,
+                expected_cell_id=cell_id,
+                expected_declaration_ref=declaration_ref,
+            )
+        with pytest.raises(ValueError, match="ncm_selected_view_declaration_lineage_mismatch"):
+            load_ncm_spec_selected_view(
+                adapted_read_only,
+                selected_ref,
+                expected_tenant_id=tenant_id,
+                expected_cell_id=cell_id,
+                expected_declaration_ref=alternate_ref,
+            )
         with pytest.raises(ValueError, match="ncm_selected_view_manifest_mismatch"):
             load_ncm_spec_selected_view(
                 _ensure_ir_artifact_store(store),

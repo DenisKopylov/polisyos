@@ -363,16 +363,21 @@ def test_cycle_substrate_context_owner_persists_exact_job_scope_and_reads_direct
         ownership_enforced=True,
         ownership_requires_scope=True,
     )
-    owner = CycleSubstrateContextArtifactOwner(
-        store=store,
-        control_store=_TestCurrentJobExecutionOwner("job-context-owner", "run-context-owner"),
-    )
+    execution_owner = _TestCurrentJobExecutionOwner("job-context-owner", "run-context-owner")
+    owner = CycleSubstrateContextArtifactOwner(store=store, control_store=execution_owner)
 
     with _authenticated_tenant_scope(
         tenant_id="tenant-context-owner", cell_id="cell-context-owner"
     ):
         ref = owner.persist_for_current_job(context, problem=problem)
         resolved = owner.resolve_for_current_job(ref, problem=problem)
+        read_owner = CycleSubstrateContextArtifactOwner(
+            store=FileSystemCAS.open_existing_read_only(tmp_path / "cycle-context-cas"),
+            control_store=execution_owner,
+        )
+        assert read_owner.resolve_for_current_job(ref, problem=problem) == resolved
+        with pytest.raises(TypeError, match="cycle_substrate_context_writer_unavailable"):
+            read_owner.persist_for_current_job(context, problem=problem)
         manifest = store.get_manifest(ref)
         serialized_v1 = cycle_substrate_owner._serialize_cycle_substrate_context_job_artifact(
             resolved

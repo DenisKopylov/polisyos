@@ -77,6 +77,21 @@ writer operations. The opener requires an already-existing CAS root, layout, roo
 per-artifact stripe lock. It creates no directories or lock files and does not run orphan-stage
 recovery. Use the ordinary `FileSystemCAS` writer for writes and lifecycle management.
 
+Pass that read-only handle to `ensure_ir_artifact_store()` before an IR semantic reader.
+The adapter reuses the existing exact selector conversion and raw-manifest delegation;
+it returns a read-only adapter for a verified Core reader and preserves the full writable
+adapter for a Core store. It does not expose `put_json` or `put_bytes` on a reader, unwrap
+its owner, re-encode a manifest, or confer producer authority/currentness. A read-only owner missing the raw manifest port refuses at adapter construction, so
+the returned narrow reader supports direct runtime protocol checks as well as the matcher.
+The historical full writable adapter retains its lazy raw forwarding method; a full owner
+without raw support can therefore satisfy a direct structural raw-reader check while the
+owner-aware matcher and actual read refuse. That existing full-adapter limitation is not a
+verification/authority claim.
+Core `ArtifactReader` remains the same three-method port. `VerifiableArtifactReader`
+composes it with the existing integrity-verification operation; it describes available
+capabilities, not an already-verified result. Selected IR consumers retain their explicit
+raw-manifest and actual verification requirements.
+
 `ArtifactReader.has()` addresses the exact selected view. A genuinely missing selected
 manifest returns `False`; an ID or profile-qualified reference never falls back to another
 manifest. When the selected manifest is present, the reader requires its blob and validates the

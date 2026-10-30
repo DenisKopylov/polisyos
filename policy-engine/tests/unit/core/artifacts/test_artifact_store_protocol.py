@@ -16,6 +16,7 @@ from polisyos.core.artifacts import (
     ArtifactIntegrityError,
     ArtifactReadOnlyUnavailableError,
     artifact_manifest_profile_sha256,
+    ensure_ir_artifact_store,
 )
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.ir_adapter import CoreToIRArtifactStoreAdapter
@@ -112,6 +113,10 @@ class TestArtifactStoreProtocol:
 
         assert artifacts.ArtifactReadOnlyUnavailableError is ArtifactReadOnlyUnavailableError
         assert artifacts.ArtifactReader is ArtifactReader
+        from polisyos.core.artifacts.protocol import VerifiableArtifactReader
+
+        assert artifacts.VerifiableArtifactReader is VerifiableArtifactReader
+        assert "VerifiableArtifactReader" in artifacts.__all__
         assert artifacts.ReadOnlyFileSystemCAS is ReadOnlyFileSystemCAS
         assert {
             "ArtifactReadOnlyUnavailableError",
@@ -894,9 +899,18 @@ def test_existing_read_only_cas_uses_reader_protocol_without_filesystem_writes(
     try:
         reader = FileSystemCAS.open_existing_read_only(root)
         assert isinstance(reader, ArtifactReader)
+        from polisyos.core.artifacts import VerifiableArtifactReader
+
+        assert isinstance(reader, VerifiableArtifactReader)
         assert reader.has(ref)
         assert reader.get_manifest(ref).kind == ref.kind
         assert reader.get_bytes(ref.artifact_id) == b"immutable-read-only-payload"
+        ir_reader = ensure_ir_artifact_store(reader)
+        selector = ref.model_dump(mode="python")
+        assert ir_reader.get_bytes(selector) == b"immutable-read-only-payload"
+        assert ir_reader.get_manifest_bytes(selector) == reader.get_raw_manifest_bytes(ref)
+        assert not hasattr(ir_reader, "put_bytes")
+        assert not hasattr(ir_reader, "put_json")
         assert not hasattr(reader, "put_bytes")
         with pytest.raises(AttributeError):
             reader.put_bytes(b"forbidden", PutOptions(kind="test.write", media_type="text/plain"))

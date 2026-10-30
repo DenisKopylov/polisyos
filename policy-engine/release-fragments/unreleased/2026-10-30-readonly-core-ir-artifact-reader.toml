@@ -1,0 +1,30 @@
+id = "2026-10-30-readonly-core-ir-artifact-reader"
+title = "Adapt read-only Core artifact owners for exact IR replay"
+type = "fixed"
+component = "core"
+owner = "team-polisyos"
+summary = "Reuse the Core-to-IR adapter's existing read methods for a narrow read-only owner so selected NCM replay can resolve exact manifest bytes and typed selectors without a writer-capable store."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.core.artifacts.ensure_ir_artifact_store input/return capability; internal: shared read-adapter extraction"
+compatibility = "Additive read-only input support. Existing full Core stores retain CoreToIRArtifactStoreAdapter, its writes, selector checks, exact profiles and signatures. ArtifactReader, ArtifactStore, IR selected-reader protocols, artifacts and canonical profiles are unchanged. The combined runtime source/context owners truthfully accept read+verify owners and require the actual full writer for persistence. A read-only input never gains writer methods."
+migration = "Existing writable callers need no migration. Pass FileSystemCAS.open_existing_read_only output through the existing ensure_ir_artifact_store facade before IR semantic reads."
+api = "Add the VerifiableArtifactReader protocol facade export; ensure_ir_artifact_store overloads distinguish the narrow reader return from the existing full writable adapter."
+limitations = "Exact artifact/profile/codec read conformance only; no authority, currentness, global authenticity or native execution claim. Narrow adapter construction requires the actual owner raw capability. The unchanged legacy full adapter retains lazy raw forwarding, so direct structural raw detection alone can overstate its owner capability; actual read and owner-aware matcher refuse. Actual public inventory regeneration and bounded owner review completed, excluding deep-import resolution. Runtime qualification and institutional authority remain separate evidence obligations."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/core/artifacts/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "readonly-core-ir-artifact-reader"
+change_class = "python-public-api"
+impact = "compatible"
+surface = "public_stable: polisyos.core.artifacts.ensure_ir_artifact_store"
+owner = "team-polisyos"
+version_owner = "team-architecture"
+deprecation_window = "not_applicable"
+release_note = "Exact selected Core-to-IR reads now adapt a read-only owner without exposing writable operations. Existing full-store behavior and fail-closed manifest/profile checks remain unchanged."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/core/artifacts/README.md"]
+runbook_docs = []

@@ -62,6 +62,7 @@ from polisyos.core import contracts as core_contracts
 from polisyos.core.artifacts import (
     ArtifactIntegrityError,
     ArtifactOwnershipError,
+    ArtifactReader,
     ArtifactStore,
     ArtifactTenantContextInfo,
     CoreJSONArtifactStore,
@@ -1479,7 +1480,7 @@ def _validate_loaded_joint_simulation_result(
 def load_joint_simulation_result(
     ref: CASArtifactRef,
     *,
-    store: ArtifactStore,
+    store: ArtifactReader,
     expected_world_model_record_content_hash: str | None = None,
     expected_atom_ids: Sequence[str] | None = None,
     expected_selected_outcomes: Sequence[str] | None = None,

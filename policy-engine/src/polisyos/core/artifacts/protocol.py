@@ -244,6 +244,17 @@ class ArtifactReader(Protocol):
 
 
 @runtime_checkable
+class VerifiableArtifactReader(ArtifactReader, Protocol):
+    """Offer read operations and integrity verification without writer methods.
+
+    This is a capability contract, not a claim that a read is already verified.
+    Consumers still invoke verification and their exact selected-profile checks.
+    """
+
+    def verify(self, artifact_id: ArtifactID | ArtifactRef) -> VerificationReport: ...
+
+
+@runtime_checkable
 class ArtifactStore(ArtifactReader, Protocol):
     """Read/write content-addressable store interface.
 

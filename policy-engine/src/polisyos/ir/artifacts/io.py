@@ -863,7 +863,7 @@ def _checked_owner_profile[OwnerSourceT, OwnerConsumerT](
 
 
 def _get_owned_json_artifact_with_bytes[OwnerSourceT, OwnerConsumerT](
-    store: ArtifactStore,
+    store: _ProfiledJSONReader,
     artifact_id: ArtifactSelector,
     *,
     owner: ArtifactOwnerDeclaration[OwnerSourceT, OwnerConsumerT],
@@ -1008,7 +1008,7 @@ def _get_owned_json_artifact_with_bytes[OwnerSourceT, OwnerConsumerT](
 
 
 def _get_owned_json_artifact[OwnerSourceT, OwnerConsumerT](
-    store: ArtifactStore,
+    store: _ProfiledJSONReader,
     artifact_id: ArtifactSelector,
     *,
     owner: ArtifactOwnerDeclaration[OwnerSourceT, OwnerConsumerT],
@@ -1439,7 +1439,7 @@ def _get_json_artifact_with_bytes(
 get_json_artifact_with_bytes = _get_json_artifact_with_bytes
 
 
-def get_json_artifact(store: ArtifactStore, artifact_id: ArtifactSelector) -> object:
+def get_json_artifact(store: _ProfiledJSONReader, artifact_id: ArtifactSelector) -> object:
     """Read and return JSON after selected-profile and same-byte conformance checks."""
     value, _raw_bytes = _get_json_artifact_with_bytes(store, artifact_id)
     return value

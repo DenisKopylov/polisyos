@@ -11,7 +11,7 @@ from collections.abc import Callable, Iterator, Mapping, Sequence
 from contextlib import contextmanager, suppress
 from contextvars import ContextVar, Token
 from dataclasses import dataclass, fields
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, TypeGuard
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -1493,8 +1493,18 @@ class GenerationSourceResolution(_StrictModel):
 class GenerationSourceRepository:
     """Preserve and replay typed organ sources through the existing Core artifact store."""
 
-    def __init__(self, store: artifacts.ArtifactStore) -> None:
+    def __init__(self, store: artifacts.VerifiableArtifactReader) -> None:
         self.store = store
+
+    def _writer(self) -> artifacts.ArtifactStore:
+        """Require the real supplied owner to expose the complete writer port."""
+
+        def is_writer(value: object) -> TypeGuard[artifacts.ArtifactStore]:
+            return artifacts.matches_runtime_protocol_definition(value, artifacts.ArtifactStore)
+
+        if not is_writer(self.store):
+            raise TypeError("generation_source_writer_unavailable")
+        return self.store
 
     @contextmanager
     def capture_read_provenance(
@@ -1535,7 +1545,7 @@ class GenerationSourceRepository:
             cell_id=cell_id,
             source_ref=record.profile_content_hash,
         )
-        return self.store.put_bytes(
+        return self._writer().put_bytes(
             canon.to_canonical_bytes(record, _SOURCE_CANON),
             options,
             return_selected_profile=True,
@@ -1639,7 +1649,7 @@ class GenerationSourceRepository:
             ),
         )
         ref = persist_ncm_spec_selected_view(
-            _ensure_ir_artifact_store(self.store),
+            _ensure_ir_artifact_store(self._writer()),
             ncm_spec,
             write_options=options,
             return_selected_profile=True,
@@ -1751,7 +1761,7 @@ class GenerationSourceRepository:
             model_declaration_ref=record.model_declaration_ref,
             ncm_ref=record.ncm_ref,
         )
-        return self.store.put_bytes(
+        return self._writer().put_bytes(
             canon.to_canonical_bytes(record, _SOURCE_CANON),
             options,
             return_selected_profile=True,
@@ -1926,7 +1936,7 @@ class GenerationSourceRepository:
             source_ref=record.source_ref,
             origin_source_ref=record.origin_source_ref,
         )
-        return self.store.put_bytes(
+        return self._writer().put_bytes(
             canon.to_canonical_bytes(record, _SOURCE_CANON),
             options,
             return_selected_profile=True,
@@ -2295,7 +2305,7 @@ class GenerationSourceRepository:
             cell_id=record.cell_id,
             source_ref=record.n4_source_ref,
         )
-        ref = self.store.put_bytes(canon.to_canonical_bytes(record, _SOURCE_CANON), options)
+        ref = self._writer().put_bytes(canon.to_canonical_bytes(record, _SOURCE_CANON), options)
         return str(ref.artifact_id)
 
     def persist_candidate_scenario_source_v1(
@@ -2318,7 +2328,7 @@ class GenerationSourceRepository:
             context_job_ref=record.context_job_ref,
             source_ref=record.design_problem_ref,
         )
-        return self.store.put_bytes(
+        return self._writer().put_bytes(
             canon.to_canonical_bytes(record, _SOURCE_CANON),
             options,
             return_selected_profile=True,
@@ -2455,7 +2465,7 @@ class GenerationSourceRepository:
                 ),
             ),
         )
-        return self.store.put_bytes(canon.to_canonical_bytes(record, _SOURCE_CANON), options)
+        return self._writer().put_bytes(canon.to_canonical_bytes(record, _SOURCE_CANON), options)
 
     def persist_candidate_simulation_input_v4(
         self,
@@ -2488,7 +2498,7 @@ class GenerationSourceRepository:
                 ),
             ),
         )
-        return self.store.put_bytes(
+        return self._writer().put_bytes(
             canon.to_canonical_bytes(record, _SOURCE_CANON),
             options,
             return_selected_profile=True,
@@ -2529,7 +2539,7 @@ class GenerationSourceRepository:
                 input_ref_from_artifact_ref(record.ncm_ref, role="candidate_ncm_spec"),
             ),
         )
-        return self.store.put_bytes(
+        return self._writer().put_bytes(
             canon.to_canonical_bytes(record, _SOURCE_CANON),
             options,
             return_selected_profile=True,
@@ -2615,7 +2625,7 @@ class GenerationSourceRepository:
             cell_id=record.cell_id,
             source_ref=record.n4_source_ref,
         )
-        ref = self.store.put_bytes(canon.to_canonical_bytes(record, _SOURCE_CANON), options)
+        ref = self._writer().put_bytes(canon.to_canonical_bytes(record, _SOURCE_CANON), options)
         return str(ref.artifact_id)
 
     def persist_candidate_simulation_execution_v3(
@@ -2707,7 +2717,7 @@ class GenerationSourceRepository:
                 input_ref_from_artifact_ref(record.n5_result_ref, role="n5_result"),
             ),
         )
-        return self.store.put_bytes(canon.to_canonical_bytes(record, _SOURCE_CANON), options)
+        return self._writer().put_bytes(canon.to_canonical_bytes(record, _SOURCE_CANON), options)
 
     def persist_candidate_simulation_execution_v4(
         self,
@@ -2799,7 +2809,7 @@ class GenerationSourceRepository:
                 input_ref_from_artifact_ref(record.n5_result_ref, role="n5_result"),
             ),
         )
-        return self.store.put_bytes(
+        return self._writer().put_bytes(
             canon.to_canonical_bytes(record, _SOURCE_CANON),
             options,
             return_selected_profile=True,
@@ -2906,7 +2916,7 @@ class GenerationSourceRepository:
                 ),
             ),
         )
-        return self.store.put_bytes(
+        return self._writer().put_bytes(
             canon.to_canonical_bytes(record, _SOURCE_CANON),
             options,
             return_selected_profile=True,
@@ -3936,7 +3946,7 @@ class GenerationSourceRepository:
         draft["content_hash"] = _source_content_hash(draft)
         artifact = N4CandidateProposalRecordV3.model_validate(draft)
         body = canon.to_canonical_bytes(artifact, _SOURCE_CANON)
-        return self.store.put_bytes(
+        return self._writer().put_bytes(
             body,
             _n4_candidate_proposal_v3_write_options(artifact),
             return_selected_profile=True,
@@ -4241,7 +4251,7 @@ class GenerationSourceRepository:
                 source_ref=artifact.content_hash,
                 input_refs=generic_source_inputs,
             )
-        ref = self.store.put_bytes(body, options)
+        ref = self._writer().put_bytes(body, options)
         return ref
 
     def load(
@@ -4463,7 +4473,7 @@ class GenerationSourceRepository:
             source_ref=source.content_hash,
             input_refs=input_refs,
         )
-        ref = self.store.put_bytes(
+        ref = self._writer().put_bytes(
             canon.to_canonical_bytes(record, _SOURCE_CANON),
             options,
             return_selected_profile=True,

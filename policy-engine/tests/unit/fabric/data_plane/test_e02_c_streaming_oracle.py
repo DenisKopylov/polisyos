@@ -306,6 +306,29 @@ def _persisted_stream_rows(store: FileSystemCAS, *, dataset_id: str) -> list[dic
     return [row for _index, rows in sorted(indexed_chunks) for row in rows]
 
 
+def _jsonl_raw_byte_oracle(
+    payload: bytes,
+    *,
+    dataset_id: str,
+) -> tuple[list[dict[str, Any]], list[tuple[int, int, str]], str]:
+    """Parse fixture records from exact byte spans and hash the supplied source bytes."""
+    rows: list[dict[str, Any]] = []
+    spans: list[tuple[int, int, str]] = []
+    offset = 0
+    for line_index, line in enumerate(payload.splitlines(keepends=True)):
+        end = offset + len(line)
+        content = line.strip()
+        if content:
+            row = json.loads(content.decode("utf-8"))
+            if not isinstance(row, dict):
+                row = {"value": row}
+            row.setdefault("_message_id", f"{dataset_id}:{line_index}")
+            rows.append(row)
+            spans.append((offset, end, hashlib.sha256(line).hexdigest()))
+        offset = end
+    return rows, spans, hashlib.sha256(payload).hexdigest()
+
+
 async def _run_stream(
     *,
     path: Path,
@@ -781,19 +804,28 @@ async def test_b81_b82_b85_baseexception_restart_replays_actual_cas_lineage(
     crash_boundary: str,
 ) -> None:
     """Crash at a real CAS write, reopen, and compare windows to an independent oracle."""
+    import polisyos.fabric.connectors.sources.event_stream as event_stream
     import polisyos.fabric.data_plane.streaming as streaming
 
     rows, policy, expected = _window_case(strategy)
     stream_path = tmp_path / f"{strategy}-{crash_boundary}.jsonl"
-    stream_path.write_text(
-        "".join(json.dumps(row, allow_nan=True, sort_keys=True) + "\n" for row in rows),
-        encoding="utf-8",
+    source_bytes = b"".join(
+        b" \t" + json.dumps(row, allow_nan=True, sort_keys=True).encode("utf-8") + b" \t\r\n"
+        for row in rows
     )
+    source_rows, source_spans, source_digest = _jsonl_raw_byte_oracle(
+        source_bytes,
+        dataset_id=f"{strategy}-{crash_boundary}",
+    )
+    assert source_rows == rows
+    stream_path.write_bytes(source_bytes)
     registry = _configure_stream_registry(stream_registry, stream_path)
     cas_root = tmp_path / f"cas-{strategy}-{crash_boundary}"
     store = FileSystemCAS(cas_root)
     cursor_store = CursorStore(store)
     crashed_artifacts: list[str] = []
+    consumed_source_bytes: list[bytes] = []
+    original_source_read = event_stream.read_location_bytes
     original = (
         streaming._persist_stream_chunk_async
         if crash_boundary == "after_raw_chunk"
@@ -807,6 +839,11 @@ async def test_b81_b82_b85_baseexception_restart_replays_actual_cas_lineage(
             raise _ProcessDeath(crash_boundary)
         return ref
 
+    async def _capture_source_bytes(*args: Any, **kwargs: Any):
+        payload, headers = await original_source_read(*args, **kwargs)
+        consumed_source_bytes.append(bytes(payload))
+        return payload, headers
+
     monkeypatch.setattr(
         streaming,
         (
@@ -816,6 +853,7 @@ async def test_b81_b82_b85_baseexception_restart_replays_actual_cas_lineage(
         ),
         _persist_then_crash,
     )
+    monkeypatch.setattr(event_stream, "read_location_bytes", _capture_source_bytes)
     with pytest.raises(_ProcessDeath):
         await process_stream_dataset(
             connector_id="stream.jsonl",
@@ -875,6 +913,346 @@ async def test_b81_b82_b85_baseexception_restart_replays_actual_cas_lineage(
     )
     assert persisted_frontier is not None
     assert persisted_frontier.metadata["frontier_intent"]["state"] == "committed"
+    assert consumed_source_bytes
+    assert all(
+        hashlib.sha256(consumed).hexdigest() == source_digest for consumed in consumed_source_bytes
+    )
+
+    persisted_chunks: list[dict[str, Any]] = []
+    for artifact_id in persisted_crash.iter_artifact_ids():
+        manifest = persisted_crash.get_manifest(artifact_id)
+        if manifest.kind != "fabric.stream_chunk":
+            continue
+        payload = from_canonical_bytes(persisted_crash.get_bytes(str(artifact_id)))
+        if payload.get("dataset_id") == f"{strategy}-{crash_boundary}":
+            persisted_chunks.append(payload)
+    persisted_chunks.sort(key=lambda item: int(item["chunk_index"]))
+    assert [int(item["chunk_index"]) for item in persisted_chunks] == list(range(len(source_rows)))
+    assert [row for item in persisted_chunks for row in item["data"]] == source_rows
+    for chunk_index, (byte_start, byte_end, line_digest) in enumerate(source_spans):
+        raw_line = source_bytes[byte_start:byte_end]
+        assert hashlib.sha256(raw_line).hexdigest() == line_digest
+        assert persisted_chunks[chunk_index]["data"] == [json.loads(raw_line.strip())]
+    assert persisted_frontier.offset == len(source_rows) - 1
+    assert result.final_cursor is not None
+    assert result.final_cursor.watermark_value == str(len(source_rows) - 1)
+
+
+@pytest.mark.asyncio
+async def test_b81_raw_byte_oracle_detects_marker_preserving_chunk_content_drift(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    stream_registry: ConnectorRegistry,
+) -> None:
+    """The content oracle rejects changed CAS rows even when artifact markers survive."""
+    import polisyos.fabric.data_plane.streaming as streaming
+
+    dataset_id = "raw-byte-removal-control"
+    source_bytes = b' { "event_id" : "source-event", "value" : 19 } \r\n'
+    expected_rows, source_spans, source_digest = _jsonl_raw_byte_oracle(
+        source_bytes,
+        dataset_id=dataset_id,
+    )
+    assert source_spans and source_digest
+    stream_path = tmp_path / f"{dataset_id}.jsonl"
+    stream_path.write_bytes(source_bytes)
+    registry = _configure_stream_registry(stream_registry, stream_path)
+    cas_root = tmp_path / f"{dataset_id}-cas"
+    store = FileSystemCAS(cas_root)
+    original = streaming._persist_stream_chunk_async
+
+    async def _persist_drifted_content(**kwargs: Any):
+        changed_rows = [dict(row, value=999) for row in kwargs["rows"]]
+        return await original(**{**kwargs, "rows": changed_rows})
+
+    monkeypatch.setattr(streaming, "_persist_stream_chunk_async", _persist_drifted_content)
+    result = await process_stream_dataset(
+        connector_id="stream.jsonl",
+        dataset_id=dataset_id,
+        store=store,
+        cursor_store=CursorStore(store),
+        sanitize_rows=_valid_rows,
+        runtime_options=_non_deduping_options(
+            checkpoint_every_chunks=1,
+            window_policy=WindowPolicy(strategy=WindowStrategy.COUNT, size=1),
+        ),
+        registry=registry,
+    )
+
+    assert len(result.chunk_refs) == 1
+    chunk_ref = result.chunk_refs[0]
+    assert store.get_manifest(chunk_ref.artifact_id).kind == "fabric.stream_chunk"
+    payload = from_canonical_bytes(store.get_bytes(chunk_ref.artifact_id))
+    assert payload["dataset_id"] == dataset_id
+    assert payload["chunk_index"] == 0
+    assert payload["row_count"] == len(expected_rows)
+    assert payload["processing"]
+    assert payload["data"][0]["event_id"] == expected_rows[0]["event_id"]
+    assert payload["data"][0]["value"] == 999
+    with pytest.raises(
+        AssertionError,
+        match="persisted stream rows differ from the raw-byte oracle",
+    ):
+        assert payload["data"] == expected_rows, (
+            "persisted stream rows differ from the raw-byte oracle"
+        )
+
+
+@pytest.mark.asyncio
+async def test_b81_returned_final_checkpoint_ref_reads_committed_frontier_after_restart(
+    tmp_path: Path,
+    stream_registry: ConnectorRegistry,
+) -> None:
+    """The returned checkpoint reference resolves to the durable committed frontier."""
+    from polisyos.core.artifacts.ids import ArtifactID
+
+    connector_id = "stream.jsonl"
+    dataset_id = "returned-final-checkpoint-ref"
+    stream_path = tmp_path / f"{dataset_id}.jsonl"
+    stream_path.write_text('{"event_id":"final-event","value":7}\n', encoding="utf-8")
+    registry = _configure_stream_registry(stream_registry, stream_path)
+    cas_root = tmp_path / f"{dataset_id}-cas"
+    store = FileSystemCAS(cas_root)
+    result = await process_stream_dataset(
+        connector_id=connector_id,
+        dataset_id=dataset_id,
+        store=store,
+        cursor_store=CursorStore(store),
+        sanitize_rows=_valid_rows,
+        runtime_options=_non_deduping_options(
+            checkpoint_every_chunks=1,
+            window_policy=WindowPolicy(strategy=WindowStrategy.COUNT, size=1),
+        ),
+        registry=registry,
+    )
+
+    assert result.final_checkpoint is not None
+    assert result.final_checkpoint_ref is not None
+    fresh_store = FileSystemCAS(cas_root)
+    fresh_cursor_store = CursorStore(fresh_store)
+    checkpoint_id = ArtifactID.model_validate(result.final_checkpoint_ref)
+    returned_checkpoint = fresh_cursor_store.load_stream_checkpoint(checkpoint_id)
+    latest_checkpoint = fresh_cursor_store.find_latest_stream_checkpoint(
+        connector_id,
+        dataset_id,
+    )
+    assert latest_checkpoint is not None
+    indexed_ref = json.loads((cas_root / "stream_checkpoint_index.json").read_text())[
+        f"{connector_id}:{dataset_id}:default"
+    ]
+    assert indexed_ref == result.final_checkpoint_ref
+    assert returned_checkpoint.model_dump(mode="json") == result.final_checkpoint.model_dump(
+        mode="json"
+    )
+    assert latest_checkpoint.model_dump(mode="json") == result.final_checkpoint.model_dump(
+        mode="json"
+    )
+    assert returned_checkpoint.lifecycle_state == StreamLifecycleState.CLOSED
+    assert returned_checkpoint.metadata["frontier_intent"]["state"] == "committed"
+
+
+@pytest.mark.parametrize(
+    "mismatch",
+    ["source_schema", "window_policy", "idempotency_fields", "dedupe_window"],
+)
+@pytest.mark.asyncio
+async def test_b82_resume_refuses_source_schema_window_or_idempotency_mismatch(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    stream_registry: ConnectorRegistry,
+    mismatch: str,
+) -> None:
+    """A committed partial window cannot resume under a different bound contract."""
+    import polisyos.fabric.data_plane.streaming as streaming
+    from polisyos.fabric.data_plane.cursor_store import CursorStoreError
+
+    dataset_id = f"contract-mismatch-{mismatch}"
+    rows = [
+        {
+            "event_id": f"event-{index}",
+            "source_version": index,
+            "entity_id": f"entity-{index}",
+            "value": index + 1,
+        }
+        for index in range(3)
+    ]
+    stream_path = tmp_path / f"{dataset_id}.jsonl"
+    stream_path.write_text(
+        "".join(json.dumps(row, sort_keys=True) + "\n" for row in rows),
+        encoding="utf-8",
+    )
+    registry = _configure_stream_registry(stream_registry, stream_path)
+
+    def _register_schema(contract_suffix: str, *, include_note: bool) -> StreamSchemaBinding:
+        fields = [
+            FieldSpec(name="event_id", data_type=SchemaType.STRING, nullable=False),
+            FieldSpec(name="source_version", data_type=SchemaType.INT64, nullable=False),
+            FieldSpec(name="entity_id", data_type=SchemaType.STRING, nullable=False),
+            FieldSpec(name="value", data_type=SchemaType.FLOAT64, nullable=False),
+        ]
+        if include_note:
+            fields.append(
+                FieldSpec(
+                    name="note",
+                    data_type=SchemaType.STRING,
+                    presence="optional",
+                    nullable=True,
+                )
+            )
+        schema = DataSchema(
+            schema_id=f"test.e02.contract_mismatch.{contract_suffix}",
+            version=SchemaVersion(1, 0, 0),
+            fields=tuple(fields),
+            primary_key=("event_id", "source_version"),
+            required_completeness=0.0,
+        )
+        contract = ConnectorSchemaContract(
+            contract_id=f"test.e02.contract_mismatch.{contract_suffix}.contract",
+            connector_id="stream.jsonl",
+            dataset_id=dataset_id,
+            schema=schema,
+            created_by="test_e02_c_streaming_oracle",
+        )
+        next_registry = ContractRegistry()
+        next_registry.register(contract)
+        registry.configure_contracts(next_registry)
+        return StreamSchemaBinding.from_contract(
+            contract,
+            registry_revision=next_registry.revision,
+        )
+
+    original_binding = _register_schema("source_v1", include_note=False)
+    source_owner = finite_source_reader(
+        tmp_path / "source-owner",
+        connector_id="stream.jsonl",
+        dataset_id=dataset_id,
+        schema_id="test.e02.contract_mismatch.source_owner",
+        snapshots=[("current", rows)],
+        event_fields=("event_id",),
+        version_fields=("source_version",),
+        transport_path=stream_path,
+    )
+    original_options = StreamRuntimeOptions(
+        batch_size=1,
+        checkpoint_every_chunks=1,
+        dedupe_key_fields=("event_id", "source_version"),
+        max_dedupe_keys=16,
+        max_buffered_rows=8,
+        max_buffered_bytes=100_000,
+        window_policy=WindowPolicy(strategy=WindowStrategy.COUNT, size=16),
+    )
+    cas_root = tmp_path / f"{dataset_id}-cas"
+    store = FileSystemCAS(cas_root)
+    cursor_store = CursorStore(store)
+    original_poll = StreamingSourceSession.poll
+    poll_state = {"calls": 0}
+
+    async def _crash_before_third_poll(session: StreamingSourceSession):
+        if poll_state["calls"] == 2:
+            raise _ProcessDeath("leave two rows under the old contract")
+        poll_state["calls"] += 1
+        return await original_poll(session)
+
+    monkeypatch.setattr(StreamingSourceSession, "poll", _crash_before_third_poll)
+    with pytest.raises(_ProcessDeath):
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id=dataset_id,
+            store=store,
+            cursor_store=cursor_store,
+            sanitize_rows=_valid_rows,
+            runtime_options=original_options,
+            registry=registry,
+            schema_binding=original_binding,
+            source_progress_readers=(source_owner,),
+        )
+
+    monkeypatch.setattr(StreamingSourceSession, "poll", original_poll)
+    before_store = FileSystemCAS(cas_root)
+    before_cursor_store = CursorStore(before_store)
+    before_checkpoint = before_cursor_store.find_latest_stream_checkpoint(
+        "stream.jsonl",
+        dataset_id,
+    )
+    before_cursor = before_cursor_store.find_latest_cursor("stream.jsonl", dataset_id)
+    assert before_checkpoint is not None
+    assert before_checkpoint.offset == 1
+    assert before_cursor is not None
+    assert len(before_checkpoint.metadata["operator_state"]["accumulator"]["count_buffer"]) == 2
+    before_artifacts = set(map(str, before_store.iter_artifact_ids()))
+
+    changed_binding = original_binding
+    changed_options = original_options
+    expected_error: type[Exception]
+    expected_message: str
+    if mismatch == "source_schema":
+        changed_binding = _register_schema("source_v2", include_note=True)
+        expected_error = CursorStoreError
+        expected_message = "stream schema binding changed before resume"
+    elif mismatch == "window_policy":
+        changed_options = replace(
+            original_options,
+            window_policy=WindowPolicy(strategy=WindowStrategy.COUNT, size=8),
+        )
+        expected_error = CursorStoreError
+        expected_message = "corrupt stream operator state"
+    elif mismatch == "idempotency_fields":
+        changed_options = replace(
+            original_options,
+            dedupe_key_fields=("event_id", "entity_id"),
+        )
+        expected_error = streaming.StreamDedupeUnsupported
+        expected_message = "caller key/horizon differs from the source owner"
+    else:
+        changed_idempotency = original_options.processing_contract.idempotency.model_copy(
+            update={"dedupe_window_seconds": 3_600}
+        )
+        changed_contract = original_options.processing_contract.model_copy(
+            update={"idempotency": changed_idempotency}
+        )
+        changed_options = replace(original_options, processing_contract=changed_contract)
+        expected_error = streaming.StreamDedupeUnsupported
+        expected_message = "caller key/horizon differs from the source owner"
+
+    source_progress = {"rewinds": 0, "polls": 0}
+    original_rewind = StreamingSourceSession.rewind
+
+    async def _observe_rewind(session: StreamingSourceSession, checkpoint: Any) -> None:
+        source_progress["rewinds"] += 1
+        await original_rewind(session, checkpoint)
+
+    async def _observe_poll(session: StreamingSourceSession):
+        source_progress["polls"] += 1
+        return await original_poll(session)
+
+    monkeypatch.setattr(StreamingSourceSession, "rewind", _observe_rewind)
+    monkeypatch.setattr(StreamingSourceSession, "poll", _observe_poll)
+    with pytest.raises(expected_error, match=expected_message):
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id=dataset_id,
+            store=FileSystemCAS(cas_root),
+            cursor_store=CursorStore(FileSystemCAS(cas_root)),
+            sanitize_rows=_valid_rows,
+            runtime_options=changed_options,
+            registry=registry,
+            schema_binding=changed_binding,
+            source_progress_readers=(source_owner,),
+        )
+
+    assert source_progress == {"rewinds": 0, "polls": 0}
+    after_store = FileSystemCAS(cas_root)
+    after_cursor_store = CursorStore(after_store)
+    after_checkpoint = after_cursor_store.find_latest_stream_checkpoint(
+        "stream.jsonl",
+        dataset_id,
+    )
+    after_cursor = after_cursor_store.find_latest_cursor("stream.jsonl", dataset_id)
+    assert after_checkpoint is not None
+    assert after_checkpoint.model_dump(mode="json") == before_checkpoint.model_dump(mode="json")
+    assert after_cursor is not None
+    assert after_cursor.model_dump(mode="json") == before_cursor.model_dump(mode="json")
+    assert set(map(str, after_store.iter_artifact_ids())) == before_artifacts
 
 
 @pytest.mark.parametrize("strategy", ["count", "tumbling", "session", "sliding"])
@@ -1214,6 +1592,122 @@ async def test_b84_live_operator_over_capacity_refuses_and_preserves_frontier(
     )
 
 
+@pytest.mark.asyncio
+async def test_b84_output_reference_cap_refuses_before_cas_and_detects_gate_removal(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    stream_registry: ConnectorRegistry,
+) -> None:
+    """Output-reference bounds cover actual CAS writes and returned references."""
+    import polisyos.fabric.data_plane.streaming as streaming
+
+    dataset_id = "output-reference-cap"
+    stream_path = tmp_path / f"{dataset_id}.jsonl"
+    stream_path.write_text('{"event_id":"out-row","value":1}\n', encoding="utf-8")
+    registry = _configure_stream_registry(stream_registry, stream_path)
+    options = _non_deduping_options(
+        checkpoint_every_chunks=1,
+        max_output_refs=1,
+        window_policy=WindowPolicy(strategy=WindowStrategy.COUNT, size=1),
+    )
+
+    refused_root = tmp_path / "output-cap-refused-cas"
+    refused_store = FileSystemCAS(refused_root)
+    with pytest.raises(streaming.StreamCapacityError) as refused:
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id=dataset_id,
+            store=refused_store,
+            cursor_store=CursorStore(refused_store),
+            sanitize_rows=_valid_rows,
+            runtime_options=options,
+            registry=registry,
+        )
+    assert (refused.value.stage, refused.value.rows, refused.value.max_rows) == (
+        "output",
+        2,
+        1,
+    )
+    assert list(FileSystemCAS(refused_root).iter_artifact_ids()) == []
+
+    exact_options = replace(options, max_output_refs=2)
+    exact_root = tmp_path / "output-cap-exact-cas"
+    exact_store = FileSystemCAS(exact_root)
+    exact_result = await process_stream_dataset(
+        connector_id="stream.jsonl",
+        dataset_id=dataset_id,
+        store=exact_store,
+        cursor_store=CursorStore(exact_store),
+        sanitize_rows=_valid_rows,
+        runtime_options=exact_options,
+        registry=registry,
+    )
+    exact_ref_ids = {
+        str(ref.artifact_id)
+        for ref in (
+            *exact_result.chunk_refs,
+            *exact_result.window_refs,
+            *exact_result.cdc_event_refs,
+        )
+    }
+    assert len(exact_result.chunk_refs) == 1
+    assert len(exact_result.window_refs) == 1
+    assert exact_result.cdc_event_refs == []
+    assert len(exact_ref_ids) == 2
+    chunk = from_canonical_bytes(exact_store.get_bytes(exact_result.chunk_refs[0].artifact_id))
+    window = from_canonical_bytes(exact_store.get_bytes(exact_result.window_refs[0].artifact_id))
+    assert chunk["data"] == window["data"]
+    assert window["lineage"]["contributor_chunk_refs"] == [
+        str(exact_result.chunk_refs[0].artifact_id)
+    ]
+    output_artifacts = {
+        str(artifact_id)
+        for artifact_id in exact_store.iter_artifact_ids()
+        if exact_store.get_manifest(artifact_id).kind
+        in {"fabric.stream_chunk", "fabric.stream_window", "fabric.cdc_schema_change"}
+    }
+    assert output_artifacts == exact_ref_ids
+
+    removed_root = tmp_path / "output-cap-removed-cas"
+    removed_store = FileSystemCAS(removed_root)
+    with monkeypatch.context() as no_output_cap:
+        no_output_cap.setattr(streaming, "_admit_output_ref", lambda *_args, **_kwargs: None)
+        removed_result = await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id=dataset_id,
+            store=removed_store,
+            cursor_store=CursorStore(removed_store),
+            sanitize_rows=_valid_rows,
+            runtime_options=options,
+            registry=registry,
+        )
+    removed_ref_count = (
+        len(removed_result.chunk_refs)
+        + len(removed_result.window_refs)
+        + len(removed_result.cdc_event_refs)
+    )
+    removed_output_artifacts = {
+        str(artifact_id)
+        for artifact_id in removed_store.iter_artifact_ids()
+        if removed_store.get_manifest(artifact_id).kind
+        in {"fabric.stream_chunk", "fabric.stream_window", "fabric.cdc_schema_change"}
+    }
+    assert removed_ref_count == 2
+    assert removed_ref_count > options.max_output_refs
+    assert removed_output_artifacts == {
+        str(ref.artifact_id)
+        for ref in (
+            *removed_result.chunk_refs,
+            *removed_result.window_refs,
+            *removed_result.cdc_event_refs,
+        )
+    }
+    with pytest.raises(AssertionError, match="retained stream output refs exceed declared cap"):
+        assert removed_ref_count <= options.max_output_refs, (
+            "retained stream output refs exceed declared cap"
+        )
+
+
 @pytest.mark.parametrize("batch_size", [1, 2, 8])
 @pytest.mark.asyncio
 async def test_b86_schema_membership_and_quarantine_do_not_depend_on_batch_size(
@@ -1309,6 +1803,89 @@ async def test_b86_schema_membership_and_quarantine_do_not_depend_on_batch_size(
     non_finite_records = [record for _, record in records if record.reason == "non_finite_metric"]
     assert len(non_finite_records) == 1
     assert result.quarantined_rows == 4
+
+
+@pytest.mark.asyncio
+async def test_b86_schema_validator_removal_admits_wrong_type_with_binding_marker_intact(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    stream_registry: ConnectorRegistry,
+) -> None:
+    """The semantic schema oracle rejects bad CAS data when type validation is removed."""
+    from polisyos.fabric.data_plane import schema_rows
+    from polisyos.fabric.data_plane.modes import _bind_stream_sanitizer
+
+    dataset_id = "schema-validator-removal"
+    stream_path = tmp_path / f"{dataset_id}.jsonl"
+    source_rows = [
+        {"event_id": "valid-row", "value": 1},
+        {"event_id": "wrong-type-row", "value": "not-a-float"},
+    ]
+    stream_path.write_text(
+        "".join(json.dumps(row, sort_keys=True) + "\n" for row in source_rows),
+        encoding="utf-8",
+    )
+    registry = _configure_stream_registry(stream_registry, stream_path, chunk_size=2)
+    schema = DataSchema(
+        schema_id="test.e02.stream_schema_removal",
+        version=SchemaVersion(1, 0, 0),
+        fields=(
+            FieldSpec(name="event_id", data_type=SchemaType.STRING, nullable=False),
+            FieldSpec(name="value", data_type=SchemaType.FLOAT64, nullable=False),
+        ),
+        primary_key=("event_id",),
+        required_completeness=0.0,
+    )
+    contracts = ContractRegistry()
+    contract = ConnectorSchemaContract(
+        contract_id="test.e02.stream_schema_removal.contract",
+        connector_id="stream.jsonl",
+        dataset_id=dataset_id,
+        schema=schema,
+        created_by="test_e02_c_streaming_oracle",
+    )
+    contracts.register(contract)
+    registry.configure_contracts(contracts)
+    binding = StreamSchemaBinding.from_contract(contract, registry_revision=contracts.revision)
+
+    def _remove_per_field_membership(_value: Any, _field: Any) -> None:
+        return None
+
+    monkeypatch.setattr(schema_rows, "field_value_violation", _remove_per_field_membership)
+    cas_root = tmp_path / f"{dataset_id}-cas"
+    store = FileSystemCAS(cas_root)
+    result = await process_stream_dataset(
+        connector_id="stream.jsonl",
+        dataset_id=dataset_id,
+        store=store,
+        cursor_store=CursorStore(store),
+        sanitize_rows=_bind_stream_sanitizer(binding),
+        runtime_options=_non_deduping_options(
+            checkpoint_every_chunks=1,
+            max_dedupe_keys=8,
+            dedupe_key_fields=("event_id",),
+            window_policy=WindowPolicy(strategy=WindowStrategy.COUNT, size=8),
+        ),
+        registry=registry,
+        schema_binding=binding,
+    )
+
+    assert result.rows_emitted == 2
+    assert result.quarantined_rows == 0
+    assert len(result.chunk_refs) == 1
+    chunk = from_canonical_bytes(store.get_bytes(result.chunk_refs[0].artifact_id))
+    assert chunk["schema_binding"] == binding.snapshot()
+    persisted_semantics = [
+        {key: row[key] for key in ("event_id", "value")} for row in chunk["data"]
+    ]
+    assert persisted_semantics == source_rows
+    with pytest.raises(
+        AssertionError,
+        match="schema-bound stream chunks must exclude wrong-typed values",
+    ):
+        assert persisted_semantics == [{"event_id": "valid-row", "value": 1}], (
+            "schema-bound stream chunks must exclude wrong-typed values"
+        )
 
 
 @pytest.mark.asyncio

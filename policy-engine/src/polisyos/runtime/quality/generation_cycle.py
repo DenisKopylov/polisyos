@@ -10105,18 +10105,22 @@ class GenerationCycleController:
         if type(report) is not DataRequirementCompilationReport:
             raise GenerationCycleError("n7_compiler_report_binding_refused", "report_untyped")
         routed_compiler_gaps: tuple[AcquisitionRequirementGap, ...] = ()
-        if source_gap is not None and not request_binding_refused:
-            routed_compiler_gaps, routing_limitation_code = _n7_route_compiler_gaps(
-                source_gap=source_gap,
-                specs=tuple(report.specs),
-                capability_resolutions=report.capability_requirement_resolutions,
-                strict_family=_N7_SOURCE_SEMANTIC_EMISSION_ENABLED,
-            )
-        elif cycle is None:
-            routed_compiler_gaps = requirement_gaps_from_compiled_specs(
-                data_requirement_specs=tuple(report.specs),
-                capability_requirement_resolutions=report.capability_requirement_resolutions,
-            )
+        # A source refusal or unbound input is final for routing. The compiler
+        # report remains available, but no later match can replace the reason or
+        # expose routes alongside the refusal.
+        if not unbound_input_fields and routing_limitation_code is None:
+            if source_gap is not None and not request_binding_refused:
+                routed_compiler_gaps, routing_limitation_code = _n7_route_compiler_gaps(
+                    source_gap=source_gap,
+                    specs=tuple(report.specs),
+                    capability_resolutions=report.capability_requirement_resolutions,
+                    strict_family=_N7_SOURCE_SEMANTIC_EMISSION_ENABLED,
+                )
+            elif cycle is None:
+                routed_compiler_gaps = requirement_gaps_from_compiled_specs(
+                    data_requirement_specs=tuple(report.specs),
+                    capability_requirement_resolutions=report.capability_requirement_resolutions,
+                )
         return _N7DataRequirementBasis(
             specs=tuple(report.specs),
             capability_resolutions=report.capability_requirement_resolutions,
@@ -14599,6 +14603,25 @@ class GenerationCycleController:
             terminal_kind=terminal_kind,
             default_revision=default_revision,
         )
+        # These opaque fields cross the JSON artifact boundary. Preserve their
+        # contents while using the same array shape in memory and on replay.
+        revision_hints = {
+            key: _json_array_shape(value)
+            if key in _GENERATION_CYCLE_REVISION_RUNTIME_HINT_KEYS
+            else value
+            for key, value in revision.revised_problem.runtime_hints.items()
+        }
+        revision = revision.model_copy(
+            update={
+                "strategy_payload": {
+                    key: _json_array_shape(value)
+                    for key, value in revision.strategy_payload.items()
+                },
+                "revised_problem": revision.revised_problem.model_copy(
+                    update={"runtime_hints": revision_hints}
+                ),
+            }
+        )
         next_action = self.decide_next_action(
             candidate_id=candidate_id,
             proxy_score=proxy_score,
@@ -15664,7 +15687,7 @@ def _revision_strategy_payload(
     elif strategy == "adversarial_validate":
         payload["adversarial_validation"] = {
             "counterexample_ref": counterexample.counterexample_ref,
-            "grammar_constraints": tuple(new_grammar_elements),
+            "grammar_constraints": list(new_grammar_elements),
         }
     elif strategy == "spec_gap_reframe":
         payload["spec_gap"] = {
@@ -19500,13 +19523,13 @@ def _default_revision_request(
         update={
             "runtime_hints": {
                 **problem.runtime_hints,
-                "generation_cycle_grammar": next_grammar,
+                "generation_cycle_grammar": list(next_grammar),
                 "generation_cycle_revision": {
                     "source_counterexample_ref": counterexample.counterexample_ref,
                     "previous_candidate_ref": candidate_id,
                     "revision_strategy": strategy,
                     "strategy_payload": strategy_payload,
-                    "new_grammar_elements": new_grammar_elements,
+                    "new_grammar_elements": list(new_grammar_elements),
                 },
             }
         }
@@ -20456,6 +20479,16 @@ def _dedupe(values: Sequence[str]) -> tuple[str, ...]:
         seen.add(text)
         result.append(text)
     return tuple(result)
+
+
+def _json_array_shape(value: object) -> object:
+    """Normalize opaque array shapes without coercing their non-sequence values."""
+
+    if isinstance(value, Mapping):
+        return {key: _json_array_shape(item) for key, item in value.items()}
+    if isinstance(value, list | tuple):
+        return [_json_array_shape(item) for item in value]
+    return value
 
 
 def _json_ready(value: object) -> object:

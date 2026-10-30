@@ -6770,6 +6770,13 @@ async def test_controller_runs_counterexample_driven_revision_over_two_real_cycl
     assert run.cycles[0].revision_request.new_grammar_elements == (
         "lever:grant:adversarial_validate:missing_supporting_data",
     )
+    revision = run.cycles[0].revision_request
+    assert (
+        generation_cycle_module.DesignRevisionRequest.model_validate(
+            revision.model_dump(mode="json")
+        )
+        == revision
+    )
     assert run.cycles[1].introduced_grammar_elements == (
         "lever:grant:adversarial_validate:missing_supporting_data",
     )
@@ -10796,6 +10803,52 @@ async def test_n7_source_gap_request_requires_exact_current_problem_and_gap_byte
     assert conflict_basis.routing_limitation_code == "unbound_requirement_input_refused"
     assert conflict_basis.routed_compiler_gaps == ()
 
+    injected_request = {**request, "compiled_requirement_specs": []}
+    injected_revision = cycle.revision_request.model_copy(
+        update={
+            "strategy_payload": {
+                **cycle.revision_request.strategy_payload,
+                "acquisition_request": injected_request,
+            }
+        }
+    )
+    injected_cycle = cycle.model_copy(update={"revision_request": injected_revision})
+    injected_basis = controller._n7_data_requirement_basis_with_report(
+        problem, acquisition_request=injected_request, cycle=injected_cycle
+    )
+    assert injected_basis.specs
+    assert injected_basis.unbound_input_fields == (
+        "acquisition_request.compiled_requirement_specs",
+    )
+    assert injected_basis.routed_compiler_gaps == ()
+
+
+@pytest.mark.parametrize(
+    "unbound_input",
+    [
+        {"requirement_gap": "present-but-malformed"},
+        {"compiled_requirement_specs": []},
+    ],
+)
+def test_n7_unbound_input_suppresses_compiler_routes_without_cycle(
+    unbound_input: dict[str, Any],
+) -> None:
+    """An unbound request cannot expose routes even when the compiler has a real spec."""
+    problem = _problem("n7_unbound_compiler_route")
+    controller = GenerationCycleController()
+    request = {"required_data_families": ("firm_survival",)}
+    clean = controller._n7_data_requirement_basis_with_report(problem, acquisition_request=request)
+    unbound = controller._n7_data_requirement_basis_with_report(
+        problem, acquisition_request={**request, **unbound_input}
+    )
+
+    assert clean.unbound_input_fields == ()
+    assert clean.routing_limitation_code is None
+    assert len(clean.routed_compiler_gaps) == 1
+    assert tuple(spec.required_data_families for spec in unbound.specs) == (("firm_survival",),)
+    assert unbound.unbound_input_fields
+    assert unbound.routed_compiler_gaps == ()
+
 
 @pytest.fixture
 def n7_complete_catalog_source(
@@ -10835,8 +10888,8 @@ async def test_n7_typed_gap_persists_costed_plan_before_authority_refusal(
     source_root, catalog_source = n7_complete_catalog_source
     assert current_catalog_serving_source() is catalog_source
     controller = GenerationCycleController(
-        generation_port=_CgfGenerationPort(),
-        value_port=_DataGapValuePort(),
+        generation_port=_CgfGenerationPort(target_world_slots=("administrative_tax_receipts",)),
+        value_port=_CostedDataGapValuePort(),
         authority_scope="contract_testing",
         repo_root=source_root,
         catalog_serving_source=catalog_source,
@@ -10866,9 +10919,17 @@ async def test_n7_typed_gap_persists_costed_plan_before_authority_refusal(
     assert persisted_report.status == "warn"
     assert persisted_report.basis_limitation_code == "consumer_declared_basis_candidate_only"
     assert len(persisted_report.acquisition_records) == 1
-    assert cycle.acquisition_cost_basis_record.missing_distribution == "firm_survival"
+    assert cycle.acquisition_cost_basis_record.missing_distribution == "administrative_tax_receipts"
+    assert cycle.acquisition_cost_basis_record.schedule_content_hash == (
+        "sha256:258c2dd22214b8a3bf9157cb6ad186b6320317b526d2f951098bd72ead9328d3"
+    )
+    assert cycle.acquisition_cost_basis_record.total_amount == 1255.0
     assert (
         cycle.acquisition_cost_basis_hash == cycle.acquisition_cost_basis_record.record_content_hash
+    )
+    fresh = FileSystemCAS.open_existing_read_only(tmp_path / ".tmp/n6-generation-source-cas")
+    assert load_acquisition_planner_report(fresh, cycle.acquisition_routing_report_ref) == (
+        persisted_report
     )
     assert cycle.counterexample.diagnostic.code == (
         "n6.acquisition.n7_execution_scope_not_established"
@@ -10889,10 +10950,57 @@ async def test_n7_typed_gap_persists_costed_plan_before_authority_refusal(
 
 
 @pytest.mark.asyncio
+async def test_n7_unscheduled_source_gap_stays_uncosted_candidate(
+    tmp_path: Path,
+    n7_complete_catalog_source: tuple[Path, Any],
+) -> None:
+    """An unscheduled source gap remains a candidate, without a fabricated cost."""
+    from polisyos.runtime.quality.acquisition_planner import load_acquisition_planner_report
+
+    source_root, catalog_source = n7_complete_catalog_source
+    controller = GenerationCycleController(
+        generation_port=_CgfGenerationPort(),
+        value_port=_DataGapValuePort(),
+        authority_scope="contract_testing",
+        repo_root=source_root,
+        catalog_serving_source=catalog_source,
+        artifact_store=FileSystemCAS(tmp_path / ".tmp/n6-generation-source-cas"),
+    )
+    run = await controller.run(_problem(), budget_state=_budget(), max_cycles=1)
+    cycle = run.cycles[0]
+    assert cycle.acquisition_routing_report_ref is not None
+    assert cycle.acquisition_routing_report is not None
+    assert cycle.acquisition_cost_basis_record is None
+    assert cycle.acquisition_cost_basis_hash is None
+    assert cycle.acquisition_receipt is None
+    fresh = FileSystemCAS.open_existing_read_only(tmp_path / ".tmp/n6-generation-source-cas")
+    report = load_acquisition_planner_report(fresh, cycle.acquisition_routing_report_ref)
+    assert report == cycle.acquisition_routing_report
+    assert report.requirement_basis_binding is not None
+    assert report.requirement_basis_binding.resolution.basis_grade == "consumer_asserted"
+    assert report.status == "warn"
+    assert report.basis_limitation_code == "consumer_declared_basis_candidate_only"
+    source_gap = generation_cycle_module._cycle_acquisition_requirement(
+        cycle.grounding, cycle.value_port
+    )
+    assert source_gap is not None
+    assert generation_cycle_module._requirement_missing_distributions(source_gap) == (
+        "firm_survival",
+    )
+    assert len(report.acquisition_records) == 1
+    assert source_gap.requirement_gap_id in report.acquisition_records[0].scenario_requirement_refs
+    assert cycle.counterexample.diagnostic.code == (
+        "n6.acquisition.n7_execution_scope_not_established"
+    )
+
+
+@pytest.mark.asyncio
 async def test_conflicting_n7_family_declaration_is_costed_refusal(
     tmp_path: Path,
     n7_complete_catalog_source: tuple[Path, Any],
 ) -> None:
+    from polisyos.runtime.quality.acquisition_planner import load_acquisition_planner_report
+
     class _ConflictingFamilyRevision:
         def __call__(self, **kwargs: Any) -> Any:
             default = kwargs["default_revision"]
@@ -10914,12 +11022,33 @@ async def test_conflicting_n7_family_declaration_is_costed_refusal(
         artifact_store=FileSystemCAS(tmp_path / ".tmp/n6-generation-source-cas"),
     )
 
-    run = await controller.run(_problem(), budget_state=_budget(), max_cycles=1)
+    problem = _problem()
+    run = await controller.run(problem, budget_state=_budget(), max_cycles=1)
 
     cycle = run.cycles[0]
     assert cycle.acquisition_routing_report is not None, cycle.counterexample.diagnostic.model_dump(
         mode="json"
     )
+    request = cycle.revision_request.strategy_payload["acquisition_request"]
+    assert tuple(request["required_data_families"]) == ("other_panel",)
+    source_gap, source_error = generation_cycle_module._n7_cycle_source_gap(
+        problem, cycle=cycle, acquisition_request=request
+    )
+    assert source_gap is not None
+    assert source_error is None
+    families, family_error = generation_cycle_module._n7_compiler_families_for_source_gap(
+        problem, acquisition_request=request, source_gap=source_gap
+    )
+    assert families == ()
+    assert family_error == "unbound_requirement_input_refused"
+    basis = controller._n7_data_requirement_basis_with_report(
+        problem, acquisition_request=request, cycle=cycle
+    )
+    assert basis.unbound_input_fields == ()
+    assert basis.compilation_report.requirement_basis.basis_grade == "not_established"
+    assert basis.specs == ()
+    assert basis.routed_compiler_gaps == ()
+    assert basis.routing_limitation_code == "unbound_requirement_input_refused"
     assert cycle.acquisition_cost_basis_record is None
     assert cycle.acquisition_routing_report.status == "blocked"
     assert cycle.acquisition_routing_report.basis_limitation_code == (
@@ -10927,6 +11056,16 @@ async def test_conflicting_n7_family_declaration_is_costed_refusal(
     )
     assert cycle.acquisition_routing_report.cost_estimation_status == "not_estimated"
     assert cycle.acquisition_routing_report.acquisition_records == ()
+    assert cycle.acquisition_receipt is None
+    assert cycle.acquisition_routing_report_ref is not None
+    fresh = FileSystemCAS.open_existing_read_only(tmp_path / ".tmp/n6-generation-source-cas")
+    assert load_acquisition_planner_report(fresh, cycle.acquisition_routing_report_ref) == (
+        cycle.acquisition_routing_report
+    )
+    assert (
+        generation_cycle_module.GenerationCycleRecord.model_validate(cycle.model_dump(mode="json"))
+        == cycle
+    )
 
 
 @pytest.mark.asyncio

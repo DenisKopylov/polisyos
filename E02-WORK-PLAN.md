@@ -1,6 +1,6 @@
 # E02 work plan: visible development, composition and branch retirement
 
-**Status:** execution resumed by the user on 30 October 2026. Product composition, regression checks and safe retirement of reviewed branches are authorized. Work remains local; no cloud tasks or filesystem cleanup are authorized.
+**Status:** execution resumed by the user on 30 October 2026. Product composition, regression checks and safe retirement of reviewed branches are authorized. Work remains local; no cloud tasks. The user additionally authorized moving disposable materials to Trash while preserving code, documentation and unique production data; never permanently delete files or empty Trash.
 
 **Goal:** integrate useful existing work into tested product behavior in `origin/main`, remove obsolete branches, and replace hidden development and repetitive paperwork with one visible work cycle.
 
@@ -63,6 +63,8 @@ No replacement meta-skill or new wrapper framework is introduced. If the user la
 
 ## 3. Extract useful code and retire old branches
 
+**Active curation assignment:** compare committed product `fa32c74dd8e0b1d6f42b53a652f57e6edaae71cd` via Git objects, not the shared working files. The checkout is **expected to be dirty** from concurrent authorized authors; cleanliness is not a precondition for this read-only review. Maximal slots use sorted `tips` by `tip` in `source-delivery-20261030-r1/branches/portable/manifest.json`, slice `[slot::36]`. Remaining slots reconstruct the union of SHAs in `branches/local-refs-at-start.txt` (column 2) and `remote-heads-at-start.txt` (column 1), subtract maximal tips, sort and slice `[slot::24]`. All paths are under the existing source-delivery directory linked below. Return concise decisions to the coordinator; no new report files, source/refs edits, tests or delegation. Judge every meaningful mechanism/companion before recommending retirement; uncertain content stays held.
+
 Reuse the existing [ref inventory](policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-delivery-20261030-r1/branches/initial-ref-inventory.json) and [portable-patch manifest](policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-delivery-20261030-r1/branches/portable/manifest.json). They are inputs, not a new task queue. Portable patches omit some companions; selected mechanisms require their full pinned Git trees. Ancestry alone cannot discard intermediate branch tips whose useful code was later replaced/reverted.
 
 1. **Preserve once.** Create/read back one annotated archival tag on the delivery commit, not hundreds of archive refs. Verify each retirement tip is reachable from that or another protected published root. The tag protects Git history, not untracked/ignored work or new tips outside its ancestry.
@@ -112,7 +114,7 @@ Run affected tests/importers, Ruff and applicable architecture/generated/validat
 
 Reuse Python 3.14, Node/corepack, existing caches/runner and read-only data link. No environment, checkout, dataset or CAS copy per owner. Remain local until cloud is authorized again; any later cloud task needs published compact inputs and a proven Git/PR return path before costly execution, with no ignored coordinator-local prerequisite or assumed mid-run messages.
 
-Measure disk/RAM/threads/DB/ports separately. Drafting free disk was about 5.7 GiB, not a permanent quota. Budget measured growth for remaining steps plus a stated margin; unknown costly profiles run alone. Previously measured two jobs/four-GiB total RSS is a numerical starting reference, not an authorship limit. Do not silently lower safety stops or block all authors because one test cannot fit. No cleanup of chat databases, environments, production data, historical RAW or Trash now.
+Measure disk/RAM/threads/DB/ports separately. Drafting free disk was about 5.7 GiB, not a permanent quota. Budget measured growth for remaining steps plus a stated margin; unknown costly profiles run alone. Previously measured two jobs/four-GiB total RSS is a numerical starting reference, not an authorship limit. Do not silently lower safety stops or block all authors because one test cannot fit. Preserve chat databases, working environments, code, documentation and unique production data. Authorized cleanup moves only disposable inactive material to Trash; no permanent deletion or emptying Trash. The first pass moved 546 reproducible test/cache directories (6.783 GiB) by same-volume rename; that footprint is not a claim of reclaimed free space.
 
 Use persistent, correctly named domain owners; default Luna for suitable finite work, Terra/Sol for complex code/review, with permitted capacity fallbacks. Source ownership, review concurrency and numerical process budgets are different. Report actual usable behavior, changed critical path and obstruction, not polling or archive counts. Before pause/handoff, commit useful work and update the next action here. Ordinary authorized engineering does not need repeated permission.
 
@@ -129,7 +131,7 @@ Use persistent, correctly named domain owners; default Luna for suitable finite 
 
 Baseline: original **26 rows / 127 bundles / 282 IDs / 291 criterion occurrences / 319 task–ID edges**; the separately counted 331 occurrence-to-row routes are navigation. Exact original predicates remain in the linked TASKS/coverage and existing bindings. Historical B198/B59 and selected G decisions stay preserved. R9/GY/Atlas implementation remains outside E02 until acceptance.
 
-No product source or tests are changed by this instruction checkpoint; the entries below are next outcomes, not new claims of current PASS. During execution add the responsible owner, latest integrated commit/check and exact remaining obstruction to the same row. BOOT0 and DEC0 remain coordination rows, not substitute product completion.
+This table records integrated results and next outcomes. During execution add the responsible owner, latest integrated commit/check and exact remaining obstruction to the same row. BOOT0 and DEC0 remain coordination rows, not substitute product completion.
 
 | Original row | Next product outcome or preserved boundary |
 | --- | --- |
@@ -153,7 +155,7 @@ No product source or tests are changed by this instruction checkpoint; the entri
 | T2 | Complete actual permission/issuer/source/commit-time checks and their same-context negatives. |
 | V1 | Demonstrate ordinary POST → owned context → N5 → CAS → fresh GET with the required controlled/authentic roots. |
 | V2 | Complete actual N4 children, N6 frontier/history and fresh reader with sibling/budget controls. |
-| V3 | Repair the three distinct failures and complete costed acquisition/basis/history/retention behavior. |
+| V3 | Composed the three-failure repair in generation_cycle and its mirrored tests: N6-owned JSON array round-trip, refusal preservation and unbound-route suppression; scheduled tax-receipt positive plus unscheduled firm_survival negative. Independent review GO; 9 focused + 8 guard/history + 1 served COV PASS, normal pytest/JAX CPU profile, synthetic fixture data, full outputs once at `policy-engine/_cache/e02/v3/`. Wrong-family matcher red remains open with attribution not established; next run the source-semantic-enabled fresh-route consumer and repair live/historical matching at its canonical owner. No overall V3/G closure. |
 | V4 | Complete real N7/planner selected-source and normal served consumer, including loaded execution. |
 | V5 | Preserve actual typed units/uncertainty through report/history; finish distinct GP/native and B157 paths. |
 | V6 | Establish valid exact-profile A/A then intended A/B and B13 basis/sibling behavior. |

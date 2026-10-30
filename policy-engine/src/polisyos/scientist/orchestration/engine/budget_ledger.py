@@ -557,7 +557,12 @@ def _decode_snapshot(raw: str) -> BudgetLedgerSnapshot:
             raise ValueError("producer settlement identity/revision disagrees with snapshot")
         receipt = snapshot.spend_receipts.get(event_id)
         if record.status == "committed":
-            if receipt is None or receipt.amount != record.amount:
+            if (
+                receipt is None
+                or receipt.amount != record.amount
+                or receipt.key != record.key
+                or receipt.provider != record.provider
+            ):
                 raise ValueError("committed producer outcome requires its exact spend receipt")
             if receipt.payload_digest != record.payload_digest:
                 raise ValueError("producer settlement and spend receipt digest disagree")

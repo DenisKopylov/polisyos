@@ -50,6 +50,15 @@ Details: [Reference →](../../../../../docs/reference/scientist/index.md)
   per-call events in run state and the agents read surface. Local settlement acknowledges only
   local ledger state; it does not assert provider invoices or external billing authority.
 
+The ledger reader reconciles each committed producer event with its exact local
+spend receipt, including event ID, budget key, provider, amount and payload
+digest. A missing or conflicting receipt for a committed origin prevents a
+committed cache-reuse acknowledgment; a candidate response may remain available
+with settlement `unknown`. A terminal unknown-cost origin remains unknown even
+when its independently admitted reuse records zero incremental cost. Standalone
+spend receipts may still have no provider. This local consistency check cannot
+authenticate a jointly altered ledger or establish an external invoice.
+
 
 For a selected method-metric compile, the existing typed ExecutionPlan is persisted
 with exactly one policy_candidate input binding the selected Trinity candidate and

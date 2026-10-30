@@ -4,6 +4,8 @@
 
 **Goal:** integrate useful existing work into tested product behavior in `origin/main`, remove obsolete branches, and replace hidden development and repetitive paperwork with one visible work cycle.
 
+**Current publication:** `origin/main` is `fdbc33ba413fd47c6161352f8c6dc3393c54a02d` (tree `cc292e4a79c1939a1afb40d6f677cff5e03e87ef`), including the reviewed embedding generation change. Its four affected test modules passed again on that exact main candidate (17.90 s, peak RSS 646 MB); output once at `_cache/e02/embedding/main-candidate.txt`. The idle `8dda` main worktree was fast-forwarded with its untracked helper preserved. The canonical author branch additionally holds child/N7 and independent checked work; child appointment still blocks promotion of that stack. Cleanup is paused by the latest user instruction.
+
 **Baseline:** published `0741080cfc026077483f551333f853203b33d52d`, tree `6c8f6c87e77ac7ed4299105ede9fb42ac99eceee`. Its product source is unchanged from `87cd7f41303d0df4e962ef510badd733fdab4f9b`. The 233-parent `ours` merge preserved history, not alternative implementations. Do not repeat archival-only merges as product composition or use `git branch --merged` as evidence of incorporation.
 
 ## 1. Chosen working model
@@ -203,7 +205,7 @@ This table records integrated results and next outcomes. During execution add th
 | Q2 | TC child-ID fixture integrated: normal module 17 PASS, 13.21 s, including fresh child read and missing-Fabric-row refusal (outputs `_cache/e02/tc`). Continue selected-member/API/client/generated/installed consumers. |
 | R1 | Finish required real-child contours and basis invalidation beyond the verified single contour. |
 | R2 | Preserve accepted B87/B89; keep provenance correction separate and recheck genuinely affected changes only. |
-| R3 | Observe the current original producer/cache pilot, then resolve and run the affected original 14-case routes. |
+| R3 | B66 paid-cache custody repair now joins a committed producer's receipt to its exact budget key and provider in the canonical Engine ledger reader, preserving the existing event/amount/digest checks. Real public cache miss/hit/expiry, six receipt corruption controls, unmanaged origin, current Core reuse and legacy/nullable standalone receipts: 47 PASS (2.18 s; 135 MB peak RSS), independent review GO. Full output once `_cache/e02/paid-cache/final.log`; pre-fix key/provider and public-provider conflict reds retained beside it. This proves local consistency, not external invoices or a jointly altered ledger. Preserve the original 14 FAIL at their recorded versions; complete the broader producer/cache/retry/reopen/cancel composition and rerun genuinely affected original routes. |
 | R4 | Preserve accepted configured B56 folds; prove the distinct long-compute control/lease/fencing property. |
 | I1 | Complete LA-041 persisted recovery, malformed/legacy/interrupted retry and original selectors. |
 | I2 | Obtain the real root-census/installed CLI result through supported execution; stop building replacement profilers. |

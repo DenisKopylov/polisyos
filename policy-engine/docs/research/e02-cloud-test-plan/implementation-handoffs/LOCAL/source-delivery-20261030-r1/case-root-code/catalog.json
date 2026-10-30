@@ -1,0 +1,338 @@
+{
+  "schema": "e02.case-root-source.v1",
+  "source_root": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1",
+  "scope": "Bounded filename walk of source/patch extensions only; explicitly excludes basetemp, fixtures, CAS, DB, environments, inputs, outputs and other listed payload dirs. Deduplicates exact SHA and excludes content already in current baseline Git blobs or earlier proposal bundles.",
+  "pruned_names": [
+    ".git",
+    ".hypothesis",
+    ".pytest_cache",
+    ".venv",
+    "CAS",
+    "__pycache__",
+    "artifacts",
+    "basetemp",
+    "build",
+    "cas",
+    "data",
+    "datasets",
+    "dist",
+    "fixtures",
+    "inputs",
+    "logs",
+    "node_modules",
+    "output",
+    "outputs",
+    "pytest_tmp",
+    "runs",
+    "site-packages",
+    "snapshots",
+    "source",
+    "sources",
+    "temp",
+    "tmp",
+    "tmpdir",
+    "trace-snapshots",
+    "venv"
+  ],
+  "counts": {
+    "candidate_files": 321,
+    "already_head_blob": 258,
+    "already_packaged": 3
+  },
+  "unique_new_code_bytes": 221232,
+  "unique_new_code_files": 33,
+  "skipped": [],
+  "files": [
+    {
+      "sha256": "0f6426052f333dfd1266ac972dbf1443fd0defd241b465fdc30f984bfe29bbf0",
+      "member": "code/0f6426052f333dfd1266ac972dbf1443fd0defd241b465fdc30f984bfe29bbf0.py",
+      "bytes": 4512,
+      "original_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/test_b89_close_acquire_probe.py"
+      ]
+    },
+    {
+      "sha256": "1d43f5c6f58de02d1b7807912c4c307ada829ebc526088a77bcd90973bc02019",
+      "member": "code/1d43f5c6f58de02d1b7807912c4c307ada829ebc526088a77bcd90973bc02019.py",
+      "bytes": 333,
+      "original_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c25-isolated-removal-budget-r2-20261028/c25-control/active-control.py"
+      ]
+    },
+    {
+      "sha256": "211ab0fee60faa7ac6d5af1a3e661bc609b3493f8a9912f1dbb0ad3003437352",
+      "member": "code/211ab0fee60faa7ac6d5af1a3e661bc609b3493f8a9912f1dbb0ad3003437352.py",
+      "bytes": 15037,
+      "original_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c104-local-r2-root-driver-r3/observer-overlay-source.py"
+      ]
+    },
+    {
+      "sha256": "21638a07d782c584b246698cb3a6f5c12a332c50646c45b73d8d0091404211ac",
+      "member": "code/21638a07d782c584b246698cb3a6f5c12a332c50646c45b73d8d0091404211ac.py",
+      "bytes": 601,
+      "original_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-b89-post-permit-metadata-cancel/pytest_launcher.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-b89-closing-acquire-race/pytest_launcher.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v5-native-gp-and-b157/pytest_launcher.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/s3-b31-channels-current/pytest_launcher.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-physical-cleanup-current/pytest_launcher.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i2-dfk-current-r2/pytest_launcher.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-v2-served-current/pytest_launcher.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i2-dfk-current/pytest_launcher.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v4-v7-empirical-current/pytest_launcher.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r3-origin-ledger-lifecycle-current/pytest_launcher.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v5-failure-discriminating-locals/pytest_launcher.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-v2-served-current-r2/pytest_launcher.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-served-isolated-r3/pytest_launcher.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v6-simulation-sibling-failure/pytest_launcher.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-current-full-boundaries/pytest_launcher.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-i1-session-wvs-existing/pytest_launcher.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i1-i4-catalog-current/pytest_launcher.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v2-served-isolated/pytest_launcher.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-r1-core-state-cache/pytest_launcher.py"
+      ]
+    },
+    {
+      "sha256": "221f7010a6bc4d4e2ba39d51c4fc3f7f3b645d65b8ada9bc5c7f1c05dc4f8c55",
+      "member": "code/221f7010a6bc4d4e2ba39d51c4fc3f7f3b645d65b8ada9bc5c7f1c05dc4f8c55.py",
+      "bytes": 21681,
+      "original_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/run_case_s3_native_loader_r3.py"
+      ]
+    },
+    {
+      "sha256": "2983cce5ba1337ff749c3c0712d3942005d81f10598f24785c0c6a5469a34c4e",
+      "member": "code/2983cce5ba1337ff749c3c0712d3942005d81f10598f24785c0c6a5469a34c4e.py",
+      "bytes": 253,
+      "original_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r180-cov-positive-r1/pytest_launcher.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r182-cov-restored-r2/pytest_launcher.py"
+      ]
+    },
+    {
+      "sha256": "3c285269d1334ebc9569b94a02f05c0326d777f78db182ae9e6e45d3b89fa3e9",
+      "member": "code/3c285269d1334ebc9569b94a02f05c0326d777f78db182ae9e6e45d3b89fa3e9.patch",
+      "bytes": 3812,
+      "original_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r138-t2-conditional-n5-n8-r1/t2-diagnostic-proposal-r1/proposal.patch"
+      ]
+    },
+    {
+      "sha256": "40d8de2473fd6eebe533a717ff69d628cd844671e8e71abbbc01e11176f46677",
+      "member": "code/40d8de2473fd6eebe533a717ff69d628cd844671e8e71abbbc01e11176f46677.py",
+      "bytes": 763,
+      "original_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-v1-dedicated-stack-r2/pytest_launcher.py"
+      ]
+    },
+    {
+      "sha256": "45db8cc07483a583d6c9029e0c3e5197f6a01ab905cac7948d072ef422d74a49",
+      "member": "code/45db8cc07483a583d6c9029e0c3e5197f6a01ab905cac7948d072ef422d74a49.py",
+      "bytes": 3224,
+      "original_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/readset_observer_tools_r1.py"
+      ]
+    },
+    {
+      "sha256": "4c3eae2136b6c8941ba09d4438d12ea6ea11310527768f0482877b877b8e30c2",
+      "member": "code/4c3eae2136b6c8941ba09d4438d12ea6ea11310527768f0482877b877b8e30c2.py",
+      "bytes": 6736,
+      "original_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/run_case_with_tools_r2.py"
+      ]
+    },
+    {
+      "sha256": "4dca1550f859b599eaecf57aeb206e7efdcde1376cb15b596863dd51bdc5b690",
+      "member": "code/4dca1550f859b599eaecf57aeb206e7efdcde1376cb15b596863dd51bdc5b690.py",
+      "bytes": 6793,
+      "original_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/run_case_spawn_safe.py"
+      ]
+    },
+    {
+      "sha256": "56bf0a721a73d5660f3d7d394b5ec0b8b4c33a4b978b337cdee2559cb8c95184",
+      "member": "code/56bf0a721a73d5660f3d7d394b5ec0b8b4c33a4b978b337cdee2559cb8c95184.patch",
+      "bytes": 6191,
+      "original_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r175-keyed-ledger-first-cohort-r2-spawn-diagnostic/test-budget-compute-reservations-spawn-diagnostic.patch"
+      ]
+    },
+    {
+      "sha256": "5b7ed5f7a017cacf030ac8ddc87c7e1942391a477b787a3af45bc2170e960865",
+      "member": "code/5b7ed5f7a017cacf030ac8ddc87c7e1942391a477b787a3af45bc2170e960865.py",
+      "bytes": 6926,
+      "original_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/run_memory_diagnostic_file.py"
+      ]
+    },
+    {
+      "sha256": "6b4f88de6edc3240c7f816579fe4a003a1b39a62b46d5a873d22fb6942295944",
+      "member": "code/6b4f88de6edc3240c7f816579fe4a003a1b39a62b46d5a873d22fb6942295944.py",
+      "bytes": 2859,
+      "original_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c43-random-joint-dyld-r2-20261028-mutant/active-control.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c43-random-joint-pilot-r3-20261028-mutant/active-control.py"
+      ]
+    },
+    {
+      "sha256": "70ef6f77b201904790fca3df426120180e11ccae9fcd4cbe534bb5ac842b6efd",
+      "member": "code/70ef6f77b201904790fca3df426120180e11ccae9fcd4cbe534bb5ac842b6efd.py",
+      "bytes": 6853,
+      "original_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/run_post_permit_probe.py"
+      ]
+    },
+    {
+      "sha256": "79caf555cba950c7d3cf1b4b533ebc46c8e9dff09f7b434e3d61554453bff324",
+      "member": "code/79caf555cba950c7d3cf1b4b533ebc46c8e9dff09f7b434e3d61554453bff324.py",
+      "bytes": 22640,
+      "original_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/run_case_s3_native_loader_r4.py"
+      ]
+    },
+    {
+      "sha256": "7fddc6c2126ba15f1cbc25036a6427d39415cb8e54890f1d6b426a923f53bf52",
+      "member": "code/7fddc6c2126ba15f1cbc25036a6427d39415cb8e54890f1d6b426a923f53bf52.py",
+      "bytes": 25863,
+      "original_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c104-local-r4-collection-preflight-r5/observer-overlay-source.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c104-local-r5-root-driver-r10/observer-overlay-source.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c104-local-r5-collection-preflight-r9/observer-overlay-source.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c104-local-r5-collection-preflight-r7/observer-overlay-source.py"
+      ]
+    },
+    {
+      "sha256": "887298fd6bab671ee878020004be6d53acf8fe0e5d58158d091e6249d5855d29",
+      "member": "code/887298fd6bab671ee878020004be6d53acf8fe0e5d58158d091e6249d5855d29.py",
+      "bytes": 669,
+      "original_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c25-isolated-removal-trigger-r2-20261028/c25-control/active-control.py"
+      ]
+    },
+    {
+      "sha256": "888ae349794fe3e9cc4b791637dcdb66070bcf2006982cae30c5714403ee747c",
+      "member": "code/888ae349794fe3e9cc4b791637dcdb66070bcf2006982cae30c5714403ee747c.py",
+      "bytes": 3234,
+      "original_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/test_b89_post_permit_lock_probe.py"
+      ]
+    },
+    {
+      "sha256": "91d0f698f8f92ed4efd129d5676ee007a1d5c9270c166f0db65d75456c79b9cf",
+      "member": "code/91d0f698f8f92ed4efd129d5676ee007a1d5c9270c166f0db65d75456c79b9cf.py",
+      "bytes": 6739,
+      "original_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/run_case_with_tools.py"
+      ]
+    },
+    {
+      "sha256": "9f987802031f780d3e1d5e159c59f7ac339e1e59ae8378ed0e96cedccbcee694",
+      "member": "code/9f987802031f780d3e1d5e159c59f7ac339e1e59ae8378ed0e96cedccbcee694.py",
+      "bytes": 251,
+      "original_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r181-cov-removal-r1/pytest_launcher.py"
+      ]
+    },
+    {
+      "sha256": "a27ad32f77d0d904ef8acd50c8e0d142b7b73f96b9a5843d32a3b44c6405cedd",
+      "member": "code/a27ad32f77d0d904ef8acd50c8e0d142b7b73f96b9a5843d32a3b44c6405cedd.py",
+      "bytes": 632,
+      "original_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-s3-channel-composition-r1/pytest_launcher.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-s3-paired-unit-after-dataclass-r2/pytest_launcher.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/ready-r2-portable-admission-races-r1/pytest_launcher.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-v4-v7-typed-owner-consumers-r1/pytest_launcher.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-r1-spawn-discriminator-r2/pytest_launcher.py"
+      ]
+    },
+    {
+      "sha256": "a8e128ea166dff45627c5a0be65ee7c86fcbdb5e63569ac6c64afb341ae75275",
+      "member": "code/a8e128ea166dff45627c5a0be65ee7c86fcbdb5e63569ac6c64afb341ae75275.py",
+      "bytes": 686,
+      "original_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-v1-stack-diagnostic/pytest_launcher.py"
+      ]
+    },
+    {
+      "sha256": "ab690e5d1508c7b67637e9beab14653daff0cb14da471a1f504ae50f23f66cc2",
+      "member": "code/ab690e5d1508c7b67637e9beab14653daff0cb14da471a1f504ae50f23f66cc2.py",
+      "bytes": 6761,
+      "original_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/run_case.py"
+      ]
+    },
+    {
+      "sha256": "b15b573c4b7854dddd3cdd55933fd4634d013cbe1410dd1cf965d6bdaff53243",
+      "member": "code/b15b573c4b7854dddd3cdd55933fd4634d013cbe1410dd1cf965d6bdaff53243.py",
+      "bytes": 7337,
+      "original_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/run_case_with_tools_r3.py"
+      ]
+    },
+    {
+      "sha256": "b847b9971047c5406ee21001b83037823957ad378b5305fc07cc4d7aaffca7be",
+      "member": "code/b847b9971047c5406ee21001b83037823957ad378b5305fc07cc4d7aaffca7be.py",
+      "bytes": 881,
+      "original_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c07-policy-owner-observer-r1-20261028/pytest_launcher.py"
+      ]
+    },
+    {
+      "sha256": "b92f726c5e5fea32017f32fdbea713664bd59a46b7bdace92e2c1e1142bde7a8",
+      "member": "code/b92f726c5e5fea32017f32fdbea713664bd59a46b7bdace92e2c1e1142bde7a8.py",
+      "bytes": 6848,
+      "original_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/run_memory_diagnostic.py"
+      ]
+    },
+    {
+      "sha256": "be99d91fb32eb2bd660dd84b84927702e9e41e6501afff5aefebcadd236dd111",
+      "member": "code/be99d91fb32eb2bd660dd84b84927702e9e41e6501afff5aefebcadd236dd111.py",
+      "bytes": 17341,
+      "original_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c104-local-r3-root-driver-r4/observer-overlay-source.py"
+      ]
+    },
+    {
+      "sha256": "e978d93d94ab2186ed5da65ab081b1eb1a0db55cc63c8e42b409cab6156432f0",
+      "member": "code/e978d93d94ab2186ed5da65ab081b1eb1a0db55cc63c8e42b409cab6156432f0.py",
+      "bytes": 1033,
+      "original_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r27-s3-native500-positive-r4-20261029/pytest_launcher.py"
+      ]
+    },
+    {
+      "sha256": "e9b45fe2623f8b167501599092f650a7d8bf92c78d538f00f204016fb7e98884",
+      "member": "code/e9b45fe2623f8b167501599092f650a7d8bf92c78d538f00f204016fb7e98884.py",
+      "bytes": 493,
+      "original_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c50-coverage-cov-r2-20261028-mutant/c50-active-control.py"
+      ]
+    },
+    {
+      "sha256": "e9b9edbdf465e69a059da6fff87181f9a666aef6c473863e377227b5dbdec111",
+      "member": "code/e9b9edbdf465e69a059da6fff87181f9a666aef6c473863e377227b5dbdec111.py",
+      "bytes": 6850,
+      "original_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/run_raw_probe.py"
+      ]
+    },
+    {
+      "sha256": "ead380a7a1487de381777300543f075a57a7ac46543ef7f2a884ecefc419c04e",
+      "member": "code/ead380a7a1487de381777300543f075a57a7ac46543ef7f2a884ecefc419c04e.py",
+      "bytes": 13200,
+      "original_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/run_case_s3_native_loader_r2.py"
+      ]
+    },
+    {
+      "sha256": "eceba6fe4ca6a6def4ed84d3145a815d6ecaebbd0da55e556244439afc2cffe2",
+      "member": "code/eceba6fe4ca6a6def4ed84d3145a815d6ecaebbd0da55e556244439afc2cffe2.py",
+      "bytes": 13200,
+      "original_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/run_case_s3_native_loader_r1.py"
+      ]
+    }
+  ]
+}

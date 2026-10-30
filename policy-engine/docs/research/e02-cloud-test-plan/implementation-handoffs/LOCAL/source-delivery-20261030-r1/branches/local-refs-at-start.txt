@@ -1,0 +1,796 @@
+refs/heads/architect/adr-0178-posture-admission	d0066bb00b7965747396e19f5e5216cfbcb517ef	2026-09-17T14:15:46+03:00	adr: accept ADR-0178 — promotion posture admission resolves owner artifacts
+refs/heads/architect/boundaries-coverage-gap	52d3e1c15e2e451a633f452f73543dfa088cf532	2026-08-26T21:40:46+03:00	govern(boundaries): correct an enforcement claim, rule the corpus row, register the coverage gap
+refs/heads/architect/close-cross-cutting-rows	756a5ee0f3fe40bc3ddaa33483e504d76e47b8a0	2026-08-27T08:52:31+03:00	govern(debt): close three contract-drift rows and re-type observability
+refs/heads/architect/close-dataforge-rows	2935e292a2d47465a260c93f8edf630c36eff40a	2026-08-27T19:38:02+03:00	govern(debt): close five import-policy rows on their executed conditions
+refs/heads/architect/cv-dr-decisions-and-adr-0178-amendment	ce702d6fbfc15635a40b6e9d7d3f51164a94538f	2026-09-17T17:39:31+03:00	adr: accept ADR-0179 and amend ADR-0178 on the CV-DR findings
+refs/heads/architect/debt-beta1-measurement-layer	1c9829fb8beaccfb7a1ee798e24dd6cb4c0f059c	2026-08-22T08:53:16+03:00	fix(quality): resolve the plugin-posture witness interpreter and declare its cap
+refs/heads/architect/debt-ledger-census	62ac6d66e3f13f25527dc3062d81efad8932ffce	2026-08-23T09:55:19+03:00	plan(debt): Rev 3 census — publish the denominator, register three missing debts
+refs/heads/architect/decisions-2026-09-17	9eaa328ec8c0fc50d955a38af87c578871501357	2026-09-17T10:56:28+03:00	Register the trust-posture census red found while verifying the identity amendment
+refs/heads/architect/gy-task-standing	ede915c595f3a1ad1c48dfd7efed7610399f31ab	2026-08-23T17:20:32+03:00	plan(gy): record task standing for all 37 tasks, and index them
+refs/heads/architect/import-governance-rulings	f51e610348e39612d51805d71d433c92f8504aca	2026-08-26T21:03:33+03:00	govern(imports): rule four reserved import-governance questions
+refs/heads/architect/import-governance-rulings-2	21947ac0ad9c210ca892ca3673d266d42a94195b	2026-08-26T21:26:59+03:00	govern(imports): rule the remaining reserved questions and register what they exposed
+refs/heads/architect/refresh-plan-standing	6d36a0131fc087c2f6f210a15d6741127dc270c8	2026-08-27T16:26:27+03:00	plans: refresh task standing after the Phase-5 close
+refs/heads/architect/research-flow-n-plus-one	f723e5fb2224466441cf2d1aa55d04d152fd7aa5	2026-09-17T12:22:55+03:00	docs(research): adopt the Library-first n + 1 flow for decision research
+refs/heads/architect/split-appointment-blockers	7b90cb5df58fc74bd76b5566342dd0e410d77970	2026-08-27T19:57:11+03:00	govern(debt): split the appointment blockers by what actually blocks them
+refs/heads/codex/acquisition-movement	ba412f3b432a126a62dd3d4d2294330360f8a817	2026-09-14T08:59:58+03:00	Close acquisition lane evidence with exact remaining owner decisions
+refs/heads/codex/atlas-ds16-value-grammar	40bbafa184c2248390208727e1d7d4eee926c44f	2026-08-21T18:31:40+03:00	merge(main): reconcile DS16 authority-value branch
+refs/heads/codex/atlas-ds5-enforcement-waist	a498f5db3acdf96ed4b7504472a6fa5a689326a4	2026-08-19T22:25:34+03:00	DS5 close post-main handoff and issue C21 release
+refs/heads/codex/atlas-ds6-c10r1-readiness-reconciliation	5824bac0822fa757ac243d521ac5994f5a68a913	2026-08-18T17:46:23+03:00	docs(atlas): land C10 R2 readiness reconciliation
+refs/heads/codex/atlas-ds6-closure	71b6189de1f5ef7ac9b61c43edc53dabf0fd5267	2026-08-20T22:29:44+03:00	DS6-C19 record plural rule closure
+refs/heads/codex/atlas-ds6-evidence-workflow	4b2904e8a23f51da3e05b0a5b74729e02b80e174	2026-08-18T13:42:27+03:00	DS6-C18 fix visual fixture and re-anchor C15-R1 deltas
+refs/heads/codex/atlas-ds6-final-closure	f1334a0f4731d079cf9e5f94f1a44bb1d415aa76	2026-08-22T21:22:30+03:00	close(atlas): complete DS6 C13 and C14
+refs/heads/codex/atlas-ds6-register-transitions	95d4d9419cf8c63dac9b6cbf2e0171528b8dc338	2026-08-20T18:11:41+03:00	DS6-C06 close rendered-contrast evidence debt
+refs/heads/codex/atlas-ds7-cycle-board	6e1dfd95f39c83d531fe92303ba33a5de47409a6	2026-08-21T00:33:07+03:00	docs(ds7): mark cycle board slice closed
+refs/heads/codex/atlas-ds8-b-case-workspace	892aa1c9a84f754ce12fd36439ad282aa1a528a1	2026-08-23T09:02:12+03:00	docs(atlas): close DS8-B slice
+refs/heads/codex/atlas-ds8-planning	f966276562130f4d397b2db9d05f5e4b7a9eb640	2026-08-21T23:27:42+03:00	feat(atlas): govern run paper expectation
+refs/heads/codex/atlas-lane-base	f481538706316b0d94722fd2a3891b2067779a38	2026-09-07T20:26:49+03:00	merge(codex/commit-not-station): continuation verified before merging
+refs/heads/codex/atlas-public-surface	3816809e8af5ccfc5f6a428f91824936aa6c0c95	2026-09-08T00:34:42+03:00	docs(atlas): record verification delivery and branch readback
+refs/heads/codex/ci-bootstrap-and-glob-repair	df440069e179e80259cd9dab01f6d0687d6e8514	2026-09-06T18:40:03+03:00	fix(ci): let the bootstrapper run before its own dependencies, and quote the checksum glob
+refs/heads/codex/ci-declared-targets	f1f21a474d22285b8229d7bd8a009a4048df79dd	2026-09-07T11:31:21+03:00	docs(ci): record final job receipts and dependency handback
+refs/heads/codex/commit-not-station	6bd3e310d2e5180569d4ceb9d1cb79f8fe623260	2026-09-07T20:23:22+03:00	docs: record final instrument replays and bounded residuals
+refs/heads/codex/corr-capability	350823a3f8f0e7544dbfea059914dc3a7e87019b	2026-09-09T15:35:27+03:00	corr C1: close the bounded lane with frozen verification evidence
+refs/heads/codex/correspondence-consumers	671ca6630e7205b81920c3bd3ecbca7f896b9f3b	2026-09-11T12:07:56+03:00	docs: close correspondence consumer acceptance record
+refs/heads/codex/correspondence-vocabularies	8c3f228536437247c51135a7b1d27e15284ac747	2026-09-13T20:38:12+03:00	docs: retain frozen correspondence guardrail receipt
+refs/heads/codex/cross-cutting-contract-drift	76920273642c98767cad5615067658b78770e2c8	2026-08-26T23:29:37+03:00	fix: bind cross-cutting closure to owners
+refs/heads/codex/dashboard-debt	c0aed3270974b0327f61fc46e1a31f772cbebe43	2026-09-07T16:56:24+03:00	docs(dashboard): record local delivery verification
+refs/heads/codex/debt-a-promotion-gate	964bf207a87357131a6d1dfa571bf9ed813a9a1d	2026-08-31T18:54:10+03:00	chore: freeze governed EFFECT closure
+refs/heads/codex/debt-academic-producer-repairs	dcb8b0571600891837110f07934f2c7432dd1ec0	2026-09-06T11:15:06+03:00	docs(academic): record producer repair verification receipts
+refs/heads/codex/debt-b-epoch-decision-validity	2d1840e6c543b04ce18d48e0bfde8b3e0a2d74ee	2026-08-31T22:15:34+03:00	docs(debt): record resumed epoch validity dossier
+refs/heads/codex/debt-b-extraction-vocabulary	e0a4f4c070a8afa7af8bcb7aac97610d855f7181	2026-09-04T15:55:04+03:00	Finalize vocabulary split closure record
+refs/heads/codex/debt-b2-manufactured-design	65f1fe0b1221e7e47ef9daee6ddef4394649120b	2026-09-04T21:31:16+03:00	docs(academic): record B-2 final verification receipt
+refs/heads/codex/debt-c-ds10-capability-discovery	5710d6694fcdcbe1d329f97c48ac6175bf2cd248	2026-08-31T22:08:31+03:00	docs(ds10): append round-two closure dossier
+refs/heads/codex/debt-closure-signal-census	983327959608fc54ad30f5ad3182ee839946f566	2026-08-26T20:15:07+03:00	fix(debt): validate closure signal selection
+refs/heads/codex/debt-d-ds11-trust-posture	69de30bfcd0b95ca8a2a5321f519796470c69d02	2026-08-31T18:08:19+03:00	docs(ds11): append round-two closure dossier
+refs/heads/codex/debt-e-acquisition-n13b	066e1978ac1c2bf82f790446dd23d8f607780122	2026-08-31T12:50:02+03:00	docs: close acquisition round two dossier
+refs/heads/codex/debt-evidence-class-vocabulary-reachability	9bd114d672411e77a1495a45dd25b046a956d7db	2026-09-06T09:54:04+03:00	docs: append reachability closeout receipts
+refs/heads/codex/debt-f-architecture-imports	f203306725f878506692185e665ad079b9290302	2026-08-31T16:08:36+03:00	docs: record architecture imports closure dossier
+refs/heads/codex/debt-g-atlas-residuals	4b492fcaf1a9a016f7abde4f70fc845b05c586e2	2026-08-31T21:57:24+03:00	docs(atlas): close post-freeze residual dossier
+refs/heads/codex/debt-group-a-drift-detection	81d059630f04685957364913e031e0a644fb589c	2026-09-02T22:00:48+03:00	fix(atlas): make status drift actionable
+refs/heads/codex/debt-historical-cohorts	84e228fbe363a0287730ed8d643987b647e0a640	2026-09-06T08:59:48+03:00	docs: close historical cohort measurement lane with custody receipts
+refs/heads/codex/debt-i-runtime-authorization	7e1883a2d6c5096eb97cce57124b1eb8973c7fed	2026-08-31T17:31:34+03:00	docs(debt): expand DS17 command receipt
+refs/heads/codex/debt-j-acquisition-route-binding	9121b149fcb48f8e12cb6356ba2c2afc36183f1b	2026-08-31T18:47:14+03:00	docs: close acquisition route binding row
+refs/heads/codex/debt-k-first-governed-promotion	56946feea9548f0a6c467024d7afeb83c9f19348	2026-08-31T23:09:03+03:00	docs(task-k): record production producer block
+refs/heads/codex/debt-l-research-census	8f95c8d800c26fe320812defd40ac9211856488b	2026-08-31T21:39:55+03:00	docs: append task l closeout receipts
+refs/heads/codex/debt-ledger-checker	50a29a784c214d657c57b6277b4b089f802efa66	2026-08-23T12:00:39+03:00	fix: bind debt ledger evidence structurally
+refs/heads/codex/debt-m-promotion-corridor-repair	252197a7425c6e3706a246641be0284d810e03fd	2026-09-01T13:34:40+03:00	docs(journal): record promotion corridor repair
+refs/heads/codex/debt-n-register-parser-repair	9e23a5669334f26253fdd2490048ef92154dbb8c	2026-09-01T11:52:26+03:00	docs: record literal nonclosure identity repair
+refs/heads/codex/debt-nature-survey	ae4befeddf9645cccef2dec0d1254a18e2242e9b	2026-09-11T21:29:02+03:00	docs: retain frozen guardrail verdict and final survey audit
+refs/heads/codex/debt-o-instrument-integrity	448c2b5a53e93d56f73f6272b05ecce164f87286	2026-09-01T19:34:42+03:00	docs: record Task O instrument integrity
+refs/heads/codex/debt-open-unmerged-status	46fd8962dc9a3820a9472bf466f52b5bf62ac737	2026-08-26T16:50:59+03:00	fix(debt): reject stale open-unmerged status
+refs/heads/codex/debt-p-dashboard-evidence	dfb3dd9aea9d325545c246589ffa18a9bf0b99f7	2026-09-02T00:00:21+03:00	test(dashboard): bind Task P evidence receipts
+refs/heads/codex/debt-parameter-unsupplied-vs-unknown	2c4f085b075c9aefa86584f3c336ce9e8baa2d24	2026-09-05T14:05:52+03:00	docs: close parameter presence measurement lane without repair
+refs/heads/codex/debt-q-remeasure-and-typing	de3c79540cdda0823d5af53146060cf85e4679d6	2026-09-01T22:41:15+03:00	docs(debt): record Task Q remeasurement and typing
+refs/heads/codex/debt-r-unowned-producers	d12a541ecab3122d6eecbaec59295a6a47f083ab	2026-09-01T22:48:54+03:00	docs: record unowned producer outcomes
+refs/heads/codex/debt-register-census	4bbdbe129806b6a6265e3148fff725927a525fec	2026-08-21T23:49:11+03:00	plan(debt): correct the cited-commit denominator to 28 of 29
+refs/heads/codex/debt-s-pgproof-and-def22	e90d11746e9c1a8d32e3a575f10dde429a75b208	2026-09-02T17:07:20+03:00	docs(gy): plan DEF22 environment discriminant
+refs/heads/codex/debt-unknown-evidence-weight	69c98e7eb44b3b97de5043a3001e271618f563d6	2026-09-05T11:02:52+03:00	docs: record unknown evidence closure verification
+refs/heads/codex/debt-vocabulary-provenance-base-audit	37c20aaa5124ebbe4868aa040eb3b0874458e680	2026-09-06T11:58:33+03:00	docs(debt): close both producer repairs, register the design-normalizer defect, regenerate the ledger
+refs/heads/codex/debt-vocabulary-value-provenance	c100ec4d07177d2f84cec6d0d3085240a1ee4c15	2026-09-06T13:46:27+03:00	docs: record final provenance checker and row dispositions
+refs/heads/codex/deep-import-baseline-stale	3c125f5c928adf8d11423f8f946f6eebc8e5b659	2026-08-23T22:44:13+03:00	fix(architecture): adjudicate stale deep imports
+refs/heads/codex/docs-refresh-e02-20261014	534223b694e66cd522cf678f957c11949ee9be6d	2026-10-15T00:17:07+03:00	docs: record English migration and reader workflow closeout
+refs/heads/codex/ds10-capability-discovery-plan	02458a44078d3da6ce51533682c4ac2c884b7520	2026-08-26T15:21:19+03:00	refactor(core): close DS10 contract facade edges
+refs/heads/codex/ds11-trust-docs-posture-plan	8b9b4730915f1c0740b629d15ed9289217071215	2026-08-27T22:31:29+03:00	docs(atlas): close DS11 trust posture
+refs/heads/codex/ds15-acquisition-routes-execution	4c9d29803da53ab4ca5844b0553d8a3da02a93b1	2026-08-28T20:42:36+03:00	docs(ds15): distinguish requested authz cases
+refs/heads/codex/ds15-acquisition-routes-landing	8c20b6f74f224e9ee44eb5ffa04a33399b816142	2026-08-29T14:57:05+03:00	DS15 reconcile acquisition surfaces with DS18 freeze
+refs/heads/codex/ds15-acquisition-routes-plan	cc71a59945bd5d0d84911e8371bbfcf356d91743	2026-08-27T22:26:24+03:00	docs(atlas): amend DS15 acquisition claim bands
+refs/heads/codex/ds17-confidence-ledger-risk-spend-execution	7abeac6be7f58d2fe1411ac83c18f5eadfad3dc5	2026-08-29T19:42:43+03:00	docs(atlas): record DS17 verification stop
+refs/heads/codex/ds17-confidence-ledger-risk-spend-landing	6fe152c5c662218f338bf123c5e613e5a09b1c4a	2026-08-30T21:58:47+03:00	docs(atlas): close DS17 confidence risk spend
+refs/heads/codex/ds18-epoch-staleness-chrome	f1e23d39a7c67323d64a7635ce3a41f4857a0e3a	2026-08-29T09:34:37+03:00	test(ds18): report truthful atlas failure delta
+refs/heads/codex/ds18-epoch-staleness-chrome-plan	f9b8be125adfb7cdc4661dccbf14bc501e6522cc	2026-08-27T22:49:55+03:00	docs(ds18): amend absence and denominator rules
+refs/heads/codex/ds4-decision-grade-regeneration	bb6006e046ea647f72aeaaa0411d5521a84b839b	2026-09-02T11:58:25+03:00	docs(journal): record DS4 DecisionGrade regeneration
+refs/heads/codex/ds9-human-decision-integrity-plan	af90dafc243725b4151860834451381f37fff298	2026-08-25T00:53:07+03:00	docs(atlas): close DS9 execution receipts
+refs/heads/codex/e02-A-compiler-full	44f0ac8d62da3d96464515b58c5bc29f03d238fa	2026-10-06T20:15:53+03:00	docs(e02): complete compiler handoff standard fields
+refs/heads/codex/e02-A-custody	289571b0b51d8404fe44702f1345552b6b10af32	2026-10-05T18:11:57+03:00	docs(e02-A): publish separate bounded N5 and unit delivery receipts
+refs/heads/codex/e02-A-delivery-attached	8bfea70b2e2090ad5c541b103b7521efc01b30eb	2026-10-08T05:44:55+03:00	docs(e02-A): retain native Trash custody for duplicate outputs
+refs/heads/codex/e02-A-empirical-scope	f1f7a1b5a9914d1a040e2fe182e0b1bdf393b43b	2026-10-05T17:44:51+03:00	docs: record empirical scope handoff
+refs/heads/codex/e02-A-full-queue	93d62af8eb037fa37cb0254ad38285507b26a86a	2026-10-06T22:17:17+03:00	docs(e02): record identity-verified native Trash cleanup and preservation
+refs/heads/codex/e02-A-guardrails-base	c40d4acae1ce58b597267255026d9356565828fd	2026-10-05T16:32:03+03:00	docs: maximize useful E02 delegation and assess baseline tests
+refs/heads/codex/e02-A-n5-readback	03ea5babece94bd443022dd54998aab201f058b1	2026-10-05T18:08:27+03:00	docs: correct N5 readback test receipt
+refs/heads/codex/e02-A-n5-tests-full	2ee0213b78e88bd3a00820605615a922b7d1bd98	2026-10-06T14:02:03+03:00	test: restore WMR from validated cycle context
+refs/heads/codex/e02-A-n5-verify-current	6f1e5e7aa62b1f050030aafb0a321bf1628bbb6f	2026-10-06T21:51:23+03:00	test(e02): reject forged calibration projections with omitted caller status
+refs/heads/codex/e02-A-replay-full	164cc001a81a570657079a1666e70ffe3650d82a	2026-10-06T20:08:59+03:00	docs: complete replay handoff receipt fields
+refs/heads/codex/e02-A-replay-owner	a683059753cbb366574793474fa8ffc17b3ba7a8	2026-10-05T17:21:47+03:00	docs: record REP-01 replay-owner handoff
+refs/heads/codex/e02-A-requirement-context	a0302b7c717fe9eb7652a8e2bbbbea230115aedd	2026-10-05T17:44:10+03:00	docs: record REQ-01 public context handoff
+refs/heads/codex/e02-A-s10-verifier	a83f7eda380eb516d5162bfa11d7dc52278bc673	2026-10-06T19:00:41+03:00	Correct S10 verifier handoff closure scope
+refs/heads/codex/e02-A-selection	c020fd9629fa36cfdd6f7de12cff8b263f1a42b9	2026-10-05T17:28:21+03:00	docs(e02): hand off SEL-01 evidence
+refs/heads/codex/e02-A-selection-full	0c8842191a69e4c47158ad29de37ea1268b3fa41	2026-10-06T17:02:32+03:00	Mark SEL-01 evidence outcomes limited
+refs/heads/codex/e02-A-served-tests-full	3746c9071c52370c20a9cf526ee767ecdb5c1c8f	2026-10-06T14:45:49+03:00	Bind served replay to owned run identities
+refs/heads/codex/e02-A-simulation-full	b3a07fc23d9300805ce552f25631d6eedab98413	2026-10-06T18:48:20+03:00	docs(sim): record Root SIM and CYC wave evidence
+refs/heads/codex/e02-C-berl	942206505d1681ea1d4d46e93e21d0c566450acb	2026-10-05T18:03:35+03:00	docs(berl): add BER-01 runtime path to handoff
+refs/heads/codex/e02-C-berl-20261006	8aecb0b6e08f8d37f09c70927761576583a89828	2026-10-06T18:32:37+03:00	docs(e02): append BER-01 consumer census evidence
+refs/heads/codex/e02-C-c54-bindings-20261007	980d91b36452307d683283ddcf1e89a653af3ce2	2026-10-07T23:03:46+03:00	Record C5 C54 current disposition handoff
+refs/heads/codex/e02-C-c54-review-20261007	04eb30817d16f270feae316650994f2e2f273a44	2026-10-07T22:58:06+03:00	docs(c54): record independent C5 binding review
+refs/heads/codex/e02-C-canon	b98bc432e3afc0f17d992fc034029b68b0952169	2026-10-05T17:44:01+03:00	Update CAN handoff with registry fake replay
+refs/heads/codex/e02-C-canon-20261006	60b523c2d0e1a587f2f1d4b92a0ac9a89a1f49db	2026-10-07T17:40:15+03:00	docs: capture CAN C4 installed-wheel preflight
+refs/heads/codex/e02-C-catalog	dfaadaac01f21b7b3994109c3cc76d522a2a3cb3	2026-10-05T19:13:10+03:00	Correct catalog handoff slice provenance
+refs/heads/codex/e02-C-catalog-20261006	f428b114f4afb5c9cdde93a8e9bf036abe5ac329	2026-10-06T21:34:21+03:00	docs: reconcile catalog handoff path census
+refs/heads/codex/e02-C-client	13a723d8b6cb203583f856d949717427db858e37	2026-10-05T17:40:35+03:00	docs(e02): record C runtime client handoff
+refs/heads/codex/e02-C-client-20261006	5f812a3487d8f1fe0779f67bfcf3f9b73babeaf1	2026-10-06T14:51:12+03:00	docs(e02): correct CLI census and add review receipt
+refs/heads/codex/e02-C-continuation-20261006	b886665a26b318b2fdd136cae0248cdea7b9226d	2026-10-07T23:55:26+03:00	docs(e02-C): commit independent C5 carrier review and publication readback
+refs/heads/codex/e02-C-coordinator	c40d4acae1ce58b597267255026d9356565828fd	2026-10-05T16:32:03+03:00	docs: maximize useful E02 delegation and assess baseline tests
+refs/heads/codex/e02-C-dfi-emb	cd02697111861bbcbb8442287101decaaf3239fb	2026-10-05T18:23:03+03:00	docs(e02): correct C DFI/EMB handoff closure field
+refs/heads/codex/e02-C-dfi-emb-20261006	40d27423aa7835bc8439f139d84ff1bc909ea14a	2026-10-06T21:17:48+03:00	Record DFI and embedding final ab441 handoff
+refs/heads/codex/e02-C-dfk-lifecycle-20261007	4576f67b1ff1f8d09b6a4223779b53fff9b369ae	2026-10-07T22:15:34+03:00	docs(e02): hand off C5 DFK lifecycle result
+refs/heads/codex/e02-C-dfk-review-20261007	341f92fb2b18e163778ab28db13b6b67a90e7d44	2026-10-07T22:11:43+03:00	docs(e02): retain DFK review command outputs
+refs/heads/codex/e02-C-federation	ca9caf3d3cc26a57fc3cf225e9b17db981afff3f	2026-10-05T17:33:57+03:00	docs: record federation implementation handoff
+refs/heads/codex/e02-C-federation-20261006	26ba51d571a5ccb5da26502d4d097d801cdc5b04	2026-10-06T15:06:56+03:00	docs(federation): correct admission handoff receipt
+refs/heads/codex/e02-C-handoff	172e791ca9335954907ebfd789e95715a55963c8	2026-10-05T19:40:49+03:00	docs(e02): record C delivery index verification handoff
+refs/heads/codex/e02-C-hygiene	b56ec6b1f802ab10d2927492bbc082f90c390139	2026-10-05T19:23:06+03:00	docs: add C hygiene implementation handoff
+refs/heads/codex/e02-C-hygiene-20261006	4f55312a51bcd95ee125ac2f1bec1df59b0d65c3	2026-10-06T19:36:54+03:00	docs: append final HYG artifact adjudication
+refs/heads/codex/e02-C-ing-oracle-20261006	5231cf93a399fcc2944870c8a590b8770f3ba931	2026-10-06T16:48:21+03:00	test: add B79 and B86 removal controls
+refs/heads/codex/e02-C-ing-support	a5bf3d536a9f1773b7110f64ac0d3b3f1230abdf	2026-10-05T17:26:20+03:00	docs(e02): hand off C incremental REST witness
+refs/heads/codex/e02-C-legal-query-20261007	51609922447716115c22287ac79c218d13cd9067	2026-10-07T22:09:26+03:00	Record Legal query profile handoff
+refs/heads/codex/e02-C-legal-review-20261007	77c5cd319c92e52932b1bf15c342b24a41e7b051	2026-10-07T22:05:55+03:00	docs: record independent Legal query binding review
+refs/heads/codex/e02-C-migrations	1164718054d3a409269a724c832706b524f78864	2026-10-05T17:21:24+03:00	docs(e02): correct migration rerun worktree receipt
+refs/heads/codex/e02-C-migrations-20261006	fe15a3604801f9a8c4fda51c73f51976f52d6c25	2026-10-06T20:52:24+03:00	docs: pin LA-050 audit commands and captures
+refs/heads/codex/e02-C-net-ing-20261007	373c9623071f60c08f5e362e61d211829e5d8f5a	2026-10-07T17:35:53+03:00	docs(e02-C): correct NET cleanup handoff evidence
+refs/heads/codex/e02-C-obs-udf	6e24cbaf5fb1d78830fd918ab17e6495095250ed	2026-10-05T18:18:59+03:00	docs(e02): preserve OBS UDF check outputs
+refs/heads/codex/e02-C-obs-udf-20261006	705575be73510d40d726c82c5a0af4bf8635a2a8	2026-10-06T18:32:26+03:00	Record OBS UDF verification receipts and dispositions
+refs/heads/codex/e02-C-plugin-discovery	e30956352cd73e11c1c453e95859589cdd2e86c6	2026-10-05T17:27:19+03:00	Refresh plugin discovery implementation evidence
+refs/heads/codex/e02-C-plugin-training	5ee7dbc2d66fbb647ddc617fbfe19454737916b5	2026-10-05T17:25:13+03:00	C-W15: add plugin-training implementation handoff
+refs/heads/codex/e02-C-plugins-20261006	976212bbefb684da4823f61d810bf7a208a6e298	2026-10-06T19:09:15+03:00	docs: complete PLG source and payload handoff
+refs/heads/codex/e02-C-schema-20261006	28b04149e6477216f37c2ab2e0abfc54b8857ac6	2026-10-06T20:06:57+03:00	docs(e02): complete b8 schema census audit handoff
+refs/heads/codex/e02-C-scholar	cafeeffa1577d45c02e1ff22f0db9f9f698f9046	2026-10-05T18:19:32+03:00	docs: record Scholar implementation handoff
+refs/heads/codex/e02-C-scholar-20261006	f7af77f3373e4d22f703efa7208c19c6ffed1746	2026-10-06T18:29:05+03:00	Record installed Scholar packet consumer audit
+refs/heads/codex/e02-C-streaming	1013ae0d2292f732a2f0518b25a5a682dc156e81	2026-10-05T18:00:52+03:00	docs(e02): hand off C retained streaming capacity slice
+refs/heads/codex/e02-C-ukraine-ops	62a9140aaf28630d24688d5c850e752048dbbe9a	2026-10-05T17:47:21+03:00	docs: record Ukraine ops wheel probe and P41 caveat
+refs/heads/codex/e02-G-check-b-adapters	d9d61af6359033a08835cf5cc3fecb41c8e6967f	2026-10-05T14:20:15Z	docs(connectors): record complete acquisition timeout contract
+refs/heads/codex/e02-G-check-b-dur	510a6076e91f6c5ea540845d77b8d83d0b4a3cb5	2026-10-05T13:57:08Z	docs: record persisted budget accounting compatibility and recovery
+refs/heads/codex/e02-G-check-b-run	418b1f061459e40976d2666b5b62dce21d8c4833	2026-10-05T13:48:38Z	Mark async bridge timeout assertion as regular expression
+refs/heads/codex/e02-G-check-b-run2	3e95056bca6d0c15ab7778573172491628f48596	2026-10-05T13:57:31Z	Preserve nested bridge calls while reserving executor capacity
+refs/heads/codex/e02-G-check-c-canon	8f13193b79b366fe26101af37427da5f44ef490a	2026-10-05T17:42:13+03:00	Align recording CAS fake with artifact reference reads
+refs/heads/codex/e02-G-check-c-streaming	789e9e906cc52ff544fb05d4faa5db13359fee84	2026-10-05T17:38:13+03:00	fix(fabric): bound retained windows before frontier publication
+refs/heads/codex/e02-G-check-d-gp	052e763253580519d5913a92ad5ccc9a1989e7e3	2026-10-05T13:49:26Z	test(search): discriminate conditioned GP target restoration
+refs/heads/codex/e02-G-check-d-rl	86584ad12436b10153efcf955e3eb7da3bdbc26d	2026-10-05T13:46:47Z	fix(search): restore exploration wrapper checkpoint streams
+refs/heads/codex/e02-G-check-d-transfer	e608502d9f885d87ce580175cc95f8f17689f6e0	2026-10-05T13:49:22Z	fix(transfer): isolate cached history and vector generations
+refs/heads/codex/e02-G-check-e-bootstrap	dafe95e15cff5992b5b9133a35e1e1297de03e87	2026-10-05T13:48:47Z	fix(backtesting): retain performed bootstrap statistic identity
+refs/heads/codex/e02-G-check-e-cal-uq	f07058a3eb782463eedce65a6d0d54c332a46efe	2026-10-05T14:04:42Z	docs: record Gaussian covariance sampling correction
+refs/heads/codex/e02-G-check-f-api	0c709ea924d2b868eacf1016f5c70ff749e287a8	2026-10-05T13:50:58Z	test(causal): verify supported facade consumer ABI
+refs/heads/codex/e02-G-check-f-cau	c8e16d0abb7d10605475862ede8c6f327ff7cce9	2026-10-05T13:47:19Z	fix(causal): refuse unsupported staggered cohort windows
+refs/heads/codex/e02-G-check-f-eco	48a5c1eb64d8f7e89bcbc4ad478c98b4354eaea0	2026-10-05T14:11:06Z	fix(economics): preserve masked statistic branch dtypes
+refs/heads/codex/e02-G-check-f-fry	cb8cd0dcadb0d6cf81803257ee061ecbb4854fe2	2026-10-05T13:53:50Z	test(foundry): verify compile artifact and catalog consumer contracts
+refs/heads/codex/e02-G-check-f-lex	56aa7d47876b29956676ef8dc9f04b64c865948f	2026-10-05T14:16:45Z	fix(lex): freeze admitted impact pass plans
+refs/heads/codex/e02-L01-custody-20261008	25333d87e3e32795e2e89288d5f2bd70e8e756c9	2026-10-08T21:36:24+03:00	docs(e02): retain final custody time qualification reviews
+refs/heads/codex/e02-L02-authentic-20261008	c3b171010a7ce30b12d1dbd497eb646b9147afa0	2026-10-08T21:17:11+03:00	docs(e02): clarify L02 reader handoff wording
+refs/heads/codex/e02-acq-01	13fb6a8500ed0a4a824166f1cd66acd596fa1a1c	2026-09-23T16:49:30+03:00	style(acq): fix binding annotations and exports
+refs/heads/codex/e02-acq-01-real-route-test	62cb804f76e576585526532d7eb2241ef8c64de4	2026-09-22T20:33:12+03:00	test(acq-01): guard registry-only reentry from N5
+refs/heads/codex/e02-acq01-final-route	a395f789feb7cedf52542e9cad35e4007fec503f	2026-09-23T21:21:57+03:00	test(acq-01): exercise registered n5 route
+refs/heads/codex/e02-acq01-lint-base	736fab4dc028d607da89fbd5efe14c42c9858ba7	2026-09-23T18:31:36+03:00	test(acq-01): prepare fresh world fixture root
+refs/heads/codex/e02-acq01-media-red	abe45f56773de4cb861d2b4a85968dc26efd7374	2026-09-23T17:15:15+03:00	fix(acq): satisfy helper exception naming
+refs/heads/codex/e02-acq01-p41-base	59a1663a414e9889c13cd6c0d3e718dc2d86c147	2026-09-23T17:22:07+03:00	merge: consume ACQ-01 media-aware snapshots
+refs/heads/codex/e02-acq01-snapshot-red-r2	92fcb2fd8ac05e3ed139baffe70b4052ae1371c8	2026-09-23T16:15:32+03:00	test(acq): align worldbank payload custody fixture
+refs/heads/codex/e02-acq01-wmr-bridge	721a3f73fe470d38085c0deb7c16b5171aa5c12d	2026-09-23T14:30:29+03:00	style(acq): merge substrate test import block
+refs/heads/codex/e02-api-01	bcbe3ab89bf64413e988b122b70133868914bd99	2026-09-21T10:41:09+03:00	style(api): normalize facade test spacing
+refs/heads/codex/e02-b73-candidate	d8d685509262e2ec69aa5a1b0c337fa21c5909a9	2026-09-28T00:55:25+03:00	fix(scientist): require atomic checkpoint hook for parallel tier (B73)
+refs/heads/codex/e02-base-replay	78187878ee188ff6d27442ba1498bd094da9785b	2026-09-10T08:45:16+03:00	docs: keep oversized raw evidence local by convention
+refs/heads/codex/e02-ber-01	4b4656b8718d0adf8ebb45945f819828d8964d0c	2026-09-21T12:29:44+03:00	fix(berl): keep TreeSHAP annotations introspectable
+refs/heads/codex/e02-bkt-01	5e0c8018a3a2fdb60e01e753d3f247f5d22c631a	2026-09-20T16:47:18+03:00	test(backtesting): assert temporal cutoff error code
+refs/heads/codex/e02-bkt-02	fe510123db02a9065187ae81a733c3ce12c2a33d	2026-09-22T19:30:05+03:00	test: preserve BKT-02 v1 payload compatibility
+refs/heads/codex/e02-bkt-03	bf1eca0dbec67d32e56a8307686daf646b8eac1b	2026-09-21T15:23:16+03:00	fix: degrade uncomputable bias diagnostics
+refs/heads/codex/e02-bkt-04	ba56fb465a931ac29b9d53fa70d91934cbd67a29	2026-09-20T14:23:41+03:00	fix(backtesting): preserve bounded evaluation semantics
+refs/heads/codex/e02-cal-01	706877e34dd61560fed753671a8296d621b51b4f	2026-09-22T03:40:40+03:00	fix(calibration): reject source and time ambiguity
+refs/heads/codex/e02-cal-02	6bb8b7f76c32d7b5831ef32d38ba83a31a696620	2026-09-21T19:54:11+03:00	test(calibration): cover jitted zero-support loss
+refs/heads/codex/e02-cal-03	0b38bd05cac0c831efeb35420cdd9ee40a6a9de2	2026-09-21T21:38:22+03:00	fix(calibration): isolate multi-start spans and invalid selections
+refs/heads/codex/e02-cal-04	9cc8371c42ee80e7c2ae5850b8c40fb139c696bd	2026-09-21T23:24:06+03:00	test(calibration): align CAL-04 report witness
+refs/heads/codex/e02-cal-05	9b91395bf26da2dfe5e4e109299af52010554e78	2026-09-21T23:56:22+03:00	style(calibration): format CAL-05 delta
+refs/heads/codex/e02-cal-06-b198	325d405aa16041c06338b5089578a3cd6332a4dd	2026-09-22T10:32:42+03:00	fix(cal-06): preserve heuristic covariance compatibility
+refs/heads/codex/e02-cal06-base-probe	dd7677c7cc29d121f3c3763a43b5c87912ba5223	2026-09-22T07:30:12+03:00	Merge branch 'codex/e02-acq-01' into codex/safe-workspace
+refs/heads/codex/e02-can-01	bc3911f0f072cd253efb5254a5285f61352c118f	2026-09-21T15:47:30+03:00	style(can-01): separate test import groups
+refs/heads/codex/e02-cas-01	e0d8a9265f51d6bb1659648e104f3ef60332fa59	2026-09-21T13:35:25+03:00	fix: enforce CAS first-writer integrity
+refs/heads/codex/e02-cas-02	72c38fffd6b7cfb1e1966059f721f70f9bfeb7d5	2026-09-21T16:30:36+03:00	style(cas-02): normalize test imports
+refs/heads/codex/e02-cas-02-r2	8ae1d552ec07c8db09e743abd2095d1a533c9f7a	2026-09-22T02:17:29+03:00	fix(cas): reject unowned export entries before swap
+refs/heads/codex/e02-cas-03	32b539f7c2d1e6632243228ba4287d11220eaceb	2026-09-21T16:54:31+03:00	style(cas-03): preserve ruff import ordering
+refs/heads/codex/e02-cas-03-glue	7125212eef1033e7eca1e6df5d95df8a4d896e1d	2026-09-21T17:56:05+03:00	style(cas-03): preserve ruff import ordering
+refs/heads/codex/e02-cau-01-current	1c06c9d7394fa1685afecf7ffe7ba6967d5627cf	2026-09-22T05:52:35+03:00	fix(causal): reject ambiguous unit cluster identities
+refs/heads/codex/e02-cau-02-current	7a6783f2cbbc362e4153fea5125304f6ebaff5fb	2026-09-22T07:40:31+03:00	fix(causal): make staggered inference non-authoritative
+refs/heads/codex/e02-cau-03-current	7348f51e7e17e205f287b006d6575ccff0ae1981	2026-09-22T07:38:48+03:00	fix(causal): validate RDD kernel and polynomial order
+refs/heads/codex/e02-cau-04	16d54e8b31ca327c9bc4588da0f9ab513be0bc9f	2026-09-21T22:35:02+03:00	test(cau-04): reject mismatched backend estimands
+refs/heads/codex/e02-cau-05	a272a1b966d89e2b80aac987f9f19fa2431fa201	2026-09-22T11:02:43+03:00	style(causal): format CAU-05 candidate
+refs/heads/codex/e02-cli-01	14c0ef783910e92ff78f0a83f6f3ea10027a643e	2026-09-22T14:42:25+03:00	test(frontend-register): preserve C07b history alias
+refs/heads/codex/e02-cli-01-red	62b6aaf6ba3b6adce8ec2650f667def8c5f95463	2026-09-22T13:49:50+03:00	test(runtime-client): prove openapi override and scratch output
+refs/heads/codex/e02-cli01-base-replay	882376b25ec3689092f620e23077019993498643	2026-09-22T13:29:39+03:00	Merge branch 'codex/e02-run-02' into codex/safe-workspace
+refs/heads/codex/e02-cmp-01	ff76f8a60eb15c5a6a45c8179c1330d205f49af9	2026-09-21T10:48:17+03:00	fix(composition): keep seed out of method payload
+refs/heads/codex/e02-cmp-02	20574e0a3758623221156e749b4a5b7a1f45dca1	2026-09-21T15:49:07+03:00	fix(cmp-02): validate slots by node occurrence
+refs/heads/codex/e02-cmp-03	57405dc06b4134db29f9cd37221a251bf9b3a6a6	2026-09-22T03:19:20+03:00	fix(cmp-03): make semantic preflight fail closed
+refs/heads/codex/e02-ctl-01	19405cd2a2a057290a192c09b0e117614bc5e3d5	2026-09-19T21:39:01+03:00	fix(ctl): account sentinel evaluations separately
+refs/heads/codex/e02-ctl-02-current	77caf266c0ab130472386b02894d8f65ec3d7f4f	2026-09-22T06:07:05+03:00	fix: preserve CTL-02 search state semantics
+refs/heads/codex/e02-ctl-03	d4fb677a7b64948911cd83c597e545732bd24fb8	2026-09-20T15:29:11+03:00	fix(ctl-03): preserve search budget and typed evaluation states
+refs/heads/codex/e02-cyc-01	88b34d1bf170f224d71e5d89eb8ffafa6d04947e	2026-09-20T19:40:07+03:00	test(req-01): declare owner catalog prerequisite
+refs/heads/codex/e02-cyc-02	54757681d19a69d9e675c4aee0ddcd04e2f8c7fa	2026-09-22T15:35:43+03:00	fix(cyc-02): correct legacy identity census
+refs/heads/codex/e02-cyc-03	5ac919505439ec95600d042361517cf15708a2dc	2026-09-21T13:06:58+03:00	fix(cyc): bind promotion to current basis
+refs/heads/codex/e02-cyc-04	7a48a2a3eac3458b4995bc1ba3e0e4102a2ffff7	2026-09-22T01:06:49+03:00	fix(cyc-04): refresh reentry grounding provenance
+refs/heads/codex/e02-cyc-05-b15-limits	b4e72621afdf0b6746d00df3035cce433315d3f0	2026-09-22T22:18:29+03:00	test(cyc-05): use verifier context for alias readback
+refs/heads/codex/e02-cyc-05-b29	240e78c38027c26940f043a9a6ea8f3618154577	2026-09-22T18:25:43+03:00	fix(cyc-05): preserve typed stop projections
+refs/heads/codex/e02-cyc-05-current	039388efaa4969b7b8690145de2cd28947ad9025	2026-09-22T17:30:20+03:00	test(cyc-05): replay positive receipts against source root
+refs/heads/codex/e02-cyc-05-root-red	a645c236856d086ece1b1f1a4e5e86feb994fee7	2026-09-22T17:07:34+03:00	test(cyc-05): reject unrooted depth-n receipt
+refs/heads/codex/e02-cyc-05-slice-base	9000f521bae095445ca65fd8b017960bf72eaecf	2026-09-22T15:38:13+03:00	Merge commit '54757681d19a69d9e675c4aee0ddcd04e2f8c7fa' into codex/safe-workspace
+refs/heads/codex/e02-ddm-01	2ac640c901be01971ad6af8cf93aed63a1799ce1	2026-09-19T20:16:49+03:00	fix(ddm): keep callable import type-checking only
+refs/heads/codex/e02-ddm-02	8e2e6814adc463d2bf9ae40ef48cb227c6bc06a5	2026-09-19T22:40:48+03:00	style(ddm): preserve event module spacing
+refs/heads/codex/e02-ddm-02-checker-test	34ee268f7caff865c4ff87860815b633c58bbad7	2026-09-22T23:14:47+03:00	fix(ddm): refresh validity projection on rebind
+refs/heads/codex/e02-ddm-02-model-binding	32cbcf2998c6caf832f7a29f9228037596c05b71	2026-09-23T09:02:38+03:00	fix(ddm): persist registry identity bindings
+refs/heads/codex/e02-dfi-01	0197fe58935d0721a72c26137538ac00cf9a51a5	2026-09-20T14:35:47+03:00	fix(data-forge): avoid facade owner recursion
+refs/heads/codex/e02-dfi-02	527f8551f01bb7f8cfe18d437707383d9e96cff8	2026-09-21T23:57:00+03:00	fix(dfi-02): bind core source dependencies to owners
+refs/heads/codex/e02-dfi-03-current	e8bd189d1221bafd7452e780569cb0bb8e079194	2026-09-22T05:01:52+03:00	fix(data-forge): fail closed on empty output denominator
+refs/heads/codex/e02-dfk-01	8e588cbb4b6a6460724b858a1cdf81492b8c3663	2026-09-21T12:27:23+03:00	style(dfk): format remediation test imports
+refs/heads/codex/e02-dfk-01-verify	8e588cbb4b6a6460724b858a1cdf81492b8c3663	2026-09-21T12:27:23+03:00	style(dfk): format remediation test imports
+refs/heads/codex/e02-dfk-02	45fe660b6b6d7cf8c1834197f9247de0e46ed8ce	2026-09-21T11:36:05+03:00	chore(data-forge): defer catalog source type import
+refs/heads/codex/e02-doe-01	f3e7a16fb4a372eba01f324dac0f570f5e7c9b2f	2026-09-22T11:15:33+03:00	fix(doe-01): preserve adaptive result after later failure
+refs/heads/codex/e02-doe-01-red	ec2d12f789f760ee55b50994e058e11315f9fc75	2026-09-22T10:55:47+03:00	test(doe-01): pin bounded generation and adaptive rounds
+refs/heads/codex/e02-doe-02	a53fe000dcd80e75d588407ff6e426ba7fc0ba8d	2026-09-22T12:14:54+03:00	test(doe-02): use qmc for distribution shape witness
+refs/heads/codex/e02-doe-03	a27637127ccb43a88e29131ee2fdc014a662a4da	2026-09-22T13:16:44+03:00	fix(doe-03): propagate bounded selection limits through pca
+refs/heads/codex/e02-dur-01	5c10f12060e2ebe64f7915fe7f3d3aad463b95a3	2026-09-20T00:41:49+03:00	chore: complete DUR-01 import spacing
+refs/heads/codex/e02-dur-02-current	b51e93f3313652f2b3f8188ba82dc9f3d153d3d5	2026-09-22T16:37:05+03:00	fix(dur-02): compose typed and legacy fallback limits
+refs/heads/codex/e02-eco-01-current	5fd85ab536d78e1234581f970c6c10e9877fb67e	2026-09-22T06:16:38+03:00	feat(eco): name legacy normalized income baseline
+refs/heads/codex/e02-emb-01	b815e46fe29f54765d5525d2417c2d0c2a2c2cf3	2026-09-22T00:43:46+03:00	refactor(emb-01): share academic and catalog embedding indexer
+refs/heads/codex/e02-emb-02	eda97a2e6ffd17a58b934d55bf410c4d4eaf426d	2026-09-22T03:09:25+03:00	test(emb-02): witness complete generation ref separation
+refs/heads/codex/e02-emb-02-red-r2	6f9be3312735099aa0efe7dd99975dd9d721dc81	2026-09-22T02:11:46+03:00	test(emb-02): cover selector-aware consumer cutover
+refs/heads/codex/e02-emb-02-red-r3	e8adb07eca4970096fc2d6401e63f182672fbc0c	2026-09-22T02:28:17+03:00	test(emb-02): bind consumer evidence refs to selected generation
+refs/heads/codex/e02-emb-03	0b11d828d33a3d03654b633c0a53b13426e05dde	2026-09-22T11:45:56+03:00	fix(emb): select reused vectors without eager fallback
+refs/heads/codex/e02-emp-01-current	981a1cd79387fb9f45cc5513c46674844de2afbc	2026-09-22T06:03:24+03:00	test(emp-01): assert causal artifact refusal code
+refs/heads/codex/e02-evidence-398	398c1380706bc43efef344cdd1e1527c31268b4b	2026-09-22T01:13:25+03:00	fix(cyc-04): refresh reentry grounding provenance
+refs/heads/codex/e02-exe-01-cache	fa851200706f7a86aee0b467e5a56454ac49d82b	2026-09-22T16:15:39+03:00	Merge RES-01 B63 B70 B71 bounded repair
+refs/heads/codex/e02-exe-02	6d068ca6487f954387f67414af1ab9abdbc6f9ef	2026-09-22T17:19:54+03:00	fix(EXE-02): isolate readiness state ownership
+refs/heads/codex/e02-exe-02-red	c229590dab69f9cd0ed7ff5dc33a28d479bbbfdb	2026-09-22T16:35:18+03:00	test(EXE-02): characterize readiness scheduling
+refs/heads/codex/e02-fed-01	2eebc0b2e48d42c663ae981cc92cad0dab994bdf	2026-09-20T14:19:04+03:00	fix(federation): preserve public reason compatibility
+refs/heads/codex/e02-fed-02	7d5b4f1505c8c28fe6821b147dced3dc10c1c1de	2026-09-21T15:37:30+03:00	style(federation): order FED-02 imports
+refs/heads/codex/e02-final-arch-base	66ce33174e4561743f2a3e07a58f1a584daa58ed	2026-09-23T17:59:43+03:00	merge: bind FRC-02 forecast owner model policy pair
+refs/heads/codex/e02-final-arch-repair	f93955cbbe7e9ab426eedafab605ef07daa0f94b	2026-09-23T22:53:37+03:00	style: sort generation cycle imports
+refs/heads/codex/e02-fit-01	3c9379442b8e9fec3232a7948966231fa1e72893	2026-09-21T15:38:37+03:00	style(fit): normalize FIT-01 witness lint
+refs/heads/codex/e02-frc-01	be5383e758b508d16c91bf23b29c4f9ab06d2f6f	2026-09-21T15:05:52+03:00	fix(frc): block unbound S10 calibration refs
+refs/heads/codex/e02-frc-02-ref-transport	fb466dd5b2346fe3d62b80d1bdbe971ba22158a9	2026-09-23T08:55:07+03:00	test(frc): restore healthy matrix controls
+refs/heads/codex/e02-frc02-empirical-red-r2	8d8eb907fff991028f658d8728b651a281c7254e	2026-09-23T16:27:10+03:00	test(frc): use canonical decimal threshold witness
+refs/heads/codex/e02-frc02-owner	b321cc3caf6b1996ca4fa9a13074d98a5269e691	2026-09-23T11:22:45+03:00	fix(frc): resolve report inputs before persistence
+refs/heads/codex/e02-frc02-real-owner	1e95294bce2d874fd6525c2be5e6a9854da63671	2026-09-23T17:49:05+03:00	style(frc): order forecast owner imports
+refs/heads/codex/e02-frc02-s10-bridge	25fb6b4fe91a4fe7a2dfc889353c8df48df49f25	2026-09-23T11:08:30+03:00	test: persist FRC-02 marker witness once
+refs/heads/codex/e02-frc02-s10-consumer	1ebbe3241a73b96ce6b73c8d2b9e5e6b5ae2c05e	2026-09-23T19:32:55+03:00	fix(frc): preserve legacy empirical evidence compatibility
+refs/heads/codex/e02-fry-01	8a6f82e6c954bb9a5852eb6b88456e4ff7710651	2026-09-19T15:49:56+03:00	docs(FRY-01): document canonical relocation owners
+refs/heads/codex/e02-fry-03-current	d4b8c7765a860fff960cf4716945e731ad75ff81	2026-09-22T05:09:37+03:00	refactor(FRY-03): relocate fiscal and labor execution kernels
+refs/heads/codex/e02-fry03-base-probe	5e9c6214e49c694404816096ec3b8b029e158ae7	2026-09-22T03:47:29+03:00	fix(calibration): reject source and time ambiguity
+refs/heads/codex/e02-fun-01	8d652c8628968d8624f28e51a26d2a06db8cbfe6	2026-09-20T20:54:12+03:00	fix(funnel): select exact continuation predecessor
+refs/heads/codex/e02-fun-02	0ca14b75327c4f79773095bcf70dcf838ed1c357	2026-09-21T19:34:31+03:00	fix(fun-02): distinguish missing and invalid ci width
+refs/heads/codex/e02-fun-03	da58bd54c15d526b518882a45cdb55db32ecde39	2026-09-21T22:26:42+03:00	test(fun-03): bind uncertainty witness to envelope schema
+refs/heads/codex/e02-grf-01	a502741e3678cced9bdeab45be9a6dd515b9e06a	2026-09-19T20:09:58+03:00	fix(causal): repair ADMG separation and perfect-do surgery
+refs/heads/codex/e02-grf-02	f0f22cf81f70c7037ec28a1bdd1bb5123d587a7f	2026-09-19T22:59:42+03:00	style: order causal graph imports
+refs/heads/codex/e02-grf-03	44e8f492615aa87b7e7631816db24a30c4e7c7f9	2026-09-21T22:57:14+03:00	fix(grf-03): retain unresolved PAG at discovery boundary
+refs/heads/codex/e02-hyg-02	233ad9ba5263f29b494bf908bd613ebe7adbd9a1	2026-09-22T00:04:37+03:00	style(hyg-02): consolidate Fabric import
+refs/heads/codex/e02-hyg-04	cd73f360a4130b861a523c8357641cb3cb8e4180	2026-09-21T21:23:02+03:00	fix(hyg): reconcile inventory status summary
+refs/heads/codex/e02-i2	01f3dfba07a62ad16acb96112fa772b6864cfd31	2026-09-19T13:51:48+03:00	docs: add E02 remediation agent package
+refs/heads/codex/e02-ing-01	1ed15b0e71693906e16e53a3d7958b995fdd1909	2026-09-19T16:49:25+03:00	fix(ing): admit source-backed timestamp versions
+refs/heads/codex/e02-ing-01-h1	126885e9a348b9052e57c761540311b71d89638b	2026-09-19T19:42:42+03:00	style(ing): order REST test imports
+refs/heads/codex/e02-ing-02-current	9bda7ca63b999d2f4095b7952c710504cf8513b8	2026-09-22T23:19:14+03:00	fix(ing-02): partition cursor frontier identity
+refs/heads/codex/e02-ing-03-schema-test	4e9b3f2e0ff62cefcae6342b7fb1fcec5aa14d33	2026-09-22T23:52:25+03:00	Implement B86 schema presence binding
+refs/heads/codex/e02-ing03-rebind	28d91c2ef5d50c3b5fff8fda908bb07015bd0c6c	2026-09-23T00:25:23+03:00	fix B86 CDC and binding fixtures
+refs/heads/codex/e02-integration	cf9cbee6a6b17dbeddc4a06c33df7e9bcd154983	2026-10-27T20:37:45+02:00	docs(e02): review first seven candidate packets and original criteria
+refs/heads/codex/e02-jit-01	bd949d392cca0f43c0b091af2b22c47e6fcd3d2c	2026-09-21T23:00:36+03:00	fix(jit-01): bound shared compilation flights
+refs/heads/codex/e02-lex-01	38ae8518aca8ee6721b86ba78e06caba97dc3c53	2026-09-21T11:30:08+03:00	style(lex): split aliased simulator imports
+refs/heads/codex/e02-llm-01	ef9eafef985295181bf62045625c95b03ec0dbe5	2026-09-21T22:07:53+03:00	fix: bind llm cache provenance and budget reuse
+refs/heads/codex/e02-llm-02	051dbdf2b8363c5d071007f61761fd1d2569144e	2026-09-21T23:47:01+03:00	fix(llm): remove rejected snapshot content
+refs/heads/codex/e02-mig-01	3fc84a34ee919ccb5208544af7353d1b9949f57f	2026-09-21T13:32:22+03:00	fix(mig-01): validate current policy IR payloads
+refs/heads/codex/e02-mig-02	713d2edff69fca5f9aa31f1b189ce6b5fd7c41a8	2026-09-21T16:09:49+03:00	test(mig-02): harden path migration fixtures
+refs/heads/codex/e02-mig-04-current	258eafc41df52289dec3616841efcaad78cee409	2026-09-22T06:20:45+03:00	style(mig-04): order manifest exports
+refs/heads/codex/e02-mig-05	b69685b7ec442db09860f5c561f3732437763ce2	2026-09-21T10:58:02+03:00	test(migrations): pin runtime annotation resolution
+refs/heads/codex/e02-net-01	e182bd19c40f10ea05262993480fa21d2c99cc77	2026-09-19T22:09:48+03:00	chore: remove unused cleanup state
+refs/heads/codex/e02-net-01-finalization	c6efef3f9d8ddb7894d5444af041e04cbbf65059	2026-09-22T16:19:40+03:00	fix(net-01): retain failed stream owners for retry
+refs/heads/codex/e02-net-01-finalization-red	6f92bd21c533b4ef3a2b56ba586028c449a82854	2026-09-22T16:18:39+03:00	test(net-01): cover registry owner lifecycle escapes
+refs/heads/codex/e02-net-02	c6ada1e580a20ec80d07ecbe269ef5c8d12b6671	2026-09-20T01:23:30+03:00	fix: preserve resilience state across generations and eviction
+refs/heads/codex/e02-net-02-red	d40d57133462477316cb640f86ea3901e0bc9ca9	2026-09-20T14:41:57+03:00	fix(resilience): preserve lease finalization
+refs/heads/codex/e02-obs-01	e81077ce4ad815d2c54e4106bca84c40fa485e92	2026-09-21T16:52:44+03:00	fix(obs): restore legacy runner facade aliases
+refs/heads/codex/e02-obs-02-current	e05e16f7183074ea190bc5fd90700b791e3dc064	2026-09-22T04:40:15+03:00	fix(obs-02): fail closed on missing metric cursor
+refs/heads/codex/e02-opt-01	ded00804856be30e4edf8947dc9f0f996e449453	2026-09-19T17:13:30+03:00	style: order verifier test imports
+refs/heads/codex/e02-opt-02	fc0f012a61eeb82af009b973b44c2f519794eecc	2026-09-19T21:01:20+03:00	style: order OPT-02 test imports
+refs/heads/codex/e02-opt-03	5718b5102b510453b6b39dc6f3727d192d5e376c	2026-09-22T13:52:41+03:00	test: assert raw GP inputs after conditioning
+refs/heads/codex/e02-opt-04	537124e0d35a0071c55d07342c72e7222a98cc96	2026-09-20T16:51:03+03:00	fix(opt-04): fail closed on unbound promotion inputs
+refs/heads/codex/e02-orchestration-policy	167674c7174ec56e3a88c4a0c821e6cd18bdd5bb	2026-09-21T10:07:02+03:00	docs(e02): bind runtime cap and supersession
+refs/heads/codex/e02-pcl-01	31838cda070345a3a48cf405633f7da65ecad7dd	2026-09-20T16:53:31+03:00	fix(calibration): make empty interval evidence fail closed
+refs/heads/codex/e02-plg-01	72ca933a387a57ca67032c00a02958c72a25816f	2026-09-21T12:27:48+03:00	style(plg-01): order witness imports
+refs/heads/codex/e02-plg-02	e9ab35ab97d305e5e6ed0bc8504856dd2aec7229	2026-09-21T11:57:03+03:00	fix(plugins): report pending training capability
+refs/heads/codex/e02-plg-03	79c2d82aaac8010bab3dddbca51299c7ae8b246c	2026-09-21T20:28:31+03:00	docs(architecture): refresh generated public surface
+refs/heads/codex/e02-r1-n4-v3	cc1b9adaf987355429ef14318ec08d6429f5bd71	2026-09-28T02:01:10+03:00	R1: bind grounded N4 outcomes to owner context
+refs/heads/codex/e02-r1-r5-candidate	77739ce13d46d30beb84b8e0202f7b935f3d5c22	2026-09-26T09:44:04+03:00	fix(R1): keep served N4 unavailability typed (removal probe)
+refs/heads/codex/e02-r1-scope-admission	6c7168566d51b22a4de8c0895c18291b3c697ca4	2026-09-27T10:52:02+03:00	B72: preserve native distributed outcome status (79/80 full-file witness)
+refs/heads/codex/e02-r11-owner-admission-candidate	43d4f47838087476d9d26d78aeb244a6d1cd6d6c	2026-09-26T23:38:00+03:00	docs(P118): reconcile 118 triage rows in 282-item ledger
+refs/heads/codex/e02-r13-exact-projection-candidate	fba62c46dba85abfb3e94fb818bb26d6a56d7a0a	2026-09-28T01:19:53+03:00	R13 exact-member projection; four persisted probes green
+refs/heads/codex/e02-r13-g-candidate	a3b22ccfee0d40f35710826a5df41de4fc62f3fb	2026-09-26T16:16:20+03:00	R13-G: record bounded WMR/NCM custody residual
+refs/heads/codex/e02-r2	69780761ae091d8fcc6ab8778c7f5f7227eeef0b	2026-10-04T19:57:26+03:00	docs: preserve post-E02 research proposal and transfer evidence
+refs/heads/codex/e02-r2-b111-candidate	2b548c4494bfe6cb8dbb274008c36f7038023213	2026-09-30T02:56:49+03:00	B111: isolate codec rejection probes
+refs/heads/codex/e02-r2-b72-distributed-status-candidate	43d4f47838087476d9d26d78aeb244a6d1cd6d6c	2026-09-26T23:38:00+03:00	docs(P118): reconcile 118 triage rows in 282-item ledger
+refs/heads/codex/e02-r2-clean-replay	44a7441eba7ad92eb6b95a767e14f0dbe61f27b3	2026-09-28T15:22:44+03:00	R12/R13: reenter N5 after N7 write with unknown grounding witness
+refs/heads/codex/e02-r2-decisions	35f5cd027e84932b34e7b19629e05f98bbdc9c8b	2026-09-25T07:53:45+03:00	docs(R5,R2): correct mode gates and census verdicts
+refs/heads/codex/e02-r2-held-review	754357d1da10653c41be55f0c8d93b8802550741	2026-09-24T23:48:40+03:00	docs: qualify H14 census and queue witnesses
+refs/heads/codex/e02-r2-ledger	f857fa5aea53d286059d862ee1c265c9f5ca2dae	2026-09-25T09:26:52+03:00	docs(L): remove stale P41 archive citation
+refs/heads/codex/e02-r2-partial-triage	df41697294892bdad36f9b00d3728479f87c66ea	2026-09-25T00:05:08+03:00	docs(FWC-01): define partial positives and scan uniqueness
+refs/heads/codex/e02-r2-r1-candidate	364560e21d9333a007f92e19f2fd3ac5b1ffff9d	2026-09-29T07:31:52+03:00	R1: replay completed candidate N6 and N5 evidence
+refs/heads/codex/e02-r2-r1-candidate-scenario	75658e7038e919b51f6238768064e1cee67e5682	2026-10-01T21:20:28+03:00	R1: align candidate profile with typed outcome witness
+refs/heads/codex/e02-r2-r1-sim-gateway	a2143a4e1c2fe436a9d357dab5f7966cbc693ad1	2026-09-29T20:09:41+03:00	fix(runtime): preserve R2 S8 history across N6 currentness changes
+refs/heads/codex/e02-r2-r13-basis-candidate	5298576408bf3d106f2484bdf5763c85bd04ffaa	2026-09-27T10:18:57+03:00	R13: bind WDI constraints to revised basis
+refs/heads/codex/e02-r2-r13-selected-row-candidate	44e35ecd95a3b12d9fe98b3475aaae7ac7f26f68	2026-09-29T23:31:39+03:00	Merge latest E02-R2 integration before R1 fixture correction
+refs/heads/codex/e02-r2-r13-store-candidate	dd2e9476b055bd53b727d38064f08b00738ad97e	2026-09-25T21:56:22+03:00	fix(R13): route fetch custody through runtime store
+refs/heads/codex/e02-r2-r13-w1-owner-bridge	3c355bd0fc7137e1efed374d095a88fb71f83134	2026-09-29T23:17:23+03:00	R13-W1: read v2 context bytes inside tenant scope
+refs/heads/codex/e02-r2-r9-candidate	580dc1ab0a98bd77322d3dcfe9c7201fe2818c48	2026-09-25T23:23:09+03:00	fix(R9): preserve v1 ownership signature history
+refs/heads/codex/e02-r2-r9-gpr-v4-candidate	834c9fbc99f70348081953ee907c20e19b0142b8	2026-10-02T19:56:25+03:00	R9 refuse revoked-closure recovery before replay; both owner-path witnesses
+refs/heads/codex/e02-r2-r9-publication	0e987eaf03dbd5cfc51c7ec6f28bacb47d0ddf8b	2026-10-02T13:04:44+03:00	R9: sort GPR witness imports for Ruff I001
+refs/heads/codex/e02-r2-retired/e02-r13-dirty-fresh-snapshots-20261004T112245Z	8b5067c7a09d1433fdcf69726d7c912f58e03136	2026-10-04T14:23:00+03:00	Archive E02-R2 inactive e02-r13-dirty-fresh: exact 2-path preservation
+refs/heads/codex/e02-r2-retired/e02-r13-p41-snapshots-20261004T112245Z	0a00a1f478d3c118408dfefcb75d582ceb2f7873	2026-10-04T14:22:59+03:00	Archive E02-R2 inactive e02-r13-p41: exact 2-path preservation
+refs/heads/codex/e02-r2-retired/e02-r2-clean-probe-snapshots-20261004T112245Z	c1e3dd5137df6e0e52f55971ee98eecbf643dd18	2026-10-04T14:22:59+03:00	Archive E02-R2 inactive e02-r2-clean-probe: exact 10-path preservation
+refs/heads/codex/e02-r2-retired/e02-r2-n7-snapshots-20261004T112245Z	f0fae836d613850bd4fe5d0b38bc783e9a117b83	2026-10-04T14:22:59+03:00	Archive E02-R2 inactive e02-r2-n7: exact 2-path preservation
+refs/heads/codex/e02-r2-sta-timeout-candidate	689acc0c27595cad8bf91fdee021be0fe9bc80aa	2026-09-28T01:09:24+03:00	E02 R2 STA gate workflow report status at persistence
+refs/heads/codex/e02-r4-candidate	20c057d918a385621598b428603586152afc41b4	2026-09-25T21:23:32+03:00	R4: reuse invocation source census in N6 mutations
+refs/heads/codex/e02-r4-validator-r4fix	cb9be63067a519f03f35a8606859bc1539a1eae6	2026-09-27T23:28:48+03:00	R4: preserve conditional N9 validator witnesses
+refs/heads/codex/e02-r9-cache	c886f63b3eec45377476f154b94eeb5eac7253d1	2026-09-29T01:45:41+03:00	R9: require owner admission for exact cache reads
+refs/heads/codex/e02-remediation	5fd3ebcc15637e98bbd4938de5d62ee5004504a8	2026-09-17T18:20:36+03:00	docs: regenerate the debt ledger after the CV-DR decision appends
+refs/heads/codex/e02-rep-01	6ccd51e65dce00664b9cafb12c516c49033a9805	2026-09-21T13:32:59+03:00	test: clean REP-01 witness lint
+refs/heads/codex/e02-req-01	1dca66fd4a66018e718fafcde14c938738a9957f	2026-09-19T23:28:16+03:00	fix(data-requirement): separate scenario context from proposals
+refs/heads/codex/e02-req-01-r2	5610eba4f2a9cacd308265df8cbd1c524cbc941b	2026-09-20T20:17:07+03:00	fix(data-requirement): separate scenario context from proposals
+refs/heads/codex/e02-req-baseline	c1a295c7b2b23446ba6794e43578527d73ffcb8f	2026-09-20T19:56:49+03:00	test(req-01): declare owner catalog prerequisite
+refs/heads/codex/e02-res-01-current	6f8d042b0a4305f5197becaa120756572e449847	2026-09-22T16:10:23+03:00	fix(RES-01): skip registry lookup for completed resume
+refs/heads/codex/e02-res-01-red-r2	0d80514dfa4d53be6264d403fad9451e00ecaddb	2026-09-22T15:54:58+03:00	test(RES-01): pin incomplete state and ref identity
+refs/heads/codex/e02-res-02	ec412aff12bd09982e47c123a21eee4201162763	2026-09-21T20:23:32+03:00	test(res-02): use valid deterministic artifact references
+refs/heads/codex/e02-res-03-reuse	faaf0b67b2b70bdae7de5e4b973cf369eeb4811b	2026-09-22T17:58:36+03:00	fix(res-03): retain async partial results on failure
+refs/heads/codex/e02-res-03-route	a5db9c55d1dde6b5a45ce3dfb25e702973299de5	2026-09-23T08:06:50+03:00	reject conflicting duplicate simulation refs
+refs/heads/codex/e02-res-04-current	1890423d1cee79baaaf25fdba0e2c3b358a4a4d0	2026-09-22T05:35:05+03:00	test(res-04): retain native contract assertions
+refs/heads/codex/e02-retired-e02-b26-served-consumer-bridge-20260929-base	604a38e78e4f1ea479384f8a20aa367a655fcd05	2026-09-30T17:05:54+03:00	docs(E02-R2): lease B61 typed ref cache replay witness
+refs/heads/codex/e02-retired-e02-b26-served-consumer-bridge-20260929-draft	60e86a29c70332c0d5caac5d96bccbf4a4653424	2026-10-05T21:02:17+03:00	Retain existing e02-b26-served-consumer-bridge-20260929 source from obsolete scratch checkout
+refs/heads/codex/e02-retired-e02-b72-distributed-status-20260927-draft	d47ee070bf8a67c8ee8094b72c3cf7f9eb062e3b	2026-10-05T21:02:17+03:00	Retain existing e02-b72-distributed-status-20260927 source from obsolete scratch checkout
+refs/heads/codex/e02-retired-e02-r1-filter-only-20260927-base	077147d86af4f55c542c9344a3fcbc11e48ac836	2026-09-27T16:25:50+03:00	B219: key parallel edges (2 controls; NetworkX UNRUN)
+refs/heads/codex/e02-retired-e02-r1-positive-bridge-code-20260927-draft	25ce5321896e4825b7465bd1872e420f01bdef37	2026-10-05T21:02:17+03:00	Retain existing e02-r1-positive-bridge-code-20260927 source from obsolete scratch checkout
+refs/heads/codex/e02-retired-e02-r11-owner-admission-20260927-draft	397a449e3d251abafba30bd52d392a0ecb7a22ee	2026-10-05T21:02:18+03:00	Retain existing e02-r11-owner-admission-20260927 source from obsolete scratch checkout
+refs/heads/codex/e02-retired-e02-r11-owr-projection-20260926-base	43d4f47838087476d9d26d78aeb244a6d1cd6d6c	2026-09-26T23:38:00+03:00	docs(P118): reconcile 118 triage rows in 282-item ledger
+refs/heads/codex/e02-retired-e02-r11-owr-projection-20260926-draft	ad28258e29350ca09da46b488059a35622d60d36	2026-10-05T21:02:18+03:00	Retain existing e02-r11-owr-projection-20260926 source from obsolete scratch checkout
+refs/heads/codex/e02-retired-e02-r11-shared-blocked-624-20260927-base	624a5f1e2e24959ab8c7ddf6a0ccc2f62b9202c4	2026-09-27T18:55:13+03:00	R2: separate replay from deployment currentness (history 26/26; issuer UNRUN)
+refs/heads/codex/e02-retired-e02-r11-shared-blocked-624-20260927-draft	8f3d9753b476b3fcee575f0db0eb03ed890d3566	2026-10-05T21:02:18+03:00	Retain existing e02-r11-shared-blocked-624-20260927 source from obsolete scratch checkout
+refs/heads/codex/e02-retired-e02-r13-wdi-basis-20260927-draft	63e21470e0cf80fb1fc844a52be3c6b4f429486e	2026-10-05T21:02:18+03:00	Retain existing e02-r13-wdi-basis-20260927 source from obsolete scratch checkout
+refs/heads/codex/e02-retired-e02-r9-cas-owner-first-candidate-20260930-base	bedc23d74c858371e4cf2a079a0dfb38ec7620a8	2026-09-30T02:45:18+03:00	R13/B12 lease controlled N5 state consumption witness
+refs/heads/codex/e02-retired-e02-r9-cas-owner-first-candidate-20260930-draft	20692bbe35f4bab1bdcacc9b6d4268e4f7df51aa	2026-10-05T21:02:19+03:00	Retain existing e02-r9-cas-owner-first-candidate-20260930 source from obsolete scratch checkout
+refs/heads/codex/e02-retired-e02-r9-foundry-selected-view-candidate-20260927-base	077147d86af4f55c542c9344a3fcbc11e48ac836	2026-09-27T16:25:50+03:00	B219: key parallel edges (2 controls; NetworkX UNRUN)
+refs/heads/codex/e02-retired-e02-r9-foundry-selected-view-candidate-20260927-draft	375b090b95a867a3b5aca102bd2d2b015f5d8cec	2026-10-05T21:02:19+03:00	Retain existing e02-r9-foundry-selected-view-candidate-20260927 source from obsolete scratch checkout
+refs/heads/codex/e02-retired-e02r2-b88-served-replay-20260926-base	02b7f5e3c63d42d8a76bc1760d84ee9136375579	2026-09-26T19:31:14+03:00	fix(LA-049): remove unreachable IR self-edge; 38 migration witnesses pass
+refs/heads/codex/e02-retired-e02r2-b88-served-replay-20260926-draft	f7f9484bc2cb816913995f0d68d9af9338297c4d	2026-10-05T21:02:19+03:00	Retain existing e02r2-b88-served-replay-20260926 source from obsolete scratch checkout
+refs/heads/codex/e02-retired-mig02-readback-tests-20261005	0ec18c55ce3abdebe198987374e803c7f9b45912	2026-10-05T16:54:29+03:00	test(runtime): exercise migration readback and recovery
+refs/heads/codex/e02-retired-r1-20261005	fd00ddba8f4c36b43aef8c28c5f9173334970e32	2026-10-05T21:02:16+03:00	Retain existing R1 draft from retired scratch checkout
+refs/heads/codex/e02-retired-r1-context-20261005	59586f8303dbbd72d1cecafd66069c84d9c2a333	2026-10-05T21:02:16+03:00	Retain existing R1-context draft from retired scratch checkout
+refs/heads/codex/e02-retired-r1-l4-period-coverage-20261005	75a095b0752db290b0fa7f8a1ee676c89233880e	2026-10-05T20:43:42+03:00	Retain existing r1-l4-period-coverage draft from retired workspace
+refs/heads/codex/e02-retired-r1-n3-store-boundary-20261005	94571bd8d506a09719c3e2cf0c0cde70dc4b3f32	2026-10-05T20:43:42+03:00	Retain existing r1-n3-store-boundary draft from retired workspace
+refs/heads/codex/e02-retired-r2-s8-20261005	66136425e697acaa6fb75f5a58c32b844cf8c77d	2026-10-05T21:02:16+03:00	Retain existing R2-S8 draft from retired scratch checkout
+refs/heads/codex/e02-retired-r5-20261005	b72c7c8dc0f2cdf2d9355386b0e55c005357bf1f	2026-10-05T21:02:16+03:00	Retain existing R5 draft from retired scratch checkout
+refs/heads/codex/e02-retired-r9-20261005	5fb35d303aa5745af50410f2a9ba14ef84961bf0	2026-10-05T21:02:17+03:00	Retain existing R9 draft from retired scratch checkout
+refs/heads/codex/e02-retired-r9-base-20261005	5efe61758e2b49ebb95d38bf15457f9846f8b78e	2026-09-30T08:41:30+03:00	R9 scratch base from 8765436bb
+refs/heads/codex/e02-retired-scm-doc-companions-20261005	285f0b6787e458d0877b4349dcf6386b498a39aa	2026-10-05T20:50:39+03:00	Retain existing SCM schema and documentation companions from retired workspace
+refs/heads/codex/e02-run-01	668e091fb32eaff11a1fa3744331aef9a6a251fc	2026-09-19T18:51:24+03:00	test: strengthen RUN-01 revocation red boundary
+refs/heads/codex/e02-run-01-authority	0e23adcca7db84f866196453da8e50e3a89f7812	2026-09-22T12:14:04+03:00	test(run): reopen executor for late-write control
+refs/heads/codex/e02-run-01-authority-red	a91e5c9e098a5b66f7c77ff04fdc4096f065f353	2026-09-22T11:32:16+03:00	test(run): make async late-write witness noncooperative
+refs/heads/codex/e02-run-02	5fe9b0b5cde627dfc57a42a1827ae4efb6814fb6	2026-09-22T13:24:21+03:00	fix(scientist): fail closed on unknown worker group
+refs/heads/codex/e02-run-03	dfe9ff615f6b7b4b4bd8047267f547dffbae3042	2026-09-22T14:52:03+03:00	fix(run): project spend from returned failures
+refs/heads/codex/e02-scl-01	6486e6a6b65d75f9ea039032d72628e5c58cf439	2026-09-20T15:46:13+03:00	fix(async): preserve inner blocking timeouts
+refs/heads/codex/e02-scl-03	e25b3c8db2e39b3d29e922bd27403d2787fa4b89	2026-09-21T15:47:33+03:00	chore: align SCL-03 import formatting
+refs/heads/codex/e02-scm-01	0e65b08e87c17ed909f003b5473bbafd3980362b	2026-09-22T00:12:46+03:00	style(scm-01): apply scoped ruff cleanup
+refs/heads/codex/e02-scm-02	47726a74e14fc96fec7cf8d0ed817cf2095367a0	2026-09-22T04:02:59+03:00	chore(scm-02): preserve mixed generated drift diagnostic (not release)
+refs/heads/codex/e02-scm-02-arch-base	52354f6c4af5bb43b63b646c26ab4456d3819754	2026-09-22T19:36:31+03:00	test: preserve BKT-02 v1 payload compatibility
+refs/heads/codex/e02-scm-02-current	559bfc4569b30a1593d7791eea7632d0e3b3f0ae	2026-09-22T18:26:16+03:00	test(scm-02): prove both stochastic contrast arms
+refs/heads/codex/e02-scm-02-release	d818f82a0adb2931a4c2b6b4884c1148ff538705	2026-09-22T20:22:43+03:00	docs(scm-02): record reviewed release companions
+refs/heads/codex/e02-scm-03-test-only	14cc580fffdd6357df6e12154ccaf58bcf445a79	2026-09-22T21:16:16+03:00	fix(scm-03): isolate logical query random streams
+refs/heads/codex/e02-sel-01	6a391aecc4e8bb51aa07abcffec66f186b331ef4	2026-09-19T17:02:01+03:00	test(selection): scope owner contract assertion
+refs/heads/codex/e02-sim-01-next	0af60cb59cb49edcb93ebdc3b96da3cd6e877a2a	2026-09-22T00:16:01+03:00	fix(sim): aggregate no-run candidate posture
+refs/heads/codex/e02-sim-02	dd17d149028de02adc2037d037caae3516d9a909	2026-09-21T13:13:08+03:00	fix(sim-02): preserve typed simulation boundaries
+refs/heads/codex/e02-sim-03	f73360bca875bd2706dfcaf1f29097339bc59dfe	2026-09-21T21:37:52+03:00	style(sim-03): separate third-party and local imports
+refs/heads/codex/e02-srv-01	f293396e5a5bc2ec49f1d8dbf9165bdf6ec7bcf8	2026-09-21T18:25:30+03:00	fix(srv-01): honor disabled stage A in tell counters
+refs/heads/codex/e02-srv-03	092b80374879d160cc7349890e202e03c4bcbe9a	2026-09-22T07:21:01+03:00	fix(srv-03): reject falsy candidate identities
+refs/heads/codex/e02-sta-01	13c4af3f3fc9d062a050b49b9a3892ba38d04d01	2026-09-19T17:07:43+03:00	fix(sta-01): bind replay journals and target preconditions
+refs/heads/codex/e02-sta-02	a239f6f453dc4b6d54baa0cb22bbc8ffafb149e5	2026-09-19T21:59:17+03:00	test(sta-02): repair bridge observation and import ordering
+refs/heads/codex/e02-sta-02-b60-b62	3d9f5328b90115d93777f53cd8f421471e0e9f95	2026-09-22T12:36:39+03:00	fix(sta-02): bind domain and prove bundle reuse
+refs/heads/codex/e02-stp-01	7798c5fc6ab4b15a5fd1c5f3d3f830ee162ef383	2026-09-20T21:18:21+03:00	fix(stp): bind embeddings to compatible provenance
+refs/heads/codex/e02-str-01	36e864a8c4c4279409302b485b2582166f2347fa	2026-09-20T21:48:41+03:00	fix(str): fail closed on invalid stress outcomes
+refs/heads/codex/e02-trn-01	135288c6b8004becd45ee3c6273ea21a3abd60d4	2026-09-20T16:39:20+03:00	test(trn-01): use valid artifact ids in warm-start witness
+refs/heads/codex/e02-trn-02	5bc496c3b12c0b6a2166a189aefa5a52877bb323	2026-09-22T11:22:13+03:00	fix(TRN-02): bind transfer histories and publish native generations atomically
+refs/heads/codex/e02-trn-03	3181beff705ea7af603b7170d7ddaf95ecc16247	2026-09-19T23:40:36+03:00	fix(trn): preserve lesson transfer semantics
+refs/heads/codex/e02-udf-01	e18c23f3becd6827640d2b6d2d11caac56771612	2026-09-21T11:52:59+03:00	style(data-forge): split UDF contract imports
+refs/heads/codex/e02-udf-02	e7dc16551fb49a17f890f2d12f8564644bd323c7	2026-09-21T20:16:04+03:00	style(data-forge): sort typing imports
+refs/heads/codex/e02-udf-02-baseline	835f5cc33681dc08f7c93279978e9a9a38a5cd3a	2026-09-21T18:42:02+03:00	test(data-forge): characterize UDF-02 builder move
+refs/heads/codex/e02-udf-04	26c014f88c6c3a05bbeaafcac5032d69e652bb25	2026-09-21T13:41:35+03:00	chore(udf-04): normalize lint imports
+refs/heads/codex/e02-udf-05	b7c726839bf106d1c15b035f0e144b2fe2f475bc	2026-09-21T15:47:49+03:00	style(udf-05): match ruff import grouping
+refs/heads/codex/e02-unified-local-20261009	87cd7f41303d0df4e962ef510badd733fdab4f9b	2026-10-30T14:28:02+02:00	docs(e02): record current local proofs and loaded execution decision
+refs/heads/codex/e02-uqp-01	e4fab34506ec3366a860b30cdab3050e792d209b	2026-09-21T12:51:23+03:00	fix(uqp): type callable sensitivity metadata
+refs/heads/codex/e02-uqp-01-rebind	90409a5b47118bfb80b902f8ddb5984bc5db28d9	2026-09-22T01:22:11+03:00	test(uqp-01): add uncertainty failure witnesses
+refs/heads/codex/e02-uqp-02	4a7d06ea5417f9413c976743d2d46dcef897d863	2026-09-22T02:12:09+03:00	fix(uqp-02): preserve joint uncertainty laws
+refs/heads/codex/e02-uqp-02-candidate-r2	f4fa9b9bc1696069db8b4a99bb6887d3d41097b9	2026-09-22T02:37:07+03:00	test(uqp-02): use valid Monte Carlo fixture limits
+refs/heads/codex/e02-uqp-02-red-r2	3bc34f01773eedcc4bee2950f696d6ce8f7d925d	2026-09-22T02:05:04+03:00	style(uqp-02): normalize witness imports
+refs/heads/codex/e02-uqp-03-current	26de9ea9e96c2bb66bcdff3c7ffcfddd71ed33df	2026-09-22T04:55:43+03:00	fix(uqp-03): honor adaptive checkpoint boundaries
+refs/heads/codex/e02-uqs-01	1f3eda2e3dc22321a706567fe68a200c91142c78	2026-09-22T12:33:51+03:00	test(uqs-01): bind native aggregation fixtures
+refs/heads/codex/e02-wire-01	3cc7d2cb0484662196a934a0cd38dcfb40fea2d5	2026-09-21T10:38:22+03:00	test(wire): satisfy test style guards
+refs/heads/codex/e02r2-can01-audit	e3e16b9dc97e4a68b28486504783b2d816e3e39f	2026-09-24T23:48:05+03:00	docs(P41): bind D2 witness to persisted registry
+refs/heads/codex/epoch-positive-path	56cc6cd5d758ffb32698ffaf50ac9968eb86330a	2026-09-12T23:41:58+03:00	Record epoch positive path verification and precise decision handoff
+refs/heads/codex/governed-public-record	415622fcf2df5eba339b8bb39ddf89b036295398	2026-09-12T22:30:39+03:00	docs: record governed publication verification and bounded handoff
+refs/heads/codex/group-a-analysis	28c1152d49f191eacba33fe3567a2886b9a00dd4	2026-09-11T15:59:00+03:00	docs: retain branch readback procedure for group-A handoff
+refs/heads/codex/gy-ambiguous-census	be0dec8fdd0e2351df4e88a373fc5b7d5ab57138	2026-09-08T10:50:39+03:00	docs: record GY decisive-property measurement census
+refs/heads/codex/gy-builders	e1a9d11e8d75752acd42e182fde92dffb2f93468	2026-09-10T10:22:40+03:00	docs: record GY builders verification and refused claims
+refs/heads/codex/gy-cr4-denominator-seam	59aa994e6eca3da1681741cc497c73581dde488e	2026-09-02T14:26:43+03:00	docs: record epoch denominator reconciliation
+refs/heads/codex/gy-def1-def4-repository-defects	b66bf3f829bbad1aed8cc5462abeb84388d3c45e	2026-08-19T13:47:16+03:00	fix(scientist): close GY-DEF3 checkpoint scope
+refs/heads/codex/gy-def19-ranked-value-authority	286600139e8250ffb224f5a4683475f04283afb7	2026-08-20T19:19:30+03:00	docs: correct GY-DEF19 artifact attribution
+refs/heads/codex/gy-def22	0dda8be515c588b326bb5253ca40eb825f0d46f2	2026-08-20T19:57:14+03:00	plan(gy): fold GY-GAP7 into GY-PA1 as its first cluster; re-measure PA1 executability
+refs/heads/codex/gy-def22-environment-discriminant	5241bcd46025f7dd7d04aac76e4e85bb5d819e09	2026-09-04T10:53:58+03:00	docs(gy): record Foundry DEF22 adjudication
+refs/heads/codex/gy-def4-time-source-authority	c58ed658f7e5eb2a5d94a1fa5eca83bee4f8e336	2026-08-19T22:07:14+03:00	docs(gy): record DEF4 governed reissue closure
+refs/heads/codex/gy-def6-e11	ba5946ebc70bb63f30e4776d0426e19f37dffd31	2026-08-09T20:24:27+03:00	wip(successor): bind authority callable slots
+refs/heads/codex/gy-def7-12-standing	e6696021567d030b002ecc3145c1679c7543d16b	2026-08-18T14:43:10+03:00	docs(gy): record DEF7-12 standings
+refs/heads/codex/gy-def9-verification-witness	5044b8ae917f791ea24bd48131a12091aeab2257	2026-08-18T21:20:05+03:00	test: compare depth owner projection bytes
+refs/heads/codex/gy-defc-3-retry	25d7718f6b219e572f4fa0d49593acf91f44b522	2026-08-18T12:01:03+03:00	docs(gy): record pre-cold provenance stop
+refs/heads/codex/gy-defc-9-n11-suffix	cdf2186bbd298a8ca0873b79db8b8d4690787da0	2026-08-19T12:05:59+03:00	docs(gy): record zero-issue cold N11 suffix
+refs/heads/codex/gy-di1-deployment-identity	0fc36511d30805810ea6e1c3c62adcdf13166a6b	2026-08-20T12:22:40+03:00	docs(gy): record deployment identity closure
+refs/heads/codex/gy-eight-gaps	71280aa83b1abfb3c61342ba75ecd637a0b0446c	2026-09-09T23:23:17+03:00	docs(gy): record eight-task delivery and branch readback
+refs/heads/codex/gy-gap1-obligation-instance-identity	82a0460818fda383f292ced9114cf2821a959488	2026-08-19T23:59:36+03:00	docs(gy): close obligation instance identity gap
+refs/heads/codex/gy-gap4-run-terminality	4147384c8951930190076263c8b99672d7352023	2026-08-16T20:21:45+03:00	docs(gy): withdraw the branch plan copy; GY-engine-subordination.md has one owner on main
+refs/heads/codex/gy-grade-authority	68689784a85c7bb7de4311440db2542ebdfabd73	2026-09-08T01:21:02+03:00	fix(gy): replay exact source requests before acquisition grades
+refs/heads/codex/gy-group-a-generated-client-seam	dd3fbb58baca023ab8e01b683e3e1f964d2d25e5	2026-08-21T12:06:40+03:00	fix(atlas): close remaining generated client anchors
+refs/heads/codex/gy-lattice-and-custody	035d8dae899c7825cba10c9cf857aeecf0ffcda5	2026-09-10T16:19:13+03:00	docs(gy): record lattice delivery and AS1 architecture blocker
+refs/heads/codex/gy-n12-c1-foundry	f2c202997ad10a412dcab1de19e15bd8b1c63912	2026-08-23T23:23:25+03:00	feat(foundry): bind and carry admitted dependency profile identity
+refs/heads/codex/gy-n12-c2-chronology	3df606d5187c24f9de4c4d404f8fd5a71cfd3b13	2026-08-24T14:20:20+03:00	feat(chronology): add owner-qualified conformance consumer and two native witnesses
+refs/heads/codex/gy-n12-c3-anchor-custody	837a7641eb8da31fd945c991f9670eb32d01a1f4	2026-08-24T18:02:01+03:00	feat(chronology): separate anchor acceptance from custody without appointing either owner
+refs/heads/codex/gy-n12-c4-epoch-validity	b99152069797a6f0e3fb10432a97015432dd8a50	2026-08-26T21:12:49+03:00	docs(debt): register GY-N12 pre-merge timing debts
+refs/heads/codex/gy-n12-epoch-chronology	1362c499c80ddddd0b821ff20e6f3cd8584b9c3c	2026-08-22T22:54:12+03:00	Merge branch 'main' into codex/gy-n12-epoch-chronology
+refs/heads/codex/gy-o0-attempted-evaluation-safety-execution	2d95e0773e5296e43d622697f34e2ac84d6f6b18	2026-08-28T16:05:54+03:00	docs(plan): record GY-O0 boundary repair receipts
+refs/heads/codex/gy-o0-attempted-evaluation-safety-plan	39d8f0293d24d55f9be66b506d227d9270e7eddf	2026-08-27T22:53:36+03:00	docs(plan): narrow GY-O0 N9 stop
+refs/heads/codex/gy-pa1-foundability-probe	6104d7e178712d07768613f36cf867915bdebf16	2026-08-20T07:55:35+03:00	docs(gy): record PA1 foundability probe
+refs/heads/codex/gy-pa2-delegation-gate	6c1a90c33f3ce4944b5eb5fc9b6e89531b77bde2	2026-08-20T08:00:34+03:00	docs(gy): close PA2 inherited provenance defect
+refs/heads/codex/gy-pa3-compression-loss-ledger	aeb7328515fef224a5f44978f6d3739bce5b5b37	2026-08-19T23:05:00+03:00	docs(plan): record GY-PA3 standing
+refs/heads/codex/gy-phase5-execution	43ee5016f70d90b9bafa395c7d20923d79dc1e4f	2026-09-08T16:38:39+03:00	Record measured Phase 5 terminal states and final verification
+refs/heads/codex/gy-pr1a-data-only-promotion	59f81a58385dcfc1323618df7d5f7b150811dba0	2026-09-02T17:00:46+03:00	docs(gy): close data-only promotion route
+refs/heads/codex/gygaps-lane-base	43580c80b8761d4aecb34ee3300f64d389be80c8	2026-09-08T17:07:02+03:00	docs: narrow the correspondence rule to its two real members
+refs/heads/codex/gyphase5-lane-basecheck	3d572c146f9d021cb6daad64ebb7b093121ed124	2026-09-08T11:22:32+03:00	docs: transcribe the ambiguous-task census and register what it found
+refs/heads/codex/import-governance-six-register-report	2988008176d3c6ed4fa7649593c01f8c0b6621f7	2026-08-24T11:10:27+03:00	governance: adjudicate import violations and repair register
+refs/heads/codex/import-policy-18-class-adjudication	a86d8983f694a9032a13b858f39d51e437436d36	2026-08-26T11:27:25+03:00	research: adjudicate import edge classes
+refs/heads/codex/import-policy-register-generated-matrix	f1f6046e11f39a95c789b384ce66808b9f44d602	2026-08-26T12:41:41+03:00	architecture: check import matrix projection readiness
+refs/heads/codex/import-relocate-data-forge	06429ecf1bc6b1848f41b85b7178789f17c2382e	2026-08-27T16:44:43+03:00	chore(architecture): ratify relocation import baseline
+refs/heads/codex/import-relocations-nine-seams	5af800679723e12b57cd13f0474ac94b967f16b9	2026-08-28T04:08:12+03:00	chore(architecture): record import relocation closeout
+refs/heads/codex/instrument-honesty	b44ffa8cb3ceaa1a55a74c3a50eb596fbd1c5ff2	2026-09-11T14:04:29+03:00	docs(instruments): record final coverage and bounded row verdicts
+refs/heads/codex/instrument-station-independence	9776fe348f7073e47ede54ccaa3b7572c6c973e8	2026-09-07T12:16:17+03:00	docs: record instrument repairs and final station receipts
+refs/heads/codex/layer-vintage	a37254c055f81d5630cc5d55a003a2b59209a7cf	2026-09-07T16:03:39+03:00	fix: refuse shard merges that lose confidence vintage
+refs/heads/codex/measurement-lies-debt-bundle	7615c002a437f4ddfe471365ce2aa9c962981c3a	2026-08-26T15:01:24+03:00	fix: repair measurement debt checkers
+refs/heads/codex/measurement-plane	ba4fb86fc286aa7f6b8689a18b7e682e498a8ec5	2026-09-12T14:41:08+03:00	docs: close measurement plane with complete gate verdicts
+refs/heads/codex/measuring-apparatus	4140a2389a232470c14f7a5c1d6dbbe83f14746c	2026-09-10T19:46:09+03:00	docs: record apparatus cold-station verdicts and routed findings
+refs/heads/codex/measuring-base	0373364448f766ecba871f3abae23a2b563e63ac	2026-09-06T14:44:55+03:00	docs(debt): the checks are wired — CI has just never seen 365 commits
+refs/heads/codex/measuring-instrument	10d84e5ccd988b566c11de209ac3203c1af14bce	2026-09-06T17:52:31+03:00	docs: record schema station proof and CI push handback
+refs/heads/codex/measuring-station-a	f69400b1f00e58d241aa68acf46c5af269d17057	2026-09-06T15:19:58+03:00	fix(tools): recompute schema evidence before trusting station caches
+refs/heads/codex/measuring-station-b	f69400b1f00e58d241aa68acf46c5af269d17057	2026-09-06T15:19:58+03:00	fix(tools): recompute schema evidence before trusting station caches
+refs/heads/codex/missing-producers	c5389feced8cfae7a6d8bc7de4532e8ee76a183c	2026-09-07T11:26:02+03:00	Record committed producer handback verification
+refs/heads/codex/owner-residuals	4f9bb2a1598a841310b4b1128645bee8064c9ae9	2026-09-11T11:32:38+03:00	docs: finalize residual handoff with honest guardrail receipts
+refs/heads/codex/producers-verification	21e6f1afb3c676b0b061d27598e74f5e216b53a3	2026-09-10T21:19:46+03:00	docs(producers): record verified chains and explicit authority limits
+refs/heads/codex/promotion-conjunction	3e32523231f4d30b44828cdb9582195fa7e88367	2026-09-13T20:25:27+03:00	docs: record promotion conjunction delivery and deciding receipts
+refs/heads/codex/research-basis-grade-carriers	e3f9805057f5bc462f60467bb0c1c4602314f354	2026-09-05T11:59:30+03:00	docs: record basis-grade investigation census stop
+refs/heads/codex/safe-workspace	00d946c2b7d052522be092f9c70eb9902f6521c2	2026-09-23T23:13:03+03:00	Merge branch 'codex/e02-final-arch-repair' into codex/safe-workspace
+refs/heads/codex/t1-stale-basis-recensus	434f8ac360996d9f858d7acdc417be515615960a	2026-08-30T22:26:02+03:00	docs(debt): append prose subject drift findings
+refs/heads/codex/toolchain-inputs	8bded557ce848fb7397ec0c56b361415497eb5ae	2026-09-07T16:14:46+03:00	docs(toolchain): record clean-tree probes and remaining limits
+refs/heads/codex/unbound-writes	fe028145feecfb95cd36dd507df5132ac5403e11	2026-08-28T05:23:12+03:00	docs(journal): record unbound write closeout
+refs/heads/codex/uninvoked-plane	433d31cc7f11a90e7d2858dbd5c98313c8563e9d	2026-09-10T18:50:29+03:00	docs(uninvoked): record measured outcomes and invocation evidence
+refs/heads/codex/watcher-chain	3c3db5269be6edafd2dc5f482deb090a0a33a2e9	2026-09-07T15:15:37+03:00	docs(devx): record watcher gates and dashboard failure dispositions
+refs/heads/docs/ci-job-reading	643dbf871e5887d28c3f190337366c2e1b6011ba	2026-09-08T20:09:32+03:00	docs: read the first CI run to reach main job by job
+refs/heads/docs/corr-c1-operating-state	5e4048b40cbd9c3065f039274de0e48d1cbd1481	2026-09-09T17:01:39+03:00	docs: record C1's measured operating state and close the refusal-suite row
+refs/heads/docs/corr-consolidation	9619f6d2d892d7994ae3f29d3230362c41862f2d	2026-09-08T19:36:28+03:00	docs: land the CORR consolidation and decide both open calibration forks
+refs/heads/docs/corr-lane-achievement	8a496526f31d98ddbc5c2f6da02c085a15ea1620	2026-09-09T12:54:40+03:00	docs: record what the CORR lane actually achieved against Phase 5
+refs/heads/docs/correspondence-rule-correction	43580c80b8761d4aecb34ee3300f64d389be80c8	2026-09-08T17:07:02+03:00	docs: narrow the correspondence rule to its two real members
+refs/heads/docs/eight-gaps-transcription	79f9da707c575999a778ad1cc1983028cbd41c44	2026-09-09T23:52:02+03:00	docs: transcribe the eight-gaps repair lane, six of eight moved
+refs/heads/docs/evidence-proportionality	573e7a4b9e22d203cf9225d916a27ec985834fb8	2026-09-08T17:05:14+03:00	docs: record receipt proportionality in the operating instructions
+refs/heads/docs/gy-ambiguous-transcription	d99b990d616f43cbe912ed3cae719785dcba740a	2026-09-08T11:33:35+03:00	docs: regenerate the ledger and declare the new register denominator
+refs/heads/docs/gy-phase5-transcription	a244c108101d0083727bb115b036952b46c3f5cc	2026-09-08T17:04:09+03:00	docs: transcribe Phase 5, generalise the correspondence rule, settle five clauses
+refs/heads/docs/raw-evidence-ignore	355f5e861be96ebf03ee97888a856da2c26f767f	2026-10-05T12:42:33+03:00	docs: define continuous E02 integration and local data checks
+refs/heads/gh-pages	ad03d7745d83865e8bb6ca9d7fa1b03356162139	2026-04-03T12:53:23+03:00	Deployed 03f979a with MkDocs version: 1.6.1
+refs/heads/integration/2026-09-06-eight-day-integration	938ddc32a5e243267a8fcd578364ff7c8505df9e	2026-09-07T14:21:30+03:00	docs(debt): transcribe three lane results, closing thirteen rows
+refs/heads/integration/regenerate-acquisition-contract	a450421a3be6c668c1cbd8d723f4bd6be35da5fe	2026-09-16T19:40:02+03:00	Regenerate the runtime contract the acquisition-movement merge changed
+refs/heads/main	c40d4acae1ce58b597267255026d9356565828fd	2026-10-05T16:32:03+03:00	docs: maximize useful E02 delegation and assess baseline tests
+refs/heads/research/cv-dr-decisions	7a51507da45cb10a29f731a114932efdac7c04c5	2026-09-17T17:34:14+03:00	research(cv-dr): publish the CV-DR final decision packages
+refs/heads/research/wave5-consolidation	ccc4601e8f54eb0378ef1586405d9a5097c45e3e	2026-08-30T14:45:36+03:00	docs: prove wave 5 question deduplication
+refs/remotes/exhaustive/archive/codex/full-worktree-publish	e0c004fb714ecb0584d4d31b61753fcdc012f3b6	2026-04-15T21:20:40+03:00	publish full worktree diff
+refs/remotes/exhaustive/archive/codex/gy-def13	b49b6e1df45d64bf9110afecfef8e6f0eb1bc434	2026-08-11T00:09:16+03:00	docs(gy): record def13 cold boundary
+refs/remotes/exhaustive/archive/codex/gy-def6	17e9b70acbc4c591ffd29ab3a0c092add779de96	2026-08-09T20:31:40+03:00	docs(gy): close DEF6 and hand off cascade
+refs/remotes/exhaustive/archive/codex/gy-defc-1	b2c2b3347f1fcf3f7caec5048312a6661584469d	2026-08-10T10:31:19+03:00	docs(gy): record cold closeout non-receipt
+refs/remotes/exhaustive/archive/codex/gy-defc-1-diag	4542ec9d023152f2fa448a3ce55cb5059de05c13	2026-08-10T15:47:38+03:00	docs(gy): diagnose N11 cold worker boundary
+refs/remotes/exhaustive/archive/codex/gy-defc-2	e988619f5be314a564a1894da726873e656cda48	2026-08-10T21:12:41+03:00	docs(gy): record DEFC-2 classification
+refs/remotes/exhaustive/archive/codex/gy-defc-3	0fbf3bf7bf5484bc329de59212fa170c33b4f54f	2026-08-11T10:53:22+03:00	docs(gy): record DEFC-3 writer nonreceipt
+refs/remotes/exhaustive/archive/codex/gy-di-timing-lane	e9079bade072afc86086cd5674a4fdee54c42822	2026-08-17T18:56:34+03:00	plan(gy): Rev 42 — close the two items GY-INFRA-2 carried; INFRA-2 itself was already closed
+refs/remotes/exhaustive/archive/codex/gy-infra-2	bc6fd7704497584f81a66f35cce9063bbf81ef50	2026-08-08T12:02:12+03:00	docs(gy-infra-2): close verification economics
+refs/remotes/exhaustive/archive/codex/gy-infra-3-step0	4afca8b90e58b1378c5ddc07c4689208187f2a06	2026-08-08T13:24:08+03:00	docs(gy): record infra-3 step0 diagnosis
+refs/remotes/exhaustive/archive/codex/gy-infra-3-step2	c1d711a1cb0abb7da6a3e4338cb66d5dd1912422	2026-08-08T18:26:40+03:00	feat(tools): enforce E11 review freeze gate
+refs/remotes/exhaustive/archive/codex/gy-n11-confidence-ledger	d671cb68affdaaec24a5a969b7d21baa923dc130	2026-08-02T18:23:21+03:00	docs(gy-n11): record architect handoff receipts
+refs/remotes/exhaustive/archive/research/int-r1-amendment	66baff37c7f566fc770377ba6c66a8dc7b517ce0	2026-08-03T11:11:11+03:00	docs(INT-R1): correct amendment frontmatter ledger summary
+refs/remotes/exhaustive/archive/research/int-r1-amendment-verification	8b8693f05909ff8db05d25553e04e2bb5a922ab4	2026-08-03T12:20:46+03:00	docs(INT-R1): add amendment conformance ledger
+refs/remotes/exhaustive/archive/research/int-r1-independent-audit	887bce985e6797c1a94dba24f33c6424ab09c0a5	2026-08-03T09:56:47+03:00	docs: correct INT-R1 claim disposition summary
+refs/remotes/exhaustive/archive/research/int-r1-obligation-coverage	82e136a8d528cb24e661973ac1a8ea4fb6f1c80f	2026-08-02T23:48:23+03:00	docs(INT-R1): deliver obligation coverage and open-world completeness research
+refs/remotes/exhaustive/archive/research/int-r10-family-wise-risk-composition	317fc9c36e710ac75634096c4d14a714b8bff504	2026-08-03T11:36:14+03:00	research(int-r10): correct fixture repository rule anchors
+refs/remotes/exhaustive/archive/research/int-r10-independent-audit	7f41bf8b7f6ca8e20bc885656314563de2e2cfc6	2026-08-03T12:39:22+03:00	audit(int-r10): deliver independent adversarial verdict
+refs/remotes/exhaustive/archive/research/int-r10-revision	a334f7d844733bfd17f1857a4cb56fbf219378ef	2026-08-03T15:12:47+03:00	research(int-r10): account for all audited anchor sites
+refs/remotes/exhaustive/archive/research/int-r10-revision-verification	a45181ef92cf5bc4e18542c0b23a6ee018aa8532	2026-08-03T15:50:57+03:00	verify(int-r10): add finding conformance ledger
+refs/remotes/exhaustive/archive/research/int-r7-amendment	2d922813ef542f3eebd21d2a189c017b15512803	2026-08-04T19:49:26+03:00	docs(research): finalize INT-R7 amendment evidence ledger
+refs/remotes/exhaustive/archive/research/int-r7-amendment-verification	5225f8bf6cc995f0d3a9cb622454c1af9432745d	2026-08-04T21:39:28+03:00	docs(audit): add INT-R7 amendment conformance evidence ledger
+refs/remotes/exhaustive/archive/research/int-r7-independent-audit	54e8f41d790cb257a616c5bb5f96d996fbe3e9db	2026-08-04T18:31:39+03:00	docs(audit): add INT-R7 hostile independent audit verdict
+refs/remotes/exhaustive/archive/research/int-r7-public-verification-lifecycle	f5671253b51554dde2dd22a6aef2ef827c5bd9dd	2026-08-04T14:51:30+03:00	docs(research): deliver INT-R7 public verification proof lifecycle
+refs/remotes/exhaustive/archive/research/int-r7-r8-consolidation	a8709a8f7cad294b83742c664745e8ba6731c3f9	2026-08-05T14:38:09+03:00	research: correct repository evidence and FNV source attribution
+refs/remotes/exhaustive/archive/research/int-r7-reachability-closure	3883b45476aed138beface8c8ca817191c7e273e	2026-08-05T10:20:17+03:00	docs(research): finalize INT-R7 reachability closure read-back record
+refs/remotes/exhaustive/archive/research/int-r7-remediation	92c05323ed4c13c8f9eadb586d4e627c8d33a409	2026-08-04T22:53:18+03:00	docs(research): finalize INT-R7 remediation read-back record
+refs/remotes/exhaustive/archive/research/int-r7-remediation-verification	f705c4a7c92511c63541addffd6af2eb870a12bd	2026-08-05T09:45:53+03:00	docs(audit): add INT-R7 remediation conformance ledger
+refs/remotes/exhaustive/archive/research/int-r8-amendment	92b8773fe6da985b9803723d12c07233d6b90876	2026-08-04T21:54:19+03:00	docs(research): add INT-R8 post-audit amendment ledger
+refs/remotes/exhaustive/archive/research/int-r8-amendment-verification	ead4aca36f94d6014879c9f70b1074800c4ffabf	2026-08-04T22:43:51+03:00	docs(verification): deliver INT-R8 amendment conformance verdict
+refs/remotes/exhaustive/archive/research/int-r8-compression-loss-and-disclosure	90b372964d29a9e97605a6ef733ef03ffe7938d2	2026-08-04T18:25:49+03:00	docs(research): deliver INT-R8 compression loss and disclosure composition
+refs/remotes/exhaustive/archive/research/int-r8-independent-audit	f45f338f9d9b0de94edc16efbc334789e70e34e2	2026-08-04T19:55:15+03:00	docs(audit): make INT-R8 finding anchors path-explicit
+refs/remotes/exhaustive/archive/research/int-r8-remediation	286ade1057c9abb95bb1cf2c962479906f764667	2026-08-05T09:47:04+03:00	docs(research): add INT-R8 bounded remediation ledger
+refs/remotes/exhaustive/archive/research/int-r8-remediation-verification	8a0847ffd4de6664727d025aee5b1bcbfbfcdbc6	2026-08-05T10:08:18+03:00	docs(verification): confirm INT-R8 bounded remediation
+refs/remotes/exhaustive/archive/research/int-r9-amendment	bb322361eafb5bd8667c35aeedf137dcbfdee1ae	2026-08-03T12:42:06+03:00	docs(int-r9): record amendment closure ledger
+refs/remotes/exhaustive/archive/research/int-r9-amendment-verification	52dd773a8e5ad79ab940a0e51df16bcc4ee075e6	2026-08-03T18:32:19+03:00	verify(int-r9): add amendment conformance ledger
+refs/remotes/exhaustive/archive/research/int-r9-first-promotion-protocol	f5ad922377e38ee3ddbecb33293300bca25a9ad7	2026-08-02T23:56:45+03:00	docs(research): deliver INT-R9 first-promotion evaluation protocol
+refs/remotes/exhaustive/archive/research/int-r9-independent-audit	ce354864f64c4f0cf5fc1d4428d033463a3cf08e	2026-08-03T10:05:49+03:00	audit(int-r9): add ordered revision requirements
+refs/remotes/exhaustive/archive/research/int-wave-consolidation	babf3f606603ba046b72388e96e97830f2fd9da8	2026-08-03T21:59:32+03:00	research: add INT wave next-research register
+refs/remotes/exhaustive/archive/research/ops-r14-amendment	83539ebf0a211728cf3cb8cef4cbffce8429a8bb	2026-08-08T12:38:28+03:00	docs(ops-r14): add independent-audit amendment ledger
+refs/remotes/exhaustive/archive/research/ops-r14-amendment-verification	0fe8fe6a0e53f23a90b92e06bad2d48543753693	2026-08-16T21:40:09+03:00	docs(ops-r14): add independent amendment conformance verification
+refs/remotes/exhaustive/archive/research/ops-r14-custody-resilience-and-expiring-authority	3a694212aa47c4c2d8a631f8edc4ba8f7e15dce7	2026-08-06T19:02:50+03:00	docs: deliver OPS-R14 custody resilience research
+refs/remotes/exhaustive/archive/research/ops-r14-independent-audit	34c65a04ef178b9a59f70b9fb2012edee17a67cd	2026-08-07T11:27:10+03:00	docs(audit): deliver OPS-R14 independent audit verdict
+refs/remotes/exhaustive/archive/research/ops-r14-remediation	62de2c5fe2123c6814596aaf08f3391e650305de	2026-08-16T22:19:07+03:00	docs(ops-r14): add bounded remediation ledger
+refs/remotes/exhaustive/archive/research/ops-r14-remediation-verification	915ed60312271dd5693e44675b90f4a439b4a098	2026-08-16T22:41:59+03:00	docs(ops-r14): add bounded remediation delta verification
+refs/remotes/exhaustive/archive/research/ops-r15-independent-audit	42a79a655974b37e28a89d31b5f72ffea83927f4	2026-07-27T11:01:36+03:00	docs(research): independently audit OPS-R15 capstone benchmark
+refs/remotes/exhaustive/archive/research/ops-r4-temporal-custody-semantics	6eafee90e20053f05a6d31b9d2e5dd8d67996e36	2026-07-29T14:13:48+03:00	docs(research): define OPS-R4 custody temporal semantics
+refs/remotes/exhaustive/archive/research/pao-r0-independent-audit	258aa740efcfb9e6771bfe52d4fdabc6b74f93a7	2026-07-26T16:35:54+03:00	docs(research): independently audit PAO-R0 against repository
+refs/remotes/exhaustive/archive/research/pao-r1-independent-audit	566840c330e867a15313923c87c20b6863cb053f	2026-07-26T17:39:22+03:00	docs(research): independently audit PAO-R1 boundary register
+refs/remotes/exhaustive/archive/research/pao-r36-amendment	926326174135ef6e407037ebcbe2094228430729	2026-08-08T12:43:04+03:00	docs(pao-r36): amend falsifier suite
+refs/remotes/exhaustive/archive/research/pao-r36-amendment-verification	47f0680f43dd0c02ed91c1b4e2cdcd8a824152c1	2026-08-16T21:13:04+03:00	docs(verification): add PAO-R36 amendment conformance verdict
+refs/remotes/exhaustive/archive/research/pao-r36-attribution-correction	6f48fc83d78d1b1502ea0258afb250d873ebc83f	2026-08-17T10:08:22+03:00	research(pao-r36): correct census attribution under ratified W4-K01
+refs/remotes/exhaustive/archive/research/pao-r36-independent-audit	9bbfd37a218222ae06c1f669b95dba37c4732765	2026-08-07T11:19:56+03:00	docs(audit): add PAO-R36 independent audit
+refs/remotes/exhaustive/archive/research/pao-r36-public-correction-and-durable-notice	1bccc012b636d6a13930735a4f748d1f8cf7b9cf	2026-08-06T18:53:54+03:00	docs(research): complete PAO-R36 Pass I line-count audit
+refs/remotes/exhaustive/archive/research/pao-r4-amendment	0df03f35e9b6403b7f54fd8bd45373a951851d8c	2026-08-08T12:50:54+03:00	research(pao-r4): record final amendment payload readback
+refs/remotes/exhaustive/archive/research/pao-r4-amendment-verification	93571fd3c708794aea5cbd37569aefb178b2c911	2026-08-16T21:37:11+03:00	research(pao-r4): add independent amendment conformance verification
+refs/remotes/exhaustive/archive/research/pao-r4-attribution-correction	9b4375c25a9179f186cdeae01f990fc713a578a5	2026-08-17T10:08:07+03:00	research(pao-r4): correct census attribution under ratified W4-K01
+refs/remotes/exhaustive/archive/research/pao-r4-independent-audit	69182c079fb5dc99808d7cd27874d50433efd5a4	2026-08-07T10:38:10+03:00	audit(pao-r4): deliver independent verdict
+refs/remotes/exhaustive/archive/research/pao-r4-individual-decision-firewall	a27c3da9942b03881dbee1005a8a1e44e5ac44b4	2026-08-06T20:39:43+03:00	docs(pao-r4): record remote delivery readback
+refs/remotes/exhaustive/archive/research/s0-gap-01-subject-reference-owner	2e9b26183ec1f05b3353926eb4ffb8bd00d5d495	2026-07-29T23:58:16+03:00	docs(research): decide S0-GAP-01 subject-reference owner
+refs/remotes/exhaustive/archive/research/s0-gap-02-amendment	c14e3d43506f9a94820cd037aacb73f80dd30dcc	2026-08-08T12:58:06+03:00	research(s0-gap-02): finalize amendment delivery receipt
+refs/remotes/exhaustive/archive/research/s0-gap-02-amendment-verification	0c7ab71aa54dbbf46ca85c542da9adf31525ca5f	2026-08-16T21:00:05+03:00	audit(s0-gap-02): verify amendment conformance
+refs/remotes/exhaustive/archive/research/s0-gap-02-independent-audit	3abbaf8c2808e31fd7d8f9929b696e78dc91b3d4	2026-08-07T12:19:22+03:00	audit(s0-gap-02): add executable revision register
+refs/remotes/exhaustive/archive/research/s0-gap-02-independent-benchmark-oracle	a7c34cc40b649a10b6878228a8a57acc498f279a	2026-08-06T19:32:35+03:00	research(s0-gap-02): deliver the independent custody-benchmark oracle architecture
+refs/remotes/exhaustive/archive/research/s0-gap-02-vocabulary-correction	9ebc718ebca14944cd69250f7a6ca35ab0eaf2ca	2026-08-17T10:11:58+03:00	research(s0-gap-02): reduce the six-way P37 register to the five registered classes under W4-K02
+refs/remotes/exhaustive/archive/research/stage0-anchor-amendments	fd4e32b44c9f7fe8fec5c3b8d493c2efbe7e8b65	2026-07-29T17:10:58+03:00	docs(research): finalize external-source audit
+refs/remotes/exhaustive/archive/research/stage0-anchor-consolidation	a55d33c7a2ed160fd609b1a9e07d95e0bbb04e19	2026-07-28T22:31:58+03:00	docs(research): consolidate Stage-0 anchor audits
+refs/remotes/exhaustive/archive/research/wave4-consolidation	29f5265273d0022f483f940a2d76fe14b153a22b	2026-08-17T09:13:21+03:00	docs(wave4): add package and wave standing statement
+refs/remotes/exhaustive/heads/codex/atlas-ds16-value-grammar	f560f2aa92b7c8c064e6878c441b4f1e2f84cce4	2026-08-18T10:13:49+03:00	plan(ds16): close the slice as blocked_on_ds5, with the DS5 handoff written out
+refs/remotes/exhaustive/heads/fix/ci-bootstrap-ordering	b36168bc22f83f9ed95463ee53f8a57066ba7a41	2026-07-29T16:50:06+03:00	fix CI bootstrap ordering and dependency closure
+refs/remotes/exhaustive/heads/gh-pages	ad03d7745d83865e8bb6ca9d7fa1b03356162139	2026-04-03T12:53:23+03:00	Deployed 03f979a with MkDocs version: 1.6.1
+refs/remotes/exhaustive/heads/main	dc7bdf79a1eff91349351a2f11dc498fe1ad7b4f	2026-08-28T16:33:53+03:00	docs: bind the GY-O0 closure records to their merge commit
+refs/remotes/exhaustive/heads/research/int-r2-research	dc7bdf79a1eff91349351a2f11dc498fe1ad7b4f	2026-08-28T16:33:53+03:00	docs: bind the GY-O0 closure records to their merge commit
+refs/remotes/exhaustive/heads/research/int-r3-research	819a83a88315a90320fdd4b25fcb328b434c77de	2026-08-28T22:46:47+03:00	research(INT-R3): specify authority UI comprehension benchmark
+refs/remotes/exhaustive/heads/research/int-r4-ops-r5-research	dc7bdf79a1eff91349351a2f11dc498fe1ad7b4f	2026-08-28T16:33:53+03:00	docs: bind the GY-O0 closure records to their merge commit
+refs/remotes/exhaustive/heads/research/int-r5-research	dc7bdf79a1eff91349351a2f11dc498fe1ad7b4f	2026-08-28T16:33:53+03:00	docs: bind the GY-O0 closure records to their merge commit
+refs/remotes/exhaustive/pull/1/head	258aa740efcfb9e6771bfe52d4fdabc6b74f93a7	2026-07-26T16:35:54+03:00	docs(research): independently audit PAO-R0 against repository
+refs/remotes/exhaustive/pull/2/head	566840c330e867a15313923c87c20b6863cb053f	2026-07-26T17:39:22+03:00	docs(research): independently audit PAO-R1 boundary register
+refs/remotes/exhaustive/pull/3/head	42a79a655974b37e28a89d31b5f72ffea83927f4	2026-07-27T11:01:36+03:00	docs(research): independently audit OPS-R15 capstone benchmark
+refs/remotes/exhaustive/pull/4/head	a55d33c7a2ed160fd609b1a9e07d95e0bbb04e19	2026-07-28T22:31:58+03:00	docs(research): consolidate Stage-0 anchor audits
+refs/remotes/exhaustive/pull/5/head	fd4e32b44c9f7fe8fec5c3b8d493c2efbe7e8b65	2026-07-29T17:10:58+03:00	docs(research): finalize external-source audit
+refs/remotes/exhaustive/pull/6/head	6eafee90e20053f05a6d31b9d2e5dd8d67996e36	2026-07-29T14:13:48+03:00	docs(research): define OPS-R4 custody temporal semantics
+refs/remotes/exhaustive/pull/7/head	b36168bc22f83f9ed95463ee53f8a57066ba7a41	2026-07-29T16:50:06+03:00	fix CI bootstrap ordering and dependency closure
+refs/remotes/exhaustive/pull/7/merge	3d1ccbb1e2d012ad546e293bfc6ff00f8f18ce6b	2026-08-18T10:22:49+03:00	Merge b36168bc22f83f9ed95463ee53f8a57066ba7a41 into 21ae2ba65fc0da2be2ff96ac0ccf4e299bae2663
+refs/remotes/exhaustive/pull/8/head	2e9b26183ec1f05b3353926eb4ffb8bd00d5d495	2026-07-29T23:58:16+03:00	docs(research): decide S0-GAP-01 subject-reference owner
+refs/remotes/origin/HEAD	198076863e143dea9f89f02734b13d50dae3eed5	2026-10-06T12:09:17+03:00	docs(e02): publish six owner continuation prompts from main checkpoint
+refs/remotes/origin/codex/atlas-ds16-value-grammar	f560f2aa92b7c8c064e6878c441b4f1e2f84cce4	2026-08-18T10:13:49+03:00	plan(ds16): close the slice as blocked_on_ds5, with the DS5 handoff written out
+refs/remotes/origin/codex/e02-A-compiler-full	44f0ac8d62da3d96464515b58c5bc29f03d238fa	2026-10-06T20:15:53+03:00	docs(e02): complete compiler handoff standard fields
+refs/remotes/origin/codex/e02-A-custody	289571b0b51d8404fe44702f1345552b6b10af32	2026-10-05T18:11:57+03:00	docs(e02-A): publish separate bounded N5 and unit delivery receipts
+refs/remotes/origin/codex/e02-A-delivery-attached	8bfea70b2e2090ad5c541b103b7521efc01b30eb	2026-10-08T05:44:55+03:00	docs(e02-A): retain native Trash custody for duplicate outputs
+refs/remotes/origin/codex/e02-A-empirical-scope	f1f7a1b5a9914d1a040e2fe182e0b1bdf393b43b	2026-10-05T17:44:51+03:00	docs: record empirical scope handoff
+refs/remotes/origin/codex/e02-A-full-queue	93d62af8eb037fa37cb0254ad38285507b26a86a	2026-10-06T22:17:17+03:00	docs(e02): record identity-verified native Trash cleanup and preservation
+refs/remotes/origin/codex/e02-A-n5-readback	03ea5babece94bd443022dd54998aab201f058b1	2026-10-05T18:08:27+03:00	docs: correct N5 readback test receipt
+refs/remotes/origin/codex/e02-A-replay-full	164cc001a81a570657079a1666e70ffe3650d82a	2026-10-06T20:08:59+03:00	docs: complete replay handoff receipt fields
+refs/remotes/origin/codex/e02-A-replay-owner	a683059753cbb366574793474fa8ffc17b3ba7a8	2026-10-05T17:21:47+03:00	docs: record REP-01 replay-owner handoff
+refs/remotes/origin/codex/e02-A-requirement-context	a0302b7c717fe9eb7652a8e2bbbbea230115aedd	2026-10-05T17:44:10+03:00	docs: record REQ-01 public context handoff
+refs/remotes/origin/codex/e02-A-s10-verifier	a83f7eda380eb516d5162bfa11d7dc52278bc673	2026-10-06T19:00:41+03:00	Correct S10 verifier handoff closure scope
+refs/remotes/origin/codex/e02-A-selection	c020fd9629fa36cfdd6f7de12cff8b263f1a42b9	2026-10-05T17:28:21+03:00	docs(e02): hand off SEL-01 evidence
+refs/remotes/origin/codex/e02-A-selection-full	0c8842191a69e4c47158ad29de37ea1268b3fa41	2026-10-06T17:02:32+03:00	Mark SEL-01 evidence outcomes limited
+refs/remotes/origin/codex/e02-A-simulation-full	b3a07fc23d9300805ce552f25631d6eedab98413	2026-10-06T18:48:20+03:00	docs(sim): record Root SIM and CYC wave evidence
+refs/remotes/origin/codex/e02-B-acceptance	1c71eba792b7b17270d2ec99f0ebcae741ee3f7b	2026-10-05T16:54:27Z	docs(e02-B): hand off immutable union and final acceptance evidence
+refs/remotes/origin/codex/e02-B-adapters	3d18f37a5953f577c99260442a5e9afbc308a1d6	2026-10-05T16:22:25Z	docs(e02-B): distinguish base origins from removal overlays
+refs/remotes/origin/codex/e02-B-cas	f1db5d0d76fb93825a433bf8139235a93b213606	2026-10-05T15:44:49Z	docs(e02): qualify CAS detached baseline workspace custody
+refs/remotes/origin/codex/e02-B-cmp-res	e3f0103c167beb42a8aff2db6a81de12b79ae565	2026-10-05T14:31:18Z	docs(e02): hand off CMP RES checkpoint slice and bounded evidence
+refs/remotes/origin/codex/e02-B-coordination	614de5664ed46d90850a54573bbc739f1abc9009	2026-10-05T16:53:26Z	docs(e02-B): hand off final frozen checks and all owner residuals
+refs/remotes/origin/codex/e02-B-current-adapters	2d0f65266a9b42f56bcc73264c43e0f296e10ac5	2026-10-07T12:30:49Z	docs(e02): hand off source-bound tenth-wave numeric consumer custody
+refs/remotes/origin/codex/e02-B-current-cas-generation	4741ee31ec12529dc12c434e0a25e313bbd864be	2026-10-07T17:17:27+03:00	docs(e02): hand off exact root receipt and grade audit
+refs/remotes/origin/codex/e02-B-current-composition	ed065a94069aed53cd5e7f7c7031e27fc86e6462	2026-10-07T13:18:00Z	test(e02): assert root model deletion refuses before publication
+refs/remotes/origin/codex/e02-B-current-coordination	53b14a6e5af66f2a784d7f4981c4613e534acd40	2026-10-07T17:33:35+03:00	Preserve independent B handoff review and exact P37 premise labels
+refs/remotes/origin/codex/e02-B-current-durability	3dd221a83dbfa4a9f900b4a2d9338f14ce0a1f29	2026-10-07T12:24:57Z	docs(e02): hand off exact four-case imported checkpoint consumer and material removal
+refs/remotes/origin/codex/e02-B-current-execution-state	082c28efd1afcd4e0d7718d3ffdfd49045174861	2026-10-07T17:07:56+03:00	docs(e02): record pending producer native profile and exact input readiness
+refs/remotes/origin/codex/e02-B-current-runtime	2c773afbcd2b84c96f482ff3d757e0ed4b18de63	2026-10-07T12:39:38Z	docs(e02): hand off tenth-wave consumer delta with exact source boundaries
+refs/remotes/origin/codex/e02-B-dur-ledger	f3b9f054c86218b431ab927b56100164842db64a	2026-10-05T14:26:07Z	Correct DUR02 receipt input closure for temporary SQLite controls
+refs/remotes/origin/codex/e02-B-exe-state	70d05813159bf3dd66ef0df5b9bbe0a07cb4882c	2026-10-05T15:53:25Z	docs(e02-B): disclose complete candidate and record footprint
+refs/remotes/origin/codex/e02-B-run	0b2ba4ae0f9a2f6be9e53dd71e28f20be66ecce3	2026-10-05T16:14:22Z	docs(e02): qualify captured B69 canonical locator alias
+refs/remotes/origin/codex/e02-C-berl	942206505d1681ea1d4d46e93e21d0c566450acb	2026-10-05T18:03:35+03:00	docs(berl): add BER-01 runtime path to handoff
+refs/remotes/origin/codex/e02-C-berl-20261006	8aecb0b6e08f8d37f09c70927761576583a89828	2026-10-06T18:32:37+03:00	docs(e02): append BER-01 consumer census evidence
+refs/remotes/origin/codex/e02-C-c54-bindings-20261007	980d91b36452307d683283ddcf1e89a653af3ce2	2026-10-07T23:03:46+03:00	Record C5 C54 current disposition handoff
+refs/remotes/origin/codex/e02-C-c54-review-20261007	04eb30817d16f270feae316650994f2e2f273a44	2026-10-07T22:58:06+03:00	docs(c54): record independent C5 binding review
+refs/remotes/origin/codex/e02-C-canon	b98bc432e3afc0f17d992fc034029b68b0952169	2026-10-05T17:44:01+03:00	Update CAN handoff with registry fake replay
+refs/remotes/origin/codex/e02-C-canon-20261006	60b523c2d0e1a587f2f1d4b92a0ac9a89a1f49db	2026-10-07T17:40:15+03:00	docs: capture CAN C4 installed-wheel preflight
+refs/remotes/origin/codex/e02-C-catalog	dfaadaac01f21b7b3994109c3cc76d522a2a3cb3	2026-10-05T19:13:10+03:00	Correct catalog handoff slice provenance
+refs/remotes/origin/codex/e02-C-catalog-20261006	f428b114f4afb5c9cdde93a8e9bf036abe5ac329	2026-10-06T21:34:21+03:00	docs: reconcile catalog handoff path census
+refs/remotes/origin/codex/e02-C-client	13a723d8b6cb203583f856d949717427db858e37	2026-10-05T17:40:35+03:00	docs(e02): record C runtime client handoff
+refs/remotes/origin/codex/e02-C-client-20261006	5f812a3487d8f1fe0779f67bfcf3f9b73babeaf1	2026-10-06T14:51:12+03:00	docs(e02): correct CLI census and add review receipt
+refs/remotes/origin/codex/e02-C-continuation-20261006	b886665a26b318b2fdd136cae0248cdea7b9226d	2026-10-07T23:55:26+03:00	docs(e02-C): commit independent C5 carrier review and publication readback
+refs/remotes/origin/codex/e02-C-dfi-emb	cd02697111861bbcbb8442287101decaaf3239fb	2026-10-05T18:23:03+03:00	docs(e02): correct C DFI/EMB handoff closure field
+refs/remotes/origin/codex/e02-C-dfi-emb-20261006	40d27423aa7835bc8439f139d84ff1bc909ea14a	2026-10-06T21:17:48+03:00	Record DFI and embedding final ab441 handoff
+refs/remotes/origin/codex/e02-C-dfk-lifecycle-20261007	4576f67b1ff1f8d09b6a4223779b53fff9b369ae	2026-10-07T22:15:34+03:00	docs(e02): hand off C5 DFK lifecycle result
+refs/remotes/origin/codex/e02-C-dfk-review-20261007	341f92fb2b18e163778ab28db13b6b67a90e7d44	2026-10-07T22:11:43+03:00	docs(e02): retain DFK review command outputs
+refs/remotes/origin/codex/e02-C-federation	ca9caf3d3cc26a57fc3cf225e9b17db981afff3f	2026-10-05T17:33:57+03:00	docs: record federation implementation handoff
+refs/remotes/origin/codex/e02-C-federation-20261006	26ba51d571a5ccb5da26502d4d097d801cdc5b04	2026-10-06T15:06:56+03:00	docs(federation): correct admission handoff receipt
+refs/remotes/origin/codex/e02-C-handoff	172e791ca9335954907ebfd789e95715a55963c8	2026-10-05T19:40:49+03:00	docs(e02): record C delivery index verification handoff
+refs/remotes/origin/codex/e02-C-hygiene	b56ec6b1f802ab10d2927492bbc082f90c390139	2026-10-05T19:23:06+03:00	docs: add C hygiene implementation handoff
+refs/remotes/origin/codex/e02-C-hygiene-20261006	4f55312a51bcd95ee125ac2f1bec1df59b0d65c3	2026-10-06T19:36:54+03:00	docs: append final HYG artifact adjudication
+refs/remotes/origin/codex/e02-C-ing-support	a5bf3d536a9f1773b7110f64ac0d3b3f1230abdf	2026-10-05T17:26:20+03:00	docs(e02): hand off C incremental REST witness
+refs/remotes/origin/codex/e02-C-legal-query-20261007	51609922447716115c22287ac79c218d13cd9067	2026-10-07T22:09:26+03:00	Record Legal query profile handoff
+refs/remotes/origin/codex/e02-C-legal-review-20261007	77c5cd319c92e52932b1bf15c342b24a41e7b051	2026-10-07T22:05:55+03:00	docs: record independent Legal query binding review
+refs/remotes/origin/codex/e02-C-migrations	1164718054d3a409269a724c832706b524f78864	2026-10-05T17:21:24+03:00	docs(e02): correct migration rerun worktree receipt
+refs/remotes/origin/codex/e02-C-migrations-20261006	fe15a3604801f9a8c4fda51c73f51976f52d6c25	2026-10-06T20:52:24+03:00	docs: pin LA-050 audit commands and captures
+refs/remotes/origin/codex/e02-C-net-ing-20261007	373c9623071f60c08f5e362e61d211829e5d8f5a	2026-10-07T17:35:53+03:00	docs(e02-C): correct NET cleanup handoff evidence
+refs/remotes/origin/codex/e02-C-obs-udf	6e24cbaf5fb1d78830fd918ab17e6495095250ed	2026-10-05T18:18:59+03:00	docs(e02): preserve OBS UDF check outputs
+refs/remotes/origin/codex/e02-C-obs-udf-20261006	705575be73510d40d726c82c5a0af4bf8635a2a8	2026-10-06T18:32:26+03:00	Record OBS UDF verification receipts and dispositions
+refs/remotes/origin/codex/e02-C-orch02-c05-r2-gproposal	42987be62c48356211e1ce4397ca67cd45249997	2026-10-08T20:17:26Z	docs(c05): publish supplier-qualified ORCH02 r2 G proposal
+refs/remotes/origin/codex/e02-C-orch02-c05-recovery	eee090e345d1121d3d53cdd93a7ab32f818d5ef7	2026-10-08T20:28:41Z	docs(c05): publish source-qualified ORCH02 r2 repair handoff
+refs/remotes/origin/codex/e02-C-orch02-c06-can-r2-g-compatible	328d91dfee230aeb67ad1168e83b2ece8183d725	2026-10-08T19:48:10Z	docs(e02): publish source-qualified CAN r2 handoff
+refs/remotes/origin/codex/e02-C-orch02-c06-can-recovery	6602fbd087ef31d3f8eff42e94fc1fc074326d45	2026-10-08T16:54:51Z	docs(e02): embed independent CAN publication review and entrypoint proof
+refs/remotes/origin/codex/e02-C-orch02-c06-dfk-recovery	e4bd1527c941ff880a5d34898c57428c7be4b1cc	2026-10-08T16:53:55Z	docs(e02): embed independent DFK publication review and entrypoint proof
+refs/remotes/origin/codex/e02-C-orch02-c12-recovery	fcf164eb1c5bb54786462e67ba2537313b33b90d	2026-10-08T19:38:52Z	docs(legal): publish r2 typed request consumer evidence
+refs/remotes/origin/codex/e02-C-orch02-r2-c06-dfk-g	6c565cd65899d91bda370416651555eee143e194	2026-10-08T19:35:44Z	docs(data-forge): hand off current-G bounded census candidate
+refs/remotes/origin/codex/e02-C-orch02-recovery-coordination	d9a4b671c99bf6a5435fde4fc873092e03b451b0	2026-10-08T21:00:03Z	docs(e02): record ORCH02 r2 publication custody
+refs/remotes/origin/codex/e02-C-plugin-discovery	e30956352cd73e11c1c453e95859589cdd2e86c6	2026-10-05T17:27:19+03:00	Refresh plugin discovery implementation evidence
+refs/remotes/origin/codex/e02-C-plugin-training	5ee7dbc2d66fbb647ddc617fbfe19454737916b5	2026-10-05T17:25:13+03:00	C-W15: add plugin-training implementation handoff
+refs/remotes/origin/codex/e02-C-plugins-20261006	976212bbefb684da4823f61d810bf7a208a6e298	2026-10-06T19:09:15+03:00	docs: complete PLG source and payload handoff
+refs/remotes/origin/codex/e02-C-schema-20261006	28b04149e6477216f37c2ab2e0abfc54b8857ac6	2026-10-06T20:06:57+03:00	docs(e02): complete b8 schema census audit handoff
+refs/remotes/origin/codex/e02-C-scholar	cafeeffa1577d45c02e1ff22f0db9f9f698f9046	2026-10-05T18:19:32+03:00	docs: record Scholar implementation handoff
+refs/remotes/origin/codex/e02-C-scholar-20261006	f7af77f3373e4d22f703efa7208c19c6ffed1746	2026-10-06T18:29:05+03:00	Record installed Scholar packet consumer audit
+refs/remotes/origin/codex/e02-C-streaming	1013ae0d2292f732a2f0518b25a5a682dc156e81	2026-10-05T18:00:52+03:00	docs(e02): hand off C retained streaming capacity slice
+refs/remotes/origin/codex/e02-C-ukraine-ops	62a9140aaf28630d24688d5c850e752048dbbe9a	2026-10-05T17:47:21+03:00	docs: record Ukraine ops wheel probe and P41 caveat
+refs/remotes/origin/codex/e02-C10-recovery-20261008	8997d7f5f72f9e09ef928ac13e9dab4c9ffdcb6e	2026-10-08T17:20:29Z	docs(e02): pin complete C10 recovery implementation lineage
+refs/remotes/origin/codex/e02-C11-recovery-20261008	f425407e9f2228300905831d44bf179bb797e69d	2026-10-08T18:11:17Z	docs(e02): qualify C11 B114 retention and planning receipt
+refs/remotes/origin/codex/e02-C13-recovery-20261008	1c8c3f3e068a2bd86dc88d4918621149aaf3179c	2026-10-08T15:59:29Z	docs(e02): preserve C13 deciding logs and slim artifact receipt
+refs/remotes/origin/codex/e02-D-baseline	d7705039d1b509fee606d204b60585fcf137dbd8	2026-10-05T13:49:58Z	docs(e02): record D baseline map validation receipt
+refs/remotes/origin/codex/e02-D-ci-triage	6e9bb8a202c9c6338bd01452e1816ab5f1e15a6d	2026-10-05T15:37:12Z	docs(e02): retain final typed artifact replay and prior failed witnesses
+refs/remotes/origin/codex/e02-D-continuation-accounting	8f58d7349edefebbac7e7f21e6859f8daa075c1d	2026-10-07T02:09:25+03:00	docs(e02): clarify supplied D capability and historical checkpoint scopes
+refs/remotes/origin/codex/e02-D-final-independent-review	c1eb06c85e1a6b45d6de8b8a66f0c513bd76c25a	2026-10-07T02:10:46+03:00	docs(e02-D): publish independent final258 criterion review receipt
+refs/remotes/origin/codex/e02-D-funnel	1b1454f6e32dbf2f23df5f1e58e68fe43a27f7d5	2026-10-05T15:21:48Z	docs: compact D residual index to pinned evidence references
+refs/remotes/origin/codex/e02-D-gp-witness	5a2b6d4435d1a3ef9da94a1ec3372dc9372aa328	2026-10-05T15:21:50Z	docs(search): bind historical baseline identity explicitly
+refs/remotes/origin/codex/e02-D-lessons	3e762fbabde70013e50a42e84945066351e71718	2026-10-05T14:25:02Z	docs(search): record bounded lesson query and restart evidence
+refs/remotes/origin/codex/e02-D-oct07-continuation	64355beb636c20c2eb8b586af18a51b503fe40f8	2026-10-07T19:55:24Z	docs(e02-D): record published topic and exact Git readback
+refs/remotes/origin/codex/e02-D-oracle	bc532b30967c84070a2848ceaad341ffc06964fd	2026-10-05T15:08:08Z	docs(search): bind six admission failures and configured GP source review
+refs/remotes/origin/codex/e02-D-orchestration	ffbb62165a85a8c8bedd8c11af8246273619ede1	2026-10-05T15:56:47Z	docs(e02): bind final aggregate review to available Git evidence
+refs/remotes/origin/codex/e02-D-published-champion	415621e89b059d432f1b24a00262b73b3fe99e22	2026-10-06T22:22:37Z	docs(D): hand off measured minimal native profile admission
+refs/remotes/origin/codex/e02-D-published-funnel	115b8efa503b82a15fa4e2c97bf796846dd97632	2026-10-06T22:28:41Z	docs(research): record independent final stress probe verdicts
+refs/remotes/origin/codex/e02-D-published-oracle	b56f56a8add78882e66e3df323631baf4e778daa	2026-10-07T01:52:02+03:00	docs(e02): hand off final independent ERROR UNRUN audit
+refs/remotes/origin/codex/e02-D-published-root	828283eefe9c3ae14e0f99899a0a502a8b1a253c	2026-10-06T23:17:50Z	Record separate final D delivery receipt withall17bundles45findings46originalcriteria andcomplete publication outputs
+refs/remotes/origin/codex/e02-D-published-search	89f0520e7176bc15e86fdad4ca087e5b8335e2af	2026-10-06T22:32:25Z	docs(evidence): publish native LLM cache custody consumer proof
+refs/remotes/origin/codex/e02-D-published-stress	0905131301921f9256bf0e9b4e62f41292f8e2dd	2026-10-06T17:34:40Z	docs(e02-D): hand off actual post-dependency stress and paid consumer scope
+refs/remotes/origin/codex/e02-D-published-transfer	273616d37737b86665d1d12f0d90e22212afb2e1	2026-10-06T19:23:10Z	docs(search): reference tracked lesson inputs by immutable Git identity
+refs/remotes/origin/codex/e02-D-search	9ef8783b55f9d8727cf5a83955f0c0ca65060ab3	2026-10-05T15:23:42Z	docs(e02): bind compact final matrix and immutable review pointers
+refs/remotes/origin/codex/e02-D-stress	695727ff34565ea497aee13ef3042bab4a22e0a2	2026-10-05T15:21:44Z	docs(e02): retain stress locked profile correction provenance
+refs/remotes/origin/codex/e02-D-transfer	83b5b16529e207636ce835f5e96ac706cc196906	2026-10-05T15:23:24Z	docs(transfer): distinguish normalized AST and raw source digests
+refs/remotes/origin/codex/e02-E-assessment	8520e63ca6d854943d29abd94804b7f0e355b963	2026-10-05T14:55:34Z	docs: bind E aggregate receipt to published draft PR
+refs/remotes/origin/codex/e02-E-backtest	0af63b563c9dc5d7ceab99bee3f2f94ed58b16aa	2026-10-05T13:58:57Z	docs(e02): link published bootstrap identity pull request
+refs/remotes/origin/codex/e02-E-backtest-20261006	2acc4c8116fdf12e3ce9ca76e203a6e4f00e90d4	2026-10-06T14:42:29Z	docs(e02): record welfare malformed-law preflight boundaries
+refs/remotes/origin/codex/e02-E-backtest-bias	797dd66076aaec1f40f0c87efaf8e3d475a96d77	2026-10-05T14:26:42Z	docs(e02): retain independent backtest review and PR link
+refs/remotes/origin/codex/e02-E-c07-20261008	dce5b253bd3f2d8f05c008a5128b1532e44b3837	2026-10-08T10:18:07Z	docs(e02): correct automatic manifest-view dependency captions
+refs/remotes/origin/codex/e02-E-c09-20261008	02a75f2b7a4846bcf5b6a8f301d2d4d20b9a99b2	2026-10-08T11:47:02Z	docs(e02): preserve C09 full remote evidence readback
+refs/remotes/origin/codex/e02-E-c09-sensitivity-20261008	bb78b2b60dae0ed51e300f9369c580c622fe64d6	2026-10-08T12:55:15Z	Bind the complete owned uncertainty output view closure
+refs/remotes/origin/codex/e02-E-cal-20261006	c40b2f5767bb5810bc8ac4c2ead9510f8c01430b	2026-10-07T16:14:45Z	Record configured Bayesian fit bridge evidence and owner packet
+refs/remotes/origin/codex/e02-E-cal-review-20261006	c07f1be62be41577c860b2af81e8f00ce1d6c382	2026-10-07T07:53:21Z	Index byte-preserved independent observer input archives
+refs/remotes/origin/codex/e02-E-cal-uq	d14bf56f562f2603975c957f869e0906d0e9f121	2026-10-05T14:21:25Z	docs: publish Gaussian joint sampling numerical receipt
+refs/remotes/origin/codex/e02-E-cal05	9847a87192c66fd1dabfad027ed06b633eb97fb4	2026-10-05T14:27:16Z	docs(research): retain CAL-05 deciding output as tracked text
+refs/remotes/origin/codex/e02-E-cal05-20261006	56417347a6967a29cb07c9300c7208fedbff85d7	2026-10-07T09:01:29Z	docs(e02): pin publication inlet controls and independent acceptance
+refs/remotes/origin/codex/e02-E-composition-readback	991f5f280027dfa8e95b61cfb49bd01234811ca2	2026-10-05T14:42:42Z	docs(e02): record bounded composition readback evidence
+refs/remotes/origin/codex/e02-E-continuation-20261006	7bf53fd0cf69a568b37d8a881e26bfb16c315653	2026-10-07T21:04:15Z	research(e02): retain exact fetched G path delta in handoff
+refs/remotes/origin/codex/e02-E-ddm	25f92860db509525f8e7d829ff060bed675ae154	2026-10-05T13:57:53Z	docs(e02): link DDM receipt to review PR
+refs/remotes/origin/codex/e02-E-ddm-20261006	a2276d5a1d0258ca1e4d15a345f7679fd4443ec0	2026-10-06T13:16:32Z	docs(e02): record DDM version migration and directional reader witnesses
+refs/remotes/origin/codex/e02-E-doe	40b911e6c086830825dc088df8d64a378589270e	2026-10-05T14:10:09Z	docs(e02): record DOE geometry candidate and numerical receipt
+refs/remotes/origin/codex/e02-E-doe-20261006	9eaac38588d547c63f60dabb9e1b7fa9fc1a2ac4	2026-10-07T15:35:56Z	docs(e02): pin independently reviewed ratio composition source
+refs/remotes/origin/codex/e02-E-frc	f2a827da30c3f64e776c5e79d1db75132ad423fc	2026-10-05T14:04:55Z	docs: retain required concise FRC deciding logs
+refs/remotes/origin/codex/e02-E-frc-20261006	a30eb1a82345fe3139bf2c5dc77ac664eb6f98ea	2026-10-07T15:17:55Z	docs(e02-E): pin closed control source and independent replay handoff
+refs/remotes/origin/codex/e02-E-mc-20261006	b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4	2026-10-07T13:19:07Z	Merge commit '7537ef95beed07d02a3b72343b082ff3b7fd14e2' into codex/e02-E-mc-20261006
+refs/remotes/origin/codex/e02-E-pcl	5e08960ff606cc8c0b1323746c4a2e9f60a73a8b	2026-10-05T14:10:47Z	docs(e02): type and validate portable PCL reproductions
+refs/remotes/origin/codex/e02-E-pcl-20261006	ee6f2fb6d2059342c6f228b90447841f0077e585	2026-10-06T13:32:50Z	Record native PCL configured-store evidence and closure handoff
+refs/remotes/origin/codex/e02-F-api-20261006	605dadeb76499c3f6eadd95e16a8df1bbb2cb89f	2026-10-07T07:57:06Z	docs(e02): hand off complete installed graph reconciliation and bounded consumers
+refs/remotes/origin/codex/e02-F-c08-20261008	ed50e8ee50afc6f345ce804b1d7d26a2edeb4061	2026-10-08T12:01:17Z	docs(e02-F): preserve exact graph proof handoff readback
+refs/remotes/origin/codex/e02-F-cau	08aaccebfce37aa652ff243fce8037ff48020807	2026-10-05T15:18:00Z	docs(e02): bind CAU validity companion and failing broad gates
+refs/remotes/origin/codex/e02-F-cau-20261006	a7204961ac1028965c58224fe40e6bb3a397d8a8	2026-10-07T16:56:39Z	docs(e02): publish bounded B204 clean-rollout companion receipts
+refs/remotes/origin/codex/e02-F-causal-api	0b6d872d8a681b1725abb5e2e3f57f9668e31c69	2026-10-05T15:31:23Z	docs(e02): normalize bounded API receipt outcome
+refs/remotes/origin/codex/e02-F-causal-output	9a952415bb988e6ff79983fa9ef782ac28f2e672	2026-10-05T14:39:10Z	Classify fallback probe precondition failures separately in ABI receipt
+refs/remotes/origin/codex/e02-F-closeout-20261006	baa6c2814748c53393d71c4dfc299d32d3883173	2026-10-08T12:18:48Z	docs(e02): publish reviewed ORCH03 source-qualified leaf delivery
+refs/remotes/origin/codex/e02-F-dowhy-20261006	c8c2319d6c48f23f90103322da8cd63bc959da6f	2026-10-06T12:02:05Z	docs(e02-F): bind DoWhy receipt IDs to original source cards
+refs/remotes/origin/codex/e02-F-economic-dtype	bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42	2026-10-05T14:25:18Z	docs(e02): bind independent dtype review to normalized log bytes
+refs/remotes/origin/codex/e02-F-economics	e642bb9025a67739c201393acca5712603cb064d	2026-10-05T13:58:56Z	docs(e02): hand off bounded economic witnesses and mixed-profile failure
+refs/remotes/origin/codex/e02-F-economics-20261006	fa53da2812eaa8578f79ec914b3b2abe4c491f3d	2026-10-07T08:00:37Z	docs(economics): hand off original baseline and PPO boundary proof
+refs/remotes/origin/codex/e02-F-fit-tmle	ef3f208db031671d9f0d5cefe1ffa68af0650f0a	2026-10-05T14:27:42Z	docs(e02-F): transfer complete FIT architecture diagnostic
+refs/remotes/origin/codex/e02-F-foundry	ea577ac3185829e066a39f51a8a2eae8f1bb5d43	2026-10-05T14:10:07Z	docs(e02): separate foundry implementation paths from companions
+refs/remotes/origin/codex/e02-F-fry-20261006	5bce2ea7066d5dc57c0a454de1580d71c79104af	2026-10-07T19:58:13Z	Qualify installed graph-profile consistency and discovery report consumers
+refs/remotes/origin/codex/e02-F-graph-20261006	ffae9fa4b45c23c3d2dca5c1bbf78d18418a7634	2026-10-07T09:41:51Z	docs(e02): transfer catalog resource source and ABI receipts
+refs/remotes/origin/codex/e02-F-graph-intake-20261006	2044260c39dc4988b37d5a1568b65a1cdb1e3d31	2026-10-06T11:52:03Z	docs(e02): publish bounded graph intake receipts and red gates
+refs/remotes/origin/codex/e02-F-graph-scm	85c16de9f16a4e21c05c516271b6c81e08b7a39f	2026-10-05T14:13:53Z	docs(e02): include reproducible native NetworkX oracle receipt
+refs/remotes/origin/codex/e02-F-handoff-index	f72e8fa6b7be831f8fda6f106c9d4f04572c4b69	2026-10-05T15:51:11Z	docs(e02): bind complete final reviewer recovery receipts
+refs/remotes/origin/codex/e02-F-installed-worker-20261006	3dde887e22592cdd7c1fe8865707afdfd72dc6fb	2026-10-06T13:00:18Z	docs(research): record latest installed causal consumer proofs
+refs/remotes/origin/codex/e02-F-lex	3fab28d98997527b2a26d46fe4e16220e42383b7	2026-10-05T14:28:42Z	docs(e02): record frozen Lex plan evidence and independent controls
+refs/remotes/origin/codex/e02-F-lex-20261006	77166daa0ff8b9659e3978447f9016c691694266	2026-10-06T11:49:54Z	docs(e02): separate bounded Lex evidence from finding closure
+refs/remotes/origin/codex/e02-F-rdd-20261006	15a04c4400497374416e167a5f61ebc12f61b8e4	2026-10-06T10:18:29Z	docs(e02): hand off sharp RDD criteria and complete scientific receipts
+refs/remotes/origin/codex/e02-F-tmle-20261006	e04ddf884071b17ffb1d021c9a6b23f826d76774	2026-10-07T08:00:25Z	docs(research): publish persisted TMLE consumer evidence
+refs/remotes/origin/codex/e02-L01-custody-20261008	25333d87e3e32795e2e89288d5f2bd70e8e756c9	2026-10-08T21:36:24+03:00	docs(e02): retain final custody time qualification reviews
+refs/remotes/origin/codex/e02-L02-authentic-20261008	c3b171010a7ce30b12d1dbd497eb646b9147afa0	2026-10-08T21:17:11+03:00	docs(e02): clarify L02 reader handoff wording
+refs/remotes/origin/codex/e02-ORCH04-recovery-20261008	91f458f37c67fb3620b0107735535629a8b60ede	2026-10-08T19:22:30Z	docs(e02): finalize ORCH04 source-qualified recovery handoff
+refs/remotes/origin/codex/e02-cloud-calibration-input-20261028	caa91a64d7d6afc4310186ba5fadbac2008dddab	2026-10-28T01:38:35+02:00	docs(e02): deliver exact calibration source input for cloud continuation
+refs/remotes/origin/codex/e02-cloud-repair-inputs-20261028	4b10f758dde8417be2638584ac810fc67ca36a24	2026-10-28T00:47:13+02:00	docs(e02): include governing canonical grammar in repair inputs
+refs/remotes/origin/codex/e02-composed-progress-20261028-r10	870855f3ca83fcb32d4bb91d00d34daab3151032	2026-10-28T12:44:37+02:00	test(runtime): select source-bound comparison fixtures
+refs/remotes/origin/codex/e02-composed-progress-20261028-r11	b349e5c17351b160ff39a8c23c1759a2c522f81f	2026-10-28T14:14:08+02:00	build(e02): retain compact public offline Q2 backend inputs
+refs/remotes/origin/codex/e02-composed-progress-20261028-r12	6dea075a5052183bb013e6a54a951ef689731c6f	2026-10-28T16:18:00+02:00	docs(e02): deliver compact held-source repair inputs
+refs/remotes/origin/codex/e02-composed-progress-20261028-r13	283fb609abfd483504e4f835c79d9b32db3738c0	2026-10-28T17:42:36+02:00	docs(e02): refresh the qualified Fabric schema reference
+refs/remotes/origin/codex/e02-composed-progress-20261028-r14	c1c795219a0caade5fd64fb52174f076e99d26f8	2026-10-28T19:12:28+02:00	fix(e02): compose typed source and execution proof mechanisms
+refs/remotes/origin/codex/e02-composed-progress-20261028-r17	320ceeac32ae5dcea44bfcfe884f74ffb6ba0127	2026-10-28T19:48:22+02:00	test(e02): bind physical origins and fresh consumer proofs
+refs/remotes/origin/codex/e02-composed-progress-20261028-r18	0c2169fd0d17dc59b49733fe6a001ec4114d2d1c	2026-10-28T20:48:18+02:00	feat(e02): compose selected SQL intake and shared input preparation
+refs/remotes/origin/codex/e02-composed-progress-20261028-r19	aa8571cba044ebe04d4db4f99432cb49abdde59a	2026-10-28T21:16:09+02:00	fix(e02): preserve CAS transport refs and extend remaining semantic oracles
+refs/remotes/origin/codex/e02-composed-progress-20261028-r2	45fe14d8fe6f6822efab491495886501158d4b45	2026-10-28T03:45:56+02:00	docs(e02): retain source-qualified progress and compact cloud inputs
+refs/remotes/origin/codex/e02-composed-progress-20261028-r22	a581bc46babc6d14411ba3d3c3291086d3f3dc7e	2026-10-29T00:00:27+02:00	wip(e02): compose selected-value acquisition reentry and API companions
+refs/remotes/origin/codex/e02-composed-progress-20261028-r3	b2dcf0ee106389216017a88620817c37d3746886	2026-10-28T05:10:03+02:00	docs(e02): reconcile provenance routes and carry held cloud source inputs
+refs/remotes/origin/codex/e02-composed-progress-20261028-r4	545c6990e2bfa42bf580b475e23cf88df04e71d8	2026-10-28T06:20:58+02:00	fix(e02): bind exact prepared calls and preserve physical Python dispatch
+refs/remotes/origin/codex/e02-composed-progress-20261028-r5	ea3d65682d76a5d66d514e525ad2212e5a85f669	2026-10-28T06:33:52+02:00	fix(e02): preserve source origin and derived writer custody across HTE
+refs/remotes/origin/codex/e02-composed-progress-20261028-r6	192fc44303c63e52e4dfa8e0b4ee77790bae3394	2026-10-28T07:30:39+02:00	docs(e02): retain native artifact proofs and managed cloud delivery
+refs/remotes/origin/codex/e02-composed-progress-20261028-r7	d9397c7c0458ec2980fa58115c5ee597eb58dbc8	2026-10-28T08:00:08+02:00	fix(scientist): admit engine array views and replay complete canonical comparison graphs
+refs/remotes/origin/codex/e02-composed-progress-20261028-r8	6ed657f7a5250b25db5a6fb2f589b049a964848d	2026-10-28T10:01:53+02:00	fix(e02): replay source-bound HTE assessments through the configured owner
+refs/remotes/origin/codex/e02-composed-progress-20261028-r9	ef7ea1ab5cc159d88b73ae19acde9a781ae37453	2026-10-28T11:30:35+02:00	fix(fabric): share exact JOIN key equivalence across counts and materialization
+refs/remotes/origin/codex/e02-composed-progress-20261029-r23	558d24d33f6bfa13d314c033c078b76959ae2d99	2026-10-29T00:35:36+02:00	fix(e02): preserve selected binding profiles and align prerequisite fixtures
+refs/remotes/origin/codex/e02-composed-progress-20261029-r24	7ca0692dca42fbcc15d103a6c5d225b3740a88ee	2026-10-29T02:24:28+02:00	feat(e02): compose selected CAN.3 readers and fresh consumer oracles
+refs/remotes/origin/codex/e02-composed-progress-20261029-r25	f6729a62b00eda8e49cdb7db64ba28149d296e38	2026-10-29T02:34:19+02:00	test(e02): publish reusable TC SQL MC witness tools
+refs/remotes/origin/codex/e02-composed-progress-20261029-r28	ef4eff67881069da6a1809acd7dacacf4489f8b0	2026-10-29T04:02:18+02:00	fix(e02): preserve effective lessons and durable source request identity
+refs/remotes/origin/codex/e02-composed-progress-20261029-r29	0e852befd1fdde966c661dc1895d6f704dc5c184	2026-10-29T09:20:42+02:00	feat(e02): compose bounded method artifact writer and reviewed fixtures
+refs/remotes/origin/codex/e02-composed-progress-20261029-r30	2bef927ef838e53449f2c776447a094e46285d94	2026-10-29T09:31:41+02:00	fix(e02): authenticate rewritten witness code and share first-start capture
+refs/remotes/origin/codex/e02-composed-progress-20261029-r31	8864abd6174f8f81cbd4907ba320a580411afe24	2026-10-29T10:03:48+02:00	docs(e02): record source composition and remaining verification boundaries
+refs/remotes/origin/codex/e02-composed-progress-20261029-r35	06b7dad89ef337addc0516db72afd2e6a0742e4d	2026-10-29T12:12:18+02:00	docs(e02): declare generated surface compatibility and migration scope
+refs/remotes/origin/codex/e02-composed-progress-20261029-r37	2130f07de1eb93316d22bf5f91adc05ded67fbd2	2026-10-29T15:04:28+02:00	test(e02): bind real fixture inputs and record source-qualified progress
+refs/remotes/origin/codex/e02-composed-progress-20261029-r38	77daa2ab74d1a40f9ff8cfc67f309b41e6641222	2026-10-29T16:24:03+02:00	test(e02): add bounded registered SQL owner pilot
+refs/remotes/origin/codex/e02-composed-progress-20261029-r39	ec3020062090c0e4c7a9f3d03c4c304d31008358	2026-10-29T16:38:55+02:00	fix(e02): reconcile acquired world bridge with Foundry quantities
+refs/remotes/origin/codex/e02-composed-progress-20261029-r42	8f7c22436143cf52cf182b1fcc5c95d22b8be451	2026-10-29T18:05:33+02:00	test(e02): bind inline N7 fixture to actual compiler facets
+refs/remotes/origin/codex/e02-composed-progress-20261029-r45	9ea70eb5c58361a9e1588a748ccc66e45fd2431d	2026-10-29T18:25:59+02:00	feat(e02): compose reader-first N7 source and compiler join
+refs/remotes/origin/codex/e02-composed-progress-20261029-r51	730353031a9b74b559fc88b428cc4aaf56d38ffe	2026-10-29T20:36:55+02:00	fix(e02): bind N7 owner requests and reject nonfinite sealed values
+refs/remotes/origin/codex/e02-composed-progress-20261029-r59	662237cec3f0d7f9b01d4ba89f2ad5bdb23a3c80	2026-10-29T22:09:14+02:00	docs(e02): record reviewed source and bounded verification progress
+refs/remotes/origin/codex/e02-composed-progress-20261030-r106	4c9ff728c0c84d690c06f92bdfa3caa8bdfc074e	2026-10-30T03:41:57+02:00	docs(e02): preserve source-bound local progress and open verification boundaries
+refs/remotes/origin/codex/e02-composed-progress-20261030-r125	e151479e1349639c89daf026a1b8282772194f80	2026-10-30T05:57:45+02:00	docs(e02): preserve progress and request child-scope ruling
+refs/remotes/origin/codex/e02-composed-progress-20261030-r183	87cd7f41303d0df4e962ef510badd733fdab4f9b	2026-10-30T14:28:02+02:00	docs(e02): record current local proofs and loaded execution decision
+refs/remotes/origin/codex/e02-composed-progress-20261030-r79	992c333d3d2d14b4f113a58e5179625a95573aac	2026-10-30T01:40:56+02:00	docs(e02): record local N7 V3 controls and remaining runtime gaps
+refs/remotes/origin/codex/e02-composed-progress-20261030-r84	78e342fc92cdf51a7940a2c93bc23577fecea8df	2026-10-30T02:13:53+02:00	fix(runtime): preserve bound candidate acquisition escalation
+refs/remotes/origin/codex/e02-execution-progress-20261027	6f0125c62338532deaae40f1bb4b4dbe355159d4	2026-10-28T00:25:45+02:00	fix(e02): verify selected search history without changing evaluation wire
+refs/remotes/origin/codex/e02-execution-wave3-20261028	c863b9eae6439138ce60515d6204c84e138a8c9b	2026-10-28T00:29:10+02:00	test(e02): construct typed Treasury and fiscal replay inputs
+refs/remotes/origin/codex/e02-integration	2a07cd8a16bad0191b302f71c699b3bf9082ebac	2026-10-24T17:26:27+03:00	docs: redteam R26 card routing and execution boundaries
+refs/remotes/origin/codex/e02-retired-e02-b26-served-consumer-bridge-20260929-draft	60e86a29c70332c0d5caac5d96bccbf4a4653424	2026-10-05T21:02:17+03:00	Retain existing e02-b26-served-consumer-bridge-20260929 source from obsolete scratch checkout
+refs/remotes/origin/codex/e02-retired-e02-r1-positive-bridge-code-20260927-draft	25ce5321896e4825b7465bd1872e420f01bdef37	2026-10-05T21:02:17+03:00	Retain existing e02-r1-positive-bridge-code-20260927 source from obsolete scratch checkout
+refs/remotes/origin/codex/e02-retired-e02-r11-owr-projection-20260926-draft	ad28258e29350ca09da46b488059a35622d60d36	2026-10-05T21:02:18+03:00	Retain existing e02-r11-owr-projection-20260926 source from obsolete scratch checkout
+refs/remotes/origin/codex/e02-retired-mig02-readback-tests-20261005	0ec18c55ce3abdebe198987374e803c7f9b45912	2026-10-05T16:54:29+03:00	test(runtime): exercise migration readback and recovery
+refs/remotes/origin/codex/e02-retired-r1-l4-period-coverage-20261005	75a095b0752db290b0fa7f8a1ee676c89233880e	2026-10-05T20:43:42+03:00	Retain existing r1-l4-period-coverage draft from retired workspace
+refs/remotes/origin/codex/e02-unified-local-20261009	87cd7f41303d0df4e962ef510badd733fdab4f9b	2026-10-30T14:28:02+02:00	docs(e02): record current local proofs and loaded execution decision
+refs/remotes/origin/fix/ci-bootstrap-ordering	b36168bc22f83f9ed95463ee53f8a57066ba7a41	2026-07-29T16:50:06+03:00	fix CI bootstrap ordering and dependency closure
+refs/remotes/origin/gh-pages	ad03d7745d83865e8bb6ca9d7fa1b03356162139	2026-04-03T12:53:23+03:00	Deployed 03f979a with MkDocs version: 1.6.1
+refs/remotes/origin/int-r2-fresh	5e6a7063da770122155af6300647d0cd2e9c17ea	2026-08-29T13:47:10+03:00	research(INT-R2): add external primary source ledger
+refs/remotes/origin/int-r3-audit	8e9be1e5e737312f92579b57a7f011b9b14d3a46	2026-08-29T13:08:30+03:00	audit(INT-R3): issue independent verdict
+refs/remotes/origin/int-r5-fresh	02e203de90d51280d569e7f641a158569ae4df39	2026-08-29T13:22:35+03:00	research(INT-R5): complete decision authority research package
+refs/remotes/origin/integration/2026-09-06-eight-day-integration	a8d323a2f63f1e4a02693215d1c6aead8e8802b0	2026-09-07T17:53:46+03:00	docs(debt): register the pre-push gate that disagrees with CI
+refs/remotes/origin/main	198076863e143dea9f89f02734b13d50dae3eed5	2026-10-06T12:09:17+03:00	docs(e02): publish six owner continuation prompts from main checkpoint
+refs/remotes/origin/r2-amend	0afc3779e2894f2793cc40150d6923589bd36ee6	2026-08-29T15:03:25+03:00	amend(INT-R2): reconcile independent-audit findings
+refs/remotes/origin/r2-audit	dbdb1243a277f0864cae9af240ff1d13786d99df	2026-08-29T14:21:45+03:00	audit(INT-R2): issue independent verdict
+refs/remotes/origin/r3-amend	32cfebd02354b4d70fbf8beaca168aea6f2e72ee	2026-08-29T14:01:59+03:00	amend(INT-R3): correct durable external source identifiers
+refs/remotes/origin/r3-verify	81635e8878ec99dd6d9e06fc7c53fb6f13ade434	2026-08-29T14:56:26+03:00	verify(INT-R3): verify amendment against audit findings
+refs/remotes/origin/r4r5-audit	ea2eac5575e5b8fb4a5462c068a37bb913076952	2026-08-29T14:53:26+03:00	audit(INT-R4 OPS-R5): complete recommended revision and closure tests
+refs/remotes/origin/r4r5-fresh	c3999897b5be2308513846935f1c4fb68157bcb3	2026-08-29T13:54:43+03:00	research(INT-R4 OPS-R5): correct INT-R4 finding denominator
+refs/remotes/origin/research-int-r3	819a83a88315a90320fdd4b25fcb328b434c77de	2026-08-28T22:46:47+03:00	research(INT-R3): specify authority UI comprehension benchmark
+refs/remotes/origin/research-int-r4	dc7bdf79a1eff91349351a2f11dc498fe1ad7b4f	2026-08-28T16:33:53+03:00	docs: bind the GY-O0 closure records to their merge commit
+refs/remotes/origin/research/cv-dr-decisions	7a51507da45cb10a29f731a114932efdac7c04c5	2026-09-17T17:34:14+03:00	research(cv-dr): publish the CV-DR final decision packages
+refs/remotes/origin/research/int-r2-amendment	0afc3779e2894f2793cc40150d6923589bd36ee6	2026-08-29T15:03:25+03:00	amend(INT-R2): reconcile independent-audit findings
+refs/remotes/origin/research/int-r2-amendment-verification	b48cdb131c2a8d4f9b30ce217dfa3efcd65119fa	2026-08-29T15:36:26+03:00	verify(INT-R2): issue amendment-verification verdict
+refs/remotes/origin/research/int-r2-independent-audit	dbdb1243a277f0864cae9af240ff1d13786d99df	2026-08-29T14:21:45+03:00	audit(INT-R2): issue independent verdict
+refs/remotes/origin/research/int-r2-research	5e6a7063da770122155af6300647d0cd2e9c17ea	2026-08-29T13:47:10+03:00	research(INT-R2): add external primary source ledger
+refs/remotes/origin/research/int-r3-amendment	32cfebd02354b4d70fbf8beaca168aea6f2e72ee	2026-08-29T14:01:59+03:00	amend(INT-R3): correct durable external source identifiers
+refs/remotes/origin/research/int-r3-amendment-verification	81635e8878ec99dd6d9e06fc7c53fb6f13ade434	2026-08-29T14:56:26+03:00	verify(INT-R3): verify amendment against audit findings
+refs/remotes/origin/research/int-r3-independent-audit	8e9be1e5e737312f92579b57a7f011b9b14d3a46	2026-08-29T13:08:30+03:00	audit(INT-R3): issue independent verdict
+refs/remotes/origin/research/int-r3-research	819a83a88315a90320fdd4b25fcb328b434c77de	2026-08-28T22:46:47+03:00	research(INT-R3): specify authority UI comprehension benchmark
+refs/remotes/origin/research/int-r4-ops-r5-amendment	329edb60f77867f914581d380acfccf5882d607d	2026-08-29T15:43:33+03:00	amendment(INT-R4): finalize disposition ledger and closure record
+refs/remotes/origin/research/int-r4-ops-r5-amendment-verification	082ddc26c2f8db55104ccb95518b72d84d94a06b	2026-08-29T19:11:28+03:00	verify(INT-R4 OPS-R5): record independent orientation measurements
+refs/remotes/origin/research/int-r4-ops-r5-independent-audit	ea2eac5575e5b8fb4a5462c068a37bb913076952	2026-08-29T14:53:26+03:00	audit(INT-R4 OPS-R5): complete recommended revision and closure tests
+refs/remotes/origin/research/int-r4-ops-r5-research	c3999897b5be2308513846935f1c4fb68157bcb3	2026-08-29T13:54:43+03:00	research(INT-R4 OPS-R5): correct INT-R4 finding denominator
+refs/remotes/origin/research/int-r5-amendment	70f2db6d3a4330664c981721a9305f16bffe369b	2026-08-29T20:19:06+03:00	amend(INT-R5): add 18-row amendment ledger
+refs/remotes/origin/research/int-r5-amendment-verification	d9223d12bf7cb4826c6f1f888d84275364c35fe7	2026-08-29T22:43:52+03:00	verify(INT-R5): add inline content-head receipts
+refs/remotes/origin/research/int-r5-independent-audit	247f89f016f71ee603ed76ef6dbb6403f7e651a0	2026-08-29T14:23:13+03:00	audit(INT-R5): correct Step 0 skeleton commit readback
+refs/remotes/origin/research/int-r5-research	02e203de90d51280d569e7f641a158569ae4df39	2026-08-29T13:22:35+03:00	research(INT-R5): complete decision authority research package
+refs/remotes/origin/research/int-r6-amendment	8137aa31a4bf5e06c6b1abd4e20458295fd5a506	2026-08-30T08:55:51+03:00	docs(research): record INT-R6 ledger receipts
+refs/remotes/origin/research/int-r6-amendment-verification	1accee3534befa8ce9bc656a1b35f8eaca7e9b74	2026-08-30T09:49:57+03:00	docs(verification): record INT-R6 content-head receipts
+refs/remotes/origin/research/int-r6-delta-verification	24b6813d11e87a30e849bf4a799293e682bd7fed	2026-08-30T12:47:51+03:00	docs(verification): record INT-R6 delta-verification receipts
+refs/remotes/origin/research/int-r6-independent-audit	bae4f8c2b5e5ef340dda73f17bfe852c1d0d3cee	2026-08-29T20:47:35+03:00	docs(audit): compress INT-R6 revision criteria
+refs/remotes/origin/research/int-r6-remediation	eb9b135089d4a54b648973db02f0312b276ea2ea	2026-08-30T12:21:58+03:00	docs(int-r6): record bounded remediation receipts
+refs/remotes/origin/research/int-r6-research	5e47c868c2c1d4d66fa11fcddcc972dbb55e95d3	2026-08-29T19:03:47+03:00	docs(research): repair INT-R6 package delivery path
+refs/remotes/origin/research/wave5-consolidation	ccc4601e8f54eb0378ef1586405d9a5097c45e3e	2026-08-30T14:45:36+03:00	docs: prove wave 5 question deduplication

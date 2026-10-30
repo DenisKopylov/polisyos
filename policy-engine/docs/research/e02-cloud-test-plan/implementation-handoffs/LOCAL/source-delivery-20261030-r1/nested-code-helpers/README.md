@@ -1,0 +1,3 @@
+# Additional nested E02 source helpers
+
+These are deduplicated source-language files found in one recursive pass through the three named E02 proposal roots. The catalog pins exact bytes, original paths and explicit exclusions. They include helper modules and experimental source snapshots; no claim is made that they are applied product code or independently verified. Environments, dependency directories, test-generated temporary trees, data, output and preimage/baseline copies are excluded. A file already preserved in the preceding source bundles or present as a Git HEAD blob is not copied again.

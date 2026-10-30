@@ -1,0 +1,179 @@
+diff --git a/policy-engine/release-fragments/unreleased/2026-10-30-e02-n7-source-refusal-reason.toml b/policy-engine/release-fragments/unreleased/2026-10-30-e02-n7-source-refusal-reason.toml
+new file mode 100644
+--- /dev/null
++++ b/policy-engine/release-fragments/unreleased/2026-10-30-e02-n7-source-refusal-reason.toml
+@@ -0,0 +1,14 @@
++id = "2026-10-30-e02-n7-source-refusal-reason"
++title = "Preserve N7 source binding refusal reasons"
++type = "fixed"
++component = "runtime"
++owner = "team-polisyos"
++summary = "Keep a detected source-family conflict when compiler routing finds no matching requirement."
++evidence = ["tests/unit/runtime/quality/test_generation_cycle.py"]
++compatibility = "Blocked, unestimated outcomes retain the more specific source binding refusal; no candidate is promoted."
++change_class = "internal"
++surface_classification = "internal"
++generated_client_compatibility = "not_applicable"
++public_surface_inventory_reviewed = false
++migration_docs = ["src/polisyos/runtime/quality/README.md"]
++runbook_docs = []
+diff --git a/policy-engine/src/polisyos/runtime/quality/README.md b/policy-engine/src/polisyos/runtime/quality/README.md
+--- a/policy-engine/src/polisyos/runtime/quality/README.md
++++ b/policy-engine/src/polisyos/runtime/quality/README.md
+@@ -1643,6 +1643,9 @@
+ cycle consistency check; the checkpoint reference's custody is checked by the
+ later dispatcher. It does not independently establish the producer or semantic
+ admissibility of a profile already present in that revision.
++An already detected source or family binding refusal is retained as the route
++reason; a subsequent empty compiler match cannot replace it. The route remains
++blocked and unestimated, and the compiler basis keeps its actual grade.
+ 
+ The planner-report CAS writer preserves explicit nulls using its recorded Core
+ canonical profile, because optional capability-resolution field presence is part
+diff --git a/policy-engine/src/polisyos/runtime/quality/generation_cycle.py b/policy-engine/src/polisyos/runtime/quality/generation_cycle.py
+--- a/policy-engine/src/polisyos/runtime/quality/generation_cycle.py
++++ b/policy-engine/src/polisyos/runtime/quality/generation_cycle.py
+@@ -10105,7 +10105,13 @@
+         if type(report) is not DataRequirementCompilationReport:
+             raise GenerationCycleError("n7_compiler_report_binding_refused", "report_untyped")
+         routed_compiler_gaps: tuple[AcquisitionRequirementGap, ...] = ()
+-        if source_gap is not None and not request_binding_refused:
++        if (
++            source_gap is not None
++            and not request_binding_refused
++            and routing_limitation_code is None
++        ):
++            # A source/request refusal is final for this route. A later empty
++            # compiler match must not overwrite the earlier, specific reason.
+             routed_compiler_gaps, routing_limitation_code = _n7_route_compiler_gaps(
+                 source_gap=source_gap,
+                 specs=tuple(report.specs),
+diff --git a/policy-engine/tests/unit/runtime/quality/test_generation_cycle.py b/policy-engine/tests/unit/runtime/quality/test_generation_cycle.py
+--- a/policy-engine/tests/unit/runtime/quality/test_generation_cycle.py
++++ b/policy-engine/tests/unit/runtime/quality/test_generation_cycle.py
+@@ -10835,8 +10835,8 @@
+     source_root, catalog_source = n7_complete_catalog_source
+     assert current_catalog_serving_source() is catalog_source
+     controller = GenerationCycleController(
+-        generation_port=_CgfGenerationPort(),
+-        value_port=_DataGapValuePort(),
++        generation_port=_CgfGenerationPort(target_world_slots=("administrative_tax_receipts",)),
++        value_port=_CostedDataGapValuePort(),
+         authority_scope="contract_testing",
+         repo_root=source_root,
+         catalog_serving_source=catalog_source,
+@@ -10866,7 +10866,11 @@
+     assert persisted_report.status == "warn"
+     assert persisted_report.basis_limitation_code == "consumer_declared_basis_candidate_only"
+     assert len(persisted_report.acquisition_records) == 1
+-    assert cycle.acquisition_cost_basis_record.missing_distribution == "firm_survival"
++    assert cycle.acquisition_cost_basis_record.missing_distribution == "administrative_tax_receipts"
++    assert cycle.acquisition_cost_basis_record.schedule_content_hash == (
++        "sha256:258c2dd22214b8a3bf9157cb6ad186b6320317b526d2f951098bd72ead9328d3"
++    )
++    assert cycle.acquisition_cost_basis_record.total_amount == 1255.0
+     assert (
+         cycle.acquisition_cost_basis_hash == cycle.acquisition_cost_basis_record.record_content_hash
+     )
+@@ -10889,10 +10893,54 @@
+ 
+ 
+ @pytest.mark.asyncio
++async def test_n7_unscheduled_source_gap_stays_uncosted_candidate(
++    tmp_path: Path,
++    n7_complete_catalog_source: tuple[Path, Any],
++) -> None:
++    """The prior source remains a candidate gap but cannot invent a schedule row."""
++    from polisyos.runtime.quality.acquisition_planner import load_acquisition_planner_report
++
++    source_root, catalog_source = n7_complete_catalog_source
++    controller = GenerationCycleController(
++        generation_port=_CgfGenerationPort(),
++        value_port=_DataGapValuePort(),
++        authority_scope="contract_testing",
++        repo_root=source_root,
++        catalog_serving_source=catalog_source,
++        artifact_store=FileSystemCAS(tmp_path / ".tmp/n6-generation-source-cas"),
++    )
++    run = await controller.run(_problem(), budget_state=_budget(), max_cycles=1)
++    cycle = run.cycles[0]
++    assert cycle.acquisition_routing_report_ref is not None
++    assert cycle.acquisition_routing_report is not None
++    assert cycle.acquisition_cost_basis_record is None
++    assert cycle.acquisition_receipt is None
++    assert controller._source_repository is not None
++    fresh = FileSystemCAS.open_existing_read_only(tmp_path / ".tmp/n6-generation-source-cas")
++    report = load_acquisition_planner_report(fresh, cycle.acquisition_routing_report_ref)
++    assert report == cycle.acquisition_routing_report
++    assert report.requirement_basis_binding is not None
++    assert report.requirement_basis_binding.resolution.basis_grade == "consumer_asserted"
++    assert report.status == "warn"
++    assert report.basis_limitation_code == "consumer_declared_basis_candidate_only"
++    source_gap = generation_cycle_module._cycle_acquisition_requirement(
++        cycle.grounding, cycle.value_port
++    )
++    assert source_gap is not None
++    assert generation_cycle_module._requirement_missing_distributions(source_gap) == (
++        "firm_survival",
++    )
++    assert len(report.acquisition_records) == 1
++    assert source_gap.requirement_gap_id in report.acquisition_records[0].scenario_requirement_refs
++
++
++@pytest.mark.asyncio
+ async def test_conflicting_n7_family_declaration_is_costed_refusal(
+     tmp_path: Path,
+     n7_complete_catalog_source: tuple[Path, Any],
+ ) -> None:
++    from polisyos.runtime.quality.acquisition_planner import load_acquisition_planner_report
++
+     class _ConflictingFamilyRevision:
+         def __call__(self, **kwargs: Any) -> Any:
+             default = kwargs["default_revision"]
+@@ -10914,12 +10962,33 @@
+         artifact_store=FileSystemCAS(tmp_path / ".tmp/n6-generation-source-cas"),
+     )
+ 
+-    run = await controller.run(_problem(), budget_state=_budget(), max_cycles=1)
++    problem = _problem()
++    run = await controller.run(problem, budget_state=_budget(), max_cycles=1)
+ 
+     cycle = run.cycles[0]
+     assert cycle.acquisition_routing_report is not None, cycle.counterexample.diagnostic.model_dump(
+         mode="json"
+     )
++    request = cycle.revision_request.strategy_payload["acquisition_request"]
++    assert request["required_data_families"] == ("other_panel",)
++    source_gap, source_error = generation_cycle_module._n7_cycle_source_gap(
++        problem, cycle=cycle, acquisition_request=request
++    )
++    assert source_gap is not None
++    assert source_error is None
++    families, family_error = generation_cycle_module._n7_compiler_families_for_source_gap(
++        problem, acquisition_request=request, source_gap=source_gap
++    )
++    assert families == ()
++    assert family_error == "unbound_requirement_input_refused"
++    basis = controller._n7_data_requirement_basis_with_report(
++        problem, acquisition_request=request, cycle=cycle
++    )
++    assert basis.unbound_input_fields == ()
++    assert basis.compilation_report.requirement_basis.basis_grade == "not_established"
++    assert basis.specs == ()
++    assert basis.routed_compiler_gaps == ()
++    assert basis.routing_limitation_code == "unbound_requirement_input_refused"
+     assert cycle.acquisition_cost_basis_record is None
+     assert cycle.acquisition_routing_report.status == "blocked"
+     assert cycle.acquisition_routing_report.basis_limitation_code == (
+@@ -10927,6 +10996,11 @@
+     )
+     assert cycle.acquisition_routing_report.cost_estimation_status == "not_estimated"
+     assert cycle.acquisition_routing_report.acquisition_records == ()
++    assert cycle.acquisition_routing_report_ref is not None
++    fresh = FileSystemCAS.open_existing_read_only(tmp_path / ".tmp/n6-generation-source-cas")
++    assert load_acquisition_planner_report(fresh, cycle.acquisition_routing_report_ref) == (
++        cycle.acquisition_routing_report
++    )
+ 
+ 
+ @pytest.mark.asyncio

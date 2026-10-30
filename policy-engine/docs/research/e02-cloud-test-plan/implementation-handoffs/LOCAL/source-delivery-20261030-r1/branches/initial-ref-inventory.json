@@ -1,0 +1,5278 @@
+{
+  "audit_author_head": "87cd7f41303d0df4e962ef510badd733fdab4f9b",
+  "audit_tree": "c82965fc5c6c4f985f9d3a2943f3744c5dab0f5e",
+  "remote_target_as_user_stated": "origin/main; last exact fetched SHA known to parent 198076863e143dea9f89f02734b13d50dae3eed5, author is descendant",
+  "inventory_inputs": [
+    "initial read-only refs snapshot",
+    "direct remote-head snapshot",
+    "current refs visible after parent fetch, read only",
+    "author HEAD"
+  ],
+  "counts": {
+    "snapshot_local_refs": 796,
+    "snapshot_remote_head_refs": 222,
+    "current_refs": 797,
+    "combined_ref_records": 1816,
+    "combined_unique_tip_shas": 701,
+    "readable_tips": 701,
+    "missing_tip_objects": [],
+    "tip_ancestry_vs_author": {
+      "tip_already_in_author_head": 412,
+      "diverged_from_author_head": 288,
+      "author_head": 1
+    },
+    "maximal_tips_including_author": 233,
+    "maximal_non_author_tips": 232,
+    "maximal_diverged_tips": 232,
+    "divergent_maximal_tips_with_changed_path_intersection": 207,
+    "sum_branch_side_changed_paths_across_divergent_maximal": 33418,
+    "pairwise_base_path_intersections_across_divergent_maximal": 0
+  },
+  "top_shared_changed_paths": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "diverged_tips_touching": 16
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+      "diverged_tips_touching": 10
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "diverged_tips_touching": 10
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "diverged_tips_touching": 10
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "diverged_tips_touching": 10
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+      "diverged_tips_touching": 10
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources_ingest.py",
+      "diverged_tips_touching": 8
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "diverged_tips_touching": 8
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+      "diverged_tips_touching": 8
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py",
+      "diverged_tips_touching": 7
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/writers.py",
+      "diverged_tips_touching": 7
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+      "diverged_tips_touching": 7
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/data_plane/modes.py",
+      "diverged_tips_touching": 7
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+      "diverged_tips_touching": 7
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "diverged_tips_touching": 7
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+      "diverged_tips_touching": 7
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "diverged_tips_touching": 7
+    },
+    {
+      "path": "policy-engine/docs/reference/public-surface.md",
+      "diverged_tips_touching": 7
+    },
+    {
+      "path": "policy-engine/architecture/public_surface/inventory.json",
+      "diverged_tips_touching": 7
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/transformers.py",
+      "diverged_tips_touching": 7
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/kernel/embeddings.py",
+      "diverged_tips_touching": 7
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/registry.py",
+      "diverged_tips_touching": 7
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_dfi_02.py",
+      "diverged_tips_touching": 7
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
+      "diverged_tips_touching": 7
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "diverged_tips_touching": 6
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+      "diverged_tips_touching": 6
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+      "diverged_tips_touching": 6
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py",
+      "diverged_tips_touching": 6
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "diverged_tips_touching": 6
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "diverged_tips_touching": 6
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+      "diverged_tips_touching": 6
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/embedder.py",
+      "diverged_tips_touching": 6
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/kernel/test_embeddings.py",
+      "diverged_tips_touching": 6
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+      "diverged_tips_touching": 6
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/kernel/README.md",
+      "diverged_tips_touching": 6
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_proving_ground_substrate_grounding_search.py",
+      "diverged_tips_touching": 6
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_proving_ground_causal_forecast_search.py",
+      "diverged_tips_touching": 6
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+      "diverged_tips_touching": 6
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/README.md",
+      "diverged_tips_touching": 6
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/sources/__init__.py",
+      "diverged_tips_touching": 6
+    }
+  ],
+  "divergent_maximal_tip_overlap_samples": [
+    {
+      "oid": "167674c7174ec56e3a88c4a0c821e6cd18bdd5bb",
+      "shared_changed_paths": 140,
+      "branch_changed_paths": 140,
+      "author_changed_paths": 19994,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-orchestration-policy"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-orchestration-policy"
+        }
+      ]
+    },
+    {
+      "oid": "373c9623071f60c08f5e362e61d211829e5d8f5a",
+      "shared_changed_paths": 113,
+      "branch_changed_paths": 4183,
+      "author_changed_paths": 18704,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-net-ing-20261007"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-net-ing-20261007"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-net-ing-20261007"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-net-ing-20261007"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-net-ing-20261007"
+        }
+      ]
+    },
+    {
+      "oid": "64355beb636c20c2eb8b586af18a51b503fe40f8",
+      "shared_changed_paths": 106,
+      "branch_changed_paths": 4306,
+      "author_changed_paths": 18593,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-D-oct07-continuation"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-D-oct07-continuation"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-D-oct07-continuation"
+        }
+      ]
+    },
+    {
+      "oid": "53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "shared_changed_paths": 105,
+      "branch_changed_paths": 4981,
+      "author_changed_paths": 18629,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-B-current-coordination"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-B-current-coordination"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-B-current-coordination"
+        }
+      ]
+    },
+    {
+      "oid": "7bf53fd0cf69a568b37d8a881e26bfb16c315653",
+      "shared_changed_paths": 81,
+      "branch_changed_paths": 9167,
+      "author_changed_paths": 18516,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-E-continuation-20261006"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-E-continuation-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-E-continuation-20261006"
+        }
+      ]
+    },
+    {
+      "oid": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+      "shared_changed_paths": 65,
+      "branch_changed_paths": 1377,
+      "author_changed_paths": 11676,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-A-delivery-attached"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-A-delivery-attached"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-A-delivery-attached"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-A-delivery-attached"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-A-delivery-attached"
+        }
+      ]
+    },
+    {
+      "oid": "8520e63ca6d854943d29abd94804b7f0e355b963",
+      "shared_changed_paths": 64,
+      "branch_changed_paths": 107,
+      "author_changed_paths": 19246,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-E-assessment"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-E-assessment"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-E-assessment"
+        }
+      ]
+    },
+    {
+      "oid": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+      "shared_changed_paths": 58,
+      "branch_changed_paths": 274,
+      "author_changed_paths": 19102,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-F-installed-worker-20261006"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-F-installed-worker-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-F-installed-worker-20261006"
+        }
+      ]
+    },
+    {
+      "oid": "51609922447716115c22287ac79c218d13cd9067",
+      "shared_changed_paths": 56,
+      "branch_changed_paths": 176,
+      "author_changed_paths": 19102,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-legal-query-20261007"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-legal-query-20261007"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-legal-query-20261007"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-legal-query-20261007"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-legal-query-20261007"
+        }
+      ]
+    },
+    {
+      "oid": "77c5cd319c92e52932b1bf15c342b24a41e7b051",
+      "shared_changed_paths": 56,
+      "branch_changed_paths": 165,
+      "author_changed_paths": 19102,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-legal-review-20261007"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-legal-review-20261007"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-legal-review-20261007"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-legal-review-20261007"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-legal-review-20261007"
+        }
+      ]
+    },
+    {
+      "oid": "fcf164eb1c5bb54786462e67ba2537313b33b90d",
+      "shared_changed_paths": 56,
+      "branch_changed_paths": 350,
+      "author_changed_paths": 19102,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-orch02-c12-recovery"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-orch02-c12-recovery"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-orch02-c12-recovery"
+        }
+      ]
+    },
+    {
+      "oid": "eee090e345d1121d3d53cdd93a7ab32f818d5ef7",
+      "shared_changed_paths": 55,
+      "branch_changed_paths": 458,
+      "author_changed_paths": 19102,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-orch02-c05-recovery"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-orch02-c05-recovery"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-orch02-c05-recovery"
+        }
+      ]
+    },
+    {
+      "oid": "fe15a3604801f9a8c4fda51c73f51976f52d6c25",
+      "shared_changed_paths": 39,
+      "branch_changed_paths": 191,
+      "author_changed_paths": 19102,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-migrations-20261006"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-migrations-20261006"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-migrations-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-migrations-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-migrations-20261006"
+        }
+      ]
+    },
+    {
+      "oid": "40d27423aa7835bc8439f139d84ff1bc909ea14a",
+      "shared_changed_paths": 33,
+      "branch_changed_paths": 117,
+      "author_changed_paths": 19102,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-dfi-emb-20261006"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-dfi-emb-20261006"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-dfi-emb-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-dfi-emb-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-dfi-emb-20261006"
+        }
+      ]
+    },
+    {
+      "oid": "4f55312a51bcd95ee125ac2f1bec1df59b0d65c3",
+      "shared_changed_paths": 32,
+      "branch_changed_paths": 131,
+      "author_changed_paths": 19102,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-hygiene-20261006"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-hygiene-20261006"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-hygiene-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-hygiene-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-hygiene-20261006"
+        }
+      ]
+    },
+    {
+      "oid": "ffbb62165a85a8c8bedd8c11af8246273619ede1",
+      "shared_changed_paths": 29,
+      "branch_changed_paths": 274,
+      "author_changed_paths": 19244,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-D-orchestration"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-D-orchestration"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-D-orchestration"
+        }
+      ]
+    },
+    {
+      "oid": "1c71eba792b7b17270d2ec99f0ebcae741ee3f7b",
+      "shared_changed_paths": 26,
+      "branch_changed_paths": 428,
+      "author_changed_paths": 19245,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-B-acceptance"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-B-acceptance"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-B-acceptance"
+        }
+      ]
+    },
+    {
+      "oid": "b56ec6b1f802ab10d2927492bbc082f90c390139",
+      "shared_changed_paths": 25,
+      "branch_changed_paths": 36,
+      "author_changed_paths": 19246,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-hygiene"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-hygiene"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-hygiene"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-hygiene"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-hygiene"
+        }
+      ]
+    },
+    {
+      "oid": "b72c7c8dc0f2cdf2d9355386b0e55c005357bf1f",
+      "shared_changed_paths": 21,
+      "branch_changed_paths": 21,
+      "author_changed_paths": 19386,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-retired-r5-20261005"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-retired-r5-20261005"
+        }
+      ]
+    },
+    {
+      "oid": "ba5946ebc70bb63f30e4776d0426e19f37dffd31",
+      "shared_changed_paths": 21,
+      "branch_changed_paths": 22,
+      "author_changed_paths": 23267,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/gy-def6-e11"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/gy-def6-e11"
+        }
+      ]
+    },
+    {
+      "oid": "f7af77f3373e4d22f703efa7208c19c6ffed1746",
+      "shared_changed_paths": 20,
+      "branch_changed_paths": 53,
+      "author_changed_paths": 19102,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-scholar-20261006"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-scholar-20261006"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-scholar-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-scholar-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-scholar-20261006"
+        }
+      ]
+    },
+    {
+      "oid": "f857fa5aea53d286059d862ee1c265c9f5ca2dae",
+      "shared_changed_paths": 19,
+      "branch_changed_paths": 19,
+      "author_changed_paths": 19412,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-r2-ledger"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-r2-ledger"
+        }
+      ]
+    },
+    {
+      "oid": "47726a74e14fc96fec7cf8d0ed817cf2095367a0",
+      "shared_changed_paths": 17,
+      "branch_changed_paths": 17,
+      "author_changed_paths": 19836,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-scm-02"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-scm-02"
+        }
+      ]
+    },
+    {
+      "oid": "2b548c4494bfe6cb8dbb274008c36f7038023213",
+      "shared_changed_paths": 16,
+      "branch_changed_paths": 18,
+      "author_changed_paths": 19358,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-r2-b111-candidate"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-r2-b111-candidate"
+        }
+      ]
+    },
+    {
+      "oid": "8aecb0b6e08f8d37f09c70927761576583a89828",
+      "shared_changed_paths": 15,
+      "branch_changed_paths": 44,
+      "author_changed_paths": 19102,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-berl-20261006"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-berl-20261006"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-berl-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-berl-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-berl-20261006"
+        }
+      ]
+    },
+    {
+      "oid": "dd2e9476b055bd53b727d38064f08b00738ad97e",
+      "shared_changed_paths": 15,
+      "branch_changed_paths": 15,
+      "author_changed_paths": 19397,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-r2-r13-store-candidate"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-r2-r13-store-candidate"
+        }
+      ]
+    },
+    {
+      "oid": "dfaadaac01f21b7b3994109c3cc76d522a2a3cb3",
+      "shared_changed_paths": 15,
+      "branch_changed_paths": 24,
+      "author_changed_paths": 19246,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-catalog"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-catalog"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-catalog"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-catalog"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-catalog"
+        }
+      ]
+    },
+    {
+      "oid": "355f5e861be96ebf03ee97888a856da2c26f767f",
+      "shared_changed_paths": 14,
+      "branch_changed_paths": 38,
+      "author_changed_paths": 20051,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/docs/raw-evidence-ignore"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/docs/raw-evidence-ignore"
+        }
+      ]
+    },
+    {
+      "oid": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+      "shared_changed_paths": 14,
+      "branch_changed_paths": 94,
+      "author_changed_paths": 19102,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-F-dowhy-20261006"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-F-dowhy-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-F-dowhy-20261006"
+        }
+      ]
+    },
+    {
+      "oid": "cc1b9adaf987355429ef14318ec08d6429f5bd71",
+      "shared_changed_paths": 14,
+      "branch_changed_paths": 14,
+      "author_changed_paths": 19375,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-r1-n4-v3"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-r1-n4-v3"
+        }
+      ]
+    },
+    {
+      "oid": "d47ee070bf8a67c8ee8094b72c3cf7f9eb062e3b",
+      "shared_changed_paths": 14,
+      "branch_changed_paths": 14,
+      "author_changed_paths": 19383,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-retired-e02-b72-distributed-status-20260927-draft"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-retired-e02-b72-distributed-status-20260927-draft"
+        }
+      ]
+    },
+    {
+      "oid": "8a6f82e6c954bb9a5852eb6b88456e4ff7710651",
+      "shared_changed_paths": 13,
+      "branch_changed_paths": 13,
+      "author_changed_paths": 20008,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-fry-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-fry-01"
+        }
+      ]
+    },
+    {
+      "oid": "a502741e3678cced9bdeab45be9a6dd515b9e06a",
+      "shared_changed_paths": 13,
+      "branch_changed_paths": 13,
+      "author_changed_paths": 20006,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-grf-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-grf-01"
+        }
+      ]
+    },
+    {
+      "oid": "02a75f2b7a4846bcf5b6a8f301d2d4d20b9a99b2",
+      "shared_changed_paths": 12,
+      "branch_changed_paths": 222,
+      "author_changed_paths": 11625,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-E-c09-20261008"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-E-c09-20261008"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-E-c09-20261008"
+        }
+      ]
+    },
+    {
+      "oid": "4e9b3f2e0ff62cefcae6342b7fb1fcec5aa14d33",
+      "shared_changed_paths": 12,
+      "branch_changed_paths": 12,
+      "author_changed_paths": 19795,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-ing-03-schema-test"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-ing-03-schema-test"
+        }
+      ]
+    },
+    {
+      "oid": "cafeeffa1577d45c02e1ff22f0db9f9f698f9046",
+      "shared_changed_paths": 12,
+      "branch_changed_paths": 15,
+      "author_changed_paths": 19246,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-scholar"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-scholar"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-scholar"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-scholar"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-scholar"
+        }
+      ]
+    },
+    {
+      "oid": "375b090b95a867a3b5aca102bd2d2b015f5d8cec",
+      "shared_changed_paths": 11,
+      "branch_changed_paths": 11,
+      "author_changed_paths": 19376,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-retired-e02-r9-foundry-selected-view-candidate-20260927-draft"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-retired-e02-r9-foundry-selected-view-candidate-20260927-draft"
+        }
+      ]
+    },
+    {
+      "oid": "0e987eaf03dbd5cfc51c7ec6f28bacb47d0ddf8b",
+      "shared_changed_paths": 10,
+      "branch_changed_paths": 10,
+      "author_changed_paths": 19321,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-r2-r9-publication"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-r2-r9-publication"
+        }
+      ]
+    },
+    {
+      "oid": "34ee268f7caff865c4ff87860815b633c58bbad7",
+      "shared_changed_paths": 10,
+      "branch_changed_paths": 10,
+      "author_changed_paths": 19795,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-ddm-02-checker-test"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-ddm-02-checker-test"
+        }
+      ]
+    },
+    {
+      "oid": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+      "shared_changed_paths": 10,
+      "branch_changed_paths": 564,
+      "author_changed_paths": 19102,
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-continuation-20261006"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-continuation-20261006"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-continuation-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-continuation-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-continuation-20261006"
+        }
+      ]
+    }
+  ],
+  "maximal_non_author_tips": [
+    {
+      "oid": "0197fe58935d0721a72c26137538ac00cf9a51a5",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-dfi-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-dfi-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "dde83fa9f9ae4b735968fcd131fe5b588f320ba3"
+    },
+    {
+      "oid": "02a75f2b7a4846bcf5b6a8f301d2d4d20b9a99b2",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-E-c09-20261008"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-E-c09-20261008"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-E-c09-20261008"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b"
+    },
+    {
+      "oid": "03ea5babece94bd443022dd54998aab201f058b1",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-A-n5-readback"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-A-n5-readback"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-A-n5-readback"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-A-n5-readback"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-A-n5-readback"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    {
+      "oid": "041d8985d5270c694fab77b47af8db68787c7123",
+      "refs": [
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/diagnose-one-node-served-job-failure"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/diagnose-one-node-served-job-failure"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "0e852befd1fdde966c661dc1895d6f704dc5c184"
+    },
+    {
+      "oid": "04eb30817d16f270feae316650994f2e2f273a44",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-c54-review-20261007"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-c54-review-20261007"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-c54-review-20261007"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-c54-review-20261007"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-c54-review-20261007"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    {
+      "oid": "051dbdf2b8363c5d071007f61761fd1d2569144e",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-llm-02"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-llm-02"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "97d991dcae8f61c4d916d96dbf4d3260ce1a782e"
+    },
+    {
+      "oid": "08aaccebfce37aa652ff243fce8037ff48020807",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-F-cau"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-F-cau"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-F-cau"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "6a6ddfe9542000914bffd6502d72a166c1d33261"
+    },
+    {
+      "oid": "0a00a1f478d3c118408dfefcb75d582ceb2f7873",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-r2-retired/e02-r13-p41-snapshots-20261004T112245Z"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-r2-retired/e02-r13-p41-snapshots-20261004T112245Z"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "bedc23d74c858371e4cf2a079a0dfb38ec7620a8"
+    },
+    {
+      "oid": "0af60cb59cb49edcb93ebdc3b96da3cd6e877a2a",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-sim-01-next"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-sim-01-next"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "fafaa9f5d6780f12940b45da51e3e010e4900e81"
+    },
+    {
+      "oid": "0b38bd05cac0c831efeb35420cdd9ee40a6a9de2",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-cal-03"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-cal-03"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "e14426f0ff23951a002a17f571a84c2920cc2a11"
+    },
+    {
+      "oid": "0b6d872d8a681b1725abb5e2e3f57f9668e31c69",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-F-causal-api"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-F-causal-api"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-F-causal-api"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "baada065af0aaa4edafb8d53abce5fd797de2c6c"
+    },
+    {
+      "oid": "0c8842191a69e4c47158ad29de37ea1268b3fa41",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-A-selection-full"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-A-selection-full"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-A-selection-full"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-A-selection-full"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-A-selection-full"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    {
+      "oid": "0ca14b75327c4f79773095bcf70dcf838ed1c357",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-fun-02"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-fun-02"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "e1d66bbc6778a3e0c23f7e2fe9f8d749a787e807"
+    },
+    {
+      "oid": "0e65b08e87c17ed909f003b5473bbafd3980362b",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-scm-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-scm-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "023f88aab0b1cd327b98088b196787bb6d89756a"
+    },
+    {
+      "oid": "0e987eaf03dbd5cfc51c7ec6f28bacb47d0ddf8b",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-r2-r9-publication"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-r2-r9-publication"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "b5622447f9b2eeefc95f6b4faac2016ebb84f76f"
+    },
+    {
+      "oid": "0ec18c55ce3abdebe198987374e803c7f9b45912",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-retired-mig02-readback-tests-20261005"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-retired-mig02-readback-tests-20261005"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-retired-mig02-readback-tests-20261005"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-retired-mig02-readback-tests-20261005"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-retired-mig02-readback-tests-20261005"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    {
+      "oid": "1013ae0d2292f732a2f0518b25a5a682dc156e81",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-streaming"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-streaming"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-streaming"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-streaming"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-streaming"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    {
+      "oid": "1164718054d3a409269a724c832706b524f78864",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-migrations"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-migrations"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-migrations"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-migrations"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-migrations"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    {
+      "oid": "126885e9a348b9052e57c761540311b71d89638b",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-ing-01-h1"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-ing-01-h1"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "b922d57485b6ee8416880e4deecce2be1901ffd6"
+    },
+    {
+      "oid": "135288c6b8004becd45ee3c6273ea21a3abd60d4",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-trn-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-trn-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "d60daaac546d7d692b5c850ca6e59473ca28f0c7"
+    },
+    {
+      "oid": "13a723d8b6cb203583f856d949717427db858e37",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-client"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-client"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-client"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-client"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-client"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    {
+      "oid": "13c4af3f3fc9d062a050b49b9a3892ba38d04d01",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-sta-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-sta-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "01f3dfba07a62ad16acb96112fa772b6864cfd31"
+    },
+    {
+      "oid": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-F-rdd-20261006"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-F-rdd-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-F-rdd-20261006"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    {
+      "oid": "164cc001a81a570657079a1666e70ffe3650d82a",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-A-replay-full"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-A-replay-full"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-A-replay-full"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-A-replay-full"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-A-replay-full"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    {
+      "oid": "167674c7174ec56e3a88c4a0c821e6cd18bdd5bb",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-orchestration-policy"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-orchestration-policy"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "23c755f3e35d53ae11b364f457a481cf8e92b24c"
+    },
+    {
+      "oid": "16d54e8b31ca327c9bc4588da0f9ab513be0bc9f",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-cau-04"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-cau-04"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "296608f80b21c744fd0eed593acc886636769885"
+    },
+    {
+      "oid": "172e791ca9335954907ebfd789e95715a55963c8",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-handoff"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-handoff"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-handoff"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-handoff"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-handoff"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "3178752cc2ce065a0758efecf1d967201c0815e5"
+    },
+    {
+      "oid": "19405cd2a2a057290a192c09b0e117614bc5e3d5",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-ctl-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-ctl-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "188dc0488b921b70e0185d6c2c3c9496c236f893"
+    },
+    {
+      "oid": "1c71eba792b7b17270d2ec99f0ebcae741ee3f7b",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-B-acceptance"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-B-acceptance"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-B-acceptance"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "138b90b47897ecbab2fe495223873dfa532fc475"
+    },
+    {
+      "oid": "1dca66fd4a66018e718fafcde14c938738a9957f",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-req-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-req-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "e871a7459135c2bbcafa664f4001a488ffc5e2e8"
+    },
+    {
+      "oid": "1ed15b0e71693906e16e53a3d7958b995fdd1909",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-ing-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-ing-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "01f3dfba07a62ad16acb96112fa772b6864cfd31"
+    },
+    {
+      "oid": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-F-graph-intake-20261006"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-F-graph-intake-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-F-graph-intake-20261006"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    {
+      "oid": "20692bbe35f4bab1bdcacc9b6d4268e4f7df51aa",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-retired-e02-r9-cas-owner-first-candidate-20260930-draft"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-retired-e02-r9-cas-owner-first-candidate-20260930-draft"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "bedc23d74c858371e4cf2a079a0dfb38ec7620a8"
+    },
+    {
+      "oid": "20c057d918a385621598b428603586152afc41b4",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-r4-candidate"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-r4-candidate"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "79fac987eebc3fc6078cbd88438f05c9fcdbd3d5"
+    },
+    {
+      "oid": "233ad9ba5263f29b494bf908bd613ebe7adbd9a1",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-hyg-02"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-hyg-02"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "fafaa9f5d6780f12940b45da51e3e010e4900e81"
+    },
+    {
+      "oid": "25ce5321896e4825b7465bd1872e420f01bdef37",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-retired-e02-r1-positive-bridge-code-20260927-draft"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-retired-e02-r1-positive-bridge-code-20260927-draft"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-retired-e02-r1-positive-bridge-code-20260927-draft"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-retired-e02-r1-positive-bridge-code-20260927-draft"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-retired-e02-r1-positive-bridge-code-20260927-draft"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "6c7168566d51b22a4de8c0895c18291b3c697ca4"
+    },
+    {
+      "oid": "25f92860db509525f8e7d829ff060bed675ae154",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-E-ddm"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-E-ddm"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-E-ddm"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    {
+      "oid": "25fb6b4fe91a4fe7a2dfc889353c8df48df49f25",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-frc02-s10-bridge"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-frc02-s10-bridge"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "bdf4ce3c3b354170139a9472712fde90da8715ce"
+    },
+    {
+      "oid": "26ba51d571a5ccb5da26502d4d097d801cdc5b04",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-federation-20261006"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-federation-20261006"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-federation-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-federation-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-federation-20261006"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    {
+      "oid": "26c014f88c6c3a05bbeaafcac5032d69e652bb25",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-udf-04"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-udf-04"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "d5baed4e68cab064f191d94c4027de7ff71f7f7f"
+    },
+    {
+      "oid": "285f0b6787e458d0877b4349dcf6386b498a39aa",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-retired-scm-doc-companions-20261005"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-retired-scm-doc-companions-20261005"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "559bfc4569b30a1593d7791eea7632d0e3b3f0ae"
+    },
+    {
+      "oid": "289571b0b51d8404fe44702f1345552b6b10af32",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-A-custody"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-A-custody"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-A-custody"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-A-custody"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-A-custody"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    {
+      "oid": "28c1152d49f191eacba33fe3567a2886b9a00dd4",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/group-a-analysis"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/group-a-analysis"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "63bdb9640e7b76b49356cba940bab6067f1be512"
+    },
+    {
+      "oid": "2ac640c901be01971ad6af8cf93aed63a1799ce1",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-ddm-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-ddm-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "188dc0488b921b70e0185d6c2c3c9496c236f893"
+    },
+    {
+      "oid": "2b548c4494bfe6cb8dbb274008c36f7038023213",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-r2-b111-candidate"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-r2-b111-candidate"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "7efcb7619da6665cec1e6766b1e20a0bc02223fe"
+    },
+    {
+      "oid": "2ee0213b78e88bd3a00820605615a922b7d1bd98",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-A-n5-tests-full"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-A-n5-tests-full"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    {
+      "oid": "2eebc0b2e48d42c663ae981cc92cad0dab994bdf",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-fed-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-fed-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "dde83fa9f9ae4b735968fcd131fe5b588f320ba3"
+    },
+    {
+      "oid": "3181beff705ea7af603b7170d7ddaf95ecc16247",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-trn-03"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-trn-03"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "e871a7459135c2bbcafa664f4001a488ffc5e2e8"
+    },
+    {
+      "oid": "31838cda070345a3a48cf405633f7da65ecad7dd",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-pcl-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-pcl-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "d60daaac546d7d692b5c850ca6e59473ca28f0c7"
+    },
+    {
+      "oid": "32b539f7c2d1e6632243228ba4287d11220eaceb",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-cas-03"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-cas-03"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "fa5bee3d335bc426ad912a81e0404b093abcd303"
+    },
+    {
+      "oid": "341f92fb2b18e163778ab28db13b6b67a90e7d44",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-dfk-review-20261007"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-dfk-review-20261007"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-dfk-review-20261007"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-dfk-review-20261007"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-dfk-review-20261007"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    {
+      "oid": "34ee268f7caff865c4ff87860815b633c58bbad7",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-ddm-02-checker-test"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-ddm-02-checker-test"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "d1eef388e63bd4312392e6900457c969ee2b6310"
+    },
+    {
+      "oid": "355f5e861be96ebf03ee97888a856da2c26f767f",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/docs/raw-evidence-ignore"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/docs/raw-evidence-ignore"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "78187878ee188ff6d27442ba1498bd094da9785b"
+    },
+    {
+      "oid": "35f5cd027e84932b34e7b19629e05f98bbdc9c8b",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-r2-decisions"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-r2-decisions"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "73c656744f051d9f40667da7f8bc91c61d8b4ebf"
+    },
+    {
+      "oid": "364560e21d9333a007f92e19f2fd3ac5b1ffff9d",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-r2-r1-candidate"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-r2-r1-candidate"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "1a1e4c00afe98f16d197303f73fbe8dda8a08aa4"
+    },
+    {
+      "oid": "36e864a8c4c4279409302b485b2582166f2347fa",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-str-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-str-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "4198813f85acb77373c602c5a7cdb70bbe79bb46"
+    },
+    {
+      "oid": "373c9623071f60c08f5e362e61d211829e5d8f5a",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-net-ing-20261007"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-net-ing-20261007"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-net-ing-20261007"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-net-ing-20261007"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-net-ing-20261007"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7"
+    },
+    {
+      "oid": "3746c9071c52370c20a9cf526ee767ecdb5c1c8f",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-A-served-tests-full"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-A-served-tests-full"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    {
+      "oid": "375b090b95a867a3b5aca102bd2d2b015f5d8cec",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-retired-e02-r9-foundry-selected-view-candidate-20260927-draft"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-retired-e02-r9-foundry-selected-view-candidate-20260927-draft"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "077147d86af4f55c542c9344a3fcbc11e48ac836"
+    },
+    {
+      "oid": "38ae8518aca8ee6721b86ba78e06caba97dc3c53",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-lex-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-lex-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "23c755f3e35d53ae11b364f457a481cf8e92b24c"
+    },
+    {
+      "oid": "397a449e3d251abafba30bd52d392a0ecb7a22ee",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-retired-e02-r11-owner-admission-20260927-draft"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-retired-e02-r11-owner-admission-20260927-draft"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "43d4f47838087476d9d26d78aeb244a6d1cd6d6c"
+    },
+    {
+      "oid": "3c355bd0fc7137e1efed374d095a88fb71f83134",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-r2-r13-w1-owner-bridge"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-r2-r13-w1-owner-bridge"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "7d851bf13b51f494723305fd1a3d6da049368343"
+    },
+    {
+      "oid": "3c9379442b8e9fec3232a7948966231fa1e72893",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-fit-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-fit-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "69dfb4439629f389a8bb1a45bfccb439d8686c83"
+    },
+    {
+      "oid": "3cc7d2cb0484662196a934a0cd38dcfb40fea2d5",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-wire-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-wire-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "23c755f3e35d53ae11b364f457a481cf8e92b24c"
+    },
+    {
+      "oid": "3d1ccbb1e2d012ad546e293bfc6ff00f8f18ce6b",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/exhaustive/pull/7/merge"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/exhaustive/pull/7/merge"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "21ae2ba65fc0da2be2ff96ac0ccf4e299bae2663"
+    },
+    {
+      "oid": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-F-installed-worker-20261006"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-F-installed-worker-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-F-installed-worker-20261006"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    {
+      "oid": "3fc84a34ee919ccb5208544af7353d1b9949f57f",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-mig-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-mig-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "d8740e8ee2401f80362a1d0bbf97e9cc4a9b8c16"
+    },
+    {
+      "oid": "40d27423aa7835bc8439f139d84ff1bc909ea14a",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-dfi-emb-20261006"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-dfi-emb-20261006"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-dfi-emb-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-dfi-emb-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-dfi-emb-20261006"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    {
+      "oid": "44e35ecd95a3b12d9fe98b3475aaae7ac7f26f68",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-r2-r13-selected-row-candidate"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-r2-r13-selected-row-candidate"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "acc4de8671c4611ec4bf8f75794a9c3add9ffd76"
+    },
+    {
+      "oid": "44e8f492615aa87b7e7631816db24a30c4e7c7f9",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-grf-03"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-grf-03"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "296608f80b21c744fd0eed593acc886636769885"
+    },
+    {
+      "oid": "44f0ac8d62da3d96464515b58c5bc29f03d238fa",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-A-compiler-full"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-A-compiler-full"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-A-compiler-full"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-A-compiler-full"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-A-compiler-full"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "577521c6651bba048d6bdfdc13f36a383c8146c6"
+    },
+    {
+      "oid": "4576f67b1ff1f8d09b6a4223779b53fff9b369ae",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-dfk-lifecycle-20261007"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-dfk-lifecycle-20261007"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-dfk-lifecycle-20261007"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-dfk-lifecycle-20261007"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-dfk-lifecycle-20261007"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    {
+      "oid": "45fe660b6b6d7cf8c1834197f9247de0e46ed8ce",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-dfk-02"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-dfk-02"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "23c755f3e35d53ae11b364f457a481cf8e92b24c"
+    },
+    {
+      "oid": "47726a74e14fc96fec7cf8d0ed817cf2095367a0",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-scm-02"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-scm-02"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "7e9c9b57d85ab27af17cfacea34c6e12786157fd"
+    },
+    {
+      "oid": "4b4656b8718d0adf8ebb45945f819828d8964d0c",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-ber-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-ber-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "e9efde2a38dbc8cc6891631f8d43f9984e9355a0"
+    },
+    {
+      "oid": "4e9b3f2e0ff62cefcae6342b7fb1fcec5aa14d33",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-ing-03-schema-test"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-ing-03-schema-test"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "d1eef388e63bd4312392e6900457c969ee2b6310"
+    },
+    {
+      "oid": "4f55312a51bcd95ee125ac2f1bec1df59b0d65c3",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-hygiene-20261006"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-hygiene-20261006"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-hygiene-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-hygiene-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-hygiene-20261006"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    {
+      "oid": "51609922447716115c22287ac79c218d13cd9067",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-legal-query-20261007"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-legal-query-20261007"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-legal-query-20261007"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-legal-query-20261007"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-legal-query-20261007"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    {
+      "oid": "5231cf93a399fcc2944870c8a590b8770f3ba931",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-ing-oracle-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-ing-oracle-20261006"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    {
+      "oid": "527f8551f01bb7f8cfe18d437707383d9e96cff8",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-dfi-02"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-dfi-02"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "97d991dcae8f61c4d916d96dbf4d3260ce1a782e"
+    },
+    {
+      "oid": "537124e0d35a0071c55d07342c72e7222a98cc96",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-opt-04"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-opt-04"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "d60daaac546d7d692b5c850ca6e59473ca28f0c7"
+    },
+    {
+      "oid": "53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-B-current-coordination"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-B-current-coordination"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-B-current-coordination"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "855cb26a7a2c9fea60356663cf81e7d01e20c738"
+    },
+    {
+      "oid": "5610eba4f2a9cacd308265df8cbd1c524cbc941b",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-req-01-r2"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-req-01-r2"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "c1a295c7b2b23446ba6794e43578527d73ffcb8f"
+    },
+    {
+      "oid": "57405dc06b4134db29f9cd37221a251bf9b3a6a6",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-cmp-03"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-cmp-03"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "fa5bee3d335bc426ad912a81e0404b093abcd303"
+    },
+    {
+      "oid": "59586f8303dbbd72d1cecafd66069c84d9c2a333",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-retired-r1-context-20261005"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-retired-r1-context-20261005"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "8ed1b77670ff612ffbaa11272d44f7ed183e9739"
+    },
+    {
+      "oid": "5ac919505439ec95600d042361517cf15708a2dc",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-cyc-03"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-cyc-03"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "f7d18638c03057f40bcfc84b049795da24bd5c01"
+    },
+    {
+      "oid": "5bce2ea7066d5dc57c0a454de1580d71c79104af",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-F-fry-20261006"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-F-fry-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-F-fry-20261006"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "6beacc8b42dacabff214901919203323f07d1fef"
+    },
+    {
+      "oid": "5c10f12060e2ebe64f7915fe7f3d3aad463b95a3",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-dur-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-dur-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "e871a7459135c2bbcafa664f4001a488ffc5e2e8"
+    },
+    {
+      "oid": "5e0c8018a3a2fdb60e01e753d3f247f5d22c631a",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-bkt-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-bkt-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "d60daaac546d7d692b5c850ca6e59473ca28f0c7"
+    },
+    {
+      "oid": "5ee7dbc2d66fbb647ddc617fbfe19454737916b5",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-plugin-training"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-plugin-training"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-plugin-training"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-plugin-training"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-plugin-training"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    {
+      "oid": "5f812a3487d8f1fe0779f67bfcf3f9b73babeaf1",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-client-20261006"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-client-20261006"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-client-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-client-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-client-20261006"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    {
+      "oid": "5fb35d303aa5745af50410f2a9ba14ef84961bf0",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-retired-r9-20261005"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-retired-r9-20261005"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "unavailable"
+    },
+    {
+      "oid": "60b523c2d0e1a587f2f1d4b92a0ac9a89a1f49db",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-canon-20261006"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-canon-20261006"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-canon-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-canon-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-canon-20261006"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    {
+      "oid": "60e86a29c70332c0d5caac5d96bccbf4a4653424",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-retired-e02-b26-served-consumer-bridge-20260929-draft"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-retired-e02-b26-served-consumer-bridge-20260929-draft"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-retired-e02-b26-served-consumer-bridge-20260929-draft"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-retired-e02-b26-served-consumer-bridge-20260929-draft"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-retired-e02-b26-served-consumer-bridge-20260929-draft"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "604a38e78e4f1ea479384f8a20aa367a655fcd05"
+    },
+    {
+      "oid": "614de5664ed46d90850a54573bbc739f1abc9009",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-B-coordination"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-B-coordination"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-B-coordination"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    {
+      "oid": "62a9140aaf28630d24688d5c850e752048dbbe9a",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-ukraine-ops"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-ukraine-ops"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-ukraine-ops"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-ukraine-ops"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-ukraine-ops"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    {
+      "oid": "62cb804f76e576585526532d7eb2241ef8c64de4",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-acq-01-real-route-test"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-acq-01-real-route-test"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "2f500b298820b0f842f6accc28a4e1f770d823a8"
+    },
+    {
+      "oid": "63e21470e0cf80fb1fc844a52be3c6b4f429486e",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-retired-e02-r13-wdi-basis-20260927-draft"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-retired-e02-r13-wdi-basis-20260927-draft"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "43d4f47838087476d9d26d78aeb244a6d1cd6d6c"
+    },
+    {
+      "oid": "64355beb636c20c2eb8b586af18a51b503fe40f8",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-D-oct07-continuation"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-D-oct07-continuation"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-D-oct07-continuation"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "83e7c0e934d0b40644dec8a24264a0602ef013e7"
+    },
+    {
+      "oid": "6486e6a6b65d75f9ea039032d72628e5c58cf439",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-scl-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-scl-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "73edd39c221221212a25d38b973bbb9b708e4ff8"
+    },
+    {
+      "oid": "6602fbd087ef31d3f8eff42e94fc1fc074326d45",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-orch02-c06-can-recovery"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-orch02-c06-can-recovery"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-orch02-c06-can-recovery"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "f00dd7661a8d3329fb1fa1b049decb0d1d2f277b"
+    },
+    {
+      "oid": "66136425e697acaa6fb75f5a58c32b844cf8c77d",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-retired-r2-s8-20261005"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-retired-r2-s8-20261005"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "86bdf0e5b7e0b498ea112ad05dc437a5e74f364a"
+    },
+    {
+      "oid": "668e091fb32eaff11a1fa3744331aef9a6a251fc",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-run-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-run-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "188dc0488b921b70e0185d6c2c3c9496c236f893"
+    },
+    {
+      "oid": "689acc0c27595cad8bf91fdee021be0fe9bc80aa",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-r2-sta-timeout-candidate"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-r2-sta-timeout-candidate"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "1544073dd4b6dd82cbaf77b5b2c22dea19cd3889"
+    },
+    {
+      "oid": "6a391aecc4e8bb51aa07abcffec66f186b331ef4",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-sel-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-sel-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "5acef80900201419aad7d3b07b8ea3ceb5d516a2"
+    },
+    {
+      "oid": "6bb8b7f76c32d7b5831ef32d38ba83a31a696620",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-cal-02"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-cal-02"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "e1d66bbc6778a3e0c23f7e2fe9f8d749a787e807"
+    },
+    {
+      "oid": "6ccd51e65dce00664b9cafb12c516c49033a9805",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-rep-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-rep-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "d8740e8ee2401f80362a1d0bbf97e9cc4a9b8c16"
+    },
+    {
+      "oid": "6e24cbaf5fb1d78830fd918ab17e6495095250ed",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-obs-udf"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-obs-udf"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-obs-udf"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-obs-udf"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-obs-udf"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    {
+      "oid": "705575be73510d40d726c82c5a0af4bf8635a2a8",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-obs-udf-20261006"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-obs-udf-20261006"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-obs-udf-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-obs-udf-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-obs-udf-20261006"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    {
+      "oid": "706877e34dd61560fed753671a8296d621b51b4f",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-cal-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-cal-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "9bbfb3349f3fda8aaba376d4fe3610dde0827fad"
+    },
+    {
+      "oid": "713d2edff69fca5f9aa31f1b189ce6b5fd7c41a8",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-mig-02"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-mig-02"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "fa5bee3d335bc426ad912a81e0404b093abcd303"
+    },
+    {
+      "oid": "72c38fffd6b7cfb1e1966059f721f70f9bfeb7d5",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-cas-02"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-cas-02"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "8eb5836dc0cd4d0ee1e533f32fafd5c669ac8c53"
+    },
+    {
+      "oid": "72ca933a387a57ca67032c00a02958c72a25816f",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-plg-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-plg-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "e9efde2a38dbc8cc6891631f8d43f9984e9355a0"
+    },
+    {
+      "oid": "754357d1da10653c41be55f0c8d93b8802550741",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-r2-held-review"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-r2-held-review"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "73c656744f051d9f40667da7f8bc91c61d8b4ebf"
+    },
+    {
+      "oid": "75a095b0752db290b0fa7f8a1ee676c89233880e",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-retired-r1-l4-period-coverage-20261005"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-retired-r1-l4-period-coverage-20261005"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-retired-r1-l4-period-coverage-20261005"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-retired-r1-l4-period-coverage-20261005"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-retired-r1-l4-period-coverage-20261005"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "077147d86af4f55c542c9344a3fcbc11e48ac836"
+    },
+    {
+      "oid": "77166daa0ff8b9659e3978447f9016c691694266",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-F-lex-20261006"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-F-lex-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-F-lex-20261006"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "00a6eda114b903bc5abe86902cd8372426f739a1"
+    },
+    {
+      "oid": "77739ce13d46d30beb84b8e0202f7b935f3d5c22",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-r1-r5-candidate"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-r1-r5-candidate"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "15fedb94c47eb634ea692e714aeec868f7be59f2"
+    },
+    {
+      "oid": "7798c5fc6ab4b15a5fd1c5f3d3f830ee162ef383",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-stp-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-stp-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "c1a295c7b2b23446ba6794e43578527d73ffcb8f"
+    },
+    {
+      "oid": "77c5cd319c92e52932b1bf15c342b24a41e7b051",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-legal-review-20261007"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-legal-review-20261007"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-legal-review-20261007"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-legal-review-20261007"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-legal-review-20261007"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    {
+      "oid": "79c2d82aaac8010bab3dddbca51299c7ae8b246c",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-plg-03"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-plg-03"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "6ae18aa664f8417f1dca93cba183bdeae45f8255"
+    },
+    {
+      "oid": "7a48a2a3eac3458b4995bc1ba3e0e4102a2ffff7",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-cyc-04"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-cyc-04"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "ef482549dc35bb02e74dd105c866163c6f97616b"
+    },
+    {
+      "oid": "7bf53fd0cf69a568b37d8a881e26bfb16c315653",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-E-continuation-20261006"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-E-continuation-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-E-continuation-20261006"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "75ccf4dd211ad7fffa9430a84848b59d5ebf0886"
+    },
+    {
+      "oid": "7d5b4f1505c8c28fe6821b147dced3dc10c1c1de",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-fed-02"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-fed-02"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "b73f37fdfe77866f11fd9a368d05a93e13d2a958"
+    },
+    {
+      "oid": "834c9fbc99f70348081953ee907c20e19b0142b8",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-r2-r9-gpr-v4-candidate"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-r2-r9-gpr-v4-candidate"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "93f9cd8392be2d97d3e207a7933ddea923fdb474"
+    },
+    {
+      "oid": "8520e63ca6d854943d29abd94804b7f0e355b963",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-E-assessment"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-E-assessment"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-E-assessment"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    {
+      "oid": "85c16de9f16a4e21c05c516271b6c81e08b7a39f",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-F-graph-scm"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-F-graph-scm"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-F-graph-scm"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    {
+      "oid": "88b34d1bf170f224d71e5d89eb8ffafa6d04947e",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-cyc-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-cyc-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "2d405fa053e3534cfaab58ea3aa186e6f644b7c5"
+    },
+    {
+      "oid": "8a6f82e6c954bb9a5852eb6b88456e4ff7710651",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-fry-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-fry-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "01f3dfba07a62ad16acb96112fa772b6864cfd31"
+    },
+    {
+      "oid": "8aecb0b6e08f8d37f09c70927761576583a89828",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-berl-20261006"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-berl-20261006"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-berl-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-berl-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-berl-20261006"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    {
+      "oid": "8b5067c7a09d1433fdcf69726d7c912f58e03136",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-r2-retired/e02-r13-dirty-fresh-snapshots-20261004T112245Z"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-r2-retired/e02-r13-dirty-fresh-snapshots-20261004T112245Z"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "bedc23d74c858371e4cf2a079a0dfb38ec7620a8"
+    },
+    {
+      "oid": "8bfea70b2e2090ad5c541b103b7521efc01b30eb",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-A-delivery-attached"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-A-delivery-attached"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-A-delivery-attached"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-A-delivery-attached"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-A-delivery-attached"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "6f3983466f1eca14b510c4f5006fab5092d418d3"
+    },
+    {
+      "oid": "8d652c8628968d8624f28e51a26d2a06db8cbfe6",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-fun-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-fun-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "4198813f85acb77373c602c5a7cdb70bbe79bb46"
+    },
+    {
+      "oid": "8e2e6814adc463d2bf9ae40ef48cb227c6bc06a5",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-ddm-02"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-ddm-02"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "d11031bf968c668b3e5c1e3e3e7d22f9596762ff"
+    },
+    {
+      "oid": "8e588cbb4b6a6460724b858a1cdf81492b8c3663",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-dfk-01"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-dfk-01-verify"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-dfk-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-dfk-01-verify"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "f7d18638c03057f40bcfc84b049795da24bd5c01"
+    },
+    {
+      "oid": "8f3d9753b476b3fcee575f0db0eb03ed890d3566",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-retired-e02-r11-shared-blocked-624-20260927-draft"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-retired-e02-r11-shared-blocked-624-20260927-draft"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "624a5f1e2e24959ab8c7ddf6a0ccc2f62b9202c4"
+    },
+    {
+      "oid": "90409a5b47118bfb80b902f8ddb5984bc5db28d9",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-uqp-01-rebind"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-uqp-01-rebind"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "398c1380706bc43efef344cdd1e1527c31268b4b"
+    },
+    {
+      "oid": "91f458f37c67fb3620b0107735535629a8b60ede",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-ORCH04-recovery-20261008"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-ORCH04-recovery-20261008"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-ORCH04-recovery-20261008"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "0321633c0e6d9a87bccfbbe889a4998934c52dd3"
+    },
+    {
+      "oid": "942206505d1681ea1d4d46e93e21d0c566450acb",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-berl"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-berl"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-berl"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-berl"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-berl"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    {
+      "oid": "94571bd8d506a09719c3e2cf0c0cde70dc4b3f32",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-retired-r1-n3-store-boundary-20261005"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-retired-r1-n3-store-boundary-20261005"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "93affc59bcbeb3c21e015596b05ae6b8787d8e8e"
+    },
+    {
+      "oid": "976212bbefb684da4823f61d810bf7a208a6e298",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-plugins-20261006"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-plugins-20261006"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-plugins-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-plugins-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-plugins-20261006"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    {
+      "oid": "980d91b36452307d683283ddcf1e89a653af3ce2",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-c54-bindings-20261007"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-c54-bindings-20261007"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-c54-bindings-20261007"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-c54-bindings-20261007"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-c54-bindings-20261007"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    {
+      "oid": "9a952415bb988e6ff79983fa9ef782ac28f2e672",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-F-causal-output"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-F-causal-output"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-F-causal-output"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    {
+      "oid": "9b91395bf26da2dfe5e4e109299af52010554e78",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-cal-05"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-cal-05"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "023f88aab0b1cd327b98088b196787bb6d89756a"
+    },
+    {
+      "oid": "9cc8371c42ee80e7c2ae5850b8c40fb139c696bd",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-cal-04"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-cal-04"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "296608f80b21c744fd0eed593acc886636769885"
+    },
+    {
+      "oid": "a0302b7c717fe9eb7652a8e2bbbbea230115aedd",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-A-requirement-context"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-A-requirement-context"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-A-requirement-context"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-A-requirement-context"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-A-requirement-context"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    {
+      "oid": "a2143a4e1c2fe436a9d357dab5f7966cbc693ad1",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-r2-r1-sim-gateway"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-r2-r1-sim-gateway"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "af533aa874cc6dd5b7b49b87b6764eaa69f1f9db"
+    },
+    {
+      "oid": "a239f6f453dc4b6d54baa0cb22bbc8ffafb149e5",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-sta-02"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-sta-02"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "188dc0488b921b70e0185d6c2c3c9496c236f893"
+    },
+    {
+      "oid": "a3b22ccfee0d40f35710826a5df41de4fc62f3fb",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-r13-g-candidate"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-r13-g-candidate"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "ea422219bdf0a2d37d8fe311ed20a9b249269a91"
+    },
+    {
+      "oid": "a502741e3678cced9bdeab45be9a6dd515b9e06a",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-grf-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-grf-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "5acef80900201419aad7d3b07b8ea3ceb5d516a2"
+    },
+    {
+      "oid": "a5bf3d536a9f1773b7110f64ac0d3b3f1230abdf",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-ing-support"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-ing-support"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-ing-support"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-ing-support"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-ing-support"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    {
+      "oid": "a683059753cbb366574793474fa8ffc17b3ba7a8",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-A-replay-owner"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-A-replay-owner"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-A-replay-owner"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-A-replay-owner"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-A-replay-owner"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    {
+      "oid": "a7204961ac1028965c58224fe40e6bb3a397d8a8",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-F-cau-20261006"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-F-cau-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-F-cau-20261006"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "e1c4bb28c9d5ff936ae1c047619c56cf12ba5347"
+    },
+    {
+      "oid": "a83f7eda380eb516d5162bfa11d7dc52278bc673",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-A-s10-verifier"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-A-s10-verifier"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-A-s10-verifier"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-A-s10-verifier"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-A-s10-verifier"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    {
+      "oid": "ad03d7745d83865e8bb6ca9d7fa1b03356162139",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/gh-pages"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/exhaustive/heads/gh-pages"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/gh-pages"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/gh-pages"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/gh-pages"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/exhaustive/heads/gh-pages"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/gh-pages"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "unavailable"
+    },
+    {
+      "oid": "ad28258e29350ca09da46b488059a35622d60d36",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-retired-e02-r11-owr-projection-20260926-draft"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-retired-e02-r11-owr-projection-20260926-draft"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-retired-e02-r11-owr-projection-20260926-draft"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-retired-e02-r11-owr-projection-20260926-draft"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-retired-e02-r11-owr-projection-20260926-draft"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "43d4f47838087476d9d26d78aeb244a6d1cd6d6c"
+    },
+    {
+      "oid": "ae4befeddf9645cccef2dec0d1254a18e2242e9b",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/debt-nature-survey"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/debt-nature-survey"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "fc823071a7b6f2c9a573172aec3499ad6d138c0f"
+    },
+    {
+      "oid": "b3a07fc23d9300805ce552f25631d6eedab98413",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-A-simulation-full"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-A-simulation-full"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-A-simulation-full"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-A-simulation-full"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-A-simulation-full"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    {
+      "oid": "b4e72621afdf0b6746d00df3035cce433315d3f0",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-cyc-05-b15-limits"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-cyc-05-b15-limits"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "1b3a1c95d8b7f7fe5bf0a673c3f0d0ba29c5ecc0"
+    },
+    {
+      "oid": "b56ec6b1f802ab10d2927492bbc082f90c390139",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-hygiene"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-hygiene"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-hygiene"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-hygiene"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-hygiene"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    {
+      "oid": "b69685b7ec442db09860f5c561f3732437763ce2",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-mig-05"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-mig-05"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "23c755f3e35d53ae11b364f457a481cf8e92b24c"
+    },
+    {
+      "oid": "b72c7c8dc0f2cdf2d9355386b0e55c005357bf1f",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-retired-r5-20261005"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-retired-r5-20261005"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "02b7f5e3c63d42d8a76bc1760d84ee9136375579"
+    },
+    {
+      "oid": "b7c726839bf106d1c15b035f0e144b2fe2f475bc",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-udf-05"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-udf-05"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "8eb5836dc0cd4d0ee1e533f32fafd5c669ac8c53"
+    },
+    {
+      "oid": "b815e46fe29f54765d5525d2417c2d0c2a2c2cf3",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-emb-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-emb-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "9e1c38d21cd49149946b926f6d46e2005c84ce6c"
+    },
+    {
+      "oid": "b886665a26b318b2fdd136cae0248cdea7b9226d",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-continuation-20261006"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-continuation-20261006"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-continuation-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-continuation-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-continuation-20261006"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    {
+      "oid": "ba56fb465a931ac29b9d53fa70d91934cbd67a29",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-bkt-04"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-bkt-04"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "e871a7459135c2bbcafa664f4001a488ffc5e2e8"
+    },
+    {
+      "oid": "ba5946ebc70bb63f30e4776d0426e19f37dffd31",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/gy-def6-e11"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/gy-def6-e11"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "e708e8f77dbac35e3f8c164341cc19eed7695998"
+    },
+    {
+      "oid": "baa6c2814748c53393d71c4dfc299d32d3883173",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-F-closeout-20261006"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-F-closeout-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-F-closeout-20261006"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "852cc3707bfc7dee132ec07a9ed5adcb5911fdf2"
+    },
+    {
+      "oid": "bb78b2b60dae0ed51e300f9369c580c622fe64d6",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-E-c09-sensitivity-20261008"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-E-c09-sensitivity-20261008"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-E-c09-sensitivity-20261008"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "f2c102fa2ee588b91b2baaa8c9d1c393699838c0"
+    },
+    {
+      "oid": "bc3911f0f072cd253efb5254a5285f61352c118f",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-can-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-can-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "b73f37fdfe77866f11fd9a368d05a93e13d2a958"
+    },
+    {
+      "oid": "bcbe3ab89bf64413e988b122b70133868914bd99",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-api-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-api-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "23c755f3e35d53ae11b364f457a481cf8e92b24c"
+    },
+    {
+      "oid": "bd949d392cca0f43c0b091af2b22c47e6fcd3d2c",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-jit-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-jit-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "296608f80b21c744fd0eed593acc886636769885"
+    },
+    {
+      "oid": "be5383e758b508d16c91bf23b29c4f9ab06d2f6f",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-frc-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-frc-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "69dfb4439629f389a8bb1a45bfccb439d8686c83"
+    },
+    {
+      "oid": "bf1eca0dbec67d32e56a8307686daf646b8eac1b",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-bkt-03"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-bkt-03"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "8eb5836dc0cd4d0ee1e533f32fafd5c669ac8c53"
+    },
+    {
+      "oid": "c020fd9629fa36cfdd6f7de12cff8b263f1a42b9",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-A-selection"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-A-selection"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-A-selection"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-A-selection"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-A-selection"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    {
+      "oid": "c1e3dd5137df6e0e52f55971ee98eecbf643dd18",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-r2-retired/e02-r2-clean-probe-snapshots-20261004T112245Z"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-r2-retired/e02-r2-clean-probe-snapshots-20261004T112245Z"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "42ac6b4c90c6744517c1ea8580daf79ab4cd34ff"
+    },
+    {
+      "oid": "c6ada1e580a20ec80d07ecbe269ef5c8d12b6671",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-net-02"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-net-02"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "ffb959ae59f8a11b9942d5156c10f70d86a591a6"
+    },
+    {
+      "oid": "c886f63b3eec45377476f154b94eeb5eac7253d1",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-r9-cache"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-r9-cache"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "bed508646516cb96599ff046564b374cdcf96699"
+    },
+    {
+      "oid": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-F-dowhy-20261006"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-F-dowhy-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-F-dowhy-20261006"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    {
+      "oid": "ca9caf3d3cc26a57fc3cf225e9b17db981afff3f",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-federation"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-federation"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-federation"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-federation"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-federation"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    {
+      "oid": "cafeeffa1577d45c02e1ff22f0db9f9f698f9046",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-scholar"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-scholar"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-scholar"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-scholar"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-scholar"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    {
+      "oid": "cb9be63067a519f03f35a8606859bc1539a1eae6",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-r4-validator-r4fix"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-r4-validator-r4fix"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "a5141d432912efc5611129ce0b22d13a30762dfc"
+    },
+    {
+      "oid": "cc1b9adaf987355429ef14318ec08d6429f5bd71",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-r1-n4-v3"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-r1-n4-v3"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "355225dd863c55fd54030e2abb166858983bb439"
+    },
+    {
+      "oid": "cd02697111861bbcbb8442287101decaaf3239fb",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-dfi-emb"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-dfi-emb"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-dfi-emb"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-dfi-emb"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-dfi-emb"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    {
+      "oid": "cd73f360a4130b861a523c8357641cb3cb8e4180",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-hyg-04"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-hyg-04"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "e9efde2a38dbc8cc6891631f8d43f9984e9355a0"
+    },
+    {
+      "oid": "cf9cbee6a6b17dbeddc4a06c33df7e9bcd154983",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-integration"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-integration"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "b7adafe89423bc6906a5fb86c38e579a381ad2ee"
+    },
+    {
+      "oid": "d14bf56f562f2603975c957f869e0906d0e9f121",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-E-cal-uq"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-E-cal-uq"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-E-cal-uq"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    {
+      "oid": "d40d57133462477316cb640f86ea3901e0bc9ca9",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-net-02-red"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-net-02-red"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "ffb959ae59f8a11b9942d5156c10f70d86a591a6"
+    },
+    {
+      "oid": "d47ee070bf8a67c8ee8094b72c3cf7f9eb062e3b",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-retired-e02-b72-distributed-status-20260927-draft"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-retired-e02-b72-distributed-status-20260927-draft"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "43d4f47838087476d9d26d78aeb244a6d1cd6d6c"
+    },
+    {
+      "oid": "d4fb677a7b64948911cd83c597e545732bd24fb8",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-ctl-03"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-ctl-03"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "3a141e5481aeeda0f0f36c7cc85af2cf2eaa1d60"
+    },
+    {
+      "oid": "d8d685509262e2ec69aa5a1b0c337fa21c5909a9",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-b73-candidate"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-b73-candidate"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "782652222cece9899adea0a171c08166544901b9"
+    },
+    {
+      "oid": "da58bd54c15d526b518882a45cdb55db32ecde39",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-fun-03"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-fun-03"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "e14426f0ff23951a002a17f571a84c2920cc2a11"
+    },
+    {
+      "oid": "dce5b253bd3f2d8f05c008a5128b1532e44b3837",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-E-c07-20261008"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-E-c07-20261008"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-E-c07-20261008"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "7147ef63886dd95fb20cdb8ebb939d93663ca10d"
+    },
+    {
+      "oid": "dd17d149028de02adc2037d037caae3516d9a909",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-sim-02"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-sim-02"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "959963af8d71f2f548e423e1243d61312dd1de6f"
+    },
+    {
+      "oid": "dd2e9476b055bd53b727d38064f08b00738ad97e",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-r2-r13-store-candidate"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-r2-r13-store-candidate"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "2012dd84b979485137bb0964936ad777b78cd453"
+    },
+    {
+      "oid": "ded00804856be30e4edf8947dc9f0f996e449453",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-opt-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-opt-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "01f3dfba07a62ad16acb96112fa772b6864cfd31"
+    },
+    {
+      "oid": "df41697294892bdad36f9b00d3728479f87c66ea",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-r2-partial-triage"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-r2-partial-triage"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "73c656744f051d9f40667da7f8bc91c61d8b4ebf"
+    },
+    {
+      "oid": "dfaadaac01f21b7b3994109c3cc76d522a2a3cb3",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-catalog"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-catalog"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-catalog"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-catalog"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-catalog"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    {
+      "oid": "e0d8a9265f51d6bb1659648e104f3ef60332fa59",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-cas-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-cas-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "d8740e8ee2401f80362a1d0bbf97e9cc4a9b8c16"
+    },
+    {
+      "oid": "e182bd19c40f10ea05262993480fa21d2c99cc77",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-net-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-net-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "d11031bf968c668b3e5c1e3e3e7d22f9596762ff"
+    },
+    {
+      "oid": "e18c23f3becd6827640d2b6d2d11caac56771612",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-udf-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-udf-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "23c755f3e35d53ae11b364f457a481cf8e92b24c"
+    },
+    {
+      "oid": "e25b3c8db2e39b3d29e922bd27403d2787fa4b89",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-scl-03"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-scl-03"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "8eb5836dc0cd4d0ee1e533f32fafd5c669ac8c53"
+    },
+    {
+      "oid": "e30956352cd73e11c1c453e95859589cdd2e86c6",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-plugin-discovery"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-plugin-discovery"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-plugin-discovery"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-plugin-discovery"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-plugin-discovery"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    {
+      "oid": "e3e16b9dc97e4a68b28486504783b2d816e3e39f",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02r2-can01-audit"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02r2-can01-audit"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "73c656744f051d9f40667da7f8bc91c61d8b4ebf"
+    },
+    {
+      "oid": "e4bd1527c941ff880a5d34898c57428c7be4b1cc",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-orch02-c06-dfk-recovery"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-orch02-c06-dfk-recovery"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-orch02-c06-dfk-recovery"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    {
+      "oid": "e4fab34506ec3366a860b30cdab3050e792d209b",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-uqp-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-uqp-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "a7281a2e93c2a29837aff87a4abc457c15139b77"
+    },
+    {
+      "oid": "e642bb9025a67739c201393acca5712603cb064d",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-F-economics"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-F-economics"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-F-economics"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    {
+      "oid": "e7dc16551fb49a17f890f2d12f8564644bd323c7",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-udf-02"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-udf-02"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "93019851a926322c1b6f257564ee170297f1ef06"
+    },
+    {
+      "oid": "e81077ce4ad815d2c54e4106bca84c40fa485e92",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-obs-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-obs-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "2efa4d766d87585b968b261f34184eae7e8ab669"
+    },
+    {
+      "oid": "e8adb07eca4970096fc2d6401e63f182672fbc0c",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-emb-02-red-r3"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-emb-02-red-r3"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "6f9be3312735099aa0efe7dd99975dd9d721dc81"
+    },
+    {
+      "oid": "e9ab35ab97d305e5e6ed0bc8504856dd2aec7229",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-plg-02"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-plg-02"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "a7281a2e93c2a29837aff87a4abc457c15139b77"
+    },
+    {
+      "oid": "ec412aff12bd09982e47c123a21eee4201162763",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-res-02"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-res-02"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "6ae18aa664f8417f1dca93cba183bdeae45f8255"
+    },
+    {
+      "oid": "ed50e8ee50afc6f345ce804b1d7d26a2edeb4061",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-F-c08-20261008"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-F-c08-20261008"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-F-c08-20261008"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "3a7355e684f2916f22bafe58afe8ec0ffbdb9e34"
+    },
+    {
+      "oid": "eee090e345d1121d3d53cdd93a7ab32f818d5ef7",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-orch02-c05-recovery"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-orch02-c05-recovery"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-orch02-c05-recovery"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    {
+      "oid": "ef3f208db031671d9f0d5cefe1ffa68af0650f0a",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-F-fit-tmle"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-F-fit-tmle"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-F-fit-tmle"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    {
+      "oid": "ef9eafef985295181bf62045625c95b03ec0dbe5",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-llm-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-llm-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "e14426f0ff23951a002a17f571a84c2920cc2a11"
+    },
+    {
+      "oid": "f0f22cf81f70c7037ec28a1bdd1bb5123d587a7f",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-grf-02"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-grf-02"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "2448a870e21b6b70a2376db2a1dbf0b81811158e"
+    },
+    {
+      "oid": "f0fae836d613850bd4fe5d0b38bc783e9a117b83",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-r2-retired/e02-r2-n7-snapshots-20261004T112245Z"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-r2-retired/e02-r2-n7-snapshots-20261004T112245Z"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "10315b7b2b85504d3c3b93fb6d7bfab020137a13"
+    },
+    {
+      "oid": "f1f7a1b5a9914d1a040e2fe182e0b1bdf393b43b",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-A-empirical-scope"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-A-empirical-scope"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-A-empirical-scope"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-A-empirical-scope"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-A-empirical-scope"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    {
+      "oid": "f293396e5a5bc2ec49f1d8dbf9165bdf6ec7bcf8",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-srv-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-srv-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "6e3a0d0099ab2a2c0651a63c7a269fdef91107e5"
+    },
+    {
+      "oid": "f72e8fa6b7be831f8fda6f106c9d4f04572c4b69",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-F-handoff-index"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-F-handoff-index"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-F-handoff-index"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "c40d4acae1ce58b597267255026d9356565828fd"
+    },
+    {
+      "oid": "f73360bca875bd2706dfcaf1f29097339bc59dfe",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-sim-03"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-sim-03"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "6ae18aa664f8417f1dca93cba183bdeae45f8255"
+    },
+    {
+      "oid": "f7af77f3373e4d22f703efa7208c19c6ffed1746",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-scholar-20261006"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-scholar-20261006"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-scholar-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-scholar-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-scholar-20261006"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    {
+      "oid": "f7f9484bc2cb816913995f0d68d9af9338297c4d",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-retired-e02r2-b88-served-replay-20260926-draft"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-retired-e02r2-b88-served-replay-20260926-draft"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "02b7f5e3c63d42d8a76bc1760d84ee9136375579"
+    },
+    {
+      "oid": "f857fa5aea53d286059d862ee1c265c9f5ca2dae",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-r2-ledger"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-r2-ledger"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "73c656744f051d9f40667da7f8bc91c61d8b4ebf"
+    },
+    {
+      "oid": "fba62c46dba85abfb3e94fb818bb26d6a56d7a0a",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-r13-exact-projection-candidate"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-r13-exact-projection-candidate"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "782652222cece9899adea0a171c08166544901b9"
+    },
+    {
+      "oid": "fc0f012a61eeb82af009b973b44c2f519794eecc",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-opt-02"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-opt-02"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "188dc0488b921b70e0185d6c2c3c9496c236f893"
+    },
+    {
+      "oid": "fcf164eb1c5bb54786462e67ba2537313b33b90d",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-orch02-c12-recovery"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-orch02-c12-recovery"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-orch02-c12-recovery"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    {
+      "oid": "fd00ddba8f4c36b43aef8c28c5f9173334970e32",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-retired-r1-20261005"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-retired-r1-20261005"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "7f162d98baea8e1d758908fec18c9d8fda4f2631"
+    },
+    {
+      "oid": "fe15a3604801f9a8c4fda51c73f51976f52d6c25",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-C-migrations-20261006"
+        },
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-C-migrations-20261006"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-C-migrations-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-C-migrations-20261006"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-C-migrations-20261006"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    {
+      "oid": "fe510123db02a9065187ae81a733c3ce12c2a33d",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-bkt-02"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-bkt-02"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "e9efde2a38dbc8cc6891631f8d43f9984e9355a0"
+    },
+    {
+      "oid": "ff76f8a60eb15c5a6a45c8179c1330d205f49af9",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/heads/codex/e02-cmp-01"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/heads/codex/e02-cmp-01"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "23c755f3e35d53ae11b364f457a481cf8e92b24c"
+    },
+    {
+      "oid": "ffbb62165a85a8c8bedd8c11af8246273619ede1",
+      "refs": [
+        {
+          "source": "snapshot_local",
+          "ref": "refs/remotes/origin/codex/e02-D-orchestration"
+        },
+        {
+          "source": "snapshot_remote",
+          "ref": "refs/heads/codex/e02-D-orchestration"
+        },
+        {
+          "source": "current_local_refs",
+          "ref": "refs/remotes/origin/codex/e02-D-orchestration"
+        }
+      ],
+      "relation": "diverged_from_author_head",
+      "merge_base": "d7705039d1b509fee606d204b60585fcf137dbd8"
+    }
+  ],
+  "caveat": "Path intersection is an overlap signal, not a predicted conflict. User-requested all-branches merge scope includes unrelated/non-E02 branches; assessment is ancestry/path-only. No merges/ref updates made by this auditor."
+}

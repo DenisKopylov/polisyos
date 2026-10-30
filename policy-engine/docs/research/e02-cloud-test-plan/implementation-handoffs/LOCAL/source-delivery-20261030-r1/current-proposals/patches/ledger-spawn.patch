@@ -1,0 +1,196 @@
+diff --git a/policy-engine/tests/unit/scientist/orchestration/engine/_budget_compute_workers.py b/policy-engine/tests/unit/scientist/orchestration/engine/_budget_compute_workers.py
+new file mode 100644
+--- /dev/null
++++ b/policy-engine/tests/unit/scientist/orchestration/engine/_budget_compute_workers.py
+@@ -0,0 +1,21 @@
++"""Importable target for durable compute reservation process tests."""
++
++from __future__ import annotations
++
++from decimal import Decimal
++from pathlib import Path
++
++from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
++
++REQUEST = "1" * 64
++
++
++def _process_reserve(path: str, event: str, barrier, result) -> None:  # noqa: ANN001
++    owner = FileBudgetLedger(Path(path))
++    barrier.wait()
++    try:
++        owner.reserve_compute(event, REQUEST, "run", Decimal("0.75"))
++    except ValueError as exc:
++        result.put(("refused", str(exc)))
++    else:
++        result.put(("reserved", event))
+diff --git a/policy-engine/tests/unit/scientist/orchestration/engine/test_budget_compute_reservations.py b/policy-engine/tests/unit/scientist/orchestration/engine/test_budget_compute_reservations.py
+--- a/policy-engine/tests/unit/scientist/orchestration/engine/test_budget_compute_reservations.py
++++ b/policy-engine/tests/unit/scientist/orchestration/engine/test_budget_compute_reservations.py
+@@ -4,11 +4,20 @@
+ 
+ import json
+ import multiprocessing
++import os
+ from concurrent.futures import ThreadPoolExecutor
+ from decimal import Decimal
+-from pathlib import Path
++from typing import TYPE_CHECKING
++
++if TYPE_CHECKING:
++    from multiprocessing.process import BaseProcess
++    from pathlib import Path
+ 
+ import pytest
++from tests.unit.scientist.orchestration.engine._budget_compute_workers import (
++    REQUEST,
++    _process_reserve,
++)
+ 
+ from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+ from polisyos.scientist.orchestration.engine.budget_ledger import (
+@@ -16,7 +25,6 @@
+     FileBudgetLedger,
+ )
+ 
+-REQUEST = "1" * 64
+ SETTLEMENT = "2" * 64
+ 
+ 
+@@ -237,15 +245,53 @@
+     assert owner.snapshot().state.reserved["run"] == Decimal("0")
+ 
+ 
+-def _process_reserve(path: str, event: str, barrier, result) -> None:
+-    owner = FileBudgetLedger(Path(path))
+-    barrier.wait()
+-    try:
+-        owner.reserve_compute(event, REQUEST, "run", Decimal("0.75"))
+-    except ValueError as exc:
+-        result.put(("refused", str(exc)))
+-    else:
+-        result.put(("reserved", event))
++_OWNED_CHILD_CLEANUP_SECONDS = 5.0
++
++
++def _timeout_child_statuses(
++    processes: list[BaseProcess],
++) -> list[dict[str, object]]:
++    statuses: list[dict[str, object]] = []
++    for process in processes:
++        if process.pid is not None:
++            process.join(timeout=0)
++        statuses.append(
++            {
++                "name": process.name,
++                "pid": process.pid,
++                "is_alive": process.is_alive(),
++                "exitcode": process.exitcode,
++            }
++        )
++    return statuses
++
++
++def _cleanup_owned_children(
++    processes: list[BaseProcess],
++) -> tuple[list[dict[str, object]], list[str]]:
++    observations: list[dict[str, object]] = []
++    errors: list[str] = []
++    for process in processes:
++        if process.pid is not None and process.is_alive():
++            try:
++                process.terminate()
++                process.join(timeout=_OWNED_CHILD_CLEANUP_SECONDS)
++                if process.is_alive():
++                    process.kill()
++                    process.join(timeout=_OWNED_CHILD_CLEANUP_SECONDS)
++            except Exception as exc:
++                errors.append(f"pid={process.pid}: {type(exc).__name__}: {exc}")
++        observations.append(
++            {
++                "name": process.name,
++                "pid": process.pid,
++                "is_alive_after_cleanup": process.is_alive(),
++                "exitcode_after_cleanup": process.exitcode,
++            }
++        )
++        if process.is_alive():
++            errors.append(f"pid={process.pid}: still alive after bounded cleanup")
++    return observations, errors
+ 
+ 
+ def test_two_processes_compete_on_one_durable_owner(tmp_path: Path) -> None:
+@@ -258,16 +304,60 @@
+         ctx.Process(target=_process_reserve, args=(str(path), event, barrier, result))
+         for event in ("event-a", "event-b")
+     ]
+-    for process in processes:
+-        process.start()
+-    outcomes = [result.get(timeout=30) for _ in processes]
+-    for process in processes:
+-        process.join(timeout=30)
+-        assert process.exitcode == 0
+-    assert sorted(item[0] for item in outcomes) == ["refused", "reserved"]
+-    assert [item[1] for item in outcomes if item[0] == "refused"] == [
+-        "compute_budget_unresolved_reservation"
+-    ]
+-    snapshot = owner.snapshot()
+-    assert len(snapshot.compute_reservations) == 1
+-    assert snapshot.state.reserved["run"] == Decimal("0.75")
++    outcomes: list[tuple[str, str]] = []
++    primary_error: BaseException | None = None
++    phase = "starting_children"
++    try:
++        for process in processes:
++            process.start()
++        for result_index in range(len(processes)):
++            phase = f"waiting_for_result_{result_index + 1}_of_{len(processes)}"
++            outcomes.append(result.get(timeout=30))
++        phase = "joining_children"
++        for process in processes:
++            process.join(timeout=30)
++            assert process.exitcode == 0, (
++                f"spawn child failed: pid={process.pid}, "
++                f"is_alive={process.is_alive()}, exitcode={process.exitcode}"
++            )
++        phase = "checking_ledger_semantics"
++        assert sorted(item[0] for item in outcomes) == ["refused", "reserved"]
++        assert [item[1] for item in outcomes if item[0] == "refused"] == [
++            "compute_budget_unresolved_reservation"
++        ]
++        snapshot = owner.snapshot()
++        assert len(snapshot.compute_reservations) == 1
++        assert snapshot.state.reserved["run"] == Decimal("0.75")
++    except BaseException as exc:
++        primary_error = exc
++        exc.add_note(
++            "spawn harness failure: "
++            + json.dumps(
++                {
++                    "parent_pid": os.getpid(),
++                    "phase": phase,
++                    "exception_type": type(exc).__name__,
++                    "exception_message": str(exc),
++                    "timeout_seconds_per_result_or_join": 30,
++                    "expected_count": len(processes),
++                    "received_count": len(outcomes),
++                    "partial_outcomes": outcomes,
++                    "children_at_failure": _timeout_child_statuses(processes),
++                },
++                sort_keys=True,
++            )
++        )
++        raise
++    finally:
++        cleanup_observations, cleanup_errors = _cleanup_owned_children(processes)
++        if primary_error is not None:
++            primary_error.add_note(
++                "spawn child cleanup observations: "
++                + json.dumps(cleanup_observations, sort_keys=True)
++            )
++        if cleanup_errors:
++            message = "spawn child cleanup errors: " + json.dumps(cleanup_errors, sort_keys=True)
++            if primary_error is not None:
++                primary_error.add_note(message)
++            else:
++                raise RuntimeError(message)

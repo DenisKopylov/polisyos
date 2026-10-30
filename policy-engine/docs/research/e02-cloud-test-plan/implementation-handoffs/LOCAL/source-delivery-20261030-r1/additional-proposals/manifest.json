@@ -1,0 +1,243 @@
+{
+  "base": "0cf2132d0218864240d4a888ee534948e150b90f",
+  "families": [
+    {
+      "name": "child-parent-effect-owner-r8",
+      "base": "0cf2132d0218864240d4a888ee534948e150b90f",
+      "patch": "patches/child-parent-effect-owner-r8.patch",
+      "patch_sha256": "df27ba5c12130bb2c2ba08fa1c335d29812b509a9c270a501215c78494a5faf3",
+      "bytes": 227658,
+      "files": [
+        {
+          "target": "policy-engine/release-fragments/unreleased/2026-10-30-e02-child-parent-effects.toml",
+          "pre_sha256": null,
+          "post_sha256": "3797783dfe8abc40952187c0410c32c2c47da884566fc3b2b310e73751f1e3f5",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-parent-effect-owner-r8/postimages/policy-engine/release-fragments/unreleased/2026-10-30-e02-child-parent-effects.toml",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/core/artifacts/child_release.py",
+          "pre_sha256": null,
+          "post_sha256": "5140d6cb29cd10854429642417f8c78138f124c302c0fb2e440a72738451b8c6",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-parent-effect-owner-r8/postimages/policy-engine/src/polisyos/core/artifacts/child_release.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/core/run/README.md",
+          "pre_sha256": "aa5c9d5b440990d3e2cebd053ddee095d56d20fef0d7e935aaa68def7adf29b2",
+          "post_sha256": "aeb3fb72c7539a33dd617c9cca6aec2d2e73e3b52b1eebceae99e3e5067da966",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-parent-effect-owner-r8/postimages/policy-engine/src/polisyos/core/run/README.md",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/core/run/child_custody.py",
+          "pre_sha256": null,
+          "post_sha256": "2f3ab4daafe247c8fd8fdd88437e194d5ed87489738d9223686be874aba66da8",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-parent-effect-owner-r8/postimages/policy-engine/src/polisyos/core/run/child_custody.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/core/run/child_parent_effects.py",
+          "pre_sha256": null,
+          "post_sha256": "09f6ab7b8cc8975e33c03cf5e71f6b55bd02f66439514b6b8c33991d1bb50a43",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-parent-effect-owner-r8/postimages/policy-engine/src/polisyos/core/run/child_parent_effects.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/core/run/context.py",
+          "pre_sha256": "43a7dd41d5e1ee3de16f4a5d3ccd88b2c903ffcc0447a6f7e2bd557ca60736d1",
+          "post_sha256": "acaaf560ea070f78620f293778bf591099a9be65beeacded4904cd35760144b5",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-parent-effect-owner-r8/postimages/policy-engine/src/polisyos/core/run/context.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/core/trace/record.py",
+          "pre_sha256": "60d9cbc82cb7835fcab009b454da9bd3060d702ff01393bb029e86c715650143",
+          "post_sha256": "fbb3a94d14c63be190e3209334af486a3a09c50c50260016b0c5094895f423e2",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-parent-effect-owner-r8/postimages/policy-engine/src/polisyos/core/trace/record.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/tests/_helpers/child_parent_effect_controls.py",
+          "pre_sha256": null,
+          "post_sha256": "b6421d18c18b08bff4d517d89a796b20d00ba6e05b2216b389a6dda7077753fc",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-parent-effect-owner-r8/postimages/policy-engine/tests/_helpers/child_parent_effect_controls.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/tests/unit/core/trace/test_child_effect_trace.py",
+          "pre_sha256": null,
+          "post_sha256": "099bf3fa05cba4998eb014e3cb758288553f26b19f9d3ed0b6344da678cfcb1b",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-parent-effect-owner-r8/postimages/policy-engine/tests/unit/core/trace/test_child_effect_trace.py",
+          "mode": "100644"
+        }
+      ],
+      "apply_check": {
+        "exit": 0,
+        "stderr": ""
+      },
+      "status": "Uncomposed WIP; overlaps other patches and may depend on them; no runtime/G acceptance."
+    },
+    {
+      "name": "child-effect-runtime-bootstrap-r2",
+      "base": "0cf2132d0218864240d4a888ee534948e150b90f",
+      "patch": "patches/child-effect-runtime-bootstrap-r2.patch",
+      "patch_sha256": "6039508de6bbb602aa9b220d5b4dc058e3a85bc6201fa643599d11358dc107ea",
+      "bytes": 45944,
+      "files": [
+        {
+          "target": "policy-engine/src/polisyos/runtime/http/resilience.py",
+          "pre_sha256": "c409448e5997d4b69c276933d87f7840b1d0a9349441d5b9edbe437619daa9d7",
+          "post_sha256": "15e0ea5ed5f3e28c392a2e132baa2fbf2662fff20c2280423562cfe90110e39d",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-effect-runtime-bootstrap-r2/postimages/policy-engine/src/polisyos/runtime/http/resilience.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/tests/unit/runtime/http/test_child_effect_runtime_bootstrap.py",
+          "pre_sha256": null,
+          "post_sha256": "467aab4dcca3cc7b66bb758e6a839091fe058faf83ff96e81d0dd5bcee39a190",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-effect-runtime-bootstrap-r2/postimages/policy-engine/tests/unit/runtime/http/test_child_effect_runtime_bootstrap.py",
+          "mode": "100644"
+        }
+      ],
+      "apply_check": {
+        "exit": 0,
+        "stderr": ""
+      },
+      "status": "Uncomposed WIP; overlaps other patches and may depend on them; no runtime/G acceptance."
+    },
+    {
+      "name": "child-db-owner-substitution-oracle-r1",
+      "base": "0cf2132d0218864240d4a888ee534948e150b90f",
+      "patch": "patches/child-db-owner-substitution-oracle-r1.patch",
+      "patch_sha256": "855959d6774fc9499ff4ba57087250a75e4cfb702b9e5f8b28315eccca49cb12",
+      "bytes": 4395,
+      "files": [
+        {
+          "target": "policy-engine/tests/unit/runtime/http/test_child_db_owner_substitution.py",
+          "pre_sha256": null,
+          "post_sha256": "3ab0a9e22ee790271430611b62371b3950525822f042257fb93f8c8032523d07",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-db-owner-substitution-oracle-r1/postimages/policy-engine/tests/unit/runtime/http/test_child_db_owner_substitution.py",
+          "mode": "100644"
+        }
+      ],
+      "apply_check": {
+        "exit": 0,
+        "stderr": ""
+      },
+      "status": "Uncomposed WIP; overlaps other patches and may depend on them; no runtime/G acceptance."
+    },
+    {
+      "name": "child-settlement-propagation-r2",
+      "base": "0cf2132d0218864240d4a888ee534948e150b90f",
+      "patch": "patches/child-settlement-propagation-r2.patch",
+      "patch_sha256": "50a1e9da5e48d0961c540074de24bd2242e1d31c3561a524b12f63067ad5257a",
+      "bytes": 11979,
+      "files": [
+        {
+          "target": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "pre_sha256": "1a09deae5b3876b53199dc5901e1af51850d4a0d050124d1a928dbfcb7be903f",
+          "post_sha256": "95d4b69f00416558219bc9e3657a83664dccc5c072adcfad4a97db7893c4cbe7",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-settlement-propagation-r2/postimages/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+          "pre_sha256": "e81c8c0b0d5da54be31d801f14d14278173cb37d476fccf863cb2d2e619c6e30",
+          "post_sha256": "2ee3c52b6921a4f9a904857fb401389531fc442df6a61d2cc18d80cd058d79b6",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-settlement-propagation-r2/postimages/policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+          "pre_sha256": "274bae76b807ef08df74143439eba9a28fa0a3b00689cfc478909e6d3800d2af",
+          "post_sha256": "5d4a0de6d125814e3e1bf131eacf7b1dda4cda2c2b831b8480f455ca7305cd6d",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-settlement-propagation-r2/postimages/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/tests/unit/scientist/orchestration/engine/test_child_settlement_propagation.py",
+          "pre_sha256": null,
+          "post_sha256": "5d31116350013727e57d1dc36615b9bcf5e97312cbcf4ad6fdf799524edf85e3",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-settlement-propagation-r2/postimages/policy-engine/tests/unit/scientist/orchestration/engine/test_child_settlement_propagation.py",
+          "mode": "100644"
+        }
+      ],
+      "apply_check": {
+        "exit": 0,
+        "stderr": ""
+      },
+      "status": "Uncomposed WIP; overlaps other patches and may depend on them; no runtime/G acceptance."
+    },
+    {
+      "name": "R171-reason-monotonicity-r1",
+      "base": "0cf2132d0218864240d4a888ee534948e150b90f",
+      "patch": "patches/R171-reason-monotonicity-r1.patch",
+      "patch_sha256": "28547023b15c772ac32fa48bc9cf9d57859f7d42e8d2b352a493d9bb804954ae",
+      "bytes": 9365,
+      "files": [
+        {
+          "target": "policy-engine/release-fragments/unreleased/2026-10-30-e02-n7-source-refusal-reason.toml",
+          "pre_sha256": null,
+          "post_sha256": "ae7e6f4afb08e92d924275c73475d865b180c70c7998d6029654598d169ad9f6",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/R171-reason-monotonicity-r1/postimages/policy-engine/release-fragments/unreleased/2026-10-30-e02-n7-source-refusal-reason.toml",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/runtime/quality/README.md",
+          "pre_sha256": "e0b54a1ceacf3a2f131361954d8d89199324f10283d7901e6359fb0001c9aad7",
+          "post_sha256": "42d14bc2753def0946c13c28a7b77165ac7f49b968e143d6875db041d7eb2002",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/R171-reason-monotonicity-r1/postimages/policy-engine/src/polisyos/runtime/quality/README.md",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+          "pre_sha256": "62a5b6e94c7cee7ffee95516d0580a1d642d2ca1ff4e297aa64b53b7550068e8",
+          "post_sha256": "6d4cc841c06c4d5154918088794228443c9645757447f87e0ff03fd8f4d8e3cd",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/R171-reason-monotonicity-r1/postimages/policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+          "pre_sha256": "e809f4fadd981b53a9cd8dbda4e29e407a9ee20b1941202323c98ae639e26483",
+          "post_sha256": "e17104142421e733f8395a8c2f25dd61c1e06333a1ce01e3621517e55c4f614d",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/R171-reason-monotonicity-r1/postimages/policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+          "mode": "100644"
+        }
+      ],
+      "apply_check": {
+        "exit": 0,
+        "stderr": ""
+      },
+      "status": "Uncomposed WIP; overlaps other patches and may depend on them; no runtime/G acceptance."
+    },
+    {
+      "name": "child-parent-effect-fixture-r4",
+      "base": "0cf2132d0218864240d4a888ee534948e150b90f",
+      "patch": "patches/child-parent-effect-fixture-r4.patch",
+      "patch_sha256": "050e035f2dafa4fb847a486f8c67c134a3fa7a70f1b6039a14ccecfc7fe0cf31",
+      "bytes": 64139,
+      "files": [
+        {
+          "target": "policy-engine/tests/unit/runtime/http/test_child_control_authorization.py",
+          "pre_sha256": null,
+          "post_sha256": "aff07bcf699b0a891a0a95ea9e1308afc5ab8dec7aea3ce75e0d34c1aa216b75",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-parent-effect-fixture-r3/postimages/policy-engine/tests/unit/runtime/http/test_child_control_authorization.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/tests/_helpers/child_effect_fresh_replay.py",
+          "pre_sha256": null,
+          "post_sha256": "1b4071e7d83b5c70f54f9a8b19ac609f91c6960270a9322f37222d260bb05cc0",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-parent-effect-fixture-r3/postimages/policy-engine/tests/_helpers/child_effect_fresh_replay.py",
+          "mode": "100644"
+        }
+      ],
+      "apply_check": {
+        "exit": 0,
+        "stderr": ""
+      },
+      "status": "Uncomposed WIP; overlaps other patches and may depend on them; no runtime/G acceptance."
+    }
+  ]
+}

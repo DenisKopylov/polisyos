@@ -1,0 +1,261 @@
+{
+  "schema": "e02.source-delivery.v1",
+  "at_utc": "2026-10-30T13:24:24.473499+00:00",
+  "live_source_commit": "87cd7f41303d0df4e962ef510badd733fdab4f9b",
+  "delivery": "Actual code bytes; source-only archives and patches; preservation merge of all observed branch histories",
+  "maximal_additional_branch_tips": 232,
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 1647,
+      "sha256": "0448c908ddb23dec9cdecc3d2e0f9fd22f95b3fadedde11fdc8cb2fbf9148b50"
+    },
+    {
+      "path": "additional-proposals/README.md",
+      "bytes": 564,
+      "sha256": "7ee7e5a5863769b3fca02101d2c1554095efc5c9ec6ba33f2618772591f3af6e"
+    },
+    {
+      "path": "additional-proposals/manifest.json",
+      "bytes": 13145,
+      "sha256": "434f444216187aa817e39ea56ce0d3893bede2a65a7b62113cee608426c30229"
+    },
+    {
+      "path": "additional-proposals/patches/R171-reason-monotonicity-r1.patch",
+      "bytes": 9365,
+      "sha256": "28547023b15c772ac32fa48bc9cf9d57859f7d42e8d2b352a493d9bb804954ae"
+    },
+    {
+      "path": "additional-proposals/patches/child-db-owner-substitution-oracle-r1.patch",
+      "bytes": 4395,
+      "sha256": "855959d6774fc9499ff4ba57087250a75e4cfb702b9e5f8b28315eccca49cb12"
+    },
+    {
+      "path": "additional-proposals/patches/child-effect-runtime-bootstrap-r2.patch",
+      "bytes": 45944,
+      "sha256": "6039508de6bbb602aa9b220d5b4dc058e3a85bc6201fa643599d11358dc107ea"
+    },
+    {
+      "path": "additional-proposals/patches/child-parent-effect-fixture-r4.patch",
+      "bytes": 64139,
+      "sha256": "050e035f2dafa4fb847a486f8c67c134a3fa7a70f1b6039a14ccecfc7fe0cf31"
+    },
+    {
+      "path": "additional-proposals/patches/child-parent-effect-owner-r8.patch",
+      "bytes": 227658,
+      "sha256": "df27ba5c12130bb2c2ba08fa1c335d29812b509a9c270a501215c78494a5faf3"
+    },
+    {
+      "path": "additional-proposals/patches/child-settlement-propagation-r2.patch",
+      "bytes": 11979,
+      "sha256": "50a1e9da5e48d0961c540074de24bd2242e1d31c3561a524b12f63067ad5257a"
+    },
+    {
+      "path": "branches/README.md",
+      "bytes": 1117,
+      "sha256": "d0c12d5d7b55ab960a613f6d55d1b389474ee45d7a5d619d8e645432b5bffb19"
+    },
+    {
+      "path": "branches/initial-ref-inventory.json",
+      "bytes": 156347,
+      "sha256": "543c9cd0e4c45607f73cef41ff061108c8b03737c55dcf5ce865f8dc9b98c4df"
+    },
+    {
+      "path": "branches/local-refs-at-start.txt",
+      "bytes": 132609,
+      "sha256": "e42630837b784708b9c7f4c74f0d91d0f64f5559874ddf8611d181771d3642a0"
+    },
+    {
+      "path": "branches/portable/manifest.json",
+      "bytes": 221908,
+      "sha256": "47471e2992378b67da4c3efcd1e8366ba63ef32a8b94a5660b15e9972969cc70"
+    },
+    {
+      "path": "branches/portable/portable-branch-patches.tar.gz",
+      "bytes": 8776502,
+      "sha256": "da6c68eb2bb34f584309c2f219d339acab69e5e19956bc51a79eedee67176bd2"
+    },
+    {
+      "path": "branches/portable/receipt.json",
+      "bytes": 1306,
+      "sha256": "22cba81f4380b4861074e54c3ae81c29049154d3f652a5c97ccd382de8d4b7ad"
+    },
+    {
+      "path": "branches/remote-heads-at-start.txt",
+      "bytes": 18295,
+      "sha256": "be16108f38bb73e35cac533edf98ca4218896348bb0e88b37eb232872d5eae9c"
+    },
+    {
+      "path": "case-root-code/README.md",
+      "bytes": 518,
+      "sha256": "4725cb2fe3c701b6042d0987e01185908735bcbc0f02288e3c28f173f1f3e9ca"
+    },
+    {
+      "path": "case-root-code/case-root-source.tar.gz",
+      "bytes": 43458,
+      "sha256": "37782d6c565bbd98b959ffadeb0fc1ea091096e0c89fd07872139d58a6ff9935"
+    },
+    {
+      "path": "case-root-code/catalog.json",
+      "bytes": 24004,
+      "sha256": "bd3eef1ff04b5e529452893d47eed885c4b7e6ff0b8ffea7bf2920cd6cf1872c"
+    },
+    {
+      "path": "current-proposals/README.md",
+      "bytes": 1130,
+      "sha256": "14015c306b207fcffabefdb5fc82910b7ce4cf7918a065e6cb8855307884b2d2"
+    },
+    {
+      "path": "current-proposals/manifest.json",
+      "bytes": 33275,
+      "sha256": "e8fcbeec8b115005c76cf87767e3bb02149504c132bef3dc0bee3053e5eb6188"
+    },
+    {
+      "path": "current-proposals/patches/dynamic.patch",
+      "bytes": 65202,
+      "sha256": "bca3b0d906d32e8e4012372ea1e2bc2819ada155e19c5d60ba527324b5fda6fc"
+    },
+    {
+      "path": "current-proposals/patches/kernel.patch",
+      "bytes": 570865,
+      "sha256": "1aa8b3f5cdf38f85f4663aa5ac3c50cee7dcfcf92ce933513ce51e32499aff25"
+    },
+    {
+      "path": "current-proposals/patches/ledger-spawn.patch",
+      "bytes": 7412,
+      "sha256": "0dc469735b44c48a495528ede5be71f9203b8bfbcf647b2a9e017f23b2211ced"
+    },
+    {
+      "path": "current-proposals/patches/n7-loaded-host-wip.patch",
+      "bytes": 152966,
+      "sha256": "53efcc40fab2535d56c63bc149613307891eb872cddfc1245c2d4f1083a96281"
+    },
+    {
+      "path": "current-proposals/patches/tc-child.patch",
+      "bytes": 909,
+      "sha256": "9ed0f008fba1fe9faf17044ce893830f03e7ca6066fcaca22d7cd91f9dc3c15b"
+    },
+    {
+      "path": "historical-patches/README.md",
+      "bytes": 1048,
+      "sha256": "5b3591fd4c2712688b24664410ea1def0023617774e902cb84bdb9896614df16"
+    },
+    {
+      "path": "historical-patches/catalog.json",
+      "bytes": 1013672,
+      "sha256": "56400904d06fc39f08795e60b15265ee7a44072215398b1c8b7ec154c66d1721"
+    },
+    {
+      "path": "historical-patches/historical-patches.tar.gz",
+      "bytes": 6424880,
+      "sha256": "7708dc6d37cfdda9ae42d1508db9ba3f1a9387129370e01ddd51d3540c66f41b"
+    },
+    {
+      "path": "local-tools/README.md",
+      "bytes": 510,
+      "sha256": "634c8e743b534fecfdbb1789b3a1848ce7eedda771026921fed3c72f14163337"
+    },
+    {
+      "path": "local-tools/catalog.json",
+      "bytes": 347175,
+      "sha256": "dc18d128d8d527edacf1290433afa0c5fa213f89d46d31167eb9be49fe8314db"
+    },
+    {
+      "path": "local-tools/local-tools.tar.gz",
+      "bytes": 3284172,
+      "sha256": "166748d8b83a48323fb5fcda6d0807b1553ded0f871e82b120f2d80b42ffbb8d"
+    },
+    {
+      "path": "loose-code/README.md",
+      "bytes": 1267,
+      "sha256": "9e79500afdba58b9e4d172772334061dfe8b41db84e901c8cedb16f5f711767c"
+    },
+    {
+      "path": "loose-code/c59/prepare_plans.py",
+      "bytes": 12217,
+      "sha256": "3fc0715cb3f7faefcfe00812455940af74e998db64f65dd24b30a0177c381858"
+    },
+    {
+      "path": "loose-code/fabric/2026-10-20-e02-datasnapshot-owner-optional-inputs.toml",
+      "bytes": 1731,
+      "sha256": "20adb6b811212e7cdb8d2c7163be8501e128da869a8485964583a4d069b5c65d"
+    },
+    {
+      "path": "loose-code/fabric/fabric.py",
+      "bytes": 18676,
+      "sha256": "e032213db8d2b91b91307ae3312a2f9b152c38f09e01448f9a392332c103fabb"
+    },
+    {
+      "path": "loose-code/fabric/test_fabric_snapshot_owner_optional_inputs.py",
+      "bytes": 5335,
+      "sha256": "a1b83c4f95e1bbe919fa97644af40ffd56e987b1a758effa1109d54337ca8927"
+    },
+    {
+      "path": "loose-code/manifest.json",
+      "bytes": 9193,
+      "sha256": "f8447a0345960354bdeed9da2a02dd479c182466a4d104a04d65433b9215d3e4"
+    },
+    {
+      "path": "loose-code/oct11/b31/test_causal_value_method_output_contract.py",
+      "bytes": 1891,
+      "sha256": "edca56265a92952ff62c297df03aa7ec59ece839accc22924496836bdb883c65"
+    },
+    {
+      "path": "loose-code/oct7/e02_origin.py",
+      "bytes": 656,
+      "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+    },
+    {
+      "path": "loose-code/oct7/n8_partial_v2_removal.py",
+      "bytes": 6294,
+      "sha256": "0610bbec106fef3c75241c3527faf58ecba4cfd657faff87bba7ee2185a3038c"
+    },
+    {
+      "path": "nested-code-helpers/README.md",
+      "bytes": 603,
+      "sha256": "ddfe75f40a2c2200b8685d654562ed9c32f85fb4b3a264e38adeac48c6bcdb50"
+    },
+    {
+      "path": "nested-code-helpers/catalog.json",
+      "bytes": 733409,
+      "sha256": "a6734da698421a1d2d4c473c86b24554e94c5280947701762c4f1489ac8614c9"
+    },
+    {
+      "path": "nested-code-helpers/nested-code-helpers.tar.gz",
+      "bytes": 8113180,
+      "sha256": "5e29d848d330d21cd97a7d3dd2768e3c5d5edfebec96ff1add2d426ed325f120"
+    },
+    {
+      "path": "other-local-code/README.md",
+      "bytes": 532,
+      "sha256": "c7d2256744c51c3204def70339611ba34775eeb94b4e2094c1b17d3b5d062d33"
+    },
+    {
+      "path": "other-local-code/catalog.json",
+      "bytes": 48732,
+      "sha256": "39c3824792dde26cd55f09a3a571a0b71af8afc08e8879da220ea36547d491f1"
+    },
+    {
+      "path": "other-local-code/other-local-code.tar.gz",
+      "bytes": 341014,
+      "sha256": "9a579076d2594e089421a59a92b99678740c8e74b1281707fa79756f1082b8ed"
+    },
+    {
+      "path": "source-versions/README.md",
+      "bytes": 1303,
+      "sha256": "538f954506f0ad3aa1ac18150c68ad6b409be4c27197ca692b3c6d022a52381d"
+    },
+    {
+      "path": "source-versions/catalog.json",
+      "bytes": 1546933,
+      "sha256": "5f68727a031fd7fa57a08679f183d5381c19d852651f9cd2dd955764ab6f0df8"
+    },
+    {
+      "path": "source-versions/postimage-patches.tar.gz",
+      "bytes": 3517211,
+      "sha256": "c9e2701a78d84ec1f0dd3158dec05c319af9b022390975fc906f7f2afc4d6d5a"
+    }
+  ],
+  "archive_policy": "Source-only lossless archives explicitly requested for code delivery; no environments, dependencies, CAS, databases or production payload",
+  "activation": "Alternative/uncomposed patches are preserved, not simultaneously activated"
+}

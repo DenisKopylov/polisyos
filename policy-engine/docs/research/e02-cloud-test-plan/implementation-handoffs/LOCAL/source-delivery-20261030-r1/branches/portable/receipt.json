@@ -1,0 +1,35 @@
+{
+  "archive_path": "portable-branch-patches.tar.gz",
+  "archive_sha256": "da6c68eb2bb34f584309c2f219d339acab69e5e19956bc51a79eedee67176bd2",
+  "archive_bytes": 8776502,
+  "manifest_sha256": "47471e2992378b67da4c3efcd1e8366ba63ef32a8b94a5660b15e9972969cc70",
+  "unique_patch_blobs": 215,
+  "total_unique_patch_bytes": 45286313,
+  "totals": {
+    "tips": 232,
+    "tips_with_patch": 218,
+    "tips_no_selected_paths": 14,
+    "tips_held_possible_credential": 0,
+    "tip_errors": 0,
+    "all_endpoint_path_occurrences": 33641,
+    "selected_path_occurrences": 3409,
+    "excluded_by_reason": {
+      "included": 3409,
+      "research_handoff_or_evidence": 28414,
+      "dependency_or_generated_artifact": 1508,
+      "outside_product_or_governed_surfaces": 54,
+      "not_portable_text_source_doc_or_config": 2,
+      "generated_manifest_or_snapshot": 20,
+      "raw_or_test_output": 15,
+      "generated_gh_pages_reference_only": 218,
+      "generated_payload_or_binary": 1
+    },
+    "unique_patch_blobs": 215,
+    "unique_patch_bytes": 45286313,
+    "non_test_credential_matches": [],
+    "synthetic_or_test_context_matches": [],
+    "binary_marker_paths": []
+  },
+  "free_disk_gib": 5.78,
+  "delivery_locator_note": "Original receipt paths were local authoring locators; archive bytes are unchanged."
+}

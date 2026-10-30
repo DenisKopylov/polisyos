@@ -1,0 +1,825 @@
+{
+  "schema": "e02.remaining-local-code-hunks.v1",
+  "scope": "Source-language hunks from the 47 historical patches previously lacking an eligible product-target hunk; optional standalone source files when the patched path resolves in the workspace. Private data, outputs, databases and environments omitted. These are local tools or alternatives, not applied source.",
+  "examined_no_source_patches": 47,
+  "examined_mixed_patches": 22,
+  "included_patch_files": 44,
+  "unique_hunk_payloads": 44,
+  "saved_actual_scripts": 25,
+  "patches": [
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/C134-tracked-helper-adoption-binder-r3/binder-r2-to-r3.diff",
+      "source_sha256": "09c9ddbc2c8cc2783649e6cd66d10a5790228468ce712ee9195acc2d2abd472a",
+      "shipped_hunks_sha256": "09c9ddbc2c8cc2783649e6cd66d10a5790228468ce712ee9195acc2d2abd472a",
+      "targets": [
+        "C134-tracked-helper-adoption-binder-r3/bind-future.py"
+      ],
+      "member": "patches/09c9ddbc2c8cc2783649e6cd66d10a5790228468ce712ee9195acc2d2abd472a.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/I4-registry-consumer-proof-r4/delta-corrected.diff",
+      "source_sha256": "0c2bc31f9dc49317929b1c4b93096b08e9891764183e771f37d9eacc96be76f9",
+      "shipped_hunks_sha256": "0c2bc31f9dc49317929b1c4b93096b08e9891764183e771f37d9eacc96be76f9",
+      "targets": [
+        "R4/postimage.py"
+      ],
+      "member": "patches/0c2bc31f9dc49317929b1c4b93096b08e9891764183e771f37d9eacc96be76f9.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/runtime-prep/N7-external-case-harness-r1/readback-delta.diff",
+      "source_sha256": "0c8730367e477b11bf7fee4c06beef301161ceb7cc236791843c05db666464ef",
+      "shipped_hunks_sha256": "0c8730367e477b11bf7fee4c06beef301161ceb7cc236791843c05db666464ef",
+      "targets": [
+        "LOCAL/raw/e02-execution-20261027/runtime-prep/N7-external-case-harness-r1/readback_external_sources.py"
+      ],
+      "member": "patches/0c8730367e477b11bf7fee4c06beef301161ceb7cc236791843c05db666464ef.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/R4-native-control-r1/native-profile-8k512-r1/controller.delta.patch",
+      "source_sha256": "10307140bc82e6db70f1276cd8aa7212cfa4c7cc5c75d136bec90afb1c77192c",
+      "shipped_hunks_sha256": "10307140bc82e6db70f1276cd8aa7212cfa4c7cc5c75d136bec90afb1c77192c",
+      "targets": [
+        "LOCAL/raw/e02-execution-20261027/repairs/R4-native-control-r1/native-profile-8k512-r1/controller.py"
+      ],
+      "member": "patches/10307140bc82e6db70f1276cd8aa7212cfa4c7cc5c75d136bec90afb1c77192c.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/R4-native-control-r1/native-profile-8k512-r1/admission.delta.patch",
+      "source_sha256": "14d677633f2fef7e669a48894cc20fcddd04417ae82db35902f7a18ed1c5f65e",
+      "shipped_hunks_sha256": "14d677633f2fef7e669a48894cc20fcddd04417ae82db35902f7a18ed1c5f65e",
+      "targets": [
+        "LOCAL/raw/e02-execution-20261027/repairs/R4-native-control-r1/native-profile-8k512-r1/admission_builder.py"
+      ],
+      "member": "patches/14d677633f2fef7e669a48894cc20fcddd04417ae82db35902f7a18ed1c5f65e.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/R4-native-control-r1/fixture-admission-r1/controller.delta.patch",
+      "source_sha256": "2c5da2f00ad44dd5473ab882851cd820be4c6d68d15e58e4ffe2a7e4687fb08e",
+      "shipped_hunks_sha256": "2c5da2f00ad44dd5473ab882851cd820be4c6d68d15e58e4ffe2a7e4687fb08e",
+      "targets": [
+        "fixture-admission-r1/controller.py"
+      ],
+      "member": "patches/2c5da2f00ad44dd5473ab882851cd820be4c6d68d15e58e4ffe2a7e4687fb08e.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/R4-native-control-r1/native-profile-8k512-r1/checker.delta.patch",
+      "source_sha256": "2eaba2dcab4b527143dd410ac58b7a489b0c7e59092bb2235bdc9313fd15cfd5",
+      "shipped_hunks_sha256": "2eaba2dcab4b527143dd410ac58b7a489b0c7e59092bb2235bdc9313fd15cfd5",
+      "targets": [
+        "LOCAL/raw/e02-execution-20261027/repairs/R4-native-control-r1/native-profile-8k512-r1/native_checks.py"
+      ],
+      "member": "patches/2eaba2dcab4b527143dd410ac58b7a489b0c7e59092bb2235bdc9313fd15cfd5.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/ir-adapter-type-constraints-r1/candidate-r2-final.patch",
+      "source_sha256": "3bfdafdcae2da7859f3c862dba38b98eb8f3301421c3eb1b2e21c35137f49122",
+      "shipped_hunks_sha256": "3bfdafdcae2da7859f3c862dba38b98eb8f3301421c3eb1b2e21c35137f49122",
+      "targets": [
+        "LOCAL/raw/e02-execution-20261027/repairs/ir-adapter-type-constraints-r1/candidate-r2.py"
+      ],
+      "member": "patches/3bfdafdcae2da7859f3c862dba38b98eb8f3301421c3eb1b2e21c35137f49122.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/S2-B194-removal-r2/plugin-delta.diff",
+      "source_sha256": "445c6732f79a414d3093401ce889c3278c0ee8db8bb727bae30af0d9b7930df0",
+      "shipped_hunks_sha256": "445c6732f79a414d3093401ce889c3278c0ee8db8bb727bae30af0d9b7930df0",
+      "targets": [
+        "R2/b194_denominator_probe.py"
+      ],
+      "member": "patches/445c6732f79a414d3093401ce889c3278c0ee8db8bb727bae30af0d9b7930df0.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/C48-single-sandbox-r2-c05/preparer-delta.patch",
+      "source_sha256": "469dfc164c5484054e3cf7bd01535341a2f845b4514204b967e14b6b85a22ca9",
+      "shipped_hunks_sha256": "469dfc164c5484054e3cf7bd01535341a2f845b4514204b967e14b6b85a22ca9",
+      "targets": [
+        "LOCAL/raw/e02-execution-20261027/repairs/C48-single-sandbox-r2-c05/prepare_plan.py"
+      ],
+      "member": "patches/469dfc164c5484054e3cf7bd01535341a2f845b4514204b967e14b6b85a22ca9.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/N7-owner-slot-fixture-r1/preparer-r2-to-r4.patch",
+      "source_sha256": "4b4295bcd1dcaa0446a33917272e8b577e5db417dfd77cbf9122b980683faa29",
+      "shipped_hunks_sha256": "4b4295bcd1dcaa0446a33917272e8b577e5db417dfd77cbf9122b980683faa29",
+      "targets": [
+        "new-r4-preparer"
+      ],
+      "member": "patches/4b4295bcd1dcaa0446a33917272e8b577e5db417dfd77cbf9122b980683faa29.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/C104-mac-selected-start-r4/driver.py.diff",
+      "source_sha256": "518a64d6772eda3feb0c3bae65292aadb1ffff612c11b347f0c1abb33b94b050",
+      "shipped_hunks_sha256": "518a64d6772eda3feb0c3bae65292aadb1ffff612c11b347f0c1abb33b94b050",
+      "targets": [
+        "LOCAL/raw/e02-execution-20261027/repairs/C104-mac-selected-start-r4/driver.py"
+      ],
+      "member": "patches/518a64d6772eda3feb0c3bae65292aadb1ffff612c11b347f0c1abb33b94b050.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/N7-cycle-request-binding-r1/frozen-r1/source.patch",
+      "source_sha256": "643f268c0dfc4344d8b1973bd59ccad85b59551f0c22497b1eeda44e87b1dc14",
+      "shipped_hunks_sha256": "ac5adaa05523f727e511dc883b1718a080e43cce0ea17e29ff453ba1ec6ae759",
+      "targets": [
+        "Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/LOCAL/raw/e02-execution-20261027/repairs/N7-cycle-request-binding-r1/frozen-r1/postimages/src/polisyos/runtime/quality/generation_cycle.py",
+        "Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/LOCAL/raw/e02-execution-20261027/repairs/N7-cycle-request-binding-r1/frozen-r1/postimages/tests/unit/runtime/quality/test_n7_source_gap_projection.py"
+      ],
+      "member": "patches/ac5adaa05523f727e511dc883b1718a080e43cce0ea17e29ff453ba1ec6ae759.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/C48-replay-public-companions-r2/adapter-r1-r2-delta.patch",
+      "source_sha256": "6ea0a84d266bc1f5f6b9079bf21779f57687e9083b79407656c69496e8715c3a",
+      "shipped_hunks_sha256": "6ea0a84d266bc1f5f6b9079bf21779f57687e9083b79407656c69496e8715c3a",
+      "targets": [
+        "root_stage_companions.py"
+      ],
+      "member": "patches/6ea0a84d266bc1f5f6b9079bf21779f57687e9083b79407656c69496e8715c3a.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/C48-root-metadata-guard-r1/check_single_guard-delta.patch",
+      "source_sha256": "6fa264c736cc6c6cd7f4bc784e1a0af8dc5d270264c0e35d18f30d38ab54cf7f",
+      "shipped_hunks_sha256": "6fa264c736cc6c6cd7f4bc784e1a0af8dc5d270264c0e35d18f30d38ab54cf7f",
+      "targets": [
+        "LOCAL/raw/e02-execution-20261027/repairs/C48-root-metadata-guard-r1/check_single_guard.py"
+      ],
+      "member": "patches/6fa264c736cc6c6cd7f4bc784e1a0af8dc5d270264c0e35d18f30d38ab54cf7f.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/C104-measured-worker-harness-r1/observer/observer.diff",
+      "source_sha256": "7bf78b7cded0771bb6f6adaaa5d56fe52fc5f1f949c20a8e125994b175d1d16b",
+      "shipped_hunks_sha256": "7bf78b7cded0771bb6f6adaaa5d56fe52fc5f1f949c20a8e125994b175d1d16b",
+      "targets": [
+        "r7_source_observer.py"
+      ],
+      "member": "patches/7bf78b7cded0771bb6f6adaaa5d56fe52fc5f1f949c20a8e125994b175d1d16b.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/C104-measured-worker-harness-r1/review-readback-r2/observer-final.diff",
+      "source_sha256": "7c10625cb67b2af06eb4f9fdcbcd0a7f0e47b55cf512ddc62b7ccec4b530563f",
+      "shipped_hunks_sha256": "7c10625cb67b2af06eb4f9fdcbcd0a7f0e47b55cf512ddc62b7ccec4b530563f",
+      "targets": [
+        "LOCAL/raw/e02-execution-20261027/repairs/C104-measured-worker-harness-r1/observer/r7_source_observer.py"
+      ],
+      "member": "patches/7c10625cb67b2af06eb4f9fdcbcd0a7f0e47b55cf512ddc62b7ccec4b530563f.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/C48-single-sandbox-r1/runner-delta.patch",
+      "source_sha256": "7cea610c2838884dadd98191174d1796df2686453a8bd79ea4041adfd74fdf9a",
+      "shipped_hunks_sha256": "7cea610c2838884dadd98191174d1796df2686453a8bd79ea4041adfd74fdf9a",
+      "targets": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/run_case_with_tools_r3.py"
+      ],
+      "member": "patches/7cea610c2838884dadd98191174d1796df2686453a8bd79ea4041adfd74fdf9a.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/FED-operational-bridge-r5-native-witness-r2/delta.patch",
+      "source_sha256": "82e5c7481ad6d1176bb3436a36a4c0ab1ca357661817b97bf7aec87ea053dc74",
+      "shipped_hunks_sha256": "82e5c7481ad6d1176bb3436a36a4c0ab1ca357661817b97bf7aec87ea053dc74",
+      "targets": [
+        "verify_facade_bindings.py"
+      ],
+      "member": "patches/82e5c7481ad6d1176bb3436a36a4c0ab1ca357661817b97bf7aec87ea053dc74.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/runtime-prep/N7-external-case-harness-r1/runner-delta.diff",
+      "source_sha256": "83ba4b4b0aa52106cad7c5abe5b7b38b69e112ef2ee1d5a9927bfe0f2ea72706",
+      "shipped_hunks_sha256": "83ba4b4b0aa52106cad7c5abe5b7b38b69e112ef2ee1d5a9927bfe0f2ea72706",
+      "targets": [
+        "LOCAL/raw/e02-execution-20261027/runtime-prep/N7-external-case-harness-r1/run_external_case.py"
+      ],
+      "member": "patches/83ba4b4b0aa52106cad7c5abe5b7b38b69e112ef2ee1d5a9927bfe0f2ea72706.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/C104-mac-selected-start-r4/mac_prerequisites.py.diff",
+      "source_sha256": "8a944e1d5142a6f65393deebd3913ee897e955daa18477bb272a695821bde058",
+      "shipped_hunks_sha256": "8a944e1d5142a6f65393deebd3913ee897e955daa18477bb272a695821bde058",
+      "targets": [
+        "LOCAL/raw/e02-execution-20261027/repairs/C104-mac-selected-start-r4/mac_prerequisites.py"
+      ],
+      "member": "patches/8a944e1d5142a6f65393deebd3913ee897e955daa18477bb272a695821bde058.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/C104-measured-worker-harness-r1/review-readback-r2/driver-final.diff",
+      "source_sha256": "8e17ecffc4a8509275b3fe071b2ef7b46325336b04777d10cac8d8536c50d8b7",
+      "shipped_hunks_sha256": "8e17ecffc4a8509275b3fe071b2ef7b46325336b04777d10cac8d8536c50d8b7",
+      "targets": [
+        "LOCAL/raw/e02-execution-20261027/repairs/C104-measured-worker-harness-r1/driver.py"
+      ],
+      "member": "patches/8e17ecffc4a8509275b3fe071b2ef7b46325336b04777d10cac8d8536c50d8b7.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/runtime-prep/N7-external-case-harness-r2/delta.diff",
+      "source_sha256": "aaf1e327699f5e8bb135b86248440afdcb56a493cf7716f03a6a4f192e7736b7",
+      "shipped_hunks_sha256": "aaf1e327699f5e8bb135b86248440afdcb56a493cf7716f03a6a4f192e7736b7",
+      "targets": [
+        "r2/prepare_external_case.py"
+      ],
+      "member": "patches/aaf1e327699f5e8bb135b86248440afdcb56a493cf7716f03a6a4f192e7736b7.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/C104-measured-worker-harness-r1/observer/owner.diff",
+      "source_sha256": "b5e08c1f4bd055dbeb92ba9f70d808619de0fec0f20a4da05f65084f8c2cf782",
+      "shipped_hunks_sha256": "b5e08c1f4bd055dbeb92ba9f70d808619de0fec0f20a4da05f65084f8c2cf782",
+      "targets": [
+        "C104/bounded_code_capture.py"
+      ],
+      "member": "patches/b5e08c1f4bd055dbeb92ba9f70d808619de0fec0f20a4da05f65084f8c2cf782.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/C104-mac-selected-start-r3/driver.diff",
+      "source_sha256": "bcafda96f0f5139355cf57a88f04e25661bbda53c7a61357c32ca1e9fa8e5b3c",
+      "shipped_hunks_sha256": "bcafda96f0f5139355cf57a88f04e25661bbda53c7a61357c32ca1e9fa8e5b3c",
+      "targets": [
+        "LOCAL/raw/e02-execution-20261027/repairs/C104-mac-selected-start-r3/driver.py"
+      ],
+      "member": "patches/bcafda96f0f5139355cf57a88f04e25661bbda53c7a61357c32ca1e9fa8e5b3c.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/R4-real-comparison-planner-r2/design-delta-from-r1.patch",
+      "source_sha256": "bdec216a039cc96798d832a26631f75703d2b7ae3d6f042cf57e2cf713a9669c",
+      "shipped_hunks_sha256": "cd9bec10550e6b73e22bffc8dc32f82fc77295851dd3646caa6f8cb48fd048bc",
+      "targets": [
+        "workspace-prototype.pyi"
+      ],
+      "member": "patches/cd9bec10550e6b73e22bffc8dc32f82fc77295851dd3646caa6f8cb48fd048bc.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/C104-measured-worker-harness-r1/driver.diff",
+      "source_sha256": "be53c71d474948e545babe95f153ef6f294585442e42d7c5c558c609cabb639b",
+      "shipped_hunks_sha256": "be53c71d474948e545babe95f153ef6f294585442e42d7c5c558c609cabb639b",
+      "targets": [
+        "LOCAL/raw/e02-execution-20261027/repairs/C104-measured-worker-harness-r1/driver.py"
+      ],
+      "member": "patches/be53c71d474948e545babe95f153ef6f294585442e42d7c5c558c609cabb639b.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/C104-mac-selected-start-r3/observer.diff",
+      "source_sha256": "c124a365fa9ab1ec4bf8a7f7f3440dd7b83d43928d86aa03cf6ef5dbedda2850",
+      "shipped_hunks_sha256": "c124a365fa9ab1ec4bf8a7f7f3440dd7b83d43928d86aa03cf6ef5dbedda2850",
+      "targets": [
+        "LOCAL/raw/e02-execution-20261027/repairs/C104-mac-selected-start-r3/observer.py"
+      ],
+      "member": "patches/c124a365fa9ab1ec4bf8a7f7f3440dd7b83d43928d86aa03cf6ef5dbedda2850.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/C48-root-metadata-guard-r1/prepare_plan-delta.patch",
+      "source_sha256": "c12dc112e751786be80be63c7360dd24a7347b324668eb506a5602a3e3d3dc0a",
+      "shipped_hunks_sha256": "c12dc112e751786be80be63c7360dd24a7347b324668eb506a5602a3e3d3dc0a",
+      "targets": [
+        "LOCAL/raw/e02-execution-20261027/repairs/C48-root-metadata-guard-r1/prepare_plan.py"
+      ],
+      "member": "patches/c12dc112e751786be80be63c7360dd24a7347b324668eb506a5602a3e3d3dc0a.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/N7-owner-slot-fixture-r1/format-normalization.patch",
+      "source_sha256": "c40829cfaee3cfbc0f54901685d17039e0a6509a332424658dbcb278476d19e3",
+      "shipped_hunks_sha256": "c40829cfaee3cfbc0f54901685d17039e0a6509a332424658dbcb278476d19e3",
+      "targets": [
+        "after"
+      ],
+      "member": "patches/c40829cfaee3cfbc0f54901685d17039e0a6509a332424658dbcb278476d19e3.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/ir-adapter-type-constraints-r1/candidate.patch",
+      "source_sha256": "c66ef27e219c8042c8b9b928ce0d3dacbe98c2148c63c211b2c078bea99ab505",
+      "shipped_hunks_sha256": "c66ef27e219c8042c8b9b928ce0d3dacbe98c2148c63c211b2c078bea99ab505",
+      "targets": [
+        "LOCAL/raw/e02-execution-20261027/repairs/ir-adapter-type-constraints-r1/ir_adapter.py"
+      ],
+      "member": "patches/c66ef27e219c8042c8b9b928ce0d3dacbe98c2148c63c211b2c078bea99ab505.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/ir-adapter-type-constraints-r1/test-companion-r2/candidate.patch",
+      "source_sha256": "c71fa1d46b4cf6018c7674f8fc754d0d793b15d0143efacd0c52bba8cad3ed93",
+      "shipped_hunks_sha256": "c71fa1d46b4cf6018c7674f8fc754d0d793b15d0143efacd0c52bba8cad3ed93",
+      "targets": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/LOCAL/raw/e02-execution-20261027/repairs/ir-adapter-type-constraints-r1/test-companion-r2/test_ir_adapter.py"
+      ],
+      "member": "patches/c71fa1d46b4cf6018c7674f8fc754d0d793b15d0143efacd0c52bba8cad3ed93.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/C100-catalog-cas-probe-r2/r1-r2.delta.patch",
+      "source_sha256": "cc7e66ba08db84cf42d1f29e2ce4d5340cc37ef836d98beb8a2018d88d5c4814",
+      "shipped_hunks_sha256": "9b034cbf5de73838640d2e95df19f314cd17440b5f38d112f09d6b200661762b",
+      "targets": [
+        "r2/probe_worker.py",
+        "r2/run_probe.py"
+      ],
+      "member": "patches/9b034cbf5de73838640d2e95df19f314cd17440b5f38d112f09d6b200661762b.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/V3-basis-history-r1/root-intake-r2/ir-facade-format.diff",
+      "source_sha256": "ccc250d944fb71ed166a2e612e0a013d57403b5cd8d352d63d3f61acadf18f65",
+      "shipped_hunks_sha256": "ccc250d944fb71ed166a2e612e0a013d57403b5cd8d352d63d3f61acadf18f65",
+      "targets": [
+        "policy-engine/src/polisyos/ir/__init__.py@intake-r2"
+      ],
+      "member": "patches/ccc250d944fb71ed166a2e612e0a013d57403b5cd8d352d63d3f61acadf18f65.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/C104-mac-selected-start-r3/receipt-gate.diff",
+      "source_sha256": "ce4004fcd716da66734dee7b7cc41a236ce083edf2683ca0f88ff63a4061e295",
+      "shipped_hunks_sha256": "ce4004fcd716da66734dee7b7cc41a236ce083edf2683ca0f88ff63a4061e295",
+      "targets": [
+        "LOCAL/raw/e02-execution-20261027/repairs/C104-mac-selected-start-r3/receipt_gate.py"
+      ],
+      "member": "patches/ce4004fcd716da66734dee7b7cc41a236ce083edf2683ca0f88ff63a4061e295.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/C100-runtime-observer-bounded-final/selected-thread-closure.patch",
+      "source_sha256": "d07f2ac269ebfbf43f2ec799542ee89b9d4b7d12cda1b339ecc54233d416b086",
+      "shipped_hunks_sha256": "ec59a9fa397ba5517c0de794cfc9bd92486999675556a1cc56afee9d4a53ecfc",
+      "targets": [
+        "final/bounded_call_observer.py",
+        "final/test_bounded_call_observer.py",
+        "final/run_aa.py"
+      ],
+      "member": "patches/ec59a9fa397ba5517c0de794cfc9bd92486999675556a1cc56afee9d4a53ecfc.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/C104-measured-worker-harness-r2/driver.diff",
+      "source_sha256": "d98b5ae6ca4e4de40d482e29793572a2eca858d2003c31434bc40c8c8982215f",
+      "shipped_hunks_sha256": "d98b5ae6ca4e4de40d482e29793572a2eca858d2003c31434bc40c8c8982215f",
+      "targets": [
+        "LOCAL/raw/e02-execution-20261027/repairs/C104-measured-worker-harness-r2/driver.py"
+      ],
+      "member": "patches/d98b5ae6ca4e4de40d482e29793572a2eca858d2003c31434bc40c8c8982215f.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/ir-adapter-type-constraints-r1/candidate-r2.patch",
+      "source_sha256": "db58426f446218609372667addc09b4779849fdaa19eec148da5ac78e013168e",
+      "shipped_hunks_sha256": "db58426f446218609372667addc09b4779849fdaa19eec148da5ac78e013168e",
+      "targets": [
+        "LOCAL/raw/e02-execution-20261027/repairs/ir-adapter-type-constraints-r1/ir_adapter.py"
+      ],
+      "member": "patches/db58426f446218609372667addc09b4779849fdaa19eec148da5ac78e013168e.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/ir-adapter-type-constraints-r1/test-companion-r1/candidate.patch",
+      "source_sha256": "dc783538549dbeaaeaf942143466ff5c3c3280c7dee511a9fa03d337e25b03ef",
+      "shipped_hunks_sha256": "dc783538549dbeaaeaf942143466ff5c3c3280c7dee511a9fa03d337e25b03ef",
+      "targets": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/LOCAL/raw/e02-execution-20261027/repairs/ir-adapter-type-constraints-r1/test-companion-r1/test_ir_adapter.py"
+      ],
+      "member": "patches/dc783538549dbeaaeaf942143466ff5c3c3280c7dee511a9fa03d337e25b03ef.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/C100-catalog-cas-probe-r3/r2-r3.delta.patch",
+      "source_sha256": "e711b31bfa84ddfa968892243911a7d0f9b880022759d2f304ba33c0ca644c92",
+      "shipped_hunks_sha256": "c4a584dd59cf5a480b1c186f82eef1b13a81a771f0a6aa89b7f4ba3a89c6ec10",
+      "targets": [
+        "r3/probe_worker.py",
+        "r3/run_probe.py"
+      ],
+      "member": "patches/c4a584dd59cf5a480b1c186f82eef1b13a81a771f0a6aa89b7f4ba3a89c6ec10.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/I4-registry-consumer-proof-r4/delta.diff",
+      "source_sha256": "e72af370148ae895cecaddd8986a0a3131473081752104d937fda954284b1b21",
+      "shipped_hunks_sha256": "e72af370148ae895cecaddd8986a0a3131473081752104d937fda954284b1b21",
+      "targets": [
+        "R4/postimage.py"
+      ],
+      "member": "patches/e72af370148ae895cecaddd8986a0a3131473081752104d937fda954284b1b21.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/C48-single-sandbox-r3-c71/preparer-delta.patch",
+      "source_sha256": "e87a62406e259a359468b1290b3cde5e2d0a43cb0df8aa44fe2bb53f5680e1f6",
+      "shipped_hunks_sha256": "e87a62406e259a359468b1290b3cde5e2d0a43cb0df8aa44fe2bb53f5680e1f6",
+      "targets": [
+        "LOCAL/raw/e02-execution-20261027/repairs/C48-single-sandbox-r3-c71/prepare_plan.py"
+      ],
+      "member": "patches/e87a62406e259a359468b1290b3cde5e2d0a43cb0df8aa44fe2bb53f5680e1f6.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/C48-single-sandbox-r1/install-runner.patch",
+      "source_sha256": "e9257056488fb56ac4386ef157fe3e93e716ba6ab4af9afb753c2e5f717d4397",
+      "shipped_hunks_sha256": "e9257056488fb56ac4386ef157fe3e93e716ba6ab4af9afb753c2e5f717d4397",
+      "targets": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/run_case_with_tools_r3.py"
+      ],
+      "member": "patches/e9257056488fb56ac4386ef157fe3e93e716ba6ab4af9afb753c2e5f717d4397.patch"
+    },
+    {
+      "source_patch": "LOCAL/raw/e02-execution-20261027/repairs/C100-catalog-cas-probe-r4/r3-r4.delta.patch",
+      "source_sha256": "fe7f0d126a648a884c466d72ed8f78c38ceb9024d5b6acff064aaee0cd6dfaa6",
+      "shipped_hunks_sha256": "873a34df9cb38eac79c5ca551244f74c33ca9df0b67ee7a988e4bf16d9d865be",
+      "targets": [
+        "r4/probe_worker.py",
+        "r4/run_probe.py"
+      ],
+      "member": "patches/873a34df9cb38eac79c5ca551244f74c33ca9df0b67ee7a988e4bf16d9d865be.patch"
+    }
+  ],
+  "scripts": [
+    {
+      "sha256": "00bb75fc28755ae15dffe0d9a7bf1da23fb7d72bbe40b3914786e26bb3e56bb9",
+      "member": "scripts/00bb75fc28755ae15dffe0d9a7bf1da23fb7d72bbe40b3914786e26bb3e56bb9.py",
+      "original_paths": [
+        "LOCAL/raw/e02-execution-20261027/repairs/C104-mac-selected-start-r3/observer.py"
+      ]
+    },
+    {
+      "sha256": "029659b8997a9b1bd8228180c030afdf814afecfcaf49b1209bff026a1271187",
+      "member": "scripts/029659b8997a9b1bd8228180c030afdf814afecfcaf49b1209bff026a1271187.py",
+      "original_paths": [
+        "LOCAL/raw/e02-execution-20261027/runtime-prep/N7-external-case-harness-r1/readback_external_sources.py"
+      ]
+    },
+    {
+      "sha256": "1bc905eb89a0d575663d7eda4d7d7228748e5802c0ae45e8185bb94da307dbc4",
+      "member": "scripts/1bc905eb89a0d575663d7eda4d7d7228748e5802c0ae45e8185bb94da307dbc4.py",
+      "original_paths": [
+        "LOCAL/raw/e02-execution-20261027/repairs/ir-adapter-type-constraints-r1/test-companion-r1/test_ir_adapter.py"
+      ]
+    },
+    {
+      "sha256": "365e1535301ee07746faf632bfb4687cf5e3d1692673e51274376e081049d92f",
+      "member": "scripts/365e1535301ee07746faf632bfb4687cf5e3d1692673e51274376e081049d92f.py",
+      "original_paths": [
+        "LOCAL/raw/e02-execution-20261027/repairs/R4-native-control-r1/native-profile-8k512-r1/controller.py"
+      ]
+    },
+    {
+      "sha256": "3a324276645ec738cb111aa3c2010c686d0174c2ea7acab156bbefe54d88d7fc",
+      "member": "scripts/3a324276645ec738cb111aa3c2010c686d0174c2ea7acab156bbefe54d88d7fc.py",
+      "original_paths": [
+        "LOCAL/raw/e02-execution-20261027/repairs/C48-root-metadata-guard-r1/prepare_plan.py"
+      ]
+    },
+    {
+      "sha256": "3c573f0876478cb5083528a91fa31a532d48f9cd1d7cb2347145103f9eaa73c2",
+      "member": "scripts/3c573f0876478cb5083528a91fa31a532d48f9cd1d7cb2347145103f9eaa73c2.py",
+      "original_paths": [
+        "LOCAL/raw/e02-execution-20261027/repairs/R4-native-control-r1/native-profile-8k512-r1/native_checks.py"
+      ]
+    },
+    {
+      "sha256": "4706c42c1cddbd58373263bc73448e9c279c616825f54ca007e1945f59209b09",
+      "member": "scripts/4706c42c1cddbd58373263bc73448e9c279c616825f54ca007e1945f59209b09.py",
+      "original_paths": [
+        "LOCAL/raw/e02-execution-20261027/repairs/C134-tracked-helper-adoption-binder-r3/bind-future.py"
+      ]
+    },
+    {
+      "sha256": "52dbf37f3be632dddaba8436f2d20d4d16ad082a73756984d2155005f779f902",
+      "member": "scripts/52dbf37f3be632dddaba8436f2d20d4d16ad082a73756984d2155005f779f902.py",
+      "original_paths": [
+        "LOCAL/raw/e02-execution-20261027/repairs/C104-measured-worker-harness-r1/driver.py",
+        "LOCAL/raw/e02-execution-20261027/repairs/C104-measured-worker-harness-r1/driver.py"
+      ]
+    },
+    {
+      "sha256": "53610c38385a27f2c4a7225c18717dd675231a6f8a2d57bf9c8474414f3a8f3b",
+      "member": "scripts/53610c38385a27f2c4a7225c18717dd675231a6f8a2d57bf9c8474414f3a8f3b.py",
+      "original_paths": [
+        "LOCAL/raw/e02-execution-20261027/repairs/C104-mac-selected-start-r3/receipt_gate.py"
+      ]
+    },
+    {
+      "sha256": "5784860fa6d6749538c25f072815cd1e1826a5271318407e31508e0c586feaad",
+      "member": "scripts/5784860fa6d6749538c25f072815cd1e1826a5271318407e31508e0c586feaad.py",
+      "original_paths": [
+        "LOCAL/raw/e02-execution-20261027/repairs/R4-native-control-r1/native-profile-8k512-r1/admission_builder.py"
+      ]
+    },
+    {
+      "sha256": "613f7f68107edf08683214865b396866dcc46a863c2fed2ef483ad059133f78f",
+      "member": "scripts/613f7f68107edf08683214865b396866dcc46a863c2fed2ef483ad059133f78f.py",
+      "original_paths": [
+        "LOCAL/raw/e02-execution-20261027/repairs/R4-native-control-r1/fixture-admission-r1/controller.py"
+      ]
+    },
+    {
+      "sha256": "7b518205f040390d4a974d3e86f81c4bb09ea4f0f93a268510791196da6d9046",
+      "member": "scripts/7b518205f040390d4a974d3e86f81c4bb09ea4f0f93a268510791196da6d9046.py",
+      "original_paths": [
+        "LOCAL/raw/e02-execution-20261027/repairs/C48-single-sandbox-r3-c71/prepare_plan.py"
+      ]
+    },
+    {
+      "sha256": "83aced07b618b975981c020b1ff157deb28bdfe8ec7703996c24b9f03f780462",
+      "member": "scripts/83aced07b618b975981c020b1ff157deb28bdfe8ec7703996c24b9f03f780462.py",
+      "original_paths": [
+        "LOCAL/raw/e02-execution-20261027/runtime-prep/N7-external-case-harness-r1/run_external_case.py"
+      ]
+    },
+    {
+      "sha256": "89dea368905bb162e3f659293516703351197e5c18f58db35abfad43ec26efea",
+      "member": "scripts/89dea368905bb162e3f659293516703351197e5c18f58db35abfad43ec26efea.pyi",
+      "original_paths": [
+        "LOCAL/raw/e02-execution-20261027/repairs/R4-real-comparison-planner-r2/workspace-prototype.pyi"
+      ]
+    },
+    {
+      "sha256": "919e052ec0ae59805a80c03549a96f4b89b7baa2852ba4b06ae7e9790cfd671d",
+      "member": "scripts/919e052ec0ae59805a80c03549a96f4b89b7baa2852ba4b06ae7e9790cfd671d.py",
+      "original_paths": [
+        "LOCAL/raw/e02-execution-20261027/repairs/C48-root-metadata-guard-r1/check_single_guard.py"
+      ]
+    },
+    {
+      "sha256": "a0a69160ce5955e8f762bbaf501a0ebcd96ec3faf986fdcaf3fae8a79ece781a",
+      "member": "scripts/a0a69160ce5955e8f762bbaf501a0ebcd96ec3faf986fdcaf3fae8a79ece781a.py",
+      "original_paths": [
+        "LOCAL/raw/e02-execution-20261027/repairs/C104-mac-selected-start-r3/driver.py"
+      ]
+    },
+    {
+      "sha256": "abd76a1dbda4a8c487058fa0514a5cbdcc5d43f69aae21ea054dfed475572987",
+      "member": "scripts/abd76a1dbda4a8c487058fa0514a5cbdcc5d43f69aae21ea054dfed475572987.py",
+      "original_paths": [
+        "LOCAL/raw/e02-execution-20261027/repairs/C104-measured-worker-harness-r2/driver.py"
+      ]
+    },
+    {
+      "sha256": "c29efa2e22f67f4aa5f32dc9663cfe28240f38ffc0bdadf6c167488d11c91ef6",
+      "member": "scripts/c29efa2e22f67f4aa5f32dc9663cfe28240f38ffc0bdadf6c167488d11c91ef6.py",
+      "original_paths": [
+        "LOCAL/raw/e02-execution-20261027/repairs/C104-mac-selected-start-r4/driver.py"
+      ]
+    },
+    {
+      "sha256": "cf72ce57b9d1a60741b4810b7acda7cf1e30c24f0cb7872433023c22358e1f03",
+      "member": "scripts/cf72ce57b9d1a60741b4810b7acda7cf1e30c24f0cb7872433023c22358e1f03.py",
+      "original_paths": [
+        "LOCAL/raw/e02-execution-20261027/repairs/ir-adapter-type-constraints-r1/test-companion-r2/test_ir_adapter.py"
+      ]
+    },
+    {
+      "sha256": "d59bf0f2d0a2f830aec169df45ea4f2b8d7e0bafb742f040f0f6917044417063",
+      "member": "scripts/d59bf0f2d0a2f830aec169df45ea4f2b8d7e0bafb742f040f0f6917044417063.py",
+      "original_paths": [
+        "LOCAL/raw/e02-execution-20261027/repairs/C48-replay-public-companions-r2/root_stage_companions.py"
+      ]
+    },
+    {
+      "sha256": "de4265136aa5c7ac4185d516e00b30ddb6d436e217fa63f11561de9b64a823a2",
+      "member": "scripts/de4265136aa5c7ac4185d516e00b30ddb6d436e217fa63f11561de9b64a823a2.py",
+      "original_paths": [
+        "LOCAL/raw/e02-execution-20261027/repairs/C48-single-sandbox-r2-c05/prepare_plan.py"
+      ]
+    },
+    {
+      "sha256": "e6a18dc2b7a5e81f6e39c69da0e7cd2c618a3d02632f0caab5ff652b30cc0774",
+      "member": "scripts/e6a18dc2b7a5e81f6e39c69da0e7cd2c618a3d02632f0caab5ff652b30cc0774.py",
+      "original_paths": [
+        "LOCAL/raw/e02-execution-20261027/repairs/C104-mac-selected-start-r4/mac_prerequisites.py"
+      ]
+    },
+    {
+      "sha256": "ec7dca276bbad930e1e1222e3454be96764a72746b9bca7d74818a5409706d6d",
+      "member": "scripts/ec7dca276bbad930e1e1222e3454be96764a72746b9bca7d74818a5409706d6d.py",
+      "original_paths": [
+        "LOCAL/raw/e02-execution-20261027/repairs/ir-adapter-type-constraints-r1/candidate-r2.py",
+        "LOCAL/raw/e02-execution-20261027/repairs/ir-adapter-type-constraints-r1/ir_adapter.py",
+        "LOCAL/raw/e02-execution-20261027/repairs/ir-adapter-type-constraints-r1/ir_adapter.py"
+      ]
+    },
+    {
+      "sha256": "f2af90035124efab108dfd996d569a1532b648ac4c2f3b6e8b270ff6eb77a60e",
+      "member": "scripts/f2af90035124efab108dfd996d569a1532b648ac4c2f3b6e8b270ff6eb77a60e.py",
+      "original_paths": [
+        "LOCAL/raw/e02-execution-20261027/repairs/FED-operational-bridge-r5-native-witness-r2/verify_facade_bindings.py"
+      ]
+    },
+    {
+      "sha256": "f95db35fef116a5a4e8ef3a4bc673bfa37caa103f662e9c3caba54df3739e2b3",
+      "member": "scripts/f95db35fef116a5a4e8ef3a4bc673bfa37caa103f662e9c3caba54df3739e2b3.py",
+      "original_paths": [
+        "LOCAL/raw/e02-execution-20261027/repairs/C104-measured-worker-harness-r1/observer/r7_source_observer.py",
+        "LOCAL/raw/e02-execution-20261027/repairs/C104-measured-worker-harness-r1/observer/r7_source_observer.py"
+      ]
+    }
+  ],
+  "remaining": [
+    {
+      "sha": "04d7c3d9543fb89bbd9202aaa5f45debc8d1d79c415cf3f9a0617e104a711340",
+      "path": "LOCAL/raw/e02-execution-20261027/repairs/C105-root-controls-r1/source.patch",
+      "reason": "no allowable source hunk detected",
+      "discarded_targets": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C105/structural-owner-r2/EXECUTION.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C105/structural-owner-r2/root-qualified-controls-r1/M01-withdrawn-reader.patch",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C105/structural-owner-r2/root-qualified-controls-r1/M02-conflicting-event.patch",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C105/structural-owner-r2/root-qualified-controls-r1/M03-predecessor.patch",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C105/structural-owner-r2/root-qualified-controls-r1/M04-uncertain-fsync.patch",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C105/structural-owner-r2/root-qualified-controls-r1/M05-full-selected-profile.patch",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C105/structural-owner-r2/root-qualified-controls-r1/M06-owned-snapshot-denominator.patch",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C105/structural-owner-r2/root-qualified-controls-r1/M07-query-binding.patch",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C105/structural-owner-r2/root-qualified-controls-r1/M08-tenant-view-ownership.patch",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C105/structural-owner-r2/root-qualified-controls-r1/README.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C105/structural-owner-r2/root-qualified-controls-r1/index.json"
+      ]
+    },
+    {
+      "sha": "08e7e8969fccd28001a6cc31838c59e3c4521641ca8c0aeace4b59f69b2cc843",
+      "path": "LOCAL/raw/e02-execution-20261027/repairs/SQL-owner-chain-r3-leaf-consumer/foundry-executable-witness.patch",
+      "reason": "no allowable source hunk detected",
+      "discarded_targets": []
+    },
+    {
+      "sha": "28274f2e55753ab706991c68c7c3ee123f54241ff782b4bd690dbefab228701c",
+      "path": "LOCAL/raw/e02-execution-20261027/repairs/C89-commission-r1/delta.patch",
+      "reason": "no allowable source hunk detected",
+      "discarded_targets": [
+        "C89/prompt.md"
+      ]
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/repairs/C08/from-base.patch",
+      "sha": "28f9ee130ec768fe73a49cdbda1432fedd55ba010c9eaceb116da99f83cfb645",
+      "excluded_only": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C08/cloud/e02-c08-20261027-r1/receipt.md"
+      ]
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/repairs/C04-r2/source-from-base.patch",
+      "sha": "32607b51c9b8f4d1bd97440e136c71914b9e0038cdceae6b97c601df68d76c28",
+      "excluded_only": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C04/cloud/e02-c04-20261027-r1/receipt.md"
+      ]
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/repairs/C18-r1/base-to-proposal.patch",
+      "sha": "3dd3195dce85f3fc7a9be63dcea95eddd4c67f0e6d09f1dcd8727effb4dd89a0",
+      "excluded_only": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C18/cloud/e02-c18-20261027-r1/RECEIPT.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C18/cloud/e02-c18-20261027-r1/SHA256SUMS",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C18/cloud/e02-c18-20261027-r1/outputs/combined.junit.xml",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C18/cloud/e02-c18-20261027-r1/outputs/combined.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C18/cloud/e02-c18-20261027-r1/outputs/environment.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C18/cloud/e02-c18-20261027-r1/outputs/oracle.junit.xml",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C18/cloud/e02-c18-20261027-r1/outputs/oracle.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C18/cloud/e02-c18-20261027-r1/outputs/ruff-uv-offline.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C18/cloud/e02-c18-20261027-r1/outputs/ruff.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C18/cloud/e02-c18-20261027-r1/RECEIPT-QUALIFICATION.md"
+      ]
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/repairs/C95-actual-triplet-r2/text-changes.patch",
+      "sha": "449fa8f442e2a67cee6797c6ae8939807aae5c9916bfc04c334b95c45b3047ee",
+      "excluded_only": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F17/la017-controls/C95-actual-triplet-r2.md"
+      ]
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/repairs/C97-census-oracle-r1/candidate-repair.diff",
+      "sha": "4ab82bbd1dba16c62e47032f74b67a7ce6eb215164347cb5f4312573d19e120c",
+      "excluded_only": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C97/REPAIR-r1.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C97/EXECUTION-r1.md"
+      ]
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/repairs/C97-census-oracle-r1/root-intake.diff",
+      "sha": "606ad72b7102de4e23ec17031ab6be60616edb567876fe5c7f2bed09ffa4deeb",
+      "excluded_only": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C97/REPAIR-r1.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C97/EXECUTION-r1.md"
+      ]
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/repairs/C95-code-identity-r4/text-changes.patch",
+      "sha": "6f2a4096da9e530eee0b829ffdeee83e72180917fe4a6b36f033239fecc245c1",
+      "excluded_only": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F17/la017-controls/C95-code-identity-r4.md"
+      ]
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/repairs/B13-finalization-index-r1/source.patch",
+      "sha": "754dd4848fe79b398e2fd1619701e58d84722297bf50b2e48ed9b6faee683f35",
+      "excluded_only": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B13/finalization-index-selection.md"
+      ]
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/repairs/C40-r3/source.patch",
+      "sha": "779629271b99dbb9e9910f035f4351bed652a8bfb3772561220d03fbd8c19337",
+      "excluded_only": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C40/cloud/e02-c40-20261027-r1/receipt.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C40/cloud/e02-c40-20261027-r1/reconciliation.md"
+      ]
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/repairs/C04/source-from-base.patch",
+      "sha": "83ad90f6d1788f85183b631ba468054a7677f3184f647b8501b33da0d1ee5fb9",
+      "excluded_only": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C04/cloud/e02-c04-20261027-r1/receipt.md"
+      ]
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/repairs/R3-cas-owner-fixture-r1/source.patch",
+      "sha": "93bb19fdccc4c079b1a1694df5fee04763a65535d003ff0b8d8401eaa380d0b7",
+      "excluded_only": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/R3-fixture-ownership-discriminator.md"
+      ]
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/repairs/C95-code-identity-r3/text-changes.patch",
+      "sha": "9a7fdff178130d637472af2b516609eb6b7a37b159ed424f0c3cb7b4ae2e96e5",
+      "excluded_only": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F17/la017-controls/C95-code-identity-r3.md"
+      ]
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/repairs/Q1-C147-reader-companions-r1/source.diff",
+      "sha": "9fdece7f7b689bffde64d716c8ef2cce32d4aed759ffcacd51d61a5fd5c78548",
+      "excluded_only": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/Q1-can3/cloud/q1-can3-reader-profile-20261028/REPORT.md"
+      ]
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/repairs/C08-r2/from-base.patch",
+      "sha": "b28680e5bf05850d60b8b67986dc76d29e0a9f39df927359d5a39d8e867e6ed2",
+      "excluded_only": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C08/cloud/e02-c08-20261027-r1/receipt.md"
+      ]
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/repairs/C18-r3/base-to-proposal.patch",
+      "sha": "b4e7fb3b2647554f730576e15d4706ef6fde55773f8991f841801956bbc188b2",
+      "excluded_only": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C18/cloud/e02-c18-20261027-r1/RECEIPT.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C18/cloud/e02-c18-20261027-r1/SHA256SUMS",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C18/cloud/e02-c18-20261027-r1/outputs/combined.junit.xml",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C18/cloud/e02-c18-20261027-r1/outputs/combined.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C18/cloud/e02-c18-20261027-r1/outputs/environment.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C18/cloud/e02-c18-20261027-r1/outputs/oracle.junit.xml",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C18/cloud/e02-c18-20261027-r1/outputs/oracle.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C18/cloud/e02-c18-20261027-r1/outputs/ruff-uv-offline.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C18/cloud/e02-c18-20261027-r1/outputs/ruff.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C18/cloud/e02-c18-20261027-r1/RECEIPT-QUALIFICATION.md"
+      ]
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/repairs/C105-structural-owner-r2/source.patch",
+      "sha": "c708da09e8be507e429a98884ef55f25460e117b161c49db1c44cac0e2de0a4c",
+      "excluded_only": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C105/structural-owner-r2/EXECUTION.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C105/structural-owner-r2/controls/M01-withdrawn-reader.patch",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C105/structural-owner-r2/controls/M02-conflicting-event.patch",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C105/structural-owner-r2/controls/M03-predecessor.patch",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C105/structural-owner-r2/controls/M04-uncertain-fsync.patch",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C105/structural-owner-r2/controls/M05-full-selected-profile.patch",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C105/structural-owner-r2/controls/M06-owned-snapshot-denominator.patch",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C105/structural-owner-r2/controls/M07-query-binding.patch",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C105/structural-owner-r2/controls/M08-tenant-view-ownership.patch",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C105/structural-owner-r2/controls/index.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C105/structural-owner-r2/static-receipt.json"
+      ]
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/repairs/C97-census-oracle-r2/root-intake.diff",
+      "sha": "cff459b6a727464d8c63972ade0b97bab42cb8f803f7357d27323fde7f227989",
+      "excluded_only": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C97/REPAIR-r2.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C97/EXECUTION-r2.md"
+      ]
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/repairs/C18-r2/base-to-proposal.patch",
+      "sha": "dd761408838c5c63c3fe4cf825787b3aa6431e6990600794e7f2f2b60b93445a",
+      "excluded_only": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C18/cloud/e02-c18-20261027-r1/RECEIPT.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C18/cloud/e02-c18-20261027-r1/SHA256SUMS",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C18/cloud/e02-c18-20261027-r1/outputs/combined.junit.xml",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C18/cloud/e02-c18-20261027-r1/outputs/combined.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C18/cloud/e02-c18-20261027-r1/outputs/environment.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C18/cloud/e02-c18-20261027-r1/outputs/oracle.junit.xml",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C18/cloud/e02-c18-20261027-r1/outputs/oracle.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C18/cloud/e02-c18-20261027-r1/outputs/ruff-uv-offline.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C18/cloud/e02-c18-20261027-r1/outputs/ruff.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C18/cloud/e02-c18-20261027-r1/RECEIPT-QUALIFICATION.md"
+      ]
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/repairs/C08-r3/from-base.patch",
+      "sha": "e767f781b9993f191ced35d1a24acd4ae50f2126b2f2d77c3904526df0f3e0bf",
+      "excluded_only": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C08/cloud/e02-c08-20261027-r1/receipt.md"
+      ]
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/repairs/C40-r2/source.patch",
+      "sha": "f464742914b37f08b05eb6033bf539ad06e7c44ed9f0bbfc73185b81e7373e98",
+      "excluded_only": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C40/cloud/e02-c40-20261027-r1/receipt.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C40/cloud/e02-c40-20261027-r1/reconciliation.md"
+      ]
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/repairs/C08-r4/from-base.patch",
+      "sha": "fdd7ca310c33bdaa48f37735e86f39ae4e411908044c103afd64d0ff6683af2c",
+      "excluded_only": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C08/cloud/e02-c08-20261027-r1/receipt.md"
+      ]
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/repairs/C97-census-oracle-r2/candidate-repair.diff",
+      "sha": "feb173b14e58b1419e389f5cdc3603d175302aec03e0d041ccb38ebe1c6f3924",
+      "excluded_only": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C97/REPAIR-r2.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C97/EXECUTION-r2.md"
+      ]
+    }
+  ]
+}

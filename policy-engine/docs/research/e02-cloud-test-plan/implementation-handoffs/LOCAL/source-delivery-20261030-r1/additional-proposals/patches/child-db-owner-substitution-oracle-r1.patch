@@ -1,0 +1,97 @@
+diff --git a/policy-engine/tests/unit/runtime/http/test_child_db_owner_substitution.py b/policy-engine/tests/unit/runtime/http/test_child_db_owner_substitution.py
+new file mode 100644
+--- /dev/null
++++ b/policy-engine/tests/unit/runtime/http/test_child_db_owner_substitution.py
+@@ -0,0 +1,92 @@
++"""Exercise actual SQLite owner identity under a same-shaped database substitution."""
++
++from __future__ import annotations
++
++import json
++import sqlite3
++import time
++from pathlib import Path
++
++import pytest
++from tests.unit.runtime.http.test_child_control_authorization import _exercise, _job
++
++from polisyos.common.async_tools import get_shared_executor
++from polisyos.core.artifacts.child_release import ChildJobReleaseClaim, ChildJobReleaseLocator
++from polisyos.fabric.connectors.resilience.circuit_breaker import CircuitBreaker
++from polisyos.runtime.http.resilience import (
++    BlockingDependencyGuard,
++    _require_runtime_control_guard,
++    guard_runtime_control_store,
++)
++from polisyos.runtime.http.services.control_plane_store import (
++    ControlJobExecutionAdmissionError,
++    ControlPlaneStore,
++)
++
++
++def test_attested_child_verifier_is_not_redirected_to_another_database(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
++) -> None:
++    """A same-shaped copy cannot replace the actual appointed SQLite owner."""
++    db_path = tmp_path / "control.sqlite3"
++    other_path = tmp_path / "other.sqlite3"
++    owner = ControlPlaneStore(backend="sqlite", sqlite_path=db_path)
++    attempt = _job(owner)
++    guard = BlockingDependencyGuard(
++        dependency_name="test-db-identity", timeout_seconds=60,
++        breaker=CircuitBreaker("test-db-identity"), executor=get_shared_executor(),
++    )
++    try:
++        with owner.job_execution_fence(job_id="job-a", worker_id="worker-a", attempt=attempt):
++            guard.run_with_parent_admission(
++                lambda grant: _exercise(tmp_path, db_path, owner, grant, monkeypatch, "normal"),
++                deadline_monotonic=time.monotonic() + 60,
++            )
++    finally:
++        guard.close()
++
++    # SQLite's own backup includes the live WAL view. Only this test-owned
++    # database is copied; the two files keep the same schema and owner envelope.
++    with sqlite3.connect(db_path) as source, sqlite3.connect(other_path) as other:
++        source.backup(other)
++        row = other.execute(
++            "SELECT event_id, event_type, payload_json FROM control_job_events "
++            "WHERE job_id = ? AND event_type LIKE 'child.release.authorization.%'",
++            ("job-a",),
++        ).fetchone()
++        assert row is not None
++        event_id, event_type, payload_text = row
++        payload = json.loads(payload_text)
++        claim = ChildJobReleaseClaim.model_validate(payload["claim"])
++        locator = ChildJobReleaseLocator(job_id="job-a", event_id=event_id)
++        # Leave schema, keys, scope and event id intact, but make the copy's
++        # authorization payload disagree with the actual issued claim.
++        payload["claim"]["parent_effects_sha256"] = "sha256:" + "0" * 64
++        other.execute(
++            "UPDATE control_job_events SET payload_json = ? WHERE event_id = ? AND event_type = ?",
++            (json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True),
++             event_id, event_type),
++        )
++        other.commit()
++
++    guarded = guard_runtime_control_store(owner)
++    try:
++        assert _require_runtime_control_guard(guarded) is owner
++        assert guarded.verify_release(locator, claim) is None
++        original_path = owner._sqlite_path
++        try:
++            owner._sqlite_path = other_path
++            assert _require_runtime_control_guard(guarded) is owner
++            try:
++                # A bound original connection can still establish the claim.
++                assert guarded.verify_release(locator, claim) is None
++            except ControlJobExecutionAdmissionError as exc:
++                # Alternatively, a real owner identity check must fail closed.
++                # Reading the substitute and reporting its claim mismatch is
++                # not a successful identity check.
++                if str(exc) != "child_sqlite_owner_identity_changed":
++                    raise
++        finally:
++            owner._sqlite_path = original_path
++    finally:
++        guarded.close()

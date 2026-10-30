@@ -1,0 +1,140 @@
+{
+  "schema": "e02.loose-code-delivery.v1",
+  "created_utc": "2026-10-30T13:12:37.294376+00:00",
+  "purpose": "Exact portable copies of scoped untracked code-shaped E02 artifacts for parent to decide whether/how to commit to origin/main. No candidate is activated or merged.",
+  "worktree_identities": {
+    "canonical": {
+      "observed_worktree": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+      "branch": "codex/e02-unified-local-20261009",
+      "commit": "87cd7f41303d0df4e962ef510badd733fdab4f9b",
+      "tree": "c82965fc5c6c4f985f9d3a2943f3744c5dab0f5e"
+    },
+    "primary_home": {
+      "observed_worktree": "/Users/deniskopylov/polisyos",
+      "branch": "docs/raw-evidence-ignore",
+      "commit": "355f5e861be96ebf03ee97888a856da2c26f767f",
+      "tree": "a9bc640f76a419a92f7ab4fec843923c3635a0a1"
+    },
+    "app_checkout": {
+      "observed_worktree": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos",
+      "branch": "main",
+      "commit": "c40d4acae1ce58b597267255026d9356565828fd",
+      "tree": "897662caf73bd4487f798d66938b74d7abfe753e"
+    }
+  },
+  "byte_copies": [
+    {
+      "id": "fabric-contract-optional-input-candidate",
+      "source_worktree": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+      "source_path": "postimages/policy-engine/src/polisyos/core/contracts/fabric.py",
+      "package_path": "fabric/fabric.py",
+      "target_path": "policy-engine/src/polisyos/core/contracts/fabric.py",
+      "role": "unreviewed product-source candidate; one-line identity-key expression differs from current source",
+      "bytes": 18676,
+      "sha256": "e032213db8d2b91b91307ae3312a2f9b152c38f09e01448f9a392332c103fabb",
+      "source_base": "not established from surviving source manifest",
+      "notes": [
+        "No composition/readiness manifest found adjacent to this top-level postimage set.",
+        "Candidate identity/object-hash semantics are not reviewed here."
+      ]
+    },
+    {
+      "id": "fabric-optional-input-tests-candidate",
+      "source_worktree": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+      "source_path": "postimages/policy-engine/tests/unit/core/contracts/test_fabric_snapshot_owner_optional_inputs.py",
+      "package_path": "fabric/test_fabric_snapshot_owner_optional_inputs.py",
+      "target_path": "policy-engine/tests/unit/core/contracts/test_fabric_snapshot_owner_optional_inputs.py",
+      "role": "unreviewed test companion candidate",
+      "bytes": 5335,
+      "sha256": "a1b83c4f95e1bbe919fa97644af40ffd56e987b1a758effa1109d54337ca8927",
+      "source_base": "not established from surviving source manifest",
+      "notes": [
+        "Diff against current test is 22 additions / 73 deletions; no source-qualified review found."
+      ]
+    },
+    {
+      "id": "fabric-optional-input-release-candidate",
+      "source_worktree": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+      "source_path": "postimages/policy-engine/docs/release-fragments/unreleased/2026-10-20-e02-datasnapshot-owner-optional-inputs.toml",
+      "package_path": "fabric/2026-10-20-e02-datasnapshot-owner-optional-inputs.toml",
+      "target_path": "policy-engine/docs/release-fragments/unreleased/2026-10-20-e02-datasnapshot-owner-optional-inputs.toml",
+      "role": "unreviewed release-fragment companion",
+      "bytes": 1731,
+      "sha256": "20adb6b811212e7cdb8d2c7163be8501e128da869a8485964583a4d069b5c65d",
+      "source_base": "not established from surviving source manifest",
+      "notes": [
+        "No target source commit identified by surviving adjacent postimage metadata."
+      ]
+    },
+    {
+      "id": "oct7-e02-origin-observer",
+      "source_worktree": "/Users/deniskopylov/polisyos",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-dto-schema/e02_origin.py",
+      "package_path": "oct7/e02_origin.py",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-dto-schema/e02_origin.py",
+      "role": "historical pytest session observer/provenance helper; identical source bytes reused at seven recorded evidence locations",
+      "bytes": 656,
+      "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+      "source_base": "home-checkout point 355f5e861be96ebf03ee97888a856da2c26f767f",
+      "notes": [
+        "Observer records selected module origins and package versions after test collection.",
+        "Seven originals are byte-identical; one deduplicated copy plus path map preserves the code."
+      ],
+      "same_bytes_also_observed_at": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-fresh-get-final-tenant-code/e02_origin.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-frozen-active-identity/e02_origin.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-2895/e02_origin.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-9702/e02_origin.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-frontier-native-canonical-ids/e02_origin.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-v2-r1-6592/e02_origin.py"
+      ]
+    },
+    {
+      "id": "oct7-n8-partial-v2-removal-plugin",
+      "source_worktree": "/Users/deniskopylov/polisyos",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-v2-r1-6592/n8_partial_v2_removal.py",
+      "package_path": "oct7/n8_partial_v2_removal.py",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/partial-recursive-checkpoint/partial-v2-r1-6592/n8_partial_v2_removal.py",
+      "role": "historical pytest removal-control plugin; test-only code, not a product implementation",
+      "bytes": 6294,
+      "sha256": "0610bbec106fef3c75241c3527faf58ecba4cfd657faff87bba7ee2185a3038c",
+      "source_base": "home-checkout point 355f5e861be96ebf03ee97888a856da2c26f767f",
+      "notes": [
+        "Embedded selector is test_e02_recursive_budget_frontier::test_partial_v2_rejects_self_asserted_internal_parent_terminal.",
+        "Source/test admission and current applicability are not established."
+      ]
+    },
+    {
+      "id": "oct11-b31-overlay-test",
+      "source_worktree": "/Users/deniskopylov/polisyos",
+      "source_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b31-owner-run-basis-v2-20261011/overlay/policy-engine/tests/unit/foundry/methods/test_causal_value_method_output_contract.py",
+      "package_path": "oct11/b31/test_causal_value_method_output_contract.py",
+      "target_path": "policy-engine/tests/unit/foundry/methods/test_causal_value_method_output_contract.py",
+      "role": "historical overlay test candidate; source base/current admission not established",
+      "bytes": 1891,
+      "sha256": "edca56265a92952ff62c297df03aa7ec59ece839accc22924496836bdb883c65",
+      "source_base": "home-checkout point 355f5e861be96ebf03ee97888a856da2c26f767f",
+      "notes": [
+        "Original provenance identifies this as an overlay partial-recursive checkpoint; no matching source manifest was read."
+      ]
+    },
+    {
+      "id": "c59-r2-native-prepare-plans",
+      "source_worktree": "/Users/deniskopylov/.codex/worktrees/8dda/polisyos",
+      "source_path": "LOCAL/raw/e02-execution-20261027/repairs/C59-r2-native/prepare_plans.py",
+      "package_path": "c59/prepare_plans.py",
+      "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e02-execution-20261027/repairs/C59-r2-native/prepare_plans.py",
+      "role": "historical native plan-preparation helper; exact source copied, not executed",
+      "bytes": 12217,
+      "sha256": "3fc0715cb3f7faefcfe00812455940af74e998db64f65dd24b30a0177c381858",
+      "source_base": "app-checkout point c40d4acae1ce58b597267255026d9356565828fd",
+      "notes": [
+        "Script contains hard-coded absolute paths to canonical local checkout; cloud portability is unresolved.",
+        "No product behavior run by this audit."
+      ]
+    }
+  ],
+  "unique_byte_copy_count": 7,
+  "source_occurrence_count": 13,
+  "merge_or_runtime_admission": "Not performed; root owns Git refs, source integration and publication."
+}

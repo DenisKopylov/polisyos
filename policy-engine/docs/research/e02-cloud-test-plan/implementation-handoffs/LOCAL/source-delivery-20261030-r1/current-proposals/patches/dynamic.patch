@@ -1,0 +1,1510 @@
+diff --git a/policy-engine/tools/quality/validation/decomposition_preflight.py b/policy-engine/tools/quality/validation/decomposition_preflight.py
+--- a/policy-engine/tools/quality/validation/decomposition_preflight.py
++++ b/policy-engine/tools/quality/validation/decomposition_preflight.py
+@@ -630,6 +630,14 @@
+ _DYNAMIC_COMPREHENSION_VALUE_LIMIT = 1024
+ 
+ 
++def _dynamic_is_importer_namespace_name(name: str) -> bool:
++    """Return whether a module name identifies a supported importer namespace."""
++    return name == "builtins" or any(
++        name == prefix or name.startswith(f"{prefix}.")
++        for prefix in _DYNAMIC_IMPORT_MODULE_PREFIXES
++    )
++
++
+ @dataclass(frozen=True, slots=True)
+ class _DynamicSourceCodeOrigin:
+     """Selected immutable code identity, separate from a mutable function object."""
+@@ -656,6 +664,7 @@
+         "reconstructed_function",
+         "source_closure",
+         "unknown",
++        "unbound",
+         "other",
+         "ambiguous",
+         "sequence",
+@@ -708,6 +717,17 @@
+ 
+     def __post_init__(self) -> None:
+         self._normalize_negative_execution()
++        if (
++            self.guarded
++            and self.kind in {"module", "namespace"}
++            and self.name is not None
++            and _dynamic_is_importer_namespace_name(self.name)
++        ):
++            object.__setattr__(
++                self,
++                "namespace_origins",
++                tuple(sorted(set(self.namespace_origins) | {self.name})),
++            )
+ 
+     def _normalize_negative_execution(self) -> None:
+         """Make executable uncertainty visible to every existing guarded transfer.
+@@ -839,6 +859,32 @@
+     importer_binding_mutations: Mapping[str, int]
+ 
+ 
++class _DynamicComprehensionAssignmentCollector(ast.NodeVisitor):
++    """Find outer-binding assignments across expression children, respecting lambdas."""
++
++    def __init__(self) -> None:
++        self.assignments: list[ast.NamedExpr] = []
++
++    def visit_NamedExpr(self, node: ast.NamedExpr) -> None:
++        self.assignments.append(node)
++        self.visit(node.value)
++
++    def visit_Lambda(self, node: ast.Lambda) -> None:
++        # Defaults execute here; the lambda body has a separate binding scope.
++        for default in (*node.args.defaults, *node.args.kw_defaults):
++            if default is not None:
++                self.visit(default)
++
++
++@dataclass(slots=True)
++class _DynamicComprehensionExecution:
++    """Keep execution timing and true module globals apart from lexical targets."""
++
++    scope_info: Mapping[str, set[str]]
++    module_environment: dict[str, _DynamicImportBinding] | None
++    deferred: bool
++
++
+ class _DefinitionTimeCallVisitor(ast.NodeVisitor):
+     """Find calls evaluated while a deferred source scope is being defined."""
+ 
+@@ -909,6 +955,7 @@
+ 
+ 
+ _DYNAMIC_UNKNOWN = _DynamicImportBinding("unknown")
++_DYNAMIC_UNBOUND = _DynamicImportBinding("unbound", origin_name="lexical")
+ _DYNAMIC_OTHER = _DynamicImportBinding("other")
+ _DYNAMIC_AMBIGUOUS = _DynamicImportBinding("ambiguous", guarded=True)
+ _DYNAMIC_DEFERRED = _DynamicImportBinding("ambiguous")
+@@ -1237,14 +1284,6 @@
+     return tuple(nodes)
+ 
+ 
+-def _dynamic_is_importer_namespace_name(name: str) -> bool:
+-    """Return whether a module name identifies a supported importer namespace."""
+-    return name == "builtins" or any(
+-        name == prefix or name.startswith(f"{prefix}.")
+-        for prefix in _DYNAMIC_IMPORT_MODULE_PREFIXES
+-    )
+-
+-
+ def _dynamic_importer_origins(binding: _DynamicImportBinding) -> frozenset[str]:
+     """Return exact dynamic-import callable identities carried by a value."""
+     origins: set[str] = set()
+@@ -1361,6 +1400,21 @@
+     if isinstance(node, ast.Tuple) and isinstance(node.ctx, ast.Load):
+         return all(_dynamic_immutable_literal(item) for item in node.elts)
+     return False
++
++
++def _dynamic_dict_pair_order_is_commutative(key: ast.AST | None, value: ast.AST) -> bool:
++    """Prove the scanner's swapped pair evaluation cannot change either value."""
++    if key is None:
++        # A mapping spread has one evaluated expression, not a key/value pair.
++        return True
++    if _dynamic_immutable_literal(key) or _dynamic_immutable_literal(value):
++        return True
++    return (
++        isinstance(key, ast.Name)
++        and isinstance(key.ctx, ast.Load)
++        and isinstance(value, ast.Name)
++        and isinstance(value.ctx, ast.Load)
++    )
+ 
+ 
+ def _dynamic_function_has_unmodeled_implicit_dispatch(
+@@ -7080,6 +7134,8 @@
+         self._source_code_depth = 0
+         self._source_code_opaque_effect = False
+         self._active_code_builtins: _DynamicImportBinding | None = None
++        self._comprehension_execution: list[_DynamicComprehensionExecution] = []
++        self._eager_source_effect_depth = 0
+         self._module_time_proven_scope_ids: set[int] = set()
+         self._active_module_function_stack: list[str] = []
+         self._active_module_function_invocation_states: list[
+@@ -7140,6 +7196,8 @@
+     def scan(self, tree: ast.Module) -> list[dict[str, Any]]:
+         self.future_annotations = _future_annotations_enabled(tree)
+         self._module_function_summaries.clear()
++        self._comprehension_execution.clear()
++        self._eager_source_effect_depth = 0
+         self._module_time_proven_scope_ids.clear()
+         self._active_module_function_stack.clear()
+         self._active_module_function_invocation_states.clear()
+@@ -7454,7 +7512,11 @@
+         self, name: str, environment: Mapping[str, _DynamicImportBinding]
+     ) -> _DynamicImportBinding:
+         if name in environment:
+-            return environment[name]
++            binding = environment[name]
++            # A deleted module global falls through to its builtins; a deleted
++            # lexical local remains unbound and cannot inherit a global value.
++            if binding.kind != "unbound" or binding.origin_name != "module":
++                return binding
+         if name == "__name__" and self.module_name is not None:
+             return _dynamic_string_binding(self.module_name)
+         if name == "__builtins__" and self._active_code_builtins is not None:
+@@ -8370,6 +8432,14 @@
+                         )
+             return sequence
+         if isinstance(node, ast.Dict):
++            if any(
++                not _dynamic_dict_pair_order_is_commutative(key, value)
++                for key, value in zip(node.keys, node.values, strict=True)
++            ):
++                raise DynamicImportCollectionError(
++                    f"{self.relative_path}:{node.lineno}: dict display key/value evaluation "
++                    "order is unproven"
++                )
+             keys: list[_DynamicImportBinding] = []
+             values: list[_DynamicImportBinding] = []
+             shape_known = True
+@@ -9884,6 +9954,22 @@
+         pending: list[_PendingDynamicImportScope],
+         scope_info: Mapping[str, set[str]],
+     ) -> _DynamicImportBinding:
++        assignments = _DynamicComprehensionAssignmentCollector()
++        assignments.visit(node)
++        if assignments.assignments:
++            assignment = assignments.assignments[0]
++            if isinstance(assignment.target, ast.Name):
++                prior = environment.get(
++                    assignment.target.id, self._unknown_binding(assignment.target.id)
++                )
++                if _is_guarded_importer_binding(prior):
++                    raise DynamicImportCollectionError(
++                        f"{self.relative_path}:{assignment.lineno}: comprehension walrus mutates a guarded importer alias"
++                    )
++            raise DynamicImportCollectionError(
++                f"{self.relative_path}:{assignment.lineno}: comprehension assignment expression "
++                "timing and outer binding are unsupported"
++            )
+         generators = node.generators
+         if not generators:
+             return _DYNAMIC_OTHER
+@@ -9893,81 +9979,104 @@
+         )
+         local_env = environment.copy()
+         comp_outer = environment
+-        for index, generator in enumerate(generators):
+-            iterable = (
+-                first_iterable
+-                if index == 0
+-                else self._expression_binding(generator.iter, local_env, pending, scope_info)
+-            )
+-            self._assign_target(
+-                generator.target,
+-                self._iterable_element_binding(iterable),
+-                local_env,
+-                pending,
+-                scope_info,
+-            )
+-            for condition in generator.ifs:
+-                self._expression_binding(
+-                    condition,
+-                    local_env,
+-                    pending,
+-                    scope_info,
+-                    comprehension_outer=comp_outer,
+-                )
+-                iterable = self._filter_comprehension_values(
+-                    iterable,
+-                    generator.target,
+-                    condition,
+-                    local_env,
+-                    pending,
+-                    scope_info,
++        local_scope_info = dict(scope_info)
++        target_scope_info = {**local_scope_info, "globals": set(), "nonlocals": set()}
++        parent = self._comprehension_execution[-1] if self._comprehension_execution else None
++        nested = parent is not None and scope_info is parent.scope_info
++        if scope_info is self._module_scope_info and self._module_execution_active:
++            module_environment = environment
++        elif nested:
++            module_environment = parent.module_environment
++        else:
++            module_environment = None
++        deferred = (
++            isinstance(node, ast.GeneratorExp)
++            or any(generator.is_async for generator in generators)
++            or (nested and parent.deferred)
++        )
++        frame = _DynamicComprehensionExecution(local_scope_info, module_environment, deferred)
++        self._comprehension_execution.append(frame)
++        try:
++            for index, generator in enumerate(generators):
++                iterable = (
++                    first_iterable
++                    if index == 0
++                    else self._expression_binding(
++                        generator.iter, local_env, pending, local_scope_info
++                    )
+                 )
+                 self._assign_target(
+                     generator.target,
+                     self._iterable_element_binding(iterable),
+                     local_env,
+                     pending,
+-                    scope_info,
+-                )
+-        if isinstance(node, ast.DictComp):
+-            key = self._expression_binding(
+-                node.key,
+-                local_env,
+-                pending,
+-                scope_info,
+-                comprehension_outer=comp_outer,
+-            )
+-            value = self._expression_binding(
+-                node.value,
+-                local_env,
+-                pending,
+-                scope_info,
+-                comprehension_outer=comp_outer,
+-            )
+-            return _dynamic_mapping_binding(
+-                None,
+-                None,
+-                guarded=key.guarded
+-                or key.kind == "ambiguous"
+-                or value.guarded
+-                or value.kind == "ambiguous",
+-                erased_members=(key, value),
+-            )
+-        else:
+-            element = self._expression_binding(
+-                node.elt,
+-                local_env,
+-                pending,
+-                scope_info,
+-                comprehension_outer=comp_outer,
+-            )
+-            return _dynamic_sequence_binding(
+-                None,
+-                kind="iterable" if isinstance(node, ast.SetComp) else "sequence",
+-                guarded=element.guarded or element.kind == "ambiguous",
+-                erased_members=(element,),
+-                sequence_type="list" if isinstance(node, ast.ListComp) else None,
+-            )
++                    target_scope_info,
++                )
++                for condition in generator.ifs:
++                    self._expression_binding(
++                        condition,
++                        local_env,
++                        pending,
++                        local_scope_info,
++                        comprehension_outer=comp_outer,
++                    )
++                    iterable = self._filter_comprehension_values(
++                        iterable,
++                        generator.target,
++                        condition,
++                        local_env,
++                        pending,
++                        target_scope_info,
++                    )
++                    self._assign_target(
++                        generator.target,
++                        self._iterable_element_binding(iterable),
++                        local_env,
++                        pending,
++                        target_scope_info,
++                    )
++            if isinstance(node, ast.DictComp):
++                key = self._expression_binding(
++                    node.key,
++                    local_env,
++                    pending,
++                    local_scope_info,
++                    comprehension_outer=comp_outer,
++                )
++                value = self._expression_binding(
++                    node.value,
++                    local_env,
++                    pending,
++                    local_scope_info,
++                    comprehension_outer=comp_outer,
++                )
++                return _dynamic_mapping_binding(
++                    None,
++                    None,
++                    guarded=key.guarded
++                    or key.kind == "ambiguous"
++                    or value.guarded
++                    or value.kind == "ambiguous",
++                    erased_members=(key, value),
++                )
++            else:
++                element = self._expression_binding(
++                    node.elt,
++                    local_env,
++                    pending,
++                    local_scope_info,
++                    comprehension_outer=comp_outer,
++                )
++                return _dynamic_sequence_binding(
++                    None,
++                    kind="iterable" if isinstance(node, ast.SetComp) else "sequence",
++                    guarded=element.guarded or element.kind == "ambiguous",
++                    erased_members=(element,),
++                    sequence_type="list" if isinstance(node, ast.ListComp) else None,
++                )
++
++        finally:
++            self._comprehension_execution.pop()
+ 
+     def _filter_comprehension_values(
+         self,
+@@ -10749,6 +10858,52 @@
+         finally:
+             self._source_function_module_stack.pop()
+ 
++    def _bounded_eager_source_effects_proven(
++        self,
++        function: ast.FunctionDef | ast.AsyncFunctionDef | ast.Lambda,
++        parameter_bindings: Mapping[str, _DynamicImportBinding],
++        module_environment: Mapping[str, _DynamicImportBinding],
++    ) -> bool:
++        """Admit only source-bound calls without unmodeled implicit effects."""
++        if not isinstance(function, (ast.FunctionDef, ast.AsyncFunctionDef)):
++            return False
++        if any(
++            _dynamic_scope_cross_writes(function)
++        ) or _dynamic_function_has_unmodeled_implicit_dispatch(function, module_environment):
++            return False
++        local_names, _, _ = _scope_local_bindings(function.body)
++        parameter_names = {
++            argument.arg
++            for argument in (
++                *function.args.posonlyargs,
++                *function.args.args,
++                *function.args.kwonlyargs,
++                *((function.args.vararg,) if function.args.vararg else ()),
++                *((function.args.kwarg,) if function.args.kwarg else ()),
++            )
++        }
++        _, calls, _ = _dynamic_scope_read_dependencies(function)
++        for call in calls:
++            if not isinstance(call.func, ast.Name):
++                return False
++            name = call.func.id
++            if name in local_names:
++                return False
++            if name in parameter_names:
++                binding = parameter_bindings.get(name)
++            else:
++                binding = module_environment.get(name)
++            if binding is None or not (
++                (
++                    binding.kind == "callable"
++                    and binding.guarded
++                    and binding.name in DYNAMIC_CALL_NAMES
++                )
++                or binding.kind in {"source_function", "reconstructed_function", "source_closure"}
++            ):
++                return False
++        return True
++
+     def _source_function_call(
+         self,
+         node: ast.Call,
+@@ -10794,10 +10949,63 @@
+             binding.kind in {"reconstructed_function", "source_closure"}
+             for binding in function_bindings
+         )
++        frame = self._comprehension_execution[-1] if self._comprehension_execution else None
++        if frame is not None and scope_info is not frame.scope_info:
++            frame = None
++        if frame is not None and frame.deferred:
++            module_environment = (
++                self._active_module_environment
++                if self._active_module_environment is not None
++                else frame.module_environment
++                if frame.module_environment is not None
++                else self._module_environment
++            )
++            for binding in function_bindings:
++                if binding.kind == "source_function":
++                    summary = self._module_function_summaries.get(binding.origin_name or "")
++                    deferred_node = summary.node if summary is not None else None
++                elif binding.kind in {"reconstructed_function", "source_closure"}:
++                    raise DynamicImportCollectionError(
++                        f"{self.relative_path}:{node.lineno}: deferred reconstructed source "
++                        "function timing is unresolved"
++                    )
++                else:
++                    deferred_node = None
++                if deferred_node is None:
++                    raise DynamicImportCollectionError(
++                        f"{self.relative_path}:{node.lineno}: deferred comprehension source "
++                        "function context is unresolved"
++                    )
++                deferred_scope = _PendingDynamicImportScope(
++                    deferred_node, module_environment, dict(self._importer_binding_mutations)
++                )
++                if (
++                    not isinstance(deferred_node, (ast.FunctionDef, ast.AsyncFunctionDef))
++                    or any(_dynamic_scope_cross_writes(deferred_node))
++                    or self._deferred_scope_importer_names(deferred_scope, module_environment)
++                    or _dynamic_function_has_unmodeled_implicit_dispatch(
++                        deferred_node, module_environment
++                    )
++                    or any(
++                        isinstance(child, (ast.Call, ast.Import, ast.ImportFrom))
++                        for child in ast.walk(deferred_node)
++                    )
++                ):
++                    raise DynamicImportCollectionError(
++                        f"{self.relative_path}:{node.lineno}: deferred comprehension source "
++                        "effects are unresolved"
++                    )
++            self._source_code_opaque_effect = True
++            return None
++        eager_module_environment = (
++            frame.module_environment if frame is not None and not frame.deferred else None
++        )
++        enforce_eager_effects = frame is not None or bool(self._eager_source_effect_depth)
+         if (
+             scope_info is not self._module_scope_info
+             and not self._active_module_function_stack
+             and not source_code_call
++            and eager_module_environment is None
+         ):
+             # Nominal source identity is not proof of an untransferred deferred effect.
+             self._source_code_opaque_effect = True
+@@ -10888,6 +11096,15 @@
+                         f"{self.relative_path}:{node.lineno}: selected source function summary "
+                         "is unavailable"
+                     )
++                if (
++                    enforce_eager_effects
++                    and isinstance(summary.node, (ast.FunctionDef, ast.AsyncFunctionDef))
++                    and any(_dynamic_scope_cross_writes(summary.node))
++                ):
++                    raise DynamicImportCollectionError(
++                        f"{self.relative_path}:{node.lineno}: comprehension source function "
++                        "global effects are unsupported"
++                    )
+                 candidates.append((scanner, identity, summary, binding))
+ 
+             scanners = tuple(dict.fromkeys(candidate[0] for candidate in candidates))
+@@ -10897,9 +11114,13 @@
+             for scanner in scanners:
+                 module_environment = (
+                     (
+-                        self._active_module_environment or self._module_environment
++                        self._active_module_environment
++                        if self._active_module_environment is not None
++                        else eager_module_environment
++                        if eager_module_environment is not None
++                        else self._module_environment
+                         if source_code_call
+-                        else self._active_module_environment or environment
++                        else environment
+                     )
+                     if scanner is self
+                     else scanner._module_environment
+@@ -10911,6 +11132,11 @@
+                     )
+                 base_environments[scanner] = module_environment
+ 
++            comprehension_before = (
++                dict(base_environments[self])
++                if frame is not None and self in base_environments
++                else None
++            )
+             branch_states: dict[
+                 _DynamicImportSourceScanner, list[dict[str, _DynamicImportBinding]]
+             ] = {scanner: [] for scanner in scanners}
+@@ -10925,6 +11151,10 @@
+                 previous_active_environment = scanner._active_module_environment
+                 previous_builtins = scanner._active_code_builtins
+                 previous_code_depth = scanner._source_code_depth
++                previous_eager_effect_depth = scanner._eager_source_effect_depth
++                scanner._eager_source_effect_depth = max(
++                    previous_eager_effect_depth, self._eager_source_effect_depth
++                ) + int(enforce_eager_effects)
+                 # A selected helper in another module still executes on the protected path.
+                 scanner._source_code_depth = max(previous_code_depth, self._source_code_depth)
+                 if binding.kind in {"reconstructed_function", "source_closure"}:
+@@ -10972,6 +11202,16 @@
+                         if parameter_bindings is None and scanner._source_code_depth:
+                             raise DynamicImportCollectionError(
+                                 f"{self.relative_path}:{node.lineno}: reconstructed arguments do not bind"
++                            )
++                        if enforce_eager_effects and (
++                            parameter_bindings is None
++                            or not scanner._bounded_eager_source_effects_proven(
++                                function, parameter_bindings, branch_environment
++                            )
++                        ):
++                            raise DynamicImportCollectionError(
++                                f"{self.relative_path}:{node.lineno}: eager comprehension source "
++                                "function effects are unresolved"
+                             )
+                         if parameter_bindings is not None:
+                             invocation_state = (
+@@ -11041,6 +11281,7 @@
+                     scanner._active_module_environment = previous_active_environment
+                     scanner._active_code_builtins = previous_builtins
+                     scanner._source_code_depth = previous_code_depth
++                    scanner._eager_source_effect_depth = previous_eager_effect_depth
+                     if pushed_target_module:
+                         if self._source_function_module_stack[-1] != scanner.module_name:
+                             raise DynamicImportCollectionError(
+@@ -11066,6 +11307,19 @@
+                 target_environment.clear()
+                 target_environment.update(joined)
+ 
++            if frame is not None and comprehension_before is not None:
++                module_environment = base_environments[self]
++                names = set(comprehension_before) | set(module_environment)
++                changed = {
++                    name
++                    for name in names
++                    if comprehension_before.get(name) != module_environment.get(name)
++                }
++                if changed:
++                    raise DynamicImportCollectionError(
++                        f"{self.relative_path}:{node.lineno}: comprehension source function "
++                        "global effects are unsupported"
++                    )
+             if not valid_return:
+                 return _DYNAMIC_OTHER
+             return _join_dynamic_bindings(branch_returns)
+@@ -12050,16 +12304,22 @@
+                         scope_info,
+                         node.lineno,
+                     )
+-                    unknown = self._unknown_binding(target.id)
+-                    if scope_info is self._module_scope_info or target.id in scope_info.get(
+-                        "globals", set()
+-                    ):
++                    module_target = (
++                        scope_info is self._module_scope_info
++                        or target.id in scope_info.get("globals", set())
++                    )
++                    unbound = (
++                        replace(_DYNAMIC_UNBOUND, origin_name="module")
++                        if module_target
++                        else _DYNAMIC_UNBOUND
++                    )
++                    if module_target:
+                         self._note_importer_binding_write(
+                             target.id,
+                             environment.get(target.id, self._unknown_binding(target.id)),
+-                            unknown,
++                            unbound,
+                         )
+-                    environment[target.id] = unknown
++                    environment[target.id] = unbound
+                     if (
+                         self._active_module_function_stack
+                         and self._active_module_environment is not None
+diff --git a/policy-engine/tests/repo_quality/architecture/test_decomposition_preflight_gates.py b/policy-engine/tests/repo_quality/architecture/test_decomposition_preflight_gates.py
+--- a/policy-engine/tests/repo_quality/architecture/test_decomposition_preflight_gates.py
++++ b/policy-engine/tests/repo_quality/architecture/test_decomposition_preflight_gates.py
+@@ -7302,14 +7302,20 @@
+     assert preflight.validate_dynamic_imports() == []
+ 
+ 
++_UNSUPPORTED_SUBSCRIPT_SOURCE = (
++    "import importlib\n"
++    "unknown_index = len(())\n"
++    "loader = (importlib,)[unknown_index].import_module\n"
++    "loader('unsupported_subscript_origin')\n"
++)
++
++
+ def test_dynamic_import_validator_refuses_guarded_value_through_unsupported_expression(
+     tmp_path: Path,
+     monkeypatch: pytest.MonkeyPatch,
+ ) -> None:
+     findings = _dynamic_import_validator_refusal(
+-        "import importlib\n"
+-        "loader = (importlib,)[0].import_module\n"
+-        "loader('unsupported_subscript_origin')\n",
++        _UNSUPPORTED_SUBSCRIPT_SOURCE,
+         tmp_path,
+         monkeypatch,
+     )
+@@ -7319,6 +7325,32 @@
+         and "dynamic importer binding is ambiguous or unresolved" in finding.detail
+         for finding in findings
+     )
++
++
++def test_dynamic_import_unsupported_subscript_fixture_reaches_real_import(
++    tmp_path: Path,
++    monkeypatch: pytest.MonkeyPatch,
++) -> None:
++    """The unresolved-index fixture reaches an actual, controlled module import."""
++    module_name = "unsupported_subscript_origin"
++    module_path = tmp_path / f"{module_name}.py"
++    module_path.write_text("fixture_executed = True\n", encoding="utf-8")
++    monkeypatch.syspath_prepend(str(tmp_path))
++    monkeypatch.delitem(sys.modules, module_name, raising=False)
++    fixture_path = tmp_path / "dynamic_import_fixture.py"
++    fixture_path.write_text(_UNSUPPORTED_SUBSCRIPT_SOURCE, encoding="utf-8")
++    try:
++        assert module_name not in sys.modules
++        namespace = runpy.run_path(str(fixture_path))
++        module = sys.modules[module_name]
++        assert module.__name__ == module_name
++        assert module.__spec__ is not None
++        assert module.__spec__.origin == str(module_path)
++        assert module.fixture_executed is True
++        assert namespace["unknown_index"] == 0
++        assert namespace["loader"] is namespace["importlib"].import_module
++    finally:
++        sys.modules.pop(module_name, None)
+ 
+ 
+ def test_dynamic_import_match_capture_refuses_cross_scope_guarded_rebind(
+@@ -12146,3 +12178,738 @@
+     )
+ 
+     assert preflight.collect_dynamic_imports() == []
++
++
++def test_dynamic_import_exact_tuple_index_is_inventoried_and_registry_checked(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    """A known tuple index uses the existing exact-selection transfer and registry."""
++    registry_path = _dynamic_import_fixture(
++        tmp_path,
++        monkeypatch,
++        "import importlib\n"
++        "loader = (importlib,)[0].import_module\n"
++        "loader('unsupported_subscript_origin')\n",
++    )
++    entries = preflight.collect_dynamic_imports()
++    assert [entry["pattern"] for entry in entries] == ["unsupported_subscript_origin"]
++    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
++    findings = preflight.validate_dynamic_imports()
++    assert any(
++        finding.message == "dynamic import call is not registered"
++        and "unsupported_subscript_origin" in finding.detail
++        for finding in findings
++    )
++
++
++@pytest.mark.parametrize(
++    ("source", "patterns"),
++    [
++        (
++            "import importlib as module_alias\n"
++            "[module_alias.import_module('shadowed') for module_alias in values]\n"
++            "module_alias.import_module('outer_live')\n",
++            ["outer_live"],
++        ),
++        (
++            "import importlib as module_alias\n"
++            "[module_alias.import_module('inside_known') for module_alias in (module_alias,)]\n",
++            ["inside_known"],
++        ),
++        (
++            "import importlib\n[1 for importlib in importlib.import_module('outer_iterable')]\n",
++            ["outer_iterable"],
++        ),
++        (
++            "from importlib import import_module as loader\ndel loader\nloader('deleted_call')\n",
++            [],
++        ),
++        (
++            "from importlib import import_module as loader\n"
++            "del loader\n"
++            "from importlib import import_module as loader\n"
++            "loader('rebound_call')\n",
++            ["rebound_call"],
++        ),
++        (
++            "from importlib import import_module as __import__\n"
++            "del __import__\n"
++            "__import__('builtin_after_delete')\n",
++            ["builtin_after_delete"],
++        ),
++        (
++            "from importlib import import_module\n"
++            "def local_scope():\n"
++            "    __import__ = import_module\n"
++            "    del __import__\n"
++            "    __import__('local_unbound')\n",
++            [],
++        ),
++        (
++            "import importlib as module_alias\n"
++            "loader = (module_alias.import_module if condition else module_alias.import_module)\n"
++            "condition and (loader := module_alias.import_module)\n"
++            "loader('same_origin_refined_receiver')\n",
++            ["same_origin_refined_receiver"],
++        ),
++    ],
++)
++def test_dynamic_import_scope_and_origin_precision_controls(
++    source: str, patterns: list[str], tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    """Preserve actual lexical bindings and exact importer origins across joins."""
++    _dynamic_import_fixture(tmp_path, monkeypatch, source)
++    assert [entry["pattern"] for entry in preflight.collect_dynamic_imports()] == patterns
++
++
++@pytest.mark.parametrize(
++    ("source", "reason"),
++    [
++        (
++            "from importlib import import_module as loader\n"
++            "if condition:\n"
++            "    del loader\n"
++            "loader('possibly_live')\n",
++            "ambiguous|unresolved",
++        ),
++        (
++            "from importlib import import_module as loader\nopaque()\nloader = other\n",
++            "unproven module-time dynamic-import namespace",
++        ),
++        (
++            "from importlib import import_module as loader\n"
++            "[(loader := other) for item in values]\n",
++            "comprehension walrus mutates a guarded importer alias",
++        ),
++        (
++            "from importlib import import_module as loader\n"
++            "loader = (loader if condition else other)\n"
++            "loader('mixed_origin')\n",
++            "ambiguous|unresolved",
++        ),
++    ],
++)
++def test_dynamic_import_scope_and_origin_negative_controls(
++    source: str, reason: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    """Possible importer or temporal effects stay fail-closed after precision repairs."""
++    _dynamic_import_fixture(tmp_path, monkeypatch, source)
++    with pytest.raises(preflight.DynamicImportCollectionError, match=reason):
++        preflight.collect_dynamic_imports()
++
++
++@pytest.mark.parametrize(
++    "expression",
++    [
++        "load('polisyos.reached')",
++        "[load('polisyos.reached') for value in (0,)]",
++        "{load('polisyos.reached') for value in (0,)}",
++        "{value: load('polisyos.reached') for value in (0,)}",
++        "[[load('polisyos.reached') for inner in (0,)] for outer in (0,)]",
++        "[load('polisyos.reached') for importer in (0,)]",
++    ],
++)
++def test_dynamic_import_eager_comprehension_uses_live_module_globals(
++    expression: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    """Eager scope preserves helper argument targets and ignores target shadows."""
++    _dynamic_import_fixture(
++        tmp_path,
++        monkeypatch,
++        "from importlib import import_module as importer\n"
++        "def load(name):\n"
++        "    return importer(name)\n"
++        f"{expression}\n",
++    )
++    entries = preflight.collect_dynamic_imports()
++    assert len(entries) == 1
++    assert entries[0]["allowed_targets"] == ["polisyos.reached"]
++
++
++@pytest.mark.parametrize(
++    "expression",
++    [
++        "[set_zero() for item in (0,)]",
++        "[set_zero() for item in (0, 1)]",
++        "[condition and set_zero() for item in (0,)]",
++    ],
++)
++def test_dynamic_import_eager_helper_global_write_refuses(
++    expression: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    """Global writes need an independently reconciled invocation-effect model."""
++    _dynamic_import_fixture(
++        tmp_path,
++        monkeypatch,
++        "index = 1\n"
++        "condition = len(()) == 0\n"
++        "def set_zero():\n"
++        "    global index\n"
++        "    index = 0\n"
++        "    return None\n"
++        f"{expression}\n",
++    )
++    with pytest.raises(
++        preflight.DynamicImportCollectionError,
++        match="comprehension source function global effects are unsupported",
++    ):
++        preflight.collect_dynamic_imports()
++
++
++@pytest.mark.parametrize(
++    "expression",
++    [
++        "[((index := 0), import_module(('polisyos.zero', 'polisyos.one')[index])) for outer in (0,)]",
++        "[[((index := 0), import_module(('polisyos.zero', 'polisyos.one')[index])) for inner in (0,)] for outer in (0,)]",
++    ],
++)
++def test_dynamic_import_eager_walrus_refuses(
++    expression: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    """Unproven outer assignment timing is refused before inventory emission."""
++    _dynamic_import_fixture(
++        tmp_path,
++        monkeypatch,
++        f"from importlib import import_module\nindex = 1\n{expression}\n",
++    )
++    with pytest.raises(
++        preflight.DynamicImportCollectionError,
++        match="comprehension assignment expression timing and outer binding are unsupported",
++    ):
++        preflight.collect_dynamic_imports()
++
++
++def test_dynamic_import_nested_walrus_refuses(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    _dynamic_import_fixture(
++        tmp_path,
++        monkeypatch,
++        "from importlib import import_module\n"
++        "index = 1\n"
++        "[[(index := 0) for inner in (0,)] for outer in (0,)]\n"
++        "import_module(('polisyos.zero', 'polisyos.one')[index])\n",
++    )
++    with pytest.raises(
++        preflight.DynamicImportCollectionError,
++        match="comprehension assignment expression timing and outer binding are unsupported",
++    ):
++        preflight.collect_dynamic_imports()
++
++
++_NESTED_WALRUS_HELPER_SOURCE = (
++    "from importlib import import_module\n"
++    "index = 1\n"
++    "def load():\n"
++    "    return import_module(('polisyos.zero', 'polisyos.one')[index])\n"
++    "[[((index := 0), load()) for inner in (0,)] for outer in (0,)]\n"
++)
++
++_DEFERRED_GENERATOR_GLOBAL_SOURCE = (
++    "from importlib import import_module\n"
++    "index = 1\n"
++    "def set_zero():\n"
++    "    global index\n"
++    "    index = 0\n"
++    "    return None\n"
++    "gen = (set_zero() for value in (0,))\n"
++    "next(gen)\n"
++    "import_module(('polisyos.zero', 'polisyos.one')[index])\n"
++)
++
++_CONDITIONAL_WALRUS_SOURCE = (
++    "from importlib import import_module\n"
++    "index = 1\n"
++    "condition = len(())\n"
++    "[condition and (index := 0) for item in (0,)]\n"
++    "import_module(('polisyos.zero', 'polisyos.one')[index])\n"
++)
++
++_DEFERRED_GENERATOR_REFLECTIVE_SOURCE = (
++    "from importlib import import_module\n"
++    "index = 1\n"
++    "def set_zero():\n"
++    "    globals()['index'] = 0\n"
++    "gen = (set_zero() for value in (0,))\n"
++    "next(gen)\n"
++    "import_module(('polisyos.zero', 'polisyos.one')[index])\n"
++)
++
++_EAGER_REFLECTIVE_SOURCE = (
++    "from importlib import import_module as importer\n"
++    "index = 1\n"
++    "def load():\n"
++    "    globals()['index'] = 0\n"
++    "    return importer(('polisyos.zero', 'polisyos.one')[index])\n"
++    "[load() for value in (0,)]\n"
++)
++
++_FUNCTION_DEFERRED_WALRUS_SOURCE = (
++    "from importlib import import_module\n"
++    "def outer():\n"
++    "    index = 1\n"
++    "    gen = ((index := 0) for value in (0,))\n"
++    "    import_module(('polisyos.zero', 'polisyos.one')[index])\n"
++    "outer()\n"
++)
++
++_FUNCTION_NESTED_WALRUS_SOURCE = (
++    "from importlib import import_module\n"
++    "def outer():\n"
++    "    index = 1\n"
++    "    [[((index := 0), import_module(('polisyos.zero', 'polisyos.one')[index])) "
++    "for inner in (0,)] for outer_value in (0,)]\n"
++    "outer()\n"
++)
++
++_DECLARED_GLOBAL_WALRUS_SOURCE = (
++    "from importlib import import_module\n"
++    "index = 1\n"
++    "def update():\n"
++    "    global index\n"
++    "    [(index := 0) for value in (0,)]\n"
++    "update()\n"
++    "import_module(('polisyos.zero', 'polisyos.one')[index])\n"
++)
++
++
++def test_dynamic_import_eager_walrus_complex_helper_refuses(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    """An outer assignment refuses before the helper can emit a stale target."""
++    _dynamic_import_fixture(
++        tmp_path,
++        monkeypatch,
++        _NESTED_WALRUS_HELPER_SOURCE,
++    )
++    with pytest.raises(
++        preflight.DynamicImportCollectionError,
++        match="comprehension assignment expression timing and outer binding are unsupported",
++    ):
++        preflight.collect_dynamic_imports()
++
++
++def test_dynamic_import_function_deferred_walrus_refuses(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    _dynamic_import_fixture(tmp_path, monkeypatch, _FUNCTION_DEFERRED_WALRUS_SOURCE)
++    with pytest.raises(
++        preflight.DynamicImportCollectionError,
++        match="comprehension assignment expression timing and outer binding are unsupported",
++    ):
++        preflight.collect_dynamic_imports()
++
++
++def test_dynamic_import_function_nested_walrus_refuses(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    _dynamic_import_fixture(tmp_path, monkeypatch, _FUNCTION_NESTED_WALRUS_SOURCE)
++    with pytest.raises(
++        preflight.DynamicImportCollectionError,
++        match="comprehension assignment expression timing and outer binding are unsupported",
++    ):
++        preflight.collect_dynamic_imports()
++
++
++def test_dynamic_import_declared_global_walrus_refuses(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    _dynamic_import_fixture(tmp_path, monkeypatch, _DECLARED_GLOBAL_WALRUS_SOURCE)
++    with pytest.raises(
++        preflight.DynamicImportCollectionError,
++        match="comprehension assignment expression timing and outer binding are unsupported",
++    ):
++        preflight.collect_dynamic_imports()
++
++
++def test_dynamic_import_eager_reflective_write_refuses(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    _dynamic_import_fixture(tmp_path, monkeypatch, _EAGER_REFLECTIVE_SOURCE)
++    with pytest.raises(
++        preflight.DynamicImportCollectionError,
++        match="eager comprehension source function effects are unresolved",
++    ):
++        preflight.collect_dynamic_imports()
++
++
++def test_dynamic_import_eager_helper_unproven_call_refuses(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    _dynamic_import_fixture(
++        tmp_path,
++        monkeypatch,
++        "from importlib import import_module as importer\n"
++        "def load(name):\n"
++        "    print('visible effect')\n"
++        "    return importer(name)\n"
++        "[load('polisyos.reached') for item in (0,)]\n",
++    )
++    with pytest.raises(
++        preflight.DynamicImportCollectionError,
++        match="eager comprehension source function effects are unresolved",
++    ):
++        preflight.collect_dynamic_imports()
++
++
++@pytest.mark.parametrize(
++    "source",
++    [
++        "index = 1\n[(index := item) for item in (0, 1)]\n",
++        _CONDITIONAL_WALRUS_SOURCE,
++    ],
++    ids=["multiple-iterations", "short-circuit"],
++)
++def test_dynamic_import_uncertain_comprehension_outer_write_refuses(
++    source: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    _dynamic_import_fixture(tmp_path, monkeypatch, source)
++    with pytest.raises(
++        preflight.DynamicImportCollectionError,
++        match="comprehension assignment expression timing and outer binding are unsupported",
++    ):
++        preflight.collect_dynamic_imports()
++
++
++_LAMBDA_DEFAULT_WALRUS_SOURCE = (
++    "from importlib import import_module\n"
++    "index = 1\n"
++    "[(lambda value=(index := 0): value) for item in (0,)]\n"
++    "import_module(('polisyos.zero', 'polisyos.one')[index])\n"
++)
++
++_DICT_COMPREHENSION_ORDER_SOURCE = (
++    "from importlib import import_module\n"
++    "index = 1\n"
++    "[{(index := 0): import_module(('polisyos.zero', 'polisyos.one')[index])} "
++    "for item in (0,)]\n"
++)
++
++_DICT_DISPLAY_ORDER_SOURCE = (
++    "from importlib import import_module\n"
++    "index = 1\n"
++    "{(index := 0): import_module(('polisyos.zero', 'polisyos.one')[index])}\n"
++)
++
++_DICT_UNKNOWN_ORDER_SOURCE = _DICT_DISPLAY_ORDER_SOURCE.replace("index = 1", "index = len(())")
++
++_DICT_KEY_CALL_SOURCE = (
++    "from importlib import import_module\n"
++    "index = 1\n"
++    "def set_zero():\n"
++    "    global index\n"
++    "    index = 0\n"
++    "    return 'key'\n"
++    "{set_zero(): import_module(('polisyos.zero', 'polisyos.one')[index])}\n"
++)
++
++_REGISTERED_UNKNOWN_SOURCE = (
++    "from importlib import import_module\n"
++    "index = len(())\n"
++    "[(lambda value=(index := 0): value) for item in (0,)]\n"
++    "import_module(('polisyos.zero', 'polisyos.one')[index])\n"
++)
++
++
++@pytest.mark.parametrize(
++    "source", [_LAMBDA_DEFAULT_WALRUS_SOURCE, _DICT_COMPREHENSION_ORDER_SOURCE]
++)
++def test_dynamic_import_comprehension_nested_assignment_refuses(
++    source: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    """All expression wrappers reach the shared cross-scope assignment intake."""
++    _dynamic_import_fixture(tmp_path, monkeypatch, source)
++    with pytest.raises(
++        preflight.DynamicImportCollectionError,
++        match="comprehension assignment expression timing and outer binding are unsupported",
++    ):
++        preflight.collect_dynamic_imports()
++
++
++def test_dynamic_import_registered_unknown_cannot_launder_unsupported_comprehension(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    """A matching unknown registry row cannot turn an unmodeled effect green."""
++    registry_path = _dynamic_import_fixture(tmp_path, monkeypatch, _REGISTERED_UNKNOWN_SOURCE)
++    with monkeypatch.context() as removal:
++        removal.setattr(
++            preflight._DynamicComprehensionAssignmentCollector,
++            "visit_NamedExpr",
++            lambda _self, _node: None,
++        )
++        unguarded_entries = preflight.collect_dynamic_imports()
++        assert len(unguarded_entries) == 1
++        assert unguarded_entries[0]["allowed_targets"] == []
++        registry_path.write_text(_render_dynamic_imports_toml(unguarded_entries), encoding="utf-8")
++        assert preflight.validate_dynamic_imports() == []
++    findings = preflight.validate_dynamic_imports()
++    assert any(
++        finding.message == "dynamic import source inventory is incomplete"
++        and "comprehension assignment expression timing and outer binding are unsupported"
++        in finding.detail
++        for finding in findings
++    )
++
++
++def test_dynamic_import_comprehension_scalar_assignment_no_sink_is_refused(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    """The bounded intake also rejects a harmless outer assignment with no import sink."""
++    _dynamic_import_fixture(tmp_path, monkeypatch, "[(index := 0) for item in (0,)]\n")
++    with pytest.raises(
++        preflight.DynamicImportCollectionError,
++        match="comprehension assignment expression timing and outer binding are unsupported",
++    ):
++        preflight.collect_dynamic_imports()
++
++
++def test_dynamic_import_comprehension_lambda_local_assignment_is_not_outer(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    """A lambda body owns its own assignment-expression binding."""
++    _dynamic_import_fixture(tmp_path, monkeypatch, "[(lambda: (index := 0)) for item in (0,)]\n")
++    assert preflight.collect_dynamic_imports() == []
++
++
++def test_dynamic_import_eager_pure_helper_without_sink_stays_nonfailing(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    _dynamic_import_fixture(
++        tmp_path,
++        monkeypatch,
++        "def identity(value):\n    return value\n[identity(value) for value in (0,)]\n",
++    )
++    assert preflight.collect_dynamic_imports() == []
++
++
++def test_dynamic_import_deferred_generator_helper_importer_refuses(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    _dynamic_import_fixture(
++        tmp_path,
++        monkeypatch,
++        "from importlib import import_module as importer\n"
++        "def load(name):\n    return importer(name)\n"
++        "(load('polisyos.deferred') for value in (0,))\n",
++    )
++    with pytest.raises(
++        preflight.DynamicImportCollectionError,
++        match="deferred comprehension source effects are unresolved",
++    ):
++        preflight.collect_dynamic_imports()
++
++
++def test_dynamic_import_deferred_generator_global_effect_refuses(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    _dynamic_import_fixture(
++        tmp_path,
++        monkeypatch,
++        _DEFERRED_GENERATOR_GLOBAL_SOURCE,
++    )
++    with pytest.raises(
++        preflight.DynamicImportCollectionError,
++        match="deferred comprehension source effects are unresolved",
++    ):
++        preflight.collect_dynamic_imports()
++
++
++def test_dynamic_import_deferred_generator_reflective_write_refuses(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    _dynamic_import_fixture(
++        tmp_path,
++        monkeypatch,
++        _DEFERRED_GENERATOR_REFLECTIVE_SOURCE,
++    )
++    with pytest.raises(
++        preflight.DynamicImportCollectionError,
++        match="deferred comprehension source effects are unresolved",
++    ):
++        preflight.collect_dynamic_imports()
++
++
++def test_dynamic_import_deferred_generator_pure_helper_stays_nonfailing(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    _dynamic_import_fixture(
++        tmp_path,
++        monkeypatch,
++        "def identity(value):\n    return value\n(identity(value) for value in (0,))\n",
++    )
++    assert preflight.collect_dynamic_imports() == []
++
++
++def test_dynamic_import_generator_first_iterable_is_eager(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    _dynamic_import_fixture(
++        tmp_path,
++        monkeypatch,
++        "from importlib import import_module as importer\n"
++        "def load(name):\n    importer(name)\n    return (0,)\n"
++        "(value for value in load('polisyos.reached'))\n",
++    )
++    entries = preflight.collect_dynamic_imports()
++    assert len(entries) == 1
++    assert entries[0]["allowed_targets"] == ["polisyos.reached"]
++
++
++def test_dynamic_import_late_lambda_rebinding_remains_guarded(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    _dynamic_import_fixture(
++        tmp_path,
++        monkeypatch,
++        "from importlib import import_module as importer\n"
++        "def load(name):\n    return importer(name)\n"
++        "late = lambda: load('polisyos.late')\n"
++        "importer = other\n"
++        "late()\n",
++    )
++    with pytest.raises(
++        preflight.DynamicImportCollectionError,
++        match="deferred source effects cross a proven importer rebind",
++    ):
++        preflight.collect_dynamic_imports()
++
++
++@pytest.mark.parametrize(
++    ("source", "expected_target"),
++    [
++        (_NESTED_WALRUS_HELPER_SOURCE, "zero"),
++        (_DEFERRED_GENERATOR_GLOBAL_SOURCE, "zero"),
++        (_CONDITIONAL_WALRUS_SOURCE, "one"),
++        (_DEFERRED_GENERATOR_REFLECTIVE_SOURCE, "zero"),
++        (_EAGER_REFLECTIVE_SOURCE, "zero"),
++        (_FUNCTION_DEFERRED_WALRUS_SOURCE, "one"),
++        (_FUNCTION_NESTED_WALRUS_SOURCE, "zero"),
++        (_DECLARED_GLOBAL_WALRUS_SOURCE, "zero"),
++        (_LAMBDA_DEFAULT_WALRUS_SOURCE, "zero"),
++        (_DICT_COMPREHENSION_ORDER_SOURCE, "zero"),
++        (_DICT_DISPLAY_ORDER_SOURCE, "zero"),
++        (_DICT_UNKNOWN_ORDER_SOURCE, "zero"),
++        (_REGISTERED_UNKNOWN_SOURCE, "zero"),
++        (_DICT_KEY_CALL_SOURCE, "zero"),
++    ],
++    ids=[
++        "nested-walrus",
++        "consumed-generator",
++        "short-circuit",
++        "reflective-generator",
++        "reflective-eager",
++        "function-deferred-walrus",
++        "function-nested-walrus",
++        "declared-global-walrus",
++        "lambda-default-walrus",
++        "dict-comprehension-order",
++        "dict-display-order",
++        "dict-unknown-order",
++        "registered-unknown",
++        "dict-key-call",
++    ],
++)
++def test_dynamic_import_scope_falsifier_runtime_selects_controlled_target(
++    source: str, expected_target: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    """The same source shape reaches the correct controlled target in real Python."""
++    zero_name = "r16_scope_controlled_zero"
++    one_name = "r16_scope_controlled_one"
++    zero_path = tmp_path / f"{zero_name}.py"
++    one_path = tmp_path / f"{one_name}.py"
++    zero_path.write_text("controlled_target = 'zero'\n", encoding="utf-8")
++    one_path.write_text("controlled_target = 'one'\n", encoding="utf-8")
++    assert source.count("polisyos.zero") == source.count("polisyos.one") == 1
++    safe_source = source.replace("polisyos.zero", zero_name).replace("polisyos.one", one_name)
++    fixture_path = tmp_path / "scope_runtime_fixture.py"
++    fixture_path.write_text(safe_source, encoding="utf-8")
++    monkeypatch.syspath_prepend(str(tmp_path))
++    monkeypatch.delitem(sys.modules, zero_name, raising=False)
++    monkeypatch.delitem(sys.modules, one_name, raising=False)
++    try:
++        assert zero_name not in sys.modules and one_name not in sys.modules
++        namespace = runpy.run_path(str(fixture_path))
++        selected_name = zero_name if expected_target == "zero" else one_name
++        other_name = one_name if expected_target == "zero" else zero_name
++        selected_path = zero_path if expected_target == "zero" else one_path
++        selected_module = sys.modules[selected_name]
++        assert other_name not in sys.modules
++        assert selected_module.__spec__ is not None
++        assert selected_module.__spec__.origin == str(selected_path)
++        assert selected_module.controlled_target == expected_target
++        if "index" in namespace:
++            assert namespace["index"] == (0 if expected_target == "zero" else 1)
++    finally:
++        sys.modules.pop(zero_name, None)
++        sys.modules.pop(one_name, None)
++
++
++@pytest.mark.parametrize(
++    "source",
++    [_DICT_DISPLAY_ORDER_SOURCE, _DICT_UNKNOWN_ORDER_SOURCE, _DICT_KEY_CALL_SOURCE],
++    ids=["known-namedexpr-key", "unknown-namedexpr-key", "function-call-key"],
++)
++def test_dynamic_import_effectful_dict_pair_order_refuses(
++    source: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    """Do not inventory a dict pair whose swapped evaluation order may change effects."""
++    _dynamic_import_fixture(tmp_path, monkeypatch, source)
++    with pytest.raises(
++        preflight.DynamicImportCollectionError,
++        match="dict display key/value evaluation order is unproven",
++    ):
++        preflight.collect_dynamic_imports()
++
++
++def test_dynamic_import_dict_unknown_registry_cannot_launder_order_effect(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    """The actual matching unknown row is green only when the order gate is removed."""
++    registry_path = _dynamic_import_fixture(tmp_path, monkeypatch, _DICT_UNKNOWN_ORDER_SOURCE)
++    with monkeypatch.context() as removal:
++        removal.setattr(
++            preflight, "_dynamic_dict_pair_order_is_commutative", lambda _key, _value: True
++        )
++        unguarded_entries = preflight.collect_dynamic_imports()
++        assert len(unguarded_entries) == 1
++        assert unguarded_entries[0]["allowed_targets"] == []
++        registry_path.write_text(_render_dynamic_imports_toml(unguarded_entries), encoding="utf-8")
++        assert preflight.validate_dynamic_imports() == []
++    findings = preflight.validate_dynamic_imports()
++    assert any(
++        finding.message == "dynamic import source inventory is incomplete"
++        and "dict display key/value evaluation order is unproven" in finding.detail
++        for finding in findings
++    )
++
++
++def test_dynamic_import_dict_literal_key_preserves_dynamic_value(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    _dynamic_import_fixture(
++        tmp_path,
++        monkeypatch,
++        "from importlib import import_module\n{'fixed': import_module('polisyos.reached')}\n",
++    )
++    entries = preflight.collect_dynamic_imports()
++    assert len(entries) == 1
++    assert entries[0]["allowed_targets"] == ["polisyos.reached"]
++
++
++def test_dynamic_import_dict_plain_name_reads_stay_nonfailing(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    _dynamic_import_fixture(tmp_path, monkeypatch, "key = 1\nvalue = 2\n{key: value}\n")
++    assert preflight.collect_dynamic_imports() == []
++
++
++def test_dynamic_import_dict_unknown_order_no_sink_is_refused(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    """The bounded syntactic proof also refuses this harmless no-import display."""
++    _dynamic_import_fixture(tmp_path, monkeypatch, "key = 1\n{key: len(())}\n")
++    with pytest.raises(
++        preflight.DynamicImportCollectionError,
++        match="dict display key/value evaluation order is unproven",
++    ):
++        preflight.collect_dynamic_imports()
+diff --git a/policy-engine/tools/quality/validation/README.md b/policy-engine/tools/quality/validation/README.md
+--- a/policy-engine/tools/quality/validation/README.md
++++ b/policy-engine/tools/quality/validation/README.md
+@@ -204,3 +204,36 @@
+ known mapping spread into a sequence contributes keys, never unrelated values. Exact pure scalar
+ projections retain their existing ability to drop origins. Bounded fixture checks do not establish
+ source-wide or native clearance.
++
++Comprehension targets are lexical bindings: the first iterable is evaluated in its containing
++scope, while target stores and inner temporal observations retain the distinct comprehension
++scope. A definite deletion is represented separately from an unknown value; a deleted module
++binding can still fall through to the existing builtin resolver, while a deleted lexical local
++does not inherit a global binding. Conditional deletion must retain every live importer
++alternative. Guarded importer namespaces use their derived namespace origin canonically, so an
++otherwise identical callable receiver does not become ambiguous merely because a later join
++materialized the same provenance. These are bounded source-analysis rules, not an assertion that
++arbitrary Python reachability or external mutation is modeled.
++
++An exact index into a known tuple is handled by the existing finite-selection transfer and its
++resulting importer still reaches inventory and registry validation. An unknown index into the
++same importer-bearing tuple remains unresolved and is refused. The refusal fixture derives its
++index from `len(())`, which is zero at runtime but has no exact analyzer key; a controlled module
++import verifies that the actual Python path reaches the selected importer.
++
++Eager list, set, and dictionary comprehensions carry their actual module execution environment
++separately from lexical target bindings. A selected source helper may transfer its arguments and
++import effect only when the existing implicit-dispatch intake and its bound explicit callees prove
++the helper effect; unknown calls, global/nonlocal writes, and unproven implicit effects refuse.
++Generator bodies are deferred, even though the first iterable is evaluated immediately; their
++source helpers are admitted as effect-free only for a bounded no-call, no-import, no-cross-write
++body with no unmodeled implicit dispatch.
++
++Comprehension-owned assignment expressions are refused by one generic expression-child intake;
++lambda defaults execute in the enclosing scope, whereas lambda bodies own their local bindings.
++This includes harmless scalar assignments with no import sink: it is a declared precision cost
++until complete execution-order and enclosing-scope effect transfer is available. For dict displays, the existing value-before-key transfer is admitted per pair only when one
++side is an immutable literal, or both sides are plain name reads; otherwise the collector
++refuses before producing inventory. This also refuses some harmless no-sink displays. Mapping
++spreads, arbitrary object hashing and external effects are not established by this ordering proof;
++source-wide and native verification remain separate.
+diff --git a/policy-engine/docs/reference/policy-design-case-failure-patterns.md b/policy-engine/docs/reference/policy-design-case-failure-patterns.md
+--- a/policy-engine/docs/reference/policy-design-case-failure-patterns.md
++++ b/policy-engine/docs/reference/policy-design-case-failure-patterns.md
+@@ -891,3 +891,43 @@
+ call this legacy/native compatibility clearance. The smallest missing capability is a
+ use-site proof of receiver identity and stable attribute dispatch across the selected source
+ context; the existing abstract module binding and named-write tracker do not provide it.
++
++### P31/P38/P40 instance: lexical scope and equivalent importer provenance
++
++**Diagnostic question.** Does a temporary comprehension target change the enclosing module
++binding, does a definite deletion become an opaque value, or does derived namespace provenance
++make the same callable appear to have two origins? Each can create a fail-closed refusal on a
++source path whose real binding is known. Conversely, treating a conditionally deleted or mixed
++importer as definitely absent can hide a live call.
++
++**Closure move.** Keep comprehension target and containing scopes distinct, represent definite
++deletion separately while retaining module builtin fallback, and canonicalize derived namespace
++provenance at binding construction. Preserve actual importer identities across all joins; do not
++weaken ambiguous or temporal effect boundaries. Exercise lexical shadows, known local members,
++module and local deletion, builtin fallback, same-origin and mixed-origin joins, conditional
++deletion, and an opaque-call/rebind refusal. A known tuple index is a finite-selection positive;
++an analyzer-unknown index is the unsupported-flow negative. The negative fixture must reach its
++import in real Python, rather than fail first on an unbound index; `len(())` supplies a concrete
++zero without an analyzer-exact key. Native and source-wide compatibility require separate
++execution; source-tool controls alone do not establish them.
++
++**R17 execution-context disposition.** Lexical identity cannot decide when a comprehension body
++runs or which module globals a selected helper resolves. Carry eager timing and the actual module
++environment separately from comprehension-local targets; generator bodies stay deferred while
++their first iterable remains eager. Existing source bindings and the implicit-effect intake admit
++only bounded source-helper effects. A single generic expression-child intake refuses every
++comprehension-owned assignment expression, including lambda-default and nested-display forms,
++because complete evaluation-order and enclosing-scope transfer is absent. This also refuses a
++harmless scalar assignment with no import sink; retain that false-positive falsifier. Lambda-body
++assignments are owned by the lambda and are not comprehension outer writes.
++
++The same expression-effect/order class extends outside comprehensions: a dict-display scanner
++that visits value before key can report a stale or unknown importer target when key evaluation
++changes state. A registry row with that unknown target can then match and validate green. Before
++scanning any dict-display pair, admit the swapped transfer only when either side is an immutable
++literal, or both are plain name reads; otherwise refuse. This is one pairwise commutativity proof,
++not a target-name list. It also refuses harmless no-sink pairs such as a name key and a known
++builtin call; retain that precision falsifier. Mapping spreads, arbitrary object hashing,
++external effects and the rest of Python evaluation semantics are not established by this proof.
++Run actual collector, registry, removal/restoration and controlled-Python comparisons; selected
++source controls do not establish source-wide or native clearance.
+diff --git a/policy-engine/release-fragments/unreleased/2026-10-30-dynamic-scope-provenance.toml b/policy-engine/release-fragments/unreleased/2026-10-30-dynamic-scope-provenance.toml
+new file mode 100644
+--- /dev/null
++++ b/policy-engine/release-fragments/unreleased/2026-10-30-dynamic-scope-provenance.toml
+@@ -0,0 +1,8 @@
++id = "2026-10-30-dynamic-scope-provenance"
++title = "Preserve dynamic importer lexical binding precision"
++type = "fixed"
++component = "repository-quality"
++owner = "team-architecture"
++summary = "Distinguish lexical comprehension bindings, eager execution context, deleted names, and equivalent importer provenance in dynamic source analysis."
++evidence = ["tests/repo_quality/architecture/test_decomposition_preflight_gates.py", "tools/quality/validation/README.md"]
++limitations = "Unproven source-helper effects, deferred generator effects, comprehension-owned assignment expressions, and unproven dict-display key/value orders are refused, including harmless no-sink cases. Mapping spreads, arbitrary object hashing, and external effects are not established; source-wide and native compatibility require separate verification."

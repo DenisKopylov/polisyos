@@ -1,0 +1,3683 @@
+diff --git a/policy-engine/release-fragments/unreleased/2026-10-30-loaded-execution-evidence.toml b/policy-engine/release-fragments/unreleased/2026-10-30-loaded-execution-evidence.toml
+new file mode 100644
+--- /dev/null
++++ b/policy-engine/release-fragments/unreleased/2026-10-30-loaded-execution-evidence.toml
+@@ -0,0 +1,25 @@
++id = "2026-10-30-loaded-execution-evidence"
++title = "Collect unsealed source-execution evidence before selected local entries"
++type = "changed"
++component = "runtime"
++owner = "team-runtime-quality"
++summary = "A source-checkout launcher can record selected source execution before existing CLI, server, or serial test entrypoints. Fresh canonical N9 use and current receipt recomputation remain unavailable until the complete loaded-execution authority rule is established."
++evidence = [
++  "tools/authority",
++  "tools/authority_bootstrap.py",
++  "tools/loaded_execution_capture.py",
++  "src/polisyos/runtime/quality/confidence_ledger.py",
++  "src/polisyos/runtime/quality/promotion_sequence.py",
++  "tests/unit/runtime/quality/test_loaded_execution_host.py",
++  "tests/unit/runtime/quality/test_loaded_execution_gate.py",
++]
++compatibility = "Legacy identity observations, non-N9 ledger purposes, historical receipt parsing, and existing direct entrypoints retain their prior contracts. Fresh canonical N9 sessions and authority recomputation fail closed while the new rule is incomplete; prior spend, scope and history are not reset."
++change_class = "tooling"
++surface_classification = "public_tool_cli"
++migration = "Use tools/authority with an existing target name for the bounded local diagnostic. Direct console scripts remain candidate paths; installed authority requires its separately appointed issuer."
++api = "The launcher emits a diagnostic only; no public identity schema or deployment identity version is changed."
++limitations = "Runtime/build provenance, complete provider and state binding, protected decision-through-publication, installed issuer, full caller wiring, and same-scope transition remain unresolved. The diagnostic cannot authorize N9."
++generated_client_compatibility = "not_applicable"
++public_surface_inventory_reviewed = false
++migration_docs = ["tools/README.md"]
++runbook_docs = []
+diff --git a/policy-engine/src/polisyos/runtime/quality/confidence_ledger.py b/policy-engine/src/polisyos/runtime/quality/confidence_ledger.py
+--- a/policy-engine/src/polisyos/runtime/quality/confidence_ledger.py
++++ b/policy-engine/src/polisyos/runtime/quality/confidence_ledger.py
+@@ -1514,6 +1514,8 @@
+         deployment_quick_fence: _DeploymentQuickFence | None,
+     ) -> None:
+         if authority_provenance == "canonical_repo":
++            if risk_scope.authority_purpose == "n9_promotion":
++                _require_loaded_execution_authority()
+             _require_import_time_identity_snapshot()
+         _assert_ledger_artifact_contracts_current()
+         object.__setattr__(self, "_session_sealed", False)
+@@ -1557,6 +1559,8 @@
+         loaded_root = _loaded_policy_engine_root()
+         if root != loaded_root:
+             raise ConfidenceLedgerError("canonical_deployment_identity_invalid")
++        if risk_scope.authority_purpose == "n9_promotion":
++            _require_loaded_execution_authority()
+         (
+             _deployment_baseline_value,
+             deployment_quick_fence,
+@@ -1637,6 +1641,10 @@
+         root = self._authority_repo_root
+         return bool(
+             type(self) is ConfidenceLedgerSession
++            and (
++                self._risk_scope.authority_purpose != "n9_promotion"
++                or _loaded_execution_authority_ready()
++            )
+             and _IMPORT_TIME_LOADED_CODE_CONSISTENT is True
+             and self._authority_provenance == "canonical_repo"
+             and root is not None
+@@ -3659,6 +3667,8 @@
+         """Fence runtime contracts and canonical source against in-session drift."""
+ 
+         if self._authority_provenance == "canonical_repo":
++            if self._risk_scope.authority_purpose == "n9_promotion":
++                _require_loaded_execution_authority()
+             root = self._authority_repo_root
+             observed: str | None = None
+             if root is not None and root == _loaded_policy_engine_root():
+@@ -5732,6 +5742,24 @@
+     )
+ 
+ 
++def _loaded_execution_authority_ready() -> bool:
++    """Keep authority unavailable until the complete C owner is wired.
++
++    A recorder, source manifest, environment marker, or diagnostic handoff
++    cannot establish the profile, state, currentness and through-use premises.
++    """
++
++    return False
++
++
++def _require_loaded_execution_authority() -> None:
++    if not _loaded_execution_authority_ready():
++        raise ConfidenceLedgerError(
++            "canonical_loaded_runtime_mismatch",
++            "loaded execution profile and protected use are not established",
++        )
++
++
+ def _require_import_time_identity_snapshot() -> None:
+     """Refuse authority when import-time identity was not captured successfully."""
+ 
+@@ -5852,6 +5880,7 @@
+ 
+     parsed_by_content: dict[bytes, ast.Module]
+     providers_by_content: dict[bytes, _LiteralModuleGetattrProviderIndex]
++    diagnostic_unqualified_direct_bindings: set[tuple[str, str]] | None = None
+ 
+     def parse(self, content: bytes, *, filename: str) -> ast.Module:
+         """Parse exact source bytes once within the current closure computation."""
+@@ -5863,11 +5892,212 @@
+         return tree
+ 
+ 
++@dataclass(frozen=True, slots=True)
++class _DiagnosticAuthoritySourceCandidates:
++    """Source-only candidates and bindings which remain unqualified."""
++
++    entry_modules: tuple[str, ...]
++    source_candidates: tuple[tuple[str, str], ...]
++    unqualified_direct_bindings: tuple[tuple[str, str], ...]
++    unresolved_by_construction: tuple[str, ...]
++
++
++def _diagnose_unqualified_authority_import_candidates(
++    repo_root: Path,
++    entry_module: str | Iterable[str],
++) -> _DiagnosticAuthoritySourceCandidates:
++    """Collect unqualified source candidates without executing or admitting them."""
++
++    entries = (entry_module,) if isinstance(entry_module, str) else tuple(sorted(set(entry_module)))
++    if not entries:
++        raise ValueError("diagnostic_authority_entry_missing")
++    unqualified: set[tuple[str, str]] = set()
++    candidates = _resolve_authority_import_closure(
++        repo_root,
++        entries,
++        _diagnostic_unqualified_direct_bindings=unqualified,
++    )
++    return _DiagnosticAuthoritySourceCandidates(
++        entry_modules=entries,
++        source_candidates=candidates,
++        unqualified_direct_bindings=tuple(sorted(unqualified)),
++        unresolved_by_construction=(
++            "source_readset_and_complete_denominator_not_instrumented",
++            "actual_source_execution_and_selected_provider",
++            "direct_binding_construction_and_consumer_holdings",
++            "dynamic_imports_outside_static_source_candidates",
++            "material_state_and_protected_use",
++        ),
++    )
++
++
++_NO_EXECUTION_BINDING = object()
++
++
++def _passive_capture_lookup(mapping: object, name: str) -> object:
++    if type(mapping) not in (dict, types.MappingProxyType):
++        return _NO_EXECUTION_BINDING
++    try:
++        for key, value in mapping.items():
++            if type(key) is str and key == name:
++                return value
++    except RuntimeError:
++        return _NO_EXECUTION_BINDING
++    return _NO_EXECUTION_BINDING
++
++
++# Boundary rationale: these private diagnostics accept opaque host-owned
++# producer objects; importing tooling types into the product would invert the
++# dependency boundary, and their values are never treated as authority.
++def _source_import_aliases_for_event(
++    repo_root: Path, capture: Any, event: Any, symbol: str  # noqa: ANN401
++) -> tuple[str, ...]:
++    """Resolve import aliases from the actual caller's retained source line."""
++
++    if event.route != "builtin_import" or type(event.caller_line) is not int:
++        return ()
++    capture.assert_retained(frozenset({event.importer_name}))
++    importer = capture.completed(event.importer_name)
++    source = repo_root / importer.relative_path
++    content = source.read_bytes()
++    if hashlib.sha256(content).hexdigest() != importer.source_sha256:
++        raise ValueError("importer_source_observation_mismatch")
++    tree = ast.parse(content, filename=str(source))
++    aliases: set[str] = set()
++    for node in ast.walk(tree):
++        if not isinstance(node, ast.ImportFrom) or not (
++            node.lineno <= event.caller_line <= (node.end_lineno or node.lineno)
++        ):
++            continue
++        if node.level:
++            package = importer.package
++            if not package or node.level > len(package.split(".")):
++                continue
++            parent = package.rsplit(".", node.level - 1)[0]
++            provider = f"{parent}.{node.module}" if node.module else parent
++        else:
++            provider = node.module or ""
++        if provider != event.provider_name:
++            continue
++        aliases.update(alias.asname or symbol for alias in node.names if alias.name == symbol)
++    return tuple(sorted(aliases))
++
++
++def _observe_unsealed_host_capture(
++    recorder_module: object, capture: Any  # noqa: ANN401
++) -> dict[str, object]:
++    """Reconcile live source candidates for diagnostics without admitting identity.
++
++    The early host supplies its retained recorder and capture. This result is not
++    an appointment, complete dependency graph, state proof, or authority token.
++    The same source-derived candidates and actual post-initializer bindings are
++    examined generically; no particular protocol or provider is privileged.
++    """
++
++    report: dict[str, object] = {
++        "status": "not_established",
++        "phase": "collecting",
++        "proof_schema": "policyos.runtime.confidence_ledger.loaded_execution_capture.v1",
++        "identity_rule": "canonical-source-execution/1",
++        "runtime_profile_id": None,
++        "capture_time_role": "in_progress_or_unavailable",
++        "currentness_time_role": "not_evaluated",
++        "executed_direct_bindings": [],
++        "unresolved": (
++            "trusted_host_appointment",
++            "complete_relevant_bindings",
++            "runtime_dependency_and_native_profile",
++            "material_state",
++            "owner_sealing_and_currentness",
++            "protected_through_use",
++        ),
++    }
++    identity = capture_loaded_deployment_identity()
++    report["legacy_identity_status"] = identity.status
++    report["legacy_identity_reason"] = identity.reason_code
++    report["protected_loaded_execution_status"] = "not_established"
++    if (
++        type(recorder_module) is not types.ModuleType
++        or _passive_capture_lookup(recorder_module.__dict__, "SourceExecutionCapture")
++        is not type(capture)
++        or _passive_capture_lookup(sys.__dict__, "_polisyos_loaded_execution_owner_v1")
++        is not capture
++    ):
++        report["failure"] = "live_capture_binding_unavailable"
++        return report
++    try:
++        capture_diagnostic = capture.diagnostic()
++        report["phase"] = capture_diagnostic.phase
++        report["failed_premise"] = capture_diagnostic.failed_premise
++        report["capture_failure"] = capture_diagnostic.failure_code
++        root = _loaded_policy_engine_root()
++        capture.assert_retained(frozenset({__name__}))
++        execution = capture.completed(__name__)
++        if execution.module is not _passive_capture_lookup(sys.modules, __name__):
++            raise ValueError("ledger_execution_binding_changed")
++        graph = capture.relevant_graph(frozenset({__name__}))
++        candidates = _diagnose_unqualified_authority_import_candidates(root, __name__)
++        source_paths = dict(candidates.source_candidates)
++        reached = frozenset(graph.reached_sources)
++        events = capture.import_events()
++        matched: list[tuple[str, str, str, tuple[tuple[str, str], ...]]] = []
++        for module_name, symbol in candidates.unqualified_direct_bindings:
++            if module_name not in reached or module_name not in source_paths:
++                continue
++            try:
++                record = capture.completed(module_name)
++            except ImportError:
++                continue
++            value = capture.completed_binding(module_name, symbol)
++            source = root / source_paths[module_name]
++            digest = hashlib.sha256(source.read_bytes()).hexdigest()
++            if (
++                digest != record.source_sha256
++                or source.resolve() != Path(record.origin)
++                or type(record.code) is not types.CodeType
++            ):
++                raise ValueError("executed_source_observation_mismatch")
++            consumers: set[tuple[str, str]] = set()
++            for event in events:
++                if event.provider_name != module_name:
++                    continue
++                if _passive_capture_lookup(event.retained_exports, symbol) is not value:
++                    continue
++                for alias in _source_import_aliases_for_event(root, capture, event, symbol):
++                    namespace = event.importer.__dict__
++                    if _passive_capture_lookup(namespace, alias) is not value:
++                        continue
++                    capture.assert_import_binding(
++                        event, importer_attribute=alias, provider_export=symbol
++                    )
++                    consumers.add((event.importer_name, alias))
++            matched.append((module_name, symbol, digest, tuple(sorted(consumers))))
++        report["executed_direct_bindings"] = tuple(sorted(matched))
++        report["observed_source_modules"] = len(graph.reached_sources)
++        report["external_provider_count"] = len(graph.external_providers)
++        report["failed_reachable_imports"] = graph.failed_imports
++        report["failed_reachable_modules"] = graph.failed_modules
++        report["unresolved_importers"] = graph.unresolved_importers
++        report["pending_modules"] = graph.pending_modules
++        report["candidate_only"] = True
++    except (
++        OSError,
++        ImportError,
++        AttributeError,
++        TypeError,
++        ValueError,
++        ConfidenceLedgerError,
++    ) as exc:
++        report["failure"] = type(exc).__name__
++    return report
++
++
+ def _resolve_authority_import_closure(
+     repo_root: Path,
+     entry_module: str | Iterable[str],
+     *,
+     include_tools: bool = False,
++    _diagnostic_unqualified_direct_bindings: set[tuple[str, str]] | None = None,
+ ) -> tuple[tuple[str, str], ...]:
+     """Discover a repository-local source import closure candidate.
+ 
+@@ -5878,14 +6108,18 @@
+     plus source-declared PEP 562 candidates. Literal dynamic targets are source
+     inputs, not runtime modules, unless reached through a static edge; owner/tool
+     mode additionally sees literal dynamic imports and tools. Both modes exclude
+-    typing-only arms.
++    typing-only arms. The private diagnostic collector permits unqualified local
++    source bindings as candidates and records every such binding. That mode is
++    not evidence of the selected provider, execution, or an admissible closure.
+     """
+ 
+     resolved: dict[str, Path] = {}
+     pending = {entry_module} if isinstance(entry_module, str) else set(entry_module)
+     allowed_roots = {"polisyos", *(("tools",) if include_tools else ())}
+     directory_entries: dict[Path, frozenset[str]] = {}
+-    source_index = _AuthorityImportClosureSourceIndex({}, {})
++    source_index = _AuthorityImportClosureSourceIndex(
++        {}, {}, _diagnostic_unqualified_direct_bindings
++    )
+ 
+     @functools.cache
+     def resolve_source(module_name: str) -> Path | None:
+@@ -13000,6 +13234,15 @@
+             relative.as_posix(),
+         ) from exc
+     sites = _module_scope_direct_binding_sites(tree, export_name)
++    diagnostic_bindings = source_index.diagnostic_unqualified_direct_bindings
++    if diagnostic_bindings is not None and (
++        sites or export_name in _module_scope_definite_bindings(tree)
++    ):
++        # This names only the source namespace which may bind the requested
++        # export. It does not identify the constructed object or qualify the
++        # provider; those require separately admitted execution and bindings.
++        diagnostic_bindings.add((module_name, export_name))
++        return "symbol", module_name, export_name
+     if not sites:
+         if export_name in _module_scope_definite_bindings(tree):
+             raise ConfidenceLedgerError(
+diff --git a/policy-engine/src/polisyos/runtime/quality/promotion_sequence.py b/policy-engine/src/polisyos/runtime/quality/promotion_sequence.py
+--- a/policy-engine/src/polisyos/runtime/quality/promotion_sequence.py
++++ b/policy-engine/src/polisyos/runtime/quality/promotion_sequence.py
+@@ -85,6 +85,7 @@
+     N9PromotionSemanticLedgerProjection,
+     PredictableClaimSpec,
+     PromotionCertificateOffer,
++    _loaded_execution_authority_ready,
+     capture_loaded_deployment_identity,
+     load_confidence_ledger_registry,
+     project_n9_promotion_certificate,
+@@ -4114,6 +4115,8 @@
+ 
+         if deployment_identity is None:
+             return "confidence_ledger_refused:deployment_identity_not_established"
++        if not _loaded_execution_authority_ready():
++            return "confidence_ledger_refused:canonical_loaded_runtime_mismatch"
+         current_identity = capture_loaded_deployment_identity()
+         if current_identity.status != "established":
+             code = current_identity.reason_code or "deployment_identity_not_established"
+@@ -5057,6 +5060,8 @@
+ ) -> CanonicalPromotionReceipt:
+     """Run the single canonical N9 sequence over the real owner contracts."""
+ 
++    if not _loaded_execution_authority_ready():
++        raise ValueError("confidence_ledger_loaded_execution_not_established")
+     if not isinstance(confidence_ledger_session, ConfidenceLedgerSession):
+         raise TypeError("confidence_ledger_session_must_be_confidence_ledger_session")
+     if not confidence_ledger_session.is_authority_session:
+@@ -5082,6 +5087,8 @@
+ ) -> CanonicalPromotionReceipt:
+     """Private N9 owner entry after the runtime has independently derived OWR."""
+ 
++    if not _loaded_execution_authority_ready():
++        raise ValueError("confidence_ledger_loaded_execution_not_established")
+     if not isinstance(confidence_ledger_session, ConfidenceLedgerSession):
+         raise TypeError("confidence_ledger_session_must_be_confidence_ledger_session")
+     if not confidence_ledger_session.is_authority_session:
+@@ -5281,6 +5288,14 @@
+ ) -> tuple[dict[str, Any], ...]:
+     """Recompute an authority-bearing N9 receipt from the canonical deployment."""
+ 
++    if not _loaded_execution_authority_ready():
++        return (
++            {
++                "code": "confidence_ledger_recomputation_failed",
++                "reason": "canonical_loaded_runtime_mismatch",
++                "detail": "loaded execution profile and protected use are not established",
++            },
++        )
+     return _validate_promotion_receipt_with_bound_session(
+         receipt,
+         repo_root=repo_root,
+diff --git a/policy-engine/tests/unit/runtime/quality/test_loaded_execution_capture.py b/policy-engine/tests/unit/runtime/quality/test_loaded_execution_capture.py
+new file mode 100644
+--- /dev/null
++++ b/policy-engine/tests/unit/runtime/quality/test_loaded_execution_capture.py
+@@ -0,0 +1,818 @@
++"""Behavioral controls for a non-authoritative source-execution producer.
++
++These isolated synthetic modules exercise the producer, not owner admission or
++N9. Every case runs in a fresh process because process-wide failures are sticky.
++"""
++
++from __future__ import annotations
++
++import subprocess
++import sys
++from pathlib import Path
++
++_PRODUCT_ROOT = Path(__file__).resolve().parents[4]
++
++
++def _run_fresh(tmp_path: Path, program: str) -> subprocess.CompletedProcess[str]:
++    return subprocess.run(
++        [sys.executable, "-I", "-S", "-B", "-c", program, str(_PRODUCT_ROOT), str(tmp_path)],
++        text=True,
++        capture_output=True,
++        check=False,
++        timeout=20,
++    )
++
++
++def _assert_case(tmp_path: Path, program: str) -> None:
++    result = _run_fresh(tmp_path, program)
++    assert result.returncode == 0, result.stderr
++
++
++def test_selected_bytes_execute_without_replaced_get_code_and_spoofed_metadata(
++    tmp_path: Path,
++) -> None:
++    _assert_case(
++        tmp_path,
++        r"""
++import builtins
++import hashlib
++import importlib.machinery
++import pathlib
++import sys
++
++sys.path.insert(0, sys.argv[1])
++from tools.loaded_execution_capture import CaptureError, ExpectedSource, SourceExecutionCapture
++
++root = pathlib.Path(sys.argv[2])
++package = root / "capture_witness"
++package.mkdir()
++source = b"value = 'canonical'\n"
++(package / "__init__.py").write_bytes(source)
++expected = {"capture_witness": ExpectedSource("capture_witness/__init__.py", hashlib.sha256(source).hexdigest())}
++capture = SourceExecutionCapture(root, expected)
++initial = capture.diagnostic()
++assert initial.phase == "new" and initial.status == "not_established"
++assert initial.runtime_profile_id is None and initial.currentness_time_role == "not_evaluated"
++assert initial.first_unestablished_premise == "appointed_profile" and initial.failed_premise is None
++capture.install()
++sys.path.insert(0, str(root))
++original = importlib.machinery.SourceFileLoader.get_code
++
++def poisoned(self, fullname):
++    return compile("value = 'changed'\n", self.path, "exec")
++
++importlib.machinery.SourceFileLoader.get_code = poisoned
++try:
++    import capture_witness
++finally:
++    importlib.machinery.SourceFileLoader.get_code = original
++assert capture_witness.value == "canonical"
++record = capture.completed("capture_witness")
++assert record.module is capture_witness
++assert record.source_sha256 == hashlib.sha256(source).hexdigest()
++assert record.code.co_filename == str(package / "__init__.py")
++observed = capture.diagnostic()
++assert observed.phase == "collecting" and observed.status == "not_established"
++assert observed.completed_module_count == 1 and observed.captured_source_projection_sha256.startswith("sha256:")
++assert observed.provider_projection_sha256 is None
++capture.assert_retained(frozenset({"capture_witness"}))
++
++class MetadataSpoof:
++    def __eq__(self, other):
++        builtins.capture_comparator_called = True
++        raise AssertionError("candidate comparator executed")
++    def __ne__(self, other):
++        builtins.capture_comparator_called = True
++        raise AssertionError("candidate comparator executed")
++
++builtins.capture_comparator_called = False
++capture_witness.__spec__.origin = MetadataSpoof()
++try:
++    capture.assert_retained(frozenset({"capture_witness"}))
++except CaptureError as exc:
++    assert str(exc) == "retained_module_changed"
++else:
++    raise AssertionError("changed spec origin was accepted")
++assert capture.failed and not builtins.capture_comparator_called
++failed = capture.diagnostic()
++assert failed.phase == "failed" and failed.failure_code == "retained_module_changed"
++assert failed.failed_premise == "complete_relevant_bindings"
++try:
++    SourceExecutionCapture(root, expected).install()
++except CaptureError as exc:
++    assert str(exc) == "capture_process_already_attempted"
++else:
++    raise AssertionError("failed process was recaptured")
++""",
++    )
++
++
++_BINDING_CASE = r"""
++import builtins
++import hashlib
++import importlib
++import pathlib
++import sys
++
++sys.path.insert(0, sys.argv[1])
++from tools.loaded_execution_capture import CaptureError, ExpectedSource, SourceExecutionCapture
++
++root = pathlib.Path(sys.argv[2])
++package_name = "capture_bindings"
++(root / package_name).mkdir()
++provider_name = package_name + ".provider"
++consumer_name = package_name + ".consumer"
++unrelated_name = package_name + ".unrelated"
++files = {
++    package_name: (package_name + "/__init__.py", b""),
++    provider_name: (package_name + "/provider.py", b"def answer():\n    return 1\n"),
++    consumer_name: (package_name + "/consumer.py", b"from .provider import answer\nimport importlib\ncached = importlib.import_module(__package__ + '.provider')\n"),
++    unrelated_name: (package_name + "/unrelated.py", b"marker = object()\n"),
++}
++for name, (relative, content) in files.items():
++    (root / relative).write_bytes(content)
++expected = {name: ExpectedSource(relative, hashlib.sha256(content).hexdigest())
++            for name, (relative, content) in files.items()}
++capture = SourceExecutionCapture(root, expected, exports={provider_name: {"answer"}, unrelated_name: {"marker"}})
++capture.install()
++sys.path.insert(0, str(root))
++consumer = importlib.import_module(consumer_name)
++provider = importlib.import_module(provider_name)
++unrelated = importlib.import_module(unrelated_name)
++unrelated.marker = object()
++capture.assert_retained(frozenset({package_name, provider_name, consumer_name}))
++capture.assert_binding(consumer_name, "answer", provider_name, "answer")
++events = capture.import_events()
++direct = [event for event in events if event.importer is consumer and event.provider is provider
++          and event.route == "builtin_import" and event.requested_exports == ("answer",)]
++cached = [event for event in events if event.importer is consumer and event.provider is provider
++          and event.route == "import_module"]
++assert len(direct) == 1 and direct[0].retained_exports["answer"] is provider.answer
++assert direct[0].unresolved_exports == () and direct[0].caller_code.co_filename == str(root / files[consumer_name][0])
++assert len(cached) == 1 and consumer.cached is provider
++capture.assert_import_binding(direct[0], importer_attribute="answer", provider_export="answer")
++
++class CollidingKey:
++    def __hash__(self):
++        return hash("answer")
++    def __eq__(self, other):
++        if builtins.capture_comparator_armed:
++            builtins.capture_comparator_called = True
++            raise AssertionError("candidate key comparator executed")
++        return False
++
++builtins.capture_comparator_armed = False
++builtins.capture_comparator_called = False
++collision = CollidingKey()
++consumer.__dict__[collision] = object()
++builtins.capture_comparator_armed = True
++capture.assert_import_binding(direct[0], importer_attribute="answer", provider_export="answer")
++assert not builtins.capture_comparator_called
++builtins.capture_comparator_armed = False
++del consumer.__dict__[collision]
++
++def spoof():
++    return 1
++
++if CASE_MODE:
++    provider.answer = spoof
++consumer.answer = spoof
++try:
++    capture.assert_import_binding(direct[0], importer_attribute="answer", provider_export="answer")
++except CaptureError as exc:
++    expected_reason = "retained_export_changed" if CASE_MODE else "import_event_binding_changed"
++    assert str(exc) == expected_reason
++else:
++    raise AssertionError("substituted provider/importer binding was accepted")
++assert capture.failed
++"""
++
++
++def test_importer_only_substitution_is_refused(tmp_path: Path) -> None:
++    _assert_case(tmp_path, _BINDING_CASE.replace("CASE_MODE", "False"))
++
++
++def test_coherent_provider_and_importer_substitution_is_refused(tmp_path: Path) -> None:
++    _assert_case(tmp_path, _BINDING_CASE.replace("CASE_MODE", "True"))
++
++
++_EARLY_CASE = r"""
++import hashlib
++import pathlib
++import sys
++import types
++
++sys.path.insert(0, sys.argv[1])
++from tools.loaded_execution_capture import CaptureError, ExpectedSource, SourceExecutionCapture
++
++root = pathlib.Path(sys.argv[2])
++package = root / "capture_drift"
++package.mkdir()
++source = b"value = 1\n"
++(package / "__init__.py").write_bytes(SOURCE_BYTES)
++expected = {"capture_drift": ExpectedSource("capture_drift/__init__.py", hashlib.sha256(source).hexdigest())}
++"""
++
++
++def test_preloaded_module_refuses_and_cannot_retry_in_process(tmp_path: Path) -> None:
++    _assert_case(
++        tmp_path,
++        _EARLY_CASE.replace("SOURCE_BYTES", "source")
++        + r"""
++sys.modules["capture_drift"] = types.ModuleType("capture_drift")
++first = SourceExecutionCapture(root, expected)
++try:
++    first.install()
++except CaptureError as exc:
++    assert str(exc) == "selected_package_preloaded"
++else:
++    raise AssertionError("preloaded module was retroactively adopted")
++del sys.modules["capture_drift"]
++try:
++    SourceExecutionCapture(root, expected).install()
++except CaptureError as exc:
++    assert str(exc) == "capture_process_already_attempted"
++else:
++    raise AssertionError("failed process was recaptured")
++assert first.failed
++""",
++    )
++
++
++def test_post_install_cached_module_refuses_and_candidate_can_continue(tmp_path: Path) -> None:
++    _assert_case(
++        tmp_path,
++        _EARLY_CASE.replace("SOURCE_BYTES", "source")
++        + r"""
++capture = SourceExecutionCapture(root, expected)
++capture.install()
++try:
++    capture.assert_retained(frozenset())
++except CaptureError as exc:
++    assert str(exc) == "capture_required_set_invalid"
++else:
++    raise AssertionError("empty selected set was accepted")
++sys.modules["capture_drift"] = types.ModuleType("capture_drift")
++try:
++    capture.assert_retained(frozenset({"capture_drift"}))
++except CaptureError as exc:
++    assert str(exc) == "required_module_without_execution"
++else:
++    raise AssertionError("post-install cached module was accepted")
++del sys.modules["capture_drift"]
++sys.path.insert(0, str(root))
++import capture_drift
++assert capture_drift.value == 1 and capture.failed
++try:
++    SourceExecutionCapture(root, expected).install()
++except CaptureError as exc:
++    assert str(exc) == "capture_process_already_attempted"
++else:
++    raise AssertionError("failed process was recaptured")
++""",
++    )
++
++
++def test_removed_finder_is_a_terminal_failure(tmp_path: Path) -> None:
++    _assert_case(
++        tmp_path,
++        _EARLY_CASE.replace("SOURCE_BYTES", "source")
++        + r"""
++capture = SourceExecutionCapture(root, expected)
++capture.install()
++sys.meta_path.remove(capture._finder)
++try:
++    capture.assert_retained(frozenset({"capture_drift"}))
++except CaptureError as exc:
++    assert str(exc) == "capture_finder_changed"
++else:
++    raise AssertionError("removed capture finder was accepted")
++assert capture.failed
++""",
++    )
++
++
++def test_replaced_import_hook_is_a_terminal_failure(tmp_path: Path) -> None:
++    _assert_case(
++        tmp_path,
++        _EARLY_CASE.replace("SOURCE_BYTES", "source")
++        + r"""
++import builtins
++original = builtins.__import__
++capture = SourceExecutionCapture(root, expected)
++capture.install()
++builtins.__import__ = original
++try:
++    capture.assert_retained(frozenset({"capture_drift"}))
++except CaptureError as exc:
++    assert str(exc) == "capture_import_hook_changed"
++else:
++    raise AssertionError("replaced import hook was accepted")
++assert capture.failed
++""",
++    )
++
++
++def test_changed_source_refuses_exactly_and_candidate_can_continue(tmp_path: Path) -> None:
++    _assert_case(
++        tmp_path,
++        _EARLY_CASE.replace("SOURCE_BYTES", "b'value = 2\\n'")
++        + r"""
++capture = SourceExecutionCapture(root, expected)
++capture.install()
++sys.path.insert(0, str(root))
++import capture_drift
++assert capture_drift.value == 2
++assert not capture.failed
++assert capture.relevant_graph(frozenset({"capture_drift"})).failed_modules == (("capture_drift", "selected_source_bytes_mismatch"),)
++try:
++    capture.assert_retained(frozenset({"capture_drift"}))
++except CaptureError as exc:
++    assert str(exc) == "required_module_initialization_failed"
++else:
++    raise AssertionError("failed source was admitted after unrecorded candidate import")
++assert capture.failed
++try:
++    SourceExecutionCapture(root, expected).install()
++except CaptureError as exc:
++    assert str(exc) == "capture_process_already_attempted"
++else:
++    raise AssertionError("failed process was recaptured")
++""",
++    )
++
++
++def test_initializer_metadata_refusal_does_not_invoke_comparator(tmp_path: Path) -> None:
++    _assert_case(
++        tmp_path,
++        r'''
++import builtins
++import hashlib
++import pathlib
++import sys
++
++sys.path.insert(0, sys.argv[1])
++from tools.loaded_execution_capture import CaptureError, ExpectedSource, SourceExecutionCapture
++root = pathlib.Path(sys.argv[2])
++package = root / "capture_invalid_metadata"
++package.mkdir()
++source = b"""import builtins
++class Spoof:
++    def __eq__(self, other):
++        builtins.capture_comparator_called = True
++        raise AssertionError('candidate comparator executed')
++    def __ne__(self, other):
++        builtins.capture_comparator_called = True
++        raise AssertionError('candidate comparator executed')
++__file__ = Spoof()
++"""
++(package / "__init__.py").write_bytes(source)
++capture = SourceExecutionCapture(root, {
++    "capture_invalid_metadata": ExpectedSource("capture_invalid_metadata/__init__.py", hashlib.sha256(source).hexdigest())
++})
++builtins.capture_comparator_called = False
++capture.install()
++sys.path.insert(0, str(root))
++import capture_invalid_metadata
++assert not capture.failed and not builtins.capture_comparator_called
++assert capture.relevant_graph(frozenset({"capture_invalid_metadata"})).failed_modules == (("capture_invalid_metadata", "module_observation_incomplete"),)
++try:
++    capture.assert_retained(frozenset({"capture_invalid_metadata"}))
++except CaptureError as exc:
++    assert str(exc) == "required_module_initialization_failed"
++else:
++    raise AssertionError("failed selected module was accepted")
++''',
++    )
++
++
++def test_unrecorded_dynamic_import_caller_cannot_join_capture(tmp_path: Path) -> None:
++    _assert_case(
++        tmp_path,
++        r"""
++import hashlib
++import pathlib
++import sys
++
++sys.path.insert(0, sys.argv[1])
++from tools.loaded_execution_capture import CaptureError, ExpectedSource, SourceExecutionCapture
++root = pathlib.Path(sys.argv[2])
++package = root / "capture_dynamic"
++package.mkdir()
++source = b"exec(compile('import pathlib', __file__, 'exec'), globals())\n"
++(package / "__init__.py").write_bytes(source)
++capture = SourceExecutionCapture(root, {
++    "capture_dynamic": ExpectedSource("capture_dynamic/__init__.py", hashlib.sha256(source).hexdigest())
++})
++capture.install()
++sys.path.insert(0, str(root))
++import capture_dynamic
++graph = capture.relevant_graph(frozenset({"capture_dynamic"}))
++assert ("capture_dynamic", "import_caller_code_unrecorded") in graph.unresolved_importers
++assert graph.status == "not_established" and not capture.failed
++""",
++    )
++
++
++def test_forked_child_cannot_reuse_parent_capture(tmp_path: Path) -> None:
++    _assert_case(
++        tmp_path,
++        r"""
++import hashlib
++import os
++import pathlib
++import sys
++
++sys.path.insert(0, sys.argv[1])
++from tools.loaded_execution_capture import CaptureError, ExpectedSource, SourceExecutionCapture
++root = pathlib.Path(sys.argv[2])
++package = root / "capture_fork"
++package.mkdir()
++source = b"value = 1\n"
++(package / "__init__.py").write_bytes(source)
++expected = {"capture_fork": ExpectedSource("capture_fork/__init__.py", hashlib.sha256(source).hexdigest())}
++capture = SourceExecutionCapture(root, expected)
++capture.install()
++sys.path.insert(0, str(root))
++import capture_fork
++capture.assert_retained(frozenset({"capture_fork"}))
++parent_pid = os.getpid()
++pid = os.fork()
++if pid == 0:
++    os.getpid = lambda: parent_pid
++    try:
++        capture.assert_retained(frozenset({"capture_fork"}))
++    except CaptureError as exc:
++        if str(exc) != "capture_inherited_across_fork":
++            os._exit(2)
++    else:
++        os._exit(3)
++    if capture.diagnostic().failure_code != "capture_inherited_across_fork":
++        os._exit(4)
++    try:
++        SourceExecutionCapture(root, expected).install()
++    except CaptureError as exc:
++        os._exit(0 if str(exc) == "capture_process_already_attempted" else 5)
++    os._exit(6)
++_, status = os.waitpid(pid, 0)
++assert os.waitstatus_to_exitcode(status) == 0
++capture.assert_retained(frozenset({"capture_fork"}))
++""",
++    )
++
++
++def test_cycle_is_provisional_and_unrelated_failure_is_scoped(tmp_path: Path) -> None:
++    _assert_case(
++        tmp_path,
++        r"""
++import builtins
++import hashlib
++import pathlib
++import sys
++
++sys.path.insert(0, sys.argv[1])
++from tools.loaded_execution_capture import CaptureError, ExpectedSource, SourceExecutionCapture
++root = pathlib.Path(sys.argv[2])
++package = root / "capture_cycle"
++package.mkdir()
++files = {
++    "capture_cycle": ("capture_cycle/__init__.py", b"from . import child\nready = True\n"),
++    "capture_cycle.child": ("capture_cycle/child.py", b"import builtins\nfrom tools.loaded_execution_capture import CaptureError\ntry:\n    builtins.capture_test.completed('capture_cycle')\nexcept CaptureError as exc:\n    provisional = str(exc) == 'module_not_completed'\nelse:\n    provisional = False\n"),
++    "capture_cycle.broken": ("capture_cycle/broken.py", b"raise RuntimeError('initializer failed')\n"),
++}
++for name, (relative, content) in files.items():
++    (root / relative).write_bytes(content)
++expected = {name: ExpectedSource(relative, hashlib.sha256(content).hexdigest())
++            for name, (relative, content) in files.items()}
++capture = SourceExecutionCapture(root, expected)
++builtins.capture_test = capture
++capture.install()
++sys.path.insert(0, str(root))
++import capture_cycle
++assert capture_cycle.child.provisional
++assert capture.completed("capture_cycle").module is capture_cycle
++capture.assert_retained(frozenset({"capture_cycle", "capture_cycle.child"}))
++try:
++    import capture_cycle.broken
++except RuntimeError:
++    pass
++else:
++    raise AssertionError("broken initializer unexpectedly succeeded")
++assert not capture.failed
++graph = capture.relevant_graph(frozenset({"capture_cycle"}))
++assert not graph.failed_modules and not graph.failed_imports
++capture.assert_retained(frozenset({"capture_cycle", "capture_cycle.child"}))
++try:
++    capture.assert_retained(frozenset({"capture_cycle.broken"}))
++except CaptureError as exc:
++    assert str(exc) == "required_module_initialization_failed"
++    pass
++else:
++    raise AssertionError("required failed initializer was accepted")
++assert capture.failed
++""",
++    )
++
++
++def test_reimported_recorder_cannot_restart_failed_process_owner(tmp_path: Path) -> None:
++    _assert_case(
++        tmp_path,
++        r"""
++import hashlib
++import importlib.util
++import pathlib
++import sys
++import types
++sys.path.insert(0, sys.argv[1])
++from tools import loaded_execution_capture as original
++root = pathlib.Path(sys.argv[2])
++package = root / 'capture_once'
++package.mkdir()
++source = b'value = 1\n'
++(package / '__init__.py').write_bytes(source)
++expected = {'capture_once': original.ExpectedSource('capture_once/__init__.py', hashlib.sha256(source).hexdigest())}
++sys.modules['capture_once'] = types.ModuleType('capture_once')
++first = original.SourceExecutionCapture(root, expected)
++try:
++    first.install()
++except original.CaptureError:
++    pass
++else:
++    raise AssertionError('preloaded package was accepted')
++del sys.modules['capture_once']
++spec = importlib.util.spec_from_file_location('replacement_capture', original.__file__)
++replacement = importlib.util.module_from_spec(spec)
++sys.modules[spec.name] = replacement
++spec.loader.exec_module(replacement)
++again = {'capture_once': replacement.ExpectedSource('capture_once/__init__.py', hashlib.sha256(source).hexdigest())}
++try:
++    replacement.SourceExecutionCapture(root, again).install()
++except replacement.CaptureError as exc:
++    assert str(exc) == 'capture_process_already_attempted'
++else:
++    raise AssertionError('second module instance restarted failed process owner')
++""",
++    )
++
++
++def test_reachable_failed_import_and_unrelated_failure_have_distinct_graphs(tmp_path: Path) -> None:
++    _assert_case(
++        tmp_path,
++        r"""
++import hashlib
++import importlib
++import pathlib
++import sys
++sys.path.insert(0, sys.argv[1])
++from tools.loaded_execution_capture import ExpectedSource, SourceExecutionCapture
++root = pathlib.Path(sys.argv[2])
++package = root / 'capture_graph'
++package.mkdir()
++files = {
++    'capture_graph': ('capture_graph/__init__.py', b''),
++    'capture_graph.provider': ('capture_graph/provider.py', b'item = object()\n'),
++    'capture_graph.consumer': ('capture_graph/consumer.py', b'from .provider import item as alias\n'),
++    'capture_graph.broken': ('capture_graph/broken.py', b'raise RuntimeError("broken")\n'),
++    'capture_graph.dependent': ('capture_graph/dependent.py', b'try:\n    from . import broken\nexcept RuntimeError:\n    pass\n'),
++}
++for relative, source in files.values():
++    (root / relative).write_bytes(source)
++capture = SourceExecutionCapture(root, {name: ExpectedSource(path, hashlib.sha256(source).hexdigest()) for name, (path, source) in files.items()})
++capture.install()
++sys.path.insert(0, str(root))
++consumer = importlib.import_module('capture_graph.consumer')
++assert capture.completed_binding('capture_graph.provider', 'item') is consumer.alias
++events = [event for event in capture.import_events() if event.importer_name == 'capture_graph.consumer' and event.provider_name == 'capture_graph.provider']
++assert len(events) == 1 and events[0].caller_line == 1
++capture.assert_import_binding(events[0], importer_attribute='alias', provider_export='item')
++try:
++    importlib.import_module('capture_graph.broken')
++except RuntimeError:
++    pass
++else:
++    raise AssertionError('broken initializer returned normally')
++good = capture.relevant_graph(frozenset({'capture_graph.consumer'}))
++assert 'capture_graph.provider' in good.reached_sources
++assert not good.failed_modules and not good.failed_imports and good.status == 'not_established'
++capture.assert_retained(frozenset({'capture_graph.consumer', 'capture_graph.provider'}))
++# A caught failed import is still an actual edge of this dependent graph.
++importlib.import_module('capture_graph.dependent')
++bad = capture.relevant_graph(frozenset({'capture_graph.dependent'}))
++assert bad.failed_imports
++assert bad.status == 'not_established'
++""",
++    )
++
++
++def test_completed_binding_rejects_same_name_replacement(tmp_path: Path) -> None:
++    _assert_case(
++        tmp_path,
++        r"""
++import hashlib
++import pathlib
++import sys
++sys.path.insert(0, sys.argv[1])
++from tools.loaded_execution_capture import CaptureError, ExpectedSource, SourceExecutionCapture
++root = pathlib.Path(sys.argv[2])
++package = root / 'capture_binding'
++package.mkdir()
++source = b'class Capability:\n    pass\n'
++(package / '__init__.py').write_bytes(source)
++capture = SourceExecutionCapture(root, {'capture_binding': ExpectedSource('capture_binding/__init__.py', hashlib.sha256(source).hexdigest())})
++capture.install()
++sys.path.insert(0, str(root))
++import capture_binding
++original = capture.completed_binding('capture_binding', 'Capability')
++assert original is capture_binding.Capability
++capture_binding.Capability = type('Capability', (), {})
++try:
++    capture.completed_binding('capture_binding', 'Capability')
++except CaptureError as exc:
++    assert str(exc) == 'retained_export_changed'
++else:
++    raise AssertionError('same-name replacement satisfied retained binding')
++assert capture.failed
++""",
++    )
++
++
++def test_unloaded_selected_source_does_not_need_to_exist(tmp_path: Path) -> None:
++    _assert_case(
++        tmp_path,
++        r"""
++import hashlib
++import pathlib
++import sys
++sys.path.insert(0, sys.argv[1])
++from tools.loaded_execution_capture import ExpectedSource, SourceExecutionCapture
++root = pathlib.Path(sys.argv[2])
++package = root / 'capture_unused'
++package.mkdir()
++source = b'value = 1\n'
++(package / '__init__.py').write_bytes(source)
++capture = SourceExecutionCapture(root, {
++    'capture_unused': ExpectedSource('capture_unused/__init__.py', hashlib.sha256(source).hexdigest()),
++    'capture_unused.unused': ExpectedSource('capture_unused/absent.py', '0' * 64),
++})
++capture.install()
++sys.path.insert(0, str(root))
++import capture_unused
++capture.assert_retained(frozenset({'capture_unused'}))
++graph = capture.relevant_graph(frozenset({'capture_unused'}))
++assert 'capture_unused.unused' not in graph.reached_sources
++assert not graph.failed_modules and graph.status == 'not_established'
++""",
++    )
++
++
++def test_unselected_source_and_reload_continue_as_candidates(tmp_path: Path) -> None:
++    _assert_case(
++        tmp_path,
++        r"""
++import builtins
++import hashlib
++import importlib
++import pathlib
++import sys
++sys.path.insert(0, sys.argv[1])
++from tools.loaded_execution_capture import CaptureError, ExpectedSource, SourceExecutionCapture
++root = pathlib.Path(sys.argv[2])
++package = root / 'capture_candidate'
++package.mkdir()
++source = b'import builtins\nbuiltins.candidate_executions = getattr(builtins, "candidate_executions", 0) + 1\n'
++(package / '__init__.py').write_bytes(source)
++(package / 'unselected.py').write_bytes(b'value = 7\n')
++capture = SourceExecutionCapture(root, {'capture_candidate': ExpectedSource('capture_candidate/__init__.py', hashlib.sha256(source).hexdigest())})
++capture.install()
++sys.path.insert(0, str(root))
++import capture_candidate
++unselected = importlib.import_module('capture_candidate.unselected')
++assert unselected.value == 7
++assert not capture.failed
++assert capture.relevant_graph(frozenset({'capture_candidate'})).failed_modules == ()
++importlib.reload(capture_candidate)
++assert builtins.candidate_executions == 2
++assert not capture.failed
++try:
++    capture.assert_retained(frozenset({'capture_candidate'}))
++except CaptureError as exc:
++    assert str(exc) == 'required_module_initialization_failed'
++else:
++    raise AssertionError('reloaded module retained prior execution authority')
++""",
++    )
++
++
++def test_unadmitted_preexisting_import_hook_refuses_capture_but_not_candidate(
++    tmp_path: Path,
++) -> None:
++    _assert_case(
++        tmp_path,
++        r"""
++import hashlib
++import pathlib
++import sys
++sys.path.insert(0, sys.argv[1])
++from tools.loaded_execution_capture import CaptureError, ExpectedSource, SourceExecutionCapture
++root = pathlib.Path(sys.argv[2])
++package = root / 'capture_custom_hook'
++package.mkdir()
++source = b'value = 3\n'
++(package / '__init__.py').write_bytes(source)
++class HarmlessFinder:
++    def find_spec(self, fullname, path=None, target=None):
++        return None
++sys.meta_path.insert(0, HarmlessFinder())
++capture = SourceExecutionCapture(root, {'capture_custom_hook': ExpectedSource('capture_custom_hook/__init__.py', hashlib.sha256(source).hexdigest())})
++try:
++    capture.install()
++except CaptureError as exc:
++    assert str(exc) == 'capture_preexisting_import_hooks_unsupported'
++else:
++    raise AssertionError('unadmitted import hook was accepted')
++assert capture.failed
++sys.path.insert(0, str(root))
++import capture_custom_hook
++assert capture_custom_hook.value == 3
++""",
++    )
++
++
++def test_standard_protocol_cache_and_lazy_annotation_warming_stays_unsealed(tmp_path: Path) -> None:
++    _assert_case(
++        tmp_path,
++        r"""
++import hashlib
++import pathlib
++import sys
++import types
++import typing
++cold = typing._lazy_annotationlib
++assert type(cold).__name__ == '_LazyAnnotationLib'
++sys.path.insert(0, sys.argv[1])
++from tools.loaded_execution_capture import CaptureError, ExpectedSource, SourceExecutionCapture
++root = pathlib.Path(sys.argv[2])
++package = root / 'capture_warm'
++package.mkdir()
++source = b'from typing import Protocol, runtime_checkable\n@runtime_checkable\nclass Readable(Protocol):\n    def read(self) -> str: ...\nclass Reader:\n    def read(self) -> str: return "ok"\n'
++(package / '__init__.py').write_bytes(source)
++capture = SourceExecutionCapture(root, {'capture_warm': ExpectedSource('capture_warm/__init__.py', hashlib.sha256(source).hexdigest())})
++capture.install()
++sys.path.insert(0, str(root))
++import capture_warm
++original = capture.completed_binding('capture_warm', 'Readable')
++assert isinstance(capture_warm.Reader(), original)
++assert isinstance(capture_warm.Reader(), original)
++if type(typing._lazy_annotationlib) is not types.ModuleType:
++    _ = typing._lazy_annotationlib.Format
++assert typing._lazy_annotationlib is sys.modules['annotationlib']
++assert typing._lazy_annotationlib is not cold
++assert capture.completed_binding('capture_warm', 'Readable') is original
++assert capture.diagnostic().status == 'not_established'
++capture_warm.Readable = type('Readable', (), {})
++try:
++    capture.completed_binding('capture_warm', 'Readable')
++except CaptureError as exc:
++    assert str(exc) == 'retained_export_changed'
++else:
++    raise AssertionError('warm-state check accepted a different provider')
++""",
++    )
++
++
++def test_failed_relative_imports_are_recorded_without_stopping_candidates(tmp_path: Path) -> None:
++    _assert_case(
++        tmp_path,
++        r"""
++import hashlib
++import importlib
++import pathlib
++import sys
++sys.path.insert(0, sys.argv[1])
++from tools.loaded_execution_capture import ExpectedSource, SourceExecutionCapture
++root = pathlib.Path(sys.argv[2])
++package = root / 'capture_relative'
++package.mkdir()
++source = b'''import importlib
++try:
++    importlib.import_module('.missing', __package__)
++except ModuleNotFoundError:
++    pass
++try:
++    importlib.import_module('...outside', __package__)
++except ImportError:
++    pass
++ready = True
++'''
++(package / '__init__.py').write_bytes(source)
++capture = SourceExecutionCapture(root, {'capture_relative': ExpectedSource('capture_relative/__init__.py', hashlib.sha256(source).hexdigest())})
++capture.install()
++sys.path.insert(0, str(root))
++import capture_relative
++assert capture_relative.ready and not capture.failed
++graph = capture.relevant_graph(frozenset({'capture_relative'}))
++assert ('capture_relative', 'capture_relative.missing') in graph.failed_imports
++assert ('capture_relative', None) in graph.failed_imports
++assert graph.status == 'not_established'
++""",
++    )
+diff --git a/policy-engine/tests/unit/runtime/quality/test_loaded_execution_discovery.py b/policy-engine/tests/unit/runtime/quality/test_loaded_execution_discovery.py
+new file mode 100644
+--- /dev/null
++++ b/policy-engine/tests/unit/runtime/quality/test_loaded_execution_discovery.py
+@@ -0,0 +1,147 @@
++"""Candidate-only source discovery must never stand in for loaded admission."""
++
++from __future__ import annotations
++
++from pathlib import Path
++
++import pytest
++
++from polisyos.runtime.quality import confidence_ledger as ledger
++
++
++def _write_source(root: Path, relative: str, content: str) -> None:
++    path = root / relative
++    path.parent.mkdir(parents=True, exist_ok=True)
++    path.write_text(content, encoding="utf-8")
++
++
++def test_diagnostic_closure_tracks_unqualified_decorator_and_alias_without_admitting_them(
++    tmp_path: Path,
++) -> None:
++    _write_source(tmp_path, "src/polisyos/__init__.py", "")
++    _write_source(tmp_path, "src/polisyos/witness/__init__.py", "")
++    _write_source(
++        tmp_path,
++        "src/polisyos/witness/provider.py",
++        "from typing import Protocol, runtime_checkable\n"
++        "@runtime_checkable\n"
++        "class Capability(Protocol):\n"
++        "    def read(self) -> str: ...\n",
++    )
++    _write_source(
++        tmp_path,
++        "src/polisyos/witness/facade.py",
++        "from .provider import Capability as DeclaredCapability\nAlias = DeclaredCapability\n",
++    )
++    _write_source(
++        tmp_path,
++        "src/polisyos/witness/consumer.py",
++        "from .facade import Alias\n",
++    )
++    diagnostic = ledger._diagnose_unqualified_authority_import_candidates(
++        tmp_path,
++        "polisyos.witness.consumer",
++    )
++    assert (
++        "polisyos.witness.provider",
++        "src/polisyos/witness/provider.py",
++    ) in diagnostic.source_candidates
++    assert (
++        "polisyos.witness.facade",
++        "src/polisyos/witness/facade.py",
++    ) in diagnostic.source_candidates
++    assert {
++        ("polisyos.witness.provider", "Capability"),
++        ("polisyos.witness.facade", "Alias"),
++    }.issubset(diagnostic.unqualified_direct_bindings)
++    assert "actual_source_execution_and_selected_provider" in diagnostic.unresolved_by_construction
++
++    # The diagnostic's candidates do not qualify either binding as an actual
++    # executed provider. The original strict path still refuses this fixture.
++    with pytest.raises(ledger.ConfidenceLedgerError, match="unresolved"):
++        ledger._resolve_authority_import_closure(tmp_path, "polisyos.witness.consumer")
++
++
++def test_unqualified_side_effecting_export_is_only_a_diagnostic_candidate(
++    tmp_path: Path,
++) -> None:
++    marker = tmp_path / "factory-executed"
++    _write_source(tmp_path, "src/polisyos/__init__.py", "")
++    _write_source(tmp_path, "src/polisyos/witness/__init__.py", "")
++    _write_source(
++        tmp_path,
++        "src/polisyos/witness/provider.py",
++        "from pathlib import Path\n"
++        "def replacement_factory():\n"
++        f"    Path({str(marker)!r}).write_text('executed')\n"
++        "    return object()\n"
++        "Export = replacement_factory()\n",
++    )
++    _write_source(
++        tmp_path,
++        "src/polisyos/witness/consumer.py",
++        "from .provider import Export\n",
++    )
++    diagnostic = ledger._diagnose_unqualified_authority_import_candidates(
++        tmp_path,
++        "polisyos.witness.consumer",
++    )
++    assert ("polisyos.witness.provider", "Export") in diagnostic.unqualified_direct_bindings
++    assert (
++        "polisyos.witness.provider",
++        "src/polisyos/witness/provider.py",
++    ) in diagnostic.source_candidates
++    with pytest.raises(ledger.ConfidenceLedgerError, match="side-effecting direct source"):
++        ledger._resolve_authority_import_closure(tmp_path, "polisyos.witness.consumer")
++    assert not marker.exists()
++
++
++def test_observed_alias_is_resolved_by_real_owner_and_spoof_refused(tmp_path: Path) -> None:
++    """The diagnostic follows the actual import site's alias and live binding."""
++    import subprocess
++    import sys
++
++    product = Path(__file__).resolve().parents[4]
++    program = r"""
++import hashlib
++import importlib
++import pathlib
++import sys
++product = pathlib.Path(sys.argv[1])
++root = pathlib.Path(sys.argv[2])
++sys.path[:0] = [str(product), str(product / "src"), str(product / ".venv/lib/python3.14/site-packages")]
++from tools.loaded_execution_capture import CaptureError, ExpectedSource, SourceExecutionCapture
++package = root / "alias_witness"
++package.mkdir()
++files = {
++    "alias_witness": ("alias_witness/__init__.py", b""),
++    "alias_witness.provider": ("alias_witness/provider.py", b"class Capability:\n    pass\n"),
++    "alias_witness.consumer": ("alias_witness/consumer.py", b"from .provider import Capability as RenamedCapability\n"),
++}
++for relative, source in files.values():
++    (root / relative).write_bytes(source)
++capture = SourceExecutionCapture(root, {name: ExpectedSource(path, hashlib.sha256(source).hexdigest()) for name, (path, source) in files.items()})
++capture.install()
++sys.path.insert(0, str(root))
++consumer = importlib.import_module("alias_witness.consumer")
++from polisyos.runtime.quality import confidence_ledger as owner
++events = [event for event in capture.import_events() if event.importer_name == "alias_witness.consumer" and event.provider_name == "alias_witness.provider"]
++assert len(events) == 1
++assert owner._source_import_aliases_for_event(root, capture, events[0], "Capability") == ("RenamedCapability",)
++capture.assert_import_binding(events[0], importer_attribute="RenamedCapability", provider_export="Capability")
++consumer.RenamedCapability = type("Capability", (), {})
++try:
++    capture.assert_import_binding(events[0], importer_attribute="RenamedCapability", provider_export="Capability")
++except CaptureError as exc:
++    assert str(exc) == "import_event_binding_changed"
++else:
++    raise AssertionError("same-name aliased consumer replacement was accepted")
++"""
++    result = subprocess.run(
++        [sys.executable, "-I", "-S", "-B", "-c", program, str(product), str(tmp_path)],
++        capture_output=True,
++        text=True,
++        check=False,
++        timeout=60,
++    )
++    assert result.returncode == 0, result.stderr
+diff --git a/policy-engine/tests/unit/runtime/quality/test_loaded_execution_gate.py b/policy-engine/tests/unit/runtime/quality/test_loaded_execution_gate.py
+new file mode 100644
+--- /dev/null
++++ b/policy-engine/tests/unit/runtime/quality/test_loaded_execution_gate.py
+@@ -0,0 +1,67 @@
++"""Unsealed C refuses fresh N9 authority without replacing legacy observations."""
++
++from __future__ import annotations
++
++import pytest
++
++from polisyos.runtime.quality import confidence_ledger as ledger
++from polisyos.runtime.quality import promotion_sequence as promotion
++
++
++def _scope(purpose: str) -> ledger.ConfidenceRiskBudgetScope:
++    return ledger.ConfidenceRiskBudgetScope(
++        scope_owner_ref="polisyos.runtime.quality.promotion_sequence",
++        authority_purpose=purpose,
++        owner_scope_key="design-problem:unsealed-loaded-execution-test",
++        owner_projection_hash="sha256:" + "1" * 64,
++        epoch_ref=None,
++        model_ref=None,
++        rule_ref="policyos.layer3.gy.n9.v1",
++        schema_ref="policyos.runtime.design_problem.v1",
++    )
++
++
++def test_unsealed_n9_session_refuses_before_creating_owner_state() -> None:
++    root = ledger._loaded_policy_engine_root()
++    scope = _scope("n9_promotion")
++    scope_id = scope.scope_id
++    with pytest.raises(ledger.ConfidenceLedgerError) as error:
++        ledger.ConfidenceLedgerSession.from_repo(root, risk_scope=scope)
++    assert error.value.code == "canonical_loaded_runtime_mismatch"
++    assert "protected use are not established" in error.value.detail
++    assert scope.scope_id == scope_id
++
++
++def test_n9_replay_refuses_before_invoking_unqualified_resolver() -> None:
++    class ResolverMustNotRun:
++        def __getattribute__(self, name: str) -> object:
++            raise AssertionError(f"resolver was consulted: {name}")
++
++    issues = promotion.validate_canonical_promotion_receipt(
++        {},
++        open_world_resolver=ResolverMustNotRun(),  # type: ignore[arg-type]
++    )
++    assert issues == (
++        {
++            "code": "confidence_ledger_recomputation_failed",
++            "reason": "canonical_loaded_runtime_mismatch",
++            "detail": "loaded execution profile and protected use are not established",
++        },
++    )
++
++
++def test_unsealed_n9_sequence_refuses_before_consumer_callbacks() -> None:
++    with pytest.raises(ValueError, match="confidence_ledger_loaded_execution_not_established"):
++        promotion.run_canonical_promotion_sequence(
++            object(),
++            confidence_ledger_session=object(),  # type: ignore[arg-type]
++        )
++
++
++def test_new_gate_does_not_relabel_the_legacy_loaded_observation(
++    monkeypatch: pytest.MonkeyPatch,
++) -> None:
++    before = ledger.capture_loaded_deployment_identity()
++    monkeypatch.setattr(ledger, "_loaded_execution_authority_ready", lambda: True)
++    after = ledger.capture_loaded_deployment_identity()
++    assert before == after
+diff --git a/policy-engine/tests/unit/runtime/quality/test_loaded_execution_host.py b/policy-engine/tests/unit/runtime/quality/test_loaded_execution_host.py
+new file mode 100644
+--- /dev/null
++++ b/policy-engine/tests/unit/runtime/quality/test_loaded_execution_host.py
+@@ -0,0 +1,220 @@
++"""Real host/owner controls; these do not establish N6 or N9 authority."""
++
++from __future__ import annotations
++
++import json
++import subprocess
++from pathlib import Path
++
++_PRODUCT = Path(__file__).resolve().parents[4]
++_HOST = _PRODUCT / "tools/authority"
++
++
++def _run_host(*arguments: str) -> subprocess.CompletedProcess[str]:
++    return subprocess.run(
++        [str(_HOST), *arguments],
++        cwd=_PRODUCT,
++        capture_output=True,
++        text=True,
++        check=False,
++        timeout=120,
++    )
++
++
++def test_real_ledger_observes_protocol_execution_but_identity_remains_unsealed() -> None:
++    result = _run_host("diagnose")
++    assert result.returncode == 0, result.stderr
++    report = json.loads(result.stdout.splitlines()[-1])
++    owner = report["owner"]
++    assert owner["status"] == "not_established"
++    assert owner["protected_loaded_execution_status"] == "not_established"
++    assert report["profile"]["parent_startup_isolated"] is True
++    assert report["profile"]["authority"] is False
++    protocol = [
++        row
++        for row in owner["executed_direct_bindings"]
++        if row[0] == "polisyos.core.artifacts.protocol" and row[1] == "ArtifactReader"
++    ]
++    assert len(protocol) == 1
++    assert ["polisyos.core.artifacts", "ArtifactReader"] in protocol[0][3]
++
++
++def test_real_protocol_loader_and_provider_spoof_are_checked_in_fresh_host(tmp_path: Path) -> None:
++    test_file = tmp_path / "test_protocol_capture.py"
++    test_file.write_text(
++        """def test_capture():
++    import importlib
++    import importlib.machinery
++    import sys
++    capture = sys.__dict__["_polisyos_loaded_execution_owner_v1"]
++    recorder = sys.modules["_polisyos_loaded_source_capture"]
++    original = importlib.machinery.SourceFileLoader.get_code
++    def poisoned(self, fullname):
++        if fullname == "polisyos.core.artifacts.protocol":
++            return compile("raise AssertionError('substituted initializer executed')", self.path, "exec")
++        return original(self, fullname)
++    importlib.machinery.SourceFileLoader.get_code = poisoned
++    try:
++        protocol = importlib.import_module("polisyos.core.artifacts.protocol")
++        facade = importlib.import_module("polisyos.core.artifacts")
++    finally:
++        importlib.machinery.SourceFileLoader.get_code = original
++    selected = capture.completed_binding("polisyos.core.artifacts.protocol", "ArtifactReader")
++    assert selected is protocol.ArtifactReader is facade.ArtifactReader
++    events = [event for event in capture.import_events() if event.provider_name == "polisyos.core.artifacts.protocol" and event.importer_name == "polisyos.core.artifacts" and "ArtifactReader" in event.retained_exports]
++    assert events
++    capture.assert_import_binding(events[0], importer_attribute="ArtifactReader", provider_export="ArtifactReader")
++    facade.ArtifactReader = type("ArtifactReader", (), {})
++    try:
++        capture.assert_import_binding(events[0], importer_attribute="ArtifactReader", provider_export="ArtifactReader")
++    except recorder.CaptureError as exc:
++        assert str(exc) == "import_event_binding_changed"
++    else:
++        raise AssertionError("same-name facade replacement was accepted")
++""",
++        encoding="utf-8",
++    )
++    result = _run_host("test", "-q", str(test_file))
++    assert result.returncode == 0, result.stdout + result.stderr
++    original = test_file.read_text(encoding="utf-8")
++    needle = '    recorder = sys.modules["_polisyos_loaded_source_capture"]\n'
++    assert original.count(needle) == 1
++    test_file.write_text(
++        original.replace(
++            needle,
++            needle
++            + "    recorder._CapturedSourceLoader.exec_module = importlib.machinery.SourceFileLoader.exec_module\n",
++        ),
++        encoding="utf-8",
++    )
++    removal = _run_host("test", "-q", str(test_file))
++    assert removal.returncode != 0
++    assert "substituted initializer executed" in removal.stdout + removal.stderr
++
++
++def test_real_host_retains_owner_across_recorder_module_replacement(tmp_path: Path) -> None:
++    test_file = tmp_path / "test_host_replacement.py"
++    test_file.write_text(
++        """def test_replacement():
++    import hashlib
++    import importlib.util
++    import pathlib
++    import sys
++    original = sys.modules["_polisyos_loaded_source_capture"]
++    original_owner = sys.__dict__["_polisyos_loaded_execution_owner_v1"]
++    spec = importlib.util.spec_from_file_location("another_recorder", original.__file__)
++    replacement = importlib.util.module_from_spec(spec)
++    sys.modules[spec.name] = replacement
++    spec.loader.exec_module(replacement)
++    root = pathlib.Path(original.__file__).resolve().parents[1]
++    source = root / "src/polisyos/__init__.py"
++    digest = hashlib.sha256(source.read_bytes()).hexdigest()
++    second = replacement.SourceExecutionCapture(root, {"polisyos": replacement.ExpectedSource("src/polisyos/__init__.py", digest)})
++    try:
++        second.install()
++    except replacement.CaptureError as exc:
++        assert str(exc) == "capture_process_already_attempted"
++    else:
++        raise AssertionError("new module instance replaced process owner")
++    assert sys.__dict__["_polisyos_loaded_execution_owner_v1"] is original_owner
++""",
++        encoding="utf-8",
++    )
++    result = _run_host("test", "-q", str(test_file))
++    assert result.returncode == 0, result.stdout + result.stderr
++
++
++def test_installed_candidate_fallback_preserves_runtime_arguments(tmp_path: Path) -> None:
++    """A missing checkout does not mint authority or block the installed entry."""
++    import shutil
++    import sys
++
++    tools = tmp_path / "tools"
++    runner = tools / "ops_runners"
++    runner.mkdir(parents=True)
++    (tools / "__init__.py").write_text("", encoding="utf-8")
++    (runner / "__init__.py").write_text("", encoding="utf-8")
++    (runner / "runtime_cli.py").write_text(
++        "def main(argv):\n    print('candidate-argv=' + '|'.join(argv))\n    return 23\n",
++        encoding="utf-8",
++    )
++    shutil.copyfile(_PRODUCT / "tools/authority_bootstrap.py", tools / "authority_bootstrap.py")
++    script = (
++        "import sys; sys.path.insert(0, sys.argv[1]); "
++        "from tools.authority_bootstrap import runtime_main; "
++        "raise SystemExit(runtime_main(['alpha', '--beta']))"
++    )
++    result = subprocess.run(
++        [sys.executable, "-I", "-S", "-B", "-c", script, str(tmp_path)],
++        capture_output=True,
++        text=True,
++        check=False,
++        timeout=10,
++    )
++    assert result.returncode == 23, result.stderr
++    assert result.stdout.strip() == "candidate-argv=alpha|--beta"
++
++
++def test_no_argument_entry_preserves_program_name() -> None:
++    result = _run_host("polisy", "--help")
++    assert result.returncode == 0, result.stderr
++    assert "usage: polisy " in result.stdout.lower()
++    assert "usage: -c " not in result.stdout.lower()
++
++
++def test_git_snapshot_ignores_ambient_repository_redirection(tmp_path: Path) -> None:
++    """The real source selector ignores Git environment injection."""
++    import os
++    import sys
++
++    environment = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
++    expected = subprocess.run(
++        ["/usr/bin/git", "-C", str(_PRODUCT.parent), "rev-parse", "HEAD"],
++        env=environment, capture_output=True, text=True, check=True, timeout=10,
++    ).stdout.strip()
++    program = r'''
++import os
++import sys
++sys.path.insert(0, sys.argv[1])
++os.environ['GIT_DIR'] = sys.argv[2]
++os.environ['GIT_WORK_TREE'] = sys.argv[2]
++from tools import authority_bootstrap as host
++if sys.argv[3] == 'removed':
++    host._git_environment = lambda: os.environ.copy()
++print(host._git('rev-parse', 'HEAD').decode().strip())
++'''
++    def run(mode: str) -> subprocess.CompletedProcess[str]:
++        return subprocess.run(
++            [sys.executable, "-I", "-S", "-B", "-c", program, str(_PRODUCT), str(tmp_path / "missing-git"), mode],
++            capture_output=True, text=True, check=False, timeout=10,
++        )
++    admitted = run("normal")
++    assert admitted.returncode == 0, admitted.stderr
++    assert admitted.stdout.strip() == expected
++    removal = run("removed")
++    assert removal.returncode != 0
++
++
++def test_runner_does_not_invoke_an_unanchored_handoff(monkeypatch) -> None:
++    """A same-named fake host or injected callback cannot cause a call."""
++    import sys
++    import types
++
++    from tools.lib import runner
++
++    called = []
++    fake_host = types.ModuleType("_polisyos_early_host")
++    exec("def handoff_if_ready():\n    raise AssertionError('fake host callback executed')\n", fake_host.__dict__)
++    fake_session = {"handoff": fake_host.handoff_if_ready}
++    fake_host._HOST_SESSION = fake_session
++    monkeypatch.setitem(sys.modules, "_polisyos_early_host", fake_host)
++    monkeypatch.setitem(sys.__dict__, "_polisyos_loaded_host_v1", fake_session)
++    monkeypatch.setattr(runner, "_HOST_HANDOFF", lambda: called.append(True))
++    monkeypatch.setattr(runner, "_HOST_HANDOFF_ANCHOR", None)
++    monkeypatch.setattr(runner, "_HOST_HANDOFF_GLOBALS", None)
++    target = types.ModuleType("n7_handoff_candidate_test_target")
++    target.main = lambda argv: 7
++    monkeypatch.setitem(sys.modules, target.__name__, target)
++    spec = runner.ToolSpec(name="handoff", zone="devx", category="test", module=target.__name__)
++    assert runner.invoke_tool_main(spec, ["candidate"]) == 7
++    assert called == []
+diff --git a/policy-engine/tools/README.md b/policy-engine/tools/README.md
+--- a/policy-engine/tools/README.md
++++ b/policy-engine/tools/README.md
+@@ -1,4 +1,27 @@
+ # Tools (`tools/`)
++
++## Early source-execution evidence
++
++For the local source-checkout diagnostic profile, `tools/authority` starts the
++host with isolated, no-site Python and then launches a fresh recorded child. It
++can dispatch the existing targets with `tools/authority tools ...`,
++`tools/authority runtime ...`, `tools/authority foundry ...`,
++`tools/authority server ...`, or `tools/authority test ...`. The test route is
++serial and disables automatic plugin loading; explicitly selected plugins and
++conftest plugins are not qualified by this profile. `tools/authority diagnose` prints the owner’s
++unsealed source-execution diagnostic and local profile measurements.
++
++This entry uses a tracked checkout and its existing `.venv`; it compares selected
++host inputs against the current Git tree and compares each actually loaded
++selected source to its Git bytes in the recorder. The Git tree name is not a
++worktree-wide data-file verification; test files and non-Python runtime data are
++not included in this source-capture profile. The shell passes a minimal environment, so services needing
++other configuration require a separately admitted configuration path. Direct
++console scripts and `python -m` remain candidate routes. Neither this launcher,
++its diagnostic, nor the four measured wheel-member relationships appoints a
++complete runtime profile or enables N9 authority. Builtin/native provenance, the
++full relevant provider graph, material state, protected publication, and
++existing-scope continuity remain unresolved.
+ 
+ ## Purpose
+ 
+diff --git a/policy-engine/tools/authority b/policy-engine/tools/authority
+new file mode 100755
+--- /dev/null
++++ b/policy-engine/tools/authority
+@@ -0,0 +1,12 @@
++#!/bin/sh
++# Run the host itself without site startup or Python environment injection.
++set -eu
++case "$0" in
++  */*) script_dir=${0%/*} ;;
++  *) printf '%s\n' 'invoke tools/authority by path' >&2; exit 2 ;;
++esac
++product_root=$(CDPATH= cd -P -- "$script_dir/.." && pwd -P)
++unset DYLD_INSERT_LIBRARIES DYLD_LIBRARY_PATH DYLD_FRAMEWORK_PATH DYLD_ROOT_PATH \
++  DYLD_FALLBACK_LIBRARY_PATH DYLD_FALLBACK_FRAMEWORK_PATH LD_PRELOAD LD_LIBRARY_PATH
++exec /usr/bin/env -i PATH=/usr/bin:/bin HOME="${HOME:-/}" TMPDIR="${TMPDIR:-/tmp}" \
++  "$product_root/.venv/bin/python" -I -S -B "$product_root/tools/authority_bootstrap.py" "$@"
+diff --git a/policy-engine/tools/authority_bootstrap.py b/policy-engine/tools/authority_bootstrap.py
+new file mode 100644
+--- /dev/null
++++ b/policy-engine/tools/authority_bootstrap.py
+@@ -0,0 +1,622 @@
++"""Start a fresh, source-recorded local tooling process.
++
++The host launch is a bounded evidence producer. It does not appoint an authority
++profile, issue a deployment identity, or seal the confidence ledger. The initial
++profile records local measurements and leaves unsupported providers, state and
++through-use protection unavailable. Invoke directly with ``python -I -S -B`` for
++an isolated host; a normal console-script parent cannot attest its own startup.
++"""
++
++from __future__ import annotations
++
++import base64
++import hashlib
++import importlib
++import importlib.util
++import json
++import os
++import socket
++import subprocess
++import sys
++from contextlib import suppress
++from pathlib import Path
++from types import FunctionType, ModuleType
++from typing import TYPE_CHECKING
++
++if TYPE_CHECKING:
++    from collections.abc import Sequence
++
++    from pytest import Config
++
++_PRODUCT = Path(__file__).resolve().parents[1]
++_REPOSITORY = _PRODUCT.parent
++_HOST_MODULE = "_polisyos_early_host"
++_CAPTURE_MODULE = "_polisyos_loaded_source_capture"
++_HOST_SLOT = "_polisyos_loaded_host_v1"
++_HOST_SESSION: object | None = None
++_MAX_MESSAGE = 8 * 1024 * 1024
++_ENTRY_TARGETS = {
++    "tools": ("tools.cli", "main", True),
++    "runtime": ("tools.ops_runners.runtime_cli", "main", True),
++    "foundry": ("tools.ops_runners.runtime_cli", "foundry_main", True),
++    "server": ("polisyos.runtime.http.profiled_server", "main", True),
++    "polisy": ("polisyos.foundry.plugins.cli", "main", False),
++    "causal-capabilities": ("polisyos.foundry.methods.catalog.causal.capabilities", "main", False),
++    "ukraine-data": ("tools.ops_runners.ukraine_data_cli", "main", True),
++}
++
++# These values are a narrowly measured local reference, not a signed build
++# attestation or a complete dependency profile. The wheel/member relationships
++# were measured independently against the selected locked wheel bytes.
++_LOCAL_MEASUREMENTS = {
++    "python_executable": "14a816f493d6b12ff5f1edec695edcb3590d683c3a904f9e6ea8c171c7a6f403",
++    "libpython": "d8c6a79cb92d8551d067d8ae72a0c42fcba46482aad5532e851c5e29619c1ca7",
++    "typing": "b474bb90d72d4ea28d0b4635a4fbc42ac54e459b8468a01034f2773656e47a00",
++    "annotationlib": "3b8a0f169da1855b873179e2242ea2229413644c738c5e2713864df7206dbc19",
++    "functools": "046ec9660146db48862c7b22c78e2ef3818eaed6920e5cbf35f551ef09fec6cd",
++    "pydantic/__init__.py": "e62127278c07bf5384cdd2903f368a69929f3b8a524000bae4e0eb608ebf4bc6",
++    "pydantic/_internal/_model_construction.py": (
++        "c24f9b3460c026f76e686be7d14d3ff"
++        "33125d06111bb4b2126f37cfd97e461ac"
++    ),
++    "pydantic_core/__init__.py": "9cad6292b75254af606a970aae9bff6e5ae9f0b08089cd63acafa391b60794d2",
++    "pydantic_core/_pydantic_core.cpython-314-darwin.so": (
++        "ac3118649cd44d45d951143cc152b34"
++        "a82d524a499bf74d235a0f827ec3cd771"
++    ),
++    "uv.lock": "ccfdca0e741dc77795f5af61871af5d62e73feebf55c7ffb28cd16e55fe207e9",
++}
++
++
++def _sha(data: bytes) -> str:
++    return hashlib.sha256(data).hexdigest()
++
++
++def _file_sha(path: Path) -> str:
++    digest = hashlib.sha256()
++    with path.open("rb") as stream:
++        for block in iter(lambda: stream.read(65536), b""):
++            digest.update(block)
++    return digest.hexdigest()
++
++
++def _git_environment() -> dict[str, str]:
++    """Exclude ambient Git repository, object and configuration overrides."""
++
++    env = {name: value for name, value in os.environ.items() if not name.startswith("GIT_")}
++    env.update(
++        GIT_OPTIONAL_LOCKS="0",
++        GIT_CONFIG_NOSYSTEM="1",
++        GIT_CONFIG_GLOBAL="/dev/null",
++        GIT_NO_REPLACE_OBJECTS="1",
++    )
++    return env
++
++
++def _module_name(relative: str) -> str | None:
++    path = Path(relative)
++    if path.parts[:2] == ("src", "polisyos"):
++        parts = list(path.parts[1:])
++    elif path.parts and path.parts[0] == "tools":
++        parts = list(path.parts)
++    else:
++        return None
++    if not parts[-1].endswith(".py"):
++        return None
++    parts[-1] = parts[-1][:-3]
++    if parts[-1] == "__init__":
++        parts.pop()
++    return ".".join(parts) if parts and all(part.isidentifier() for part in parts) else None
++
++
++def _git(*arguments: str) -> bytes:
++    # The local profile trusts this fixed Git executable; its output is still
++    # checked against source bytes and is not an authority appointment.
++    return subprocess.run(  # noqa: S603
++        ["/usr/bin/git", "-C", str(_REPOSITORY), *arguments],
++        check=True,
++        capture_output=True,
++        timeout=30,
++        env=_git_environment(),
++    ).stdout
++
++
++def _selected_snapshot() -> tuple[dict[str, tuple[str, str]], dict[str, str], bytes, bytes]:
++    """Select tracked source bytes; compare host inputs and loaded files separately."""
++
++    head = _git("rev-parse", "HEAD").strip().decode("ascii")
++    tree = _git("rev-parse", "HEAD^{tree}").strip().decode("ascii")
++    names = (
++        "policy-engine/src/polisyos",
++        "policy-engine/tools",
++        "policy-engine/pyproject.toml",
++        "policy-engine/uv.lock",
++    )
++    listing = _git("ls-tree", "-rz", "--full-tree", "HEAD", "--", *names)
++    selected: list[tuple[str, str]] = []
++    for row in listing.split(b"\0"):
++        if not row:
++            continue
++        metadata, path_bytes = row.split(b"\t", 1)
++        mode, kind, oid = metadata.decode("ascii").split(" ")
++        path = path_bytes.decode("utf-8")
++        relative = path.removeprefix("policy-engine/")
++        if _module_name(relative) is None and relative not in (
++            "pyproject.toml",
++            "uv.lock",
++            "tools/authority",
++        ):
++            continue
++        if kind != "blob" or mode not in ("100644", "100755"):
++            raise RuntimeError("selected_source_mode_unsupported")
++        selected.append((relative, oid))
++    if not selected:
++        raise RuntimeError("selected_source_snapshot_empty")
++    # A fixed executable and verb stream only Git blobs for the selected tree.
++    process = subprocess.Popen(  # noqa: S603
++        ["/usr/bin/git", "-C", str(_REPOSITORY), "cat-file", "--batch"],
++        stdin=subprocess.PIPE,
++        stdout=subprocess.PIPE,
++        stderr=subprocess.PIPE,
++        env=_git_environment(),
++    )
++    if process.stdin is None or process.stdout is None:
++        raise RuntimeError("git_blob_stream_unavailable")
++    sources: dict[str, tuple[str, str]] = {}
++    extras: dict[str, bytes] = {}
++    try:
++        for relative, oid in selected:
++            process.stdin.write((oid + "\n").encode("ascii"))
++            process.stdin.flush()
++            header = process.stdout.readline().decode("ascii").strip().split(" ")
++            if len(header) != 3 or header[0] != oid or header[1] != "blob":
++                raise RuntimeError("selected_git_blob_unavailable")
++            size = int(header[2])
++            if size < 0 or size > 16 * 1024 * 1024:
++                raise RuntimeError("selected_git_blob_size_unsupported")
++            content = process.stdout.read(size)
++            if len(content) != size or process.stdout.read(1) != b"\n":
++                raise RuntimeError("selected_git_blob_incomplete")
++            name = _module_name(relative)
++            if name is not None:
++                if name in sources:
++                    raise RuntimeError("selected_module_name_ambiguous")
++                sources[name] = (relative, _sha(content))
++            if relative in (
++                "tools/authority",
++                "tools/authority_bootstrap.py",
++                "tools/loaded_execution_capture.py",
++                "uv.lock",
++                "pyproject.toml",
++            ):
++                path = _PRODUCT / relative
++                if path.resolve(strict=True) != path or path.read_bytes() != content:
++                    raise RuntimeError(f"selected_host_input_mismatch:{relative}")
++                extras[relative] = content
++    finally:
++        with suppress(OSError):
++            process.stdin.close()
++        try:
++            process.wait(timeout=30)
++        except subprocess.TimeoutExpired:
++            process.kill()
++            process.wait(timeout=5)
++            raise
++    if process.returncode != 0 or set(extras) != {
++        "tools/authority",
++        "tools/authority_bootstrap.py",
++        "tools/loaded_execution_capture.py",
++        "uv.lock",
++        "pyproject.toml",
++    }:
++        raise RuntimeError("selected_host_inputs_missing")
++    if (
++        _git("rev-parse", "HEAD").strip().decode("ascii") != head
++        or _git("rev-parse", "HEAD^{tree}").strip().decode("ascii") != tree
++    ):
++        raise RuntimeError("selected_source_frame_changed")
++    return (
++        sources,
++        {
++            "head": head,
++            "tree": tree,
++            "lock_sha256": _sha(extras["uv.lock"]),
++            "pyproject_sha256": _sha(extras["pyproject.toml"]),
++            "host_launcher_sha256": _sha(extras["tools/authority"]),
++        },
++        extras["tools/authority_bootstrap.py"],
++        extras["tools/loaded_execution_capture.py"],
++    )
++
++
++def _measure_profile() -> dict[str, object]:
++    """Compare named local assets with the independently retained local reference."""
++
++    base = Path(sys.base_prefix)
++    site = Path(sys.prefix) / "lib/python3.14/site-packages"
++    paths = {
++        "python_executable": Path(sys.executable).resolve(),
++        "libpython": base / "lib/libpython3.14.dylib",
++        "typing": base / "lib/python3.14/typing.py",
++        "annotationlib": base / "lib/python3.14/annotationlib.py",
++        "functools": base / "lib/python3.14/functools.py",
++        "uv.lock": _PRODUCT / "uv.lock",
++    }
++    for name in _LOCAL_MEASUREMENTS:
++        if name.startswith(("pydantic/", "pydantic_core/")):
++            paths[name] = site / name
++    rows: dict[str, object] = {}
++    for role, path in paths.items():
++        try:
++            digest = _file_sha(path)
++        except OSError:
++            digest = None
++        rows[role] = {
++            "sha256": digest,
++            "matches_local_reference": digest == _LOCAL_MEASUREMENTS[role],
++        }
++    return {
++        "profile": "local-cpython-3.14.3-measurement-only",
++        "flags": {
++            "isolated": sys.flags.isolated,
++            "no_site": sys.flags.no_site,
++            "dont_write_bytecode": sys.flags.dont_write_bytecode,
++            "optimize": sys.flags.optimize,
++        },
++        "implementation": sys.implementation.name,
++        "version": tuple(sys.version_info[:3]),
++        "assets": rows,
++        "classification": "host_measured_not_independent_build_or_origin_proof",
++        "wheel_member_reference": (
++            "four selected installed files compared to full locked wheel archives; "
++            "other members and actual loaded providers unqualified"
++        ),
++        "authority": False,
++        "unresolved": (
++            "host_appointment",
++            "stdlib_native_build_mapping",
++            "complete_provider_graph",
++            "material_state",
++            "protected_through_use",
++        ),
++    }
++
++
++def _sanitized_environment() -> dict[str, str]:
++    env = {
++        key: value
++        for key, value in os.environ.items()
++        if not key.startswith(("PYTHON", "DYLD_", "LD_"))
++        and key not in {"PYTEST_ADDOPTS", "PYTEST_PLUGINS", "VIRTUAL_ENV"}
++    }
++    env["PYTEST_DISABLE_PLUGIN_AUTOLOAD"] = "1"
++    return env
++
++
++def _receive(channel: socket.socket) -> bytes:
++    def exact(size: int) -> bytes:
++        parts = bytearray()
++        while len(parts) < size:
++            part = channel.recv(size - len(parts))
++            if not part:
++                raise RuntimeError("host_channel_closed")
++            parts.extend(part)
++        return bytes(parts)
++
++    size = int.from_bytes(exact(8), "big")
++    if size <= 0 or size > _MAX_MESSAGE:
++        raise RuntimeError("host_channel_message_size_invalid")
++    return exact(size)
++
++
++# The child executes this small bootstrap supplied as an argument by its actual
++# parent, then compiles the exact host bytes delivered over the inherited socket.
++_CHILD = r"""import base64, hashlib, json, os, socket, sys, types
++fd = int(sys.argv[1])
++channel = socket.socket(fileno=fd)
++def read_exact(n):
++    out = bytearray()
++    while len(out) < n:
++        block = channel.recv(n - len(out))
++        if not block:
++            raise RuntimeError("host_channel_closed")
++        out.extend(block)
++    return bytes(out)
++n = int.from_bytes(read_exact(8), "big")
++if n <= 0 or n > 8388608:
++    raise RuntimeError("host_channel_message_size_invalid")
++request = json.loads(read_exact(n))
++if os.getppid() != request["parent_pid"]:
++    raise RuntimeError("host_parent_mismatch")
++source = base64.b64decode(request["host_source"], validate=True)
++if hashlib.sha256(source).hexdigest() != request["host_sha256"]:
++    raise RuntimeError("host_source_mismatch")
++module = types.ModuleType("_polisyos_early_host")
++module.__file__ = request["host_path"]
++sys.modules[module.__name__] = module
++exec(compile(source, module.__file__, "exec", dont_inherit=True), module.__dict__)
++raise SystemExit(module._child_main(channel, request))
++"""
++
++
++def _launch(mode: str, argv: Sequence[str]) -> int:
++    if (
++        not (_PRODUCT / "src/polisyos").is_dir()
++        or not (_PRODUCT / "uv.lock").is_file()
++        or not (_PRODUCT / ".venv/bin/python").is_file()
++    ):
++        # Installed/source-export candidate use keeps its existing entry path.
++        # It does not acquire a source-checkout host or an identity issuer.
++        return _invoke_entry(mode, list(argv))
++    try:
++        sources, source_frame, host_source, recorder_source = _selected_snapshot()
++    except (OSError, RuntimeError, subprocess.SubprocessError) as exc:
++        print(f"source execution evidence unavailable: {type(exc).__name__}", file=sys.stderr)
++        return _invoke_entry(mode, list(argv))
++    parent, child = socket.socketpair()
++    request = {
++        "parent_pid": os.getpid(),
++        "mode": mode,
++        "argv": list(argv),
++        "root": str(_PRODUCT),
++        "source_frame": source_frame,
++        "sources": sources,
++        "host_path": str(_PRODUCT / "tools/authority_bootstrap.py"),
++        "host_source": base64.b64encode(host_source).decode("ascii"),
++        "host_sha256": _sha(host_source),
++        "recorder_path": str(_PRODUCT / "tools/loaded_execution_capture.py"),
++        "recorder_source": base64.b64encode(recorder_source).decode("ascii"),
++        "recorder_sha256": _sha(recorder_source),
++        "parent_startup_isolated": bool(
++            sys.flags.isolated and sys.flags.no_site and sys.flags.dont_write_bytecode
++        ),
++    }
++    payload = json.dumps(request, separators=(",", ":")).encode("utf-8")
++    if len(payload) > _MAX_MESSAGE:
++        raise RuntimeError("host_channel_message_size_invalid")
++    process: subprocess.Popen[bytes] | None = None
++    try:
++        # Only the selected checkout interpreter receives the fixed child
++        # trampoline; arguments are passed without a shell.
++        process = subprocess.Popen(  # noqa: S603
++            [
++                str(_PRODUCT / ".venv/bin/python"),
++                "-I",
++                "-S",
++                "-B",
++                "-c",
++                _CHILD,
++                str(child.fileno()),
++            ],
++            cwd=str(_PRODUCT),
++            env=_sanitized_environment(),
++            pass_fds=(child.fileno(),),
++        )
++        child.close()
++        parent.sendall(len(payload).to_bytes(8, "big") + payload)
++        acknowledgement = bytearray()
++        while len(acknowledgement) < len(b"installed\n"):
++            block = parent.recv(len(b"installed\n") - len(acknowledgement))
++            if not block:
++                process.wait()
++                raise RuntimeError("child_capture_installation_unavailable")
++            acknowledgement.extend(block)
++        if bytes(acknowledgement) not in (b"installed\n", b"candidate\n"):
++            process.wait()
++            raise RuntimeError("child_capture_installation_unavailable")
++        return process.wait()
++    except BaseException:
++        if process is not None and process.poll() is None:
++            process.terminate()
++            try:
++                process.wait(timeout=5)
++            except subprocess.TimeoutExpired:
++                process.kill()
++                process.wait(timeout=5)
++        raise
++    finally:
++        parent.close()
++        child.close()
++
++
++def _child_main(channel: socket.socket, request: dict[str, object]) -> int:
++    global _HOST_SESSION
++    if not (sys.flags.isolated and sys.flags.no_site and sys.flags.dont_write_bytecode):
++        raise RuntimeError("child_startup_flags_invalid")
++    if os.getppid() != request["parent_pid"] or Path(str(request["root"])).resolve() != _PRODUCT:
++        raise RuntimeError("child_host_binding_invalid")
++    if _HOST_SLOT in sys.__dict__ or _HOST_SESSION is not None:
++        raise RuntimeError("child_host_already_installed")
++    recorder_bytes = base64.b64decode(str(request["recorder_source"]), validate=True)
++    if _sha(recorder_bytes) != request["recorder_sha256"]:
++        raise RuntimeError("child_recorder_source_mismatch")
++    recorder = ModuleType(_CAPTURE_MODULE)
++    recorder.__file__ = str(request["recorder_path"])
++    sys.modules[_CAPTURE_MODULE] = recorder
++    # The child executes exactly the parent-selected recorder bytes; this is
++    # evidence collection, not an authority grant or an arbitrary code sandbox.
++    recorder_code = compile(recorder_bytes, recorder.__file__, "exec", dont_inherit=True)
++    exec(recorder_code, recorder.__dict__)  # noqa: S102
++    sources = {
++        name: recorder.ExpectedSource(relative, digest)
++        for name, (relative, digest) in request["sources"].items()
++    }
++    capture = None
++    capture_failure = None
++    try:
++        capture = recorder.SourceExecutionCapture(_PRODUCT, sources)
++        capture.install()
++    except (recorder.CaptureError, OSError, ValueError) as exc:
++        capture_failure = type(exc).__name__
++    # Strong live references stay in this child; a serialized request or parent
++    # process cannot provide an installed capture to a different process.
++    profile = _measure_profile()
++    profile["parent_startup_isolated"] = request["parent_startup_isolated"]
++    profile["parent_startup_classification"] = "host_reported_not_independent_appointment"
++    session = {
++        "pid": os.getpid(),
++        "parent_pid": os.getppid(),
++        "channel": channel,
++        "recorder": recorder,
++        "capture": capture,
++        "profile": profile,
++        "source_frame": request["source_frame"],
++        "phase": "collecting" if capture_failure is None else "failed",
++        "last_owner_diagnostic": None
++        if capture_failure is None
++        else {"status": "not_established", "failure": capture_failure},
++        "handoff": handoff_if_ready,
++    }
++    _HOST_SESSION = session
++    sys.__dict__[_HOST_SLOT] = session
++    site = Path(sys.prefix) / "lib/python3.14/site-packages"
++    sys.path[:0] = [str(_PRODUCT / "src"), str(_PRODUCT), str(site)]
++    channel.sendall(b"installed\n" if capture_failure is None else b"candidate\n")
++    mode = str(request["mode"])
++    arguments = list(request["argv"])
++    if mode == "test":
++        pytest = importlib.import_module("pytest")
++        return int(pytest.main(arguments, plugins=[_CollectionHandoff()]))
++    if mode == "diagnose":
++        importlib.import_module("polisyos.runtime.quality.confidence_ledger")
++        handoff_if_ready()
++        print(
++            json.dumps(
++                {"profile": session["profile"], "owner": session["last_owner_diagnostic"]},
++                sort_keys=True,
++            )
++        )
++        return 0
++    return _invoke_entry(mode, arguments)
++
++
++def _attach_tools_handoff() -> None:
++    """Install the held host callback only into the actually captured runner."""
++
++    session = _HOST_SESSION
++    if type(session) is not dict or session["phase"] != "collecting":
++        return
++    capture = session["capture"]
++    try:
++        for name in ("_HOST_HANDOFF", "_HOST_HANDOFF_ANCHOR", "_HOST_HANDOFF_GLOBALS"):
++            if capture.completed_binding("tools.lib.runner", name) is not None:
++                return
++        runner = capture.completed("tools.lib.runner").module
++        runner.__dict__["_HOST_HANDOFF"] = handoff_if_ready
++        runner.__dict__["_HOST_HANDOFF_ANCHOR"] = handoff_if_ready
++        runner.__dict__["_HOST_HANDOFF_GLOBALS"] = handoff_if_ready.__globals__
++    except (AttributeError, ImportError, TypeError):
++        return
++
++
++def _invoke_entry(mode: str, arguments: list[str]) -> int:
++    if mode not in _ENTRY_TARGETS:
++        raise RuntimeError("host_target_unsupported")
++    module_name, callable_name, accepts_argv = _ENTRY_TARGETS[mode]
++    target_module = importlib.import_module(module_name)
++    if mode == "tools":
++        _attach_tools_handoff()
++    handoff_if_ready()
++    target = getattr(target_module, callable_name)
++    if accepts_argv:
++        result = target(arguments)
++    else:
++        previous_argv = sys.argv
++        sys.argv = ["polisy" if mode == "polisy" else "polisyos-causal-capabilities", *arguments]
++        try:
++            result = target()
++        finally:
++            sys.argv = previous_argv
++    return result if type(result) is int else 0
++
++
++class _CollectionHandoff:
++    def pytest_configure(self, config: Config) -> None:
++        workers = config.getoption("numprocesses", default=None)
++        transports = config.getoption("tx", default=())
++        distribution = config.getoption("dist", default="no")
++        if workers not in (None, 0, "0") or (transports and distribution != "no"):
++            raise RuntimeError("parallel_test_workers_require_independent_bootstrap")
++
++    def pytest_collection_finish(self, session: object) -> None:
++        handoff_if_ready()
++
++
++def handoff_if_ready() -> None:
++    """Offer live capture to the ledger after its initializer has completed."""
++
++    session = _HOST_SESSION
++    if type(session) is not dict or sys.__dict__.get(_HOST_SLOT) is not session:
++        return
++    if session["phase"] != "collecting":
++        return
++    if session["pid"] != os.getpid() or session["parent_pid"] != os.getppid():
++        session["phase"] = "failed"
++        return
++    module = sys.modules.get("polisyos.runtime.quality.confidence_ledger")
++    if type(module) is not ModuleType:
++        return
++    try:
++        capture = session["capture"]
++        callback = capture.completed_binding(module.__name__, "_observe_unsealed_host_capture")
++        execution = capture.completed(module.__name__)
++        if (
++            type(callback) is not FunctionType
++            or callback.__globals__ is not module.__dict__
++            or not capture._code_belongs_to(execution.code, callback.__code__)
++        ):
++            raise RuntimeError("owner_diagnostic_binding_unavailable")
++        session["last_owner_diagnostic"] = callback(session["recorder"], session["capture"])
++    except Exception as exc:
++        session["last_owner_diagnostic"] = {
++            "status": "not_established",
++            "failure": type(exc).__name__,
++        }
++    # No diagnostic can seal authority: external profile and through-use owners
++    # are intentionally not supplied by this producer.
++
++
++def tools_main(argv: Sequence[str] | None = None) -> int:
++    """Launch the existing unified tools entry in a fresh recorder process."""
++    return _launch("tools", sys.argv[1:] if argv is None else argv)
++
++
++def runtime_main(argv: Sequence[str] | None = None) -> int:
++    """Launch the existing runtime CLI in a fresh recorder process."""
++    return _launch("runtime", sys.argv[1:] if argv is None else argv)
++
++
++def foundry_main(argv: Sequence[str] | None = None) -> int:
++    """Launch the existing Foundry entry in a fresh recorder process."""
++    return _launch("foundry", sys.argv[1:] if argv is None else argv)
++
++
++def polisy_main(argv: Sequence[str] | None = None) -> int:
++    """Launch the existing policy plugin CLI in a fresh recorder process."""
++    return _launch("polisy", sys.argv[1:] if argv is None else argv)
++
++
++def causal_capabilities_main(argv: Sequence[str] | None = None) -> int:
++    """Launch the existing causal-capabilities CLI in a fresh recorder process."""
++    return _launch("causal-capabilities", sys.argv[1:] if argv is None else argv)
++
++
++def ukraine_data_main(argv: Sequence[str] | None = None) -> int:
++    """Launch the existing Ukraine-data CLI in a fresh recorder process."""
++    return _launch("ukraine-data", sys.argv[1:] if argv is None else argv)
++
++
++def main(argv: Sequence[str] | None = None) -> int:
++    """Select an existing CLI, HTTP server, or serial pytest entry."""
++    args = list(sys.argv[1:] if argv is None else argv)
++    if not args or args[0] not in {*_ENTRY_TARGETS, "test", "diagnose"}:
++        raise SystemExit(
++            "usage: authority_bootstrap.py "
++            "{tools|runtime|foundry|server|polisy|causal-capabilities|"
++            "ukraine-data|test|diagnose} [arguments...]"
++        )
++    return _launch(args[0], args[1:])
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/policy-engine/tools/lib/runner.py b/policy-engine/tools/lib/runner.py
+--- a/policy-engine/tools/lib/runner.py
++++ b/policy-engine/tools/lib/runner.py
+@@ -11,6 +11,7 @@
+ import stat
+ import subprocess
+ import sys
++import types
+ from collections.abc import Mapping, Sequence
+ from dataclasses import dataclass, field
+ from enum import StrEnum
+@@ -20,6 +21,9 @@
+ from .fs import _open_absolute_directory, active_secure_output_root
+ 
+ _SHELL_CONTROL_SNIPPETS = ("&&", "||", ";", "|", "`", "$(", "<", ">", "\n", "\r")
++_HOST_HANDOFF: object | None = None
++_HOST_HANDOFF_ANCHOR: object | None = None
++_HOST_HANDOFF_GLOBALS: object | None = None
+ 
+ 
+ class ToolStatus(StrEnum):
+@@ -362,6 +366,19 @@
+     )
+ 
+ 
++def _handoff_unsealed_host_observation() -> None:
++    """Offer a diagnostic handoff after handler import; never appoint authority."""
++
++    handoff = _HOST_HANDOFF
++    if (
++        type(handoff) is not types.FunctionType
++        or handoff is not _HOST_HANDOFF_ANCHOR
++        or handoff.__globals__ is not _HOST_HANDOFF_GLOBALS
++    ):
++        return
++    handoff()
++
++
+ def invoke_tool_main(spec: ToolSpec, argv: Sequence[str] | None = None) -> int:
+     """Import a registered tool lazily and invoke its entry point.
+ 
+@@ -382,6 +399,8 @@
+         module = importlib.import_module(spec.module)
+     except Exception as exc:  # pragma: no cover - exact import failure varies by optional extra.
+         raise ToolExecutionError(f"failed to import {spec.module}: {exc}") from exc
++
++    _handoff_unsealed_host_observation()
+ 
+     try:
+         target = getattr(module, spec.callable_name)
+diff --git a/policy-engine/tools/loaded_execution_capture.py b/policy-engine/tools/loaded_execution_capture.py
+new file mode 100644
+--- /dev/null
++++ b/policy-engine/tools/loaded_execution_capture.py
+@@ -0,0 +1,1274 @@
++"""Collect source execution evidence for an already appointed Python process.
++
++This module is an evidence producer, not an authority issuer. Its input mapping
++must be independently derived from the selected source snapshot by the host and
++reconciled by the confidence-ledger owner. Constructing a recorder, providing a
++mapping, or serializing its output cannot appoint a runtime profile or establish
++policy authority. It deliberately does not claim material-state completeness or
++protection through a later decision.
++"""
++
++from __future__ import annotations
++
++import _imp
++import builtins
++import hashlib
++import importlib
++import importlib.abc
++import importlib.machinery
++import json
++import os
++import sys
++from contextlib import suppress
++from dataclasses import dataclass
++from pathlib import Path
++from types import CodeType, FrameType, MappingProxyType, ModuleType
++from typing import TYPE_CHECKING, Literal
++
++if TYPE_CHECKING:
++    from collections.abc import Mapping, Sequence
++
++_COMPILE = compile
++_EXEC = exec
++_FIND_SPEC = importlib.machinery.PathFinder.find_spec
++_SOURCE_LOADER = importlib.machinery.SourceFileLoader
++_GETPID = os.getpid
++_PROCESS_CAPTURE: SourceExecutionCapture | None = None
++_PROCESS_OWNER_SLOT = "_polisyos_loaded_execution_owner_v1"
++_MISSING = object()
++
++
++def _passive_lookup(mapping: object, key: str) -> tuple[bool, object]:
++    """Find an exact string key without invoking candidate hash/equality hooks."""
++
++    if type(mapping) not in (dict, MappingProxyType) or type(key) is not str:
++        return False, None
++    try:
++        for candidate, value in mapping.items():
++            if type(candidate) is str and candidate == key:
++                return True, value
++    except RuntimeError:
++        # A concurrent mutation cannot establish a passive read.
++        return False, None
++    return False, None
++
++
++class CaptureError(ImportError):
++    """Source execution evidence could not be collected or retained."""
++
++
++@dataclass(frozen=True, slots=True)
++class ExpectedSource:
++    """One externally selected source path and exact SHA-256 content digest."""
++
++    relative_path: str
++    sha256: str
++
++
++@dataclass(frozen=True, slots=True)
++class ModuleExecution:
++    """A completed initializer and its retained live execution objects."""
++
++    module_name: str
++    relative_path: str
++    source_sha256: str
++    code: CodeType
++    module: ModuleType
++    loader: _CapturedSourceLoader
++    spec: importlib.machinery.ModuleSpec
++    origin: str
++    package: str
++    search_locations: tuple[str, ...] | None
++    watched_exports: Mapping[str, object]
++    completed_bindings: Mapping[str, object]
++
++
++@dataclass(frozen=True, slots=True)
++class ImportEvidence:
++    """A successful import observed at a selected source-owned call site."""
++
++    importer_name: str
++    importer: ModuleType
++    caller_code: CodeType
++    caller_line: int
++    provider_name: str
++    provider: ModuleType
++    returned: ModuleType
++    requested_exports: tuple[str, ...]
++    retained_exports: Mapping[str, object]
++    unresolved_exports: tuple[str, ...]
++    route: Literal["builtin_import", "import_module"]
++
++
++@dataclass(frozen=True, slots=True)
++class FailedImportEvidence:
++    """A source-owned attempted import that did not return a provider."""
++
++    importer_name: str
++    importer: ModuleType
++    caller_code: CodeType
++    provider_name: str | None
++    route: Literal["builtin_import", "import_module"]
++
++
++@dataclass(frozen=True, slots=True)
++class RelevantGraphDiagnostic:
++    """A reachable event graph, without a completeness or authority claim."""
++
++    roots: tuple[str, ...]
++    reached_sources: tuple[str, ...]
++    external_providers: tuple[str, ...]
++    failed_imports: tuple[tuple[str, str | None], ...]
++    failed_modules: tuple[tuple[str, str], ...]
++    unresolved_importers: tuple[tuple[str, str], ...]
++    pending_modules: tuple[str, ...]
++    status: Literal["not_established"] = "not_established"
++
++
++_IMPORT_EVENT_FIELDS = (
++    "importer_name",
++    "importer",
++    "caller_code",
++    "caller_line",
++    "provider_name",
++    "provider",
++    "returned",
++    "requested_exports",
++    "retained_exports",
++    "unresolved_exports",
++    "route",
++)
++
++_EXECUTION_FIELDS = (
++    "module_name",
++    "relative_path",
++    "source_sha256",
++    "code",
++    "module",
++    "loader",
++    "spec",
++    "origin",
++    "package",
++    "search_locations",
++    "watched_exports",
++    "completed_bindings",
++)
++
++
++@dataclass(frozen=True, slots=True)
++class SourceCaptureDiagnostic:
++    """Compact evidence-only report; it cannot create a live admission."""
++
++    schema_version: Literal["policyos.runtime.confidence_ledger.source_capture_diagnostic.v1"]
++    proof_schema: Literal["policyos.runtime.confidence_ledger.loaded_execution_capture.v1"]
++    identity_rule: Literal["canonical-source-execution/1"]
++    status: Literal["not_established"]
++    phase: Literal["new", "collecting", "failed"]
++    runtime_profile_id: None
++    first_unestablished_premise: Literal["appointed_profile"]
++    failed_premise: str | None
++    failure_code: str | None
++    selected_source_count: int
++    completed_module_count: int
++    captured_source_projection_sha256: str | None
++    provider_projection_sha256: None
++    capture_time_role: Literal["in_progress_or_unavailable"]
++    currentness_time_role: Literal["not_evaluated"]
++    unresolved_by_construction: tuple[str, ...]
++
++
++class _CapturedSourceLoader(_SOURCE_LOADER):
++    """Execute exactly the bytes admitted by the producer's source input."""
++
++    def __init__(
++        self,
++        name: str,
++        path: str,
++        capture: SourceExecutionCapture,
++        expected: ExpectedSource,
++    ) -> None:
++        super().__init__(name, path)
++        self._capture = capture
++        self._expected = expected
++
++    def exec_module(self, module: ModuleType) -> None:
++        attributes = object.__getattribute__(self, "__dict__")
++        _, capture = _passive_lookup(attributes, "_capture")
++        _, expected = _passive_lookup(attributes, "_expected")
++        _, name = _passive_lookup(attributes, "name")
++        _, origin = _passive_lookup(attributes, "path")
++        if type(capture) is not SourceExecutionCapture:
++            return _SOURCE_LOADER.exec_module(self, module)
++        if type(expected) is not ExpectedSource:
++            capture._fail("loader_binding_invalid")
++            return _SOURCE_LOADER.exec_module(self, module)
++        if type(name) is not str or type(origin) is not str:
++            capture._fail("module_initialization_invalid")
++            return _SOURCE_LOADER.exec_module(self, module)
++        try:
++            capture._begin(name, module, self)
++        except CaptureError:
++            capture._module_fail(name, "module_initialization_invalid")
++            return _SOURCE_LOADER.exec_module(self, module)
++        try:
++            source = Path(origin).read_bytes()
++        except OSError:
++            capture._module_fail(name, "selected_source_unavailable")
++            return _SOURCE_LOADER.exec_module(self, module)
++        source_sha256 = hashlib.sha256(source).hexdigest()
++        if type(expected.sha256) is not str or source_sha256 != expected.sha256:
++            capture._module_fail(name, "selected_source_bytes_mismatch")
++            return _SOURCE_LOADER.exec_module(self, module)
++        try:
++            code = _COMPILE(
++                source,
++                origin,
++                "exec",
++                dont_inherit=True,
++                optimize=sys.flags.optimize,
++            )
++            capture._bind_initialization_code(name, module, code)
++            _EXEC(code, module.__dict__)
++        except BaseException:
++            capture._module_fail(name, "module_initialization_failed")
++            raise
++        try:
++            capture._complete(name, module, self, source_sha256, code)
++        except Exception:
++            # The initializer already ran normally. Do not run it twice or
++            # turn an evidence failure into a candidate-import failure.
++            capture._module_fail(name, "module_observation_incomplete")
++
++
++class _CaptureFinder(importlib.abc.MetaPathFinder):
++    """Select standard source loaders while preserving Python import locking."""
++
++    def __init__(self, capture: SourceExecutionCapture) -> None:
++        self._capture = capture
++
++    def find_spec(
++        self,
++        fullname: str,
++        path: Sequence[str] | None = None,
++        target: ModuleType | None = None,
++    ) -> importlib.machinery.ModuleSpec | None:
++        capture = self._capture
++        if fullname.partition(".")[0] not in capture._package_roots:
++            return None
++        if not capture._same_process():
++            capture._fail("capture_inherited_across_fork")
++            return None
++        if capture.failed:
++            # Candidate imports may continue, but this process can never promote
++            # the failed capture into authority.
++            return None
++        if fullname in capture._module_failures:
++            # A later import can still serve candidate work through normal
++            # Python loading. Its original failure remains sticky evidence and
++            # cannot be promoted by that later unrecorded execution.
++            return None
++        if target is not None:
++            capture._module_fail(fullname, "module_reload_not_admitted")
++            return None
++        expected = capture._sources.get(fullname)
++        if expected is None:
++            capture._module_fail(fullname, "module_source_not_selected")
++            return None
++        spec = _FIND_SPEC(fullname, path, target)
++        if type(spec) is not importlib.machinery.ModuleSpec:
++            capture._module_fail(fullname, "module_loader_not_admitted")
++            return None
++        spec_fields = object.__getattribute__(spec, "__dict__")
++        _, spec_loader = _passive_lookup(spec_fields, "loader")
++        _, spec_origin = _passive_lookup(spec_fields, "origin")
++        _, spec_name = _passive_lookup(spec_fields, "name")
++        if (
++            type(spec_loader) is not _SOURCE_LOADER
++            or type(spec_origin) is not str
++            or type(spec_name) is not str
++            or spec_name != fullname
++        ):
++            capture._module_fail(fullname, "module_loader_not_admitted")
++            return None
++        try:
++            selected = capture._selected_path(expected)
++            actual = Path(spec_origin).resolve(strict=True)
++        except (OSError, RuntimeError, ValueError):
++            capture._module_fail(fullname, "module_origin_not_admitted")
++            return None
++        if actual != selected:
++            capture._module_fail(fullname, "module_origin_not_admitted")
++            return None
++        spec.origin = str(selected)
++        spec.loader = _CapturedSourceLoader(fullname, str(selected), capture, expected)
++        return spec
++
++
++class SourceExecutionCapture:
++    """Retain completed source executions under a caller-supplied source selection.
++
++    Installation is valid only before any selected top-level package is loaded.
++    A failed installation is process-terminal; initializer failure is sticky for
++    the affected module and any reachable graph, not unrelated graphs. A live
++    process slot prevents a second producer instance from restarting capture.
++    The host must retain and reconcile the actual slot and producer bindings.
++    This primitive does
++    not authenticate the caller-supplied selection, interpreter, third-party
++    providers, material state, or later mutation ownership.
++    """
++
++    def __init__(
++        self,
++        root: Path,
++        sources: Mapping[str, ExpectedSource],
++        *,
++        exports: Mapping[str, set[str] | frozenset[str]] | None = None,
++    ) -> None:
++        self._root = root.resolve(strict=True)
++        self._process_id = _GETPID()
++        if (
++            type(sources) not in (dict, MappingProxyType)
++            or not sources
++            or any(
++                type(name) is not str
++                or not name
++                or any(not part.isidentifier() for part in name.split("."))
++                for name in sources
++            )
++        ):
++            raise ValueError("capture_source_selection_invalid")
++        selected_sources = dict(sources)
++        self._sources = MappingProxyType(selected_sources)
++        if exports is not None and (
++            type(exports) not in (dict, MappingProxyType)
++            or any(
++                type(name) is not str
++                or type(names) not in (set, frozenset)
++                or any(type(export) is not str or not export.isidentifier() for export in names)
++                for name, names in exports.items()
++            )
++        ):
++            raise ValueError("capture_export_selection_invalid")
++        self._exports = MappingProxyType(
++            {name: frozenset(names) for name, names in (exports or {}).items()}
++        )
++        self._package_roots = frozenset(name.partition(".")[0] for name in self._sources)
++        self._finder = _CaptureFinder(self)
++        self._initial_meta_path: tuple[object, ...] = ()
++        self._phase: Literal["new", "collecting", "failed"] = "new"
++        self._failure: str | None = None
++        self._pending: dict[str, ModuleType] = {}
++        self._pending_codes: dict[str, CodeType] = {}
++        self._completed: dict[str, ModuleExecution] = {}
++        self._execution_anchors: dict[str, tuple[object, ...]] = {}
++        self._module_failures: dict[str, str] = {}
++        self._importer_failures: dict[str, list[str]] = {}
++        self._code_trees: dict[int, tuple[CodeType, ...]] = {}
++        self._import_events: list[ImportEvidence] = []
++        self._failed_imports: list[FailedImportEvidence] = []
++        self._event_anchors: dict[int, tuple[object, ...]] = {}
++        self._failed_event_anchors: dict[int, tuple[object, ...]] = {}
++        self._import_hook: object | None = None
++        self._import_module_hook: object | None = None
++        if set(self._exports) - self._sources.keys():
++            raise ValueError("capture_export_selection_invalid")
++        for expected in self._sources.values():
++            if (
++                type(expected) is not ExpectedSource
++                or type(expected.relative_path) is not str
++                or type(expected.sha256) is not str
++                or len(expected.sha256) != 64
++                or any(char not in "0123456789abcdef" for char in expected.sha256)
++            ):
++                raise ValueError("capture_source_digest_invalid")
++            relative = Path(expected.relative_path)
++            if relative.is_absolute() or ".." in relative.parts:
++                raise ValueError("capture_source_path_invalid")
++
++    @property
++    def failed(self) -> bool:
++        """Whether this producer instance has reached its terminal failure."""
++
++        return self._phase == "failed"
++
++    @property
++    def failure_reason(self) -> str | None:
++        """Return the first producer failure without exposing exception objects."""
++
++        return self._failure
++
++    def diagnostic(self) -> SourceCaptureDiagnostic:
++        """Describe collected evidence and its explicitly unresolved premises."""
++
++        if not self._same_process():
++            self._fail("capture_inherited_across_fork")
++        rows: list[list[str]] = []
++        for name, record in self._completed.items():
++            if (
++                type(name) is not str
++                or type(record) is not ModuleExecution
++                or type(record.relative_path) is not str
++                or type(record.source_sha256) is not str
++            ):
++                self._fail("capture_record_invalid")
++                rows = []
++                break
++            rows.append([name, record.relative_path, record.source_sha256])
++        rows.sort(key=lambda row: row[0])
++        source_digest = (
++            hashlib.sha256(
++                json.dumps(rows, ensure_ascii=True, separators=(",", ":")).encode("ascii")
++            ).hexdigest()
++            if rows
++            else None
++        )
++        binding_failures = {
++            "capture_finder_changed",
++            "capture_process_owner_changed",
++            "capture_import_hook_changed",
++            "required_module_without_execution",
++            "retained_module_changed",
++            "retained_export_changed",
++            "consumer_binding_changed",
++            "capture_record_invalid",
++            "importer_execution_not_recorded",
++            "import_event_shape_unsupported",
++            "import_event_package_unresolved",
++            "import_event_provider_unresolved",
++            "import_caller_code_unrecorded",
++            "import_event_binding_unresolved",
++            "import_event_binding_changed",
++            "import_event_anchor_changed",
++            "capture_inherited_across_fork",
++        }
++        failed_premise = (
++            "complete_relevant_bindings"
++            if self._failure in binding_failures
++            else "appointed_profile"
++            if self.failed
++            and self._failure
++            in {
++                "selected_package_preloaded",
++                "capture_preexisting_import_hooks_unsupported",
++                "capture_installation_failed",
++            }
++            else "executed_bound_source"
++            if self.failed
++            else None
++        )
++        return SourceCaptureDiagnostic(
++            schema_version="policyos.runtime.confidence_ledger.source_capture_diagnostic.v1",
++            proof_schema="policyos.runtime.confidence_ledger.loaded_execution_capture.v1",
++            identity_rule="canonical-source-execution/1",
++            status="not_established",
++            phase=self._phase,
++            runtime_profile_id=None,
++            first_unestablished_premise="appointed_profile",
++            failed_premise=failed_premise,
++            failure_code=self._failure,
++            selected_source_count=len(self._sources),
++            completed_module_count=len(self._completed),
++            captured_source_projection_sha256=(
++                f"sha256:{source_digest}" if source_digest is not None else None
++            ),
++            provider_projection_sha256=None,
++            capture_time_role="in_progress_or_unavailable",
++            currentness_time_role="not_evaluated",
++            unresolved_by_construction=(
++                "host_profile_appointment",
++                "retained_producer_module_and_process_continuity",
++                "selected_source_and_dependency_mapping",
++                "relevant_graph_completeness",
++                "unmediated_dynamic_code_and_uncaptured_importers",
++                "direct_module_map_and_unmediated_provider_lookups",
++                "owner_sealing_and_currentness",
++                "material_decision_state",
++                "protected_through_use",
++            ),
++        )
++
++    def install(self) -> None:
++        """Install the finder before a selected package has entered ``sys.modules``."""
++
++        global _PROCESS_CAPTURE
++        self._require_same_process()
++        if self._phase != "new":
++            raise CaptureError("capture_not_new")
++        _imp.acquire_lock()
++        try:
++            if (
++                _PROCESS_CAPTURE is not None
++                or _passive_lookup(sys.__dict__, _PROCESS_OWNER_SLOT)[0]
++            ):
++                raise CaptureError("capture_process_already_attempted")
++            # One owner for the process, including a failed first attempt. A
++            # second recorder cannot retroactively adopt earlier initialization.
++            _PROCESS_CAPTURE = self
++            sys.__dict__[_PROCESS_OWNER_SLOT] = self
++            try:
++                if type(sys.modules) is not dict or any(
++                    type(name) is str and name.partition(".")[0] in self._package_roots
++                    for name in sys.modules
++                ):
++                    self._fail("selected_package_preloaded")
++                    raise CaptureError("selected_package_preloaded")
++                standard_meta = (
++                    importlib.machinery.BuiltinImporter,
++                    importlib.machinery.FrozenImporter,
++                    importlib.machinery.PathFinder,
++                )
++                if len(sys.meta_path) != len(standard_meta) or any(
++                    actual is not expected
++                    for actual, expected in zip(sys.meta_path, standard_meta, strict=True)
++                ):
++                    self._fail("capture_preexisting_import_hooks_unsupported")
++                    raise CaptureError("capture_preexisting_import_hooks_unsupported")
++                self._initial_meta_path = tuple(sys.meta_path)
++                sys.meta_path.insert(0, self._finder)
++                self._phase = "collecting"
++                self._install_import_hooks()
++            except BaseException:
++                self._fail("capture_installation_failed")
++                raise
++        finally:
++            _imp.release_lock()
++
++    def completed(self, module_name: str) -> ModuleExecution:
++        """Return a completed execution; a cyclic provisional module is refused."""
++
++        self._require_same_process()
++        if self._phase != "collecting":
++            raise CaptureError("capture_not_collecting")
++        try:
++            return self._completed[module_name]
++        except KeyError as exc:
++            raise CaptureError("module_not_completed") from exc
++
++    def assert_retained(self, required_modules: frozenset[str]) -> None:
++        """Reconcile completed anchors for a nonempty, independently derived set.
++
++        The caller must establish the required set separately. Success does not
++        seal the capture or prove that every material edge has been selected.
++        """
++
++        self._require_same_process()
++        if self._phase != "collecting":
++            raise CaptureError("capture_incomplete")
++        if (
++            type(required_modules) is not frozenset
++            or not required_modules
++            or any(type(name) is not str for name in required_modules)
++            or not required_modules.issubset(self._sources)
++        ):
++            raise CaptureError("capture_required_set_invalid")
++        if any(name in self._pending for name in required_modules):
++            raise CaptureError("capture_incomplete")
++        if (
++            len(sys.meta_path) != len(self._initial_meta_path) + 1
++            or sys.meta_path[0] is not self._finder
++            or any(
++                actual is not expected
++                for actual, expected in zip(sys.meta_path[1:], self._initial_meta_path, strict=True)
++            )
++        ):
++            self._fail("capture_finder_changed")
++            raise CaptureError("capture_finder_changed")
++        if _passive_lookup(sys.__dict__, _PROCESS_OWNER_SLOT)[1] is not self:
++            self._fail("capture_process_owner_changed")
++            raise CaptureError("capture_process_owner_changed")
++        if (
++            builtins.__import__ is not self._import_hook
++            or importlib.import_module is not self._import_module_hook
++        ):
++            self._fail("capture_import_hook_changed")
++            raise CaptureError("capture_import_hook_changed")
++        if required_modules.intersection(self._module_failures):
++            self._fail("required_module_initialization_failed")
++            raise CaptureError("required_module_initialization_failed")
++        incomplete = required_modules.difference(self._completed)
++        if any(_passive_lookup(sys.modules, name)[0] for name in incomplete):
++            self._fail("required_module_without_execution")
++            raise CaptureError("required_module_without_execution")
++        if incomplete:
++            raise CaptureError("capture_required_module_not_completed")
++        for name in sorted(required_modules):
++            record = self._completed[name]
++            anchor = self._execution_anchors.get(name)
++            if (
++                type(record) is not ModuleExecution
++                or anchor is None
++                or anchor[0] is not record
++                or any(
++                    object.__getattribute__(record, field) is not original
++                    for field, original in zip(_EXECUTION_FIELDS, anchor[1], strict=True)
++                )
++                or type(record.module) is not ModuleType
++                or type(record.spec) is not importlib.machinery.ModuleSpec
++                or type(record.loader) is not _CapturedSourceLoader
++                or type(record.watched_exports) is not MappingProxyType
++                or type(record.completed_bindings) is not MappingProxyType
++            ):
++                self._fail("retained_module_changed")
++                raise CaptureError("retained_module_changed")
++            namespace = record.module.__dict__
++            if not self._metadata_matches(
++                name,
++                record.module,
++                record.loader,
++                record.spec,
++                record.origin,
++                record.package,
++                record.search_locations,
++            ):
++                self._fail("retained_module_changed")
++                raise CaptureError("retained_module_changed")
++            if any(
++                type(export) is not str
++                or (observed := _passive_lookup(namespace, export))[0] is False
++                or observed[1] is not value
++                for export, value in record.watched_exports.items()
++            ):
++                self._fail("retained_export_changed")
++                raise CaptureError("retained_export_changed")
++
++    def completed_binding(self, module_name: str, name: str) -> object:
++        """Reconcile a chosen actual post-initializer module binding by identity."""
++
++        if type(module_name) is not str or type(name) is not str:
++            raise CaptureError("captured_binding_invalid")
++        self.assert_retained(frozenset({module_name}))
++        record = self._completed[module_name]
++        anchor = self._execution_anchors[module_name]
++        original = next((value for key, value in anchor[2] if key == name), _MISSING)
++        captured = _passive_lookup(record.completed_bindings, name)
++        current = _passive_lookup(record.module.__dict__, name)
++        if (
++            original is _MISSING
++            or not captured[0]
++            or captured[1] is not original
++            or not current[0]
++            or current[1] is not original
++        ):
++            self._fail("retained_export_changed")
++            raise CaptureError("retained_export_changed")
++        return original
++
++    def assert_binding(
++        self,
++        importer_name: str,
++        importer_attribute: str,
++        provider_name: str,
++        provider_attribute: str,
++    ) -> None:
++        """Compare a consumer's actual binding to a producer-time retained export."""
++
++        if any(
++            type(value) is not str
++            for value in (importer_name, importer_attribute, provider_name, provider_attribute)
++        ):
++            raise CaptureError("consumer_binding_invalid")
++        self.assert_retained(frozenset({importer_name, provider_name}))
++        importer = self.completed(importer_name)
++        provider = self.completed(provider_name)
++        found, retained = _passive_lookup(provider.watched_exports, provider_attribute)
++        if not found:
++            raise CaptureError("provider_export_not_recorded")
++        namespace = importer.module.__dict__
++        found, observed = _passive_lookup(namespace, importer_attribute)
++        if not found or observed is not retained:
++            self._fail("consumer_binding_changed")
++            raise CaptureError("consumer_binding_changed")
++
++    def import_events(self) -> tuple[ImportEvidence, ...]:
++        """Return collected import-site events without claiming their completeness."""
++
++        self._require_same_process()
++        if self._phase != "collecting":
++            raise CaptureError("capture_not_collecting")
++        return tuple(self._import_events)
++
++    def relevant_graph(self, roots: frozenset[str]) -> RelevantGraphDiagnostic:
++        """Project actual observed edges from owner-selected roots, without sealing.
++
++        Import hooks do not capture arbitrary provider lookups or dynamic code;
++        this graph is candidate evidence, not a complete readset or certificate.
++        """
++
++        self._require_same_process()
++        if self._phase != "collecting":
++            raise CaptureError("capture_not_collecting")
++        if (
++            type(roots) is not frozenset
++            or not roots
++            or any(type(name) is not str or name not in self._sources for name in roots)
++        ):
++            raise CaptureError("capture_graph_roots_invalid")
++        events_by_importer: dict[str, list[ImportEvidence]] = {}
++        failed_by_importer: dict[str, list[FailedImportEvidence]] = {}
++        for event in self._import_events:
++            self._check_import_event_anchor(event)
++            events_by_importer.setdefault(event.importer_name, []).append(event)
++        for event in self._failed_imports:
++            self._check_failed_import_anchor(event)
++            failed_by_importer.setdefault(event.importer_name, []).append(event)
++        pending = list(roots)
++        reached: set[str] = set()
++        external: set[str] = set()
++        failed: set[tuple[str, str | None]] = set()
++        unresolved: set[tuple[str, str]] = set()
++        while pending:
++            name = pending.pop()
++            if name in reached:
++                continue
++            reached.add(name)
++            parent = name.rpartition(".")[0]
++            if parent in self._sources:
++                pending.append(parent)
++            for reason in self._importer_failures.get(name, ()):
++                unresolved.add((name, reason))
++            for event in events_by_importer.get(name, ()):
++                if event.unresolved_exports:
++                    unresolved.add((name, "import_export_unresolved"))
++                if event.provider_name in self._sources:
++                    pending.append(event.provider_name)
++                else:
++                    external.add(event.provider_name)
++                for value in event.retained_exports.values():
++                    if type(value) is ModuleType:
++                        found, exported_name = _passive_lookup(value.__dict__, "__name__")
++                        if found and type(exported_name) is str and exported_name in self._sources:
++                            pending.append(exported_name)
++            for event in failed_by_importer.get(name, ()):
++                failed.add((name, event.provider_name))
++                if event.provider_name in self._sources:
++                    pending.append(event.provider_name)
++        return RelevantGraphDiagnostic(
++            roots=tuple(sorted(roots)),
++            reached_sources=tuple(sorted(reached)),
++            external_providers=tuple(sorted(external)),
++            failed_imports=tuple(sorted(failed, key=lambda row: (row[0], row[1] or ""))),
++            failed_modules=tuple(
++                sorted(
++                    (name, reason)
++                    for name, reason in self._module_failures.items()
++                    if name in reached
++                )
++            ),
++            unresolved_importers=tuple(sorted(unresolved)),
++            pending_modules=tuple(sorted(reached.intersection(self._pending))),
++        )
++
++    def _check_import_event_anchor(self, event: ImportEvidence) -> None:
++        anchor = self._event_anchors.get(id(event))
++        if (
++            type(event) is not ImportEvidence
++            or anchor is None
++            or anchor[0] is not event
++            or any(
++                object.__getattribute__(event, field) is not original
++                for field, original in zip(_IMPORT_EVENT_FIELDS, anchor[1], strict=True)
++            )
++        ):
++            self._fail("import_event_anchor_changed")
++            raise CaptureError("import_event_anchor_changed")
++        original_exports = anchor[2]
++        if (
++            type(event.retained_exports) is not MappingProxyType
++            or len(event.retained_exports) != len(original_exports)
++            or any(
++                not (observed := _passive_lookup(event.retained_exports, name))[0]
++                or observed[1] is not value
++                for name, value in original_exports
++            )
++        ):
++            self._fail("import_event_anchor_changed")
++            raise CaptureError("import_event_anchor_changed")
++
++    def _check_failed_import_anchor(self, event: FailedImportEvidence) -> None:
++        anchor = self._failed_event_anchors.get(id(event))
++        fields = ("importer_name", "importer", "caller_code", "provider_name", "route")
++        if (
++            type(event) is not FailedImportEvidence
++            or anchor is None
++            or anchor[0] is not event
++            or any(
++                object.__getattribute__(event, field) is not value
++                for field, value in zip(fields, anchor[1], strict=True)
++            )
++        ):
++            self._fail("import_event_anchor_changed")
++            raise CaptureError("import_event_anchor_changed")
++
++    def assert_import_binding(
++        self,
++        event: ImportEvidence,
++        *,
++        importer_attribute: str,
++        provider_export: str,
++    ) -> None:
++        """Reconcile one observed provider value with its actual consumer binding.
++
++        The owner must derive the import obligation independently and qualify
++        external providers and material state; one matching event is not closure.
++        """
++
++        if (
++            type(event) is not ImportEvidence
++            or type(importer_attribute) is not str
++            or type(provider_export) is not str
++        ):
++            raise CaptureError("import_event_not_recorded")
++        anchor = self._event_anchors.get(id(event))
++        if (
++            anchor is None
++            or anchor[0] is not event
++            or any(
++                object.__getattribute__(event, field) is not original
++                for field, original in zip(_IMPORT_EVENT_FIELDS, anchor[1], strict=True)
++            )
++        ):
++            self._fail("import_event_anchor_changed")
++            raise CaptureError("import_event_anchor_changed")
++        if (
++            type(event.importer_name) is not str
++            or type(event.provider_name) is not str
++            or type(event.retained_exports) is not MappingProxyType
++            or type(event.caller_code) is not CodeType
++        ):
++            self._fail("import_event_anchor_changed")
++            raise CaptureError("import_event_anchor_changed")
++        original_exports = anchor[2]
++        if (
++            type(original_exports) is not tuple
++            or len(event.retained_exports) != len(original_exports)
++            or any(
++                type(name) is not str
++                or not (observed := _passive_lookup(event.retained_exports, name))[0]
++                or observed[1] is not value
++                for name, value in original_exports
++            )
++        ):
++            self._fail("import_event_anchor_changed")
++            raise CaptureError("import_event_anchor_changed")
++        required = {event.importer_name}
++        if event.provider_name in self._sources:
++            required.add(event.provider_name)
++        self.assert_retained(frozenset(required))
++        if (
++            type(event.importer) is not ModuleType
++            or type(event.provider) is not ModuleType
++            or _passive_lookup(sys.modules, event.importer_name)[1] is not event.importer
++            or _passive_lookup(sys.modules, event.provider_name)[1] is not event.provider
++        ):
++            self._fail("import_event_binding_unresolved")
++            raise CaptureError("import_event_binding_unresolved")
++        found, retained = _passive_lookup(event.retained_exports, provider_export)
++        if not found:
++            self._fail("import_event_binding_unresolved")
++            raise CaptureError("import_event_binding_unresolved")
++        provider_namespace = event.provider.__dict__
++        importer_namespace = event.importer.__dict__
++        provider_found, current_provider = _passive_lookup(provider_namespace, provider_export)
++        importer_found, current_importer = _passive_lookup(importer_namespace, importer_attribute)
++        if (
++            not provider_found
++            or current_provider is not retained
++            or not importer_found
++            or current_importer is not retained
++        ):
++            self._fail("import_event_binding_changed")
++            raise CaptureError("import_event_binding_changed")
++
++    def _install_import_hooks(self) -> None:
++        original_import = builtins.__import__
++        original_import_module = importlib.import_module
++
++        def observed_import(
++            name: str,
++            globals: dict[str, object] | None = None,
++            locals: dict[str, object] | None = None,
++            fromlist: tuple[str, ...] | list[str] | None = (),
++            level: int = 0,
++        ) -> ModuleType:
++            caller = sys._getframe(1)
++            try:
++                result = original_import(name, globals, locals, fromlist, level)
++            except BaseException:
++                if self._phase == "collecting":
++                    provider_name = self._absolute_import_name(caller, name, level)
++                    self._record_failed_import(caller, provider_name, "builtin_import")
++                raise
++            if self._phase == "collecting" and not self._same_process():
++                self._fail("capture_inherited_across_fork")
++            if self._phase == "collecting":
++                self._record_import(caller, name, fromlist, level, result, "builtin_import")
++            return result
++
++        def observed_import_module(name: str, package: str | None = None) -> ModuleType:
++            caller = sys._getframe(1)
++            try:
++                result = original_import_module(name, package)
++            except BaseException:
++                if self._phase == "collecting":
++                    provider_name: str | None = None
++                    if type(name) is str and not name.startswith("."):
++                        provider_name = name
++                    elif type(name) is str and type(package) is str:
++                        with suppress(ImportError, ValueError):
++                            provider_name = importlib.util.resolve_name(name, package)
++                    self._record_failed_import(caller, provider_name, "import_module")
++                raise
++            if self._phase == "collecting" and not self._same_process():
++                self._fail("capture_inherited_across_fork")
++            if self._phase == "collecting":
++                self._record_import_module(caller, result)
++            return result
++
++        self._import_hook = observed_import
++        self._import_module_hook = observed_import_module
++        builtins.__import__ = observed_import
++        importlib.import_module = observed_import_module
++
++    def _selected_importer(self, caller: FrameType) -> tuple[str, ModuleType] | None:
++        namespace = caller.f_globals
++        _, name = _passive_lookup(namespace, "__name__")
++        if type(name) is not str or name not in self._sources:
++            return None
++        importer = self._pending.get(name)
++        if importer is None:
++            completed = self._completed.get(name)
++            importer = completed.module if completed is not None else None
++        if type(importer) is not ModuleType or importer.__dict__ is not namespace:
++            self._importer_fail(name, "importer_execution_not_recorded")
++            return None
++        root_code = (
++            self._pending_codes.get(name) if name in self._pending else self._completed[name].code
++        )
++        if root_code is None or not self._code_belongs_to(root_code, caller.f_code):
++            self._importer_fail(name, "import_caller_code_unrecorded")
++            return None
++        return name, importer
++
++    def _code_belongs_to(self, root: CodeType, selected: CodeType) -> bool:
++        """Compare actual code identities within the retained compiler tree."""
++
++        key = id(root)
++        tree = self._code_trees.get(key)
++        if tree is None or tree[0] is not root:
++            pending = [root]
++            members: list[CodeType] = []
++            while pending:
++                code = pending.pop()
++                members.append(code)
++                pending.extend(item for item in code.co_consts if type(item) is CodeType)
++            tree = tuple(members)
++            self._code_trees[key] = tree
++        return any(code is selected for code in tree)
++
++    def _record_import(
++        self,
++        caller: FrameType,
++        requested: str,
++        fromlist: tuple[str, ...] | list[str] | None,
++        level: int,
++        returned: object,
++        route: Literal["builtin_import"],
++    ) -> None:
++        selected = self._selected_importer(caller)
++        if selected is None:
++            return
++        if (
++            type(requested) is not str
++            or type(level) is not int
++            or level < 0
++            or (fromlist is not None and type(fromlist) not in (tuple, list))
++            or (fromlist is not None and any(type(name) is not str for name in fromlist))
++            or type(returned) is not ModuleType
++        ):
++            self._importer_fail(selected[0], "import_event_shape_unsupported")
++            return
++        provider_name = self._absolute_import_name(caller, requested, level)
++        if provider_name is None:
++            self._importer_fail(selected[0], "import_event_package_unresolved")
++            return
++        _, provider = _passive_lookup(sys.modules, provider_name)
++        if type(provider) is not ModuleType:
++            self._importer_fail(selected[0], "import_event_provider_unresolved")
++            return
++        self._retain_import_event(
++            selected,
++            caller.f_code,
++            caller.f_lineno,
++            provider_name,
++            provider,
++            returned,
++            tuple(fromlist or ()),
++            route,
++        )
++
++    def _record_import_module(self, caller: FrameType, returned: object) -> None:
++        selected = self._selected_importer(caller)
++        if selected is None:
++            return
++        if type(returned) is not ModuleType:
++            self._importer_fail(selected[0], "import_event_provider_unresolved")
++            return
++        _, provider_name = _passive_lookup(returned.__dict__, "__name__")
++        if (
++            type(provider_name) is not str
++            or _passive_lookup(sys.modules, provider_name)[1] is not returned
++        ):
++            self._importer_fail(selected[0], "import_event_provider_unresolved")
++            return
++        self._retain_import_event(
++            selected,
++            caller.f_code,
++            caller.f_lineno,
++            provider_name,
++            returned,
++            returned,
++            (),
++            "import_module",
++        )
++
++    def _absolute_import_name(
++        self, caller: FrameType, requested: object, level: object
++    ) -> str | None:
++        if type(requested) is not str or type(level) is not int or level < 0:
++            return None
++        if not level:
++            return requested or None
++        _, package = _passive_lookup(caller.f_globals, "__package__")
++        if type(package) is not str or not package or level > len(package.split(".")):
++            return None
++        parent = package.rsplit(".", level - 1)[0]
++        return f"{parent}.{requested}" if requested else parent
++
++    def _record_failed_import(
++        self,
++        caller: FrameType,
++        provider_name: str | None,
++        route: Literal["builtin_import", "import_module"],
++    ) -> None:
++        selected = self._selected_importer(caller)
++        if selected is None:
++            return
++        event = FailedImportEvidence(selected[0], selected[1], caller.f_code, provider_name, route)
++        fields = (
++            event.importer_name,
++            event.importer,
++            event.caller_code,
++            event.provider_name,
++            event.route,
++        )
++        self._failed_event_anchors[id(event)] = (event, fields)
++        self._failed_imports.append(event)
++
++    def _retain_import_event(
++        self,
++        selected: tuple[str, ModuleType],
++        caller_code: CodeType,
++        caller_line: int,
++        provider_name: str,
++        provider: ModuleType,
++        returned: ModuleType,
++        exports: tuple[str, ...],
++        route: Literal["builtin_import", "import_module"],
++    ) -> None:
++        namespace = provider.__dict__
++        selected_exports: dict[str, object] = {}
++        unresolved_names: list[str] = []
++        for name in exports:
++            found, value = _passive_lookup(namespace, name)
++            if name == "*" or not found:
++                unresolved_names.append(name)
++            else:
++                selected_exports[name] = value
++        retained = MappingProxyType(selected_exports)
++        unresolved = tuple(unresolved_names)
++        event = ImportEvidence(
++            selected[0],
++            selected[1],
++            caller_code,
++            caller_line,
++            provider_name,
++            provider,
++            returned,
++            exports,
++            retained,
++            unresolved,
++            route,
++        )
++        fields = tuple(object.__getattribute__(event, field) for field in _IMPORT_EVENT_FIELDS)
++        self._event_anchors[id(event)] = (event, fields, tuple(selected_exports.items()))
++        self._import_events.append(event)
++
++    def _selected_path(self, expected: ExpectedSource) -> Path:
++        relative = Path(expected.relative_path)
++        if relative.is_absolute() or ".." in relative.parts:
++            raise ValueError("capture_source_path_invalid")
++        selected = self._root / relative
++        if (
++            selected.resolve(strict=True) != selected
++            or not selected.is_relative_to(self._root)
++            or not selected.is_file()
++        ):
++            raise ValueError("capture_source_path_invalid")
++        return selected
++
++    def _begin(self, name: str, module: ModuleType, loader: _CapturedSourceLoader) -> None:
++        if (
++            self._phase != "collecting"
++            or name in self._pending
++            or name in self._completed
++            or type(module) is not ModuleType
++            or _passive_lookup(sys.modules, name)[1] is not module
++            or _passive_lookup(module.__dict__, "__loader__")[1] is not loader
++        ):
++            self._module_fail(name, "module_initialization_invalid")
++            raise CaptureError("module_initialization_invalid")
++        self._pending[name] = module
++
++    def _bind_initialization_code(self, name: str, module: ModuleType, code: CodeType) -> None:
++        if (
++            self._phase != "collecting"
++            or self._pending.get(name) is not module
++            or name in self._pending_codes
++            or type(code) is not CodeType
++        ):
++            raise CaptureError("module_initialization_invalid")
++        self._pending_codes[name] = code
++
++    def _complete(
++        self,
++        name: str,
++        module: ModuleType,
++        loader: _CapturedSourceLoader,
++        source_sha256: str,
++        code: CodeType,
++    ) -> None:
++        if (
++            self._phase != "collecting"
++            or self._pending.get(name) is not module
++            or self._pending_codes.get(name) is not code
++        ):
++            raise CaptureError("module_initialization_invalid")
++        namespace = module.__dict__
++        _, spec = _passive_lookup(namespace, "__spec__")
++        if type(spec) is not importlib.machinery.ModuleSpec:
++            raise CaptureError("module_initialization_invalid")
++        spec_fields = object.__getattribute__(spec, "__dict__")
++        locations = _passive_lookup(spec_fields, "submodule_search_locations")[1]
++        if locations is not None and (
++            type(locations) is not list or any(type(item) is not str for item in locations)
++        ):
++            raise CaptureError("module_initialization_invalid")
++        search_locations = None if locations is None else tuple(locations)
++        package = name if search_locations is not None else name.rpartition(".")[0]
++        selected_origin = str(self._selected_path(self._sources[name]))
++        if not self._metadata_matches(
++            name, module, loader, spec, selected_origin, package, search_locations
++        ):
++            raise CaptureError("module_initialization_invalid")
++        names = self._exports.get(name, frozenset())
++        values: dict[str, object] = {}
++        for export in names:
++            found, value = _passive_lookup(namespace, export)
++            if not found:
++                raise CaptureError("provider_export_not_recorded")
++            values[export] = value
++        retained = MappingProxyType(values)
++        completed_values = MappingProxyType(
++            {key: value for key, value in namespace.items() if type(key) is str}
++        )
++        record = ModuleExecution(
++            name,
++            self._sources[name].relative_path,
++            source_sha256,
++            code,
++            module,
++            loader,
++            spec,
++            selected_origin,
++            package,
++            search_locations,
++            retained,
++            completed_values,
++        )
++        fields = tuple(object.__getattribute__(record, field) for field in _EXECUTION_FIELDS)
++        self._execution_anchors[name] = (record, fields, tuple(completed_values.items()))
++        self._completed[name] = record
++        del self._pending[name]
++        del self._pending_codes[name]
++
++    def _metadata_matches(
++        self,
++        name: str,
++        module: ModuleType,
++        loader: _CapturedSourceLoader,
++        spec: importlib.machinery.ModuleSpec,
++        origin: str,
++        package: str,
++        search_locations: tuple[str, ...] | None,
++    ) -> bool:
++        """Inspect exact builtin representations without candidate comparisons."""
++
++        if (
++            type(module) is not ModuleType
++            or type(spec) is not importlib.machinery.ModuleSpec
++            or type(loader) is not _CapturedSourceLoader
++        ):
++            return False
++        namespace = module.__dict__
++        spec_fields = object.__getattribute__(spec, "__dict__")
++        loader_fields = object.__getattribute__(loader, "__dict__")
++        fields = (
++            (_passive_lookup(namespace, "__name__")[1], name),
++            (_passive_lookup(namespace, "__package__")[1], package),
++            (_passive_lookup(namespace, "__file__")[1], origin),
++            (_passive_lookup(spec_fields, "name")[1], name),
++            (_passive_lookup(spec_fields, "origin")[1], origin),
++            (_passive_lookup(loader_fields, "name")[1], name),
++            (_passive_lookup(loader_fields, "path")[1], origin),
++        )
++        if any(type(value) is not str or value != expected for value, expected in fields):
++            return False
++        if (
++            _passive_lookup(sys.modules, name)[1] is not module
++            or _passive_lookup(namespace, "__loader__")[1] is not loader
++            or _passive_lookup(namespace, "__spec__")[1] is not spec
++            or _passive_lookup(spec_fields, "loader")[1] is not loader
++            or _passive_lookup(loader_fields, "_capture")[1] is not self
++            or _passive_lookup(loader_fields, "_expected")[1] is not self._sources[name]
++        ):
++            return False
++        locations = _passive_lookup(spec_fields, "submodule_search_locations")[1]
++        if search_locations is None:
++            return locations is None and not _passive_lookup(namespace, "__path__")[0]
++        return (
++            type(locations) is list
++            and all(type(item) is str for item in locations)
++            and tuple(locations) == search_locations
++            and _passive_lookup(namespace, "__path__")[1] is locations
++        )
++
++    def _fail(self, reason: str) -> None:
++        self._phase = "failed"
++        if self._failure is None:
++            self._failure = reason
++
++    def _module_fail(self, name: str, reason: str) -> None:
++        self._module_failures.setdefault(name, reason)
++        self._pending.pop(name, None)
++        self._pending_codes.pop(name, None)
++
++    def _importer_fail(self, name: str, reason: str) -> None:
++        self._importer_failures.setdefault(name, []).append(reason)
++
++    def _same_process(self) -> bool:
++        return _GETPID() == self._process_id
++
++    def _require_same_process(self) -> None:
++        if not self._same_process():
++            self._fail("capture_inherited_across_fork")
++            raise CaptureError("capture_inherited_across_fork")

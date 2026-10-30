@@ -1,0 +1,20 @@
+id = "2026-10-20-e02-datasnapshot-owner-optional-inputs"
+title = "Allow absent optional refs in owner DataSnapshot inputs"
+type = "changed"
+component = "core"
+owner = "team-polisyos"
+summary = "Derive owner DataSnapshot input edges from validated typed fields while allowing absent optional Fabric evidence and warning refs."
+evidence = [
+  "src/polisyos/core/contracts/fabric.py",
+  "tests/unit/core/contracts/test_fabric_snapshot_owner_optional_inputs.py",
+]
+compatibility = "FabricBridge owner snapshots may omit evidence_ref and warnings_ref when their FetchResult supplies no evidence and no warning flags. Required data, schema, quality, and owner-lineage refs remain required; malformed present refs and unexpected refs still refuse. Measurement-root and acquired-observation requirements remain exact."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.core.contracts (existing data_snapshot_owner_input_requirements behavior)"
+migration = "No artifact rewrite is required. Existing supported DefaultFabricPort outputs with absent optional evidence or warning refs now pass the typed input-shape requirement; present values retain their existing edge checks."
+api = "No symbol or DTO is added. The existing data_snapshot_owner_input_requirements helper validates the DataSnapshot before deriving input rows and treats only absent FabricBridge evidence_ref and warnings_ref as optional."
+limitations = "This fixes typed owner input shape only. It does not verify producer custody, profile selection, external issuer authority, or broader capability closure."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

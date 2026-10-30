@@ -1,0 +1,554 @@
+{
+  "schema": "e02.local-code-proposals.v1",
+  "base": "0cf2132d0218864240d4a888ee534948e150b90f",
+  "base_tree": "8069d34f78fd28f0d998ab66d4c7e1948c07c982",
+  "source_identity": "Git exact source; source payloads and credentials excluded",
+  "items": [
+    {
+      "name": "kernel",
+      "base": "0cf2132d0218864240d4a888ee534948e150b90f",
+      "patch": "patches/kernel.patch",
+      "sha256": "1aa8b3f5cdf38f85f4663aa5ac3c50cee7dcfcf92ce933513ce51e32499aff25",
+      "patch_bytes": 570865,
+      "file_count": 44,
+      "files": [
+        {
+          "target": "policy-engine/release-fragments/unreleased/2026-10-30-e02-child-custody.toml",
+          "pre_sha256": null,
+          "post_sha256": "7b8903ff5766125ad3f0a5c9e261b535dd270ad043f6d532f5acb595e9721e55",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-core-custody-r25/postimages/policy-engine/release-fragments/unreleased/2026-10-30-e02-child-custody.toml",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/common/README.md",
+          "pre_sha256": "9c4fde71d0ca9de1bd878e7831a1e0e6e6c814fc7a2bf440a39e6cae0cf9d6f4",
+          "post_sha256": "8dbf7c402b0e3c4a0c23f96eac5c0874dc822fb5a388739c68af0d80b5705ec9",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-physical-completion-r5/postimages/policy-engine/src/polisyos/common/README.md",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/common/async_tools/__init__.py",
+          "pre_sha256": "f986fb79507b7c81d8d680f61abcf8e94115db13fb90e7706bca83fcd1a634ec",
+          "post_sha256": "78ed00099ca357f44880668d34a3a0886f5eaf47f9ca6959a5fa8819feb2b8d4",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-physical-completion-r5/postimages/policy-engine/src/polisyos/common/async_tools/__init__.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/common/borrowed_execution.py",
+          "pre_sha256": null,
+          "post_sha256": "4f69aeb4fe07572736de78bee1fae33fb17180c524f147db2970bf2c33aa27c0",
+          "source": "LOCAL/raw/e02-execution-20261027/root-packets/r185/kernel/formatted/policy-engine/src/polisyos/common/borrowed_execution.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/core/artifacts/README.md",
+          "pre_sha256": "1b17ec0eb9186818272334070520e3af2262e039569328ff8503182c2fd6ecd7",
+          "post_sha256": "f075c66d72cde91a29fdee9b026c2b0ab83e04b410db33eb1d1de960f91f61ca",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-core-custody-r25/postimages/policy-engine/src/polisyos/core/artifacts/README.md",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+          "pre_sha256": "81c423202e396199b19a6bba6fa2293fba0b02618560e1b046b12e04e04c04d6",
+          "post_sha256": "5d9f7c0ee8d2e4fde2259eb3a1e5a04b0788d79e8c4c3049898c9289e9116860",
+          "source": "LOCAL/raw/e02-execution-20261027/root-packets/r185/kernel/formatted/policy-engine/src/polisyos/core/artifacts/__init__.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/core/artifacts/_manifest_lifecycle.py",
+          "pre_sha256": "89c231e69ec95c1223d3a2637ca2ba79bc1048ac2644e266216a8f1cb8fdea08",
+          "post_sha256": "214168b5fa8945fb74aa2a02296b1d13a36509397d45da3e3db52684cee3bea8",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-core-custody-r25/postimages/policy-engine/src/polisyos/core/artifacts/_manifest_lifecycle.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/core/artifacts/backends/gcs_store.py",
+          "pre_sha256": "6aabab0b1e78f27d5188f5b2daf6ae0099bf1fff012e9ba9007086fc1ddedae3",
+          "post_sha256": "ad422e0c2f1195e793fe1862e2cffd4ca977eb51984d46c14a85ba1dd0d021c7",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-core-custody-r25/postimages/policy-engine/src/polisyos/core/artifacts/backends/gcs_store.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/core/artifacts/backends/s3_store.py",
+          "pre_sha256": "c38fc553962efa77bceb17e50bf260fbd808df068ec702d37ca6d2d70c0572e2",
+          "post_sha256": "7a8fe72cfc4d14969101a51f68e35e191fb43dbbdd73765fa93ee29b66a15d7c",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-core-custody-r25/postimages/policy-engine/src/polisyos/core/artifacts/backends/s3_store.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/core/artifacts/canonical_profile.py",
+          "pre_sha256": "6985a7fded1fa635017fd3a8db603353feb8803847e45c4e285ed414cfa79bdc",
+          "post_sha256": "1ee13161d02d492141464b89b4b94460c530446b8d52ab50e1d6ea33101b779d",
+          "source": "LOCAL/raw/e02-execution-20261027/root-packets/r185/kernel/formatted/policy-engine/src/polisyos/core/artifacts/canonical_profile.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/core/artifacts/child_release.py",
+          "pre_sha256": null,
+          "post_sha256": "3c4cdb230dea2c1e0fd7f2487fa15ddd677eb904cd844a4e586fb8a7b27fc542",
+          "source": "LOCAL/raw/e02-execution-20261027/root-packets/r185/kernel/formatted/policy-engine/src/polisyos/core/artifacts/child_release.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+          "pre_sha256": "51971e1cc470657f75c48f0b0fddd3e8c51f6f03d250abbefb261c6564f8934f",
+          "post_sha256": "a8b2858f63493b2c0619e448cf79542a5612357126b183d9f17a2a66dbb5bae8",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-core-custody-r25/postimages/policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+          "pre_sha256": "3ec97132a4a04c6152ed3456f75aae4d2fc6f35b0b8921a3a8f7cefcc426df3f",
+          "post_sha256": "2f6159df795bc67cf7179b468240298f37223bc28866b24d1b4aa199cd3a0232",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-core-custody-r25/postimages/policy-engine/src/polisyos/core/artifacts/manifest.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/core/artifacts/store.py",
+          "pre_sha256": "208b9aa6867c2303e5444ce6d7e446af2fcf2e9ca60e43c6205d68cf45a0ccc7",
+          "post_sha256": "2a36d9d22568a60607a024fb901d00e86e8614a629f0edcba212f162e9dc6276",
+          "source": "LOCAL/raw/e02-execution-20261027/root-packets/r185/kernel/formatted/policy-engine/src/polisyos/core/artifacts/store.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/core/artifacts/write_contract.py",
+          "pre_sha256": "434ffb9075f9a84b14352f5626803d7be8f69e586520e844cde2632b7aa236ef",
+          "post_sha256": "da880dc34e84292c8cf1241a28ae8d3c43606fc111f23cca35361b9c365fdada",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-core-custody-r25/postimages/policy-engine/src/polisyos/core/artifacts/write_contract.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/core/run/README.md",
+          "pre_sha256": "aa5c9d5b440990d3e2cebd053ddee095d56d20fef0d7e935aaa68def7adf29b2",
+          "post_sha256": "29a6f0ca7bc7a6014a5d8a3027edb9205e95911067ed31048790c91c8120e6b9",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-core-custody-r25/postimages/policy-engine/src/polisyos/core/run/README.md",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/core/run/child_custody.py",
+          "pre_sha256": null,
+          "post_sha256": "b84c9a996da8e0209a6a37d5692132908031aa49a15b14f5ee601616ab1392cb",
+          "source": "LOCAL/raw/e02-execution-20261027/root-packets/r185/kernel/formatted/policy-engine/src/polisyos/core/run/child_custody.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/core/run/context.py",
+          "pre_sha256": "43a7dd41d5e1ee3de16f4a5d3ccd88b2c903ffcc0447a6f7e2bd557ca60736d1",
+          "post_sha256": "fdf52edd721d62f8d1ac0f834d32a938cc0547daadac228c4f918e60b410ac8b",
+          "source": "LOCAL/raw/e02-execution-20261027/root-packets/r185/kernel/formatted/policy-engine/src/polisyos/core/run/context.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/ir/artifacts/contracts.py",
+          "pre_sha256": "e90869b1ae2ed3b0d3693e91c9542c35ccfe96e154168a32ec336d6cccc29841",
+          "post_sha256": "66c5843015c423f2339fe7538e7ec35e8977f4bfc4b3ad5752002691e754fede",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-core-custody-r25/postimages/policy-engine/src/polisyos/ir/artifacts/contracts.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/runtime/http/app.py",
+          "pre_sha256": "8cf8ea3efccfaa1fd5820402331a643ecaf37192434b8f7b4cb32620851101cf",
+          "post_sha256": "2fca69f3ddb3dedc5aae484abfe0a64ea7c23c7a06c39f73aed12b82bc06873e",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-attempt-budget-r6/postimages/policy-engine/src/polisyos/runtime/http/app.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/runtime/http/container.py",
+          "pre_sha256": "637800a1576a3682cd0a809ee521cae0d31ea31b78e2848a924b2b3b8cadcb0a",
+          "post_sha256": "37711892d02c41bb14f7fd467a4fa721203735ced97dd50cdad743fcd951312c",
+          "source": "LOCAL/raw/e02-execution-20261027/root-packets/r185/kernel/formatted/policy-engine/src/polisyos/runtime/http/container.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/runtime/http/resilience.py",
+          "pre_sha256": "c409448e5997d4b69c276933d87f7840b1d0a9349441d5b9edbe437619daa9d7",
+          "post_sha256": "867af3b3aadf5a8c9bae13dd9320cb61a103cfcafd319778f1d37eb6ab471298",
+          "source": "LOCAL/raw/e02-execution-20261027/root-packets/r185/kernel/formatted/policy-engine/src/polisyos/runtime/http/resilience.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/runtime/http/services/README.md",
+          "pre_sha256": "7bf4bd68ade78a7deb3af4c2e1fb74fdd090334115a6c7c7d6b2665726afd70e",
+          "post_sha256": "be9385a5f3b026c54656864b0339b55833571fa94a959ef4e8c78147e3eb49fa",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-attempt-budget-r6/postimages/policy-engine/src/polisyos/runtime/http/services/README.md",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/runtime/http/services/control/child_execution_budget.py",
+          "pre_sha256": null,
+          "post_sha256": "2762aac2859aed3f9f57672c435818250e8f6203b332f4b88bbcdb943d5fe98d",
+          "source": "LOCAL/raw/e02-execution-20261027/root-packets/r185/kernel/formatted/policy-engine/src/polisyos/runtime/http/services/control/child_execution_budget.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+          "pre_sha256": "54a6c5df76067dd226c4c0af2159082c809c0add369bafb71e06307a1ca88b94",
+          "post_sha256": "d938017334f2b342360adcef434f0b3ab066b34e871ea5aea6a6a5879a0e1bfd",
+          "source": "LOCAL/raw/e02-execution-20261027/root-packets/r185/kernel/formatted/policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/runtime/http/services/control_worker.py",
+          "pre_sha256": "f7d2990379ddbe57ef227287729aa2faefbd2dfab3961036433a401c18c9f852",
+          "post_sha256": "402667dfd01c25a0b7803ca8bddce5413cc5be191ab5f0fd59570df349444dce",
+          "source": "LOCAL/raw/e02-execution-20261027/root-packets/r185/kernel/formatted/policy-engine/src/polisyos/runtime/http/services/control_worker.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+          "pre_sha256": "3260d3f6d272cd54ddd95656eb2f74f31189e58c7fe4a1244ca11f9a8375fa3e",
+          "post_sha256": "916bd00680f074b5f5db3248c87de03dce065bf5cd076916644dc2a9fc135826",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-engine-joint-r10/postimages/policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "pre_sha256": "1a09deae5b3876b53199dc5901e1af51850d4a0d050124d1a928dbfcb7be903f",
+          "post_sha256": "95d4b69f00416558219bc9e3657a83664dccc5c072adcfad4a97db7893c4cbe7",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-engine-joint-r10/postimages/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/scientist/orchestration/engine/child_computation.py",
+          "pre_sha256": null,
+          "post_sha256": "ed9a484806a8f6ffd8cd3679120ffc76ecbce8e7a2bf294a7fc2eefb85d9315a",
+          "source": "LOCAL/raw/e02-execution-20261027/root-packets/r185/kernel/formatted/policy-engine/src/polisyos/scientist/orchestration/engine/child_computation.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/scientist/orchestration/engine/component_identity.py",
+          "pre_sha256": "d5946ebd3e77f033b6a283e04a803a30450ace501c106a0cb02f83a67cbef3a9",
+          "post_sha256": "8eb7027f3c6c85b67280fc88ee8cc7030cee58a87ae0d33d366aa013f22397b9",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-engine-joint-r10/postimages/policy-engine/src/polisyos/scientist/orchestration/engine/component_identity.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+          "pre_sha256": "e81c8c0b0d5da54be31d801f14d14278173cb37d476fccf863cb2d2e619c6e30",
+          "post_sha256": "8d153b0c6049f9976a6f292661b23c9a847103c29cd24b1def194811bc84dbac",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-engine-joint-r10/postimages/policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+          "pre_sha256": "274bae76b807ef08df74143439eba9a28fa0a3b00689cfc478909e6d3800d2af",
+          "post_sha256": "c8b0a9f53676da41ef9d1ef73151f1a76bfec27b970c636ba0e7bb2ad782ef08",
+          "source": "LOCAL/raw/e02-execution-20261027/root-packets/r185/kernel/formatted/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/scientist/orchestration/engine/sub_workflow.py",
+          "pre_sha256": "b24da1adcfec47a6d0d4ceff7cebd208813725377e0d48b670743b4d7e8c2c28",
+          "post_sha256": "0e686ee73e79ff4ec2fb9b225b424080f55a6d675f6a10f8f06b556ad90f06a4",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-engine-joint-r10/postimages/policy-engine/src/polisyos/scientist/orchestration/engine/sub_workflow.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/tests/_helpers/child_settlement_controls.py",
+          "pre_sha256": null,
+          "post_sha256": "447dc26179ff5f88bae27d5535568598e65393ead2abb85dfda723b38c11d882",
+          "source": "LOCAL/raw/e02-execution-20261027/root-packets/r185/kernel/formatted/policy-engine/tests/_helpers/child_settlement_controls.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/tests/unit/core/artifacts/test_child_release_metadata.py",
+          "pre_sha256": null,
+          "post_sha256": "64738fd714acdbdb468860c012830702ab438bf25fc0422b1e547da4b1a99707",
+          "source": "LOCAL/raw/e02-execution-20261027/root-packets/r185/kernel/formatted/policy-engine/tests/unit/core/artifacts/test_child_release_metadata.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/tests/unit/core/run/test_child_custody.py",
+          "pre_sha256": null,
+          "post_sha256": "ed2196c6f2bd82f6409e354b5bad459470adde6e9d7776af3b761aa2573826a7",
+          "source": "LOCAL/raw/e02-execution-20261027/root-packets/r185/kernel/formatted/policy-engine/tests/unit/core/run/test_child_custody.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/tests/unit/runtime/http/test_child_attempt_budget.py",
+          "pre_sha256": null,
+          "post_sha256": "9d9335e4d1d03d90666cc1dbae3772a8d445f59102a61f030ef913325d0d010d",
+          "source": "LOCAL/raw/e02-execution-20261027/root-packets/r185/kernel/formatted/policy-engine/tests/unit/runtime/http/test_child_attempt_budget.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/tests/unit/runtime/http/test_child_control_authorization.py",
+          "pre_sha256": null,
+          "post_sha256": "4bd06db32597b5789888494a771f6bcc8944e48af9bb78af67d4c60fa312f831",
+          "source": "LOCAL/raw/e02-execution-20261027/root-packets/r185/kernel/formatted/policy-engine/tests/unit/runtime/http/test_child_control_authorization.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/tests/unit/runtime/http/test_child_guard_completion.py",
+          "pre_sha256": null,
+          "post_sha256": "0e86ba622f3c7a9f1398ad11a1b612b78966b38e6f54deb5e304a8ef73c1c68c",
+          "source": "LOCAL/raw/e02-execution-20261027/root-packets/r185/kernel/formatted/policy-engine/tests/unit/runtime/http/test_child_guard_completion.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/tests/unit/runtime/http/test_child_guarded_read_owner.py",
+          "pre_sha256": null,
+          "post_sha256": "8038de3357efeeae11a86fcba2abd51dba616ba7624784b6bd71ae394cf857c6",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-guarded-consumer-r9/postimages/policy-engine/tests/unit/runtime/http/test_child_guarded_read_owner.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/tests/unit/runtime/http/test_child_publication_fence.py",
+          "pre_sha256": null,
+          "post_sha256": "210f73357e48b1e4ed31f6ee1a8ac3fc75ac901de3aa96b3ecbdf7fd641422ec",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-control-authorization-r7/postimages/policy-engine/tests/unit/runtime/http/test_child_publication_fence.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/tests/unit/scientist/orchestration/engine/test_admitted_subworkflow_custody.py",
+          "pre_sha256": null,
+          "post_sha256": "415f0a65da669fe76038a282c71d8383eef23f8014065490338c03418cef3463",
+          "source": "LOCAL/raw/e02-execution-20261027/root-packets/r185/kernel/formatted/policy-engine/tests/unit/scientist/orchestration/engine/test_admitted_subworkflow_custody.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/tests/unit/scientist/orchestration/engine/test_child_settlement_propagation.py",
+          "pre_sha256": null,
+          "post_sha256": "ea8b9885c089292747ca1fde255c6a68ca1a2b6e9286843953dd5abc7c9af530",
+          "source": "LOCAL/raw/e02-execution-20261027/root-packets/r185/kernel/formatted/policy-engine/tests/unit/scientist/orchestration/engine/test_child_settlement_propagation.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/tests/unit/scientist/orchestration/engine/test_hierarchy_parent_component_identity.py",
+          "pre_sha256": null,
+          "post_sha256": "55327d0f89892a0dea861b61244ebdd3e00722f539a1fb6db378570e08cfd7c7",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/child-engine-joint-r10/postimages/policy-engine/tests/unit/scientist/orchestration/engine/test_hierarchy_parent_component_identity.py",
+          "mode": "100644"
+        }
+      ],
+      "status": {
+        "source_manifest": "LOCAL/raw/e02-execution-20261027/root-packets/r185/kernel/manifest.json",
+        "runtime": "UNRUN",
+        "closure_ids": [],
+        "qualification": "Unapplied proposal. Preserve complete original companion set; no runtime/G acceptance implied."
+      },
+      "git_apply_check": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "name": "dynamic",
+      "base": "0cf2132d0218864240d4a888ee534948e150b90f",
+      "patch": "patches/dynamic.patch",
+      "sha256": "bca3b0d906d32e8e4012372ea1e2bc2819ada155e19c5d60ba527324b5fda6fc",
+      "patch_bytes": 65202,
+      "file_count": 5,
+      "files": [
+        {
+          "target": "policy-engine/tools/quality/validation/decomposition_preflight.py",
+          "pre_sha256": "9735cf51848fbb562a005861b642c99f5ad2a4c1352fec99206680893b02cc59",
+          "post_sha256": "92b378343578ef1a48ba0fbea44a1b59542c15e311d9155e4a98ee4b2381c0d2",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/dynamic-native-compatibility-r18/candidate/policy-engine/tools/quality/validation/decomposition_preflight.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/tests/repo_quality/architecture/test_decomposition_preflight_gates.py",
+          "pre_sha256": "2d47d73110b469e97142951ac358320851bf776dd9145cbe0fbf117c2b0bce8f",
+          "post_sha256": "fbbc66d9fc02a69dd1c029dedbf121eca34ff85d29e1dca571a60a960333c34a",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/dynamic-native-compatibility-r18/candidate/policy-engine/tests/repo_quality/architecture/test_decomposition_preflight_gates.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/tools/quality/validation/README.md",
+          "pre_sha256": "1f2147ef4268e7b93e18033c87125cdbfa7bb88c341b1550998bae3fcccd3f33",
+          "post_sha256": "566a497aff667898a4723873d171c1ae0e5c45010597d0150d910e35171f4e44",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/dynamic-native-compatibility-r18/candidate/policy-engine/tools/quality/validation/README.md",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+          "pre_sha256": "4c07be235b5fa9569b83a68d3e1c608d8f3c4c3517e506801fe004ea11709080",
+          "post_sha256": "339b0a8814ba2b9df9d94dbd1048f49a57c040ad7cbdd8c5888302cf8af09e73",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/dynamic-native-compatibility-r18/candidate/policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/release-fragments/unreleased/2026-10-30-dynamic-scope-provenance.toml",
+          "pre_sha256": null,
+          "post_sha256": "943eee8bbbb232574fa64ad6b883f7d52f86d5d0e5ae8f588370b48972130765",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/dynamic-native-compatibility-r18/candidate/policy-engine/release-fragments/unreleased/2026-10-30-dynamic-scope-provenance.toml",
+          "mode": "100644"
+        }
+      ],
+      "status": {
+        "source_manifest": "LOCAL/raw/e02-execution-20261027/root-packets/r185/dynamic/manifest.json",
+        "runtime": "UNRUN",
+        "closure_ids": [],
+        "qualification": "Unapplied proposal. Preserve complete original companion set; no runtime/G acceptance implied."
+      },
+      "git_apply_check": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "name": "tc-child",
+      "base": "0cf2132d0218864240d4a888ee534948e150b90f",
+      "patch": "patches/tc-child.patch",
+      "sha256": "9ed0f008fba1fe9faf17044ce893830f03e7ca6066fcaca22d7cd91f9dc3c15b",
+      "patch_bytes": 909,
+      "file_count": 1,
+      "files": [
+        {
+          "target": "policy-engine/tests/unit/runtime/http/test_nl_temporal_context_world_read.py",
+          "pre_sha256": "aa625cba4b9325870d5e04d8c01c68c8e5427b713d648378ecebecd020ac40c0",
+          "post_sha256": "18a0943a80b440c2908ddde6d1304e8bbb229572cd94cb7a5e03d54d9f41b296",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/tc-child-problem-identifier-r1/postimages/policy-engine/tests/unit/runtime/http/test_nl_temporal_context_world_read.py",
+          "mode": "100644"
+        }
+      ],
+      "status": {
+        "source_manifest": "LOCAL/raw/e02-execution-20261027/root-packets/r185/tc-child/manifest.json",
+        "runtime": "UNRUN",
+        "closure_ids": [],
+        "qualification": "Unapplied proposal. Preserve complete original companion set; no runtime/G acceptance implied."
+      },
+      "git_apply_check": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "name": "ledger-spawn",
+      "base": "0cf2132d0218864240d4a888ee534948e150b90f",
+      "patch": "patches/ledger-spawn.patch",
+      "sha256": "0dc469735b44c48a495528ede5be71f9203b8bfbcf647b2a9e017f23b2211ced",
+      "patch_bytes": 7412,
+      "file_count": 2,
+      "files": [
+        {
+          "target": "policy-engine/tests/unit/scientist/orchestration/engine/_budget_compute_workers.py",
+          "pre_sha256": null,
+          "post_sha256": "50d97047a068181ebf466c4c141561fabbd67c5ecd2c849f068ded4713cee9cb",
+          "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r175-keyed-ledger-first-cohort-r2-stable-import-repair-proposal/postimages/policy-engine/tests/unit/scientist/orchestration/engine/_budget_compute_workers.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_compute_reservations.py",
+          "pre_sha256": "a9cbe2814c294f30f266666db370fc51b48f5bde8762c5cec9e7bcdc537cb5c2",
+          "post_sha256": "fae2f923c2471d6e0b91a997604c899cf68815d1c96333a554fb87904e73c25d",
+          "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r175-keyed-ledger-first-cohort-r2-stable-import-repair-proposal/postimages/policy-engine/tests/unit/scientist/orchestration/engine/test_budget_compute_reservations.py",
+          "mode": "100644"
+        }
+      ],
+      "status": {
+        "source_manifest": "LOCAL/raw/e02-execution-20261027/root-packets/r185/ledger-spawn/manifest.json",
+        "runtime": "UNRUN",
+        "closure_ids": [],
+        "qualification": "Unapplied proposal. Preserve complete original companion set; no runtime/G acceptance implied."
+      },
+      "git_apply_check": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "name": "n7-loaded-host-wip",
+      "base": "0cf2132d0218864240d4a888ee534948e150b90f",
+      "patch": "patches/n7-loaded-host-wip.patch",
+      "sha256": "53efcc40fab2535d56c63bc149613307891eb872cddfc1245c2d4f1083a96281",
+      "patch_bytes": 152966,
+      "file_count": 12,
+      "files": [
+        {
+          "target": "policy-engine/release-fragments/unreleased/2026-10-30-loaded-execution-evidence.toml",
+          "pre_sha256": null,
+          "post_sha256": "3c08cefa68f8a789c3344febe09597b307d3db313972a1f1f740947baebfcfc6",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/N7-loaded-host-bootstrap-r2/post/policy-engine/release-fragments/unreleased/2026-10-30-loaded-execution-evidence.toml",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/runtime/quality/confidence_ledger.py",
+          "pre_sha256": "f7e770b6d170dafcaaa9fe566355ff9b64dc138b38b29848726cda3dbf0206c8",
+          "post_sha256": "4f92589ac37149ffc4ecd4950d982242c5021e3bd02847c0616c7ffe91758c3d",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/N7-loaded-host-bootstrap-r2/post/policy-engine/src/polisyos/runtime/quality/confidence_ledger.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/src/polisyos/runtime/quality/promotion_sequence.py",
+          "pre_sha256": "bbfc968bf31aaa22d1949ac57d68f2663e12f1ae36794eab878cf9162a9bcb83",
+          "post_sha256": "e03258b00be1daff09a670b15cbc7cb7232935d0f90f5cf83357ab5ca2db1a99",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/N7-loaded-host-bootstrap-r2/post/policy-engine/src/polisyos/runtime/quality/promotion_sequence.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/tests/unit/runtime/quality/test_loaded_execution_capture.py",
+          "pre_sha256": null,
+          "post_sha256": "99fbf0ee3e8df62c761004e84c18522ee91596cee8e2caf270d0c5986981e79f",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/N7-loaded-host-bootstrap-r2/post/policy-engine/tests/unit/runtime/quality/test_loaded_execution_capture.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/tests/unit/runtime/quality/test_loaded_execution_discovery.py",
+          "pre_sha256": null,
+          "post_sha256": "c87487d0b7d31e865cf605b2b5cf5189dbb93aec279466c2c57ca8b8400f9489",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/N7-loaded-host-bootstrap-r2/post/policy-engine/tests/unit/runtime/quality/test_loaded_execution_discovery.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/tests/unit/runtime/quality/test_loaded_execution_gate.py",
+          "pre_sha256": null,
+          "post_sha256": "dd9799ae4f2922a021d918ba92cbcded44f4112f3a6b40da9d4abc00532b9ec5",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/N7-loaded-host-bootstrap-r2/post/policy-engine/tests/unit/runtime/quality/test_loaded_execution_gate.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/tests/unit/runtime/quality/test_loaded_execution_host.py",
+          "pre_sha256": null,
+          "post_sha256": "46e6441334688cccd4d7ad4d08e11735bc6c3b72c64f7b045a619e02abaff370",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/N7-loaded-host-bootstrap-r2/post/policy-engine/tests/unit/runtime/quality/test_loaded_execution_host.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/tools/README.md",
+          "pre_sha256": "d44b0665ce7b52d9dae759c28819f931f273f30c8dfd4abd61095e4486d2629d",
+          "post_sha256": "dc27cf724a6c8d4521a91ad50ee6bd5820649073f836e1726697d505cb61b215",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/N7-loaded-host-bootstrap-r2/post/policy-engine/tools/README.md",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/tools/authority",
+          "pre_sha256": null,
+          "post_sha256": "fbfa3a82ea6479fef76b2442ec429ce414ff0a49d20423a7ba0bac5e8f4b0410",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/N7-loaded-host-bootstrap-r2/post/policy-engine/tools/authority",
+          "mode": "100755"
+        },
+        {
+          "target": "policy-engine/tools/authority_bootstrap.py",
+          "pre_sha256": null,
+          "post_sha256": "a71ad161f1d48d5ae8f8acd8e1eafc8ce15e2c7f1de0735c2dca28b384b4e742",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/N7-loaded-host-bootstrap-r2/post/policy-engine/tools/authority_bootstrap.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/tools/lib/runner.py",
+          "pre_sha256": "7370d00a43eda040debb5d5173d67bf4c2dae03a40799d78892a63e21a66e093",
+          "post_sha256": "5bd6c26765ebff23e9c090a63231ebc55f6b9cb5979e04853af7f2d2f380c222",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/N7-loaded-host-bootstrap-r2/post/policy-engine/tools/lib/runner.py",
+          "mode": "100644"
+        },
+        {
+          "target": "policy-engine/tools/loaded_execution_capture.py",
+          "pre_sha256": null,
+          "post_sha256": "2c3495c0044c513c71a8806b37f5ed2fa751ea0ce8397729fd7b9af7ba3a08c6",
+          "source": "LOCAL/raw/e02-execution-20261027/repairs/N7-loaded-host-bootstrap-r2/post/policy-engine/tools/loaded_execution_capture.py",
+          "mode": "100644"
+        }
+      ],
+      "status": {
+        "source": "LOCAL/raw/e02-execution-20261027/repairs/N7-loaded-host-bootstrap-r2/post",
+        "qualification": "Unfrozen WIP, no authoritative final manifest; generated delta from actual 0cf base to 12 changed postimages. Revised version unrun and unreviewed; synthetic prior results cannot be attributed."
+      },
+      "git_apply_check": {
+        "exit": 0,
+        "stderr": ""
+      }
+    }
+  ]
+}

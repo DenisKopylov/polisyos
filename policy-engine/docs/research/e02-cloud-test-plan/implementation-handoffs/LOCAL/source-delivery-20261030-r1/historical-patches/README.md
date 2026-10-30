@@ -1,0 +1,5 @@
+# Historical E02 source patches
+
+`historical-patches.tar.gz` contains deduplicated UTF-8 patch bytes from the named E02 proposal roots. The catalog pins original and shipped SHA-256, every known local alias, parsed targets, and whether a whole patch or only code hunks were retained. The proposals have different source bases, overlap, and may be superseded or incomplete. Unresolved base is not inferred; read each original patch and its project history before applying it.
+
+For a mixed patch, only source hunks are packaged: RAW outputs, environments, local databases, production payloads and test data are omitted. One named sanitization unit test contains explicitly synthetic credential-shaped test fixtures (alongside example.org and example.test); these are preserved byte-for-byte and classified in the catalog. No actual credentials were identified by the bounded scan. An entry may represent alternative source that is already present in Git at a different version. None implies a completed product capability, test PASS or G acceptance.

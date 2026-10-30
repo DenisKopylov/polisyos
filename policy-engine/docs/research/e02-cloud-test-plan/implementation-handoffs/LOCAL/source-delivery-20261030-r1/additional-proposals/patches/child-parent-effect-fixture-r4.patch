@@ -1,0 +1,1369 @@
+diff --git a/policy-engine/tests/unit/runtime/http/test_child_control_authorization.py b/policy-engine/tests/unit/runtime/http/test_child_control_authorization.py
+new file mode 100644
+--- /dev/null
++++ b/policy-engine/tests/unit/runtime/http/test_child_control_authorization.py
+@@ -0,0 +1,1258 @@
++"""Actual job-owner intent, release authorization, and fresh DB readback."""
++
++from __future__ import annotations
++
++import json
++import sys
++import threading
++import time
++from contextlib import contextmanager
++from datetime import UTC, datetime, timedelta
++from typing import TYPE_CHECKING
++from uuid import uuid4
++
++import pytest
++from pydantic import BaseModel, ConfigDict
++
++from polisyos.common.async_tools import get_shared_executor
++from polisyos.common.borrowed_execution import _BorrowedExecutionGrant
++from polisyos.core.artifacts.child_release import (
++    _JOB_OWNER_BOOTSTRAP_TOKEN,
++    ChildReleaseUnavailableError,
++    _install_child_job_owner,
++)
++from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
++from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
++from polisyos.core.registry import build_default_registry_bundle
++from polisyos.core.run.child_custody import (
++    ChildComputationBinding,
++    ChildComputationCustody,
++    ChildParentSettlementError,
++)
++from polisyos.core.run.context import RunContext
++from polisyos.fabric.connectors.resilience.circuit_breaker import CircuitBreaker
++from polisyos.runtime.http.resilience import BlockingDependencyGuard
++from polisyos.runtime.http.services.control_plane_store import (
++    ControlJobExecutionAdmissionError,
++    ControlJobLeaseLostError,
++    ControlPlaneStore,
++)
++
++if TYPE_CHECKING:
++    from pathlib import Path
++
++    from polisyos.core.artifacts.child_release import ChildJobReleaseLocator
++    from polisyos.core.artifacts.protocol import ArtifactReader
++    from polisyos.core.run.child_custody import ChildJobReleaseCandidate
++
++
++class _RetainedBindingProbeCompleteError(Exception):
++    """End the isolated mutated-owner fixture without restoring its binding."""
++
++
++class _Projection(BaseModel):
++    model_config = ConfigDict(extra="forbid")
++    selected: ArtifactRef
++
++
++class _Resolver:
++    def resolve(self, store: ArtifactReader, ref: ArtifactRef) -> tuple[ArtifactRef, ...]:
++        manifest = store.get_manifest(ref)
++        if manifest.kind == "tests.child.value":
++            return ()
++        if manifest.kind != "tests.child.projection":
++            raise ValueError("unsupported_test_schema")
++        selected = _Projection.model_validate_json(store.get_bytes(ref)).selected
++        store.get_bytes(selected)
++        return (selected,)
++
++
++def _job(
++    store: ControlPlaneStore, *, job_id: str = "job-a", run_id: str = "run-a",
++    kind: str = "natural_language_run", child_reissue_source_run_id: str | None = None,
++    child_reissue_source_tenant_id: str | None = None,
++    child_reissue_source_cell_id: str | None = None,
++) -> int:
++    scope = {
++        "schema_version": "polisyos.runtime.control_execution_scope.v1",
++        "status": "established",
++        "tenant_id": "tenant-a",
++        "cell_id": "cell-a",
++        "actor_subject": "actor-a",
++        "actor_authenticated": True,
++        "actor_roles": ["analyst"],
++    }
++    payload = {
++        "job_id": job_id,
++        "run_id": run_id,
++        "job_kind": kind,
++        "pipeline_id": None,
++        "payload_ref": "sha256:fixture-payload",
++        "submitted_by": "actor-a",
++        "requested_execution_profile": None,
++        "effective_execution_profile": "dev",
++        "policy_flags": {"candidate": True},
++        "capability_manifest_ref": None,
++        "execution_scope": scope,
++    }
++    store.create_job(
++        job_id=job_id,
++        kind=kind,
++        run_id=run_id,
++        pipeline_id=None,
++        requested_execution_profile=None,
++        effective_execution_profile="dev",
++        policy_flags={"candidate": True},
++        capability_manifest_ref=None,
++        payload_ref="sha256:fixture-payload",
++        submitted_by="actor-a",
++        creation_event_payload=payload,
++        child_reissue_source_run_id=child_reissue_source_run_id,
++        child_reissue_source_tenant_id=child_reissue_source_tenant_id,
++        child_reissue_source_cell_id=child_reissue_source_cell_id,
++    )
++    job = store.lease_next_job(worker_id="worker-a", lease_seconds=120)
++    assert job is not None and job.job_id == job_id
++    return job.attempt
++
++
++@pytest.mark.parametrize("probe", [
++    "normal", "retained_binding", "oversized", "stale_lease", "unknown_progress",
++    "reissue_first", "session_first", "other_scope_reissue_first", "other_scope_session_first",
++    "malformed_session_scope", "oversized_session_set", "concurrent_order", "revocation_unknown",
++    "scope_transaction_failure", "scope_wrong_parent", "scope_root_busy", "scope_owner_busy", "scope_verifier_removal", "scope_start_partial", "scope_preflight_fail", "scope_release_preparing", "scope_release_prepared", "scope_prepare_root_available", "scope_sql_root_available",
++    "effect_owner_positive", "effect_owner_tamper_limit", "scope_readback_failure", "scope_precommit_failure", "scope_conditional_refusal", "scope_new_store_fail", "scope_new_store_revoke_unknown", "root_finalizes_after_authorize",
++])
++def test_owner_authorization_and_fresh_readback(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, probe: str
++) -> None:
++    replay_timeout: float | None = None
++    if probe == "effect_owner_positive":
++        import math
++        import os
++
++        raw_timeout = os.environ.get("E02_EFFECT_REPLAY_TIMEOUT_SECONDS", "")
++        try:
++            replay_timeout = float(raw_timeout)
++        except ValueError:
++            pytest.fail("HARNESS_ERROR: set a measured E02_EFFECT_REPLAY_TIMEOUT_SECONDS")
++        if not math.isfinite(replay_timeout) or replay_timeout <= 0:
++            pytest.fail("HARNESS_ERROR: replay timeout must be finite and positive")
++    db_path = tmp_path / "control.sqlite3"
++    owner = ControlPlaneStore(backend="sqlite", sqlite_path=db_path)
++    attempt = _job(owner)
++    guard = BlockingDependencyGuard(
++        dependency_name="child-release-test",
++        timeout_seconds=60,
++        breaker=CircuitBreaker("child-release-test"),
++        executor=get_shared_executor(),
++    )
++    try:
++        with owner.job_execution_fence(job_id="job-a", worker_id="worker-a", attempt=attempt):
++            replay_input = guard.run_with_parent_admission(
++                lambda grant: _exercise(
++                    tmp_path, db_path, owner, grant, monkeypatch, probe
++                ),
++                deadline_monotonic=time.monotonic() + 60,
++            )
++    finally:
++        guard.close()
++    if probe == "effect_owner_positive":
++        import multiprocessing
++
++        from tests._helpers.child_effect_fresh_replay import replay_in_fresh_process
++
++        assert replay_input is not None
++        spawn = multiprocessing.get_context("spawn")
++        results = spawn.Queue()
++        process = spawn.Process(target=replay_in_fresh_process, args=(*replay_input, results))
++        assert replay_timeout is not None
++        started = False
++        unreaped_pid: int | None = None
++        try:
++            process.start()
++            started = True
++            process.join(timeout=replay_timeout)
++            if process.is_alive():
++                pytest.fail("HARNESS_ERROR: fresh replay exceeded the configured measured timeout")
++            assert process.exitcode == 0
++            assert results.get(timeout=5) == {
++                "unappointed": "REFUSED", "missing_job_owner": "REFUSED",
++                "unavailable_sqlite": "REFUSED", "recorded_effects": 3, "restored_effects": 3,
++            }
++        finally:
++            if started and process.is_alive():
++                process.terminate()
++                process.join(timeout=5)
++                if process.is_alive():
++                    process.kill()
++                    process.join(timeout=5)
++                if process.is_alive():
++                    unreaped_pid = process.pid
++            if unreaped_pid is None:
++                process.close()
++            results.close()
++            if unreaped_pid is not None:
++                pytest.fail(f"HARNESS_ERROR: replay child remains unreaped: pid={unreaped_pid}")
++
++
++def _exercise(
++    tmp_path: Path,
++    db_path: Path,
++    owner: ControlPlaneStore,
++    grant: _BorrowedExecutionGrant,
++    monkeypatch: pytest.MonkeyPatch,
++    probe: str,
++) -> tuple[str, str, str, str, str, str] | None:
++    served = FileSystemCAS(
++        tmp_path / "served", tenant_id="tenant-a", cell_id="cell-a", ownership_enforced=False
++    )
++    registry = build_default_registry_bundle(served, return_selected_profile=True)
++    effect_scope = None
++    if probe in {"effect_owner_positive", "effect_owner_tamper_limit"}:
++        from polisyos.core.security.access_scope import AccessScope
++
++        effect_scope = AccessScope.for_service(
++            tenant_id="tenant-a", cell_id="cell-a", spiffe_id="spiffe://test/child-effects"
++        )
++    root = RunContext.start(
++        served,
++        registry.bundle_ref,
++        run_id="run-a",
++        run_dir=served.root / "runs" / "run-a",
++        tenant_id="tenant-a",
++        cell_id="cell-a",
++        control_job_id="job-a",
++        access_scope=effect_scope,
++    )
++    workflow = served.put_json(
++        {},
++        PutOptions(kind="tests.workflow", media_type="application/json"),
++        return_selected_profile=True,
++    )
++    state = served.put_json(
++        {},
++        PutOptions(kind="tests.state", media_type="application/json"),
++        return_selected_profile=True,
++    )
++    parent_attempt = str(uuid4())
++    basis = root._record_runtime_invocation_started(
++        attempt_id=parent_attempt,
++        attempt_number=1,
++        workflow_spec_ref=workflow,
++        node_alias="parent",
++        component_id="tests.parent",
++        input_state_ref=state,
++    )
++    binding = ChildComputationBinding(
++        root_run_id="run-a",
++        control_job_id="job-a",
++        parent_attempt_id=parent_attempt,
++        parent_basis_ref=basis,
++        tenant_id="tenant-a",
++        cell_id="cell-a",
++        policy_id="tests",
++        policy_version="1",
++        template_sha256="sha256:" + "1" * 64,
++        admission_id="test-owner",
++        child_invocation_id="parent",
++        admission_generation=1,
++        deadline=datetime.now(UTC) + timedelta(seconds=45),
++    )
++    basis_text = json.dumps(
++        basis.model_dump(mode="json"), sort_keys=True, separators=(",", ":"), ensure_ascii=True
++    )
++    grant.bind_parent(
++        run_id="run-a", job_id="job-a", attempt_id=parent_attempt, basis_ref=basis_text
++    )
++    fence = owner.child_computation_publication_fence(grant=grant, binding=binding)
++    custody = ChildComputationCustody(
++        root,
++        staging_root=tmp_path / "private",
++        closure_resolver=_Resolver(),
++        publication_fence=fence,
++    )
++    _install_child_job_owner(
++        custody._ledger.store_identity, owner, token=_JOB_OWNER_BOOTSTRAP_TOKEN
++    )
++    intent = custody.job_session_intent(binding)
++    if probe == "concurrent_order":
++        from threading import Barrier, Thread
++
++        barrier = Barrier(2)
++        reissue_result: list[str] = []
++
++        def race_reissue() -> None:
++            fresh = ControlPlaneStore(backend="sqlite", sqlite_path=db_path)
++            barrier.wait(timeout=5.0)
++            try:
++                _job(fresh, job_id="job-b", run_id="run-b", kind="workflow_run",
++                     child_reissue_source_run_id="run-a")
++            except ControlJobExecutionAdmissionError as exc:
++                reissue_result.append(exc.code)
++            except BaseException as exc:
++                reissue_result.append(f"unexpected:{type(exc).__name__}")
++            else:
++                reissue_result.append("reissue_won")
++
++        racer = Thread(target=race_reissue, daemon=True)
++        racer.start()
++        barrier.wait(timeout=5.0)
++        try:
++            fence.begin_session(intent)
++        except ControlJobExecutionAdmissionError as exc:
++            session_result = exc.code
++        else:
++            session_result = "session_won"
++        racer.join(timeout=5.0)
++        assert not racer.is_alive()
++        assert (session_result, reissue_result) in (
++            ("session_won", ["child_reissue_source_reconciliation_required"]),
++            ("child_session_source_already_reissued", ["reissue_won"]),
++        )
++        return
++    if probe == "other_scope_reissue_first":
++        fresh = ControlPlaneStore(backend="sqlite", sqlite_path=db_path)
++        _job(fresh, job_id="job-b", run_id="run-b", kind="workflow_run",
++             child_reissue_source_run_id="run-a", child_reissue_source_tenant_id="tenant-b",
++             child_reissue_source_cell_id="cell-b")
++    if probe == "reissue_first":
++        fresh = ControlPlaneStore(backend="sqlite", sqlite_path=db_path)
++        _job(fresh, job_id="job-b", run_id="run-b", kind="workflow_run",
++             child_reissue_source_run_id="run-a")
++        with pytest.raises(ControlJobExecutionAdmissionError, match="source_already_reissued"):
++            fence.begin_session(intent)
++        assert fresh.find_child_job_session(
++            job_id="job-a", run_id="run-a", parent_attempt_id=parent_attempt,
++            parent_basis_ref=basis,
++        ) is None
++        return
++    original_recompute = intent.recompute
++    recompute_count = 0
++
++    def fail_before_transaction():
++        nonlocal recompute_count
++        recompute_count += 1
++        if recompute_count == 2:
++            raise OSError("pretransaction_source_failure")
++        return original_recompute()
++
++    with monkeypatch.context() as patch:
++        patch.setattr(intent, "recompute", fail_before_transaction)
++        with pytest.raises(OSError, match="pretransaction_source_failure"):
++            fence.begin_session(intent)
++    forged_intent = intent.recompute()
++    forged_intent.parent_basis_ref.kind = "tests.forged.basis"
++    with pytest.raises(ChildReleaseUnavailableError):
++        intent.admission(forged_intent)
++    fresh_intent = intent.recompute()
++    assert intent.admission(fresh_intent)
++    original_grant_check = grant.require_parent
++
++    def refuse_at_sql_decision(**kwargs: object) -> None:
++        if sys._getframe(1).f_code.co_name == "resource_current":
++            raise RuntimeError("simulated_resource_revocation_at_sql_decision")
++        original_grant_check(**kwargs)
++
++    with monkeypatch.context() as patch:
++        patch.setattr(grant, "require_parent", refuse_at_sql_decision)
++        with pytest.raises(ControlJobLeaseLostError, match="conditional_admission_refused"):
++            fence.begin_session(intent)
++    assert (
++        owner.find_child_job_session(
++            job_id="job-a",
++            run_id="run-a",
++            parent_attempt_id=parent_attempt,
++            parent_basis_ref=basis,
++            admission_generation=1,
++        )
++        is None
++    )
++    # The positive owner decision is not itself a durable authorization.
++    # A failure after the INSERT must roll the transaction back and leave no
++    # locator that a fresh owner can verify.
++    original_execute = owner._execute
++
++    def fail_after_insert(sql: str, parameters: object = ()) -> object:
++        result = original_execute(sql, parameters)
++        if sql.startswith("INSERT INTO control_job_events") and "child_resource_current" in sql:
++            assert result == 1
++            raise RuntimeError("simulated_failure_after_positive_decision")
++        return result
++
++    with monkeypatch.context() as patch:
++        patch.setattr(owner, "_execute", fail_after_insert)
++        with pytest.raises(RuntimeError, match="simulated_failure_after_positive_decision"):
++            fence.begin_session(intent)
++    assert ControlPlaneStore(backend="sqlite", sqlite_path=db_path).find_child_job_session(
++        job_id="job-a",
++        run_id="run-a",
++        parent_attempt_id=parent_attempt,
++        parent_basis_ref=basis,
++    ) is None
++
++    original_row_reader = owner._child_event_row
++
++    def lose_fresh_read(job_id: str, event_type: str):
++        if not owner._has_active_job_transaction() and event_type.startswith(
++            "child.release.session."
++        ):
++            raise OSError("simulated_post_commit_readback_loss")
++        return original_row_reader(job_id, event_type)
++
++    from polisyos.core.run.child_custody import ChildSessionAdmissionUnknown
++
++    with monkeypatch.context() as patch:
++        patch.setattr(owner, "_child_event_row", lose_fresh_read)
++        with pytest.raises(ChildSessionAdmissionUnknown) as unknown:
++            fence.begin_session(intent)
++        assert isinstance(unknown.value.__cause__, OSError)
++        assert unknown.value.recovery is not None
++        assert unknown.value.recovery.root_run_id == "run-a"
++        assert unknown.value.recovery.parent_attempt_id == parent_attempt
++        assert json.loads(unknown.value.recovery.parent_basis_json) == basis.model_dump(mode="json")
++        assert unknown.value.recovery.job_intent_locator is None
++    recovered = ControlPlaneStore(backend="sqlite", sqlite_path=db_path).find_child_job_session(
++        job_id="job-a",
++        run_id="run-a",
++        parent_attempt_id=parent_attempt,
++        parent_basis_ref=basis,
++    )
++    assert recovered is not None
++    intent_locator, recovered_claim = recovered
++    intent_claim = intent.recompute()
++    assert recovered_claim == intent_claim
++    if probe == "oversized_session_set":
++        event_type = owner._child_job_event_type("session", intent_claim)
++        row = owner._child_event_row("job-a", event_type)
++        assert row is not None
++        with owner._job_transaction():
++            for index in range(32):
++                owner._execute(
++                    "INSERT INTO control_job_events (job_id, event_type, payload_json, created_at) "
++                    "VALUES (?, ?, ?, ?)",
++                    ("job-a", f"child.release.session.extra-{index}", row["payload_json"],
++                     datetime.now(UTC).isoformat()),
++                )
++        fresh = ControlPlaneStore(backend="sqlite", sqlite_path=db_path)
++        with pytest.raises(ControlJobExecutionAdmissionError, match="session_set_oversized"):
++            _job(fresh, job_id="job-b", run_id="run-b", kind="workflow_run",
++                 child_reissue_source_run_id="run-a")
++        assert fresh.get_job("job-b") is None
++        return
++    if probe == "malformed_session_scope":
++        event_type = owner._child_job_event_type("session", intent_claim)
++        row = owner._child_event_row("job-a", event_type)
++        assert row is not None
++        malformed = json.loads(row["payload_json"])
++        malformed["claim"]["tenant_id"] = 7
++        with owner._job_transaction():
++            owner._execute(
++                "UPDATE control_job_events SET payload_json = ? WHERE event_id = ?",
++                (json.dumps(malformed), intent_locator.event_id),
++            )
++        fresh = ControlPlaneStore(backend="sqlite", sqlite_path=db_path)
++        with pytest.raises(ControlJobExecutionAdmissionError):
++            _job(fresh, job_id="job-b", run_id="run-b", kind="workflow_run",
++                 child_reissue_source_run_id="run-a", child_reissue_source_tenant_id="tenant-b",
++                 child_reissue_source_cell_id="cell-b")
++        assert fresh.get_job("job-b") is None
++        return
++    if probe == "other_scope_session_first":
++        fresh = ControlPlaneStore(backend="sqlite", sqlite_path=db_path)
++        _job(fresh, job_id="job-b", run_id="run-b", kind="workflow_run",
++             child_reissue_source_run_id="run-a", child_reissue_source_tenant_id="tenant-b",
++             child_reissue_source_cell_id="cell-b")
++        return
++    if probe == "session_first":
++        fresh = ControlPlaneStore(backend="sqlite", sqlite_path=db_path)
++        with pytest.raises(ControlJobExecutionAdmissionError, match="source_reconciliation_required"):
++            _job(fresh, job_id="job-b", run_id="run-b", kind="workflow_run",
++                 child_reissue_source_run_id="run-a")
++        assert fresh.get_job("job-b") is None
++        return
++    if probe == "unknown_progress":
++        wrong_locator = intent_locator.model_copy(update={"event_id": intent_locator.event_id + 1})
++        with pytest.raises(ControlJobExecutionAdmissionError, match="unknown_locator_invalid"):
++            owner.record_child_release_unknown(
++                locator=wrong_locator, run_id="run-a", parent_attempt_id=parent_attempt,
++                parent_basis_ref=basis,
++            )
++        owner.record_child_release_unknown(
++            locator=intent_locator, run_id="run-a", parent_attempt_id=parent_attempt,
++            parent_basis_ref=basis,
++        )
++        owner.record_child_release_unknown(
++            locator=intent_locator, run_id="run-a", parent_attempt_id=parent_attempt,
++            parent_basis_ref=basis, sibling_error_types=("ValueError",),
++        )
++        recorded = ControlPlaneStore(backend="sqlite", sqlite_path=db_path).get_job("job-a")
++        assert recorded is not None and recorded.state == "running"
++        assert recorded.progress["child_release_reconciliation"]["status"] == "reconciliation_required"
++        intents = recorded.progress["child_release_reconciliation"]["intents"]
++        assert len(intents) == 1 and intents[0]["intent_event_id"] == intent_locator.event_id
++        assert recorded.progress["child_release_reconciliation"]["sibling_error_types"] == ["ValueError"]
++        return
++    if probe == "stale_lease":
++        # Simulate process loss after the durable intent, before any handler can
++        # record an unknown outcome. The normal expired-job path must not rerun it.
++        expired = (datetime.now(UTC) - timedelta(seconds=1)).isoformat()
++        with owner._job_transaction():
++            owner._execute(
++                "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
++                (expired, "job-a"),
++            )
++        fresh_owner = ControlPlaneStore(backend="sqlite", sqlite_path=db_path)
++        assert fresh_owner.lease_next_job(worker_id="worker-b") is None
++        with pytest.raises(ControlJobLeaseLostError):
++            fresh_owner.mark_running(job_id="job-a", worker_id="worker-b")
++        # A different job without an intent still gets its ordinary lease.
++        assert _job(fresh_owner, job_id="job-b", run_id="run-b") == 1
++        assert fresh_owner.get_job("job-b").state == "running"
++        assert fresh_owner.find_child_job_session(
++            job_id="job-a",
++            run_id="run-a",
++            parent_attempt_id=parent_attempt,
++            parent_basis_ref=basis,
++        ) == recovered
++        return
++    with (
++        owner._job_transaction(),
++        pytest.raises(ControlJobExecutionAdmissionError, match="fresh_read_required"),
++    ):
++        owner.verify_intent(intent_locator, intent_claim)
++    custody.bind_job_intent(intent, intent_locator)
++    parent = custody.parent_store(binding, input_refs=())
++    if probe == "revocation_unknown":
++        from polisyos.core.run.child_custody import (
++            ChildGuardedTransferUnknown,
++            ChildRevocationUnknown,
++        )
++
++        recovery = custody._recovery_locator()
++        assert recovery is not None and recovery.job_intent_locator == intent_locator
++
++        def fail_revoke(_reason: str) -> None:
++            raise OSError("lost durable revocation acknowledgement")
++
++        with monkeypatch.context() as patch:
++            patch.setattr(custody._ledger, "revoke", fail_revoke)
++            original = ChildGuardedTransferUnknown(recovery)
++            custody._revoke_preserving_outcome(original, reason="transfer_unknown")
++            assert original.recovery == recovery
++            assert any("revocation" in note for note in original.__notes__)
++            with pytest.raises(ChildRevocationUnknown) as failed:
++                custody._revoke_preserving_outcome(ValueError("original failure"), reason="failed")
++            assert failed.value.recovery == recovery
++            assert isinstance(failed.value.__cause__, ValueError)
++        return
++    if probe in {"effect_owner_positive", "effect_owner_tamper_limit"}:
++        # The exact same ordinary event precedes the release boundary. It must
++        # never be mistaken for the later owner-attributed event.
++        root.emit("tests", "CHILD_EFFECT_EVENT", metrics={"value": 7})
++        custody.stage_parent_run_update({"control_job_id": "job-a"})
++        custody.stage_parent_run_update({"execution_profile": "test-effect-profile"})
++        custody.stage_parent_event("tests", "CHILD_EFFECT_EVENT", metrics={"value": 7})
++    if probe == "oversized":
++        with pytest.raises(ChildReleaseUnavailableError, match="job_owner_snapshot_limit"):
++            custody.stage_parent_event("tests", "X" * (256 * 1024 + 1))
++        with pytest.raises(ChildReleaseUnavailableError):
++            custody.stage_parent_event("tests", "after_oversize")
++        return
++    child_binding = binding.model_copy(update={"child_invocation_id": "child"})
++    if probe in {"scope_new_store_fail", "scope_new_store_revoke_unknown"}:
++        from polisyos.core.run.child_custody import ChildRevocationUnknown
++
++        def fail_new_store(*_args: object, **_kwargs: object) -> None:
++            assert custody._scope_preparations
++            raise OSError("private store preparation failed")
++
++        def fail_revoke(_reason: str) -> None:
++            raise OSError("durable revoke acknowledgement lost")
++
++        with monkeypatch.context() as patch:
++            patch.setattr(custody, "_new_store", fail_new_store)
++            if probe == "scope_new_store_revoke_unknown":
++                patch.setattr(custody._ledger, "revoke", fail_revoke)
++                with pytest.raises(ChildRevocationUnknown) as unknown:
++                    custody.prepare_scope(child_binding, input_refs=())
++                assert unknown.value.recovery is not None
++            else:
++                with pytest.raises(OSError, match="private store preparation failed"):
++                    custody.prepare_scope(child_binding, input_refs=())
++        assert not custody._scope_preparations and not custody._prepared_scopes
++        assert custody._state == "revoked"
++        owner.verify_intent(intent_locator, intent_claim)
++        return
++    if probe == "scope_preflight_fail":
++        def refuse_preflight(_binding: object) -> None:
++            raise ValueError("pre-start owner refusal")
++
++        with monkeypatch.context() as patch:
++            patch.setattr(custody, "_root_preflight", refuse_preflight)
++            with pytest.raises(ValueError, match="pre-start owner refusal"):
++                custody.prepare_scope(child_binding, input_refs=())
++        return
++    if probe == "scope_start_partial":
++        from polisyos.core.run.child_custody import ChildScopePreparationUnknown
++
++        original_emit = RunContext._emit_record
++        emitted: list[str] = []
++        traces: list[Path] = []
++
++        def fail_after_started(ctx: RunContext, phase: str, event: str, **kwargs: object) -> None:
++            original_emit(ctx, phase, event, **kwargs)
++            if event == "RUN_STARTED" and ctx.run_manifest.run_id != "run-a":
++                emitted.append(ctx.run_manifest.run_id)
++                traces.append(ctx._trace_path)
++                raise OSError("lost child start acknowledgement")
++
++        with monkeypatch.context() as patch:
++            patch.setattr(RunContext, "_emit_record", fail_after_started)
++            with pytest.raises(ChildScopePreparationUnknown) as unknown:
++                custody.prepare_scope(child_binding, input_refs=())
++        assert len(emitted) == 1
++        assert unknown.value.child_run_id == emitted[0]
++        assert unknown.value.run_dir
++        assert unknown.value.recovery is not None
++        records = [json.loads(line) for line in traces[0].read_text().splitlines()]
++        assert any(record["event"] == "RUN_STARTED" for record in records)
++        assert not any(record["event"] in {"RUN_FINALIZED"} for record in records)
++        assert not custody._scope_preparations and not custody._prepared_scopes
++        return
++    if probe == "scope_prepare_root_available":
++        from polisyos.core.run import context as run_context_owner
++
++        original_persist = run_context_owner._persist_run_owner_snapshot
++        observed: list[bool] = []
++
++        def blocked_owner_snapshot(*args: object, **kwargs: object):
++            # The actual child-start owner is paused inside its CAS operation.
++            def acquire_root() -> None:
++                available = root._worker_merge_lock.acquire(blocking=False)
++                observed.append(available)
++                if available:
++                    root._worker_merge_lock.release()
++
++            observer = threading.Thread(target=acquire_root)
++            observer.start()
++            observer.join(timeout=10)
++            assert not observer.is_alive()
++            return original_persist(*args, **kwargs)
++
++        with monkeypatch.context() as patch:
++            patch.setattr(run_context_owner, "_persist_run_owner_snapshot", blocked_owner_snapshot)
++            prepared = custody.prepare_scope(child_binding, input_refs=())
++        assert observed == [True]
++    elif probe == "scope_release_preparing":
++        original_start = RunContext.start_child
++        saw_pending = []
++
++        def observe_preparing(*args: object, **kwargs: object) -> RunContext:
++            run = original_start(*args, **kwargs)
++            with pytest.raises(ChildReleaseUnavailableError, match="child_scope_admission_pending"):
++                custody.release_parent((), basis)
++            saw_pending.append(True)
++            return run
++
++        with monkeypatch.context() as patch:
++            patch.setattr(RunContext, "start_child", observe_preparing)
++            prepared = custody.prepare_scope(child_binding, input_refs=())
++        assert saw_pending == [True]
++    else:
++        prepared = custody.prepare_scope(child_binding, input_refs=())
++    if probe == "scope_release_prepared":
++        with pytest.raises(ChildReleaseUnavailableError, match="child_scope_admission_pending"):
++            custody.release_parent((), basis)
++    if probe == "scope_verifier_removal":
++        from polisyos.core.artifacts.child_release import ChildJobReleaseLocator
++
++        claim = prepared.recompute()
++        # Hold markers and owner state fixed while omitting the committed event.
++        with grant.admission():
++            prepared.admit(claim, expected_parent=binding)
++        absent = ChildJobReleaseLocator(job_id="job-a", event_id=99999999)
++        with pytest.raises(ControlJobExecutionAdmissionError, match="scope_event_unavailable"):
++            prepared.complete(absent)
++        with monkeypatch.context() as patch:
++            patch.setattr(owner, "verify_scope", lambda _locator, _claim: None)
++            exposed = prepared.complete(absent)
++        custody.revoke(exposed, reason="scope_verifier_removal_control")
++        exposed.run.suspend_for_resume()
++        return
++    if probe in {"scope_root_busy", "scope_owner_busy"}:
++        selected_lock = root._worker_merge_lock if probe == "scope_root_busy" else custody._lock
++        expected_reason = "root_transition_busy" if probe == "scope_root_busy" else "owner_busy"
++        acquired, release = threading.Event(), threading.Event()
++
++        def hold_root() -> None:
++            with selected_lock:
++                acquired.set()
++                assert release.wait(10)
++
++        worker = threading.Thread(target=hold_root)
++        worker.start()
++        try:
++            assert acquired.wait(10)
++            with pytest.raises(ChildReleaseUnavailableError, match=expected_reason):
++                fence.admit_prepared_scope(prepared)
++        finally:
++            release.set()
++            worker.join(timeout=10)
++        assert not worker.is_alive()
++        prepared.abandon()
++        return
++    if probe == "scope_wrong_parent":
++        fence._binding = binding.model_copy(update={"template_sha256": "sha256:" + "2" * 64})
++        with pytest.raises(ChildReleaseUnavailableError):
++            fence.admit_prepared_scope(prepared)
++        prepared.abandon()
++        return
++    if probe == "scope_transaction_failure":
++        real_transaction = owner._job_transaction
++
++        @contextmanager
++        def failed_transaction(*, commit_admission=None):
++            with real_transaction(commit_admission=commit_admission):
++                yield
++            if commit_admission is not None:
++                raise OSError("simulated lost acknowledgement after scope commit")
++
++        from polisyos.core.artifacts.child_release import ChildJobReleaseLocator
++        from polisyos.core.run.child_custody import ChildScopeAdmissionUnknown
++
++        with monkeypatch.context() as patch:
++            patch.setattr(owner, "_job_transaction", failed_transaction)
++            with pytest.raises(ChildScopeAdmissionUnknown) as unknown:
++                fence.admit_prepared_scope(prepared)
++            assert isinstance(unknown.value.__cause__, OSError)
++            assert unknown.value.scope_claim_json
++        prepared.abandon()
++        with pytest.raises(ChildReleaseUnavailableError):
++            prepared.complete(ChildJobReleaseLocator(job_id="job-a", event_id=99999999))
++        return
++    scope_claim = prepared.recompute()
++    if probe == "scope_conditional_refusal":
++        actual_admit = prepared.admit
++        original_deadline = grant._attempt.deadline
++
++        def expire_after_owner_admit(*args: object, **kwargs: object) -> bytes:
++            owner_bytes = actual_admit(*args, **kwargs)
++            grant._attempt.deadline = time.monotonic() - 1
++            return owner_bytes
++
++        try:
++            with monkeypatch.context() as patch:
++                patch.setattr(prepared, "admit", expire_after_owner_admit)
++                with pytest.raises(ControlJobLeaseLostError, match="child_scope_conditional_admission_refused"):
++                    fence.admit_prepared_scope(prepared)
++        finally:
++            grant._attempt.deadline = original_deadline
++        assert owner._child_event_row("job-a", f"child.release.scope.{scope_claim.scope_id}") is None
++        prepared.abandon()
++        return
++    if probe == "scope_precommit_failure":
++        read_row = owner._child_event_row
++
++        def no_scope_row(job_id: str, event_type: str):
++            if event_type.startswith("child.release.scope."):
++                return None
++            return read_row(job_id, event_type)
++
++        with monkeypatch.context() as patch:
++            patch.setattr(owner, "_child_event_row", no_scope_row)
++            with pytest.raises(ControlJobExecutionAdmissionError, match="child_scope_event_unavailable"):
++                fence.admit_prepared_scope(prepared)
++        assert owner._child_event_row("job-a", f"child.release.scope.{scope_claim.scope_id}") is None
++        prepared.abandon()
++        return
++    if probe == "scope_readback_failure":
++        from polisyos.core.run.child_custody import ChildScopeAdmissionUnknown
++
++        def unavailable_scope(_locator: object, _claim: object) -> None:
++            raise ControlJobExecutionAdmissionError("simulated scope readback unavailable")
++
++        with monkeypatch.context() as patch:
++            patch.setattr(owner, "verify_scope", unavailable_scope)
++            with pytest.raises(ChildScopeAdmissionUnknown) as unknown:
++                fence.admit_prepared_scope(prepared)
++        assert unknown.value.scope_locator is not None
++        ControlPlaneStore(backend="sqlite", sqlite_path=db_path).verify_scope(
++            unknown.value.scope_locator, scope_claim
++        )
++        prepared.abandon()
++        return
++    if probe == "scope_sql_root_available":
++        original_require = grant.require_parent
++        observed: list[bool] = []
++
++        def inspect_decision(**kwargs: object) -> None:
++            if sys._getframe(1).f_code.co_name == "resource_current":
++                def inspect_root() -> None:
++                    available = root._worker_merge_lock.acquire(blocking=False)
++                    observed.append(available)
++                    if available:
++                        root._worker_merge_lock.release()
++
++                observer = threading.Thread(target=inspect_root)
++                observer.start()
++                observer.join(timeout=10)
++                assert not observer.is_alive()
++            original_require(**kwargs)
++
++        with monkeypatch.context() as patch:
++            patch.setattr(grant, "require_parent", inspect_decision)
++            child = fence.admit_prepared_scope(prepared)
++        assert observed == [True]
++    else:
++        child = fence.admit_prepared_scope(prepared)
++    scope_row = owner._child_event_row("job-a", f"child.release.scope.{scope_claim.scope_id}")
++    assert scope_row is not None
++    from polisyos.core.artifacts.child_release import ChildJobReleaseLocator
++
++    scope_locator = ChildJobReleaseLocator(job_id="job-a", event_id=int(scope_row["event_id"]))
++    ControlPlaneStore(backend="sqlite", sqlite_path=db_path).verify_scope(scope_locator, scope_claim)
++    with pytest.raises(ChildReleaseUnavailableError):
++        prepared.complete(scope_locator)
++    selected = child.store.put_bytes(
++        b"selected",
++        PutOptions(kind="tests.child.value", media_type="application/octet-stream"),
++        return_selected_profile=True,
++    )
++    unselected = child.store.put_bytes(
++        b"unselected sibling",
++        PutOptions(kind="tests.child.value", media_type="application/octet-stream"),
++        return_selected_profile=True,
++    )
++    same_blob_other_profile = child.store.put_bytes(
++        b"selected",
++        PutOptions(kind="tests.child.other-profile", media_type="application/octet-stream"),
++        return_selected_profile=True,
++    )
++    assert same_blob_other_profile.artifact_id == selected.artifact_id
++    assert same_blob_other_profile.manifest_profile_sha256 != selected.manifest_profile_sha256
++    assert child.run.run_manifest.run_id != root.run_manifest.run_id
++    assert child.run.run_manifest.parent_run_id == root.run_manifest.run_id
++    child.run.add_output(selected)
++    child.run.finalize()
++    handoff = custody.admit_handoff(child, selected)
++    assert parent.get_bytes(selected) == b"selected"
++    for denied in (unselected, same_blob_other_profile):
++        with pytest.raises(ChildReleaseUnavailableError):
++            parent.get_bytes(denied)
++    final = parent.put_json(
++        _Projection(selected=selected).model_dump(mode="json"),
++        PutOptions(
++            kind="tests.child.projection",
++            media_type="application/json",
++            schema=SchemaInfo(name="tests.ChildProjection", version="1"),
++        ),
++        return_selected_profile=True,
++    )
++    with pytest.raises((FileNotFoundError, ChildReleaseUnavailableError)):
++        served.get_bytes(selected)
++    original_authorize = fence.authorize_release
++
++    def check_claim_mutation(candidate: ChildJobReleaseCandidate) -> ChildJobReleaseLocator:
++        if probe == "retained_binding":
++            unmodified_claim = candidate.recompute()
++            retained = custody._binding
++            assert retained is not None
++            retained.parent_basis_ref.kind = "tests.forged.retained.binding"
++            with pytest.raises(ChildReleaseUnavailableError):
++                candidate.admission(unmodified_claim)
++            raise _RetainedBindingProbeCompleteError
++        for field in ("parent_basis_ref", "release_ref", "projection_ref"):
++            forged = candidate.recompute()
++            getattr(forged, field).kind = "tests.forged.reference"
++            with pytest.raises(ChildReleaseUnavailableError):
++                candidate.admission(forged)
++        fresh_claim = candidate.recompute()
++        assert candidate.admission(fresh_claim)
++        locator = original_authorize(candidate)
++        if probe == "root_finalizes_after_authorize":
++            root.finalize(status="fail", errors=[{"reason": "test_owner_finalized"}])
++        return locator
++
++    original_publish = FileSystemCAS._publish_child_release_profiles
++    pending_reads: list[str] = []
++
++    def observe_pending(
++        store: FileSystemCAS, source: FileSystemCAS, refs: tuple[ArtifactRef, ...],
++        ledger: object, *, token: object,
++    ) -> object:
++        result = original_publish(store, source, refs, ledger, token=token)
++        reader = FileSystemCAS(store.root, ownership_enforced=False)
++        for ref in refs:
++            for consume in (reader.get_bytes, reader.get_manifest, reader.get_manifest_bytes, reader.has):
++                with pytest.raises(ChildReleaseUnavailableError):
++                    consume(ref)
++            with pytest.raises(ChildReleaseUnavailableError), reader.open_member(ref, "blob"):
++                pytest.fail("pending child bytes escaped through stream")
++            pending_reads.append(str(ref.artifact_id))
++        return result
++
++    with monkeypatch.context() as patch:
++        patch.setattr(FileSystemCAS, "_publish_child_release_profiles", observe_pending)
++        patch.setattr(fence, "authorize_release", check_claim_mutation)
++        if probe in {"effect_owner_positive", "effect_owner_tamper_limit"}:
++            bind_release = root._bind_child_parent_release
++
++            def bind_then_emit_identical(release_ref: ArtifactRef) -> None:
++                bind_release(release_ref)
++                # A separate ordinary event follows the real release boundary
++                # but precedes the actual owner-tagged effect.
++                root.emit("tests", "CHILD_EFFECT_EVENT", metrics={"value": 7})
++
++            patch.setattr(root, "_bind_child_parent_release", bind_then_emit_identical)
++        if probe == "retained_binding":
++            with pytest.raises(ChildParentSettlementError) as failure:
++                custody.release_parent((handoff,), final)
++            assert isinstance(failure.value.__cause__, _RetainedBindingProbeCompleteError)
++            unknown = failure.value.receipt
++            assert unknown.release_outcome == "release_state_unknown"
++            assert unknown.root_run_id == "run-a"
++            assert unknown.parent_attempt_id == parent_attempt
++            assert unknown.parent_basis_json is not None
++            assert json.loads(unknown.parent_basis_json) == basis.model_dump(mode="json")
++            assert unknown.job_intent_locator == intent_locator
++            assert unknown.job_authorization_locator is None
++            recovered_again = ControlPlaneStore(
++                backend="sqlite", sqlite_path=db_path
++            ).find_child_job_session(
++                job_id="job-a", run_id="run-a", parent_attempt_id=parent_attempt,
++                parent_basis_ref=basis,
++            )
++            assert recovered_again == recovered
++            return
++        if probe == "root_finalizes_after_authorize":
++            with pytest.raises(ChildParentSettlementError):
++                custody.release_parent((handoff,), final)
++            with pytest.raises((FileNotFoundError, ChildReleaseUnavailableError)):
++                FileSystemCAS(served.root, ownership_enforced=False).get_bytes(selected)
++            return
++        receipt = custody.release_parent((handoff,), final)
++    assert pending_reads
++    assert receipt.projection_ref == final
++    assert receipt.release_outcome == "released"
++    if probe == "effect_owner_positive":
++        from tests._helpers.child_parent_effect_controls import assert_child_parent_effect_controls
++
++        assert root.run_manifest.control_job_id == "job-a"
++        assert root.run_manifest.execution_profile == "test-effect-profile"
++        assert_child_parent_effect_controls(root, receipt.release_ref)
++    if probe == "effect_owner_tamper_limit":
++        from tests._helpers.child_parent_effect_controls import (
++            demonstrate_trusted_trace_tamper_limit,
++        )
++
++        # This is an expected demonstration of an explicit trusted-process
++        # boundary, not a hostile-writer protection or closure claim.
++        demonstrate_trusted_trace_tamper_limit(root, receipt.release_ref)
++    assert served.get_bytes(selected) == b"selected"
++    fresh_cas = FileSystemCAS(served.root, ownership_enforced=False)
++    assert fresh_cas.get_bytes(selected) == b"selected"
++    for denied in (unselected, same_blob_other_profile):
++        with pytest.raises((FileNotFoundError, ChildReleaseUnavailableError)):
++            fresh_cas.get_bytes(denied)
++    fresh = ControlPlaneStore(backend="sqlite", sqlite_path=db_path)
++    session = fresh.find_child_job_session(
++        job_id="job-a",
++        run_id="run-a",
++        parent_attempt_id=parent_attempt,
++        parent_basis_ref=basis,
++        admission_generation=1,
++    )
++    assert session is not None
++    recovered_intent, claim = session
++    assert recovered_intent == intent_locator
++    authorization = fresh.find_child_job_authorization(claim)
++    assert authorization is not None
++    locator, release_claim = authorization
++    fresh.verify_release(locator, release_claim)
++    from polisyos.core.artifacts.child_release import resolve_recorded_child_settlement
++
++    recorded = resolve_recorded_child_settlement(
++        served, intent_locator=intent_locator, expected_intent=claim,
++    )
++    assert recorded.classification == "settlement_journal_recorded"
++    assert recorded.parent_attempt_id == parent_attempt
++    from tests._helpers.child_settlement_controls import assert_recorded_settlement_controls
++
++    assert_recorded_settlement_controls(
++        served, owner, intent_locator, claim, monkeypatch, ControlJobExecutionAdmissionError
++    )
++    wrong_intent = claim.model_copy(deep=True)
++    wrong_intent.parent_basis_ref.kind = "tests.forged.basis"
++    with pytest.raises((ChildReleaseUnavailableError, ControlJobExecutionAdmissionError)):
++        resolve_recorded_child_settlement(
++            served, intent_locator=intent_locator, expected_intent=wrong_intent,
++        )
++    absent_locator = intent_locator.model_copy(update={"event_id": intent_locator.event_id + 99999})
++    with pytest.raises((ChildReleaseUnavailableError, ControlJobExecutionAdmissionError)):
++        resolve_recorded_child_settlement(
++            served, intent_locator=absent_locator, expected_intent=claim,
++        )
++    wrong = release_claim.model_copy(update={"parent_effects_sha256": "sha256:" + "0" * 64})
++    with pytest.raises(ControlJobExecutionAdmissionError, match="claim_mismatch"):
++        fresh.verify_release(locator, wrong)
++    if probe == "effect_owner_positive":
++        assert root.trace_path is not None and effect_scope is not None
++        run_dir = root.trace_path.parent
++        root.suspend_for_resume()
++        return (
++            str(served.root), str(db_path), str(run_dir), registry.bundle_ref.model_dump_json(),
++            receipt.release_ref.model_dump_json(), json.dumps(effect_scope.to_dict(), sort_keys=True),
++        )
++    if probe == "effect_owner_tamper_limit":
++        root.suspend_for_resume()
++    return None
++
++
++def test_actual_worker_issues_one_policy_budget_inside_live_job_fence(tmp_path: Path) -> None:
++    from polisyos.runtime.http.services.control.child_execution_budget import (
++        ChildExecutionBudgetPolicy,
++        _require_attempt_budget,
++    )
++    from polisyos.runtime.http.services.control_worker import ControlWorker
++
++    store = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "worker.sqlite3")
++    attempt = _job(store, kind="workflow_run")
++    actual_job = store.get_job("job-a")
++    assert actual_job is not None
++    observed: list[float] = []
++
++    def handler(job: object) -> None:
++        assert job is actual_job
++        budget = _require_attempt_budget("job-a", "run-a", attempt)
++        observed.append(budget.deadline_monotonic)
++        fresh = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "worker.sqlite3")
++        event = fresh._child_event_row("job-a", f"child.budget.attempt.{attempt}")
++        assert event is not None
++        assert fresh.read_child_attempt_budget("job-a", attempt) == budget.claim
++        assert budget.claim.event_id == event["event_id"]
++        assert _require_attempt_budget("job-a", "run-a", attempt) is budget
++        with pytest.raises(RuntimeError, match="child_execution_budget_unavailable"):
++            _require_attempt_budget("job-a", "run-a", attempt + 1)
++
++    worker = ControlWorker(
++        store=store, handler=handler, worker_id="worker-a",
++        child_execution_budget_policy=ChildExecutionBudgetPolicy("test-policy", "1", 10.0),
++    )
++    worker._run_with_lease_heartbeat(actual_job)
++    assert len(observed) == 1
++    with pytest.raises(ValueError, match="reserved_for_owner"):
++        store.append_event(job_id="job-a", event_type="child.budget.attempt.2", payload={})
++    with pytest.raises(ValueError, match="reserved_for_owner"):
++        store.enqueue_outbox_event(topic="control.child.budget.attempt", payload={})
++    with pytest.raises(RuntimeError, match="child_execution_budget_unavailable"):
++        _require_attempt_budget("job-a", "run-a", attempt)
++    with pytest.raises(ControlJobExecutionAdmissionError, match="child_budget_attempt_already_issued"):
++        worker._run_with_lease_heartbeat(actual_job)
++    restarted_worker = ControlWorker(
++        store=ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "worker.sqlite3"),
++        handler=handler, worker_id="worker-a",
++        child_execution_budget_policy=ChildExecutionBudgetPolicy("test-policy", "1", 10.0),
++    )
++    with pytest.raises(ControlJobExecutionAdmissionError, match="child_budget_attempt_already_issued"):
++        restarted_worker._run_with_lease_heartbeat(actual_job)
++    assert len(observed) == 1
++
++
++@pytest.mark.parametrize("renewal", ["lost", "unavailable"])
++def test_actual_worker_revokes_budget_when_renewal_is_not_proven(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, renewal: str
++) -> None:
++    from threading import Event
++
++    from polisyos.runtime.http.errors import RuntimeDependencyUnavailableError
++    from polisyos.runtime.http.services.control.child_execution_budget import (
++        ChildExecutionBudgetPolicy,
++        _require_attempt_budget,
++    )
++    from polisyos.runtime.http.services.control_worker import ControlWorker
++
++    store = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "worker-revocation.sqlite3")
++    attempt = _job(store, kind="workflow_run")
++    actual_job = store.get_job("job-a")
++    assert actual_job is not None
++    called = Event()
++
++    def renew(**_kwargs: object) -> bool:
++        called.set()
++        if renewal == "unavailable":
++            raise RuntimeDependencyUnavailableError("test-control-store")
++        return False
++
++    monkeypatch.setattr(store, "renew_job_lease", renew)
++    observed: list[str] = []
++
++    def handler(_job_record: object) -> None:
++        _require_attempt_budget("job-a", "run-a", attempt)
++        assert called.wait(3.0)
++        until = time.monotonic() + 3.0
++        while time.monotonic() < until:
++            try:
++                _require_attempt_budget("job-a", "run-a", attempt)
++            except RuntimeError:
++                observed.append("revoked")
++                return
++            Event().wait(0.01)
++        pytest.fail("heartbeat uncertainty left the budget active")
++
++    worker = ControlWorker(
++        store=store, handler=handler, worker_id="worker-a", lease_seconds=1,
++        child_execution_budget_policy=ChildExecutionBudgetPolicy("test-policy", "1", 10.0),
++    )
++    worker._run_with_lease_heartbeat(actual_job)
++    assert observed == ["revoked"]
++
++
++def test_actual_worker_missing_policy_preserves_legacy_and_rejects_stale_dispatch(
++    tmp_path: Path,
++) -> None:
++    from dataclasses import replace
++
++    from polisyos.runtime.http.services.control.child_execution_budget import (
++        _require_attempt_budget,
++    )
++    from polisyos.runtime.http.services.control_worker import ControlWorker
++
++    store = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "worker-no-policy.sqlite3")
++    attempt = _job(store, kind="workflow_run")
++    actual_job = store.get_job("job-a")
++    assert actual_job is not None
++    called: list[str] = []
++
++    def handler(_job_record: object) -> None:
++        called.append("legacy")
++        with pytest.raises(RuntimeError, match="child_execution_budget_unavailable"):
++            _require_attempt_budget("job-a", "run-a", attempt)
++
++    worker = ControlWorker(store=store, handler=handler, worker_id="worker-a")
++    worker._run_with_lease_heartbeat(actual_job)
++    assert called == ["legacy"]
++    with pytest.raises(ControlJobLeaseLostError):
++        worker._run_with_lease_heartbeat(replace(actual_job, attempt=attempt + 1))
++    assert called == ["legacy"]
++
++
++def test_budget_claim_rolls_back_after_insert_failure(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    from polisyos.runtime.http.services.control.child_execution_budget import (
++        ChildExecutionBudgetPolicy,
++    )
++
++    db_path = tmp_path / "budget-rollback.sqlite3"
++    store = ControlPlaneStore(backend="sqlite", sqlite_path=db_path)
++    attempt = _job(store, kind="workflow_run")
++    policy = ChildExecutionBudgetPolicy("test-policy", "1", 10.0)
++    original_execute = store._execute
++
++    def fail_after_insert(sql: str, parameters: object = ()) -> object:
++        result = original_execute(sql, parameters)
++        if sql.startswith("INSERT INTO control_job_events"):
++            assert result == 1
++            raise RuntimeError("simulated_budget_insert_failure")
++        return result
++
++    with store.job_execution_fence(job_id="job-a", worker_id="worker-a", attempt=attempt):
++        with monkeypatch.context() as patch:
++            patch.setattr(store, "_execute", fail_after_insert)
++            with pytest.raises(RuntimeError, match="simulated_budget_insert_failure"):
++                store.claim_child_attempt_budget(policy)
++        fresh = ControlPlaneStore(backend="sqlite", sqlite_path=db_path)
++        assert fresh._child_event_row("job-a", f"child.budget.attempt.{attempt}") is None
++        store.claim_child_attempt_budget(policy)
++    assert fresh._child_event_row("job-a", f"child.budget.attempt.{attempt}") is not None
++
++
++def test_competing_budget_claims_have_one_durable_winner(tmp_path: Path) -> None:
++    from concurrent.futures import ThreadPoolExecutor
++    from threading import Barrier
++
++    from polisyos.runtime.http.services.control.child_execution_budget import (
++        ChildExecutionBudgetPolicy,
++    )
++
++    db_path = tmp_path / "budget-race.sqlite3"
++    owner = ControlPlaneStore(backend="sqlite", sqlite_path=db_path)
++    attempt = _job(owner, kind="workflow_run")
++    policy = ChildExecutionBudgetPolicy("test-policy", "1", 10.0)
++    barrier = Barrier(2)
++
++    def claim() -> str:
++        store = ControlPlaneStore(backend="sqlite", sqlite_path=db_path)
++        with store.job_execution_fence(job_id="job-a", worker_id="worker-a", attempt=attempt):
++            barrier.wait(timeout=5.0)
++            try:
++                store.claim_child_attempt_budget(policy)
++            except ControlJobExecutionAdmissionError as exc:
++                if exc.code != "child_budget_attempt_already_issued":
++                    raise
++                return "refused"
++            return "issued"
++
++    with ThreadPoolExecutor(max_workers=2) as pool:
++        results = list(pool.map(lambda _index: claim(), range(2)))
++    assert sorted(results) == ["issued", "refused"]
++    assert owner._child_event_row("job-a", f"child.budget.attempt.{attempt}") is not None
++
++
++def test_worker_budget_uses_live_run_not_forged_dispatch_snapshot(tmp_path: Path) -> None:
++    from dataclasses import replace
++
++    from polisyos.runtime.http.services.control.child_execution_budget import (
++        ChildExecutionBudgetPolicy,
++        _require_attempt_budget,
++    )
++    from polisyos.runtime.http.services.control_worker import ControlWorker
++
++    store = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "worker-live.sqlite3")
++    attempt = _job(store, kind="workflow_run")
++    actual_job = store.get_job("job-a")
++    assert actual_job is not None
++    forged = replace(actual_job, run_id="forged-run")
++    observed: list[str] = []
++
++    def handler(_snapshot: object) -> None:
++        observed.append(_require_attempt_budget("job-a", "run-a", attempt).run_id)
++        with pytest.raises(RuntimeError, match="child_execution_budget_unavailable"):
++            _require_attempt_budget("job-a", "forged-run", attempt)
++
++    worker = ControlWorker(
++        store=store, handler=handler, worker_id="worker-a",
++        child_execution_budget_policy=ChildExecutionBudgetPolicy("test-policy", "1", 10.0),
++    )
++    worker._run_with_lease_heartbeat(forged)
++    assert observed == ["run-a"]
++
++
++def test_unmatched_budget_claim_blocks_retry_and_reissue_without_session(tmp_path: Path) -> None:
++    from polisyos.runtime.http.services.control.child_execution_budget import (
++        ChildExecutionBudgetPolicy,
++    )
++
++    db_path = tmp_path / "unmatched-budget.sqlite3"
++    owner = ControlPlaneStore(backend="sqlite", sqlite_path=db_path)
++    attempt = _job(owner, kind="workflow_run")
++    with owner.job_execution_fence(job_id="job-a", worker_id="worker-a", attempt=attempt):
++        owner.claim_child_attempt_budget(ChildExecutionBudgetPolicy("test-policy", "1", 10.0))
++    with owner._job_transaction():
++        owner._execute(
++            "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
++            ((datetime.now(UTC) - timedelta(seconds=1)).isoformat(), "job-a"),
++        )
++    fresh = ControlPlaneStore(backend="sqlite", sqlite_path=db_path)
++    assert fresh.lease_next_job(worker_id="worker-b") is None
++    with pytest.raises(ControlJobLeaseLostError):
++        fresh.mark_running(job_id="job-a", worker_id="worker-b")
++    with pytest.raises(ControlJobExecutionAdmissionError, match="source_reconciliation_required"):
++        _job(fresh, job_id="job-b", run_id="run-b", kind="workflow_run",
++             child_reissue_source_run_id="run-a", child_reissue_source_tenant_id="tenant-a",
++             child_reissue_source_cell_id="cell-a")
++    assert fresh.get_job("job-b") is None
++    assert _job(fresh, job_id="job-c", run_id="run-c", kind="workflow_run",
++                child_reissue_source_run_id="run-a", child_reissue_source_tenant_id="tenant-b",
++                child_reissue_source_cell_id="cell-b") == 1
+diff --git a/policy-engine/tests/_helpers/child_effect_fresh_replay.py b/policy-engine/tests/_helpers/child_effect_fresh_replay.py
+new file mode 100644
+--- /dev/null
++++ b/policy-engine/tests/_helpers/child_effect_fresh_replay.py
+@@ -0,0 +1,101 @@
++"""Spawn-safe effect replay through actual attested Runtime owners."""
++
++from __future__ import annotations
++
++import json
++import sqlite3
++from pathlib import Path
++from typing import Any
++
++
++def replay_in_fresh_process(
++    served_root: str, db_path: str, run_dir: str, registry_json: str,
++    release_json: str, scope_json: str, results: Any,
++) -> None:
++    """Resume the real Root and reappoint exact CAS and Control owners."""
++    from polisyos.core.artifacts.child_release import (
++        _JOB_OWNER_BOOTSTRAP_TOKEN,
++        ChildReleaseUnavailableError,
++        _install_child_job_owner,
++        child_store_identity,
++    )
++    from polisyos.core.artifacts.manifest import ArtifactRef
++    from polisyos.core.artifacts.store import FileSystemCAS
++    from polisyos.core.run.context import RunContext, _FinalizeRecoveryError
++    from polisyos.core.security.access_scope import AccessScope
++    from polisyos.runtime.http.resilience import (
++        _bootstrap_child_effect_replay,
++        guard_runtime_cas,
++        guard_runtime_control_store,
++    )
++    from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
++
++    root_path = Path(served_root)
++    raw_store = FileSystemCAS(root_path, tenant_id="tenant-a", cell_id="cell-a", ownership_enforced=False)
++    store = guard_runtime_cas(raw_store)
++    registry_ref = ArtifactRef.model_validate_json(registry_json)
++    release_ref = ArtifactRef.model_validate_json(release_json)
++    resumed = None
++    guarded_owner = None
++    try:
++        resumed = RunContext.resume(
++            store, run_id="run-a", run_dir=Path(run_dir), registry_bundle=registry_ref,
++            producer=None, env=None, access_scope=AccessScope.from_dict(json.loads(scope_json)),
++        )
++        try:
++            resumed._verify_child_parent_effects(release_ref)
++        except _FinalizeRecoveryError as exc:
++            if str(exc) != "child_effect_store_not_appointed":
++                raise
++        else:
++            raise AssertionError("unappointed replay unexpectedly admitted")
++        try:
++            _bootstrap_child_effect_replay(resumed)
++        except ChildReleaseUnavailableError as exc:
++            if str(exc) != "job_release_authority_bridge_unavailable":
++                raise
++        else:
++            raise AssertionError("bootstrap admitted without the actual job owner")
++        owner = ControlPlaneStore(backend="sqlite", sqlite_path=Path(db_path))
++        guarded_owner = guard_runtime_control_store(owner)
++        _install_child_job_owner(
++            child_store_identity(root_path), guarded_owner, token=_JOB_OWNER_BOOTSTRAP_TOKEN
++        )
++        _bootstrap_child_effect_replay(resumed)
++        assert resumed._verify_child_parent_effects(release_ref) == 3
++        # An actual SQLite connect to a directory fails; no owner data is moved.
++        actual_db = owner._sqlite_path
++        try:
++            owner._sqlite_path = Path(run_dir)
++            try:
++                resumed._verify_child_parent_effects(release_ref)
++            except _FinalizeRecoveryError as exc:
++                if str(exc) != "child_effect_release_unavailable":
++                    raise
++                cause: BaseException | None = exc
++                seen: set[int] = set()
++                while cause is not None and id(cause) not in seen and not isinstance(cause, sqlite3.OperationalError):
++                    seen.add(id(cause))
++                    cause = cause.__cause__ or cause.__context__
++                if not isinstance(cause, sqlite3.OperationalError):
++                    raise AssertionError("SQLite outage failed for an unrelated reason") from exc
++            else:
++                raise AssertionError("replay admitted with unavailable SQLite")
++        finally:
++            owner._sqlite_path = actual_db
++        assert resumed._verify_child_parent_effects(release_ref) == 3
++        results.put({
++            "unappointed": "REFUSED", "missing_job_owner": "REFUSED",
++            "unavailable_sqlite": "REFUSED", "recorded_effects": 3,
++            "restored_effects": 3,
++        })
++    finally:
++        try:
++            if resumed is not None:
++                resumed.suspend_for_resume()
++        finally:
++            try:
++                if guarded_owner is not None:
++                    guarded_owner.close()
++            finally:
++                store.close()

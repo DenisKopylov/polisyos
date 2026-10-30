@@ -88,9 +88,15 @@ def _configure_stream_registry(
 
 @pytest_asyncio.fixture
 async def stream_registry():
+    existing_registry = ConnectorRegistry.get_instance(bootstrap=False)
+    await existing_registry.shutdown_async()
+    ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
-    yield registry
-    await registry.shutdown_async()
+    try:
+        yield registry
+    finally:
+        await registry.shutdown_async()
+        ConnectorRegistry.reset_instance()
 
 
 def _window_case(strategy: str) -> tuple[list[dict[str, Any]], WindowPolicy, list[list[str]]]:

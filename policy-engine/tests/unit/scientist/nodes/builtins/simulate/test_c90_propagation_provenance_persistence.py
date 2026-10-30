@@ -42,12 +42,17 @@ from polisyos.scientist.nodes.builtins.simulate.uncertainty_source_projection im
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 
 
-@pytest.mark.parametrize("context", ["provenance", "metadata"])
+@pytest.mark.parametrize("context", ["provenance", "container_provenance", "metadata"])
 def test_actual_mc_persisted_ledger_and_envelope_are_freshly_read_without_authority(
     execution_context: ExecutionContext, tmp_path: Path, context: str
 ) -> None:
     class MutableEnum(Enum):
         VALUE = {"entries": ["before"]}
+
+    class MutableDict(dict):
+        pass
+
+    borrowed_dict = MutableDict({"entries": ["before"]})
 
     class BehavioralDependency(Enum):
         VALUE = "unknown"
@@ -60,13 +65,20 @@ def test_actual_mc_persisted_ledger_and_envelope_are_freshly_read_without_author
         composed_flavour=ComposedFlavour.DELTA,
         exactness=ExactnessKind.APPROXIMATION,
         certificate_kind=CertificateKind.TAYLOR_REMAINDER,
+        origin_envelope_ids=("borrowed-origin",),
         operator_history=(
             CompositionStep(
                 op="push_forward",
                 stage_name="prior.stage",
                 input_flavours=(ComposedFlavour.ANALYTICAL,),
                 output_flavour=ComposedFlavour.DELTA,
-                notes={"nested": [MutableEnum.VALUE]} if context == "provenance" else {},
+                notes=(
+                    {"nested": [MutableEnum.VALUE]}
+                    if context == "provenance"
+                    else {"nested": [borrowed_dict]}
+                    if context == "container_provenance"
+                    else {}
+                ),
             ),
         ),
     )
@@ -81,10 +93,18 @@ def test_actual_mc_persisted_ledger_and_envelope_are_freshly_read_without_author
         composition_provenance=prior,
         metadata={"dependency": BehavioralDependency.VALUE} if context == "metadata" else {},
     )
-    limitation = f"{context}_context_status"
+    if context == "container_provenance":
+        # Preserve the behavioral subclass as an adversarial pre-existing model copy.
+        envelope = envelope.model_copy(update={"composition_provenance": prior})
+        assert (
+            type(envelope.composition_provenance.operator_history[0].notes["nested"][0])
+            is MutableDict
+        )
+    limitation = "metadata_context_status" if context == "metadata" else "provenance_context_status"
 
     def response(x: float) -> dict[str, float]:
         MutableEnum.VALUE.value["entries"].append("after")
+        borrowed_dict["entries"].append("after")
         return {"y": x, "z": 2 * x}
 
     results = MonteCarloPropagator(
@@ -231,6 +251,16 @@ def test_actual_mc_persisted_ledger_and_envelope_are_freshly_read_without_author
     restored = load_uncertainty_envelope(ensure_ir_artifact_store(reopened), envelope_ref)
     assert restored.gate_eligible is False
     assert restored.metadata[limitation] == "not_established"
+    if context != "metadata":
+        assert restored.metadata["input_provenance_history"] == "withheld_unowned"
+        history = restored.composition_provenance
+        assert history is not None
+        assert history.origin_envelope_ids == ()
+        assert len(history.operator_history) == 1
+        assert history.operator_history[0].stage_name == "foundry.monte_carlo.push_forward"
+        assert history.operator_history[0].notes["input_provenance_history"] == "withheld_unowned"
+        assert "before" not in json.dumps(history.model_dump(mode="json"))
+        assert "after" not in json.dumps(history.model_dump(mode="json"))
     admission = load_science_simulation_result_uncertainty_admission(reopened, simulation_ref, "y")
     assert not admission.admitted
     assert "draw_success_ledger_missing" in admission.limitation_codes

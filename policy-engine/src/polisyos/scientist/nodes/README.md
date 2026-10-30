@@ -81,12 +81,20 @@ The Science-owned bridge module at
 exposes fixed Science-owned metric-admission and subject-projection entrypoints.
 Each takes only a store, the selected SimulationResult ref, and the requested
 subject; it hardwires Core's selected-profile SimulationResult validator and the
-full strict Science PropagationReport 1.1 DTO validator before calling generic
+strict Science PropagationReport validator selected from the verified report
+manifest (historical 1.1 or Gaussian-joint 1.2) before calling generic
 IR inspection on the exact profile-bound ref. Generic IR APIs accept no source
 carrier and retain source_owner_validation_not_performed. The Science bridge
 reconciles only that IR-stage limitation after both validators succeed.
 Uncertainty remains limited because successful-draw identities and trusted
 response-basis revalidation are not established.
+Version 1.2 requires a draw-ledger 1.1 Gaussian declaration whose named axes
+match the producer's ordered inputs, plus its transform, numeric profile and
+contiguous batch trace covering the attempted draws. These are declared execution
+details, not a verified joint law or verified successful-draw identity. Version
+1.1 remains readable without inventing that
+declaration. Upgrade strict readers before enabling 1.2 writers; unsupported or
+manifest/payload-mismatched versions are refused or explicitly limited.
 
 `simulate/run_distributional_analysis.py` retains the registered node and
 orchestration contract. Adjacent `distributional_analysis_*` modules group its

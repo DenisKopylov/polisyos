@@ -1,0 +1,1232 @@
+{
+  "$defs": {
+    "AdaptiveStoppingConfig": {
+      "additionalProperties": false,
+      "description": "Criteria for adaptive Monte Carlo stopping.",
+      "properties": {
+        "check_interval": {
+          "default": 100,
+          "minimum": 10,
+          "title": "Check Interval",
+          "type": "integer"
+        },
+        "ci_half_width_target": {
+          "default": 0.01,
+          "exclusiveMinimum": 0.0,
+          "title": "Ci Half Width Target",
+          "type": "number"
+        },
+        "enabled": {
+          "default": false,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "max_samples": {
+          "default": 10000,
+          "maximum": 100000,
+          "title": "Max Samples",
+          "type": "integer"
+        },
+        "min_samples": {
+          "default": 200,
+          "minimum": 50,
+          "title": "Min Samples",
+          "type": "integer"
+        }
+      },
+      "title": "AdaptiveStoppingConfig",
+      "type": "object"
+    },
+    "ArtifactID": {
+      "description": "IR-local artifact ID model compatible with CAS interfaces.",
+      "maxLength": 71,
+      "minLength": 71,
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "title": "ArtifactID",
+      "type": "string"
+    },
+    "ArtifactRef": {
+      "additionalProperties": false,
+      "description": "Reference an artifact across service, registry, and governance boundaries.",
+      "properties": {
+        "artifact_id": {
+          "type": "string"
+        },
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Profile Sha256"
+        },
+        "media_type": {
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "kind",
+        "media_type"
+      ],
+      "title": "ArtifactRef",
+      "type": "object"
+    },
+    "CalibrationReportRef": {
+      "additionalProperties": false,
+      "description": "Artifact reference for calibration diagnostics emitted alongside simulation outputs.",
+      "properties": {
+        "artifact_id": {
+          "type": "string"
+        },
+        "kind": {
+          "default": "foundry.calibration_report",
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Profile Sha256"
+        },
+        "media_type": {
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "CalibrationReportRef",
+      "type": "object"
+    },
+    "ExecuteResponseSourceIdentity": {
+      "additionalProperties": false,
+      "description": "Exact CAS content and selected manifest identity used by a response diagnostic.",
+      "properties": {
+        "content_sha256": {
+          "title": "Content Sha256",
+          "type": "string"
+        },
+        "manifest_sha256": {
+          "title": "Manifest Sha256",
+          "type": "string"
+        },
+        "ref": {
+          "$ref": "#/$defs/ArtifactRef"
+        }
+      },
+      "required": [
+        "ref",
+        "content_sha256",
+        "manifest_sha256"
+      ],
+      "title": "ExecuteResponseSourceIdentity",
+      "type": "object"
+    },
+    "IdentifiabilityDiagnosticRef": {
+      "additionalProperties": false,
+      "description": "Artifact reference for aggregate-moment identifiability diagnostics.",
+      "properties": {
+        "artifact_id": {
+          "type": "string"
+        },
+        "kind": {
+          "default": "foundry.identifiability_diagnostic",
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Profile Sha256"
+        },
+        "media_type": {
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "IdentifiabilityDiagnosticRef",
+      "type": "object"
+    },
+    "PropagationConfig": {
+      "additionalProperties": false,
+      "description": "Runtime configuration for uncertainty propagation.",
+      "properties": {
+        "adaptive_stopping": {
+          "$ref": "#/$defs/AdaptiveStoppingConfig"
+        },
+        "auto_select_strategy": {
+          "default": true,
+          "title": "Auto Select Strategy",
+          "type": "boolean"
+        },
+        "compute_sensitivity": {
+          "default": true,
+          "title": "Compute Sensitivity",
+          "type": "boolean"
+        },
+        "confidence_level": {
+          "default": 0.95,
+          "exclusiveMaximum": 1.0,
+          "exclusiveMinimum": 0.0,
+          "title": "Confidence Level",
+          "type": "number"
+        },
+        "delta_covariance_jitter": {
+          "default": 1e-09,
+          "minimum": 0.0,
+          "title": "Delta Covariance Jitter",
+          "type": "number"
+        },
+        "delta_use_full_covariance": {
+          "default": true,
+          "title": "Delta Use Full Covariance",
+          "type": "boolean"
+        },
+        "mc_batch_size": {
+          "default": 200,
+          "maximum": 10000,
+          "minimum": 10,
+          "title": "Mc Batch Size",
+          "type": "integer"
+        },
+        "mc_min_valid_samples": {
+          "default": 50,
+          "minimum": 10,
+          "title": "Mc Min Valid Samples",
+          "type": "integer"
+        },
+        "mc_n_samples": {
+          "default": 1000,
+          "maximum": 100000,
+          "minimum": 100,
+          "title": "Mc N Samples",
+          "type": "integer"
+        },
+        "mc_qmc_replicates": {
+          "default": 1,
+          "maximum": 128,
+          "minimum": 1,
+          "title": "Mc Qmc Replicates",
+          "type": "integer"
+        },
+        "mc_qmc_scramble": {
+          "default": true,
+          "title": "Mc Qmc Scramble",
+          "type": "boolean"
+        },
+        "mc_sampling_method": {
+          "default": "random",
+          "pattern": "^(random|sobol|halton)$",
+          "title": "Mc Sampling Method",
+          "type": "string"
+        },
+        "mc_seed": {
+          "default": 42,
+          "title": "Mc Seed",
+          "type": "integer"
+        },
+        "preferred_method": {
+          "default": "auto",
+          "title": "Preferred Method",
+          "type": "string"
+        }
+      },
+      "title": "PropagationConfig",
+      "type": "object"
+    },
+    "SimulationResultRef": {
+      "additionalProperties": false,
+      "description": "Artifact reference for the top-level simulation result bundle returned by Foundry.",
+      "properties": {
+        "artifact_id": {
+          "type": "string"
+        },
+        "kind": {
+          "default": "foundry.simulation_result",
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Profile Sha256"
+        },
+        "media_type": {
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "SimulationResultRef",
+      "type": "object"
+    },
+    "UncertaintyEnvelopeRef": {
+      "additionalProperties": false,
+      "description": "Stable handle for a persisted uncertainty envelope produced by estimators and read by reporting layers.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "ir.uncertainty_envelope",
+          "default": "ir.uncertainty_envelope",
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Profile Sha256"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "UncertaintyEnvelopeRef",
+      "type": "object"
+    },
+    "_GaussianDrawBatch": {
+      "additionalProperties": false,
+      "description": "Record the actual transform types and seed context of one draw batch.",
+      "properties": {
+        "device": {
+          "minLength": 1,
+          "title": "Device",
+          "type": "string"
+        },
+        "draw_count": {
+          "exclusiveMinimum": 0,
+          "title": "Draw Count",
+          "type": "integer"
+        },
+        "factor_dtype": {
+          "minLength": 1,
+          "title": "Factor Dtype",
+          "type": "string"
+        },
+        "first_draw": {
+          "minimum": 0,
+          "title": "First Draw",
+          "type": "integer"
+        },
+        "joint_dtype": {
+          "minLength": 1,
+          "title": "Joint Dtype",
+          "type": "string"
+        },
+        "mean_dtype": {
+          "minLength": 1,
+          "title": "Mean Dtype",
+          "type": "string"
+        },
+        "prng_implementation": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Prng Implementation"
+        },
+        "replicate_index": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Replicate Index"
+        },
+        "replicate_seed": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Replicate Seed"
+        },
+        "source_dtype": {
+          "minLength": 1,
+          "title": "Source Dtype",
+          "type": "string"
+        }
+      },
+      "required": [
+        "first_draw",
+        "draw_count",
+        "source_dtype",
+        "factor_dtype",
+        "mean_dtype",
+        "joint_dtype",
+        "device",
+        "prng_implementation",
+        "replicate_index",
+        "replicate_seed"
+      ],
+      "title": "_GaussianDrawBatch",
+      "type": "object"
+    },
+    "_GaussianNumericProfile": {
+      "additionalProperties": false,
+      "description": "Record actual numeric execution details, without asserting source authority.",
+      "properties": {
+        "backend": {
+          "enum": [
+            "jax_random",
+            "scipy_qmc"
+          ],
+          "title": "Backend",
+          "type": "string"
+        },
+        "covariance_storage_dtype": {
+          "minLength": 1,
+          "title": "Covariance Storage Dtype",
+          "type": "string"
+        },
+        "covariance_validation_dtype": {
+          "minLength": 1,
+          "title": "Covariance Validation Dtype",
+          "type": "string"
+        },
+        "draw_batches": {
+          "items": {
+            "$ref": "#/$defs/_GaussianDrawBatch"
+          },
+          "minItems": 1,
+          "title": "Draw Batches",
+          "type": "array"
+        },
+        "factor_dtype": {
+          "minLength": 1,
+          "title": "Factor Dtype",
+          "type": "string"
+        },
+        "factor_rows": {
+          "items": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          "minItems": 1,
+          "title": "Factor Rows",
+          "type": "array"
+        },
+        "jax_version": {
+          "minLength": 1,
+          "title": "Jax Version",
+          "type": "string"
+        },
+        "jaxlib_version": {
+          "minLength": 1,
+          "title": "Jaxlib Version",
+          "type": "string"
+        },
+        "means": {
+          "items": {
+            "type": "number"
+          },
+          "minItems": 1,
+          "title": "Means",
+          "type": "array"
+        },
+        "numpy_version": {
+          "minLength": 1,
+          "title": "Numpy Version",
+          "type": "string"
+        },
+        "qmc_uniform_clip": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Qmc Uniform Clip"
+        },
+        "scipy_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Scipy Version"
+        },
+        "summary_dtypes": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Summary Dtypes",
+          "type": "array"
+        },
+        "validation_tolerances": {
+          "$ref": "#/$defs/_GaussianValidationTolerances"
+        }
+      },
+      "required": [
+        "backend",
+        "jax_version",
+        "jaxlib_version",
+        "numpy_version",
+        "scipy_version",
+        "covariance_validation_dtype",
+        "covariance_storage_dtype",
+        "factor_dtype",
+        "means",
+        "factor_rows",
+        "draw_batches",
+        "summary_dtypes",
+        "validation_tolerances",
+        "qmc_uniform_clip"
+      ],
+      "title": "_GaussianNumericProfile",
+      "type": "object"
+    },
+    "_GaussianValidationTolerances": {
+      "additionalProperties": false,
+      "description": "Record the numerical thresholds used when validating the declared law.",
+      "properties": {
+        "diagonal_atol": {
+          "minimum": 0,
+          "title": "Diagonal Atol",
+          "type": "number"
+        },
+        "diagonal_rtol": {
+          "minimum": 0,
+          "title": "Diagonal Rtol",
+          "type": "number"
+        },
+        "negative_eigenvalue_scale_rtol": {
+          "minimum": 0,
+          "title": "Negative Eigenvalue Scale Rtol",
+          "type": "number"
+        },
+        "symmetry_atol": {
+          "minimum": 0,
+          "title": "Symmetry Atol",
+          "type": "number"
+        },
+        "symmetry_rtol": {
+          "minimum": 0,
+          "title": "Symmetry Rtol",
+          "type": "number"
+        }
+      },
+      "required": [
+        "diagonal_rtol",
+        "diagonal_atol",
+        "symmetry_rtol",
+        "symmetry_atol",
+        "negative_eigenvalue_scale_rtol"
+      ],
+      "title": "_GaussianValidationTolerances",
+      "type": "object"
+    },
+    "_ReportDrawFailure": {
+      "additionalProperties": false,
+      "description": "Match one draw-level failure row persisted by Monte Carlo.",
+      "properties": {
+        "draw_index": {
+          "minimum": 0,
+          "title": "Draw Index",
+          "type": "integer"
+        },
+        "output_outcomes": {
+          "items": {
+            "$ref": "#/$defs/_ReportDrawOutputOutcome"
+          },
+          "minItems": 1,
+          "title": "Output Outcomes",
+          "type": "array"
+        },
+        "sampled_input_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sampled Input Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "draw_index",
+        "sampled_input_sha256",
+        "output_outcomes"
+      ],
+      "title": "_ReportDrawFailure",
+      "type": "object"
+    },
+    "_ReportDrawOutcomeProvenanceV12": {
+      "additionalProperties": false,
+      "description": "Match schema-1.1 of the Gaussian-joint Monte Carlo ledger.",
+      "properties": {
+        "attempted_draw_count": {
+          "minimum": 0,
+          "title": "Attempted Draw Count",
+          "type": "integer"
+        },
+        "draw_identity_basis": {
+          "const": "sampling_recipe+draw_index+sampled_input_sha256",
+          "title": "Draw Identity Basis",
+          "type": "string"
+        },
+        "failure_records": {
+          "items": {
+            "$ref": "#/$defs/_ReportDrawFailure"
+          },
+          "title": "Failure Records",
+          "type": "array"
+        },
+        "implementation_identity_status": {
+          "const": "not_established",
+          "title": "Implementation Identity Status",
+          "type": "string"
+        },
+        "input_identity_status": {
+          "enum": [
+            "content_hashed",
+            "not_established"
+          ],
+          "title": "Input Identity Status",
+          "type": "string"
+        },
+        "outcome_denominator_complete": {
+          "title": "Outcome Denominator Complete",
+          "type": "boolean"
+        },
+        "requested_draw_count": {
+          "minimum": 0,
+          "title": "Requested Draw Count",
+          "type": "integer"
+        },
+        "retry_attempt_count": {
+          "minimum": 0,
+          "title": "Retry Attempt Count",
+          "type": "integer"
+        },
+        "sampling_recipe": {
+          "$ref": "#/$defs/_ReportSamplingRecipeV12"
+        },
+        "schema_version": {
+          "const": "1.1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "simulation_attempt_count": {
+          "minimum": 0,
+          "title": "Simulation Attempt Count",
+          "type": "integer"
+        },
+        "successful_draw_count": {
+          "minimum": 0,
+          "title": "Successful Draw Count",
+          "type": "integer"
+        },
+        "unattempted_draw_count": {
+          "minimum": 0,
+          "title": "Unattempted Draw Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "requested_draw_count",
+        "attempted_draw_count",
+        "simulation_attempt_count",
+        "retry_attempt_count",
+        "successful_draw_count",
+        "unattempted_draw_count",
+        "outcome_denominator_complete",
+        "input_identity_status",
+        "implementation_identity_status",
+        "draw_identity_basis",
+        "failure_records",
+        "schema_version",
+        "sampling_recipe"
+      ],
+      "title": "_ReportDrawOutcomeProvenanceV12",
+      "type": "object"
+    },
+    "_ReportDrawOutputOutcome": {
+      "additionalProperties": false,
+      "description": "Match one persisted output failure classification.",
+      "properties": {
+        "error_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Error Type"
+        },
+        "outcome_code": {
+          "enum": [
+            "simulation_exception",
+            "invalid_response",
+            "missing_output",
+            "non_numeric_output",
+            "non_finite_output"
+          ],
+          "title": "Outcome Code",
+          "type": "string"
+        },
+        "output_metric_id": {
+          "minLength": 1,
+          "title": "Output Metric Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "output_metric_id",
+        "outcome_code"
+      ],
+      "title": "_ReportDrawOutputOutcome",
+      "type": "object"
+    },
+    "_ReportInputEnvelopeSource": {
+      "additionalProperties": false,
+      "description": "Match the complete calibration-envelope source projection in the report.",
+      "properties": {
+        "calibration_execution_input_basis_ref": {
+          "$ref": "#/$defs/ArtifactRef"
+        },
+        "calibration_report_ref": {
+          "$ref": "#/$defs/CalibrationReportRef"
+        },
+        "content_sha256": {
+          "pattern": "^(?:sha256:)?[0-9a-f]{64}$",
+          "title": "Content Sha256",
+          "type": "string"
+        },
+        "source_form": {
+          "const": "embedded_in_selected_report",
+          "title": "Source Form",
+          "type": "string"
+        },
+        "standalone_envelope_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/UncertaintyEnvelopeRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "source_form",
+        "calibration_report_ref",
+        "calibration_execution_input_basis_ref",
+        "content_sha256"
+      ],
+      "title": "_ReportInputEnvelopeSource",
+      "type": "object"
+    },
+    "_ReportMetricDiagnostic": {
+      "additionalProperties": false,
+      "description": "Match one diagnostic row emitted by the current propagation producer.",
+      "properties": {
+        "diagnostics": {
+          "additionalProperties": true,
+          "title": "Diagnostics",
+          "type": "object"
+        },
+        "method": {
+          "enum": [
+            "delta_method",
+            "monte_carlo",
+            "analytical",
+            "none"
+          ],
+          "title": "Method",
+          "type": "string"
+        },
+        "metric_id": {
+          "minLength": 1,
+          "title": "Metric Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "metric_id",
+        "method",
+        "diagnostics"
+      ],
+      "title": "_ReportMetricDiagnostic",
+      "type": "object"
+    },
+    "_ReportResponseBasisCandidate": {
+      "additionalProperties": false,
+      "description": "Match the full candidate response-basis projection persisted by Science.",
+      "properties": {
+        "calibration_execution_input_basis_ref": {
+          "$ref": "#/$defs/ArtifactRef"
+        },
+        "calibration_report_ref": {
+          "$ref": "#/$defs/CalibrationReportRef"
+        },
+        "diagnostic_ref": {
+          "$ref": "#/$defs/IdentifiabilityDiagnosticRef"
+        },
+        "evidence_grade": {
+          "const": "candidate",
+          "title": "Evidence Grade",
+          "type": "string"
+        },
+        "gate_eligible": {
+          "const": false,
+          "title": "Gate Eligible",
+          "type": "boolean"
+        },
+        "limitation_codes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Limitation Codes",
+          "type": "array"
+        },
+        "mapping_basis_status": {
+          "const": "candidate_only",
+          "title": "Mapping Basis Status",
+          "type": "string"
+        },
+        "mapping_status": {
+          "enum": [
+            "candidate_only",
+            "partial"
+          ],
+          "title": "Mapping Status",
+          "type": "string"
+        },
+        "missing_parameter_envelopes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Missing Parameter Envelopes",
+          "type": "array"
+        },
+        "propagation_config_ref": {
+          "$ref": "#/$defs/ArtifactRef"
+        },
+        "schema_version": {
+          "const": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "selected_simulation_result_ref": {
+          "$ref": "#/$defs/SimulationResultRef"
+        },
+        "sensitivity_matrix_ref": {
+          "$ref": "#/$defs/ArtifactRef"
+        },
+        "source_inputs": {
+          "additionalProperties": {
+            "$ref": "#/$defs/ExecuteResponseSourceIdentity"
+          },
+          "title": "Source Inputs",
+          "type": "object"
+        },
+        "source_simulation_result_ref": {
+          "$ref": "#/$defs/SimulationResultRef"
+        },
+        "state_slot_to_moment": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "State Slot To Moment",
+          "type": "object"
+        }
+      },
+      "required": [
+        "schema_version",
+        "evidence_grade",
+        "gate_eligible",
+        "mapping_status",
+        "mapping_basis_status",
+        "state_slot_to_moment",
+        "source_inputs",
+        "selected_simulation_result_ref",
+        "source_simulation_result_ref",
+        "diagnostic_ref",
+        "sensitivity_matrix_ref",
+        "calibration_report_ref",
+        "calibration_execution_input_basis_ref",
+        "propagation_config_ref",
+        "limitation_codes",
+        "missing_parameter_envelopes"
+      ],
+      "title": "_ReportResponseBasisCandidate",
+      "type": "object"
+    },
+    "_ReportSamplingRecipeV12": {
+      "additionalProperties": false,
+      "description": "Bind the axis and assumption of an executed Gaussian joint sampler.",
+      "properties": {
+        "config": {
+          "$ref": "#/$defs/PropagationConfig"
+        },
+        "gaussian_joint_assumption": {
+          "const": "multivariate_normal_with_declared_covariance",
+          "title": "Gaussian Joint Assumption",
+          "type": "string"
+        },
+        "gaussian_joint_names": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Gaussian Joint Names",
+          "type": "array"
+        },
+        "gaussian_numeric_profile": {
+          "$ref": "#/$defs/_GaussianNumericProfile"
+        },
+        "input_envelope_sha256": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Input Envelope Sha256",
+          "type": "object"
+        },
+        "input_param_names": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Input Param Names",
+          "type": "array"
+        },
+        "joint_sample_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Joint Sample Id"
+        },
+        "sample_axis": {
+          "minLength": 1,
+          "title": "Sample Axis",
+          "type": "string"
+        }
+      },
+      "required": [
+        "config",
+        "input_param_names",
+        "input_envelope_sha256",
+        "sample_axis",
+        "joint_sample_id",
+        "gaussian_joint_names",
+        "gaussian_joint_assumption",
+        "gaussian_numeric_profile"
+      ],
+      "title": "_ReportSamplingRecipeV12",
+      "type": "object"
+    },
+    "_ReportStateSlotOutput": {
+      "additionalProperties": false,
+      "description": "Match one state-slot output row emitted by the propagation producer.",
+      "properties": {
+        "envelope_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/UncertaintyEnvelopeRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "evidence_grade": {
+          "const": "candidate",
+          "title": "Evidence Grade",
+          "type": "string"
+        },
+        "gate_eligible": {
+          "const": false,
+          "title": "Gate Eligible",
+          "type": "boolean"
+        },
+        "input_envelope_sources": {
+          "additionalProperties": {
+            "$ref": "#/$defs/_ReportInputEnvelopeSource"
+          },
+          "title": "Input Envelope Sources",
+          "type": "object"
+        },
+        "response_moment": {
+          "minLength": 1,
+          "title": "Response Moment",
+          "type": "string"
+        },
+        "state_path": {
+          "minLength": 1,
+          "title": "State Path",
+          "type": "string"
+        },
+        "subject_id": {
+          "minLength": 1,
+          "title": "Subject Id",
+          "type": "string"
+        },
+        "subject_kind": {
+          "const": "state_slot",
+          "title": "Subject Kind",
+          "type": "string"
+        },
+        "unit_id": {
+          "minLength": 1,
+          "title": "Unit Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "subject_kind",
+        "subject_id",
+        "state_path",
+        "unit_id",
+        "response_moment",
+        "envelope_ref",
+        "evidence_grade",
+        "gate_eligible",
+        "input_envelope_sources"
+      ],
+      "title": "_ReportStateSlotOutput",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Science-owned strict DTO for Gaussian-joint PropagationReport 1.2.",
+  "properties": {
+    "diagnostics": {
+      "items": {
+        "$ref": "#/$defs/_ReportMetricDiagnostic"
+      },
+      "title": "Diagnostics",
+      "type": "array"
+    },
+    "draw_outcome_provenance": {
+      "$ref": "#/$defs/_ReportDrawOutcomeProvenanceV12"
+    },
+    "incomplete_output_metric_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Incomplete Output Metric Ids",
+      "type": "array"
+    },
+    "input_envelope_count": {
+      "minimum": 0,
+      "title": "Input Envelope Count",
+      "type": "integer"
+    },
+    "mapped_param_count": {
+      "minimum": 0,
+      "title": "Mapped Param Count",
+      "type": "integer"
+    },
+    "mapped_params": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Mapped Params",
+      "type": "array"
+    },
+    "mapping_basis_status": {
+      "enum": [
+        "candidate_only",
+        "consumer_asserted",
+        "not_established"
+      ],
+      "title": "Mapping Basis Status",
+      "type": "string"
+    },
+    "mapping_source": {
+      "enum": [
+        "execute_response_matrix",
+        "caller_parameters",
+        "not_established"
+      ],
+      "title": "Mapping Source",
+      "type": "string"
+    },
+    "mapping_status": {
+      "enum": [
+        "candidate_only",
+        "consumer_asserted",
+        "partial",
+        "resolved",
+        "unresolved"
+      ],
+      "title": "Mapping Status",
+      "type": "string"
+    },
+    "methods": {
+      "items": {
+        "enum": [
+          "delta_method",
+          "monte_carlo",
+          "analytical",
+          "none"
+        ],
+        "type": "string"
+      },
+      "title": "Methods",
+      "type": "array"
+    },
+    "missing_output_metric_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Missing Output Metric Ids",
+      "type": "array"
+    },
+    "output_metric_count": {
+      "minimum": 0,
+      "title": "Output Metric Count",
+      "type": "integer"
+    },
+    "response_basis_candidate": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/_ReportResponseBasisCandidate"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "schema_version": {
+      "const": "1.2",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "state_slot_outputs": {
+      "anyOf": [
+        {
+          "additionalProperties": {
+            "$ref": "#/$defs/_ReportStateSlotOutput"
+          },
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "State Slot Outputs"
+    },
+    "unmapped_metric_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Unmapped Metric Ids",
+      "type": "array"
+    }
+  },
+  "required": [
+    "input_envelope_count",
+    "output_metric_count",
+    "mapped_param_count",
+    "mapped_params",
+    "mapping_status",
+    "mapping_source",
+    "mapping_basis_status",
+    "unmapped_metric_ids",
+    "missing_output_metric_ids",
+    "methods",
+    "diagnostics",
+    "incomplete_output_metric_ids",
+    "schema_version",
+    "draw_outcome_provenance"
+  ],
+  "title": "PropagationReportV12",
+  "type": "object"
+}

@@ -1,0 +1,30 @@
+id = "2026-10-30-e02-gaussian-recipe-replay"
+title = "Disclose the Gaussian draw recipe on partial propagation"
+type = "changed"
+component = "scientist-uncertainty"
+owner = "team-scientist"
+summary = "Gaussian-joint Monte Carlo reports retain ordered axes, the declared sampling assumption, and the actual numeric transform and execution profile across failed draws, persistence, and fresh reads. Unsupported inherited provenance is withheld explicitly from persisted candidate results."
+evidence = ["src/polisyos/foundry/uncertainty/monte_carlo.py", "src/polisyos/scientist/nodes/builtins/simulate/uncertainty_source_projection.py", "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py", "tests/unit/ir/test_uncertainty_subject_projection.py"]
+compatibility = "Only Gaussian-joint reports use PropagationReport 1.2 and draw-ledger 1.1. Historical report 1.1 and ledger 1.0 remain readable without a fabricated joint law. Older strict readers refuse 1.2, so upgrade readers before writers; historical bytes are not rewritten."
+change_class = "persisted-artifact-format"
+surface_classification = "internal: persisted Science propagation report and conservative uncertainty projections"
+migration = "Deploy version-aware readers before producers emitting report 1.2; preserve historical 1.1 artifacts without converting their absent Gaussian declarations."
+api = "The Science reader selects a strict 1.1 or 1.2 report DTO from the verified selected manifest, rejects mismatched versions and requires aligned Gaussian axes, transform dimensions, and a contiguous attempted-draw batch trace in 1.2. Other sampling routes continue to emit 1.1."
+limitations = "The declared covariance, input hashes, sampling assumptions, and recorded execution profile do not establish source authenticity, units, a verified joint law, successful-draw identity, numerical calibration, policy authority, or identical replay across numerical stacks. Existing generic IR state-slot inspection remains candidate-only and reports version mismatches as limitations. JAX sampling precision is profile-dependent and the legacy output summary uses float32. No production-source or G acceptance is claimed."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/foundry/uncertainty/README.md", "src/polisyos/scientist/nodes/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "gaussian-joint-propagation-report-v1-2"
+change_class = "persisted-artifact-format"
+impact = "additive"
+surface = "internal: persisted PropagationReport 1.2 and draw-ledger 1.1"
+owner = "team-scientist"
+version_owner = "team-scientist"
+deprecation_window = "not_applicable"
+release_note = "The versioned Gaussian report retains its declared input axes and sampling assumption; upgrade strict readers before new writers."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/foundry/uncertainty/README.md", "src/polisyos/scientist/nodes/README.md"]
+runbook_docs = []

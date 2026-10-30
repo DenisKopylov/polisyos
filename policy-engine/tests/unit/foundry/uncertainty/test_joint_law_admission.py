@@ -1197,6 +1197,12 @@ def test_unsupported_provenance_context_is_declared_and_non_gating(
     assert result.envelope.metadata["provenance_context_status"] == "not_established"
     assert result.diagnostics["provenance_context_status"] == "not_established"
     assert result.diagnostics["input_identity_status"] == "not_established"
+    assert result.envelope.metadata["input_provenance_history"] == "withheld_unowned"
+    projected = result.envelope.composition_provenance
+    assert projected is not None
+    assert projected.origin_envelope_ids == ()
+    assert len(projected.operator_history) == 1
+    assert projected.operator_history[0].notes["input_provenance_history"] == "withheld_unowned"
     if result.method_used is PropagationMethod.MONTE_CARLO:
         ledger = result.diagnostics["draw_outcome_provenance"]
         assert ledger["input_identity_status"] == "not_established"

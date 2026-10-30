@@ -68,6 +68,8 @@ def _lineage_fixture(
     *,
     keep_output_edge: bool = True,
     source_roster_case: str = "valid",
+    report_schema_version: str = "1.1",
+    report_payload_version: str = "1.1",
 ) -> tuple[FileSystemCAS, ArtifactRef, UncertaintyEnvelope, str]:
     store = FileSystemCAS(tmp_path / "cas")
     slot_id = "population.total"
@@ -250,9 +252,9 @@ def _lineage_fixture(
         store,
         kind="foundry.propagation_report",
         schema_name="polisyos.foundry.PropagationReport",
-        schema_version="1.1",
+        schema_version=report_schema_version,
         payload={
-            "schema_version": "1.1",
+            "schema_version": report_payload_version,
             "response_basis_candidate": candidate_payload,
             "state_slot_outputs": {
                 slot_id: {
@@ -320,8 +322,13 @@ def _lineage_fixture(
     return store, output_sim_ref, envelope, slot_id
 
 
-def test_state_slot_projection_resolves_exact_candidate_lineage(tmp_path) -> None:
-    store, simulation_ref, expected_envelope, slot_id = _lineage_fixture(tmp_path)
+@pytest.mark.parametrize("report_version", ["1.1", "1.2"])
+def test_state_slot_projection_resolves_exact_candidate_lineage(
+    tmp_path, report_version: str
+) -> None:
+    store, simulation_ref, expected_envelope, slot_id = _lineage_fixture(
+        tmp_path, report_schema_version=report_version, report_payload_version=report_version
+    )
 
     projection = load_simulation_result_subject_uncertainty_projection(
         ensure_ir_artifact_store(store),
@@ -336,6 +343,34 @@ def test_state_slot_projection_resolves_exact_candidate_lineage(tmp_path) -> Non
     assert projection.gate_eligible is False
     assert "execute_response_basis_revalidation_not_performed_by_ir" in projection.limitation_codes
     assert "draw_success_ledger_missing" in projection.limitation_codes
+    assert "propagation_report_schema_version_mismatch" not in projection.limitation_codes
+    assert "propagation_report_payload_version_mismatch" not in projection.limitation_codes
+
+
+@pytest.mark.parametrize(
+    ("manifest_version", "payload_version", "expected_limitation"),
+    [
+        ("1.1", "1.2", "propagation_report_payload_version_mismatch"),
+        ("1.2", "1.1", "propagation_report_payload_version_mismatch"),
+        ("1.9", "1.9", "propagation_report_schema_version_mismatch"),
+    ],
+)
+def test_state_slot_projection_keeps_mismatched_report_versions_non_authoritative(
+    tmp_path, manifest_version: str, payload_version: str, expected_limitation: str
+) -> None:
+    store, simulation_ref, _, slot_id = _lineage_fixture(
+        tmp_path,
+        report_schema_version=manifest_version,
+        report_payload_version=payload_version,
+    )
+    projection = load_simulation_result_subject_uncertainty_projection(
+        ensure_ir_artifact_store(store),
+        simulation_ref,
+        subject_kind="state_slot",
+        subject_id=slot_id,
+    )
+    assert projection.gate_eligible is False
+    assert expected_limitation in projection.limitation_codes
 
 
 def test_state_slot_projection_rejects_missing_exact_edge_with_markers_retained(

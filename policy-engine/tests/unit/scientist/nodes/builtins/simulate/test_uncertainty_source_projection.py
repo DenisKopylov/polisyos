@@ -394,6 +394,9 @@ def test_science_bridge_reads_full_owner_grammar_at_exact_nondefault_profiles(
     assert projection.propagation_report.response_basis_candidate is not None
     assert projection.propagation_report.state_slot_outputs is not None
     assert projection.propagation_report.draw_outcome_provenance is not None
+    legacy_recipe = projection.propagation_report.draw_outcome_provenance.sampling_recipe
+    assert "gaussian_joint_names" not in legacy_recipe.model_dump()
+    assert "gaussian_joint_assumption" not in legacy_recipe.model_dump()
 
     state_slot_id = next(iter(projection.propagation_report.state_slot_outputs))
     state_slot_projection = load_science_simulation_result_subject_uncertainty_projection(

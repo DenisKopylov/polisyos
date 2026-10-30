@@ -22,7 +22,7 @@ from pydantic import BaseModel
 
 from polisyos.common.borrowed_execution import _BorrowedExecutionGrant
 from polisyos.common.job_execution_interrupt import raise_if_job_execution_interrupted
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts import ArtifactRef
 from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.run.child_custody import ChildComputationBinding
 from polisyos.scientist.orchestration.engine.component_identity import (

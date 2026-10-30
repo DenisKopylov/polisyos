@@ -27,12 +27,11 @@ from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.ir.artifacts.io import get_json_artifact
 from polisyos.ir.model_layer.canon import CanonViolation
 from polisyos.ir.registry.refs import ArtifactRefModel
-from polisyos.ir.trinity import TrinityBundle
+from polisyos.ir.trinity import TrinityBundle, persist_trinity_bundle_artifact
 from polisyos.ir.trinity.loaders import (
     TrinityLoadError,
     load_trinity_bundle,
     load_trinity_bundle_artifact,
-    persist_trinity_bundle_artifact,
 )
 from polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search import (
     _persist_trinity_bundle,
@@ -42,6 +41,12 @@ from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 ZERO_REF = "sha256:" + "0" * 64
 TRINITY_OWNER_SPEC = CanonSpec(forbid_floats=False)
+
+
+def test_trinity_facade_exports_the_actual_owned_persistence_function() -> None:
+    from polisyos.ir.trinity.loaders import persist_trinity_bundle_artifact as owner_persist
+
+    assert persist_trinity_bundle_artifact is owner_persist
 
 
 def _bundle(*, schema_version: str = "1.0") -> TrinityBundle:

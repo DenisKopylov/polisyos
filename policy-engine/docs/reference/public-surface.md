@@ -2009,7 +2009,7 @@ security
 | `polisyos.ir.loading` | `src/polisyos/ir/loading/__init__.py` | `lazy_facade` | 12 |
 | `polisyos.ir.model_layer` | `src/polisyos/ir/model_layer/__init__.py` | `lazy_facade` | 6 |
 | `polisyos.ir.registry` | `src/polisyos/ir/registry/__init__.py` | `lazy_facade` | 130 |
-| `polisyos.ir.trinity` | `src/polisyos/ir/trinity/__init__.py` | `lazy_facade` | 6 |
+| `polisyos.ir.trinity` | `src/polisyos/ir/trinity/__init__.py` | `lazy_facade` | 7 |
 | `polisyos.ir.world` | `src/polisyos/ir/world/__init__.py` | `lazy_facade` | 54 |
 
 #### `polisyos.ir`
@@ -3585,7 +3585,7 @@ WelfareSampleBundleRef
 - Facade: `lazy_facade`
 - Summary: Bundle the three Trinity artifacts as one validated policy payload.
 
-<details><summary>Entrypoint exports (6)</summary>
+<details><summary>Entrypoint exports (7)</summary>
 
 ```text
 TRINITY_BUNDLE_SCHEMA_VERSION
@@ -3594,6 +3594,7 @@ PolicySpec
 ProblemFrame
 TrinityBundle
 load_trinity_bundle_artifact
+persist_trinity_bundle_artifact
 ```
 
 </details>

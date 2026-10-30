@@ -16,7 +16,7 @@ from polisyos.common.job_execution_interrupt import (
     job_execution_interrupt_scope,
 )
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts import ArtifactRef
 from polisyos.core.run.child_custody import ChildComputationOutcomeUnknown
 from polisyos.core.security import clear_tenant_context
 from polisyos.runtime.http.errors import (

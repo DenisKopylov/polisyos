@@ -12,8 +12,8 @@ from contextvars import ContextVar
 from typing import TYPE_CHECKING, Any
 
 from polisyos.common.borrowed_execution import _BorrowedExecutionGrant
-from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.contracts.foundry import (
+from polisyos.core.artifacts import ArtifactRef
+from polisyos.core.contracts import (
     CompileRequest,
     CompileResult,
     ExecuteRequest,
@@ -23,7 +23,7 @@ from polisyos.core.contracts.foundry import (
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
 
-    from polisyos.core.artifacts.protocol import ArtifactStore
+    from polisyos.core.artifacts import ArtifactStore
 
 
 _CHILD_FOUNDRY_DISPATCH_TOKEN = object()

@@ -32,21 +32,20 @@ if TYPE_CHECKING:
 
     from polisyos.core.artifacts import (
         ArtifactID,
+        ArtifactMemberReceipt,
         ArtifactRef,
         ArtifactStore,
+        CoreJsonArtifactBoundedRead,
+        CoreJsonManifestBoundedRead,
+        CoreJsonReadLimits,
         Ed25519Verifier,
+        FileSystemCAS,
+        InputRef,
         SignatureVerificationResult,
         SignatureVerifyingArtifactStore,
         VerificationReport,
     )
     from polisyos.core.artifacts._transfer_ops import ImportPublication
-    from polisyos.core.artifacts.canonical_profile import (
-        CoreJsonArtifactBoundedRead,
-        CoreJsonManifestBoundedRead,
-        CoreJsonReadLimits,
-    )
-    from polisyos.core.artifacts.manifest import InputRef
-    from polisyos.core.artifacts.store import ArtifactMemberReceipt, FileSystemCAS
     from polisyos.core.run.child_custody import ChildComputationCustody
     from polisyos.scientist.validation.source_admission_owner import _RegisteredSourceAdmissionOwner
 
@@ -854,7 +853,7 @@ class ChildGuardedReadOwner:
     """Fixed guarded read service retained by one trusted Core custody session."""
 
     def __init__(self, session: object, served_proxy: object) -> None:
-        from polisyos.core.artifacts.store import FileSystemCAS
+        from polisyos.core.artifacts import FileSystemCAS
         from polisyos.core.run.child_custody import ChildComputationCustody
 
         if type(session) is not ChildComputationCustody:
@@ -936,7 +935,7 @@ class ChildGuardedReadOwner:
         self, capability: object, *, max_manifest_bytes: int, allow_profile_absent: bool
     ) -> CoreJsonManifestBoundedRead:
         """Read one exact selected bounded manifest on the CAS worker."""
-        from polisyos.core.artifacts.canonical_profile import read_core_manifest_profile_bounded
+        from polisyos.core.artifacts import read_core_manifest_profile_bounded
 
         proxy, ref = self._claim(capability)
         result = self._run_read(
@@ -957,8 +956,8 @@ class ChildGuardedReadOwner:
         self, capability: object, input_ref: InputRef, *, max_manifest_bytes: int
     ) -> CoreJsonManifestBoundedRead:
         """Read the canonical input edge against the admitted exact profile."""
-        from polisyos.core.artifacts import InputRef
-        from polisyos.core.artifacts.canonical_profile import (
+        from polisyos.core.artifacts import (
+            InputRef,
             read_core_input_manifest_profile_bounded,
         )
 
@@ -985,7 +984,7 @@ class ChildGuardedReadOwner:
         self, capability: object, *, limits: CoreJsonReadLimits
     ) -> CoreJsonArtifactBoundedRead:
         """Run the entire canonical bounded reader and preserve its actual usage."""
-        from polisyos.core.artifacts.canonical_profile import read_core_json_artifact_bounded
+        from polisyos.core.artifacts import read_core_json_artifact_bounded
 
         proxy, ref = self._claim(capability)
         result = self._run_read(
@@ -998,7 +997,7 @@ class ChildGuardedReadOwner:
         self, capability: object, *, max_manifest_bytes: int, max_member_bytes: int
     ) -> ArtifactMemberReceipt:
         """Consume one bounded selected blob on the worker without exposing its stream."""
-        from polisyos.core.artifacts.canonical_profile import read_core_manifest_profile_bounded
+        from polisyos.core.artifacts import read_core_manifest_profile_bounded
 
         proxy, ref = self._claim(capability)
 
@@ -1027,7 +1026,7 @@ class ChildGuardedReadOwner:
     def _claim_stage_write(
         self, capability: object, kind: str
     ) -> tuple[object, object, object, object, object]:
-        from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+        from polisyos.core.artifacts import ArtifactWriteOptions
         from polisyos.core.run.child_custody import ChildStageWriteCapability
 
         if threading.get_ident() != self._owner_thread:
@@ -1081,9 +1080,8 @@ class ChildGuardedReadOwner:
 
     def transfer_selected(self, capability: object) -> ImportPublication:
         """Transfer one Core-authorized exact profile set without committing a head."""
-        from polisyos.core.artifacts import ArtifactRef
+        from polisyos.core.artifacts import ArtifactRef, FileSystemCAS
         from polisyos.core.artifacts.child_release import _CHILD_STAGING_TOKEN
-        from polisyos.core.artifacts.store import FileSystemCAS
         from polisyos.core.run.child_custody import ChildSelectedTransferCapability
 
         if threading.get_ident() != self._owner_thread:

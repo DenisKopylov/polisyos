@@ -13,19 +13,20 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, model_validator
 
-from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo, input_ref_from_artifact_ref
-from polisyos.core.artifacts.owned_json import (
+from polisyos.core.artifacts import (
+    ArtifactRef,
+    ArtifactWriteOptions,
     CoreArtifactOwnerProfile,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
     validate_owned_core_model_json_artifact,
 )
-from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.core.canon.canon_json import CanonSpec
+from polisyos.core.canon import CanonSpec
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
-    from polisyos.core.artifacts.manifest import InputRef
-    from polisyos.core.artifacts.protocol import ArtifactStore
+    from polisyos.core.artifacts import ArtifactStore, InputRef
     from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 
 STAGE_B_PROJECTION_KIND = "scientist.hierarchical_search.stage_b_projection"

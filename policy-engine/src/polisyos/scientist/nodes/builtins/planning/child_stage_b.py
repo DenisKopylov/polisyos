@@ -67,10 +67,9 @@ class StageBPrepareNode:
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
         """Write the candidate and clear preceding candidate artifacts in the child only."""
-        from polisyos.core.artifacts import ensure_ir_artifact_store
-        from polisyos.core.artifacts.manifest import input_ref_from_artifact_ref
-        from polisyos.core.contracts.trinity import TrinityBundleRef
-        from polisyos.ir.trinity.loaders import persist_trinity_bundle_artifact
+        from polisyos.core.artifacts import ensure_ir_artifact_store, input_ref_from_artifact_ref
+        from polisyos.core.contracts import TrinityBundleRef
+        from polisyos.ir.trinity import persist_trinity_bundle_artifact
         from polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search import (
             _INNER_CANDIDATE_ARTIFACT_KEYS,
             _candidate_payload_without_hash,

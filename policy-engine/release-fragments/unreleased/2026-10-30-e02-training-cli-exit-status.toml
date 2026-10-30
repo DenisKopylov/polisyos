@@ -1,0 +1,11 @@
+id = "2026-10-30-e02-training-cli-exit-status"
+title = "Report blocked plugin training through the CLI exit status"
+type = "fixed"
+component = "foundry"
+owner = "team-polisyos"
+summary = "The `polisy train` command now exits unsuccessfully when its typed result remains bridge-pending."
+evidence = ["src/polisyos/foundry/plugins/cli.py", "tests/unit/foundry/plugins/test_cli.py"]
+compatibility = "A bridge-pending training outcome returns status 1; successful commands return status 0 and argparse usage errors retain status 2."
+change_class = "tooling"
+api = "The CLI maps the existing TrainingResult status to a process status without changing training eligibility or authority."
+limitations = "No training capability, model, or policy authority is added by this change."

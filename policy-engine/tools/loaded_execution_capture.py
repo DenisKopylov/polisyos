@@ -23,8 +23,16 @@ import sys
 from contextlib import suppress
 from dataclasses import dataclass
 from pathlib import Path
-from types import CodeType, FrameType, FunctionType, MappingProxyType, ModuleType
-from typing import TYPE_CHECKING, Literal
+from types import (
+    CellType,
+    CodeType,
+    FrameType,
+    FunctionType,
+    GetSetDescriptorType,
+    MappingProxyType,
+    ModuleType,
+)
+from typing import TYPE_CHECKING, Literal, cast
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
@@ -52,6 +60,116 @@ def _passive_lookup(mapping: object, key: str) -> tuple[bool, object]:
         # A concurrent mutation cannot establish a passive read.
         return False, None
     return False, None
+
+
+def _passive_binding_matches(mapping: object, key: str, expected: object) -> bool:
+    """Require the exact binding to be present, including a held None value."""
+
+    found, actual = _passive_lookup(mapping, key)
+    return found and actual is expected
+
+
+def _finder_descriptor_functions(value: object) -> tuple[FunctionType, ...] | None:
+    """Read supported descriptor representations without invoking them."""
+
+    if type(value) is FunctionType:
+        return (value,)
+    if type(value) is property:
+        return cast(
+            "tuple[FunctionType, ...]",
+            tuple(
+                function
+                for function in (value.fget, value.fset, value.fdel)
+                if function is not None
+            ),
+        )
+    if type(value) is classmethod:
+        return (cast("FunctionType", value.__func__),)
+    if type(value) is staticmethod:
+        return (cast("FunctionType", value.__func__),)
+    return None
+
+
+def _finder_callable_hold(function: FunctionType) -> tuple[object, ...] | None:
+    """Retain callable bindings without invoking descriptors or callbacks."""
+
+    kwdefaults = function.__kwdefaults__
+    if kwdefaults is not None and (
+        type(kwdefaults) is not dict or any(type(key) is not str for key in kwdefaults)
+    ):
+        return None
+    closure = function.__closure__
+    cells: list[tuple[object, bool, object]] = []
+    for cell in closure or ():
+        try:
+            cells.append((cell, True, cell.cell_contents))
+        except ValueError:
+            cells.append((cell, False, None))
+    return (
+        function,
+        function.__code__,
+        function.__defaults__,
+        kwdefaults,
+        () if kwdefaults is None else tuple(kwdefaults.items()),
+        closure,
+        tuple(cells),
+    )
+
+
+def _finder_callable_unchanged(held: tuple[object, ...]) -> bool:
+    if len(held) != 7:
+        return False
+    function = held[0]
+    if type(function) is not FunctionType:
+        return False
+    _, code, defaults, kwdefaults, kwitems, closure, cells = held
+    if (
+        function.__code__ is not code
+        or function.__defaults__ is not defaults
+        or function.__kwdefaults__ is not kwdefaults
+        or function.__closure__ is not closure
+        or type(kwitems) is not tuple
+        or type(cells) is not tuple
+    ):
+        return False
+    if kwdefaults is None:
+        if kwitems:
+            return False
+    elif (
+        type(kwdefaults) is not dict
+        or len(kwdefaults) != len(kwitems)
+        or any(type(key) is not str for key in kwdefaults)
+        or any(
+            type(item) is not tuple
+            or len(item) != 2
+            or type(item[0]) is not str
+            or not _passive_binding_matches(kwdefaults, item[0], item[1])
+            for item in kwitems
+        )
+    ):
+        return False
+    if closure is None:
+        return not cells
+    if type(closure) is not tuple or len(closure) != len(cells):
+        return False
+    for cell, prior in zip(closure, cells, strict=True):
+        if (
+            type(cell) is not CellType
+            or type(prior) is not tuple
+            or len(prior) != 3
+            or prior[0] is not cell
+            or type(prior[1]) is not bool
+        ):
+            return False
+        try:
+            value = cell.cell_contents
+        except ValueError:
+            if prior[1]:
+                return False
+        else:
+            if not prior[1] or value is not prior[2]:
+                return False
+    return True
 
 
 class CaptureError(ImportError):
@@ -113,17 +231,31 @@ class FailedImportEvidence:
 
 
 @dataclass(frozen=True, slots=True)
-class _SourceOwnedFinder:
-    """A finder and method retained from one recorded source execution."""
+class _SourceFinderClass:
+    """One source-executed class in the selected finder method's MRO."""
 
-    finder: object
-    finder_type: type[object]
+    cls: type[object]
     owner: ModuleType
     owner_name: str
     class_name: str
+    source_code: CodeType
+    bases: tuple[type[object], ...]
+    fields: tuple[tuple[str, object], ...]
+    functions: tuple[tuple[object, ...], ...]
+
+
+@dataclass(frozen=True, slots=True)
+class _SourceOwnedFinder:
+    """A finder and its source-executed method-resolution path."""
+
+    finder: object
+    finder_type: type[object]
+    resolution_order: tuple[type[object], ...]
+    classes: tuple[_SourceFinderClass, ...]
     method: FunctionType
     method_code: CodeType
-    bases: tuple[type[object], ...]
+    instance_namespace: dict[str, object]
+    instance_fields: tuple[tuple[str, object], ...]
 
 
 @dataclass(frozen=True, slots=True)
@@ -991,58 +1123,155 @@ class SourceExecutionCapture:
         importlib.import_module = observed_import_module
 
     def _source_finder_reference(self, finder: object) -> _SourceOwnedFinder | None:
-        """Identify a finder method in a retained selected module's code tree."""
+        """Retain the source-executed resolution path of the actual finder."""
 
         finder_type = type(finder)
-        owner_name = type.__getattribute__(finder_type, "__module__")
-        class_name = type.__getattribute__(finder_type, "__name__")
-        namespace = type.__getattribute__(finder_type, "__dict__")
-        method = _passive_lookup(namespace, "find_spec")[1]
-        bases = type.__getattribute__(finder_type, "__bases__")
-        if (
-            type(owner_name) is not str
-            or type(class_name) is not str
-            or type(method) is not FunctionType
-            or type(bases) is not tuple
-            or owner_name not in self._sources
-        ):
+        mro = type.__getattribute__(finder_type, "__mro__")
+        if type(mro) is not tuple:
             return None
-        owner = self._pending.get(owner_name)
-        code = self._pending_codes.get(owner_name)
-        if owner is None:
-            completed = self._completed.get(owner_name)
-            if completed is None:
-                return None
-            owner, code = completed.module, completed.code
-        if (
-            type(owner) is not ModuleType
-            or type(code) is not CodeType
-            or _passive_lookup(sys.modules, owner_name)[1] is not owner
-            or _passive_lookup(owner.__dict__, class_name)[1] is not finder_type
-            or method.__globals__ is not owner.__dict__
-            or not self._code_belongs_to(code, method.__code__)
-        ):
-            return None
-        return _SourceOwnedFinder(
-            finder, finder_type, owner, owner_name, class_name, method, method.__code__, bases
+        dictionary_descriptor = next(
+            (
+                _passive_lookup(type.__getattribute__(cls, "__dict__"), "__dict__")[1]
+                for cls in mro
+                if _passive_lookup(type.__getattribute__(cls, "__dict__"), "__dict__")[0]
+            ),
+            None,
         )
+        if type(dictionary_descriptor) is not GetSetDescriptorType:
+            return None
+        namespace = object.__getattribute__(finder, "__dict__")
+        if type(namespace) is not dict or any(type(key) is not str for key in namespace):
+            return None
+        instance_fields = tuple(namespace.items())
+        classes: list[_SourceFinderClass] = []
+        for cls in mro:
+            owner_name = type.__getattribute__(cls, "__module__")
+            class_name = type.__getattribute__(cls, "__name__")
+            fields = type.__getattribute__(cls, "__dict__")
+            bases = type.__getattribute__(cls, "__bases__")
+            if (
+                type(owner_name) is not str
+                or type(class_name) is not str
+                or type(bases) is not tuple
+                or owner_name not in self._sources
+            ):
+                return None
+            owner = self._pending.get(owner_name)
+            code = self._pending_codes.get(owner_name)
+            if owner is None:
+                completed = self._completed.get(owner_name)
+                if completed is None:
+                    return None
+                owner, code = completed.module, completed.code
+            if (
+                type(owner) is not ModuleType
+                or type(code) is not CodeType
+                or _passive_lookup(sys.modules, owner_name)[1] is not owner
+                or _passive_lookup(owner.__dict__, class_name)[1] is not cls
+            ):
+                return None
+            functions: list[tuple[object, ...]] = []
+            for value in fields.values():
+                accessors = _finder_descriptor_functions(value)
+                if accessors is None:
+                    continue
+                for function in accessors:
+                    if (
+                        type(function) is not FunctionType
+                        or function.__globals__ is not owner.__dict__
+                        or not self._code_belongs_to(code, function.__code__)
+                    ):
+                        return None
+                    held = _finder_callable_hold(function)
+                    if held is None:
+                        return None
+                    functions.append(held)
+            classes.append(
+                _SourceFinderClass(
+                    cls,
+                    owner,
+                    owner_name,
+                    class_name,
+                    code,
+                    bases,
+                    tuple(fields.items()),
+                    tuple(functions),
+                )
+            )
+            found, descriptor = _passive_lookup(fields, "find_spec")
+            if not found:
+                continue
+            if type(descriptor) not in (FunctionType, classmethod, staticmethod):
+                return None
+            accessors = _finder_descriptor_functions(descriptor)
+            if accessors is None or len(accessors) != 1:
+                return None
+            method = accessors[0]
+            if (
+                type(method) is not FunctionType
+                or method.__globals__ is not owner.__dict__
+                or not self._code_belongs_to(code, method.__code__)
+            ):
+                return None
+            return _SourceOwnedFinder(
+                finder,
+                finder_type,
+                mro,
+                tuple(classes),
+                method,
+                method.__code__,
+                namespace,
+                instance_fields,
+            )
+        return None
 
     def _source_finder_matches(self, reference: _SourceOwnedFinder) -> bool:
-        namespace = type.__getattribute__(reference.finder_type, "__dict__")
-        bases = type.__getattribute__(reference.finder_type, "__bases__")
-        return bool(
-            type(reference.finder) is reference.finder_type
-            and type(bases) is tuple
-            and len(bases) == len(reference.bases)
-            and all(
-                actual is original for actual, original in zip(bases, reference.bases, strict=True)
+        if type(reference.finder) is not reference.finder_type:
+            return False
+        mro = type.__getattribute__(reference.finder_type, "__mro__")
+        if (
+            type(mro) is not tuple
+            or len(mro) != len(reference.resolution_order)
+            or any(
+                actual is not held
+                for actual, held in zip(mro, reference.resolution_order, strict=True)
             )
-            and _passive_lookup(sys.modules, reference.owner_name)[1] is reference.owner
-            and _passive_lookup(reference.owner.__dict__, reference.class_name)[1]
-            is reference.finder_type
-            and _passive_lookup(namespace, "find_spec")[1] is reference.method
-            and reference.method.__code__ is reference.method_code
-            and reference.method.__globals__ is reference.owner.__dict__
+            or reference.method.__code__ is not reference.method_code
+        ):
+            return False
+        for item in reference.classes:
+            fields = type.__getattribute__(item.cls, "__dict__")
+            bases = type.__getattribute__(item.cls, "__bases__")
+            owner = self._pending.get(item.owner_name)
+            code = self._pending_codes.get(item.owner_name)
+            if owner is None:
+                completed = self._completed.get(item.owner_name)
+                if completed is None:
+                    return False
+                owner, code = completed.module, completed.code
+            if (
+                type(bases) is not tuple
+                or len(bases) != len(item.bases)
+                or any(actual is not held for actual, held in zip(bases, item.bases, strict=True))
+                or owner is not item.owner
+                or code is not item.source_code
+                or _passive_lookup(sys.modules, item.owner_name)[1] is not item.owner
+                or _passive_lookup(item.owner.__dict__, item.class_name)[1] is not item.cls
+                or len(fields) != len(item.fields)
+                or any(
+                    not _passive_binding_matches(fields, name, value) for name, value in item.fields
+                )
+                or not all(_finder_callable_unchanged(held) for held in item.functions)
+            ):
+                return False
+        namespace = object.__getattribute__(reference.finder, "__dict__")
+        return bool(
+            namespace is reference.instance_namespace
+            and len(namespace) == len(reference.instance_fields)
+            and all(
+                _passive_binding_matches(namespace, name, value)
+                for name, value in reference.instance_fields
+            )
         )
 
     def _refresh_meta_path(self) -> None:

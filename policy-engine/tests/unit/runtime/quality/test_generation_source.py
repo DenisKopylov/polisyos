@@ -2357,7 +2357,7 @@ def test_current_effect_bridge_binds_actual_historical_emitter_epoch(
     import sys
     import types
 
-    from polisyos.core import artifacts
+    from polisyos.core import artifacts, canon
     from polisyos.runtime.quality import promotion_sequence as current
     from polisyos.runtime.quality.generation_source import GenerationSourceRepository
     from tests.unit.runtime.quality.historical_artifacts import (
@@ -2445,7 +2445,9 @@ def test_current_effect_bridge_binds_actual_historical_emitter_epoch(
     assert "sha256:" + hashlib.sha256(old_raw).hexdigest() == old_bridge["source_artifact_id"]
     # This is a bounded historical-wire parse, not current profile admission.
     # Current _read_model correctly refuses this unselected legacy view.
-    parsed = current._EffectObligationProducerRecord.model_validate_json(old_raw)
+    decoded = canon.from_canonical_bytes(old_raw)
+    assert canon.to_canonical_bytes(decoded, canon.CanonSpec(forbid_floats=False)) == old_raw
+    parsed = current._EffectObligationProducerRecord.model_validate(decoded)
     assert parsed.schema_version == old_body["schema_version"]
     _, _, observed = current._persist_model(
         store=store,

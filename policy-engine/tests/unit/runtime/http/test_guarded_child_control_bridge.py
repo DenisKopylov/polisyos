@@ -156,6 +156,8 @@ def _run_owned_fixture(
         "normal",
         "scope",
         "runtime_core_appointment",
+        "runtime_core_bootstrap",
+        "runtime_core_bootstrap_registration_transition",
         "runtime_cas_service",
         "runtime_cas_service_registry_aba",
         "runtime_job_verifier",

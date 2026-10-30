@@ -233,6 +233,16 @@ def _check_unscored_objectives(vector: PolicyEvaluationVector) -> None:
 class TypedChildOutputClosureResolver:
     """Bounded profile; unsupported schemas and semantic fields refuse."""
 
+    __slots__ = ("_limits",)
+
+    def __setattr__(self, name: str, value: object) -> None:
+        if hasattr(self, name):
+            raise AttributeError("child output resolver binding is immutable")
+        object.__setattr__(self, name, value)
+
+    def __delattr__(self, name: str) -> None:
+        raise AttributeError("child output resolver binding is immutable")
+
     def __init__(self, *, limits: CoreJsonReadLimits) -> None:
         """Select Core's bounded artifact reader limits."""
         if type(limits) is not CoreJsonReadLimits:

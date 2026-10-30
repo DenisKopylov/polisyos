@@ -309,6 +309,10 @@ _CHILD_GUARDED_READER_BOOTSTRAP_TOKEN = object()
 class _ChildGuardedReadService(Protocol):
     """Fixed Runtime-appointed reader; no caller-provided worker callbacks."""
 
+    def close(self) -> None:
+        """Close the fixed service during failed appointment."""
+        ...
+
     def require_registration(self) -> None:
         """Reconcile the actual guarded registrations before owner decisions."""
 
@@ -1700,12 +1704,14 @@ class ChildJobSessionIntent:
 _CHILD_CONTROL_OPERATION_TOKEN = object()
 
 
-class _ChildControlOwner(Protocol):
+class _ChildControlOwner(ChildPublicationFence, Protocol):
     def _require_parent(self) -> None: ...
 
     def _parent_binding_for_core(self, root: object) -> ChildComputationBinding: ...
 
     def _job_verifier_for_core(self) -> ChildJobOwnerVerifier: ...
+
+    def _cas_service_for_core(self) -> _ChildRuntimeCasService: ...
 
     def _require_control_worker(self) -> None: ...
 
@@ -1714,6 +1720,16 @@ class _ChildControlOwner(Protocol):
     def _control_liveness_for_core(
         self, owner: ChildComputationCustody
     ) -> _BorrowedControlLiveness: ...
+
+
+class _ChildRuntimeCasService(Protocol):
+    """The one CAS service issued by Runtime's real guarded registration."""
+
+    def _backend_for_store(self, guarded_store: object) -> FileSystemCAS: ...
+
+    def _appointment_registration(self) -> AbstractContextManager[None]: ...
+
+    def _reader_for_session(self, session: object) -> _ChildGuardedReadService: ...
 
 
 class _ChildControlOperation:

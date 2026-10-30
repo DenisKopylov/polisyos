@@ -227,12 +227,192 @@ def _exercise_job(
         if fence_factory is None
         else fence_factory(root, control, grant, binding)
     )
-    custody, reader = _bootstrap_guarded_child_custody(
-        root,
-        staging_root=tmp_path / "private",
-        closure_resolver=_Resolver(),
-        publication_fence=fence,
-    )
+    if probe in {"runtime_core_bootstrap", "runtime_core_bootstrap_registration_transition"}:
+        from polisyos.scientist.orchestration.engine.child_output_closure import (
+            TypedChildOutputClosureResolver,
+        )
+
+        resolver = TypedChildOutputClosureResolver(
+            limits=CoreJsonReadLimits(
+                max_bytes=4096, max_depth=20, max_elements=100, max_manifest_bytes=100000
+            )
+        )
+        with pytest.raises(AttributeError, match="binding is immutable"):
+            resolver._limits = CoreJsonReadLimits(
+                max_bytes=8192, max_depth=20, max_elements=100, max_manifest_bytes=100000
+            )
+        with pytest.raises(ValueError, match="child_output_resolver_origin_not_established"):
+            _bootstrap_guarded_child_custody(
+                root,
+                staging_root=tmp_path / "private",
+                closure_resolver=_Resolver(),
+                publication_fence=fence,
+            )
+        with pytest.raises(ValueError, match="child_runtime_control_origin_not_established"):
+            _bootstrap_guarded_child_custody(
+                root,
+                staging_root=tmp_path / "private",
+                closure_resolver=resolver,
+                publication_fence=object(),
+            )
+        foreign_errors: list[BaseException] = []
+
+        def foreign_thread() -> None:
+            try:
+                _bootstrap_guarded_child_custody(
+                    root,
+                    staging_root=tmp_path / "private",
+                    closure_resolver=resolver,
+                    publication_fence=fence,
+                )
+            except BaseException as exc:
+                foreign_errors.append(exc)
+
+        worker = threading.Thread(target=foreign_thread)
+        worker.start()
+        worker.join(timeout=2)
+        assert not worker.is_alive()
+        assert len(foreign_errors) == 1
+        assert str(foreign_errors[0]) == "guarded_child_control_parent_thread_mismatch"
+        assert not root._child_runtime_appointments
+
+        if probe == "runtime_core_bootstrap_registration_transition":
+            from polisyos.runtime.http import resilience
+
+            service = resilience._require_runtime_child_cas_service(served)
+            original_registration = type(service)._appointment_registration
+            started = threading.Event()
+            changed = threading.Event()
+
+            def replace_registration() -> None:
+                started.set()
+                registration = resilience._RUNTIME_FILESYSTEM_GUARDS.pop(served)
+                resilience._RUNTIME_FILESYSTEM_GUARDS[served] = registration
+                changed.set()
+
+            worker = threading.Thread(target=replace_registration)
+
+            @contextmanager
+            def observed_registration(owner):
+                with original_registration(owner):
+                    worker.start()
+                    assert started.wait(2)
+                    assert not changed.wait(0.1)
+                    yield
+                worker.join(timeout=2)
+                assert not worker.is_alive() and changed.is_set()
+
+            try:
+                with monkeypatch.context() as patch:
+                    patch.setattr(type(service), "_appointment_registration", observed_registration)
+                    with pytest.raises(ValueError, match="registered_sql_guard_binding_changed"):
+                        _bootstrap_guarded_child_custody(
+                            root,
+                            staging_root=tmp_path / "private",
+                            closure_resolver=resolver,
+                            publication_fence=fence,
+                        )
+                assert tuple(root._child_runtime_appointments.values()) == (service,)
+                assert not (tmp_path / "private").exists()
+            finally:
+                worker.join(timeout=2)
+                served.close()
+            return
+
+        original_consumption = fence.local_consumption
+        for owner_field in ("invocation_tail", "owner_snapshot", "manifest"):
+            mutations: list[bool] = []
+
+            @contextmanager
+            def mutate_owner_during_appointment(_self, *, selected=owner_field, seen=mutations):
+                if seen:
+                    with original_consumption():
+                        yield
+                    return
+                seen.append(True)
+                if selected == "manifest":
+                    target, attribute = root.run_manifest, "seed"
+                    original = target.seed
+                    changed = 1 if original != 1 else 2
+                else:
+                    target = (
+                        root._runtime_invocation_tail_ref
+                        if selected == "invocation_tail"
+                        else root._owner_snapshot_ref
+                    )
+                    assert target is not None
+                    attribute = "manifest_profile_sha256"
+                    original = target.manifest_profile_sha256
+                    changed = "sha256:" + "f" * 64
+                setattr(target, attribute, changed)
+                try:
+                    with original_consumption():
+                        yield
+                finally:
+                    setattr(target, attribute, original)
+
+            with monkeypatch.context() as patch:
+                patch.setattr(type(fence), "local_consumption", mutate_owner_during_appointment)
+                with pytest.raises(ValueError, match="child_runtime_parent_owner_changed"):
+                    _bootstrap_guarded_child_custody(
+                        root,
+                        staging_root=tmp_path / "private",
+                        closure_resolver=resolver,
+                        publication_fence=fence,
+                    )
+            assert not root._child_runtime_appointments
+        custody, reader = _bootstrap_guarded_child_custody(
+            root,
+            staging_root=tmp_path / "private",
+            closure_resolver=resolver,
+            publication_fence=fence,
+        )
+        from polisyos.runtime.http.resilience import _require_runtime_child_cas_service
+
+        assert tuple(root._child_runtime_appointments.values()) == (
+            _require_runtime_child_cas_service(served),
+        )
+        with pytest.raises(ValueError, match="child_runtime_parent_already_appointed"):
+            _bootstrap_guarded_child_custody(
+                root,
+                staging_root=tmp_path / "private",
+                closure_resolver=resolver,
+                publication_fence=fence,
+            )
+    else:
+        # The synthetic resolver used by the older Core lifecycle cases is a
+        # fixture, not a production appointment or a release closure owner.
+        from polisyos.core.run.child_custody import (
+            _CHILD_GUARDED_READER_BOOTSTRAP_TOKEN,
+            _CHILD_GUARDED_ROOT_BOOTSTRAP_TOKEN,
+            ChildComputationCustody,
+            _bind_guarded_root,
+        )
+        from polisyos.runtime.http.resilience import (
+            ChildGuardedReadOwner,
+            _require_runtime_filesystem_guard,
+        )
+
+        root_binding = _bind_guarded_root(
+            root,
+            _require_runtime_filesystem_guard(served).backend,
+            token=_CHILD_GUARDED_ROOT_BOOTSTRAP_TOKEN,
+        )
+        custody = ChildComputationCustody(
+            root,
+            staging_root=tmp_path / "private",
+            closure_resolver=_Resolver(),
+            publication_fence=fence,
+            _guarded_root_binding=root_binding,
+        )
+        reader = ChildGuardedReadOwner(custody, served)
+        custody._appoint_guarded_reader(reader, token=_CHILD_GUARDED_READER_BOOTSTRAP_TOKEN)
+        if fence_factory is not None:
+            from polisyos.core.run.worker_lifecycle import ChildRuntimeCapability
+
+            ChildRuntimeCapability._appoint_runtime_job_owner(
+                root, session=custody, runtime_control=fence
+            )
     if fence_factory is None:
         _install_child_job_owner(
             custody._ledger.store_identity, control, token=_JOB_OWNER_BOOTSTRAP_TOKEN
@@ -253,7 +433,7 @@ def _exercise_job(
         max_bytes=4096, max_depth=20, max_elements=100, max_manifest_bytes=100000
     )
     try:
-        if probe == "runtime_core_appointment":
+        if probe in {"runtime_core_appointment", "runtime_core_bootstrap"}:
             from polisyos.core.artifacts.child_release import _child_job_owner
             from polisyos.core.run.worker_lifecycle import ChildRuntimeCapability
             from polisyos.runtime.http.resilience import _require_runtime_child_job_verifier
@@ -266,6 +446,9 @@ def _exercise_job(
             )
             with pytest.raises(ValueError, match="child_runtime_appointment_already_consumed"):
                 capability._appoint_job_owner()
+            if probe == "runtime_core_bootstrap":
+                managed = custody.parent_store(binding, input_refs=(source_ref,))
+                assert json.loads(managed.get_bytes(source_ref)) == {"source": 2}
             return
         if probe in {"runtime_cas_service", "runtime_cas_service_registry_aba"}:
             from polisyos.runtime.http import resilience

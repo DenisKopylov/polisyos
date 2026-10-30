@@ -4,10 +4,11 @@ from __future__ import annotations
 
 import inspect
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
 from polisyos.core.trace import JsonlTraceSink
 
 from .context import RunContext, _FinalizeRecoveryError
@@ -17,7 +18,12 @@ if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
 
     from polisyos.core.artifacts.protocol import ArtifactStore
-    from polisyos.core.run.child_custody import _ChildControlOwner
+    from polisyos.core.run.child_custody import (
+        ChildComputationCustody,
+        ChildOutputClosureResolver,
+        _ChildControlOwner,
+        _ChildGuardedReadService,
+    )
     from polisyos.core.security.access_scope import AccessScope
     from polisyos.core.trace.record import TraceRecord
     from polisyos.core.trace.sink import TraceSink
@@ -115,7 +121,7 @@ def _require_fixed_runtime_child_control(control: object) -> _ChildControlOwner:
         or inspect.getattr_static(control, "_require_parent", None) is not descriptor
     ):
         raise ValueError("child_runtime_control_origin_not_established")
-    for name in ("_parent_binding_for_core", "_job_verifier_for_core"):
+    for name in ("_parent_binding_for_core", "_job_verifier_for_core", "_cas_service_for_core"):
         selected = inspect.getattr_static(type(control), name, None)
         try:
             selected_module, selected_source = _callable_source(selected)
@@ -129,6 +135,34 @@ def _require_fixed_runtime_child_control(control: object) -> _ChildControlOwner:
             raise ValueError("child_runtime_control_origin_not_established")
     # The exact class is established against its Runtime implementation above.
     return cast("_ChildControlOwner", control)
+
+
+def _require_fixed_child_output_resolver(resolver: object) -> ChildOutputClosureResolver:
+    """Accept the fixed Engine closure implementation, never a caller callback."""
+    from polisyos.core.artifacts.canonical_profile import CoreJsonReadLimits
+    from polisyos.core.components._provider_origin import _callable_source
+
+    descriptor = inspect.getattr_static(type(resolver), "resolve", None)
+    try:
+        module, source = _callable_source(descriptor)
+        expected = (
+            Path(__file__).resolve().parents[2]
+            / "scientist"
+            / "orchestration"
+            / "engine"
+            / "child_output_closure.py"
+        ).resolve(strict=True)
+    except Exception as exc:
+        raise ValueError("child_output_resolver_origin_not_established") from exc
+    if (
+        module.__name__ != "polisyos.scientist.orchestration.engine.child_output_closure"
+        or source != expected
+        or module.__dict__.get("TypedChildOutputClosureResolver") is not type(resolver)
+        or inspect.getattr_static(resolver, "resolve", None) is not descriptor
+        or type(getattr(resolver, "_limits", None)) is not CoreJsonReadLimits
+    ):
+        raise ValueError("child_output_resolver_origin_not_established")
+    return cast("ChildOutputClosureResolver", resolver)
 
 
 class ChildRuntimeCapability:
@@ -207,6 +241,108 @@ class ChildRuntimeCapability:
         binding = control._parent_binding_for_core(run)
         session._admit_binding(binding)
         cls.for_parent(run, session=session, runtime_control=control)._appoint_job_owner()
+
+    @classmethod
+    def _bootstrap_runtime_session(
+        cls,
+        run: object,
+        *,
+        staging_root: Path,
+        closure_resolver: object,
+        runtime_control: object,
+        served_roots: Sequence[Path] = (),
+    ) -> tuple[ChildComputationCustody, _ChildGuardedReadService]:
+        """Consume one actual parent appointment and install Runtime's fixed service."""
+        from .child_custody import (
+            _CHILD_GUARDED_READER_BOOTSTRAP_TOKEN,
+            _CHILD_GUARDED_ROOT_BOOTSTRAP_TOKEN,
+            ChildComputationCustody,
+            _bind_guarded_root,
+            _model_snapshot,
+        )
+
+        if type(run) is not RunContext:
+            raise ValueError("child_runtime_parent_owner_not_established")
+        resolver = _require_fixed_child_output_resolver(closure_resolver)
+        control = _require_fixed_runtime_child_control(runtime_control)
+        binding = control._parent_binding_for_core(run)
+
+        def owner_snapshot() -> tuple[object, ...]:
+            return (
+                _model_snapshot(run._owner_snapshot_ref),
+                _model_snapshot(run._runtime_invocation_tail_ref),
+                _model_snapshot(run.run_manifest),
+                _model_snapshot(binding),
+                run._trace_path,
+                run.tenant_id,
+                run.cell_id,
+                run.access_scope,
+            )
+
+        snapshot = owner_snapshot()
+        selected_store = run.store
+        selected_lease = run._active_lease
+        service = control._cas_service_for_core()
+        backend = service._backend_for_store(run.store)
+        run._require_active_lease_owner()
+        run._validate_run_owner_binding()
+        attempts = [
+            item
+            for item in run.read_runtime_invocation_attempts()
+            if artifact_ref_identity_key(item.basis_ref)
+            == artifact_ref_identity_key(binding.parent_basis_ref)
+        ]
+        if (
+            len(attempts) != 1
+            or attempts[0].outcome is not None
+            or attempts[0].basis.attempt_id != binding.parent_attempt_id
+        ):
+            raise ValueError("child_runtime_parent_attempt_not_current")
+        key = (binding.parent_attempt_id, *artifact_ref_identity_key(binding.parent_basis_ref))
+        with (
+            run._worker_merge_lock,
+            control.local_consumption(),
+            service._appointment_registration(),
+        ):
+            manifest = run.run_manifest
+            if (
+                run._closed
+                or run._suspended
+                or selected_lease is None
+                or run._active_lease is not selected_lease
+                or run.store is not selected_store
+                or manifest.status != "running"
+                or (manifest.run_id, manifest.control_job_id, manifest.tenant_id, manifest.cell_id)
+                != (binding.root_run_id, binding.control_job_id, binding.tenant_id, binding.cell_id)
+                or binding.deadline <= datetime.now(UTC)
+                or owner_snapshot() != snapshot
+                or service._backend_for_store(run.store) is not backend
+            ):
+                raise ValueError("child_runtime_parent_owner_changed")
+            run._require_active_lease_owner()
+            if key in run._child_runtime_appointments:
+                raise ValueError("child_runtime_parent_already_appointed")
+            # Reserve once before creating the staging owner. A failed or
+            # uncertain appointment cannot become a replacement capability.
+            run._child_runtime_appointments[key] = service
+
+        root_binding = _bind_guarded_root(run, backend, token=_CHILD_GUARDED_ROOT_BOOTSTRAP_TOKEN)
+        session = ChildComputationCustody(
+            run,
+            staging_root=staging_root,
+            closure_resolver=resolver,
+            publication_fence=control,
+            served_roots=served_roots,
+            _guarded_root_binding=root_binding,
+        )
+        reader = service._reader_for_session(session)
+        try:
+            session._appoint_guarded_reader(reader, token=_CHILD_GUARDED_READER_BOOTSTRAP_TOKEN)
+            cls._appoint_runtime_job_owner(run, session=session, runtime_control=control)
+        except BaseException:
+            reader.close()
+            raise
+        return session, reader
 
     def _appoint_job_owner(self) -> None:
         """Consume this session's one-shot fixed verifier appointment in Core."""

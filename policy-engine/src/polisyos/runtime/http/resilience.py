@@ -56,7 +56,11 @@ if TYPE_CHECKING:
         ChildJobScopeClaim,
         ChildJobSessionClaim,
     )
-    from polisyos.core.run.child_custody import ChildComputationBinding, ChildComputationCustody
+    from polisyos.core.run.child_custody import (
+        ChildComputationBinding,
+        ChildComputationCustody,
+        _ChildGuardedReadService,
+    )
     from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
     from polisyos.scientist.validation.source_admission_owner import _RegisteredSourceAdmissionOwner
 
@@ -973,6 +977,16 @@ class _RuntimeChildCasService:
         self._current()
         return binding.backend
 
+    @contextmanager
+    def _appointment_registration(self) -> Iterator[None]:
+        """Order a short Core appointment against this exact guard transition."""
+        proxy, binding = self._current()
+        with proxy._runtime_lock, binding.guard._runtime_lock:
+            current_proxy, current_binding = self._current()
+            if current_proxy is not proxy or current_binding is not binding:
+                raise ValueError("runtime_child_cas_registration_changed")
+            yield
+
     def _reader_for_session(self, session: object) -> ChildGuardedReadOwner:
         """Create the fixed guarded reader for its actual Core custody session."""
         from polisyos.core.run.child_custody import ChildComputationCustody
@@ -1336,6 +1350,13 @@ class _RuntimeGuardedChildFence:
         verifier = _require_runtime_child_job_verifier(self._control_proxy)
         self._require_parent()
         return verifier
+
+    def _cas_service_for_core(self) -> _RuntimeChildCasService:
+        """Resolve the fixed service issued for this parent's actual guarded CAS."""
+        self._require_parent()
+        service = _require_runtime_child_cas_service(self._cas_proxy)
+        self._require_parent()
+        return service
 
     @contextmanager
     def local_consumption(self) -> Iterator[None]:
@@ -1955,26 +1976,6 @@ class ChildGuardedReadOwner:
         self._stage_proxy.close()
 
 
-def _bootstrap_child_guarded_read_owner(
-    session: object, served_proxy: object
-) -> ChildGuardedReadOwner:
-    """Appoint the fixed reader once from the trusted runtime bootstrap."""
-    from polisyos.core.run.child_custody import (
-        _CHILD_GUARDED_READER_BOOTSTRAP_TOKEN,
-        ChildComputationCustody,
-    )
-
-    service = ChildGuardedReadOwner(session, served_proxy)
-    try:
-        ChildComputationCustody._appoint_guarded_reader(
-            session, service, token=_CHILD_GUARDED_READER_BOOTSTRAP_TOKEN
-        )
-    except BaseException:
-        service.close()
-        raise
-    return service
-
-
 def _bootstrap_guarded_child_custody(
     root_run: object,
     *,
@@ -1982,42 +1983,17 @@ def _bootstrap_guarded_child_custody(
     closure_resolver: object,
     publication_fence: object,
     served_roots: Sequence[Path] = (),
-) -> tuple[ChildComputationCustody, ChildGuardedReadOwner]:
-    """Build one Core custody and reader from the actual runtime-attested Root."""
-    from polisyos.core.run.child_custody import (
-        _CHILD_GUARDED_ROOT_BOOTSTRAP_TOKEN,
-        ChildComputationCustody,
-        _bind_guarded_root,
-    )
-    from polisyos.core.run.context import RunContext
+) -> tuple[ChildComputationCustody, _ChildGuardedReadService]:
+    """Connect the real Runtime parent to Core's one-shot appointment port."""
+    from polisyos.core.run.worker_lifecycle import ChildRuntimeCapability
 
-    if type(root_run) is not RunContext:
-        raise TypeError("child_guarded_root_type_invalid")
-    served_proxy = root_run.store
-    binding = _require_runtime_filesystem_guard(served_proxy)
-    root_binding = _bind_guarded_root(
-        root_run, binding.backend, token=_CHILD_GUARDED_ROOT_BOOTSTRAP_TOKEN
-    )
-    session = ChildComputationCustody(
+    return ChildRuntimeCapability._bootstrap_runtime_session(
         root_run,
         staging_root=staging_root,
         closure_resolver=closure_resolver,
-        publication_fence=publication_fence,
+        runtime_control=publication_fence,
         served_roots=served_roots,
-        _guarded_root_binding=root_binding,
     )
-    reader = _bootstrap_child_guarded_read_owner(session, served_proxy)
-    if type(publication_fence) is _RuntimeGuardedChildFence:
-        from polisyos.core.run.worker_lifecycle import ChildRuntimeCapability
-
-        try:
-            ChildRuntimeCapability._appoint_runtime_job_owner(
-                root_run, session=session, runtime_control=publication_fence
-            )
-        except BaseException:
-            reader.close()
-            raise
-    return session, reader
 
 
 def _require_runtime_ambient_ownership(guarded_store: object) -> None:

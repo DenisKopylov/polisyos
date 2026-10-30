@@ -1506,6 +1506,11 @@ class RunContext:
         repr=False,
         compare=False,
     )
+    _child_runtime_appointments: dict[tuple[str, str, str, str, str | None], object] = field(
+        default_factory=dict,
+        repr=False,
+        compare=False,
+    )
 
     @property
     def trace_path(self) -> Path | None:

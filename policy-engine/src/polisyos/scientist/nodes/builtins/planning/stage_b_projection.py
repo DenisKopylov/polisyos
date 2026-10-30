@@ -57,10 +57,10 @@ class StageBProjection(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: Literal["1.0"] = STAGE_B_PROJECTION_SCHEMA_VERSION
-    candidate_ref: ArtifactRef | None
-    evaluation_ref: ArtifactRef | None
+    candidate_ref: ArtifactRef | None = None
+    evaluation_ref: ArtifactRef | None = None
     simulation_result_ref: ArtifactRef | None = None
-    score_status: str | None
+    score_status: str | None = None
     result: dict[str, Any]
 
     @model_validator(mode="after")
@@ -221,6 +221,18 @@ def bind_candidate_model_inputs(
             if ref is None:
                 raise StageBProjectionRefusalError("stage_b_assumption_ref_invalid")
             bindings.append(input_ref_from_artifact_ref(ref, role=f"evidence_assumption_{index}"))
+    # Foundry's selected execution basis resolves these canonical source roles.
+    # They select the same already-reconciled occurrences as the model roles;
+    # neither edge by itself admits the source contents.
+    world_roles = {
+        "model_primary_data_snapshot": "world_model_data_snapshot",
+        "model_primary_registry": "world_model_registry",
+    }
+    bindings.extend(
+        edge.model_copy(update={"role": world_roles[edge.role]})
+        for edge in tuple(bindings)
+        if edge.role in world_roles
+    )
     return bindings
 
 

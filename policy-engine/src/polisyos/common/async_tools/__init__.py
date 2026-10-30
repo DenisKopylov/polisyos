@@ -163,6 +163,7 @@ class _SharedFuture[T](concurrent.futures.Future[T]):
         self._executor = executor
         self._worker_future: concurrent.futures.Future[None] | None = None
         self._work_finished = False
+        self._owner_cleanup_complete = threading.Event()
         self._slot_held = True
         self._work_reserved = False
         self._queued_slot = False
@@ -208,6 +209,7 @@ class _SharedFuture[T](concurrent.futures.Future[T]):
             # A removed queue item has no worker to notify wait()/as_completed().
             self.set_running_or_notify_cancel()
             self._finish_work()
+            self._owner_cleanup_complete.set()
 
     def cancel(self) -> bool:
         """Cancel unstarted work while retaining its reservation until dequeued.
@@ -219,6 +221,25 @@ class _SharedFuture[T](concurrent.futures.Future[T]):
         invoking the submitted callable.
         """
         return super().cancel()
+
+    def _physical_completion_state(self) -> Literal["pending", "returned", "failed", "not_started"]:
+        """Observe actual wrapper exit after its physical slot was released.
+
+        This does not establish downstream effect settlement or authorize a
+        durable workflow completion. A caller must retain the exact owner-issued
+        future and independently reconcile the actual result and all effects.
+        """
+        with self._condition:
+            worker = self._worker_future
+        if worker is None or not self._owner_cleanup_complete.is_set() or not worker.done():
+            return "pending"
+        if worker.cancelled() or self.cancelled():
+            return "not_started"
+        if not self.done():
+            return "pending"
+        if worker.exception() is not None or self.exception() is not None:
+            return "failed"
+        return "returned"
 
     def add_done_callback(self, fn: Callable[[concurrent.futures.Future[T]], object]) -> None:
         """Run callback bodies under the shared owner, including late callbacks.
@@ -451,6 +472,7 @@ class _SharedExecutor(concurrent.futures.ThreadPoolExecutor):
                     finally:
                         if slot_acquired:
                             self._physical_slot_guard.release()
+                        future._owner_cleanup_complete.set()
 
             try:
                 worker_future = super().submit(run)
@@ -613,9 +635,31 @@ def shutdown_run_coro_sync_executor() -> None:
 atexit.register(shutdown_run_coro_sync_executor)
 
 
+def create_dependency_executor(
+    *, max_workers: int, max_queued: int, thread_name_prefix: str
+) -> concurrent.futures.ThreadPoolExecutor:
+    """Create a guard-owned dependency pool with bounded worker and queue capacity."""
+    if type(max_workers) is not int or max_workers < 1:
+        raise ValueError("dependency_executor_workers_must_be_positive")
+    if type(max_queued) is not int or max_queued < 0:
+        raise ValueError("dependency_executor_queue_must_be_nonnegative")
+    return _SharedExecutor(
+        max_workers=max_workers, max_queued=max_queued, thread_name_prefix=thread_name_prefix
+    )
+
+
 def get_shared_executor() -> concurrent.futures.ThreadPoolExecutor:
     """Return the callback-owning executor used for sync-over-async bridges."""
     return _get_shared_executor()
+
+
+def owns_shared_executor_slot(executor: concurrent.futures.ThreadPoolExecutor) -> bool:
+    """Check the actual process executor and its current thread's occupied slot."""
+    return (
+        type(executor) is _SharedExecutor
+        and executor is _RUN_CORO_SYNC_EXECUTOR
+        and executor._is_current_owner_slot()
+    )
 
 
 def is_current_shared_executor_worker() -> bool:

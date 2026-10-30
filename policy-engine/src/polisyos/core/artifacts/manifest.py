@@ -317,6 +317,24 @@ def artifact_ref_identity_key(ref: ArtifactRef) -> tuple[str, str, str, str | No
     )
 
 
+class ArtifactChildReleaseInfo(BaseModel):
+    """Bind a managed staged occurrence to its owner-controlled release session.
+
+    This is an identity link, never a release permission or an isolation claim.
+    Missing or unresolved release state refuses reads of the selected view.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["1.0"] = "1.0"
+    release_id: str = Field(pattern=r"^[0-9a-f]{32}$")
+    scope_id: str = Field(pattern=r"^[0-9a-f]{32}$")
+    binding_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    served_store_identity: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    root_run_id: str = Field(min_length=1)
+    child_run_id: str = Field(min_length=1)
+
+
 class ArtifactManifest(BaseModel):
     """Describe one CAS object, its ABI hints, and its direct lineage inputs.
 
@@ -348,6 +366,9 @@ class ArtifactManifest(BaseModel):
     tenant_context: ArtifactTenantContextInfo | None = None
     same_input_closure: ArtifactSameInputClosureInfo | None = None
     authority: ArtifactAuthorityInfo | None = None
+    child_release: ArtifactChildReleaseInfo | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
     integrity: IntegrityInfo
     warnings: list[WarningRecord] = Field(default_factory=list)
@@ -365,6 +386,8 @@ class ArtifactManifest(BaseModel):
             raise ValueError(
                 "manifest_schema_version v2 or later is required for selected input manifest views"
             )
+        if self.child_release is not None and self.manifest_schema_version != "v3":
+            raise ValueError("child release metadata requires manifest schema v3")
         return self
 
 

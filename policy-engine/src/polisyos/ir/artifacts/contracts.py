@@ -417,6 +417,7 @@ class StorePutOptions:
     tenant_context: _MetadataOption | None = None
     same_input_closure: _MetadataOption | None = None
     authority: _MetadataOption | None = None
+    child_release: _MetadataOption | None = None
     warnings: list[_MetadataOption] | None = None
 
 

@@ -31,6 +31,7 @@ from polisyos.core.contracts.skip_blockers import (
     build_skip_blocker_record,
     classify_optional_analytic_node,
 )
+from polisyos.core.run.child_custody import ChildComputationOutcomeUnknown
 from polisyos.data_forge.read_api.academic import retained_skg_source_binding
 from polisyos.scientist.methods.research_dag.persistence import persist_research_dag
 from polisyos.scientist.methods.research_dag.projections import (
@@ -145,6 +146,8 @@ _CACHE_DISABLED_NODE_IDS = frozenset(
         "scientist.node_emit_artifact@1.0.0",
         "scientist.node_enrich_knowledge@1.0.0",
         "scientist.node_enrich_knowledge@1.1.0",
+        # The composition-bearing parent must reach fresh attempt admission.
+        "scientist.node_run_hierarchical_policy_search@1.0.0",
     }
 )
 
@@ -955,7 +958,9 @@ class WorkflowExecutor:
         checkpoint_hook: CheckpointHook | None = None,
         checkpoint_cache_seed_refs: list[ArtifactRef] | None = None,
         provenance_dag: Any | None = None,
+        _admitted_child: bool = False,
     ) -> None:
+        self._admitted_child = _admitted_child
         self._ctx = ctx
         self._registry = registry
         self._cache: NodeResultCache | None = None
@@ -1080,10 +1085,13 @@ class WorkflowExecutor:
         state_input_ref = self._persist_state(initial_state)
         self._ctx.run.add_input(state_input_ref)
         self._cache = NodeResultCache(self._ctx.store, run_id=state.run_id)
-        restored_entries = self._cache.seed_from_trace(self._ctx.run.trace_path)
-        restored_from_checkpoint = self._cache.seed_from_entry_refs(
-            self._checkpoint_cache_seed_refs
-        )
+        restored_entries = 0
+        restored_from_checkpoint = 0
+        if not self._admitted_child:
+            restored_entries = self._cache.seed_from_trace(self._ctx.run.trace_path)
+            restored_from_checkpoint = self._cache.seed_from_entry_refs(
+                self._checkpoint_cache_seed_refs
+            )
         if restored_entries:
             self._ctx.logger.info(
                 "Recovered %s cached node outcomes for run_id=%s",
@@ -1255,7 +1263,7 @@ class WorkflowExecutor:
                     )
                 started = time.perf_counter()
                 node_id = str(inv.node_id)
-                cache_enabled = _should_cache(node_id)
+                cache_enabled = not self._admitted_child and _should_cache(node_id)
                 cache_key: str | None = None
                 cache_hit = False
                 cache_stored = False
@@ -1650,11 +1658,20 @@ class WorkflowExecutor:
                             attempt_state,
                             return_selected_profile=True,
                         )
-                        implementation_identity = capture_engine_component_identity(
-                            selected_node,
-                            selected_component_id,
-                            selected_params,
-                        )
+                        if self._admitted_child:
+                            from polisyos.scientist.orchestration.engine.child_computation import (
+                                _AdmittedChildDispatch,
+                            )
+
+                            if type(selected_node) is not _AdmittedChildDispatch:
+                                raise ValueError("child_dispatch_owner_missing")
+                            implementation_identity = selected_node.implementation_identity()
+                        else:
+                            implementation_identity = capture_engine_component_identity(
+                                selected_node,
+                                selected_component_id,
+                                selected_params,
+                            )
                         basis_ref = self._ctx.run._record_runtime_invocation_started(
                             attempt_id=attempt_id,
                             attempt_number=attempt_number,
@@ -1776,6 +1793,9 @@ class WorkflowExecutor:
                                 details={"error": str(exc)},
                             ),
                         )
+                    except ChildComputationOutcomeUnknown:
+                        # The release may already be visible; keep its receipt and never retry.
+                        raise
                     except _NODE_EXECUTION_ERRORS as exc:
                         self._ctx.logger.exception("Node %s failed", alias)
                         outcome = NodeOutcome(

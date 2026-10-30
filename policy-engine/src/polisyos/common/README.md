@@ -17,7 +17,16 @@ migration primitives. Keep domain logic out of this package.
   `_ordering.py` owns latest-fact selection.
 - `src/polisyos/common/async_tools/__init__.py` owns the sync/async bridge API, shared worker
   admission, and Future lifecycle classes. Keep those class bodies in this owner so reflection and
-  pickle lookup resolve the real definitions.
+  pickle lookup resolve the real definitions. The internal dependency executor
+  factory constructs a guard-owned finite worker/queue pool, separate from the
+  process compute executor; a worker timeout does not establish its termination.
+  The internal shared-future physical completion observation waits for the actual
+  worker wrapper to return after slot release; canceled queued work additionally
+  waits for owner callbacks and reservation cleanup. It does not prove descendant,
+  external effect, or settlement completion.
+- `src/polisyos/common/borrowed_execution.py` carries an internal, thread-affine
+  continuation of the actual shared-executor slot. It does not grant monetary,
+  data, or publication authority, or claim that timed-out work has stopped.
 - `src/polisyos/common/job_execution_interrupt.py` carries a context-local signal bound to a
   leased job, worker and attempt. It reports observed lease loss to cooperating owners;
   it does not attest that a thread, provider, or external effect has stopped.

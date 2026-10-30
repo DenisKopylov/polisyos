@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .manifest import (
         ArtifactAuthorityInfo,
+        ArtifactChildReleaseInfo,
         ArtifactGovernanceInfo,
         ArtifactSameInputClosureInfo,
         ArtifactTenantContextInfo,
@@ -35,6 +36,7 @@ class ArtifactWriteOptions:
     tenant_context: ArtifactTenantContextInfo | None = None
     same_input_closure: ArtifactSameInputClosureInfo | None = None
     authority: ArtifactAuthorityInfo | None = None
+    child_release: ArtifactChildReleaseInfo | None = None
     warnings: list[WarningRecord] | None = None
 
 

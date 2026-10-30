@@ -527,3 +527,23 @@ source labels/roles/profile fields and the complete actual manifest projection
 receive non-emitting wire preflight before either manifest serializer. Existing
 `.2` owned reads retain compatible Pydantic-metaclass subclasses; the stricter
 metaclass predicate belongs only to the new writer.
+
+## Child release custody (local filesystem profile)
+
+A child release tag classifies a staged selected manifest; it does not grant read
+authority. The local filesystem CAS reader resolves the durable owner release head
+and selected closure before exposing a tagged occurrence. Missing or corrupt
+owner state fails closed. S3 and GCS refuse tagged writes and tagged reads because they cannot resolve
+this owner. Remote default inventory resolves each listed sidecar so it cannot
+expose a preexisting tagged default; local default inventory remains name-based.
+Job-bound release requires a durable job-owner authorization, resolved and
+content-bound by every generic reader. Tagged jobless releases are unsupported
+and refuse at the generic read gate. Missing or mismatched owner configuration
+fails closed. Independently admitted untagged occurrences retain their rights.
+
+The trusted completion owner can freshly resolve the exact released record,
+committed job intent and a durable, matching settled-effect journal through
+`resolve_recorded_child_settlement`. The returned classification is only
+`settlement_journal_recorded`: it does not independently verify actual Root
+state/events, physical child completion, or the compute-budget ledger. Those
+owners must each reconcile their own facts before any completion decision.

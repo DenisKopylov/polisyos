@@ -59,6 +59,7 @@ from polisyos.core.contracts import (
     BoundedLivenessConfig,
     bounded_liveness_config_from_mapping,
 )
+from polisyos.core.run.child_custody import ChildComputationOutcomeUnknown
 from polisyos.core.run.context import RunContext as _RunContext
 from polisyos.ir.artifacts.contracts import _register_trusted_artifact_ref_facade
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
@@ -1823,6 +1824,8 @@ def _execute_capture_failure(node: Any, ctx: Any, state: ExperimentState) -> Nod
     before = _spend_snapshot(state)
     try:
         return _require_node_outcome(node.execute(_node_facing_context(ctx), state))
+    except ChildComputationOutcomeUnknown:
+        raise
     except _RETRY_RUNTIME_ERRORS as exc:
         raise _CompletedAttemptError(exc, _spend_changes(before, _spend_snapshot(state))) from exc
 
@@ -2169,6 +2172,12 @@ def execute_with_retry_sync(
             if not isinstance(outcome_value, NodeOutcome):
                 raise TypeError("node execution must return a NodeOutcome")
             outcome = outcome_value
+        except ChildComputationOutcomeUnknown as settlement:
+            try:
+                _finish_invocation_attempt(attempt_completed, attempt_id=attempt_id, outcome=None)
+            except BaseException as completion_error:
+                raise settlement from completion_error
+            raise
         except BaseException:
             _finish_invocation_attempt(
                 attempt_completed,
@@ -2310,6 +2319,15 @@ def execute_with_retry_sync(
                 )
             raise
         except _InvocationAttemptPersistenceError:
+            raise
+        except ChildComputationOutcomeUnknown as settlement:
+            if not attempt_recorded:
+                try:
+                    _finish_invocation_attempt(
+                        attempt_completed, attempt_id=attempt_id, outcome=None
+                    )
+                except BaseException as completion_error:
+                    raise settlement from completion_error
             raise
         except _RETRY_RUNTIME_ERRORS as exc:
             if not attempt_recorded:
@@ -4028,6 +4046,14 @@ async def execute_with_retry_async(
             )
             _merge_spend(state, exc.known_spend)
             raise exc.error from None
+        except ChildComputationOutcomeUnknown as settlement:
+            try:
+                await _finish_invocation_attempt_async(
+                    attempt_completed, attempt_id=attempt_id, outcome=None
+                )
+            except BaseException as completion_error:
+                raise settlement from completion_error
+            raise
         except BaseException:
             await _finish_invocation_attempt_async(
                 attempt_completed,
@@ -4159,6 +4185,15 @@ async def execute_with_retry_async(
             _logger.info("Node %s cancelled during attempt %d", alias, attempt)
             raise
         except _InvocationAttemptPersistenceError:
+            raise
+        except ChildComputationOutcomeUnknown as settlement:
+            if not attempt_recorded:
+                try:
+                    await _finish_invocation_attempt_async(
+                        attempt_completed, attempt_id=attempt_id, outcome=None
+                    )
+                except BaseException as completion_error:
+                    raise settlement from completion_error
             raise
         except _RETRY_RUNTIME_ERRORS as exc:
             if not attempt_recorded:

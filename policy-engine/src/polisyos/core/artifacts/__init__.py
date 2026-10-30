@@ -56,6 +56,7 @@ from .manifest import (
     ArtifactAuthorityInfo as ArtifactAuthorityInfo,
 )
 from .manifest import (
+    ArtifactChildReleaseInfo,
     ArtifactGovernanceInfo,
     ArtifactManifest,
     ArtifactRef,
@@ -328,6 +329,7 @@ __all__ = [
     "ArtifactAuthorityInfo",
     "ArtifactBoundedManifestRead",
     "ArtifactBoundedManifestReadError",
+    "ArtifactChildReleaseInfo",
     "ArtifactGovernanceInfo",
     "ArtifactID",
     "ArtifactIntegrityError",

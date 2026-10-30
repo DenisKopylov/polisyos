@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import logging
 from copy import deepcopy
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -29,6 +29,11 @@ from polisyos.scientist.orchestration.engine.registry import NodeRegistry
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.orchestration.engine.workflow_spec import ErrorPolicy, WorkflowSpec
+
+if TYPE_CHECKING:
+    from polisyos.core.run.child_custody import PrivateChildHandoff
+    from polisyos.scientist.orchestration.engine.child_computation import _ManagedChildRunner
+
 
 logger = get_logger(__name__)
 
@@ -164,6 +169,20 @@ class SubWorkflowNode:
             state_writes=[m.target_path for m in self._config.output_mappings],
             produces=["sub_workflow_report"],
         )
+
+    def execute_admitted(self, state: ExperimentState, *, session: Any) -> Any:
+        """Use the engine-appointed private composition path for one child.
+
+        The session validates this frozen mapping and executes via Core custody;
+        no caller-supplied output reference is a release grant.
+        """
+        from polisyos.scientist.orchestration.engine.child_computation import (
+            _ManagedChildRunner,
+        )
+
+        if type(session) is not _ManagedChildRunner:
+            raise EngineError("sub_workflow.child_owner_missing")
+        return session.execute_subworkflow(self._config, state)
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
         if ctx.depth < 0:

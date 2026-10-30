@@ -137,6 +137,7 @@ from ._transfer_ops import (
 )
 from .ids import ArtifactID
 from .manifest import (
+    ArtifactChildReleaseInfo,
     ArtifactManifest,
     ArtifactRef,
     ArtifactTenantContextInfo,
@@ -843,6 +844,7 @@ def _transactional_read(
     *,
     profile_argument_index: int | None = None,
     signature_surface: bool = False,
+    manifest_bytes_result: bool = False,
 ) -> Callable[
     [Callable[_TransactionalParams, _TransactionalResult]],
     Callable[_TransactionalParams, _TransactionalResult],
@@ -924,6 +926,7 @@ def _transactional_read(
                     manifest_profile_sha256=profile_sha256,
                     signature_profile=(profile_sha256 or "default") if signature_surface else None,
                 )
+                store._require_enrolled_child_release(aid, profile_sha256)
                 operation_token = _PUBLIC_READ_OPERATION.set(method.__name__)
                 try:
                     if selector_value is raw_selector_value:
@@ -943,6 +946,12 @@ def _transactional_read(
                         result = transactional_method(*args, **normalized_kwargs)
                 finally:
                     _PUBLIC_READ_OPERATION.reset(operation_token)
+                store._require_child_read_result(
+                    result,
+                    artifact_id=aid,
+                    selected_profile=profile_sha256,
+                    manifest_bytes_result=manifest_bytes_result,
+                )
                 store._capture_public_read_operation(method.__name__, selector_value)
                 return result
 
@@ -1031,6 +1040,7 @@ class FileSystemCAS:
         read_only: bool,
     ) -> None:
         self._read_only = read_only
+        self._child_staging_infos: set[ArtifactChildReleaseInfo] = set()
         requested_root = Path(root)
         if read_only:
             if requested_root.is_symlink() or not requested_root.is_dir():
@@ -1095,6 +1105,81 @@ class FileSystemCAS:
         self._ownership_requires_scope = bool(ownership_requires_scope)
         if not read_only:
             self._ownership_index.recover_orphan_stages()
+
+    def _configure_child_staging(self, info: object, *, token: object) -> None:
+        """Admit Core custody's private store view, never a served-root bypass."""
+        from .child_release import _CHILD_STAGING_TOKEN, child_store_identity
+        from .manifest import ArtifactChildReleaseInfo
+
+        if token is not _CHILD_STAGING_TOKEN or type(info) is not ArtifactChildReleaseInfo:
+            raise TypeError("child staging is configured by Core custody")
+        if info.served_store_identity == child_store_identity(self.root):
+            raise ValueError("a served store cannot use a private staging grant")
+        self._child_staging_infos.add(info)
+
+    def _private_child_infos(self) -> tuple[ArtifactChildReleaseInfo, ...]:
+        return tuple(self._child_staging_infos)
+
+    def _require_enrolled_child_release(
+        self, artifact_id: ArtifactID, profile_sha256: str | None
+    ) -> None:
+        from .child_release import require_enrolled_child_release
+
+        require_enrolled_child_release(
+            self.root,
+            artifact_id,
+            profile_sha256,
+            private_infos=self._private_child_infos(),
+        )
+
+    def _require_child_manifest_release(self, manifest: ArtifactManifest) -> None:
+        from .child_release import require_child_release_manifest
+
+        require_child_release_manifest(
+            self.root,
+            manifest,
+            private_infos=self._private_child_infos(),
+        )
+
+    def _require_child_read_result(
+        self,
+        value: object,
+        *,
+        artifact_id: ArtifactID,
+        selected_profile: str | None,
+        manifest_bytes_result: bool,
+    ) -> None:
+        """Gate actual emitted sidecars without an unmetered manifest preread."""
+        from .child_release import require_child_release_raw
+
+        if isinstance(value, ArtifactManifest):
+            self._require_child_manifest_release(value)
+        elif isinstance(value, ArtifactBoundedManifestRead):
+            require_child_release_raw(
+                self.root,
+                value.raw_manifest_bytes,
+                private_infos=self._private_child_infos(),
+            )
+        elif isinstance(value, _VerifiedArtifactSnapshot):
+            require_child_release_raw(
+                self.root,
+                value.manifest_bytes,
+                private_infos=self._private_child_infos(),
+            )
+        elif manifest_bytes_result:
+            if type(value) is not bytes:
+                raise TypeError("manifest-byte read returned a non-byte result")
+            require_child_release_raw(
+                self.root,
+                value,
+                private_infos=self._private_child_infos(),
+            )
+        elif type(value) is bool and value:
+            # Existence/signature probes must not reveal a pending child view.
+            if selected_profile is None:
+                self.get_manifest(artifact_id)
+            else:
+                self.get_manifest_by_profile(str(artifact_id), selected_profile)
 
     @contextmanager
     def _capture_public_read_set(self) -> Iterator[_PublicReadSetCapture]:
@@ -1331,6 +1416,7 @@ class FileSystemCAS:
                 manifest_profile_sha256=profile_sha256,
                 signature_profile=(profile_sha256 or "default") if member == "signature" else None,
             )
+            self._require_enrolled_child_release(aid, profile_sha256)
             self._require_blob_owner(aid, operation=f"read_{member}", ref=ref)
             if profile_sha256 is None:
                 self._require_default_manifest_access(
@@ -1395,6 +1481,7 @@ class FileSystemCAS:
                     f"Artifact reference type does not match selected manifest for {aid}"
                 )
 
+            self._require_child_manifest_release(manifest)
             selected_path = self._member_path(aid, member, profile_sha256)
             if _read_attempt is not None:
                 _read_attempt.stage("bounded_member_open_status")
@@ -2416,7 +2503,7 @@ class FileSystemCAS:
             raise ArtifactIntegrityError(f"Selected manifest profile mismatch for {aid}")
         return manifest
 
-    @_transactional_read(profile_argument_index=0)
+    @_transactional_read(profile_argument_index=0, manifest_bytes_result=True)
     def get_raw_manifest_bytes(
         self,
         artifact_id: ArtifactID | ArtifactRef | str,
@@ -2523,7 +2610,7 @@ class FileSystemCAS:
         attempt.succeeded()
         return ArtifactBoundedManifestRead(raw_manifest_bytes=data, usage=attempt.usage)
 
-    @_transactional_read(profile_argument_index=1)
+    @_transactional_read(profile_argument_index=1, manifest_bytes_result=True)
     def get_raw_manifest_bytes_bounded(
         self,
         artifact_id: ArtifactID | ArtifactRef | str,
@@ -2553,7 +2640,7 @@ class FileSystemCAS:
             manifest_profile_sha256=manifest_profile_sha256,
         )
 
-    @_transactional_read()
+    @_transactional_read(manifest_bytes_result=True)
     def get_raw_manifest_bytes_bounded_for_input(
         self,
         input_ref: InputRef,
@@ -3464,16 +3551,19 @@ class FileSystemCAS:
             profile_sha256 = self._manifests.profile_sha256(manifest)
 
             default_owner_admitted = False
-            skip_default_manifest = False
+            skip_default_manifest = getattr(opts, "child_release", None) is not None
             if owner is not None:
                 default_owner_admitted = self._ownership_index.is_owned_by(
                     aid,
                     tenant_id=owner["tenant_id"],
                     cell_id=owner["cell_id"],
                 )
-                skip_default_manifest = not default_owner_admitted and (
-                    default_manifest_path.exists()
-                    or self._ownership_index.has_any_tenant_claim(aid)
+                skip_default_manifest = skip_default_manifest or (
+                    not default_owner_admitted
+                    and (
+                        default_manifest_path.exists()
+                        or self._ownership_index.has_any_tenant_claim(aid)
+                    )
                 )
 
             default_bytes: bytes | None = None
@@ -3868,6 +3958,7 @@ class FileSystemCAS:
             same_input_closure=getattr(opts, "same_input_closure", None),
             authority=getattr(opts, "authority", None),
             warnings=getattr(opts, "warnings", None),
+            child_release=getattr(opts, "child_release", None),
         )
         if return_selected_profile:
             return self.put_bytes(data, opts2, return_selected_profile=True)
@@ -3906,9 +3997,13 @@ class FileSystemCAS:
                 if report.byte_size is not None:
                     span.set_attribute("cas.byte_size", report.byte_size)
 
-        if report.ok and ref is not None:
+        if report.ok:
+            from .child_release import ChildReleaseUnavailableError
+
             try:
-                self.get_manifest(ref)
+                self.get_manifest(artifact_id)
+            except ChildReleaseUnavailableError:
+                raise
             except (OSError, ValueError) as exc:
                 return report.model_copy(update={"ok": False, "error": str(exc)})
         return report
@@ -4520,6 +4615,112 @@ class FileSystemCAS:
                 raise ArtifactIntegrityError("Admitted import set differs from staged artifacts")
             return self._publish_admitted_staged_import(staging_root, members, artifact_refs)
 
+    def _publish_child_release_profiles(
+        self,
+        source: FileSystemCAS,
+        refs: tuple[ArtifactRef, ...],
+        ledger: object,
+        *,
+        token: object,
+    ) -> ImportPublication:
+        """Transfer only Core-enrolled child profiles, retaining their deny-first gate.
+
+        This internal path reuses durable storage reservation and import publication.
+        It does not admit arbitrary claimed manifest views and cannot commit release.
+        No Root/job fence is held over this streaming preparation and transfer.
+        """
+        import errno
+        import shutil
+
+        from .child_release import (
+            _CHILD_STAGING_TOKEN,
+            _ChildReleaseLedger,
+            _safe_read,
+            child_store_identity,
+        )
+
+        if token is not _CHILD_STAGING_TOKEN or type(ledger) is not _ChildReleaseLedger:
+            raise ArtifactIntegrityError("child_publication_owner_required")
+        if type(source) is not FileSystemCAS or source is self:
+            raise ArtifactIntegrityError("child_publication_private_source_required")
+        if ledger.root != self.root.resolve(strict=True) or ledger.head().status != "pending":
+            raise ArtifactIntegrityError("child_publication_pending_owner_required")
+        if child_store_identity(source.root) == ledger.store_identity or not refs:
+            raise ArtifactIntegrityError("child_publication_private_source_invalid")
+        stage = self._coordinator.transaction_root / "stage" / ("child-" + ledger.release_id)
+        if self._ownership_index._path_has_symlink_component(stage):
+            raise ArtifactIntegrityError("child_transfer_stage_symlink")
+        _ensure_directory_durable(stage)
+        members: set[str] = set()
+        artifact_refs: set[str] = set()
+        profiles: set[tuple[str, str]] = set()
+        for ref in refs:
+            if type(ref) is not ArtifactRef or ref.manifest_profile_sha256 is None:
+                raise ArtifactIntegrityError("child_transfer_selected_profile_required")
+            key = (str(ref.artifact_id), ref.manifest_profile_sha256)
+            if key in profiles:
+                raise ArtifactIntegrityError("child_transfer_duplicate_profile")
+            profiles.add(key)
+            manifest = source.get_manifest(ref)
+            info = manifest.child_release
+            if (
+                info is None
+                or info not in source._private_child_infos()
+                or info.release_id != ledger.release_id
+                or info.root_run_id != ledger.root_run_id
+                or info.served_store_identity != ledger.store_identity
+            ):
+                raise ArtifactIntegrityError("child_transfer_scope_not_owner_bound")
+            enrollment = (
+                self.root
+                / "artifacts/ownership/child_releases/enrollments"
+                / ref.artifact_id.hex
+                / (ref.manifest_profile_sha256[7:] + ".json")
+            )
+            if _safe_read(self.root, enrollment) != info.model_dump_json().encode():
+                raise ArtifactIntegrityError("child_transfer_not_enrolled_before_copy")
+            prefix = (
+                f"artifacts/sha256/{ref.artifact_id.hex[:2]}/"
+                f"{ref.artifact_id.hex[2:4]}/{ref.artifact_id.hex}"
+            )
+            paths = (
+                (prefix + ".blob", source._paths(ref.artifact_id)[0]),
+                (
+                    prefix + ".view." + ref.manifest_profile_sha256[7:] + ".manifest.json",
+                    source._manifest_path_for_ref(ref.artifact_id, ref.manifest_profile_sha256),
+                ),
+            )
+            for member, source_path in paths:
+                if member in members:
+                    continue
+                if (
+                    source._ownership_index._path_has_symlink_component(source_path)
+                    or not source_path.is_file()
+                ):
+                    raise ArtifactIntegrityError("child_transfer_source_unsafe")
+                destination = stage / member
+                if self._ownership_index._path_has_symlink_component(destination):
+                    raise ArtifactIntegrityError("child_transfer_destination_unsafe")
+                _ensure_directory_durable(destination.parent)
+                if destination.exists():
+                    raise ArtifactIntegrityError("child_transfer_stage_already_populated")
+                # Hard-link immutable CAS content on the same volume; cross-volume
+                # fallback copies only this selected closure, never input CAS bytes.
+                try:
+                    os.link(source_path, destination)
+                except OSError as exc:
+                    if exc.errno != errno.EXDEV:
+                        raise
+                    with source_path.open("rb") as reader, destination.open("xb") as writer:
+                        shutil.copyfileobj(reader, writer, length=1024 * 1024)
+                        writer.flush()
+                        os.fsync(writer.fileno())
+                members.add(member)
+            artifact_refs.add(str(ref.artifact_id))
+        # The existing publisher rehashes bodies, selected manifests and lineage,
+        # reserves actual storage, and atomically records existing tenant ownership.
+        return self._publish_admitted_staged_import(stage, members, artifact_refs)
+
     def _publish_admitted_staged_import(
         self,
         staging_root: Path,
@@ -4729,6 +4930,7 @@ class FileSystemCAS:
                     )
                     can_use_default = (
                         is_source_default
+                        and source_view["manifest"].child_release is None
                         and (default_owned or not has_claims)
                         and (
                             default_existing_profile is None
@@ -4849,6 +5051,7 @@ class FileSystemCAS:
                     )
                     can_use_default = (
                         is_source_default
+                        and source_view["manifest"].child_release is None
                         and (default_owned or not has_claims)
                         and (
                             publication_default_existing_profile is None
@@ -5559,6 +5762,12 @@ class FileSystemCAS:
             actual_profile = self._manifests.profile_sha256(manifest)
             if profile_sha256 is not None and actual_profile != profile_sha256:
                 raise ArtifactIntegrityError("cas_inventory_manifest_profile_mismatch")
+            from .child_release import ChildReleaseUnavailableError
+
+            try:
+                self._require_child_manifest_release(manifest)
+            except ChildReleaseUnavailableError:
+                continue
             visible_views.append(
                 (
                     member_artifact_id,
@@ -5903,6 +6112,9 @@ class FileSystemCAS:
                     profile_sha256,
                     operation="export_manifest",
                 )
+
+        for artifact_id in artifact_ids:
+            self.get_manifest(artifact_id)
 
         def member_name(request: ArtifactID | ArtifactRef, member: str) -> str:
             aid, profile_sha256, _ref = _artifact_reference(request)

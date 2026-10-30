@@ -1,0 +1,17 @@
+id = "2026-10-30-e02-child-custody"
+title = "Add local child computation custody primitives"
+type = "added"
+component = "core"
+owner = "team-polisyos"
+summary = "Add private child scopes and selected-profile release metadata for a trusted local filesystem profile."
+evidence = ["tests/unit/core/run/test_child_custody.py", "tests/unit/core/artifacts/test_child_release_metadata.py"]
+compatibility = "Legacy manifests omit absent child-release metadata; tagged writes use selected profiles. S3 and GCS reject tagged writes and reads; job-bound release requires an independently resolved job-owner authorization."
+change_class = "python-public-api"
+surface_classification = "Additive Core artifact metadata and internal child-run custody primitives"
+migration = "Existing untagged artifacts require no rewrite."
+api = "Managed child references resolve through a Core-owned release record and a configured typed closure resolver."
+limitations = "Job-bound trusted built-in local filesystem profile only; jobless entry refuses. No arbitrary Python isolation, scientific authority, unverified job-owner integration, remote-backend reader custody, or E02 acceptance is claimed. Runtime verification is required."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/core/artifacts/README.md", "src/polisyos/core/run/README.md"]
+runbook_docs = []

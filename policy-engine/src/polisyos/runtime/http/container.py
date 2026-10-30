@@ -25,6 +25,7 @@ from polisyos.runtime.http.services.control import ControlPlaneService
 from polisyos.runtime.http.services.control.capability_discovery import (
     CapabilityDiscoveryService,
 )
+from polisyos.runtime.http.services.control.child_execution_budget import ChildExecutionBudgetPolicy
 from polisyos.runtime.http.services.control_registry_providers import (
     ControlRegistryProviders,
     resolve_control_registry_providers,
@@ -236,6 +237,7 @@ class RuntimeContainerConfig:
     generic_cycle_simulation_profiles: tuple[GenericCycleSimulationProfileV1, ...] = ()
     generic_cycle_simulation_root_profile_id: str | None = None
     enable_contract_testing_credal_source_attempts: bool = False
+    child_execution_budget_policy: ChildExecutionBudgetPolicy | None = None
     process_worker_capacity: int | None = None
     process_worker_profile_revision: str | None = None
     catalog_run_profile: CatalogRunProfile | None = None
@@ -381,6 +383,11 @@ class RuntimeServiceContainer:
             raise TypeError("generic_cycle_simulation_profiles_must_be_tuple")
         if type(config.allow_candidate_run_predictive_calibration_surface) is not bool:
             raise TypeError("candidate_run_predictive_calibration_surface_flag_must_be_bool")
+        if (
+            config.child_execution_budget_policy is not None
+            and type(config.child_execution_budget_policy) is not ChildExecutionBudgetPolicy
+        ):
+            raise TypeError("child_execution_budget_policy_invalid")
         if type(config.enable_contract_testing_credal_source_attempts) is not bool:
             raise TypeError("contract_testing_credal_source_attempts_flag_must_be_bool")
         if (
@@ -650,6 +657,12 @@ class RuntimeServiceContainer:
             or epoch_claim_lifecycle_bridge.artifacts is not runtime_api_context.store
         ):
             raise ValueError("epoch_claim_lifecycle_bridge_owner_store_mismatch")
+        if (
+            overrides.control_service is not None
+            and getattr(overrides.control_service, "_child_execution_budget_policy", None)
+            is not config.child_execution_budget_policy
+        ):
+            raise ValueError("control_service_child_execution_budget_policy_mismatch")
         if overrides.control_service is None:
             promotion_runtime = PromotionRuntime(
                 store=runtime_api_context.store,
@@ -821,6 +834,7 @@ class RuntimeServiceContainer:
                     enable_contract_testing_credal_source_attempts=(
                         self.config.enable_contract_testing_credal_source_attempts
                     ),
+                    child_execution_budget_policy=self.config.child_execution_budget_policy,
                     llm_producer_settlement_store=self.llm_producer_settlement_store,
                     llm_cache_reuse_authorizer=self.llm_cache_reuse_authorizer,
                     llm_prompt_cache=self.llm_prompt_cache,

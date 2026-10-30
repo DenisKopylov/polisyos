@@ -5,7 +5,9 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import threading
 import types
+import weakref
 from collections.abc import Mapping, Sequence
 from copy import deepcopy
 from dataclasses import dataclass
@@ -92,6 +94,51 @@ class CoreJsonReadLimits:
             minimum = 0 if field_name == "max_depth" else 1
             if type(value) is not int or value < minimum:
                 raise ValueError(f"core_json_read_limit_invalid:{field_name}")
+
+
+_GUARDED_CANONICAL_BOOTSTRAP_TOKEN = object()
+_GUARDED_CANONICAL_LOCK = threading.RLock()
+_GUARDED_CANONICAL_READERS: dict[int, weakref.ReferenceType[object]] = {}
+
+
+def _register_guarded_canonical_reader(store: object, *, token: object) -> None:
+    """Register an exact Core-owned scope; never accept a per-call dispatch owner."""
+    if token is not _GUARDED_CANONICAL_BOOTSTRAP_TOKEN:
+        raise ValueError("guarded_canonical_bootstrap_required")
+    identity = id(store)
+
+    def forget(reference: weakref.ReferenceType[object]) -> None:
+        with _GUARDED_CANONICAL_LOCK:
+            if _GUARDED_CANONICAL_READERS.get(identity) is reference:
+                del _GUARDED_CANONICAL_READERS[identity]
+
+    with _GUARDED_CANONICAL_LOCK:
+        if identity in _GUARDED_CANONICAL_READERS:
+            raise ValueError("guarded_canonical_reader_already_registered")
+        _GUARDED_CANONICAL_READERS[identity] = weakref.ref(store, forget)
+
+
+def _registered_guarded_identity(store: object) -> bool:
+    with _GUARDED_CANONICAL_LOCK:
+        reference = _GUARDED_CANONICAL_READERS.get(id(store))
+        return reference is not None and reference() is store
+
+
+def _guarded_canonical_reader(store: object) -> Any | None:
+    """Resolve only exact registered owners or the exact Core-to-IR adapter."""
+    if _registered_guarded_identity(store):
+        return store
+    # This prefilter is not authority: exact adapter type and registered
+    # underlying object identity are both checked before dispatch.
+    if type(store).__module__ != "polisyos.core.artifacts.ir_adapter":
+        return None
+    from .ir_adapter import CoreToIRArtifactStoreAdapter, _CoreToIRArtifactReaderAdapter
+
+    if type(store) in {CoreToIRArtifactStoreAdapter, _CoreToIRArtifactReaderAdapter}:
+        underlying = store.store
+        if _registered_guarded_identity(underlying):
+            return underlying
+    return None
 
 
 class CoreJsonReadBoundsRefusalError(CanonicalProfileRefusalError):
@@ -1328,6 +1375,14 @@ def read_core_manifest_profile_bounded(
     its complete exact selection. Profile absence is refused unless explicitly
     allowed for candidate-only metadata inspection.
     """
+    guarded = _guarded_canonical_reader(store)
+    if guarded is not None:
+        return guarded._guarded_manifest_read(
+            selected_ref,
+            max_manifest_bytes=max_manifest_bytes,
+            manifest_profile_sha256=manifest_profile_sha256,
+            allow_profile_absent=allow_profile_absent,
+        )
     return _read_core_manifest_profile_bounded(
         store,
         selected_ref,
@@ -1348,6 +1403,11 @@ def read_core_input_manifest_profile_bounded(
     The returned effective reference is derived only from the bounded parsed
     manifest. InputRef's absent kind and media type are never synthesized.
     """
+    guarded = _guarded_canonical_reader(store)
+    if guarded is not None:
+        return guarded._guarded_input_manifest_read(
+            input_ref, max_manifest_bytes=max_manifest_bytes
+        )
     return _read_core_input_manifest_profile_bounded(
         store,
         input_ref,
@@ -1438,6 +1498,9 @@ def read_core_json_artifact_bounded(
     ):
         raise CanonicalProfileRefusalError("canon_profile_bounded_selection_required")
 
+    guarded = _guarded_canonical_reader(store)
+    if guarded is not None:
+        return guarded._guarded_json_read(selected_ref, limits=limits, manifest_read=manifest_read)
     if manifest_read is None:
         manifest_read = _read_core_manifest_profile_bounded(
             store,

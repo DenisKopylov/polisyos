@@ -47,6 +47,24 @@ from polisyos.core.contracts import (
 from polisyos.core.contracts.runtime import ApiMeta
 
 if TYPE_CHECKING:
+    from polisyos.runtime.http.services.control.child_execution_budget import (
+        ChildBudgetClaimLocator,
+        ChildExecutionBudgetPolicy,
+    )
+    from polisyos.common.borrowed_execution import _BorrowedExecutionGrant
+    from polisyos.core.artifacts.child_release import (
+        ChildJobReleaseClaim,
+        ChildJobReleaseLocator,
+        ChildJobSessionClaim,
+        ChildJobScopeClaim,
+    )
+    from polisyos.core.run.child_custody import (
+        ChildComputationBinding,
+        ChildJobReleaseCandidate,
+        ChildJobSessionIntent,
+        ChildPreparedScope,
+        ChildStagingScope,
+    )
     from polisyos.core.contracts import (
         ControlPreAdmissionAttemptStatus,
         ProducerCallState,
@@ -1193,6 +1211,324 @@ class ControlJobExecutionAdmission:
     manifest_pointer_state: ManifestPointerState
 
 
+class _ChildComputationPublicationFence:
+    """Job-owner fence for a short final child-release head transition."""
+
+    def __init__(
+        self,
+        store: ControlPlaneStore,
+        admission: ControlJobExecutionAdmission,
+        *,
+        grant: _BorrowedExecutionGrant | None = None,
+        binding: ChildComputationBinding | None = None,
+    ) -> None:
+        scope = admission.scope
+        job = admission.job
+        if (
+            scope.status != "established"
+            or not scope.tenant_id
+            or not scope.cell_id
+            or not scope.actor_authenticated
+            or not scope.actor_subject
+            or not job.run_id
+            or not job.lease_owner
+        ):
+            raise ControlJobExecutionAdmissionError("child_publication_scope_not_established")
+        self._store = store
+        self._admission = admission
+        self.root_run_id = job.run_id
+        self.control_job_id = job.job_id
+        self.tenant_id = scope.tenant_id
+        self.cell_id = scope.cell_id
+        self._grant = grant
+        self._binding = binding
+        if (grant is None) != (binding is None):
+            raise ControlJobExecutionAdmissionError("child_publication_resource_binding_missing")
+        if grant is not None:
+            from polisyos.common.borrowed_execution import _BorrowedExecutionGrant
+            from polisyos.core.run.child_custody import ChildComputationBinding
+
+            if (
+                type(grant) is not _BorrowedExecutionGrant
+                or type(binding) is not ChildComputationBinding
+            ):
+                raise ControlJobExecutionAdmissionError(
+                    "child_publication_resource_binding_invalid"
+                )
+            if (
+                binding.root_run_id,
+                binding.control_job_id,
+                binding.tenant_id,
+                binding.cell_id,
+            ) != (self.root_run_id, self.control_job_id, self.tenant_id, self.cell_id):
+                raise ControlJobExecutionAdmissionError(
+                    "child_publication_resource_identity_mismatch"
+                )
+            grant.require_parent(**store._child_grant_binding(binding))
+            self._binding = binding.model_copy(deep=True)
+
+    def _reconcile(self) -> None:
+        current = self._store.current_execution_job_admission()
+        expected = self._admission
+        if (
+            current.job.job_id != expected.job.job_id
+            or current.job.run_id != expected.job.run_id
+            or current.job.lease_owner != expected.job.lease_owner
+            or current.attempt != expected.attempt
+            or current.scope != expected.scope
+            or current.job.effective_execution_profile != expected.job.effective_execution_profile
+            or current.admission_capability_manifest_ref
+            != expected.admission_capability_manifest_ref
+        ):
+            raise ControlJobLeaseLostError("child_publication_admission_changed")
+
+    def check_active(self) -> None:
+        """Reconcile the handler binding and persisted lease before work."""
+        with self._store._job_transaction():
+            self._reconcile()
+            if self._grant is not None:
+                self._grant.require_parent(**self._store._child_grant_binding(self._binding))
+
+    def _install_scope_resource_predicate(self) -> None:
+        """Install the same ordered actual-row predicate for scope and producer decisions."""
+        if self._grant is None or self._binding is None:
+            raise ControlJobExecutionAdmissionError("child_resource_grant_required")
+        conn = self._store._human_decision_transaction.sqlite_connection
+        if conn is None:
+            raise ControlJobExecutionAdmissionError("child_scope_sqlite_required")
+        binding = self._binding
+        resource_binding = self._store._child_grant_binding(binding)
+
+        def resource_current(lease_expiry: str) -> int:
+            wall_at_decision = datetime.now(timezone.utc)
+            try:
+                if type(lease_expiry) is not str:
+                    return 0
+                expiry = datetime.fromisoformat(lease_expiry.replace("Z", "+00:00"))
+                if (
+                    expiry.tzinfo is None
+                    or expiry.utcoffset() is None
+                    or expiry <= wall_at_decision
+                    or binding.deadline <= wall_at_decision
+                ):
+                    return 0
+                self._grant.require_parent(**resource_binding)
+            except (RuntimeError, ValueError, TypeError):
+                return 0
+            return 1
+
+        conn.create_function("child_owner_resource_current", 1, resource_current)
+
+    def admit_prepared_scope(self, prepared: ChildPreparedScope) -> ChildStagingScope:
+        """Commit one exact scope decision before transferring the private scope."""
+        from polisyos.core.artifacts.child_release import (
+            ChildJobReleaseLocator,
+            ChildJobScopeClaim,
+            ChildReleaseUnavailableError,
+        )
+        from polisyos.core.run.child_custody import ChildPreparedScope
+
+        if self._grant is None or self._binding is None:
+            raise ControlJobExecutionAdmissionError("child_resource_grant_required")
+        if type(prepared) is not ChildPreparedScope:
+            raise ControlJobExecutionAdmissionError("child_scope_owner_invalid")
+        claim = prepared.recompute()
+        if type(claim) is not ChildJobScopeClaim:
+            raise ControlJobExecutionAdmissionError("child_scope_claim_invalid")
+        commit_started = False
+
+        def mark_commit() -> None:
+            nonlocal commit_started
+            commit_started = True
+
+        owner_bytes: bytes | None = None
+        locator: ChildJobReleaseLocator | None = None
+        try:
+            with self._store._job_transaction(commit_admission=mark_commit):
+                self._reconcile()
+                current = self._store.current_execution_job_admission()
+                binding = self._binding
+                self._install_scope_resource_predicate()
+                with self._grant.admission():
+                    owner_bytes = prepared.admit(claim, expected_parent=binding)
+                    owner_claim = ChildJobScopeClaim.model_validate_json(owner_bytes)
+                    if owner_claim.session.control_job_id != self.control_job_id:
+                        raise ControlJobExecutionAdmissionError("child_scope_job_mismatch")
+                    self._store._verify_child_job_event(
+                        owner_claim.session_intent, owner_claim.session, kind="session"
+                    )
+                    session_row = self._store._child_event_row(
+                        self.control_job_id,
+                        self._store._child_job_event_type("session", owner_claim.session),
+                    )
+                    if session_row is None:
+                        raise ControlJobExecutionAdmissionError("child_release_intent_missing")
+                    session_payload = json.loads(str(session_row["payload_json"]))
+                    if (session_payload["job_attempt"], session_payload["lease_owner"]) != (
+                        current.attempt,
+                        current.job.lease_owner,
+                    ):
+                        raise ControlJobExecutionAdmissionError("child_scope_session_lease_changed")
+                    event_type = f"child.release.scope.{owner_claim.scope_id}"
+                    payload = json.dumps(
+                        {
+                            "schema_version": "1.0",
+                            "claim": owner_claim.model_dump(mode="json"),
+                            "job_attempt": current.attempt,
+                            "lease_owner": current.job.lease_owner,
+                        },
+                        sort_keys=True,
+                        separators=(",", ":"),
+                        ensure_ascii=True,
+                    )
+                    if len(payload.encode("utf-8")) > 256 * 1024:
+                        raise ControlJobExecutionAdmissionError("child_scope_payload_oversized")
+                    inserted = self._store._execute(
+                        "INSERT INTO control_job_events (job_id, event_type, payload_json, created_at) "
+                        "SELECT job_id, ?, ?, ? FROM control_jobs WHERE job_id = ? AND state = 'running' "
+                        "AND lease_owner = ? AND attempt = ? AND lease_expires_at IS NOT NULL "
+                        "AND child_owner_resource_current(lease_expires_at) = 1",
+                        (
+                            event_type,
+                            payload,
+                            _iso(_utc_now()),
+                            self.control_job_id,
+                            current.job.lease_owner,
+                            current.attempt,
+                        ),
+                    )
+                    if inserted != 1:
+                        raise ControlJobLeaseLostError("child_scope_conditional_admission_refused")
+                    row = self._store._child_event_row(self.control_job_id, event_type)
+                    if row is None or str(row["payload_json"]) != payload:
+                        raise ControlJobExecutionAdmissionError("child_scope_event_unavailable")
+                    locator = ChildJobReleaseLocator(
+                        job_id=self.control_job_id, event_id=int(row["event_id"])
+                    )
+            self._store.verify_scope(locator, owner_claim)
+            return prepared.complete(locator)
+        except (
+            OSError,
+            sqlite3.Error,
+            ControlJobExecutionAdmissionError,
+            ChildReleaseUnavailableError,
+        ) as exc:
+            if not commit_started or owner_bytes is None:
+                raise
+            from polisyos.core.run.child_custody import (
+                ChildRecoveryLocator,
+                ChildScopeAdmissionUnknown,
+            )
+
+            session = ChildJobScopeClaim.model_validate_json(owner_bytes).session
+            recovery = ChildRecoveryLocator(
+                release_id=session.release_id,
+                root_run_id=session.root_run_id,
+                parent_attempt_id=session.parent_attempt_id,
+                parent_basis_json=json.dumps(
+                    session.parent_basis_ref.model_dump(mode="json"),
+                    sort_keys=True,
+                    separators=(",", ":"),
+                    ensure_ascii=True,
+                ).encode("ascii"),
+                job_intent_locator=claim.session_intent,
+            )
+            raise ChildScopeAdmissionUnknown(
+                recovery, scope_claim_json=owner_bytes, scope_locator=locator
+            ) from exc
+
+    def admit_producer(self) -> None:
+        """Make a short actual-job and borrowed-capacity producer decision."""
+        if self._grant is None or self._binding is None:
+            raise ControlJobExecutionAdmissionError("child_resource_grant_required")
+        with self._store._job_transaction():
+            self._reconcile()
+            current = self._store.current_execution_job_admission()
+            self._install_scope_resource_predicate()
+            with self._grant.admission():
+                row = self._store._fetchone(
+                    "SELECT job_id FROM control_jobs WHERE job_id = ? AND state = 'running' "
+                    "AND lease_owner = ? AND attempt = ? AND lease_expires_at IS NOT NULL "
+                    "AND child_owner_resource_current(lease_expires_at) = 1",
+                    (self.control_job_id, current.job.lease_owner, current.attempt),
+                )
+                if row is None:
+                    raise ControlJobLeaseLostError("child_producer_admission_refused")
+
+    def begin_session(self, intent: ChildJobSessionIntent) -> ChildJobReleaseLocator:
+        if self._grant is None:
+            raise ControlJobExecutionAdmissionError("child_resource_grant_required")
+        from polisyos.core.run.child_custody import (
+            ChildRecoveryLocator,
+            ChildSessionAdmissionUnknown,
+        )
+
+        claim = intent.recompute()
+        recovery = ChildRecoveryLocator(
+            release_id=claim.release_id,
+            root_run_id=claim.root_run_id,
+            parent_attempt_id=claim.parent_attempt_id,
+            parent_basis_json=json.dumps(
+                claim.parent_basis_ref.model_dump(mode="json"),
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=True,
+            ).encode("ascii"),
+            job_intent_locator=None,
+        )
+        attempted = False
+        committed = False
+
+        def mark_attempted() -> None:
+            nonlocal attempted
+            attempted = True
+
+        def mark_committed() -> None:
+            nonlocal committed
+            committed = True
+
+        try:
+            return self._store._record_child_job_event(
+                intent,
+                self._grant,
+                self,
+                kind="session",
+                on_transaction_attempt=mark_attempted,
+                on_transaction_committed=mark_committed,
+            )
+        except (OSError, sqlite3.Error) as exc:
+            if not attempted:
+                raise
+            raise ChildSessionAdmissionUnknown(recovery) from exc
+        except ControlJobExecutionAdmissionError as exc:
+            if not committed:
+                raise
+            raise ChildSessionAdmissionUnknown(recovery) from exc
+        except (TypeError, ValueError) as exc:
+            if not committed:
+                raise
+            raise ChildSessionAdmissionUnknown(recovery) from exc
+
+    def authorize_release(self, candidate: ChildJobReleaseCandidate) -> ChildJobReleaseLocator:
+        if self._grant is None:
+            raise ControlJobExecutionAdmissionError("child_resource_grant_required")
+        return self._store._record_child_job_event(
+            candidate, self._grant, self, kind="authorization"
+        )
+
+    @contextmanager
+    def publication(self) -> Iterator[None]:
+        """Hold the real job row fence for only the release head transition."""
+        with self._store._job_transaction():
+            self._reconcile()
+            if self._grant is None:
+                yield
+            else:
+                with self._grant.publication():
+                    self._grant.require_parent(**self._store._child_grant_binding(self._binding))
+                    yield
+
+
 @dataclass(frozen=True)
 class _ControlJobLifecycleSourceEventRecord:
     """Reconcile one persisted lifecycle event row and its exact stored payload."""
@@ -2080,6 +2416,871 @@ class ControlPlaneStore:
             attempt=job.attempt,
             manifest_pointer_state=pointer_state,
         )
+
+    def claim_child_attempt_budget(
+        self, policy: ChildExecutionBudgetPolicy
+    ) -> ChildBudgetClaimLocator:
+        """Claim one actual job attempt once; a restarted process cannot renew it."""
+        from polisyos.runtime.http.services.control.child_execution_budget import (
+            ChildExecutionBudgetPolicy,
+        )
+
+        if type(policy) is not ChildExecutionBudgetPolicy:
+            raise ControlJobExecutionAdmissionError("child_budget_policy_invalid")
+        if self.backend != "sqlite":
+            raise ControlJobExecutionAdmissionError("child_budget_backend_unsupported")
+        with self._job_transaction():
+            current = self.current_execution_job_admission()
+            job = current.job
+            if (
+                job.kind != "workflow_run"
+                or not job.run_id
+                or current.scope.status != "established"
+            ):
+                raise ControlJobExecutionAdmissionError("child_budget_job_scope_invalid")
+            event_type = f"child.budget.attempt.{current.attempt}"
+            if self._child_event_row(job.job_id, event_type) is not None:
+                raise ControlJobExecutionAdmissionError("child_budget_attempt_already_issued")
+            payload = json.dumps(
+                {
+                    "schema_version": "1.0",
+                    "job_id": job.job_id,
+                    "run_id": job.run_id,
+                    "attempt": current.attempt,
+                    "worker_id": job.lease_owner,
+                    "policy_id": policy.policy_id,
+                    "policy_version": policy.version,
+                    "duration_seconds": float(policy.duration_seconds),
+                },
+                sort_keys=True,
+                separators=(",", ":"),
+                allow_nan=False,
+            )
+            if len(payload.encode("utf-8")) > 256 * 1024:
+                raise ControlJobExecutionAdmissionError("child_budget_event_oversized")
+            inserted = self._execute(
+                "INSERT INTO control_job_events (job_id, event_type, payload_json, created_at) "
+                "VALUES (?, ?, ?, ?)",
+                (job.job_id, event_type, payload, _iso(_utc_now())),
+            )
+            if inserted != 1:
+                raise ControlJobExecutionAdmissionError("child_budget_event_write_failed")
+        locator = self.read_child_attempt_budget(job.job_id, current.attempt)
+        if (
+            locator is None
+            or locator.run_id != job.run_id
+            or locator.worker_id != job.lease_owner
+            or (locator.policy_id, locator.policy_version, locator.duration_seconds)
+            != (policy.policy_id, policy.version, float(policy.duration_seconds))
+        ):
+            raise ControlJobExecutionAdmissionError("child_budget_claim_readback_mismatch")
+        return locator
+
+    def read_child_attempt_budget(
+        self, job_id: str, attempt: int
+    ) -> ChildBudgetClaimLocator | None:
+        """Freshly resolve one historical committed budget claim and owner scope."""
+        from polisyos.runtime.http.services.control.child_execution_budget import (
+            ChildBudgetClaimLocator,
+            ChildExecutionBudgetPolicy,
+        )
+
+        if self._has_active_job_transaction():
+            raise ControlJobExecutionAdmissionError("child_budget_fresh_read_required")
+        if type(job_id) is not str or not job_id or type(attempt) is not int or attempt < 1:
+            raise ControlJobExecutionAdmissionError("child_budget_claim_identity_invalid")
+        row = self._child_event_row(job_id, f"child.budget.attempt.{attempt}")
+        if row is None:
+            return None
+        try:
+            payload = json.loads(str(row["payload_json"]))
+            if (
+                type(payload) is not dict
+                or set(payload)
+                != {
+                    "schema_version",
+                    "job_id",
+                    "run_id",
+                    "attempt",
+                    "worker_id",
+                    "policy_id",
+                    "policy_version",
+                    "duration_seconds",
+                }
+                or payload["schema_version"] != "1.0"
+                or payload["job_id"] != job_id
+                or type(payload["attempt"]) is not int
+                or payload["attempt"] != attempt
+                or type(payload["run_id"]) is not str
+                or not payload["run_id"]
+                or type(payload["worker_id"]) is not str
+                or not payload["worker_id"]
+            ):
+                raise ValueError("child_budget_claim_payload_invalid")
+            policy = ChildExecutionBudgetPolicy(
+                payload["policy_id"], payload["policy_version"], payload["duration_seconds"]
+            )
+            job = self.get_job(job_id)
+            if job is None or job.run_id != payload["run_id"] or job.kind != "workflow_run":
+                raise ValueError("child_budget_claim_job_invalid")
+            scope, _ = self._reconcile_control_job_creation_envelope(job)
+            if scope.status != "established" or not scope.tenant_id or not scope.cell_id:
+                raise ValueError("child_budget_claim_scope_invalid")
+            return ChildBudgetClaimLocator(
+                job_id=job_id,
+                run_id=payload["run_id"],
+                attempt=attempt,
+                worker_id=payload["worker_id"],
+                event_id=int(row["event_id"]),
+                policy_id=policy.policy_id,
+                policy_version=policy.version,
+                duration_seconds=float(policy.duration_seconds),
+            )
+        except (TypeError, ValueError, KeyError, RecursionError) as exc:
+            raise ControlJobExecutionAdmissionError("child_budget_claim_event_invalid") from exc
+
+    def child_computation_publication_fence(
+        self,
+        *,
+        grant: _BorrowedExecutionGrant | None = None,
+        binding: ChildComputationBinding | None = None,
+    ) -> _ChildComputationPublicationFence:
+        """Capture the current job's established scope for a bounded child release.
+
+        This is called by trusted lifecycle bootstrap, not with request-selected
+        identities. Each later check reconciles the persisted live admission.
+        """
+        with self._job_transaction():
+            admission = self.current_execution_job_admission()
+            return _ChildComputationPublicationFence(self, admission, grant=grant, binding=binding)
+
+    @staticmethod
+    def _child_job_event_type(kind: str, claim: ChildJobSessionClaim | ChildJobReleaseClaim) -> str:
+        """Derive a bounded locator from the complete owner-bound parent basis."""
+        if kind not in {"session", "authorization"}:
+            raise ValueError("child_release_event_kind_invalid")
+        identity = {
+            "job_id": claim.control_job_id,
+            "run_id": claim.root_run_id,
+            "attempt_id": claim.parent_attempt_id,
+            "basis_ref": claim.parent_basis_ref.model_dump(mode="json"),
+        }
+        raw = json.dumps(identity, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+        return f"child.release.{kind}.{hashlib.sha256(raw.encode('utf-8')).hexdigest()}"
+
+    @staticmethod
+    def _child_grant_binding(
+        claim: ChildComputationBinding | ChildJobSessionClaim | ChildJobReleaseClaim,
+    ) -> dict[str, Any]:
+        return {
+            "run_id": claim.root_run_id,
+            "job_id": claim.control_job_id,
+            "attempt_id": claim.parent_attempt_id,
+            "basis_ref": json.dumps(
+                claim.parent_basis_ref.model_dump(mode="json"),
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=True,
+            ),
+        }
+
+    def _child_event_row(self, job_id: str, event_type: str) -> Any | None:
+        length_sql = (
+            "length(CAST(payload_json AS BLOB))"
+            if self.backend == "sqlite"
+            else "octet_length(payload_json)"
+        )
+        rows = self._fetchall(
+            f"SELECT event_id, job_id, event_type, {length_sql} AS payload_bytes, "
+            f"CASE WHEN {length_sql} <= 262144 THEN payload_json ELSE NULL END AS payload_json "
+            "FROM control_job_events WHERE job_id = ? AND event_type = ? "
+            "ORDER BY event_id LIMIT 2",
+            (job_id, event_type),
+        )
+        if len(rows) > 1:
+            raise ControlJobExecutionAdmissionError("child_release_event_ambiguous")
+        if rows and (rows[0]["payload_json"] is None or int(rows[0]["payload_bytes"]) > 262144):
+            raise ControlJobExecutionAdmissionError("child_release_event_payload_oversized")
+        return rows[0] if rows else None
+
+    def _verify_child_job_event(
+        self,
+        locator: ChildJobReleaseLocator,
+        claim: ChildJobSessionClaim | ChildJobReleaseClaim,
+        *,
+        kind: str,
+    ) -> None:
+        """Fresh-read one committed reserved row and compare the complete claim."""
+        from polisyos.core.artifacts.child_release import (
+            ChildJobReleaseClaim,
+            ChildJobReleaseLocator,
+            ChildJobSessionClaim,
+        )
+
+        expected_type = ChildJobSessionClaim if kind == "session" else ChildJobReleaseClaim
+        if type(locator) is not ChildJobReleaseLocator or type(claim) is not expected_type:
+            raise ControlJobExecutionAdmissionError("child_release_event_type_invalid")
+        if locator.job_id != claim.control_job_id:
+            raise ControlJobExecutionAdmissionError("child_release_event_job_mismatch")
+        event_type = self._child_job_event_type(kind, claim)
+        row = self._child_event_row(locator.job_id, event_type)
+        if row is None or int(row["event_id"]) != locator.event_id:
+            raise ControlJobExecutionAdmissionError("child_release_event_unavailable")
+        payload_text = str(row["payload_json"])
+        if len(payload_text.encode("utf-8")) > 256 * 1024:
+            raise ControlJobExecutionAdmissionError("child_release_event_payload_oversized")
+        try:
+            payload = json.loads(payload_text)
+        except (TypeError, ValueError, RecursionError) as exc:
+            raise ControlJobExecutionAdmissionError("child_release_event_payload_invalid") from exc
+        if (
+            type(payload) is not dict
+            or set(payload)
+            != {"schema_version", "claim", "job_attempt", "lease_owner", "admission_ref"}
+            or payload["schema_version"] != "1.0"
+            or payload["claim"] != claim.model_dump(mode="json")
+            or type(payload["job_attempt"]) is not int
+            or payload["job_attempt"] < 1
+            or type(payload["lease_owner"]) is not str
+            or not payload["lease_owner"]
+        ):
+            raise ControlJobExecutionAdmissionError("child_release_event_claim_mismatch")
+        job = self.get_job(locator.job_id)
+        if job is None or job.run_id != claim.root_run_id:
+            raise ControlJobExecutionAdmissionError("child_release_event_run_mismatch")
+        scope, admission_ref = self._reconcile_control_job_creation_envelope(job)
+        if (
+            scope.status != "established"
+            or scope.tenant_id != claim.tenant_id
+            or scope.cell_id != claim.cell_id
+            or admission_ref != payload["admission_ref"]
+        ):
+            raise ControlJobExecutionAdmissionError("child_release_event_scope_mismatch")
+        if kind == "authorization":
+            session_data = claim.model_dump(
+                mode="json",
+                exclude={"release_ref", "projection_ref", "released_refs", "parent_effects_sha256"},
+            )
+            session_claim = ChildJobSessionClaim.model_validate(session_data)
+            session_row = self._child_event_row(
+                locator.job_id, self._child_job_event_type("session", session_claim)
+            )
+            if session_row is None:
+                raise ControlJobExecutionAdmissionError("child_release_intent_missing")
+            self._verify_child_job_event(
+                ChildJobReleaseLocator(
+                    job_id=locator.job_id, event_id=int(session_row["event_id"])
+                ),
+                session_claim,
+                kind="session",
+            )
+            session_payload = json.loads(str(session_row["payload_json"]))
+            if (session_payload["job_attempt"], session_payload["lease_owner"]) != (
+                payload["job_attempt"],
+                payload["lease_owner"],
+            ):
+                raise ControlJobExecutionAdmissionError("child_release_event_lease_mismatch")
+
+    def verify_intent(self, locator: ChildJobReleaseLocator, claim: ChildJobSessionClaim) -> None:
+        """Verify an exact committed Core session intent through this actual DB owner."""
+        if self._has_active_job_transaction():
+            raise ControlJobExecutionAdmissionError("child_release_fresh_read_required")
+        self._verify_child_job_event(locator, claim, kind="session")
+
+    def verify_scope(self, locator: ChildJobReleaseLocator, claim: ChildJobScopeClaim) -> None:
+        """Fresh-read an exact committed child scope decision and its session."""
+        from polisyos.core.artifacts.child_release import ChildJobReleaseLocator, ChildJobScopeClaim
+
+        if self._has_active_job_transaction():
+            raise ControlJobExecutionAdmissionError("child_release_fresh_read_required")
+        if type(locator) is not ChildJobReleaseLocator or type(claim) is not ChildJobScopeClaim:
+            raise ControlJobExecutionAdmissionError("child_scope_claim_invalid")
+        if locator.job_id != claim.session.control_job_id:
+            raise ControlJobExecutionAdmissionError("child_scope_job_mismatch")
+        event_type = f"child.release.scope.{claim.scope_id}"
+        row = self._child_event_row(locator.job_id, event_type)
+        if row is None or int(row["event_id"]) != locator.event_id:
+            raise ControlJobExecutionAdmissionError("child_scope_event_unavailable")
+        payload_text = str(row["payload_json"])
+        if len(payload_text.encode("utf-8")) > 256 * 1024:
+            raise ControlJobExecutionAdmissionError("child_scope_payload_oversized")
+        try:
+            payload = json.loads(payload_text)
+        except (TypeError, ValueError, RecursionError) as exc:
+            raise ControlJobExecutionAdmissionError("child_scope_payload_invalid") from exc
+        if (
+            type(payload) is not dict
+            or json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+            != payload_text
+            or set(payload) != {"schema_version", "claim", "job_attempt", "lease_owner"}
+            or payload["schema_version"] != "1.0"
+            or payload["claim"] != claim.model_dump(mode="json")
+            or type(payload["job_attempt"]) is not int
+            or payload["job_attempt"] < 1
+            or type(payload["lease_owner"]) is not str
+            or not payload["lease_owner"]
+        ):
+            raise ControlJobExecutionAdmissionError("child_scope_event_mismatch")
+        self._verify_child_job_event(claim.session_intent, claim.session, kind="session")
+        session = self._child_event_row(
+            locator.job_id, self._child_job_event_type("session", claim.session)
+        )
+        if session is None:
+            raise ControlJobExecutionAdmissionError("child_release_intent_missing")
+        session_payload = json.loads(str(session["payload_json"]))
+        if (payload["job_attempt"], payload["lease_owner"]) != (
+            session_payload["job_attempt"],
+            session_payload["lease_owner"],
+        ):
+            raise ControlJobExecutionAdmissionError("child_scope_event_lease_mismatch")
+
+    def verify_release(self, locator: ChildJobReleaseLocator, claim: ChildJobReleaseClaim) -> None:
+        """Verify an exact committed Core release authorization through this DB owner."""
+        if self._has_active_job_transaction():
+            raise ControlJobExecutionAdmissionError("child_release_fresh_read_required")
+        self._verify_child_job_event(locator, claim, kind="authorization")
+
+    def _record_child_job_event(
+        self,
+        handle: ChildJobSessionIntent | ChildJobReleaseCandidate,
+        grant: _BorrowedExecutionGrant,
+        fence: _ChildComputationPublicationFence,
+        *,
+        kind: str,
+        on_transaction_attempt: Callable[[], None] | None = None,
+        on_transaction_committed: Callable[[], None] | None = None,
+    ) -> ChildJobReleaseLocator:
+        """Commit an owner-recomputed claim while the actual lease is current."""
+        from polisyos.common.borrowed_execution import _BorrowedExecutionGrant
+        from polisyos.core.artifacts.child_release import (
+            ChildJobReleaseClaim,
+            ChildJobReleaseLocator,
+            ChildJobSessionClaim,
+        )
+        from polisyos.core.run.child_custody import ChildJobReleaseCandidate, ChildJobSessionIntent
+
+        handle_type = ChildJobSessionIntent if kind == "session" else ChildJobReleaseCandidate
+        claim_type = ChildJobSessionClaim if kind == "session" else ChildJobReleaseClaim
+        if (
+            type(handle) is not handle_type
+            or type(grant) is not _BorrowedExecutionGrant
+            or type(fence) is not _ChildComputationPublicationFence
+            or fence._store is not self
+            or fence._grant is not grant
+        ):
+            raise ControlJobExecutionAdmissionError("child_release_authority_handle_invalid")
+        if self.backend != "sqlite":
+            raise ControlJobExecutionAdmissionError(
+                "child_release_backend_clock_binding_unsupported"
+            )
+        if self._has_active_job_transaction():
+            raise ControlJobExecutionAdmissionError("child_release_nested_transaction_forbidden")
+        claim = handle.recompute()
+        if type(claim) is not claim_type:
+            raise ControlJobExecutionAdmissionError("child_release_authority_claim_invalid")
+        binding = fence._binding
+        if binding is None or (
+            claim.root_run_id,
+            claim.control_job_id,
+            claim.parent_attempt_id,
+            claim.parent_basis_ref,
+            claim.tenant_id,
+            claim.cell_id,
+            claim.admission_generation,
+            claim.deadline,
+        ) != (
+            binding.root_run_id,
+            binding.control_job_id,
+            binding.parent_attempt_id,
+            binding.parent_basis_ref,
+            binding.tenant_id,
+            binding.cell_id,
+            binding.admission_generation,
+            binding.deadline,
+        ):
+            raise ControlJobExecutionAdmissionError("child_release_fence_claim_mismatch")
+        event_type = self._child_job_event_type(kind, claim)
+        resource_binding = self._child_grant_binding(claim)
+        grant.require_parent(**resource_binding)
+        if on_transaction_attempt is not None:
+            on_transaction_attempt()
+        with self._job_transaction():
+            fence._reconcile()
+            current = self.current_execution_job_admission()
+            if (
+                current.scope.status != "established"
+                or current.job.job_id != claim.control_job_id
+                or current.job.run_id != claim.root_run_id
+                or current.scope.tenant_id != claim.tenant_id
+                or current.scope.cell_id != claim.cell_id
+                or not current.scope.actor_authenticated
+                or not current.scope.actor_subject
+                or not current.job.lease_owner
+            ):
+                raise ControlJobExecutionAdmissionError("child_release_actual_job_mismatch")
+            if (
+                kind == "session"
+                and self._fetchone(
+                    "SELECT 1 FROM control_job_events WHERE job_id = ? "
+                    "AND event_type LIKE 'child.budget.attempt.%' AND event_type <> ? LIMIT 1",
+                    (claim.control_job_id, f"child.budget.attempt.{current.attempt}"),
+                )
+                is not None
+            ):
+                raise ControlJobExecutionAdmissionError("child_prior_budget_attempt_unresolved")
+            if (
+                kind == "session"
+                and self._fetchone(
+                    "SELECT 1 FROM child_computation_reissue_sources WHERE source_run_id = ? AND ("
+                    "source_tenant_id IS NULL OR source_cell_id IS NULL OR "
+                    "(source_tenant_id = ? AND source_cell_id = ?)) LIMIT 1",
+                    (claim.root_run_id, claim.tenant_id, claim.cell_id),
+                )
+                is not None
+            ):
+                raise ControlJobExecutionAdmissionError("child_session_source_already_reissued")
+            payload = {
+                "schema_version": "1.0",
+                "claim": claim.model_dump(mode="json"),
+                "job_attempt": current.attempt,
+                "lease_owner": current.job.lease_owner,
+                "admission_ref": current.admission_capability_manifest_ref,
+            }
+            payload_text = json.dumps(
+                payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True
+            )
+            if len(payload_text.encode("utf-8")) > 256 * 1024:
+                raise ControlJobExecutionAdmissionError("child_release_event_payload_oversized")
+            if kind == "authorization":
+                session_data = claim.model_dump(
+                    mode="json",
+                    exclude={
+                        "release_ref",
+                        "projection_ref",
+                        "released_refs",
+                        "parent_effects_sha256",
+                    },
+                )
+                session_claim = ChildJobSessionClaim.model_validate(session_data)
+                session_row = self._child_event_row(
+                    claim.control_job_id, self._child_job_event_type("session", session_claim)
+                )
+                if session_row is None:
+                    raise ControlJobExecutionAdmissionError("child_release_intent_missing")
+                session_locator = ChildJobReleaseLocator(
+                    job_id=claim.control_job_id, event_id=int(session_row["event_id"])
+                )
+                self._verify_child_job_event(session_locator, session_claim, kind="session")
+                session_payload = json.loads(str(session_row["payload_json"]))
+                if (session_payload["job_attempt"], session_payload["lease_owner"]) != (
+                    current.attempt,
+                    current.job.lease_owner,
+                ):
+                    raise ControlJobExecutionAdmissionError("child_release_intent_lease_changed")
+            existing = self._child_event_row(claim.control_job_id, event_type)
+            if existing is not None:
+                with grant.publication():
+                    owner_claim_bytes = handle.admission(claim)
+                    owner_claim = claim_type.model_validate_json(owner_claim_bytes)
+                    owner_event_type = self._child_job_event_type(kind, owner_claim)
+                    payload["claim"] = owner_claim.model_dump(mode="json")
+                    owner_payload = json.dumps(
+                        payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True
+                    )
+                    if (
+                        owner_event_type != event_type
+                        or owner_payload != payload_text
+                        or str(existing["payload_json"]) != owner_payload
+                    ):
+                        raise ControlJobExecutionAdmissionError("child_release_event_conflict")
+                    claim = owner_claim
+            else:
+                conn = self._human_decision_transaction.sqlite_connection
+
+                def resource_current(lease_expiry: str) -> int:
+                    # The earlier wall sample is the logical owner admission point.
+                    # Grant monotonic currentness is checked after that sample;
+                    # monotonic non-regression then covers the earlier instant.
+                    wall_at_decision = datetime.now(timezone.utc)
+                    try:
+                        if type(lease_expiry) is not str:
+                            return 0
+                        expiry = datetime.fromisoformat(lease_expiry.replace("Z", "+00:00"))
+                        if (
+                            expiry.tzinfo is None
+                            or expiry.utcoffset() is None
+                            or expiry <= wall_at_decision
+                            or claim.deadline <= wall_at_decision
+                        ):
+                            return 0
+                        grant.require_parent(**resource_binding)
+                    except (RuntimeError, ValueError, TypeError):
+                        return 0
+                    return 1
+
+                # SQLite invokes this owner-bound UDF with the actual locked row.
+                # A positive result is a decision, not yet a committed receipt.
+                conn.create_function("child_resource_current", 1, resource_current)
+                sql = (
+                    "INSERT INTO control_job_events (job_id, event_type, payload_json, created_at) "
+                    "SELECT job_id, ?, ?, ? FROM control_jobs WHERE job_id = ? AND state = 'running' "
+                    "AND lease_owner = ? AND attempt = ? AND lease_expires_at IS NOT NULL "
+                    "AND child_resource_current(lease_expires_at) = 1"
+                )
+                with grant.publication():
+                    owner_claim_bytes = handle.admission(claim)
+                    owner_claim = claim_type.model_validate_json(owner_claim_bytes)
+                    owner_event_type = self._child_job_event_type(kind, owner_claim)
+                    payload["claim"] = owner_claim.model_dump(mode="json")
+                    owner_payload = json.dumps(
+                        payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True
+                    )
+                    if owner_event_type != event_type or owner_payload != payload_text:
+                        raise ControlJobExecutionAdmissionError("child_release_event_claim_changed")
+                    claim = owner_claim
+                    resource_binding = self._child_grant_binding(owner_claim)
+                    inserted = self._execute(
+                        sql,
+                        (
+                            owner_event_type,
+                            owner_payload,
+                            _iso(_utc_now()),
+                            owner_claim.control_job_id,
+                            current.job.lease_owner,
+                            current.attempt,
+                        ),
+                    )
+                    if inserted != 1:
+                        raise ControlJobLeaseLostError(
+                            "child_release_conditional_admission_refused"
+                        )
+        # Read on a new transaction/connection after commit; never use an uncommitted row as proof.
+        if on_transaction_committed is not None:
+            on_transaction_committed()
+        row = self._child_event_row(claim.control_job_id, event_type)
+        if row is None:
+            raise ControlJobExecutionAdmissionError("child_release_commit_not_readable")
+        locator = ChildJobReleaseLocator(job_id=claim.control_job_id, event_id=int(row["event_id"]))
+        self._verify_child_job_event(locator, claim, kind=kind)
+        return locator
+
+    def find_child_job_session(
+        self,
+        *,
+        job_id: str,
+        run_id: str,
+        parent_attempt_id: str,
+        parent_basis_ref: ArtifactRef,
+        admission_generation: int | None = None,
+    ) -> tuple[ChildJobReleaseLocator, ChildJobSessionClaim] | None:
+        """Recover a committed session locator from the exact owner basis."""
+        if self._has_active_job_transaction():
+            raise ControlJobExecutionAdmissionError("child_release_fresh_read_required")
+        from polisyos.core.artifacts.child_release import (
+            ChildJobReleaseLocator,
+            ChildJobSessionClaim,
+        )
+
+        if (
+            type(parent_basis_ref) is not ArtifactRef
+            or parent_basis_ref.manifest_profile_sha256 is None
+            or (
+                admission_generation is not None
+                and (type(admission_generation) is not int or admission_generation < 0)
+            )
+        ):
+            raise ControlJobExecutionAdmissionError("child_release_lookup_basis_invalid")
+        identity = {
+            "job_id": job_id,
+            "run_id": run_id,
+            "attempt_id": parent_attempt_id,
+            "basis_ref": parent_basis_ref.model_dump(mode="json"),
+        }
+        raw = json.dumps(identity, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+        event_type = f"child.release.session.{hashlib.sha256(raw.encode('utf-8')).hexdigest()}"
+        row = self._child_event_row(job_id, event_type)
+        if row is None:
+            return None
+        text = str(row["payload_json"])
+        if len(text.encode("utf-8")) > 256 * 1024:
+            raise ControlJobExecutionAdmissionError("child_release_event_payload_oversized")
+        try:
+            payload = json.loads(text)
+            claim = ChildJobSessionClaim.model_validate(payload["claim"])
+        except (TypeError, ValueError, KeyError, RecursionError) as exc:
+            raise ControlJobExecutionAdmissionError("child_release_event_payload_invalid") from exc
+        if (
+            claim.control_job_id,
+            claim.root_run_id,
+            claim.parent_attempt_id,
+            claim.parent_basis_ref,
+        ) != (job_id, run_id, parent_attempt_id, parent_basis_ref) or (
+            admission_generation is not None and claim.admission_generation != admission_generation
+        ):
+            raise ControlJobExecutionAdmissionError("child_release_lookup_claim_mismatch")
+        locator = ChildJobReleaseLocator(job_id=job_id, event_id=int(row["event_id"]))
+        self.verify_intent(locator, claim)
+        return locator, claim
+
+    def record_child_release_unknown(
+        self,
+        *,
+        locator: ChildJobReleaseLocator,
+        run_id: str,
+        parent_attempt_id: str,
+        parent_basis_ref: ArtifactRef,
+        sibling_error_types: tuple[str, ...] = (),
+    ) -> None:
+        """Expose a verified uncertain child session without terminalizing the job."""
+        if (
+            type(sibling_error_types) is not tuple
+            or len(sibling_error_types) > 32
+            or any(
+                type(item) is not str or not item or len(item) > 160 for item in sibling_error_types
+            )
+        ):
+            raise ControlJobExecutionAdmissionError("child_release_sibling_diagnostic_invalid")
+        recovered = self.find_child_job_session(
+            job_id=locator.job_id,
+            run_id=run_id,
+            parent_attempt_id=parent_attempt_id,
+            parent_basis_ref=parent_basis_ref,
+        )
+        if recovered is None or recovered[0] != locator:
+            raise ControlJobExecutionAdmissionError("child_release_unknown_locator_invalid")
+        with self._job_transaction():
+            current = self.current_execution_job_admission()
+            if current.job.job_id != locator.job_id or current.job.run_id != run_id:
+                raise ControlJobExecutionAdmissionError("child_release_unknown_job_mismatch")
+            row = self._child_event_row(
+                locator.job_id, self._child_job_event_type("session", recovered[1])
+            )
+            if row is None:
+                raise ControlJobExecutionAdmissionError("child_release_unknown_locator_invalid")
+            recorded = json.loads(str(row["payload_json"]))
+            if (recorded["job_attempt"], recorded["lease_owner"]) != (
+                current.attempt,
+                current.job.lease_owner,
+            ):
+                raise ControlJobExecutionAdmissionError("child_release_unknown_attempt_mismatch")
+            progress = dict(current.job.progress or {})
+            reconciliation = progress.get("child_release_reconciliation")
+            if reconciliation is None:
+                intents: list[dict[str, Any]] = []
+            elif (
+                type(reconciliation) is dict
+                and reconciliation.get("status") == "reconciliation_required"
+                and type(reconciliation.get("intents")) is list
+                and all(type(item) is dict for item in reconciliation["intents"])
+            ):
+                intents = list(reconciliation["intents"])
+            else:
+                raise ControlJobExecutionAdmissionError("child_release_unknown_progress_invalid")
+            item = {
+                "intent_event_id": locator.event_id,
+                "job_id": locator.job_id,
+                "root_run_id": run_id,
+                "parent_attempt_id": parent_attempt_id,
+                "parent_basis_ref": parent_basis_ref.model_dump(mode="json"),
+            }
+            if item not in intents:
+                intents.append(item)
+            if len(intents) > 256 or len(json.dumps(intents).encode("utf-8")) > 256 * 1024:
+                raise ControlJobExecutionAdmissionError("child_release_unknown_progress_oversized")
+            previous_types = (
+                reconciliation.get("sibling_error_types", [])
+                if type(reconciliation) is dict
+                else []
+            )
+            if (
+                type(previous_types) is not list
+                or len(previous_types) > 32
+                or any(
+                    type(item) is not str or not item or len(item) > 160 for item in previous_types
+                )
+            ):
+                raise ControlJobExecutionAdmissionError("child_release_unknown_progress_invalid")
+            merged_types = list(dict.fromkeys([*previous_types, *sibling_error_types]))
+            if len(merged_types) > 32:
+                raise ControlJobExecutionAdmissionError("child_release_sibling_diagnostic_invalid")
+            progress["child_release_reconciliation"] = {
+                "status": "reconciliation_required",
+                "intents": intents,
+                "sibling_error_types": merged_types,
+            }
+            self._upsert_progress_unchecked(job_id=locator.job_id, progress=progress)
+
+    def _source_has_unresolved_child_budget(
+        self, run_id: str, tenant_id: str | None, cell_id: str | None
+    ) -> bool:
+        """Conservatively gate reissue on each actual persisted budget claim."""
+        from polisyos.runtime.http.services.control.child_execution_budget import (
+            ChildExecutionBudgetPolicy,
+        )
+
+        rows = self._fetchall(
+            "SELECT e.event_id, e.job_id, e.event_type, "
+            "CASE WHEN length(CAST(e.payload_json AS BLOB)) <= 262144 "
+            "THEN e.payload_json ELSE NULL END AS payload_json "
+            "FROM control_job_events e JOIN control_jobs j ON j.job_id = e.job_id "
+            "WHERE j.run_id = ? AND e.event_type LIKE 'child.budget.attempt.%' "
+            "ORDER BY e.event_id LIMIT 33",
+            (run_id,),
+        )
+        if len(rows) > 32:
+            raise ControlJobExecutionAdmissionError("child_budget_claim_set_oversized")
+        for row in rows:
+            try:
+                payload = json.loads(row["payload_json"])
+                if (
+                    type(payload) is not dict
+                    or set(payload)
+                    != {
+                        "schema_version",
+                        "job_id",
+                        "run_id",
+                        "attempt",
+                        "worker_id",
+                        "policy_id",
+                        "policy_version",
+                        "duration_seconds",
+                    }
+                    or payload["schema_version"] != "1.0"
+                    or payload["job_id"] != row["job_id"]
+                    or payload["run_id"] != run_id
+                    or type(payload["attempt"]) is not int
+                    or payload["attempt"] < 1
+                    or row["event_type"] != f"child.budget.attempt.{payload['attempt']}"
+                    or type(payload["worker_id"]) is not str
+                    or not payload["worker_id"]
+                ):
+                    raise ValueError("child_budget_claim_invalid")
+                ChildExecutionBudgetPolicy(
+                    payload["policy_id"], payload["policy_version"], payload["duration_seconds"]
+                )
+                selected = self._child_event_row(row["job_id"], row["event_type"])
+                if selected is None or selected["event_id"] != row["event_id"]:
+                    raise ValueError("child_budget_claim_identity_invalid")
+                job = self.get_job(row["job_id"])
+                if job is None or job.run_id != run_id or job.kind != "workflow_run":
+                    raise ValueError("child_budget_job_invalid")
+                scope, _ = self._reconcile_control_job_creation_envelope(job)
+                if scope.status != "established" or not scope.tenant_id or not scope.cell_id:
+                    raise ValueError("child_budget_scope_invalid")
+            except (TypeError, ValueError, KeyError, RecursionError) as exc:
+                raise ControlJobExecutionAdmissionError("child_budget_claim_event_invalid") from exc
+            if (
+                tenant_id is None
+                or cell_id is None
+                or (scope.tenant_id, scope.cell_id) == (tenant_id, cell_id)
+            ):
+                return True
+        return False
+
+    def _source_has_conflicting_child_session(
+        self, run_id: str, tenant_id: str | None, cell_id: str | None
+    ) -> bool:
+        """Reconcile a bounded complete source session set before scoped reissue."""
+        from polisyos.core.artifacts.child_release import (
+            ChildJobReleaseLocator,
+            ChildJobSessionClaim,
+        )
+
+        rows = self._fetchall(
+            "SELECT e.event_id, e.job_id, CASE WHEN length(CAST(e.payload_json AS BLOB)) "
+            "<= 262144 THEN e.payload_json ELSE NULL END AS payload_json "
+            "FROM control_job_events e JOIN control_jobs j ON j.job_id = e.job_id "
+            "WHERE j.run_id = ? AND e.event_type LIKE 'child.release.session.%' "
+            "ORDER BY e.event_id LIMIT 33",
+            (run_id,),
+        )
+        if len(rows) > 32:
+            raise ControlJobExecutionAdmissionError("child_reissue_session_set_oversized")
+        for row in rows:
+            try:
+                if type(row["payload_json"]) is not str:
+                    raise ValueError("bounded_payload_missing")
+                payload = json.loads(row["payload_json"])
+                claim = ChildJobSessionClaim.model_validate(payload["claim"])
+                locator = ChildJobReleaseLocator(job_id=row["job_id"], event_id=row["event_id"])
+                self._verify_child_job_event(locator, claim, kind="session")
+            except (TypeError, ValueError, KeyError, RecursionError) as exc:
+                raise ControlJobExecutionAdmissionError(
+                    "child_reissue_session_event_invalid"
+                ) from exc
+            if (
+                claim.root_run_id != run_id
+                or tenant_id is None
+                or cell_id is None
+                or (claim.tenant_id, claim.cell_id) == (tenant_id, cell_id)
+            ):
+                return True
+        return False
+
+    def find_child_job_authorization(
+        self, session_claim: ChildJobSessionClaim
+    ) -> tuple[ChildJobReleaseLocator, ChildJobReleaseClaim] | None:
+        """Recover one exact committed authorization, or return None if absent."""
+        if self._has_active_job_transaction():
+            raise ControlJobExecutionAdmissionError("child_release_fresh_read_required")
+        from polisyos.core.artifacts.child_release import (
+            ChildJobReleaseClaim,
+            ChildJobReleaseLocator,
+            ChildJobSessionClaim,
+        )
+
+        if type(session_claim) is not ChildJobSessionClaim:
+            raise ControlJobExecutionAdmissionError("child_release_lookup_basis_invalid")
+        event_type = self._child_job_event_type("authorization", session_claim)
+        row = self._child_event_row(session_claim.control_job_id, event_type)
+        if row is None:
+            return None
+        text = str(row["payload_json"])
+        if len(text.encode("utf-8")) > 256 * 1024:
+            raise ControlJobExecutionAdmissionError("child_release_event_payload_oversized")
+        try:
+            payload = json.loads(text)
+            claim = ChildJobReleaseClaim.model_validate(payload["claim"])
+        except (TypeError, ValueError, KeyError, RecursionError) as exc:
+            raise ControlJobExecutionAdmissionError("child_release_event_payload_invalid") from exc
+        if (
+            ChildJobSessionClaim.model_validate(
+                claim.model_dump(
+                    mode="json",
+                    exclude={
+                        "release_ref",
+                        "projection_ref",
+                        "released_refs",
+                        "parent_effects_sha256",
+                    },
+                )
+            )
+            != session_claim
+        ):
+            raise ControlJobExecutionAdmissionError("child_release_lookup_claim_mismatch")
+        locator = ChildJobReleaseLocator(
+            job_id=session_claim.control_job_id, event_id=int(row["event_id"])
+        )
+        self.verify_release(locator, claim)
+        return locator, claim
+
+    def begin_child_job_session(
+        self,
+        intent: ChildJobSessionIntent,
+        grant: _BorrowedExecutionGrant,
+        fence: _ChildComputationPublicationFence,
+    ) -> ChildJobReleaseLocator:
+        """Persist the exact parent-basis to release-ID locator before child work."""
+        return self._record_child_job_event(intent, grant, fence, kind="session")
+
+    def authorize_child_job_release(
+        self,
+        candidate: ChildJobReleaseCandidate,
+        grant: _BorrowedExecutionGrant,
+        fence: _ChildComputationPublicationFence,
+    ) -> ChildJobReleaseLocator:
+        """Authorize the exact selected release at the actual conditional DB decision."""
+        return self._record_child_job_event(candidate, grant, fence, kind="authorization")
 
     def verify_llm_producer_admission(
         self,
@@ -4177,6 +5378,9 @@ class ControlPlaneStore:
         pre_admission_producer_event_observation: ProducerCallState | None = None,
         pre_admission_no_call_reason: NoCallReason | None = None,
         pre_admission_failure_code: str | None = None,
+        child_reissue_source_run_id: str | None = None,
+        child_reissue_source_tenant_id: str | None = None,
+        child_reissue_source_cell_id: str | None = None,
     ) -> ControlJobRecord:
         """Publish one job and prepared admission diagnostics atomically with SQL only.
 
@@ -4185,6 +5389,24 @@ class ControlPlaneStore:
         this owner records them normally, reconciles the actual source/outbox,
         then appends prepared diagnostics and their initial progress links.
         """
+        if child_reissue_source_run_id is not None and (
+            type(child_reissue_source_run_id) is not str
+            or not child_reissue_source_run_id
+            or len(child_reissue_source_run_id) > 512
+            or kind != "workflow_run"
+            or not run_id
+            or run_id == child_reissue_source_run_id
+        ):
+            raise ValueError("child_reissue_source_invalid")
+        if child_reissue_source_run_id is None and (
+            child_reissue_source_tenant_id is not None or child_reissue_source_cell_id is not None
+        ):
+            raise ValueError("child_reissue_source_scope_without_run")
+        if any(
+            value is not None and (type(value) is not str or not value or len(value) > 512)
+            for value in (child_reissue_source_tenant_id, child_reissue_source_cell_id)
+        ):
+            raise ValueError("child_reissue_source_scope_invalid")
         if initial_state not in {"pending", "failed"}:
             raise ValueError("control_job_initial_state_invalid")
         if initial_state == "failed" and not initial_error_message:
@@ -4275,6 +5497,30 @@ class ControlPlaneStore:
         created_event_payload = dict(creation_event_payload or {})
         created_event_payload["state"] = initial_state
         with self._job_transaction():
+            if child_reissue_source_run_id is not None and self.backend == "sqlite":
+                if self._source_has_conflicting_child_session(
+                    child_reissue_source_run_id,
+                    child_reissue_source_tenant_id,
+                    child_reissue_source_cell_id,
+                ) or self._source_has_unresolved_child_budget(
+                    child_reissue_source_run_id,
+                    child_reissue_source_tenant_id,
+                    child_reissue_source_cell_id,
+                ):
+                    raise ControlJobExecutionAdmissionError(
+                        "child_reissue_source_reconciliation_required"
+                    )
+                self._execute(
+                    "INSERT INTO child_computation_reissue_sources "
+                    "(source_run_id, source_tenant_id, source_cell_id, reissue_job_id) "
+                    "VALUES (?, ?, ?, ?)",
+                    (
+                        child_reissue_source_run_id,
+                        child_reissue_source_tenant_id,
+                        child_reissue_source_cell_id,
+                        job_id,
+                    ),
+                )
             self._execute(sql, params)
             self.upsert_progress(job_id=job_id, progress=progress)
             self.append_event(
@@ -5270,6 +6516,8 @@ class ControlPlaneStore:
 
     def append_event(self, *, job_id: str, event_type: str, payload: dict[str, Any]) -> None:
         """Append one immutable job lifecycle/progress event row."""
+        if event_type.startswith(("child.release.", "child.budget.")):
+            raise ValueError("child_release_event_reserved_for_owner")
         self._execute(
             """
             INSERT INTO control_job_events (job_id, event_type, payload_json, created_at)
@@ -6161,6 +7409,16 @@ class ControlPlaneStore:
                     lease_owner = ?, lease_expires_at = ?, attempt = attempt + 1
                 WHERE job_id = ? AND (state = 'pending' OR
                     (state = 'running' AND lease_expires_at <= ?))
+                AND NOT EXISTS (
+                    SELECT 1 FROM control_job_events AS child_intent
+                    WHERE child_intent.job_id = control_jobs.job_id
+                      AND child_intent.event_type LIKE 'child.release.session.%'
+                )
+                AND NOT EXISTS (
+                    SELECT 1 FROM control_job_events AS child_budget
+                    WHERE child_budget.job_id = control_jobs.job_id
+                      AND child_budget.event_type LIKE 'child.budget.attempt.%'
+                )
                 """,
                 (
                     "running",
@@ -7433,6 +8691,8 @@ class ControlPlaneStore:
         require_new: bool = False,
     ) -> ControlOutboxRecord:
         """Insert a keyed outbox event, optionally refusing any prior winner."""
+        if topic.startswith(("control.child.release.", "control.child.budget.")):
+            raise ValueError("child_release_outbox_reserved_for_owner")
         if require_new and not event_key:
             raise ValueError("control_job_outbox_new_requires_key")
         if topic == "control.search.hte_completed":
@@ -8540,12 +9800,22 @@ class ControlPlaneStore:
                         """
                         SELECT job_id
                         FROM control_jobs
-                        WHERE state = 'pending'
+                        WHERE (state = 'pending'
                            OR (
                                 state = 'running'
                                 AND lease_expires_at IS NOT NULL
                                 AND lease_expires_at <= ?
-                           )
+                           ))
+                          AND NOT EXISTS (
+                              SELECT 1 FROM control_job_events AS child_intent
+                              WHERE child_intent.job_id = control_jobs.job_id
+                                AND child_intent.event_type LIKE 'child.release.session.%'
+                          )
+                          AND NOT EXISTS (
+                              SELECT 1 FROM control_job_events AS child_budget
+                              WHERE child_budget.job_id = control_jobs.job_id
+                                AND child_budget.event_type LIKE 'child.budget.attempt.%'
+                          )
                         ORDER BY created_at ASC
                         LIMIT 1
                         """,
@@ -8581,12 +9851,22 @@ class ControlPlaneStore:
                 WITH candidate AS (
                     SELECT job_id
                     FROM control_jobs
-                    WHERE state = 'pending'
+                    WHERE (state = 'pending'
                        OR (
                             state = 'running'
                             AND lease_expires_at IS NOT NULL
                             AND lease_expires_at <= %s
-                       )
+                       ))
+                      AND NOT EXISTS (
+                          SELECT 1 FROM control_job_events AS child_intent
+                          WHERE child_intent.job_id = control_jobs.job_id
+                            AND child_intent.event_type LIKE 'child.release.session.%'
+                      )
+                      AND NOT EXISTS (
+                          SELECT 1 FROM control_job_events AS child_budget
+                          WHERE child_budget.job_id = control_jobs.job_id
+                            AND child_budget.event_type LIKE 'child.budget.attempt.%'
+                      )
                     ORDER BY created_at ASC
                     FOR UPDATE SKIP LOCKED
                     LIMIT 1
@@ -8647,6 +9927,16 @@ class ControlPlaneStore:
                         payload_json TEXT NOT NULL,
                         created_at TEXT NOT NULL
                     );
+                    CREATE INDEX IF NOT EXISTS control_job_events_by_job_type
+                    ON control_job_events (job_id, event_type);
+                    CREATE TABLE IF NOT EXISTS child_computation_reissue_sources (
+                        source_run_id TEXT NOT NULL,
+                        source_tenant_id TEXT,
+                        source_cell_id TEXT,
+                        reissue_job_id TEXT PRIMARY KEY
+                    );
+                    CREATE INDEX IF NOT EXISTS child_computation_reissue_by_source
+                    ON child_computation_reissue_sources (source_run_id);
                     CREATE TABLE IF NOT EXISTS control_pre_admission_attempts (
                         attempt_id TEXT PRIMARY KEY, intent_sha256 TEXT NOT NULL,
                         intent_binding_json TEXT NOT NULL, producer_run_binding_json TEXT,
@@ -9087,6 +10377,10 @@ class ControlPlaneStore:
                     created_at TIMESTAMPTZ NOT NULL
                 )
                 """
+            )
+            cur.execute(
+                "CREATE INDEX IF NOT EXISTS control_job_events_by_job_type "
+                "ON control_job_events (job_id, event_type)"
             )
             cur.execute(
                 """

@@ -24,11 +24,16 @@ _FAKE_SHA = "sha256:" + "ab" * 32
 
 def _make_ctx(*, depth=0):
     store = MagicMock()
-    store.put_json.return_value = ArtifactRef(
-        artifact_id=_FAKE_SHA,
-        kind="test",
-        media_type="application/json",
-    )
+
+    def write_json(_value, options, *args, **kwargs):
+        return ArtifactRef(
+            artifact_id=_FAKE_SHA,
+            kind=options.kind,
+            media_type=options.media_type,
+            manifest_profile_sha256=_FAKE_SHA if kwargs.get("return_selected_profile") else None,
+        )
+
+    store.put_json.side_effect = write_json
     run = MagicMock()
     run.trace_path = None
     run.finalize.return_value = ArtifactRef(
@@ -221,6 +226,7 @@ class TestStateMapping:
             return NodeOutcome(status="ok", state=state, events=[], artifacts=[])
 
         task_node = _make_mock_node()
+        task_node.spec.state_writes = ["params.result"]
         task_node.execute.side_effect = _execute
 
         child_wf = WorkflowSpec(
@@ -355,6 +361,7 @@ class TestChildFailure:
             return NodeOutcome(status="ok", state=state, events=[], artifacts=[])
 
         task_node = _make_mock_node()
+        task_node.spec.state_writes = ["params.summary", "params.detail"]
         task_node.execute.side_effect = _execute
         child_wf = WorkflowSpec(
             workflow_id="child_conflict",

@@ -17,6 +17,7 @@ from uuid import UUID
 import numpy as np
 from pydantic import BaseModel, ValidationError
 
+from polisyos.common.borrowed_execution import _OwnedEffectOutcomeUnknownError
 from polisyos.common.canonical import _admit_canon_spec
 from polisyos.common.canonical_profile import (
     CanonicalProfileRefusalError,
@@ -942,6 +943,8 @@ def _get_owned_json_artifact_with_bytes[OwnerSourceT, OwnerConsumerT](
         )
     except CanonViolation:
         raise
+    except _OwnedEffectOutcomeUnknownError:
+        raise
     except Exception as exc:
         raise CanonViolation("ir_owned_artifact_read_refused") from exc
     if not preflight:
@@ -1079,6 +1082,8 @@ def _snapshot_owned_write_options(store: object, value: object) -> StorePutOptio
         raise CanonViolation("ir_owned_artifact_write_options_preparer_unavailable")
     try:
         prepared = cast("OwnedWriteOptionsPreparer", store).prepare_owned_write_options(value)
+    except _OwnedEffectOutcomeUnknownError:
+        raise
     except Exception as exc:
         raise CanonViolation("ir_owned_artifact_write_options_invalid") from exc
     return _clone_neutral_owned_write_options(prepared)
@@ -1307,6 +1312,8 @@ def _put_owned_json_artifact[OwnerSourceT, OwnerConsumerT](
         )
     except CanonViolation:
         raise
+    except _OwnedEffectOutcomeUnknownError:
+        raise
     except NotImplementedError as exc:
         if str(exc) == "artifact_store_return_selected_profile_unsupported":
             raise
@@ -1385,6 +1392,8 @@ def _put_owned_json_artifact_with_selected_view[OwnerSourceT, OwnerConsumerT](
             emission_options,
             return_selected_profile=True,
         )
+    except _OwnedEffectOutcomeUnknownError:
+        raise
     except Exception as exc:
         raise CanonViolation("ir_owned_artifact_write_refused") from exc
 
@@ -1418,6 +1427,8 @@ def _put_owned_json_artifact_with_selected_view[OwnerSourceT, OwnerConsumerT](
             raise CanonViolation("ir_owned_artifact_selected_manifest_options_mismatch")
         admitted = _get_owned_json_artifact_with_bytes(store, selected_ref, owner=owner)
     except CanonViolation:
+        raise
+    except _OwnedEffectOutcomeUnknownError:
         raise
     except Exception as exc:
         raise CanonViolation("ir_owned_artifact_selected_write_not_admitted") from exc

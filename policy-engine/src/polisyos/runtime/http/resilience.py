@@ -4,9 +4,12 @@ from __future__ import annotations
 
 import asyncio
 import contextvars
+import hashlib
+import math
 import os
 import sqlite3
 import threading
+import time
 from concurrent.futures import (
     CancelledError as FutureCancelledError,
 )
@@ -20,23 +23,35 @@ from concurrent.futures import (
 from dataclasses import dataclass, replace
 from functools import wraps
 from types import FunctionType
-from typing import TYPE_CHECKING, Any, TypeVar, cast
-from weakref import WeakKeyDictionary
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
+from weakref import WeakKeyDictionary, WeakSet
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Sequence
+    from pathlib import Path
 
     from polisyos.core.artifacts import (
         ArtifactID,
+        ArtifactRef,
         ArtifactStore,
         Ed25519Verifier,
         SignatureVerificationResult,
         SignatureVerifyingArtifactStore,
+        VerificationReport,
     )
-    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.core.artifacts._transfer_ops import ImportPublication
+    from polisyos.core.artifacts.canonical_profile import (
+        CoreJsonArtifactBoundedRead,
+        CoreJsonManifestBoundedRead,
+        CoreJsonReadLimits,
+    )
+    from polisyos.core.artifacts.manifest import InputRef
+    from polisyos.core.artifacts.store import ArtifactMemberReceipt, FileSystemCAS
+    from polisyos.core.run.child_custody import ChildComputationCustody
     from polisyos.scientist.validation.source_admission_owner import _RegisteredSourceAdmissionOwner
 
-from polisyos.common.async_tools import get_shared_executor
+from polisyos.common.async_tools import create_dependency_executor
+from polisyos.common.borrowed_execution import _BlockingAttempt, _BorrowedExecutionGrant
 from polisyos.fabric.connectors.resilience.circuit_breaker import (
     CircuitAttemptLease,
     CircuitBreaker,
@@ -49,11 +64,6 @@ from polisyos.runtime.http.errors import (
 
 T = TypeVar("T")
 _MIN_BLOCKING_TIMEOUT_SECONDS = 0.1
-
-
-@dataclass
-class _BlockingAttempt:
-    unavailable: bool = False
 
 
 def _env_float(name: str, default: float) -> float:
@@ -88,6 +98,110 @@ class _BlockingGuardSnapshot:
     unavailable_exception_types: tuple[type[BaseException], ...]
     unavailable_exception_predicate: Callable[[BaseException], bool] | None
     on_timeout: Callable[[Future[Any]], None] | None = None
+    on_submit: Callable[[Future[Any]], None] | None = None
+    on_interrupted: Callable[[Future[Any]], None] | None = None
+    on_wait_done: Callable[[Future[Any]], None] | None = None
+    parent_transition_lock: Any | None = None
+    parent_budget_uncertain: threading.Event | None = None
+    parent_lease_lost: threading.Event | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class _GuardCompletionObservation:
+    """Owner observation, not a durable completion or effect-settlement receipt."""
+
+    physical_state: Literal["pending", "returned", "failed", "not_started"]
+    interrupted: bool
+
+
+class _GuardCompletionHandle:
+    """Owner-issued observation of one actual guard dispatch, not effect settlement."""
+
+    def __init__(self, guard: BlockingDependencyGuard, store: object, budget: object) -> None:
+        self._guard = guard
+        self._store = store
+        self._budget = budget
+        self._claim = budget.claim
+        self._future: Future[Any] | None = None
+        self._callback: object | None = None
+        self._used = False
+        self._interrupted = False
+        self._wait_done = False
+        self._lock = threading.Lock()
+
+    def _require_current(self) -> None:
+        from polisyos.runtime.http.services.control.child_execution_budget import (
+            _require_attempt_budget,
+        )
+
+        if (
+            _require_attempt_budget(self._budget.job_id, self._budget.run_id, self._budget.attempt)
+            is not self._budget
+        ):
+            raise ValueError("guard_completion_budget_not_current")
+
+    def _reserve(self, guard: BlockingDependencyGuard, callback: object) -> None:
+        with self._lock:
+            if self._guard is not guard or self._used:
+                raise ValueError("guard_completion_handle_not_current")
+            self._callback = callback
+            self._used = True
+
+    def matches_callback(self, appointed_callback: object) -> bool:
+        """Compare the actual dispatched callable to an independently appointed object."""
+        with self._lock:
+            return self._used and self._callback is appointed_callback
+
+    def _attach(self, future: Future[Any]) -> None:
+        with self._lock:
+            if not self._used or self._future is not None:
+                raise ValueError("guard_completion_handle_already_attached")
+            self._future = future
+
+    def _mark_interrupted(self, future: Future[Any]) -> None:
+        with self._lock:
+            if self._future is not future:
+                raise RuntimeError("guard_completion_future_mismatch")
+            self._interrupted = True
+
+    def _finish_wait(self, future: Future[Any]) -> None:
+        with self._lock:
+            if self._future is not future:
+                raise RuntimeError("guard_completion_future_mismatch")
+            self._wait_done = True
+
+    def observe(self) -> _GuardCompletionObservation:
+        """Read exact persisted claim and actual physical worker-wrapper completion.
+
+        A returned callable is not evidence of child/effect/ledger settlement.
+        Process loss or an unattached handle is not successful completion.
+        """
+        from polisyos.common.async_tools import _SharedFuture, get_shared_executor
+
+        with self._lock:
+            future = self._future
+            used = self._used
+        if not used or future is None:
+            return _GuardCompletionObservation("pending", True)
+        if (
+            type(future) is not _SharedFuture
+            or future._executor is not get_shared_executor()
+            or self._budget.claim is not self._claim
+            or self._store.read_child_attempt_budget(self._claim.job_id, self._claim.attempt)
+            != self._claim
+        ):
+            raise RuntimeError("guard_completion_owner_reconciliation_failed")
+        # The owner signal and this final observation share one transition lock.
+        # The durable readback above is deliberately outside it.
+        with self._budget.transition_lock, self._lock:
+            interrupted = (
+                self._interrupted
+                or self._budget.uncertain.is_set()
+                or self._budget.interrupt.lost.is_set()
+            )
+            if not self._wait_done:
+                return _GuardCompletionObservation("pending", interrupted)
+            return _GuardCompletionObservation(future._physical_completion_state(), interrupted)
 
 
 class BlockingDependencyGuard:
@@ -101,6 +215,7 @@ class BlockingDependencyGuard:
         breaker: CircuitBreaker,
         executor_max_workers: int = 4,
         executor: ThreadPoolExecutor | None = None,
+        owns_executor: bool = False,
         unavailable_exception_types: tuple[type[BaseException], ...] = (),
         unavailable_exception_predicate: Callable[[BaseException], bool] | None = None,
     ) -> None:
@@ -111,7 +226,12 @@ class BlockingDependencyGuard:
         self._timeout_seconds = max(timeout_seconds, _MIN_BLOCKING_TIMEOUT_SECONDS)
         self._breaker = breaker
         self._closed = False
-        self._owns_executor = executor is None
+        self._owns_executor = executor is None or owns_executor
+        self._timed_out_lock = threading.Lock()
+        self._timed_out_futures: set[Future[Any]] = set()
+        self._unobservable_timeout = False
+        self._completion_handles: WeakSet[_GuardCompletionHandle] = WeakSet()
+        self._completion_lock = threading.Lock()
         self._executor = executor or ThreadPoolExecutor(
             max_workers=max(executor_max_workers, 1),
             thread_name_prefix=f"runtime-{dependency_name}",
@@ -133,6 +253,92 @@ class BlockingDependencyGuard:
 
     def run(self, func: Callable[..., T], *args: Any, **kwargs: Any) -> T:
         return self._run_snapshot(self._snapshot(), func, *args, **kwargs)
+
+    def create_parent_completion(
+        self, control_store: object, budget: object
+    ) -> _GuardCompletionHandle:
+        """Bind an actual live attempt budget and committed claim to this guard."""
+        from polisyos.runtime.http.services.control.child_execution_budget import (
+            ChildBudgetClaimLocator,
+            _AttemptBudget,
+            _require_attempt_budget,
+        )
+        from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+
+        if (
+            type(control_store) not in {ControlPlaneStore, GuardedDependencyProxy}
+            or type(budget) is not _AttemptBudget
+        ):
+            raise TypeError("guard_completion_owner_type_invalid")
+        if _require_attempt_budget(budget.job_id, budget.run_id, budget.attempt) is not budget:
+            raise ValueError("guard_completion_budget_not_current")
+        claim = budget.claim
+        if (
+            type(claim) is not ChildBudgetClaimLocator
+            or budget.control_store is not control_store
+            or (claim.job_id, claim.run_id, claim.attempt, claim.worker_id)
+            != (budget.job_id, budget.run_id, budget.attempt, budget.interrupt.worker_id)
+        ):
+            raise ValueError("guard_completion_claim_owner_mismatch")
+        if control_store.read_child_attempt_budget(budget.job_id, budget.attempt) != claim:
+            raise ValueError("guard_completion_claim_mismatch")
+        handle = _GuardCompletionHandle(self, control_store, budget)
+        with self._completion_lock:
+            self._completion_handles.add(handle)
+        return handle
+
+    def run_with_parent_admission(
+        self,
+        func: Callable[[_BorrowedExecutionGrant], T],
+        *,
+        deadline_monotonic: float,
+        completion: _GuardCompletionHandle | None = None,
+    ) -> T:
+        """Run the parent on the shared owner, bounded by its inherited deadline."""
+        if not math.isfinite(deadline_monotonic):
+            raise ValueError("parent_execution_deadline_must_be_finite")
+        remaining = deadline_monotonic - time.monotonic()
+        if remaining <= 0:
+            raise TimeoutError("parent_execution_deadline_expired")
+
+        def invoke() -> T:
+            if completion is not None:
+                completion._require_current()
+            attempt = getattr(self._execution, "attempt", None)
+            if not isinstance(attempt, _BlockingAttempt) or attempt.grant is not None:
+                raise RuntimeError("parent_execution_admission_unavailable")
+            attempt.deadline = min(attempt.deadline, deadline_monotonic)
+            grant = _BorrowedExecutionGrant(attempt, self._execution, self._executor)
+            attempt.grant = grant
+            try:
+                grant.check_current()
+                return func(grant)
+            finally:
+                attempt.revoke()
+
+        snapshot = self._snapshot()
+        if completion is not None:
+            if type(completion) is not _GuardCompletionHandle:
+                raise TypeError("guard_completion_handle_type_invalid")
+            completion._require_current()
+            if deadline_monotonic != completion._budget.deadline_monotonic:
+                raise ValueError("guard_completion_deadline_mismatch")
+            with self._completion_lock:
+                if completion not in self._completion_handles:
+                    raise ValueError("guard_completion_handle_not_issued")
+                completion._reserve(self, func)
+            snapshot = replace(
+                snapshot,
+                on_submit=completion._attach,
+                on_interrupted=completion._mark_interrupted,
+                on_wait_done=completion._finish_wait,
+                parent_transition_lock=completion._budget.transition_lock,
+                parent_budget_uncertain=completion._budget.uncertain,
+                parent_lease_lost=completion._budget.interrupt.lost,
+            )
+        return self._run_snapshot(
+            replace(snapshot, timeout_seconds=min(snapshot.timeout_seconds, remaining)), invoke
+        )
 
     def _run_snapshot(
         self,
@@ -190,16 +396,25 @@ class BlockingDependencyGuard:
             )
         try:
             context = contextvars.copy_context()
-            attempt = _BlockingAttempt()
+            attempt = _BlockingAttempt(deadline=time.monotonic() + snapshot.timeout_seconds)
+            # Fix the issuer's synchronization identity before the attempt can
+            # be observed by either the worker or the timeout/revocation path.
+            if snapshot.parent_transition_lock is not None:
+                attempt.transition_lock = snapshot.parent_transition_lock
+                attempt.budget_uncertain = snapshot.parent_budget_uncertain
+                attempt.lease_lost = snapshot.parent_lease_lost
 
             def _invoke() -> T:
                 snapshot.execution.attempt = attempt
                 try:
                     return func(*args, **kwargs)
                 finally:
+                    attempt.revoke()
                     snapshot.execution.attempt = None
 
             future = snapshot.executor.submit(context.run, _invoke)
+            if snapshot.on_submit is not None:
+                snapshot.on_submit(future)
         except RuntimeError as exc:
             release_cancelled(lease)
             raise RuntimeDependencyUnavailableError(
@@ -209,31 +424,92 @@ class BlockingDependencyGuard:
         try:
             result = future.result(timeout=snapshot.timeout_seconds)
         except (FutureCancelledError, asyncio.CancelledError):
+            attempt.revoke()
+            self._retain_timed_out_future(future)
+            if snapshot.on_interrupted is not None:
+                snapshot.on_interrupted(future)
             release_cancelled(lease)
+            if snapshot.on_wait_done is not None:
+                snapshot.on_wait_done(future)
             raise
         except FutureTimeoutError as exc:
+            attempt.revoke()
+            if snapshot.on_interrupted is not None:
+                snapshot.on_interrupted(future)
             cancelled = future.cancel()
+            # Cancellation may precede the executor's queue and callback cleanup.
+            # Retain the actual owner's observation even for a queued cancellation.
+            self._retain_timed_out_future(future)
             if not cancelled and snapshot.on_timeout is not None:
                 snapshot.on_timeout(future)
             snapshot.breaker.record_failure(lease)
+            if snapshot.on_wait_done is not None:
+                snapshot.on_wait_done(future)
             raise RuntimeDependencyTimeoutError(snapshot.dependency_name) from exc
         except Exception as exc:
-            if attempt.unavailable:
+            self._retain_timed_out_future(future)
+            if attempt.unavailable or unavailable(exc):
                 snapshot.breaker.record_failure(lease)
-                raise
-            if unavailable(exc):
-                snapshot.breaker.record_failure(lease)
+                if snapshot.on_wait_done is not None:
+                    snapshot.on_wait_done(future)
+                if attempt.unavailable:
+                    raise
                 raise RuntimeDependencyUnavailableError(
                     snapshot.dependency_name,
                     detail=str(exc) or f"{snapshot.dependency_name} is temporarily unavailable",
                 ) from exc
             snapshot.breaker.record_success(lease)
+            if snapshot.on_wait_done is not None:
+                snapshot.on_wait_done(future)
+            raise
+        except BaseException:
+            attempt.revoke()
+            self._retain_timed_out_future(future)
+            if snapshot.on_interrupted is not None:
+                snapshot.on_interrupted(future)
+            if snapshot.on_wait_done is not None:
+                snapshot.on_wait_done(future)
             raise
         if attempt.unavailable:
             snapshot.breaker.record_failure(lease)
         else:
             snapshot.breaker.record_success(lease)
+        if snapshot.on_wait_done is not None:
+            snapshot.on_wait_done(future)
         return result
+
+    @staticmethod
+    def _physically_unsettled(future: Future[Any]) -> bool:
+        from polisyos.common.async_tools import _SharedFuture
+
+        # A standard Future has no proof its physical wrapper released a slot.
+        # Keep that boundary unknown rather than treating done() as quiescence.
+        if type(future) is not _SharedFuture:
+            return True
+        return future._physical_completion_state() == "pending"
+
+    def _retain_timed_out_future(self, future: Future[Any]) -> None:
+        from polisyos.common.async_tools import _SharedFuture
+
+        # Late callback registration can wait for pool capacity. A foreign
+        # executor lacks a slot-release proof; retain one unknown bit instead of
+        # an unbounded collection of completed Futures.
+        with self._timed_out_lock:
+            self._timed_out_futures = {
+                item for item in self._timed_out_futures if self._physically_unsettled(item)
+            }
+            if type(future) is not _SharedFuture:
+                self._unobservable_timeout = True
+            elif self._physically_unsettled(future):
+                self._timed_out_futures.add(future)
+
+    def has_unsettled_operations(self) -> bool:
+        """Report interrupted or failed operations lacking owner-observed cleanup."""
+        with self._timed_out_lock:
+            self._timed_out_futures = {
+                item for item in self._timed_out_futures if self._physically_unsettled(item)
+            }
+            return self._unobservable_timeout or bool(self._timed_out_futures)
 
     def _release_cancelled_lease(self, lease: CircuitAttemptLease | None) -> None:
         if lease is None:
@@ -423,12 +699,18 @@ def _build_breaker(*, circuit_id: str, env_prefix: str) -> CircuitBreaker:
 
 
 def build_runtime_cas_guard() -> BlockingDependencyGuard:
+    """Build an independently bounded CAS I/O owner with its own timeout."""
+    workers = max(_env_int("POLISYOS_RUNTIME_CAS_EXECUTOR_MAX_WORKERS", 4), 1)
+    queued = max(_env_int("POLISYOS_RUNTIME_CAS_EXECUTOR_MAX_QUEUED", workers), 0)
+    executor = create_dependency_executor(
+        max_workers=workers, max_queued=queued, thread_name_prefix="runtime-cas-io"
+    )
     return BlockingDependencyGuard(
         dependency_name="content_addressed_storage",
         timeout_seconds=_env_float("POLISYOS_RUNTIME_CAS_TIMEOUT_SECONDS", 1.5),
         breaker=_build_breaker(circuit_id="runtime.cas", env_prefix="POLISYOS_RUNTIME_CAS"),
-        executor_max_workers=_env_int("POLISYOS_RUNTIME_CAS_EXECUTOR_MAX_WORKERS", 4),
-        executor=get_shared_executor(),
+        executor=executor,
+        owns_executor=True,
         unavailable_exception_types=(),
         unavailable_exception_predicate=lambda exc: isinstance(exc, OSError)
         and not isinstance(exc, FileNotFoundError | PermissionError),
@@ -536,6 +818,380 @@ def _require_runtime_filesystem_guard(
     ):
         raise ValueError("registered_sql_guard_binding_changed")
     return binding
+
+
+def run_guarded_cas_operation[T](guarded_store: object, operation: Callable[[], T]) -> T:
+    """Run an entire trusted CAS operation only through its appointed exact guard."""
+    _require_runtime_filesystem_guard(guarded_store)
+    return run_guarded_dependency_operation(guarded_store, operation)
+
+
+def run_guarded_cas_member(
+    guarded_store: object,
+    artifact_ref: object,
+    member: str,
+    consume: Callable[[Any], bytes],
+    **options: Any,
+) -> bytes:
+    """Run full selected CAS stream enter, consumption and exit on its guard worker.
+
+    The trusted consumer must not retain the stream or perform unrelated work.
+    This managed interface is not a sandbox for arbitrary in-process Python.
+    """
+    binding = _require_runtime_filesystem_guard(guarded_store)
+
+    def read() -> bytes:
+        with binding.backend.open_member(artifact_ref, member, **options) as stream:
+            result = consume(stream)
+            if type(result) is not bytes:
+                raise ValueError("guarded_cas_member_result_must_be_bytes")
+            return result
+
+    return run_guarded_cas_operation(guarded_store, read)
+
+
+class ChildGuardedReadOwner:
+    """Fixed guarded read service retained by one trusted Core custody session."""
+
+    def __init__(self, session: object, served_proxy: object) -> None:
+        from polisyos.core.artifacts.store import FileSystemCAS
+        from polisyos.core.run.child_custody import ChildComputationCustody
+
+        if type(session) is not ChildComputationCustody:
+            raise TypeError("child_read_session_type_invalid")
+        served = _require_runtime_filesystem_guard(served_proxy)
+        if served.backend is not session._served or type(session._stage) is not FileSystemCAS:
+            raise ValueError("child_read_backend_owner_mismatch")
+        self._session = session
+        self._owner_thread = threading.get_ident()
+        self._served_backend = served.backend
+        self._served_proxy = served_proxy
+        self._stage_backend = session._stage
+        self._stage_proxy = guard_runtime_cas(self._stage_backend)
+
+    def _claim(self, capability: object) -> tuple[object, ArtifactRef]:
+        from polisyos.core.artifacts import ArtifactRef
+        from polisyos.core.run.child_custody import ChildOneRefReadCapability
+
+        if threading.get_ident() != self._owner_thread:
+            raise ValueError("child_read_owner_thread_mismatch")
+        if type(capability) is not ChildOneRefReadCapability:
+            raise TypeError("child_read_capability_type_invalid")
+        backend, ref = ChildOneRefReadCapability._claim_for_runtime(capability, self._session)
+        if type(ref) is not ArtifactRef or not ref.manifest_profile_sha256:
+            raise ValueError("child_read_selected_profile_missing")
+        if backend is self._served_backend:
+            proxy = self._served_proxy
+        elif backend is self._stage_backend:
+            proxy = self._stage_proxy
+        else:
+            raise ValueError("child_read_backend_owner_mismatch")
+        if _require_runtime_filesystem_guard(proxy).backend is not backend:
+            raise ValueError("child_read_guard_binding_changed")
+        return proxy, ref.model_copy(deep=True)
+
+    def _confirm(self, capability: object, proxy: object, ref: ArtifactRef) -> None:
+        current_proxy, current_ref = self._claim(capability)
+        if current_proxy is not proxy or current_ref != ref:
+            raise ValueError("child_read_scope_changed_during_operation")
+
+    def _run_read[T](self, proxy: object, operation: Callable[[], T]) -> T:
+        from polisyos.core.run.child_custody import ChildGuardedReadUnknown
+
+        try:
+            return run_guarded_cas_operation(proxy, operation)
+        except RuntimeDependencyTimeoutError as exc:
+            raise ChildGuardedReadUnknown(self._session._recovery_locator()) from exc
+
+    def has(self, capability: object) -> bool:
+        """Check exact selected availability through the appointed CAS guard."""
+        proxy, ref = self._claim(capability)
+        result = self._run_read(proxy, lambda: proxy.has(ref))
+        self._confirm(capability, proxy, ref)
+        if type(result) is not bool:
+            raise ValueError("child_has_result_must_be_boolean")
+        return result
+
+    def verify(self, capability: object) -> VerificationReport:
+        """Verify the exact selected profile through the appointed CAS guard."""
+        from polisyos.core.artifacts import VerificationReport
+
+        proxy, ref = self._claim(capability)
+        result = self._run_read(proxy, lambda: proxy.verify(ref))
+        self._confirm(capability, proxy, ref)
+        if type(result) is not VerificationReport:
+            raise ValueError("child_verify_result_type_invalid")
+        return result
+
+    def read_blob(self, capability: object) -> bytes:
+        """Run the existing complete selected blob read under the CAS guard."""
+        proxy, ref = self._claim(capability)
+        result = self._run_read(proxy, lambda: proxy.get_bytes(ref))
+        self._confirm(capability, proxy, ref)
+        if type(result) is not bytes:
+            raise ValueError("child_read_blob_result_must_be_bytes")
+        return result
+
+    def read_manifest(
+        self, capability: object, *, max_manifest_bytes: int, allow_profile_absent: bool
+    ) -> CoreJsonManifestBoundedRead:
+        """Read one exact selected bounded manifest on the CAS worker."""
+        from polisyos.core.artifacts.canonical_profile import read_core_manifest_profile_bounded
+
+        proxy, ref = self._claim(capability)
+        result = self._run_read(
+            proxy,
+            lambda: read_core_manifest_profile_bounded(
+                proxy,
+                ref,
+                max_manifest_bytes=max_manifest_bytes,
+                allow_profile_absent=allow_profile_absent,
+            ),
+        )
+        self._confirm(capability, proxy, ref)
+        if result.effective_ref != ref:
+            raise ValueError("child_read_manifest_selection_mismatch")
+        return result
+
+    def read_input_manifest(
+        self, capability: object, input_ref: InputRef, *, max_manifest_bytes: int
+    ) -> CoreJsonManifestBoundedRead:
+        """Read the canonical input edge against the admitted exact profile."""
+        from polisyos.core.artifacts import InputRef
+        from polisyos.core.artifacts.canonical_profile import (
+            read_core_input_manifest_profile_bounded,
+        )
+
+        proxy, ref = self._claim(capability)
+        if (
+            type(input_ref) is not InputRef
+            or input_ref.artifact_id != ref.artifact_id
+            or input_ref.manifest_profile_sha256 != ref.manifest_profile_sha256
+        ):
+            raise ValueError("child_read_input_selection_mismatch")
+        frozen_input = input_ref.model_copy(deep=True)
+        result = self._run_read(
+            proxy,
+            lambda: read_core_input_manifest_profile_bounded(
+                proxy, frozen_input, max_manifest_bytes=max_manifest_bytes
+            ),
+        )
+        self._confirm(capability, proxy, ref)
+        if result.effective_ref != ref:
+            raise ValueError("child_read_input_effective_ref_mismatch")
+        return result
+
+    def read_json(
+        self, capability: object, *, limits: CoreJsonReadLimits
+    ) -> CoreJsonArtifactBoundedRead:
+        """Run the entire canonical bounded reader and preserve its actual usage."""
+        from polisyos.core.artifacts.canonical_profile import read_core_json_artifact_bounded
+
+        proxy, ref = self._claim(capability)
+        result = self._run_read(
+            proxy, lambda: read_core_json_artifact_bounded(proxy, ref, limits=limits)
+        )
+        self._confirm(capability, proxy, ref)
+        return result
+
+    def verify_blob(
+        self, capability: object, *, max_manifest_bytes: int, max_member_bytes: int
+    ) -> ArtifactMemberReceipt:
+        """Consume one bounded selected blob on the worker without exposing its stream."""
+        from polisyos.core.artifacts.canonical_profile import read_core_manifest_profile_bounded
+
+        proxy, ref = self._claim(capability)
+
+        def verify() -> ArtifactMemberReceipt:
+            manifest = read_core_manifest_profile_bounded(
+                proxy, ref, max_manifest_bytes=max_manifest_bytes, allow_profile_absent=True
+            )
+            if manifest.effective_ref != ref:
+                raise ValueError("child_read_manifest_selection_mismatch")
+            digest = hashlib.sha256(manifest.raw_manifest_bytes).hexdigest()
+            with proxy.open_member_bounded(
+                ref,
+                "blob",
+                max_manifest_bytes=max_manifest_bytes,
+                expected_manifest_sha256=digest,
+                max_member_bytes=max_member_bytes,
+            ) as stream:
+                while stream.read(65536):
+                    pass
+            return stream.receipt
+
+        result = self._run_read(proxy, verify)
+        self._confirm(capability, proxy, ref)
+        return result
+
+    def _claim_stage_write(
+        self, capability: object, kind: str
+    ) -> tuple[object, object, object, object, object]:
+        from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+        from polisyos.core.run.child_custody import ChildStageWriteCapability
+
+        if threading.get_ident() != self._owner_thread:
+            raise ValueError("child_write_owner_thread_mismatch")
+        if type(capability) is not ChildStageWriteCapability:
+            raise TypeError("child_write_capability_type_invalid")
+        claim = ChildStageWriteCapability._claim_for_runtime(capability, self._session)
+        stage, operation, payload, options, spec = claim
+        if (
+            stage is not self._stage_backend
+            or operation != kind
+            or type(options) is not ArtifactWriteOptions
+            or (kind == "bytes" and (type(payload) is not bytes or spec is not None))
+        ):
+            raise ValueError("child_write_owner_binding_mismatch")
+        if _require_runtime_filesystem_guard(self._stage_proxy).backend is not stage:
+            raise ValueError("child_write_guard_binding_changed")
+        return claim
+
+    def write_bytes(self, capability: object) -> ArtifactRef:
+        """Write one Core-owned immutable payload to the selected private stage."""
+        from polisyos.core.artifacts import ArtifactRef
+
+        claim = self._claim_stage_write(capability, "bytes")
+        _, _, payload, options, _ = claim
+        proxy = self._stage_proxy
+        result = run_guarded_cas_operation(
+            proxy, lambda: proxy.put_bytes(payload, options, return_selected_profile=True)
+        )
+        if self._claim_stage_write(capability, "bytes") != claim:
+            raise ValueError("child_write_scope_changed_during_operation")
+        if type(result) is not ArtifactRef or not result.manifest_profile_sha256:
+            raise ValueError("child_write_selected_profile_missing")
+        return result
+
+    def write_json(self, capability: object) -> ArtifactRef:
+        """Write a Core-detached canonical payload to the selected private stage."""
+        from polisyos.core.artifacts import ArtifactRef
+
+        claim = self._claim_stage_write(capability, "json")
+        _, _, payload, options, spec = claim
+        proxy = self._stage_proxy
+        result = run_guarded_cas_operation(
+            proxy, lambda: proxy.put_json(payload, options, spec, return_selected_profile=True)
+        )
+        if self._claim_stage_write(capability, "json") != claim:
+            raise ValueError("child_write_scope_changed_during_operation")
+        if type(result) is not ArtifactRef or not result.manifest_profile_sha256:
+            raise ValueError("child_write_selected_profile_missing")
+        return result
+
+    def transfer_selected(self, capability: object) -> ImportPublication:
+        """Transfer one Core-authorized exact profile set without committing a head."""
+        from polisyos.core.artifacts import ArtifactRef
+        from polisyos.core.artifacts.child_release import _CHILD_STAGING_TOKEN
+        from polisyos.core.artifacts.store import FileSystemCAS
+        from polisyos.core.run.child_custody import ChildSelectedTransferCapability
+
+        if threading.get_ident() != self._owner_thread:
+            raise ValueError("child_transfer_owner_thread_mismatch")
+        if type(capability) is not ChildSelectedTransferCapability:
+            raise TypeError("child_transfer_capability_type_invalid")
+        source, destination, refs, ledger = ChildSelectedTransferCapability._claim_for_runtime(
+            capability, self._session
+        )
+        if (
+            source is not self._stage_backend
+            or destination is not self._served_backend
+            or ledger is not self._session._ledger
+            or type(refs) is not tuple
+            or not refs
+            or any(type(ref) is not ArtifactRef or not ref.manifest_profile_sha256 for ref in refs)
+        ):
+            raise ValueError("child_transfer_owner_binding_mismatch")
+        frozen_refs = tuple(ref.model_copy(deep=True) for ref in refs)
+        proxy = self._served_proxy
+        result = run_guarded_cas_operation(
+            proxy,
+            lambda: FileSystemCAS._publish_child_release_profiles(
+                destination, source, frozen_refs, ledger, token=_CHILD_STAGING_TOKEN
+            ),
+        )
+        source_after, destination_after, refs_after, ledger_after = (
+            ChildSelectedTransferCapability._claim_for_runtime(capability, self._session)
+        )
+        if (
+            source_after is not source
+            or destination_after is not destination
+            or ledger_after is not ledger
+            or refs_after != frozen_refs
+        ):
+            raise ValueError("child_transfer_scope_changed_during_operation")
+        return result
+
+    def has_unsettled_operations(self) -> bool:
+        """Report timed-out served or stage operations that have not finished."""
+        served = _require_runtime_filesystem_guard(self._served_proxy)
+        return (
+            served.guard.has_unsettled_operations()
+            or self._stage_proxy._guard.has_unsettled_operations()
+        )
+
+    def has_unsettled_stage_reads(self) -> bool:
+        """Report staged calls that outlived their caller's timeout."""
+        return self._stage_proxy._guard.has_unsettled_operations()
+
+    def close(self) -> None:
+        """Stop stage admission without asserting entered I/O has quiesced."""
+        self._stage_proxy.close()
+
+
+def _bootstrap_child_guarded_read_owner(
+    session: object, served_proxy: object
+) -> ChildGuardedReadOwner:
+    """Appoint the fixed reader once from the trusted runtime bootstrap."""
+    from polisyos.core.run.child_custody import (
+        _CHILD_GUARDED_READER_BOOTSTRAP_TOKEN,
+        ChildComputationCustody,
+    )
+
+    service = ChildGuardedReadOwner(session, served_proxy)
+    try:
+        ChildComputationCustody._appoint_guarded_reader(
+            session, service, token=_CHILD_GUARDED_READER_BOOTSTRAP_TOKEN
+        )
+    except BaseException:
+        service.close()
+        raise
+    return service
+
+
+def _bootstrap_guarded_child_custody(
+    root_run: object,
+    *,
+    staging_root: Path,
+    closure_resolver: object,
+    publication_fence: object,
+    served_roots: Sequence[Path] = (),
+) -> tuple[ChildComputationCustody, ChildGuardedReadOwner]:
+    """Build one Core custody and reader from the actual runtime-attested Root."""
+    from polisyos.core.run.child_custody import (
+        _CHILD_GUARDED_ROOT_BOOTSTRAP_TOKEN,
+        ChildComputationCustody,
+        _bind_guarded_root,
+    )
+    from polisyos.core.run.context import RunContext
+
+    if type(root_run) is not RunContext:
+        raise TypeError("child_guarded_root_type_invalid")
+    served_proxy = root_run.store
+    binding = _require_runtime_filesystem_guard(served_proxy)
+    root_binding = _bind_guarded_root(
+        root_run, binding.backend, token=_CHILD_GUARDED_ROOT_BOOTSTRAP_TOKEN
+    )
+    session = ChildComputationCustody(
+        root_run,
+        staging_root=staging_root,
+        closure_resolver=closure_resolver,
+        publication_fence=publication_fence,
+        served_roots=served_roots,
+        _guarded_root_binding=root_binding,
+    )
+    reader = _bootstrap_child_guarded_read_owner(session, served_proxy)
+    return session, reader
 
 
 def _require_runtime_ambient_ownership(guarded_store: object) -> None:
@@ -761,5 +1417,7 @@ __all__ = [
     "build_runtime_opa_async_guard",
     "guard_runtime_cas",
     "guard_runtime_control_store",
+    "run_guarded_cas_member",
+    "run_guarded_cas_operation",
     "run_guarded_dependency_operation",
 ]

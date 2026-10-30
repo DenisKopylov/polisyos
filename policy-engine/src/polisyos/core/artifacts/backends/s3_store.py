@@ -190,6 +190,7 @@ class S3ArtifactStore:
             self._cache_read(aid, ".blob") is not None
             and self._cache_read(aid, manifest_suffix) is not None
         ):
+            self.get_raw_manifest_bytes(artifact_id)
             if ref is not None:
                 self.get_manifest(ref)
             return True
@@ -199,6 +200,7 @@ class S3ArtifactStore:
                 Bucket=self._bucket,
                 Key=self._manifest_key(aid, profile_sha256),
             )
+            self.get_raw_manifest_bytes(artifact_id)
             if ref is not None:
                 self.get_manifest(ref)
             return True
@@ -210,13 +212,13 @@ class S3ArtifactStore:
     def get_bytes(self, artifact_id: ArtifactID | ArtifactRef | str) -> bytes:
         aid, _profile_sha256, ref = artifact_reference_parts(artifact_id)
         selected = ref or aid
+        manifest = self.get_manifest(selected)
         cached = self._cache_read(aid, ".blob")
         if cached is None:
             data = self._get_object_bytes(self._blob_key(aid))
             self._cache_write(aid, ".blob", data)
         else:
             data = cached
-        manifest = self.get_manifest(selected)
         try:
             validate_read_integrity(aid, data, manifest)
         except ArtifactIntegrityError as exc:
@@ -239,6 +241,9 @@ class S3ArtifactStore:
         cache_suffix = self._manifest_cache_suffix(profile_sha256)
         cached = self._cache_read(aid, cache_suffix)
         if cached is not None:
+            from ..child_release import refuse_remote_child_manifest
+
+            refuse_remote_child_manifest(bytes(cached))
             manifest = ArtifactManifest.model_validate_json(cached.decode("utf-8"))
             try:
                 validate_manifest_identity(aid, manifest)
@@ -249,6 +254,9 @@ class S3ArtifactStore:
             return bytes(cached), manifest
         raw = self._get_object_bytes(self._manifest_key(aid, profile_sha256))
         self._cache_write(aid, cache_suffix, raw)
+        from ..child_release import refuse_remote_child_manifest
+
+        refuse_remote_child_manifest(raw)
         manifest = ArtifactManifest.model_validate_json(raw.decode("utf-8"))
         try:
             validate_manifest_identity(aid, manifest)
@@ -274,10 +282,14 @@ class S3ArtifactStore:
             selected_profile = manifest_profile_sha256
         cache_suffix = self._manifest_cache_suffix(selected_profile)
         cached = self._cache_read(aid, cache_suffix)
+        from ..child_release import refuse_remote_child_manifest
+
         if cached is not None:
+            refuse_remote_child_manifest(bytes(cached))
             return bytes(cached)
         raw = self._get_object_bytes(self._manifest_key(aid, selected_profile))
         self._cache_write(aid, cache_suffix, raw)
+        refuse_remote_child_manifest(raw)
         return bytes(raw)
 
     def get_manifest_bytes(self, artifact_id: ArtifactID | ArtifactRef | str) -> bytes:
@@ -343,6 +355,8 @@ class S3ArtifactStore:
         *,
         return_selected_profile: bool = False,
     ) -> ArtifactRef:
+        if getattr(opts, "child_release", None) is not None:
+            raise ArtifactIntegrityError("child_release_backend_unsupported")
         _validate_return_selected_profile(return_selected_profile)
         sha = content_hash(data)
         aid = ArtifactID.from_sha256_hex(sha)
@@ -409,6 +423,8 @@ class S3ArtifactStore:
         *,
         return_selected_profile: bool = False,
     ) -> ArtifactRef:
+        if getattr(opts, "child_release", None) is not None:
+            raise ArtifactIntegrityError("child_release_backend_unsupported")
         _validate_return_selected_profile(return_selected_profile)
         canon_spec = _admit_canon_spec(
             canon_spec, CanonSpec, violation_type=CanonViolation, artifact_writer=True
@@ -493,7 +509,14 @@ class S3ArtifactStore:
                     name = key.rsplit("/", 1)[-1]
                     hex64 = name.removesuffix(".manifest.json")
                     if len(hex64) == 64:
-                        ids.append(ArtifactID.from_sha256_hex(hex64))
+                        artifact_id = ArtifactID.from_sha256_hex(hex64)
+                        from ..child_release import ChildReleaseUnavailableError
+
+                        try:
+                            self.get_raw_manifest_bytes(artifact_id)
+                        except ChildReleaseUnavailableError:
+                            continue
+                        ids.append(artifact_id)
         return ids
 
 

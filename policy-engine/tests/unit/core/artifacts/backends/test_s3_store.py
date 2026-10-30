@@ -259,8 +259,18 @@ def test_s3_ambiguous_404_is_absent_only_after_bucket_verification() -> None:
     store = S3ArtifactStore(bucket="test-bucket")
     client = _FakeS3Client()
     store._client = client
-    missing_id = "sha256:" + "ab" * 32
-    key = store._blob_key(ArtifactID.model_validate(missing_id))
+    payload = b"missing payload"
+    digest = content_hash(payload)
+    aid = ArtifactID.from_sha256_hex(digest)
+    manifest = ManifestLifecycle.build(
+        artifact_id=aid,
+        data=payload,
+        sha=digest,
+        opts=PutOptions(kind="test.bytes", media_type="application/octet-stream"),
+    )
+    client.objects[store._manifest_key(aid)] = ManifestLifecycle.to_bytes(manifest)
+    missing_id = str(aid)
+    key = store._blob_key(aid)
     client.get_errors[key] = _FakeClientError("404", status_code=404)
 
     with pytest.raises(FileNotFoundError):
@@ -268,6 +278,22 @@ def test_s3_ambiguous_404_is_absent_only_after_bucket_verification() -> None:
     assert client.head_bucket_calls == 1
     assert store.has(missing_id) is False
     assert client.head_bucket_calls == 2
+
+
+def test_s3_ambiguous_manifest_404_preserves_bucket_permission_failure() -> None:
+    store = S3ArtifactStore(bucket="test-bucket")
+    client = _FakeS3Client()
+    store._client = client
+    aid = ArtifactID.from_sha256_hex("ab" * 32)
+    manifest_key = store._manifest_key(aid)
+    client.get_errors[manifest_key] = _FakeClientError("404", status_code=404)
+    denied = _FakeClientError("AccessDenied", status_code=403)
+    client.head_bucket_error = denied
+
+    with pytest.raises(_FakeClientError) as raised:
+        store.get_bytes(aid)
+    assert raised.value is denied
+    assert client.get_calls == [manifest_key]
 
 
 def test_s3_missing_bucket_404_is_not_reclassified_by_read_or_has(tmp_path) -> None:

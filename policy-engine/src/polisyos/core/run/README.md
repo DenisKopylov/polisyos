@@ -55,3 +55,29 @@ resolve the referenced CAS object. Existing terminal history without this input
 remains readable, but cannot establish workflow-finalization currentness. This
 is an in-process node API boundary, not an operating-system or Python sandbox.
 
+
+## Private child computation
+
+A trusted engine bootstrap may create one parent custody session and separate
+child scopes under an existing root run. Candidate handoffs stay private until a
+configured typed resolver identifies the final parent projection and selected
+closure and the local release head commits. Job-bound sessions require a durable reserved job-owner intent before computation
+and an exact release authorization before publication. Fresh readers refuse
+without the appointed job owner. Post-commit settlement
+errors retain the release receipt. This is a trusted built-in local profile, not
+Python or OS isolation, and it does not confer scientific or policy authority.
+
+The first job-bound owner profile bounds each normalized owner snapshot to 256 KiB
+and each individual collection to 4096 items. Oversized enrollment, staged
+writes or parent effects refuse and revoke the private session; they do not
+claim rollback of already-created private bytes. The bound is an availability
+restriction, not a measured latency guarantee or a scientific policy limit.
+
+Jobless child computation is unsupported and refuses before child work: its
+owning durable authorization decision is not established.
+
+The trusted executor prepares a private child outside the job/resource decision,
+then admits its one-use handle under the actual short job and grant owners. Only
+a confirmed owner decision may complete the handle and hand the scope to a node.
+A failed decision revokes and suspends its private run outside those locks. The
+local handle does not establish DB currentness or ongoing resource availability.

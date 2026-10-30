@@ -459,3 +459,20 @@ consumer gate. This authorizes only technical inspection; it does not confer
 closeout, publication, claim, or raw-download authority. Requests without the
 selector retain the existing authority path. Responses using the selector require
 cache revalidation so a previously admitted scope is not treated as current.
+
+## Child-composition attempt budget
+
+An optional deployment-appointed versioned policy supplies a finite parent-attempt
+budget. The embedded worker captures one monotonic deadline inside the actual job
+lease before invoking its handler. No policy leaves ordinary jobs unchanged and
+leaves this composition budget unavailable. The budget is not derived from a
+renewable lease, supplied by a request, or a monetary authorization. It is local to
+the process and cannot be reconstructed or renewed after restart. Issuing this
+budget alone does not wire child computation or authorize artifact release.
+
+The SQLite child release owner records a source-run relation with an explicit
+reissue in the replacement job's transaction. A source session and reissue are
+ordered by that same owner transaction, with the selected source tenant/cell
+bound when present. Missing source scope conservatively matches all scopes.
+An existing relation or session remains held until a separately verified
+reconciliation/unblock is provided; this is an availability limitation.

@@ -8,10 +8,10 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
-from polisyos.core.run.manifest import RunManifest
 from polisyos.core.trace.record import TraceRecord
-from polisyos.core.trace.sink import JsonlTraceSink
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
 from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome
@@ -23,13 +23,19 @@ from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation
 _FAKE_SHA = "sha256:" + "ab" * 32
 
 
+def _fake_json_write(_value, options, *args, **kwargs):
+    """Keep the requested artifact identity on the test store's returned ref."""
+    return ArtifactRef(
+        artifact_id=_FAKE_SHA,
+        kind=options.kind,
+        media_type=options.media_type,
+        manifest_profile_sha256=_FAKE_SHA if kwargs.get("return_selected_profile") else None,
+    )
+
+
 def _make_ctx(*, metrics=None):
     store = MagicMock()
-    store.put_json.return_value = ArtifactRef(
-        artifact_id=_FAKE_SHA,
-        kind="test",
-        media_type="application/json",
-    )
+    store.put_json.side_effect = _fake_json_write
     run = MagicMock()
     run.trace_path = None
     run.finalize.return_value = ArtifactRef(
@@ -46,32 +52,17 @@ def _make_ctx(*, metrics=None):
 
 
 def _make_durable_ctx(tmp_path):
-    """Build a real run context for reading back retry trace records."""
-    store = MagicMock()
-    store.put_json.return_value = ArtifactRef(
-        artifact_id=_FAKE_SHA,
-        kind="test",
-        media_type="application/json",
-    )
-    store.put_bytes.return_value = ArtifactRef(
-        artifact_id=_FAKE_SHA,
-        kind="trace",
-        media_type="application/jsonl",
-    )
-    trace_path = tmp_path / "trace.jsonl"
-    run = RunContext(
+    """Start a real CAS-backed run so its trace has an actual owner identity."""
+    store = FileSystemCAS(tmp_path / "cas")
+    registry = build_default_registry_bundle(store, return_selected_profile=True)
+    run = RunContext.start(
         store=store,
-        trace=JsonlTraceSink(trace_path),
-        run_manifest=RunManifest(
-            run_id="retry-test-terminal",
-            registry_bundle=ArtifactRef(
-                artifact_id=_FAKE_SHA,
-                kind="registry",
-                media_type="application/json",
-            ),
-        ),
-        _trace_path=trace_path,
+        registry_bundle=registry.bundle_ref,
+        run_id="retry-test-terminal",
+        run_dir=tmp_path / "run",
     )
+    trace_path = run.trace_path
+    assert trace_path is not None
     return ExecutionContext(store=store, run=run, logger=MagicMock()), trace_path
 
 

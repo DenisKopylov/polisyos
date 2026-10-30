@@ -10,6 +10,7 @@ import secrets
 import stat
 import threading
 from contextlib import contextmanager
+from copy import deepcopy
 from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from pathlib import Path
@@ -76,6 +77,15 @@ _RUN_OWNER_SCOPE_CANON = CanonSpec(
 )
 _ACTIVE_RUN_THREAD_LOCKS: dict[Path, threading.Lock] = {}
 _ACTIVE_RUN_THREAD_LOCKS_GUARD = threading.Lock()
+
+
+class ChildRunStartUnknown(RuntimeError):  # noqa: N818 - stable unknown outcome
+    """Private child start was attempted and may have persisted partial owner state."""
+
+    def __init__(self, *, run_id: str, run_dir: Path) -> None:
+        self.run_id = run_id
+        self.run_dir = run_dir
+        super().__init__("child_run_start_outcome_unknown")
 
 
 class _FinalizeRecoveryError(ValueError):
@@ -326,7 +336,9 @@ class _AuditTraceSink(Protocol):
     def close(self) -> None: ...
 
 
-def _run_manifest_write_options(run_manifest: RunManifest) -> ArtifactWriteOptions:
+def _run_manifest_write_options(
+    run_manifest: RunManifest, *, selected_registry: bool = False
+) -> ArtifactWriteOptions:
     tenant_context = _run_manifest_tenant_context(run_manifest)
     return ArtifactWriteOptions(
         kind="core.run_manifest",
@@ -338,6 +350,11 @@ def _run_manifest_write_options(run_manifest: RunManifest) -> ArtifactWriteOptio
             InputRef(
                 artifact_id=run_manifest.registry_bundle.artifact_id,
                 role="registry_bundle",
+                manifest_profile_sha256=(
+                    run_manifest.registry_bundle.manifest_profile_sha256
+                    if selected_registry
+                    else None
+                ),
             )
         ],
         tenant_context=tenant_context,
@@ -416,6 +433,22 @@ def _owner_profile_options_for_persisted_manifest(
     canonical manifest sidecar is available and binds the selected profile.
     Current profiles must carry the tenant context derived from the payload.
     """
+    if manifest.child_release is not None:
+        # The selected child marker is accepted only through the actual storage
+        # owner. A manifest's own declaration cannot appoint a private scope.
+        from ..artifacts.store import FileSystemCAS
+        from .child_custody import _ManagedStore
+
+        if type(store) is _ManagedStore:
+            store._require_owned_release_profile(ref, manifest)
+            options = store._options(options)
+        elif type(store) is FileSystemCAS:
+            if store.get_manifest(ref) != manifest:
+                raise _FinalizeRecoveryError("run_owner_child_release_profile_mismatch")
+            store._require_child_manifest_release(manifest)
+            options = replace(options, child_release=manifest.child_release)
+        else:
+            raise _FinalizeRecoveryError("run_owner_child_release_owner_not_established")
     expected_context = options.tenant_context
     if manifest.tenant_context == expected_context:
         return options
@@ -1169,6 +1202,9 @@ def _validate_terminal_run_manifest_ref(
         if not verification.ok:
             raise _FinalizeRecoveryError("run_finalize_manifest_cas_verification_failed")
         artifact_manifest = store.get_manifest(run_ref)
+        if artifact_manifest.child_release is not None:
+            options = _run_manifest_write_options(run_manifest, selected_registry=True)
+            profile_options = replace(options, canon=CanonInfo.from_spec(CanonSpec()))
         expected_bytes = to_canonical_bytes(run_manifest, CanonSpec())
         manifest_bytes = store.get_bytes(run_ref)
     except _FinalizeRecoveryError:
@@ -1621,6 +1657,14 @@ class RunContext:
         tenant_id: str | None = None,
         cell_id: str | None = None,
         access_scope: AccessScope | None = None,
+        parent_run_id: str | None = None,
+        seed: int | None = None,
+        execution_profile: str | None = None,
+        control_job_id: str | None = None,
+        capability_manifest_ref: ArtifactRef | None = None,
+        environment_manifest_ref: ArtifactRef | None = None,
+        sbom_ref: ArtifactRef | None = None,
+        tee_attestation_ref: ArtifactRef | None = None,
     ) -> RunContext:
         """Start a new run, persisting its selected-profile owner before RUN_STARTED."""
         _require_return_selected_profile_writer(store, "put_json")
@@ -1652,6 +1696,14 @@ class RunContext:
                     env=env,
                     tenant_id=tenant_id,
                     cell_id=cell_id,
+                    parent_run_id=parent_run_id,
+                    seed=seed,
+                    execution_profile=execution_profile,
+                    control_job_id=control_job_id,
+                    capability_manifest_ref=capability_manifest_ref,
+                    environment_manifest_ref=environment_manifest_ref,
+                    sbom_ref=sbom_ref,
+                    tee_attestation_ref=tee_attestation_ref,
                 ),
                 _trace_path=trace_path,
                 _audit_sink=audit_sink,
@@ -1681,6 +1733,81 @@ class RunContext:
         finally:
             if active_lease is not None:
                 active_lease.release()
+
+    @classmethod
+    def start_child(
+        cls,
+        parent: RunContext,
+        *,
+        store: ArtifactStore,
+        parent_basis_ref: ArtifactRef,
+        run_id: str,
+        run_dir: Path,
+    ) -> RunContext:
+        """Start a distinct private run from an actual active parent attempt.
+
+        The child uses the normal lease, trace and selected owner-snapshot writer.
+        It has a fresh invocation tail and preserves the root's declared provenance;
+        no new resource, budget or publication authority is created by this method.
+        The custody owner persists the complete attempt binding as a typed child
+        input before exposing the child to its first producer.
+        """
+        if type(parent) is not RunContext or cls is not RunContext:
+            raise _FinalizeRecoveryError("child_run_requires_actual_parent_owner")
+        if (
+            type(parent_basis_ref) is not ArtifactRef
+            or parent_basis_ref.manifest_profile_sha256 is None
+        ):
+            raise _FinalizeRecoveryError("child_run_parent_basis_profile_required")
+        # Resolve actual persisted owner/attempt before the short transition;
+        # child CAS work must not run under the parent lifecycle lock.
+        parent._require_active_lease_owner()
+        tail = deepcopy(parent._runtime_invocation_tail_ref)
+        parent._validate_run_owner_binding()
+        attempts = parent.read_runtime_invocation_attempts()
+        matching = [item for item in attempts if item.basis_ref == parent_basis_ref]
+        if len(matching) != 1 or matching[0].outcome is not None:
+            raise _FinalizeRecoveryError("child_run_parent_attempt_not_active")
+        if not run_id or run_id == parent.run_manifest.run_id:
+            raise _FinalizeRecoveryError("child_run_identity_not_distinct")
+        with parent._parent_state_transition_lease(run_scoped=False):
+            parent._require_active_lease_owner()
+            if (
+                parent._closed
+                or parent._suspended
+                or parent._active_lease is None
+                or parent._runtime_invocation_tail_ref != tail
+            ):
+                raise _FinalizeRecoveryError("child_run_parent_not_active")
+            manifest = parent.run_manifest.model_copy(deep=True)
+            tenant_id, cell_id = parent.tenant_id, parent.cell_id
+            access_scope = deepcopy(parent.access_scope)
+        # The custody owner rechecks the selected parent attempt after this
+        # private preparation and before any child producer can start.
+        try:
+            return cls.start(
+                store,
+                manifest.registry_bundle,
+                producer=manifest.producer,
+                env=manifest.env,
+                run_dir=run_dir,
+                run_id=run_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                access_scope=access_scope,
+                parent_run_id=manifest.run_id,
+                seed=manifest.seed,
+                execution_profile=manifest.execution_profile,
+                control_job_id=manifest.control_job_id,
+                capability_manifest_ref=manifest.capability_manifest_ref,
+                environment_manifest_ref=manifest.environment_manifest_ref,
+                sbom_ref=manifest.sbom_ref,
+                tee_attestation_ref=manifest.tee_attestation_ref,
+            )
+        except BaseException as exc:
+            # Start owns its lease cleanup, but partial private trace/audit/CAS
+            # effects may already exist. This locator is not a quiescence receipt.
+            raise ChildRunStartUnknown(run_id=run_id, run_dir=run_dir) from exc
 
     @classmethod
     def resume(

@@ -157,6 +157,7 @@ from polisyos.runtime.http.services.control.bounded_wait import (
     wrap_shared_execution_exception,
 )
 from polisyos.runtime.http.services.control.capabilities import CapabilityManifestMixin
+from polisyos.runtime.http.services.control.child_execution_budget import ChildExecutionBudgetPolicy
 from polisyos.runtime.http.services.control.evaluation_safety import (
     EvaluationSafetyAdmissionVerifier,
     EvaluationSafetyAuthoritiesSource,
@@ -3996,11 +3997,18 @@ class ControlPlaneService(
         | None = None,
         generic_cycle_simulation_root_profile_id: str | None = None,
         enable_contract_testing_credal_source_attempts: bool = False,
+        child_execution_budget_policy: ChildExecutionBudgetPolicy | None = None,
     ) -> None:
         from polisyos.fabric.retrieval import RetrievalService
 
         self._cas_root = cas_root
         self._core_runs_root = core_runs_root
+        if (
+            child_execution_budget_policy is not None
+            and type(child_execution_budget_policy) is not ChildExecutionBudgetPolicy
+        ):
+            raise TypeError("child_execution_budget_policy_invalid")
+        self._child_execution_budget_policy = child_execution_budget_policy
         if (
             llm_producer_settlement_store is not None
             and type(llm_producer_settlement_store) is not BudgetMiddleware
@@ -4386,6 +4394,7 @@ class ControlPlaneService(
                 store=self._control_store,
                 handler=self._process_control_job,
                 maintenance_callback=self._run_control_worker_maintenance,
+                child_execution_budget_policy=self._child_execution_budget_policy,
             )
             self._worker.start()
 

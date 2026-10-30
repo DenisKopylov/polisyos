@@ -79,6 +79,9 @@ if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Callable
 
     from polisyos.core.contracts import CatalogRunProfile
+    from polisyos.runtime.http.services.control.child_execution_budget import (
+        ChildExecutionBudgetPolicy,
+    )
     from polisyos.runtime.http.step_up import StepUpAssertionVerifier, StepUpReplayStore
     from polisyos.runtime.quality.generic_simulation_admission import (
         GenericCycleSimulationProfileV1,
@@ -133,6 +136,7 @@ def create_runtime_api_app(
     generic_cycle_simulation_profiles: tuple[GenericCycleSimulationProfileV1, ...] = (),
     generic_cycle_simulation_root_profile_id: str | None = None,
     enable_contract_testing_credal_source_attempts: bool = False,
+    child_execution_budget_policy: ChildExecutionBudgetPolicy | None = None,
     process_worker_capacity: int | None = None,
     process_worker_profile_revision: str | None = None,
     catalog_run_profile: CatalogRunProfile | None = None,
@@ -285,6 +289,7 @@ def create_runtime_api_app(
             enable_contract_testing_credal_source_attempts=(
                 enable_contract_testing_credal_source_attempts
             ),
+            child_execution_budget_policy=child_execution_budget_policy,
             process_worker_capacity=process_worker_capacity,
             process_worker_profile_revision=process_worker_profile_revision,
             catalog_run_profile=catalog_run_profile,

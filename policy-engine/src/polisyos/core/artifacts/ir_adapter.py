@@ -29,6 +29,7 @@ from .backends.config import ArtifactStoreConfig, build_artifact_store
 from .ids import ArtifactID
 from .manifest import (
     ArtifactAuthorityInfo,
+    ArtifactChildReleaseInfo,
     ArtifactGovernanceInfo,
     ArtifactManifest,
     ArtifactSameInputClosureInfo,
@@ -240,6 +241,7 @@ _WRITE_OPTION_NORMALIZERS: dict[str, Any] = {
         value, ArtifactSameInputClosureInfo, name
     ),
     "authority": lambda value, name: _coerce_model(value, ArtifactAuthorityInfo, name),
+    "child_release": lambda value, name: _coerce_model(value, ArtifactChildReleaseInfo, name),
     "warnings": lambda value, name: _coerce_model_list(value, WarningRecord, name),
 }
 
@@ -561,6 +563,7 @@ def _snapshot_owned_write_options_for_ir(value: object) -> ArtifactWriteOptions:
         ArtifactTenantContextInfo: {},
         ArtifactSameInputClosureInfo: {},
         ArtifactAuthorityInfo: {},
+        ArtifactChildReleaseInfo: {},
         WarningRecord: {},
     }
     list_fields: dict[
@@ -578,6 +581,7 @@ def _snapshot_owned_write_options_for_ir(value: object) -> ArtifactWriteOptions:
         "tenant_context": ArtifactTenantContextInfo,
         "same_input_closure": ArtifactSameInputClosureInfo,
         "authority": ArtifactAuthorityInfo,
+        "child_release": ArtifactChildReleaseInfo,
     }
     active_ids: set[int] = set()
 
@@ -988,12 +992,25 @@ def _emit_selected_core_write(
     import hashlib
     from copy import deepcopy
 
+    from polisyos.common.borrowed_execution import _OwnedEffectOutcomeUnknownError
+
+    from ..run.child_custody import _ManagedStore
     from ._manifest_lifecycle import ManifestLifecycle
 
     if type(options) is not ArtifactWriteOptions:
         raise TypeError("Invalid Core owned write options")
     expected_options = deepcopy(options)
-    ref = store.put_bytes(data, options, return_selected_profile=True)
+    write_options = options
+    managed = type(store) is _ManagedStore
+    if managed:
+        # Only the exact Core custody owner can add a private marker and
+        # normalize its selected inputs. A lookalike store cannot appoint it.
+        write_options = replace(options, child_release=None)
+        owner_options = store._options(write_options)
+        if options.child_release is not None and options != owner_options:
+            raise ValueError("artifact_write_managed_owner_options_mismatch")
+        expected_options = owner_options
+    ref = store.put_bytes(data, write_options, return_selected_profile=True)
     if type(ref) is not CoreArtifactRef:
         raise ValueError("artifact_write_selected_ref_invalid")
     if ref.manifest_profile_sha256 is None:
@@ -1007,6 +1024,8 @@ def _emit_selected_core_write(
         raise ValueError("artifact_write_selected_ref_mismatch")
     try:
         manifest = store.get_manifest(ref)
+    except _OwnedEffectOutcomeUnknownError:
+        raise
     except Exception as exc:
         raise ValueError("artifact_write_selected_manifest_unavailable") from exc
     if type(manifest) is not ArtifactManifest:
@@ -1016,6 +1035,8 @@ def _emit_selected_core_write(
         or ManifestLifecycle.profile_sha256(manifest) != ref.manifest_profile_sha256
     ):
         raise ValueError("artifact_write_selected_profile_mismatch")
+    if managed:
+        store._require_owned_release_profile(ref, manifest)
     for option_field in fields(ArtifactWriteOptions):
         name = option_field.name
         manifest_name = "artifact_schema" if name == "schema" else name
@@ -1130,6 +1151,10 @@ class CoreToIRArtifactStoreAdapter(_CoreToIRArtifactReadMethods):
         concrete metadata validation and field ownership stay on the Core side.
         """
         normalized = _snapshot_owned_write_options_for_ir(options)
+        from ..run.child_custody import _ManagedStore
+
+        if type(self.store) is _ManagedStore:
+            normalized = self.store._options(normalized)
         return _preflight_owned_write_options_for_ir(normalized)
 
     def put_json(

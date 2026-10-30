@@ -5,9 +5,10 @@ from __future__ import annotations
 import threading
 import uuid
 from collections.abc import Callable
-from contextlib import suppress
+from contextlib import contextmanager, suppress
 from datetime import UTC, datetime
 from time import monotonic
+from typing import TYPE_CHECKING
 
 from polisyos.common.job_execution_interrupt import (
     JobExecutionInterrupt,
@@ -15,6 +16,8 @@ from polisyos.common.job_execution_interrupt import (
     job_execution_interrupt_scope,
 )
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.run.child_custody import ChildComputationOutcomeUnknown
 from polisyos.core.security import clear_tenant_context
 from polisyos.runtime.http.errors import (
     RuntimeDependencyTimeoutError,
@@ -27,12 +30,23 @@ from polisyos.runtime.quality.diagnostic_events import (
     DiagnosticEvent,
 )
 
+from .control.child_execution_budget import ChildExecutionBudgetPolicy, _attempt_budget_scope
 from .control_plane_store import ControlJobRecord, ControlPlaneStore
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 logger = get_logger(__name__)
 
 JobHandler = Callable[[ControlJobRecord], None]
 MaintenanceCallback = Callable[[], None]
+
+
+def _exception_leaves(error: BaseException) -> tuple[BaseException, ...]:
+    """Keep all sibling errors visible when an async child reports uncertainty."""
+    if isinstance(error, BaseExceptionGroup):
+        return tuple(leaf for item in error.exceptions for leaf in _exception_leaves(item))
+    return (error,)
 
 
 def _job_progress_details(job: ControlJobRecord) -> dict[str, object]:
@@ -98,7 +112,14 @@ class ControlWorker:
         maintenance_callback: MaintenanceCallback | None = None,
         maintenance_interval_s: float = 60.0,
         monotonic_clock: Callable[[], float] = monotonic,
+        child_execution_budget_policy: ChildExecutionBudgetPolicy | None = None,
     ) -> None:
+        if (
+            child_execution_budget_policy is not None
+            and type(child_execution_budget_policy) is not ChildExecutionBudgetPolicy
+        ):
+            raise TypeError("child_execution_budget_policy_invalid")
+        self._child_execution_budget_policy = child_execution_budget_policy
         self._store = store
         self._handler = handler
         self._poll_interval_s = max(poll_interval_s, 0.05)
@@ -112,6 +133,49 @@ class ControlWorker:
         self._thread: threading.Thread | None = None
         self._stop = threading.Event()
         self._wake = threading.Event()
+
+    @contextmanager
+    def _owned_child_budget_scope(
+        self,
+        job: ControlJobRecord,
+        interrupt: JobExecutionInterrupt,
+        revoked: threading.Event,
+        uncertain: threading.Event,
+        transition_lock: threading.RLock,
+    ) -> Iterator[None]:
+        """Issue at most one process-local budget for an actual job attempt."""
+        policy = self._child_execution_budget_policy
+        if policy is None:
+            with _attempt_budget_scope(None, job, interrupt, revoked, uncertain):
+                yield
+            return
+        live = self._store.current_execution_job_admission().job
+        if (live.job_id, live.attempt, live.lease_owner) != (
+            job.job_id,
+            job.attempt,
+            self._worker_id,
+        ):
+            raise ValueError("child_execution_budget_live_job_mismatch")
+        if live.kind != "workflow_run" or not live.run_id:
+            with _attempt_budget_scope(None, live, interrupt, revoked, uncertain):
+                yield
+            return
+        # Persist a one-shot attempt claim before exposing any budget token.
+        # A process restart must never reconstruct or renew this monotonic cutoff.
+        issued = monotonic()
+        claim = self._store.claim_child_attempt_budget(policy)
+        with _attempt_budget_scope(
+            policy,
+            live,
+            interrupt,
+            revoked,
+            uncertain,
+            claim=claim,
+            control_store=self._store,
+            issued_monotonic=issued,
+            transition_lock=transition_lock,
+        ):
+            yield
 
     @property
     def worker_id(self) -> str:
@@ -184,8 +248,20 @@ class ControlWorker:
                 ran = self.dispatch_once()
             except (RuntimeDependencyTimeoutError, RuntimeDependencyUnavailableError) as exc:
                 logger.warning("Control worker dependency unavailable: %s", exc)
+            except ChildComputationOutcomeUnknown as exc:
+                logger.error("Control worker child effect requires reconciliation: %s", exc)
             except Exception as exc:  # pragma: no cover - defensive loop guard
                 logger.exception("Control worker loop failed: %s", exc)
+            except BaseExceptionGroup as group:
+                leaves = _exception_leaves(group)
+                if not any(isinstance(item, ChildComputationOutcomeUnknown) for item in leaves):
+                    raise
+                if any(
+                    not isinstance(item, (ChildComputationOutcomeUnknown, Exception))
+                    for item in leaves
+                ):
+                    raise
+                logger.exception("Control worker child group requires reconciliation")
             if ran:
                 continue
             self._wake.wait(timeout=self._poll_interval_s)
@@ -193,6 +269,9 @@ class ControlWorker:
 
     def _run_with_lease_heartbeat(self, job: ControlJobRecord) -> None:
         stop_heartbeat = threading.Event()
+        budget_revoked = threading.Event()
+        budget_uncertain = threading.Event()
+        budget_transition_lock = threading.RLock()
         interrupt = JobExecutionInterrupt(
             job_id=job.job_id,
             worker_id=self._worker_id,
@@ -210,7 +289,8 @@ class ControlWorker:
                         expected_attempt=job.attempt,
                     )
                     if renewed is False:
-                        interrupt.lost.set()
+                        with budget_transition_lock:
+                            interrupt.lost.set()
                         logger.warning(
                             "Control worker %s lost the lease for job %s attempt %s",
                             self._worker_id,
@@ -224,6 +304,9 @@ class ControlWorker:
                         metadata={"job_kind": job.kind},
                     )
                 except (RuntimeDependencyTimeoutError, RuntimeDependencyUnavailableError) as exc:
+                    with budget_transition_lock:
+                        budget_uncertain.set()
+                        budget_revoked.set()
                     if self._stop.is_set():
                         return
                     logger.warning(
@@ -234,6 +317,9 @@ class ControlWorker:
                     )
                     return
                 except Exception as exc:  # pragma: no cover - defensive loop guard
+                    with budget_transition_lock:
+                        budget_uncertain.set()
+                        budget_revoked.set()
                     logger.exception(
                         "Control worker heartbeat failed for job %s: %s",
                         job.job_id,
@@ -262,11 +348,20 @@ class ControlWorker:
                     ),
                     clear_tenant_context(),
                     job_execution_interrupt_scope(interrupt),
+                    self._owned_child_budget_scope(
+                        job, interrupt, budget_revoked, budget_uncertain, budget_transition_lock
+                    ),
                 ):
-                    self._handler(job)
+                    self._invoke_handler(job)
             else:
-                with clear_tenant_context(), job_execution_interrupt_scope(interrupt):
-                    self._handler(job)
+                # A custom store without an actual job fence cannot issue the
+                # composition budget, even if a parent context was inherited.
+                with (
+                    clear_tenant_context(),
+                    job_execution_interrupt_scope(interrupt),
+                    _attempt_budget_scope(None, job, interrupt, budget_revoked, budget_uncertain),
+                ):
+                    self._invoke_handler(job)
         except JobExecutionInterrupted:
             if not interrupt.lost.is_set():
                 raise
@@ -306,6 +401,53 @@ class ControlWorker:
             except (RuntimeDependencyTimeoutError, RuntimeDependencyUnavailableError):
                 if not self._stop.is_set():
                     raise
+
+    def _invoke_handler(self, job: ControlJobRecord) -> None:
+        """Record verified child uncertainty before releasing the live job fence."""
+        try:
+            self._handler(job)
+        except BaseException as error:
+            leaves = _exception_leaves(error)
+            unknowns = tuple(
+                item for item in leaves if isinstance(item, ChildComputationOutcomeUnknown)
+            )
+            siblings = tuple(
+                dict.fromkeys(
+                    type(item).__name__
+                    for item in leaves
+                    if not isinstance(item, ChildComputationOutcomeUnknown)
+                )
+            )
+            for unknown in unknowns:
+                try:
+                    recovery = unknown.recovery
+                    if recovery is None:
+                        raise ValueError("child_recovery_locator_unavailable")
+                    basis = ArtifactRef.model_validate_json(recovery.parent_basis_json)
+                    locator = recovery.job_intent_locator
+                    if locator is None:
+                        found = self._store.find_child_job_session(
+                            job_id=job.job_id,
+                            run_id=recovery.root_run_id,
+                            parent_attempt_id=recovery.parent_attempt_id,
+                            parent_basis_ref=basis,
+                        )
+                        if found is None:
+                            raise ValueError("child_session_intent_not_established")
+                        locator = found[0]
+                    self._store.record_child_release_unknown(
+                        locator=locator,
+                        run_id=recovery.root_run_id,
+                        parent_attempt_id=recovery.parent_attempt_id,
+                        parent_basis_ref=basis,
+                        sibling_error_types=siblings,
+                    )
+                except BaseException as observation_error:
+                    unknown.add_note(
+                        "Child reconciliation observation unavailable: "
+                        + type(observation_error).__name__
+                    )
+            raise
 
     def _heartbeat(
         self,

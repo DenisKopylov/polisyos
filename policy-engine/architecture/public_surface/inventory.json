@@ -288,6 +288,12 @@
                 "result": true
               },
               {
+                "path": "src/polisyos/common/borrowed_execution.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
                 "path": "src/polisyos/common/serialization",
                 "operation": "is_dir",
                 "status": "present",
@@ -1285,8 +1291,8 @@
         {
           "module": "polisyos.core.artifacts",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 136,
-          "known_export_count": 136,
+          "export_count": 137,
+          "known_export_count": 137,
           "exports": [
             "AUTHORITY_ENVELOPE_ARTIFACT_KIND",
             "AUTHORITY_ENVELOPE_SCHEMA_NAME",
@@ -1296,6 +1302,7 @@
             "ArtifactAuthorityInfo",
             "ArtifactBoundedManifestRead",
             "ArtifactBoundedManifestReadError",
+            "ArtifactChildReleaseInfo",
             "ArtifactGovernanceInfo",
             "ArtifactID",
             "ArtifactIntegrityError",
@@ -1449,8 +1456,8 @@
                 "path": "src/polisyos/core/artifacts/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 14562,
-                "sha256": "81c423202e396199b19a6bba6fa2293fba0b02618560e1b046b12e04e04c04d6"
+                "bytes": 14624,
+                "sha256": "5d9f7c0ee8d2e4fde2259eb3a1e5a04b0788d79e8c4c3049898c9289e9116860"
               },
               {
                 "path": "src/polisyos/core/artifacts",
@@ -1646,6 +1653,12 @@
               },
               {
                 "path": "src/polisyos/core/artifacts/selected_verification.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/core/artifacts/child_release.py",
                 "operation": "is_file",
                 "status": "present",
                 "result": true
@@ -13840,6 +13853,18 @@
                 "result": true
               },
               {
+                "path": "src/polisyos/scientist/orchestration/engine/child_foundry.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/scientist/orchestration/engine/child_output_closure.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
                 "path": "src/polisyos/scientist/orchestration/engine/checkpoint.py",
                 "operation": "is_file",
                 "status": "present",
@@ -14027,6 +14052,12 @@
               },
               {
                 "path": "src/polisyos/scientist/orchestration/engine/topo.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/scientist/orchestration/engine/child_computation.py",
                 "operation": "is_file",
                 "status": "present",
                 "result": true

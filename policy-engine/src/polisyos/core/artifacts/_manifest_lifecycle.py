@@ -48,6 +48,7 @@ class ManifestLifecycle:
             "tenant_context": getattr(opts, "tenant_context", None),
             "same_input_closure": getattr(opts, "same_input_closure", None),
             "authority": getattr(opts, "authority", None),
+            "child_release": getattr(opts, "child_release", None),
             "integrity": IntegrityInfo(sha256=sha),
             "warnings": list(opts.warnings or []),
         }
@@ -118,6 +119,7 @@ class ManifestLifecycle:
             "tenant_context": getattr(opts, "tenant_context", None),
             "same_input_closure": getattr(opts, "same_input_closure", None),
             "authority": getattr(opts, "authority", None),
+            "child_release": getattr(opts, "child_release", None),
             "warnings": list(opts.warnings or []),
         }
         return tuple(

@@ -65,12 +65,17 @@ def test_producer_consumer_preserves_actual_payload_and_selected_input_profiles(
     assert loaded.original_result()["simulation_results"]["opaque"] == [1, {"x": "value"}]
 
 
-def test_rejected_observation_does_not_fabricate_selected_sources() -> None:
+def test_rejected_observation_does_not_fabricate_selected_sources(tmp_path: Path) -> None:
     result = {"status": "rejected", "objective_score_status": "not_established", "details": {}}
     projection = stage_b_projection(result)
     assert projection.original_result() == result
     assert projection.candidate_ref is None
     assert projection.evaluation_ref is None
+    store = FileSystemCAS(tmp_path / "cas")
+    ref = persist_stage_b_projection(store, result)
+    fresh = load_stage_b_projection(FileSystemCAS(tmp_path / "cas"), ref)
+    assert fresh.original_result() == result
+    assert fresh.candidate_ref is None and fresh.evaluation_ref is None
 
 
 def test_envelope_cannot_disagree_with_its_actual_score_status() -> None:
@@ -164,6 +169,8 @@ def test_actual_candidate_producer_binds_model_ids_to_selected_inputs(tmp_path: 
     assert [(x.role, str(x.artifact_id), x.manifest_profile_sha256) for x in inputs] == [
         ("model_primary_data_snapshot", str(data.artifact_id), data.manifest_profile_sha256),
         ("model_primary_registry", str(registry.artifact_id), registry.manifest_profile_sha256),
+        ("world_model_data_snapshot", str(data.artifact_id), data.manifest_profile_sha256),
+        ("world_model_registry", str(registry.artifact_id), registry.manifest_profile_sha256),
     ]
     with pytest.raises(
         StageBProjectionRefusalError, match="stage_b_candidate_model_input_unresolved"

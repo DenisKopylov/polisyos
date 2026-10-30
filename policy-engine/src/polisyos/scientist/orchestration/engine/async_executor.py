@@ -32,6 +32,7 @@ from polisyos.core.artifacts.manifest import (
 )
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec
+from polisyos.core.run.child_custody import ChildComputationOutcomeUnknown
 from polisyos.scientist.orchestration.engine.budget import BudgetExhaustedError
 from polisyos.scientist.orchestration.engine.checkpoint import (
     CheckpointError,
@@ -2163,6 +2164,9 @@ class AsyncWorkflowExecutor:
                         details={"error": str(exc)},
                     ),
                 )
+            except ChildComputationOutcomeUnknown:
+                # The release may already be visible; keep its receipt and never retry.
+                raise
             except _EXECUTOR_DEGRADED_ERRORS as exc:
                 self._ctx.logger.exception("Node %s failed", alias)
                 outcome = NodeOutcome(

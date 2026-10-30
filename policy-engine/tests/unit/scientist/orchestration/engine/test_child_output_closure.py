@@ -7,6 +7,7 @@ import pytest
 from polisyos.core.artifacts.canonical_profile import CoreJsonReadLimits
 from polisyos.core.artifacts.manifest import artifact_ref_identity_key, input_ref_from_artifact_ref
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec
 from polisyos.ir.governance.policy_spec import PolicySpec
 from polisyos.ir.governance.problem_frame import ObjectiveSpec, ProblemDomain, ProblemFrame
 from polisyos.ir.model_layer.model_spec import ModelSpec
@@ -470,6 +471,7 @@ def test_v13_typed_predicate_sibling_omitted_from_manifest_refuses(tmp_path: Pat
             ),
             inputs=edges,
         ),
+        canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
         return_selected_profile=True,
     )
     owner = _OwnerReadFixture(
@@ -525,6 +527,7 @@ def test_v13_typed_predicate_same_blob_wrong_profile_refuses(tmp_path: Path) -> 
             ),
             inputs=edges,
         ),
+        canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
         return_selected_profile=True,
     )
     owner = _OwnerReadFixture(

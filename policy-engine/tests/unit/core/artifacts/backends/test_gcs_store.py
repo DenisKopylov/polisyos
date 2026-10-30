@@ -16,6 +16,7 @@ from polisyos.core.artifacts.manifest import ProducerInfo
 from polisyos.core.artifacts.store import ArtifactIntegrityError, FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec as CoreCanonSpec
 from polisyos.core.canon import CanonViolation as CoreCanonViolation
+from polisyos.core.canon import content_hash
 
 
 class _MetricsStub:
@@ -345,14 +346,43 @@ def test_gcs_bucket_permission_failure_blocks_false_absence(
     store = GCSArtifactStore(bucket="test-bucket")
     bucket = _FakeBucket()
     store._bucket = bucket
+    payload = b"missing payload"
+    digest = content_hash(payload)
+    aid = ArtifactID.from_sha256_hex(digest)
+    manifest = ManifestLifecycle.build(
+        artifact_id=aid,
+        data=payload,
+        sha=digest,
+        opts=PutOptions(kind="test.bytes", media_type="application/octet-stream"),
+    )
+    bucket.objects[store._manifest_key(aid)] = ManifestLifecycle.to_bytes(manifest)
     denied = PermissionError("bucket metadata permission denied")
     bucket.reload_error = denied
-    key = store._blob_key(ArtifactID.from_sha256_hex("ab" * 32))
+    key = store._blob_key(aid)
     bucket.download_errors[key] = not_found_type("object lookup returned 404")
 
     with pytest.raises(PermissionError) as raised:
-        store.get_bytes("sha256:" + "ab" * 32)
+        store.get_bytes(aid)
     assert raised.value is denied
+
+
+def test_gcs_manifest_404_preserves_bucket_permission_failure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    not_found_type = _install_fake_google_api_not_found(monkeypatch)
+    store = GCSArtifactStore(bucket="test-bucket")
+    bucket = _FakeBucket()
+    store._bucket = bucket
+    aid = ArtifactID.from_sha256_hex("ab" * 32)
+    manifest_key = store._manifest_key(aid)
+    bucket.download_errors[manifest_key] = not_found_type("manifest lookup returned 404")
+    denied = PermissionError("bucket metadata permission denied")
+    bucket.reload_error = denied
+
+    with pytest.raises(PermissionError) as raised:
+        store.get_bytes(aid)
+    assert raised.value is denied
+    assert bucket.download_calls == [manifest_key]
 
 
 @pytest.mark.parametrize("error", [TimeoutError("GCS timeout"), PermissionError("GCS denied")])

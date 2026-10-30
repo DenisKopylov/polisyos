@@ -45,7 +45,7 @@ class _BuiltinOwner:
 
 # Import-time references are held independently of the mutable registry. The
 # executor imports this module before workflow execution and plugin discovery.
-def _load_builtin_node_types() -> tuple[type[Any], type[Any], type[Any]]:
+def _load_builtin_node_types() -> tuple[type[Any], type[Any], type[Any], type[Any]]:
     from polisyos.scientist.nodes.builtins.causal.resolve_transport import (
         RunTransportabilityNode,
     )
@@ -55,13 +55,24 @@ def _load_builtin_node_types() -> tuple[type[Any], type[Any], type[Any]]:
     from polisyos.scientist.nodes.builtins.governance.run_governance import (
         RunGovernanceNode,
     )
+    from polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search import (
+        RunHierarchicalPolicySearchNode,
+    )
 
-    return BuildVerifiedPolicyReportNode, RunGovernanceNode, RunTransportabilityNode
+    return (
+        BuildVerifiedPolicyReportNode,
+        RunGovernanceNode,
+        RunTransportabilityNode,
+        RunHierarchicalPolicySearchNode,
+    )
 
 
-_BuildVerifiedPolicyReportNode, _RunGovernanceNode, _RunTransportabilityNode = (
-    _load_builtin_node_types()
-)
+(
+    _BuildVerifiedPolicyReportNode,
+    _RunGovernanceNode,
+    _RunTransportabilityNode,
+    _RunHierarchicalPolicySearchNode,
+) = _load_builtin_node_types()
 
 
 def _function_from_descriptor(value: object) -> types.FunctionType | None:
@@ -146,6 +157,7 @@ _OWNERS = {
         _owner(_BuildVerifiedPolicyReportNode),
         _owner(_RunGovernanceNode),
         _owner(_RunTransportabilityNode),
+        _owner(_RunHierarchicalPolicySearchNode),
     )
 }
 

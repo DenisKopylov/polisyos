@@ -194,6 +194,7 @@ class GCSArtifactStore:
             self._cache_read(aid, ".blob") is not None
             and self._cache_read(aid, self._manifest_cache_suffix(profile_sha256)) is not None
         ):
+            self.get_raw_manifest_bytes(artifact_id)
             if ref is not None:
                 try:
                     self.get_manifest(ref)
@@ -203,6 +204,8 @@ class GCSArtifactStore:
         blob = self._gcs_bucket().blob(self._blob_key(aid))
         manifest = self._gcs_bucket().blob(self._manifest_key(aid, profile_sha256))
         exists = self._blob_exists(blob) and self._blob_exists(manifest)
+        if exists:
+            self.get_raw_manifest_bytes(artifact_id)
         if exists and ref is not None:
             try:
                 self.get_manifest(ref)
@@ -213,6 +216,7 @@ class GCSArtifactStore:
     def get_bytes(self, artifact_id: ArtifactID | ArtifactRef | str) -> bytes:
         aid, _profile_sha256, ref = artifact_reference_parts(artifact_id)
         selected = ref or aid
+        manifest = self.get_manifest(selected)
         cached = self._cache_read(aid, ".blob")
         if cached is not None:
             data = cached
@@ -220,7 +224,6 @@ class GCSArtifactStore:
             blob = self._gcs_bucket().blob(self._blob_key(aid))
             data = self._download_blob_bytes(blob)
             self._cache_write(aid, ".blob", data)
-        manifest = self.get_manifest(selected)
         try:
             validate_read_integrity(aid, data, manifest)
         except ArtifactIntegrityError as exc:
@@ -249,6 +252,9 @@ class GCSArtifactStore:
             raw = self._download_blob_bytes(blob)
             self._cache_write(aid, cache_suffix, raw)
             manifest = ArtifactManifest.model_validate_json(raw.decode("utf-8"))
+        from ..child_release import refuse_remote_child_manifest
+
+        refuse_remote_child_manifest(raw)
         try:
             validate_manifest_identity(aid, manifest)
             if profile_sha256 is not None and ManifestLifecycle.profile_sha256(manifest) != (
@@ -282,12 +288,16 @@ class GCSArtifactStore:
             selected_profile = manifest_profile_sha256
         cache_suffix = self._manifest_cache_suffix(selected_profile)
         cached = self._cache_read(aid, cache_suffix)
+        from ..child_release import refuse_remote_child_manifest
+
         if cached is not None:
+            refuse_remote_child_manifest(bytes(cached))
             return bytes(cached)
         raw = self._download_blob_bytes(
             self._gcs_bucket().blob(self._manifest_key(aid, selected_profile))
         )
         self._cache_write(aid, cache_suffix, raw)
+        refuse_remote_child_manifest(raw)
         return bytes(raw)
 
     def get_manifest_bytes(self, artifact_id: ArtifactID | ArtifactRef | str) -> bytes:
@@ -381,6 +391,8 @@ class GCSArtifactStore:
         *,
         return_selected_profile: bool = False,
     ) -> ArtifactRef:
+        if getattr(opts, "child_release", None) is not None:
+            raise ArtifactIntegrityError("child_release_backend_unsupported")
         _validate_return_selected_profile(return_selected_profile)
         sha = content_hash(data)
         aid = ArtifactID.from_sha256_hex(sha)
@@ -443,6 +455,8 @@ class GCSArtifactStore:
         *,
         return_selected_profile: bool = False,
     ) -> ArtifactRef:
+        if getattr(opts, "child_release", None) is not None:
+            raise ArtifactIntegrityError("child_release_backend_unsupported")
         _validate_return_selected_profile(return_selected_profile)
         canon_spec = _admit_canon_spec(
             canon_spec, CanonSpec, violation_type=CanonViolation, artifact_writer=True
@@ -485,5 +499,12 @@ class GCSArtifactStore:
                 name = blob.name.rsplit("/", 1)[-1]
                 hex64 = name.removesuffix(".manifest.json")
                 if len(hex64) == 64:
-                    ids.append(ArtifactID.from_sha256_hex(hex64))
+                    artifact_id = ArtifactID.from_sha256_hex(hex64)
+                    from ..child_release import ChildReleaseUnavailableError
+
+                    try:
+                        self.get_raw_manifest_bytes(artifact_id)
+                    except ChildReleaseUnavailableError:
+                        continue
+                    ids.append(artifact_id)
         return ids

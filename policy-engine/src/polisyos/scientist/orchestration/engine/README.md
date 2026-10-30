@@ -97,7 +97,8 @@ The internal identified-compute reservation path stores a stable event and reque
 digest under the same durable ledger lock. It converts the reservation and records
 the actual charge in one snapshot transaction; exact retries reconcile the durable
 record and conflicting retries refuse. An unresolved reservation or unknown cost
-blocks further work on that budget key. Legacy release/commit operations can use
+blocks another identified-compute reservation on that budget key. Generic
+reservations remain available. Legacy release/commit operations can use
 only the aggregate amount above the identified reservation floor. A same-ID reservation retry is only a receipt lookup, not permission to
 rerun physical work. A missing record does not establish zero cost. These mechanics
 do not appoint a compute-price source or authorize Foundry: until an actual trusted
@@ -595,3 +596,28 @@ canonical N5 intake, covering both default and supplied canonical ports. A
 foreign or absent observer refuses before work; object type alone is not the
 run-owner binding. The same intake is rechecked at the run/generic-consumer path.
 Custom contract-testing ports retain their explicit non-canonical scope.
+
+The child-computation monetary profile is not admitted: an appointed compute
+pricing and actual-cost source is not established, and the identified
+reservation-to-settlement mechanism above is not yet bound to the child runtime.
+A producer LLM ledger, a copied `BudgetState`, or a funnel estimate alone does
+not authorize or price Foundry computation. This limitation is not E02 closure.
+
+Child output closure resolves only explicitly supported owner schemas and exact
+selected profiles. It reconciles payload references against producer edges and
+owner-held source bindings, and refuses unsupported or opaque semantics. The
+bounded candidate/evaluation adapters do not establish complete Stage B/frontier
+closure, release authority, or current source admission; those require the
+independently held Core/Runtime owners.
+
+`child_computation.py` holds the selected in-process dispatch and runs admitted
+SubWorkflow children through the normal executor with private custody and scoped
+cache bypass. Uncertain custody and revocation outcomes propagate without retry.
+The trusted parent callback and actual Stage B producer/consumer are not yet
+connected; the synthetic two-child fixture is not a production capability claim.
+
+The short producer admission is the decision point. A later observed grant
+revocation or persisted job lease loss does not retroactively undo that decision;
+it does not prove callback quiescence, effect settlement, or permission for a later
+action. The persisted-lease-loss ordering is a declared bounded limitation, not
+a verified runtime property.

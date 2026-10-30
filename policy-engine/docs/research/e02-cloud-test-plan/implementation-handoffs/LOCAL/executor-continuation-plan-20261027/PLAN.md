@@ -1,5 +1,7 @@
 # E02 completion implementation plan
 
+> **Historical record — not the current operating procedure.** Current E02 organization/status is [E02-WORK-PLAN.md](../../../../../../../E02-WORK-PLAN.md), with repository [AGENTS.md](../../../../../../../AGENTS.md) and the current [HANDOFF](../../../execution-prompts/HANDOFF.md). Dated permissions, staffing, RAW/patch-only authorship, receipt templates and append-only status instructions below are historical. Preserve original criteria, accepted decisions and each evidence record on its own source; do not execute superseded workflow rules or append new status here.
+
 > For future agentic workers: use scoped execution with an independent reviewer. This checkpoint is planning only. Start implementation or cloud tasks only after the user continues the work. A cloud task receives its entire standalone prompt; local assistants receive one explicit read/write lease and do not delegate.
 
 **Goal:** Finish the existing E02 queue against its original criteria, preserving all existing work and separating author evidence from G acceptance and formal closure.

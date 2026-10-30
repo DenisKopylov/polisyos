@@ -1,5 +1,7 @@
 # Composition, independent review and G delivery
 
+> **Historical record — not the current operating procedure.** Current E02 organization/status is [E02-WORK-PLAN.md](../../../../../../../E02-WORK-PLAN.md), with repository [AGENTS.md](../../../../../../../AGENTS.md) and the current [HANDOFF](../../../execution-prompts/HANDOFF.md). Dated permissions, staffing, RAW/patch-only authorship, receipt templates and append-only status instructions below are historical. Preserve original criteria, accepted decisions and each evidence record on its own source; do not execute superseded workflow rules or append new status here.
+
 This procedure continues the existing author lineage. The continuation authorizes scoped implementation, setup, checks and own-topic publication; it does not authorize modifying the G checkout, publishing integration/main or reopening historical findings. The original planning-stage restrictions remain historical to that stage.
 
 ## Intake contract

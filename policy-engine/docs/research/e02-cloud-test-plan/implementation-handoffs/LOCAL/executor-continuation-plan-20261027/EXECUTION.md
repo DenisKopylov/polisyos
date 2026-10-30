@@ -1,5 +1,7 @@
 # E02 live execution ledger
 
+> **Historical record — not the current operating procedure.** Current E02 organization/status is [E02-WORK-PLAN.md](../../../../../../../E02-WORK-PLAN.md), with repository [AGENTS.md](../../../../../../../AGENTS.md) and the current [HANDOFF](../../../execution-prompts/HANDOFF.md). Dated permissions, staffing, RAW/patch-only authorship, receipt templates and append-only status instructions below are historical. Preserve original criteria, accepted decisions and each evidence record on its own source; do not execute superseded workflow rules or append new status here.
+
 Execution continues the existing canonical TASKS/QUEUE; this is an append-only coordinator ledger, not a replacement backlog. The user authorized implementation, supported setup, affected checks, normal commits and author topic publication after G accepted planning checkpoint `dad68b70b2321001631fc90aa160eec9656f79b1`, with the compact evidence delivery correction. The earlier planning-only restriction has ended. G integration/main, formal finding closure, history cleanup and R9/GY/Atlas remain outside author scope.
 
 ## Admission — 27 October 2026

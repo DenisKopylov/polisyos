@@ -1,6 +1,6 @@
 # E02 work plan: visible development, composition and branch retirement
 
-**Status:** proposed operating plan, 30 October 2026. Product implementation remains paused. This change adds only this document; instruction edits, composition and branch deletion start after approval. An ordinary documentation commit/publication does not start those operations. No further general planning round is required once execution is authorized.
+**Status:** operating-instruction corrections authorized and applied on 30 October 2026. Product composition, branch retirement, environment work and cloud tasks remain paused. This instruction-only checkpoint does not start those operations. A later execution authorization uses this plan without another general planning round.
 
 **Goal:** integrate useful existing work into tested product behavior in `origin/main`, remove obsolete branches, and replace hidden development and repetitive paperwork with one visible work cycle.
 
@@ -24,23 +24,42 @@ This is the **only current execution plan/status document** after approval. Orig
 
 Authors own results through the real consumer check; the coordinator resolves overlaps instead of reconstructing every change from RAW copies. New agents read AGENTS, this plan, relevant contributor/source guidance and the original criterion; historical material is opened only for a concrete question.
 
-## 2. Instructions to correct before implementation
+## 2. Operating instructions now corrected
 
-These are proposed edits to existing guidance, not extra manuals. Until approved and edited, do not pretend the old procedures have already changed.
+The user authorized these instruction changes. AGENTS and HANDOFF now carry the working rules; the dated PLAN/README/EXECUTION/COMPOSITION packet is explicitly historical. Original criteria, accepted decisions and historical evidence are preserved.
 
-| Existing source | Required correction |
+| Existing source | Current rule |
 | --- | --- |
-| [COMPOSITION](policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/COMPOSITION.md), line 7; [EXECUTION](policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/EXECUTION.md), line 17 | Replace root-only local source writing and patch returns with disjoint real-source authorship plus one Git owner. |
-| COMPOSITION, line 29 | Permit a reviewed ordinary cherry-pick/selected patch when appropriate. Cherry-pick creates a new commit; it does not rewrite the original. Preserve identities, resolve companions/conflicts and check affected consumers. |
-| [HANDOFF](policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md), receipt section | Replace routine per-slice JSON, separate receipt commits and repeated copied inventories with section 5's compact change record. Keep deciding-output access and G's actual proof needs. |
-| Old PLAN/README/EXECUTION/COMPOSITION/HANDOFF operational headers | Mark dated staffing, planning-only, no-main and append-only status procedures historical; link here. Do not maintain several competing latest-status documents. |
-| [AGENTS](AGENTS.md), lines 25–26 and iteration commands | Apply adversarial variants and checks to affected semantic paths/gates/validators. Use complete denominators for actual set-level claims and reuse unchanged pinned censuses. Cite a finding ID when one exists, otherwise the actual primary section. |
-| AGENTS, evidence/history guidance | Clarify: full deciding output is kept once, not shipped repeatedly; RAW is optional computation/output storage, not source authorship. Append-only Git history does not require append-only documents. |
-| Skills/prompts | Do not import conflicting bans on parallel authors, repeated approval gates or full-test repetition into already authorized work. Do not edit global skills/settings to obtain this. |
+| [AGENTS](AGENTS.md) and [HANDOFF](policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md) | Disjoint real-source authorship; coordinator owns the shared index/refs and actual overlaps. No RAW-only proposal queue. |
+| COMPOSITION / Git procedure | Reviewed ordinary cherry-picks and selected semantic patches are allowed without rewriting originals; resolve companions and requalify affected consumers. |
+| HANDOFF / evidence | One compact change record; deciding output retained once with actual receiver access. No routine per-slice JSON or separate receipt commit. |
+| Old operational packet | Historical headers retire dated quotas, planning-only/publication bans and append-only status rules. This file is the current plan/status. |
+| AGENTS / checks | Affected behavior/importers/consumers and applicable guards; real semantic/authority controls stay. Reuse unchanged qualified evidence and pinned complete censuses. |
+| AGENTS / source attribution | Use a finding ID when available, otherwise the actual primary section. Git history is append-only; working documents can be updated. |
+| AGENTS / skills | Apply the appropriate method within user scope. No automatic skill chain, new approval, serial-author requirement, forced isolation or blanket broad suite. |
 
-The coordinator chose RAW-only source processing and excessive status/approval repetition; root AGENTS did not mandate that. COMPOSITION's single-writer rule and EXECUTION's append-only ledger are real procedures that now need replacement. P13, P29 and P40 already require proportional effort and stopping verification/repair ladders; they were underused.
+The coordinator chose RAW-only source processing and excessive status/approval repetition; root AGENTS did not mandate that. COMPOSITION's single-writer rule and EXECUTION's append-only ledger were real procedures; their active workflow has now been replaced. P13, P29 and P40 already require proportional effort and stopping verification/repair ladders; they were underused.
 
 Keep product safeguards: canonical ownership, candidate/authority separation, status/provenance/time semantics, actual producer → artifact → bridge → consumer → surface, semantic negative tests, independent review, hooks/CI and G's separate acceptance. Missing authority facts restrict the affected claim, not independent engineering. Shorten duplicated operational text in AGENTS without rewriting product doctrine.
+
+### Reviewed skill templates and their use in PolicyOS
+
+Reviewed all 15 installed `superpowers` 7.0.1 `SKILL.md` entrypoints, compared with `codex-engineering-guardrails` 1.1.1 and the system `skill-creator`. These are content findings, not a measured speed benchmark. Project routing is implemented in AGENTS; installed plugin caches, global settings and host skill discovery are unchanged. Explicit skill requests and higher-priority platform/user instructions still apply.
+
+| Template(s) | Project handling |
+| --- | --- |
+| `using-superpowers` | No blanket invocation/chain merely because any response is being written. Choose the relevant method. |
+| `brainstorming`, `writing-plans` | Use for open design/requested planning; do not add separate design/plan approvals to scoped authorized execution. Brainstorming already has quick-task/opt-out exceptions. |
+| `executing-plans`, `subagent-driven-development` | Do not import serial implementation, fresh implementer per small task, a task-review gate before unrelated work or another full suite for every fix. The task review has one reviewer/two verdicts, not two mandatory reviewer agents. |
+| `dispatching-parallel-agents` | Retain independent assignments; use affected integrated checks rather than a blanket full suite after every combination. |
+| `test-driven-development` | Retain meaningful regression evidence. Never delete useful pre-existing work to recreate a test-first sequence, or require permission to preserve it. |
+| `systematic-debugging`, `receiving-code-review` | Keep reproduction and causal diagnosis; clarify dependent items without stopping unrelated work. A numeric attempt count alone does not require a new architecture/approval cycle; use the actual failure class and P40. |
+| `requesting-code-review` | One independent coherent-change review and material-delta follow-up; do not create a new multi-stage process per micro-edit. |
+| `verification-before-completion` | Require truthful source-bound results; rerun for material input changes/required gates. It does not itself require a full suite after every message. Do not relabel old results as a new execution. |
+| `using-git-worktrees`, `finishing-a-development-branch` | Reuse admitted source/environment; isolate for a concrete conflict. Follow the user's integration decision instead of another setup/baseline/menu or automatic workspace cleanup. The worktree template already permits reuse/working in place. |
+| `writing-skills`, `diagnosing-superpowers` | For actual skill maintenance prefer proportional `skill-creator`; for a targeted instruction review inspect the files directly. Do not automatically build a pressure-test harness or seven-analyst transcript investigation. Use those larger workflows only when requested/needed and authorized. |
+
+No replacement meta-skill or new wrapper framework is introduced. If the user later wants global skill availability changed, use supported plugin/skill controls for that explicit scope rather than patching a versioned cache that updates can overwrite.
 
 ## 3. Extract useful code and retire old branches
 
@@ -99,7 +118,8 @@ Use persistent, correctly named domain owners; default Luna for suitable finite 
 
 ## 7. Execution sequence after approval
 
-- [ ] **Make the process visible:** bind the app to the canonical checkout and correct the specific MD procedures in section 2. Current instructions then match the actual workflow.
+- [x] **Correct the instructions:** apply section 2's repository-level workflow and skill-routing corrections. This is the authorized instruction-only change.
+- [ ] **Make the workspace visible:** bind the app to the canonical checkout before product work resumes; no checkout recreation.
 - [ ] **Start integration and curation together:** begin section 4's ready lanes and the finite mechanism/ref review. The first checkpoint is integrated TC/spawn checks plus a real V3 diagnosis while child/N7 work progresses—not another source-only packet.
 - [ ] **Retire resolved branch groups:** transfer useful code, verify reachability/tips/protections, delete conditionally and read back. No waiting for unrelated E02 acceptance.
 - [ ] **Finish original routes:** maintain the single checklist below and original occurrence mapping; close internal producer/bridge/consumer defects and identify exact genuinely external inputs after real attempts.
@@ -109,7 +129,7 @@ Use persistent, correctly named domain owners; default Luna for suitable finite 
 
 Baseline: original **26 rows / 127 bundles / 282 IDs / 291 criterion occurrences / 319 task–ID edges**; the separately counted 331 occurrence-to-row routes are navigation. Exact original predicates remain in the linked TASKS/coverage and existing bindings. Historical B198/B59 and selected G decisions stay preserved. R9/GY/Atlas implementation remains outside E02 until acceptance.
 
-No source or tests are changed by this plan; the entries below are next outcomes, not new claims of current PASS. During execution add the responsible owner, latest integrated commit/check and exact remaining obstruction to the same row. BOOT0 and DEC0 remain coordination rows, not substitute product completion.
+No product source or tests are changed by this instruction checkpoint; the entries below are next outcomes, not new claims of current PASS. During execution add the responsible owner, latest integrated commit/check and exact remaining obstruction to the same row. BOOT0 and DEC0 remain coordination rows, not substitute product completion.
 
 | Original row | Next product outcome or preserved boundary |
 | --- | --- |

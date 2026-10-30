@@ -6225,20 +6225,39 @@ def _source_import_aliases_for_event(
     capture: Any,  # noqa: ANN401
     event: Any,  # noqa: ANN401
     symbol: str,
+    *,
+    parsed_sources: dict[str, ast.Module] | None = None,
+    imports_by_line: dict[str, dict[int, list[ast.ImportFrom]]] | None = None,
 ) -> tuple[str, ...]:
     """Resolve import aliases from the actual caller's retained source line."""
 
     if event.route != "builtin_import" or type(event.caller_line) is not int:
         return ()
-    capture.assert_retained(frozenset({event.importer_name}))
     importer = capture.completed(event.importer_name)
-    source = repo_root / importer.relative_path
-    content = source.read_bytes()
-    if hashlib.sha256(content).hexdigest() != importer.source_sha256:
-        raise ValueError("importer_source_observation_mismatch")
-    tree = ast.parse(content, filename=str(source))
+    tree = None if parsed_sources is None else parsed_sources.get(event.importer_name)
+    if tree is None:
+        capture.assert_retained(frozenset({event.importer_name}))
+        source = repo_root / importer.relative_path
+        content = source.read_bytes()
+        if hashlib.sha256(content).hexdigest() != importer.source_sha256:
+            raise ValueError("importer_source_observation_mismatch")
+        tree = ast.parse(content, filename=str(source))
+        if parsed_sources is not None:
+            parsed_sources[event.importer_name] = tree
+    if imports_by_line is None:
+        nodes: Iterable[ast.AST] = ast.walk(tree)
+    else:
+        indexed = imports_by_line.get(event.importer_name)
+        if indexed is None:
+            indexed = {}
+            for node in ast.walk(tree):
+                if isinstance(node, ast.ImportFrom):
+                    for line in range(node.lineno, (node.end_lineno or node.lineno) + 1):
+                        indexed.setdefault(line, []).append(node)
+            imports_by_line[event.importer_name] = indexed
+        nodes = indexed.get(event.caller_line, ())
     aliases: set[str] = set()
-    for node in ast.walk(tree):
+    for node in nodes:
         if not isinstance(node, ast.ImportFrom) or not (
             node.lineno <= event.caller_line <= (node.end_lineno or node.lineno)
         ):
@@ -6257,6 +6276,100 @@ def _source_import_aliases_for_event(
     return tuple(sorted(aliases))
 
 
+def _observed_source_bindings(
+    repo_root: Path,
+    capture: Any,  # noqa: ANN401
+    graph: Any,  # noqa: ANN401
+) -> tuple[
+    tuple[tuple[str, str, str, tuple[tuple[str, str], ...]], ...],
+    tuple[tuple[str, str, str, str], ...],
+]:
+    """Reconcile actual module-initializer import bindings for diagnostics.
+
+    A disagreement is reported without deciding whether an incidental rebinding
+    matters to authority. The protected operation still needs its independently
+    derived readset and the existing recorder guard for every required binding.
+    """
+
+    reached = frozenset(graph.reached_sources)
+    parsed_sources: dict[str, ast.Module] = {}
+    imports_by_line: dict[str, dict[int, list[ast.ImportFrom]]] = {}
+    provider_digests: dict[str, str] = {}
+    matched: dict[tuple[str, str, str], set[tuple[str, str]]] = {}
+    disagreements: set[tuple[str, str, str, str]] = set()
+    for event in capture.import_events():
+        if (
+            event.route != "builtin_import"
+            or event.importer_name not in reached
+            or event.provider_name not in reached
+        ):
+            continue
+        try:
+            importer = capture.completed(event.importer_name)
+            provider = capture.completed(event.provider_name)
+        except ImportError:
+            if capture.failed:
+                raise
+            continue
+        if event.caller_code is not importer.code:
+            # Function-local imports are not module-global binding claims.
+            continue
+        if (
+            type(importer.module) is not types.ModuleType
+            or type(provider.module) is not types.ModuleType
+            or event.importer is not importer.module
+            or event.provider is not provider.module
+        ):
+            raise ValueError("imported_module_observation_mismatch")
+        for symbol in event.requested_exports:
+            if type(symbol) is not str or not symbol.isidentifier():
+                continue
+            retained = _passive_capture_lookup(provider.watched_exports, symbol)
+            event_value = _passive_capture_lookup(event.retained_exports, symbol)
+            if retained is _NO_EXECUTION_BINDING or event_value is _NO_EXECUTION_BINDING:
+                continue
+            aliases = _source_import_aliases_for_event(
+                repo_root,
+                capture,
+                event,
+                symbol,
+                parsed_sources=parsed_sources,
+                imports_by_line=imports_by_line,
+            )
+            for alias in aliases:
+                current_provider = _passive_capture_lookup(provider.module.__dict__, symbol)
+                current_consumer = _passive_capture_lookup(importer.module.__dict__, alias)
+                if (
+                    event_value is not retained
+                    or current_provider is not retained
+                    or current_consumer is not retained
+                ):
+                    disagreements.add((event.provider_name, symbol, event.importer_name, alias))
+                    continue
+                digest = provider_digests.get(event.provider_name)
+                if digest is None:
+                    source = repo_root / provider.relative_path
+                    digest = hashlib.sha256(source.read_bytes()).hexdigest()
+                    if (
+                        digest != provider.source_sha256
+                        or source.resolve() != Path(provider.origin).resolve()
+                        or type(provider.code) is not types.CodeType
+                    ):
+                        raise ValueError("executed_source_observation_mismatch")
+                    provider_digests[event.provider_name] = digest
+                capture.assert_import_binding(
+                    event, importer_attribute=alias, provider_export=symbol
+                )
+                matched.setdefault((event.provider_name, symbol, digest), set()).add(
+                    (event.importer_name, alias)
+                )
+    bindings = tuple(
+        (module, symbol, digest, tuple(sorted(consumers)))
+        for (module, symbol, digest), consumers in sorted(matched.items())
+    )
+    return bindings, tuple(sorted(disagreements))
+
+
 def _observe_unsealed_host_capture(
     recorder_module: object,
     capture: Any,  # noqa: ANN401
@@ -6265,8 +6378,8 @@ def _observe_unsealed_host_capture(
 
     The early host supplies its retained recorder and capture. This result is not
     an appointment, complete dependency graph, state proof, or authority token.
-    The same source-derived candidates and actual post-initializer bindings are
-    examined generically; no particular protocol or provider is privileged.
+    Actual observed module-level imports and their held bindings are examined
+    generically; no particular protocol or provider is privileged.
     """
 
     report: dict[str, object] = {
@@ -6305,55 +6418,9 @@ def _observe_unsealed_host_capture(
         if execution.module is not _passive_capture_lookup(sys.modules, __name__):
             raise ValueError("ledger_execution_binding_changed")
         graph = capture.relevant_graph(frozenset({__name__}))
-        candidates = _diagnose_unqualified_authority_import_candidates(root, __name__)
-        source_paths = dict(candidates.source_candidates)
-        reached = frozenset(graph.reached_sources)
-        events = capture.import_events()
-        events_by_binding: dict[tuple[str, str], list[Any]] = {}
-        for event in events:
-            if event.importer_name not in reached:
-                continue
-            for symbol in event.requested_exports:
-                events_by_binding.setdefault((event.provider_name, symbol), []).append(event)
-        matched: list[tuple[str, str, str, tuple[tuple[str, str], ...]]] = []
-        for module_name, symbol in candidates.unqualified_direct_bindings:
-            if module_name not in reached or module_name not in source_paths:
-                continue
-            observed = events_by_binding.get((module_name, symbol), ())
-            obligations: list[tuple[Any, str]] = []
-            for event in observed:
-                for alias in _source_import_aliases_for_event(root, capture, event, symbol):
-                    if _passive_capture_lookup(event.importer.__dict__, alias) is not (
-                        _NO_EXECUTION_BINDING
-                    ):
-                        obligations.append((event, alias))
-            if not obligations:
-                # Source candidates may describe dormant branches or local-only
-                # imports. They are not a producer-time module binding proof.
-                continue
-            try:
-                record = capture.completed(module_name)
-            except ImportError:
-                continue
-            value = capture.completed_binding(module_name, symbol)
-            source = root / source_paths[module_name]
-            digest = hashlib.sha256(source.read_bytes()).hexdigest()
-            if (
-                digest != record.source_sha256
-                or source.resolve() != Path(record.origin)
-                or type(record.code) is not types.CodeType
-            ):
-                raise ValueError("executed_source_observation_mismatch")
-            consumers: set[tuple[str, str]] = set()
-            for event, alias in obligations:
-                if _passive_capture_lookup(event.retained_exports, symbol) is not value:
-                    raise ValueError("imported_binding_observation_mismatch")
-                capture.assert_import_binding(
-                    event, importer_attribute=alias, provider_export=symbol
-                )
-                consumers.add((event.importer_name, alias))
-            matched.append((module_name, symbol, digest, tuple(sorted(consumers))))
-        report["executed_direct_bindings"] = tuple(sorted(matched))
+        matched, disagreements = _observed_source_bindings(root, capture, graph)
+        report["executed_direct_bindings"] = matched
+        report["observed_binding_disagreements"] = disagreements
         report["observed_source_modules"] = len(graph.reached_sources)
         report["external_provider_count"] = len(graph.external_providers)
         report["failed_reachable_imports"] = graph.failed_imports
@@ -6361,8 +6428,8 @@ def _observe_unsealed_host_capture(
         report["unresolved_importers"] = graph.unresolved_importers
         report["pending_modules"] = graph.pending_modules
         report["event_graph_scope"] = (
-            "observed selected-source import events reachable from the ledger; "
-            "not a complete runtime closure"
+            "observed module-initializer import bindings reachable from the ledger; "
+            "not a complete runtime closure or authority readset"
         )
         report["candidate_only"] = True
     except (

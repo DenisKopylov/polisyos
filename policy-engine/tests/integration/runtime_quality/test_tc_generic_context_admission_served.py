@@ -38,6 +38,7 @@ async def test_real_generic_context_uses_same_temporal_gate_and_fresh_http_bindi
     from polisyos.runtime.http.app import create_runtime_api_app
     from polisyos.runtime.http.container import RuntimeContainerOverrides
     from polisyos.runtime.http.dependencies import build_runtime_api_context
+    from polisyos.runtime.http.security import build_fixture_identity_claims
     from polisyos.runtime.quality.cycle_substrate import (
         CycleSubstrateContextArtifactOwner,
         CycleSubstrateContextOwnerError,
@@ -45,13 +46,18 @@ async def test_real_generic_context_uses_same_temporal_gate_and_fresh_http_bindi
         parse_cycle_substrate_context_job_artifact,
     )
     from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+    from polisyos.scientist.orchestration.engine import BudgetLedgerProducerRunBinding
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
     from tests._helpers.candidate_cycle_source_profile import (
         build_candidate_cycle_substrate_route_inputs,
     )
-    from tests._helpers.control_worker import dispatch_one_control_job
+    from tests._helpers.control_worker import dispatch_one_control_job, stop_embedded_control_worker
 
-    tenant_id = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
-    cell_id = "tc-generic-context-fixture"
+    # The dev middleware authenticates this fixed identity for the HTTP route.
+    # Seed source and CAS inputs under the same tenant/cell it will admit.
+    claims = build_fixture_identity_claims()
+    tenant_id, cell_id = claims.tenant_id, claims.cell_id
+    assert isinstance(tenant_id, str) and isinstance(cell_id, str)
     source = build_candidate_cycle_substrate_route_inputs(tmp_path / "source")
     prepared = await prepare_generic_n4_served_replay(
         tmp_path=tmp_path,
@@ -102,8 +108,30 @@ async def test_real_generic_context_uses_same_temporal_gate_and_fresh_http_bindi
         TestClient(app) as client,
     ):
         service = app.state._control_service
+        producer_store = app.state.runtime_container.llm_producer_settlement_store
+        assert type(producer_store) is BudgetMiddleware
+        assert service.llm_producer_settlement_store is producer_store
+        assert producer_store.settlement_owner_identity
+        # Keep the POST and explicit dispatch on one deterministic worker path.
+        stop_embedded_control_worker(service)
 
         async def resolve_actual_generic_handoff(**kwargs):
+            admission = service._control_store.current_execution_job_admission()
+            verified = service._control_store.verify_llm_producer_admission(expected=admission)
+            assert verified.scope.status == "established"
+            assert verified.scope.actor_authenticated is True
+            assert verified.scope.actor_subject == claims.sub
+            assert verified.scope.tenant_id == tenant_id
+            assert verified.scope.cell_id == cell_id
+            binding = kwargs["producer_run_binding"]
+            assert type(binding) is BudgetLedgerProducerRunBinding
+            assert binding.run_id == verified.job.run_id
+            assert binding.control_job_id == verified.job.job_id == job_id
+            assert binding.tenant_id == verified.scope.tenant_id
+            assert binding.cell_id == verified.scope.cell_id
+            assert binding.profile_id == verified.job.effective_execution_profile
+            assert producer_store._active_run_binding_for_key(f"nl-run:{binding.run_id}") == binding
+            assert producer_store._attempt_attribution_for(binding) == (verified.attempt, None)
             # Exercise the actual generic-only branch. No candidate owner or
             # direct gate call can stand in for this independently chosen route.
             resolver = kwargs["generic_cycle_simulation_handoff_resolver"]

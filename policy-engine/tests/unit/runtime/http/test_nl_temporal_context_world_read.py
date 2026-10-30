@@ -22,6 +22,10 @@ from polisyos.runtime.quality.cycle_substrate import (
     cycle_job_design_problem_ref,
 )
 from polisyos.runtime.quality.design_problem import DESIGN_PROBLEM_V3_SCHEMA_VERSION
+from polisyos.scientist.orchestration.engine import BudgetLedgerProducerRunBinding
+from polisyos.scientist.orchestration.engine.budget import BudgetState
+from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
+from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 from tests._helpers.control_worker import dispatch_one_control_job
 from tests._helpers.runtime_http import _build_control_service
 from tests._helpers.world_model_record import _build_record, _substrate_registry
@@ -109,6 +113,13 @@ async def _exercise(
         artifact_store=store,
         cycle_substrate_context_admission_owner=owner,
     )
+    # Use the same durable producer owner as the application container. The
+    # admitted worker, not this fixture, constructs the scoped run binding.
+    producer_store = BudgetMiddleware(
+        BudgetState(), ledger=FileBudgetLedger(tmp_path / "control" / "producer-ledger.json")
+    )
+    service.bind_llm_producer_settlement_store(producer_store)
+    assert service.llm_producer_settlement_store is producer_store
     observed: dict[str, Any] = {}
     if replay_missing_rows:
         from polisyos.runtime.http.services.control import (
@@ -171,6 +182,24 @@ async def _exercise(
             )
 
         async def consume_context(**kwargs):
+            # The real compiler seam must be reached under this worker's
+            # authenticated current job and the active durable producer owner.
+            admission = service._control_store.current_execution_job_admission()
+            verified = service._control_store.verify_llm_producer_admission(expected=admission)
+            assert verified.scope.status == "established"
+            assert verified.scope.actor_authenticated is True
+            assert verified.scope.actor_subject == claims.sub
+            assert verified.scope.tenant_id == claims.tenant_id
+            assert verified.scope.cell_id == claims.cell_id
+            binding = kwargs["producer_run_binding"]
+            assert type(binding) is BudgetLedgerProducerRunBinding
+            assert binding.run_id == verified.job.run_id
+            assert binding.control_job_id == verified.job.job_id == launch.job_id
+            assert binding.tenant_id == verified.scope.tenant_id
+            assert binding.cell_id == verified.scope.cell_id
+            assert binding.profile_id == verified.job.effective_execution_profile
+            assert producer_store._active_run_binding_for_key(f"nl-run:{binding.run_id}") == binding
+            assert producer_store._attempt_attribution_for(binding) == (verified.attempt, None)
             observed["trusted_at_entry"] = deepcopy(kwargs["trusted_source_context"])
             observed["compiler_at_entry"] = deepcopy(kwargs["context"])
             resolver = kwargs["cycle_substrate_context_resolver"]

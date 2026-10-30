@@ -1,0 +1,93 @@
+id = "2026-10-30-e02-native-predictive-replay"
+title = "Retain selected native predictive replay as a limited candidate"
+type = "added"
+component = "scientist"
+owner = "team-polisyos"
+summary = "Bind a historical prefix to a derived Trinity, execute a selected Foundry trajectory, and reconcile its persisted native report on fresh read."
+evidence = ["src/polisyos/scientist/methods/backtesting/native_replay.py", "tests/unit/scientist/methods/backtesting/test_native_replay.py"]
+compatibility = "The native replay is opt-in. Unsupported multiple-replica requests and native matrix aggregation refuse before dispatch. A completed simulation with a later workflow failure remains a degraded scientist_candidate with the failed replica retained. Legacy-only cohort profile behavior is retained."
+change_class = "python-public-api"
+surface_classification = "Additive Foundry execute and Scientist guarded-reader facades, selected-run callback, and explicitly unverified IR candidate read. The ordinary IR reader refuses native reports that require higher-layer verification."
+migration = "Existing legacy reports require no migration. Native report consumers use the guarded Scientist reader and selected source, workflow, and report profiles."
+limitations = "Model simulation only; each step reinitializes Foundry with the same seed, and the temporal stochastic law is not established. No inferred prediction intervals, empirical calibration, producer authenticity, external source authenticity, temporal provenance, causal authority or trust eligibility. The fixture is not production provenance. The bounded coverage inspector does not measure any cohort-backed report, including legacy cohorts."
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/foundry/README.md", "src/polisyos/scientist/methods/backtesting/README.md", "src/polisyos/scientist/README.md", "src/polisyos/ir/analytics/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-native-guarded-backtest-reader"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.scientist.methods.backtesting.load_backtest_report_for_consumption"
+owner = "team-polisyos"
+version_owner = "team-architecture"
+deprecation_window = "not_applicable"
+release_note = "Route native report consumers through selected trajectory and workflow verification."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/scientist/methods/backtesting/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-workflow-selected-run-callback"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.scientist.api.run_experiment"
+owner = "team-polisyos"
+version_owner = "team-architecture"
+deprecation_window = "not_applicable"
+release_note = "Optionally deliver the workflow owner's selected finalized run reference without changing the returned state."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/scientist/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-ir-backtest-candidate-read"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.ir.analytics.backtest.load_backtest_report_candidate"
+owner = "team-polisyos"
+version_owner = "team-architecture"
+deprecation_window = "not_applicable"
+release_note = "Expose the typed candidate read for higher-layer native verification; ordinary IR report reads refuse unverified native evidence."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/ir/analytics/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-ir-native-report-refusal"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.ir.analytics.backtest.NativeBacktestVerificationRequiredError"
+owner = "team-polisyos"
+version_owner = "team-architecture"
+deprecation_window = "not_applicable"
+release_note = "Signal that native backtest evidence requires higher-layer verification."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/ir/analytics/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-foundry-state-snapshot-writer-facade"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.foundry.execute.put_state_snapshot"
+owner = "team-polisyos"
+version_owner = "team-architecture"
+deprecation_window = "not_applicable"
+release_note = "Expose the existing Foundry state-snapshot writer through its execute facade."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/foundry/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-foundry-state-delta-facade"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.foundry.execute.apply_state_delta"
+owner = "team-polisyos"
+version_owner = "team-architecture"
+deprecation_window = "not_applicable"
+release_note = "Expose the existing Foundry state-delta application through its execute facade."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/foundry/README.md"]
+runbook_docs = []

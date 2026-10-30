@@ -28,16 +28,65 @@ The standard workflow enforces a strict check: `ModelSpec.data_snapshot_ref` mus
 point to this slice before Foundry inputs are bound. At the execution boundary,
 the backtest rechecks the complete selected ref from `foundry.input_bindings`.
 
-`n_simulation_runs=K` launches K separate workflows with unique `run_id` values
+For the legacy Scientist replay, `n_simulation_runs=K` launches K separate workflows with unique `run_id` values
 and seeds in the actual `ExecuteRequest.exec_config`. The
 `scientist.backtest.replica_cohort` artifact stores the source request, runtime
 seed source, references to `SimulationResult`/metrics, and the
 `requested/started/completed/failed` denominator; the final backtest report
-references this artifact. A single successful replica can pass its trajectory to
+references this artifact. Its `foundry_execute_count` counts replicas that reached
+Foundry, not individual step calls. A single successful replica can pass its trajectory to
 the existing evaluator. For K > 1, results are stored per replica, and the
 backtest explicitly records that no supported multi-run projection exists and
 uses a naive diagnostic fallback; it does not average replicas into a scalar or
 replicate one scalar across the horizon.
+
+The opt-in `params.backtest_native_forecast` path supports an ordered, single
+model trajectory. It requires selected source, candidate, Trinity and registry
+views, explicit prefix-only binding rules, registered target slots and units, and
+matching source coordinates. Supplied outcomes must equal the withheld target
+values in that selected source. It derives a Trinity bound to the historical
+prefix and executes each future step through the configured Foundry port. The
+trajectory and report link the selected execution inputs, results and state
+snapshots, and the report records the distinct number of native step calls.
+`load_native_forecast` recomputes the prefix, initial materialization,
+selected execution basis, delta application, predecessor states and slot values; the opt-in
+`load_native_backtest_report` also verifies report predictions and withheld values.
+The public `load_backtest_report_for_consumption` admits legacy reports through
+the IR owner and routes native reports through this verification. The low-level
+IR report loader refuses a native report; its explicitly named candidate reader
+only admits the typed bytes for subsequent verification. The decision-packet
+reader uses the guarded loader. Calibration-validation and Runtime predictive
+calibration continue to refuse native reports at the IR boundary; native
+calibration and interval evidence are outside this replay's supported scope.
+The independently assembled backtest matrix refuses native plans until it can
+retain the selected trajectory and cohort edges. In a mixed native/legacy
+batch, every Scientist cohort receives an exact selected profile; a legacy-only
+batch retains its existing profile behavior.
+The bounded coverage inspector marks any cohort-backed report, including a
+legacy cohort, as not measured because it does not verify cohort semantics.
+Native multi-replica projection is unsupported and refuses before workflow
+dispatch, recording the requested count and zero starts. A failed selected
+native execution is unavailable rather than a substituted forecast. If the
+simulation node succeeds but the surrounding workflow later fails, the report
+retains its verified values as `scientist_candidate`, records the actual failed
+workflow and replica count, and stays degraded and ineligible for trust. The
+native report reader reopens the workflow and cohort before accepting that status.
+The selected run manifest links the engine's finalization and run-specific
+workflow specification to the report; the reader checks the complete node
+census and terminal status against that selected specification.
+For an unavailable request, the requested and started replica counts are
+marked `not_established`: the original plan and no-dispatch fact are not
+independently established by the persisted report.
+
+These are predictive model outputs with no inferred intervals or trust authority.
+Each step reinitializes Foundry with the same seed; the temporal stochastic law
+and continuity of random state are not established by this route.
+The source/model provenance, producer authenticity, external time meaning, observation independence,
+calibration and causal validity remain unestablished by replay. In particular,
+the supplied source and model may themselves contain information obtained after
+the declared cutoff. The request and report carry these limitations explicitly.
+A synthetic fixture demonstrates program behavior, not
+production provenance or empirical calibration.
 
 ## Selected artifact profiles
 

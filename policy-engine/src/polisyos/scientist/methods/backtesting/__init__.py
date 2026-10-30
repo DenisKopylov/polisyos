@@ -61,6 +61,7 @@ __all__ = [
     "build_temporal_backtest_report",
     "evaluate_temporal_safe_rejection",
     "evaluate_temporal_trajectory",
+    "load_backtest_report_for_consumption",
     "replay_fragment_composition_case",
     "run_phase_d4_challenge_suites",
     "summarize_temporal_evaluations",
@@ -69,6 +70,11 @@ __all__ = [
 
 def __getattr__(name: str) -> Any:
     """Resolve optional backtesting helpers on first access."""
+    if name == "load_backtest_report_for_consumption":
+        module = importlib.import_module("polisyos.scientist.methods.backtesting.native_replay")
+        value = getattr(module, name)
+        globals()[name] = value
+        return value
     if name in {
         "CALIBRATION_RULE_ID",
         "CalibrationRuleBinding",

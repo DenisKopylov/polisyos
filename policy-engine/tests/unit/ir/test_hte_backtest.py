@@ -9,8 +9,10 @@ from polisyos.ir.analytics.backtest import (
     BacktestReport,
     BacktestScenario,
     BiasDirection,
+    NativeBacktestVerificationRequiredError,
     OutcomeComparison,
     load_backtest_report,
+    load_backtest_report_candidate,
     persist_backtest_report,
 )
 from polisyos.ir.analytics.causal import CausalMethod
@@ -273,3 +275,25 @@ def test_unbound_legacy_backtest_grade_is_refused_and_persists_as_limited(tmp_pa
     assert loaded.trust_score is None
     assert loaded.trust_grade is None
     assert "metric_diagnostics_not_source_bound" in loaded.degraded_reasons
+
+
+def test_report_loader_requires_native_verification_but_keeps_legacy_metadata(tmp_path) -> None:
+    store = _ensure_ir_artifact_store(FileSystemCAS(tmp_path))
+    scenario = BacktestScenario(
+        scenario_id="s1", scenario_label="legacy", metadata={"native_note": "ordinary label"}
+    )
+    legacy = BacktestReport(report_id="legacy", scenarios=[scenario])
+    legacy_ref = persist_backtest_report(store, legacy)
+    assert load_backtest_report(store, legacy_ref).scenarios[0].metadata == scenario.metadata
+
+    candidate = legacy.model_copy(
+        update={
+            "scenarios": [
+                scenario.model_copy(update={"metadata": {"native_forecast_ref": {"id": "x"}}})
+            ]
+        }
+    )
+    candidate_ref = persist_backtest_report(store, candidate)
+    with pytest.raises(NativeBacktestVerificationRequiredError):
+        load_backtest_report(store, candidate_ref)
+    assert load_backtest_report_candidate(store, candidate_ref).report_id == "legacy"

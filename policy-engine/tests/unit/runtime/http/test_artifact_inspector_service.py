@@ -1,6 +1,12 @@
 from __future__ import annotations
 
-from polisyos.core.artifacts import CanonInfo, FileSystemCAS, PutOptions, SchemaInfo
+from polisyos.core.artifacts import (
+    CanonInfo,
+    FileSystemCAS,
+    PutOptions,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.canonical_profile import (
     CoreJsonReadBoundsRefusalError,
     CoreJsonReadLimits,
@@ -120,6 +126,109 @@ def test_predictive_content_sidecar_requires_the_candidate_surface_opt_in(
         opted_in_preview.predictive_coverage_diagnostic.source_materialization
         == "reader_materialized"
     )
+    assert opted_in_preview.predictive_coverage_diagnostic.measurement_status == "measured"
+
+    # Preserve the exact report bytes and put native evidence only in the
+    # selected cohort edge. The bounded preview cannot verify that trajectory.
+    native_ref = store.put_json(
+        {"candidate": "native"},
+        PutOptions(kind="scientist.backtest.native_forecast", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    cohort_ref = store.put_json(
+        {"replica": 1},
+        PutOptions(
+            kind="scientist.backtest.replica_cohort",
+            media_type="application/json",
+            inputs=[input_ref_from_artifact_ref(native_ref, role="native_forecast:1")],
+        ),
+        return_selected_profile=True,
+    )
+    sibling = store.put_json(
+        payload,
+        PutOptions(
+            kind="ir.backtest_report",
+            media_type="application/json",
+            schema=SchemaInfo(name="ir.backtest_report", version="1.0"),
+            inputs=[input_ref_from_artifact_ref(cohort_ref, role="replica_cohort:one-scenario")],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    assert sibling.artifact_id == ref.artifact_id
+    sibling_manifest = store.get_manifest(sibling)
+    diagnostic = service.get_predictive_coverage_diagnostic(
+        sibling.artifact_id, manifest=sibling_manifest
+    )
+    assert diagnostic is not None
+    assert diagnostic.measurement_status == "not_measured"
+    assert diagnostic.reason_code == "unsupported_report_scope"
+    assert diagnostic.scenarios == []
+    raw_preview = service.get_content_preview(
+        sibling.artifact_id,
+        manifest=sibling_manifest,
+        allow_candidate_predictive_diagnostic_surface=True,
+    )
+    assert raw_preview.preview == opted_in_preview.preview
+    assert raw_preview.predictive_coverage_diagnostic == diagnostic
+
+    legacy_cohort = store.put_json(
+        {"replica": "legacy"},
+        PutOptions(kind="scientist.backtest.replica_cohort", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    legacy_report = store.put_json(
+        payload,
+        PutOptions(
+            kind="ir.backtest_report",
+            media_type="application/json",
+            schema=SchemaInfo(name="ir.backtest_report", version="1.0"),
+            inputs=[input_ref_from_artifact_ref(legacy_cohort, role="replica_cohort:one-scenario")],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    legacy_diagnostic = service.get_predictive_coverage_diagnostic(
+        legacy_report.artifact_id, manifest=store.get_manifest(legacy_report)
+    )
+    assert legacy_diagnostic is not None
+    assert legacy_diagnostic.measurement_status == "not_measured"
+    assert legacy_diagnostic.reason_code == "unsupported_report_scope"
+
+    # These are structurally valid synthetic interval payloads, not native
+    # interval production. Retained native modes or reasons still prevent a
+    # measurement even when native metadata and edges have been stripped.
+    from copy import deepcopy
+
+    for marker in ("scenario_mode", "report_mode", "reason"):
+        changed_payload = deepcopy(payload)
+        if marker == "scenario_mode":
+            changed_payload["prediction_mode_effective"] = "mixed"
+            changed_payload["scenarios"][0]["metadata"] = {
+                "prediction_source_effective": "scientist_candidate"
+            }
+        elif marker == "report_mode":
+            changed_payload["prediction_mode_effective"] = "scientist_unavailable"
+        else:
+            changed_payload["degraded_reasons"].append(
+                "one-scenario: native_temporal_mapping_not_established"
+            )
+        changed_ref = store.put_json(
+            changed_payload,
+            PutOptions(
+                kind="ir.backtest_report",
+                media_type="application/json",
+                schema=SchemaInfo(name="ir.backtest_report", version="1.0"),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        changed_diagnostic = service.get_predictive_coverage_diagnostic(
+            changed_ref.artifact_id, manifest=store.get_manifest(changed_ref)
+        )
+        assert changed_diagnostic is not None
+        assert changed_diagnostic.measurement_status == "not_measured"
+        assert changed_diagnostic.reason_code == "unsupported_report_scope"
 
 
 def test_decision_packet_preview_adds_typed_sidecar(tmp_path) -> None:

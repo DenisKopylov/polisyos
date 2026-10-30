@@ -144,6 +144,9 @@ class _BacktestReplicaRecord(BaseModel):
     status: Literal["completed", "failed"]
     physical_request: dict[str, Any] | None = None
     workflow_report_ref: CoreArtifactRef | None = None
+    run_manifest_ref: CoreArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     workflow_status: str | None = None
     workflow_failures: list[dict[str, Any]] = Field(default_factory=list)
     simulation_result_ref: SimulationResultRef | None = None
@@ -154,7 +157,10 @@ class _BacktestReplicaRecord(BaseModel):
 
 
 class _BacktestReplicaCohort(BaseModel):
-    """Durable denominator and CAS lineage for one backtest's Scientist replicas."""
+    """Durable denominator and CAS lineage for one backtest's Scientist replicas.
+
+    ``foundry_execute_count`` counts replicas reaching Foundry, not step calls.
+    """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -223,7 +229,7 @@ class _BacktestReplicaFoundryPort:
 
             exec_config = FoundryExecConfig.model_validate(
                 {
-                    **request.exec_config.model_dump(mode="python"),
+                    **request.exec_config.model_dump(mode="python", exclude_unset=True),
                     "seed": self.seed,
                 }
             )
@@ -509,6 +515,13 @@ class BacktestOrchestrator:
         requested_modes: list[str] = []
         effective_modes: list[str] = []
         degraded_reasons: list[str] = []
+        select_cohort_profiles = any(
+            plan.prediction_source is PredictionSource.SCIENTIST
+            and isinstance(plan.scientist_state, dict)
+            and isinstance(plan.scientist_state.get("params"), dict)
+            and "backtest_native_forecast" in plan.scientist_state["params"]
+            for plan in plans
+        )
 
         for plan in plans:
             (
@@ -517,7 +530,7 @@ class BacktestOrchestrator:
                 prediction_mode_requested,
                 prediction_mode_effective,
                 scenario_degraded_reasons,
-            ) = self._run_single_scenario(plan)
+            ) = self._run_single_scenario(plan, select_cohort_profiles=select_cohort_profiles)
             scenarios.append(scenario)
             warnings.extend([f"{plan.plan_id}: {item}" for item in scenario_warnings])
             requested_modes.append(prediction_mode_requested)
@@ -547,11 +560,23 @@ class BacktestOrchestrator:
             except (TypeError, ValueError):
                 continue
             report_inputs.append(
-                input_ref_from_artifact_ref(
-                    cohort_ref,
-                    role=f"replica_cohort:{scenario.scenario_id}",
+                InputRef.model_validate(
+                    input_ref_from_artifact_ref(
+                        cohort_ref,
+                        role=f"replica_cohort:{scenario.scenario_id}",
+                    ).model_dump(mode="json")
                 )
             )
+            forecast_payload = scenario.metadata.get("native_forecast_ref")
+            if isinstance(forecast_payload, Mapping):
+                forecast_ref = CoreArtifactRef.model_validate(dict(forecast_payload))
+                report_inputs.append(
+                    InputRef.model_validate(
+                        input_ref_from_artifact_ref(
+                            forecast_ref, role=f"native_forecast:{scenario.scenario_id}"
+                        ).model_dump(mode="json")
+                    )
+                )
         ref = persist_backtest_report(
             _ensure_ir_artifact_store(self._store),
             report,
@@ -563,12 +588,18 @@ class BacktestOrchestrator:
     def _run_single_scenario(
         self,
         plan: HistoricalValidationPlan,
+        *,
+        select_cohort_profiles: bool = False,
     ) -> tuple[BacktestScenario, list[str], str, str, list[str]]:
         warnings: list[str] = []
         historical_data = self._load_historical_data(plan)
         masked_data = self._masker.mask(historical_data, plan)
 
-        prediction_payload = self._predict(plan, masked_data)
+        prediction_payload = (
+            self._predict(plan, masked_data, select_cohort_profiles=True)
+            if select_cohort_profiles
+            else self._predict(plan, masked_data)
+        )
         if prediction_payload.get("warnings"):
             warnings.extend(prediction_payload["warnings"])
         degraded_reasons = [
@@ -595,6 +626,22 @@ class BacktestOrchestrator:
             ]
         if "replica_cohort_ref" in prediction_payload:
             scenario_metadata["replica_cohort_ref"] = prediction_payload["replica_cohort_ref"]
+        for key in (
+            "native_forecast_ref",
+            "native_request_ref",
+            "native_forecast_purpose",
+            "native_workflow_status",
+            "native_workflow_failures",
+            "native_foundry_step_count",
+            "native_randomness_scope",
+            "native_limitations",
+            "native_requested_replicas",
+            "native_started_replicas",
+            "native_requested_count_status",
+            "native_started_count_status",
+        ):
+            if key in prediction_payload:
+                scenario_metadata[key] = prediction_payload[key]
         confidence_level = prediction_payload.get("confidence_level", plan.confidence_level)
 
         scenario = self._evaluator.evaluate(
@@ -640,6 +687,8 @@ class BacktestOrchestrator:
         self,
         plan: HistoricalValidationPlan,
         masked_data: dict[str, Any],
+        *,
+        select_cohort_profiles: bool = False,
     ) -> dict[str, Any]:
         if plan.prediction_source is PredictionSource.PROVIDED:
             return {
@@ -651,7 +700,9 @@ class BacktestOrchestrator:
                 "degraded_reasons": [],
             }
         if plan.prediction_source is PredictionSource.SCIENTIST:
-            return self._predict_with_scientist(plan, masked_data)
+            return self._predict_with_scientist(
+                plan, masked_data, select_cohort_profiles=select_cohort_profiles
+            )
         naive = self._predict_with_naive(plan, masked_data)
         naive["prediction_mode_effective"] = PredictionSource.NAIVE.value
         naive["degraded"] = False
@@ -662,6 +713,8 @@ class BacktestOrchestrator:
         self,
         plan: HistoricalValidationPlan,
         masked_data: dict[str, Any],
+        *,
+        select_cohort_profiles: bool = False,
     ) -> dict[str, Any]:
         from polisyos.core.artifacts import load_core_json_artifact
 
@@ -701,12 +754,64 @@ class BacktestOrchestrator:
                 raise ValueError("scientist_state.params.random_seed must be an integer")
             base_seed = candidate_seed
 
-        snapshot_payload = self._persist_masked_view(plan, masked_data)
-        masked_snapshot_ref = DataSnapshotRef.model_validate(snapshot_payload)
         execution_store = self._scientist_execution_store()
         cohort_nonce = uuid.uuid4().hex[:12]
+        native = "backtest_native_forecast" in params_template
+        native_first_state: dict[str, Any] | None = None
+        if native:
+            if plan.n_simulation_runs != 1:
+                reason = "native_replica_projection_unsupported"
+                return {
+                    "predictions": {},
+                    "intervals": {},
+                    "warnings": [reason],
+                    "prediction_mode_effective": "scientist_unavailable",
+                    "degraded": True,
+                    "degraded_reasons": [
+                        reason,
+                        "native_requested_count_not_established",
+                        "native_started_count_not_established",
+                    ],
+                    "native_requested_replicas": plan.n_simulation_runs,
+                    "native_started_replicas": 0,
+                    "native_requested_count_status": "not_established",
+                    "native_started_count_status": "not_established",
+                }
+            from polisyos.scientist.methods.backtesting.native_replay import prepare_native_replay
+
+            try:
+                native_first_state = prepare_native_replay(
+                    execution_store,
+                    plan,
+                    self._load_historical_data(plan),
+                    run_id=f"BT-{plan.plan_id}-{cohort_nonce}-1",
+                    seed=base_seed,
+                )
+                snapshot_payload = native_first_state["inputs"]["data_snapshot_ref"]
+            except Exception as exc:
+                reason = f"native_forecast_unavailable:{type(exc).__name__}:{exc}"
+                return {
+                    "predictions": {},
+                    "intervals": {},
+                    "warnings": [reason],
+                    "prediction_mode_effective": "scientist_unavailable",
+                    "degraded": True,
+                    "degraded_reasons": [
+                        reason,
+                        "native_requested_count_not_established",
+                        "native_started_count_not_established",
+                    ],
+                    "native_requested_replicas": plan.n_simulation_runs,
+                    "native_started_replicas": 0,
+                    "native_requested_count_status": "not_established",
+                    "native_started_count_status": "not_established",
+                }
+        else:
+            snapshot_payload = self._persist_masked_view(plan, masked_data)
+        masked_snapshot_ref = DataSnapshotRef.model_validate(snapshot_payload)
         replica_records: list[_BacktestReplicaRecord] = []
         successful_artifacts: list[dict[str, Any]] = []
+        native_forecast_refs: list[tuple[int, CoreArtifactRef]] = []
         foundry_execute_count = 0
 
         for index in range(plan.n_simulation_runs):
@@ -734,14 +839,21 @@ class BacktestOrchestrator:
             seed_source: str | None = None
             environment_fingerprint: str | None = None
             workflow_report_ref: CoreArtifactRef | None = None
+            finalized_run_refs: list[CoreArtifactRef] = []
             workflow_status: str | None = None
             workflow_failures: list[dict[str, Any]] = []
             workflow_result: Any = None
+            workflow_started = False
             try:
+                if native:
+                    assert native_first_state is not None
+                    replica_state = native_first_state
+                workflow_started = True
                 workflow_result = run_experiment(
                     replica_state,
                     store=execution_store,
                     foundry=replica_foundry,
+                    **({"on_run_finalized": finalized_run_refs.append} if native else {}),
                 )
                 if not isinstance(workflow_result, Mapping):
                     raise ValueError("scientist_workflow_result_missing")
@@ -752,7 +864,18 @@ class BacktestOrchestrator:
                 if not isinstance(raw_workflow_ref, Mapping):
                     raise ValueError("scientist_workflow_report_ref_missing")
                 workflow_report_ref = CoreArtifactRef.model_validate(dict(raw_workflow_ref))
-                workflow_report = load_core_json_artifact(self._store, workflow_report_ref)
+                if native:
+                    from polisyos.scientist.methods.backtesting.native_replay import (
+                        _load_native_workflow_report,
+                    )
+
+                    if len(finalized_run_refs) != 1:
+                        raise ValueError("native workflow finalized run reference missing")
+                    workflow_report = _load_native_workflow_report(
+                        execution_store, workflow_report_ref, finalized_run_refs[0]
+                    )
+                else:
+                    workflow_report = load_core_json_artifact(self._store, workflow_report_ref)
                 if not isinstance(workflow_report, Mapping):
                     raise ValueError("scientist_workflow_report_payload_invalid")
                 if workflow_report.get("run_id") != run_id:
@@ -779,8 +902,20 @@ class BacktestOrchestrator:
                     and replica_foundry.result.simulation_result_ref is not None
                 ):
                     simulation_result_ref = replica_foundry.result.simulation_result_ref
-                if workflow_status is not None and workflow_status != "ok":
-                    raise ValueError(f"scientist_workflow_status:{workflow_status}")
+                partial_native = False
+                if workflow_status != "ok":
+                    partial_native = (
+                        native
+                        and isinstance(raw_nodes, list)
+                        and any(
+                            isinstance(node, Mapping)
+                            and node.get("alias") == "run_simulation"
+                            and node.get("status") == "ok"
+                            for node in raw_nodes
+                        )
+                    )
+                    if not partial_native:
+                        raise ValueError(f"scientist_workflow_status:{workflow_status}")
                 if replica_foundry.request is None:
                     raise ValueError("scientist_workflow_did_not_submit_foundry_request")
                 if replica_foundry.result is None or not replica_foundry.result.ok:
@@ -826,12 +961,43 @@ class BacktestOrchestrator:
                     simulation_result_ref
                 ):
                     raise ValueError("scientist_simulation_result_mismatch")
-                successful_artifacts.append(
-                    {
-                        "metrics_ref": metrics_ref.model_dump(mode="json"),
-                        "simulation_result_ref": simulation_result_ref.model_dump(mode="json"),
-                    }
-                )
+                artifacts: dict[str, Any] = {
+                    "metrics_ref": metrics_ref.model_dump(mode="json"),
+                    "simulation_result_ref": simulation_result_ref.model_dump(mode="json"),
+                }
+                if native:
+                    from polisyos.scientist.methods.backtesting.native_replay import (
+                        FORECAST_KEY,
+                        REQUEST_KEY,
+                        load_native_forecast,
+                    )
+
+                    forecast_ref = CoreArtifactRef.model_validate(final_artifacts[FORECAST_KEY])
+                    request_ref = CoreArtifactRef.model_validate(
+                        replica_state["params"][REQUEST_KEY]
+                    )
+                    forecast, native_request = load_native_forecast(
+                        execution_store, forecast_ref, request_ref
+                    )
+                    if native_request.run_id != run_id or native_request.seed != seed:
+                        raise ValueError("native forecast run/seed differs from replica")
+                    if forecast.simulation_refs[-1] != simulation_result_ref:
+                        raise ValueError("native forecast final simulation differs from workflow")
+                    artifacts.update(
+                        native_forecast_ref=forecast_ref.model_dump(mode="json"),
+                        native_request_ref=request_ref.model_dump(mode="json"),
+                        native_forecast_purpose=native_request.profile.purpose,
+                        native_predictions=forecast.values,
+                        native_workflow_status=workflow_status,
+                        native_workflow_failures=workflow_failures,
+                        native_foundry_step_count=len(forecast.simulation_refs),
+                        native_randomness_scope=native_request.randomness_scope,
+                        native_limitations=native_request.limitations,
+                    )
+                    native_forecast_refs.append((replica_index, forecast_ref))
+                successful_artifacts.append(artifacts)
+                if partial_native:
+                    failure = f"scientist_workflow_status:{workflow_status}"
             except Exception as exc:
                 failure = f"{type(exc).__name__}: {exc}"
             if failure is not None:
@@ -855,10 +1021,11 @@ class BacktestOrchestrator:
                     index=replica_index,
                     run_id=run_id,
                     seed=seed,
-                    workflow_started=True,
+                    workflow_started=workflow_started,
                     status="completed" if failure is None else "failed",
                     physical_request=physical_request,
                     workflow_report_ref=workflow_report_ref,
+                    run_manifest_ref=finalized_run_refs[0] if finalized_run_refs else None,
                     workflow_status=workflow_status,
                     workflow_failures=workflow_failures,
                     simulation_result_ref=simulation_result_ref,
@@ -882,6 +1049,12 @@ class BacktestOrchestrator:
         )
         cohort_inputs = [input_ref_from_artifact_ref(masked_snapshot_ref, role="masked_data")]
         for record in replica_records:
+            if record.run_manifest_ref is not None:
+                cohort_inputs.append(
+                    input_ref_from_artifact_ref(
+                        record.run_manifest_ref, role=f"replica_{record.index}_run_manifest"
+                    )
+                )
             if record.physical_request is None:
                 if record.workflow_report_ref is not None:
                     cohort_inputs.append(
@@ -928,6 +1101,10 @@ class BacktestOrchestrator:
                         role=f"replica_{record.index}_metrics",
                     )
                 )
+        for index, forecast_ref in native_forecast_refs:
+            cohort_inputs.append(
+                input_ref_from_artifact_ref(forecast_ref, role=f"native_forecast:{index}")
+            )
         cohort_ref = put_json_artifact(
             _ensure_ir_artifact_store(self._store),
             cohort.model_dump(mode="json"),
@@ -936,9 +1113,28 @@ class BacktestOrchestrator:
             schema_version="1.0",
             inputs=cohort_inputs,
             canon_spec=IRCanonSpec(forbid_floats=False, forbid_nan_inf=False),
+            return_selected_profile=native or select_cohort_profiles,
         )
 
         def _naive_with_cohort(reason: str) -> dict[str, Any]:
+            if native:
+                return {
+                    "predictions": {},
+                    "intervals": {},
+                    "warnings": warnings,
+                    "prediction_mode_effective": "scientist_unavailable",
+                    "degraded": True,
+                    "degraded_reasons": [
+                        reason,
+                        "native_requested_count_not_established",
+                        "native_started_count_not_established",
+                    ],
+                    "replica_cohort_ref": normalize_artifact_ref(cohort_ref),
+                    "native_requested_replicas": plan.n_simulation_runs,
+                    "native_started_replicas": cohort.started_count,
+                    "native_requested_count_status": "not_established",
+                    "native_started_count_status": "not_established",
+                }
             naive = self._predict_with_naive(plan, masked_data)
             naive["warnings"] = warnings + naive.get("warnings", [])
             naive["prediction_mode_effective"] = PredictionSource.NAIVE.value
@@ -947,7 +1143,13 @@ class BacktestOrchestrator:
             naive["replica_cohort_ref"] = normalize_artifact_ref(cohort_ref)
             return naive
 
-        if completed_count != plan.n_simulation_runs:
+        partial_native_result = (
+            native
+            and plan.n_simulation_runs == 1
+            and completed_count == 0
+            and len(successful_artifacts) == 1
+        )
+        if completed_count != plan.n_simulation_runs and not partial_native_result:
             return _naive_with_cohort("scientist_replica_cohort_incomplete")
         if plan.n_simulation_runs > 1:
             warnings.append(
@@ -956,6 +1158,33 @@ class BacktestOrchestrator:
             return _naive_with_cohort("scientist_replica_projection_unsupported")
 
         artifacts = successful_artifacts[0]
+
+        if native:
+            return {
+                "predictions": artifacts["native_predictions"],
+                "intervals": {},
+                "warnings": warnings,
+                "prediction_mode_effective": (
+                    "scientist_candidate"
+                    if partial_native_result
+                    else PredictionSource.SCIENTIST.value
+                ),
+                "degraded": True,
+                "degraded_reasons": [
+                    "native_predictive_simulation_only",
+                    *artifacts["native_limitations"],
+                    *(["scientist_replica_cohort_incomplete"] if partial_native_result else []),
+                ],
+                "replica_cohort_ref": normalize_artifact_ref(cohort_ref),
+                "native_forecast_ref": artifacts["native_forecast_ref"],
+                "native_request_ref": artifacts["native_request_ref"],
+                "native_forecast_purpose": artifacts["native_forecast_purpose"],
+                "native_workflow_status": artifacts["native_workflow_status"],
+                "native_workflow_failures": artifacts["native_workflow_failures"],
+                "native_foundry_step_count": artifacts["native_foundry_step_count"],
+                "native_randomness_scope": artifacts["native_randomness_scope"],
+                "native_limitations": artifacts["native_limitations"],
+            }
 
         metrics_ref_payload = artifacts.get("metrics_ref")
         predictions: dict[str, list[float]] = {}
@@ -1005,12 +1234,7 @@ class BacktestOrchestrator:
         if set(predictions) != set(plan.target_metrics):
             reason = "scientist_predictions_missing"
             warnings.append("scientist predictions missing; using naive fallback")
-            naive = self._predict_with_naive(plan, masked_data)
-            naive["warnings"] = warnings + naive.get("warnings", [])
-            naive["prediction_mode_effective"] = PredictionSource.NAIVE.value
-            naive["degraded"] = True
-            naive["degraded_reasons"] = [reason]
-            return naive
+            return _naive_with_cohort(reason)
         result = {
             "predictions": predictions,
             "intervals": intervals,

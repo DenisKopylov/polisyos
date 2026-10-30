@@ -398,3 +398,11 @@ binds reads to the exact owner row and canonical profile, and returns the same
 strict DTO type. References carried inside reports and certificates are
 preserved as typed payload data; the owner does not enumerate resource IDs or
 claim those resources exist.
+
+## Native backtest reads
+
+`load_backtest_report` refuses selected native trajectory reports because IR
+cannot verify their Foundry execution. `load_backtest_report_candidate` admits
+the typed report bytes for a higher-layer verifier; it is not an authority or
+prediction-verification result. Scientist's guarded report reader performs the
+native trajectory and workflow checks before its consumers use the report.

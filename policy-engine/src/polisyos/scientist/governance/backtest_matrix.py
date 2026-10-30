@@ -32,7 +32,7 @@ from polisyos.scientist.methods.backtesting.orchestrator import (
     _resolve_report_id,
     _trust_scorer_profile,
 )
-from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan
+from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan, PredictionSource
 from polisyos.scientist.methods.backtesting.trust_scorer import TrustScorer
 
 
@@ -439,6 +439,15 @@ class BacktestMatrixRunner:
             kind: [HistoricalValidationPlan.model_validate(payload) for payload in bundle.plans]
             for kind, bundle in bundles.items()
         }
+        for plans in materialized_plans.values():
+            for plan in plans:
+                params = (plan.scientist_state or {}).get("params", {})
+                if (
+                    plan.prediction_source is PredictionSource.SCIENTIST
+                    and isinstance(params, dict)
+                    and "backtest_native_forecast" in params
+                ):
+                    raise ValueError("native replay requires the selected backtest report producer")
         scenario_groups: dict[BacktestKind, list[BacktestScenario]] = defaultdict(list)
         kind_results: list[BacktestKindResult] = []
         report_scenarios: list[BacktestScenario] = []

@@ -61,6 +61,20 @@ def test_backtest_matrix_runner_runs_all_five_backtests(tmp_path, cas_store) -> 
     assert all(":" in scenario.scenario_id for scenario in report.scenarios)
 
 
+def test_matrix_refuses_native_plan_before_unbound_aggregate(tmp_path, cas_store, monkeypatch):
+    bundle = _bundle(tmp_path, BacktestKind.MACRO)
+    bundle.plans[0]["prediction_source"] = "scientist"
+    bundle.plans[0]["scientist_state"] = {"params": {"backtest_native_forecast": {}}}
+    runner = BacktestMatrixRunner(cas_store)
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("matrix ran native replay without preserving its selected report edges")
+
+    monkeypatch.setattr(runner._orchestrator, "_run_single_scenario", forbidden)
+    with pytest.raises(ValueError, match="native replay requires the selected backtest report"):
+        runner.run({BacktestKind.MACRO: bundle})
+
+
 def test_backtest_matrix_runner_marks_missing_bundles_as_explicit_gaps(tmp_path, cas_store) -> None:
     runner = BacktestMatrixRunner(cas_store)
     result = runner.run({BacktestKind.MACRO: _bundle(tmp_path, BacktestKind.MACRO)})

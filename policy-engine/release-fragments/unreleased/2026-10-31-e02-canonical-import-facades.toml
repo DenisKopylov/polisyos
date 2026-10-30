@@ -1,0 +1,17 @@
+id = "2026-10-31-e02-canonical-import-facades"
+title = "Route consumers through canonical artifact, unit, causal and compiler facades"
+type = "fixed"
+component = "architecture"
+owner = "E02"
+summary = "Cross-layer consumers now use their existing owning package boundaries, with small facade additions for stock CAS component inspection, lineage typing, unit definitions, HTE inputs, and compiler housekeeping."
+evidence = ["tests/unit/runtime/quality/test_technical_inspection_evidence.py", "tests/unit/runtime/http/test_debug_registered_sql_graph.py", "tests/unit/data_forge/domains/catalog/knowledge/test_overlay.py"]
+compatibility = "Facade exports are additive. The stock CAS component predicate checks exact component types only; callers still own root, access, configuration and provenance checks. Compiler housekeeping delegates to the existing implementation."
+change_class = "python-public-api"
+surface_classification = "public_stable: Core artifact and Foundry compile facades; supported package facade additions for Fabric units, IR lineage and Foundry causal inputs"
+api = "Add the stock component type predicate to the existing FileSystemCAS owner and the compiler housekeeping builder to its existing stable facade; publish existing unit, lineage and HTE helpers at their owning package boundaries."
+migration = "Cross-layer consumers should import supported owning facades rather than private leaf modules. Existing private leaves remain internal and unchanged."
+limitations = "The component predicate is not an access, provenance, or authority decision; graph construction is not execution or completion evidence."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/core/artifacts/README.md", "src/polisyos/foundry/README.md", "src/polisyos/foundry/methods/catalog/causal/README.md", "src/polisyos/ir/artifacts/README.md", "src/polisyos/fabric/connectors/README.md"]
+runbook_docs = []

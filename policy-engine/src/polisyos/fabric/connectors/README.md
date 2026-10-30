@@ -13,6 +13,11 @@ attach schema contracts and source profiles, or debug runtime fetch behavior.
 It owns the fetch surface that the rest of Fabric uses for ingestion,
 retrieval, and streaming.
 
+The existing `types.units` facade also exposes its canonical `STANDARD_UNITS`,
+`PREFIX_FACTORS`, and `SUPERSCRIPT_MAP` registries for consumers that must
+reconcile unit parsing against the same definitions. These are the original
+owner objects, not copied alternate registries.
+
 ## Where to Start
 
 - Read [__init__.py](./__init__.py) to see the exported connector facade.

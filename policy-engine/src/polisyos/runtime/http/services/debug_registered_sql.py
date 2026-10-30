@@ -66,12 +66,12 @@ def _is_supported_restricted_graph(graph: ProgramGraph, *, method_node_id: str) 
     hidden mechanism, constraint, additional input or operation. The compiler
     owns housekeeping names and collision handling.
     """
-    from polisyos.foundry.compile._graph import _build_op_nodes
+    from polisyos.foundry.compile import build_method_housekeeping_nodes
 
     if len(graph.nodes) != 3:
         return False
     method = graph.nodes[0]
-    housekeeping, edges = _build_op_nodes([method], [])
+    housekeeping, edges = build_method_housekeeping_nodes(method)
     return (
         method.node_id == method_node_id
         and method.node_kind == "method"

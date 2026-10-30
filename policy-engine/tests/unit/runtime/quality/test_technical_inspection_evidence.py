@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
+import os
+import subprocess
+import sys
 from contextlib import contextmanager
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import pytest
@@ -31,7 +35,6 @@ from tests._helpers.method_artifact_writer import (
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
-    from pathlib import Path
 
     from polisyos.runtime.quality.authority import AuthoritySurfaceDecision
 
@@ -472,6 +475,13 @@ def test_constructor_injected_permissive_provider_is_not_current_access(
             before = cas_content(root)
             guarded = GuardedDependencyProxy(target=substituted, guard=build_runtime_cas_guard())
             try:
+                # Public facade rebinding after the consumer is loaded must not
+                # replace its already-bound Core owner check.
+                import polisyos.core.artifacts as artifact_facade
+
+                monkeypatch.setattr(
+                    artifact_facade, "has_stock_cas_component_types", lambda _: True, raising=False
+                )
                 with pytest.raises(
                     TechnicalInspectionOwnerNotEstablishedError,
                     match="enforcement_provider_not_stock",
@@ -508,6 +518,78 @@ def test_stock_provider_requires_the_actual_root_and_configuration_relation(
         # The intact stock enforcing provider remains in the supported domain.
         evidence = create_technical_inspection_evidence(store, ref)
         assert not _decide(store, ref, evidence).blocking
+
+
+@pytest.mark.parametrize(
+    "component",
+    ["_ownership_index", "_coordinator", "_layout", "_files", "_manifests"],
+)
+def test_stock_component_replacement_is_refused_before_inspection(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, component: str
+) -> None:
+    """Every Core-owned component type remains part of the Runtime admission."""
+    with _fixture(tmp_path, monkeypatch) as (store, ref):
+        owner = store._target
+        assert FileSystemCAS.has_stock_component_types(owner)
+        with monkeypatch.context() as changed:
+            changed.setattr(owner, component, object())
+            assert not FileSystemCAS.has_stock_component_types(owner)
+            with pytest.raises(
+                TechnicalInspectionOwnerNotEstablishedError,
+                match="enforcement_provider_not_stock",
+            ):
+                create_technical_inspection_evidence(store, ref)
+        assert FileSystemCAS.has_stock_component_types(owner)
+
+
+def test_preimport_facade_rebinding_cannot_admit_a_permissive_cas(tmp_path: Path) -> None:
+    """Fresh Runtime import retains the real Core owner despite public rebinding."""
+    project_root = Path(__file__).resolve().parents[4]
+    script = """
+import sys
+from pathlib import Path
+
+import polisyos.core.artifacts as facade
+from polisyos.core.artifacts.ownership import ArtifactOwnershipIndex
+from polisyos.core.artifacts.store import FileSystemCAS
+
+assert "polisyos.runtime.quality.technical_inspection_evidence" not in sys.modules
+class Permissive(ArtifactOwnershipIndex):
+    def require_blob_reader(self, *args, **kwargs): pass
+    def require_view_owner(self, *args, **kwargs): pass
+    def require_owner(self, *args, **kwargs): pass
+
+root = Path(sys.argv[1]).resolve()
+healthy = FileSystemCAS(root / "healthy", ownership_enforced=True)
+unsafe_root = root / "unsafe"
+unsafe = FileSystemCAS(
+    unsafe_root, ownership_enforced=True, ownership_index=Permissive(unsafe_root)
+)
+assert FileSystemCAS.has_stock_component_types(healthy)
+assert not FileSystemCAS.has_stock_component_types(unsafe)
+facade.has_stock_cas_component_types = lambda _: True
+from polisyos.runtime.quality.technical_inspection_evidence import (
+    TechnicalInspectionOwnerNotEstablishedError, _require_stock_enforcement_provider,
+)
+_require_stock_enforcement_provider(healthy)
+try:
+    _require_stock_enforcement_provider(unsafe)
+except TechnicalInspectionOwnerNotEstablishedError as error:
+    assert error.reason == "enforcement_provider_not_stock"
+else:
+    raise AssertionError("permissive public-constructor provider was admitted")
+"""
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(project_root / "src")
+    result = subprocess.run(
+        [sys.executable, "-B", "-c", script, str(tmp_path)],
+        cwd=project_root,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
 
 
 def _base_authority_payload(blocked: bool) -> dict[str, Any]:

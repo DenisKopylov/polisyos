@@ -13,12 +13,14 @@ import types
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
+    from .api import build_method_housekeeping_nodes
     from .manifest_inputs import execution_plan_input_refs, program_graph_input_refs
     from .randomization import TreasuryPlan, build_treasury_plan
 
 __all__ = [
     "TreasuryPlan",
     "build_treasury_plan",
+    "build_method_housekeeping_nodes",
     "compile",
     "execution_plan_input_refs",
     "program_graph_input_refs",
@@ -27,6 +29,10 @@ __all__ = [
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "compile": ("polisyos.foundry.compile.api", "compile"),
+    "build_method_housekeeping_nodes": (
+        "polisyos.foundry.compile.api",
+        "build_method_housekeeping_nodes",
+    ),
     "TreasuryPlan": ("polisyos.foundry.compile.randomization", "TreasuryPlan"),
     "build_treasury_plan": ("polisyos.foundry.compile.randomization", "build_treasury_plan"),
     "execution_plan_input_refs": (

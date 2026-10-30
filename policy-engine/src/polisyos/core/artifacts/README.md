@@ -40,6 +40,14 @@ ordinary filesystem permission errors through explicit exception causes while le
 unavailability distinct; the caller must decide its own response. Neither helper grants access,
 proves numerical producer identity, or establishes authority or currentness.
 
+### Stock CAS component type inspection
+
+`FileSystemCAS.has_stock_component_types` checks the exact stock filesystem CAS,
+ownership-index, root-coordinator, layout, atomic-writer, and manifest owner
+classes without exposing those internal classes. This is a type-shape predicate:
+it does not validate root/configuration relations, access enforcement,
+provenance, or authority. Consumers must establish those properties separately.
+
 ### Atomic local byte replacement
 
 `write_bytes_atomic(path, data, durable_parent=False)` delegates to the existing

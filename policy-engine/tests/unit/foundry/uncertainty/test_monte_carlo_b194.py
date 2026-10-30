@@ -3,10 +3,12 @@ from __future__ import annotations
 import hashlib
 import logging
 import struct
+from copy import deepcopy
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
+import jax
 import numpy as np
 import pytest
 from pydantic import BaseModel, ValidationError
@@ -17,10 +19,16 @@ from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
-from polisyos.core.contracts.foundry import ExecPlanRef, MetricsRef, SimulationResult
+from polisyos.core.contracts.foundry import (
+    CalibrationReportRef,
+    ExecPlanRef,
+    MetricsRef,
+    SimulationResult,
+)
 from polisyos.core.errors import ErrorCategory, PolicyOSError
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
+from polisyos.foundry.calibration.report import CalibrationReport
 from polisyos.foundry.methods.catalog.bayesian.protocols import canonical_draws_artifact
 from polisyos.foundry.uncertainty import (
     MonteCarloPropagator,
@@ -44,6 +52,7 @@ from polisyos.ir.analytics.posterior_summary import (
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
+    ParametricFitCarrier,
     PropagationMethod,
     UncertaintyEnvelope,
     UncertaintySource,
@@ -77,6 +86,7 @@ from polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty import (
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF,
     ARTIFACT_SIMULATION_RESULT_REF,
+    INPUT_CALIBRATION_REPORT_REF,
     INPUT_DATA_SNAPSHOT_REF,
     INPUT_TRINITY_BUNDLE_REF,
 )
@@ -96,6 +106,20 @@ def _normal_env(point: float, std: float) -> UncertaintyEnvelope:
         gate_eligible=True,
         metadata={"param_name": "x"},
     )
+
+
+def _joint_normal_inputs() -> dict[str, UncertaintyEnvelope]:
+    return {
+        name: _normal_env(0.0, 1.0).model_copy(
+            update={
+                "distribution_payload": ParametricFitCarrier(
+                    family=DistributionFamily.NORMAL, parameters={"mean": 0.0, "std": 1.0}
+                ),
+                "metadata": {"covariance_params": ["b", "a"], "covariance_row": row},
+            }
+        )
+        for name, row in (("a", [0.75, 1.0]), ("b", [1.0, 0.75]))
+    }
 
 
 def _config(**overrides) -> PropagationConfig:
@@ -763,6 +787,430 @@ def _build_node_context(
         },
     )
     return store, ctx, state
+
+
+@pytest.mark.parametrize("enable_x64", [False, True], ids=["float32", "float64"])
+def test_joint_gaussian_failure_ledger_survives_fresh_consumer(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, enable_x64: bool
+) -> None:
+    """Persist the actual joint recipe and reconcile each observed mixed-output draw."""
+    from polisyos.scientist.nodes.builtins.simulate.uncertainty_source_projection import (
+        _load_validated_uncertainty_source_read,
+        load_science_simulation_result_uncertainty_admission,
+    )
+
+    inputs = _joint_normal_inputs()
+    store, ctx, state = _build_node_context(
+        tmp_path,
+        run_id=f"R_joint_ledger_{enable_x64}",
+        metric_values={"y": 0, "z": 0, "rare": 0},
+        propagation_config={
+            "preferred_method": "monte_carlo",
+            "mc_n_samples": 100,
+            "mc_batch_size": 25,
+            "mc_min_valid_samples": 10,
+            "mc_seed": 194,
+            "compute_sensitivity": False,
+        },
+        propagation_sensitivity={metric: {"a": 1.0, "b": 1.0} for metric in ("y", "z", "rare")},
+    )
+    calibration = CalibrationReport(total_loss=0.0, uncertainty_envelopes=inputs)
+    calibration_ref = store.put_json(
+        calibration,
+        PutOptions(
+            kind="foundry.calibration_report",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.foundry.CalibrationReport", version="2.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    state = state.model_copy(
+        update={
+            "inputs": {
+                INPUT_CALIBRATION_REPORT_REF: CalibrationReportRef(
+                    artifact_id=calibration_ref.artifact_id
+                )
+            }
+        }
+    )
+    observed: list[tuple[float, float, str, str]] = []
+
+    def build_observed_fn(params, *, base_metric_values, nominal_params):
+        del params, base_metric_values, nominal_params
+
+        def fn(*, a, b):
+            # The first call is nominal, subsequent calls are sampled draws.
+            if not observed:
+                observed.append((float(a), float(b), "nominal", "python"))
+                return {"y": 0.0, "z": 0.0, "rare": 0.0}
+            index = len(observed) - 1
+            dtype = str(a.dtype)
+            if a < -0.5:
+                observed.append((float(a), float(b), "exception", dtype))
+                raise RuntimeError("draw-local solver refusal")
+            if a < 0:
+                observed.append((float(a), float(b), "mixed", dtype))
+                return {"y": None, "z": float("nan")}
+            if index % 25 == 0:
+                observed.append((float(a), float(b), "all", dtype))
+                return {"y": float(a), "z": float(b), "rare": float(a)}
+            observed.append((float(a), float(b), "rare_missing", dtype))
+            return {"y": float(a), "z": float(b)}
+
+        fn._sensitivity_map = {metric: {"a": 1.0, "b": 1.0} for metric in ("y", "z", "rare")}
+        return fn, {"a", "b"}
+
+    monkeypatch.setattr(node_module, "_build_propagation_fn", build_observed_fn)
+    prior_precision = jax.config.x64_enabled
+    with jax.experimental.enable_x64(enable_x64):
+        produced = PropagateUncertaintyNode().execute(ctx, state)
+    assert jax.config.x64_enabled is prior_precision
+    assert produced.status == "ok"
+    draws = observed[1:]
+    assert len(draws) == 100
+    assert {entry[2] for entry in draws} == {"exception", "mixed", "rare_missing", "all"}
+    assert {entry[3] for entry in draws} == {"float64" if enable_x64 else "float32"}
+
+    simulation_ref = produced.state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF]
+    simulation = SimulationResult.model_validate(
+        from_canonical_bytes(store.get_bytes(simulation_ref.artifact_id))
+    )
+    assert simulation.propagation_report_ref is not None
+    report = from_canonical_bytes(store.get_bytes(simulation.propagation_report_ref.artifact_id))
+    reopened = FileSystemCAS(tmp_path)
+    ledger = report["draw_outcome_provenance"]
+    assert report["schema_version"] == "1.2"
+    assert ledger["schema_version"] == "1.1"
+    recipe = ledger["sampling_recipe"]
+    assert recipe["input_param_names"] == ["a", "b"]
+    assert recipe["gaussian_joint_names"] == ["a", "b"]
+    assert recipe["gaussian_joint_assumption"] == "multivariate_normal_with_declared_covariance"
+    assert recipe["sample_axis"] == "draw"
+    assert recipe["joint_sample_id"] is None
+    profile = recipe["gaussian_numeric_profile"]
+    assert profile["backend"] == "jax_random"
+    assert profile["jax_version"] == jax.__version__
+    assert profile["numpy_version"] == np.__version__
+    assert profile["scipy_version"] is None
+    assert profile["covariance_validation_dtype"] == "float64"
+    assert profile["covariance_storage_dtype"] == "float32"
+    assert profile["factor_dtype"] == "float64"
+    assert profile["summary_dtypes"] == ["float32"]
+    assert profile["validation_tolerances"] == {
+        "diagonal_rtol": 1e-3,
+        "diagonal_atol": 1e-5,
+        "symmetry_rtol": 1e-5,
+        "symmetry_atol": 1e-6,
+        "negative_eigenvalue_scale_rtol": 1e-10,
+    }
+    assert profile["qmc_uniform_clip"] is None
+    factor = np.asarray(profile["factor_rows"], dtype=np.float64)
+    means = np.asarray(profile["means"], dtype=np.float64)
+    np.testing.assert_allclose(factor @ factor.T, [[1.0, 0.75], [0.75, 1.0]], atol=1e-7)
+    np.testing.assert_array_equal(means, [0.0, 0.0])
+    # Recreate actual inputs from the persisted transform, seed, and per-batch dtype.
+    recreated = []
+    with jax.experimental.enable_x64(enable_x64):
+        rng = jax.random.PRNGKey(recipe["config"]["mc_seed"])
+        for batch in profile["draw_batches"]:
+            assert batch["first_draw"] == len(recreated)
+            assert batch["device"] == "cpu"
+            assert batch["source_dtype"] == ("float64" if enable_x64 else "float32")
+            assert batch["factor_dtype"] == batch["source_dtype"]
+            assert batch["joint_dtype"] == batch["source_dtype"]
+            rng, key = jax.random.split(rng)
+            assert batch["prng_implementation"] == str(jax.random.key_impl(key))
+            standard = jax.random.normal(key, shape=(batch["draw_count"], 2))
+            values = standard @ jax.numpy.asarray(factor.T) + jax.numpy.asarray(means)
+            recreated.extend(np.asarray(values, dtype=np.float64).tolist())
+    np.testing.assert_array_equal(np.asarray(recreated), np.asarray([row[:2] for row in draws]))
+
+    expected_failures = []
+    for index, (a, b, classification, _) in enumerate(draws):
+        if classification == "exception":
+            outcomes = [
+                (metric, "simulation_exception", "RuntimeError") for metric in ("rare", "y", "z")
+            ]
+        elif classification == "mixed":
+            outcomes = [
+                ("rare", "missing_output", None),
+                ("y", "missing_output", None),
+                ("z", "non_finite_output", None),
+            ]
+        elif classification == "rare_missing":
+            outcomes = [("rare", "missing_output", None)]
+        else:
+            continue
+        digest = hashlib.sha256(
+            b"a\x00" + struct.pack(">d", a) + b"b\x00" + struct.pack(">d", b)
+        ).hexdigest()
+        expected_failures.append(
+            {
+                "draw_index": index,
+                "sampled_input_sha256": digest,
+                "output_outcomes": [
+                    {"output_metric_id": metric, "outcome_code": code, "error_type": error}
+                    for metric, code, error in outcomes
+                ],
+            }
+        )
+    assert ledger["requested_draw_count"] == ledger["attempted_draw_count"] == 100
+    assert ledger["simulation_attempt_count"] == 101
+    assert ledger["retry_attempt_count"] == 0
+    assert ledger["successful_draw_count"] == 100 - len(expected_failures)
+    assert ledger["unattempted_draw_count"] == 0
+    assert ledger["outcome_denominator_complete"] is True
+    assert ledger["failure_records"] == expected_failures
+
+    valid_by_metric = {
+        "y": sum(item[2] in {"rare_missing", "all"} for item in draws),
+        "z": sum(item[2] in {"rare_missing", "all"} for item in draws),
+        "rare": sum(item[2] == "all" for item in draws),
+    }
+    assert valid_by_metric["y"] >= 10
+    assert valid_by_metric["rare"] < 10
+    diagnostics = {row["metric_id"]: row["diagnostics"] for row in report["diagnostics"]}
+    for metric in ("y", "z", "rare"):
+        envelope = load_uncertainty_envelope(
+            _ensure_ir_artifact_store(reopened), simulation.uncertainty_envelopes[metric]
+        )
+        assert envelope.gate_eligible is False
+        assert envelope.metadata["joint_gaussian_basis"] == "declared_non_authoritative"
+        assert envelope.metadata["parameter_unit_binding"] == "not_established"
+        assert diagnostics[metric]["n_valid"] == valid_by_metric[metric]
+        assert diagnostics[metric]["n_failed"] == 100 - valid_by_metric[metric]
+        assert envelope.sample_size == (valid_by_metric[metric] or None)
+        assert (
+            "declared_gaussian_joint"
+            in envelope.composition_provenance.operator_history[-1].assumptions
+        )
+        if metric == "rare":
+            assert envelope.metadata["failure"] == "missing_output"
+        admission = load_science_simulation_result_uncertainty_admission(
+            reopened, simulation_ref, metric
+        )
+        assert admission.admitted is False
+        assert "source_owner_validation_refused" not in admission.limitation_codes
+        assert "propagation_report_schema_version_mismatch" not in admission.limitation_codes
+        assert "propagation_report_payload_version_mismatch" not in admission.limitation_codes
+        assert "propagation_metric_has_failed_draws" in admission.limitation_codes
+
+    projection = _load_validated_uncertainty_source_read(reopened, simulation_ref)
+    fresh_recipe = projection.propagation_report.draw_outcome_provenance.sampling_recipe
+    assert fresh_recipe.gaussian_joint_names == ["a", "b"]
+    assert fresh_recipe.gaussian_joint_assumption == "multivariate_normal_with_declared_covariance"
+
+    trinity_ref = _persist_uncertainty_normative_frame(store)
+    fresh_context = ExecutionContext(store=reopened, run=ctx.run, logger=ctx.logger)
+    fresh_state = ExperimentState(
+        run_id=f"R_joint_ledger_{enable_x64}",
+        inputs={INPUT_TRINITY_BUNDLE_REF: trinity_ref},
+        artifacts_index={ARTIFACT_SIMULATION_RESULT_REF: simulation_ref},
+    )
+    consumed = RunNormativeArbitrationNode().execute(fresh_context, fresh_state)
+    assert consumed.status == "ok"
+    normative = load_normative_arbitration_result(
+        _ensure_ir_artifact_store(reopened),
+        consumed.state.artifacts_index[ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF],
+    )
+    assert normative.model_completeness is NormativeModelCompleteness.PARTIAL
+    assert any("propagation_metric_output_incomplete" in warning for warning in normative.warnings)
+    proposal = next(
+        item for item in normative.option_matrix if item.option is ArbitrationOption.PROPOSAL
+    )
+    assert "workers_uncertainty" not in proposal.binding_values
+    assert normative.rights_audit[0].status is NormativeAuditStatus.UNEVALUATED
+
+    report_manifest = store.get_manifest(simulation.propagation_report_ref)
+    sim_manifest = store.get_manifest(simulation_ref)
+    for variant in (
+        "foreign_axes",
+        "reordered_both_axes",
+        "foreign_assumption",
+        "foreign_draw_axis",
+        "missing_assumption",
+        "missing_both",
+        "missing_numeric_profile",
+        "invalid_factor_dimensions",
+        "invalid_batch_denominator",
+        "invalid_backend",
+        "manifest_mismatch",
+        "legacy_absent",
+    ):
+        forged = deepcopy(report)
+        forged_recipe = forged["draw_outcome_provenance"]["sampling_recipe"]
+        if variant == "foreign_axes":
+            forged_recipe["gaussian_joint_names"] = ["b", "a"]
+        elif variant == "reordered_both_axes":
+            forged_recipe["gaussian_joint_names"] = ["b", "a"]
+            forged_recipe["input_param_names"] = ["b", "a"]
+        elif variant == "foreign_assumption":
+            forged_recipe["gaussian_joint_assumption"] = "independent_marginals"
+        elif variant == "foreign_draw_axis":
+            forged_recipe["sample_axis"] = "chain"
+        elif variant in {"missing_assumption", "missing_both", "legacy_absent"}:
+            forged_recipe.pop("gaussian_joint_assumption")
+            if variant in {"missing_both", "legacy_absent"}:
+                forged_recipe.pop("gaussian_joint_names")
+        elif variant == "missing_numeric_profile":
+            forged_recipe.pop("gaussian_numeric_profile")
+        elif variant == "invalid_factor_dimensions":
+            forged_recipe["gaussian_numeric_profile"]["factor_rows"][0].pop()
+        elif variant == "invalid_batch_denominator":
+            forged_recipe["gaussian_numeric_profile"]["draw_batches"][-1]["draw_count"] += 1
+        elif variant == "invalid_backend":
+            forged_recipe["gaussian_numeric_profile"]["backend"] = "scipy_qmc"
+        if variant == "legacy_absent":
+            forged_recipe.pop("gaussian_numeric_profile")
+            forged["schema_version"] = "1.1"
+            forged["draw_outcome_provenance"]["schema_version"] = "1.0"
+        schema = report_manifest.artifact_schema
+        if variant in {"legacy_absent", "manifest_mismatch"}:
+            schema = schema.model_copy(update={"version": "1.1"})
+        forged_report_ref = store.put_json(
+            forged,
+            PutOptions(
+                kind="foundry.propagation_report",
+                media_type="application/json",
+                schema=schema,
+                producer=report_manifest.producer,
+                inputs=list(report_manifest.inputs),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        forged_simulation = simulation.model_copy(
+            update={"propagation_report_ref": forged_report_ref}
+        )
+        forged_simulation_ref = store.put_json(
+            forged_simulation.to_artifact_payload(),
+            PutOptions(
+                kind="foundry.simulation_result",
+                media_type="application/json",
+                schema=sim_manifest.artifact_schema,
+                producer=sim_manifest.producer,
+                inputs=[
+                    item.model_copy(update={"artifact_id": forged_report_ref.artifact_id})
+                    if item.role == "propagation_report"
+                    else item
+                    for item in sim_manifest.inputs
+                ],
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        forged_admission = load_science_simulation_result_uncertainty_admission(
+            store, forged_simulation_ref, "y"
+        )
+        assert forged_admission.admitted is False
+        if variant == "legacy_absent":
+            # A genuine legacy wire has no declared Gaussian law; it cannot authorize one.
+            assert "source_owner_validation_refused" not in forged_admission.limitation_codes
+            legacy = _load_validated_uncertainty_source_read(store, forged_simulation_ref)
+            legacy_recipe = legacy.propagation_report.draw_outcome_provenance.sampling_recipe
+            assert "gaussian_joint_names" not in legacy_recipe.model_dump()
+            assert "gaussian_joint_assumption" not in legacy_recipe.model_dump()
+            assert "gaussian_numeric_profile" not in legacy_recipe.model_dump()
+        else:
+            assert "source_owner_validation_refused" in forged_admission.limitation_codes
+
+
+def test_undeclared_joint_gaussian_is_not_added_to_the_recipe() -> None:
+    result = MonteCarloPropagator(_config(mc_n_samples=100, mc_min_valid_samples=10)).propagate(
+        lambda a, b: {"y": float(a - b)},
+        {"a": 0.0, "b": 0.0},
+        {"a": _normal_env(0.0, 1.0), "b": _normal_env(0.0, 1.0)},
+        ["y"],
+    )[0]
+    recipe = result.diagnostics["draw_outcome_provenance"]["sampling_recipe"]
+    assert "gaussian_joint_names" not in recipe
+    assert "gaussian_joint_assumption" not in recipe
+    assert result.envelope.gate_eligible is False
+    assert result.envelope.metadata["joint_dependency"] == "independence_assumption_not_established"
+
+
+@pytest.mark.parametrize("sampling_method", ["sobol", "halton"])
+def test_qmc_gaussian_recipe_is_persisted_and_freshly_validated(
+    tmp_path: Path, sampling_method: str
+) -> None:
+    import warnings
+
+    from scipy.stats import norm, qmc
+
+    from polisyos.core.artifacts import validate_core_model_json_artifact
+    from polisyos.scientist.nodes.builtins.simulate.uncertainty_source_projection import (
+        PropagationReportV12,
+    )
+
+    inputs = _joint_normal_inputs()
+    _, execution_context, _ = _build_node_context(
+        tmp_path,
+        run_id=f"R_qmc_recipe_{sampling_method}",
+        metric_values={"y": 0},
+        propagation_config={},
+    )
+    observed = []
+
+    def record_draw(a: float, b: float) -> dict[str, float]:
+        observed.append((float(a), float(b)))
+        return {"y": float(a - b)}
+
+    results = MonteCarloPropagator(
+        _config(
+            mc_n_samples=100,
+            mc_batch_size=20,
+            mc_sampling_method=sampling_method,
+            mc_qmc_replicates=2,
+        )
+    ).propagate(record_draw, {"a": 0.0, "b": 0.0}, inputs, ["y"])
+    assert results[0].envelope.gate_eligible is False
+    report_ref = node_module._persist_report(
+        execution_context,
+        results=results,
+        input_envelopes=inputs,
+        output_metrics=["y"],
+        mapped_params={"a", "b"},
+        unmapped_metric_ids=[],
+        missing_output_metric_ids=[],
+        incomplete_output_metric_ids=[],
+        mapping_source="caller_parameters",
+    )
+    report = validate_core_model_json_artifact(
+        PropagationReportV12, FileSystemCAS(tmp_path), report_ref
+    )
+    assert report.draw_outcome_provenance.schema_version == "1.1"
+    recipe = report.draw_outcome_provenance.sampling_recipe
+    assert recipe.gaussian_joint_names == ["a", "b"]
+    assert recipe.gaussian_joint_assumption == "multivariate_normal_with_declared_covariance"
+    assert recipe.config.mc_sampling_method == sampling_method
+    profile = recipe.gaussian_numeric_profile
+    assert profile.backend == "scipy_qmc"
+    assert profile.scipy_version is not None
+    assert profile.qmc_uniform_clip == [1e-10, 1.0 - 1e-10]
+    assert profile.summary_dtypes == ["float32"]
+    assert sum(batch.draw_count for batch in profile.draw_batches) == 100
+    assert all(
+        batch.source_dtype == batch.joint_dtype == "float64" for batch in profile.draw_batches
+    )
+    # Reconstruct the actual inputs using a fresh SciPy sampler, persisted batch
+    # seeds and the transform rows; do not call the production sampling helpers.
+    recreated = []
+    samplers = {}
+    factor = np.asarray(profile.factor_rows)
+    means = np.asarray(profile.means)
+    for batch in profile.draw_batches:
+        if batch.replicate_index not in samplers:
+            sampler_class = qmc.Sobol if sampling_method == "sobol" else qmc.Halton
+            samplers[batch.replicate_index] = sampler_class(
+                d=len(recipe.input_param_names),
+                scramble=recipe.config.mc_qmc_scramble,
+                seed=batch.replicate_seed,
+            )
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", UserWarning)
+            uniform = samplers[batch.replicate_index].random(batch.draw_count)
+        values = norm.ppf(np.clip(uniform, *profile.qmc_uniform_clip)) @ factor.T + means
+        recreated.extend(values.tolist())
+    assert len(observed) == 101  # The first call evaluates the nominal inputs.
+    np.testing.assert_allclose(np.asarray(recreated), np.asarray(observed[1:]), rtol=0, atol=1e-15)
 
 
 @pytest.mark.parametrize(

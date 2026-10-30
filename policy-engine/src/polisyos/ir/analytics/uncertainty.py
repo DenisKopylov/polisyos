@@ -2428,7 +2428,7 @@ def load_simulation_result_uncertainty_admission(
             report_reference,
             expected_kind="foundry.propagation_report",
             expected_schema="polisyos.foundry.PropagationReport",
-            expected_version="1.1",
+            expected_version=None,
             prefix="propagation_report",
             limitations=limitations,
         )
@@ -2461,6 +2461,7 @@ def load_simulation_result_uncertainty_admission(
                 None,
                 tuple(dict.fromkeys([*limitations, "propagation_report_payload_invalid"])),
             )
+        _check_propagation_report_version(report_manifest, report_payload, limitations=limitations)
         _check_propagation_report(
             report_payload,
             envelope,
@@ -2636,7 +2637,7 @@ def _load_state_slot_uncertainty_projection(
             report_reference,
             expected_kind="foundry.propagation_report",
             expected_schema="polisyos.foundry.PropagationReport",
-            expected_version="1.1",
+            expected_version=None,
             prefix="propagation_report",
             limitations=limitations,
         )
@@ -2647,6 +2648,7 @@ def _load_state_slot_uncertainty_projection(
                 *limitations,
                 "propagation_report_payload_invalid",
             )
+        _check_propagation_report_version(report_manifest, report_payload, limitations=limitations)
 
         _check_state_slot_simulation_lineage(
             simulation_manifest,
@@ -3127,6 +3129,21 @@ def _check_metric_envelope_subject(
         limitations.append("uncertainty_envelope_candidate_only")
 
 
+def _check_propagation_report_version(
+    manifest: object,
+    report: dict[str, Any],
+    *,
+    limitations: list[str],
+) -> None:
+    """Keep the selected report schema and payload versions bound."""
+    schema = getattr(manifest, "artifact_schema", None)
+    manifest_version = getattr(schema, "version", None)
+    if manifest_version not in ("1.1", "1.2"):
+        limitations.append("propagation_report_schema_version_mismatch")
+    if report.get("schema_version") != manifest_version:
+        limitations.append("propagation_report_payload_version_mismatch")
+
+
 def _check_propagation_report(
     report: dict[str, Any],
     envelope: UncertaintyEnvelope,
@@ -3134,8 +3151,6 @@ def _check_propagation_report(
     metric_id: str,
     limitations: list[str],
 ) -> None:
-    if report.get("schema_version") != "1.1":
-        limitations.append("propagation_report_payload_version_mismatch")
     diagnostics = report.get("diagnostics")
     if not isinstance(diagnostics, list):
         limitations.append("propagation_report_diagnostics_missing")
@@ -3160,7 +3175,17 @@ def _check_propagation_report(
         limitations.append("propagation_metric_output_coverage_incomplete")
 
     provenance = report.get("draw_outcome_provenance")
-    if not isinstance(provenance, dict) or provenance.get("schema_version") != "1.0":
+    report_version = report.get("schema_version")
+    ledger_version = (
+        {"1.1": "1.0", "1.2": "1.1"}.get(report_version)
+        if isinstance(report_version, str)
+        else None
+    )
+    if (
+        not isinstance(provenance, dict)
+        or ledger_version is None
+        or provenance.get("schema_version") != ledger_version
+    ):
         limitations.append("propagation_draw_ledger_missing_or_malformed")
         return
     requested = _nonnegative_int(provenance.get("requested_draw_count"))

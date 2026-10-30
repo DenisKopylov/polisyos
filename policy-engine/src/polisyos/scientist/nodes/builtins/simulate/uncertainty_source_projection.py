@@ -11,13 +11,18 @@ from pydantic import (
     ConfigDict,
     Field,
     StrictBool,
+    StrictFloat,
     StrictInt,
     StrictStr,
     ValidationError,
+    model_validator,
 )
 
 from polisyos.core.artifacts._profiled_ref import profile_bound_ref
-from polisyos.core.artifacts.canonical_profile import validate_core_model_json_artifact
+from polisyos.core.artifacts.canonical_profile import (
+    read_core_manifest_profile,
+    validate_core_model_json_artifact,
+)
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.ir_adapter import ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef
@@ -47,7 +52,7 @@ class _ValidatedUncertaintySourceRead:
     simulation_result_ref: ArtifactRefModel
     simulation_result: SimulationResult
     propagation_report_ref: ArtifactRefModel
-    propagation_report: PropagationReportV11
+    propagation_report: PropagationReportV11 | PropagationReportV12
 
 
 class _ReportMetricDiagnostic(BaseModel):
@@ -123,6 +128,120 @@ class _ReportSamplingRecipe(BaseModel):
     joint_sample_id: StrictStr | None
 
 
+class _GaussianValidationTolerances(BaseModel):
+    """Record the numerical thresholds used when validating the declared law."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True, allow_inf_nan=False)
+
+    diagonal_rtol: StrictFloat = Field(ge=0)
+    diagonal_atol: StrictFloat = Field(ge=0)
+    symmetry_rtol: StrictFloat = Field(ge=0)
+    symmetry_atol: StrictFloat = Field(ge=0)
+    negative_eigenvalue_scale_rtol: StrictFloat = Field(ge=0)
+
+
+class _GaussianDrawBatch(BaseModel):
+    """Record the actual transform types and seed context of one draw batch."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    first_draw: StrictInt = Field(ge=0)
+    draw_count: StrictInt = Field(gt=0)
+    source_dtype: StrictStr = Field(min_length=1)
+    factor_dtype: StrictStr = Field(min_length=1)
+    mean_dtype: StrictStr = Field(min_length=1)
+    joint_dtype: StrictStr = Field(min_length=1)
+    device: StrictStr = Field(min_length=1)
+    prng_implementation: StrictStr | None
+    replicate_index: StrictInt | None = Field(ge=0)
+    replicate_seed: StrictInt | None
+
+
+class _GaussianNumericProfile(BaseModel):
+    """Record actual numeric execution details, without asserting source authority."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True, allow_inf_nan=False)
+
+    backend: Literal["jax_random", "scipy_qmc"]
+    jax_version: StrictStr = Field(min_length=1)
+    jaxlib_version: StrictStr = Field(min_length=1)
+    numpy_version: StrictStr = Field(min_length=1)
+    scipy_version: StrictStr | None
+    covariance_validation_dtype: StrictStr = Field(min_length=1)
+    covariance_storage_dtype: StrictStr = Field(min_length=1)
+    factor_dtype: StrictStr = Field(min_length=1)
+    means: list[StrictFloat] = Field(min_length=1)
+    factor_rows: list[list[StrictFloat]] = Field(min_length=1)
+    draw_batches: list[_GaussianDrawBatch] = Field(min_length=1)
+    summary_dtypes: list[StrictStr] = Field(min_length=1)
+    validation_tolerances: _GaussianValidationTolerances
+    qmc_uniform_clip: list[StrictFloat] | None
+
+
+class _ReportSamplingRecipeV12(_ReportSamplingRecipe):
+    """Bind the axis and assumption of an executed Gaussian joint sampler."""
+
+    gaussian_joint_names: list[StrictStr] = Field(min_length=1)
+    gaussian_joint_assumption: Literal["multivariate_normal_with_declared_covariance"]
+    gaussian_numeric_profile: _GaussianNumericProfile
+
+    @model_validator(mode="after")
+    def validate_gaussian_joint_declaration(self) -> _ReportSamplingRecipeV12:
+        """Require the declared Gaussian axes to match the emitted input order."""
+        if (
+            self.gaussian_joint_names != self.input_param_names
+            or self.gaussian_joint_names != sorted(set(self.gaussian_joint_names))
+            or set(self.gaussian_joint_names) != set(self.input_envelope_sha256)
+            or self.sample_axis != "draw"
+            or self.joint_sample_id is not None
+        ):
+            raise ValueError("Gaussian joint declaration does not match the input axes")
+        profile = self.gaussian_numeric_profile
+        dimension = len(self.gaussian_joint_names)
+        if (
+            len(profile.means) != dimension
+            or len(profile.factor_rows) != dimension
+            or any(len(row) != dimension for row in profile.factor_rows)
+        ):
+            raise ValueError("Gaussian transform dimensions do not match the input axes")
+        qmc = self.config.mc_sampling_method != "random"
+        if qmc:
+            clip = profile.qmc_uniform_clip
+            if (
+                profile.backend != "scipy_qmc"
+                or not profile.scipy_version
+                or clip is None
+                or len(clip) != 2
+                or not 0.0 <= clip[0] < clip[1] <= 1.0
+            ):
+                raise ValueError("QMC Gaussian execution profile is incomplete")
+        elif (
+            profile.backend != "jax_random"
+            or profile.scipy_version is not None
+            or profile.qmc_uniform_clip is not None
+        ):
+            raise ValueError("random Gaussian execution profile is inconsistent")
+        next_draw = 0
+        for batch in profile.draw_batches:
+            if batch.first_draw != next_draw:
+                raise ValueError("Gaussian draw batches must be contiguous")
+            next_draw += batch.draw_count
+            if qmc:
+                if (
+                    batch.prng_implementation is not None
+                    or batch.replicate_index is None
+                    or batch.replicate_seed != self.config.mc_seed + batch.replicate_index
+                ):
+                    raise ValueError("QMC Gaussian batch seed context is inconsistent")
+            elif (
+                not batch.prng_implementation
+                or batch.replicate_index is not None
+                or batch.replicate_seed is not None
+            ):
+                raise ValueError("random Gaussian batch seed context is inconsistent")
+        return self
+
+
 class _ReportDrawOutputOutcome(BaseModel):
     """Match one persisted output failure classification."""
 
@@ -149,12 +268,11 @@ class _ReportDrawFailure(BaseModel):
     output_outcomes: list[_ReportDrawOutputOutcome] = Field(min_length=1)
 
 
-class _ReportDrawOutcomeProvenance(BaseModel):
-    """Match the full schema-1.0 provenance object emitted by Monte Carlo."""
+class _ReportDrawOutcomeFields(BaseModel):
+    """Shared count and failure fields of the versioned Monte Carlo ledger."""
 
     model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
 
-    schema_version: Literal["1.0"]
     requested_draw_count: StrictInt = Field(ge=0)
     attempted_draw_count: StrictInt = Field(ge=0)
     simulation_attempt_count: StrictInt = Field(ge=0)
@@ -162,24 +280,48 @@ class _ReportDrawOutcomeProvenance(BaseModel):
     successful_draw_count: StrictInt = Field(ge=0)
     unattempted_draw_count: StrictInt = Field(ge=0)
     outcome_denominator_complete: StrictBool
-    sampling_recipe: _ReportSamplingRecipe
     input_identity_status: Literal["content_hashed", "not_established"]
     implementation_identity_status: Literal["not_established"]
     draw_identity_basis: Literal["sampling_recipe+draw_index+sampled_input_sha256"]
     failure_records: list[_ReportDrawFailure]
 
 
-class PropagationReportV11(BaseModel):
-    """Science-owned strict DTO for the exact persisted PropagationReport 1.1 grammar."""
+class _ReportDrawOutcomeProvenance(_ReportDrawOutcomeFields):
+    """Match the historical schema-1.0 Monte Carlo ledger."""
+
+    schema_version: Literal["1.0"]
+    sampling_recipe: _ReportSamplingRecipe
+
+
+class _ReportDrawOutcomeProvenanceV12(_ReportDrawOutcomeFields):
+    """Match schema-1.1 of the Gaussian-joint Monte Carlo ledger."""
+
+    schema_version: Literal["1.1"]
+    sampling_recipe: _ReportSamplingRecipeV12
+
+    @model_validator(mode="after")
+    def validate_batch_denominator(self) -> _ReportDrawOutcomeProvenanceV12:
+        """Require the batch trace to cover exactly the attempted draw ledger."""
+        if (
+            sum(
+                batch.draw_count
+                for batch in self.sampling_recipe.gaussian_numeric_profile.draw_batches
+            )
+            != self.attempted_draw_count
+        ):
+            raise ValueError("Gaussian batch trace does not cover attempted draws")
+        return self
+
+
+class _PropagationReportFields(BaseModel):
+    """Shared fields of Science-owned propagation reports."""
 
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.foundry.PropagationReport"
-    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.1"
     ARTIFACT_KIND: ClassVar[Literal["foundry.propagation_report"]] = "foundry.propagation_report"
     ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
 
     model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
 
-    schema_version: Literal["1.1"]
     input_envelope_count: StrictInt = Field(ge=0)
     output_metric_count: StrictInt = Field(ge=0)
     mapped_param_count: StrictInt = Field(ge=0)
@@ -196,7 +338,22 @@ class PropagationReportV11(BaseModel):
     incomplete_output_metric_ids: list[StrictStr]
     response_basis_candidate: _ReportResponseBasisCandidate | None = None
     state_slot_outputs: dict[StrictStr, _ReportStateSlotOutput] | None = None
+
+
+class PropagationReportV11(_PropagationReportFields):
+    """Science-owned strict DTO for the historical PropagationReport 1.1 grammar."""
+
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.1"
+    schema_version: Literal["1.1"]
     draw_outcome_provenance: _ReportDrawOutcomeProvenance | None = None
+
+
+class PropagationReportV12(_PropagationReportFields):
+    """Science-owned strict DTO for Gaussian-joint PropagationReport 1.2."""
+
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.2"
+    schema_version: Literal["1.2"]
+    draw_outcome_provenance: _ReportDrawOutcomeProvenanceV12
 
 
 def _simulation_result_ref(selector: object) -> SimulationResultRef:
@@ -225,7 +382,7 @@ def _load_validated_uncertainty_source_read(
 
     The result is a typed transport projection, not an admissibility decision.
     Core validates SimulationResult with its selected-profile reader. Science
-    validates PropagationReport against the producer-owned schema-1.1 DTO.
+    validates PropagationReport against its selected version's strict DTO.
     """
     simulation_ref = profile_bound_ref(store, _simulation_result_ref(selector))
     simulation_result = validate_core_model_json_artifact(
@@ -241,12 +398,31 @@ def _load_validated_uncertainty_source_read(
         simulation_result.propagation_report_ref.model_dump(mode="python")
     )
     selected_report_ref = profile_bound_ref(store, report_ref)
-    report = validate_core_model_json_artifact(
-        PropagationReportV11,
+    report_manifest, _ = read_core_manifest_profile(
         store,
         selected_report_ref,
         manifest_profile_sha256=selected_report_ref.manifest_profile_sha256,
     )
+    report_version = (
+        None if report_manifest.artifact_schema is None else report_manifest.artifact_schema.version
+    )
+    report: PropagationReportV11 | PropagationReportV12
+    if report_version == "1.1":
+        report = validate_core_model_json_artifact(
+            PropagationReportV11,
+            store,
+            selected_report_ref,
+            manifest_profile_sha256=selected_report_ref.manifest_profile_sha256,
+        )
+    elif report_version == "1.2":
+        report = validate_core_model_json_artifact(
+            PropagationReportV12,
+            store,
+            selected_report_ref,
+            manifest_profile_sha256=selected_report_ref.manifest_profile_sha256,
+        )
+    else:
+        raise ValueError("uncertainty_source_propagation_report_version_unsupported")
     return _ValidatedUncertaintySourceRead(
         simulation_result_ref=_neutral_ref(simulation_ref),
         simulation_result=simulation_result,
@@ -330,6 +506,7 @@ def load_science_simulation_result_subject_uncertainty_projection(
 
 __all__ = [
     "PropagationReportV11",
+    "PropagationReportV12",
     "load_science_simulation_result_subject_uncertainty_projection",
     "load_science_simulation_result_uncertainty_admission",
 ]

@@ -6,8 +6,8 @@
     "release_fragment_change_class": "persisted-artifact-format",
     "version_owner": "team-scientist"
   },
-  "content_hash": "92a6d26516f8a0160fca55a75af97ce210c39bf852f7a73b0258069841bba7f2",
-  "generated_at": "2026-10-24T17:34:33+00:00",
+  "content_hash": "8dc74aa43d44405ce23ef7b9ac82537af97596d0f891d1ed98d43e95cbd845a0",
+  "generated_at": "2026-10-30T19:15:23+00:00",
   "generator_version": "1.1.0",
   "models": {
     "calibration_validation_bundle_v1_1": {
@@ -22,6 +22,34 @@
       "schema_version": "1.1",
       "sha256_full": "9461dba8e1dfaa54a17867f3375337ca0776f7f2fe1c79c98364620b0cd9053c",
       "sha256_semantic": "ea2dadae80b45d382848a49d2a396293062d03e4ef7ecf6178077e0294eabd22",
+      "version_field": "schema_version"
+    },
+    "propagation_report_v1_1": {
+      "aliases": [],
+      "compat_mode": "strict",
+      "fqn": "polisyos.scientist.nodes.builtins.simulate.uncertainty_source_projection.PropagationReportV11",
+      "lifecycle": "active",
+      "priority": "p1",
+      "schema_file": "propagation_report_v1_1.schema.json",
+      "schema_mode": "serialization",
+      "schema_variant_version": null,
+      "schema_version": "1.1",
+      "sha256_full": "6ad3be588de799adb9cb8caf2380b8eba597cb1d9cc59d9c5b79cb68bfeb8efa",
+      "sha256_semantic": "ed2b16a88b19bc80258d041b6e2c3d6d45cd99d6b6ea66fa226e4ce6399f64a0",
+      "version_field": "schema_version"
+    },
+    "propagation_report_v1_2": {
+      "aliases": [],
+      "compat_mode": "strict",
+      "fqn": "polisyos.scientist.nodes.builtins.simulate.uncertainty_source_projection.PropagationReportV12",
+      "lifecycle": "active",
+      "priority": "p1",
+      "schema_file": "propagation_report_v1_2.schema.json",
+      "schema_mode": "serialization",
+      "schema_variant_version": null,
+      "schema_version": "1.2",
+      "sha256_full": "dbf65b0455b5905ef33017bc17aac3cf2a1e964c395f1c06ff17deb2523a3bc8",
+      "sha256_semantic": "2677c8982212bc85a3cdcbca39fdf7226c7e65106c727c1395e020c6ff53eb01",
       "version_field": "schema_version"
     },
     "retained_skg_snapshot_v1_1": {

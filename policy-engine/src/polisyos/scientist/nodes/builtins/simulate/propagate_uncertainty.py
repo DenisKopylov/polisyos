@@ -1812,6 +1812,14 @@ def _persist_report(
         item.diagnostics.get("draw_outcome_provenance") is shared_provenance for item in results
     ):
         shared_provenance = None
+    has_gaussian_ledger = any(
+        isinstance(ledger := item.diagnostics.get("draw_outcome_provenance"), Mapping)
+        and ledger.get("schema_version") == "1.1"
+        for item in results
+    )
+    if has_gaussian_ledger and shared_provenance is None:
+        raise ValueError("Gaussian joint report requires one shared draw ledger")
+    report_version = "1.2" if has_gaussian_ledger else "1.1"
 
     diagnostics: list[dict[str, Any]] = []
     for item in results:
@@ -1827,7 +1835,7 @@ def _persist_report(
         )
 
     payload = {
-        "schema_version": "1.1",
+        "schema_version": report_version,
         "input_envelope_count": len(input_envelopes),
         "output_metric_count": len(output_metrics),
         "mapped_param_count": len(mapped_params),
@@ -1919,7 +1927,7 @@ def _persist_report(
         PutOptions(
             kind="foundry.propagation_report",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.foundry.PropagationReport", version="1.1"),
+            schema=SchemaInfo(name="polisyos.foundry.PropagationReport", version=report_version),
             inputs=report_inputs,
         ),
         canon_spec=CanonSpec(forbid_floats=False),

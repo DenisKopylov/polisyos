@@ -220,6 +220,23 @@ dispatcher backend is non-gating even when the callback-compatible value is an
 immutable scalar. No undeclared ledger field is emitted. This qualification is
 not source authenticity, scientific validity or policy authority.
 
+When the prepared Gaussian joint sampler actually runs, its draw ledger 1.1
+records the ordered input names and the assumption of a multivariate normal
+law with the declared covariance. The assumption is non-authoritative: input
+source, joint-law provenance and parameter units are not established by these
+fields. A fallback envelope with insufficient valid draws retains that same
+limitation and the attempted sampling assumption. Other sampling routes do not
+invent a Gaussian declaration. The Science report carrying that ledger uses
+version 1.2; its version 1.1 reader remains available for historical reports
+and does not infer the absent assumption. Readers must support 1.2 before the
+new producer is deployed. The recipe records input envelope hashes, the actual
+mean and factor rows, validation tolerances, library versions, and per-batch
+backend, device, dtype and seed context. It also records the QMC uniform clip
+when used. The rows make the declared transform reconstructible in the recorded
+environment; they do not verify source authenticity or successful-draw identity,
+or promise identical results on a different numerical stack. JAX draw precision
+depends on its runtime profile, while the output summary uses float32.
+
 Original envelope JSON identity is captured separately, before callbacks, as the
 existing digest or `None`. Metadata is copied before interpretation through a
 closed, exact JSON-value domain: string-keyed dictionaries, lists, primitive
@@ -241,7 +258,11 @@ values (including arbitrary Enum values, container subclasses and datetime.time)
 are borrowed, not silently coerced: all actual routes set
 `provenance_context_status="not_established"`, make invocation identity
 `not_established`, and return non-gating results. Existing non-gating results
-also disclose the limitation. A comparison with the provenance embedded in the
+also disclose the limitation. The output omits unowned inherited provenance
+history and origin IDs, records `input_provenance_history="withheld_unowned"`,
+and retains its own producer step and source references. This permits a truthful
+canonical persistence without serializing borrowed behavior as authority. A
+comparison with the provenance embedded in the
 original digest catches changes while the view is being prepared. Unsupported
 cycles or values that the existing model cannot serialize or validate may still
 refuse rather than produce a result; neither path grants authority.

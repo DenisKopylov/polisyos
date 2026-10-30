@@ -185,3 +185,28 @@ def test_preserve_singular_covariance_retains_tied_nullspace() -> None:
 def test_preserve_singular_covariance_rejects_indefinite_matrix() -> None:
     with pytest.raises(ValueError, match="positive semidefinite"):
         preserve_singular_covariance([[1.0, 1.1], [1.1, 1.0]])
+
+
+def test_gaussian_validation_thresholds_have_observable_boundaries() -> None:
+    names = ["x", "y"]
+
+    def covariance_with_diagonal(value: float) -> object:
+        envelopes = {
+            "x": _normal_env(0.0, 1.0, covariance_row=[value, 0.0], covariance_params=names),
+            "y": _normal_env(0.0, 1.0, covariance_row=[0.0, 1.0], covariance_params=names),
+        }
+        return build_covariance_matrix(
+            names, envelopes, use_full_covariance=True, jitter=0.0, preserve_singular=True
+        )
+
+    covariance_with_diagonal(1.0005)
+    with pytest.raises(ValueError, match="diagonal"):
+        covariance_with_diagonal(1.002)
+
+    preserve_singular_covariance([[1.0, 0.5], [0.500004, 1.0]])
+    with pytest.raises(ValueError, match="symmetric"):
+        preserve_singular_covariance([[1.0, 0.5], [0.50002, 1.0]])
+
+    preserve_singular_covariance([[1.0, 1.0 + 5e-11], [1.0 + 5e-11, 1.0]])
+    with pytest.raises(ValueError, match="positive semidefinite"):
+        preserve_singular_covariance([[1.0, 1.0 + 5e-9], [1.0 + 5e-9, 1.0]])

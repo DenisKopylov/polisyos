@@ -668,6 +668,8 @@ outputs = [
   "schemas/snapshots/fabric/federation_fetch_audit.schema.json",
   "schemas/snapshots/fabric/_manifest.json",
   "schemas/snapshots/scientist/calibration_validation_bundle_v1_1.schema.json",
+  "schemas/snapshots/scientist/propagation_report_v1_1.schema.json",
+  "schemas/snapshots/scientist/propagation_report_v1_2.schema.json",
   "schemas/snapshots/scientist/_manifest.json",
 ]
 regenerate_commands = ["uv run --extra ml polisyos-tools diagnostics gen-schema"]

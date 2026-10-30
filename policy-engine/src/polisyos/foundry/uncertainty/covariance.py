@@ -16,6 +16,12 @@ from polisyos.ir.analytics.uncertainty import (
 
 CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1 = 1e-7
 CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1 = 1e-10
+_COVARIANCE_DIAGONAL_RTOL = 1e-3
+_COVARIANCE_DIAGONAL_ATOL = 1e-5
+_SINGULAR_SYMMETRY_RTOL = 1e-5
+_SINGULAR_SYMMETRY_ATOL = 1e-6
+_SINGULAR_PSD_SCALE_RTOL = 1e-10
+_COVARIANCE_VALIDATION_DTYPE = np.dtype(np.float64)
 
 
 def extract_std(env: UncertaintyEnvelope) -> float:
@@ -154,23 +160,28 @@ def build_covariance_matrix(
         if set(expected_params) != set(param_names):
             raise ValueError("covariance_params must cover exactly the requested parameters")
         reorder_idx = [expected_params.index(name) for name in param_names]
-        covariance_values = np.asarray(rows, dtype=np.float64)
+        covariance_values = np.asarray(rows, dtype=_COVARIANCE_VALIDATION_DTYPE)
         # Every row belongs to the envelope that supplied it.  Only the
         # declared columns need moving into the requested parameter order;
         # moving rows as well changes row ownership and can manufacture a
         # covariance matrix that no producer emitted.
         covariance_values = covariance_values[:, reorder_idx]
     else:
-        covariance_values = np.asarray(rows, dtype=np.float64)
+        covariance_values = np.asarray(rows, dtype=_COVARIANCE_VALIDATION_DTYPE)
 
     if covariance_values.shape != tuple(diag_cov.shape):
         raise ValueError("covariance matrix has the wrong dimension")
 
     covariance = covariance_values
-    diagonal = np.diag(np.square(np.asarray(marginal_stds, dtype=np.float64)))
+    diagonal = np.diag(np.square(np.asarray(marginal_stds, dtype=_COVARIANCE_VALIDATION_DTYPE)))
     if not np.all(np.isfinite(covariance)):
         raise ValueError("covariance matrix must contain finite values")
-    if not np.allclose(np.diag(covariance), np.diag(diagonal), rtol=1e-3, atol=1e-5):
+    if not np.allclose(
+        np.diag(covariance),
+        np.diag(diagonal),
+        rtol=_COVARIANCE_DIAGONAL_RTOL,
+        atol=_COVARIANCE_DIAGONAL_ATOL,
+    ):
         raise ValueError("covariance diagonal must match marginal standard deviations")
     if preserve_singular:
         covariance = preserve_singular_covariance(covariance)
@@ -193,15 +204,15 @@ def build_covariance_matrix(
 def preserve_singular_covariance(
     covariance: object,
     *,
-    symmetry_rtol: float = 1e-5,
-    symmetry_atol: float = 1e-6,
+    symmetry_rtol: float = _SINGULAR_SYMMETRY_RTOL,
+    symmetry_atol: float = _SINGULAR_SYMMETRY_ATOL,
 ) -> np.ndarray:
     """Validate a covariance matrix while retaining its declared null space.
 
     Tiny negative eigenvalues within the established numerical tolerance are
     projected to zero. Materially indefinite or malformed matrices are rejected.
     """
-    matrix = np.asarray(covariance, dtype=np.float64)
+    matrix = np.asarray(covariance, dtype=_COVARIANCE_VALIDATION_DTYPE)
     if matrix.ndim != 2 or matrix.shape[0] != matrix.shape[1]:
         raise ValueError("covariance matrix must be square")
     if not np.all(np.isfinite(matrix)):
@@ -221,7 +232,7 @@ def preserve_singular_covariance(
     scale = max(1.0, float(np.max(np.abs(symmetric))))
     # The tolerance is independent of jitter; regularization cannot make an
     # indefinite declared law acceptable.
-    if minimum_eigenvalue < -1e-10 * scale:
+    if minimum_eigenvalue < -_SINGULAR_PSD_SCALE_RTOL * scale:
         raise ValueError("covariance matrix must be positive semidefinite")
     if minimum_eigenvalue < 0.0:
         eigenvalues, eigenvectors = np.linalg.eigh(symmetric)

@@ -18,6 +18,15 @@ initializer only when its source matches those selected bytes. A mismatch may
 still run as candidate work, without producing qualifying execution evidence.
 The host uses the checkout's existing `.venv`; tests and non-Python data are
 outside this source selection.
+For installed Python providers encountered by normal imports, the host may
+download the corresponding wheel named in the committed `uv.lock` into memory
+and compare its locked digest, metadata, and source member with installed bytes.
+Downloads are bounded; unavailable, ambiguous, modified, or unsupported inputs
+remain unqualified and imports can continue as candidate work. This check does
+not install or persist wheels, qualify native extensions, or establish a complete
+dependency profile. Reentrant or concurrent imports during selection and mutable
+installer or finder state remain unqualified. `diagnose` reports the selected and
+refused module counts.
 The unified tools dispatcher offers the host another diagnostic handoff after
 a preflight lookup or tool import has loaded the ledger. An unavailable or
 unverified handoff leaves the command in the candidate band.

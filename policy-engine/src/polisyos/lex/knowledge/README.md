@@ -38,7 +38,7 @@ policy, and search flows.
 
 Full reference: [docs/reference/lex/](../../../../docs/reference/lex/index.md)
 
-Vector callers pass a local `query_encoder` and the immutable profile snapshot
+Vector callers pass a `query_runtime_material_owner` and the immutable profile snapshot
 captured when the request selected its generation:
 `query_profile=(LegalQueryProfile.from_generation(selected_ref), ...)`.
 The profile is request intent, not evidence of currentness; the Store independently
@@ -71,6 +71,16 @@ existing hybrid route returns actual text results with the typed refusal. Direct
 vector-refused; they are never rewritten. This local controlled profile does not establish L01/L02
 production selection, deployment currentness, reuse permission, G status, or legal authority. The
 same-assets callable-swap and matched-removal witness tests the executable behavior boundary.
+
+A historical flat NPZ/HNSW pair has no selected, content-bound generation and is not
+reused for a current vector query. An incremental rebuild projects the current database
+members and publishes a selected generation; callers then obtain a fresh request snapshot.
+Changed projected text or withdrawn members make the previous generation inadmissible.
+
+The portable regression uses a locally generated SentenceTransformer fixture and a test-only
+reduced distribution root. It exercises the owner, producer, selected reader and HTTP search
+with their checks enabled, but does not establish production model provenance, a full production
+runtime closure, source-law verification, issuer authority, or legal currentness.
 
 ## Current State
 

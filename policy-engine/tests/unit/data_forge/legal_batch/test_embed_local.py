@@ -8,6 +8,8 @@ import numpy as np
 from polisyos.data_forge.domains.legal.batch.embedder import build_local_embeddings_and_indexes
 from polisyos.data_forge.domains.legal.embedding_projection import (
     LEGAL_EMBEDDING_PROJECTION_RULE_VERSION,
+    entity_embedding_text,
+    fact_embedding_text,
     provision_embedding_text,
 )
 from polisyos.data_forge.kernel.embeddings import (
@@ -354,3 +356,162 @@ def test_legacy_flat_pair_rebuilds_changed_text_then_reuses_current_membership(
         assert np.array_equal(second_vectors[identifier], third_vectors[identifier])
     assert _generation_snapshot(first) == first_history
     assert _generation_snapshot(second) == second_history
+
+
+def test_all_selected_legal_projections_reuse_changed_and_withdrawn_members(tmp_path) -> None:
+    """Each projection must recompute edited rows and exclude withdrawn IDs."""
+    import hnswlib
+
+    class RecordingEncoder(_FakeSentenceTransformer):
+        def __init__(self) -> None:
+            super().__init__("fixture-model", device="cpu")
+            self.batches: list[tuple[str, ...]] = []
+
+        def encode(
+            self,
+            texts,
+            batch_size: int = 32,
+            show_progress_bar: bool = False,
+            normalize_embeddings: bool = True,
+        ):
+            self.batches.append(tuple(texts))
+            return super().encode(texts, batch_size, show_progress_bar, normalize_embeddings)
+
+    db_path = tmp_path / "lex_knowledge_graph.duckdb"
+    _prepare_lex_db(db_path)
+    with duckdb.connect(str(db_path)) as con:
+        for query, prefix in (
+            (
+                "INSERT INTO lex_entities SELECT ?, * EXCLUDE (entity_id) "
+                "FROM lex_entities WHERE entity_id = ?",
+                "e",
+            ),
+            (
+                "INSERT INTO lex_facts SELECT ?, * EXCLUDE (fact_id) "
+                "FROM lex_facts WHERE fact_id = ?",
+                "f",
+            ),
+            (
+                "INSERT INTO lex_provisions SELECT ?, * EXCLUDE (provision_id) "
+                "FROM lex_provisions WHERE provision_id = ?",
+                "p",
+            ),
+        ):
+            for suffix in ("2", "3"):
+                con.execute(query, [prefix + suffix, prefix + "1"])
+
+    encoder = RecordingEncoder()
+
+    def build():
+        return build_local_embeddings_and_indexes(
+            db_path=db_path,
+            output_dir=tmp_path,
+            embedding_model="fixture-model",
+            embedding_device="cpu",
+            embedding_batch_size=2,
+            embedding_chunk_size=10,
+            incremental=True,
+            encoder=encoder,
+        )
+
+    projections = (
+        (
+            "lex_entity_embeddings",
+            "lex_entity_index",
+            "SELECT entity_id, name_en, name_uk, entity_type, aliases_en, aliases_uk "
+            "FROM lex_entities ORDER BY entity_id",
+            entity_embedding_text,
+            "e",
+        ),
+        (
+            "lex_fact_embeddings",
+            "lex_fact_index",
+            "SELECT fact_id, subject_en, subject_uk, predicate, object_en, object_uk, "
+            "fact_text, norm_type, action_canon, norm_type_canon, condition_text_uk, "
+            "exception_text_uk, procedure_text_uk, thresholds_json, source_quote_uk "
+            "FROM lex_facts ORDER BY fact_id",
+            fact_embedding_text,
+            "f",
+        ),
+        (
+            "lex_provision_embeddings",
+            "lex_provision_index",
+            "SELECT provision_id, provision_text FROM lex_provisions ORDER BY provision_id",
+            provision_embedding_text,
+            "p",
+        ),
+    )
+
+    def selected(name, index_name):
+        reference = resolve_embedding_generation(
+            tmp_path / ".legal_embedding_generations" / name,
+            legacy_embeddings_path=tmp_path / f"{name}.npz",
+            legacy_index_path=tmp_path / f"{index_name}.hnsw",
+        )
+        assert reference is not None and reference.selected and reference.status == "complete"
+        with np.load(reference.embeddings_path, allow_pickle=True) as payload:
+            ids = tuple(str(value) for value in payload["ids"].tolist())
+            matrix = np.asarray(payload["vectors"], dtype=np.float32).copy()
+        assert ids == reference.ids
+        assert reference.index_path is not None
+        index = hnswlib.Index(space="cosine", dim=reference.dimension)
+        index.load_index(str(reference.index_path))
+        assert set(index.get_ids_list()) == set(range(len(ids)))
+        assert np.allclose(index.get_items(list(range(len(ids)))), matrix, atol=1e-6)
+        return ids, matrix
+
+    initial = build()
+    assert (initial.entities_embedded, initial.facts_embedded, initial.provisions_embedded) == (
+        3,
+        3,
+        3,
+    )
+    before = {name: selected(name, index_name) for name, index_name, *_rest in projections}
+    encoder.batches.clear()
+    unchanged = build()
+    assert (unchanged.entities_skipped, unchanged.facts_skipped, unchanged.provisions_skipped) == (
+        3,
+        3,
+        3,
+    )
+    assert not encoder.batches
+
+    with duckdb.connect(str(db_path)) as con:
+        con.execute("UPDATE lex_entities SET name_en = name_en || 'xx' WHERE entity_id = 'e1'")
+        con.execute("UPDATE lex_facts SET fact_text = fact_text || 'xx' WHERE fact_id = 'f1'")
+        con.execute(
+            "UPDATE lex_provisions SET provision_text = provision_text || 'xx' "
+            "WHERE provision_id = 'p1'"
+        )
+        con.execute("DELETE FROM lex_entities WHERE entity_id = 'e3'")
+        con.execute("DELETE FROM lex_facts WHERE fact_id = 'f3'")
+        con.execute("DELETE FROM lex_provisions WHERE provision_id = 'p3'")
+
+    rebuilt = build()
+    assert (rebuilt.entities_embedded, rebuilt.facts_embedded, rebuilt.provisions_embedded) == (
+        1,
+        1,
+        1,
+    )
+    assert (rebuilt.entities_skipped, rebuilt.facts_skipped, rebuilt.provisions_skipped) == (
+        1,
+        1,
+        1,
+    )
+    expected_batches = []
+    for name, index_name, query, project, prefix in projections:
+        ids, matrix = selected(name, index_name)
+        assert ids == (prefix + "1", prefix + "2")
+        old_ids, old_matrix = before[name]
+        assert old_ids == (prefix + "1", prefix + "2", prefix + "3")
+        assert np.array_equal(matrix[1], old_matrix[1])
+        assert not np.array_equal(matrix[0], old_matrix[0])
+        with duckdb.connect(str(db_path), read_only=True) as con:
+            rows = con.execute(query).fetchall()
+        edited_text = project(rows[0][1:])
+        expected_batches.append((edited_text,))
+        base = float((len(edited_text) % 7) + 1)
+        expected = np.asarray([base, base + 1, base + 2, base + 3], dtype=np.float32)
+        expected /= np.linalg.norm(expected)
+        assert np.allclose(matrix[0], expected)
+    assert encoder.batches == expected_batches

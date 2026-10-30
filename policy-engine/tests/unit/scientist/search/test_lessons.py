@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 from datetime import UTC, datetime, timedelta
+from hashlib import sha256
+from pathlib import Path
 
 import pytest
 
@@ -14,6 +16,7 @@ from polisyos.scientist.methods.search.lessons import (
     LessonRegistry,
     LessonTrustLevel,
     lesson_from_failure_card,
+    load_lesson_card,
 )
 from polisyos.scientist.methods.search.transfer_context import (
     TransferContext,
@@ -141,6 +144,244 @@ def test_repeated_reads_do_not_restore_confidence_without_new_evidence(tmp_path)
         )
     )
     assert warm_strict == []
+
+
+@pytest.mark.parametrize(
+    "query_fields",
+    [
+        pytest.param({"domain": "general", "tenant_hash": None}, id="scoped-local"),
+        pytest.param({}, id="aggregated-local"),
+    ],
+)
+def test_lesson_queries_write_daily_access_hints_without_index_cas(
+    tmp_path, monkeypatch, query_fields
+) -> None:
+    store, registry = _make_registry(tmp_path)
+    source_context = TransferContext(
+        task_family="policy",
+        domain="general",
+        run_id="source-run",
+        tenant_hash=None,
+    )
+    cards = [
+        LessonCard(
+            kind=LessonKind.FAILURE,
+            summary=f"Lesson {index} for the access hint test.",
+            failure_type="access_hint",
+            stage_name="test",
+            fidelity_level=1,
+            candidate_hash=f"candidate-{index}",
+            source_run_id=f"run-{index}",
+            tags=["access-hint-test"],
+        )
+        for index in range(2)
+    ]
+    for card in cards:
+        registry.record_local(card, context=source_context)
+
+    index_path = registry._index_path_for_context(source_context)
+    initial_snapshot_ref = registry.snapshot_ref()
+    assert initial_snapshot_ref is not None
+    original_index_bytes = index_path.read_bytes()
+
+    access_writes: list[Path] = []
+    write_bytes = LessonRegistry._write_bytes
+
+    def count_access_writes(payload: bytes, *, path: Path) -> None:
+        if path.parent.name == "access":
+            access_writes.append(path)
+        write_bytes(payload, path=path)
+
+    monkeypatch.setattr(LessonRegistry, "_write_bytes", staticmethod(count_access_writes))
+
+    cas_writes: list[None] = []
+    put_json = store.put_json
+
+    def count_cas_writes(*args, **kwargs):
+        cas_writes.append(None)
+        return put_json(*args, **kwargs)
+
+    monkeypatch.setattr(store, "put_json", count_cas_writes)
+
+    query = LessonQuery(tags=["access-hint-test"], limit=10, **query_fields)
+    first_results = registry.query(query)
+    assert {card.lesson_id for card in first_results} == {card.lesson_id for card in cards}
+    expected_hint_names = {
+        f"{sha256(card.lesson_id.encode('utf-8')).hexdigest()}.txt" for card in cards
+    }
+    assert len(access_writes) == len(cards)
+    assert {path.name for path in access_writes} == expected_hint_names
+    assert cas_writes == []
+    assert index_path.read_bytes() == original_index_bytes
+
+    second_results = registry.query(query)
+    assert {card.lesson_id for card in second_results} == {card.lesson_id for card in cards}
+    assert len(access_writes) == len(cards)
+    assert cas_writes == []
+    assert index_path.read_bytes() == original_index_bytes
+    assert registry.snapshot_ref() == initial_snapshot_ref
+
+    restarted = LessonRegistry(root=registry._root, store=store)
+    reopened = restarted._load_index_file(index_path)
+    assert all(entry.last_accessed_at is not None for entry in reopened.entries)
+
+    restart_results = restarted.query(query)
+    assert {card.lesson_id for card in restart_results} == {card.lesson_id for card in cards}
+    assert len(access_writes) == len(cards)
+    assert cas_writes == []
+    assert index_path.read_bytes() == original_index_bytes
+
+    stale_entry = reopened.entries[0]
+    stale_hint = restarted._access_path(index_path, stale_entry.lesson_id)
+    stale_hint.write_text(
+        (datetime.now(UTC) - timedelta(days=2)).isoformat(),
+        encoding="utf-8",
+    )
+    restarted.query(query)
+    assert len(access_writes) == len(cards) + 1
+    assert access_writes[-1] == stale_hint
+    assert cas_writes == []
+    assert index_path.read_bytes() == original_index_bytes
+
+
+def test_gc_uses_evidence_age_for_trust_after_recent_access_and_restart(tmp_path) -> None:
+    store, registry = _make_registry(tmp_path)
+    context = TransferContext(
+        task_family="policy",
+        domain="general",
+        run_id="source-run",
+        tenant_hash=None,
+    )
+    source_card = LessonCard(
+        kind=LessonKind.FAILURE,
+        summary="Recent use cannot renew old evidence trust.",
+        failure_type="stale_evidence",
+        stage_name="test",
+        fidelity_level=1,
+        candidate_hash="old-evidence",
+        source_run_id="source-run",
+        created_at=datetime.now(UTC) - timedelta(days=200),
+        confidence=0.9,
+        tags=["gc-evidence-clock"],
+    )
+    card_ref = registry.record_local(source_card, context=context)
+    index_path = registry._index_path_for_context(context)
+    stored_before = load_lesson_card(store, card_ref)
+    query = LessonQuery(
+        task_family="policy",
+        domain="general",
+        tenant_hash=None,
+        tags=["gc-evidence-clock"],
+        limit=1,
+    )
+
+    cold = registry.query(query)
+    assert len(cold) == 1
+    assert cold[0].trust_level == LessonTrustLevel.LOW_CONFIDENCE
+    assert cold[0].confidence == 0.5
+    access_hint = registry._access_path(index_path, source_card.lesson_id)
+    assert access_hint.is_file()
+    assert registry.top_patterns(limit=1, context=context)[0].trust_level == LessonTrustLevel.LOCAL
+
+    removed = registry.garbage_collect(ttl_days=90)
+    assert removed == 0
+
+    after_gc = registry.index_snapshot(context=context).entries[0]
+    assert after_gc.last_accessed_at is not None
+    assert after_gc.last_seen == source_card.created_at
+    assert after_gc.artifact_ref == card_ref
+    assert after_gc.trust_level == LessonTrustLevel.LOW_CONFIDENCE
+    pattern = registry.top_patterns(limit=1, context=context)[0]
+    assert pattern.trust_level == LessonTrustLevel.LOW_CONFIDENCE
+    assert pattern.last_seen == source_card.created_at
+
+    restarted = LessonRegistry(root=registry._root, store=store)
+    restarted_pattern = restarted.top_patterns(limit=1, context=context)[0]
+    assert restarted_pattern.trust_level == LessonTrustLevel.LOW_CONFIDENCE
+    assert restarted_pattern.last_seen == source_card.created_at
+    warm = restarted.query(query)
+    assert len(warm) == 1
+    assert warm[0].trust_level == LessonTrustLevel.LOW_CONFIDENCE
+    assert warm[0].confidence == 0.5
+    stored_after = load_lesson_card(store, card_ref)
+    assert stored_after.model_dump(mode="json") == stored_before.model_dump(mode="json")
+
+
+def test_corrupt_access_hint_does_not_change_evidence_age_or_trust(tmp_path) -> None:
+    store, registry = _make_registry(tmp_path)
+    context = TransferContext(
+        task_family="policy",
+        domain="general",
+        run_id="source-run",
+        tenant_hash=None,
+    )
+    source_card = LessonCard(
+        kind=LessonKind.FAILURE,
+        summary="Old evidence remains old after access.",
+        failure_type="stale_evidence",
+        stage_name="test",
+        fidelity_level=1,
+        candidate_hash="stale-candidate",
+        source_run_id="source-run",
+        created_at=datetime.now(UTC) - timedelta(days=100),
+        confidence=0.9,
+        tags=["stale-access"],
+    )
+    card_ref = registry.record_local(source_card, context=context)
+    index_path = registry._index_path_for_context(context)
+    original_snapshot = registry._load_index_file(index_path)
+    original_entry = original_snapshot.entries[0]
+    stored_before = load_lesson_card(store, card_ref)
+
+    hint_path = registry._access_path(index_path, source_card.lesson_id)
+    hint_path.parent.mkdir(parents=True, exist_ok=True)
+    hint_path.write_text("not-a-timestamp", encoding="utf-8")
+
+    restarted = LessonRegistry(root=registry._root, store=store)
+    loaded_before_query = restarted.index_snapshot(context=context)
+    loaded_entry = loaded_before_query.entries[0]
+    assert loaded_entry.last_accessed_at is None
+    assert loaded_entry.artifact_ref == original_entry.artifact_ref
+    assert loaded_entry.last_seen == original_entry.last_seen
+
+    result = restarted.query(
+        LessonQuery(
+            task_family="policy",
+            domain="general",
+            tenant_hash=None,
+            tags=["stale-access"],
+            limit=1,
+        )
+    )
+    assert len(result) == 1
+    assert result[0].lesson_id == source_card.lesson_id
+    assert result[0].created_at == source_card.created_at
+    assert result[0].source_run_id == source_card.source_run_id
+    assert result[0].trust_level == LessonTrustLevel.LOW_CONFIDENCE
+    assert result[0].confidence == 0.5
+
+    loaded_after_query = restarted.index_snapshot(context=context)
+    queried_entry = loaded_after_query.entries[0]
+    assert queried_entry.last_accessed_at is not None
+    assert queried_entry.artifact_ref == original_entry.artifact_ref
+    assert queried_entry.last_seen == original_entry.last_seen
+    assert queried_entry.origin_run_id == original_entry.origin_run_id
+    assert queried_entry.origin_domain == original_entry.origin_domain
+    stored_after = load_lesson_card(store, card_ref)
+    assert stored_after.model_dump(mode="json") == stored_before.model_dump(mode="json")
+
+    strict_warm_query = restarted.query(
+        LessonQuery(
+            task_family="policy",
+            domain="general",
+            tenant_hash=None,
+            tags=["stale-access"],
+            trust_levels=[LessonTrustLevel.LOCAL],
+            min_confidence=0.8,
+            limit=1,
+        )
+    )
+    assert strict_warm_query == []
 
 
 def test_lesson_index_local_json_round_trips_required_nullable_source_scope(tmp_path) -> None:

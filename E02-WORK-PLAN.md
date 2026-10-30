@@ -137,7 +137,7 @@ Deliberate history-only deferrals include obsolete review/receipt/research packe
 | 414 / `e3f0103c` | Checkpoint sidecar cleanup/fsync/concurrent-reader tests |
 | 429 / `ed065a94` | Persisted code-graph identity and durable worker budget |
 | 432 / `ee6f2fb6` | Calibration, sampling, DOE, backtest, DDM and FRC source/tests |
-| 435 / `f07058a3` | Gaussian oracles now independently reviewed; commit the active test before retiring this ref |
+| 435 / `f07058a3` | Numerical oracles committed; failure-path joint-law/axis recipe disclosure and combined dual-precision ledger control remain distinct |
 
 ## 4. First product composition front
 
@@ -198,7 +198,7 @@ This table records integrated results and next outcomes. During execution add th
 | --- | --- |
 | BOOT0 | Correct visible workspace/ref; keep source and publication identities current. |
 | DEC0 | Execute already selected decisions; ask G only genuine unresolved semantic choices. |
-| Q0 | Reconcile the individual original occurrences and useful legacy mechanisms; no aggregate source-inventory closure. |
+| Q0 | FED-02/B142 typed empty UNION now projects declared output types after current lineage-preserving profile restoration; 4 DuckDB cases PASS including persisted/reopened DESCRIBE, nonempty source typing and no-sources refusal. Independent source review GO; root read complete pytest output. PLG-02/LA-023 CLI now returns 1 for bridge_pending and 0 for real trained; 4 cases PASS including actual tiny native training and unsupported composite, independently reviewed by root. Outputs once `_cache/e02/sql-union` and `_cache/e02/training-cli`. Other original occurrences and legacy candidates remain. |
 | Q1 | Complete CAN.3 affected readers, state/Foundry/cache and installed migration; preserve accepted CAN.2. |
 | Q2 | TC child-ID fixture integrated: normal module 17 PASS, 13.21 s, including fresh child read and missing-Fabric-row refusal (outputs `_cache/e02/tc`). Continue selected-member/API/client/generated/installed consumers. |
 | R1 | Finish required real-child contours and basis invalidation beyond the verified single contour. |
@@ -217,11 +217,11 @@ This table records integrated results and next outcomes. During execution add th
 | V1 | Demonstrate ordinary POST → owned context → N5 → CAS → fresh GET with the required controlled/authentic roots. |
 | V2 | Complete actual N4 children, N6 frontier/history and fresh reader with sibling/budget controls. |
 | V3 | Composed the three-failure repair in generation_cycle and its mirrored tests: N6-owned JSON array round-trip, refusal preservation and unbound-route suppression; scheduled tax-receipt positive plus unscheduled firm_survival negative. Independent review GO; 9 focused + 8 guard/history + 1 served COV PASS, normal pytest/JAX CPU profile, synthetic fixture data, full outputs once at `policy-engine/_cache/e02/v3/`. Source-semantic-enabled fresh-route consumer also PASS (1 case, 11.59 s, `_cache/e02/v3/semantic.*`). Wrong-family matcher red remains open with attribution not established; its live/historical repair is the next canonical-owner slice. No overall V3/G closure. |
-| V4 | N7 early launcher/recorder prerequisite integrated under six explicit paths: selected-role bindings, loader/remove-reimport controls, honest candidate fallback for test/diagnose when Git selection is unavailable. Independent GO; 25 source-level cases PASS (22 recorder + 3 bootstrap), outputs once `_cache/e02/n7/recorder-4.*`. This issues no authority. Next committed-HEAD launcher smoke, then real host/provider/stdlib/native and through-use qualification. Ordinary product alias-finder insertion currently refuses capture; reconcile its actual owner, do not weaken mutation detection. |
+| V4 | N7 early launcher/recorder prerequisite integrated under six explicit paths: selected-role bindings, loader/remove-reimport controls, honest candidate fallback for test/diagnose when Git selection is unavailable. Independent GO; 25 source-level cases PASS (22 recorder + 3 bootstrap), outputs once `_cache/e02/n7/recorder-4.*`. This issues no authority. A committed-HEAD launcher smoke on 4e5b9bf35 exits 0 for tools --help (dispatch only). The 2-path recorded-finder delta has independent GO and 27 combined source-level PASS; real-product discovery remains red (2 PASS/1 FAIL) and is under diagnosis. Next actual host/provider/stdlib/native and through-use qualification. Ordinary product alias-finder insertion currently refuses capture; reconcile its actual owner, do not weaken mutation detection. |
 | V5 | Independent Gaussian oracles integrated in the canonical Monte Carlo tests: exact axis/draw covariance, singular support, invalid-before-callback and joint non-authority. Full module 34 PASS (7.83 s, peak RSS ~537 MiB, CPU/one-thread profile), independent GO, output once `_cache/e02/gaussian/pytest.log`. No source owner changed. Explicit historical recipe fields, production joint provenance/units, persisted consumers and distinct GP/native/B157 routes remain. |
 | V6 | Establish valid exact-profile A/A then intended A/B and B13 basis/sibling behavior. |
 | V7 | Derive measured coverage from actual observations and preserve its meaning through the fresh served result. |
-| DX0 | Freeze actual package assets/origins and complete required native/installed/source-wheel/sdist/archive proofs. |
+| DX0 | R18 scanner delta withdrawn after a conditional helper counterexample exposed a false-green target. Collector bytes remain unchanged; retained exact-vs-unknown subscript test/documentation correction has 3 native PASS and independent GO. Dict-order/global branch joins, hashing and deferred effects remain unresolved. Whole-source collector input changed during run, so no stable whole-gate PASS. Continue original native/installed/source-wheel/sdist/archive proofs. |
 
 
 Pattern pass: P01/P02 actual consumer integration; P13 proportional effort; P14 no inflated proof counts; P27/P31 canonical mechanisms; P29 actual property checks and a stopping point; P35 finite complete ref/criterion coverage; P38 ancestry is not behavior; P40 no repair ladder; P41 correct failure attribution. Organizational cleanup is not E02 completion.

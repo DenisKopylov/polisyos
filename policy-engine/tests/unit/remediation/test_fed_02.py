@@ -137,6 +137,131 @@ def test_empty_union_preserves_declared_columns_and_dtypes() -> None:
     assert merge_log == []
 
 
+def test_empty_union_sql_readback_uses_declared_schema_and_retains_source_declaration(
+    tmp_path,
+) -> None:
+    """A registered empty SQL source stays typed and queryable after persistence."""
+    duckdb = pytest.importorskip("duckdb")
+    from polisyos.fabric.connectors.contracts import DataSchema, FieldSpec, SchemaType
+
+    schema = DataSchema(
+        schema_id="fed02.typed_empty",
+        version="1.0.0",
+        fields=(
+            FieldSpec(name="id", data_type=SchemaType.INT64),
+            FieldSpec(name="measure", data_type=SchemaType.FLOAT64),
+            FieldSpec(name="label", data_type=SchemaType.STRING),
+        ),
+        primary_key=("id",),
+        grain_dims=("id",),
+    )
+    database = tmp_path / "typed-empty.duckdb"
+    with duckdb.connect(str(database)) as connection:
+        connection.execute(schema.to_duckdb_create_table("registered_source"))
+        source = connection.execute("SELECT id, measure, label FROM registered_source").df()
+        request = _compose_request(CompositionStrategy.UNION, schema=schema)
+        result, merge_log = _composer().compose(
+            sources=[(source, _source_metadata("duckdb_empty"))],
+            strategy=request.strategy,
+            request=request,
+        )
+        source_declarations = result.attrs["policyos_federation_lineage_v1"]["source_declarations"]
+        connection.execute(schema.to_duckdb_create_table("declared_schema_oracle"))
+        expected_schema = [
+            (str(row[0]), str(row[1]))
+            for row in connection.execute("DESCRIBE declared_schema_oracle").fetchall()
+        ]
+        connection.register("composed_frame", result)
+        connection.execute("CREATE TABLE persisted_result AS SELECT * FROM composed_frame")
+        actual_schema = [
+            (str(row[0]), str(row[1]))
+            for row in connection.execute("DESCRIBE persisted_result").fetchall()
+        ]
+        actual_count = connection.execute("SELECT count(*) FROM persisted_result").fetchone()[0]
+
+    with duckdb.connect(str(database), read_only=True) as reopened:
+        consumed = reopened.execute(
+            "SELECT id, measure, label FROM persisted_result ORDER BY id"
+        ).df()
+
+    assert result.empty
+    assert result.columns.tolist() == schema.field_names()
+    assert result.dtypes.astype(str).to_dict() == schema.to_pandas_dtypes()
+    assert merge_log == []
+    assert any("duckdb_empty@" in token for token in source_declarations)
+    assert (
+        actual_schema
+        == expected_schema
+        == [
+            ("id", "BIGINT"),
+            ("measure", "DOUBLE"),
+            ("label", "VARCHAR"),
+        ]
+    )
+    assert actual_count == 0
+    assert consumed.empty
+    assert consumed.columns.tolist() == schema.field_names()
+
+
+def test_nonempty_union_keeps_source_types_when_schema_hint_differs(tmp_path) -> None:
+    """A nonempty UNION preserves real source types instead of relabeling values."""
+    duckdb = pytest.importorskip("duckdb")
+    from polisyos.fabric.connectors.contracts import DataSchema, FieldSpec, SchemaType
+
+    schema_hint = DataSchema(
+        schema_id="fed02.mismatched_hint",
+        version="1.0.0",
+        fields=(
+            FieldSpec(name="id", data_type=SchemaType.INT64),
+            FieldSpec(name="measure", data_type=SchemaType.FLOAT64),
+            FieldSpec(name="label", data_type=SchemaType.STRING),
+        ),
+        primary_key=("id",),
+        grain_dims=("id",),
+    )
+    database = tmp_path / "nonempty-source-types.duckdb"
+    with duckdb.connect(str(database)) as connection:
+        connection.execute(
+            "CREATE TABLE registered_source (id VARCHAR, measure VARCHAR, label VARCHAR)"
+        )
+        connection.execute("INSERT INTO registered_source VALUES ('003', '1.5', 'sample')")
+        source = connection.execute("SELECT id, measure, label FROM registered_source").df()
+        request = _compose_request(CompositionStrategy.UNION, schema=schema_hint)
+        result, _ = _composer().compose(
+            sources=[(source, _source_metadata("duckdb_nonempty"))],
+            strategy=request.strategy,
+            request=request,
+        )
+        connection.register("composed_frame", result)
+        connection.execute("CREATE TABLE persisted_result AS SELECT * FROM composed_frame")
+        source_schema = [
+            (str(row[0]), str(row[1]))
+            for row in connection.execute("DESCRIBE registered_source").fetchall()
+        ]
+        persisted_schema = [
+            (str(row[0]), str(row[1]))
+            for row in connection.execute("DESCRIBE persisted_result").fetchall()
+        ]
+
+    with duckdb.connect(str(database), read_only=True) as reopened:
+        consumed_rows = reopened.execute(
+            "SELECT id, measure, label FROM persisted_result ORDER BY id"
+        ).fetchall()
+
+    assert not result.empty
+    assert result.dtypes.astype(str).to_dict() == source.dtypes.astype(str).to_dict()
+    assert (
+        source_schema
+        == persisted_schema
+        == [
+            ("id", "VARCHAR"),
+            ("measure", "VARCHAR"),
+            ("label", "VARCHAR"),
+        ]
+    )
+    assert consumed_rows == [("003", "1.5", "sample")]
+
+
 def test_union_without_sources_is_not_typed_empty() -> None:
     """An absent source set remains a federation error, not an empty dataset."""
     request = _compose_request(

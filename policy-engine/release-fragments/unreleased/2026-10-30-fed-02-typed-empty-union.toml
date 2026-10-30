@@ -1,0 +1,20 @@
+id = "2026-10-30-fed-02-typed-empty-union"
+title = "Preserve declared schema through empty federation unions"
+type = "fixed"
+component = "fabric"
+owner = "team-fabric"
+summary = "Empty UNION results retain declared pandas dtypes and source declarations, then persist and reopen with the declared SQL column names and types for downstream queries. No-source input remains an error; nonempty unions retain source-derived types."
+evidence = [
+  "src/polisyos/fabric/connectors/federation/composer.py",
+  "tests/unit/remediation/test_fed_02.py",
+]
+compatibility = "Nonempty UNION values and source-derived dtypes are unchanged. A valid zero-row result retains its existing columns and provenance while applying matching declared schema dtypes for SQL materialization."
+change_class = "internal"
+surface_classification = "internal: federation UNION result schema and SQL readback"
+migration = "No migration is required."
+api = "No symbols, DTOs, or public signatures change."
+limitations = "CompositionRequest.schema remains a key/time hint outside empty UNION projection. Native source-type mismatches are not validated at this layer: zero-row output uses the requested dtype, while nonempty output remains source-derived. A zero-row result is valid empty output, not evidence that the source set or downstream effect is absent."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

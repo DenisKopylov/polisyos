@@ -642,6 +642,11 @@ class DataComposer:
         lineage = _read_persisted_lineage(result)
         if lineage is None:
             raise FederationError("Output profile lacks its owned cell basis")
+        declared_empty_union_dtypes = (
+            request.schema.to_pandas_dtypes()
+            if strategy == CompositionStrategy.UNION and result.empty and request.schema is not None
+            else {}
+        )
         keys = (
             (request.join_keys or [])
             if strategy == CompositionStrategy.JOIN
@@ -679,6 +684,12 @@ class DataComposer:
                     target = "object"
                 else:
                     target = str(target_dtype)
+            if column in declared_empty_union_dtypes:
+                # A valid zero-row UNION carries no observed values from which
+                # to reconstruct its declared output types. Preserve the
+                # request schema's typed empty through the same owned-lineage
+                # projection used for nonempty results.
+                target = declared_empty_union_dtypes[column]
             columns[column] = cast_series_losslessly(
                 result[column],
                 target,

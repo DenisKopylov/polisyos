@@ -1,0 +1,17 @@
+id = "2026-10-30-e02-source-execution-recorder"
+title = "Record source execution for local tooling diagnostics"
+type = "added"
+component = "platform"
+owner = "team-polisyos"
+summary = "Add an isolated local host that records selected source execution and offers diagnostics after tool imports."
+evidence = ["tests/unit/runtime/quality/test_loaded_execution_capture.py", "tests/unit/runtime/quality/test_loaded_execution_import_hooks.py", "tests/unit/runtime/quality/test_loaded_execution_lifecycle.py", "tests/unit/tools/test_authority_bootstrap.py", "tests/unit/tools/test_authority_handoff.py", "tests/unit/tools/test_authority_lifecycle.py", "tests/unit/tools/test_locked_wheel_sources.py"]
+compatibility = "Existing direct tool and runtime entry points remain available as candidate routes. The host selects source from the committed checkout, may fetch bounded locked wheels into memory for source comparison, and does not install dependencies."
+change_class = "internal"
+surface_classification = "internal: local tooling launch and diagnostic evidence"
+migration = "No persisted receipt or risk scope is rewritten."
+api = "tools/authority offers isolated tools, runtime, server, test, and diagnostic entry paths, then closes the process-local capture after the target returns."
+limitations = "The recorder and its handoff do not establish N7/N9 authority. External provider and native build mapping, decision-state currentness, protected use, and issuer predicates remain unestablished. Existing-scope continuation across incompatible identities remains unavailable."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["tools/README.md"]
+runbook_docs = []

@@ -36,7 +36,7 @@ from enum import Enum
 from fractions import Fraction
 from importlib.machinery import SourceFileLoader
 from pathlib import Path
-from typing import Any, Literal, Self
+from typing import Any, Literal, Self, cast
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -5852,6 +5852,7 @@ class _AuthorityImportClosureSourceIndex:
 
     parsed_by_content: dict[bytes, ast.Module]
     providers_by_content: dict[bytes, _LiteralModuleGetattrProviderIndex]
+    diagnostic_unqualified_direct_bindings: set[tuple[str, str]] | None = None
 
     def parse(self, content: bytes, *, filename: str) -> ast.Module:
         """Parse exact source bytes once within the current closure computation."""
@@ -5863,11 +5864,605 @@ class _AuthorityImportClosureSourceIndex:
         return tree
 
 
+@dataclass(frozen=True, slots=True)
+class _DiagnosticAuthoritySourceCandidates:
+    """Source-only candidates and bindings which remain unqualified."""
+
+    entry_modules: tuple[str, ...]
+    source_candidates: tuple[tuple[str, str], ...]
+    unqualified_direct_bindings: tuple[tuple[str, str], ...]
+    unresolved_by_construction: tuple[str, ...]
+
+
+def _diagnose_unqualified_authority_import_candidates(
+    repo_root: Path,
+    entry_module: str | Iterable[str],
+) -> _DiagnosticAuthoritySourceCandidates:
+    """Collect unqualified source candidates without executing or admitting them."""
+
+    entries = (entry_module,) if isinstance(entry_module, str) else tuple(sorted(set(entry_module)))
+    if not entries:
+        raise ValueError("diagnostic_authority_entry_missing")
+    unqualified: set[tuple[str, str]] = set()
+    candidates = _resolve_authority_import_closure(
+        repo_root,
+        entries,
+        _diagnostic_unqualified_direct_bindings=unqualified,
+    )
+    return _DiagnosticAuthoritySourceCandidates(
+        entry_modules=entries,
+        source_candidates=candidates,
+        unqualified_direct_bindings=tuple(sorted(unqualified)),
+        unresolved_by_construction=(
+            "source_readset_and_complete_denominator_not_instrumented",
+            "actual_source_execution_and_selected_provider",
+            "direct_binding_construction_and_consumer_holdings",
+            "dynamic_imports_outside_static_source_candidates",
+            "material_state_and_protected_use",
+        ),
+    )
+
+
+_NO_EXECUTION_BINDING = object()
+
+
+def _passive_capture_lookup(mapping: object, name: str) -> object:
+    if type(mapping) not in (dict, types.MappingProxyType):
+        return _NO_EXECUTION_BINDING
+    try:
+        for key, value in cast("Mapping[object, object]", mapping).items():
+            if type(key) is str and key == name:
+                return value
+    except RuntimeError:
+        return _NO_EXECUTION_BINDING
+    return _NO_EXECUTION_BINDING
+
+
+def _code_tree_contains(root: object, target: object) -> bool:
+    """Compare code identities within a retained compiler output tree."""
+
+    if type(root) is not types.CodeType or type(target) is not types.CodeType:
+        return False
+    pending = [root]
+    while pending:
+        code = pending.pop()
+        if code is target:
+            return True
+        pending.extend(item for item in code.co_consts if type(item) is types.CodeType)
+    return False
+
+
+def _recorder_function_hold_matches(row: object) -> bool:
+    """Inspect one held function without calling it or its defaults."""
+
+    if type(row) is not tuple or len(row) != 7:
+        return False
+    function, code, defaults, kwdefaults, kwitems, closure, cells = row
+    if (
+        type(function) is not types.FunctionType
+        or type(code) is not types.CodeType
+        or function.__code__ is not code
+        or function.__defaults__ is not defaults
+        or function.__kwdefaults__ is not kwdefaults
+        or function.__closure__ is not closure
+        or type(kwitems) is not tuple
+        or type(cells) is not tuple
+    ):
+        return False
+    if kwdefaults is None:
+        if kwitems:
+            return False
+    elif (
+        type(kwdefaults) is not dict
+        or len(kwdefaults) != len(kwitems)
+        or any(type(key) is not str for key in kwdefaults)
+        or any(
+            type(item) is not tuple
+            or len(item) != 2
+            or type(item[0]) is not str
+            or _passive_capture_lookup(kwdefaults, item[0]) is not item[1]
+            for item in kwitems
+        )
+    ):
+        return False
+    if closure is None:
+        return not cells
+    if type(closure) is not tuple or len(closure) != len(cells):
+        return False
+    for cell, held in zip(closure, cells, strict=True):
+        if (
+            type(cell) is not types.CellType
+            or type(held) is not tuple
+            or len(held) != 3
+            or held[0] is not cell
+            or type(held[1]) is not bool
+        ):
+            return False
+        try:
+            content = cell.cell_contents
+        except ValueError:
+            if held[1]:
+                return False
+        else:
+            if not held[1] or content is not held[2]:
+                return False
+    return True
+
+
+def _recorder_class_hold_matches(row: object) -> bool:
+    """Inspect retained class bindings and bases without invoking descriptors."""
+
+    if type(row) is not tuple or len(row) != 3:
+        return False
+    cls, bases, fields = row
+    if type(cls) is not type or type(bases) is not tuple or type(fields) is not tuple:
+        return False
+    namespace = type.__getattribute__(cls, "__dict__")
+    current_bases = type.__getattribute__(cls, "__bases__")
+    if (
+        len(current_bases) != len(bases)
+        or any(actual is not held for actual, held in zip(current_bases, bases, strict=True))
+        or len(namespace) != len(fields)
+    ):
+        return False
+    return not any(
+        type(item) is not tuple
+        or len(item) != 2
+        or type(item[0]) is not str
+        or _passive_capture_lookup(namespace, item[0]) is not item[1]
+        for item in fields
+    )
+
+
+def _host_recorder_anchor_matches(recorder: object, capture: object) -> bool:
+    """Passively reconcile the early host's retained recorder execution surface.
+
+    This is a prerequisite for diagnostics, not an appointment, a complete
+    provider/state proof, or an authority grant. The appointed host and Python
+    runtime remain the bounded root of trust for the process.
+    """
+
+    host = _passive_capture_lookup(sys.modules, "_polisyos_early_host")
+    session = _passive_capture_lookup(sys.__dict__, "_polisyos_loaded_host_v1")
+    if (
+        type(host) is not types.ModuleType
+        or type(recorder) is not types.ModuleType
+        or type(session) is not dict
+        or _passive_capture_lookup(sys.modules, "_polisyos_loaded_source_capture") is not recorder
+        or _passive_capture_lookup(host.__dict__, "_HOST_SESSION") is not session
+        or _passive_capture_lookup(session, "recorder") is not recorder
+        or _passive_capture_lookup(session, "capture") is not capture
+        or _passive_capture_lookup(sys.__dict__, "_polisyos_loaded_execution_owner_v1")
+        is not capture
+    ):
+        return False
+    process_id = _passive_capture_lookup(session, "pid")
+    if type(process_id) is not int or process_id != os.getpid():
+        return False
+    host_code = _passive_capture_lookup(session, "host_code")
+    recorder_code = _passive_capture_lookup(session, "recorder_code")
+    handoff = _passive_capture_lookup(host.__dict__, "handoff_if_ready")
+    capture_type = _passive_capture_lookup(session, "recorder_type")
+    descriptors = _passive_capture_lookup(session, "recorder_descriptors")
+    retained_globals = _passive_capture_lookup(session, "recorder_globals")
+    function_holds = _passive_capture_lookup(session, "recorder_functions")
+    class_holds = _passive_capture_lookup(session, "recorder_classes")
+    if (
+        type(host_code) is not types.CodeType
+        or host_code is not _passive_capture_lookup(host.__dict__, "_HOST_EXECUTION_CODE")
+        or type(recorder_code) is not types.CodeType
+        or type(handoff) is not types.FunctionType
+        or handoff is not _passive_capture_lookup(session, "handoff")
+        or handoff.__globals__ is not host.__dict__
+        or not _code_tree_contains(host_code, handoff.__code__)
+        or type(capture_type) is not type
+        or type(capture) is not capture_type
+        or _passive_capture_lookup(recorder.__dict__, "SourceExecutionCapture") is not capture_type
+        or type(descriptors) is not tuple
+        or type(retained_globals) is not tuple
+        or type(function_holds) is not tuple
+        or type(class_holds) is not tuple
+    ):
+        return False
+    if not all(_recorder_function_hold_matches(row) for row in function_holds) or not all(
+        _recorder_class_hold_matches(row) for row in class_holds
+    ):
+        return False
+    held_functions = {id(row[0]) for row in function_holds}
+    held_classes = {id(row[0]) for row in class_holds}
+    if (
+        len(held_functions) != len(function_holds)
+        or len(held_classes) != len(class_holds)
+        or id(capture_type) not in held_classes
+    ):
+        return False
+    class_namespace = type.__getattribute__(capture_type, "__dict__")
+    if type(_passive_capture_lookup(class_namespace, "__dict__")) is not types.GetSetDescriptorType:
+        return False
+    instance_namespace = object.__getattribute__(capture, "__dict__")
+    if type(instance_namespace) is not dict:
+        return False
+    descriptor_types = (types.FunctionType, property, classmethod, staticmethod)
+    actual_names = {
+        name
+        for name, value in class_namespace.items()
+        if type(name) is str and type(value) in descriptor_types
+    }
+    retained_names: set[str] = set()
+    referenced_names: set[str] = set()
+    for row in descriptors:
+        if type(row) is not tuple or len(row) != 2 or type(row[0]) is not str:
+            return False
+        name, value = row
+        if (
+            name in retained_names
+            or _passive_capture_lookup(class_namespace, name) is not value
+            or _passive_capture_lookup(instance_namespace, name) is not _NO_EXECUTION_BINDING
+        ):
+            return False
+        retained_names.add(name)
+        functions: tuple[types.FunctionType, ...]
+        if type(value) is types.FunctionType:
+            functions = (value,)
+        elif type(value) is property:
+            functions = cast(
+                "tuple[types.FunctionType, ...]",
+                tuple(
+                    function
+                    for function in (value.fget, value.fset, value.fdel)
+                    if function is not None
+                ),
+            )
+        elif type(value) in (classmethod, staticmethod):
+            functions = (value.__func__,)
+        else:
+            return False
+        for function in functions:
+            if (
+                type(function) is not types.FunctionType
+                or id(function) not in held_functions
+                or function.__globals__ is not recorder.__dict__
+                or not _code_tree_contains(recorder_code, function.__code__)
+            ):
+                return False
+    for row in class_holds:
+        for _, value in row[2]:
+            if type(value) is types.FunctionType:
+                functions = (value,)
+            elif type(value) is property:
+                functions = cast(
+                    "tuple[types.FunctionType, ...]",
+                    tuple(
+                        function
+                        for function in (value.fget, value.fset, value.fdel)
+                        if function is not None
+                    ),
+                )
+            elif type(value) in (classmethod, staticmethod):
+                functions = (value.__func__,)
+            else:
+                continue
+            if any(
+                type(function) is not types.FunctionType or id(function) not in held_functions
+                for function in functions
+            ):
+                return False
+    for row in function_holds:
+        function = row[0]
+        if function.__globals__ is recorder.__dict__:
+            pending = [function.__code__]
+            while pending:
+                code = pending.pop()
+                referenced_names.update(code.co_names)
+                pending.extend(item for item in code.co_consts if type(item) is types.CodeType)
+    if retained_names != actual_names:
+        return False
+    actual_global_names = {
+        name
+        for name in referenced_names
+        if _passive_capture_lookup(recorder.__dict__, name) is not _NO_EXECUTION_BINDING
+    }
+    retained_global_names: set[str] = set()
+    for row in retained_globals:
+        if type(row) is not tuple or len(row) != 2 or type(row[0]) is not str:
+            return False
+        name, value = row
+        if (
+            name in retained_global_names
+            or _passive_capture_lookup(recorder.__dict__, name) is not value
+            or (
+                type(value) is types.FunctionType
+                and value.__globals__ is recorder.__dict__
+                and id(value) not in held_functions
+            )
+            or (
+                type(value) is type
+                and type.__getattribute__(value, "__module__") == recorder.__name__
+                and id(value) not in held_classes
+            )
+        ):
+            return False
+        retained_global_names.add(name)
+    if retained_global_names != actual_global_names:
+        return False
+    root = _loaded_policy_engine_root()
+    try:
+        for module, code, expected_path, expected_hash in (
+            (host, host_code, root / "tools/authority_bootstrap.py", "host_sha256"),
+            (
+                recorder,
+                recorder_code,
+                root / "tools/loaded_execution_capture.py",
+                "recorder_sha256",
+            ),
+        ):
+            filename = _passive_capture_lookup(module.__dict__, "__file__")
+            selected_hash = _passive_capture_lookup(session, expected_hash)
+            if type(filename) is not str or type(selected_hash) is not str:
+                return False
+            path = Path(filename)
+            source = path.read_bytes()
+            if (
+                path.resolve() != expected_path.resolve()
+                or hashlib.sha256(source).hexdigest() != selected_hash
+            ):
+                return False
+            compiled = compile(
+                source, str(path), "exec", dont_inherit=True, optimize=sys.flags.optimize
+            )
+            if _normalize_code_object(compiled) != _normalize_code_object(code):
+                return False
+    except (OSError, SyntaxError, TypeError, ValueError):
+        return False
+    return True
+
+
+# Boundary rationale: these private diagnostics accept opaque host-owned
+# producer objects; importing tooling types into the product would invert the
+# dependency boundary, and their values are never treated as authority.
+def _source_import_aliases_for_event(
+    repo_root: Path,
+    capture: Any,  # noqa: ANN401
+    event: Any,  # noqa: ANN401
+    symbol: str,
+    *,
+    parsed_sources: dict[str, ast.Module] | None = None,
+    imports_by_line: dict[str, dict[int, list[ast.ImportFrom]]] | None = None,
+) -> tuple[str, ...]:
+    """Resolve import aliases from the actual caller's retained source line."""
+
+    if event.route != "builtin_import" or type(event.caller_line) is not int:
+        return ()
+    importer = capture.completed(event.importer_name)
+    tree = None if parsed_sources is None else parsed_sources.get(event.importer_name)
+    if tree is None:
+        capture.assert_retained(frozenset({event.importer_name}))
+        source = repo_root / importer.relative_path
+        content = source.read_bytes()
+        if hashlib.sha256(content).hexdigest() != importer.source_sha256:
+            raise ValueError("importer_source_observation_mismatch")
+        tree = ast.parse(content, filename=str(source))
+        if parsed_sources is not None:
+            parsed_sources[event.importer_name] = tree
+    if imports_by_line is None:
+        nodes: Iterable[ast.AST] = ast.walk(tree)
+    else:
+        indexed = imports_by_line.get(event.importer_name)
+        if indexed is None:
+            indexed = {}
+            for node in ast.walk(tree):
+                if isinstance(node, ast.ImportFrom):
+                    for line in range(node.lineno, (node.end_lineno or node.lineno) + 1):
+                        indexed.setdefault(line, []).append(node)
+            imports_by_line[event.importer_name] = indexed
+        nodes = indexed.get(event.caller_line, ())
+    aliases: set[str] = set()
+    for node in nodes:
+        if not isinstance(node, ast.ImportFrom) or not (
+            node.lineno <= event.caller_line <= (node.end_lineno or node.lineno)
+        ):
+            continue
+        if node.level:
+            package = importer.package
+            if not package or node.level > len(package.split(".")):
+                continue
+            parent = package.rsplit(".", node.level - 1)[0]
+            provider = f"{parent}.{node.module}" if node.module else parent
+        else:
+            provider = node.module or ""
+        if provider != event.provider_name:
+            continue
+        aliases.update(alias.asname or symbol for alias in node.names if alias.name == symbol)
+    return tuple(sorted(aliases))
+
+
+def _observed_source_bindings(
+    repo_root: Path,
+    capture: Any,  # noqa: ANN401
+    graph: Any,  # noqa: ANN401
+) -> tuple[
+    tuple[tuple[str, str, str, tuple[tuple[str, str], ...]], ...],
+    tuple[tuple[str, str, str, str], ...],
+]:
+    """Reconcile actual module-initializer import bindings for diagnostics.
+
+    A disagreement is reported without deciding whether an incidental rebinding
+    matters to authority. The protected operation still needs its independently
+    derived readset and the existing recorder guard for every required binding.
+    """
+
+    reached = frozenset(graph.reached_sources)
+    parsed_sources: dict[str, ast.Module] = {}
+    imports_by_line: dict[str, dict[int, list[ast.ImportFrom]]] = {}
+    provider_digests: dict[str, str] = {}
+    matched: dict[tuple[str, str, str], set[tuple[str, str]]] = {}
+    disagreements: set[tuple[str, str, str, str]] = set()
+    for event in capture.import_events():
+        if (
+            event.route != "builtin_import"
+            or event.importer_name not in reached
+            or event.provider_name not in reached
+        ):
+            continue
+        try:
+            importer = capture.completed(event.importer_name)
+            provider = capture.completed(event.provider_name)
+        except ImportError:
+            if capture.failed:
+                raise
+            continue
+        if event.caller_code is not importer.code:
+            # Function-local imports are not module-global binding claims.
+            continue
+        if (
+            type(importer.module) is not types.ModuleType
+            or type(provider.module) is not types.ModuleType
+            or event.importer is not importer.module
+            or event.provider is not provider.module
+        ):
+            raise ValueError("imported_module_observation_mismatch")
+        for symbol in event.requested_exports:
+            if type(symbol) is not str or not symbol.isidentifier():
+                continue
+            retained = _passive_capture_lookup(provider.watched_exports, symbol)
+            event_value = _passive_capture_lookup(event.retained_exports, symbol)
+            if retained is _NO_EXECUTION_BINDING or event_value is _NO_EXECUTION_BINDING:
+                continue
+            aliases = _source_import_aliases_for_event(
+                repo_root,
+                capture,
+                event,
+                symbol,
+                parsed_sources=parsed_sources,
+                imports_by_line=imports_by_line,
+            )
+            for alias in aliases:
+                current_provider = _passive_capture_lookup(provider.module.__dict__, symbol)
+                current_consumer = _passive_capture_lookup(importer.module.__dict__, alias)
+                if (
+                    event_value is not retained
+                    or current_provider is not retained
+                    or current_consumer is not retained
+                ):
+                    disagreements.add((event.provider_name, symbol, event.importer_name, alias))
+                    continue
+                digest = provider_digests.get(event.provider_name)
+                if digest is None:
+                    source = repo_root / provider.relative_path
+                    digest = hashlib.sha256(source.read_bytes()).hexdigest()
+                    if (
+                        digest != provider.source_sha256
+                        or source.resolve() != Path(provider.origin).resolve()
+                        or type(provider.code) is not types.CodeType
+                    ):
+                        raise ValueError("executed_source_observation_mismatch")
+                    provider_digests[event.provider_name] = digest
+                capture.assert_import_binding(
+                    event, importer_attribute=alias, provider_export=symbol
+                )
+                matched.setdefault((event.provider_name, symbol, digest), set()).add(
+                    (event.importer_name, alias)
+                )
+    bindings = tuple(
+        (module, symbol, digest, tuple(sorted(consumers)))
+        for (module, symbol, digest), consumers in sorted(matched.items())
+    )
+    return bindings, tuple(sorted(disagreements))
+
+
+def _observe_unsealed_host_capture(
+    recorder_module: object,
+    capture: Any,  # noqa: ANN401
+) -> dict[str, object]:
+    """Reconcile live source candidates for diagnostics without admitting identity.
+
+    The early host supplies its retained recorder and capture. This result is not
+    an appointment, complete dependency graph, state proof, or authority token.
+    Actual observed module-level imports and their held bindings are examined
+    generically; no particular protocol or provider is privileged.
+    """
+
+    report: dict[str, object] = {
+        "status": "not_established",
+        "phase": "collecting",
+        "proof_schema": "policyos.runtime.confidence_ledger.loaded_execution_capture.v1",
+        "identity_rule": "canonical-source-execution/1",
+        "runtime_profile_id": None,
+        "capture_time_role": "in_progress_or_unavailable",
+        "currentness_time_role": "not_evaluated",
+        "executed_direct_bindings": [],
+        "unresolved": (
+            "trusted_host_appointment",
+            "complete_relevant_bindings",
+            "runtime_dependency_and_native_profile",
+            "material_state",
+            "owner_sealing_and_currentness",
+            "protected_through_use",
+        ),
+    }
+    identity = capture_loaded_deployment_identity()
+    report["legacy_identity_status"] = identity.status
+    report["legacy_identity_reason"] = identity.reason_code
+    report["protected_loaded_execution_status"] = "not_established"
+    if not _host_recorder_anchor_matches(recorder_module, capture):
+        report["failure"] = "host_execution_anchor_unavailable"
+        return report
+    try:
+        capture_diagnostic = capture.diagnostic()
+        report["phase"] = capture_diagnostic.phase
+        report["failed_premise"] = capture_diagnostic.failed_premise
+        report["capture_failure"] = capture_diagnostic.failure_code
+        root = _loaded_policy_engine_root()
+        capture.assert_retained(frozenset({__name__}))
+        execution = capture.completed(__name__)
+        if execution.module is not _passive_capture_lookup(sys.modules, __name__):
+            raise ValueError("ledger_execution_binding_changed")
+        graph = capture.relevant_graph(frozenset({__name__}))
+        matched, disagreements = _observed_source_bindings(root, capture, graph)
+        report["executed_direct_bindings"] = matched
+        report["observed_binding_disagreements"] = disagreements
+        report["observed_source_modules"] = len(graph.reached_sources)
+        report["external_provider_count"] = len(graph.external_providers)
+        report["failed_reachable_imports"] = graph.failed_imports
+        report["failed_reachable_modules"] = graph.failed_modules
+        report["unresolved_importers"] = graph.unresolved_importers
+        report["pending_modules"] = graph.pending_modules
+        report["event_graph_scope"] = (
+            "observed module-initializer import bindings reachable from the ledger; "
+            "not a complete runtime closure or authority readset"
+        )
+        report["candidate_only"] = True
+    except (
+        OSError,
+        ImportError,
+        AttributeError,
+        TypeError,
+        ValueError,
+        ConfidenceLedgerError,
+    ) as exc:
+        if type(exc) is ConfidenceLedgerError:
+            report["failure"] = exc.code
+            report["failure_detail"] = exc.detail
+        elif (
+            (
+                type(exc) is _passive_capture_lookup(recorder_module.__dict__, "CaptureError")
+                or type(exc) is ValueError
+            )
+            and len(exc.args) == 1
+            and type(exc.args[0]) is str
+        ):
+            report["failure"] = exc.args[0]
+        else:
+            report["failure"] = type(exc).__name__
+    return report
+
+
 def _resolve_authority_import_closure(
     repo_root: Path,
     entry_module: str | Iterable[str],
     *,
     include_tools: bool = False,
+    _diagnostic_unqualified_direct_bindings: set[tuple[str, str]] | None = None,
 ) -> tuple[tuple[str, str], ...]:
     """Discover a repository-local source import closure candidate.
 
@@ -5878,14 +6473,18 @@ def _resolve_authority_import_closure(
     plus source-declared PEP 562 candidates. Literal dynamic targets are source
     inputs, not runtime modules, unless reached through a static edge; owner/tool
     mode additionally sees literal dynamic imports and tools. Both modes exclude
-    typing-only arms.
+    typing-only arms. The private diagnostic collector permits unqualified local
+    source bindings as candidates and records every such binding. That mode is
+    not evidence of the selected provider, execution, or an admissible closure.
     """
 
     resolved: dict[str, Path] = {}
     pending = {entry_module} if isinstance(entry_module, str) else set(entry_module)
     allowed_roots = {"polisyos", *(("tools",) if include_tools else ())}
     directory_entries: dict[Path, frozenset[str]] = {}
-    source_index = _AuthorityImportClosureSourceIndex({}, {})
+    source_index = _AuthorityImportClosureSourceIndex(
+        {}, {}, _diagnostic_unqualified_direct_bindings
+    )
 
     @functools.cache
     def resolve_source(module_name: str) -> Path | None:
@@ -13000,6 +13599,15 @@ def _source_module_direct_binding_route(
             relative.as_posix(),
         ) from exc
     sites = _module_scope_direct_binding_sites(tree, export_name)
+    diagnostic_bindings = source_index.diagnostic_unqualified_direct_bindings
+    if diagnostic_bindings is not None and (
+        sites or export_name in _module_scope_definite_bindings(tree)
+    ):
+        # This names only the source namespace which may bind the requested
+        # export. It does not identify the constructed object or qualify the
+        # provider; those require separately admitted execution and bindings.
+        diagnostic_bindings.add((module_name, export_name))
+        return "symbol", module_name, export_name
     if not sites:
         if export_name in _module_scope_definite_bindings(tree):
             raise ConfidenceLedgerError(
@@ -16119,7 +16727,33 @@ _IMPORT_TIME_RUNTIME_CODE_CLOSURE: tuple[tuple[str, str], ...] = ()
 _IMPORT_TIME_LOADED_CODE_MANIFEST = ""
 _IMPORT_TIME_LOADED_CODE_CONSISTENT = False
 _IMPORT_TIME_OWNER_ROOT = _loaded_policy_engine_root()
-if (
+
+
+def _early_host_capture_is_collecting() -> bool:
+    """Defer self-capture while a live early host is still collecting imports.
+
+    This is only a reason to wait; these process-local slots do not appoint a
+    profile or authorize a later capture on their own.
+    """
+
+    session = _passive_capture_lookup(sys.__dict__, "_polisyos_loaded_host_v1")
+    capture = _passive_capture_lookup(sys.__dict__, "_polisyos_loaded_execution_owner_v1")
+    if type(session) is not dict or capture is _NO_EXECUTION_BINDING:
+        return False
+    phase = _passive_capture_lookup(session, "phase")
+    return bool(
+        type(phase) is str
+        and phase == "collecting"
+        and _passive_capture_lookup(session, "capture") is capture
+    )
+
+
+_IMPORT_TIME_HOST_CAPTURE_DEFERRED = _early_host_capture_is_collecting()
+if _IMPORT_TIME_HOST_CAPTURE_DEFERRED:
+    # The owner cannot observe its final module while its initializer runs.
+    # Keep authority unavailable until the early host's post-import handoff.
+    pass
+elif (
     (_IMPORT_TIME_OWNER_ROOT / "pyproject.toml").is_file()
     and (_IMPORT_TIME_OWNER_ROOT / "uv.lock").is_file()
     and (_IMPORT_TIME_OWNER_ROOT / "src" / "polisyos").is_dir()

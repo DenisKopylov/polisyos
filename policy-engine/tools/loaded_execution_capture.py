@@ -23,25 +23,15 @@ import sys
 from contextlib import suppress
 from dataclasses import dataclass
 from pathlib import Path
-from types import (
-    CellType,
-    CodeType,
-    FrameType,
-    FunctionType,
-    GetSetDescriptorType,
-    MappingProxyType,
-    ModuleType,
-)
-from typing import TYPE_CHECKING, Literal, cast
+from types import CodeType, FrameType, FunctionType, MappingProxyType, ModuleType
+from typing import TYPE_CHECKING, Literal
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Mapping, Sequence
+    from collections.abc import Mapping, Sequence
 
 _COMPILE = compile
 _EXEC = exec
-_PATH_FINDER = importlib.machinery.PathFinder
-_PATH_FINDER_DESCRIPTOR = type.__getattribute__(_PATH_FINDER, "__dict__")["find_spec"]
-_FIND_SPEC = _PATH_FINDER.find_spec
+_FIND_SPEC = importlib.machinery.PathFinder.find_spec
 _SOURCE_LOADER = importlib.machinery.SourceFileLoader
 _GETPID = os.getpid
 _PROCESS_CAPTURE: SourceExecutionCapture | None = None
@@ -62,116 +52,6 @@ def _passive_lookup(mapping: object, key: str) -> tuple[bool, object]:
         # A concurrent mutation cannot establish a passive read.
         return False, None
     return False, None
-
-
-def _passive_binding_matches(mapping: object, key: str, expected: object) -> bool:
-    """Require the exact binding to be present, including a held None value."""
-
-    found, actual = _passive_lookup(mapping, key)
-    return found and actual is expected
-
-
-def _finder_descriptor_functions(value: object) -> tuple[FunctionType, ...] | None:
-    """Read supported descriptor representations without invoking them."""
-
-    if type(value) is FunctionType:
-        return (value,)
-    if type(value) is property:
-        return cast(
-            "tuple[FunctionType, ...]",
-            tuple(
-                function
-                for function in (value.fget, value.fset, value.fdel)
-                if function is not None
-            ),
-        )
-    if type(value) is classmethod:
-        return (cast("FunctionType", value.__func__),)
-    if type(value) is staticmethod:
-        return (cast("FunctionType", value.__func__),)
-    return None
-
-
-def _finder_callable_hold(function: FunctionType) -> tuple[object, ...] | None:
-    """Retain callable bindings without invoking descriptors or callbacks."""
-
-    kwdefaults = function.__kwdefaults__
-    if kwdefaults is not None and (
-        type(kwdefaults) is not dict or any(type(key) is not str for key in kwdefaults)
-    ):
-        return None
-    closure = function.__closure__
-    cells: list[tuple[object, bool, object]] = []
-    for cell in closure or ():
-        try:
-            cells.append((cell, True, cell.cell_contents))
-        except ValueError:
-            cells.append((cell, False, None))
-    return (
-        function,
-        function.__code__,
-        function.__defaults__,
-        kwdefaults,
-        () if kwdefaults is None else tuple(kwdefaults.items()),
-        closure,
-        tuple(cells),
-    )
-
-
-def _finder_callable_unchanged(held: tuple[object, ...]) -> bool:
-    if len(held) != 7:
-        return False
-    function = held[0]
-    if type(function) is not FunctionType:
-        return False
-    _, code, defaults, kwdefaults, kwitems, closure, cells = held
-    if (
-        function.__code__ is not code
-        or function.__defaults__ is not defaults
-        or function.__kwdefaults__ is not kwdefaults
-        or function.__closure__ is not closure
-        or type(kwitems) is not tuple
-        or type(cells) is not tuple
-    ):
-        return False
-    if kwdefaults is None:
-        if kwitems:
-            return False
-    elif (
-        type(kwdefaults) is not dict
-        or len(kwdefaults) != len(kwitems)
-        or any(type(key) is not str for key in kwdefaults)
-        or any(
-            type(item) is not tuple
-            or len(item) != 2
-            or type(item[0]) is not str
-            or not _passive_binding_matches(kwdefaults, item[0], item[1])
-            for item in kwitems
-        )
-    ):
-        return False
-    if closure is None:
-        return not cells
-    if type(closure) is not tuple or len(closure) != len(cells):
-        return False
-    for cell, prior in zip(closure, cells, strict=True):
-        if (
-            type(cell) is not CellType
-            or type(prior) is not tuple
-            or len(prior) != 3
-            or prior[0] is not cell
-            or type(prior[1]) is not bool
-        ):
-            return False
-        try:
-            value = cell.cell_contents
-        except ValueError:
-            if prior[1]:
-                return False
-        else:
-            if not prior[1] or value is not prior[2]:
-                return False
-    return True
 
 
 class CaptureError(ImportError):
@@ -233,31 +113,17 @@ class FailedImportEvidence:
 
 
 @dataclass(frozen=True, slots=True)
-class _SourceFinderClass:
-    """One source-executed class in the selected finder method's MRO."""
-
-    cls: type[object]
-    owner: ModuleType
-    owner_name: str
-    class_name: str
-    source_code: CodeType
-    bases: tuple[type[object], ...]
-    fields: tuple[tuple[str, object], ...]
-    functions: tuple[tuple[object, ...], ...]
-
-
-@dataclass(frozen=True, slots=True)
 class _SourceOwnedFinder:
-    """A finder and its source-executed method-resolution path."""
+    """A finder and method retained from one recorded source execution."""
 
     finder: object
     finder_type: type[object]
-    resolution_order: tuple[type[object], ...]
-    classes: tuple[_SourceFinderClass, ...]
+    owner: ModuleType
+    owner_name: str
+    class_name: str
     method: FunctionType
     method_code: CodeType
-    instance_namespace: dict[str, object]
-    instance_fields: tuple[tuple[str, object], ...]
+    bases: tuple[type[object], ...]
 
 
 @dataclass(frozen=True, slots=True)
@@ -475,99 +341,6 @@ class _CaptureFinder(importlib.abc.MetaPathFinder):
         return spec
 
 
-class _ExternalCaptureFinder(importlib.abc.MetaPathFinder):
-    """Capture locked source during PathFinder's ordinary lookup."""
-
-    def __init__(self, capture: SourceExecutionCapture) -> None:
-        self._capture = capture
-
-    def find_spec(
-        self,
-        fullname: str,
-        path: Sequence[str] | None = None,
-        target: ModuleType | None = None,
-    ) -> importlib.machinery.ModuleSpec | None:
-        capture = self._capture
-        selector = capture._external_source_selector
-        if (
-            selector is None
-            or capture._selecting_external
-            or capture.failed
-            or not capture._same_process()
-            or fullname.partition(".")[0] in capture._package_roots
-            or fullname in capture._module_failures
-        ):
-            return _FIND_SPEC(fullname, path, target)
-        if target is not None:
-            if fullname in capture._sources:
-                capture._module_fail(fullname, "module_reload_not_admitted")
-            return _FIND_SPEC(fullname, path, target)
-        spec = _FIND_SPEC(fullname, path, target)
-        if type(spec) is not importlib.machinery.ModuleSpec:
-            return spec
-        fields = object.__getattribute__(spec, "__dict__")
-        loader = _passive_lookup(fields, "loader")[1]
-        origin = _passive_lookup(fields, "origin")[1]
-        name = _passive_lookup(fields, "name")[1]
-        if (
-            type(loader) is not _SOURCE_LOADER
-            or type(origin) is not str
-            or type(name) is not str
-            or name != fullname
-        ):
-            return spec
-        capture._selecting_external = True
-        try:
-            selection = selector(fullname, origin)
-        except Exception:
-            capture._module_fail(fullname, "external_source_selection_failed")
-            return spec
-        finally:
-            capture._selecting_external = False
-        if selection is None:
-            return spec
-        if (
-            type(selection) is not tuple
-            or len(selection) != 2
-            or type(selection[0]) is not str
-            or type(selection[1]) is not str
-            or len(selection[1]) != 64
-            or any(char not in "0123456789abcdef" for char in selection[1])
-            or not _captured_loader_intact()
-        ):
-            capture._module_fail(fullname, "external_source_selection_invalid")
-            return spec
-        expected = ExpectedSource(*selection)
-        try:
-            selected = capture._selected_path(expected)
-            actual = Path(origin).resolve(strict=True)
-        except (OSError, RuntimeError, ValueError):
-            capture._module_fail(fullname, "module_origin_not_admitted")
-            return spec
-        if actual != selected:
-            capture._module_fail(fullname, "module_origin_not_admitted")
-            return spec
-        previous = capture._sources.get(fullname)
-        if previous is not None:
-            if (
-                fullname in capture._pending
-                or fullname in capture._completed
-                or previous.relative_path != expected.relative_path
-                or previous.sha256 != expected.sha256
-            ):
-                capture._module_fail(fullname, "module_reload_not_admitted")
-                return spec
-            # find_spec can select source during preflight without executing it.
-            # Preserve that exact held selection when the first import follows.
-            expected = previous
-        else:
-            capture._selected_sources[fullname] = expected
-        # Preserve PathFinder's logical module metadata (which may include a
-        # selected venv alias) while binding its resolved file independently.
-        spec.loader = _CapturedSourceLoader(fullname, origin, capture, expected)
-        return spec
-
-
 class SourceExecutionCapture:
     """Retain completed source executions under a caller-supplied source selection.
 
@@ -587,8 +360,6 @@ class SourceExecutionCapture:
         sources: Mapping[str, ExpectedSource],
         *,
         exports: Mapping[str, set[str] | frozenset[str]] | None = None,
-        external_source_selector: Callable[[str, str], tuple[str, str] | None] | None = None,
-        external_source_root: Path | None = None,
     ) -> None:
         self._root = root.resolve(strict=True)
         self._process_id = _GETPID()
@@ -603,23 +374,8 @@ class SourceExecutionCapture:
             )
         ):
             raise ValueError("capture_source_selection_invalid")
-        self._selected_sources = dict(sources)
-        self._sources = MappingProxyType(self._selected_sources)
-        self._external_source_selector = external_source_selector
-        self._selecting_external = False
-        self._external_source_root = (
-            None if external_source_root is None else external_source_root.absolute()
-        )
-        if self._external_source_root is not None and (
-            not self._external_source_root.is_relative_to(self._root)
-            or ".." in self._external_source_root.parts
-        ):
-            raise ValueError("capture_external_source_root_invalid")
-        self._resolved_external_source_root = (
-            None
-            if self._external_source_root is None
-            else self._external_source_root.resolve(strict=True)
-        )
+        selected_sources = dict(sources)
+        self._sources = MappingProxyType(selected_sources)
         if exports is not None and (
             type(exports) not in (dict, MappingProxyType)
             or any(
@@ -635,10 +391,6 @@ class SourceExecutionCapture:
         )
         self._package_roots = frozenset(name.partition(".")[0] for name in self._sources)
         self._finder = _CaptureFinder(self)
-        self._external_finder = (
-            _ExternalCaptureFinder(self) if external_source_selector is not None else None
-        )
-        self._path_finder_descriptor: object | None = None
         self._initial_meta_path: tuple[object, ...] = ()
         self._meta_path_object: list[object] | None = None
         self._admitted_meta_path: tuple[object, ...] = ()
@@ -712,7 +464,6 @@ class SourceExecutionCapture:
         )
         binding_failures = {
             "capture_finder_changed",
-            "capture_path_finder_changed",
             "capture_finder_unqualified",
             "capture_finder_state_changed",
             "capture_process_owner_changed",
@@ -818,32 +569,6 @@ class SourceExecutionCapture:
                     raise CaptureError("capture_preexisting_import_hooks_unsupported")
                 self._initial_meta_path = tuple(sys.meta_path)
                 sys.meta_path.insert(0, self._finder)
-                if self._external_finder is not None:
-                    if (
-                        type.__getattribute__(_PATH_FINDER, "__dict__").get("find_spec")
-                        is not _PATH_FINDER_DESCRIPTOR
-                    ):
-                        self._fail("capture_path_finder_changed")
-                        raise CaptureError("capture_path_finder_changed")
-
-                    def observed_path_find_spec(
-                        cls: type[object],
-                        fullname: str,
-                        path: Sequence[str] | None = None,
-                        target: ModuleType | None = None,
-                    ) -> importlib.machinery.ModuleSpec | None:
-                        if cls is _PATH_FINDER:
-                            finder = self._external_finder
-                            if finder is not None:
-                                return finder.find_spec(fullname, path, target)
-                        original_find_spec = cast(
-                            "Callable[..., importlib.machinery.ModuleSpec | None]",
-                            _PATH_FINDER_DESCRIPTOR.__func__,
-                        )
-                        return original_find_spec(cls, fullname, path, target)
-
-                    self._path_finder_descriptor = classmethod(observed_path_find_spec)
-                    type.__setattr__(_PATH_FINDER, "find_spec", self._path_finder_descriptor)
                 self._meta_path_object = sys.meta_path
                 self._admitted_meta_path = tuple(sys.meta_path)
                 self._phase = "collecting"
@@ -894,12 +619,6 @@ class SourceExecutionCapture:
         ):
             self._fail("capture_finder_changed")
             raise CaptureError("capture_finder_changed")
-        if self._path_finder_descriptor is not None and (
-            type.__getattribute__(_PATH_FINDER, "__dict__").get("find_spec")
-            is not self._path_finder_descriptor
-        ):
-            self._fail("capture_path_finder_changed")
-            raise CaptureError("capture_path_finder_changed")
         if any(not self._source_finder_matches(ref) for ref in self._source_owned_finders.values()):
             self._fail("capture_finder_state_changed")
             raise CaptureError("capture_finder_state_changed")
@@ -942,21 +661,6 @@ class SourceExecutionCapture:
             ):
                 self._fail("retained_module_changed")
                 raise CaptureError("retained_module_changed")
-            alias = self._external_source_root
-            if (
-                alias is not None
-                and self._resolved_external_source_root != alias
-                and (self._root / record.relative_path).is_relative_to(alias)
-            ):
-                try:
-                    same_file = Path(record.origin).resolve(strict=True) == self._selected_path(
-                        self._sources[name]
-                    )
-                except (OSError, RuntimeError, ValueError):
-                    same_file = False
-                if not same_file:
-                    self._fail("retained_module_changed")
-                    raise CaptureError("retained_module_changed")
             if not self._metadata_matches(
                 name,
                 record.module,
@@ -1287,155 +991,58 @@ class SourceExecutionCapture:
         importlib.import_module = observed_import_module
 
     def _source_finder_reference(self, finder: object) -> _SourceOwnedFinder | None:
-        """Retain the source-executed resolution path of the actual finder."""
+        """Identify a finder method in a retained selected module's code tree."""
 
         finder_type = type(finder)
-        mro = type.__getattribute__(finder_type, "__mro__")
-        if type(mro) is not tuple:
+        owner_name = type.__getattribute__(finder_type, "__module__")
+        class_name = type.__getattribute__(finder_type, "__name__")
+        namespace = type.__getattribute__(finder_type, "__dict__")
+        method = _passive_lookup(namespace, "find_spec")[1]
+        bases = type.__getattribute__(finder_type, "__bases__")
+        if (
+            type(owner_name) is not str
+            or type(class_name) is not str
+            or type(method) is not FunctionType
+            or type(bases) is not tuple
+            or owner_name not in self._sources
+        ):
             return None
-        dictionary_descriptor = next(
-            (
-                _passive_lookup(type.__getattribute__(cls, "__dict__"), "__dict__")[1]
-                for cls in mro
-                if _passive_lookup(type.__getattribute__(cls, "__dict__"), "__dict__")[0]
-            ),
-            None,
+        owner = self._pending.get(owner_name)
+        code = self._pending_codes.get(owner_name)
+        if owner is None:
+            completed = self._completed.get(owner_name)
+            if completed is None:
+                return None
+            owner, code = completed.module, completed.code
+        if (
+            type(owner) is not ModuleType
+            or type(code) is not CodeType
+            or _passive_lookup(sys.modules, owner_name)[1] is not owner
+            or _passive_lookup(owner.__dict__, class_name)[1] is not finder_type
+            or method.__globals__ is not owner.__dict__
+            or not self._code_belongs_to(code, method.__code__)
+        ):
+            return None
+        return _SourceOwnedFinder(
+            finder, finder_type, owner, owner_name, class_name, method, method.__code__, bases
         )
-        if type(dictionary_descriptor) is not GetSetDescriptorType:
-            return None
-        namespace = object.__getattribute__(finder, "__dict__")
-        if type(namespace) is not dict or any(type(key) is not str for key in namespace):
-            return None
-        instance_fields = tuple(namespace.items())
-        classes: list[_SourceFinderClass] = []
-        for cls in mro:
-            owner_name = type.__getattribute__(cls, "__module__")
-            class_name = type.__getattribute__(cls, "__name__")
-            fields = type.__getattribute__(cls, "__dict__")
-            bases = type.__getattribute__(cls, "__bases__")
-            if (
-                type(owner_name) is not str
-                or type(class_name) is not str
-                or type(bases) is not tuple
-                or owner_name not in self._sources
-            ):
-                return None
-            owner = self._pending.get(owner_name)
-            code = self._pending_codes.get(owner_name)
-            if owner is None:
-                completed = self._completed.get(owner_name)
-                if completed is None:
-                    return None
-                owner, code = completed.module, completed.code
-            if (
-                type(owner) is not ModuleType
-                or type(code) is not CodeType
-                or _passive_lookup(sys.modules, owner_name)[1] is not owner
-                or _passive_lookup(owner.__dict__, class_name)[1] is not cls
-            ):
-                return None
-            functions: list[tuple[object, ...]] = []
-            for value in fields.values():
-                accessors = _finder_descriptor_functions(value)
-                if accessors is None:
-                    continue
-                for function in accessors:
-                    if (
-                        type(function) is not FunctionType
-                        or function.__globals__ is not owner.__dict__
-                        or not self._code_belongs_to(code, function.__code__)
-                    ):
-                        return None
-                    held = _finder_callable_hold(function)
-                    if held is None:
-                        return None
-                    functions.append(held)
-            classes.append(
-                _SourceFinderClass(
-                    cls,
-                    owner,
-                    owner_name,
-                    class_name,
-                    code,
-                    bases,
-                    tuple(fields.items()),
-                    tuple(functions),
-                )
-            )
-            found, descriptor = _passive_lookup(fields, "find_spec")
-            if not found:
-                continue
-            if type(descriptor) not in (FunctionType, classmethod, staticmethod):
-                return None
-            accessors = _finder_descriptor_functions(descriptor)
-            if accessors is None or len(accessors) != 1:
-                return None
-            method = accessors[0]
-            if (
-                type(method) is not FunctionType
-                or method.__globals__ is not owner.__dict__
-                or not self._code_belongs_to(code, method.__code__)
-            ):
-                return None
-            return _SourceOwnedFinder(
-                finder,
-                finder_type,
-                mro,
-                tuple(classes),
-                method,
-                method.__code__,
-                namespace,
-                instance_fields,
-            )
-        return None
 
     def _source_finder_matches(self, reference: _SourceOwnedFinder) -> bool:
-        if type(reference.finder) is not reference.finder_type:
-            return False
-        mro = type.__getattribute__(reference.finder_type, "__mro__")
-        if (
-            type(mro) is not tuple
-            or len(mro) != len(reference.resolution_order)
-            or any(
-                actual is not held
-                for actual, held in zip(mro, reference.resolution_order, strict=True)
-            )
-            or reference.method.__code__ is not reference.method_code
-        ):
-            return False
-        for item in reference.classes:
-            fields = type.__getattribute__(item.cls, "__dict__")
-            bases = type.__getattribute__(item.cls, "__bases__")
-            owner = self._pending.get(item.owner_name)
-            code = self._pending_codes.get(item.owner_name)
-            if owner is None:
-                completed = self._completed.get(item.owner_name)
-                if completed is None:
-                    return False
-                owner, code = completed.module, completed.code
-            if (
-                type(bases) is not tuple
-                or len(bases) != len(item.bases)
-                or any(actual is not held for actual, held in zip(bases, item.bases, strict=True))
-                or owner is not item.owner
-                or code is not item.source_code
-                or _passive_lookup(sys.modules, item.owner_name)[1] is not item.owner
-                or _passive_lookup(item.owner.__dict__, item.class_name)[1] is not item.cls
-                or len(fields) != len(item.fields)
-                or any(
-                    not _passive_binding_matches(fields, name, value) for name, value in item.fields
-                )
-                or not all(_finder_callable_unchanged(held) for held in item.functions)
-            ):
-                return False
-        namespace = object.__getattribute__(reference.finder, "__dict__")
+        namespace = type.__getattribute__(reference.finder_type, "__dict__")
+        bases = type.__getattribute__(reference.finder_type, "__bases__")
         return bool(
-            namespace is reference.instance_namespace
-            and len(namespace) == len(reference.instance_fields)
+            type(reference.finder) is reference.finder_type
+            and type(bases) is tuple
+            and len(bases) == len(reference.bases)
             and all(
-                _passive_binding_matches(namespace, name, value)
-                for name, value in reference.instance_fields
+                actual is original for actual, original in zip(bases, reference.bases, strict=True)
             )
+            and _passive_lookup(sys.modules, reference.owner_name)[1] is reference.owner
+            and _passive_lookup(reference.owner.__dict__, reference.class_name)[1]
+            is reference.finder_type
+            and _passive_lookup(namespace, "find_spec")[1] is reference.method
+            and reference.method.__code__ is reference.method_code
+            and reference.method.__globals__ is reference.owner.__dict__
         )
 
     def _refresh_meta_path(self) -> None:
@@ -1452,12 +1059,6 @@ class SourceExecutionCapture:
         if sum(finder is self._finder for finder in current) != 1:
             self._fail("capture_finder_changed")
             raise CaptureError("capture_finder_changed")
-        if self._path_finder_descriptor is not None and (
-            type.__getattribute__(_PATH_FINDER, "__dict__").get("find_spec")
-            is not self._path_finder_descriptor
-        ):
-            self._fail("capture_path_finder_changed")
-            raise CaptureError("capture_path_finder_changed")
         baseline = tuple(
             finder
             for finder in current
@@ -1676,20 +1277,13 @@ class SourceExecutionCapture:
         if relative.is_absolute() or ".." in relative.parts:
             raise ValueError("capture_source_path_invalid")
         selected = self._root / relative
-        if not selected.is_relative_to(self._root):
+        if (
+            selected.resolve(strict=True) != selected
+            or not selected.is_relative_to(self._root)
+            or not selected.is_file()
+        ):
             raise ValueError("capture_source_path_invalid")
-        resolved = selected.resolve(strict=True)
-        alias = self._external_source_root
-        external_root = self._resolved_external_source_root
-        if alias is not None and external_root is not None and selected.is_relative_to(alias):
-            canonical = external_root / selected.relative_to(alias)
-            if canonical.resolve(strict=True) != canonical or resolved != canonical:
-                raise ValueError("capture_source_path_invalid")
-        elif resolved != selected:
-            raise ValueError("capture_source_path_invalid")
-        if not resolved.is_file():
-            raise ValueError("capture_source_path_invalid")
-        return resolved
+        return selected
 
     def _begin(self, name: str, module: ModuleType, loader: _CapturedSourceLoader) -> None:
         if (
@@ -1747,11 +1341,7 @@ class SourceExecutionCapture:
         else:
             package_search_locations = tuple(package_path)
         package = name if search_locations is not None else name.rpartition(".")[0]
-        selected_origin = _passive_lookup(object.__getattribute__(loader, "__dict__"), "path")[1]
-        if type(selected_origin) is not str or Path(selected_origin).resolve(
-            strict=True
-        ) != self._selected_path(self._sources[name]):
-            raise CaptureError("module_initialization_invalid")
+        selected_origin = str(self._selected_path(self._sources[name]))
         if not self._metadata_matches(
             name,
             module,

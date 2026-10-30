@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
 
-from .runner import ToolSpec, ToolStatus, _offer_host_handoff
+from .runner import ToolSpec, ToolStatus
 
 
 class PreflightStatus(StrEnum):
@@ -66,7 +66,6 @@ def run_preflight(spec: ToolSpec) -> PreflightResult:
                     f"missing Python dependency import: {module_name}",
                 )
             )
-    _offer_host_handoff()
 
     for executable in spec.external_dependencies:
         if shutil.which(executable) is None:

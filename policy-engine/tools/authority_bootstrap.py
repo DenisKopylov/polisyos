@@ -11,28 +11,18 @@ from __future__ import annotations
 
 import ast
 import base64
-import csv
-import email.parser
 import hashlib
 import importlib
 import importlib.util
-import io
-import itertools
 import json
 import os
-import re
 import socket
-import stat
 import subprocess
 import sys
-import tomllib
-import urllib.parse
-import urllib.request
-import zipfile
 from contextlib import suppress
-from pathlib import Path, PurePosixPath
-from types import CodeType, FunctionType, GetSetDescriptorType, ModuleType
-from typing import TYPE_CHECKING, cast
+from pathlib import Path
+from types import FunctionType, ModuleType
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -46,8 +36,6 @@ _CAPTURE_MODULE = "_polisyos_loaded_source_capture"
 _HOST_SLOT = "_polisyos_loaded_host_v1"
 _HOST_SESSION: object | None = None
 _MAX_MESSAGE = 8 * 1024 * 1024
-_MAX_PROVIDER_WHEEL_BYTES = 32 * 1024 * 1024
-_MAX_PROVIDER_TOTAL_BYTES = 128 * 1024 * 1024
 _ENTRY_TARGETS = {
     "tools": ("tools.cli", "main", True),
     "runtime": ("tools.ops_runners.runtime_cli", "main", True),
@@ -138,8 +126,8 @@ def _source_export_candidates(
         if isinstance(node, ast.Import):
             for alias in node.names:
                 local = alias.asname or alias.name.partition(".")[0]
-                import_provider = alias.name if alias.asname else alias.name.partition(".")[0]
-                aliases.setdefault(local, set()).add(import_provider)
+                provider = alias.name if alias.asname else alias.name.partition(".")[0]
+                aliases.setdefault(local, set()).add(provider)
         elif isinstance(node, ast.ImportFrom):
             try:
                 provider = (
@@ -266,11 +254,8 @@ def _selected_snapshot() -> tuple[
                 "uv.lock",
                 "pyproject.toml",
             ):
-                source_path = _PRODUCT / relative
-                if (
-                    source_path.resolve(strict=True) != source_path
-                    or source_path.read_bytes() != content
-                ):
+                path = _PRODUCT / relative
+                if path.resolve(strict=True) != path or path.read_bytes() != content:
                     raise RuntimeError(f"selected_host_input_mismatch:{relative}")
                 extras[relative] = content
     finally:
@@ -309,263 +294,6 @@ def _selected_snapshot() -> tuple[
         extras["tools/authority_bootstrap.py"],
         extras["tools/loaded_execution_capture.py"],
     )
-
-
-class _LockedWheelSourceSelector:
-    """Select installed Python source only from an independently locked wheel.
-
-    Installed RECORD and metadata choose a candidate archive; the lock digest,
-    archive metadata, and exact member bytes independently reconcile it. This
-    does not qualify native code, semantic state, or protected use.
-    """
-
-    def __init__(self, root: Path, site: Path, lock_bytes: bytes) -> None:
-        self._root = root.resolve(strict=True)
-        self._site_alias = site.absolute()
-        self._site = site.resolve(strict=True)
-        if not self._site_alias.is_relative_to(self._root) or ".." in self._site_alias.parts:
-            raise ValueError("provider_site_outside_checkout")
-        document = tomllib.loads(lock_bytes.decode("utf-8"))
-        packages = document.get("package")
-        if type(packages) is not list:
-            raise ValueError("provider_lock_invalid")
-        self._packages = packages
-        self._owners: dict[str, list[Path]] | None = None
-        self._wheels: dict[Path, tuple[str, dict[str, str]] | None] = {}
-        self._wheel_failures: dict[Path, str] = {}
-        self._selected: dict[str, tuple[str, str, str]] = {}
-        self._refused: dict[str, str] = {}
-        self._remaining_bytes = _MAX_PROVIDER_TOTAL_BYTES
-        self._network_unavailable = False
-
-    @staticmethod
-    def _normalized_name(value: str) -> str:
-        return re.sub(r"[-_.]+", "-", value).lower()
-
-    @staticmethod
-    def _safe_member(name: str) -> bool:
-        if not name or "\\" in name:
-            return False
-        path = PurePosixPath(name)
-        return (
-            not path.is_absolute()
-            and path.as_posix() == name
-            and all(part not in {"", ".", ".."} for part in path.parts)
-        )
-
-    def _record_owners(self) -> dict[str, list[Path]]:
-        if self._owners is not None:
-            return self._owners
-        owners: dict[str, list[Path]] = {}
-        for info in sorted(self._site.glob("*.dist-info")):
-            record = info / "RECORD"
-            if (
-                info.is_symlink()
-                or not info.is_dir()
-                or record.is_symlink()
-                or not record.is_file()
-            ):
-                continue
-            try:
-                with record.open(encoding="utf-8", newline="") as stream:
-                    rows = csv.reader(stream)
-                    for row in rows:
-                        if len(row) == 3 and row[0].endswith(".py") and self._safe_member(row[0]):
-                            owners.setdefault(row[0], []).append(info)
-            except (OSError, UnicodeError, csv.Error):
-                continue
-        self._owners = owners
-        return owners
-
-    @staticmethod
-    def _archive_bytes(url: str, size: int) -> bytes:
-        parsed = urllib.parse.urlsplit(url)
-        if parsed.scheme != "https" or not parsed.hostname:
-            raise ValueError("provider_wheel_url_unsupported")
-        with urllib.request.urlopen(url, timeout=15) as response:  # noqa: S310
-            content = response.read(size + 1)
-        if type(content) is not bytes or len(content) != size:
-            raise ValueError("provider_wheel_size_mismatch")
-        return content
-
-    @staticmethod
-    def _wheel_tags(url: str) -> set[str]:
-        filename = PurePosixPath(urllib.parse.urlsplit(url).path).name
-        if not filename.endswith(".whl"):
-            return set()
-        parts = filename[:-4].rsplit("-", 3)
-        if len(parts) != 4:
-            return set()
-        return {
-            "-".join(tag) for tag in itertools.product(*(part.split(".") for part in parts[-3:]))
-        }
-
-    def _wheel_members(self, info: Path) -> tuple[str, dict[str, str]] | None:
-        if info in self._wheels:
-            return self._wheels[info]
-        result: tuple[str, dict[str, str]] | None = None
-        try:
-            metadata_path = info / "METADATA"
-            wheel_path = info / "WHEEL"
-            if (
-                metadata_path.is_symlink()
-                or wheel_path.is_symlink()
-                or metadata_path.stat().st_size > 1024 * 1024
-                or wheel_path.stat().st_size > 1024 * 1024
-            ):
-                raise ValueError("provider_installed_metadata_unsupported")
-            metadata_bytes = metadata_path.read_bytes()
-            wheel_bytes = wheel_path.read_bytes()
-            metadata = email.parser.BytesParser().parsebytes(metadata_bytes, headersonly=True)
-            wheel_metadata = email.parser.BytesParser().parsebytes(wheel_bytes, headersonly=True)
-            names = metadata.get_all("Name", [])
-            versions = metadata.get_all("Version", [])
-            tags = wheel_metadata.get_all("Tag", [])
-            if len(names) != 1 or len(versions) != 1 or not tags:
-                raise ValueError("provider_distribution_metadata_invalid")
-            name, version = str(names[0]), str(versions[0])
-            packages = [
-                package
-                for package in self._packages
-                if type(package) is dict
-                and type(package.get("name")) is str
-                and self._normalized_name(package["name"]) == self._normalized_name(name)
-                and package.get("version") == version
-            ]
-            if len(packages) != 1 or type(packages[0].get("wheels")) is not list:
-                raise ValueError("provider_locked_distribution_unavailable")
-            wheels = [
-                wheel
-                for wheel in packages[0]["wheels"]
-                if type(wheel) is dict
-                and type(wheel.get("url")) is str
-                and type(wheel.get("hash")) is str
-                and type(wheel.get("size")) is int
-                and 0 < wheel["size"] <= _MAX_PROVIDER_WHEEL_BYTES
-                and self._wheel_tags(wheel["url"]).intersection(str(tag) for tag in tags)
-            ]
-            if len(wheels) != 1:
-                raise ValueError("provider_locked_wheel_unavailable")
-            wheel = wheels[0]
-            if self._network_unavailable or wheel["size"] > self._remaining_bytes:
-                raise ValueError("provider_wheel_budget_unavailable")
-            self._remaining_bytes -= wheel["size"]
-            try:
-                content = self._archive_bytes(wheel["url"], wheel["size"])
-            except OSError:
-                self._network_unavailable = True
-                raise
-            wheel_hash = f"sha256:{_sha(content)}"
-            if wheel_hash != wheel["hash"]:
-                raise ValueError("provider_wheel_digest_mismatch")
-            with zipfile.ZipFile(io.BytesIO(content)) as archive:
-                members = archive.infolist()
-                names_in_archive = [member.filename for member in members]
-                if len(names_in_archive) != len(set(names_in_archive)):
-                    raise ValueError("provider_wheel_duplicate_member")
-                metadata_names = [
-                    name for name in names_in_archive if name.endswith(".dist-info/METADATA")
-                ]
-                if len(metadata_names) != 1:
-                    raise ValueError("provider_wheel_metadata_invalid")
-                dist_info = metadata_names[0].removesuffix("/METADATA")
-                if (
-                    archive.getinfo(metadata_names[0]).file_size > 1024 * 1024
-                    or archive.getinfo(f"{dist_info}/WHEEL").file_size > 1024 * 1024
-                ):
-                    raise ValueError("provider_wheel_metadata_unsupported")
-                if (
-                    archive.read(metadata_names[0]) != metadata_bytes
-                    or archive.read(f"{dist_info}/WHEEL") != wheel_bytes
-                ):
-                    raise ValueError("provider_installed_metadata_mismatch")
-                source_hashes: dict[str, str] = {}
-                total_size = 0
-                for member in members:
-                    if not member.filename.endswith(".py"):
-                        continue
-                    mode = stat.S_IFMT(member.external_attr >> 16)
-                    total_size += member.file_size
-                    if (
-                        not self._safe_member(member.filename)
-                        or mode not in (0, stat.S_IFREG)
-                        or member.file_size > 16 * 1024 * 1024
-                        or total_size > 128 * 1024 * 1024
-                    ):
-                        raise ValueError("provider_wheel_source_unsupported")
-                    source_hashes[member.filename] = _sha(archive.read(member))
-                result = wheel_hash, source_hashes
-        except (
-            OSError,
-            UnicodeError,
-            ValueError,
-            KeyError,
-            RuntimeError,
-            TypeError,
-            zipfile.BadZipFile,
-        ) as exc:
-            result = None
-            self._wheel_failures[info] = (
-                exc.args[0]
-                if type(exc) is ValueError and len(exc.args) == 1 and type(exc.args[0]) is str
-                else type(exc).__name__
-            )
-        self._wheels[info] = result
-        return result
-
-    def select(self, module_name: str, origin: str) -> tuple[str, str] | None:
-        """Bind a loaded module's path to its verified wheel member bytes."""
-
-        if type(module_name) is not str or type(origin) is not str or module_name in self._refused:
-            return None
-        try:
-            path = Path(origin)
-            if not path.is_relative_to(self._site_alias):
-                return None
-            site_relative = path.relative_to(self._site_alias)
-            canonical_path = self._site / site_relative
-            if (
-                ".." in site_relative.parts
-                or canonical_path.resolve(strict=True) != canonical_path
-                or path.resolve(strict=True) != canonical_path
-                or not canonical_path.is_file()
-            ):
-                raise ValueError("provider_source_origin_invalid")
-            relative = site_relative.as_posix()
-            parts = list(PurePosixPath(relative).with_suffix("").parts)
-            if parts[-1] == "__init__":
-                parts.pop()
-            if (
-                not parts
-                or not all(part.isidentifier() for part in parts)
-                or ".".join(parts) != module_name
-            ):
-                raise ValueError("provider_source_name_mismatch")
-            owners = self._record_owners().get(relative, [])
-            if len(owners) != 1:
-                raise ValueError("provider_distribution_owner_unavailable")
-            selected = self._wheel_members(owners[0])
-            if selected is None:
-                raise ValueError(self._wheel_failures.get(owners[0], "provider_wheel_unavailable"))
-            wheel_hash, members = selected
-            digest = members.get(relative)
-            if digest is None or _file_sha(canonical_path) != digest:
-                raise ValueError("provider_installed_source_mismatch")
-            checkout_relative = path.relative_to(self._root).as_posix()
-            self._selected[module_name] = (checkout_relative, digest, wheel_hash)
-            return checkout_relative, digest
-        except (OSError, ValueError) as exc:
-            self._refused[module_name] = (
-                exc.args[0]
-                if type(exc) is ValueError and len(exc.args) == 1 and type(exc.args[0]) is str
-                else type(exc).__name__
-            )
-            return None
-
-    def failure_for(self, module_name: str) -> str | None:
-        """Return the first unqualified-source reason for this process."""
-
-        return self._refused.get(module_name)
 
 
 def _measure_profile() -> dict[str, object]:
@@ -673,9 +401,7 @@ if hashlib.sha256(source).hexdigest() != request["host_sha256"]:
 module = types.ModuleType("_polisyos_early_host")
 module.__file__ = request["host_path"]
 sys.modules[module.__name__] = module
-host_code = compile(source, module.__file__, "exec", dont_inherit=True)
-module.__dict__["_HOST_EXECUTION_CODE"] = host_code
-exec(host_code, module.__dict__)
+exec(compile(source, module.__file__, "exec", dont_inherit=True), module.__dict__)
 raise SystemExit(module._child_main(channel, request))
 """
 
@@ -769,256 +495,6 @@ def _launch(mode: str, argv: Sequence[str]) -> int:
         child.close()
 
 
-def _retained_recorder_surface(
-    recorder: ModuleType, recorder_code: CodeType
-) -> tuple[
-    type[object],
-    tuple[tuple[str, object], ...],
-    tuple[tuple[str, object], ...],
-    tuple[tuple[object, ...], ...],
-    tuple[tuple[object, ...], ...],
-]:
-    """Retain the recorder's source-owned callable and class surface.
-
-    Mutable values reachable from those bindings, external modules and use-time
-    mutation ownership remain separate, unestablished premises.
-    """
-
-    recorder_type = recorder.__dict__["SourceExecutionCapture"]
-    if not isinstance(recorder_type, type):
-        raise RuntimeError("recorder_type_unavailable")
-    code_tree: list[CodeType] = []
-    pending = [recorder_code]
-    while pending:
-        code = pending.pop()
-        code_tree.append(code)
-        pending.extend(value for value in code.co_consts if type(value) is CodeType)
-    descriptors: list[tuple[str, object]] = []
-    referenced_names: set[str] = set()
-    pending_functions: list[FunctionType] = []
-    pending_classes: list[type[object]] = [recorder_type]
-    seen_functions: set[int] = set()
-    seen_classes: set[int] = set()
-    function_holds: list[tuple[object, ...]] = []
-    class_holds: list[tuple[object, ...]] = []
-
-    def descriptor_functions(value: object) -> tuple[FunctionType, ...]:
-        if type(value) is FunctionType:
-            return (value,)
-        if type(value) is property:
-            return cast(
-                "tuple[FunctionType, ...]",
-                tuple(
-                    function
-                    for function in (value.fget, value.fset, value.fdel)
-                    if function is not None
-                ),
-            )
-        if type(value) is classmethod:
-            return (cast("FunctionType", value.__func__),)
-        if type(value) is staticmethod:
-            return (cast("FunctionType", value.__func__),)
-        return ()
-
-    for name, value in type.__getattribute__(recorder_type, "__dict__").items():
-        if type(value) not in (FunctionType, property, classmethod, staticmethod):
-            continue
-        functions = descriptor_functions(value)
-        if type(name) is not str or any(
-            type(function) is not FunctionType
-            or not any(function.__code__ is code for code in code_tree)
-            or function.__globals__ is not recorder.__dict__
-            for function in functions
-        ):
-            raise RuntimeError("recorder_descriptor_not_source_owned")
-        descriptors.append((name, value))
-
-    while pending_functions or pending_classes:
-        if pending_classes:
-            cls = pending_classes.pop()
-            if id(cls) in seen_classes:
-                continue
-            seen_classes.add(id(cls))
-            namespace = type.__getattribute__(cls, "__dict__")
-            bases = type.__getattribute__(cls, "__bases__")
-            fields = tuple(namespace.items())
-            class_holds.append((cls, bases, fields))
-            for _, value in fields:
-                pending_functions.extend(descriptor_functions(value))
-            continue
-        function = pending_functions.pop()
-        if type(function) is not FunctionType or id(function) in seen_functions:
-            continue
-        seen_functions.add(id(function))
-        kwdefaults = function.__kwdefaults__
-        if kwdefaults is not None and (
-            type(kwdefaults) is not dict or any(type(key) is not str for key in kwdefaults)
-        ):
-            raise RuntimeError("recorder_function_defaults_unsupported")
-        kwitems = () if kwdefaults is None else tuple(kwdefaults.items())
-        closure = function.__closure__
-        cells: list[tuple[object, bool, object]] = []
-        for cell in closure or ():
-            try:
-                cells.append((cell, True, cell.cell_contents))
-            except ValueError:
-                cells.append((cell, False, None))
-        function_holds.append(
-            (
-                function,
-                function.__code__,
-                function.__defaults__,
-                kwdefaults,
-                kwitems,
-                closure,
-                tuple(cells),
-            )
-        )
-        if function.__globals__ is recorder.__dict__:
-            names = _code_names(function.__code__)
-            referenced_names.update(names)
-            for name in names:
-                value = recorder.__dict__.get(name)
-                if type(value) is FunctionType and value.__globals__ is recorder.__dict__:
-                    pending_functions.append(value)
-                elif (
-                    type(value) is type
-                    and type.__getattribute__(value, "__module__") == recorder.__name__
-                ):
-                    pending_classes.append(value)
-    globals_ = tuple(
-        (name, recorder.__dict__[name])
-        for name in sorted(referenced_names)
-        if name in recorder.__dict__
-    )
-    return recorder_type, tuple(descriptors), globals_, tuple(function_holds), tuple(class_holds)
-
-
-def _code_names(root: CodeType) -> set[str]:
-    """Return the names referenced by a function's nested compiler code tree."""
-
-    names: set[str] = set()
-    pending = [root]
-    while pending:
-        code = pending.pop()
-        names.update(code.co_names)
-        pending.extend(item for item in code.co_consts if type(item) is CodeType)
-    return names
-
-
-def _same_named_references(expected: object, observed: object) -> bool:
-    if type(expected) is not tuple or type(observed) is not tuple or len(expected) != len(observed):
-        return False
-    return all(
-        type(left) is tuple
-        and type(right) is tuple
-        and len(left) == len(right) == 2
-        and type(left[0]) is str
-        and type(right[0]) is str
-        and left[0] == right[0]
-        and left[1] is right[1]
-        for left, right in zip(expected, observed, strict=True)
-    )
-
-
-def _same_recorder_surface(expected: object, observed: object) -> bool:
-    """Compare the retained recorder surface without calling its functions."""
-
-    if (
-        type(expected) is not tuple
-        or type(observed) is not tuple
-        or len(expected) != 5
-        or len(observed) != 5
-    ):
-        return False
-    if (
-        expected[0] is not observed[0]
-        or not _same_named_references(expected[1], observed[1])
-        or not _same_named_references(expected[2], observed[2])
-        or any(
-            type(rows) is not tuple for rows in (expected[3], observed[3], expected[4], observed[4])
-        )
-    ):
-        return False
-    functions = {id(row[0]): row for row in observed[3] if type(row) is tuple and len(row) == 7}
-    classes = {id(row[0]): row for row in observed[4] if type(row) is tuple and len(row) == 3}
-    if len(functions) != len(expected[3]) or len(classes) != len(expected[4]):
-        return False
-    for held in expected[3]:
-        if type(held) is not tuple or len(held) != 7:
-            return False
-        current = functions.get(id(held[0]))
-        if (
-            current is None
-            or any(held[index] is not current[index] for index in (0, 1, 2, 3, 5))
-            or not _same_named_references(held[4], current[4])
-            or type(held[6]) is not tuple
-            or type(current[6]) is not tuple
-            or len(held[6]) != len(current[6])
-            or any(
-                type(left) is not tuple
-                or type(right) is not tuple
-                or len(left) != 3
-                or len(right) != 3
-                or any(a is not b for a, b in zip(left, right, strict=True))
-                for left, right in zip(held[6], current[6], strict=True)
-            )
-        ):
-            return False
-    for held in expected[4]:
-        if type(held) is not tuple or len(held) != 3:
-            return False
-        current_class = classes.get(id(held[0]))
-        if (
-            current_class is None
-            or held[0] is not current_class[0]
-            or type(held[1]) is not tuple
-            or type(current_class[1]) is not tuple
-            or len(held[1]) != len(current_class[1])
-            or any(a is not b for a, b in zip(held[1], current_class[1], strict=True))
-            or not _same_named_references(held[2], current_class[2])
-        ):
-            return False
-    return True
-
-
-def _recorder_surface_unchanged(session: dict[str, object]) -> bool:
-    """Reconcile retained recorder callables before the host invokes any."""
-
-    recorder = session.get("recorder")
-    recorder_code = session.get("recorder_code")
-    expected = session.get("recorder_surface")
-    capture = session.get("capture")
-    if (
-        type(recorder) is not ModuleType
-        or type(recorder_code) is not CodeType
-        or type(expected) is not tuple
-        or len(expected) != 5
-        or type(expected[0]) is not type
-        or type(capture) is not expected[0]
-    ):
-        return False
-    try:
-        class_namespace = type.__getattribute__(expected[0], "__dict__")
-        if type(class_namespace.get("__dict__")) is not GetSetDescriptorType:
-            return False
-        namespace = object.__getattribute__(capture, "__dict__")
-        if type(namespace) is not dict or type(expected[1]) is not tuple:
-            return False
-        if any(
-            type(row) is not tuple or len(row) != 2 or type(row[0]) is not str
-            for row in expected[1]
-        ):
-            return False
-        descriptor_names = {row[0] for row in expected[1]}
-        if any(type(key) is str and key in descriptor_names for key in namespace):
-            return False
-        observed = _retained_recorder_surface(recorder, recorder_code)
-        return _same_recorder_surface(expected, observed)
-    except (AttributeError, KeyError, RuntimeError, TypeError, ValueError):
-        return False
-
-
 def _child_main(channel: socket.socket, request: dict[str, object]) -> int:
     global _HOST_SESSION
     if not (sys.flags.isolated and sys.flags.no_site and sys.flags.dont_write_bytecode):
@@ -1039,44 +515,18 @@ def _child_main(channel: socket.socket, request: dict[str, object]) -> int:
     exec(recorder_code, recorder.__dict__)  # noqa: S102
     sources = {
         name: recorder.ExpectedSource(relative, digest)
-        for name, (relative, digest) in cast(
-            "dict[str, tuple[str, str]]", request["sources"]
-        ).items()
+        for name, (relative, digest) in request["sources"].items()
     }
     capture = None
     capture_failure = None
-    selector: _LockedWheelSourceSelector | None = None
-    selector_failure = None
-    site = Path(sys.prefix) / "lib/python3.14/site-packages"
     try:
-        lock_path = _PRODUCT / "uv.lock"
-        lock_bytes = lock_path.read_bytes()
-        source_frame = cast("dict[str, str]", request["source_frame"])
-        if (
-            lock_path.resolve(strict=True) != lock_path
-            or _sha(lock_bytes) != source_frame["lock_sha256"]
-        ):
-            raise ValueError("provider_lock_source_changed")
-        selector = _LockedWheelSourceSelector(_PRODUCT, site, lock_bytes)
-    except (KeyError, OSError, TypeError, UnicodeError, ValueError) as exc:
-        selector_failure = type(exc).__name__
-    try:
-        exports = {
-            name: set(bindings)
-            for name, bindings in cast("dict[str, list[str]]", request["exports"]).items()
-        }
+        exports = {name: set(bindings) for name, bindings in request["exports"].items()}
         # The owner handoff is a private bootstrap protocol, not a domain-symbol
         # exception. It is retained before the owner module completes.
         exports.setdefault("polisyos.runtime.quality.confidence_ledger", set()).update(
             {"_observe_unsealed_host_capture", "_seal_loaded_execution_capture"}
         )
-        capture = recorder.SourceExecutionCapture(
-            _PRODUCT,
-            sources,
-            exports=exports,
-            external_source_selector=None if selector is None else selector.select,
-            external_source_root=None if selector is None else site,
-        )
+        capture = recorder.SourceExecutionCapture(_PRODUCT, sources, exports=exports)
         capture.install()
     except (recorder.CaptureError, OSError, ValueError) as exc:
         capture_failure = type(exc).__name__
@@ -1084,17 +534,6 @@ def _child_main(channel: socket.socket, request: dict[str, object]) -> int:
         # later recorder module adopt imports from this failed startup.
         if recorder._PROCESS_OWNER_SLOT not in sys.__dict__:
             sys.__dict__[recorder._PROCESS_OWNER_SLOT] = object()
-    host_code = globals().get("_HOST_EXECUTION_CODE")
-    if type(host_code) is not CodeType:
-        raise RuntimeError("host_execution_code_unavailable")
-    recorder_surface = _retained_recorder_surface(recorder, recorder_code)
-    (
-        recorder_type,
-        recorder_descriptors,
-        recorder_globals,
-        recorder_functions,
-        recorder_classes,
-    ) = recorder_surface
     # Strong live references stay in this child; a serialized request or parent
     # process cannot provide an installed capture to a different process.
     profile = _measure_profile()
@@ -1105,22 +544,10 @@ def _child_main(channel: socket.socket, request: dict[str, object]) -> int:
         "parent_pid": os.getppid(),
         "channel": channel,
         "recorder": recorder,
-        "host_code": host_code,
-        "recorder_code": recorder_code,
-        "recorder_type": recorder_type,
-        "recorder_descriptors": recorder_descriptors,
-        "recorder_globals": recorder_globals,
-        "recorder_functions": recorder_functions,
-        "recorder_classes": recorder_classes,
-        "recorder_surface": recorder_surface,
         "capture": capture,
-        "external_source_selector": selector,
-        "external_source_selector_failure": selector_failure,
         "profile": profile,
         "source_frame": request["source_frame"],
-        "host_sha256": request["host_sha256"],
-        "recorder_sha256": request["recorder_sha256"],
-        "unparsed_sources": tuple(cast("list[str]", request["unparsed_sources"])),
+        "unparsed_sources": tuple(request["unparsed_sources"]),
         "phase": "collecting" if capture_failure is None else "failed",
         "last_owner_diagnostic": None
         if capture_failure is None
@@ -1129,10 +556,11 @@ def _child_main(channel: socket.socket, request: dict[str, object]) -> int:
     }
     _HOST_SESSION = session
     sys.__dict__[_HOST_SLOT] = session
+    site = Path(sys.prefix) / "lib/python3.14/site-packages"
     sys.path[:0] = [str(_PRODUCT / "src"), str(_PRODUCT), str(site)]
     channel.sendall(b"installed\n" if capture_failure is None else b"candidate\n")
     mode = str(request["mode"])
-    arguments = list(cast("list[str]", request["argv"]))
+    arguments = list(request["argv"])
     return _invoke_entry(mode, arguments)
 
 
@@ -1141,13 +569,6 @@ def _attach_tools_handoff() -> None:
 
     session = _HOST_SESSION
     if type(session) is not dict or session["phase"] != "collecting":
-        return
-    if not _recorder_surface_unchanged(session):
-        session["phase"] = "failed"
-        session["last_owner_diagnostic"] = {
-            "status": "not_established",
-            "failure": "host_recorder_surface_changed",
-        }
         return
     capture = session["capture"]
     try:
@@ -1193,21 +614,6 @@ def _invoke_entry(mode: str, arguments: list[str], *, candidate_reason: str | No
             importlib.import_module("polisyos.runtime.quality.confidence_ledger")
             handoff_if_ready()
             report = {"profile": session["profile"], "owner": session["last_owner_diagnostic"]}
-            selector = session.get("external_source_selector")
-            if type(selector) is _LockedWheelSourceSelector:
-                report["external_provider_sources"] = {
-                    "selected_modules": len(selector._selected),
-                    "refused_modules": len(selector._refused),
-                    "failure_codes": sorted(set(selector._refused.values())),
-                    "scope": (
-                        "observed locked wheel Python members; provider authority not established"
-                    ),
-                }
-            else:
-                report["external_provider_sources"] = {
-                    "status": "not_established",
-                    "failure": session.get("external_source_selector_failure"),
-                }
         else:
             report = {
                 "profile": {"authority": False},
@@ -1260,13 +666,6 @@ def handoff_if_ready() -> None:
         return
     if session["pid"] != os.getpid() or session["parent_pid"] != os.getppid():
         session["phase"] = "failed"
-        return
-    if not _recorder_surface_unchanged(session):
-        session["phase"] = "failed"
-        session["last_owner_diagnostic"] = {
-            "status": "not_established",
-            "failure": "host_recorder_surface_changed",
-        }
         return
     module = sys.modules.get("polisyos.runtime.quality.confidence_ledger")
     if type(module) is not ModuleType:

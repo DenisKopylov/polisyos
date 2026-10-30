@@ -35,11 +35,13 @@ from types import (
 from typing import TYPE_CHECKING, Literal, cast
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping, Sequence
+    from collections.abc import Callable, Mapping, Sequence
 
 _COMPILE = compile
 _EXEC = exec
-_FIND_SPEC = importlib.machinery.PathFinder.find_spec
+_PATH_FINDER = importlib.machinery.PathFinder
+_PATH_FINDER_DESCRIPTOR = type.__getattribute__(_PATH_FINDER, "__dict__")["find_spec"]
+_FIND_SPEC = _PATH_FINDER.find_spec
 _SOURCE_LOADER = importlib.machinery.SourceFileLoader
 _GETPID = os.getpid
 _PROCESS_CAPTURE: SourceExecutionCapture | None = None
@@ -473,6 +475,98 @@ class _CaptureFinder(importlib.abc.MetaPathFinder):
         return spec
 
 
+class _ExternalCaptureFinder(importlib.abc.MetaPathFinder):
+    """Capture locked source during PathFinder's ordinary lookup."""
+
+    def __init__(self, capture: SourceExecutionCapture) -> None:
+        self._capture = capture
+
+    def find_spec(
+        self,
+        fullname: str,
+        path: Sequence[str] | None = None,
+        target: ModuleType | None = None,
+    ) -> importlib.machinery.ModuleSpec | None:
+        capture = self._capture
+        selector = capture._external_source_selector
+        if (
+            selector is None
+            or capture._selecting_external
+            or capture.failed
+            or not capture._same_process()
+            or fullname.partition(".")[0] in capture._package_roots
+            or fullname in capture._module_failures
+        ):
+            return _FIND_SPEC(fullname, path, target)
+        if target is not None:
+            if fullname in capture._sources:
+                capture._module_fail(fullname, "module_reload_not_admitted")
+            return _FIND_SPEC(fullname, path, target)
+        spec = _FIND_SPEC(fullname, path, target)
+        if type(spec) is not importlib.machinery.ModuleSpec:
+            return spec
+        fields = object.__getattribute__(spec, "__dict__")
+        loader = _passive_lookup(fields, "loader")[1]
+        origin = _passive_lookup(fields, "origin")[1]
+        name = _passive_lookup(fields, "name")[1]
+        if (
+            type(loader) is not _SOURCE_LOADER
+            or type(origin) is not str
+            or type(name) is not str
+            or name != fullname
+        ):
+            return spec
+        capture._selecting_external = True
+        try:
+            selection = selector(fullname, origin)
+        except Exception:
+            capture._module_fail(fullname, "external_source_selection_failed")
+            return spec
+        finally:
+            capture._selecting_external = False
+        if selection is None:
+            return spec
+        if (
+            type(selection) is not tuple
+            or len(selection) != 2
+            or type(selection[0]) is not str
+            or type(selection[1]) is not str
+            or len(selection[1]) != 64
+            or any(char not in "0123456789abcdef" for char in selection[1])
+            or not _captured_loader_intact()
+        ):
+            capture._module_fail(fullname, "external_source_selection_invalid")
+            return spec
+        expected = ExpectedSource(*selection)
+        try:
+            selected = capture._selected_path(expected)
+            actual = Path(origin).resolve(strict=True)
+        except (OSError, RuntimeError, ValueError):
+            capture._module_fail(fullname, "module_origin_not_admitted")
+            return spec
+        if actual != selected:
+            capture._module_fail(fullname, "module_origin_not_admitted")
+            return spec
+        previous = capture._sources.get(fullname)
+        if previous is not None:
+            if (
+                fullname in capture._pending
+                or fullname in capture._completed
+                or previous.relative_path != expected.relative_path
+                or previous.sha256 != expected.sha256
+            ):
+                capture._module_fail(fullname, "module_reload_not_admitted")
+                return spec
+            # find_spec can select source during preflight without executing it.
+            # Preserve that exact held selection when the first import follows.
+            expected = previous
+        else:
+            capture._selected_sources[fullname] = expected
+        spec.origin = str(selected)
+        spec.loader = _CapturedSourceLoader(fullname, str(selected), capture, expected)
+        return spec
+
+
 class SourceExecutionCapture:
     """Retain completed source executions under a caller-supplied source selection.
 
@@ -492,6 +586,7 @@ class SourceExecutionCapture:
         sources: Mapping[str, ExpectedSource],
         *,
         exports: Mapping[str, set[str] | frozenset[str]] | None = None,
+        external_source_selector: Callable[[str, str], tuple[str, str] | None] | None = None,
     ) -> None:
         self._root = root.resolve(strict=True)
         self._process_id = _GETPID()
@@ -506,8 +601,10 @@ class SourceExecutionCapture:
             )
         ):
             raise ValueError("capture_source_selection_invalid")
-        selected_sources = dict(sources)
-        self._sources = MappingProxyType(selected_sources)
+        self._selected_sources = dict(sources)
+        self._sources = MappingProxyType(self._selected_sources)
+        self._external_source_selector = external_source_selector
+        self._selecting_external = False
         if exports is not None and (
             type(exports) not in (dict, MappingProxyType)
             or any(
@@ -523,6 +620,10 @@ class SourceExecutionCapture:
         )
         self._package_roots = frozenset(name.partition(".")[0] for name in self._sources)
         self._finder = _CaptureFinder(self)
+        self._external_finder = (
+            _ExternalCaptureFinder(self) if external_source_selector is not None else None
+        )
+        self._path_finder_descriptor: object | None = None
         self._initial_meta_path: tuple[object, ...] = ()
         self._meta_path_object: list[object] | None = None
         self._admitted_meta_path: tuple[object, ...] = ()
@@ -596,6 +697,7 @@ class SourceExecutionCapture:
         )
         binding_failures = {
             "capture_finder_changed",
+            "capture_path_finder_changed",
             "capture_finder_unqualified",
             "capture_finder_state_changed",
             "capture_process_owner_changed",
@@ -701,6 +803,32 @@ class SourceExecutionCapture:
                     raise CaptureError("capture_preexisting_import_hooks_unsupported")
                 self._initial_meta_path = tuple(sys.meta_path)
                 sys.meta_path.insert(0, self._finder)
+                if self._external_finder is not None:
+                    if (
+                        type.__getattribute__(_PATH_FINDER, "__dict__").get("find_spec")
+                        is not _PATH_FINDER_DESCRIPTOR
+                    ):
+                        self._fail("capture_path_finder_changed")
+                        raise CaptureError("capture_path_finder_changed")
+
+                    def observed_path_find_spec(
+                        cls: type[object],
+                        fullname: str,
+                        path: Sequence[str] | None = None,
+                        target: ModuleType | None = None,
+                    ) -> importlib.machinery.ModuleSpec | None:
+                        if cls is _PATH_FINDER:
+                            finder = self._external_finder
+                            if finder is not None:
+                                return finder.find_spec(fullname, path, target)
+                        original_find_spec = cast(
+                            "Callable[..., importlib.machinery.ModuleSpec | None]",
+                            _PATH_FINDER_DESCRIPTOR.__func__,
+                        )
+                        return original_find_spec(cls, fullname, path, target)
+
+                    self._path_finder_descriptor = classmethod(observed_path_find_spec)
+                    type.__setattr__(_PATH_FINDER, "find_spec", self._path_finder_descriptor)
                 self._meta_path_object = sys.meta_path
                 self._admitted_meta_path = tuple(sys.meta_path)
                 self._phase = "collecting"
@@ -751,6 +879,12 @@ class SourceExecutionCapture:
         ):
             self._fail("capture_finder_changed")
             raise CaptureError("capture_finder_changed")
+        if self._path_finder_descriptor is not None and (
+            type.__getattribute__(_PATH_FINDER, "__dict__").get("find_spec")
+            is not self._path_finder_descriptor
+        ):
+            self._fail("capture_path_finder_changed")
+            raise CaptureError("capture_path_finder_changed")
         if any(not self._source_finder_matches(ref) for ref in self._source_owned_finders.values()):
             self._fail("capture_finder_state_changed")
             raise CaptureError("capture_finder_state_changed")
@@ -1288,6 +1422,12 @@ class SourceExecutionCapture:
         if sum(finder is self._finder for finder in current) != 1:
             self._fail("capture_finder_changed")
             raise CaptureError("capture_finder_changed")
+        if self._path_finder_descriptor is not None and (
+            type.__getattribute__(_PATH_FINDER, "__dict__").get("find_spec")
+            is not self._path_finder_descriptor
+        ):
+            self._fail("capture_path_finder_changed")
+            raise CaptureError("capture_path_finder_changed")
         baseline = tuple(
             finder
             for finder in current

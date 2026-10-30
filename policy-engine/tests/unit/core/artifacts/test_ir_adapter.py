@@ -2988,6 +2988,89 @@ def test_selected_write_preserves_nested_model_extras_and_private_serializer_sta
     assert routed_store.get_bytes(routed_ref) == payload
 
 
+@pytest.mark.parametrize("extra_key_kind", ["non_string", "string_subclass"])
+def test_ir_adapter_refuses_malformed_nested_pydantic_extra_keys_before_any_write(
+    tmp_path: Path, extra_key_kind: str
+) -> None:
+    """Malformed Pydantic extra keys fail before the real IR writer persists bytes."""
+
+    class StringSubclass(str):
+        pass
+
+    class PermissivePayload(BaseModel):
+        model_config = ConfigDict(extra="allow")
+        public: str
+
+    malformed_key: object = 17 if extra_key_kind == "non_string" else StringSubclass("extension")
+    assert type(malformed_key) is not str
+
+    payload_model = PermissivePayload(public="valid")
+    object.__setattr__(payload_model, "__pydantic_extra__", {malformed_key: "malformed"})
+    options = ArtifactWriteOptions(
+        kind=f"test.malformed-pydantic-extra-{extra_key_kind}",
+        media_type="application/json",
+        warnings=[
+            WarningRecord(
+                code="nested-extra-key",
+                msg="the selected writer must reject malformed Pydantic extra keys",
+                data={"nested": payload_model},
+            )
+        ],
+    )
+    assert options.warnings is not None
+    assert options.warnings[0].data is not None
+    assert options.warnings[0].data["nested"] is payload_model
+    preserved_extras = object.__getattribute__(payload_model, "__pydantic_extra__")
+    assert isinstance(preserved_extras, dict)
+    assert len(preserved_extras) == 1
+    assert next(iter(preserved_extras)) is malformed_key
+
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    adapter = ensure_ir_artifact_store(store)
+
+    with pytest.raises(TypeError) as error:
+        adapter.put_json({"value": "payload"}, options, return_selected_profile=True)
+    assert str(error.value) == "Invalid owned artifact write options"
+
+    assert store.iter_artifact_ids() == []
+
+
+def test_ir_adapter_preserves_ordinary_nested_pydantic_extra_key(
+    tmp_path: Path,
+) -> None:
+    """A normal string extra persists through the real IR writer and a fresh CAS reader."""
+
+    class PermissivePayload(BaseModel):
+        model_config = ConfigDict(extra="allow")
+        public: str
+
+    payload_model = PermissivePayload.model_validate(
+        {"public": "retained", "extension": "ordinary"}
+    )
+    options = ArtifactWriteOptions(
+        kind="test.ordinary-pydantic-extra",
+        media_type="application/json",
+        warnings=[
+            WarningRecord(
+                code="nested-extra-key",
+                msg="retain ordinary Pydantic extras",
+                data={"nested": payload_model},
+            )
+        ],
+    )
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    adapter = ensure_ir_artifact_store(store)
+
+    artifact_ref = adapter.put_json({"value": "payload"}, options, return_selected_profile=True)
+    fresh_reader = FileSystemCAS(tmp_path / ".polisyos")
+    manifest = fresh_reader.get_manifest(artifact_ref)
+
+    assert artifact_ref.manifest_profile_sha256 is not None
+    assert manifest.warnings is not None
+    assert manifest.warnings[0].data == {"nested": {"public": "retained", "extension": "ordinary"}}
+    assert fresh_reader.iter_artifact_ids() == [artifact_ref.artifact_id]
+
+
 def test_selected_write_preserves_core_root_model_bridges(tmp_path: Path) -> None:
     """Declared ArtifactID and ComponentId RootModels retain Core validation."""
     payload = b'{"roots":"typed"}'

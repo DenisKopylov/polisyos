@@ -545,7 +545,7 @@ def _snapshot_owned_write_options_for_ir(value: object) -> ArtifactWriteOptions:
     )
     from polisyos.ir.artifacts import StorePutOptions
 
-    model_fields = {
+    model_fields: dict[type[BaseModel], dict[str, type[BaseModel]]] = {
         CoreSchemaInfo: {},
         CoreCanonInfo: {},
         ProducerInfo: {"git": GitInfo},
@@ -563,11 +563,13 @@ def _snapshot_owned_write_options_for_ir(value: object) -> ArtifactWriteOptions:
         ArtifactAuthorityInfo: {},
         WarningRecord: {},
     }
-    list_fields = {
+    list_fields: dict[
+        type[ArtifactWriteOptions] | type[StorePutOptions], dict[str, type[BaseModel]]
+    ] = {
         ArtifactWriteOptions: {"inputs": CoreInputRef, "warnings": WarningRecord},
         StorePutOptions: {"inputs": CoreInputRef, "warnings": WarningRecord},
     }
-    option_model_fields = {
+    option_model_fields: dict[str, type[BaseModel]] = {
         "schema": CoreSchemaInfo,
         "producer": ProducerInfo,
         "env": EnvInfo,
@@ -623,7 +625,7 @@ def _snapshot_owned_write_options_for_ir(value: object) -> ArtifactWriteOptions:
     def snapshot_model_state(
         item: BaseModel,
         *,
-        expected_type: type[object] | None = None,
+        expected_type: type[BaseModel] | None = None,
         allow_extras: bool = False,
     ) -> tuple[
         tuple[tuple[object, object], ...],
@@ -645,9 +647,14 @@ def _snapshot_owned_write_options_for_ir(value: object) -> ArtifactWriteOptions:
         ):
             raise TypeError("Invalid owned artifact write options")
 
-        declared_names = frozenset(declared_fields)
+        declared_name_values = tuple(declared_fields)
+        if not all(type(name) is str for name in declared_name_values):
+            raise TypeError("Invalid owned artifact write options")
+        declared_names: frozenset[str] = frozenset(
+            name for name in declared_name_values if type(name) is str
+        )
         raw_names = frozenset(raw)
-        if not all(type(name) is str for name in declared_names | raw_names):
+        if not all(type(name) is str for name in raw_names):
             raise TypeError("Invalid owned artifact write options")
         private = object.__getattribute__(item, "__pydantic_private__")
         state_values = {
@@ -673,12 +680,14 @@ def _snapshot_owned_write_options_for_ir(value: object) -> ArtifactWriteOptions:
             extra_names: frozenset[str] = frozenset()
         elif isinstance(extras, Mapping):
             extra_pairs = snapshot_pairs(extras)
-            extra_names = frozenset(key for key, _ in extra_pairs)
-            if (
-                not all(type(name) is str for name in extra_names)
-                or len(extra_names) != len(extra_pairs)
-                or raw_field_names & extra_names
-            ):
+            extra_name_values = frozenset(key for key, _ in extra_pairs)
+            extra_name_set: set[str] = set()
+            for name in extra_name_values:
+                if type(name) is not str:
+                    raise TypeError("Invalid owned artifact write options")
+                extra_name_set.add(name)
+            extra_names = frozenset(extra_name_set)
+            if len(extra_names) != len(extra_pairs) or raw_field_names & extra_names:
                 raise TypeError("Invalid owned artifact write options")
         else:
             raise TypeError("Invalid owned artifact write options")
@@ -836,7 +845,7 @@ def _snapshot_owned_write_options_for_ir(value: object) -> ArtifactWriteOptions:
                 active_ids.remove(identity)
         return item
 
-    def snapshot_model(item: object, expected_type: type[object]) -> dict[str, object]:
+    def snapshot_model(item: object, expected_type: type[BaseModel]) -> dict[str, object]:
         if isinstance(item, BaseModel):
             pairs, extra_pairs, _fields_set = snapshot_model_state(
                 item, expected_type=expected_type
@@ -861,9 +870,17 @@ def _snapshot_owned_write_options_for_ir(value: object) -> ArtifactWriteOptions:
                 output[name] = snapshot_json_value(nested)
         return output
 
-    if type(value) in (ArtifactWriteOptions, StorePutOptions):
-        option_type = type(value)
-        option_fields = option_type.__dataclass_fields__
+    option_pairs: tuple[tuple[object, object], ...]
+    if type(value) is ArtifactWriteOptions:
+        option_type: type[ArtifactWriteOptions] | type[StorePutOptions] = ArtifactWriteOptions
+        option_fields = ArtifactWriteOptions.__dataclass_fields__
+        raw_options = object.__getattribute__(value, "__dict__")
+        if type(raw_options) is not dict or set(raw_options) != set(option_fields):
+            raise TypeError("Invalid owned artifact write options")
+        option_pairs = tuple((name, object.__getattribute__(value, name)) for name in option_fields)
+    elif type(value) is StorePutOptions:
+        option_type = StorePutOptions
+        option_fields = StorePutOptions.__dataclass_fields__
         raw_options = object.__getattribute__(value, "__dict__")
         if type(raw_options) is not dict or set(raw_options) != set(option_fields):
             raise TypeError("Invalid owned artifact write options")

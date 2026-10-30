@@ -18,10 +18,21 @@ from importlib import import_module
 from typing import TYPE_CHECKING, Any, Literal, TextIO, cast
 
 from anyio import to_thread
-from pydantic import BaseModel, ConfigDict
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    SerializerFunctionWrapHandler,
+    model_serializer,
+    model_validator,
+)
 
 from polisyos.common.serialization import fast_json_dumps
 from polisyos.core import artifacts, canon
+from polisyos.core.contracts.runtime import (
+    CompletedExAnteCandidateSource,
+    CompletedExAnteComparisonRequest,
+)
 from polisyos.runtime.http.services.human_decision_contracts import (
     HUMAN_DECISION_EXPOSURE_EVENT_ARTIFACT_KIND,
     HUMAN_DECISION_EXPOSURE_EVENT_MANIFEST_VERSION,
@@ -163,6 +174,96 @@ class RuntimeAuditScanResult:
     malformed_json_line_count: int
     nonobject_line_count: int
     audit_read_error_count: int
+    invalid_authorization_event_count: int = 0
+    authorization_decisions: tuple[RuntimeAuthorizationAuditEvent, ...] = ()
+
+
+class RuntimeAuthorizationTargetDecision(BaseModel):
+    """One canonical policy result for an exact related bound resource."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    resource_id: str
+    resource_digest: str
+    permission: str
+    outcome: RuntimeAuthorizationOutcome
+    opa_policy: str
+    opa_reasons: tuple[str, ...]
+
+
+class RuntimeAuthorizationRunContext(BaseModel):
+    """Exact selected-run/Core-attempt context frozen by the canonical binding owner."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    context_version: Literal["runtime.run.method_metric_context.v1"]
+    selection_run_id: str = Field(min_length=1)
+    core_run_id: str = Field(min_length=1)
+    control_job_id: str | None
+    core_manifest_ref: artifacts.ArtifactRef | None
+    tenant_id: str = Field(min_length=1)
+    cell_id: str = Field(min_length=1)
+
+
+class RuntimeAuthorizationComparisonBasis(BaseModel):
+    """Typed immutable comparison owner basis; lookup keys carry no policy authority."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    job_id: str = Field(min_length=1)
+    attempt: int = Field(ge=1)
+    state_ref: artifacts.ArtifactRef | None
+    request: CompletedExAnteComparisonRequest | None
+
+
+class RuntimeAuthorizationRelatedRunContext(BaseModel):
+    """A content-bound source selection and its separately resolved policy target."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    source: CompletedExAnteCandidateSource
+    run_context: RuntimeAuthorizationRunContext
+    source_state_ref: artifacts.ArtifactRef
+    vector_ref: artifacts.ArtifactRef
+    selection_job_id: str = Field(min_length=1)
+    selection_attempt: int = Field(ge=1)
+    policy_resource_id: str = Field(min_length=1)
+
+
+class RuntimeAuthorizationComparisonContext(RuntimeAuthorizationRunContext):
+    """Complete bounded member set derived from the actual comparison owner basis."""
+
+    comparison_basis: RuntimeAuthorizationComparisonBasis
+    related_run_contexts: tuple[RuntimeAuthorizationRelatedRunContext, ...] = Field(
+        min_length=2, max_length=20
+    )
+
+    @model_validator(mode="after")
+    def _reconcile_owner_members(self) -> RuntimeAuthorizationComparisonContext:
+        basis = self.comparison_basis
+        if basis.request is None or basis.job_id != self.control_job_id:
+            raise ValueError("comparison audit lacks its primary owner basis")
+        if tuple(row.source for row in self.related_run_contexts) != basis.request.sources:
+            raise ValueError("comparison audit member order differs from the owner basis")
+        for row in self.related_run_contexts:
+            run = row.run_context
+            if (
+                run.selection_run_id != row.source.source_run_id
+                or run.tenant_id != self.tenant_id
+                or run.cell_id != self.cell_id
+                or row.selection_job_id != run.control_job_id
+            ):
+                raise ValueError("comparison audit source selection context differs")
+        return self
+
+
+class RuntimeAuthorizationBindingReceipt(BaseModel):
+    """Request bytes omitted from the event, retained as their exact owner digest inputs."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    body_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    query_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
 
 class RuntimeAuthorizationAuditEvent(BaseModel):
@@ -170,9 +271,9 @@ class RuntimeAuthorizationAuditEvent(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal["polisyos.runtime.authorization_audit.v1"] = (
-        "polisyos.runtime.authorization_audit.v1"
-    )
+    schema_version: Literal[
+        "polisyos.runtime.authorization_audit.v1", "polisyos.runtime.authorization_audit.v2"
+    ] = "polisyos.runtime.authorization_audit.v1"
     event_type: Literal["runtime.authorization.decision"] = "runtime.authorization.decision"
     timestamp: float
     request_id: str
@@ -192,6 +293,172 @@ class RuntimeAuthorizationAuditEvent(BaseModel):
     principal_type: str
     opa_policy: str
     opa_reasons: list[str]
+    bound_context: str | None = None
+    related_target_decisions: tuple[RuntimeAuthorizationTargetDecision, ...] = Field(
+        default=(), max_length=20
+    )
+
+    binding_receipt: RuntimeAuthorizationBindingReceipt | None = None
+    receipt_sha256: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _validate_target_audit_version(self) -> RuntimeAuthorizationAuditEvent:
+        if self.schema_version == "polisyos.runtime.authorization_audit.v1":
+            if (
+                self.bound_context is not None
+                or self.related_target_decisions
+                or self.binding_receipt is not None
+                or self.receipt_sha256 is not None
+            ):
+                raise ValueError("v1 authorization audit cannot carry a target set")
+        else:
+            from polisyos.runtime.http.errors import RuntimeHTTPError
+
+            try:
+                _verify_serialized_authorization_context(self)
+            except RuntimeHTTPError as exc:
+                raise ValueError("v2 authorization audit canonical binding is invalid") from exc
+        return self
+
+    @model_serializer(mode="wrap")
+    def _serialize_authorization_version(
+        self, handler: SerializerFunctionWrapHandler
+    ) -> dict[str, Any]:
+        payload = handler(self)
+        if self.schema_version == "polisyos.runtime.authorization_audit.v1":
+            payload.pop("bound_context", None)
+            payload.pop("related_target_decisions", None)
+            payload.pop("binding_receipt", None)
+            payload.pop("receipt_sha256", None)
+        return payload
+
+
+def verify_runtime_authorization_audit(
+    payload: Mapping[str, Any],
+    *,
+    expected_request_id: str | None = None,
+    expected_selection_run_id: str | None = None,
+) -> RuntimeAuthorizationAuditEvent:
+    """Parse a cold event and reconcile an optional caller-held request/run tuple.
+
+    A caller without a separately held tuple obtains internal content consistency,
+    never proof that the trail is an authenticated account of historical events.
+    """
+    event = RuntimeAuthorizationAuditEvent.model_validate(payload)
+    if expected_request_id is not None and event.request_id != expected_request_id:
+        raise ValueError("authorization audit belongs to a different request")
+    if expected_selection_run_id is not None:
+        if event.schema_version == "polisyos.runtime.authorization_audit.v2":
+            context = RuntimeAuthorizationComparisonContext.model_validate_json(event.bound_context)
+            selection_run_id = context.selection_run_id
+        else:
+            selection_run_id = event.resource_id
+        if selection_run_id != expected_selection_run_id:
+            raise ValueError("authorization audit belongs to a different selected run")
+    return event
+
+
+def _authorization_receipt_sha256(payload: Mapping[str, Any]) -> str:
+    """Bind the complete serialized request and actual policy results, without a MAC claim."""
+    from polisyos.runtime.http.resource_binding import _digest_payload
+
+    return _digest_payload(
+        {key: value for key, value in payload.items() if key != "receipt_sha256"}
+    )
+
+
+def _verify_serialized_authorization_context(event: RuntimeAuthorizationAuditEvent) -> None:
+    """Cold-verify the whole typed v2 context using the live binding owner's digest law.
+
+    This establishes internal content and request consistency. The local audit
+    trail has no authenticated-history owner; rewriting all bytes and recomputing
+    this checksum is outside that property and is not asserted impossible.
+    """
+    from polisyos.runtime.http.resource_binding import (
+        _binding_resource_urn,
+        _canonical_json,
+        _digest_payload,
+        _sha256,
+        authorization_resource_digest_inputs,
+    )
+
+    if event.bound_context is None or event.binding_receipt is None or event.receipt_sha256 is None:
+        raise ValueError("v2 authorization audit lacks its content-bound receipt")
+    if (
+        event.permission != "runs.review"
+        or event.resource_kind != "runtime.run.method_metrics.ownership_verified"
+        or event.binding_authority != "ownership_verified"
+        or event.method != "GET"
+        or event.route_path != "/api/v1/runs/{run_id}/method-metric-comparison"
+    ):
+        raise ValueError("v2 authorization audit differs from its owned comparison action")
+    context = RuntimeAuthorizationComparisonContext.model_validate_json(event.bound_context)
+    spec = canon.CanonSpec(forbid_floats=False)
+    context_bytes = canon.to_canonical_bytes(context.model_dump(mode="json"), spec)
+    if context_bytes.decode("utf-8") != event.bound_context or context.tenant_id != event.tenant_id:
+        raise ValueError("v2 authorization audit context is not exact canonical scoped content")
+    receipt = event.binding_receipt
+    if receipt.body_sha256 != _sha256(b""):
+        raise ValueError("comparison audit has an unexpected request body")
+
+    def digest(
+        run: RuntimeAuthorizationRunContext, content: bytes, targets: tuple[str, ...]
+    ) -> str:
+        return _digest_payload(
+            authorization_resource_digest_inputs(
+                permission=event.permission,
+                resource_kind="runtime.run.method_metrics",
+                authority=event.binding_authority,
+                tenant_id=run.tenant_id,
+                body_sha256=receipt.body_sha256,
+                query_sha256=receipt.query_sha256,
+                selectors=(("run_id", _canonical_json(run.core_run_id)),),
+                resolved_context=content,
+                policy_target_digests=targets,
+            )
+        )
+
+    target_digests = tuple(
+        digest(
+            row.run_context,
+            canon.to_canonical_bytes(row.run_context.model_dump(mode="json"), spec),
+            (),
+        )
+        for row in context.related_run_contexts
+    )
+    expected = tuple(_binding_resource_urn(value) for value in target_digests)
+    if len(set(expected)) != len(expected) or expected != tuple(
+        row.policy_resource_id for row in context.related_run_contexts
+    ):
+        raise ValueError("v2 authorization audit target digest differs from its full owner context")
+    primary_digest = digest(context, context_bytes, target_digests)
+    if event.resource_digest != primary_digest or event.resource_id != _binding_resource_urn(
+        primary_digest
+    ):
+        raise ValueError("v2 authorization audit primary run binding differs")
+    decisions = event.related_target_decisions
+    observed = tuple(row.resource_id for row in decisions)
+    if len(observed) > len(expected) or observed != expected[: len(observed)]:
+        raise ValueError("v2 authorization audit decisions are not the ordered evaluated prefix")
+    for index, decision in enumerate(decisions):
+        if (
+            decision.resource_digest != target_digests[index]
+            or decision.permission != event.permission
+        ):
+            raise ValueError("v2 authorization audit decision binding or permission differs")
+        if decision.outcome is RuntimeAuthorizationOutcome.DENY and index != len(decisions) - 1:
+            raise ValueError("v2 authorization audit contains decisions after a denied target")
+    if event.outcome is RuntimeAuthorizationOutcome.ALLOW and (
+        observed != expected
+        or any(row.outcome is not RuntimeAuthorizationOutcome.ALLOW for row in decisions)
+        or event.denial_reason
+    ):
+        raise ValueError("v2 authorization audit ALLOW lacks the complete authorized target set")
+    if event.outcome is RuntimeAuthorizationOutcome.DENY and not event.denial_reason:
+        raise ValueError("v2 authorization audit DENY lacks its terminal reason")
+    payload = event.model_dump(mode="json")
+    if event.receipt_sha256 != _authorization_receipt_sha256(payload):
+        raise ValueError("v2 authorization audit request/content checksum differs")
 
 
 class HumanDecisionExposureDeliveryReservation(BaseModel):
@@ -320,6 +587,8 @@ class RuntimeDataAccessAuditTrail:
         nonblank_line_count = 0
         malformed_json_line_count = 0
         nonobject_line_count = 0
+        invalid_authorization_event_count = 0
+        authorization_decisions: list[RuntimeAuthorizationAuditEvent] = []
         for raw_line in lines:
             if not raw_line.strip():
                 continue
@@ -333,6 +602,11 @@ class RuntimeDataAccessAuditTrail:
                 nonobject_line_count += 1
                 continue
             entries.append(cast("dict[str, object]", parsed))
+            if parsed.get("event_type") == _AUTHORIZATION_EVENT_TYPE:
+                try:
+                    authorization_decisions.append(verify_runtime_authorization_audit(parsed))
+                except (TypeError, ValueError):
+                    invalid_authorization_event_count += 1
         return RuntimeAuditScanResult(
             entries=tuple(entries),
             path_exists=True,
@@ -341,6 +615,8 @@ class RuntimeDataAccessAuditTrail:
             malformed_json_line_count=malformed_json_line_count,
             nonobject_line_count=nonobject_line_count,
             audit_read_error_count=0,
+            invalid_authorization_event_count=invalid_authorization_event_count,
+            authorization_decisions=tuple(authorization_decisions),
         )
 
     def _reserve_exposure_delivery(
@@ -1066,26 +1342,76 @@ def emit_runtime_authorization_audit(
     if not isinstance(request_id, str) or not request_id:
         request_id = request.headers.get("X-Request-ID", "").strip() or str(uuid.uuid4())
         state.request_id = request_id
-    event = RuntimeAuthorizationAuditEvent(
-        timestamp=time.time(),
-        request_id=request_id,
-        outcome=outcome,
-        denial_reason=(denial_reason if outcome is RuntimeAuthorizationOutcome.DENY else ""),
-        method=request.method.upper(),
-        route_path=route_path,
-        permission=str(permission_value),
-        resource_id=str(getattr(bound_resource, "resource_id", "")),
-        resource_digest=str(getattr(bound_resource, "resource_digest", "")),
-        resource_kind=str(getattr(bound_resource, "resource_kind", "")),
-        binding_authority=str(getattr(getattr(bound_resource, "authority", None), "value", "")),
-        step_up_class=str(step_class),
-        step_up_outcome=resolved_step_outcome,
-        subject=str(subject),
-        tenant_id=str(tenant_id),
-        principal_type=str(principal_type),
-        opa_policy=str(getattr(state, "authz_policy", "") or ""),
-        opa_reasons=[str(reason) for reason in getattr(state, "authz_reasons", ())],
-    )
+    targets = tuple(getattr(bound_resource, "policy_targets", ()))
+    decisions = getattr(state, "authz_policy_target_decisions", ())
+    if not isinstance(decisions, tuple) or any(
+        type(decision) is not RuntimeAuthorizationTargetDecision for decision in decisions
+    ):
+        raise RuntimeAuthorizationAuditError(
+            "Related policy decisions were not issued by the middleware"
+        )
+    expected = tuple((target.resource_id, target.resource_digest) for target in targets)
+    observed = tuple((decision.resource_id, decision.resource_digest) for decision in decisions)
+    if observed != expected[: len(observed)] or len(observed) > len(expected):
+        raise RuntimeAuthorizationAuditError(
+            "Related policy decisions do not match the frozen target set"
+        )
+    if outcome is RuntimeAuthorizationOutcome.ALLOW and (
+        observed != expected
+        or any(decision.outcome is not RuntimeAuthorizationOutcome.ALLOW for decision in decisions)
+    ):
+        raise RuntimeAuthorizationAuditError("The whole related target set was not authorized")
+    for decision in decisions:
+        if decision.permission != permission_value:
+            raise RuntimeAuthorizationAuditError(
+                "Related target permission differs from the route action"
+            )
+    context_bytes = getattr(bound_resource, "resolved_context", None)
+    if targets and not isinstance(context_bytes, bytes):
+        raise RuntimeAuthorizationAuditError("Related authorization has no frozen owner context")
+    event_payload: dict[str, Any] = {
+        "schema_version": "polisyos.runtime.authorization_audit.v2"
+        if targets
+        else "polisyos.runtime.authorization_audit.v1",
+        "bound_context": context_bytes.decode("utf-8") if targets else None,
+        "related_target_decisions": decisions,
+        "timestamp": time.time(),
+        "request_id": request_id,
+        "outcome": outcome,
+        "denial_reason": denial_reason if outcome is RuntimeAuthorizationOutcome.DENY else "",
+        "method": request.method.upper(),
+        "route_path": route_path,
+        "permission": str(permission_value),
+        "resource_id": str(getattr(bound_resource, "resource_id", "")),
+        "resource_digest": str(getattr(bound_resource, "resource_digest", "")),
+        "resource_kind": str(getattr(bound_resource, "resource_kind", "")),
+        "binding_authority": str(getattr(getattr(bound_resource, "authority", None), "value", "")),
+        "step_up_class": str(step_class),
+        "step_up_outcome": resolved_step_outcome,
+        "subject": str(subject),
+        "tenant_id": str(tenant_id),
+        "principal_type": str(principal_type),
+        "opa_policy": str(getattr(state, "authz_policy", "") or ""),
+        "opa_reasons": [str(reason) for reason in getattr(state, "authz_reasons", ())],
+    }
+    if targets:
+        event_payload["binding_receipt"] = RuntimeAuthorizationBindingReceipt(
+            body_sha256=bound_resource.body_sha256,
+            query_sha256=bound_resource.query_sha256,
+        ).model_dump(mode="json")
+        # Convert nested enums/models exactly as the strict event serializer will.
+        event_payload["event_type"] = _AUTHORIZATION_EVENT_TYPE
+        event_payload["outcome"] = outcome.value
+        event_payload["related_target_decisions"] = [
+            decision.model_dump(mode="json") for decision in decisions
+        ]
+        event_payload["receipt_sha256"] = _authorization_receipt_sha256(event_payload)
+    try:
+        event = RuntimeAuthorizationAuditEvent.model_validate(event_payload)
+    except (TypeError, ValueError) as exc:
+        raise RuntimeAuthorizationAuditError(
+            "Authorization audit content binding is invalid"
+        ) from exc
     app_state = getattr(getattr(request, "app", object()), "state", object())
     container = getattr(app_state, "runtime_container", None)
     audit_trail = getattr(container, "runtime_access_audit", None)
@@ -1151,7 +1477,13 @@ __all__ = [
     "RuntimeAuditScanResult",
     "RuntimeAuthorizationAuditError",
     "RuntimeAuthorizationAuditEvent",
+    "RuntimeAuthorizationBindingReceipt",
+    "RuntimeAuthorizationComparisonBasis",
+    "RuntimeAuthorizationComparisonContext",
     "RuntimeAuthorizationOutcome",
+    "RuntimeAuthorizationRelatedRunContext",
+    "RuntimeAuthorizationRunContext",
+    "RuntimeAuthorizationTargetDecision",
     "RuntimeDataAccessAuditTrail",
     "complete_human_decision_exposure_event",
     "complete_human_decision_exposure_event_through_sink",
@@ -1161,4 +1493,5 @@ __all__ = [
     "prepare_human_decision_exposure_event_through_sink",
     "reserve_human_decision_exposure_event",
     "reserve_human_decision_exposure_event_through_sink",
+    "verify_runtime_authorization_audit",
 ]

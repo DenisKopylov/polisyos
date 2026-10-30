@@ -21,6 +21,7 @@ from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core import artifacts, canon
 from polisyos.runtime.http.authorization import (
     ActionPermissionVerification,
+    RelatedRunBindingSource,
     ResourceBindingSource,
     ResourceBindingSpec,
     RouteAuthorizationRequirement,
@@ -51,6 +52,7 @@ if TYPE_CHECKING:
 
     from fastapi import Request
 
+    from polisyos.core.contracts.runtime import CompletedExAnteCandidateRanking
     from polisyos.runtime.http.dependencies import RuntimeApiContext
     from polisyos.runtime.http.services.run_index import IndexedRunRecord
     from polisyos.runtime.http.services.scenario_heads import ScenarioHeadRecord
@@ -69,6 +71,7 @@ _SCENARIO_TARGET_CONTEXT_KIND = "runtime.scenario.target.v1"
 _LINEAGE_BATCH_CONTEXT_KIND = "runtime.lineage.batch.v1"
 _HUMAN_DECISION_CREATE_CONTEXT_KIND = "runtime.human_decision.create.v1"
 _CONTROL_JOB_CANCELLATION_CONTEXT_KIND = "runtime.control_job.cancellation.v1"
+_METHOD_METRIC_RUN_CONTEXT_KIND = "runtime.run.method_metric_context.v1"
 
 
 class _ResolverKind(StrEnum):
@@ -147,8 +150,22 @@ class BoundAuthorizationResource:
     canonical_selectors: tuple[tuple[str, str], ...]
     resolved_context_kind: str | None = None
     resolved_context: bytes | None = None
+    policy_targets: tuple[BoundAuthorizationResource, ...] = ()
 
     def __post_init__(self) -> None:
+        if not isinstance(self.policy_targets, tuple) or len(self.policy_targets) > 20:
+            raise TypeError("policy targets must be a bounded immutable tuple")
+        if any(
+            type(target) is not BoundAuthorizationResource
+            or target.policy_targets
+            or target.requirement is not self.requirement
+            for target in self.policy_targets
+        ):
+            raise TypeError("policy targets must retain the same exact action contract")
+        if len({target.resource_digest for target in self.policy_targets}) != len(
+            self.policy_targets
+        ):
+            raise ValueError("policy targets must be unique")
         if type(self.requirement) is not RouteAuthorizationRequirement:
             raise TypeError("requirement must be a RouteAuthorizationRequirement")
         if not isinstance(self.authority, BindingAuthority):
@@ -880,7 +897,10 @@ def _bind_owned_existing_path(
         resource_id, tenant_id = _resolve_owned_artifact(ctx, scope, value)
         selector_name = "artifact_id"
     elif resolver_kind is _ResolverKind.RUN:
-        if spec.resource_kind == "runtime.run.method_execution_selection":
+        if spec.resource_kind in {
+            "runtime.run.method_execution_selection",
+            "runtime.run.method_metrics",
+        }:
             indexed_run = _resolve_method_execution_indexed_run(ctx, request, scope, value)
             resource_id = indexed_run.run_id
             tenant_id = indexed_run.details.tenant_id
@@ -947,6 +967,7 @@ def _bind_owned_existing_path(
         selectors = tuple(sorted((*selectors, ("cell_id", _canonical_json(scope.cell_id)))))
     resolved_context_kind: str | None = None
     resolved_context: bytes | None = None
+    policy_targets: tuple[BoundAuthorizationResource, ...] = ()
     if resolver_kind is _ResolverKind.JOB:
         from polisyos.core.contracts.control import ControlJobCancellationRequest
 
@@ -961,6 +982,12 @@ def _bind_owned_existing_path(
         resolved_context = canon.to_canonical_bytes(
             cancellation.model_dump(mode="json"), _RESOLVED_CONTEXT_CANON
         )
+    elif spec.resource_kind == "runtime.run.method_metrics":
+        resolved_context_kind = _METHOD_METRIC_RUN_CONTEXT_KIND
+        context, policy_targets = _method_metric_authorization_context(
+            ctx, request, scope, value, requirement, indexed_run
+        )
+        resolved_context = canon.to_canonical_bytes(context, _RESOLVED_CONTEXT_CANON)
     elif spec.resource_kind == "runtime.run.production_approval":
         _validate_production_approval_override_authority(body, scope=scope)
         resolved = resolve_production_approval_scorecard(
@@ -1045,6 +1072,7 @@ def _bind_owned_existing_path(
         selectors=selectors,
         resolved_context_kind=resolved_context_kind,
         resolved_context=resolved_context,
+        policy_targets=policy_targets,
     )
 
 
@@ -1753,6 +1781,210 @@ def _resolve_method_execution_indexed_run(
     return indexed_run
 
 
+def _method_metric_run_context(
+    run: IndexedRunRecord,
+    scope: AccessScope,
+    selection_run_id: str,
+) -> dict[str, Any]:
+    """Keep the requested selection key separate from its verified Core attempt."""
+    if (
+        not scope.cell_id
+        or run.details.tenant_id != scope.tenant_id
+        or run.details.cell_id != scope.cell_id
+    ):
+        raise forbidden(
+            "Method metric projections require the verified run tenant and cell scope",
+            code="method_metric_projection_scope_mismatch",
+        )
+    manifest = run.details.manifest_ref
+    return {
+        "context_version": _METHOD_METRIC_RUN_CONTEXT_KIND,
+        "selection_run_id": _required_string(selection_run_id, field_name="run_id"),
+        "core_run_id": run.run_id,
+        "control_job_id": run.details.control_job_id,
+        "core_manifest_ref": manifest.model_dump(mode="json") if manifest is not None else None,
+        "tenant_id": run.details.tenant_id,
+        "cell_id": run.details.cell_id,
+    }
+
+
+def _method_metric_authorization_context(
+    ctx: RuntimeApiContext,
+    request: Request,
+    scope: AccessScope,
+    selection_run_id: str,
+    requirement: RouteAuthorizationRequirement,
+    run: IndexedRunRecord,
+) -> tuple[dict[str, Any], tuple[BoundAuthorizationResource, ...]]:
+    """Derive the complete related set from the actual immutable lifecycle-owner basis."""
+    context = _method_metric_run_context(run, scope, selection_run_id)
+    related_source = requirement.resource_binding.related_run_source
+    if related_source is None:
+        return context, ()
+    if related_source is not RelatedRunBindingSource.COMPLETED_EX_ANTE_COMPARISON:
+        raise forbidden(
+            "Related run basis is unavailable", code="comparison_target_basis_unresolved"
+        )
+    control = resolve_control_service(request)
+    if control is None:
+        raise forbidden(
+            "Comparison owner is unavailable", code="comparison_target_basis_unresolved"
+        )
+    try:
+        job_id, attempt, state_ref, comparison = (
+            control._read_current_completed_ex_ante_comparison_basis(
+                run_id=selection_run_id, tenant_id=scope.tenant_id, cell_id=scope.cell_id
+            )
+        )
+        context["comparison_basis"] = {
+            "job_id": job_id,
+            "attempt": attempt,
+            "state_ref": state_ref.model_dump(mode="json") if state_ref is not None else None,
+            "request": comparison.model_dump(mode="json") if comparison is not None else None,
+        }
+        rows = []
+        targets = []
+        # Read the actual content-bound terminal state; HTTP/body declarations
+        # are never a source of authority for this member set.
+        for source in () if comparison is None else comparison.sources:
+            selected = control.resolve_completed_method_metric_selection(
+                source_run_id=source.source_run_id,
+                candidate_ref=source.candidate_ref,
+                tenant_id=scope.tenant_id,
+                cell_id=scope.cell_id,
+            )
+            if selected is None or selected.selection.method_metric_projection is None:
+                raise ValueError("comparison target selection unavailable")
+            actual_run = _resolve_method_execution_indexed_run(
+                ctx, request, scope, source.source_run_id
+            )
+            target_context = _method_metric_run_context(actual_run, scope, source.source_run_id)
+            target = _build_bound_resource(
+                request=request,
+                requirement=requirement,
+                tenant_id=actual_run.details.tenant_id,
+                authority=BindingAuthority.OWNERSHIP_VERIFIED,
+                body_sha256=_sha256(b""),
+                selectors=(("run_id", _canonical_json(actual_run.run_id)),),
+                resolved_context_kind=_METHOD_METRIC_RUN_CONTEXT_KIND,
+                resolved_context=canon.to_canonical_bytes(target_context, _RESOLVED_CONTEXT_CANON),
+            )
+            rows.append(
+                {
+                    "source": source.model_dump(mode="json"),
+                    "run_context": target_context,
+                    "source_state_ref": selected.source_experiment_state_ref.model_dump(
+                        mode="json"
+                    ),
+                    "vector_ref": selected.selection.method_metric_projection.vector_ref.model_dump(
+                        mode="json"
+                    ),
+                    "selection_job_id": selected.selection.job_id,
+                    "selection_attempt": selected.selection.attempt,
+                    "policy_resource_id": target.resource_id,
+                }
+            )
+            targets.append(target)
+        if len({target.resource_id for target in targets}) != len(targets):
+            raise ValueError("comparison targets are not a unique complete set")
+        context["related_run_contexts"] = rows
+        return context, tuple(targets)
+    except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
+        raise forbidden(
+            "The complete comparison source set could not be established",
+            code="comparison_target_basis_unresolved",
+        ) from exc
+
+
+def _reconcile_bound_policy_targets(request: Request, binding: BoundAuthorizationResource) -> None:
+    """Reopen the entire related owner set before its canonical authorization audit."""
+    if (
+        binding.requirement.resource_binding.related_run_source
+        is not RelatedRunBindingSource.COMPLETED_EX_ANTE_COMPARISON
+    ):
+        raise forbidden(
+            "Related target basis is unsupported", code="comparison_target_basis_unresolved"
+        )
+    authorized = get_bound_resource_context(request, expected_kind=_METHOD_METRIC_RUN_CONTEXT_KIND)
+    _resolve_bound_method_metric_indexed_run(
+        _require_runtime_context(request),
+        request,
+        _require_access_scope(request),
+        authorized["selection_run_id"],
+    )
+
+
+def _require_bound_comparison_members(
+    request: Request, comparison: CompletedExAnteCandidateRanking | None
+) -> None:
+    """Reconcile every emitted comparison row with the frozen owner-selected member set."""
+    authorized = get_bound_resource_context(request, expected_kind=_METHOD_METRIC_RUN_CONTEXT_KIND)
+    if comparison is None:
+        if authorized["comparison_basis"]["request"] is not None:
+            raise conflict("Comparison members changed", code="comparison_target_set_changed")
+        return
+    if comparison.status != "complete":
+        if comparison.observations:
+            raise conflict(
+                "Unverified comparison emitted rows", code="comparison_target_set_changed"
+            )
+        return
+    expected = authorized["comparison_basis"]["request"]
+    observed = [row.source.model_dump(mode="json") for row in comparison.observations]
+    if expected is None or observed != expected["sources"]:
+        raise conflict("Comparison members changed", code="comparison_target_set_changed")
+
+
+def _require_method_metric_run_context_unchanged(
+    authorized: Mapping[str, Any],
+    current: Mapping[str, Any],
+) -> None:
+    """Refuse an alias, attempt, selected profile or ownership change after policy."""
+    if authorized != current:
+        raise conflict(
+            "The method metric run context changed after authorization",
+            code="method_metric_run_authorization_changed",
+        )
+
+
+def _resolve_bound_method_metric_indexed_run(
+    ctx: RuntimeApiContext,
+    request: Request,
+    scope: AccessScope,
+    selection_run_id: str,
+) -> IndexedRunRecord:
+    """Reconcile the real owner with the exact immutable pre-policy run context."""
+    bound = getattr(request.state, "authz_bound_resource", None)
+    if (
+        type(bound) is not BoundAuthorizationResource
+        or bound.authority is not BindingAuthority.OWNERSHIP_VERIFIED
+        or bound.requirement.resource_binding.resource_kind != "runtime.run.method_metrics"
+        or bound.requirement.resource_binding.source
+        is not ResourceBindingSource.OWNED_EXISTING_PATH
+    ):
+        raise forbidden(
+            "Method metric reads require their exact owned-run authorization binding",
+            code="authorization_binding_context_missing",
+        )
+    authorized = get_bound_resource_context(request, expected_kind=_METHOD_METRIC_RUN_CONTEXT_KIND)
+    run = _resolve_method_execution_indexed_run(ctx, request, scope, selection_run_id)
+    current, targets = _method_metric_authorization_context(
+        ctx, request, scope, selection_run_id, bound.requirement, run
+    )
+    if targets != bound.policy_targets:
+        raise conflict("Comparison targets changed", code="comparison_target_set_changed")
+    # The context and the selector hashed into the policy input must name the same Core run.
+    if tuple(value for name, value in bound.canonical_selectors if name == "run_id") != (
+        _canonical_json(run.run_id),
+    ):
+        raise conflict(
+            "The authorized canonical Core run changed before the method metric read",
+            code="method_metric_run_authorization_changed",
+        )
+    _require_method_metric_run_context_unchanged(authorized, current)
+    return run
+
+
 def _resolve_owned_run(
     ctx: RuntimeApiContext,
     scope: AccessScope,
@@ -1972,22 +2204,21 @@ def _build_bound_resource(
     include_body_in_digest: bool = True,
     resolved_context_kind: str | None = None,
     resolved_context: bytes | None = None,
+    policy_targets: tuple[BoundAuthorizationResource, ...] = (),
 ) -> BoundAuthorizationResource:
     canonical_selectors = tuple(sorted(selectors))
     query_sha256 = _query_sha256(request)
-    digest_payload = {
-        "binding_version": "runtime.authorization.resource.v1",
-        "permission": requirement.permission.value,
-        "resource_kind": requirement.resource_binding.resource_kind,
-        "authority": authority.value,
-        "tenant_id": tenant_id,
-        "body_sha256": body_sha256 if include_body_in_digest else None,
-        "query_sha256": query_sha256,
-        "selectors": canonical_selectors,
-        "resolved_context_sha256": (
-            _sha256(resolved_context) if resolved_context is not None else None
-        ),
-    }
+    digest_payload = authorization_resource_digest_inputs(
+        permission=requirement.permission.value,
+        resource_kind=requirement.resource_binding.resource_kind,
+        authority=authority.value,
+        tenant_id=tenant_id,
+        body_sha256=body_sha256 if include_body_in_digest else None,
+        query_sha256=query_sha256,
+        selectors=canonical_selectors,
+        resolved_context=resolved_context,
+        policy_target_digests=tuple(target.resource_digest for target in policy_targets),
+    )
     resource_digest = _digest_payload(digest_payload)
     return BoundAuthorizationResource(
         requirement=requirement,
@@ -2001,7 +2232,37 @@ def _build_bound_resource(
         canonical_selectors=canonical_selectors,
         resolved_context_kind=resolved_context_kind,
         resolved_context=resolved_context,
+        policy_targets=policy_targets,
     )
+
+
+def authorization_resource_digest_inputs(
+    *,
+    permission: str,
+    resource_kind: str,
+    authority: str,
+    tenant_id: str | None,
+    body_sha256: str | None,
+    query_sha256: str,
+    selectors: tuple[tuple[str, str], ...],
+    resolved_context: bytes | None,
+    policy_target_digests: tuple[str, ...] = (),
+) -> dict[str, Any]:
+    """Return the canonical binding owner's exact digest inputs for live and cold use."""
+    return {
+        "binding_version": "runtime.authorization.resource.v1",
+        "permission": permission,
+        "resource_kind": resource_kind,
+        "authority": authority,
+        "tenant_id": tenant_id,
+        "body_sha256": body_sha256,
+        "query_sha256": query_sha256,
+        "selectors": tuple(sorted(selectors)),
+        **({"policy_target_digests": list(policy_target_digests)} if policy_target_digests else {}),
+        "resolved_context_sha256": _sha256(resolved_context)
+        if resolved_context is not None
+        else None,
+    }
 
 
 def _query_sha256(request: Request) -> str:
@@ -2163,6 +2424,7 @@ def _resolve_body_ceiling(configured: int | None) -> int:
 __all__ = [
     "BindingAuthority",
     "BoundAuthorizationResource",
+    "authorization_resource_digest_inputs",
     "bind_authorization_resource",
     "get_bound_resource_context",
     "human_decision_create_from_bound_request",

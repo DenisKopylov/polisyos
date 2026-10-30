@@ -11,7 +11,11 @@ import pytest
 
 from polisyos.runtime.quality.substrate_registry import CatalogServingSourceSelection
 from tests._helpers.control_worker import stop_embedded_control_worker
-from tests._helpers.runtime_http import build_runtime_api_env, close_runtime_api_env
+from tests._helpers.runtime_http import (
+    build_runtime_api_env,
+    build_runtime_api_env_from_fixture_seed,
+    close_runtime_api_env,
+)
 from tests.unit.runtime.http.test_runtime_api_authz import (
     _AllowOPA,
     _build_secure_client,
@@ -94,3 +98,44 @@ def scoped_source_runtime(tmp_path: Path) -> Iterator[dict[str, Any]]:
                 yield result
             finally:
                 stop_embedded_control_worker(service)
+
+
+@contextmanager
+def reopen_selected_source_runtime_api_env(
+    seed: dict[str, Any],
+) -> Iterator[dict[str, Any]]:
+    """Enter a fresh real container over the same persisted CAS and selected Catalog tuple."""
+    code_root = seed["catalog_code_root"]
+    selection = seed["catalog_selection"]
+    source = seed["catalog_source"]
+    if not isinstance(code_root, Path) or type(selection) is not CatalogServingSourceSelection:
+        raise TypeError("selected_source_reader_requires_exact_catalog_context")
+    env = build_runtime_api_env_from_fixture_seed(
+        seed,
+        include_test_client=True,
+        app_kwargs={"repo_root": code_root, "catalog_source_selection": selection},
+    )
+    try:
+        client = env["client"]
+        with client:
+            container = env["app"].state.runtime_container
+            service = container.control_service
+            assert service is not None
+            stop_embedded_control_worker(service)
+            actual_source = service.catalog_serving_source
+            assert actual_source.selection_basis == "explicit_path_candidate_only"
+            assert actual_source.database_path == source.database_path
+            assert actual_source.source_owner_root == source.source_owner_root
+            assert actual_source == seed["app"].state._control_service.catalog_serving_source
+            assert container.config.repo_root == code_root
+            assert container.config.catalog_source_selection == selection
+            assert env["cas_root"] == seed["cas_root"]
+            assert env["app"] is not seed["app"]
+            assert container is not seed["app"].state.runtime_container
+            assert service is not seed["app"].state._control_service
+            assert service._control_store is not seed["app"].state._control_service._control_store
+            assert service._artifact_store is container.runtime_api_context.store
+            assert service._core_runs_root == seed["app"].state._control_service._core_runs_root
+            yield env
+    finally:
+        close_runtime_api_env(env)

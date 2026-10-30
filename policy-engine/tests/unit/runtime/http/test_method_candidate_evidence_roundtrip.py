@@ -214,7 +214,7 @@ def test_public_worker_producer_and_fresh_candidate_reader_require_wire_admissio
     # path with the existing bounded native fixture and assertions. It grants no
     # scientific or institutional authority to that candidate.
     fixture.test_post_worker_fenced_cas_and_fresh_run_get_preserve_candidate_limits(
-        runtime_api_env,
+        request,
         monkeypatch,
         protocol,
         normalization,

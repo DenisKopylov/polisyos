@@ -231,6 +231,12 @@ def _validate_binding_token(value: str | None, *, field_name: str) -> None:
         raise TypeError(f"{field_name} must be a non-empty, trimmed string")
 
 
+class RelatedRunBindingSource(StrEnum):
+    """Server-owned immutable basis from which related review targets are derived."""
+
+    COMPLETED_EX_ANTE_COMPARISON = "completed_ex_ante_comparison"
+
+
 @dataclass(frozen=True, slots=True)
 class ResourceBindingSpec:
     """Describe the only admissible pre-policy binding strategy for a route.
@@ -262,8 +268,15 @@ class ResourceBindingSpec:
     required_selector_alternatives: tuple[tuple[str, ...], ...] = ()
     parent_required: bool = False
     allow_empty_body: bool = False
+    related_run_source: RelatedRunBindingSource | None = None
 
     def __post_init__(self) -> None:
+        if self.related_run_source is not None and (
+            type(self.related_run_source) is not RelatedRunBindingSource
+            or self.source is not ResourceBindingSource.OWNED_EXISTING_PATH
+            or self.resource_kind != "runtime.run.method_metrics"
+        ):
+            raise ValueError("related run basis requires the exact owned method-metric contract")
         if not isinstance(self.source, ResourceBindingSource):
             raise TypeError("resource binding source must be a ResourceBindingSource")
         _validate_binding_token(self.resource_kind, field_name="resource_kind")
@@ -986,6 +999,11 @@ def install_route_authorization_openapi_contract(app: object) -> None:
                     "source": binding.source.value,
                     "resource_kind": binding.resource_kind,
                     **(
+                        {"related_run_source": binding.related_run_source.value}
+                        if binding.related_run_source is not None
+                        else {}
+                    ),
+                    **(
                         {"path_parameter": binding.path_parameter}
                         if binding.path_parameter is not None
                         else {}
@@ -1060,6 +1078,7 @@ __all__ = [
     "BoundActionPermissionVerification",
     "DeploymentPrincipalGrantResolver",
     "MatchedAuthorizationRoute",
+    "RelatedRunBindingSource",
     "ResourceBindingSource",
     "ResourceBindingSpec",
     "RouteAuthorizationRequirement",

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import os
-from collections.abc import Iterable, Iterator, Mapping, MutableMapping
+from collections.abc import Awaitable, Callable, Iterable, Iterator, Mapping, MutableMapping
 from contextlib import suppress
 from dataclasses import dataclass
 from functools import partial
@@ -30,6 +30,7 @@ from polisyos.fabric.connectors.resilience.circuit_breaker import (
 from polisyos.runtime.http.access_audit import (
     RuntimeAuthorizationAuditError,
     RuntimeAuthorizationOutcome,
+    RuntimeAuthorizationTargetDecision,
     emit_runtime_authorization_audit_async,
 )
 from polisyos.runtime.http.authorization import (
@@ -52,12 +53,14 @@ from polisyos.runtime.http.authorization import (
 from polisyos.runtime.http.errors import (
     RuntimeHTTPError,
     bad_request,
+    forbidden,
     problem_response,
 )
 from polisyos.runtime.http.permissions import RuntimePermission, permissions_for_roles
 from polisyos.runtime.http.resource_binding import (
     BindingAuthority,
     BoundAuthorizationResource,
+    _reconcile_bound_policy_targets,
     bind_authorization_resource,
 )
 from polisyos.runtime.http.security import (
@@ -382,6 +385,15 @@ class _AuthorizationStateSeal:
     """Track any attempted mutation of protected authorization state."""
 
     violated: bool = False
+
+
+def _require_policy_target_allow(allowed: bool | None) -> None:
+    """Admit a related resource only after its own actual canonical policy ALLOW."""
+    if allowed is not True:
+        raise forbidden(
+            "A required comparison source is not authorized",
+            code="related_run_authorization_denied",
+        )
 
 
 class _AuthorizationStateMutationError(RuntimeError):
@@ -984,6 +996,19 @@ class AuthzMiddleware:
         else:
             base_authz_input = None
 
+        if bound_resource is not None and bound_resource.policy_targets:
+            target_response = await self._evaluate_bound_policy_targets(
+                request,
+                bound_resource,
+                matched=matched,
+                scope=effective_scope,
+                peer_spiffe_id=peer_spiffe_id,
+                base_input=base_authz_input,
+            )
+            if target_response is not None:
+                await target_response(scope, downstream_receive, send)
+                return
+
         if optional_action_dependency is not None:
             if matched is None:
                 await self._send_failure(
@@ -1039,18 +1064,30 @@ class AuthzMiddleware:
             request.state.optional_action_permission_result = optional_result
 
         if action_guarded and bound_resource is not None:
-            dependency_error = await to_thread.run_sync(
-                partial(self._execute_bound_authorization_dependencies, request)
-            )
-            if dependency_error is not None:
-                await self._send_failure(
+            if bound_resource.policy_targets:
+                dependency_response = await self._complete_target_admission_operation(
                     request,
-                    dependency_error,
-                    scope=scope,
-                    receive=downstream_receive,
-                    send=send,
+                    partial(
+                        to_thread.run_sync,
+                        partial(self._execute_bound_authorization_dependencies, request),
+                    ),
                 )
-                return
+                if dependency_response is not None:
+                    await dependency_response(scope, downstream_receive, send)
+                    return
+            else:
+                dependency_error = await to_thread.run_sync(
+                    partial(self._execute_bound_authorization_dependencies, request)
+                )
+                if dependency_error is not None:
+                    await self._send_failure(
+                        request,
+                        dependency_error,
+                        scope=scope,
+                        receive=downstream_receive,
+                        send=send,
+                    )
+                    return
 
         scope_token = set_current_access_scope(effective_scope)
         try:
@@ -1225,6 +1262,16 @@ class AuthzMiddleware:
                 reason="authorization_contract_violation",
             )
         try:
+            binding = getattr(request.state, "authz_bound_resource", None)
+            if type(binding) is BoundAuthorizationResource and binding.policy_targets:
+                effective_scope = getattr(request.state, "authz_effective_scope", None)
+                if not isinstance(effective_scope, AccessScope):
+                    raise RuntimeError("Related target admission has no verified access scope")
+                token = set_current_access_scope(effective_scope)
+                try:
+                    _reconcile_bound_policy_targets(request, binding)
+                finally:
+                    reset_current_access_scope(token)
             action_verification = action_dependency(request)
             if type(action_verification) is not BoundActionPermissionVerification:
                 raise RuntimeError("The action dependency did not consume the frozen resource")
@@ -1501,6 +1548,230 @@ class AuthzMiddleware:
             "kind": "http_resource",
             "artifact_id": "",
         }
+
+    async def _complete_target_admission_operation(
+        self,
+        request: Request,
+        operation: Callable[[], Awaitable[_AuthorizationFailure | None]],
+    ) -> Response | None:
+        """Terminalize every ordinary process-live target admission failure once.
+
+        The operation includes policy/dependency calls and their cleanup. Its
+        real evaluated prefix is already held on the original sealed request.
+        Cancellation and other BaseException exits, and process crashes, are
+        outside this boundary; it is not an audit crash-durability mechanism.
+        """
+        try:
+            failure = await operation()
+            if failure is not None and type(failure) is not _AuthorizationFailure:
+                raise TypeError("Target admission returned an invalid terminal result")
+        except Exception as exc:
+            # One complete process-live quantity, rather than an exception-name
+            # allowlist. Preserve a typed refusal; unexpected errors reveal no detail.
+            failure = (
+                _AuthorizationFailure(
+                    response=_response_for_runtime_error(request, exc),
+                    reason=exc.code or exc.error,
+                )
+                if isinstance(exc, RuntimeHTTPError)
+                else _AuthorizationFailure(
+                    response=self._problem(
+                        request,
+                        status_code=503,
+                        code="related_run_admission_unavailable",
+                        detail="Related target admission could not be completed",
+                    ),
+                    reason="related_run_admission_unavailable",
+                )
+            )
+        if failure is None:
+            return None
+        try:
+            emitted = await emit_runtime_authorization_audit_async(
+                request,
+                outcome=RuntimeAuthorizationOutcome.DENY,
+                denial_reason=failure.reason,
+                raise_on_failure=True,
+            )
+        except Exception:
+            # Exactly one attempt through the existing idempotent sealed owner.
+            # Failure to record is itself a refusal, never a retry or invented event.
+            emitted = False
+        if not emitted:
+            return self._problem(
+                request,
+                status_code=503,
+                code="authorization_audit_unavailable",
+                detail="Authorization audit is unavailable; comparison denied",
+            )
+        return failure.response
+
+    async def _evaluate_bound_policy_targets(
+        self,
+        request: Request,
+        binding: BoundAuthorizationResource,
+        *,
+        matched: tuple[APIRoute, dict[str, Any]] | None,
+        scope: AccessScope,
+        peer_spiffe_id: str,
+        base_input: AuthzInput | None,
+    ) -> Response | None:
+        """Apply the common terminal boundary to the whole related policy operation."""
+        return await self._complete_target_admission_operation(
+            request,
+            partial(
+                self._admit_bound_policy_targets,
+                request,
+                binding,
+                matched=matched,
+                scope=scope,
+                peer_spiffe_id=peer_spiffe_id,
+                base_input=base_input,
+            ),
+        )
+
+    async def _admit_bound_policy_targets(
+        self,
+        request: Request,
+        binding: BoundAuthorizationResource,
+        *,
+        matched: tuple[APIRoute, dict[str, Any]] | None,
+        scope: AccessScope,
+        peer_spiffe_id: str,
+        base_input: AuthzInput | None,
+    ) -> _AuthorizationFailure | None:
+        """Evaluate the complete source set; return failures without emitting audit."""
+        decisions: list[RuntimeAuthorizationTargetDecision] = []
+        request.state.authz_policy_target_decisions = ()
+
+        def deny(response: Response, reason: str) -> _AuthorizationFailure:
+            return _AuthorizationFailure(response=response, reason=reason)
+
+        if self._opa is None or base_input is None or matched is None:
+            return deny(
+                self._problem(
+                    request,
+                    status_code=503,
+                    code="related_run_policy_unavailable",
+                    detail="Every comparison source requires an available authorization policy",
+                ),
+                "related_run_policy_unavailable",
+            )
+        verification = getattr(request.state, "action_permission_verification", None)
+        if type(verification) is not ActionPermissionVerification:
+            return deny(
+                self._problem(
+                    request,
+                    status_code=503,
+                    code="authorization_contract_violation",
+                    detail="Related target authorization requires the exact permission preflight",
+                ),
+                "authorization_contract_violation",
+            )
+        _route, child_scope = matched
+        previous = {
+            name: getattr(request.state, name, _MISSING_AUTHORIZATION_STATE)
+            for name in ("authz_decision", "authz_policy", "authz_reasons", "authz_allowed_columns")
+        }
+        token = set_current_access_scope(scope)
+        try:
+
+            async def reconcile_whole_set() -> _AuthorizationFailure | None:
+                matched_scope = dict(request.scope)
+                matched_scope.update(child_scope)
+                matched_request = Request(matched_scope, receive=request.receive)
+                try:
+                    current = await to_thread.run_sync(
+                        partial(
+                            bind_authorization_resource,
+                            matched_request,
+                            binding.requirement,
+                            b"",
+                            max_body_bytes=self._body_ceiling,
+                        )
+                    )
+                except RuntimeHTTPError as exc:
+                    return deny(_response_for_runtime_error(request, exc), exc.code)
+                if current != binding:
+                    return deny(
+                        self._problem(
+                            request,
+                            status_code=409,
+                            code="comparison_target_set_changed",
+                            detail="The comparison source set changed during authorization",
+                        ),
+                        "comparison_target_set_changed",
+                    )
+                return None
+
+            for target in binding.policy_targets:
+                target_base = AuthzInput.for_http_request(
+                    request_method=base_input.request_method,
+                    request_path=base_input.request_path,
+                    request_headers=dict(base_input.request_headers),
+                    scope=scope,
+                    peer_spiffe_id=peer_spiffe_id,
+                    resource_tenant_id=target.tenant_id or "",
+                    resource_kind=target.resource_kind,
+                    resource_artifact_id=target.resource_id,
+                )
+                target_input = RuntimeActionAuthzInput.from_bound_action(
+                    base_input=target_base, verification=verification, bound_resource=target
+                )
+                response, _shadow, allowed = await self._evaluate_opa(
+                    request,
+                    target_input,
+                    fail_closed=True,
+                    defer_policy_denial=True,
+                    defer_failure_audit=True,
+                )
+                if response is not None:
+                    return deny(response, "related_run_policy_dependency_unavailable")
+                try:
+                    _require_policy_target_allow(allowed)
+                except RuntimeHTTPError:
+                    decisions.append(
+                        RuntimeAuthorizationTargetDecision(
+                            resource_id=target.resource_id,
+                            resource_digest=target.resource_digest,
+                            permission=target.requirement.permission.value,
+                            outcome=RuntimeAuthorizationOutcome.DENY,
+                            opa_policy=request.state.authz_policy,
+                            opa_reasons=tuple(request.state.authz_reasons),
+                        )
+                    )
+                    request.state.authz_policy_target_decisions = tuple(decisions)
+                    changed = await reconcile_whole_set()
+                    if changed is not None:
+                        return changed
+                    return deny(
+                        self._problem(
+                            request,
+                            status_code=403,
+                            code="related_run_authorization_denied",
+                            detail="A required comparison source is not authorized",
+                        ),
+                        "related_run_authorization_denied",
+                    )
+                decisions.append(
+                    RuntimeAuthorizationTargetDecision(
+                        resource_id=target.resource_id,
+                        resource_digest=target.resource_digest,
+                        permission=target.requirement.permission.value,
+                        outcome=RuntimeAuthorizationOutcome.ALLOW,
+                        opa_policy=request.state.authz_policy,
+                        opa_reasons=tuple(request.state.authz_reasons),
+                    )
+                )
+                request.state.authz_policy_target_decisions = tuple(decisions)
+                changed = await reconcile_whole_set()
+                if changed is not None:
+                    return changed
+            return None
+        finally:
+            reset_current_access_scope(token)
+            for name, value in previous.items():
+                _restore_authorization_state_value(request.state, name, value)
 
     async def _evaluate_optional_action(
         self,
@@ -1782,6 +2053,7 @@ class AuthzMiddleware:
         *,
         fail_closed: bool,
         defer_policy_denial: bool = False,
+        defer_failure_audit: bool = False,
     ) -> tuple[Response | None, bool, bool | None]:
         opa = self._opa
         if opa is None:
@@ -1806,13 +2078,14 @@ class AuthzMiddleware:
                 )
             )
         except TimeoutError:
-            await emit_runtime_authorization_audit_async(
-                request,
-                outcome=RuntimeAuthorizationOutcome.DENY,
-                denial_reason="authz_dependency_timeout",
-                raise_on_failure=False,
-            )
-            clear_request_auth_context(request.state)
+            if not defer_failure_audit:
+                await emit_runtime_authorization_audit_async(
+                    request,
+                    outcome=RuntimeAuthorizationOutcome.DENY,
+                    denial_reason="authz_dependency_timeout",
+                    raise_on_failure=False,
+                )
+                clear_request_auth_context(request.state)
             return (
                 self._problem(
                     request,
@@ -1824,13 +2097,14 @@ class AuthzMiddleware:
                 None,
             )
         except CircuitOpenError:
-            await emit_runtime_authorization_audit_async(
-                request,
-                outcome=RuntimeAuthorizationOutcome.DENY,
-                denial_reason="authz_dependency_unavailable",
-                raise_on_failure=False,
-            )
-            clear_request_auth_context(request.state)
+            if not defer_failure_audit:
+                await emit_runtime_authorization_audit_async(
+                    request,
+                    outcome=RuntimeAuthorizationOutcome.DENY,
+                    denial_reason="authz_dependency_unavailable",
+                    raise_on_failure=False,
+                )
+                clear_request_auth_context(request.state)
             return (
                 self._problem(
                     request,
@@ -1847,13 +2121,14 @@ class AuthzMiddleware:
         request.state.authz_allowed_columns = _extract_allowed_columns(result.audit_entry)
         if "OPA_UNREACHABLE" in result.reasons:
             self._opa_breaker.record_failure()
-            await emit_runtime_authorization_audit_async(
-                request,
-                outcome=RuntimeAuthorizationOutcome.DENY,
-                denial_reason="authz_dependency_unavailable",
-                raise_on_failure=False,
-            )
-            clear_request_auth_context(request.state)
+            if not defer_failure_audit:
+                await emit_runtime_authorization_audit_async(
+                    request,
+                    outcome=RuntimeAuthorizationOutcome.DENY,
+                    denial_reason="authz_dependency_unavailable",
+                    raise_on_failure=False,
+                )
+                clear_request_auth_context(request.state)
             return (
                 self._problem(
                     request,
@@ -1869,13 +2144,14 @@ class AuthzMiddleware:
         if defer_policy_denial:
             return None, False, False
         if fail_closed or (self._enforce and not self._shadow_mode):
-            await emit_runtime_authorization_audit_async(
-                request,
-                outcome=RuntimeAuthorizationOutcome.DENY,
-                denial_reason="authorization_denied",
-                raise_on_failure=False,
-            )
-            clear_request_auth_context(request.state)
+            if not defer_failure_audit:
+                await emit_runtime_authorization_audit_async(
+                    request,
+                    outcome=RuntimeAuthorizationOutcome.DENY,
+                    denial_reason="authorization_denied",
+                    raise_on_failure=False,
+                )
+                clear_request_auth_context(request.state)
             return (
                 problem_response(
                     status_code=403,
@@ -1936,12 +2212,29 @@ class AuthzMiddleware:
     ) -> None:
         """Emit one idempotent denial and send its fail-closed response."""
         if audit:
-            await emit_runtime_authorization_audit_async(
-                request,
-                outcome=RuntimeAuthorizationOutcome.DENY,
-                denial_reason=failure.reason,
-                raise_on_failure=False,
+            binding = getattr(request.state, "authz_bound_resource", None)
+            strict_target_admission = type(binding) is BoundAuthorizationResource and bool(
+                binding.policy_targets
             )
+            try:
+                emitted = await emit_runtime_authorization_audit_async(
+                    request,
+                    outcome=RuntimeAuthorizationOutcome.DENY,
+                    denial_reason=failure.reason,
+                    raise_on_failure=strict_target_admission,
+                )
+            except RuntimeAuthorizationAuditError:
+                emitted = False
+            if strict_target_admission and not emitted:
+                failure = _AuthorizationFailure(
+                    response=self._problem(
+                        request,
+                        status_code=503,
+                        code="authorization_audit_unavailable",
+                        detail="Authorization audit is unavailable; admission denied",
+                    ),
+                    reason="authorization_audit_unavailable",
+                )
         with suppress(_AuthorizationStateMutationError):
             clear_request_auth_context(request.state)
         await failure.response(scope, receive, send)

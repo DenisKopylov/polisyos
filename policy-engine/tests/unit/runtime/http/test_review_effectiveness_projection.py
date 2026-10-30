@@ -316,3 +316,47 @@ def test_generic_access_append_rejects_fully_shaped_authorization_event(
 
     with pytest.raises(RuntimeAuthorizationAuditError, match="sealed writer"):
         trail.append(_allow("forged-request").model_dump(mode="json"))
+
+
+def test_v1_authorization_cold_parser_retains_historical_wire_shape(tmp_path: Path) -> None:
+    """Legacy terminal events remain byte-field compatible through the same cold owner."""
+    from polisyos.runtime.http.access_audit import verify_runtime_authorization_audit
+
+    payload = _allow("legacy-cold-request").model_dump(mode="json")
+    assert set(payload) == {
+        "schema_version",
+        "event_type",
+        "timestamp",
+        "request_id",
+        "outcome",
+        "denial_reason",
+        "method",
+        "route_path",
+        "permission",
+        "resource_id",
+        "resource_digest",
+        "resource_kind",
+        "binding_authority",
+        "step_up_class",
+        "step_up_outcome",
+        "subject",
+        "tenant_id",
+        "principal_type",
+        "opa_policy",
+        "opa_reasons",
+    }
+    event = verify_runtime_authorization_audit(
+        payload, expected_request_id="legacy-cold-request", expected_selection_run_id="run-a"
+    )
+    assert event.model_dump(mode="json") == payload
+    path = tmp_path / "legacy-access.jsonl"
+    _seed_trail_line(path, payload)
+    trail = RuntimeDataAccessAuditTrail(path=path)
+    scan = trail.scan_read_only()
+    assert scan.invalid_authorization_event_count == 0
+    assert scan.authorization_decisions == (event,)
+    report = ReviewEffectivenessService(trail=trail, human_decisions=None).for_run(
+        tenant_id="tenant-a", run_id="run-a"
+    )
+    assert report.authorization_allow_count == 1
+    assert report.invalid_authorization_event_count == 0

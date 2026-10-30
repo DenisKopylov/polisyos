@@ -21,6 +21,7 @@ AUTHORIZATION_STATE_FIELDS = (
     "authz_decision",
     "authz_policy",
     "authz_reasons",
+    "authz_policy_target_decisions",
     "authz_allowed_columns",
     "authz_resource",
     "authz_bound_resource",

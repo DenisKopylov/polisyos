@@ -1556,13 +1556,18 @@ def test_bounded_intent_model_hydration_reifies_serialized_search_time(
     ],
 )
 def test_post_worker_fenced_cas_and_fresh_run_get_preserve_candidate_limits(
-    runtime_api_env: dict[str, Any],
+    request: pytest.FixtureRequest,
     monkeypatch: pytest.MonkeyPatch,
     protocol: str,
     normalization: str,
 ) -> None:
     pytest.importorskip("econml")
+    runtime_api_env = request.getfixturevalue("selected_source_runtime_api_env")
     from _helpers.control_worker import dispatch_one_control_job, stop_embedded_control_worker
+
+    from tests._helpers.observational_source_runtime import (
+        reopen_selected_source_runtime_api_env,
+    )
 
     service = runtime_api_env["app"].state._control_service
 
@@ -1739,72 +1744,254 @@ def test_post_worker_fenced_cas_and_fresh_run_get_preserve_candidate_limits(
 
     monkeypatch.setattr(service, "_load_payload_ref", reject_unbounded_job_payload_read)
 
-    fresh = runtime_api_env["client"].get(f"/api/v1/runs/{accepted['run_id']}")
-    assert fresh.status_code == 200
-    response_wire = fresh.json()
-    projection = response_wire["run"]["method_execution_selection"]
-    assert projection["status"] == "selected"
-    request_summary = projection["request"]
-    assert ArtifactRef.model_validate(request_summary["requested_source_ref"]) == source_ref
-    assert ArtifactRef.model_validate(request_summary["requested_intent_ref"]) == intent_ref
-    assert request_summary["resolved_params_sha256"]
-    selected = projection["selection"]
-    assert selected["job_id"] == accepted["job_id"]
-    assert selected["attempt"] == completed.attempt
-    assert (
-        ArtifactRef.model_validate(selected["effective_input_ref"]) == selection.effective_input_ref
-    )
-    assert ArtifactRef.model_validate(selected["method_result_ref"]) == selection.method_result_ref
-    assert selected["candidate_outcome"]["candidate_only"] is True
-    assert selected["candidate_outcome"]["method"] == "forest_dr"
-    assert selected["candidate_outcome"]["status"] in {
-        "success",
-        "input_invalid",
-        "assumption_failed",
-        "numerical_failure",
-    }
-    assert projection["time_roles"]["admitted_at"] is not None
-    assert projection["time_roles"]["execution_started_at"] is not None
-    assert projection["time_roles"]["execution_finished_at"] is not None
-    assert projection["time_roles"]["owner_verified_at"] is not None
-    assert projection["time_roles"]["reader_at"] is not None
-    from _helpers.hte_privacy import hte_source_privacy_violations
+    with reopen_selected_source_runtime_api_env(runtime_api_env) as reader:
+        reader_service = reader["app"].state.runtime_container.control_service
+        assert reader_service is not None
+        monkeypatch.setattr(reader_service, "_load_payload_ref", reject_unbounded_job_payload_read)
+        fresh = reader["client"].get(f"/api/v1/runs/{accepted['run_id']}")
+        assert fresh.status_code == 200
+        response_wire = fresh.json()
+        projection = response_wire["run"]["method_execution_selection"]
+        assert projection["status"] == "selected"
+        request_summary = projection["request"]
+        assert ArtifactRef.model_validate(request_summary["requested_source_ref"]) == source_ref
+        assert ArtifactRef.model_validate(request_summary["requested_intent_ref"]) == intent_ref
+        assert request_summary["resolved_params_sha256"]
+        selected = projection["selection"]
+        assert selected["job_id"] == accepted["job_id"]
+        assert selected["attempt"] == completed.attempt
+        assert (
+            ArtifactRef.model_validate(selected["effective_input_ref"])
+            == selection.effective_input_ref
+        )
+        assert (
+            ArtifactRef.model_validate(selected["method_result_ref"]) == selection.method_result_ref
+        )
+        assert selected["candidate_outcome"]["candidate_only"] is True
+        assert selected["candidate_outcome"]["method"] == "forest_dr"
+        assert selected["candidate_outcome"]["status"] in {
+            "success",
+            "input_invalid",
+            "assumption_failed",
+            "numerical_failure",
+        }
+        assert projection["time_roles"]["admitted_at"] is not None
+        assert projection["time_roles"]["execution_started_at"] is not None
+        assert projection["time_roles"]["execution_finished_at"] is not None
+        assert projection["time_roles"]["owner_verified_at"] is not None
+        assert projection["time_roles"]["reader_at"] is not None
+        from _helpers.hte_privacy import hte_source_privacy_violations
 
-    from polisyos.foundry.methods.catalog.causal.protocols import HTEObservationalData
+        from polisyos.foundry.methods.catalog.causal.protocols import HTEObservationalData
 
-    assert selected["contract_target_id"] == HTEObservationalData.contract_id
-    assert selected["contract_target"] == (
-        f"{HTEObservationalData.__module__}.{HTEObservationalData.__qualname__}"
-    )
-    assert selected["hte"] is None
-    assert selected["hte_outcome_ref"] is None
-    assert selected["point_result_ref"] is None
-    assert selected["hte_result_ref"] is None
-    privacy_violations = hte_source_privacy_violations(
-        response_wire,
-        source_payload=source_payload,
-        source_only_sample_id=source_only_sample_id,
-    )
-    assert privacy_violations == (), privacy_violations
+        assert selected["contract_target_id"] == HTEObservationalData.contract_id
+        assert selected["contract_target"] == (
+            f"{HTEObservationalData.__module__}.{HTEObservationalData.__qualname__}"
+        )
+        assert selected["hte"] is None
+        assert selected["hte_outcome_ref"] is None
+        assert selected["point_result_ref"] is None
+        assert selected["hte_result_ref"] is None
+        privacy_violations = hte_source_privacy_violations(
+            response_wire,
+            source_payload=source_payload,
+            source_only_sample_id=source_only_sample_id,
+        )
+        assert privacy_violations == (), privacy_violations
 
-    metric_projection = runtime_api_env["client"].get(
-        f"/api/v1/runs/{accepted['run_id']}/method-metrics"
+        metric_projection = reader["client"].get(
+            f"/api/v1/runs/{accepted['run_id']}/method-metrics"
+        )
+        assert metric_projection.status_code == 200, metric_projection.text
+        assert metric_projection.json()["status"] == "verification_missing"
+        assert metric_projection.json()["vector_ref"] is None
+        assert metric_projection.json()["observations"] == []
+        assert (
+            "direct_method_selection_has_no_graph_metric_projection"
+            in (metric_projection.json()["limitations"])
+        )
+        legacy_admissions = [
+            row
+            for row in reader["app"]
+            .state.runtime_container.runtime_access_audit.scan_read_only()
+            .entries
+            if row.get("event_type") == "runtime.authorization.decision"
+            and row.get("route_path") == "/api/v1/runs/{run_id}/method-metrics"
+            and row.get("outcome") == "allow"
+        ]
+        assert legacy_admissions
+        assert legacy_admissions[-1]["schema_version"] == "polisyos.runtime.authorization_audit.v1"
+        assert "bound_context" not in legacy_admissions[-1]
+        assert "related_target_decisions" not in legacy_admissions[-1]
+        metric_wire = metric_projection.json()
+        metric_privacy_violations = hte_source_privacy_violations(
+            metric_wire,
+            source_payload=source_payload,
+            source_only_sample_id=source_only_sample_id,
+        )
+        assert metric_privacy_violations == (), metric_privacy_violations
+
+        comparison = reader["client"].get(
+            f"/api/v1/runs/{accepted['run_id']}/method-metric-comparison"
+        )
+        assert comparison.status_code == 200, comparison.text
+        assert comparison.json()["run_id"] == accepted["run_id"]
+        _assert_method_metric_context_negatives(
+            reader,
+            monkeypatch,
+            run_id=accepted["run_id"],
+            job_id=accepted["job_id"],
+            unrelated_ref=source_ref,
+        )
+
+
+def _assert_method_metric_context_negatives(
+    reader: dict[str, Any],
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    run_id: str,
+    job_id: str,
+    unrelated_ref: ArtifactRef,
+) -> None:
+    """Exercise the complete registered metric family without enqueueing or executing work."""
+    from fastapi.routing import APIRoute
+
+    from polisyos.runtime.http import dev_identity_middleware, resource_binding
+    from polisyos.runtime.http.authorization import route_action_permission_dependencies
+
+    service = reader["app"].state.runtime_container.control_service
+    assert service is not None
+    # Derive the family from the real installed typed route contracts, not URL spelling.
+    paths = sorted(
+        route.path
+        for route in reader["app"].routes
+        if isinstance(route, APIRoute)
+        and "GET" in route.methods
+        and any(
+            dependency.requirement.resource_binding.resource_kind == "runtime.run.method_metrics"
+            for dependency in route_action_permission_dependencies(route)
+        )
     )
-    assert metric_projection.status_code == 200, metric_projection.text
-    assert metric_projection.json()["status"] == "verification_missing"
-    assert metric_projection.json()["vector_ref"] is None
-    assert metric_projection.json()["observations"] == []
-    assert (
-        "direct_method_selection_has_no_graph_metric_projection"
-        in (metric_projection.json()["limitations"])
-    )
-    metric_wire = metric_projection.json()
-    metric_privacy_violations = hte_source_privacy_violations(
-        metric_wire,
-        source_payload=source_payload,
-        source_only_sample_id=source_only_sample_id,
-    )
-    assert metric_privacy_violations == (), metric_privacy_violations
+    assert paths
+    before = service._control_store.get_job(job_id)
+    assert before is not None and before.state == "completed"
+    calls: list[str] = []
+    producer_calls: list[str] = []
+    actual_context = resource_binding.get_bound_resource_context
+    factory = dev_identity_middleware.build_fixture_identity_claims
+
+    def no_producer(*args: Any, **kwargs: Any) -> Any:
+        producer_calls.append("unexpected producer call")
+        raise AssertionError("a metric GET must not enqueue or execute a producer")
+
+    def observe_owner(name: str, original: Any) -> Any:
+        def observed(*args: Any, **kwargs: Any) -> Any:
+            calls.append(name)
+            return original(*args, **kwargs)
+
+        return observed
+
+    def altered_context(change: str) -> Any:
+        def read_context(*args: Any, **kwargs: Any) -> Any:
+            current = dict(actual_context(*args, **kwargs))
+            if kwargs["expected_kind"] != resource_binding._METHOD_METRIC_RUN_CONTEXT_KIND:
+                return current
+            if change == "same_core_foreign_selection":
+                current["selection_run_id"] = run_id + "-foreign-selection"
+            elif change == "unrelated_selected_ref":
+                current["core_manifest_ref"] = unrelated_ref.model_dump(mode="json")
+            else:
+                # A stale frozen attempt locator, not a claim that a physical retry occurred.
+                current["core_run_id"] += "-stale-attempt"
+            return current
+
+        return read_context
+
+    with monkeypatch.context() as guard:
+        guard.setattr(service, "_enqueue_job", no_producer)
+        guard.setattr(service, "_process_control_job", no_producer)
+        for name in (
+            "read_current_admitted_method_metric_projection",
+            "read_current_completed_ex_ante_candidate_score",
+            "read_current_completed_ex_ante_comparison",
+        ):
+            guard.setattr(service, name, observe_owner(name, getattr(service, name)))
+        for path in paths:
+            url = path.replace("{run_id}", run_id)
+            calls.clear()
+            missing_alias = reader["client"].get(path.replace("{run_id}", run_id + "-missing"))
+            assert missing_alias.status_code == 403, missing_alias.text
+            assert calls == []
+            for field, value in (("tenant_id", reader["tenant_b"]), ("cell_id", "foreign-cell")):
+
+                def wrong_scope(field: str = field, value: str = value) -> Any:
+                    return factory().model_copy(update={field: value})
+
+                with monkeypatch.context() as identity:
+                    identity.setattr(
+                        dev_identity_middleware, "build_fixture_identity_claims", wrong_scope
+                    )
+                    denied = reader["client"].get(url)
+                assert denied.status_code == 403, denied.text
+                assert calls == []
+            for change in (
+                "same_core_foreign_selection",
+                "unrelated_selected_ref",
+                "stale_bound_attempt",
+            ):
+                with monkeypatch.context() as changed:
+                    changed.setattr(
+                        resource_binding, "get_bound_resource_context", altered_context(change)
+                    )
+                    refused = reader["client"].get(url)
+                assert refused.status_code == 409, refused.text
+                assert refused.json()["code"] == "method_metric_run_authorization_changed"
+                assert calls == []
+
+            # The emission checkpoint must also reject a context that becomes
+            # different only after the real metric/comparison owner has returned.
+            def changed_after_read(*args: Any, **kwargs: Any) -> Any:
+                current = dict(actual_context(*args, **kwargs))
+                if (
+                    calls
+                    and kwargs["expected_kind"] == resource_binding._METHOD_METRIC_RUN_CONTEXT_KIND
+                ):
+                    current["selection_run_id"] = run_id + "-changed-during-read"
+                return current
+
+            with monkeypatch.context() as late_change:
+                late_change.setattr(
+                    resource_binding, "get_bound_resource_context", changed_after_read
+                )
+                late = reader["client"].get(url)
+            assert late.status_code == 409, late.text
+            assert late.json()["code"] == "method_metric_run_authorization_changed"
+            assert calls
+            calls.clear()
+            # Remove exactly context equality. The same same-Core foreign-selection
+            # context then reaches the real reader; restoring the check refuses it.
+            with monkeypatch.context() as changed:
+                changed.setattr(
+                    resource_binding,
+                    "get_bound_resource_context",
+                    altered_context("same_core_foreign_selection"),
+                )
+                with monkeypatch.context() as removal:
+                    removal.setattr(
+                        resource_binding,
+                        "_require_method_metric_run_context_unchanged",
+                        lambda *_args: None,
+                    )
+                    escaped = reader["client"].get(url)
+                assert escaped.status_code == 200, escaped.text
+                assert calls
+                calls.clear()
+                restored = reader["client"].get(url)
+                assert restored.status_code == 409, restored.text
+                assert restored.json()["code"] == "method_metric_run_authorization_changed"
+                assert calls == []
+        assert producer_calls == []
+        assert service._control_store.get_job(job_id) == before
 
 
 def test_method_metric_surface_checks_owner_scope_before_selection_lookup(
@@ -4476,7 +4663,7 @@ def _exercise_two_real_completed_ex_ante_sources_and_fresh_planner(
     tenant_id, cell_id = runtime_api_env["tenant_a"], runtime_api_env["cell_a"]
     from polisyos.runtime.http.security import build_fixture_identity_claims
 
-    claims = build_fixture_identity_claims()
+    claims = runtime_api_env.get("comparison_claims", build_fixture_identity_claims())
     principal = RuntimePrincipal.from_user_claims(claims)
     assert principal.authenticated and principal.fixture_identity
     assert (principal.tenant_id, principal.cell_id) == (tenant_id, cell_id)
@@ -4571,10 +4758,11 @@ def _exercise_two_real_completed_ex_ante_sources_and_fresh_planner(
     if runtime_context is None:
         runtime_context = runtime_api_env["app"].state.runtime_container.runtime_api_context
     runtime_context.run_index.refresh(force=True)
-    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
-        fresh = runtime_api_env["client"].get(
-            f"/api/v1/runs/{planner.run_id}/method-metric-comparison"
-        )
+    with (
+        _cold_authorized_comparison_reader(runtime_api_env) as cold,
+        tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id),
+    ):
+        fresh = cold["client"].get(f"/api/v1/runs/{planner.run_id}/method-metric-comparison")
     assert fresh.status_code == 200, fresh.text
     assert fresh.json()["candidate_comparison"]["status"] == "complete"
     assert fresh.json()["candidate_comparison"]["frontier_candidate_hashes"] == [
@@ -4760,6 +4948,9 @@ def _exercise_two_real_completed_ex_ante_sources_and_fresh_planner(
         "source_job_ids": source_job_ids,
         "planner_request": planner_request,
         "planner": planner,
+        "sources": sources,
+        "prepared_sources": prepared_sources,
+        "fresh_comparison": fresh.json()["candidate_comparison"],
     }
 
 
@@ -4792,29 +4983,606 @@ def c48_isolated_runtime_api_env(tmp_path: Path):
         assert source.snapshot_root == selected.snapshot_root
         assert source.database_path == selected.database_path
         assert source.substrate_paths.production_root.is_relative_to(owner_root.resolve())
-        yield env
+        yield {
+            **env,
+            "catalog_code_root": code_root,
+            "catalog_selection": selection,
+            "catalog_source": selected,
+        }
     finally:
         close_runtime_api_env(env)
 
 
+class _ComparisonTargetOPA:
+    """An actual policy decision per bound resource; same scope never implies ALLOW."""
+
+    def __init__(self) -> None:
+        self.inputs: list[Any] = []
+        self.denied: set[str] = set()
+        self.primary_resource_id: str | None = None
+        self.after_primary: Any = None
+        self.unavailable: set[str] = set()
+
+    async def check(self, authz_input: Any) -> Any:
+        from polisyos.core.security.authz import AuthzDecision, AuthzResult
+        from polisyos.runtime.http.permissions import RuntimePermission
+
+        assert authz_input.action_permission is RuntimePermission.RUNS_REVIEW
+        self.inputs.append(authz_input)
+        if authz_input.resource_artifact_id in self.unavailable:
+            return AuthzResult(
+                decision=AuthzDecision.DENY,
+                policy="polisyos/authz/decision",
+                reasons=("OPA_UNREACHABLE",),
+            )
+        result = AuthzResult(
+            decision=(
+                AuthzDecision.DENY
+                if authz_input.resource_artifact_id in self.denied
+                else AuthzDecision.ALLOW
+            ),
+            policy="polisyos/authz/decision",
+            reasons=("TARGET_DENIED",) if authz_input.resource_artifact_id in self.denied else (),
+        )
+        callback = self.after_primary
+        if callback is not None and authz_input.resource_artifact_id == self.primary_resource_id:
+            self.after_primary = None
+            callback()
+        return result
+
+
+@contextmanager
+def _cold_authorized_comparison_reader(seed: dict[str, Any]):
+    """Enter a distinct real reader with the exact registered cell, CAS and Catalog tuple."""
+    from tests.unit.runtime.http.test_runtime_api_authz import _build_secure_client, _fixture_bearer
+
+    client, cell, provider = _build_secure_client(
+        seed,
+        opa_client=seed["comparison_policy"],
+        claims_by_token={},
+        repo_root=seed["catalog_code_root"],
+        catalog_source_selection=seed["catalog_selection"],
+        cell_spec=seed["comparison_cell"],
+    )
+    bearer = _fixture_bearer("comparison-cold-reader")
+    provider.put_claim(bearer, seed["comparison_read_claims"])
+    client.headers.update({"Authorization": "Bearer " + bearer, "X-Tenant-ID": seed["tenant_a"]})
+    with client:
+        from tests._helpers.control_worker import stop_embedded_control_worker
+
+        service = client.app.state.runtime_container.control_service
+        assert service is not None
+        stop_embedded_control_worker(service)
+        assert cell == seed["comparison_cell"]
+        assert service is not seed["app"].state.runtime_container.control_service
+        assert (
+            service._control_store
+            is not seed["app"].state.runtime_container.control_service._control_store
+        )
+        assert (
+            service.catalog_serving_source
+            == seed["app"].state.runtime_container.control_service.catalog_serving_source
+        )
+        assert service._core_runs_root == seed["cas_root"] / "runs"
+        yield {**seed, "app": client.app, "client": client}
+
+
+@pytest.fixture
+def c48_authorized_comparison_runtime_api_env(c48_isolated_runtime_api_env: dict[str, Any]):
+    """Use real action/OPA middleware and a registered cell for all populated comparison reads."""
+    from polisyos.runtime.http.security import build_fixture_identity_claims
+    from tests._helpers.control_worker import stop_embedded_control_worker
+    from tests.unit.runtime.http.test_runtime_api_authz import (
+        _build_secure_client,
+        _claims,
+        _fixture_bearer,
+    )
+
+    seed = c48_isolated_runtime_api_env
+    policy = _ComparisonTargetOPA()
+    client, cell, provider = _build_secure_client(
+        seed,
+        opa_client=policy,
+        claims_by_token={},
+        repo_root=seed["catalog_code_root"],
+        catalog_source_selection=seed["catalog_selection"],
+    )
+    claims = build_fixture_identity_claims().model_copy(update={"cell_id": cell.cell_id})
+    bearer = _fixture_bearer("comparison-producer")
+    read_claims = _claims(tenant_id=seed["tenant_a"], cell_id=cell.cell_id, jti="comparison-reader")
+    provider.put_claim(bearer, read_claims)
+    client.headers.update({"Authorization": "Bearer " + bearer, "X-Tenant-ID": seed["tenant_a"]})
+    with client:
+        service = client.app.state.runtime_container.control_service
+        assert service is not None
+        stop_embedded_control_worker(service)
+        yield {
+            **seed,
+            "app": client.app,
+            "client": client,
+            "cell_a": cell.cell_id,
+            "comparison_claims": claims,
+            "comparison_read_claims": read_claims,
+            "comparison_policy": policy,
+            "comparison_cell": cell,
+        }
+
+
 def test_two_real_completed_ex_ante_sources_produce_fresh_candidate_comparison(
-    c48_isolated_runtime_api_env: dict[str, Any],
+    c48_authorized_comparison_runtime_api_env: dict[str, Any],
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Run only two source workflows and one separate real planner plus fresh GET."""
     _exercise_two_real_completed_ex_ante_sources_and_fresh_planner(
-        c48_isolated_runtime_api_env, tmp_path, monkeypatch
+        c48_authorized_comparison_runtime_api_env, tmp_path, monkeypatch
     )
 
 
+def test_populated_comparison_authorizes_entire_owner_source_set(
+    c48_authorized_comparison_runtime_api_env: dict[str, Any],
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Real A/B/C production; policy for A alone cannot disclose either related source."""
+    from _helpers.completed_ex_ante_runtime import (
+        launch_completed_ex_ante_source,
+        launch_completed_workflow,
+    )
+    from unit.scientist.nodes.builtins.decide.test_policy_runtime_method_metrics import (
+        _exercise_public_execute_method_metric_source,
+    )
+
+    from polisyos.core.contracts.control import WorkflowRunRequest
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.http import access_audit, authz_middleware
+    from polisyos.runtime.http.access_audit import (
+        RuntimeAuthorizationAuditError,
+        RuntimeDataAccessAuditTrail,
+        verify_runtime_authorization_audit,
+    )
+    from polisyos.runtime.http.execution_policy import RuntimePrincipal
+    from tests.unit.runtime.http.test_runtime_api_authz import CellSpec, CellTier
+
+    env = c48_authorized_comparison_runtime_api_env
+    completed = _exercise_two_real_completed_ex_ante_sources_and_fresh_planner(
+        env, tmp_path, monkeypatch
+    )
+    service, policy = completed["service"], env["comparison_policy"]
+    primary, sources = completed["planner"], completed["sources"]
+    url = f"/api/v1/runs/{primary.run_id}/method-metric-comparison"
+    evaluated = [item for item in policy.inputs if item.request_path == url]
+    assert len(evaluated) == 1 + len(sources)
+    assert len({item.resource_artifact_id for item in evaluated}) == len(evaluated)
+    primary_id, target_b = evaluated[0].resource_artifact_id, evaluated[1].resource_artifact_id
+    policy.primary_resource_id = primary_id
+    audit = env["app"].state.runtime_container.runtime_access_audit.scan_read_only()
+    admissions = [
+        row
+        for row in audit.entries
+        if row.get("event_type") == "runtime.authorization.decision"
+        and row.get("resource_id") == primary_id
+        and row.get("outcome") == "allow"
+    ]
+    assert admissions
+    admission = admissions[-1]
+    assert admission["schema_version"] == "polisyos.runtime.authorization_audit.v2"
+    assert [row["resource_id"] for row in admission["related_target_decisions"]] == [
+        item.resource_artifact_id for item in evaluated[1:]
+    ]
+    assert all(
+        row["outcome"] == "allow" and row["permission"] == "runs.review"
+        for row in admission["related_target_decisions"]
+    )
+    admitted_context = json.loads(admission["bound_context"])
+    assert admitted_context["selection_run_id"] == primary.run_id
+    assert admitted_context["comparison_basis"]["request"]["sources"] == [
+        {
+            "source_run_id": row["source_run_id"],
+            "candidate_ref": row["candidate_ref"].model_dump(mode="json"),
+        }
+        for row in sources
+    ]
+    verified = verify_runtime_authorization_audit(
+        admission,
+        expected_request_id=admission["request_id"],
+        expected_selection_run_id=primary.run_id,
+    )
+    assert verified in audit.authorization_decisions
+    assert audit.invalid_authorization_event_count == 0
+
+    # Reopen actual serialized bytes through the real cold trail/parser. These are
+    # test-owned copies; no original audit or CAS artifact is edited.
+    def cold_scan(name: str, payload: dict[str, Any]) -> Any:
+        path = tmp_path / ("audit-v2-" + name + ".jsonl")
+        path.write_text(json.dumps(payload) + "\n", encoding="utf-8")
+        return RuntimeDataAccessAuditTrail(path=path).scan_read_only()
+
+    assert cold_scan("valid", admission).authorization_decisions == (verified,)
+    corruptions: dict[str, dict[str, Any]] = {}
+    for name in (
+        "target-order",
+        "owner-member-order",
+        "target-digest",
+        "target-permission",
+        "denied-target-in-allow",
+        "changed-primary-run",
+        "changed-request",
+    ):
+        payload = json.loads(json.dumps(admission))
+        if name == "target-order":
+            payload["related_target_decisions"].reverse()
+        elif name == "owner-member-order":
+            context = json.loads(payload["bound_context"])
+            context["comparison_basis"]["request"]["sources"].reverse()
+            from polisyos.core import canon
+
+            payload["bound_context"] = canon.to_canonical_bytes(
+                context, canon.CanonSpec(forbid_floats=False)
+            ).decode("utf-8")
+        elif name == "target-digest":
+            payload["related_target_decisions"][0]["resource_digest"] = "sha256:" + "0" * 64
+        elif name == "target-permission":
+            payload["related_target_decisions"][0]["permission"] = "artifacts.batch.read"
+        elif name == "denied-target-in-allow":
+            payload["related_target_decisions"][0]["outcome"] = "deny"
+        elif name == "changed-primary-run":
+            context = json.loads(payload["bound_context"])
+            context["core_run_id"] += "-different"
+            from polisyos.core import canon
+
+            payload["bound_context"] = canon.to_canonical_bytes(
+                context, canon.CanonSpec(forbid_floats=False)
+            ).decode("utf-8")
+        else:
+            payload["request_id"] += "-different"
+        # Except the request checksum control, recompute it: a checksum-only
+        # validator must not pass ordered-target/context/permission corruption.
+        if name != "changed-request":
+            payload["receipt_sha256"] = access_audit._authorization_receipt_sha256(payload)
+        corruptions[name] = payload
+        with pytest.raises(ValueError):
+            verify_runtime_authorization_audit(payload)
+        scan = cold_scan(name, payload)
+        assert scan.invalid_authorization_event_count == 1
+        assert scan.authorization_decisions == ()
+        assert scan.parsed_object_count == 1
+    from polisyos.runtime.http.services.review_effectiveness import ReviewEffectivenessService
+
+    invalid_trail = RuntimeDataAccessAuditTrail(path=tmp_path / "audit-v2-target-permission.jsonl")
+    invalid_report = ReviewEffectivenessService(trail=invalid_trail, human_decisions=None).for_run(
+        tenant_id=env["tenant_a"], run_id=primary.run_id
+    )
+    assert invalid_report.invalid_authorization_event_count == 1
+    assert invalid_report.coverage_status == "incomplete"
+    assert invalid_report.authorization_allow_count == 0
+    # A complete valid receipt for a different independently held tuple is still
+    # a replay, even though it is internally consistent. No history-MAC claim.
+    with pytest.raises(ValueError, match="different request"):
+        verify_runtime_authorization_audit(admission, expected_request_id="other-request")
+    with pytest.raises(ValueError, match="different selected run"):
+        verify_runtime_authorization_audit(admission, expected_selection_run_id="other-run")
+    # Remove only the semantic verifier, keep every field and serializer marker.
+    with monkeypatch.context() as remove_cold_property:
+        remove_cold_property.setattr(
+            access_audit, "_verify_serialized_authorization_context", lambda event: None
+        )
+        counterexample = cold_scan("removed-verifier", corruptions["target-permission"])
+        assert counterexample.invalid_authorization_event_count == 0
+        assert len(counterexample.authorization_decisions) == 1
+    assert (
+        cold_scan(
+            "restored-verifier", corruptions["target-permission"]
+        ).invalid_authorization_event_count
+        == 1
+    )
+
+    expected = completed["fresh_comparison"]
+    assert expected["status"] == "complete"
+    assert [row["source"] for row in expected["observations"]] == [
+        {
+            "source_run_id": row["source_run_id"],
+            "candidate_ref": row["candidate_ref"].model_dump(mode="json"),
+        }
+        for row in sources
+    ]
+
+    def make_source(name: str, claims: Any) -> dict[str, Any]:
+        with tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id):
+            prepared = _exercise_public_execute_method_metric_source(
+                tmp_path / name,
+                monkeypatch,
+                artifact_store=service._artifact_store,
+                scenario_values=(13.0, 21.0, 45.0),
+                prepare_only=True,
+            )
+        actual = launch_completed_ex_ante_source(
+            service, prepared, RuntimePrincipal.from_user_claims(claims)
+        )
+        return {
+            "source_run_id": actual["launch"].run_id,
+            "candidate_ref": prepared["candidate_ref"],
+        }
+
+    def make_planner(rows: list[dict[str, Any]]) -> Any:
+        template = completed["planner_request"]
+        params = {
+            **template.params,
+            "policy_search_completed_ex_ante_comparison": {
+                "sources": [
+                    {
+                        "source_run_id": row["source_run_id"],
+                        "candidate_ref": row["candidate_ref"].model_dump(mode="json"),
+                    }
+                    for row in rows
+                ]
+            },
+        }
+        request = WorkflowRunRequest.model_validate({**template.model_dump(), "params": params})
+        return launch_completed_workflow(service, request, completed["principal"])[0]
+
+    # Every alternative basis below is produced by actual Runtime workflows and immutable CAS state.
+    extra = make_source("extra-related-source", env["comparison_claims"])
+    added = make_planner([*sources, extra])
+    replaced = make_planner([sources[0], extra])
+    alternative_bases = [
+        service._read_current_completed_ex_ante_comparison_basis(
+            run_id=run.run_id, tenant_id=env["tenant_a"], cell_id=env["cell_a"]
+        )
+        for run in (added, replaced)
+    ]
+    foreign_claims = [
+        env["comparison_claims"].model_copy(update={"tenant_id": env["tenant_b"]}),
+        env["comparison_claims"].model_copy(
+            update={"cell_id": CellSpec(tier=CellTier.SHARED, region="us-gov-west-1").cell_id}
+        ),
+    ]
+    foreign = [
+        make_source(f"foreign-source-{index}", claims)
+        for index, claims in enumerate(foreign_claims)
+    ]
+    foreign_planners = [make_planner([row, sources[1]]) for row in foreign]
+    policy.inputs.clear()
+    with _cold_authorized_comparison_reader(env) as reader:
+        cold_service = reader["app"].state.runtime_container.control_service
+        assert cold_service is not None
+        primary_record = cold_service._control_store.get_job(primary.job_id)
+        primary_manifest = (
+            reader["app"]
+            .state.runtime_api_ctx.run_index.get_run(primary.run_id)
+            .details.manifest_ref
+        )
+        owner_reads: list[str] = []
+        producer_calls: list[str] = []
+        original_read = cold_service.read_current_completed_ex_ante_comparison
+
+        def observe_read(**kwargs: Any) -> Any:
+            owner_reads.append(kwargs["run_id"])
+            return original_read(**kwargs)
+
+        def no_producer(*args: Any, **kwargs: Any) -> Any:
+            producer_calls.append("unexpected producer")
+            raise AssertionError("comparison GET must not produce work")
+
+        def assert_no_projection(response: Any, source_rows: list[dict[str, Any]]) -> None:
+            assert response.status_code in {403, 409, 503}, response.text
+            assert "candidate_comparison" not in response.json()
+            for row in source_rows:
+                assert row["source_run_id"] not in response.text
+                assert str(row["candidate_ref"].artifact_id) not in response.text
+            assert "observations" not in response.json()
+            assert owner_reads == []
+
+        trail = reader["app"].state.runtime_container.runtime_access_audit
+
+        def assert_terminal_deny(
+            request_id: str, reason: str, expected_outcomes: tuple[str, ...]
+        ) -> None:
+            cold = trail.scan_read_only()
+            assert cold.invalid_authorization_event_count == 0
+            events = [
+                event for event in cold.authorization_decisions if event.request_id == request_id
+            ]
+            assert len(events) == 1
+            event = events[0]
+            assert event.outcome.value == "deny"
+            assert event.denial_reason == reason
+            assert event.resource_id == primary_id
+            assert event.bound_context == admission["bound_context"]
+            assert (
+                tuple(row.outcome.value for row in event.related_target_decisions)
+                == expected_outcomes
+            )
+            assert tuple(row.resource_id for row in event.related_target_decisions) == tuple(
+                row["resource_id"]
+                for row in admission["related_target_decisions"][: len(expected_outcomes)]
+            )
+            verify_runtime_authorization_audit(
+                event.model_dump(mode="json"),
+                expected_request_id=request_id,
+                expected_selection_run_id=primary.run_id,
+            )
+
+        with monkeypatch.context() as guard:
+            guard.setattr(cold_service, "read_current_completed_ex_ante_comparison", observe_read)
+            guard.setattr(cold_service, "_enqueue_job", no_producer)
+            guard.setattr(cold_service, "_process_control_job", no_producer)
+            policy.denied = {target_b}
+            denied = reader["client"].get(url, headers={"X-Request-ID": "r5-target-policy-denied"})
+            assert denied.status_code == 403, denied.text
+            assert denied.json()["code"] == "related_run_authorization_denied"
+            assert_no_projection(denied, sources)
+            assert_terminal_deny(
+                "r5-target-policy-denied", "related_run_authorization_denied", ("deny",)
+            )
+            assert policy.inputs[0].resource_artifact_id == primary_id
+            assert policy.inputs[1].resource_artifact_id == target_b
+
+            # Keep ALL contexts/target markers and the real owner intact. Removing
+            # only the secondary ALLOW requirement must expose the exact deny-B counterexample.
+            def remove_target_policy(*args: Any, **kwargs: Any) -> None:
+                return None
+
+            with monkeypatch.context() as removal:
+                removal.setattr(
+                    authz_middleware, "_require_policy_target_allow", remove_target_policy
+                )
+                leaked = reader["client"].get(url)
+            assert leaked.status_code == 200, leaked.text
+            assert leaked.json()["candidate_comparison"] == expected
+            assert owner_reads == [primary.run_id]
+            owner_reads.clear()
+            restored = reader["client"].get(url)
+            assert restored.status_code == 403, restored.text
+            assert_no_projection(restored, sources)
+            policy.denied.clear()
+            for foreign_run, foreign_source in zip(foreign_planners, foreign, strict=True):
+                refused = reader["client"].get(
+                    f"/api/v1/runs/{foreign_run.run_id}/method-metric-comparison"
+                )
+                assert refused.status_code == 403, refused.text
+                assert_no_projection(refused, [foreign_source, sources[1]])
+            original_basis = cold_service._read_current_completed_ex_ante_comparison_basis
+            for alternative_index, alternate in enumerate(alternative_bases):
+                for deny_b in (False, True):
+                    changed = []
+
+                    def read_basis(
+                        *, changed: list[bool] = changed, alternate: Any = alternate, **kwargs: Any
+                    ) -> Any:
+                        if changed and kwargs["run_id"] == primary.run_id:
+                            return alternate
+                        return original_basis(**kwargs)
+
+                    request_id = f"r5-changed-{alternative_index}-{int(deny_b)}"
+                    policy.denied = {target_b} if deny_b else set()
+                    with monkeypatch.context() as crossed_owner_read:
+                        crossed_owner_read.setattr(
+                            cold_service,
+                            "_read_current_completed_ex_ante_comparison_basis",
+                            read_basis,
+                        )
+                        policy.after_primary = lambda changed=changed: changed.append(True)
+                        refused = reader["client"].get(url, headers={"X-Request-ID": request_id})
+                    assert refused.status_code == 409, refused.text
+                    assert refused.json()["code"] == "comparison_target_set_changed"
+                    assert_no_projection(refused, [*sources, extra])
+                    assert_terminal_deny(
+                        request_id,
+                        "comparison_target_set_changed",
+                        ("deny" if deny_b else "allow",),
+                    )
+                    assert cold_service._control_store.get_job(primary.job_id) == primary_record
+                    assert (
+                        reader["app"]
+                        .state.runtime_api_ctx.run_index.get_run(primary.run_id)
+                        .details.manifest_ref
+                        == primary_manifest
+                    )
+            policy.denied.clear()
+            # This ordinary secure fixture has no deployment factory installed.
+            # Introduce an unregistered deployment alias only AFTER the real primary
+            # policy result. The actual guard then throws before target OPA's try;
+            # no exception is injected and no fake factory is registered.
+            from polisyos.runtime.http.deployment_security_attestation import (
+                DeploymentSecurityAttestationError,
+                require_attested_deployment_component,
+            )
+
+            prior_inputs = len(policy.inputs)
+            attestation_observed: list[bool] = []
+            with monkeypatch.context() as changed_deployment:
+
+                def introduce_unregistered_deployment_alias() -> None:
+                    changed_deployment.setattr(
+                        reader["app"].state, "runtime_deployment_security", object()
+                    )
+                    with pytest.raises(DeploymentSecurityAttestationError):
+                        require_attested_deployment_component(
+                            reader["app"], component_name="opa_client", candidate=policy
+                        )
+                    attestation_observed.append(True)
+
+                policy.after_primary = introduce_unregistered_deployment_alias
+                refused = reader["client"].get(
+                    url, headers={"X-Request-ID": "r6-deployment-changed-after-primary"}
+                )
+            assert attestation_observed == [True]
+            assert refused.status_code == 503, refused.text
+            assert refused.json()["code"] == "related_run_admission_unavailable"
+            assert_no_projection(refused, sources)
+            assert [item.resource_artifact_id for item in policy.inputs[prior_inputs:]] == [
+                primary_id
+            ]
+            assert_terminal_deny(
+                "r6-deployment-changed-after-primary", "related_run_admission_unavailable", ()
+            )
+
+            policy.unavailable = {target_b}
+            unavailable = reader["client"].get(
+                url, headers={"X-Request-ID": "r5-target-dependency"}
+            )
+            policy.unavailable.clear()
+            assert unavailable.status_code == 503, unavailable.text
+            assert_no_projection(unavailable, sources)
+            assert_terminal_deny(
+                "r5-target-dependency", "related_run_policy_dependency_unavailable", ()
+            )
+
+            attempts: list[Any] = []
+
+            def no_audit(*args: Any, **kwargs: Any) -> None:
+                attempts.append(args)
+                raise RuntimeAuthorizationAuditError("test-owned audit unavailable")
+
+            policy.denied = {target_b}
+            with monkeypatch.context() as unavailable_audit:
+                unavailable_audit.setattr(trail, "_append_authorization_decision", no_audit)
+                refused = reader["client"].get(
+                    url, headers={"X-Request-ID": "r5-audit-unavailable"}
+                )
+            assert refused.status_code == 503, refused.text
+            assert refused.json()["code"] == "authorization_audit_unavailable"
+            assert_no_projection(refused, sources)
+            assert len(attempts) == 1
+            assert not any(
+                event.request_id == "r5-audit-unavailable"
+                for event in trail.scan_read_only().authorization_decisions
+            )
+            policy.denied.clear()
+
+            # Real test-owned lifecycle staleness in B after policy for A, while A is unchanged.
+            def stale_b() -> None:
+                service._control_store.mark_running(
+                    job_id=completed["source_job_ids"][0],
+                    worker_id="comparison-target-stale",
+                    lease_seconds=120,
+                )
+
+            policy.after_primary = stale_b
+            refused = reader["client"].get(url, headers={"X-Request-ID": "r5-unresolved-source"})
+            assert refused.status_code == 403, refused.text
+            assert_no_projection(refused, sources)
+            assert_terminal_deny(
+                "r5-unresolved-source", "comparison_target_basis_unresolved", ("allow",)
+            )
+            assert cold_service._control_store.get_job(primary.job_id) == primary_record
+            assert (
+                reader["app"]
+                .state.runtime_api_ctx.run_index.get_run(primary.run_id)
+                .details.manifest_ref
+                == primary_manifest
+            )
+            assert producer_calls == []
+
+
 def test_two_real_completed_ex_ante_sources_are_reselected_by_fresh_planner(
-    c48_isolated_runtime_api_env: dict[str, Any],
+    c48_authorized_comparison_runtime_api_env: dict[str, Any],
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Retain the original post-search and later fresh-GET revocation witness."""
-    runtime_api_env = c48_isolated_runtime_api_env
+    runtime_api_env = c48_authorized_comparison_runtime_api_env
     from _helpers.control_worker import dispatch_one_control_job
 
     from polisyos.core.artifacts import validate_core_model_json_artifact
@@ -4875,9 +5643,12 @@ def test_two_real_completed_ex_ante_sources_are_reselected_by_fresh_planner(
         )
     assert second_comparison["status"] == "verification_missing"
     assert second_comparison["frontier_candidate_hashes"] == []
-    assert revoked.status_code == 200, revoked.text
-    assert revoked.json()["candidate_comparison"]["status"] == "verification_missing"
-    assert revoked.json()["candidate_comparison"]["frontier_candidate_hashes"] == []
+    assert revoked.status_code == 403, revoked.text
+    assert revoked.json()["code"] == "comparison_target_basis_unresolved"
+    assert "candidate_comparison" not in revoked.json()
+    for source in completed["sources"]:
+        assert source["source_run_id"] not in revoked.text
+        assert str(source["candidate_ref"].artifact_id) not in revoked.text
 
 
 _R4_JOB_SNAPSHOT_ROW_CAP = 1024

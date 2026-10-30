@@ -1177,9 +1177,12 @@ def _build_secure_client(
     container_overrides=None,
     repo_root: Path | None = None,
     catalog_source_selection: CatalogServingSourceSelection | None = None,
+    cell_spec: CellSpec | None = None,
 ):
     registry = CellRegistry()
-    cell = CellSpec(tier=CellTier.SHARED, region="us-gov-west-1", max_tenants=50)
+    if cell_spec is not None and type(cell_spec) is not CellSpec:
+        raise TypeError("test cell must be an actual CellSpec")
+    cell = cell_spec or CellSpec(tier=CellTier.SHARED, region="us-gov-west-1", max_tenants=50)
     registry.register_cell(cell)
 
     for tenant_id in (runtime_api_env["tenant_a"], runtime_api_env["tenant_b"]):

@@ -88,7 +88,7 @@ class ReviewEffectivenessService:
 
         scan = self._trail.scan_read_only()
         authorization_events, invalid_authorization_event_count = _authorization_events(
-            scan.entries,
+            tuple(event.model_dump(mode="json") for event in scan.authorization_decisions),
             tenant_id=tenant_id,
             run_id=run_id,
         )
@@ -152,6 +152,7 @@ class ReviewEffectivenessService:
             and scan.malformed_json_line_count == 0
             and scan.nonobject_line_count == 0
             and invalid_authorization_event_count == 0
+            and scan.invalid_authorization_event_count == 0
             and invalid_record_event_count == 0
             and tenant_scope_unknown_record_event_count == 0
             and retained_or_missing_record_count == 0
@@ -209,7 +210,9 @@ class ReviewEffectivenessService:
             candidate_human_decision_count=candidate_count,
             completed_human_decision_count=completed_count,
             exact_join_count=exact_join_count,
-            invalid_authorization_event_count=invalid_authorization_event_count,
+            invalid_authorization_event_count=(
+                invalid_authorization_event_count + scan.invalid_authorization_event_count
+            ),
             invalid_record_event_count=invalid_record_event_count,
             tenant_scope_unknown_record_event_count=(tenant_scope_unknown_record_event_count),
             unmatched_authorization_count=unmatched_authorization_count,

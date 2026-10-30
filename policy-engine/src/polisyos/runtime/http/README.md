@@ -413,3 +413,76 @@ source cause at predictive-calibration admission. A ValueOwner source refusal
 is carried by its typed error field rather than inferred from a code prefix.
 No HTTP request or persisted response DTO changes; the existing error surface
 continues to refuse rather than fabricate an empty/available source.
+
+
+Selected method metric reads preserve two run identities. The requested control-run ID
+remains the completed selection key; the existing scoped lifecycle resolver supplies its
+actual Core attempt for authorization and run ownership. Both method-metrics and
+method-metric-comparison bind the requested selection key, canonical Core run, control
+job, selected Core manifest, tenant and cell into the existing immutable authorization
+context. The consumer rederives that complete context before owner lookup and again
+before emission. A changed alias, attempt, manifest or scope refuses the read; a URL ID
+is never rewritten into a different selection key. A valid direct-method selection still
+returns verification_missing with no graph metric vector. These checks add no source
+currentness, scientific, institutional or publication authority.
+
+
+A populated method-metric comparison additionally requires an independent runs.review
+policy decision for EVERY source selected by its actual immutable terminal-state basis.
+Same tenant and cell establish scope, not permission. The existing authorization binding
+freezes the complete basis, ordered member set and each source's requested/Core/job/ref/
+vector/scope context, and the canonical OPA middleware checks each exact bound source.
+The complete set is rederived after policy, at consumer entry and before selected audit
+or response emission. A denied source fails the whole comparison; rows are never silently
+omitted as a complete ranking. A missing policy service cannot admit populated sources.
+Empty comparisons on verified direct selections still carry no related-source authority.
+The response must match every owner-basis member. These are checkpoint reconciliations,
+not an atomic exclusion of outside writers or a promise that external policy never changes.
+
+
+The authorization trail still writes one terminal decision per request. Populated
+comparison admission uses authorization_audit.v2: the frozen complete owner context
+and a bounded typed tuple of actual target-policy decisions accompany the primary
+resource digest. Ordinary admissions keep the v1 serialized shape. A request cannot
+emit an ALLOW audit with a missing, foreign or denied required target decision.
+This audit admission is not a handler-success or external-currentness assertion.
+The distinct artifact-content/download policy plane is not changed by this repair;
+a generic signed-derived-artifact inheritance rule remains an explicit architectural
+boundary, rather than an implicit new runs.review grant or denial.
+
+
+Every related-target admission failure, including changed or unresolved owner sets,
+seals one terminal DENY against the original frozen binding and the complete prefix
+of usable policy results actually obtained before failure. The newest result is
+recorded before re-resolution. A target policy dependency failure cannot silently
+clear that basis; an unavailable audit append withholds admission with 503.
+Ordinary unrelated denial policy is preserved.
+
+The same strict v2 event parser now runs on the actual read-only access-trail scan.
+It parses the complete comparison context, derives its ordered source set from the
+typed immutable request, recomputes primary and source digests with the live binding
+owner, and reconciles every recorded permission and outcome. A receipt checksum
+binds the request identity and the serialized context/decision tuple. The cold API
+can additionally match a separately held request ID and selected run ID. Invalid
+receipts remain counted and make review-effectiveness coverage incomplete; a
+runs.review event cannot become human-decision review success. Historical v1 wire
+fields and typed reads remain compatible.
+
+This is content consistency and exact tuple reconciliation, not authenticated audit
+history: the existing local trail has no MAC or signature that prevents an actor
+with file-write access from replacing all bytes and recomputing checksums. Cold
+parsing also does not reauthorize historical decisions or establish live CAS/source
+availability. The distinct generic artifact permission boundary remains unchanged.
+
+
+Related policy evaluation and the later sealed dependency phase share one generic
+process-live admission boundary. Returned typed failures and any ordinary Exception
+escaping the complete operation or its cleanup reach the same single sealed DENY
+terminalizer. This includes deployment-component re-attestation before an OPA call;
+no exception-name allowlist defines coverage. The terminalizer preserves the original
+binding and only policy results actually obtained, and audit failure refuses with
+503 after one append attempt. Cancellation and other BaseException exits, interpreter
+termination, process failure and audit crash durability remain outside this property.
+The defining test changes an ordinary secure app's deployment-security alias after
+primary policy, exercising the unmodified guard's real unregistered-installation
+refusal. It does not claim coverage of every genuine factory configuration.

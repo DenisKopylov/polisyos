@@ -83,6 +83,7 @@ from polisyos.fabric.evidence.decision_data import (
 )
 from polisyos.runtime.http.authorization import (
     OptionalActionPermissionResult,
+    RelatedRunBindingSource,
     ResourceBindingSource,
     ResourceBindingSpec,
     principal_from_access_scope,
@@ -112,6 +113,8 @@ from polisyos.runtime.http.errors import (
 )
 from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.resource_binding import (
+    _require_bound_comparison_members,
+    _resolve_bound_method_metric_indexed_run,
     _resolve_method_execution_indexed_run,
     production_approval_inputs_from_bound_request,
 )
@@ -256,6 +259,16 @@ _GET_RUN_METHOD_METRICS_AUTHZ = require_action_permission(
         resource_kind="runtime.run.method_metrics",
         path_parameter="run_id",
         allow_empty_body=True,
+    ),
+)
+_GET_RUN_METHOD_COMPARISON_AUTHZ = require_action_permission(
+    RuntimePermission.RUNS_REVIEW,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.OWNED_EXISTING_PATH,
+        resource_kind="runtime.run.method_metrics",
+        path_parameter="run_id",
+        allow_empty_body=True,
+        related_run_source=RelatedRunBindingSource.COMPLETED_EX_ANTE_COMPARISON,
     ),
 )
 _GET_RUN_CANDIDATE_PACKET_AUTHZ = require_action_permission(
@@ -5507,9 +5520,9 @@ if router is not None:
         ctx: Annotated[RuntimeApiContext, Depends(get_runtime_api_context)],
     ) -> MethodMetricProjectionResponse:
         """Return only the bounded current AD01 metric projection for an owned run."""
-        run = ctx.run_index.get_run(run_id)
-        enforce_run_tenant_access(request, ctx=ctx, run=run)
         scope = require_access_scope(request)
+        run = _resolve_bound_method_metric_indexed_run(ctx, request, scope, run_id)
+        enforce_run_tenant_access(request, ctx=ctx, run=run)
         if (
             not run.details.tenant_id
             or scope.tenant_id != run.details.tenant_id
@@ -5615,6 +5628,7 @@ if router is not None:
                     status="verification_missing",
                     limitations=("candidate_score_selection_changed_during_read",),
                 )
+        _resolve_bound_method_metric_indexed_run(ctx, request, scope, run_id)
         record_data_access_audit(
             request,
             resource_id=run_id,
@@ -5640,7 +5654,7 @@ if router is not None:
         "/{run_id}/method-metric-comparison",
         response_model=CompletedExAnteCandidateComparisonResponse,
         operation_id="get_run_method_metric_comparison",
-        dependencies=[Depends(_GET_RUN_METHOD_METRICS_AUTHZ)],
+        dependencies=[Depends(_GET_RUN_METHOD_COMPARISON_AUTHZ)],
     )
     def get_run_method_metric_comparison(
         run_id: str,
@@ -5648,9 +5662,9 @@ if router is not None:
         ctx: Annotated[RuntimeApiContext, Depends(get_runtime_api_context)],
     ) -> CompletedExAnteCandidateComparisonResponse:
         """Recompute a completed run's candidate-only comparison under current scope."""
-        run = ctx.run_index.get_run(run_id)
-        enforce_run_tenant_access(request, ctx=ctx, run=run)
         scope = require_access_scope(request)
+        run = _resolve_bound_method_metric_indexed_run(ctx, request, scope, run_id)
+        enforce_run_tenant_access(request, ctx=ctx, run=run)
         if (
             not run.details.tenant_id
             or scope.tenant_id != run.details.tenant_id
@@ -5691,6 +5705,8 @@ if router is not None:
                 status="verification_missing",
                 limitations=("current_candidate_comparison_owner_unavailable",),
             )
+        _resolve_bound_method_metric_indexed_run(ctx, request, scope, run_id)
+        _require_bound_comparison_members(request, comparison)
         record_data_access_audit(
             request,
             resource_id=run_id,

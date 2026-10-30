@@ -1,0 +1,16 @@
+id = "2026-10-30-method-metric-run-context"
+title = "Bind selected-method reads to their complete authorized source set"
+type = "fixed"
+component = "runtime-http"
+owner = "team-runtime"
+summary = "Reuse the scoped lifecycle alias resolver across metric and comparison reads, preserving the requested selection key and binding the actual Core attempt into the existing immutable authorization context. Independently authorize every populated comparison source through the canonical policy owner and reconcile the whole owner-derived set before reads and emission."
+evidence = ["src/polisyos/runtime/http/resource_binding.py", "src/polisyos/runtime/http/routes/runs.py", "tests/unit/runtime/http/test_observational_method_runtime.py", "tests/unit/runtime/http/test_method_candidate_evidence_roundtrip.py", "src/polisyos/runtime/http/authz_middleware.py", "src/polisyos/runtime/http/authorization.py", "src/polisyos/runtime/http/access_audit.py", "src/polisyos/runtime/http/security.py", "src/polisyos/runtime/http/services/control/run_lifecycle.py", "src/polisyos/runtime/http/services/review_effectiveness.py", "tests/unit/runtime/http/test_review_effectiveness_projection.py"]
+compatibility = "No endpoint, response schema, role grant or selection-key rewrite. Typed resource binding adds an explicit related-source basis selector. Related-source admissions use authorization-audit v2 with the complete context and per-target decisions; serialization of historical v1 events is preserved. Existing Core IDs retain their meaning; valid current scoped direct-method control aliases can reach the existing limited metric projection. Populated comparisons require an available policy decision for every source, and any denied or unestablished target refuses the whole comparison. Changed or unestablished ownership fails closed. Every ordinary process-live related-target admission or sealed-dependency failure crosses one common generic boundary and seals one terminal DENY with the actual evaluated prefix; audit-unavailable admission refuses. The cold audit owner verifies typed ordered context/member/digest/permission/outcome bindings and request checksum, preserving historical v1 fields. No authenticated-history or MAC claim. Cancellation/BaseException, process failure and crash durability are outside the admission-boundary property."
+change_class = "schema-openapi-abi"
+surface_classification = "Existing HTTP surfaces, typed binding extension and versioned audit v2; no HTTP response field change. Audit/public/generated owner checks remain unrun."
+migration = "Review the source proposal and generated-surface implications, then execute both real public-worker protocols with cold-reader, context negatives and removal controls."
+limitations = "Runtime is unrun in the RAW proposal. The tests do not establish a physical retry transition, external source currentness, scientific validity, institutional authority, cancellation or E02 closure."
+generated_client_compatibility = "Expected additive OpenAPI binding metadata only; canonical client and dashboard drift checks remain unrun and must be regenerated or reviewed by Root."
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/http/README.md"]
+runbook_docs = []

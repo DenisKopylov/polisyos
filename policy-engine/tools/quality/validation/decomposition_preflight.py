@@ -21,6 +21,7 @@ import time
 import tomllib
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass, replace
+from dataclasses import fields as dataclass_fields
 from datetime import UTC, date, datetime
 from pathlib import Path
 from statistics import median
@@ -630,6 +631,19 @@ _DYNAMIC_COMPREHENSION_VALUE_LIMIT = 1024
 
 
 @dataclass(frozen=True, slots=True)
+class _DynamicSourceCodeOrigin:
+    """Selected immutable code identity, separate from a mutable function object."""
+
+    identity: str
+    context_identity: str
+    content_sha256: str
+    source_module: str
+    relative_path: str
+    node: ast.FunctionDef
+    free_variables: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True, slots=True)
 class _DynamicImportBinding:
     """A bounded source-level binding fact for the dynamic-import collector."""
 
@@ -637,6 +651,10 @@ class _DynamicImportBinding:
         "module",
         "callable",
         "source_function",
+        "source_method",
+        "source_code",
+        "reconstructed_function",
+        "source_closure",
         "unknown",
         "other",
         "ambiguous",
@@ -680,6 +698,66 @@ class _DynamicImportBinding:
     module_registry_origins: tuple[str, ...] = ()
     module_registry_names: tuple[str, ...] | None = ()
     module_registry_complete: bool = True
+    code_origin: _DynamicSourceCodeOrigin | None = None
+    globals_owner: str | None = None
+    function_builtins: _DynamicImportBinding | None = None
+    closure_names: tuple[str, ...] = ()
+    source_execution_origins: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        self._normalize_negative_execution()
+
+    def _normalize_negative_execution(self) -> None:
+        """Make executable uncertainty visible to every existing guarded transfer.
+
+        This is negative capability only. Exact code admission still belongs to the
+        selected-source constructor/invocation checks. A guarded unknown has no
+        trustworthy body identity, including when a legacy fallback discarded it.
+        """
+        executable_kinds = {
+            "source_method",
+            "source_code",
+            "reconstructed_function",
+            "source_closure",
+        }
+        origins = set(self.source_execution_origins)
+        if self.kind in executable_kinds:
+            origin = self.code_origin
+            origins.add(
+                f"{origin.context_identity}:{origin.identity}" if origin is not None else self.kind
+            )
+        # Derive the entire carrier set from the dataclass, not a second hand-maintained
+        # list of binding fields. All normal construction and replace() pass here.
+        pending = [getattr(self, field.name) for field in dataclass_fields(self)]
+        seen: set[int] = {id(self)}
+        while pending:
+            value = pending.pop()
+            if isinstance(value, _DynamicImportBinding):
+                if id(value) in seen:
+                    continue
+                seen.add(id(value))
+                origins.update(value.source_execution_origins)
+                if value.kind in executable_kinds:
+                    origin = value.code_origin
+                    origins.add(
+                        f"{origin.context_identity}:{origin.identity}"
+                        if origin is not None
+                        else value.kind
+                    )
+                pending.extend(getattr(value, field.name) for field in dataclass_fields(value))
+            elif isinstance(value, (tuple, list)):
+                pending.extend(value)
+            elif isinstance(value, dict):
+                pending.extend(value.keys())
+                pending.extend(value.values())
+        if origins:
+            object.__setattr__(self, "guarded", True)
+        if self.guarded and self.kind in {"unknown", "ambiguous"}:
+            # Existing guarded fallbacks deliberately erase exact identity. Preserve
+            # their negative meaning, without inventing an importer/body authority.
+            origins.add("guarded_unknown")
+        if origins:
+            object.__setattr__(self, "source_execution_origins", tuple(sorted(origins)))
 
 
 @dataclass(frozen=True, slots=True)
@@ -896,6 +974,21 @@ def _dynamic_join_with_guarded_origin(
     """Keep distinct importer, namespace, candidate, and temporal provenance."""
     if trusted_result:
         return result
+    execution_origins = {
+        origin
+        for binding in bindings
+        for current in _dynamic_binding_nodes(binding)
+        for origin in current.source_execution_origins
+    }
+    execution_origins.update(
+        f"{current.code_origin.context_identity}:{current.code_origin.identity}"
+        if current.code_origin is not None
+        else current.kind
+        for binding in bindings
+        for current in _dynamic_binding_nodes(binding)
+        if current.kind
+        in {"source_method", "source_code", "reconstructed_function", "source_closure"}
+    )
     importer_origins = {
         origin for binding in bindings for origin in _dynamic_importer_origins(binding)
     }
@@ -921,6 +1014,13 @@ def _dynamic_join_with_guarded_origin(
             module_registry_names.update(binding.module_registry_names or ())
 
     def retain_provenance(value: _DynamicImportBinding) -> _DynamicImportBinding:
+        if execution_origins:
+            value = replace(
+                value,
+                source_execution_origins=tuple(
+                    sorted(set(value.source_execution_origins) | execution_origins)
+                ),
+            )
         registry_origins = set(value.module_registry_origins) | module_registry_origins
         registry_names = set(value.module_registry_names or ()) | module_registry_names
         registry_selection = (
@@ -1055,6 +1155,10 @@ def _dynamic_binding_for_import(module: str, name: str | None = None) -> _Dynami
         return _dynamic_builtin_binding(name)
     if module == "sys" and name == "modules":
         return _dynamic_sys_modules_binding()
+    if module == "types" and name == "FunctionType":
+        return _DynamicImportBinding(
+            "callable", "types.FunctionType", temporal_callable_origins=("types.FunctionType",)
+        )
     if module == "types" and name == "MappingProxyType":
         return _DynamicImportBinding("callable", "types.MappingProxyType")
     if module == "types" and name is None:
@@ -1168,10 +1272,28 @@ def _is_guarded_importer_binding(binding: _DynamicImportBinding) -> bool:
     )
 
 
+def _dynamic_has_source_execution(binding: _DynamicImportBinding) -> bool:
+    """Keep executable source values fail-closed at unsupported escape boundaries."""
+    return any(
+        item.source_execution_origins
+        or item.kind in {"source_method", "source_code", "reconstructed_function", "source_closure"}
+        for item in _dynamic_binding_nodes(binding)
+    )
+
+
 def _is_unresolved_importer_binding(binding: _DynamicImportBinding) -> bool:
     """Return whether an unknown value may be an importer or a guarded temporal callable."""
-    return binding.kind in {"ambiguous", "unknown", "union"} and _is_guarded_importer_binding(
-        binding
+    if (
+        binding.kind == "union"
+        and binding.items
+        and all(
+            item.kind in {"source_function", "reconstructed_function", "source_closure"}
+            for item in binding.items
+        )
+    ):
+        return False
+    return binding.kind in {"ambiguous", "unknown", "union"} and (
+        _is_guarded_importer_binding(binding) or _dynamic_has_source_execution(binding)
     )
 
 
@@ -1444,6 +1566,14 @@ def _dynamic_attribute_binding(
     binding: _DynamicImportBinding,
     attribute: str,
 ) -> _DynamicImportBinding:
+    if binding.kind in {
+        "source_function",
+        "source_method",
+        "source_code",
+        "reconstructed_function",
+        "source_closure",
+    }:
+        return _dynamic_unresolved_importer_binding(("source-executable-introspection",))
     if attribute == "__dict__" and binding.module_registry_origins:
         return _DynamicImportBinding(
             "namespace",
@@ -1627,6 +1757,16 @@ def _join_dynamic_bindings(
                         )
                         result = _dynamic_mapping_binding(items, values)
                         return _dynamic_join_with_guarded_origin(source_bindings, result)
+    if all(
+        (binding.kind == "source_function" and binding.origin_name is not None)
+        or (
+            binding.kind
+            in {"source_method", "source_code", "reconstructed_function", "source_closure"}
+            and binding.code_origin is not None
+        )
+        for binding in bindings
+    ):
+        return _dynamic_join_with_guarded_origin(source_bindings, _dynamic_union_binding(bindings))
     guarded_names = {
         binding.name
         for binding in bindings
@@ -1899,7 +2039,7 @@ def _dynamic_binding_is_same_module_namespace_refinement(
 
 def _dynamic_binding_is_proven_nonimporter(binding: _DynamicImportBinding) -> bool:
     """Prove a bounded builtin value cannot carry a dynamic importer."""
-    if binding.guarded or binding.kind == "ambiguous":
+    if binding.guarded or binding.kind == "ambiguous" or _dynamic_has_source_execution(binding):
         return False
     if binding.kind in {
         "string",
@@ -5577,6 +5717,7 @@ class _DynamicImportSourceBindings:
             and _dynamic_is_importer_namespace_name(binding.name)
         ):
             importer_origins.add(binding.name)
+        importer_origins.update(_dynamic_temporal_callable_origins(binding))
         if not importer_origins:
             return binding
         return _dynamic_unresolved_importer_binding(
@@ -6759,6 +6900,10 @@ class _DynamicImportSourceScanner:
         self._module_possible_rebindings: set[str] = set()
         self._active_function_returns: list[list[_DynamicImportBinding]] = []
         self._module_function_summaries: dict[str, _DynamicImportFunctionSummary] = {}
+        self._invalidated_function_code: set[str] = set()
+        self._source_code_depth = 0
+        self._source_code_opaque_effect = False
+        self._active_code_builtins: _DynamicImportBinding | None = None
         self._module_time_proven_scope_ids: set[int] = set()
         self._active_module_function_stack: list[str] = []
         self._active_module_function_invocation_states: list[
@@ -6995,7 +7140,8 @@ class _DynamicImportSourceScanner:
     def _reject_guarded_escape(
         self, binding: _DynamicImportBinding, node: ast.AST, boundary: str
     ) -> None:
-        if _is_guarded_importer_binding(binding):
+        self._invalidate_source_function_code((binding,))
+        if _is_guarded_importer_binding(binding) or _dynamic_has_source_execution(binding):
             raise DynamicImportCollectionError(
                 f"{self.relative_path}:{getattr(node, 'lineno', 1)}: guarded importer value "
                 f"escapes through {boundary}; value flow at this boundary is unsupported"
@@ -7122,6 +7268,12 @@ class _DynamicImportSourceScanner:
             return environment[name]
         if name == "__name__" and self.module_name is not None:
             return _dynamic_string_binding(self.module_name)
+        if name == "__builtins__" and self._active_code_builtins is not None:
+            return _dynamic_builtin_dual_namespace_binding()
+        if self._active_code_builtins is not None:
+            return _dynamic_mapping_lookup(
+                self._active_code_builtins, _dynamic_string_binding(name), default=_DYNAMIC_OTHER
+            )
         if name == "__import__":
             return _DynamicImportBinding("callable", "__import__", guarded=True)
         if name == "__builtins__":
@@ -7148,6 +7300,18 @@ class _DynamicImportSourceScanner:
         }:
             return _dynamic_builtin_binding(name)
         return _DYNAMIC_OTHER
+
+    def _invalidate_source_function_code(
+        self,
+        bindings: Iterable[_DynamicImportBinding],
+    ) -> None:
+        """Invalidate mutable function identities at any unsupported exposure or mutation."""
+        self._invalidated_function_code.update(
+            item.origin_name
+            for binding in bindings
+            for item in _dynamic_binding_nodes(binding)
+            if item.kind in {"source_function", "source_method"} and item.origin_name is not None
+        )
 
     def _invalidate_source_class_effects(
         self,
@@ -7362,7 +7526,9 @@ class _DynamicImportSourceScanner:
         scope_info: Mapping[str, set[str]],
     ) -> _DynamicNamespaceOwnerResolution:
         if binding.origin_name == "scope:globals":
-            return _DynamicNamespaceOwnerResolution("selected", self.module_name)
+            return _DynamicNamespaceOwnerResolution(
+                "selected", binding.globals_owner or self.module_name
+            )
         if binding.origin_name == "scope:locals":
             if scope_info is self._module_scope_info:
                 return _DynamicNamespaceOwnerResolution("selected", self.module_name)
@@ -7749,6 +7915,20 @@ class _DynamicImportSourceScanner:
                 scope_info,
                 comprehension_outer=comprehension_outer,
             )
+            if node.attr == "__code__":
+                return self._capture_source_code(base, node)
+            if (
+                self.source_bindings is not None
+                and base.kind == "other"
+                and base.origin_name is not None
+                and base.origin_name.startswith("polisyos.")
+            ):
+                method = self.source_bindings.source_method_definition(base.origin_name, node.attr)
+                if method is not None and method[0] == self.module_name:
+                    origin = self._selected_code_origin(method[2], node)
+                    return _DynamicImportBinding(
+                        "source_method", origin_name=origin.identity, code_origin=origin
+                    )
             if (
                 self.source_bindings is not None
                 and base.kind in {"object", "other"}
@@ -7846,6 +8026,8 @@ class _DynamicImportSourceScanner:
                 ):
                     return self._unknown_binding(node.attr)
                 return _dynamic_type_checking_value_binding(str(owner))
+            if base.kind in {"unknown", "ambiguous", "object", "other"}:
+                self._source_code_opaque_effect = True
             value = _dynamic_attribute_binding(base, node.attr)
             if self.source_bindings is not None:
                 for module_name in {
@@ -8095,9 +8277,13 @@ class _DynamicImportSourceScanner:
                 and callee.name is not None
                 and callee.name.startswith("source-method:")
             )
-            if not source_method_call:
+            if not source_method_call and not (
+                callee.kind == "callable" and callee.name == "types.FunctionType"
+            ):
                 self._invalidate_source_class_effects(call_values)
             self._record_call(node, callee, argument_bindings)
+            if callee.kind == "callable" and callee.name == "types.FunctionType":
+                return self._construct_source_function(node, argument_bindings)
             source_function_result = self._source_function_call(
                 node,
                 callee,
@@ -8203,7 +8389,27 @@ class _DynamicImportSourceScanner:
                 "builtins.delattr",
             }:
                 if argument_bindings:
+                    function_targets = tuple(
+                        item
+                        for item in _dynamic_binding_nodes(argument_bindings[0])
+                        if item.kind
+                        in {
+                            "source_function",
+                            "source_method",
+                            "reconstructed_function",
+                            "source_closure",
+                        }
+                    )
+                    if function_targets:
+                        if _dynamic_has_source_execution(argument_bindings[0]):
+                            raise DynamicImportCollectionError(
+                                f"{self.relative_path}:{node.lineno}: reconstructed callable mutation is unsupported"
+                            )
+                        self._invalidate_source_function_code(function_targets)
+                        return _DYNAMIC_NONE
                     owner = self._module_namespace_owner(argument_bindings[0], scope_info)
+                    if owner is None:
+                        self._source_code_opaque_effect = True
                     if owner is not None:
                         key = (
                             argument_bindings[1] if len(argument_bindings) > 1 else _DYNAMIC_UNKNOWN
@@ -8749,6 +8955,8 @@ class _DynamicImportSourceScanner:
                 if len(argument_bindings) < 2:
                     return _DYNAMIC_AMBIGUOUS
                 module_binding = argument_bindings[0]
+                if module_binding.kind in {"unknown", "ambiguous", "object", "other"}:
+                    self._source_code_opaque_effect = True
                 attribute_binding = argument_bindings[1]
                 if attribute_binding.kind == "string" and attribute_binding.name is not None:
                     reflected = _dynamic_attribute_binding(module_binding, attribute_binding.name)
@@ -8803,9 +9011,12 @@ class _DynamicImportSourceScanner:
                 if argument_bindings:
                     return _DYNAMIC_AMBIGUOUS
                 if callee.name == "builtins.globals":
-                    return _dynamic_scope_mapping(
-                        self._module_environment,
-                        scope_name="globals",
+                    return replace(
+                        _dynamic_scope_mapping(
+                            self._active_module_environment or self._module_environment,
+                            scope_name="globals",
+                        ),
+                        globals_owner=self.module_name,
                     )
                 return _dynamic_scope_mapping(environment, scope_name="locals")
             if callee.kind == "callable" and callee.name in {
@@ -9006,7 +9217,19 @@ class _DynamicImportSourceScanner:
                     guarded=receiver.guarded,
                 )
                 return _dynamic_join_with_guarded_origin((receiver,), result)
+            if callee.kind == "callable" and callee.name in DYNAMIC_CALL_NAMES:
+                for binding in argument_bindings:
+                    self._reject_guarded_escape(binding, node, "a dynamic importer argument")
+                return _DYNAMIC_OTHER
+            if self._source_code_depth:
+                raise DynamicImportCollectionError(
+                    f"{self.relative_path}:{node.lineno}: reconstructed source invocation "
+                    "reaches opaque callable dispatch"
+                )
             for binding in argument_bindings:
+                for item in _dynamic_binding_nodes(binding):
+                    if item.kind == "source_function" and item.origin_name is not None:
+                        self._invalidated_function_code.add(item.origin_name)
                 self._reject_guarded_escape(binding, node, "a call argument")
             return _DYNAMIC_OTHER
         if isinstance(node, ast.Subscript):
@@ -9941,8 +10164,18 @@ class _DynamicImportSourceScanner:
             )
             return
         if isinstance(target, ast.Attribute):
-            self._reject_guarded_escape(value, target, "attribute storage")
             receiver = self._expression_binding(target.value, environment, pending, scope_info)
+            if receiver.kind in {"reconstructed_function", "source_closure", "source_code"}:
+                raise DynamicImportCollectionError(
+                    f"{self.relative_path}:{target.lineno}: reconstructed callable mutation is unsupported"
+                )
+            if receiver.kind in {"source_function", "source_method"}:
+                if receiver.origin_name is not None:
+                    self._invalidated_function_code.add(receiver.origin_name)
+                if target.attr == "__code__":
+                    # Mutating a function cannot rewrite an already captured code object.
+                    return
+            self._reject_guarded_escape(value, target, "attribute storage")
             owner = self._module_namespace_owner(receiver, scope_info)
             if owner is not None and self._module_namespace_write(owner, target.attr, value):
                 return
@@ -9967,6 +10200,7 @@ class _DynamicImportSourceScanner:
                     if updated.kind == "object":
                         environment["self"] = updated
                         return
+            self._source_code_opaque_effect = True
             self._invalidate_unmodeled_source_mapping_inputs((receiver, value), environment)
             self._invalidate_source_class_effects((receiver, value))
             return
@@ -10002,7 +10236,17 @@ class _DynamicImportSourceScanner:
                         f"{self.relative_path}:{target.lineno}: mapping mutation leaves "
                         "dynamic importer provenance unresolved"
                     )
-                self._reject_guarded_escape(value, target, "container storage")
+                key_known, key_value = _dynamic_binding_literal_key_value(key)
+                local_live_write = (
+                    is_scope_mapping
+                    and base.globals_owner == self.module_name
+                    and owner == self.module_name
+                    and key_known
+                    and isinstance(key_value, str)
+                    and (self._module_execution_active or self._active_module_function_stack)
+                )
+                if not local_live_write:
+                    self._reject_guarded_escape(value, target, "container storage")
                 if key.guarded or key.kind == "ambiguous":
                     self._reject_guarded_escape(key, target, "container key")
                 if base.origin_name == "sys.modules" and (
@@ -10045,6 +10289,7 @@ class _DynamicImportSourceScanner:
                             include_namespace=True,
                         )
                 return
+            self._source_code_opaque_effect = True
             self._reject_guarded_escape(base, target, "container mutation")
             self._reject_guarded_escape(value, target, "container storage")
             self._invalidate_unmodeled_source_mapping_inputs((base, key, value), environment)
@@ -10069,6 +10314,155 @@ class _DynamicImportSourceScanner:
                 raise DynamicImportCollectionError(
                     f"{self.relative_path}:{line}: cross-scope write changes guarded importer binding {name!r}"
                 )
+
+    def _selected_code_origin(
+        self,
+        function: ast.FunctionDef | ast.AsyncFunctionDef,
+        node: ast.AST,
+        *,
+        free_variables: tuple[str, ...] = (),
+    ) -> _DynamicSourceCodeOrigin:
+        """Bind a plain source body to the invocation-local selected byte context."""
+        member = (
+            next(
+                (item for item in self.source_context.members if item.path == self.source_path),
+                None,
+            )
+            if self.source_context
+            else None
+        )
+        if (
+            member is None
+            or self.module_name is None
+            or not isinstance(function, ast.FunctionDef)
+            or function.decorator_list
+            or getattr(function, "type_params", ())
+            or not any(item is function for item in ast.walk(member.tree))
+            or any(
+                isinstance(item, ast.Name) and item.id in {"__class__", "super"}
+                for item in ast.walk(function)
+            )
+        ):
+            raise DynamicImportCollectionError(
+                f"{self.relative_path}:{getattr(node, 'lineno', 1)}: selected code origin is unsupported"
+            )
+        identity = f"{self.relative_path}:{function.lineno}:{function.col_offset}"
+        return _DynamicSourceCodeOrigin(
+            identity,
+            self.source_context.identity,
+            member.content_sha256,
+            self.module_name,
+            self.relative_path,
+            function,
+            free_variables,
+        )
+
+    def _capture_source_code(
+        self,
+        binding: _DynamicImportBinding,
+        node: ast.AST,
+    ) -> _DynamicImportBinding:
+        """Freeze code at capture; subsequent function writes invalidate only later lookups."""
+        alternatives = binding.items if binding.kind == "union" else (binding,)
+        captures: list[_DynamicImportBinding] = []
+        for target in alternatives or ():
+            if target.origin_name in self._invalidated_function_code:
+                raise DynamicImportCollectionError(
+                    f"{self.relative_path}:{getattr(node, 'lineno', 1)}: source function code was mutated"
+                )
+            if target.kind == "source_function":
+                summary = self._module_function_summaries.get(target.origin_name or "")
+                origin = self._selected_code_origin(summary.node, node) if summary else None
+            elif target.kind == "source_method":
+                origin = target.code_origin
+            else:
+                origin = None
+            if origin is None or origin.free_variables:
+                raise DynamicImportCollectionError(
+                    f"{self.relative_path}:{getattr(node, 'lineno', 1)}: code capture lacks a "
+                    "plain selected function with no free cells"
+                )
+            captures.append(_DynamicImportBinding("source_code", code_origin=origin))
+        if not captures:
+            raise DynamicImportCollectionError(
+                f"{self.relative_path}: code alternatives are unresolved"
+            )
+        return _dynamic_union_binding(captures)
+
+    def _construct_source_function(
+        self,
+        node: ast.Call,
+        arguments: Sequence[_DynamicImportBinding],
+    ) -> _DynamicImportBinding:
+        """Admit selected code with same-origin live globals and fixed native builtins."""
+        if (
+            len(node.args) != 2
+            or node.keywords
+            or len(arguments) != 2
+            or any(isinstance(item, ast.Starred) for item in node.args)
+        ):
+            raise DynamicImportCollectionError(
+                f"{self.relative_path}:{node.lineno}: FunctionType defaults, closure or call shape unsupported"
+            )
+        if self._source_code_opaque_effect:
+            raise DynamicImportCollectionError(
+                f"{self.relative_path}:{node.lineno}: FunctionType construction crosses opaque source effects"
+            )
+        code, namespace = arguments
+        if (
+            namespace.kind != "mapping"
+            or namespace.origin_name != "scope:globals"
+            or namespace.globals_owner != self.module_name
+            or self.module_name is None
+            or not self._module_namespace_complete
+        ):
+            raise DynamicImportCollectionError(
+                f"{self.relative_path}:{node.lineno}: FunctionType requires same-origin live globals"
+            )
+        effects = (
+            dict(self.source_context.module_namespace_effects or ()) if self.source_context else {}
+        )
+        if "builtins" in effects or "types" in effects or self.module_name in effects:
+            raise DynamicImportCollectionError(
+                f"{self.relative_path}:{node.lineno}: FunctionType namespace has cross-module effects"
+            )
+        live = self._active_module_environment or self._module_environment
+        native_builtins = live.get("__builtins__")
+        if native_builtins is not None and not (
+            native_builtins.kind in {"module", "namespace"} and native_builtins.name == "builtins"
+        ):
+            raise DynamicImportCollectionError(
+                f"{self.relative_path}:{node.lineno}: FunctionType construction builtins are unsupported"
+            )
+        builtins = _dynamic_builtin_namespace_binding()
+        alternatives = code.items if code.kind == "union" else (code,)
+        callables: list[_DynamicImportBinding] = []
+        for value in alternatives or ():
+            origin = value.code_origin
+            if (
+                value.kind != "source_code"
+                or origin is None
+                or self.source_context is None
+                or origin.context_identity != self.source_context.identity
+                or origin.source_module != self.module_name
+                or origin.free_variables
+            ):
+                raise DynamicImportCollectionError(
+                    f"{self.relative_path}:{node.lineno}: FunctionType code origin is unresolved"
+                )
+            callables.append(
+                _DynamicImportBinding(
+                    "reconstructed_function",
+                    code_origin=origin,
+                    globals_owner=self.module_name,
+                    function_builtins=builtins,
+                )
+            )
+        if not callables:
+            raise DynamicImportCollectionError(
+                f"{self.relative_path}: FunctionType has no selected code"
+            )
+        return _dynamic_union_binding(callables)
 
     def _source_function_scanner_for(
         self,
@@ -10141,15 +10535,25 @@ class _DynamicImportSourceScanner:
             callee.items
             if callee.kind == "union" and callee.items is not None
             else (callee,)
-            if callee.kind == "source_function"
+            if callee.kind in {"source_function", "reconstructed_function", "source_closure"}
             else ()
         )
         function_bindings = tuple(
-            binding for binding in alternatives if binding.kind == "source_function"
+            binding
+            for binding in alternatives
+            if binding.kind in {"source_function", "reconstructed_function", "source_closure"}
         )
         if not function_bindings:
             return None
-        if scope_info is not self._module_scope_info and not self._active_module_function_stack:
+        source_code_call = any(
+            binding.kind in {"reconstructed_function", "source_closure"}
+            for binding in function_bindings
+        )
+        if (
+            scope_info is not self._module_scope_info
+            and not self._active_module_function_stack
+            and not source_code_call
+        ):
             return None
         if not alternatives or len(alternatives) > _DYNAMIC_COMPREHENSION_VALUE_LIMIT:
             raise DynamicImportCollectionError(
@@ -10174,13 +10578,31 @@ class _DynamicImportSourceScanner:
                     _DynamicImportSourceScanner,
                     str,
                     _DynamicImportFunctionSummary,
+                    _DynamicImportBinding,
                 ]
             ] = []
             for binding in alternatives:
                 scanner = self
                 identity: str | None = None
-                if binding.kind == "source_function":
+                if binding.kind in {"reconstructed_function", "source_closure"}:
+                    origin = binding.code_origin
+                    if (
+                        origin is None
+                        or self.source_context is None
+                        or origin.context_identity != self.source_context.identity
+                        or origin.source_module != self.module_name
+                        or binding.globals_owner != self.module_name
+                    ):
+                        raise DynamicImportCollectionError(
+                            f"{self.relative_path}:{node.lineno}: reconstructed code context is unresolved"
+                        )
+                    identity = origin.identity
+                elif binding.kind == "source_function":
                     identity = binding.origin_name
+                    if identity in self._invalidated_function_code:
+                        raise DynamicImportCollectionError(
+                            f"{self.relative_path}:{node.lineno}: source function code was mutated"
+                        )
                 elif (
                     binding.kind == "other"
                     and binding.origin_name is not None
@@ -10208,13 +10630,18 @@ class _DynamicImportSourceScanner:
                         f"{self.relative_path}:{node.lineno}: module-time local function target "
                         "is ambiguous"
                     )
-                summary = scanner._module_function_summaries.get(identity)
+                summary = (
+                    _DynamicImportFunctionSummary(binding.code_origin.node, {})
+                    if binding.kind in {"reconstructed_function", "source_closure"}
+                    and binding.code_origin is not None
+                    else scanner._module_function_summaries.get(identity)
+                )
                 if summary is None:
                     raise DynamicImportCollectionError(
                         f"{self.relative_path}:{node.lineno}: selected source function summary "
                         "is unavailable"
                     )
-                candidates.append((scanner, identity, summary))
+                candidates.append((scanner, identity, summary, binding))
 
             scanners = tuple(dict.fromkeys(candidate[0] for candidate in candidates))
             base_environments: dict[
@@ -10222,7 +10649,11 @@ class _DynamicImportSourceScanner:
             ] = {}
             for scanner in scanners:
                 module_environment = (
-                    self._active_module_environment or environment
+                    (
+                        self._active_module_environment or self._module_environment
+                        if source_code_call
+                        else self._active_module_environment or environment
+                    )
                     if scanner is self
                     else scanner._module_environment
                 )
@@ -10238,13 +10669,26 @@ class _DynamicImportSourceScanner:
             ] = {scanner: [] for scanner in scanners}
             branch_returns: list[_DynamicImportBinding] = []
             valid_return = False
-            for scanner, identity, summary in candidates:
+            for scanner, identity, summary, binding in candidates:
                 for other_scanner in scanners:
                     if other_scanner is not scanner:
                         branch_states[other_scanner].append(dict(base_environments[other_scanner]))
                 base_environment = base_environments[scanner]
                 branch_environment = dict(base_environment)
                 previous_active_environment = scanner._active_module_environment
+                previous_builtins = scanner._active_code_builtins
+                previous_code_depth = scanner._source_code_depth
+                if binding.kind in {"reconstructed_function", "source_closure"}:
+                    if scanner._source_code_opaque_effect:
+                        raise DynamicImportCollectionError(
+                            f"{self.relative_path}:{node.lineno}: reconstructed invocation crosses opaque source effects"
+                        )
+                    if not scanner._module_namespace_complete:
+                        raise DynamicImportCollectionError(
+                            f"{self.relative_path}:{node.lineno}: reconstructed globals have opaque writes"
+                        )
+                    scanner._source_code_depth += 1
+                    scanner._active_code_builtins = binding.function_builtins
                 scanner._active_module_environment = branch_environment
                 function = summary.node
                 branch_result = _DYNAMIC_OTHER
@@ -10276,6 +10720,10 @@ class _DynamicImportSourceScanner:
                             argument_bindings,
                             summary.defaults,
                         )
+                        if parameter_bindings is None and scanner._source_code_depth:
+                            raise DynamicImportCollectionError(
+                                f"{self.relative_path}:{node.lineno}: reconstructed arguments do not bind"
+                            )
                         if parameter_bindings is not None:
                             invocation_state = (
                                 tuple(sorted(parameter_bindings.items())),
@@ -10285,6 +10733,10 @@ class _DynamicImportSourceScanner:
                                 active_identity == identity and active_state == invocation_state
                                 for active_identity, active_state in scanner._active_module_function_invocation_states
                             )
+                            if repeated_invocation and scanner._source_code_depth:
+                                raise DynamicImportCollectionError(
+                                    f"{self.relative_path}:{node.lineno}: reconstructed recursion is unresolved"
+                                )
                             if repeated_invocation:
                                 # The active body already covers this same abstract
                                 # module-time state. Close the recursive return without
@@ -10308,15 +10760,28 @@ class _DynamicImportSourceScanner:
                                 try:
                                     scanner._scan_function(
                                         function,
-                                        {},
+                                        dict(
+                                            zip(
+                                                binding.closure_names,
+                                                binding.source_arguments or (),
+                                                strict=True,
+                                            )
+                                        )
+                                        if binding.kind == "source_closure"
+                                        else {},
                                         branch_environment,
                                         return_bindings=returned,
                                         parameter_bindings=parameter_bindings,
                                     )
-                                    if not _dynamic_function_has_unmodeled_implicit_dispatch(
-                                        function,
-                                        branch_environment,
-                                    ):
+                                    implicit = _dynamic_function_has_unmodeled_implicit_dispatch(
+                                        function, branch_environment
+                                    )
+                                    if implicit and scanner._source_code_depth:
+                                        raise DynamicImportCollectionError(
+                                            f"{self.relative_path}:{node.lineno}: reconstructed source body "
+                                            "has opaque implicit dispatch"
+                                        )
+                                    if not implicit:
                                         scanner._module_time_proven_scope_ids.add(id(function))
                                 finally:
                                     scanner._active_module_function_invocation_states.pop()
@@ -10325,6 +10790,8 @@ class _DynamicImportSourceScanner:
                                 branch_invoked = True
                 finally:
                     scanner._active_module_environment = previous_active_environment
+                    scanner._active_code_builtins = previous_builtins
+                    scanner._source_code_depth = previous_code_depth
                     if pushed_target_module:
                         if self._source_function_module_stack[-1] != scanner.module_name:
                             raise DynamicImportCollectionError(
@@ -10433,6 +10900,7 @@ class _DynamicImportSourceScanner:
         label: str,
     ) -> None:
         """Retain call-time namespace evidence for a module call the scanner cannot transfer."""
+        self._source_code_opaque_effect = True
         if not (self._module_execution_active or self._active_module_function_stack):
             return
         if self._active_module_function_stack and self._active_module_environment is not None:
@@ -10530,6 +10998,15 @@ class _DynamicImportSourceScanner:
                 for alternative in alternatives:
                     scanner = self
                     identity = alternative.origin_name
+                    if alternative.kind in {"reconstructed_function", "source_closure"}:
+                        if alternative.code_origin is None:
+                            raise DynamicImportCollectionError(
+                                f"{self.relative_path}:{call.lineno}: source code origin is unavailable"
+                            )
+                        pending.append(alternative.code_origin.node)
+                        relevant.update(self._observed_importer_binding_names)
+                        relevant.update(_DYNAMIC_IMPORT_GUARDED_ROOTS)
+                        continue
                     if alternative.kind == "other":
                         if self.source_context is None:
                             # The binding-only API has no selected source context
@@ -10864,6 +11341,19 @@ class _DynamicImportSourceScanner:
         binding: _DynamicImportBinding,
         argument_bindings: Sequence[_DynamicImportBinding] = (),
     ) -> None:
+        if binding.kind in {"source_code", "reconstructed_function", "source_closure"}:
+            return
+        if (
+            binding.kind == "union"
+            and binding.items
+            and all(
+                item.kind in {"source_function", "reconstructed_function", "source_closure"}
+                for item in binding.items
+            )
+        ):
+            return
+        if binding.kind == "callable" and binding.name == "types.FunctionType":
+            return
         if binding.kind == "callable" and binding.name in DYNAMIC_CALL_NAMES:
             resolved_call = str(binding.name)
         elif binding.kind == "callable" and binding.name in {
@@ -10891,7 +11381,7 @@ class _DynamicImportSourceScanner:
                 f"{self.relative_path}:{node.lineno}: source-visible dynamic code execution "
                 f"through {binding.name} is unresolved"
             )
-        elif _is_guarded_importer_binding(binding):
+        elif _is_guarded_importer_binding(binding) or _dynamic_has_source_execution(binding):
             raise DynamicImportCollectionError(
                 f"{self.relative_path}:{node.lineno}: dynamic importer binding is ambiguous or unresolved"
             )
@@ -11045,7 +11535,41 @@ class _DynamicImportSourceScanner:
                     scope_info,
                     "a function annotation",
                 )
-            if scope_info is self._module_scope_info:
+            if self._source_code_depth and scope_info is not self._module_scope_info:
+                if node.decorator_list or node.args.defaults or any(node.args.kw_defaults):
+                    raise DynamicImportCollectionError(
+                        f"{self.relative_path}:{node.lineno}: reconstructed nested callable "
+                        "defaults or decorators are unsupported"
+                    )
+                reads, _, children = _dynamic_scope_read_dependencies(node)
+                all_reads = set(reads)
+                for child in children:
+                    all_reads.update(_dynamic_scope_read_dependencies(child)[0])
+                free = tuple(sorted(all_reads & scope_info.get("_source_lexical", set())))
+                if not set(free) <= scope_info.get("_source_stable_cells", set()):
+                    raise DynamicImportCollectionError(
+                        f"{self.relative_path}:{node.lineno}: reconstructed nested callable "
+                        "has mutable or unproven closure cells"
+                    )
+                captures = tuple(environment[name] for name in free)
+                if any(
+                    value.kind in {"unknown", "ambiguous", "object", "mapping", "namespace"}
+                    for value in captures
+                ):
+                    raise DynamicImportCollectionError(
+                        f"{self.relative_path}:{node.lineno}: reconstructed closure value is unresolved"
+                    )
+                origin = self._selected_code_origin(node, node, free_variables=free)
+                environment[node.name] = _DynamicImportBinding(
+                    "source_closure",
+                    origin_name=origin.identity,
+                    code_origin=origin,
+                    globals_owner=self.module_name,
+                    function_builtins=self._active_code_builtins,
+                    closure_names=free,
+                    source_arguments=captures,
+                )
+            elif scope_info is self._module_scope_info:
                 identity = f"{self.relative_path}:{node.lineno}:{node.col_offset}"
                 self._module_function_summaries[identity] = _DynamicImportFunctionSummary(
                     node=node,
@@ -11339,7 +11863,12 @@ class _DynamicImportSourceScanner:
                 )
             ):
                 return environment
-            self._expression_binding(node.test, environment, pending, scope_info)
+            condition = self._expression_binding(node.test, environment, pending, scope_info)
+            if (
+                condition.kind in {"unknown", "ambiguous", "object", "other"}
+                and not condition.literal_key_known
+            ):
+                self._source_code_opaque_effect = True
             runtime_type_checking_branch = _type_checking_runtime_branch(
                 node.test, bindings=self._type_checking_bindings(environment)
             )
@@ -11489,7 +12018,9 @@ class _DynamicImportSourceScanner:
         if isinstance(node, ast.Return):
             if node.value is not None:
                 returned = self._expression_binding(node.value, environment, pending, scope_info)
-                if _is_guarded_importer_binding(returned):
+                if _is_guarded_importer_binding(returned) or _dynamic_has_source_execution(
+                    returned
+                ):
                     raise DynamicImportCollectionError(
                         f"{self.relative_path}:{node.lineno}: guarded importer value escapes through a function return"
                     )
@@ -11743,6 +12274,8 @@ class _DynamicImportSourceScanner:
         parameter_bindings: Mapping[str, _DynamicImportBinding] | None = None,
         final_environments: list[dict[str, _DynamicImportBinding]] | None = None,
     ) -> None:
+        declaration_only = not self._active_module_function_stack
+        previous_opaque_effect = self._source_code_opaque_effect
         body_nodes = [] if isinstance(node, ast.Lambda) else node.body
         local_names, global_names, nonlocal_names = _scope_local_bindings(body_nodes)
         inherited = dict(module_env)
@@ -11760,6 +12293,23 @@ class _DynamicImportSourceScanner:
             "nonlocals": nonlocal_names,
             "_effectful": set(),
         }
+        if self._source_code_depth:
+            parameter_names = {
+                argument.arg
+                for argument in (
+                    *node.args.posonlyargs,
+                    *node.args.args,
+                    *node.args.kwonlyargs,
+                    *((node.args.vararg,) if node.args.vararg else ()),
+                    *((node.args.kwarg,) if node.args.kwarg else ()),
+                )
+            }
+            scope_info["_source_lexical"] = local_names | parameter_names | set(parent_env)
+            scope_info["_source_stable_cells"] = (parameter_names - local_names) | set(parent_env)
+            if nonlocal_names:
+                raise DynamicImportCollectionError(
+                    f"{self.relative_path}:{node.lineno}: reconstructed nonlocal cells are unsupported"
+                )
         for name in global_names:
             environment[name] = self._lookup(name, module_env)
         for name in nonlocal_names:
@@ -11849,6 +12399,10 @@ class _DynamicImportSourceScanner:
                     (deferred.environment_at_definition, final_env), local_names
                 )
                 self._scan_type_parameter_fields(scope, child_parent, pending)
+        if declaration_only:
+            # An uninvoked declaration's unknown effects do not mutate the module.
+            # Its own later reconstructed call still sees effects earlier in that body.
+            self._source_code_opaque_effect = previous_opaque_effect
 
     def _scan_class(
         self,

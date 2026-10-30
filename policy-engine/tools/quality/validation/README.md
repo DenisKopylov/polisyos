@@ -113,3 +113,53 @@ native-gate completion claim.
 `check_trust_claim_posture.py` remains the compiler, CLI, generated-output writer, and compatibility facade. The tokenizer, source bindings, accessibility, semantics, and artifact-lifecycle siblings own their corresponding calculations. The facade builds a typed dependency value for each owner call from its live readers, paths, selectors, predicates, and callbacks. The existing facade bindings remain present, including the `shutil` and `subprocess` module objects, `_minimal_probe_repo`, `evaluate_accessibility_evidence`, and `evaluate_scope_assumption`. The source compiler, generated-artifact contract, schema, CLI flags, and output paths remain at their existing surfaces.
 
 The source-census gate now asserts the complete denied-site composition by category, source path, symbol, and values, then requires the independent AST and token walks to agree. The frozen-source focused census case passed on 2026-10-18. Full Trust, measurement, and custody suite completion is still required before any native-gate completion claim.
+
+
+### Selected source code reconstitution
+
+The dynamic-import collector retains selected function `__code__` captures as a distinct,
+byte-bound code identity. A later mutation of the original function invalidates later function
+lookups; it does not rewrite an earlier captured code origin. Plain selected class methods are
+unbound code bodies: reconstructed invocation receives its explicit receiver through the normal
+source-function parameter binder. Finite code alternatives join through the existing binding
+algebra, and reconstructed bodies use the same selected-source invocation/effect interpreter.
+
+The admitted constructor is the resolved standard-library `types.FunctionType` binding, with
+same-origin live module globals, native construction-time builtins, no supplied defaults/closure,
+and no free cells in the captured code. The original function's defaults are not copied. Rebinding
+the globals `__builtins__` entry after construction does not replace the reconstructed callable's
+saved native builtin namespace. Known global writes are read at invocation; unresolved namespace
+effects, foreign globals, constructor replacement and opaque code remain refusals.
+
+Nested selected callbacks may carry stable parameter cells through selected-source dispatch.
+Mutable/unknown closure cells, reconstructed callable mutation, unsupported executable-value
+escape, opaque executor/context dispatch and unknown callback targets fail closed. Original
+function mutation and unsupported exposure share a code-identity invalidation owner; reached
+opaque dispatch/mutation marks source effects unresolved for subsequent construction/invocation.
+An uninvoked declaration's local effects do not mutate the module state. The supported unit is
+selected body/callback effect transfer, not arbitrary Python runtime equivalence or executor
+execution. In particular, the actual Runtime guard's opaque executor/context route is still a
+bounded limitation; recognizing its constructor does not establish full collection clearance.
+
+The binding constructor now normalizes that negative quantity for every ordinary construction
+and `dataclasses.replace`: binding-valued fields and nested carriers are derived from the actual
+dataclass fields, executable carriers become guarded, and guarded unknown/ambiguous fallback
+values retain intrinsic negative capability after exact identity was discarded. Exact selected
+source alternatives remain a finite join and still require real body/context admission. This is
+a conservative partial-unknown semantics; an unproven guarded value can no longer clear an escape
+merely because it lacks an exact importer identity. Importer-origin identity itself is unchanged.
+Broader native compatibility verification is required before adoption; this normalization is not
+a claim of complete Python object-protocol modeling or actual executor/context clearance.
+
+Unknown joins retain executable origin through the existing guarded-origin transfer, including
+nested containers, reflective selections, return/storage escapes and unresolved call targets.
+That private origin carrier is negative provenance: it requires refusal when body identity was
+lost, and never admits code merely because an origin field is present. Proven pure extraction
+and length projections may discard executable provenance because their values cannot execute
+that code. A semantic join-transfer removal test preserves fields and source markers while
+requiring the unknown-join refusal to disappear and restore.
+
+Behavioral coverage is in `test_dynamic_code_reconstitution.py`. Its callback discriminator removes
+only reconstructed body transfer while retaining captured-code, constructor, globals and import
+source; the callback effect must disappear and the exact method/inventory must restore. Registry
+schema, owner review dates and public authority remain owned by the existing registry workflow.

@@ -1,0 +1,4 @@
+type = "fixed"
+area = "tools"
+summary = "Inventory selected reconstructed function bodies and callbacks through the existing source-effect interpreter."
+notes = "Bind frozen selected code separately from mutable functions, live same-origin globals and construction-time native builtins. Normalize executable uncertainty at binding construction across existing guarded fallbacks, while exact selected bodies remain separately verified. Unsupported defaults, closure cells, opaque mutations/dispatch and executor/context effects fail closed. The bounded source subset does not establish full Runtime resilience collection clearance; registry schema and review authority are unchanged."

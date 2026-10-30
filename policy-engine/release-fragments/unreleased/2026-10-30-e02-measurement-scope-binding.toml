@@ -1,0 +1,15 @@
+id = "2026-10-30-e02-measurement-scope-binding"
+title = "Bind candidate measurements to selected compiler scope"
+type = "fixed"
+component = "runtime-http"
+owner = "team-policyos-runtime"
+summary = "Measurement readback retains selected input profiles, and the WDI candidate join checks the compiled metric, returned indicator, country, complete annual window and completeness. Source limitations persist in the candidate context."
+evidence = ["src/polisyos/runtime/quality/data_forge_binding.py", "src/polisyos/runtime/quality/generation_cycle.py", "src/polisyos/runtime/quality/cycle_substrate.py", "tests/unit/remediation/test_acq_01.py", "tests/unit/runtime/quality/test_n7_fenced_context_fixture.py"]
+compatibility = "Historical default context serialization is unchanged. Unsupported or mismatched candidate scope refuses instead of borrowing a matching requirement ID."
+change_class = "internal"
+surface_classification = "internal: internal-only"
+migration = "No persisted format migration; keep selected profiles and source limitations through context rebuilds."
+limitations = "Normalized candidate fit does not establish upstream source truth, raw indicator provenance, pricing, causal grounding, or complete N5/N8 reentry."
+generated_client_compatibility = "not_applicable"
+migration_docs = []
+runbook_docs = []

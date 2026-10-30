@@ -10314,7 +10314,7 @@ class GenerationCycleController:
         store: CoreJSONArtifactStore,
         acquisition_receipt: AcquisitionReceipt,
         active_requirement_ref: str,
-    ) -> FabricMeasurementRootPayload:
+    ) -> tuple[FabricMeasurementRootPayload, tuple[str, ...]]:
         """Recheck the complete same-store custody chain before rebuilding a WMR.
 
         The route envelope is only a projection supplied by an acquisition
@@ -10333,6 +10333,7 @@ class GenerationCycleController:
             _fabric_measurement_envelope,
             _measurement_root_authority_configuration,
             _read_validated_measurement_snapshot_artifact,
+            _validate_compiled_fabric_measurement_binding,
             _validate_resolved_measurement_root_evidence,
             resolve_measurement_root_evidence,
         )
@@ -10387,14 +10388,23 @@ class GenerationCycleController:
             if len(active_specs) != 1:
                 raise ValueError("active N7 requirement is missing or ambiguous")
             active_requirement = active_specs[0]
+            basis_binding = acquisition_receipt.requirement_basis_binding
+            if basis_binding is None or basis_binding.scenario_id != problem.design_problem_id:
+                raise ValueError("active N7 compiler basis is not established")
+            if validate_persisted_data_requirement_compilation_report(store, basis_binding):
+                raise ValueError("active N7 compiler basis readback failed")
+            compiled_report = DataRequirementCompilationReport.model_validate(
+                load_core_json_artifact(store, basis_binding.compiler_report_ref)
+            )
             if (
-                payload.source_requirement.requirement_id
-                not in active_requirement.source_requirement_refs
-                or active_requirement.requirement_id in active_requirement.source_requirement_refs
+                tuple(spec.model_dump(mode="json") for spec in compiled_report.specs)
+                != acquisition_receipt.compiled_requirement_specs
+                or compiled_report.capability_requirement_resolutions
+                != acquisition_receipt.capability_requirement_resolutions
             ):
-                raise ValueError(
-                    "measurement root source requirement is not bound to distinct active N7"
-                )
+                raise ValueError("active N7 requirements differ from the persisted compiler report")
+            if active_requirement.requirement_id == payload.source_requirement.requirement_id:
+                raise ValueError("measurement and N7 requirements must have distinct identities")
             expected_envelope = _fabric_measurement_envelope(
                 payload,
                 str(measurement_payload_ref.artifact_id),
@@ -10414,8 +10424,8 @@ class GenerationCycleController:
                 name=FABRIC_MEASUREMENT_ROOT_SCHEMA_VERSION,
                 version="v2",
             )
-            measurement_input = artifacts.InputRef(
-                artifact_id=payload.fetch_receipt_ref.artifact_id,
+            measurement_input = artifacts.input_ref_from_artifact_ref(
+                payload.fetch_receipt_ref,
                 role="fabric_fetch",
             )
             validated_payload_raw = _read_validated_measurement_snapshot_artifact(
@@ -10425,9 +10435,9 @@ class GenerationCycleController:
                 expected_media_type="application/json",
                 expected_schema=measurement_schema,
                 expected_producer=measurement_producer,
-                expected_inputs=core_contracts.epoch._ExactManifestInputClosure(
-                    (measurement_input,)
-                ),
+                expected_inputs=(measurement_input,),
+                expected_canon=artifacts.CanonInfo(forbid_floats=False),
+                require_selected_profile=True,
             )
             if validated_payload_raw != payload_raw:
                 raise ValueError("measurement root payload readback changed")
@@ -10522,6 +10532,7 @@ class GenerationCycleController:
                     **identity,
                     manifest_inputs=tuple(opts.inputs or ()),
                     manifest_governance=opts.governance,
+                    manifest_canon=opts.canon,
                     attestation_ref=emitted_authority.attestation_ref,
                 ),
             )
@@ -10541,15 +10552,19 @@ class GenerationCycleController:
                 ),
                 expected_producer=fetch_producer,
                 expected_inputs=(
-                    artifacts.InputRef(
-                        artifact_id=payload.payload_ref.artifact_id,
+                    artifacts.input_ref_from_artifact_ref(
+                        payload.payload_ref,
                         role="fetched_payload",
                     ),
-                    artifacts.InputRef(
-                        artifact_id=payload.catalog_binding_ref.artifact_id,
+                    artifacts.input_ref_from_artifact_ref(
+                        payload.catalog_binding_ref,
                         role="catalog_binding",
                     ),
                 ),
+                expected_canon=artifacts.CanonInfo.from_spec(
+                    CanonSpec(forbid_floats=False, exclude_none=False)
+                ),
+                require_selected_profile=True,
             )
             receipt = FabricFetchReceipt.model_validate(from_canonical_bytes(receipt_raw))
             if (
@@ -10575,6 +10590,14 @@ class GenerationCycleController:
                 ),
                 expected_producer=fetch_producer,
                 expected_inputs=(),
+                expected_canon=(
+                    artifacts.CanonInfo.from_spec(
+                        CanonSpec(forbid_floats=False, exclude_none=False)
+                    )
+                    if payload_media_type == "application/json"
+                    else None
+                ),
+                require_selected_profile=True,
             )
             _read_validated_measurement_snapshot_artifact(
                 store=store,
@@ -10587,6 +10610,10 @@ class GenerationCycleController:
                 ),
                 expected_producer=fetch_producer,
                 expected_inputs=(),
+                expected_canon=artifacts.CanonInfo.from_spec(
+                    CanonSpec(forbid_floats=False, exclude_none=False)
+                ),
+                require_selected_profile=True,
             )
 
             from polisyos.core.contracts import DataSnapshot
@@ -10600,21 +10627,20 @@ class GenerationCycleController:
                 raise ValueError("DataSnapshot bytes are not bound to fetched payload")
             snapshot_manifest = store.get_manifest(data_snapshot_ref)
             expected_snapshot_inputs = [
-                artifacts.InputRef(
-                    artifact_id=payload.payload_ref.artifact_id,
+                artifacts.input_ref_from_artifact_ref(
+                    payload.payload_ref,
                     role="fetched_payload",
                 ),
-                artifacts.InputRef(
-                    artifact_id=measurement_payload_ref.artifact_id,
+                artifacts.input_ref_from_artifact_ref(
+                    measurement_payload_ref,
                     role="measurement_root",
-                    manifest_profile_sha256=measurement_payload_ref.manifest_profile_sha256,
                 ),
-                artifacts.InputRef(
-                    artifact_id=payload.fetch_receipt_ref.artifact_id,
+                artifacts.input_ref_from_artifact_ref(
+                    payload.fetch_receipt_ref,
                     role="fabric_fetch",
                 ),
-                artifacts.InputRef(
-                    artifact_id=payload.catalog_binding_ref.artifact_id,
+                artifacts.input_ref_from_artifact_ref(
+                    payload.catalog_binding_ref,
                     role="catalog_binding",
                 ),
             ]
@@ -10684,7 +10710,16 @@ class GenerationCycleController:
                 != measurement_payload_ref.artifact_id
             ):
                 raise ValueError("canonical measurement root resolver projection mismatch")
-            return payload
+            requirement_limitations = _validate_compiled_fabric_measurement_binding(
+                store=store,
+                evidence=resolved_evidence,
+                requirement=active_requirement,
+                capability_resolutions=compiled_report.capability_requirement_resolutions,
+                catalog=catalog,
+                providers=providers,
+                execution_scope_binding=execution_scope_binding,
+            )
+            return payload, requirement_limitations
         except GenerationCycleError:
             raise
         except (OSError, TypeError, ValueError, RuntimeError, KeyError) as exc:
@@ -11043,14 +11078,16 @@ class GenerationCycleController:
             },
             expected_kind="policyos.gy.measurement_root_payload",
         )
-        self._validate_n7_acq01_measurement_root_custody(
-            problem,
-            measurement_root=measurement_root,
-            measurement_payload_ref=measurement_payload_ref,
-            data_snapshot_ref=data_snapshot_ref,
-            store=store,
-            acquisition_receipt=acquisition_receipt,
-            active_requirement_ref=owner_artifact.requirement_ref,
+        _measurement_payload, requirement_limitations = (
+            self._validate_n7_acq01_measurement_root_custody(
+                problem,
+                measurement_root=measurement_root,
+                measurement_payload_ref=measurement_payload_ref,
+                data_snapshot_ref=data_snapshot_ref,
+                store=store,
+                acquisition_receipt=acquisition_receipt,
+                active_requirement_ref=owner_artifact.requirement_ref,
+            )
         )
 
         from polisyos.runtime.quality.substrate_registry import (
@@ -11275,6 +11312,13 @@ class GenerationCycleController:
                     prior_context.substrate_input_content_hash
                     if prior_context is not None
                     else None
+                ),
+                additional_authority_denials=(
+                    *prior_context.may_not_use_for,
+                    *(
+                        f"unverified_measurement_requirement:{limitation}"
+                        for limitation in requirement_limitations
+                    ),
                 ),
             )
         except (TypeError, ValueError) as exc:
@@ -11593,13 +11637,28 @@ class GenerationCycleController:
         ):
             raise GenerationCycleError("n7_candidate_simulation_context_offer_binding_mismatch")
 
-        final_context = offer.context
-
         def compose_source_profile(
             current_offer: CandidateSimulationContextOffer,
         ) -> CycleSubstrateContext:
             if source_selection is None:
-                return current_offer.context
+                base = current_offer.context
+                return build_cycle_substrate_context(
+                    design_problem_ref=base.design_problem_ref,
+                    domain=base.domain,
+                    substrate_registry=base.substrate_registry,
+                    selected_registry_entry_hashes=base.selected_registry_entry_hashes,
+                    world_model_record=base.world_model_record,
+                    intervention_substrate=base.intervention_substrate,
+                    candidate_levers=base.candidate_levers,
+                    transport_context=base.transport_context,
+                    source_pack_content_hash=base.source_pack_content_hash,
+                    substrate_input_content_hash=base.substrate_input_content_hash,
+                    source_profile=base.source_profile,
+                    additional_authority_denials=(
+                        *base.may_not_use_for,
+                        *acquired_context.may_not_use_for,
+                    ),
+                )
             source_context = build_candidate_cycle_substrate_context(
                 Path(self._repo_root),
                 problem=problem,
@@ -11637,6 +11696,11 @@ class GenerationCycleController:
                         source_pack_content_hash=base.source_pack_content_hash,
                         substrate_input_content_hash=source_context.substrate_input_content_hash,
                         source_profile=source_context.source_profile,
+                        additional_authority_denials=(
+                            *base.may_not_use_for,
+                            *source_context.may_not_use_for,
+                            *acquired_context.may_not_use_for,
+                        ),
                     )
                 )
             except (TypeError, ValueError) as exc:
@@ -11644,22 +11708,21 @@ class GenerationCycleController:
                     "n7_candidate_source_profile_context_compose_refused", str(exc)
                 ) from exc
 
-        if source_selection is not None:
-            try:
-                final_context = compose_source_profile(offer)
-            except (
-                CycleSubstrateContextOwnerError,
-                OSError,
-                RuntimeError,
-                TypeError,
-                ValueError,
-            ) as exc:
-                if isinstance(exc, GenerationCycleError):
-                    raise
-                raise GenerationCycleError(
-                    "n7_candidate_source_profile_reissue_refused",
-                    str(getattr(exc, "code", None) or exc),
-                ) from exc
+        try:
+            final_context = compose_source_profile(offer)
+        except (
+            CycleSubstrateContextOwnerError,
+            OSError,
+            RuntimeError,
+            TypeError,
+            ValueError,
+        ) as exc:
+            if isinstance(exc, GenerationCycleError):
+                raise
+            raise GenerationCycleError(
+                "n7_candidate_source_profile_reissue_refused",
+                str(getattr(exc, "code", None) or exc),
+            ) from exc
         try:
             new_ref = context_owner.persist_for_current_job(
                 final_context,
@@ -12047,6 +12110,7 @@ class GenerationCycleController:
                 transport_context=None,
                 source_pack_content_hash=prior_context.source_pack_content_hash,
                 substrate_input_content_hash=prior_context.substrate_input_content_hash,
+                additional_authority_denials=prior_context.may_not_use_for,
             )
         except GenerationCycleError:
             raise

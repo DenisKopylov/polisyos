@@ -4363,9 +4363,15 @@ def build_cycle_substrate_context(
     source_pack_content_hash: str | None,
     substrate_input_content_hash: str | None,
     source_profile: CandidateCycleSubstrateSourceProfile | None = None,
+    additional_authority_denials: Sequence[str] = (),
 ) -> CycleSubstrateContext:
     """Build and fully revalidate one candidate-only cycle substrate envelope."""
 
+    if isinstance(additional_authority_denials, (str, bytes)) or any(
+        not isinstance(item, str) or not item.strip() for item in additional_authority_denials
+    ):
+        raise ValueError("cycle_substrate_additional_authority_denials_invalid")
+    denials = _REQUIRED_AUTHORITY_DENIALS | {item.strip() for item in additional_authority_denials}
     selected = tuple(str(item) for item in selected_registry_entry_hashes)
     context_binding_hash = cycle_substrate_context_binding_hash(
         design_problem_ref=design_problem_ref,
@@ -4400,7 +4406,7 @@ def build_cycle_substrate_context(
         "candidate_levers": tuple(candidate_levers),
         "transport_context": transport_context,
         "authority_purpose": "cycle_input_candidate_only",
-        "may_not_use_for": tuple(sorted(_REQUIRED_AUTHORITY_DENIALS)),
+        "may_not_use_for": tuple(sorted(denials)),
         "context_binding_hash": context_binding_hash,
     }
     payload["content_hash"] = cycle_substrate_context_content_hash(payload)

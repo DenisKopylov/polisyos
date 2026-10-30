@@ -118,6 +118,10 @@ async def test_fenced_nl_owner_reopens_same_store_candidate_world_and_refuses_wi
                 world = load_world_model_record(store, world_build.record_ref)
                 assert world == world_build.record
                 registry = _substrate_registry()
+                additional_denials = (
+                    "unverified_measurement_requirement:catalog_quality_score_is_source_asserted",
+                    "unverified_measurement_requirement:worldbank_indicator_id_may_be_request_fallback",
+                )
                 context = build_cycle_substrate_context(
                     design_problem_ref=cycle_job_design_problem_ref(problem),
                     domain=problem.domain,
@@ -131,6 +135,7 @@ async def test_fenced_nl_owner_reopens_same_store_candidate_world_and_refuses_wi
                     transport_context=None,
                     source_pack_content_hash=None,
                     substrate_input_content_hash=None,
+                    additional_authority_denials=additional_denials,
                 )
                 owner = CycleSubstrateContextArtifactOwner(
                     store=store, control_store=service._control_store
@@ -154,6 +159,23 @@ async def test_fenced_nl_owner_reopens_same_store_candidate_world_and_refuses_wi
                     verified_nl_job_scope=verified,
                 )
                 assert reopened.context == context
+                assert set(additional_denials).issubset(reopened.context.may_not_use_for)
+                assert {
+                    "grounding_authority",
+                    "transport_authority",
+                    "promotion_authority",
+                }.issubset(reopened.context.may_not_use_for)
+                with pytest.raises(ValueError, match="cycle_substrate_content_hash_mismatch"):
+                    type(context).model_validate(
+                        {
+                            **context.model_dump(mode="python"),
+                            "may_not_use_for": tuple(
+                                item
+                                for item in context.may_not_use_for
+                                if item != additional_denials[0]
+                            ),
+                        }
+                    )
                 assert reopened.context.world_model_record == world
                 assert reopened.job_id == job.job_id and reopened.run_id == job.run_id
                 assert reopened.tenant_id == tenant_id and reopened.cell_id == cell_id

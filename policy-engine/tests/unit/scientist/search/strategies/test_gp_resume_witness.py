@@ -10,7 +10,11 @@ import numpy as np
 import pytest
 
 from polisyos.scientist.methods.search.strategies import bayesian as owner
-from polisyos.scientist.methods.search.strategies._deps import require_botorch, require_torch
+from polisyos.scientist.methods.search.strategies._deps import (
+    fit_gpytorch_mll,
+    require_botorch,
+    require_torch,
+)
 from polisyos.scientist.methods.search.strategies.bayesian import BayesianConfig, BayesianOptimizer
 from polisyos.scientist.methods.search.strategies.space import SearchSpace
 from polisyos.scientist.methods.search.strategies.types import (
@@ -21,6 +25,10 @@ from polisyos.scientist.methods.search.strategies.types import (
 )
 
 from .conftest import make_evaluation
+
+pytestmark = pytest.mark.skipif(
+    fit_gpytorch_mll is None, reason="BoTorch stack unavailable; GP witness unrun"
+)
 
 _X = (0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.75, 0.9)
 _QUERY = np.array([0.12, 0.29, 0.47, 0.68, 0.87], dtype=np.float64).reshape(-1, 1)
@@ -50,7 +58,7 @@ class _Scene:
 
 
 def _new(space: SearchSpace) -> BayesianOptimizer:
-    require_botorch()  # Missing optional backend is a failed prerequisite, not a passing skip.
+    require_botorch()  # Unexpected runtime unavailability remains an error.
     strategy = BayesianOptimizer(
         space,
         BayesianConfig(

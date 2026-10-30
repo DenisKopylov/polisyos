@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 
 from polisyos.data_forge.domains.catalog.batch import pipeline
 from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
@@ -102,4 +103,76 @@ def test_facade_override_is_scoped_to_supported_loader_binding(monkeypatch) -> N
 
     assert facade._bulk_country_values("ilo", ("UA",)) == ["BOUND"]
 
+    assert transformers._to_iso3 is original
+
+
+def test_concurrent_facade_ingests_keep_their_captured_overrides(monkeypatch, tmp_path) -> None:
+    """A later facade override cannot change an ingest already in flight."""
+    from polisyos.data_forge.domains.catalog.batch import core_sources_ingest as facade
+    from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
+        current_core_sources_compatibility_context,
+    )
+
+    original = transformers._to_iso3
+    entered_a = asyncio.Event()
+    entered_b = asyncio.Event()
+    sampled_a = asyncio.Event()
+    sampled_b = asyncio.Event()
+    release_a = asyncio.Event()
+    release_b = asyncio.Event()
+    observed: dict[str, list[str]] = {}
+    configs = {
+        label: DatasetBatchConfig(
+            snapshot_root=tmp_path / label,
+            stages=frozenset({"core_sources_ingest"}),
+        )
+        for label in ("a", "b")
+    }
+
+    async def controlled_ingest(config: DatasetBatchConfig) -> CoreSourcesIngestStats:
+        label = config.snapshot_root.name
+        if label == "a":
+            entered_a.set()
+            await asyncio.wait_for(entered_b.wait(), timeout=5)
+        else:
+            entered_b.set()
+            await asyncio.wait_for(sampled_a.wait(), timeout=5)
+
+        observed[label] = loaders._bulk_country_values("ilo", ("UA",))
+        if label == "a":
+            sampled_a.set()
+            await asyncio.wait_for(release_a.wait(), timeout=5)
+        else:
+            sampled_b.set()
+            await asyncio.wait_for(release_b.wait(), timeout=5)
+        return CoreSourcesIngestStats(observations=1 if label == "a" else 2)
+
+    async def exercise() -> tuple[CoreSourcesIngestStats, CoreSourcesIngestStats]:
+        monkeypatch.setattr(facade, "_run_core_sources_ingest_async", controlled_ingest)
+        monkeypatch.setattr(facade, "_to_iso3", lambda _country: "A")
+        task_a = asyncio.create_task(facade.run_core_sources_ingest_async(configs["a"]))
+        await asyncio.wait_for(entered_a.wait(), timeout=5)
+
+        monkeypatch.setattr(facade, "_to_iso3", lambda _country: "B")
+        task_b = asyncio.create_task(facade.run_core_sources_ingest_async(configs["b"]))
+        await asyncio.wait_for(sampled_b.wait(), timeout=5)
+
+        assert transformers._to_iso3 is original
+        release_a.set()
+        stats_a = await task_a
+        assert not task_b.done()
+        release_b.set()
+        stats_b = await task_b
+        assert current_core_sources_compatibility_context() is None
+        return stats_a, stats_b
+
+    stats_a, stats_b = asyncio.run(exercise())
+
+    assert observed == {"a": ["A"], "b": ["B"]}
+    assert (stats_a.observations, stats_b.observations) == (1, 2)
+    for label, expected in (("a", 1), ("b", 2)):
+        manifest = configs[label].manifests_dir / "core_sources_ingest.json"
+        assert (
+            json.loads(manifest.read_text(encoding="utf-8"))["metrics"]["observations"] == expected
+        )
     assert transformers._to_iso3 is original

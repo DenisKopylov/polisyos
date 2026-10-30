@@ -1,0 +1,15 @@
+id = "2026-10-30-generation-receipt-json-roundtrip"
+title = "Keep generation strangle receipts stable through JSON persistence"
+type = "fixed"
+component = "runtime-quality"
+owner = "team-runtime"
+summary = "Produce a fresh JSON-native verified_by sequence in the canonical strangle receipt owner so complete typed generation results survive persistence and reload."
+evidence = ["src/polisyos/runtime/quality/design_generation.py", "tests/unit/runtime/quality/test_design_generation_json_roundtrip.py", "tests/unit/runtime/quality/test_generation_source.py"]
+compatibility = "Canonical JSON and artifact wire bytes remain unchanged; order and values are retained. Python receipt arrays use fresh lists instead of tuples. No status, authority, epoch or grounding change."
+change_class = "internal-api"
+surface_classification = "Existing private receipt assembler; no public signature or JSON schema change. Generated related-source metadata remains part of the pending composed generation check."
+migration = "No data migration. Run actual owner/terminal-result JSON, wire and alias regressions and original fresh source roundtrip/provenance controls."
+limitations = "Runtime checks for this change are pending; unrelated identity, independence and L6 input qualifications remain open. No G acceptance or closure."
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

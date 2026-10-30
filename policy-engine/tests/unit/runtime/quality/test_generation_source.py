@@ -2794,6 +2794,7 @@ def test_source_intake_recomputes_original_candidate_provenance(actual_n4_source
     }
     payload["content_hash"] = _source_content_hash(payload)
     manifest = repository.store.get_manifest(ref)
+    assert manifest.canon is not None
     changed_ref = repository.store.put_bytes(
         canon.to_canonical_bytes(payload, _SOURCE_CANON),
         artifacts.ArtifactWriteOptions(
@@ -2801,8 +2802,11 @@ def test_source_intake_recomputes_original_candidate_provenance(actual_n4_source
             media_type=manifest.media_type,
             schema=manifest.artifact_schema,
             producer=manifest.producer,
+            canon=manifest.canon,
         ),
     )
+    _, changed_profile = artifacts.read_core_manifest_profile(repository.store, changed_ref)
+    assert changed_profile.status == "declared"
     assert repository.store.verify(changed_ref.artifact_id).ok
     with pytest.raises(ValueError, match="generation_source_original_candidate_mismatch"):
         repository.load(str(changed_ref.artifact_id), run_id="synthetic-reseal")

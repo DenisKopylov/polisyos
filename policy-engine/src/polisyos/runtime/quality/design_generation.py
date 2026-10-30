@@ -2697,10 +2697,10 @@ def _build_strangle_receipt(root: Path, spec: Mapping[str, Any]) -> dict[str, An
             + ast_callers
         ),
         "removed_loc": spec["removed_loc"],
-        "verified_by": (
+        "verified_by": [
             f"{DESIGN_GENERATION_PRODUCER_REF}.validate_design_generation_strangle_receipts",
             "tools.quality.validation.check_layer3_gy_design_generation_contract",
-        ),
+        ],
     }
 
 

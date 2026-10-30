@@ -562,8 +562,9 @@ class _ExternalCaptureFinder(importlib.abc.MetaPathFinder):
             expected = previous
         else:
             capture._selected_sources[fullname] = expected
-        spec.origin = str(selected)
-        spec.loader = _CapturedSourceLoader(fullname, str(selected), capture, expected)
+        # Preserve PathFinder's logical module metadata (which may include a
+        # selected venv alias) while binding its resolved file independently.
+        spec.loader = _CapturedSourceLoader(fullname, origin, capture, expected)
         return spec
 
 
@@ -587,6 +588,7 @@ class SourceExecutionCapture:
         *,
         exports: Mapping[str, set[str] | frozenset[str]] | None = None,
         external_source_selector: Callable[[str, str], tuple[str, str] | None] | None = None,
+        external_source_root: Path | None = None,
     ) -> None:
         self._root = root.resolve(strict=True)
         self._process_id = _GETPID()
@@ -605,6 +607,19 @@ class SourceExecutionCapture:
         self._sources = MappingProxyType(self._selected_sources)
         self._external_source_selector = external_source_selector
         self._selecting_external = False
+        self._external_source_root = (
+            None if external_source_root is None else external_source_root.absolute()
+        )
+        if self._external_source_root is not None and (
+            not self._external_source_root.is_relative_to(self._root)
+            or ".." in self._external_source_root.parts
+        ):
+            raise ValueError("capture_external_source_root_invalid")
+        self._resolved_external_source_root = (
+            None
+            if self._external_source_root is None
+            else self._external_source_root.resolve(strict=True)
+        )
         if exports is not None and (
             type(exports) not in (dict, MappingProxyType)
             or any(
@@ -927,6 +942,21 @@ class SourceExecutionCapture:
             ):
                 self._fail("retained_module_changed")
                 raise CaptureError("retained_module_changed")
+            alias = self._external_source_root
+            if (
+                alias is not None
+                and self._resolved_external_source_root != alias
+                and (self._root / record.relative_path).is_relative_to(alias)
+            ):
+                try:
+                    same_file = Path(record.origin).resolve(strict=True) == self._selected_path(
+                        self._sources[name]
+                    )
+                except (OSError, RuntimeError, ValueError):
+                    same_file = False
+                if not same_file:
+                    self._fail("retained_module_changed")
+                    raise CaptureError("retained_module_changed")
             if not self._metadata_matches(
                 name,
                 record.module,
@@ -1646,13 +1676,20 @@ class SourceExecutionCapture:
         if relative.is_absolute() or ".." in relative.parts:
             raise ValueError("capture_source_path_invalid")
         selected = self._root / relative
-        if (
-            selected.resolve(strict=True) != selected
-            or not selected.is_relative_to(self._root)
-            or not selected.is_file()
-        ):
+        if not selected.is_relative_to(self._root):
             raise ValueError("capture_source_path_invalid")
-        return selected
+        resolved = selected.resolve(strict=True)
+        alias = self._external_source_root
+        external_root = self._resolved_external_source_root
+        if alias is not None and external_root is not None and selected.is_relative_to(alias):
+            canonical = external_root / selected.relative_to(alias)
+            if canonical.resolve(strict=True) != canonical or resolved != canonical:
+                raise ValueError("capture_source_path_invalid")
+        elif resolved != selected:
+            raise ValueError("capture_source_path_invalid")
+        if not resolved.is_file():
+            raise ValueError("capture_source_path_invalid")
+        return resolved
 
     def _begin(self, name: str, module: ModuleType, loader: _CapturedSourceLoader) -> None:
         if (
@@ -1710,7 +1747,11 @@ class SourceExecutionCapture:
         else:
             package_search_locations = tuple(package_path)
         package = name if search_locations is not None else name.rpartition(".")[0]
-        selected_origin = str(self._selected_path(self._sources[name]))
+        selected_origin = _passive_lookup(object.__getattribute__(loader, "__dict__"), "path")[1]
+        if type(selected_origin) is not str or Path(selected_origin).resolve(
+            strict=True
+        ) != self._selected_path(self._sources[name]):
+            raise CaptureError("module_initialization_invalid")
         if not self._metadata_matches(
             name,
             module,

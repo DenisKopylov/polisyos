@@ -321,8 +321,9 @@ class _LockedWheelSourceSelector:
 
     def __init__(self, root: Path, site: Path, lock_bytes: bytes) -> None:
         self._root = root.resolve(strict=True)
+        self._site_alias = site.absolute()
         self._site = site.resolve(strict=True)
-        if not self._site.is_relative_to(self._root):
+        if not self._site_alias.is_relative_to(self._root) or ".." in self._site_alias.parts:
             raise ValueError("provider_site_outside_checkout")
         document = tomllib.loads(lock_bytes.decode("utf-8"))
         packages = document.get("package")
@@ -519,11 +520,18 @@ class _LockedWheelSourceSelector:
             return None
         try:
             path = Path(origin)
-            if not path.is_relative_to(self._site):
+            if not path.is_relative_to(self._site_alias):
                 return None
-            if path.resolve(strict=True) != path or not path.is_file():
+            site_relative = path.relative_to(self._site_alias)
+            canonical_path = self._site / site_relative
+            if (
+                ".." in site_relative.parts
+                or canonical_path.resolve(strict=True) != canonical_path
+                or path.resolve(strict=True) != canonical_path
+                or not canonical_path.is_file()
+            ):
                 raise ValueError("provider_source_origin_invalid")
-            relative = path.relative_to(self._site).as_posix()
+            relative = site_relative.as_posix()
             parts = list(PurePosixPath(relative).with_suffix("").parts)
             if parts[-1] == "__init__":
                 parts.pop()
@@ -541,7 +549,7 @@ class _LockedWheelSourceSelector:
                 raise ValueError(self._wheel_failures.get(owners[0], "provider_wheel_unavailable"))
             wheel_hash, members = selected
             digest = members.get(relative)
-            if digest is None or _file_sha(path) != digest:
+            if digest is None or _file_sha(canonical_path) != digest:
                 raise ValueError("provider_installed_source_mismatch")
             checkout_relative = path.relative_to(self._root).as_posix()
             self._selected[module_name] = (checkout_relative, digest, wheel_hash)
@@ -1067,6 +1075,7 @@ def _child_main(channel: socket.socket, request: dict[str, object]) -> int:
             sources,
             exports=exports,
             external_source_selector=None if selector is None else selector.select,
+            external_source_root=None if selector is None else site,
         )
         capture.install()
     except (recorder.CaptureError, OSError, ValueError) as exc:

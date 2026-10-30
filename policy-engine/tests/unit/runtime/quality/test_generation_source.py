@@ -702,6 +702,96 @@ def test_recorded_n4_world_reader_never_writes_selected_store(tmp_path):
     assert not missing.exists()
 
 
+class _SyntheticSourceFixtureCatalog:
+    """Controlled model catalog input; never evidence of external availability."""
+
+    def __init__(self, model_ids: tuple[str, ...]) -> None:
+        self.model_ids = model_ids
+        self.calls: list[float | None] = []
+
+    async def list_model_ids(self, *, timeout: float | None = None) -> list[str]:
+        self.calls.append(timeout)
+        return list(self.model_ids)
+
+
+def _synthetic_source_preflight(*, model_id: str, model_ids: tuple[str, ...]):
+    """Exercise the canonical preflight over an explicitly local synthetic catalog."""
+    import asyncio
+
+    catalog = _SyntheticSourceFixtureCatalog(model_ids)
+    preflight = asyncio.run(n4.preflight_model_profile(catalog, model_id=model_id))
+    assert catalog.calls == [10.0]
+    return preflight
+
+
+def _assemble_synthetic_source_result(
+    problem, *, model_id, preflight, candidates, dispositions, root, calls
+):
+    """Reuse every canonical result owner without upgrading synthetic evidence."""
+    problem_ref = n4.gy_content_hash(problem.model_dump(mode="json"))
+    if preflight.status != "supported":
+        return n4._terminal_result(
+            design_problem_ref=problem_ref,
+            model_id=model_id,
+            preflight=preflight,
+            status="preflight_rejected",
+            reason=preflight.reason,
+            organ="preflight",
+            min_diverse_candidates=1,
+            llm_calls=calls,
+        )
+    diversity = n4.measure_generation_diversity(
+        candidates, min_required=1, dispositions=dispositions
+    )
+    if not diversity.diverse_enough:
+        return n4.GenerationUnderAResult(
+            status="generation_unavailable",
+            design_problem_ref=problem_ref,
+            model_id=model_id,
+            preflight=preflight,
+            degraded_artifacts=(
+                n4.DegradedGenerationArtifact(
+                    reason="insufficient_diverse_model_generated_candidates",
+                    organ="diversity",
+                    details=diversity.model_dump(mode="json"),
+                ),
+            ),
+            diversity_report=diversity,
+            llm_calls=calls,
+            firewall_evidence=n4.default_firewall_evidence(),
+            strangle_receipts=n4.design_generation_strangle_receipts(root),
+        )
+    try:
+        rankings = n4.rank_shadow_candidates_with_graph_causal_surrogate(
+            candidates, design_problem=problem, repo_root=root
+        )
+    except n4.DesignGenerationError as exc:
+        return n4._terminal_result(
+            design_problem_ref=problem_ref,
+            model_id=model_id,
+            preflight=preflight,
+            status="generation_unavailable",
+            reason=str(exc),
+            organ="surrogate",
+            min_diverse_candidates=1,
+            llm_calls=calls,
+        )
+    return n4.GenerationUnderAResult(
+        status="generated",
+        design_problem_ref=problem_ref,
+        model_id=model_id,
+        preflight=preflight,
+        candidates=candidates,
+        grounding_dispositions=dispositions,
+        grounding_disposition_summary=n4._grounding_disposition_summary(dispositions),
+        diversity_report=diversity,
+        surrogate_rankings=rankings,
+        llm_calls=calls,
+        firewall_evidence=n4.default_firewall_evidence(),
+        strangle_receipts=n4.design_generation_strangle_receipts(root),
+    )
+
+
 @pytest.fixture(scope="module")
 def actual_n4_source():
     """Use the actual composed WMR/L6 owners and explicitly synthetic relation inputs."""
@@ -742,7 +832,16 @@ def actual_n4_source():
     registry = load_substrate_registry(store, registry_view_ref)
     problem = _test_design_problem()
     problem = problem.model_copy(
-        update={"runtime_hints": {**problem.runtime_hints, "synthetic": True}}
+        update={
+            "runtime_hints": {
+                **problem.runtime_hints,
+                "synthetic": True,
+                "synthetic_model_catalog": {
+                    "source": "fixture_local_not_external_availability",
+                    "model_ids": ["synthetic-c2"],
+                },
+            }
+        }
     )
     problem_ref = n4.gy_content_hash(problem.model_dump(mode="json"))
     l6_root = os.environ.get("CORR_C_L6_SOURCE_ROOT")
@@ -887,20 +986,17 @@ def actual_n4_source():
         )
 
     assert candidates, _candidate_failure_diagnostic()
-    result = n4.GenerationUnderAResult(
-        status="generated",
-        design_problem_ref=problem_ref,
+    preflight = _synthetic_source_preflight(model_id="synthetic-c2", model_ids=("synthetic-c2",))
+    result = _assemble_synthetic_source_result(
+        problem,
         model_id="synthetic-c2",
-        preflight=n4.ModelProfilePreflight(status="supported", model_id="synthetic-c2"),
+        preflight=preflight,
         candidates=candidates,
-        grounding_dispositions=dispositions,
-        grounding_disposition_summary=n4._grounding_disposition_summary(dispositions),
-        diversity_report=n4.GenerationDiversityReport(
-            min_required=1,
-            candidate_count=len(dispositions),
-            unique_diversity_key_count=1,
-        ),
+        dispositions=dispositions,
+        root=root,
+        calls=(_llm_call(),),
     )
+    assert result.status == "generated", result.model_dump(mode="json")
     return problem, n4.DesignGenerationOrganRun(
         result=result,
         trinity_bundle=bundle,
@@ -908,6 +1004,75 @@ def actual_n4_source():
         credal_reference=capture.reference,
         candidate_sources=tuple(capture.candidates),
     )
+
+
+def test_actual_source_result_owners_preserve_synthetic_candidate_boundary(actual_n4_source):
+    """The complete result carries owner-derived ranks without acquiring authority."""
+    problem, organ = actual_n4_source
+    result = organ.result
+    assert problem.runtime_hints["synthetic_model_catalog"] == {
+        "source": "fixture_local_not_external_availability",
+        "model_ids": ["synthetic-c2"],
+    }
+    assert result.preflight.status == "supported"
+    assert result.preflight.live_model_ids == ("synthetic-c2",)
+    assert result.diversity_report == n4.measure_generation_diversity(
+        result.candidates, min_required=1, dispositions=result.grounding_dispositions
+    )
+    assert {row.candidate_id for row in result.surrogate_rankings} == {
+        candidate.candidate_id for candidate in result.candidates
+    }
+    assert len(result.surrogate_rankings) == len(result.candidates)
+    assert all(not row.promotion_allowed for row in result.surrogate_rankings)
+    assert all(row.trust_level != "certified" for row in result.surrogate_rankings)
+    assert all(candidate.status == "candidate_unverified" for candidate in result.candidates)
+    assert result.firewall_evidence
+    assert all(row.blocked_from_authority for row in result.firewall_evidence)
+    assert n4.GenerationUnderAResult.model_validate(result.model_dump(mode="python")) == result
+
+
+def test_actual_source_result_rejects_removed_canonical_ranking(actual_n4_source, monkeypatch):
+    """Keeping generated markers cannot replace coverage from the actual ranker."""
+    from pathlib import Path
+
+    problem, organ = actual_n4_source
+    result = organ.result
+    monkeypatch.setattr(
+        n4, "rank_shadow_candidates_with_graph_causal_surrogate", lambda *a, **k: ()
+    )
+    with pytest.raises(ValidationError, match="surrogate_ranking_coverage_incomplete"):
+        _assemble_synthetic_source_result(
+            problem,
+            model_id=result.model_id,
+            preflight=result.preflight,
+            candidates=result.candidates,
+            dispositions=result.grounding_dispositions,
+            root=Path(__file__).resolve().parents[4],
+            calls=result.llm_calls,
+        )
+
+
+def test_actual_source_result_refuses_absent_synthetic_catalog_model(actual_n4_source):
+    """Real preflight refusal cannot be replaced by a supported-status constructor."""
+    from pathlib import Path
+
+    problem, organ = actual_n4_source
+    preflight = _synthetic_source_preflight(model_id=organ.result.model_id, model_ids=())
+    assert preflight.status == "unsupported"
+    refused = _assemble_synthetic_source_result(
+        problem,
+        model_id=organ.result.model_id,
+        preflight=preflight,
+        candidates=organ.result.candidates,
+        dispositions=organ.result.grounding_dispositions,
+        root=Path(__file__).resolve().parents[4],
+        calls=organ.result.llm_calls,
+    )
+    assert refused.status == "preflight_rejected"
+    assert refused.candidates == refused.grounding_dispositions == ()
+    assert refused.surrogate_rankings == ()
+    assert refused.preflight is preflight
+    assert refused.degraded_artifacts[0].organ == "preflight"
 
 
 def _source_summary(organ, cycle=0):
@@ -956,18 +1121,16 @@ def _produce_source_variant(problem, original, *, bundle=None, run_budget=None):
         source_capture=capture,
     )
     assert candidates, [(item.disposition, item.rejected_cause) for item in dispositions]
-    result = original.result.model_copy(
-        update={
-            "candidates": candidates,
-            "grounding_dispositions": dispositions,
-            "grounding_disposition_summary": n4._grounding_disposition_summary(dispositions),
-            "diversity_report": n4.GenerationDiversityReport(
-                min_required=1,
-                candidate_count=len(dispositions),
-                unique_diversity_key_count=len({item.diversity_key for item in candidates}),
-            ),
-        }
+    result = _assemble_synthetic_source_result(
+        problem,
+        model_id=original.result.model_id,
+        preflight=original.result.preflight,
+        candidates=candidates,
+        dispositions=dispositions,
+        root=Path(__file__).resolve().parents[4],
+        calls=(_llm_call(),),
     )
+    assert result.status == "generated", result.model_dump(mode="json")
     return replace(
         original,
         result=result,

@@ -1608,7 +1608,7 @@ def test_ir_reader_uses_nondefault_persisted_depth_through_existing_g_producer(t
     "profile_updates",
     [
         {"name": "polisyos.canon.future"},
-        {"version": "0.3.0"},
+        {"version": "0.4.0"},
         {"forbid_floats": "false"},
         {"max_depth": "129"},
         {"max_depth": True},
@@ -2033,7 +2033,7 @@ def test_core_put_json_preserves_array_digest_mapping_but_raw_ir_reader_refuses_
 
 @pytest.mark.parametrize(
     "profile",
-    [CoreCanonInfo(name="polisyos.canon.future"), CoreCanonInfo(version="0.3.0")],
+    [CoreCanonInfo(name="polisyos.canon.future"), CoreCanonInfo(version="0.4.0")],
 )
 def test_actual_persisted_mismatched_profile_refuses_before_bytes(tmp_path, profile) -> None:
     """Current Core metadata cannot make an unsupported profile readable by declaration."""
@@ -3145,3 +3145,20 @@ def test_selected_write_rejects_foreign_root_model_in_typed_string_field_before_
         )
     assert store.put_calls == 0
     assert list(target.iter_artifact_ids()) == []
+
+
+def test_actual_persisted_supported_v3_generic_profile_uses_qualified_reader(tmp_path) -> None:
+    """Generic read qualification accepts explicit .3 without enabling an owned writer."""
+    root = tmp_path / "generic-v3-profile"
+    ref = FileSystemCAS(root).put_bytes(
+        b'{"value":1}',
+        ArtifactWriteOptions(
+            kind="test.persisted-supported-profile",
+            media_type="application/json",
+            canon=CoreCanonInfo(version="0.3.0"),
+        ),
+    )
+    fresh = FileSystemCAS(root)
+    reader = _RawManifestReader(fresh, fresh.get_manifest_bytes(ref))
+    assert get_json_artifact(_ensure_ir_artifact_store(reader), ref.artifact_id) == {"value": 1}
+    assert reader.manifest_reads == reader.byte_reads == 1

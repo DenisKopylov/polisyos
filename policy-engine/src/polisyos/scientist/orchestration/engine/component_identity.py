@@ -45,7 +45,7 @@ class _BuiltinOwner:
 
 # Import-time references are held independently of the mutable registry. The
 # executor imports this module before workflow execution and plugin discovery.
-def _load_builtin_node_types() -> tuple[type[Any], type[Any], type[Any], type[Any]]:
+def _load_builtin_node_types() -> tuple[type[Any], type[Any], type[Any], type[Any], type[Any]]:
     from polisyos.scientist.nodes.builtins.causal.resolve_transport import (
         RunTransportabilityNode,
     )
@@ -55,6 +55,7 @@ def _load_builtin_node_types() -> tuple[type[Any], type[Any], type[Any], type[An
     from polisyos.scientist.nodes.builtins.governance.run_governance import (
         RunGovernanceNode,
     )
+    from polisyos.scientist.nodes.builtins.planning.run_evaluator import RunEvaluatorNode
     from polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search import (
         RunHierarchicalPolicySearchNode,
     )
@@ -64,6 +65,7 @@ def _load_builtin_node_types() -> tuple[type[Any], type[Any], type[Any], type[An
         RunGovernanceNode,
         RunTransportabilityNode,
         RunHierarchicalPolicySearchNode,
+        RunEvaluatorNode,
     )
 
 
@@ -72,6 +74,7 @@ def _load_builtin_node_types() -> tuple[type[Any], type[Any], type[Any], type[An
     _RunGovernanceNode,
     _RunTransportabilityNode,
     _RunHierarchicalPolicySearchNode,
+    _RunEvaluatorNode,
 ) = _load_builtin_node_types()
 
 
@@ -158,6 +161,7 @@ _OWNERS = {
         _owner(_RunGovernanceNode),
         _owner(_RunTransportabilityNode),
         _owner(_RunHierarchicalPolicySearchNode),
+        _owner(_RunEvaluatorNode),
     )
 }
 

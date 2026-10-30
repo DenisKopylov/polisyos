@@ -1,0 +1,17 @@
+id = "2026-10-30-e02-workflow-governance-currentness"
+title = "Refresh governance after workflow evaluation"
+type = "fixed"
+component = "scientist"
+owner = "E02"
+summary = "The default and causal-full workflows evaluate an initial governance report and refresh governance on evaluator outputs before building the packet. Recorded gate decisions are replayed only from the exact linked producer and evaluator transition; unresolved or separate review requests remain blocked."
+evidence = ["tests/unit/scientist/orchestration/workflows/test_governance_evaluator_currentness.py", "tests/unit/scientist/orchestration/workflows/test_default_workflow_guard.py", "tests/unit/scientist/orchestration/workflows/test_causal_full_workflow_guard.py", "tests/unit/scientist/orchestration/engine/test_evaluator_component_identity.py", "tests/unit/scientist/nodes/builtins/governance/test_governance_gate_requests.py", "tests/contract/test_gate_protocol.py", "tests/unit/scientist/nodes/test_run_governance_normative.py", "tests/unit/scientist/nodes/builtins/governance/test_run_governance_claims.py", "tests/unit/scientist/nodes/builtins/planning/test_run_evaluator.py"]
+compatibility = "Adds a second governance invocation and makes metric validation and welfare propagation dependencies of initial governance. Gate decisions and requests retain their selected CAS profiles, and replays without the required producer and evaluator evidence block."
+change_class = "internal"
+surface_classification = "internal: Scientist workflow assembly"
+migration = "Historical decision artifacts remain readable. A prior decision without the selected request and decision profiles or the required Engine producer linkage is not established for replay."
+api = "RunGovernance accepts the optional replay_previous_gate_decision node parameter. The gate protocol now returns selected request and decision references."
+limitations = "Evaluator verdicts remain bound to the initial report. Freshness is assessed at packet input. Gate replay does not establish reviewer appointment, institutional authority, external evidence or policy authority; separate human-review requests remain blocked without their own admitted evidence."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/scientist/orchestration/workflows/README.md", "docs/reference/scientist/governance-passes.md"]
+runbook_docs = []

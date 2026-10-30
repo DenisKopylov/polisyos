@@ -10,13 +10,14 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Iterator, Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 import duckdb
+import pytest
 
 from polisyos.core.artifacts import ArtifactRef, FileSystemCAS
 from polisyos.core.security import (
@@ -1014,3 +1015,70 @@ def candidate_cycle_kref_source_witness(
         "kref_component_versions": dict(reference.component_versions),
         "kref_reference_hash": reference.reference_hash,
     }
+
+
+@contextmanager
+def complete_candidate_cycle_catalog_source(
+    source_root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> Iterator[tuple[CatalogServingSourceSelection, CatalogServingSourcePaths, SubstrateRegistry]]:
+    """Publish and readmit complete test-owned input before a candidate profile.
+
+    Existing candidate graph producers own L1/L2/L3 bytes. The existing registry
+    fixture supplies its test-owned L5/root/epoch/L6 metadata and the complete
+    published Catalog producer owns the selected L1 snapshot. No input becomes
+    empirical evidence or policy authority through this composition.
+    """
+    from polisyos.runtime.quality import substrate_registry as registry_owner
+    from tests.unit.runtime.http._published_catalog_fixture import (
+        build_published_catalog_fixture,
+    )
+    from tests.unit.runtime.quality.test_substrate_registry import (
+        _write_substrate_catalog_fixture,
+    )
+
+    root = Path(source_root).resolve(strict=True)
+    if not root.is_dir() or root.is_symlink():
+        raise AssertionError("complete_candidate_source_root_invalid")
+    paths = registry_owner.default_substrate_catalog_paths(root)
+    metadata = (
+        paths.root_manifest_path,
+        paths.measurement_registry_path,
+        paths.identification_mode_registry_path,
+        paths.schema_regime_registry_path,
+        paths.epoch_schema_regime_registry_path,
+        paths.epoch_schema_regime_scope_registry_path,
+    )
+    if any(path is None or path.exists() or path.is_symlink() for path in metadata):
+        raise AssertionError("complete_candidate_metadata_owner_not_fresh")
+    graph_paths = (
+        paths.l1_dcat_path,
+        root / DEFAULT_L2_SCHOLAR_KG_PATH,
+        root / DEFAULT_L3_LEX_KG_PATH,
+    )
+    graph_bytes = {path: hashlib.sha256(path.read_bytes()).hexdigest() for path in graph_paths}
+    _write_substrate_catalog_fixture(root, include_graphs=False)
+    if {path: hashlib.sha256(path.read_bytes()).hexdigest() for path in graph_paths} != graph_bytes:
+        raise AssertionError("complete_candidate_existing_graph_replaced")
+    published_root = root / "complete-cov-published-catalog"
+    published_root.mkdir(exist_ok=False)
+    monkeypatch.setenv("POLISYOS_CACHE_HOME", str(root / "complete-cov-cache"))
+    published = build_published_catalog_fixture(published_root, monkeypatch)
+    try:
+        selection = CatalogServingSourceSelection(
+            snapshot_root=published.snapshot_root,
+            source_owner_root=root,
+            catalog_run_profile="prod_full",
+        )
+        source = resolve_catalog_serving_source(
+            root, selection=selection, requested_profile=selection.catalog_run_profile
+        )
+        with registry_owner.catalog_serving_source_scope(source):
+            registry = registry_owner.build_substrate_registry_from_existing_catalogs(root)
+            registry_owner.require_catalog_source_registry_binding(root, registry, source)
+            yield selection, source, registry
+    finally:
+        try:
+            published.producer_graph.close()
+        finally:
+            published.close()

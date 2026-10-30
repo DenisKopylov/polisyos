@@ -242,7 +242,12 @@ def _read_owned_terminal(store, ref):
 
 
 def _served_wdi_candidate_profile(
-    *, tmp_path, store, problem, source_owner_root: Path | None = None
+    *,
+    tmp_path,
+    store,
+    problem,
+    source_owner_root: Path | None = None,
+    prepared_substrate_registry: substrate_registry.SubstrateRegistry | None = None,
 ):
     """Build one typed synthetic N5 profile over a real owner-built base WMR."""
     tmp_path.mkdir(parents=True, exist_ok=True)
@@ -274,7 +279,12 @@ def _served_wdi_candidate_profile(
         load_l6_intervention_substrate,
     )
     from polisyos.runtime.quality.joint_simulation_horizon import HorizonSpec
-    from polisyos.runtime.quality.substrate_registry import persist_substrate_registry
+    from polisyos.runtime.quality.substrate_registry import (
+        SubstrateRegistry,
+        current_catalog_serving_source,
+        persist_substrate_registry,
+        require_catalog_source_registry_binding,
+    )
     from polisyos.runtime.quality.world_model_record import (
         BranchMode,
         SkgCausalPriorRef,
@@ -289,7 +299,21 @@ def _served_wdi_candidate_profile(
     )
     snapshot_id = "served-wdi-controlled-candidate-base"
     base_data_snapshot_ref = wmr_fixture._data_snapshot_ref(store, snapshot_id=snapshot_id)
-    substrate_registry = wmr_fixture._substrate_registry()
+    if prepared_substrate_registry is None:
+        substrate_registry = wmr_fixture._substrate_registry()
+    else:
+        source = current_catalog_serving_source()
+        if (
+            source is None
+            or source_owner_root is None
+            or source.repo_root != source_owner_root
+            or source.source_owner_root != source_owner_root
+        ):
+            raise AssertionError("served_profile_prepared_registry_source_missing")
+        substrate_registry = SubstrateRegistry.model_validate(
+            prepared_substrate_registry.model_dump(mode="json")
+        )
+        require_catalog_source_registry_binding(source_owner_root, substrate_registry, source)
     substrate_registry_ref = persist_substrate_registry(store, substrate_registry)
     registry_bundle = build_default_registry_bundle(store)
     model_spec = wmr_fixture._model_spec(
@@ -745,6 +769,12 @@ def _produce_served_acquisition_history(
     sequential_oracle=None,
     provider_mode: str = "recorded_capture",
     seed_only_observer: Callable[..., None] | None = None,
+    prepared_catalog: tuple[
+        substrate_registry.CatalogServingSourceSelection,
+        substrate_registry.CatalogServingSourcePaths,
+        substrate_registry.SubstrateRegistry,
+    ]
+    | None = None,
 ) -> dict[str, str] | None:
     import os
 
@@ -806,16 +836,20 @@ def _produce_served_acquisition_history(
     monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "dev")
     monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
     monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
-    install_fixture_wdi_cost_basis(monkeypatch)
+    if seed_only_observer is None:
+        install_fixture_wdi_cost_basis(monkeypatch)
     # Use the fixture's typed Catalog selector for both the base profile and
     # every served K_ref reader. Preserve the legacy startup-only path for tests
     # that do not select an isolated source root.
     catalog_selection = None
     catalog_serving_source = None
+    prepared_substrate_registry = None
     selected_catalog_readback = None
     l6_source_reads = []
     bind_expected_l6_source = None
     assert_l6_adapter_installed = None
+    if prepared_catalog is not None and selected_source_root is None:
+        raise AssertionError("prepared_catalog_source_root_required")
     if selected_source_root is None:
         catalog_root = tmp_path / "retrieval-catalog"
         catalog_api.build_slice0_fixture_catalog_graph(catalog_root).close()
@@ -842,9 +876,30 @@ def _produce_served_acquisition_history(
             install_candidate_cycle_l6_source_root_reader,
         )
 
-        catalog_selection, catalog_serving_source = build_candidate_cycle_catalog_serving_source(
-            selected_source_root
-        )
+        if prepared_catalog is None:
+            catalog_selection, catalog_serving_source = (
+                build_candidate_cycle_catalog_serving_source(selected_source_root)
+            )
+        else:
+            catalog_selection, catalog_serving_source, prepared_substrate_registry = (
+                prepared_catalog
+            )
+            if (
+                catalog_serving_source.repo_root != selected_source_root
+                or catalog_serving_source.source_owner_root != selected_source_root
+            ):
+                raise AssertionError("prepared_catalog_source_owner_mismatch")
+            resolved_selection = substrate_registry.resolve_catalog_serving_source(
+                selected_source_root,
+                selection=catalog_selection,
+                requested_profile=catalog_selection.catalog_run_profile,
+            )
+            if resolved_selection != catalog_serving_source:
+                raise AssertionError("prepared_catalog_selection_binding_mismatch")
+            with substrate_registry.catalog_serving_source_scope(catalog_serving_source):
+                substrate_registry.require_catalog_source_registry_binding(
+                    selected_source_root, prepared_substrate_registry, catalog_serving_source
+                )
         selected_catalog_readback = candidate_cycle_catalog_source_readback(
             catalog_serving_source.database_path
         )
@@ -919,6 +974,7 @@ def _produce_served_acquisition_history(
             store=artifacts.FileSystemCAS(cas_root, ownership_enforced=True),
             problem=recorded_problem,
             source_owner_root=selected_source_root,
+            prepared_substrate_registry=prepared_substrate_registry,
         )
     else:
         with substrate_registry.catalog_serving_source_scope(catalog_serving_source):
@@ -928,6 +984,7 @@ def _produce_served_acquisition_history(
                 store=artifacts.FileSystemCAS(cas_root, ownership_enforced=True),
                 problem=recorded_problem,
                 source_owner_root=selected_source_root,
+                prepared_substrate_registry=prepared_substrate_registry,
             )
     source_root_witness_json = None
     actual_kref_witnesses = []

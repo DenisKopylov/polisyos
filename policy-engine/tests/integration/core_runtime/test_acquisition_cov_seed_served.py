@@ -39,6 +39,7 @@ from polisyos.runtime.quality.generation_source import (
     GenerationSourceRepository,
     N4CandidateScenarioSourceRecordV3,
 )
+from polisyos.runtime.quality.substrate_registry import SubstrateRegistry
 from tests._helpers import acquisition_served_history as fixture
 from tests._helpers.acquisition_production import resolve_completed_wdi_route
 
@@ -53,12 +54,14 @@ def test_served_cov_seed_reaches_persisted_refusal_without_cost_or_authority(
     """Keep actual COV admission/cost gaps visible after real candidate N5."""
     from tests._helpers.candidate_cycle_source_profile import (
         build_candidate_cycle_substrate_route_inputs,
+        complete_candidate_cycle_catalog_source,
     )
 
     source = build_candidate_cycle_substrate_route_inputs(
         tmp_path / "candidate-source", include_owner_slot_manifest=True
     )
     observed: list[str] = []
+    expected_registry: SubstrateRegistry | None = None
 
     def observe(**values: Any) -> None:
         control, job, run_id = values["control"], values["job"], values["run_id"]
@@ -128,6 +131,10 @@ def test_served_cov_seed_reaches_persisted_refusal_without_cost_or_authority(
         n5_input = CandidateSimulationN5InputV5.model_validate(
             load_core_json_artifact(fresh, input_ref)
         )
+        assert expected_registry is not None
+        assert n5_input.profile.context_inputs.substrate_registry.model_dump(mode="json") == (
+            expected_registry.model_dump(mode="json")
+        )
         candidate_source = GenerationSourceRepository(fresh).load_candidate_scenario_source_for_n5(
             n5_input.n4_source_ref,
             expected_run_id=run_id,
@@ -164,6 +171,7 @@ def test_served_cov_seed_reaches_persisted_refusal_without_cost_or_authority(
             ),
             "source_semantic_emission_enabled": cycle_owner._N7_SOURCE_SEMANTIC_EMISSION_ENABLED,
             "claim": "candidate COV research escalation and persisted refusal only",
+            "route_counterexample": cycle.counterexample.model_dump(mode="json"),
         }
         (tmp_path / "cov-seed-diagnostic.json").write_text(
             json.dumps(diagnostic, indent=2, sort_keys=True) + "\n"
@@ -222,13 +230,49 @@ def test_served_cov_seed_reaches_persisted_refusal_without_cost_or_authority(
             )
         observed.append(str(report_ref.artifact_id))
 
-    result = fixture._produce_served_acquisition_history(
-        tmp_path,
-        monkeypatch,
-        served_recorded_candidate_gateway,
-        source_owner_root=source.root,
-        provider_mode="synthetic_settled_candidate",
-        seed_only_observer=observe,
-    )
+    from polisyos.runtime.quality import substrate_registry as registry_owner
+    from tests._helpers import world_model_record as wmr_fixture
+
+    with complete_candidate_cycle_catalog_source(source.root, monkeypatch) as prepared:
+        selection, catalog_source, expected_registry = prepared
+        assert selection.catalog_run_profile == "prod_full"
+        registry_owner.require_catalog_source_registry_binding(
+            source.root, expected_registry, catalog_source
+        )
+        with pytest.raises(
+            registry_owner.SubstrateRegistryError,
+            match="catalog_source_registry_readmission_required",
+        ):
+            registry_owner.require_catalog_source_registry_binding(
+                source.root, wmr_fixture._substrate_registry(), catalog_source
+            )
+        legacy_registry = wmr_fixture._substrate_registry()
+        selected_content_refs = tuple(
+            ref
+            for ref in expected_registry.source_catalog_refs
+            if ref.startswith("catalog_read_source_content://")
+        )
+        assert len(selected_content_refs) == 1
+        header_only_registry = registry_owner.build_substrate_registry(
+            legacy_registry.entries,
+            producer_ref=legacy_registry.producer_ref,
+            source_catalog_refs=(*legacy_registry.source_catalog_refs, *selected_content_refs),
+        )
+        with pytest.raises(
+            registry_owner.SubstrateRegistryError,
+            match="catalog_source_registry_binding_mismatch",
+        ):
+            registry_owner.require_catalog_source_registry_binding(
+                source.root, header_only_registry, catalog_source
+            )
+        result = fixture._produce_served_acquisition_history(
+            tmp_path,
+            monkeypatch,
+            served_recorded_candidate_gateway,
+            source_owner_root=source.root,
+            provider_mode="synthetic_settled_candidate",
+            seed_only_observer=observe,
+            prepared_catalog=prepared,
+        )
     assert result is not None and result["run_id"] and result["job_id"]
     assert len(observed) == 1

@@ -69,8 +69,12 @@ def _write_fixture_database(
         connection.close()
 
 
-def _write_substrate_catalog_fixture(root: Path) -> None:
-    """Build small, explicitly synthetic inputs for registry owner tests."""
+def _write_substrate_catalog_fixture(root: Path, *, include_graphs: bool = True) -> None:
+    """Build synthetic registry inputs, optionally composing existing owner graphs.
+
+    ``include_graphs=False`` emits the same L5/root/epoch/L6 fixture inputs;
+    the caller supplies its already-produced real L1/L2/L3 graph inputs.
+    """
 
     production_data = root / "production_data"
     manifest_path = production_data / "manifest.json"
@@ -228,12 +232,15 @@ def _write_substrate_catalog_fixture(root: Path) -> None:
         },
     )
 
-    dcat_path = production_data / "datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb"
-    dcat_path.parent.mkdir(parents=True, exist_ok=True)
-    connection = duckdb.connect(str(dcat_path))
-    try:
-        connection.execute(
-            """
+    if include_graphs:
+        dcat_path = (
+            production_data / "datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb"
+        )
+        dcat_path.parent.mkdir(parents=True, exist_ok=True)
+        connection = duckdb.connect(str(dcat_path))
+        try:
+            connection.execute(
+                """
             CREATE TABLE ds_datasets (
                 source VARCHAR,
                 quality_execution_readiness_score DOUBLE,
@@ -243,135 +250,135 @@ def _write_substrate_catalog_fixture(root: Path) -> None:
                 quality_freshness_score DOUBLE
             )
             """
-        )
-        connection.execute("CREATE TABLE ds_metric_bindings (source VARCHAR)")
-        connection.executemany(
-            "INSERT INTO ds_datasets VALUES (?, ?, ?, ?, ?, ?)",
-            [
-                ("fixture_dataset_source", 0.16, 0.70, 0.80, 0.90, 0.60),
-                ("fixture_dataset_source", 0.40, 0.80, 0.85, 0.95, 0.70),
-            ],
-        )
-        connection.execute(
-            "INSERT INTO ds_metric_bindings VALUES (?)",
-            ["fixture_dataset_source"],
-        )
-    finally:
-        connection.close()
+            )
+            connection.execute("CREATE TABLE ds_metric_bindings (source VARCHAR)")
+            connection.executemany(
+                "INSERT INTO ds_datasets VALUES (?, ?, ?, ?, ?, ?)",
+                [
+                    ("fixture_dataset_source", 0.16, 0.70, 0.80, 0.90, 0.60),
+                    ("fixture_dataset_source", 0.40, 0.80, 0.85, 0.95, 0.70),
+                ],
+            )
+            connection.execute(
+                "INSERT INTO ds_metric_bindings VALUES (?)",
+                ["fixture_dataset_source"],
+            )
+        finally:
+            connection.close()
 
-    l2_table_statements = (
-        (
-            "ac_parameter_estimates",
-            "CREATE TABLE ac_parameter_estimates (fixture_row INTEGER)",
-            "INSERT INTO ac_parameter_estimates VALUES (1)",
-        ),
-        (
-            "ac_causal_claims",
-            "CREATE TABLE ac_causal_claims (fixture_row INTEGER)",
-            "INSERT INTO ac_causal_claims VALUES (1)",
-        ),
-        (
-            "ac_skg_edges",
-            "CREATE TABLE ac_skg_edges (fixture_row INTEGER)",
-            "INSERT INTO ac_skg_edges VALUES (1)",
-        ),
-        (
-            "ac_skg_transport_scores",
-            "CREATE TABLE ac_skg_transport_scores (fixture_row INTEGER)",
-            "INSERT INTO ac_skg_transport_scores VALUES (1)",
-        ),
-        (
-            "ac_skg_contested_edges",
-            "CREATE TABLE ac_skg_contested_edges (fixture_row INTEGER)",
-            "INSERT INTO ac_skg_contested_edges VALUES (1)",
-        ),
-        (
-            "ac_claim_adjudications",
-            "CREATE TABLE ac_claim_adjudications (fixture_row INTEGER)",
-            "INSERT INTO ac_claim_adjudications VALUES (1)",
-        ),
-        (
-            "ac_skg_variables",
-            "CREATE TABLE ac_skg_variables (fixture_row INTEGER)",
-            "INSERT INTO ac_skg_variables VALUES (1)",
-        ),
-        (
-            "ac_context_attributes",
-            "CREATE TABLE ac_context_attributes (fixture_row INTEGER)",
-            "INSERT INTO ac_context_attributes VALUES (1)",
-        ),
-        (
-            "ac_simulation_parameters",
-            "CREATE TABLE ac_simulation_parameters (fixture_row INTEGER)",
-            "INSERT INTO ac_simulation_parameters VALUES (1)",
-        ),
-        (
-            "ac_boundary_conditions",
-            "CREATE TABLE ac_boundary_conditions (fixture_row INTEGER)",
-            "INSERT INTO ac_boundary_conditions VALUES (1)",
-        ),
-        (
-            "ac_skg_versions",
-            "CREATE TABLE ac_skg_versions (version_id VARCHAR)",
-            "INSERT INTO ac_skg_versions VALUES (?)",
-        ),
-    )
-    _write_fixture_database(
-        production_data
-        / "policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb",
-        table_statements=l2_table_statements,
-        version_table="ac_skg_versions",
-        version_value="unit-fixture-scholar-v1",
-    )
-    l3_table_statements = (
-        (
-            "lex_provisions",
-            "CREATE TABLE lex_provisions (fixture_row INTEGER)",
-            "INSERT INTO lex_provisions VALUES (1)",
-        ),
-        (
-            "lex_normative_ready_facts",
-            "CREATE TABLE lex_normative_ready_facts (fixture_row INTEGER)",
-            "INSERT INTO lex_normative_ready_facts VALUES (1)",
-        ),
-        (
-            "lex_rule_thresholds",
-            "CREATE TABLE lex_rule_thresholds (fixture_row INTEGER)",
-            "INSERT INTO lex_rule_thresholds VALUES (1)",
-        ),
-        (
-            "lex_rule_clauses",
-            "CREATE TABLE lex_rule_clauses (fixture_row INTEGER)",
-            "INSERT INTO lex_rule_clauses VALUES (1)",
-        ),
-        (
-            "lex_amendments",
-            "CREATE TABLE lex_amendments (effective_from VARCHAR)",
-            "INSERT INTO lex_amendments VALUES (?)",
-        ),
-        (
-            "lex_entities",
-            "CREATE TABLE lex_entities (fixture_row INTEGER)",
-            "INSERT INTO lex_entities VALUES (1)",
-        ),
-        (
-            "lex_doc_domains",
-            "CREATE TABLE lex_doc_domains (fixture_row INTEGER)",
-            "INSERT INTO lex_doc_domains VALUES (1)",
-        ),
-        (
-            "lex_temporal_audit",
-            "CREATE TABLE lex_temporal_audit (fixture_row INTEGER)",
-            "INSERT INTO lex_temporal_audit VALUES (1)",
-        ),
-    )
-    _write_fixture_database(
-        production_data
-        / "lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb",
-        table_statements=l3_table_statements,
-        version_table="lex_amendments",
-        version_value="2026-01-01",
-    )
+        l2_table_statements = (
+            (
+                "ac_parameter_estimates",
+                "CREATE TABLE ac_parameter_estimates (fixture_row INTEGER)",
+                "INSERT INTO ac_parameter_estimates VALUES (1)",
+            ),
+            (
+                "ac_causal_claims",
+                "CREATE TABLE ac_causal_claims (fixture_row INTEGER)",
+                "INSERT INTO ac_causal_claims VALUES (1)",
+            ),
+            (
+                "ac_skg_edges",
+                "CREATE TABLE ac_skg_edges (fixture_row INTEGER)",
+                "INSERT INTO ac_skg_edges VALUES (1)",
+            ),
+            (
+                "ac_skg_transport_scores",
+                "CREATE TABLE ac_skg_transport_scores (fixture_row INTEGER)",
+                "INSERT INTO ac_skg_transport_scores VALUES (1)",
+            ),
+            (
+                "ac_skg_contested_edges",
+                "CREATE TABLE ac_skg_contested_edges (fixture_row INTEGER)",
+                "INSERT INTO ac_skg_contested_edges VALUES (1)",
+            ),
+            (
+                "ac_claim_adjudications",
+                "CREATE TABLE ac_claim_adjudications (fixture_row INTEGER)",
+                "INSERT INTO ac_claim_adjudications VALUES (1)",
+            ),
+            (
+                "ac_skg_variables",
+                "CREATE TABLE ac_skg_variables (fixture_row INTEGER)",
+                "INSERT INTO ac_skg_variables VALUES (1)",
+            ),
+            (
+                "ac_context_attributes",
+                "CREATE TABLE ac_context_attributes (fixture_row INTEGER)",
+                "INSERT INTO ac_context_attributes VALUES (1)",
+            ),
+            (
+                "ac_simulation_parameters",
+                "CREATE TABLE ac_simulation_parameters (fixture_row INTEGER)",
+                "INSERT INTO ac_simulation_parameters VALUES (1)",
+            ),
+            (
+                "ac_boundary_conditions",
+                "CREATE TABLE ac_boundary_conditions (fixture_row INTEGER)",
+                "INSERT INTO ac_boundary_conditions VALUES (1)",
+            ),
+            (
+                "ac_skg_versions",
+                "CREATE TABLE ac_skg_versions (version_id VARCHAR)",
+                "INSERT INTO ac_skg_versions VALUES (?)",
+            ),
+        )
+        _write_fixture_database(
+            production_data
+            / "policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb",
+            table_statements=l2_table_statements,
+            version_table="ac_skg_versions",
+            version_value="unit-fixture-scholar-v1",
+        )
+        l3_table_statements = (
+            (
+                "lex_provisions",
+                "CREATE TABLE lex_provisions (fixture_row INTEGER)",
+                "INSERT INTO lex_provisions VALUES (1)",
+            ),
+            (
+                "lex_normative_ready_facts",
+                "CREATE TABLE lex_normative_ready_facts (fixture_row INTEGER)",
+                "INSERT INTO lex_normative_ready_facts VALUES (1)",
+            ),
+            (
+                "lex_rule_thresholds",
+                "CREATE TABLE lex_rule_thresholds (fixture_row INTEGER)",
+                "INSERT INTO lex_rule_thresholds VALUES (1)",
+            ),
+            (
+                "lex_rule_clauses",
+                "CREATE TABLE lex_rule_clauses (fixture_row INTEGER)",
+                "INSERT INTO lex_rule_clauses VALUES (1)",
+            ),
+            (
+                "lex_amendments",
+                "CREATE TABLE lex_amendments (effective_from VARCHAR)",
+                "INSERT INTO lex_amendments VALUES (?)",
+            ),
+            (
+                "lex_entities",
+                "CREATE TABLE lex_entities (fixture_row INTEGER)",
+                "INSERT INTO lex_entities VALUES (1)",
+            ),
+            (
+                "lex_doc_domains",
+                "CREATE TABLE lex_doc_domains (fixture_row INTEGER)",
+                "INSERT INTO lex_doc_domains VALUES (1)",
+            ),
+            (
+                "lex_temporal_audit",
+                "CREATE TABLE lex_temporal_audit (fixture_row INTEGER)",
+                "INSERT INTO lex_temporal_audit VALUES (1)",
+            ),
+        )
+        _write_fixture_database(
+            production_data
+            / "lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb",
+            table_statements=l3_table_statements,
+            version_table="lex_amendments",
+            version_value="2026-01-01",
+        )
 
     l6_root = production_data / "fixture_ukraine_simulation/production_bundle/bundles"
     l6_payloads = (

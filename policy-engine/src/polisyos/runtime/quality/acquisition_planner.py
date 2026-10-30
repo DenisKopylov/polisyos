@@ -2729,6 +2729,7 @@ def run_acquisition_closed_loop(
         if planner_report_ref is not None
         else None
     )
+    planner_report_supplied = planner_report is not None
     if planner_report is None:
         if request.get("n7_source_join_rule") is not None:
             raise AcquisitionPlannerBindingError("n7_candidate_source_not_established")
@@ -2812,6 +2813,49 @@ def run_acquisition_closed_loop(
                 )
             except Exception as exc:
                 raise AcquisitionPlannerBindingError("n7_candidate_source_not_established") from exc
+    if request.get("n7_source_join_rule") is None and "requirement_gap" in request:
+        try:
+            source_gap = AcquisitionRequirementGap.model_validate(request["requirement_gap"])
+        except (TypeError, ValueError) as exc:
+            raise AcquisitionPlannerBindingError("n7_candidate_source_not_established") from exc
+        if source_gap.requirement_schema_version in {
+            "policyos.runtime.l1_variable_availability_gap.v1",
+            "policyos.runtime.grounding_coverage_gap.v1",
+        }:
+            # An automatic compiled-only plan has no selected-source route,
+            # even if one of its compiler IDs coincides with the source ID.
+            if not planner_report_supplied:
+                raise AcquisitionPlannerBindingError("n7_candidate_source_not_established")
+            typed_specs: list[object] = []
+            for spec in spec_rows:
+                payload = _spec_payload(spec)
+                try:
+                    typed_specs.append(DataRequirementSpec.model_validate(payload))
+                except (TypeError, ValueError):
+                    typed_specs.append(payload)
+            routed_gaps, routing_error = _n7_unmarked_current_compiler_gaps(
+                source_gap=source_gap,
+                specs=typed_specs,
+                capability_resolutions=resolution_rows,
+            )
+            expected_route = tuple(
+                (
+                    gap.requirement_gap_id,
+                    gap.compiled_requirement_ref,
+                    gap.scenario_requirement_refs,
+                )
+                for gap in routed_gaps
+            )
+            actual_route = tuple(
+                (
+                    row.requirement_gap_ref,
+                    row.compiled_requirement_ref,
+                    row.scenario_requirement_refs,
+                )
+                for row in planner_report.acquisition_records
+            )
+            if routing_error is not None or actual_route != expected_route:
+                raise AcquisitionPlannerBindingError("n7_candidate_source_not_established")
     if require_persisted_planner_report and normalized_planner_ref is None:
         raise AcquisitionPlannerBindingError("acquisition_planner_report_ref_missing")
     if planner_report.planning_context_hash is not None and normalized_planner_ref is None:
@@ -4857,7 +4901,7 @@ def _n7_route_compiler_gaps(
     source_gap: AcquisitionRequirementGap,
     specs: Sequence[object],
     capability_resolutions: Sequence[CapabilityRequirementResolution] | None,
-    strict_family: bool = False,
+    strict_family: bool = True,
 ) -> tuple[tuple[AcquisitionRequirementGap, ...], str | None]:
     """Preserve all compiler gaps while linking one exact source gap to its spec."""
 
@@ -4892,6 +4936,30 @@ def _n7_route_compiler_gaps(
         for gap in compiler_gaps
     )
     return routed_gaps, None
+
+
+def _n7_unmarked_current_compiler_gaps(
+    *,
+    source_gap: AcquisitionRequirementGap,
+    specs: Sequence[object],
+    capability_resolutions: Sequence[CapabilityRequirementResolution] | None,
+) -> tuple[tuple[AcquisitionRequirementGap, ...], str | None]:
+    """Admit an unmarked current route only when its historical replay agrees."""
+    current = _n7_route_compiler_gaps(
+        source_gap=source_gap,
+        specs=specs,
+        capability_resolutions=capability_resolutions,
+        strict_family=True,
+    )
+    legacy = _n7_route_compiler_gaps(
+        source_gap=source_gap,
+        specs=specs,
+        capability_resolutions=capability_resolutions,
+        strict_family=False,
+    )
+    if current != legacy:
+        return (), "requirement_gap_not_compiled"
+    return current
 
 
 def _n7_source_semantic_planning_gaps(

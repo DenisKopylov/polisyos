@@ -152,6 +152,7 @@ from polisyos.runtime.quality.acquisition_planner import (
     _n7_requirement_family,
     _n7_route_compiler_gaps,
     _n7_source_semantic_planning_gaps,
+    _n7_unmarked_current_compiler_gaps,
     _N7CandidateCurrentSelection,
     _N7CandidateCycleCheckpoint,
     _N7CandidatePortSource,
@@ -10110,11 +10111,15 @@ class GenerationCycleController:
         # expose routes alongside the refusal.
         if not unbound_input_fields and routing_limitation_code is None:
             if source_gap is not None and not request_binding_refused:
-                routed_compiler_gaps, routing_limitation_code = _n7_route_compiler_gaps(
+                route_current = (
+                    _n7_route_compiler_gaps
+                    if _N7_SOURCE_SEMANTIC_EMISSION_ENABLED
+                    else _n7_unmarked_current_compiler_gaps
+                )
+                routed_compiler_gaps, routing_limitation_code = route_current(
                     source_gap=source_gap,
                     specs=tuple(report.specs),
                     capability_resolutions=report.capability_requirement_resolutions,
-                    strict_family=_N7_SOURCE_SEMANTIC_EMISSION_ENABLED,
                 )
             elif cycle is None:
                 routed_compiler_gaps = requirement_gaps_from_compiled_specs(
@@ -12121,12 +12126,18 @@ class GenerationCycleController:
             ):
                 raise GenerationCycleError("n7_planner_report_cycle_binding_mismatch")
             request = acquisition_receipt.acquisition_request
+            source_rule = request.get("n7_source_join_rule")
+            if source_rule is not None and source_rule != _N7_SOURCE_JOIN_RULE:
+                raise GenerationCycleError("n7_planner_report_request_basis_mismatch")
             basis = self._n7_data_requirement_basis_with_report(
                 problem,
                 acquisition_request=request,
                 cycle=cycle,
             )
-            if basis.unbound_input_fields or basis.routing_limitation_code is not None:
+            if basis.unbound_input_fields or basis.routing_limitation_code not in {
+                None,
+                "requirement_gap_not_compiled",
+            }:
                 raise GenerationCycleError("n7_planner_report_request_basis_mismatch")
             specs = basis.specs
             capability_resolutions = basis.capability_resolutions
@@ -12138,13 +12149,28 @@ class GenerationCycleController:
                 != acquisition_receipt.compiled_requirement_specs
             ):
                 raise GenerationCycleError("n7_planner_report_request_basis_mismatch")
+            source_gap = basis.routed_source_gap
+            replay_gaps = basis.routed_compiler_gaps
+            if source_gap is not None:
+                # This path only interprets an already verified emitted receipt;
+                # the marker selects its recorded matching law, not provenance.
+                replay_gaps, replay_error = _n7_route_compiler_gaps(
+                    source_gap=source_gap,
+                    specs=specs,
+                    capability_resolutions=capability_resolutions,
+                    strict_family=source_rule == _N7_SOURCE_JOIN_RULE,
+                )
+                if replay_error is not None:
+                    raise GenerationCycleError("n7_planner_report_request_basis_mismatch")
+            elif basis.routing_limitation_code is not None:
+                raise GenerationCycleError("n7_planner_report_request_basis_mismatch")
             expected_route_rows = tuple(
                 (
                     gap.requirement_gap_id,
                     gap.compiled_requirement_ref,
                     gap.scenario_requirement_refs,
                 )
-                for gap in basis.routed_compiler_gaps
+                for gap in replay_gaps
             )
             actual_route_rows = tuple(
                 (
@@ -12154,20 +12180,20 @@ class GenerationCycleController:
                 )
                 for record in acquisition_receipt.planner_report.acquisition_records
             )
-            source_rule = request.get("n7_source_join_rule")
-            if source_rule is not None and source_rule != _N7_SOURCE_JOIN_RULE:
-                raise GenerationCycleError("n7_planner_report_request_basis_mismatch")
-            if source_rule == _N7_SOURCE_JOIN_RULE or actual_route_rows != expected_route_rows:
-                source_gap = basis.routed_source_gap
-                if source_gap is None or not _n7_joined_planner_records_match(
+            if (
+                source_rule == _N7_SOURCE_JOIN_RULE or actual_route_rows != expected_route_rows
+            ) and (
+                source_gap is None
+                or not _n7_joined_planner_records_match(
                     problem=problem,
                     acquisition_request=request,
                     source_gap=source_gap,
                     specs=specs,
                     capability_resolutions=capability_resolutions,
                     report=acquisition_receipt.planner_report,
-                ):
-                    raise GenerationCycleError("n7_planner_report_request_basis_mismatch")
+                )
+            ):
+                raise GenerationCycleError("n7_planner_report_request_basis_mismatch")
             basis_binding = acquisition_receipt.requirement_basis_binding
             if basis_binding is not None:
                 if artifact_store is None:

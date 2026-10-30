@@ -8373,16 +8373,17 @@ async def _exercise_n7_selected_source_candidate(
     monkeypatch.setattr(
         generation_cycle_module, "_N7_SOURCE_SEMANTIC_EMISSION_ENABLED", source_semantic_enabled
     )
-    monkeypatch.setitem(
-        acquisition_planner_module._ACQUISITION_GAP_BASIS,
-        "metric.test",
-        {
-            "basis_ref": "fixture-only:n7-inline-metric-test-cost:v1",
-            "collection_mode": "Fixture-only acquisition costing input",
-            "expert_hours": 1,
-            "calendar_days": 1,
-        },
-    )
+    if source_semantic_enabled:
+        monkeypatch.setitem(
+            acquisition_planner_module._ACQUISITION_GAP_BASIS,
+            "metric.test",
+            {
+                "basis_ref": "fixture-only:n7-inline-metric-test-cost:v1",
+                "collection_mode": "Fixture-only acquisition costing input",
+                "expert_hours": 1,
+                "calendar_days": 1,
+            },
+        )
 
     class _ObserveActionsController(GenerationCycleController):
         def __init__(self, **kwargs: Any) -> None:
@@ -8575,6 +8576,10 @@ async def _exercise_n7_selected_source_candidate(
     assert persistence_order[0:3] == ["persist", "readback", "readback"]
     assert persistence_order.index("persist") < persistence_order.index("owner")
     assert persistence_order.index("owner") > persistence_order.index("readback")
+    if not source_semantic_enabled:
+        assert "n7_source_join_rule" not in receipt["acquisition_request"]
+        assert receipt["owner_artifacts"]
+        assert run.cycles[0].acquisition_cost_basis_record is None
     from polisyos.runtime.quality.acquisition_planner import (
         AcquisitionReceipt,
         load_acquisition_planner_report,
@@ -9280,6 +9285,20 @@ async def test_n7_source_checkpoint_candidate_dispatch_before_unavailable_world(
         tmp_path,
         monkeypatch,
         True,
+        request,
+    )
+
+
+@pytest.mark.asyncio
+async def test_n7_unmarked_candidate_dispatch_before_unavailable_world(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    request: pytest.FixtureRequest,
+) -> None:
+    await _exercise_n7_selected_source_candidate(
+        tmp_path,
+        monkeypatch,
+        False,
         request,
     )
 
@@ -10848,6 +10867,402 @@ def test_n7_unbound_input_suppresses_compiler_routes_without_cycle(
     assert tuple(spec.required_data_families for spec in unbound.specs) == (("firm_survival",),)
     assert unbound.unbound_input_fields
     assert unbound.routed_compiler_gaps == ()
+
+
+@pytest.mark.asyncio
+async def test_current_n7_rejects_copied_source_ref_with_conflicting_compiler_family(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    n7_complete_catalog_source: tuple[Path, Any],
+) -> None:
+    """Current routes refuse a contradictory source ref before dispatch and on readback."""
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.runtime.quality.acquisition_planner import (
+        AcquisitionPlannerBindingError,
+        load_acquisition_planner_report,
+        run_acquisition_closed_loop,
+    )
+
+    source_root, catalog_source = n7_complete_catalog_source
+    store = FileSystemCAS(tmp_path / "wrong-family-cas")
+    problem = _problem("n7_copied_source_family")
+    controller = GenerationCycleController(
+        generation_port=_CgfGenerationPort(),
+        value_port=_DataGapValuePort(),
+        authority_scope="contract_testing",
+        repo_root=source_root,
+        catalog_serving_source=catalog_source,
+        artifact_store=store,
+        generated_at=datetime(2026, 10, 30, tzinfo=UTC),
+    )
+    run = await controller.run(problem, budget_state=_budget(), max_cycles=1)
+    cycle = run.cycles[0]
+    source_gap = generation_cycle_module._cycle_acquisition_requirement(
+        cycle.grounding, cycle.value_port
+    )
+    assert source_gap is not None
+    assert cycle.acquisition_routing_report is not None
+    assert cycle.acquisition_routing_report.status == "warn"
+    assert len(cycle.acquisition_routing_report.acquisition_records) == 1
+
+    compiler_owner = generation_cycle_module.DataRequirementCompiler
+    real_compile = compiler_owner.compile_for_scenario
+
+    class _UnexpectedOwner:
+        def acquire(self, **kwargs: Any) -> None:
+            raise AssertionError(f"blocked route reached owner: {kwargs}")
+
+    for source_ref, retain_matching in (
+        (source_gap.requirement_gap_id, False),
+        (source_gap.compiled_requirement_ref, False),
+        (source_gap.requirement_gap_id, True),
+    ):
+
+        def compile_with_conflict(
+            compiler: Any,
+            scenario: Any,
+            *,
+            source_ref: str = source_ref,
+            retain_matching: bool = retain_matching,
+        ) -> Any:
+            report = real_compile(compiler, scenario)
+            assert len(report.specs) == 1
+            matching = report.specs[0]
+            wrong = matching.model_copy(
+                update={
+                    "requirement_id": matching.requirement_id + ":wrong-family",
+                    "claim_id": matching.claim_id + ":wrong-family",
+                    "required_data_families": ("other_panel",),
+                    "source_requirement_refs": (source_ref,),
+                }
+            )
+            return report.model_copy(
+                update={"specs": (matching, wrong) if retain_matching else (wrong,)}
+            )
+
+        with monkeypatch.context() as patched:
+            patched.setattr(compiler_owner, "compile_for_scenario", compile_with_conflict)
+            for source_semantic_enabled in (False, True):
+                patched.setattr(
+                    generation_cycle_module,
+                    "_N7_SOURCE_SEMANTIC_EMISSION_ENABLED",
+                    source_semantic_enabled,
+                )
+                planned = controller._plan_n7_requirement_gap_if_requested(problem, cycle=cycle)
+                assert planned is not None
+                if retain_matching and source_semantic_enabled:
+                    # The versioned source-semantic law can select the one
+                    # matching family and keep the unrelated compiler gap.
+                    assert planned.report.status == "warn"
+                    continue
+                assert planned.basis.routing_limitation_code == "requirement_gap_not_compiled"
+                assert planned.basis.routed_compiler_gaps == ()
+                assert planned.report.status == "blocked"
+                assert planned.report.basis_limitation_code == "unbound_requirement_input_refused"
+                assert planned.report.cost_estimation_status == "not_estimated"
+                assert planned.report.acquisition_records == ()
+                assert planned.cost_basis is None
+                fresh = FileSystemCAS.open_existing_read_only(tmp_path / "wrong-family-cas")
+                report = load_acquisition_planner_report(fresh, planned.report_ref)
+                assert report == planned.report
+                assert report.requirement_basis_binding is not None
+                compiler_payload = load_core_json_artifact(
+                    fresh, report.requirement_basis_binding.compiler_report_ref
+                )
+                assert any(
+                    row["required_data_families"] == ["other_panel"]
+                    and source_ref in row["source_requirement_refs"]
+                    for row in compiler_payload["specs"]
+                )
+                with pytest.raises(
+                    AcquisitionPlannerBindingError,
+                    match="n7_basis_refusal_must_not_dispatch_owner",
+                ):
+                    run_acquisition_closed_loop(
+                        run_id=report.run_id,
+                        acquisition_request=planned.acquisition_request,
+                        data_requirement_specs=planned.basis.specs,
+                        world_snapshot=planned.world_snapshot,
+                        capability_requirement_resolutions=planned.basis.capability_resolutions,
+                        requirement_basis_binding=report.requirement_basis_binding,
+                        design_problem=problem,
+                        owner_gateway=_UnexpectedOwner(),
+                        generated_at=report.generated_at,
+                        planner_report=report,
+                        planner_report_ref=planned.report_ref,
+                        artifact_store=store,
+                        require_persisted_planner_report=True,
+                    )
+
+
+def test_legacy_ref_only_planner_record_replays_with_its_original_law(tmp_path: Path) -> None:
+    """Legacy-shaped bytes retain their original replay law without granting authority."""
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.data_requirement import DataRequirementCompilationReport
+    from polisyos.runtime.quality.acquisition_planner import (
+        AcquisitionPlannerBindingError,
+        _n7_legacy_planner_records_match,
+        bind_acquisition_planner_report,
+        load_acquisition_planner_report,
+        n7_planner_input_content_hash,
+        persist_and_verify_acquisition_planner_report,
+        persist_and_verify_data_requirement_compilation_report,
+        plan_requirement_gap_acquisition,
+        run_acquisition_closed_loop,
+    )
+
+    problem = _problem("n7_legacy_family_replay")
+    controller = GenerationCycleController()
+    basis = controller._n7_data_requirement_basis_with_report(
+        problem, acquisition_request={"required_data_families": ("firm_survival",)}
+    )
+    source_gap = l1_variable_availability_requirement_gap(
+        candidate_id="legacy-candidate",
+        candidate_content_hash="sha256:" + "1" * 64,
+        design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+        availability=L1VariableAvailability(
+            variable_id="firm_survival",
+            status="unavailable",
+            dataset_count=0,
+            metric_binding_count=0,
+            observation_count=0,
+            coverage_ref="repo://test/legacy-firm-survival",
+        ),
+        authority_level="research",
+    )
+    assert len(basis.specs) == 1
+    wrong = basis.specs[0].model_copy(
+        update={
+            "required_data_families": ("other_panel",),
+            "source_requirement_refs": (source_gap.requirement_gap_id,),
+        }
+    )
+    compiler = basis.compilation_report.model_copy(update={"specs": (wrong,)})
+    store = FileSystemCAS(tmp_path / "legacy-family-cas")
+    binding = persist_and_verify_data_requirement_compilation_report(
+        store, compiler, expected_scenario_id=problem.design_problem_id
+    )
+    gaps, error = generation_cycle_module._n7_route_compiler_gaps(
+        source_gap=source_gap,
+        specs=compiler.specs,
+        capability_resolutions=compiler.capability_requirement_resolutions,
+        strict_family=False,
+    )
+    assert error is None and len(gaps) == 1
+    legacy = plan_requirement_gap_acquisition(
+        run_id="legacy-family-replay",
+        requirement_gaps=gaps,
+        generated_at=datetime(2026, 10, 30, tzinfo=UTC),
+        requirement_basis_binding=binding,
+    )
+    request = {"cycle_index": 0, "requirement_gap": source_gap.model_dump(mode="json")}
+    world = AcquisitionWorldSnapshot(world_ref="world://legacy-family")
+    context_hash = n7_planner_input_content_hash(
+        run_id=legacy.run_id,
+        acquisition_request=request,
+        compiled_requirement_specs=compiler.specs,
+        world_snapshot=world,
+        capability_requirement_resolutions=compiler.capability_requirement_resolutions,
+        requirement_basis_binding=binding,
+        design_problem=problem,
+        generated_at=legacy.generated_at,
+    )
+    legacy = bind_acquisition_planner_report(legacy, planning_context_hash=context_hash)
+    assert legacy.status == "warn"
+    ref = persist_and_verify_acquisition_planner_report(store, legacy)
+    fresh = FileSystemCAS.open_existing_read_only(tmp_path / "legacy-family-cas")
+    reopened = load_acquisition_planner_report(fresh, ref)
+    reopened_compiler = DataRequirementCompilationReport.model_validate(
+        load_core_json_artifact(fresh, binding.compiler_report_ref)
+    )
+    assert reopened == legacy
+    assert reopened_compiler.model_dump(mode="json") == compiler.model_dump(mode="json")
+    assert _n7_legacy_planner_records_match(
+        source_gap=source_gap,
+        specs=reopened_compiler.specs,
+        capability_resolutions=reopened_compiler.capability_requirement_resolutions,
+        report=reopened,
+    )
+    assert reopened.basis_limitation_code == "consumer_declared_basis_candidate_only"
+    current_gaps, current_error = generation_cycle_module._n7_route_compiler_gaps(
+        source_gap=source_gap,
+        specs=reopened_compiler.specs,
+        capability_resolutions=reopened_compiler.capability_requirement_resolutions,
+    )
+    assert current_gaps == ()
+    assert current_error == "requirement_gap_not_compiled"
+
+    class _UnexpectedOwner:
+        def acquire(self, **kwargs: Any) -> None:
+            raise AssertionError(f"wrong-family route reached owner: {kwargs}")
+
+    with pytest.raises(AcquisitionPlannerBindingError, match="n7_candidate_source_not_established"):
+        run_acquisition_closed_loop(
+            run_id=reopened.run_id,
+            acquisition_request=request,
+            data_requirement_specs=reopened_compiler.specs,
+            world_snapshot=world,
+            capability_requirement_resolutions=reopened_compiler.capability_requirement_resolutions,
+            requirement_basis_binding=binding,
+            design_problem=problem,
+            owner_gateway=_UnexpectedOwner(),
+            generated_at=reopened.generated_at,
+            planner_report=reopened,
+            planner_report_ref=ref,
+            artifact_store=store,
+            require_persisted_planner_report=True,
+        )
+
+
+def test_unmarked_world_knowledge_gap_remains_a_generic_acquisition_input() -> None:
+    """The source-family join does not reinterpret a different typed gap."""
+    from polisyos.runtime.quality.acquisition_planner import run_acquisition_closed_loop
+
+    gap = value_input_world_knowledge_requirement_gap(claim_ref="claim:world-knowledge")
+    receipt = run_acquisition_closed_loop(
+        run_id="unmarked-world-knowledge",
+        acquisition_request={"cycle_index": 0, "requirement_gap": gap.model_dump(mode="json")},
+        data_requirement_specs=(gap,),
+        world_snapshot=AcquisitionWorldSnapshot(world_ref="world://knowledge"),
+        generated_at=datetime(2026, 10, 30, tzinfo=UTC),
+    )
+    assert receipt.compiled_requirement_specs == (gap.model_dump(mode="json"),)
+    assert (
+        receipt.planner_report.acquisition_records[0].requirement_gap_ref == gap.requirement_gap_id
+    )
+    assert receipt.status == "blocked"
+    assert f"owner_artifact_missing:{gap.compiled_requirement_ref}" in receipt.fail_closed_reasons
+    assert receipt.owner_artifacts == ()
+
+
+def test_unmarked_candidate_rejects_unvalidated_compiler_spec(tmp_path: Path) -> None:
+    """A copied model with invalid content cannot become a current route."""
+    from polisyos.runtime.quality.acquisition_planner import (
+        AcquisitionPlannerBindingError,
+        bind_acquisition_planner_report,
+        n7_planner_input_content_hash,
+        persist_and_verify_acquisition_planner_report,
+        plan_requirement_gap_acquisition,
+        run_acquisition_closed_loop,
+    )
+
+    problem = _problem("n7_invalid_compiler_spec")
+    basis = GenerationCycleController()._n7_data_requirement_basis_with_report(
+        problem, acquisition_request={"required_data_families": ("firm_survival",)}
+    )
+    source_gap = l1_variable_availability_requirement_gap(
+        candidate_id="invalid-spec-candidate",
+        candidate_content_hash="sha256:" + "2" * 64,
+        design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+        availability=L1VariableAvailability(
+            variable_id="firm_survival",
+            status="unavailable",
+            dataset_count=0,
+            metric_binding_count=0,
+            observation_count=0,
+            coverage_ref="repo://test/invalid-spec-firm-survival",
+        ),
+        authority_level="research",
+    )
+    valid_spec = basis.specs[0].model_copy(
+        update={"source_requirement_refs": (source_gap.requirement_gap_id,)}
+    )
+    invalid_spec = valid_spec.model_copy(update={"missingness_tolerance": 2.0})
+    gaps, error = generation_cycle_module._n7_route_compiler_gaps(
+        source_gap=source_gap,
+        specs=(valid_spec,),
+        capability_resolutions=basis.capability_resolutions,
+    )
+    assert error is None
+    report = plan_requirement_gap_acquisition(
+        run_id="invalid-spec-route",
+        requirement_gaps=gaps,
+        generated_at=datetime(2026, 10, 30, tzinfo=UTC),
+    )
+    request = {"cycle_index": 0, "requirement_gap": source_gap.model_dump(mode="json")}
+    world = AcquisitionWorldSnapshot(world_ref="world://invalid-spec")
+    context_hash = n7_planner_input_content_hash(
+        run_id=report.run_id,
+        acquisition_request=request,
+        compiled_requirement_specs=(invalid_spec,),
+        world_snapshot=world,
+        capability_requirement_resolutions=basis.capability_resolutions,
+        design_problem=problem,
+        generated_at=report.generated_at,
+    )
+    report = bind_acquisition_planner_report(report, planning_context_hash=context_hash)
+    store = FileSystemCAS(tmp_path / "invalid-spec-cas")
+    ref = persist_and_verify_acquisition_planner_report(store, report)
+
+    class _UnexpectedOwner:
+        def acquire(self, **kwargs: Any) -> None:
+            raise AssertionError("unvalidated compiler spec reached owner")
+
+    with pytest.raises(AcquisitionPlannerBindingError, match="n7_candidate_source_not_established"):
+        run_acquisition_closed_loop(
+            run_id=report.run_id,
+            acquisition_request=request,
+            data_requirement_specs=(invalid_spec,),
+            world_snapshot=world,
+            capability_requirement_resolutions=basis.capability_resolutions,
+            design_problem=problem,
+            owner_gateway=_UnexpectedOwner(),
+            generated_at=report.generated_at,
+            planner_report=report,
+            planner_report_ref=ref,
+            artifact_store=store,
+            require_persisted_planner_report=True,
+        )
+
+
+def test_unmarked_candidate_cannot_autoplan_a_colliding_compiler_id() -> None:
+    """A compiler-only plan is not a selected-source plan, even if IDs collide."""
+    from polisyos.runtime.quality.acquisition_planner import (
+        AcquisitionPlannerBindingError,
+        run_acquisition_closed_loop,
+    )
+
+    problem = _problem("n7_colliding_compiler_id")
+    basis = GenerationCycleController()._n7_data_requirement_basis_with_report(
+        problem, acquisition_request={"required_data_families": ("firm_survival",)}
+    )
+    source_gap = l1_variable_availability_requirement_gap(
+        candidate_id="colliding-id-candidate",
+        candidate_content_hash="sha256:" + "3" * 64,
+        design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+        availability=L1VariableAvailability(
+            variable_id="firm_survival",
+            status="unavailable",
+            dataset_count=0,
+            metric_binding_count=0,
+            observation_count=0,
+            coverage_ref="repo://test/colliding-id-firm-survival",
+        ),
+        authority_level="research",
+    )
+    colliding_spec = basis.specs[0].model_copy(
+        update={
+            "requirement_id": source_gap.requirement_gap_id,
+            "source_requirement_refs": (source_gap.requirement_gap_id,),
+        }
+    )
+
+    class _UnexpectedOwner:
+        def acquire(self, **kwargs: Any) -> None:
+            raise AssertionError("compiler-only plan reached the selected-source owner")
+
+    with pytest.raises(AcquisitionPlannerBindingError, match="n7_candidate_source_not_established"):
+        run_acquisition_closed_loop(
+            run_id="colliding-id-route",
+            acquisition_request={
+                "cycle_index": 0,
+                "requirement_gap": source_gap.model_dump(mode="json"),
+            },
+            data_requirement_specs=(colliding_spec,),
+            world_snapshot=AcquisitionWorldSnapshot(world_ref="world://colliding-id"),
+            owner_gateway=_UnexpectedOwner(),
+            generated_at=datetime(2026, 10, 30, tzinfo=UTC),
+        )
 
 
 @pytest.fixture

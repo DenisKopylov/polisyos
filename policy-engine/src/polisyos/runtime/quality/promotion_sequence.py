@@ -1092,11 +1092,22 @@ class N9PromotionEvidenceBridgeRepository:
                 media_type="application/vnd.polisyos.chronology+json",
                 manifest_profile_sha256=bridge_ref.manifest_profile_sha256,
             )
+            # The owner writes exactly one selected source edge. Preflight that
+            # shape before reading; bind its id to the typed payload below.
+            source_inputs = self._store.get_manifest(core_ref).inputs
+            if (
+                source_inputs is None
+                or len(source_inputs) != 1
+                or source_inputs[0].role != _N9_EVIDENCE_SOURCE_INPUT_ROLE
+                or source_inputs[0].manifest_profile_sha256 is None
+            ):
+                raise ValueError("promotion_evidence_source_lineage_invalid")
             record = _read_model(
                 store=self._store,
                 ref=core_ref,
                 model=N9PromotionEvidenceBridgeRecord,
                 kind=_PROMOTION_EVIDENCE_BRIDGE_KIND,
+                input_closure=core_contracts.epoch._ExactManifestInputClosure((source_inputs[0],)),
             )
             if not isinstance(record, N9PromotionEvidenceBridgeRecord):
                 raise TypeError("promotion_evidence_bridge_model_invalid")

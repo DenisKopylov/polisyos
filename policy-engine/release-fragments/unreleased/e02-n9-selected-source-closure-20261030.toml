@@ -1,0 +1,17 @@
+id = "2026-10-30-e02-n9-selected-source-closure"
+title = "N9 evidence bridge selected source closure"
+type = "fixed"
+component = "runtime"
+owner = "E02"
+summary = "N9 promotion evidence reads the selected bridge source edge and validates its typed payload binding before evaluating authority."
+evidence = ["tests/unit/runtime/quality/test_generation_source.py", "tests/unit/runtime/quality/test_promotion_sequence.py"]
+compatibility = "The bridge artifact format is unchanged; source-free chronology reads retain empty input closure."
+change_class = "internal"
+surface_classification = "internal"
+migration = "No migration is prescribed; composed verification remains required."
+api = "No public API change."
+limitations = "Source-only candidate; runtime verification and G acceptance remain pending. Synthetic evidence cannot grant authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

@@ -2596,6 +2596,44 @@ def test_synthetic_independence_source_establishes_mechanics_but_never_authority
     assert source_input.manifest_profile_sha256 is not None
     assert source["synthetic"] is True
 
+    # A fresh reader must preserve the synthetic authority refusal.
+    fresh_owner = N9PromotionEvidenceBridgeRepository(
+        store=artifacts.FileSystemCAS(tmp_path / "cas")
+    )
+    fresh_resolution = fresh_owner.resolve(
+        bridge_ref=bridge_ref,
+        promotion_input=promotion_input,
+        evidence_kind="effective_independence",
+    )
+    assert fresh_resolution.status == "refused"
+    assert fresh_resolution.limitation_code == "synthetic_evidence_cannot_grant_authority"
+
+    # Same payload bytes, selected under malformed lineage profiles, fail closed.
+    original_model = N9PromotionEvidenceBridgeRecord.model_validate(bridge)
+    wrong_role = source_input.model_copy(update={"role": "other_owner"})
+    missing_selector = source_input.model_copy(update={"manifest_profile_sha256": None})
+    for bad_inputs in ((wrong_role,), (), (missing_selector,)):
+        bad_ref, _semantic, bad_raw = _persist_model(
+            store=store,
+            value=original_model,
+            kind=_PROMOTION_EVIDENCE_BRIDGE_KIND,
+            inputs=bad_inputs,
+            selected_profile=True,
+        )
+        assert bad_raw == store.get_bytes(bridge_selector)
+        assert str(bad_ref.artifact_id) == bridge_ref.artifact_id
+        assert bad_ref.manifest_profile_sha256 != bridge_ref.manifest_profile_sha256
+        forged = bridge_ref.model_copy(
+            update={"manifest_profile_sha256": bad_ref.manifest_profile_sha256}
+        )
+        refused = fresh_owner.resolve(
+            bridge_ref=forged,
+            promotion_input=promotion_input,
+            evidence_kind="effective_independence",
+        )
+        assert refused.status == "not_established"
+        assert refused.limitation_code == "effective_independence_evidence_not_established"
+
     # A hostile synthetic control conceals the marker but keeps actual source,
     # current epoch, semantic outcomes and fully valid CAS/reference bindings.
     malicious = N9PromotionEvidenceBridgeRecord.model_validate(

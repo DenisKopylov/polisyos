@@ -354,6 +354,7 @@ def _read_model(
     model: type[_StrictModel],
     kind: str | None = None,
     profile_record: str | None = None,
+    input_closure: core_contracts.epoch._ExactManifestInputClosure | None = None,
 ) -> _StrictModel:
     from polisyos.core.artifacts import load_core_json_artifact
 
@@ -390,7 +391,11 @@ def _read_model(
         expected_media_type=expected_media_type,
         expected_canon=expected_canon,
         expected_schema=expected_schema,
-        expected_inputs=core_contracts.epoch._ExactManifestInputClosure(()),
+        expected_inputs=(
+            input_closure
+            if input_closure is not None
+            else core_contracts.epoch._ExactManifestInputClosure(())
+        ),
         require_selected_profile=False,
     )
     report = store.verify(ref)

@@ -10554,6 +10554,8 @@ class _DynamicImportSourceScanner:
             and not self._active_module_function_stack
             and not source_code_call
         ):
+            # Nominal source identity is not proof of an untransferred deferred effect.
+            self._source_code_opaque_effect = True
             return None
         if not alternatives or len(alternatives) > _DYNAMIC_COMPREHENSION_VALUE_LIMIT:
             raise DynamicImportCollectionError(

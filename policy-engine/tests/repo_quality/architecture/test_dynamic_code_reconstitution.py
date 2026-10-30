@@ -384,6 +384,19 @@ CASES = {
         set(),
         None,
     ),
+    "untransferred-deferred-source-mutator": (
+        'from types import FunctionType\nfrom importlib import import_module\n\ndef body(callback):\n    return None\n\ndef replacement(callback):\n    return callback("deferred_mutator_target")\n\nCODE = body.__code__\nrun = FunctionType(CODE, globals())\n\ndef mutate(target, code):\n    setattr(target, "__code__", code)\n\ndef consume(unknown_target, unknown_code):\n    mutate(unknown_target, unknown_code)\n    return run(import_module)\n',
+        None,
+        "opaque source effects",
+    ),
+    "transferred-module-source-helper": (
+        PREFIX
+        + 'def harmless():\n    return None\ndef body(callback):\n    return callback("deferred_mutator_safe")\n'
+        + CONSTRUCT
+        + "harmless()\nrun(import_module)\n",
+        {"deferred_mutator_safe"},
+        None,
+    ),
 }
 
 

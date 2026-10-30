@@ -163,3 +163,11 @@ Behavioral coverage is in `test_dynamic_code_reconstitution.py`. Its callback di
 only reconstructed body transfer while retaining captured-code, constructor, globals and import
 source; the callback effect must disappear and the exact method/inventory must restore. Registry
 schema, owner review dates and public authority remain owned by the existing registry workflow.
+
+
+An ordinary selected source call that the collector deliberately does not transfer in a deferred
+scope is an opaque source effect for any later protected reconstruction/invocation in that analysis
+path. Nominal selected identity alone does not establish absence of mutation. Module-time and active
+source-body calls keep the existing transfer engine; unknown deferred effects fail closed until a
+sound transfer exists. This is a bounded limitation, not a claim that arbitrary cross-entrypoint
+runtime ordering or externally injected code is modeled.

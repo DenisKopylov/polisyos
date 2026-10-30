@@ -1,5 +1,8 @@
 # Runtime quality report publication basis
 
+Owner: Runtime quality owners.
+Source of truth: `src/polisyos/runtime/quality/report_registry.py`, the runtime quality report publisher and admission consumers under `src/polisyos/runtime/quality/`, and `tests/unit/runtime/quality/test_runtime_quality_report_owner_contract.py`.
+
 Runtime quality reports keep their existing top-level diagnostic fields in
 runtime_quality_evidence. The publisher also attaches the internal
 runtime_quality_publication_basis object. It retains the complete original

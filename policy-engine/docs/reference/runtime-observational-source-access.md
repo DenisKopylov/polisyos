@@ -1,5 +1,8 @@
 # Observational candidate source access
 
+Owner: Runtime HTTP and Core artifact owners.
+Source of truth: `src/polisyos/runtime/http/services/control/observational_source_access.py`, `src/polisyos/runtime/http/services/control/run_lifecycle.py`, and the observational source-access tests under `tests/unit/runtime/http/`.
+
 An ordinary observational run may consume a public-classified tenant-bound source only when Runtime's expected owner matches the effective owner of its enforcing Core filesystem CAS. The expected owner comes from the typed request principal reconciled with execution policy, the current lease-fenced ControlPlane job admission, or the already-authorized fresh-reader scope. A configured `for_tenant(A)` handle cannot stand in for request/job B. Disabled ownership enforcement and unsupported owner carriers fail closed for this path.
 
 The in-process source-read scope is not a persisted grant. Runtime checks it before selected reads, after live job admission, before content-admitted persistence and again at fresh selection readers. The original configured read handle remains in use, including dependency guards; adapter inspection does not bypass guarded IO. Core continues to check current blob-reader and exact selected manifest-view ownership and content integrity. Selected ArtifactRef subclasses retain their selected profile. Runtime builds its default store using the existing ambient-enforcement adapter; explicitly injected unsafe stores are refused rather than silently repaired.

@@ -1,5 +1,8 @@
 # Registered materialization owner kernel
 
+Owner: Scientist validation and Core contract owners.
+Source of truth: `src/polisyos/scientist/validation/source_admission_owner.py`, `src/polisyos/core/contracts/decision_validity.py`, and the registered-source admission tests under `tests/unit/scientist/validation/`.
+
 This extends the existing DecisionValidityService for G27-02; it does not create a
 simulation ledger or confer external SQL currentness. This source-only profile is
 `bridge_missing` / `verification_missing` until the actual Runtime/Fabric producer,

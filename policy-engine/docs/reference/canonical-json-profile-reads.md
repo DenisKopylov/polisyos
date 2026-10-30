@@ -1,5 +1,8 @@
 # Version-qualified canonical JSON artifact reads
 
+Owner: Core artifact and IR artifact owners.
+Source of truth: `src/polisyos/core/artifacts/canonical_profile.py`, `src/polisyos/ir/artifacts/io.py`, `tests/unit/core/artifacts/test_selected_profile_core_json.py`, and `tests/unit/ir/test_canon_v3.py`.
+
 Core and IR share canonical mechanics and retain separate native type policies.
 A declared canonical version is an interpretation input, not evidence of producer
 authenticity, authority, currentness or cohort readiness.

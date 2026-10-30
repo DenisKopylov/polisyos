@@ -409,6 +409,95 @@ def test_selected_generation_survives_postpublication_compatibility_copy_failure
             reader.close()
 
 
+def test_catalog_search_after_partial_legacy_copy_and_retry(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """A mixed flat pair cannot redirect a selected-generation search."""
+    from polisyos.data_forge.domains.catalog.knowledge.store import DatasetCatalogStore
+    from polisyos.data_forge.kernel import embeddings as owner
+
+    _install_fake_sentence_transformer(monkeypatch)
+    db_path = tmp_path / "catalog.duckdb"
+    index_dir = tmp_path / "index"
+    _prepare_embedding_db(db_path)
+
+    def set_dataset(dataset_id: str, title: str, description: str) -> None:
+        with duckdb.connect(str(db_path)) as con:
+            con.execute("DELETE FROM ds_datasets")
+            con.execute(
+                "INSERT INTO ds_datasets VALUES (?, ?, ?, ?, ?)",
+                (dataset_id, title, description, [], []),
+            )
+            con.execute("CHECKPOINT")
+
+    def build() -> int:
+        return build_catalog_hnsw_index(
+            db_path=db_path,
+            index_dir=index_dir,
+            embedding_model="fixture-model",
+            embedding_dimension=4,
+            embedding_device="cpu",
+        )
+
+    set_dataset("old", "A", "aaaa")
+    assert build() == 1
+    previous = owner.resolve_embedding_generation(index_dir)
+    assert previous is not None and previous.selected and previous.index_path is not None
+    with np.load(previous.embeddings_path, allow_pickle=True) as payload:
+        old_vector = np.asarray(payload["vectors"][0], dtype=np.float32)
+    flat_vectors = index_dir / "ds_dataset_embeddings.npz"
+    flat_index = index_dir / "ds_dataset_index.hnsw"
+    old_index_bytes = flat_index.read_bytes()
+    old_store = DatasetCatalogStore(db_path, index_dir)
+    try:
+        assert [row.id for row in old_store.search_by_vector(old_vector)] == ["old"]
+    finally:
+        old_store.close()
+
+    set_dataset("new", "B", "bbbbb")
+    original_copy = owner._atomic_copy_file
+
+    def fail_index_copy(source: Path, target: Path) -> None:
+        if target == flat_index:
+            raise OSError("second compatibility copy failed")
+        original_copy(source, target)
+
+    monkeypatch.setattr(owner, "_atomic_copy_file", fail_index_copy)
+    with pytest.raises(owner.EmbeddingCompatibilityProjectionError, match="second compatibility"):
+        build()
+
+    selected = owner.resolve_embedding_generation(index_dir)
+    assert selected is not None and selected.selected and selected.index_path is not None
+    assert selected.generation_id != previous.generation_id
+    assert selected.ids == ("new",)
+    with np.load(selected.embeddings_path, allow_pickle=True) as payload:
+        new_vector = np.asarray(payload["vectors"][0], dtype=np.float32)
+    assert float(np.dot(old_vector, new_vector)) < 0.99
+    assert flat_vectors.read_bytes() == selected.embeddings_path.read_bytes()
+    assert flat_index.read_bytes() == old_index_bytes
+    store = DatasetCatalogStore(db_path, index_dir)
+    try:
+        results = store.search_by_vector(new_vector, top_k=1, min_similarity=0.99)
+        assert [row.id for row in results] == ["new"]
+        assert results[0].similarity == pytest.approx(1.0, abs=1e-5)
+    finally:
+        store.close()
+
+    monkeypatch.setattr(owner, "_atomic_copy_file", original_copy)
+    assert build() == 1
+    recovered = owner.resolve_embedding_generation(index_dir)
+    assert recovered is not None and recovered.selected and recovered.index_path is not None
+    assert flat_vectors.read_bytes() == recovered.embeddings_path.read_bytes()
+    assert flat_index.read_bytes() == recovered.index_path.read_bytes()
+    store = DatasetCatalogStore(db_path, index_dir)
+    try:
+        assert [row.id for row in store.search_by_vector(new_vector, min_similarity=0.99)] == [
+            "new"
+        ]
+    finally:
+        store.close()
+
+
 @pytest.mark.parametrize("domain", ["academic", "catalog"])
 def test_selector_failure_leaves_old_generation_and_flat_pair_selected(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path, domain: str

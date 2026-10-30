@@ -10,6 +10,7 @@ import pytest
 from polisyos.core.artifacts import (
     artifact_ref_for_manifest,
     read_core_json_artifact,
+    read_core_json_artifact_bounded,
     read_core_manifest_profile_bounded,
 )
 from polisyos.core.artifacts.ids import ArtifactID
@@ -440,13 +441,26 @@ def test_new_owner_generation_withdrawal_after_enqueue_reaches_actual_core_guard
     )
     fresh = FileSystemCAS(case["cas_root"], ownership_enforced=True)
     index = fresh._ownership_index
+    assert index.is_blob_readable_by(
+        source.artifact_id, tenant_id=case["tenant_a"], cell_id=case["cell"]
+    )
     # The controlled fixture owns this CAS root. Use its real owner generation
     # writer/signature path; do not edit manifest bytes, signatures or pointers.
     with index._lock, index._cross_instance_write_lock():
         previous = index._load_snapshot()
         payload = previous.payload
+        artifact_rows = payload["artifacts"][str(source.artifact_id)]
+        assert artifact_rows
+        assert any(
+            row["tenant_id"] == case["tenant_a"] and row.get("cell_id") == case["cell"]
+            for row in artifact_rows
+        )
         for field in ("artifacts", "blob_readers"):
-            rows = payload[field][str(source.artifact_id)]
+            rows = (
+                artifact_rows
+                if field == "artifacts"
+                else payload[field].get(str(source.artifact_id), [])
+            )
             remaining = [
                 row
                 for row in rows
@@ -454,8 +468,10 @@ def test_new_owner_generation_withdrawal_after_enqueue_reaches_actual_core_guard
             ]
             if remaining:
                 payload[field][str(source.artifact_id)] = remaining
-            else:
+            elif field == "artifacts":
                 payload[field].pop(str(source.artifact_id))
+            else:
+                payload[field].pop(str(source.artifact_id), None)
         index._write_payload(payload, previous_snapshot=previous)
     assert not fresh._ownership_index.is_blob_readable_by(
         source.artifact_id, tenant_id=case["tenant_a"], cell_id=case["cell"]
@@ -499,15 +515,16 @@ def test_real_shared_view_grant_uses_reader_scope_without_rewriting_source_tenan
 
     accepted = response.json()
     with tenant_scope(None, tenant_id=case["tenant_b"], cell_id=case["cell"]):
-        intent = read_core_json_artifact(
-            owner, ArtifactRef.model_validate(accepted["observational_run_intent_ref"])
-        )
+        intent_ref = ArtifactRef.model_validate(accepted["observational_run_intent_ref"])
+        limits = case["service"]._observational_read_limits()
+        intent = read_core_json_artifact_bounded(owner, intent_ref, limits=limits)
+        assert intent.effective_ref == intent_ref
         assert intent.manifest.tenant_context.tenant_id == case["tenant_b"]
         assert intent.value["source_tenant_context"]["tenant_id"] == case["tenant_a"]
         assert intent.value["requested_source_ref"] == source.model_dump(mode="json")
-        policy = read_core_json_artifact(
-            owner, ArtifactRef.model_validate(intent.value["resource_policy_ref"])
-        )
+        policy_ref = ArtifactRef.model_validate(intent.value["resource_policy_ref"])
+        policy = read_core_json_artifact_bounded(owner, policy_ref, limits=limits)
+        assert policy.effective_ref == policy_ref
         assert policy.manifest.tenant_context.tenant_id == case["tenant_b"]
 
 
@@ -576,8 +593,10 @@ def test_worker_without_live_fence_cannot_reuse_admitted_request_scope(
     response = _post(case, source)
     assert response.status_code == 200, response.text
     accepted = response.json()
-    job = case["service"]._control_store.get_job(accepted["job_id"])
-    assert job is not None
+    control = case["service"]._control_store
+    control.mark_running(job_id=accepted["job_id"], worker_id="source-no-fence", lease_seconds=120)
+    job = control.get_job(accepted["job_id"])
+    assert job is not None and job.state == "running" and job.attempt > 0
     work = MethodExecutionWork(
         job_id=job.job_id,
         run_id=str(job.run_id),
@@ -589,7 +608,10 @@ def test_worker_without_live_fence_cannot_reuse_admitted_request_scope(
     )
     with (
         tenant_scope(None, tenant_id=case["tenant_a"], cell_id=case["cell"]),
-        pytest.raises(ControlJobLeaseLostError),
+        pytest.raises(
+            ControlJobLeaseLostError,
+            match="control job execution identity is not bound to this handler",
+        ),
     ):
         case["service"].resolve_method_execution_admission(work=work)
 
@@ -757,7 +779,8 @@ def test_shared_source_keeps_origin_and_uses_actual_job_writer_through_preparati
             observed_source_bytes=prepared.observed_source_bytes,
             payload_integrity_verified=prepared.payload_integrity_verified,
         )
-        admitted = read_core_json_artifact(owner, admitted_ref)
+        admitted = read_core_json_artifact_bounded(owner, admitted_ref, limits=admission.limits)
+        assert admitted.effective_ref == admitted_ref
         assert admitted.manifest.tenant_context.tenant_id == case["tenant_b"]
         assert admitted.value["source_tenant_context"]["tenant_id"] == case["tenant_a"]
         assert admitted.value["requested_source_ref"] == source.model_dump(mode="json")
@@ -884,9 +907,13 @@ def test_shared_source_native_result_is_owned_by_job_and_reopened_by_fresh_servi
                 selection.resource_policy_ref,
                 selection.owned_attempt_anchor_ref,
             ):
-                assert ref is not None
+                assert ref is not None and ref.manifest_profile_sha256 is not None
+                # The strict bounded reader takes the exact base ref type. Rebox
+                # the typed anchor without changing any selected-view field.
+                selected_ref = ArtifactRef.model_validate(ref.model_dump(mode="json"))
+                assert selected_ref.model_dump(mode="json") == ref.model_dump(mode="json")
                 manifest = read_core_manifest_profile_bounded(
-                    fresh_owner, ref, max_manifest_bytes=65_536
+                    fresh_owner, selected_ref, max_manifest_bytes=65_536
                 ).manifest
                 assert manifest.tenant_context.tenant_id == case["tenant_b"]
             requested = read_core_json_artifact(fresh_owner, selection.observational_run_intent_ref)

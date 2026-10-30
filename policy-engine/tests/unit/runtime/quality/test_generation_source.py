@@ -2578,6 +2578,78 @@ def test_current_effect_bridge_binds_actual_historical_emitter_epoch(
     assert refusal.status == "not_established"
     assert refusal.limitation_code == "effect_obligation_evidence_not_established"
 
+    # Reissue the actual freshly emitted v1 bytes using the current writer to
+    # exercise a valid selected Core view. This view is test-owned and is not
+    # a claim about the historical artifact's original profile or provenance.
+    selected_old, _, selected_old_bytes = current._persist_model(
+        store=store,
+        value=parsed,
+        kind=current._EFFECT_OBLIGATION_SOURCE_KIND,
+        selected_profile=True,
+    )
+    assert selected_old_bytes == old_raw
+    assert str(selected_old.artifact_id) == old_bridge["source_artifact_id"]
+    assert selected_old.manifest_profile_sha256 is not None
+    assert store.get_manifest(artifacts.ArtifactID(old_bridge["source_artifact_id"])).canon is None
+    selected_decoded = current._read_model(
+        store=store,
+        ref=selected_old,
+        model=current._EffectObligationProducerRecord,
+        kind=current._EFFECT_OBLIGATION_SOURCE_KIND,
+    )
+    assert selected_decoded.schema_version == old_body["schema_version"]
+    edge = artifacts.input_ref_from_artifact_ref(
+        selected_old, role=current._N9_EVIDENCE_SOURCE_INPUT_ROLE
+    )
+    guarded_ref, _, _ = current._persist_model(
+        store=store,
+        value=misleading,
+        kind=current._PROMOTION_EVIDENCE_BRIDGE_KIND,
+        inputs=(edge,),
+        selected_profile=True,
+    )
+    guarded_bridge = live_ref.model_copy(
+        update={
+            "artifact_id": str(guarded_ref.artifact_id),
+            "uri": f"cas://{guarded_ref.artifact_id}",
+            "content_hash": n4.gy_content_hash(misleading.model_dump(mode="json")),
+            "manifest_profile_sha256": guarded_ref.manifest_profile_sha256,
+        }
+    )
+    new_reader = current.N9PromotionEvidenceBridgeRepository(
+        store=artifacts.FileSystemCAS(tmp_path / "cas")
+    )
+    # Genuine current v2 producer must traverse the same fresh consumer path;
+    # its synthetic source still fails closed on authority for the real reason.
+    positive = new_reader.resolve(
+        bridge_ref=live_ref, promotion_input=promotion_input, evidence_kind="effect_obligation"
+    )
+    assert positive.status == "refused"
+    assert positive.limitation_code == "synthetic_evidence_cannot_grant_authority"
+    reached, rejection = [], []
+    actual_effect_reader = new_reader._resolve_effect_record
+
+    def observed_effect_reader(record, *, promotion_input, source_ref):
+        reached.append((record.source_artifact_id, source_ref.manifest_profile_sha256))
+        try:
+            return actual_effect_reader(
+                record, promotion_input=promotion_input, source_ref=source_ref
+            )
+        except ValueError as exc:
+            rejection.append(str(exc))
+            raise
+
+    monkeypatch.setattr(new_reader, "_resolve_effect_record", observed_effect_reader)
+    epoch_refusal = new_reader.resolve(
+        bridge_ref=guarded_bridge,
+        promotion_input=promotion_input,
+        evidence_kind="effect_obligation",
+    )
+    assert reached == [(str(selected_old.artifact_id), selected_old.manifest_profile_sha256)]
+    assert rejection == ["effect_obligation_source_schema_mismatch"]
+    assert epoch_refusal.status == "not_established"
+    assert epoch_refusal.limitation_code == "effect_obligation_evidence_not_established"
+
 
 def test_synthetic_independence_source_establishes_mechanics_but_never_authority(
     actual_n4_source,

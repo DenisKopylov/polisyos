@@ -1,0 +1,20 @@
+id = "2026-10-30-e02-embedding-generation-binding"
+title = "Bind selected embedding generations to work sources and native indexes"
+type = "fixed"
+component = "data-forge"
+owner = "team-data-forge"
+summary = "Select the completed generation before compatibility copies; Academic and Catalog readers reconcile selected source membership and verify native index vectors against the selected matrix."
+evidence = [
+  "tests/unit/data_forge/kernel/test_embeddings.py",
+  "tests/unit/data_forge/domains/academic/knowledge/test_store.py",
+  "tests/unit/data_forge/domains/catalog/knowledge/test_store.py",
+]
+compatibility = "Generation selector and inventory formats remain unchanged. Academic vector search refuses legacy flat pairs and stale source membership; Catalog and Academic refuse native indexes inconsistent with their selected matrices. A copy failure after selection raises an OSError subtype carrying the selected generation and failed destination."
+change_class = "internal"
+surface_classification = "internal: Data Forge generation writer and knowledge-reader admission; Catalog search retains its existing refusal response envelope"
+migration = "Rebuild a selected generation when its source projection or native index no longer matches; inspect the selected generation after a compatibility-copy error instead of trusting flat files."
+limitations = "Content and native-vector consistency do not authenticate the producer or prove encoder execution, query-encoder compatibility for Scholar, production corpus completeness, or immunity to concurrent filesystem replacement. Scholar hybrid search does not yet expose its store refusal as a typed response envelope."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

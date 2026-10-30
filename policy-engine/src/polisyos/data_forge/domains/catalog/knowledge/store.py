@@ -11,7 +11,6 @@ from functools import wraps
 from typing import TYPE_CHECKING, Concatenate
 
 import duckdb
-import numpy as np
 
 from polisyos.common.logger import get_logger
 from polisyos.data_forge.domains.catalog.embedding_projection import (
@@ -39,6 +38,10 @@ from polisyos.data_forge.domains.catalog.knowledge.types import (
     MetricBindingMatch,
     ResolvedFetchTarget,
 )
+from polisyos.data_forge.kernel.embeddings import (
+    _EmbeddingIndexAdmissionError,
+    _load_selected_embedding_index,
+)
 from polisyos.data_forge.read_api.catalog import (
     EmbeddingGenerationRef,
     embedding_generation_matches_encoder,
@@ -49,6 +52,8 @@ from polisyos.data_forge.read_api.catalog import (
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
     from pathlib import Path
+
+    import numpy as np
 
 logger = get_logger(__name__)
 
@@ -196,7 +201,7 @@ class DatasetCatalogStore:
 
         self._dataset_index = None
         self._dataset_ids: list[str] | None = None
-        self._dataset_generation_id: str | None = None
+        self._dataset_generation: EmbeddingGenerationRef | None = None
         self._table_exists_cache: dict[str, bool] = {}
         self._table_columns_cache: dict[str, set[str]] = {}
         self._index_warning_logged = False
@@ -290,7 +295,8 @@ class DatasetCatalogStore:
 
     @_guarded_catalog_read
     def has_vector_index(self) -> bool:
-        return self._current_dataset_generation() is not None
+        self._load_dataset_index()
+        return self._dataset_index is not None
 
     def _current_dataset_generation(self) -> EmbeddingGenerationRef | None:
         """Resolve the selected generation only when it binds current dataset text."""
@@ -424,7 +430,7 @@ class DatasetCatalogStore:
         if generation is None:
             self._dataset_index = None
             self._dataset_ids = None
-            self._dataset_generation_id = None
+            self._dataset_generation = None
             if not self._index_warning_logged:
                 logger.warning(
                     "No current selected dataset index is available in {}",
@@ -438,32 +444,34 @@ class DatasetCatalogStore:
         ):
             self._dataset_index = None
             self._dataset_ids = None
-            self._dataset_generation_id = None
+            self._dataset_generation = None
             self._vector_index_refusal_reason = "selected_generation_changed_during_query"
             return
         if (
             self._dataset_index is not None
-            and self._dataset_generation_id == generation.generation_id
+            and self._dataset_ids is not None
+            and self._dataset_generation == generation
         ):
-            return
-        try:
-            import hnswlib
-
-            with np.load(str(generation.embeddings_path), allow_pickle=True) as data:
-                ids = [str(identifier) for identifier in data["ids"].tolist()]
-            idx = hnswlib.Index(space="cosine", dim=generation.dimension)
-            idx.load_index(str(generation.index_path), max_elements=len(ids))
-            idx.set_ef(100)
-        except (ImportError, OSError, RuntimeError, TypeError, ValueError) as exc:
-            logger.warning("Selected dataset index is unreadable: {}", exc)
+            idx, ids = self._dataset_index, self._dataset_ids
+        else:
+            try:
+                idx, ids = _load_selected_embedding_index(generation)
+            except _EmbeddingIndexAdmissionError as exc:
+                logger.warning("Selected dataset index admission refused: {}", exc.code)
+                self._dataset_index = None
+                self._dataset_ids = None
+                self._dataset_generation = None
+                self._vector_index_refusal_reason = exc.code
+                return
+        if resolve_embedding_generation(self._index_dir) != generation:
             self._dataset_index = None
             self._dataset_ids = None
-            self._dataset_generation_id = None
-            self._vector_index_refusal_reason = "selected_generation_index_unreadable"
+            self._dataset_generation = None
+            self._vector_index_refusal_reason = "selected_generation_changed_during_query"
             return
         self._dataset_ids = ids
         self._dataset_index = idx
-        self._dataset_generation_id = generation.generation_id
+        self._dataset_generation = generation
         self._vector_index_refusal_reason = None
 
     @staticmethod

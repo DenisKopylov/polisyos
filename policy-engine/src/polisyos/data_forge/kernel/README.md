@@ -41,9 +41,17 @@
   delegates to the same kernel rule builder used during publication.
 - EMB-02 publishes each successful build below `embedding_generations/` with
   NPZ, HNSW (when non-empty), IDs, basis, and inventory bytes, then atomically
-  advances `embedding_generation.json`. A typed `empty_generation` is selected
-  instead of reusing flat files; flat legacy pairs are read only when no
-  selector exists, and a malformed selected generation fails closed.
+  advances `embedding_generation.json` before refreshing either flat
+  compatibility file. If a flat copy fails, `EmbeddingCompatibilityProjectionError`
+  reports the selected generation and failed target; a flat pair may be mixed
+  and the caller must not treat it as the selected generation. A typed
+  `empty_generation` is selected instead of reusing flat files; the resolver
+  exposes a legacy pair only when no selector exists, and malformed selected
+  generations fail closed. Academic and Catalog vector readers require a
+  selected generation; they admit a native cosine index only when its complete
+  labels and stored vectors match the selected finite float32 matrix. This
+  compatibility check does not prove that the matrix was produced by the
+  declared encoder or prevent a concurrent filesystem writer.
 - Local verification: `uv run pytest tests/unit/data_forge/kernel -q`
 - Maintenance: kernel changes must preserve domain package boundaries; deprecated adapters need an owner and sunset in the shim ledger.
 - Snapshot finalization writes `data_forge_provenance_manifest.json` and

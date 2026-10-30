@@ -13,6 +13,10 @@ transportability layer over the dataset catalog built by the batch pipeline.
 ## Key Concepts
 
 - **Hybrid search** - `DatasetCatalogGraph` combines text and vector retrieval.
+- Selected vector admission also compares the full native HNSW label/vector
+  set with the selected matrix. A changed inventory invalidates the cached
+  index; mismatch produces a vector refusal and the existing text fallback.
+  Matrix/index agreement does not prove encoder execution or source authority.
 - Each query result carries `search_mode` and `vector_refusal_code` independently of the
   optional score explanation. `search_mode="vector"` denotes the vector-enabled hybrid path;
   `search_mode="text"` keeps text matches as candidates and carries the selected-generation or

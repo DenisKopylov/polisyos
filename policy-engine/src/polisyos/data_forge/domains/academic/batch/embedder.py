@@ -8,6 +8,11 @@ from typing import TYPE_CHECKING
 import duckdb
 
 from polisyos.common.logger import get_logger
+from polisyos.data_forge.domains.academic.embedding_projection import (
+    ACADEMIC_WORK_EMBEDDING_BASIS_KIND,
+    ACADEMIC_WORK_EMBEDDING_PROJECTION_RULE_VERSION,
+    project_academic_work_embedding,
+)
 from polisyos.data_forge.kernel.embeddings import (
     build_embedding_generation,
     embedding_generation_manifest,
@@ -39,11 +44,7 @@ def build_hnsw_index(
     finally:
         con.close()
 
-    prepared_rows: list[tuple[object, str]] = []
-    for row in rows:
-        title = row[1] or ""
-        abstract = (row[2] or "")[:1200]
-        prepared_rows.append((row[0], f"{title}. {abstract}".strip()))
+    prepared_rows = [project_academic_work_embedding(row) for row in rows]
 
     count, dim = build_embedding_generation(
         rows=prepared_rows,
@@ -53,8 +54,8 @@ def build_hnsw_index(
         embedding_dimension=embedding_dimension,
         embedding_batch_size=embedding_batch_size,
         thermal_pause_seconds=thermal_pause_seconds,
-        basis_kind="academic_work_embedding",
-        projection_rule_version="policyos.academic_work_embedding_projection.v1",
+        basis_kind=ACADEMIC_WORK_EMBEDDING_BASIS_KIND,
+        projection_rule_version=ACADEMIC_WORK_EMBEDDING_PROJECTION_RULE_VERSION,
         legacy_embeddings_path=index_dir / "ac_work_embeddings.npz",
         legacy_index_path=index_dir / "ac_work_index.hnsw",
     )

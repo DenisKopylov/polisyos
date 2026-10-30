@@ -23,9 +23,14 @@ from polisyos.data_forge.domains.catalog.batch.embedder import (
     build_hnsw_index as build_catalog_hnsw_index,
 )
 from polisyos.data_forge.domains.catalog.batch.graph_builder import build_graph
+from polisyos.data_forge.domains.catalog.batch.pipeline import (
+    current_catalog_report_basis,
+    run_content_stage_with_receipt,
+)
 from polisyos.data_forge.domains.catalog.batch.publish import run_publish
 from polisyos.data_forge.domains.catalog.knowledge.store import DatasetCatalogStore
 from polisyos.data_forge.domains.catalog.knowledge.types import DatasetRecord, DistributionRecord
+from polisyos.data_forge.kernel.embeddings import embedding_generation_manifest
 
 
 class _FakeSentenceTransformer:
@@ -389,50 +394,30 @@ def _write_catalog_publish_inputs(config: DatasetBatchConfig) -> None:
     config.merged_records_path.write_text('{"id":"ds-1"}\n', encoding="utf-8")
     config.duplicates_report_path.parent.mkdir(parents=True, exist_ok=True)
     config.duplicates_report_path.write_text("dataset_id,duplicate_id\n", encoding="utf-8")
-    config.qc_report_path.parent.mkdir(parents=True, exist_ok=True)
-    config.qc_report_path.write_text(
-        json.dumps(
-            {
-                "passed": True,
-                "metrics": {
-                    "machine_readable_distribution_pct": 100.0,
-                    "parser_supported_distribution_pct": 100.0,
-                    "datasets_with_metric_binding_pct": 100.0,
-                    "datasets_with_schema_profile_pct": 100.0,
-                    "transport_ready_var_coverage_pct": 100.0,
-                    "execution_readiness_score_avg": 0.9,
-                },
-            }
-        ),
-        encoding="utf-8",
-    )
-    config.benchmark_report_path.write_text(
-        json.dumps(
-            {
-                "evaluation_mode": "full-ready",
-                "metrics": {
-                    "benchmark_search_top5_relevance_pct": 100.0,
-                    "benchmark_retrieval_ready_pct": 100.0,
-                    "benchmark_transport_ready_pct": 100.0,
-                    "benchmark_foundry_fitness_pct": 100.0,
-                    "benchmark_source_preflight_ready_pct": 100.0,
-                    "benchmark_bulk_equivalence_mismatch_rate": 0.0,
-                    "benchmark_bulk_equivalence_blocking_sources_total": 0,
-                },
-                "source_preflight": {"sources": [{"source": "worldbank", "status": "complete"}]},
-            }
-        ),
-        encoding="utf-8",
-    )
 
 
-def test_catalog_reader_and_publish_manifest_bind_to_selected_inventory(
+def test_catalog_reader_and_generation_manifest_bind_despite_readiness_refusal(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
+    from polisyos.fabric.connectors.profiles.models import SourceProfile
+    from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
+
     _install_fake_sentence_transformer(monkeypatch)
+    profiles = SourceProfileRegistry()
+    profiles.register(
+        SourceProfile(
+            profile_id="worldbank_wdi",
+            display_name="World Bank fixture",
+            connector_family="worldbank",
+            base_url="https://example.test/worldbank",
+        )
+    )
+    monkeypatch.setattr(SourceProfileRegistry, "_instance", profiles)
     registry_path = tmp_path / "registry.yaml"
     _write_catalog_registry(registry_path)
-    config = DatasetBatchConfig(snapshot_root=tmp_path / "snapshot", registry_path=registry_path)
+    config = DatasetBatchConfig(
+        snapshot_root=tmp_path / "snapshot", registry_path=registry_path, fail_fast_qc=False
+    )
     config.index_dir.mkdir(parents=True, exist_ok=True)
     build_graph(
         records=iter(
@@ -482,14 +467,22 @@ def test_catalog_reader_and_publish_manifest_bind_to_selected_inventory(
         store.close()
 
     _write_catalog_publish_inputs(config)
-    manifest_path = run_publish(config)
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    run_content_stage_with_receipt(config, "benchmark")
+    run_content_stage_with_receipt(config, "qc")
+    assert current_catalog_report_basis(config)["state"] == "current"
+    with pytest.raises(RuntimeError, match="consumer readiness failed"):
+        run_publish(config)
+    assert not config.publish_manifest_path.exists()
+
+    manifest = embedding_generation_manifest(config.index_dir)
+    assert manifest is not None
+    generation_metadata, artifacts = manifest
     selector = _selector(config.index_dir)
     generation_id = str(selector["generation_id"])
-    assert manifest["extra"]["embedding_generation"]["generation_id"] == generation_id
+    assert generation_metadata["generation_id"] == generation_id
     assert any(
-        f"embedding_generations/{generation_id}/inventory.json" in item["path"]
-        for item in manifest["artifacts"]
+        path == config.index_dir / "embedding_generations" / generation_id / "inventory.json"
+        for path in artifacts
     )
 
 

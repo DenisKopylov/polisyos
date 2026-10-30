@@ -15,6 +15,14 @@ selection.
 ## Key Concepts
 
 - **Hybrid search** - `ScholarKnowledgeGraph` combines text and vector retrieval.
+- **Selected work vectors** - `ScholarKnowledgeStore` recomputes the complete
+  current work ID/title/abstract projection against the selected generation
+  basis and verifies that its native HNSW labels and vectors match the selected
+  matrix. It rechecks the resolved generation before cache reuse and exposes
+  refusal through `vector_index_refusal_reason`. A legacy flat pair is not
+  admitted as a selected source. These checks do not attest the matrix's
+  producer, establish query-encoder compatibility, or make the high-level
+  hybrid search return a typed refusal envelope.
 - **SKG queries** - `SKGQuery` reads the `ac_skg_*` tables for edge and parameter evidence.
 - **Parameter selection** - `ParameterSelector` scores candidates for the current context.
 - **Canonical variables** - `VariableCanonizer` and the runtime registry normalize naming across domains.

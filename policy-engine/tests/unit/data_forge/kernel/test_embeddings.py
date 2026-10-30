@@ -323,3 +323,133 @@ def test_equal_prepared_texts_produce_equal_vectors_and_preserve_ids(
         "same prepared text",
         "another text",
     )
+
+
+@pytest.mark.parametrize("domain", ["academic", "catalog"])
+@pytest.mark.parametrize("failure_copy", [1, 2])
+def test_selected_generation_survives_postpublication_compatibility_copy_failure(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, domain: str, failure_copy: int
+) -> None:
+    """A compatibility copy failure cannot leave a newly mixed pair authoritative."""
+    from polisyos.data_forge.kernel import embeddings as owner
+
+    _install_fake_sentence_transformer(monkeypatch)
+    db_path = tmp_path / "db.duckdb"
+    _prepare_embedding_db(db_path)
+    index_dir = tmp_path / domain
+    index_dir.mkdir()
+    if domain == "academic":
+        build = lambda: build_academic_hnsw_index(  # noqa: E731
+            db_path=db_path,
+            index_dir=index_dir,
+            embedding_model="fixture-model",
+            embedding_dimension=4,
+        )
+    else:
+        build = lambda: build_catalog_hnsw_index(  # noqa: E731
+            db_path=db_path,
+            index_dir=index_dir,
+            embedding_model="fixture-model",
+            embedding_dimension=4,
+        )
+    build()
+    previous = owner.resolve_embedding_generation(index_dir)
+    assert previous is not None and previous.selected
+    original_copy = owner._atomic_copy_file
+    copies = 0
+    selected_at_failure = None
+
+    def fail_copy(source: Path, target: Path) -> None:
+        nonlocal copies, selected_at_failure
+        copies += 1
+        if copies == failure_copy:
+            selected_at_failure = owner.resolve_embedding_generation(index_dir)
+            raise OSError("compatibility copy failed after publication")
+        original_copy(source, target)
+
+    monkeypatch.setattr(owner, "_atomic_copy_file", fail_copy)
+    with pytest.raises(
+        owner.EmbeddingCompatibilityProjectionError,
+        match="compatibility copy failed after publication",
+    ) as error:
+        build()
+
+    assert selected_at_failure is not None
+    assert selected_at_failure.generation_id != previous.generation_id
+    fresh = owner.resolve_embedding_generation(index_dir)
+    assert fresh == selected_at_failure
+    assert fresh is not None and fresh.status == "complete"
+    assert error.value.generation_id == fresh.generation_id
+    assert error.value.target == index_dir / (
+        f"{'ac_work' if domain == 'academic' else 'ds_dataset'}_"
+        f"{'embeddings.npz' if failure_copy == 1 else 'index.hnsw'}"
+    )
+    assert fresh.index_path is not None and fresh.index_path.is_file()
+    assert fresh.ids == (("a-1", "a-2") if domain == "academic" else ("d-1", "d-2"))
+    if domain == "academic":
+        from polisyos.data_forge.domains.academic.knowledge.store import ScholarKnowledgeStore
+
+        reader = ScholarKnowledgeStore(db_path, index_dir)
+        try:
+            reader._load_work_index()
+            assert reader._work_ids == list(fresh.ids)
+            assert reader._work_index is not None
+            assert reader._work_index.get_current_count() == 2
+        finally:
+            reader.close()
+    else:
+        from polisyos.data_forge.domains.catalog.knowledge.store import DatasetCatalogStore
+
+        reader = DatasetCatalogStore(db_path, index_dir)
+        try:
+            assert reader.has_vector_index()
+            assert reader._dataset_ids == list(fresh.ids)
+            assert reader._dataset_index.get_current_count() == 2
+        finally:
+            reader.close()
+
+
+@pytest.mark.parametrize("domain", ["academic", "catalog"])
+def test_selector_failure_leaves_old_generation_and_flat_pair_selected(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, domain: str
+) -> None:
+    """A failed selection cannot publish only part of the next flat projection."""
+    from polisyos.data_forge.kernel import embeddings as owner
+
+    _install_fake_sentence_transformer(monkeypatch)
+    db_path = tmp_path / "db.duckdb"
+    _prepare_embedding_db(db_path)
+    index_dir = tmp_path / domain
+    if domain == "academic":
+        build = lambda: build_academic_hnsw_index(  # noqa: E731
+            db_path=db_path,
+            index_dir=index_dir,
+            embedding_model="fixture-model",
+            embedding_dimension=4,
+        )
+        prefix = "ac_work"
+    else:
+        build = lambda: build_catalog_hnsw_index(  # noqa: E731
+            db_path=db_path,
+            index_dir=index_dir,
+            embedding_model="fixture-model",
+            embedding_dimension=4,
+        )
+        prefix = "ds_dataset"
+    build()
+    before = owner.resolve_embedding_generation(index_dir)
+    flat_paths = [index_dir / f"{prefix}_embeddings.npz", index_dir / f"{prefix}_index.hnsw"]
+    flat_bytes = [path.read_bytes() for path in flat_paths]
+    original_write = owner.atomic_write_json
+
+    def fail_selector(path: Path, payload: object) -> Path:
+        if path.name == owner.GENERATION_SELECTOR_FILENAME:
+            raise OSError("selector unavailable")
+        return original_write(path, payload)
+
+    monkeypatch.setattr(owner, "atomic_write_json", fail_selector)
+    with pytest.raises(OSError, match="selector unavailable"):
+        build()
+
+    assert owner.resolve_embedding_generation(index_dir) == before
+    assert [path.read_bytes() for path in flat_paths] == flat_bytes

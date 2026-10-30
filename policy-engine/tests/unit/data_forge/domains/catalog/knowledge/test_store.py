@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 import os
 import sys
 import tempfile
@@ -71,6 +73,85 @@ class _CatalogEncoder:
     def encode(self, texts: list[str], **_kwargs: object) -> np.ndarray:
         self.encode_calls += 1
         return np.vstack([self.weight.copy() for _text in texts])
+
+
+@pytest.mark.parametrize("change", ["index_vectors", "index_count", "matrix_vectors"])
+def test_catalog_rechecks_selected_native_vectors_after_self_consistent_member_change(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, change: str
+) -> None:
+    import hnswlib
+
+    from polisyos.data_forge.kernel.embeddings import resolve_embedding_generation
+
+    db_path = tmp_path / "catalog.duckdb"
+    index_dir = tmp_path / "index"
+    build_graph(records=iter([DatasetRecord(id="ds-one", title="Example")]), db_path=db_path)
+    assert (
+        build_hnsw_index(
+            db_path=db_path, index_dir=index_dir, embedding_dimension=2, encoder=_CatalogEncoder()
+        )
+        == 1
+    )
+    monkeypatch.setitem(
+        sys.modules,
+        "sentence_transformers",
+        types.SimpleNamespace(
+            SentenceTransformer=lambda *_args, **kwargs: _CatalogEncoder(**kwargs)
+        ),
+    )
+    query = np.asarray([1.0, 0.0], dtype=np.float32)
+    store = DatasetCatalogStore(db_path, index_dir)
+    graph = DatasetCatalogGraph(db_path, index_dir)
+    try:
+        assert [result.id for result in store.search_by_vector(query)] == ["ds-one"]
+        assert graph.search_datasets_with_status("Example").search_mode == "vector"
+        generation = resolve_embedding_generation(index_dir)
+        assert generation is not None and generation.index_path is not None
+        if change == "matrix_vectors":
+            np.savez(
+                generation.embeddings_path,
+                ids=np.asarray(["ds-one"], dtype=object),
+                vectors=np.asarray([[0.0, 1.0]], dtype=np.float32),
+            )
+            changed_member = "embeddings"
+        else:
+            count = 2 if change == "index_count" else 1
+            index = hnswlib.Index(space="cosine", dim=2)
+            index.init_index(max_elements=count, ef_construction=200, M=16)
+            vector = [0.0, 1.0] if change == "index_vectors" else [1.0, 0.0]
+            index.add_items(np.asarray([vector] * count, dtype=np.float32), np.arange(count))
+            index.save_index(str(generation.index_path))
+            changed_member = "index"
+
+        selector_path = index_dir / "embedding_generation.json"
+        selector = json.loads(selector_path.read_text())
+        inventory_path = index_dir / selector["inventory"]
+        inventory = json.loads(inventory_path.read_text())
+        member_path = inventory_path.parent / inventory["files"][changed_member]["path"]
+        raw = member_path.read_bytes()
+        inventory["files"][changed_member]["sha256"] = hashlib.sha256(raw).hexdigest()
+        inventory["files"][changed_member]["size"] = len(raw)
+        inventory_path.write_text(json.dumps(inventory))
+        selector["inventory_sha256"] = hashlib.sha256(inventory_path.read_bytes()).hexdigest()
+        selector_path.write_text(json.dumps(selector))
+        assert resolve_embedding_generation(index_dir) is not None
+
+        assert store.search_by_vector(query, min_similarity=0.0) == []
+        assert store.vector_index_refusal_reason == "selected_generation_index_mismatch"
+        response = graph.search_datasets_with_status("Example")
+        assert response.search_mode == "text"
+        assert response.vector_refusal_code == "selected_generation_index_mismatch"
+        assert response.query_generation_context is not None
+        assert response.query_generation_context.state == "refused"
+        fresh = DatasetCatalogStore(db_path, index_dir)
+        try:
+            assert fresh.search_by_vector(query, min_similarity=0.0) == []
+            assert fresh.vector_index_refusal_reason == "selected_generation_index_mismatch"
+        finally:
+            fresh.close()
+    finally:
+        graph.close()
+        store.close()
 
 
 def _build_test_db(tmpdir: str) -> Path:

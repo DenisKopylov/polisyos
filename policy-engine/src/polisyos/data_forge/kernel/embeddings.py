@@ -13,7 +13,7 @@ from collections.abc import Callable, Mapping, Sequence
 from contextlib import suppress
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Literal, cast
+from typing import Any, Literal, cast
 
 import numpy as np
 
@@ -33,6 +33,36 @@ GENERATION_SELECTOR_SCHEMA_VERSION = "policyos.embedding_selector.v1"
 GENERATION_INVENTORY_SCHEMA_VERSION = "policyos.embedding_inventory.v1"
 EmbeddingGenerationStatus = Literal["complete", "empty_generation", "legacy"]
 _GENERATION_ID_PATTERN = re.compile(r"^[0-9a-f]{32}$")
+
+
+class EmbeddingCompatibilityProjectionError(OSError):
+    """A selected generation succeeded but a flat compatibility copy failed.
+
+    The selected generation remains authoritative; ``target`` names the flat
+    projection that could not be refreshed. Earlier flat copies may have changed.
+    """
+
+    def __init__(self, generation_id: str, target: Path, cause: OSError) -> None:
+        self.generation_id = generation_id
+        self.target = target
+        super().__init__(f"compatibility copy failed after publication: {target}: {cause}")
+
+
+class _EmbeddingIndexAdmissionError(ValueError):
+    """Internal typed refusal from the selected matrix/native-index admission."""
+
+    def __init__(
+        self,
+        code: Literal[
+            "selected_generation_unavailable",
+            "selected_generation_matrix_mismatch",
+            "selected_generation_index_mismatch",
+            "selected_generation_index_unreadable",
+            "selected_generation_backend_unavailable",
+        ],
+    ) -> None:
+        self.code = code
+        super().__init__(code)
 
 
 @dataclass(frozen=True, slots=True)
@@ -154,8 +184,10 @@ def build_embedding_generation(
 
     The selector is the only authoritative pointer after this function returns.
     Existing flat files are copied only as a compatibility projection and are
-    never used when a selector is present.  A failed build cleans up only its
-    own staging directory, leaving the previous selector and generation intact.
+    never used when a selector is present. A failure before selection leaves
+    the previous selector intact. If a compatibility copy fails after selection,
+    ``EmbeddingCompatibilityProjectionError`` identifies the already-selected
+    generation and failed target; the flat files may be inconsistent.
     When ``encoder`` is supplied, this function derives its identity from that
     same object and uses it to produce the generation vectors.
     """
@@ -409,12 +441,19 @@ def _publish_embedding_generation(
             "inventory_sha256": sha256_file(inventory_path),
         }
 
-        if status == "complete":
-            if legacy_embeddings_path is not None:
-                _atomic_copy_file(final_dir / "embeddings.npz", legacy_embeddings_path)
-            if legacy_index_path is not None:
-                _atomic_copy_file(final_dir / "index.hnsw", legacy_index_path)
         atomic_write_json(index_dir / GENERATION_SELECTOR_FILENAME, selector)
+        if status == "complete":
+            for source, target in (
+                (final_dir / "embeddings.npz", legacy_embeddings_path),
+                (final_dir / "index.hnsw", legacy_index_path),
+            ):
+                if target is not None:
+                    try:
+                        _atomic_copy_file(source, target)
+                    except OSError as exc:
+                        raise EmbeddingCompatibilityProjectionError(
+                            generation_id, target, exc
+                        ) from exc
         return count, actual_dimension
     finally:
         if staging is not None and staging.exists():
@@ -1107,6 +1146,39 @@ def hnsw_index_matches_vectors(index: object, matrix: np.ndarray) -> bool:
     return stored.shape == vectors.shape and bool(np.allclose(stored, vectors, rtol=0.0, atol=1e-6))
 
 
+def _load_selected_embedding_index(generation: EmbeddingGenerationRef) -> tuple[Any, list[str]]:
+    """Load a selected cosine index only if every native vector binds its matrix."""
+    if not generation.selected or generation.status != "complete" or generation.index_path is None:
+        raise _EmbeddingIndexAdmissionError("selected_generation_unavailable")
+    try:
+        with np.load(str(generation.embeddings_path), allow_pickle=True) as data:
+            ids = [str(identifier) for identifier in data["ids"].tolist()]
+            vectors = np.asarray(data["vectors"])
+    except (KeyError, OSError, TypeError, ValueError) as exc:
+        raise _EmbeddingIndexAdmissionError("selected_generation_matrix_mismatch") from exc
+    if (
+        tuple(ids) != generation.ids
+        or not ids
+        or vectors.dtype != np.dtype(np.float32)
+        or vectors.shape != (len(ids), generation.dimension)
+        or not np.isfinite(vectors).all()
+    ):
+        raise _EmbeddingIndexAdmissionError("selected_generation_matrix_mismatch")
+    try:
+        import hnswlib
+    except ImportError as exc:
+        raise _EmbeddingIndexAdmissionError("selected_generation_backend_unavailable") from exc
+    try:
+        index = hnswlib.Index(space="cosine", dim=generation.dimension)
+        index.load_index(str(generation.index_path), max_elements=len(ids))
+        index.set_ef(100)
+    except (OSError, RuntimeError, TypeError, ValueError) as exc:
+        raise _EmbeddingIndexAdmissionError("selected_generation_index_unreadable") from exc
+    if not hnsw_index_matches_vectors(index, vectors):
+        raise _EmbeddingIndexAdmissionError("selected_generation_index_mismatch")
+    return index, ids
+
+
 def _empty_generation_basis(*, basis_kind: str, generator_rule_version: str) -> dict[str, object]:
     payload: dict[str, object] = {
         "schema_version": GENERATION_BASIS_SCHEMA_VERSION,
@@ -1363,6 +1435,7 @@ __all__ = [
     "GENERATION_ROOT_DIRNAME",
     "GENERATION_SELECTOR_FILENAME",
     "GENERATION_SELECTOR_SCHEMA_VERSION",
+    "EmbeddingCompatibilityProjectionError",
     "EmbeddingGenerationRef",
     "GenerationIdentity",
     "build_embedding_generation",

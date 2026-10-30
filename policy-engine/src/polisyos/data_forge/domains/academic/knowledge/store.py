@@ -11,9 +11,12 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import duckdb
-import numpy as np
 
 from polisyos.common.logger import get_logger
+from polisyos.data_forge.domains.academic.embedding_projection import (
+    ACADEMIC_WORK_EMBEDDING_BASIS_KIND,
+    project_academic_work_embedding,
+)
 from polisyos.data_forge.domains.academic.knowledge.skg_store import (
     decode_edge_evidence_strength,
 )
@@ -39,7 +42,13 @@ from polisyos.data_forge.domains.academic.knowledge.types import (
     ParameterEstimateResult,
     WorkSearchResult,
 )
-from polisyos.data_forge.kernel.embeddings import resolve_embedding_generation
+from polisyos.data_forge.kernel.embeddings import (
+    EmbeddingGenerationRef,
+    _EmbeddingIndexAdmissionError,
+    _load_selected_embedding_index,
+    generation_basis_matches_members,
+    resolve_embedding_generation,
+)
 from polisyos.ir.analytics import (
     ClaimVocabularyAxisStatus,
     DesignFamily,
@@ -53,6 +62,8 @@ logger = get_logger(__name__)
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Mapping
+
+    import numpy as np
 
 _LEGACY_LOOKALIKE_COLUMNS = {
     "design_family_hint",
@@ -137,6 +148,8 @@ class ScholarKnowledgeStore:
 
         self._work_index = None
         self._work_ids: list[str] | None = None
+        self._work_generation: EmbeddingGenerationRef | None = None
+        self._vector_index_refusal_reason: str | None = None
 
     @classmethod
     def _from_connection(
@@ -152,15 +165,26 @@ class ScholarKnowledgeStore:
         store._claim_schema_cache = {}
         store._work_index = None
         store._work_ids = None
+        store._work_generation = None
+        store._vector_index_refusal_reason = None
         return store
 
     # ------------------------------------------------------------------
     # Vector index loading (lazy)
     # ------------------------------------------------------------------
 
+    @property
+    def vector_index_refusal_reason(self) -> str | None:
+        """Return the reason the latest selected work index was not admitted."""
+        return self._vector_index_refusal_reason
+
+    def _refuse_work_index(self, reason: str) -> None:
+        self._work_index = None
+        self._work_ids = None
+        self._work_generation = None
+        self._vector_index_refusal_reason = reason
+
     def _load_work_index(self) -> None:
-        if self._work_index is not None:
-            return
         npz_path = self._index_dir / "ac_work_embeddings.npz"
         hnsw_path = self._index_dir / "ac_work_index.hnsw"
         generation = resolve_embedding_generation(
@@ -168,28 +192,53 @@ class ScholarKnowledgeStore:
             legacy_embeddings_path=npz_path,
             legacy_index_path=hnsw_path,
         )
-        if (
-            generation is None
-            or generation.status == "empty_generation"
-            or generation.index_path is None
-        ):
-            logger.warning("Work index files not found in %s", self._index_dir)
+        if generation is None:
+            self._refuse_work_index("selected_generation_unavailable")
             return
-        try:
-            import hnswlib
+        if not generation.selected:
+            self._refuse_work_index("legacy_generation_requires_selected_complete_basis")
+            return
+        if generation.status != "complete" or generation.index_path is None:
+            self._refuse_work_index("selected_generation_not_complete")
+            return
 
-            with np.load(str(generation.embeddings_path), allow_pickle=True) as data:
-                ids = [str(identifier) for identifier in data["ids"].tolist()]
-            idx = hnswlib.Index(space="cosine", dim=generation.dimension)
-            idx.load_index(str(generation.index_path), max_elements=len(ids))
-            idx.set_ef(100)
-        except (ImportError, OSError, RuntimeError, TypeError, ValueError) as exc:
-            logger.warning("Selected work index is unreadable: %s", exc)
-            self._work_index = None
-            self._work_ids = None
+        try:
+            rows = self._con.execute(
+                "SELECT id, title, abstract FROM ac_works ORDER BY id"
+            ).fetchall()
+            projection = [project_academic_work_embedding(row) for row in rows]
+            members = [(identifier, text.encode("utf-8")) for identifier, text in projection]
+        except (duckdb.Error, AttributeError, TypeError, ValueError) as exc:
+            logger.warning("Academic work source projection is unavailable: %s", exc)
+            self._refuse_work_index("academic_material_projection_unavailable")
+            return
+        if [identifier for identifier, _text in projection] != list(generation.ids) or (
+            not generation_basis_matches_members(
+                generation, basis_kind=ACADEMIC_WORK_EMBEDDING_BASIS_KIND, members=members
+            )
+        ):
+            self._refuse_work_index("selected_generation_membership_mismatch")
+            return
+        if (
+            self._work_index is not None
+            and self._work_ids is not None
+            and self._work_generation == generation
+        ):
+            idx, ids = self._work_index, self._work_ids
+        else:
+            try:
+                idx, ids = _load_selected_embedding_index(generation)
+            except _EmbeddingIndexAdmissionError as exc:
+                logger.warning("Selected work index admission refused: %s", exc.code)
+                self._refuse_work_index(exc.code)
+                return
+        if resolve_embedding_generation(self._index_dir) != generation:
+            self._refuse_work_index("selected_generation_changed_during_query")
             return
         self._work_ids = ids
         self._work_index = idx
+        self._work_generation = generation
+        self._vector_index_refusal_reason = None
 
     def _to_work_result(
         self,

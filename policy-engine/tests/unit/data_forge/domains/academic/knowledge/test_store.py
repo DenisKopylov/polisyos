@@ -1,6 +1,13 @@
 from __future__ import annotations
 
+import hashlib
+import json
+import sys
+import types
+from pathlib import Path
+
 import duckdb
+import numpy as np
 import pytest
 from pydantic import ValidationError
 
@@ -16,6 +23,221 @@ from polisyos.data_forge.domains.academic.knowledge.types import (
     ClaimTableSchemaError,
     ClaimVocabularyProjectionBinding,
 )
+
+
+class _WorkEncoder:
+    def __init__(self, model: str, device: str | None = None) -> None:
+        del device
+        self.vector = [0.0, 1.0] if model == "second-model" else [1.0, 0.0]
+
+    def encode(self, texts: list[str], **_kwargs: object) -> np.ndarray:
+        return np.asarray([self.vector for _ in texts], dtype=np.float32)
+
+
+def _build_work_generation(
+    monkeypatch: pytest.MonkeyPatch, db_path: Path, index_dir: Path, *, model: str = "first-model"
+) -> None:
+    from polisyos.data_forge.domains.academic.batch.embedder import build_hnsw_index
+
+    monkeypatch.setitem(
+        sys.modules,
+        "sentence_transformers",
+        types.SimpleNamespace(SentenceTransformer=_WorkEncoder),
+    )
+    assert build_hnsw_index(
+        db_path=db_path,
+        index_dir=index_dir,
+        embedding_model=model,
+        embedding_dimension=2,
+        embedding_device="cpu",
+    ) == (2, 2)
+
+
+def _work_fixture(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> tuple[Path, Path]:
+    db_path, index_dir = tmp_path / "work.duckdb", tmp_path / "index"
+    with duckdb.connect(str(db_path)) as con:
+        _init_schema(con)
+        con.executemany(
+            "INSERT INTO ac_works (id, title, abstract) VALUES (?, ?, ?)",
+            [("w1", "First title", "first abstract"), ("w2", "Second title", "second abstract")],
+        )
+    _build_work_generation(monkeypatch, db_path, index_dir)
+    return db_path, index_dir
+
+
+def _refresh_selected_inventory(index_dir: Path, changed_member: str) -> None:
+    """Rehash a modified member so a self-consistent forged inventory still resolves."""
+    selector_path = index_dir / "embedding_generation.json"
+    selector = json.loads(selector_path.read_text())
+    inventory_path = index_dir / selector["inventory"]
+    inventory = json.loads(inventory_path.read_text())
+    if changed_member == "basis":
+        inventory["basis"] = json.loads((inventory_path.parent / "basis.json").read_text())
+    member_path = inventory_path.parent / inventory["files"][changed_member]["path"]
+    raw = member_path.read_bytes()
+    inventory["files"][changed_member]["sha256"] = hashlib.sha256(raw).hexdigest()
+    inventory["files"][changed_member]["size"] = len(raw)
+    inventory_path.write_text(json.dumps(inventory))
+    selector["inventory_sha256"] = hashlib.sha256(inventory_path.read_bytes()).hexdigest()
+    selector_path.write_text(json.dumps(selector))
+
+
+@pytest.mark.parametrize("change", ["text", "added", "removed"])
+def test_scholar_selected_source_members_must_match_actual_database(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, change: str
+) -> None:
+    db_path, index_dir = _work_fixture(tmp_path, monkeypatch)
+    query = np.asarray([1.0, 0.0], dtype=np.float32)
+    store = ScholarKnowledgeStore(db_path, index_dir)
+    try:
+        assert {result.id for result in store.search_works_by_vector(query)} == {"w1", "w2"}
+    finally:
+        store.close()
+
+    with duckdb.connect(str(db_path)) as con:
+        if change == "text":
+            con.execute("UPDATE ac_works SET abstract = 'different material' WHERE id = 'w1'")
+        elif change == "added":
+            con.execute("INSERT INTO ac_works (id, title, abstract) VALUES ('w3', 'New', 'paper')")
+        else:
+            con.execute("DELETE FROM ac_works WHERE id = 'w2'")
+    fresh = ScholarKnowledgeStore(db_path, index_dir)
+    try:
+        assert fresh.search_works_by_vector(query) == []
+        assert fresh.vector_index_refusal_reason == "selected_generation_membership_mismatch"
+    finally:
+        fresh.close()
+
+
+@pytest.mark.parametrize(
+    "change",
+    [
+        "basis",
+        "index_vectors",
+        "index_count",
+        "index_labels",
+        "matrix_vectors",
+        "matrix_nonfinite",
+        "matrix_dtype",
+    ],
+)
+def test_scholar_rechecks_a_self_consistent_selected_generation_before_cache_reuse(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, change: str
+) -> None:
+    import hnswlib
+
+    from polisyos.data_forge.kernel.embeddings import resolve_embedding_generation
+
+    db_path, index_dir = _work_fixture(tmp_path, monkeypatch)
+    query = np.asarray([1.0, 0.0], dtype=np.float32)
+    store = ScholarKnowledgeStore(db_path, index_dir)
+    try:
+        assert {result.id for result in store.search_works_by_vector(query)} == {"w1", "w2"}
+        generation = resolve_embedding_generation(index_dir)
+        assert generation is not None and generation.index_path is not None
+        if change == "basis":
+            basis_path = generation.root_dir / "basis.json"
+            basis = json.loads(basis_path.read_text())
+            basis["members"][0]["content_identity"] = "sha256:" + "0" * 64
+            payload = {key: value for key, value in basis.items() if key != "basis_digest"}
+            raw = json.dumps(
+                payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False
+            ).encode()
+            basis["basis_digest"] = "sha256:" + hashlib.sha256(raw).hexdigest()
+            basis_path.write_text(json.dumps(basis))
+            member = "basis"
+        elif change.startswith("matrix_"):
+            vectors = (
+                [[float("nan"), 1.0], [0.0, 1.0]]
+                if change == "matrix_nonfinite"
+                else [[0.0, 1.0], [0.0, 1.0]]
+            )
+            np.savez(
+                generation.embeddings_path,
+                ids=np.asarray(["w1", "w2"], dtype=object),
+                vectors=np.asarray(
+                    vectors, dtype=np.float64 if change == "matrix_dtype" else np.float32
+                ),
+            )
+            member = "embeddings"
+        else:
+            count = 1 if change == "index_count" else 2
+            index = hnswlib.Index(space="cosine", dim=2)
+            index.init_index(max_elements=count, ef_construction=200, M=16)
+            labels = np.arange(count) + (2 if change == "index_labels" else 0)
+            vector = [0.0, 1.0] if change == "index_vectors" else [1.0, 0.0]
+            index.add_items(np.asarray([vector] * count, dtype=np.float32), labels)
+            index.save_index(str(generation.index_path))
+            member = "index"
+        _refresh_selected_inventory(index_dir, member)
+        assert resolve_embedding_generation(index_dir) is not None
+
+        expected = "selected_generation_index_mismatch"
+        if change == "basis":
+            expected = "selected_generation_membership_mismatch"
+        elif change in {"matrix_nonfinite", "matrix_dtype"}:
+            expected = "selected_generation_matrix_mismatch"
+        assert store.search_works_by_vector(query, min_similarity=0.0) == []
+        assert store.vector_index_refusal_reason == expected
+        fresh = ScholarKnowledgeStore(db_path, index_dir)
+        try:
+            assert fresh.search_works_by_vector(query, min_similarity=0.0) == []
+            assert fresh.vector_index_refusal_reason == expected
+        finally:
+            fresh.close()
+    finally:
+        store.close()
+
+
+def test_scholar_cache_follows_new_selected_generation(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    db_path, index_dir = _work_fixture(tmp_path, monkeypatch)
+    store = ScholarKnowledgeStore(db_path, index_dir)
+    try:
+        assert len(store.search_works_by_vector(np.asarray([1.0, 0.0], dtype=np.float32))) == 2
+        _build_work_generation(monkeypatch, db_path, index_dir, model="second-model")
+        results = store.search_works_by_vector(np.asarray([0.0, 1.0], dtype=np.float32))
+        assert {result.id for result in results} == {"w1", "w2"}
+    finally:
+        store.close()
+
+
+def test_scholar_cached_reader_refuses_selector_switch_during_source_projection(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from polisyos.data_forge.domains.academic.knowledge import store as academic_store
+
+    db_path, index_dir = _work_fixture(tmp_path, monkeypatch)
+    selector_path = index_dir / "embedding_generation.json"
+    first_selector = selector_path.read_bytes()
+    store = ScholarKnowledgeStore(db_path, index_dir)
+    try:
+        assert len(store.search_works_by_vector(np.asarray([1.0, 0.0], dtype=np.float32))) == 2
+        _build_work_generation(monkeypatch, db_path, index_dir, model="second-model")
+        second_selector = selector_path.read_bytes()
+        selector_path.write_bytes(first_selector)
+        match_basis = academic_store.generation_basis_matches_members
+
+        def switch_after_reconciliation(*args: object, **kwargs: object) -> bool:
+            matched = match_basis(*args, **kwargs)
+            selector_path.write_bytes(second_selector)
+            return matched
+
+        with monkeypatch.context() as patch:
+            patch.setattr(
+                academic_store, "generation_basis_matches_members", switch_after_reconciliation
+            )
+            assert store.search_works_by_vector(np.asarray([1.0, 0.0], dtype=np.float32)) == []
+            assert store.vector_index_refusal_reason == "selected_generation_changed_during_query"
+        fresh = ScholarKnowledgeStore(db_path, index_dir)
+        try:
+            results = fresh.search_works_by_vector(np.asarray([0.0, 1.0], dtype=np.float32))
+            assert {result.id for result in results} == {"w1", "w2"}
+        finally:
+            fresh.close()
+    finally:
+        store.close()
 
 
 def _make_v1_db(tmp_path, *, duplicate: bool = False):

@@ -26,7 +26,8 @@ remain unqualified and imports can continue as candidate work. This check does
 not install or persist wheels, qualify native extensions, or establish a complete
 dependency profile. Reentrant or concurrent imports during selection and mutable
 installer or finder state remain unqualified. `diagnose` reports the selected and
-refused module counts.
+refused module counts. The checkout's selected `.venv` may point to an existing
+environment; a provider member reached through an additional symlink is refused.
 The unified tools dispatcher offers the host another diagnostic handoff after
 a preflight lookup or tool import has loaded the ledger. An unavailable or
 unverified handoff leaves the command in the candidate band.

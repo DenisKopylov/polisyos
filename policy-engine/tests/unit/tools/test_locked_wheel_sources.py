@@ -5,6 +5,7 @@ from __future__ import annotations
 import base64
 import hashlib
 import io
+import json
 import subprocess
 import sys
 import zipfile
@@ -132,6 +133,129 @@ def test_selected_wheel_source_drift_remains_refused_after_restore(
     assert selector.select("sample_provider", str(source)) is None
     source.write_bytes(original)
     assert selector.select("sample_provider", str(source)) is None
+
+
+def test_locked_provider_under_selected_symlinked_site_is_captured(tmp_path: Path) -> None:
+    """The selected checkout may reuse a venv without copying its provider files."""
+    shared = tmp_path / "shared"
+    shared.mkdir()
+    real_site, source, lock, content = _distribution(shared)
+    root = tmp_path / "checkout"
+    root.mkdir()
+    alias = root / "site"
+    alias.symlink_to(real_site, target_is_directory=True)
+    (real_site / "sample_provider/relocated.py").symlink_to(source)
+    consumer = root / "consumer.py"
+    consumer.write_text("from sample_provider import value\n", encoding="utf-8")
+    product = Path(__file__).resolve().parents[3]
+    script = r"""
+import base64, hashlib, json, pathlib, sys
+product, root, archive, lock, mode = sys.argv[1:]
+root = pathlib.Path(root)
+site = root / 'site'
+sys.path.insert(0, product)
+from tools import authority_bootstrap as host
+from tools.loaded_execution_capture import CaptureError, ExpectedSource, SourceExecutionCapture
+host._LockedWheelSourceSelector._archive_bytes = staticmethod(lambda url, size: base64.b64decode(archive))
+selector = host._LockedWheelSourceSelector(root, site, base64.b64decode(lock))
+assert selector.select('sample_provider.relocated', str(site / 'sample_provider/relocated.py')) is None
+assert selector.failure_for('sample_provider.relocated') == 'provider_source_origin_invalid'
+source = root / 'consumer.py'
+capture = SourceExecutionCapture(root, {
+    'consumer': ExpectedSource('consumer.py', hashlib.sha256(source.read_bytes()).hexdigest())
+}, external_source_selector=selector.select, external_source_root=site)
+if mode == 'remove_nested_guard':
+    capture._selected_path = lambda expected: (root / expected.relative_path).resolve()
+nested = ExpectedSource('site/sample_provider/relocated.py', hashlib.sha256(source.read_bytes()).hexdigest())
+try:
+    capture._selected_path(nested)
+except ValueError:
+    pass
+else:
+    raise AssertionError('nested provider symlink was admitted')
+capture.install()
+sys.path[:0] = [str(root), str(site)]
+import consumer
+assert consumer.value == 7
+capture.assert_retained(frozenset({'consumer', 'sample_provider'}))
+record = capture.completed('sample_provider')
+assert record.relative_path == 'site/sample_provider/__init__.py'
+provider = sys.modules['sample_provider']
+assert record.origin == str(site / 'sample_provider/__init__.py')
+print(json.dumps([provider.__file__, provider.__spec__.origin, provider.__loader__.path,
+                  provider.__path__, provider.__spec__.submodule_search_locations]))
+if mode == 'remove_alias_currentness':
+    capture._selected_path = lambda expected: root / expected.relative_path
+original_resolve = pathlib.Path.resolve
+def changed_alias(self, *args, **kwargs):
+    if self == site / 'sample_provider/__init__.py':
+        return self
+    return original_resolve(self, *args, **kwargs)
+pathlib.Path.resolve = changed_alias
+try:
+    capture.assert_retained(frozenset({'consumer', 'sample_provider'}))
+except CaptureError as exc:
+    assert str(exc) == 'retained_module_changed'
+else:
+    raise AssertionError('changed selected site target was accepted')
+finally:
+    pathlib.Path.resolve = original_resolve
+assert capture.failed
+try:
+    capture.assert_retained(frozenset({'consumer', 'sample_provider'}))
+except CaptureError:
+    pass
+else:
+    raise AssertionError('restored site target erased failure')
+"""
+    baseline_script = r"""
+import json, pathlib, sys
+sys.path.insert(0, str(pathlib.Path(sys.argv[1]) / 'site'))
+import sample_provider as provider
+print(json.dumps([provider.__file__, provider.__spec__.origin, provider.__loader__.path,
+                  provider.__path__, provider.__spec__.submodule_search_locations]))
+"""
+    baseline = subprocess.run(
+        [sys.executable, "-I", "-S", "-B", "-c", baseline_script, str(root)],
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=20,
+    )
+    assert baseline.returncode == 0, baseline.stderr
+    for mode in ("normal", "remove_nested_guard", "remove_alias_currentness"):
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-I",
+                "-S",
+                "-B",
+                "-c",
+                script,
+                str(product),
+                str(root),
+                base64.b64encode(content).decode(),
+                base64.b64encode(lock).decode(),
+                mode,
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=20,
+        )
+        if mode == "remove_nested_guard":
+            print(f"nested symlink guard removal exit: {result.returncode}")
+            print(result.stderr, end="")
+            assert result.returncode != 0
+            assert "nested provider symlink was admitted" in result.stderr
+        elif mode == "remove_alias_currentness":
+            print(f"site target currentness removal exit: {result.returncode}")
+            print(result.stderr, end="")
+            assert result.returncode != 0
+            assert "changed selected site target was accepted" in result.stderr
+        else:
+            assert result.returncode == 0, result.stderr
+            assert json.loads(result.stdout) == json.loads(baseline.stdout)
 
 
 def test_real_import_captures_locked_provider_and_refuses_mutation(tmp_path: Path) -> None:

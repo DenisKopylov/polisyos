@@ -12,14 +12,14 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 ## Summary
 
-- Total IR types: `1678`.
-- Public/root-or-package facade types: `679`.
+- Total IR types: `1679`.
+- Public/root-or-package facade types: `680`.
 - ABI snapshot-backed types: `103`.
 - Export enumeration covers these public packages:
 
 | Package | Export count |
 | ------- | ------------ |
-| `polisyos.ir` | 530 |
+| `polisyos.ir` | 533 |
 | `polisyos.ir.analytics` | 320 |
 | `polisyos.ir.kernel` | 81 |
 | `polisyos.ir.loading` | 12 |
@@ -31,7 +31,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 | Section | Type count | Public types | Snapshot-backed |
 | ------- | ---------- | ------------ | ---------------- |
-| `analytics` | 1025 | 341 | 45 |
+| `analytics` | 1026 | 342 | 45 |
 | `artifacts` | 30 | 3 | 0 |
 | `governance` | 99 | 27 | 8 |
 | `kernel` | 66 | 54 | 0 |
@@ -14749,6 +14749,22 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `scm_spec` | `polisyos.ir.analytics.structural_causal_model.StructuralCausalModelSpec \| NoneType` | `no` | `—` | `polisyos.ir.analytics.structural_causal_model.StructuralCausalModelSpec` |
 | `source_graph_ref` | `str \| NoneType` | `no` | `—` | — |
 | `structural_equations` | `list[polisyos.ir.analytics.ncm.StructuralEquation]` | `no` | `—` | `polisyos.ir.analytics.ncm.StructuralEquation` |
+
+### `polisyos.ir.analytics.ncm.PreparedNCMSpecSelectedValues` { #polisyos-ir-analytics-ncm-preparedncmspecselectedvalues }
+
+- Kind: `dataclass`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir:PreparedNCMSpecSelectedValues`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Actual selected-codec model values and their complete effective bytes.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `ncm_spec` | `NCMSpec` | `yes` | `—` | — |
+| `value_bytes` | `bytes` | `yes` | `—` | — |
 
 ### `polisyos.ir.analytics.ncm.StructuralEquation` { #polisyos-ir-analytics-ncm-structuralequation }
 

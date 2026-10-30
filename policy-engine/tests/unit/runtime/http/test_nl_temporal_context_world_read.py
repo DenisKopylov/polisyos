@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from pathlib import Path
+from traceback import extract_tb
 from typing import Any
 
 import duckdb
@@ -120,7 +121,30 @@ async def _exercise(
     )
     service.bind_llm_producer_settlement_store(producer_store)
     assert service.llm_producer_settlement_store is producer_store
-    observed: dict[str, Any] = {}
+    observed: dict[str, Any] = {"phase": "before_compiler_entry"}
+    original_fail_attempt = service._fail_control_job_attempt
+
+    def capture_actual_failure(**kwargs):
+        # Observe the actual exception before the ordinary worker persists it;
+        # preserve its outcome, admission checks, and failure transaction.
+        exc = kwargs["exc"]
+        observed["failure"] = {
+            "phase": observed["phase"],
+            "type": type(exc).__name__,
+            "message": str(exc)[:500],
+            "frames": [
+                {
+                    "file": frame.filename,
+                    "line": frame.lineno,
+                    "function": frame.name,
+                    "source": frame.line,
+                }
+                for frame in extract_tb(exc.__traceback__)[-24:]
+            ],
+        }
+        return original_fail_attempt(**kwargs)
+
+    monkeypatch.setattr(service, "_fail_control_job_attempt", capture_actual_failure)
     if replay_missing_rows:
         from polisyos.runtime.http.services.control import (
             temporal_scope as temporal_owner,
@@ -182,6 +206,16 @@ async def _exercise(
             )
 
         async def consume_context(**kwargs):
+            observed["phase"] = "compiler_entry_before_producer_check"
+            observed["compiler_route"] = {
+                "execution_intent": kwargs.get("execution_intent"),
+                "n4_proposal_only": kwargs.get("n4_proposal_only"),
+                "target_world_scope_profile_id": kwargs.get("target_world_scope_profile_id"),
+                "context_resolver_is_none": kwargs.get("cycle_substrate_context_resolver") is None,
+                "generic_resolver_is_none": (
+                    kwargs.get("generic_cycle_simulation_handoff_resolver") is None
+                ),
+            }
             # The real compiler seam must be reached under this worker's
             # authenticated current job and the active durable producer owner.
             admission = service._control_store.current_execution_job_admission()
@@ -200,10 +234,12 @@ async def _exercise(
             assert binding.profile_id == verified.job.effective_execution_profile
             assert producer_store._active_run_binding_for_key(f"nl-run:{binding.run_id}") == binding
             assert producer_store._attempt_attribution_for(binding) == (verified.attempt, None)
+            observed["phase"] = "producer_checked_before_context_resolver"
             observed["trusted_at_entry"] = deepcopy(kwargs["trusted_source_context"])
             observed["compiler_at_entry"] = deepcopy(kwargs["context"])
             resolver = kwargs["cycle_substrate_context_resolver"]
             assert resolver is not None
+            observed["phase"] = "context_resolver_present"
             root_problem = _problem_for_world(world)
             observed["context"] = resolver(root_problem)
             observed["contexts"] = [observed["context"]]
@@ -293,7 +329,11 @@ async def _exercise(
         expected_error = (
             "nl_temporal_scope_context_world_read_replay_changed" if replay_missing_rows else _STOP
         )
-        assert response.error_message == expected_error
+        assert response.error_message == expected_error, (
+            f"tc_phase={observed['phase']}; "
+            f"tc_compiler_route={observed.get('compiler_route')!r}; "
+            f"tc_actual_failure={observed.get('failure')!r}"
+        )
         return service, launch, world, observed, response
     except BaseException:
         service.close()

@@ -87064,6 +87064,7 @@
         "x-polisyos-resource-binding": {
           "allow_empty_body": true,
           "path_parameter": "run_id",
+          "related_run_source": "completed_ex_ante_comparison",
           "resource_kind": "runtime.run.method_metrics",
           "source": "owned_existing_path"
         }

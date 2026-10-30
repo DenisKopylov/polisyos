@@ -4,6 +4,26 @@
 
 `tools/` is the canonical executable surface of `policy-engine`: it provides the unified `polisyos-tools` CLI, a zoned implementation layout, and historical records of retired compatibility paths.
 
+## Early source-execution evidence
+
+`tools/authority` starts an isolated, no-site host and a fresh recorded child
+for an existing target, for example `tools/authority tools ...`,
+`tools/authority runtime ...`, `tools/authority server ...`, or
+`tools/authority test ...`. The test route is serial and disables automatic
+plugin loading. `tools/authority diagnose` reports the host profile and any
+available confidence-ledger diagnostic.
+
+The host selects Python sources from the committed Git tree and records an
+initializer only when its source matches those selected bytes. A mismatch may
+still run as candidate work, without producing qualifying execution evidence.
+The host uses the checkout's existing `.venv`; tests and non-Python data are
+outside this source selection.
+The shell supplies a minimal environment, so configurations needed by services
+must be admitted separately. A recorder or diagnostic alone does not establish
+N9 authority: provider, decision-state, currentness, and protected-use premises
+remain the confidence ledger's responsibility. Direct console scripts and
+module invocations remain candidate routes until they use the early host.
+
 ## Where to Start
 
 - CLI boundary: `pyproject.toml` (`[project.scripts] polisyos-tools = "tools.cli:main"`).

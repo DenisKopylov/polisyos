@@ -1,0 +1,28 @@
+#!/bin/sh
+# Run the host itself without site startup or Python environment injection.
+set -eu
+case "$0" in
+  */*) script_dir=${0%/*} ;;
+  *) printf '%s\n' 'invoke tools/authority by path' >&2; exit 2 ;;
+esac
+product_root=$(CDPATH= cd -P -- "$script_dir/.." && pwd -P)
+unset DYLD_INSERT_LIBRARIES DYLD_LIBRARY_PATH DYLD_FRAMEWORK_PATH DYLD_ROOT_PATH \
+  DYLD_FALLBACK_LIBRARY_PATH DYLD_FALLBACK_FRAMEWORK_PATH LD_PRELOAD LD_LIBRARY_PATH
+exec /usr/bin/env -i PATH=/usr/bin:/bin HOME="${HOME:-/}" TMPDIR="${TMPDIR:-/tmp}" \
+  "$product_root/.venv/bin/python" -I -S -B -c '
+import os, pathlib, subprocess, sys
+root = pathlib.Path(sys.argv[1])
+host = root / "tools/authority_bootstrap.py"
+git_env = dict(os.environ, GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL="/dev/null",
+               GIT_NO_REPLACE_OBJECTS="1", GIT_OPTIONAL_LOCKS="0")
+source = subprocess.run(
+    ["/usr/bin/git", "--no-replace-objects", "-C", str(root.parent), "show", "--no-textconv",
+     "HEAD:policy-engine/tools/authority_bootstrap.py"],
+    check=True, capture_output=True, timeout=30, env=git_env,
+).stdout
+if host.resolve(strict=True) != host or host.read_bytes() != source:
+    raise RuntimeError("selected_host_input_mismatch")
+sys.argv = [str(host), *sys.argv[2:]]
+namespace = {"__name__": "__main__", "__file__": str(host), "__package__": None}
+exec(compile(source, str(host), "exec", dont_inherit=True), namespace)
+' "$product_root" "$@"

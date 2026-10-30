@@ -204,3 +204,13 @@ origins. Comprehensions retain the produced element, key and value, not their co
 known mapping spread into a sequence contributes keys, never unrelated values. Exact pure scalar
 projections retain their existing ability to drop origins. Bounded fixture checks do not establish
 source-wide or native clearance.
+
+Dictionary-display ordering remains unresolved: the collector currently visits a value before its
+key, although Python evaluates the key first. A key assignment can consequently produce a stale
+allowed target and a matching registry can validate it. Reversing the traversal alone is not a
+complete repair: a selected helper's conditional global writes can leak from one analyzed branch
+into another. A safe repair needs branch-local namespace effects and joins, with semantic controls
+for both evaluation order and helper effects. Deferred generator consumption, mapping-spread
+protocols, custom hashing and equality, exceptions, and external effects also remain unmodeled;
+controlled examples of generator consumption and custom hashing produce a wrong concrete target
+while the matching registry validates. These examples do not establish a repository-wide verdict.

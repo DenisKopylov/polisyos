@@ -7302,14 +7302,20 @@ def test_dynamic_import_guarded_transfer_allows_unrelated_callable_values(
     assert preflight.validate_dynamic_imports() == []
 
 
+_UNSUPPORTED_SUBSCRIPT_SOURCE = (
+    "import importlib\n"
+    "unknown_index = len(())\n"
+    "loader = (importlib,)[unknown_index].import_module\n"
+    "loader('unsupported_subscript_origin')\n"
+)
+
+
 def test_dynamic_import_validator_refuses_guarded_value_through_unsupported_expression(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     findings = _dynamic_import_validator_refusal(
-        "import importlib\n"
-        "loader = (importlib,)[0].import_module\n"
-        "loader('unsupported_subscript_origin')\n",
+        _UNSUPPORTED_SUBSCRIPT_SOURCE,
         tmp_path,
         monkeypatch,
     )
@@ -7319,6 +7325,51 @@ def test_dynamic_import_validator_refuses_guarded_value_through_unsupported_expr
         and "dynamic importer binding is ambiguous or unresolved" in finding.detail
         for finding in findings
     )
+
+
+def test_dynamic_import_exact_subscript_is_inventoried(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A known tuple index uses the existing exact-selection transfer."""
+    registry = _dynamic_import_fixture(
+        tmp_path,
+        monkeypatch,
+        "import importlib\n"
+        "loader = (importlib,)[0].import_module\n"
+        "loader('unsupported_subscript_origin')\n",
+    )
+    entries = preflight.collect_dynamic_imports()
+    assert [entry["pattern"] for entry in entries] == ["unsupported_subscript_origin"]
+    registry.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
+    assert any(
+        finding.message == "dynamic import call is not registered"
+        and "unsupported_subscript_origin" in finding.detail
+        for finding in preflight.validate_dynamic_imports()
+    )
+
+
+def test_dynamic_import_unsupported_subscript_fixture_reaches_real_import(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The unresolved-index fixture reaches an actual controlled import."""
+    name = "unsupported_subscript_origin"
+    module_path = tmp_path / f"{name}.py"
+    module_path.write_text("fixture_executed = True\n", encoding="utf-8")
+    fixture = tmp_path / "unsupported_fixture.py"
+    fixture.write_text(_UNSUPPORTED_SUBSCRIPT_SOURCE, encoding="utf-8")
+    monkeypatch.syspath_prepend(str(tmp_path))
+    monkeypatch.delitem(sys.modules, name, raising=False)
+    try:
+        namespace = runpy.run_path(str(fixture))
+        module = sys.modules[name]
+        assert module.__spec__ is not None
+        assert module.__spec__.origin == str(module_path)
+        assert module.fixture_executed is True
+        assert namespace["unknown_index"] == 0
+    finally:
+        sys.modules.pop(name, None)
 
 
 def test_dynamic_import_match_capture_refuses_cross_scope_guarded_rebind(

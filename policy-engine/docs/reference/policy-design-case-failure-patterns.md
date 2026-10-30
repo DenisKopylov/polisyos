@@ -891,3 +891,13 @@ actual-collector counterexample must be retained alongside a direct-import posit
 call this legacy/native compatibility clearance. The smallest missing capability is a
 use-site proof of receiver identity and stable attribute dispatch across the selected source
 context; the existing abstract module binding and named-write tracker do not provide it.
+
+**Dictionary order and branch effects.** A collector that visits a value before its key can emit a
+stale import target. Reversing that order alone exposes a separate shared-namespace leak: a helper's
+conditional global write can escape the branch that the scanner is evaluating. The controlled
+counterexample changes a previously correct target into an incorrect one while the matching
+registry remains green. Close the class with Python-order traversal and branch-local namespace
+effects joined over actual control flow, or refuse unproven effects without rejecting legitimate
+source. A broad syntactic key-call refusal would also reject ordinary existing dictionary displays.
+Custom-key hashing and deferred generator consumption have separate controlled wrong-target
+examples on the pre-change collector; neither example establishes the full-source gate status.

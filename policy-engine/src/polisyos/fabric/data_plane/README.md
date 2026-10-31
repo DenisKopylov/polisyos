@@ -206,6 +206,17 @@ activate dedupe. Finite processing is explicitly `replay_only`. Its retained
 witness, limitations and selected input edge survive chunk/window/CDC artifacts,
 the aggregate manifest/evidence and snapshot.
 
+An error before the first committed chunk, or a successfully compensated first
+local-pair write, keeps an explicitly empty frontier with the actual source
+witness, ingestion clock profile and schema binding. It advances neither cursor
+nor dedupe keys. A fresh reader can replay it under the same bindings; a changed
+clock or schema still refuses. An unresolved source commit or failed compensation
+remains unresolved. The empty frontier is built when its actual witness is
+available, after input capacity admission, rather than persisting a guessed
+source binding before effects. The streaming runtime tests use explicit versioned
+JSONL inputs and independently frozen finite-owner files; cleanup faults wrap
+real acquired sessions, and window lineage includes the selected source witness.
+
 The horizon stores UTC first-acceptance times for 86,400 seconds and refuses live
 key overflow before eviction. Two OS processes with an explicit injected UTC
 clock prove replay-time semantics after execution, never elapsed wall time.

@@ -84,6 +84,28 @@ promoted into current legal findings. New v1.1 artifacts require readers that
 understand the candidate fields. An institutional legal verifier and reviewer
 appointment are not supplied by this change.
 
+## Selected IC verification
+
+The existing exact IC verifier retains the complete selected Trinity and optional
+semantics manifest profiles in each report, positive/negative certificate and
+mechanism-family sidecar. Selected outputs also bind the persisted typed
+`ICVerificationRequest`, including property, proof mode, backend hint, payment
+synthesis and arithmetic settings. The request-bound report reader reconciles
+these actual source edges and request contents; matching payload bytes under a
+different selected profile do not establish the same proof input.
+
+`IncentiveCompatibilityPass` recomputes its requested checks instead of treating
+an old artifact-index role as a fresh producer attempt. Before verification it
+reconciles the actual selected Trinity contents with the current pass input;
+source mismatch refuses certification. Every validation clears owned proof roles and
+summaries, including properties withdrawn from the current claim set. Strict mode
+requires a selected persisted source; a newly produced source uses the existing
+Trinity owner, while an explicitly supplied historical unselected ref stays unbound.
+MVP may still compute an ephemeral candidate diagnostic. Historical unselected IC
+outputs remain readable, but cannot pass the selected
+request-bound reader. These bindings establish software input identity, not an
+institutional appointment or a publication decision.
+
 ## Compatibility
 
 The old first-level packages `polisyos.scientist.decision_validity`,

@@ -1,0 +1,26 @@
+id = "2026-10-31-e02-selected-ic-request"
+title = "Bind exact IC results to their complete selected verification request"
+type = "fixed"
+component = "scientist"
+owner = "scientist"
+summary = "Selected IC outputs preserve full Trinity and semantics profiles plus a typed request edge; governance recomputes the requested check and refuses source/context mismatch instead of reusing stale proof roles. Strict mode requires a selected persisted source, and withdrawn claims clear their owned output roles."
+evidence = ["src/polisyos/scientist/validation/README.md", "tests/unit/scientist/validation/test_ic_selected_profiles.py", "tests/unit/scientist/governance/test_incentive_compatibility_pass.py"]
+compatibility = "Historical unselected report/certificate readers and request defaults remain compatible. Only selected requests emit the new request artifact and complete request-bound output profiles."
+change_class = "Additive selected IC artifact lineage and corrected current-source consumer behavior."
+surface_classification = "internal: internal-only"
+api = "Existing IC request and report schemas remain 1.0; report/certificate persistence adds an optional selected-profile return flag. No HTTP or dashboard contract changes."
+limitations = "Selected source identity and exact proof computation do not supply producer appointment, legal authority, runtime implementation conformance or publication approval."
+generated_client_compatibility = "not_applicable"
+
+[[compatibility_change]]
+id = "selected-ic-request-edge-v1"
+change_class = "persisted-artifact-format"
+impact = "additive"
+surface = "internal: internal-only"
+owner = "scientist"
+version_owner = "scientist"
+deprecation_window = "not_applicable"
+release_note = "Selected IC result manifests bind a versioned verification_request artifact and the exact input and optional semantics profiles; historical unselected manifests remain readable."
+generated_client_compatibility = "not_applicable"
+migration_docs = []
+runbook_docs = []

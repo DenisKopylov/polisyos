@@ -6,9 +6,10 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec
+from polisyos.core.artifacts import ensure_ir_artifact_store, load_core_json_artifact
+from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.core.canon.hashing import fingerprint
 from polisyos.core.contracts.ic_verification import (
     ICVerificationReport,
@@ -19,6 +20,11 @@ from polisyos.core.contracts.trinity import TrinityBundleRef
 from polisyos.core.governance.passes.base import PassContext, ValidatorPass
 from polisyos.core.governance.profiles import ProfileLevel
 from polisyos.ir.governance.game_design import MechanismConstraintType
+from polisyos.ir.trinity import (
+    TrinityBundle,
+    load_trinity_bundle_artifact,
+    persist_trinity_bundle_artifact,
+)
 from polisyos.scientist.validation.verification.ic import (
     evaluate_incentive_compatibility,
     load_ic_certificate,
@@ -26,6 +32,7 @@ from polisyos.scientist.validation.verification.ic import (
     load_ic_report,
     verify_incentive_compatibility,
 )
+from polisyos.scientist.validation.verification.ic.service import _load_ic_report_for_request
 
 _IC_PROPERTIES = (
     MechanismConstraintType.DOMINANT_STRATEGY_IC.value,
@@ -48,6 +55,11 @@ class IncentiveCompatibilityPass(ValidatorPass):
         return 40
 
     def validate(self, ctx: PassContext) -> list[ComplianceIssue]:
+        artifacts_index = ctx.state.setdefault("artifacts_index", {})
+        verification_state = ctx.state.setdefault("ic_verification", {})
+        for property_name in _IC_PROPERTIES:
+            _clear_ic_artifact_selections(artifacts_index, property_name)
+            verification_state.pop(property_name, None)
         policy = ctx.ir.policy_spec if ctx.ir is not None else None
         design = None if policy is None else policy.mechanism_design
         if design is None:
@@ -66,9 +78,25 @@ class IncentiveCompatibilityPass(ValidatorPass):
 
         issues: list[ComplianceIssue] = []
         store = _resolve_store(ctx.state)
-        artifacts_index = ctx.state.setdefault("artifacts_index", {})
-        verification_state = ctx.state.setdefault("ic_verification", {})
-        input_ref = _resolve_or_persist_trinity_ref(ctx, store, artifacts_index)
+        try:
+            input_ref = _resolve_or_persist_trinity_ref(ctx, store, artifacts_index)
+            if ctx.profile.level is ProfileLevel.STRICT and (
+                store is None or input_ref is None or input_ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("ic_selected_trinity_profile_not_established")
+        except (KeyError, OSError, RuntimeError, TypeError, ValidationError, ValueError) as exc:
+            for property_name in claims:
+                report = ICVerificationReport(
+                    property=property_name,
+                    mode="strict_proof",
+                    backend="auto",
+                    verdict="semantic_validation_failure",
+                    input_digest=str(_ephemeral_input_ref(ctx).artifact_id),
+                    notes=(str(exc),),
+                )
+                verification_state[property_name] = report.model_dump(mode="json")
+                issues.extend(_issues_for_report(ctx, property_name, report))
+            return issues
 
         for property_name in claims:
             report = _resolve_or_compute_report(
@@ -99,28 +127,38 @@ def _resolve_or_persist_trinity_ref(
     store: FileSystemCAS | None,
     artifacts_index: dict[str, Any],
 ) -> TrinityBundleRef | None:
-    for _key, value in artifacts_index.items():
-        if hasattr(value, "kind") and getattr(value, "kind", None) == "ir.trinity_bundle":
-            try:
-                return TrinityBundleRef.model_validate(value.model_dump(mode="json"))
-            except (AttributeError, TypeError, ValidationError, ValueError):
-                continue
+    value = artifacts_index.get("trinity_bundle_ref")
+    if value is None:
+        candidates = [
+            item
+            for item in artifacts_index.values()
+            if getattr(item, "kind", None) == "ir.trinity_bundle"
+        ]
+        if len(candidates) > 1:
+            raise ValueError("ic_trinity_selection_ambiguous")
+        value = next(iter(candidates), None)
+    if value is not None:
+        ref = TrinityBundleRef.model_validate(
+            value.model_dump(mode="json") if hasattr(value, "model_dump") else value
+        )
+        if store is None:
+            raise ValueError("ic_selected_trinity_store_not_established")
+        selected = (
+            load_trinity_bundle_artifact(ensure_ir_artifact_store(store), ref)
+            if ref.manifest_profile_sha256 is not None
+            else TrinityBundle.model_validate(load_core_json_artifact(store, ref))
+        )
+        canon = CanonSpec(forbid_floats=False, exclude_none=False)
+        if ctx.ir is None or to_canonical_bytes(
+            selected.model_dump(mode="json"), canon
+        ) != to_canonical_bytes(ctx.ir.model_dump(mode="json"), canon):
+            raise ValueError("ic_selected_trinity_context_mismatch")
+        return ref
 
     if ctx.ir is None or store is None:
         return None
 
-    artifact = store.put_json(
-        ctx.ir.model_dump(mode="json"),
-        PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(
-                name="polisyos.ir.TrinityBundle",
-                version=str(ctx.ir.schema_version),
-            ),
-        ),
-        canon_spec=CanonSpec(forbid_floats=False),
-    )
+    artifact = persist_trinity_bundle_artifact(ensure_ir_artifact_store(store), ctx.ir)
     ref = TrinityBundleRef.model_validate(artifact.model_dump(mode="json"))
     artifacts_index.setdefault("trinity_bundle_ref", ref)
     return ref
@@ -135,12 +173,8 @@ def _resolve_or_compute_report(
     input_ref: TrinityBundleRef | None,
 ) -> ICVerificationReport:
     report_key = _artifact_key(property_name, "report_ref")
-    existing = artifacts_index.get(report_key)
-    if existing is not None and store is not None:
-        try:
-            return load_ic_report(store, existing)
-        except (AttributeError, OSError, RuntimeError, TypeError, ValidationError, ValueError):
-            existing = None
+    # A cached report has no independently appointed IC producer attempt. Recompute
+    # it for the admitted input rather than treating a prior role as fresh proof.
 
     request = ICVerificationRequest(
         property=property_name,
@@ -153,7 +187,11 @@ def _resolve_or_compute_report(
         result = verify_incentive_compatibility(store, request)
         if result.report_ref is not None:
             artifacts_index[report_key] = result.report_ref
-            report = load_ic_report(store, result.report_ref)
+            report = (
+                _load_ic_report_for_request(store, result.report_ref, request)
+                if input_ref.manifest_profile_sha256 is not None
+                else load_ic_report(store, result.report_ref)
+            )
             if result.certificate_ref is not None:
                 suffix = (
                     "certificate_ref"
@@ -186,6 +224,20 @@ def _resolve_or_compute_report(
             input_digest=str(request.input_ref.artifact_id),
             notes=(str(exc),),
         )
+
+
+def _clear_ic_artifact_selections(artifacts_index: dict[str, Any], property_name: str) -> None:
+    suffixes = (
+        "_report_ref",
+        "_certificate_ref",
+        "_negative_certificate_ref",
+        "_mechanism_family_spec_ref",
+        "_mechanism_ic_certificate_ref",
+        "_mechanism_welfare_loss_bound_ref",
+    )
+    for key in tuple(artifacts_index):
+        if key.startswith(f"{property_name}_") and key.endswith(suffixes):
+            artifacts_index.pop(key)
 
 
 def _index_mechanism_family_sidecars(

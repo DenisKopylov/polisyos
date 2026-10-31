@@ -10,7 +10,7 @@ from typing import Any, Literal
 from pydantic import BaseModel
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts import ArtifactRef, ArtifactStore
+from polisyos.core.artifacts import ArtifactRef, ArtifactStore, input_ref_from_artifact_ref
 from polisyos.ir import FailureSeverity, TypedFailureCard, UncertaintyType
 from polisyos.ir.analytics.causal import CausalEffectReport, EstimationStatus
 from polisyos.ir.analytics.cross_graph import (
@@ -25,6 +25,7 @@ from polisyos.scientist.methods.autotune.models import (
     BenchmarkSplit,
 )
 from polisyos.scientist.methods.doe.stress_report import (
+    StressScoreResolution,
     StressTestReport,
     resolve_stress_report_artifact,
 )
@@ -97,7 +98,7 @@ class Level5RefutationGovernanceStage(FunnelStage):
         start = datetime.now(UTC)
         prior_result = _prior_result(context)
         objective_value = prior_result.objective_value if prior_result is not None else None
-        score_status = (
+        objective_score_status = (
             prior_result.score_status
             if prior_result is not None
             else ObjectiveScoreStatus.UNAVAILABLE
@@ -145,6 +146,7 @@ class Level5RefutationGovernanceStage(FunnelStage):
         source_score_profile: str | None = None
         source_score_value: float | None = None
         score_source_reports: list[dict[str, Any]] = []
+        stress_resolution: StressScoreResolution | None = None
 
         if raw_stress_report_ref is not None:
             store = context.get("store") or self._store
@@ -219,6 +221,7 @@ class Level5RefutationGovernanceStage(FunnelStage):
                     expected_selection_evaluation_ref=selection_ref,
                     expected_phase_d4_roster=phase_d4_roster,
                 )
+                stress_resolution = resolution
                 source_score_status = stress_report.score_status
                 source_score_profile = stress_report.score_profile
                 source_score_value = stress_report.robustness_score
@@ -508,6 +511,7 @@ class Level5RefutationGovernanceStage(FunnelStage):
                 )
             )
 
+        stress_observed_sample = _observed_stress_assessment(stress_report, stress_resolution)
         envelope = _level5_uncertainty_envelope(
             prior_result=prior_result,
             holdout_delta=holdout_delta,
@@ -524,6 +528,7 @@ class Level5RefutationGovernanceStage(FunnelStage):
             selection=selection,
             hidden_holdout=hidden_holdout,
             stress_report=stress_report,
+            stress_observed_sample_assessment=stress_observed_sample,
             governance_report=governance_report,
             platform_meta=platform_meta,
             distributional_report=distributional_report,
@@ -538,6 +543,11 @@ class Level5RefutationGovernanceStage(FunnelStage):
             side_information_ref = persist_actionable_side_information(
                 store,
                 side_information,
+                inputs=(
+                    [input_ref_from_artifact_ref(stress_report_ref, role="stress_test_report")]
+                    if stress_report_ref is not None
+                    else []
+                ),
             )
             audit_refs.append(side_information_ref)
 
@@ -563,6 +573,7 @@ class Level5RefutationGovernanceStage(FunnelStage):
                 "stress_score_source_profile": source_score_profile,
                 "stress_score_source_value": source_score_value,
                 "stress_score_source_reports": score_source_reports,
+                "stress_observed_sample_assessment": stress_observed_sample,
                 "governance_verdict": None
                 if governance_report is None
                 else governance_report.verdict,
@@ -581,7 +592,7 @@ class Level5RefutationGovernanceStage(FunnelStage):
             policy_candidate=candidate,
             objective_value=objective_value,
             is_promising=not any(card.is_blocker for card in failure_cards),
-            score_status=score_status,
+            score_status=objective_score_status,
             score_assessment=(prior_result.score_assessment if prior_result is not None else None),
             stage_name=self.stage_name,
             duration_seconds=duration,
@@ -591,7 +602,7 @@ class Level5RefutationGovernanceStage(FunnelStage):
             predicted_score=getattr(prior_result, "predicted_score", None),
             actual_score=(
                 getattr(prior_result, "actual_score", objective_value)
-                if score_status is ObjectiveScoreStatus.AVAILABLE
+                if objective_score_status is ObjectiveScoreStatus.AVAILABLE
                 else None
             ),
             uncertainty_envelope=envelope,
@@ -637,6 +648,36 @@ def _stress_score_source_reports(report: StressTestReport) -> list[dict[str, Any
             "reported_score_present": report.robustness_score is not None,
         }
     ]
+
+
+def _observed_stress_assessment(
+    report: StressTestReport | None,
+    resolution: StressScoreResolution | None,
+) -> dict[str, Any]:
+    """Describe only the finite sample established by the fresh source resolver.
+
+    A report's score, counters, or scope-shaped metadata alone do not establish
+    this assessment. The canonical resolver owns both source verification and
+    finite-sample arithmetic; its admission status remains a separate limit.
+    """
+    unavailable = {
+        "status": "unassessed",
+        "score_scope": "not_established",
+        "population_probability": "not_established",
+        "model_uncertainty": "not_established",
+    }
+    if report is None or resolution is None:
+        return unavailable
+    if report.score_status != resolution.status:
+        return unavailable
+    if report.score_profile != "finite_binary_scenario_v1":
+        return unavailable
+    observed = resolution.observed_sample_assessment
+    if observed is not None:
+        return observed
+    if report.score_status == "partial" and resolution.status == "partial":
+        return {**unavailable, "status": "partial", "completeness": False}
+    return unavailable
 
 
 def _coerce_artifact_ref(value: Any) -> ArtifactRef | None:
@@ -713,43 +754,29 @@ def _level5_uncertainty_envelope(
         else UncertaintyEnvelope.unknown()
     )
     transport_level = 1.0 if holdout_delta is None else min(1.0, max(0.0, holdout_delta))
-    model_level = 0.5
-    if stress_report is not None and stress_report.robustness_score is not None:
-        model_level = min(1.0, max(0.0, 1.0 - float(stress_report.robustness_score)))
+    # Finite stress outcomes do not quantify model uncertainty. Keep the prior
+    # estimate and its provenance, or the envelope's explicit unassessed state.
     optimization_level = (
         1.0 if platform_meta is not None and not platform_meta.promotion_safe else 0.25
     )
-    return (
-        envelope.with_update(
-            UncertaintyType.TRANSPORT,
-            UncertaintyEstimate(
-                level=transport_level,
-                source="level5_hidden_holdout",
-                quantification_method="holdout_delta",
-                is_reducible=True,
-                recommended_action="Refresh or expand holdout evaluation if degradation persists.",
-            ),
-        )
-        .with_update(
-            UncertaintyType.MODEL,
-            UncertaintyEstimate(
-                level=model_level,
-                source="level5_stress_refutation",
-                quantification_method="stress_report_robustness",
-                is_reducible=True,
-                recommended_action="Address high-severity stress vulnerabilities before promotion.",
-            ),
-        )
-        .with_update(
-            UncertaintyType.OPTIMIZATION,
-            UncertaintyEstimate(
-                level=optimization_level,
-                source="level5_platform_meta",
-                quantification_method="meta_guard_status",
-                is_reducible=True,
-                recommended_action="Recalibrate cheap-to-expensive routing if promotion guardrails fired.",
-            ),
-        )
+    return envelope.with_update(
+        UncertaintyType.TRANSPORT,
+        UncertaintyEstimate(
+            level=transport_level,
+            source="level5_hidden_holdout",
+            quantification_method="holdout_delta",
+            is_reducible=True,
+            recommended_action="Refresh or expand holdout evaluation if degradation persists.",
+        ),
+    ).with_update(
+        UncertaintyType.OPTIMIZATION,
+        UncertaintyEstimate(
+            level=optimization_level,
+            source="level5_platform_meta",
+            quantification_method="meta_guard_status",
+            is_reducible=True,
+            recommended_action="Recalibrate cheap-to-expensive routing if promotion guardrails fired.",
+        ),
     )
 
 
@@ -762,6 +789,7 @@ def _build_actionable_side_information(
     selection: BenchmarkEvaluation | None,
     hidden_holdout: BenchmarkEvaluation | None,
     stress_report: StressTestReport | None,
+    stress_observed_sample_assessment: dict[str, Any],
     governance_report: GovernanceReport | None,
     platform_meta: PlatformMetaEvaluationReport | None,
     distributional_report: DistributionalReport | None,
@@ -859,6 +887,7 @@ def _build_actionable_side_information(
         metadata={
             "hidden_holdout_present": hidden_holdout is not None,
             "stress_report_id": None if stress_report is None else stress_report.report_id,
+            "stress_observed_sample_assessment": stress_observed_sample_assessment,
             "governance_verdict": None if governance_report is None else governance_report.verdict,
             "level4_cost_evidence": prior_cost_evidence,
             "level5_cost_evidence": {

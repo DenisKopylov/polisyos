@@ -4,6 +4,7 @@ import hashlib
 import logging
 from dataclasses import replace
 from datetime import timedelta
+from decimal import Decimal
 from types import SimpleNamespace
 
 import pytest
@@ -19,6 +20,7 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
+from polisyos.ir import UncertaintyType
 from polisyos.ir.analytics.strategic import (
     EquilibriumSelectionSummary,
     EquilibriumSetSummary,
@@ -54,6 +56,7 @@ from polisyos.scientist.methods.autotune.models import (
 )
 from polisyos.scientist.methods.backtesting.phase_d4_source import (
     PHASE_D4_SELECTED_EVALUATION_INPUT_ROLE,
+    build_phase_d4_replay_source,
     build_phase_d4_suite_roster,
     load_selected_phase_d4_replay_source,
     persist_phase_d4_replay_source,
@@ -68,6 +71,7 @@ from polisyos.scientist.methods.search.benchmark_registry import BenchmarkRegist
 from polisyos.scientist.methods.search.funnel.level5_refutation_governance import (
     Level5RefutationGovernanceStage,
 )
+from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOrchestrator
 from polisyos.scientist.methods.search.promotion_evidence import (
     PromotionEvidenceBundle,
     _PhaseD4ChallengeSourceBasis,
@@ -270,6 +274,7 @@ def test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts(
         ctx=ctx,
         state=state,
         owner=runtime_owner,
+        runtime_request=runtime_request,
         candidate=runtime_request.candidate,
         candidate_ref=candidate_ref,
         uncertainty_envelope=None,
@@ -403,6 +408,36 @@ def test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts(
     source_basis_ref = source_report.score_components[0].outcome_basis_ref
     source_basis_manifest = ctx.store.get_manifest(source_basis_ref)
     assert source_basis_manifest.artifact_schema is not None
+    legacy_basis = source_basis.model_copy(
+        update={"schema_version": "1.0", "phase_d4_replay_source_ref": None}
+    )
+    legacy_basis_ref = ctx.store.put_json(
+        legacy_basis,
+        PutOptions(
+            kind=source_basis_manifest.kind,
+            media_type=source_basis_manifest.media_type,
+            schema=SchemaInfo(name="polisyos.scientist.StressOutcomeBasis", version="1.0"),
+            inputs=source_basis_manifest.inputs,
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    legacy_resolution = resolve_stress_score_components(
+        ctx.store,
+        [
+            source_report.score_components[0].model_copy(
+                update={"outcome_basis_ref": legacy_basis_ref}
+            ),
+            *(item.score_components[0] for item in stress_reports[1:]),
+        ],
+        expected_candidate_ref=candidate_ref,
+        expected_run_id=state.run_id,
+        expected_selection_evaluation_ref=selection_ref,
+        expected_phase_d4_roster=selected_roster,
+    )
+    assert legacy_resolution.status == "unbound"
+    assert legacy_resolution.case_truth_reason == "phase_d4_aggregate_only_source_schema"
+    assert legacy_resolution.observed_sample_assessment is None
     selected_replay_source_ref = source_basis.phase_d4_replay_source_ref
     assert selected_replay_source_ref is not None
     selected_replay_source, _ = load_selected_phase_d4_replay_source(
@@ -534,6 +569,9 @@ def test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts(
     same_suite_replacement = StressTestReport.model_validate(
         load_core_json_artifact(ctx.store, same_suite_replacement_ref)
     )
+    replacement_manifest = ctx.store.get_manifest(same_suite_replacement_ref)
+    assert replacement_manifest.artifact_schema is not None
+    assert replacement_manifest.artifact_schema.version == same_suite_replacement.schema_version
     assert [item.component_id for item in same_suite_replacement.score_components] == [
         item.component_id for report in stress_reports for item in report.score_components
     ]
@@ -570,6 +608,43 @@ def test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts(
     assert same_suite_l5.feedback["stress_score_value"] == pytest.approx(
         same_suite_resolution.robustness_score
     )
+    observed = same_suite_l5.feedback["stress_observed_sample_assessment"]
+    assert observed["status"] == "complete"
+    assert observed["score_scope"] == "observed_finite_scenarios"
+    assert observed["observed_fraction"] == pytest.approx(
+        same_suite_resolution.passed_count / expected_selected_total
+    )
+    assert observed["attempted"] == observed["finite_evaluated"] == expected_selected_total
+    assert observed["violated_scenarios"] == (
+        expected_selected_total - same_suite_resolution.passed_count
+    )
+    assert observed["unknown_or_nonfinite"] == 0
+    assert observed["completeness"] is True
+    assert observed["population_probability"] == "not_established"
+    assert observed["model_uncertainty"] == "not_established"
+    assert same_suite_l5.uncertainty_envelope.uncertainties[UncertaintyType.MODEL].level == 1.0
+
+    # Reopen the produced artifacts through the real aggregate consumer; the
+    # finite fraction must not become a current or historical model estimate.
+    funnel = FunnelOrchestrator([Level5RefutationGovernanceStage(require_hidden_holdout=False)])
+    ticket = funnel.submit(
+        candidate.model_dump(mode="json"),
+        {
+            "store": FileSystemCAS(ctx.store.root),
+            "policy_candidate_ref": candidate_ref,
+            "stress_test_report_ref": same_suite_replacement_ref,
+            "selection_evaluation_ref": selection_ref,
+            "selection_evaluation": selection_evaluation,
+            "run_id": state.run_id,
+            "phase_d4_selected_evaluation_refs": selected_roster.rotating_evaluation_refs,
+        },
+    )
+    outcome = funnel.advance(ticket, policy="full")
+    assert outcome.final_result is not None
+    assert outcome.final_result.feedback["stress_observed_sample_assessment"] == observed
+    assert outcome.uncertainty_envelope.uncertainties[UncertaintyType.MODEL].level == 1.0
+    historical = outcome.final_result.feedback["uncertainty_historical_max"]
+    assert historical["uncertainties"]["model"]["level"] == 1.0
 
     source_evaluation = BenchmarkEvaluation.model_validate(
         load_core_json_artifact(ctx.store, source_evaluation_ref)
@@ -597,7 +672,9 @@ def test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts(
         PutOptions(
             kind="scientist.stress_outcome_basis",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.scientist.StressOutcomeBasis", version="1.0"),
+            schema=SchemaInfo(
+                name="polisyos.scientist.StressOutcomeBasis", version=wrong_basis.schema_version
+            ),
             inputs=[
                 InputRef(
                     artifact_id=wrong_evaluation_ref.artifact_id,
@@ -623,7 +700,9 @@ def test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts(
         PutOptions(
             kind="scientist.stress_test_report",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.scientist.StressTestReport", version="1.1"),
+            schema=SchemaInfo(
+                name="polisyos.scientist.StressTestReport", version=wrong_report.schema_version
+            ),
             inputs=[
                 InputRef(
                     artifact_id=candidate_ref.artifact_id,
@@ -668,6 +747,16 @@ def test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts(
         require_phase_d4_roster=True,
     )
     assert wrong_evaluation_resolution.status == "invalid"
+    assert wrong_evaluation_resolution.reason_code == "score_claim_without_resolved_basis"
+    wrong_component_resolution = resolve_stress_score_components(
+        ctx.store,
+        [wrong_component],
+        expected_candidate_ref=candidate_ref,
+        expected_run_id=state.run_id,
+        expected_selection_evaluation_ref=selection_ref,
+        expected_phase_d4_roster=single_selected_roster,
+    )
+    assert wrong_component_resolution.reason_code == "phase_d4_selected_suite_evaluation_mismatch"
     assert wrong_evaluation_resolution.robustness_score is None
     assert all(
         report.score_components[0].outcome_basis_ref.manifest_profile_sha256 is not None
@@ -821,10 +910,34 @@ def test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts(
     expected_unique_total = len(unique_source_rows)
     expected_unique_passed = sum(row.status == "passed" for row in unique_source_rows)
 
-    single_source_ref = _ensure_stress_test_report(
+    mismatched_run_ref = _ensure_stress_test_report(
         ctx,
         ExperimentState(
             run_id="R_d4_single_source_control",
+            artifacts_index={ARTIFACT_STRESS_TEST_REPORT_REF: duplicate_base_ref},
+        ),
+        evaluation_vector=PolicyEvaluationVector(candidate_id="cand-1"),
+        supplemental_reports=[duplicate_source_report],
+        supplemental_report_refs=[stress_refs[0]],
+        phase_d4_suite_ids=[duplicate_suite_id],
+        expected_candidate_ref=candidate_ref,
+        expected_selection_evaluation_ref=selection_ref,
+        expected_phase_d4_roster=selected_roster,
+    )
+    assert mismatched_run_ref is not None
+    mismatched_run_report = StressTestReport.model_validate(
+        load_core_json_artifact(ctx.store, mismatched_run_ref)
+    )
+    assert mismatched_run_report.score_status == "unbound"
+    assert mismatched_run_report.score_reason == (
+        "phase_d4_selected_roster_context_missing_or_mismatched"
+    )
+    assert mismatched_run_report.robustness_score is None
+
+    single_source_ref = _ensure_stress_test_report(
+        ctx,
+        ExperimentState(
+            run_id=state.run_id,
             artifacts_index={ARTIFACT_STRESS_TEST_REPORT_REF: duplicate_base_ref},
         ),
         evaluation_vector=PolicyEvaluationVector(candidate_id="cand-1"),
@@ -906,7 +1019,7 @@ def test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts(
     duplicate_ref = _ensure_stress_test_report(
         ctx,
         ExperimentState(
-            run_id="R_d4_duplicate",
+            run_id=state.run_id,
             artifacts_index={ARTIFACT_STRESS_TEST_REPORT_REF: duplicate_base_ref},
         ),
         evaluation_vector=PolicyEvaluationVector(candidate_id="cand-1"),
@@ -1040,6 +1153,7 @@ def test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts(
     )
     assert duplicate_l5.feedback["stress_score_status"] == "invalid"
     assert duplicate_l5.feedback["stress_score_value"] is None
+    assert duplicate_l5.feedback["stress_observed_sample_assessment"]["status"] == "unassessed"
     assert any(
         card.failure_type == "stress_score_invalid" and card.is_blocker
         for card in duplicate_l5.failure_cards
@@ -1109,12 +1223,90 @@ def test_continuous_stress_stays_limited_through_fresh_level5_gate(tmp_path) -> 
         run_id="R_b106_continuous",
         artifacts_index={ARTIFACT_STRESS_TEST_REPORT_REF: produced.stress_test_report_ref},
     )
-    composed_ref = _ensure_stress_test_report(
+    unscoped_ref = _ensure_stress_test_report(
         ctx,
         state,
         evaluation_vector=PolicyEvaluationVector(),
         phase_d4_suite_ids=["phase_d4_source_trace"],
         expected_candidate_ref=candidate_ref,
+    )
+    assert unscoped_ref is not None
+    unscoped_report = StressTestReport.model_validate(
+        load_core_json_artifact(ctx.store, unscoped_ref)
+    )
+    assert unscoped_report.score_profile == "continuous_severity_v1"
+    assert unscoped_report.score_status == "profile_mismatch"
+    assert unscoped_report.robustness_score is None
+    unscoped_level5 = Level5RefutationGovernanceStage(require_hidden_holdout=False).evaluate(
+        {},
+        {
+            "store": ctx.store,
+            "policy_candidate_ref": candidate_ref,
+            "stress_test_report_ref": unscoped_ref,
+        },
+    )
+    assert unscoped_level5.feedback["stress_score_status"] == "profile_mismatch"
+    assert unscoped_level5.feedback["stress_observed_sample_assessment"]["status"] == "unassessed"
+
+    selection_evaluation = BenchmarkEvaluation(
+        loop_id="loop-continuous",
+        suite_id="policy_selection",
+        candidate_ref=candidate_ref,
+        selection_metrics={"score": 0.9},
+        holdout_metrics={"score": 0.9},
+        sample_counts={BenchmarkSplit.SELECTION.value: 10},
+        promotable=True,
+        runtime_split_type=BenchmarkSplit.SELECTION,
+    )
+    selection_ref = persist_benchmark_evaluation(
+        ctx.store, selection_evaluation, return_selected_profile=True
+    )
+    scoped_state = ExperimentState(
+        run_id=state.run_id,
+        params=_phase_d4_raw_source_params(candidate_ref),
+        artifacts_index=state.artifacts_index,
+    )
+    benchmark_refs, stress_refs, warnings = _run_and_register_phase_d4_challenge_suites(
+        ctx,
+        scoped_state,
+        benchmark_registry=BenchmarkRegistry(
+            tmp_path / "search_registry" / "continuous-benchmarks"
+        ),
+        candidate_ref=candidate_ref,
+        selection_evaluation=selection_evaluation,
+        selection_evaluation_ref=selection_ref,
+        benchmark_scope={
+            "artifact_family": "continuous_mixed_sources",
+            "claim_mode": "estimation",
+            "query_type": "policy",
+            "estimator_name": "runtime",
+            "readiness_target": "deployment_ready",
+        },
+        artifacts_index={},
+    )
+    assert warnings == ()
+    assert stress_refs
+    reports = [
+        StressTestReport.model_validate(load_core_json_artifact(ctx.store, ref))
+        for ref in stress_refs
+    ]
+    roster = build_phase_d4_suite_roster(
+        ctx.store,
+        rotating_evaluation_refs=benchmark_refs,
+        expected_candidate_ref=candidate_ref,
+        expected_selection_evaluation_ref=selection_ref,
+        expected_run_id=state.run_id,
+        expected_loop_id=selection_evaluation.loop_id,
+    )
+    composed_ref = _ensure_stress_test_report(
+        ctx,
+        scoped_state,
+        evaluation_vector=PolicyEvaluationVector(),
+        supplemental_reports=reports,
+        supplemental_report_refs=stress_refs,
+        expected_candidate_ref=candidate_ref,
+        expected_selection_evaluation_ref=selection_ref,
+        expected_phase_d4_roster=roster,
     )
     assert composed_ref is not None
     assert composed_ref.manifest_profile_sha256 is not None
@@ -1122,6 +1314,9 @@ def test_continuous_stress_stays_limited_through_fresh_level5_gate(tmp_path) -> 
     assert [item.role for item in composed_manifest.inputs] == [
         "candidate",
         "base_stress_report",
+        *("supplemental_stress_report" for _ in stress_refs),
+        *("stress_outcome_basis" for report in reports for _ in report.score_components),
+        *(PHASE_D4_SELECTED_EVALUATION_INPUT_ROLE for _ in roster.suite_evaluation_refs),
     ]
     assert (
         composed_manifest.inputs[0].manifest_profile_sha256 == candidate_ref.manifest_profile_sha256
@@ -1150,6 +1345,10 @@ def test_continuous_stress_stays_limited_through_fresh_level5_gate(tmp_path) -> 
             "store": ctx.store,
             "policy_candidate_ref": candidate_ref,
             "stress_test_report_ref": composed_ref,
+            "selection_evaluation": selection_evaluation,
+            "selection_evaluation_ref": selection_ref,
+            "run_id": state.run_id,
+            "phase_d4_selected_evaluation_refs": benchmark_refs,
         },
     )
     assert level5.feedback["stress_score_status"] == "profile_mismatch"
@@ -1334,12 +1533,6 @@ def test_phase_d4_case_replay_rejects_same_rate_case_swap(tmp_path) -> None:
     candidate_ref = _persist_policy_candidate(ctx.store, "candidate-d4-case-truth")
     run_id = "R_d4_case_truth"
     loop_id = "loop-case-truth"
-    summary = {
-        "fallback_mode": "exact_equilibrium",
-        "blocked_reason": "static_fallback",
-        "equilibrium_selection_dependence": "tie_breaking",
-        "multiplicity_note": "Observed multiple equilibria.",
-    }
     selection_evaluation = BenchmarkEvaluation(
         loop_id=loop_id,
         suite_id="policy_selection",
@@ -1349,13 +1542,28 @@ def test_phase_d4_case_replay_rejects_same_rate_case_swap(tmp_path) -> None:
         sample_counts={BenchmarkSplit.SELECTION.value: 10},
         promotable=True,
         runtime_split_type=BenchmarkSplit.SELECTION,
-        metadata={"strategic_response": summary},
     )
     selection_ref = persist_benchmark_evaluation(
         ctx.store, selection_evaluation, return_selected_profile=True
     )
     params = _phase_d4_raw_source_params(candidate_ref)
+    # Raw solver and budget controls pass; this actual observed-summary audit fails.
+    # Its row identity must survive replay even when a forged report keeps the same rate.
+    params["strategic_response_summary"] = {"fallback_mode": "static_ate"}
     state = ExperimentState(run_id=run_id, params=params)
+    assert type(state.params["baseline_policy_value"]) is Decimal
+    assert state.params["baseline_policy_value"] == Decimal("0.5")
+    source_context = build_phase_d4_replay_source(
+        run_id=run_id,
+        loop_id=loop_id,
+        candidate_ref=candidate_ref,
+        selection_evaluation_ref=selection_ref,
+        selection_evaluation=selection_evaluation,
+        params=state.params,
+        artifacts_index={},
+        store=ctx.store,
+    )
+    assert source_context.selection_evaluation_ref == selection_ref
     registry = BenchmarkRegistry(tmp_path / "search_registry" / "benchmarks")
     benchmark_refs, stress_refs, warnings = _run_and_register_phase_d4_challenge_suites(
         ctx,
@@ -1373,28 +1581,76 @@ def test_phase_d4_case_replay_rejects_same_rate_case_swap(tmp_path) -> None:
         },
         artifacts_index={},
     )
-    print(  # noqa: T201
-        "phase_d4_owner_output "
-        f"warnings={warnings!r} benchmark_refs={len(benchmark_refs)} "
-        f"stress_refs={len(stress_refs)}"
+    assert len(benchmark_refs) == len(stress_refs) == 2
+    selected_roster = build_phase_d4_suite_roster(
+        ctx.store,
+        rotating_evaluation_refs=benchmark_refs,
+        expected_candidate_ref=candidate_ref,
+        expected_selection_evaluation_ref=selection_ref,
+        expected_run_id=run_id,
+        expected_loop_id=loop_id,
     )
-    if len(stress_refs) != 1:
-        raise AssertionError("phase_d4_expected_one_strategic_stress_report")
-    assert len(stress_refs) == 1
-    stress_report_ref = stress_refs[0]
+    assert {item.suite_id for item in selected_roster.suites} == {
+        "strategic_gaming_v1",
+        "multiplicity_disclosure_v1",
+    }
+    source_reports = [
+        StressTestReport.model_validate(load_core_json_artifact(ctx.store, ref))
+        for ref in stress_refs
+    ]
+    stress_report_ref = _ensure_stress_test_report(
+        ctx,
+        state,
+        evaluation_vector=PolicyEvaluationVector(),
+        supplemental_reports=source_reports,
+        supplemental_report_refs=stress_refs,
+        expected_candidate_ref=candidate_ref,
+        expected_selection_evaluation_ref=selection_ref,
+        expected_phase_d4_roster=selected_roster,
+    )
+    assert stress_report_ref is not None
     report = StressTestReport.model_validate(load_core_json_artifact(ctx.store, stress_report_ref))
-    component = report.score_components[0]
+    component = next(
+        item
+        for item in report.score_components
+        if StressOutcomeBasis.model_validate(
+            load_core_json_artifact(ctx.store, item.outcome_basis_ref)
+        ).suite_id
+        == "strategic_gaming_v1"
+    )
     basis_ref = component.outcome_basis_ref
     basis = StressOutcomeBasis.model_validate(load_core_json_artifact(ctx.store, basis_ref))
     evaluation_ref = basis.benchmark_evaluation_ref
     source_ref = basis.phase_d4_replay_source_ref
     if evaluation_ref is None or source_ref is None:
         raise AssertionError("phase_d4_selected_source_edges_missing")
+    persisted_source, _ = load_selected_phase_d4_replay_source(ctx.store, source_ref)
+    assert type(persisted_source.params["baseline_policy_value"]) is Decimal
+    assert persisted_source.params["baseline_policy_value"] == Decimal("0.5")
     evaluation = BenchmarkEvaluation.model_validate(
         load_core_json_artifact(ctx.store, evaluation_ref)
     )
+    _, no_roster_resolution = resolve_stress_report_artifact(
+        ctx.store,
+        stress_report_ref,
+        expected_candidate_ref=candidate_ref,
+        expected_run_id=run_id,
+        expected_selection_evaluation_ref=selection_ref,
+    )
+    assert no_roster_resolution.status == "invalid"
+    assert no_roster_resolution.reason_code == "score_claim_without_resolved_basis"
+    assert no_roster_resolution.robustness_score is None
+    no_roster_components = resolve_stress_score_components(
+        ctx.store,
+        report.score_components,
+        expected_candidate_ref=candidate_ref,
+        expected_run_id=run_id,
+        expected_selection_evaluation_ref=selection_ref,
+    )
+    assert no_roster_components.status == "unbound"
+    assert no_roster_components.reason_code == "phase_d4_selected_roster_missing"
     legacy_basis = basis.model_copy(
-        update={"schema_version": "1.1", "phase_d4_replay_source_ref": None}
+        update={"schema_version": "1.0", "phase_d4_replay_source_ref": None}
     )
     legacy_report = report.model_copy(update={"schema_version": "1.1", "case_truth_reason": None})
     legacy_basis_wire_shape = "phase_d4_replay_source_ref" not in legacy_basis.model_dump(
@@ -1407,12 +1663,14 @@ def test_phase_d4_case_replay_rejects_same_rate_case_swap(tmp_path) -> None:
         expected_candidate_ref=candidate_ref,
         expected_run_id=run_id,
         expected_selection_evaluation_ref=selection_ref,
+        expected_phase_d4_roster=selected_roster,
     )
     _unanchored_report, missing_context_resolution = resolve_stress_report_artifact(
         ctx.store,
         stress_report_ref,
         expected_candidate_ref=candidate_ref,
         expected_run_id=run_id,
+        expected_phase_d4_roster=selected_roster,
     )
 
     report_manifest = ctx.store.get_manifest(stress_report_ref)
@@ -1421,7 +1679,10 @@ def test_phase_d4_case_replay_rejects_same_rate_case_swap(tmp_path) -> None:
         report_body = report.model_copy(
             update={
                 "schema_version": schema_version,
-                "score_components": [control_component],
+                "score_components": [
+                    control_component if item == component else item
+                    for item in report.score_components
+                ],
                 "case_truth_status": "not_established",
                 "case_truth_reason": None,
             }
@@ -1433,14 +1694,13 @@ def test_phase_d4_case_replay_rejects_same_rate_case_swap(tmp_path) -> None:
         report_inputs = [
             item for item in report_manifest.inputs if item.role != "stress_outcome_basis"
         ]
-        report_inputs.append(
+        report_inputs.extend(
             InputRef(
-                artifact_id=control_component.outcome_basis_ref.artifact_id,
+                artifact_id=item.outcome_basis_ref.artifact_id,
                 role="stress_outcome_basis",
-                manifest_profile_sha256=(
-                    control_component.outcome_basis_ref.manifest_profile_sha256
-                ),
+                manifest_profile_sha256=item.outcome_basis_ref.manifest_profile_sha256,
             )
+            for item in report_body.score_components
         )
         if evaluation_ref is None:
             raise AssertionError("phase_d4_control_evaluation_ref_missing")
@@ -1467,6 +1727,9 @@ def test_phase_d4_case_replay_rejects_same_rate_case_swap(tmp_path) -> None:
                 "policy_candidate_ref": candidate_ref,
                 "stress_test_report_ref": report_ref,
                 "selection_evaluation_ref": selection_ref,
+                "selection_evaluation": selection_evaluation,
+                "run_id": run_id,
+                "phase_d4_selected_evaluation_refs": benchmark_refs,
             },
         )
 
@@ -1491,7 +1754,9 @@ def test_phase_d4_case_replay_rejects_same_rate_case_swap(tmp_path) -> None:
         PutOptions(
             kind="scientist.stress_outcome_basis",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.scientist.StressOutcomeBasis", version="1.1"),
+            schema=SchemaInfo(
+                name="polisyos.scientist.StressOutcomeBasis", version=legacy_basis.schema_version
+            ),
             inputs=legacy_basis_inputs,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
@@ -1512,6 +1777,7 @@ def test_phase_d4_case_replay_rejects_same_rate_case_swap(tmp_path) -> None:
         expected_candidate_ref=candidate_ref,
         expected_run_id=run_id,
         expected_selection_evaluation_ref=selection_ref,
+        expected_phase_d4_roster=selected_roster,
     )
     renamed_legacy_level5 = evaluate_report_in_level5(renamed_legacy_report_ref)
 
@@ -1525,6 +1791,7 @@ def test_phase_d4_case_replay_rejects_same_rate_case_swap(tmp_path) -> None:
         expected_candidate_ref=candidate_ref,
         expected_run_id=run_id,
         expected_selection_evaluation_ref=selection_ref,
+        expected_phase_d4_roster=selected_roster,
     )
     wrong_id_level5 = evaluate_report_in_level5(wrong_id_report_ref)
 
@@ -1537,7 +1804,9 @@ def test_phase_d4_case_replay_rejects_same_rate_case_swap(tmp_path) -> None:
         PutOptions(
             kind="scientist.stress_outcome_basis",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.scientist.StressOutcomeBasis", version="1.1"),
+            schema=SchemaInfo(
+                name="polisyos.scientist.StressOutcomeBasis", version=legacy_basis.schema_version
+            ),
             inputs=legacy_basis_inputs,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
@@ -1553,6 +1822,7 @@ def test_phase_d4_case_replay_rejects_same_rate_case_swap(tmp_path) -> None:
         expected_candidate_ref=candidate_ref,
         expected_run_id=run_id,
         expected_selection_evaluation_ref=selection_ref,
+        expected_phase_d4_roster=selected_roster,
     )
     wrong_kind_level5 = evaluate_report_in_level5(wrong_kind_report_ref)
 
@@ -1587,14 +1857,41 @@ def test_phase_d4_case_replay_rejects_same_rate_case_swap(tmp_path) -> None:
         )
     )
     assert alternate_warnings == ()
-    assert len(alternate_benchmark_refs) == 1
-    assert len(alternate_stress_refs) == 1
-    alternate_report_ref = alternate_stress_refs[0]
+    assert len(alternate_benchmark_refs) == len(alternate_stress_refs) == 2
+    alternate_roster = build_phase_d4_suite_roster(
+        ctx.store,
+        rotating_evaluation_refs=alternate_benchmark_refs,
+        expected_candidate_ref=candidate_ref,
+        expected_selection_evaluation_ref=alternate_selection_ref,
+        expected_run_id=run_id,
+        expected_loop_id=loop_id,
+    )
+    alternate_report_ref = _ensure_stress_test_report(
+        ctx,
+        alternate_state,
+        evaluation_vector=PolicyEvaluationVector(),
+        supplemental_reports=[
+            StressTestReport.model_validate(load_core_json_artifact(ctx.store, ref))
+            for ref in alternate_stress_refs
+        ],
+        supplemental_report_refs=alternate_stress_refs,
+        expected_candidate_ref=candidate_ref,
+        expected_selection_evaluation_ref=alternate_selection_ref,
+        expected_phase_d4_roster=alternate_roster,
+    )
+    assert alternate_report_ref is not None
     alternate_report = StressTestReport.model_validate(
         load_core_json_artifact(ctx.store, alternate_report_ref)
     )
-    alternate_basis = StressOutcomeBasis.model_validate(
-        load_core_json_artifact(ctx.store, alternate_report.score_components[0].outcome_basis_ref)
+    alternate_basis = next(
+        value
+        for item in alternate_report.score_components
+        if (
+            value := StressOutcomeBasis.model_validate(
+                load_core_json_artifact(ctx.store, item.outcome_basis_ref)
+            )
+        ).suite_id
+        == "strategic_gaming_v1"
     )
     alternate_source_ref = alternate_basis.phase_d4_replay_source_ref
     assert alternate_source_ref is not None
@@ -1613,6 +1910,7 @@ def test_phase_d4_case_replay_rejects_same_rate_case_swap(tmp_path) -> None:
         expected_candidate_ref=candidate_ref,
         expected_run_id=run_id,
         expected_selection_evaluation_ref=selection_ref,
+        expected_phase_d4_roster=selected_roster,
     )
     alternate_context_level5 = Level5RefutationGovernanceStage(
         require_hidden_holdout=False
@@ -1623,6 +1921,9 @@ def test_phase_d4_case_replay_rejects_same_rate_case_swap(tmp_path) -> None:
             "policy_candidate_ref": candidate_ref,
             "stress_test_report_ref": alternate_report_ref,
             "selection_evaluation_ref": selection_ref,
+            "selection_evaluation": selection_evaluation,
+            "run_id": run_id,
+            "phase_d4_selected_evaluation_refs": benchmark_refs,
         },
     )
 
@@ -1658,9 +1959,21 @@ def test_phase_d4_case_replay_rejects_same_rate_case_swap(tmp_path) -> None:
     tampered_component = component.model_copy(update={"outcome_basis_ref": tampered_basis_ref})
     tampered_report = positive_report.model_copy(
         update={
-            "score_components": [tampered_component],
+            "score_components": [
+                tampered_component if item == component else item
+                for item in positive_report.score_components
+            ],
             "vulnerabilities": [
-                vulnerability for item in swapped for vulnerability in item.vulnerabilities
+                vulnerability
+                for item in positive_report.score_components
+                for row in (
+                    swapped
+                    if item == component
+                    else StressOutcomeBasis.model_validate(
+                        load_core_json_artifact(ctx.store, item.outcome_basis_ref)
+                    ).outcomes
+                )
+                for vulnerability in row.vulnerabilities
             ],
         }
     )
@@ -1671,20 +1984,14 @@ def test_phase_d4_case_replay_rejects_same_rate_case_swap(tmp_path) -> None:
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.scientist.StressTestReport", version="1.2"),
             inputs=[
-                InputRef(
-                    artifact_id=candidate_ref.artifact_id,
-                    role="candidate",
-                    manifest_profile_sha256=candidate_ref.manifest_profile_sha256,
-                ),
-                InputRef(
-                    artifact_id=basis.benchmark_evaluation_ref.artifact_id,
-                    role="benchmark_evaluation",
-                    manifest_profile_sha256=basis.benchmark_evaluation_ref.manifest_profile_sha256,
-                ),
-                InputRef(
-                    artifact_id=tampered_basis_ref.artifact_id,
-                    role="stress_outcome_basis",
-                    manifest_profile_sha256=tampered_basis_ref.manifest_profile_sha256,
+                *(item for item in report_manifest.inputs if item.role != "stress_outcome_basis"),
+                *(
+                    InputRef(
+                        artifact_id=item.outcome_basis_ref.artifact_id,
+                        role="stress_outcome_basis",
+                        manifest_profile_sha256=item.outcome_basis_ref.manifest_profile_sha256,
+                    )
+                    for item in tampered_report.score_components
                 ),
             ],
         ),
@@ -1697,7 +2004,17 @@ def test_phase_d4_case_replay_rejects_same_rate_case_swap(tmp_path) -> None:
         expected_candidate_ref=candidate_ref,
         expected_run_id=run_id,
         expected_selection_evaluation_ref=selection_ref,
+        expected_phase_d4_roster=selected_roster,
     )
+    negative_component_resolution = resolve_stress_score_components(
+        ctx.store,
+        tampered_report.score_components,
+        expected_candidate_ref=candidate_ref,
+        expected_run_id=run_id,
+        expected_selection_evaluation_ref=selection_ref,
+        expected_phase_d4_roster=selected_roster,
+    )
+    assert negative_component_resolution.reason_code == "phase_d4_case_rows_or_projection_mismatch"
     level5 = Level5RefutationGovernanceStage(require_hidden_holdout=False).evaluate(
         {"candidate_id": "candidate-d4-case-truth"},
         {
@@ -1705,6 +2022,9 @@ def test_phase_d4_case_replay_rejects_same_rate_case_swap(tmp_path) -> None:
             "policy_candidate_ref": candidate_ref,
             "stress_test_report_ref": tampered_report_ref,
             "selection_evaluation_ref": selection_ref,
+            "selection_evaluation": selection_evaluation,
+            "run_id": run_id,
+            "phase_d4_selected_evaluation_refs": benchmark_refs,
         },
     )
 
@@ -1714,7 +2034,7 @@ def test_phase_d4_case_replay_rejects_same_rate_case_swap(tmp_path) -> None:
             produced_by_run_id=run_id,
             candidate_ref=candidate_ref,
             selection_evaluation_ref=selection_ref,
-            rotating_challenge_evaluation_refs=[basis.benchmark_evaluation_ref],
+            rotating_challenge_evaluation_refs=benchmark_refs,
             stress_test_report_ref=report_ref,
         )
         source_basis = _PhaseD4ChallengeSourceBasis(stress_report_ref=report_ref)
@@ -1763,7 +2083,7 @@ def test_phase_d4_case_replay_rejects_same_rate_case_swap(tmp_path) -> None:
         f"{sum(item.status == 'failed' for item in swapped)}"
     )
     assert warnings == ()
-    assert len(benchmark_refs) == 1
+    assert len(benchmark_refs) == 2
     assert report.schema_version == "1.2"
     assert legacy_basis_wire_shape
     assert legacy_report_wire_shape
@@ -1771,14 +2091,31 @@ def test_phase_d4_case_replay_rejects_same_rate_case_swap(tmp_path) -> None:
     assert positive_resolution.case_truth_required is True
     assert positive_resolution.case_truth_status == "recomputed"
     assert positive_report._case_truth_required is True
-    assert missing_context_resolution.status == "unbound"
-    assert missing_context_resolution.reason_code == ("phase_d4_selected_selection_context_missing")
+    assert missing_context_resolution.status == "invalid"
+    assert missing_context_resolution.reason_code == "score_claim_without_resolved_basis"
+    assert missing_context_resolution.robustness_score is None
+    missing_context_components = resolve_stress_score_components(
+        ctx.store,
+        report.score_components,
+        expected_candidate_ref=candidate_ref,
+        expected_run_id=run_id,
+        expected_phase_d4_roster=selected_roster,
+    )
+    assert missing_context_components.status == "unbound"
+    assert missing_context_components.reason_code == (
+        "phase_d4_selected_roster_context_missing_or_mismatched"
+    )
     assert renamed_legacy_resolution.status != "available"
     assert renamed_legacy_resolution.robustness_score is None
+    assert renamed_legacy_resolution.observed_sample_assessment is None
     assert renamed_legacy_resolution.case_truth_required is True
     assert renamed_legacy_report.is_robust is False
     assert renamed_legacy_level5.feedback["stress_score_status"] != "available"
     assert renamed_legacy_level5.feedback["stress_score_value"] is None
+    assert (
+        renamed_legacy_level5.feedback["stress_observed_sample_assessment"]["status"]
+        == "unassessed"
+    )
     assert wrong_id_resolution.status != "available"
     assert wrong_id_resolution.robustness_score is None
     assert wrong_id_level5.feedback["stress_score_status"] != "available"
@@ -1789,7 +2126,7 @@ def test_phase_d4_case_replay_rejects_same_rate_case_swap(tmp_path) -> None:
     assert wrong_kind_level5.feedback["stress_score_value"] is None
     assert alternate_context_resolution.status == "invalid"
     assert alternate_context_resolution.reason_code == (
-        "phase_d4_selected_selection_context_mismatch"
+        "stress_report_selected_phase_d4_roster_lineage_mismatch"
     )
     assert alternate_context_level5.feedback["stress_score_status"] == "invalid"
     assert alternate_context_level5.feedback["stress_score_value"] is None

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Callable
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from enum import Enum
 from math import isclose, isfinite
@@ -257,12 +258,25 @@ class StressScoreComponent(BaseModel):
     outcome_basis_ref: ArtifactRef
 
 
+@dataclass(frozen=True)
+class _ObservedStressAccounting:
+    """Fresh source-row accounting, independent of protected score admission."""
+
+    attempted: int
+    finite_evaluated: int
+    violated_scenarios: int
+    unknown_or_nonfinite: int
+    planned_scenarios: int
+    complete: bool
+
+
 class StressScoreResolution(BaseModel):
     """Freshly recomputed finite outcome status and score."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     _vulnerability_projection: list[Vulnerability] | None = PrivateAttr(default=None)
+    _observed_accounting: _ObservedStressAccounting | None = PrivateAttr(default=None)
 
     status: Literal[
         "available",
@@ -298,6 +312,32 @@ class StressScoreResolution(BaseModel):
         "not_established",
     ] = "not_established"
     case_truth_reason: str | None = None
+
+    @property
+    def observed_sample_assessment(self) -> dict[str, Any] | None:
+        """Project fresh finite-sample accounting without granting score authority."""
+        accounting = self._observed_accounting
+        if accounting is None:
+            return None
+        finite = accounting.finite_evaluated
+        return {
+            "status": "complete" if accounting.complete else "partial",
+            "score_scope": "observed_finite_scenarios",
+            "observed_fraction": (
+                (finite - accounting.violated_scenarios) / finite if finite else None
+            ),
+            "attempted": accounting.attempted,
+            "finite_evaluated": finite,
+            "violated_scenarios": accounting.violated_scenarios,
+            "unknown_or_nonfinite": accounting.unknown_or_nonfinite,
+            "planned_scenarios": accounting.planned_scenarios,
+            "completeness": accounting.complete,
+            "population_probability": "not_established",
+            "model_uncertainty": "not_established",
+            "predicate_status": "recomputed",
+            "admission_status": self.status,
+            "limitation": self.reason_code if self.status != "available" else None,
+        }
 
 
 def _same_artifact(left: ArtifactRef | None, right: ArtifactRef | None) -> bool:
@@ -427,20 +467,20 @@ def _resolve_adversarial_objective_evidence(
         return _resolution(
             "profile_mismatch", component_ids, "adversarial_plan_sampling_not_reproducible"
         )
-    if len(planned_samples) != len(basis.outcomes):
+    if len(basis.outcomes) > len(planned_samples):
         return _resolution("invalid", component_ids, "plan_outcome_sample_count_mismatch")
 
     selected_rule: tuple[str, str, str] | None = None
     replayed_vulnerabilities: list[Vulnerability] = []
-    for sample, outcome in zip(planned_samples, basis.outcomes, strict=True):
-        if outcome.status not in {"passed", "failed"}:
-            continue
+    for sample, outcome in zip(planned_samples[: len(basis.outcomes)], basis.outcomes, strict=True):
         expected_parameters = {
             parameter.name: float(value)
             for parameter, value in zip(plan.parameter_specs, sample, strict=True)
         }
         if outcome.parameter_values != expected_parameters:
             return _resolution("invalid", component_ids, "plan_parameter_values_mismatch")
+        if outcome.status not in {"passed", "failed"}:
+            continue
         evidence = outcome.objective_evidence
         if evidence is None:
             return _resolution("unbound", component_ids, "objective_source_evidence_missing")
@@ -613,6 +653,7 @@ def _resolution(
     case_truth_required: bool | None = None,
     case_truth_status="not_established",
     case_truth_reason: str | None = None,
+    observed_accounting: _ObservedStressAccounting | None = None,
 ) -> StressScoreResolution:
     resolution = StressScoreResolution(
         status=status,
@@ -630,6 +671,7 @@ def _resolution(
         case_truth_reason=case_truth_reason,
     )
     resolution._vulnerability_projection = vulnerability_projection
+    resolution._observed_accounting = observed_accounting
     return resolution
 
 
@@ -725,6 +767,10 @@ def resolve_stress_score_components(
         return _resolution("invalid", component_ids, "duplicate_component_id")
 
     total = passed = critical = high = medium = 0
+    attempted = finite = violated = unknown = planned = 0
+    complete = True
+    accounting_available = True
+    incomplete: tuple[Literal["partial", "invalid"], str] | None = None
     projected_vulnerabilities: list[Vulnerability] = []
     selected_intent_unbound: StressScoreResolution | None = None
     case_truth_required: bool | None = (
@@ -792,6 +838,7 @@ def resolve_stress_score_components(
                     component_ids,
                     "adaptive_continuation_not_finite",
                 )
+            accounting_available = accounting_available and plan.vulnerability_threshold is not None
             if basis.expected_count != expected_count:
                 return _resolution("invalid", component_ids, "plan_denominator_mismatch")
             if basis.expected_scenario_ids != [f"initial:{i}" for i in range(expected_count)]:
@@ -1006,6 +1053,7 @@ def resolve_stress_score_components(
                     )
             else:
                 d4_case_truth_recomputed = False
+                accounting_available = False
                 d4_case_truth_reason = "phase_d4_aggregate_only_source_schema"
 
         indexes = [item.occurrence_index for item in basis.outcomes]
@@ -1013,12 +1061,13 @@ def resolve_stress_score_components(
             return _resolution("invalid", component_ids, "occurrences_not_ordered")
         if basis.expected_count == 0:
             return _resolution("not_evaluated", component_ids, "zero_expected_denominator")
-        if not basis.complete or len(basis.outcomes) != basis.expected_count:
-            return _resolution("partial", component_ids, "expected_occurrence_rows_incomplete")
-        if any(item.status == "skipped" for item in basis.outcomes):
-            return _resolution("partial", component_ids, "skipped_occurrence_present")
-        if any(item.status in {"invalid", "unknown"} for item in basis.outcomes):
-            return _resolution("invalid", component_ids, "invalid_or_unknown_evaluation_present")
+        if incomplete is None:
+            if not basis.complete or len(basis.outcomes) != basis.expected_count:
+                incomplete = ("partial", "expected_occurrence_rows_incomplete")
+            elif any(item.status == "skipped" for item in basis.outcomes):
+                incomplete = ("partial", "skipped_occurrence_present")
+            elif any(item.status in {"invalid", "unknown"} for item in basis.outcomes):
+                incomplete = ("invalid", "invalid_or_unknown_evaluation_present")
         for outcome in basis.outcomes:
             if outcome.status in {"passed", "failed"} and (
                 (outcome.status == "passed") != (len(outcome.vulnerabilities) == 0)
@@ -1029,15 +1078,24 @@ def resolve_stress_score_components(
                 store, basis, basis_manifest, component_ids, plan
             )
             if objective_resolution is not None:
-                if (
-                    objective_resolution.status == "unbound"
-                    and objective_resolution.reason_code
-                    == "selected_objective_intent_not_independently_established"
-                    and objective_resolution._vulnerability_projection is not None
+                if objective_resolution.status == "unbound" and (
+                    (
+                        objective_resolution.reason_code
+                        == "selected_objective_intent_not_independently_established"
+                        and objective_resolution._vulnerability_projection is not None
+                    )
+                    or (
+                        objective_resolution.reason_code == "objective_source_evidence_missing"
+                        and not any(item.status in {"passed", "failed"} for item in basis.outcomes)
+                    )
                 ):
-                    projected_vulnerabilities.extend(objective_resolution._vulnerability_projection)
+                    projected_vulnerabilities.extend(
+                        objective_resolution._vulnerability_projection or []
+                    )
                     selected_intent_unbound = objective_resolution
                 else:
+                    if incomplete is not None:
+                        return _resolution(incomplete[0], component_ids, incomplete[1])
                     return objective_resolution
         else:
             projected_vulnerabilities.extend(
@@ -1051,6 +1109,17 @@ def resolve_stress_score_components(
         critical += sum(item.severity == "critical" for item in violations)
         high += sum(item.severity == "high" for item in violations)
         medium += sum(item.severity == "medium" for item in violations)
+        attempted += sum(item.status != "skipped" for item in basis.outcomes)
+        finite += sum(item.status in {"passed", "failed"} for item in basis.outcomes)
+        violated += sum(item.status == "failed" for item in basis.outcomes)
+        unknown += sum(item.status in {"invalid", "unknown"} for item in basis.outcomes)
+        planned += basis.expected_count
+        complete = (
+            complete
+            and basis.complete
+            and len(basis.outcomes) == basis.expected_count
+            and all(item.status in {"passed", "failed"} for item in basis.outcomes)
+        )
 
     if expected_phase_d4_roster is not None:
         missing_d4_suites = set(selected_d4_suites) - set(resolved_d4_suites)
@@ -1070,6 +1139,33 @@ def resolve_stress_score_components(
                 case_truth_status="not_established",
                 case_truth_reason="phase_d4_selected_roster_component_missing",
             )
+    accounting = (
+        _ObservedStressAccounting(
+            attempted=attempted,
+            finite_evaluated=finite,
+            violated_scenarios=violated,
+            unknown_or_nonfinite=unknown,
+            planned_scenarios=planned,
+            complete=complete,
+        )
+        if accounting_available
+        else None
+    )
+    if incomplete is not None:
+        status, reason = incomplete
+        return _resolution(
+            status,
+            component_ids,
+            reason,
+            score_profile="finite_binary_scenario_v1",
+            total_scenarios_evaluated=total,
+            passed_count=passed,
+            critical_count=critical,
+            high_count=high,
+            medium_count=medium,
+            case_truth_required=case_truth_required,
+            observed_accounting=accounting,
+        )
     if total == 0:
         return _resolution("not_evaluated", component_ids, "zero_observed_denominator")
     if selected_intent_unbound is not None:
@@ -1085,6 +1181,7 @@ def resolve_stress_score_components(
             high_count=high,
             medium_count=medium,
             vulnerability_projection=projected_vulnerabilities,
+            observed_accounting=accounting,
         )
         return resolution
     if case_truth_required is True and not d4_case_truth_recomputed:
@@ -1102,6 +1199,7 @@ def resolve_stress_score_components(
             case_truth_required=True,
             case_truth_status="not_established",
             case_truth_reason=d4_case_truth_reason,
+            observed_accounting=accounting,
         )
     resolution = StressScoreResolution(
         status="available",
@@ -1121,6 +1219,7 @@ def resolve_stress_score_components(
         case_truth_reason=d4_case_truth_reason if case_truth_required else None,
     )
     resolution._vulnerability_projection = projected_vulnerabilities
+    resolution._observed_accounting = accounting
     return resolution
 
 

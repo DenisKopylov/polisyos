@@ -15,6 +15,7 @@ from polisyos.core.artifacts import (
     InputRef,
     PutOptions,
     SchemaInfo,
+    artifact_ref_identity_key,
     input_ref_from_artifact_ref,
 )
 from polisyos.core.canon import CanonSpec, CanonViolation, to_canonical_bytes
@@ -140,6 +141,7 @@ def _ensure_stress_test_report(
                 governance_report=load_governance_report(ctx, state),
             ),
             robustness_score=None,
+            score_profile="finite_binary_scenario_v1",
             score_status="not_evaluated",
             score_reason="no_finite_occurrence_basis",
             metadata={
@@ -256,7 +258,7 @@ def _ensure_stress_test_report(
         PutOptions(
             kind=_STRESS_TEST_REPORT_ARTIFACT_KIND,
             media_type="application/json",
-            schema=SchemaInfo(name=_STRESS_TEST_REPORT_SCHEMA_NAME, version="1.1"),
+            schema=SchemaInfo(name=_STRESS_TEST_REPORT_SCHEMA_NAME, version=report.schema_version),
             inputs=input_refs,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
@@ -314,6 +316,15 @@ def _merge_stress_test_reports(
     )
 
 
+def _stress_occurrence_keys(
+    component: StressScoreComponent,
+    basis: StressOutcomeBasis,
+) -> set[tuple[str, str, str, str | None, int, str]]:
+    """Identify source-row occurrences by the complete selected artifact view."""
+    identity = artifact_ref_identity_key(component.outcome_basis_ref)
+    return {(*identity, row.occurrence_index, row.scenario_id) for row in basis.outcomes}
+
+
 def _merge_typed_stress_test_reports(
     base_report: StressTestReport,
     supplemental_reports: list[StressTestReport],
@@ -351,7 +362,8 @@ def _merge_typed_stress_test_reports(
     base_non_d4: list[StressScoreComponent] = []
     base_current_d4: list[StressScoreComponent] = []
     removed_base_d4_vulnerabilities: list[Vulnerability] = []
-    d4_scenario_counts: dict[str, int] = {}
+    base_occurrences: set[tuple[str, str, str, str | None, int, str]] = set()
+    d4_occurrences: dict[str, set[tuple[str, str, str, str | None, int, str]]] = {}
     for component in base_report.score_components:
         basis, _ = load_selected_stress_outcome_basis(
             store,
@@ -359,6 +371,7 @@ def _merge_typed_stress_test_reports(
         )
         if basis.source_kind != "phase_d4_suite":
             base_non_d4.append(component)
+            base_occurrences.update(_stress_occurrence_keys(component, basis))
             continue
         current = selected.get(basis.suite_id or "")
         is_current = (
@@ -370,9 +383,9 @@ def _merge_typed_stress_test_reports(
         )
         if is_current and not supplemental_by_suite.get(basis.suite_id or ""):
             base_current_d4.append(component)
-            d4_scenario_counts[basis.suite_id or ""] = d4_scenario_counts.get(
-                basis.suite_id or "", 0
-            ) + len(basis.outcomes)
+            d4_occurrences.setdefault(basis.suite_id or "", set()).update(
+                _stress_occurrence_keys(component, basis)
+            )
             continue
         removed_base_d4_vulnerabilities.extend(
             vulnerability for outcome in basis.outcomes for vulnerability in outcome.vulnerabilities
@@ -380,11 +393,12 @@ def _merge_typed_stress_test_reports(
 
     score_components = [*base_non_d4, *base_current_d4, *supplemental_components]
     for suite_id, components in supplemental_by_suite.items():
-        count = 0
         for component in components:
             basis, _ = load_selected_stress_outcome_basis(store, component.outcome_basis_ref)
-            count += len(basis.outcomes)
-        d4_scenario_counts[suite_id] = count
+            d4_occurrences.setdefault(suite_id, set()).update(
+                _stress_occurrence_keys(component, basis)
+            )
+    d4_scenario_counts = {suite_id: len(rows) for suite_id, rows in d4_occurrences.items()}
 
     removed = Counter(item.model_dump_json() for item in removed_base_d4_vulnerabilities)
     retained_vulnerabilities: list[Vulnerability] = []
@@ -439,12 +453,17 @@ def _merge_typed_stress_test_reports(
     score_status = (
         "profile_mismatch" if score_profile == "mixed_unscored" else base_report.score_status
     )
-    base_total_scenarios = _metadata_int(
-        base_report.metadata.get(
-            "base_total_scenarios_evaluated", base_report.total_scenarios_evaluated
-        ),
-        field_name="base_total_scenarios_evaluated",
-    )
+    base_total_scenarios = len(base_occurrences)
+    unassessed_count_sources = [
+        report.report_id
+        for report in reports
+        if not report.score_components
+        and (
+            report.total_scenarios_evaluated > 0
+            or report.vulnerabilities
+            or report.robustness_score is not None
+        )
+    ]
     return base_report.model_copy(
         update={
             "schema_version": "1.2" if roster.suites else "1.1",
@@ -466,6 +485,9 @@ def _merge_typed_stress_test_reports(
                 "phase_d4_suite_ids": sorted(selected),
                 "phase_d4_suite_scenario_counts": d4_scenario_counts,
                 "base_total_scenarios_evaluated": base_total_scenarios,
+                "scenario_count_scope": "selected_source_row_occurrences",
+                "scenario_count_status": "partial" if unassessed_count_sources else "recomputed",
+                "unassessed_scenario_count_sources": unassessed_count_sources,
                 "score_source_reports": score_source_reports,
             },
         }

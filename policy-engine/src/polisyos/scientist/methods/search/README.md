@@ -71,6 +71,16 @@ scientific adequacy.
 
 ## Candidate identity and evaluated input
 
+Level 5 keeps finite stress outcomes separate from model uncertainty. Its
+observed-sample diagnostic uses the fresh persisted-source resolution, with
+per-scenario passing and violated counts rather than retained issue payloads.
+An inline score or scope-shaped metadata does not establish that sample. A
+partial source remains partial; an unavailable denominator does not receive a
+fraction. The observed finite fraction establishes neither population failure
+probability nor model uncertainty. Level 5 preserves the prior model estimate
+and its declared provenance, or the existing unassessed envelope when absent.
+This diagnostic does not change source admission or promotion authority.
+
 A bare candidate is its full JSON-native dictionary: key spelling alone never
 removes a value. Non-string keys, non-finite numbers, Decimal objects and other
 native objects are refused because their JSON projection would not preserve the

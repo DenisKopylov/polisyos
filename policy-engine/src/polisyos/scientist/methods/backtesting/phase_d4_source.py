@@ -5,10 +5,11 @@ from __future__ import annotations
 import math
 from collections.abc import Mapping, Sequence
 from datetime import UTC, datetime
+from decimal import Decimal
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, JsonValue, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from polisyos.core.artifacts import (
     ArtifactManifest,
@@ -37,7 +38,7 @@ if TYPE_CHECKING:
 
 PHASE_D4_REPLAY_SOURCE_ARTIFACT_KIND = "scientist.phase_d4_replay_source"
 PHASE_D4_REPLAY_SOURCE_SCHEMA_NAME = "polisyos.scientist.PhaseD4ReplaySource"
-PHASE_D4_REPLAY_SOURCE_SCHEMA_VERSION = "1.0"
+PHASE_D4_REPLAY_SOURCE_SCHEMA_VERSION = "1.1"
 PHASE_D4_REPLAY_SOURCE_INPUT_ROLE = "phase_d4_replay_source"
 PHASE_D4_SELECTION_INPUT_ROLE = "selection_evaluation"
 PHASE_D4_SELECTED_EVALUATION_INPUT_ROLE = "phase_d4_selected_suite_evaluation"
@@ -66,20 +67,38 @@ _PHASE_D4_ARTIFACT_INDEX_KEYS = frozenset(
 )
 
 
+type _SourceParameterValue = (
+    str
+    | int
+    | bool
+    | float
+    | Decimal
+    | None
+    | list[_SourceParameterValue]
+    | dict[str, _SourceParameterValue]
+)
+
+
 class PhaseD4ReplaySource(BaseModel):
     """Exact selected runtime inputs consumed to produce one D.4 suite family."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal["1.0"] = "1.0"
+    schema_version: Literal["1.0", "1.1"] = "1.1"
     authority_purpose: Literal["recompute_phase_d4_case_truth"] = "recompute_phase_d4_case_truth"
     captured_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     run_id: str = Field(min_length=1, max_length=128)
     loop_id: str = Field(min_length=1, max_length=128)
     candidate_ref: ArtifactRef
     selection_evaluation_ref: ArtifactRef
-    params: dict[str, JsonValue] = Field(default_factory=dict)
+    params: dict[str, _SourceParameterValue] = Field(default_factory=dict)
     artifacts_index: dict[str, ArtifactRef] = Field(default_factory=dict)
+
+    @field_validator("params", mode="before")
+    @classmethod
+    def validate_source_parameters(cls, value: Any) -> Any:
+        """Reject unsupported values before Pydantic can coerce their types."""
+        return _json_value(value)
 
     @model_validator(mode="after")
     def validate_selected_inputs(self) -> PhaseD4ReplaySource:
@@ -90,6 +109,7 @@ class PhaseD4ReplaySource(BaseModel):
             raise ValueError("phase_d4_replay_source_contains_unconsumed_parameters")
         if set(self.artifacts_index) - _PHASE_D4_ARTIFACT_INDEX_KEYS:
             raise ValueError("phase_d4_replay_source_contains_unconsumed_artifact_refs")
+        _json_value(self.params, allow_decimal=self.schema_version == "1.1")
         refs = [self.candidate_ref, self.selection_evaluation_ref, *self.artifacts_index.values()]
         if any(ref.manifest_profile_sha256 is None for ref in refs):
             raise ValueError("phase_d4_replay_source_selected_profile_missing")
@@ -157,13 +177,19 @@ def _has_exact_single_input(manifest: ArtifactManifest, ref: ArtifactRef, *, rol
     return actual == [expected]
 
 
-def _json_value(value: Any) -> JsonValue:
-    """Serialize only JSON-compatible runtime inputs without stringifying unknown objects."""
+def _json_value(value: Any, *, allow_decimal: bool = True) -> _SourceParameterValue:
+    """Project supported source values for the existing Core typed JSON codec."""
     if isinstance(value, BaseModel):
-        value = value.model_dump(mode="json", by_alias=True)
+        value = value.model_dump(mode="python", by_alias=True)
     elif isinstance(value, Enum):
         value = value.value
     if value is None or type(value) in {str, bool, int}:
+        return value
+    if type(value) is Decimal:
+        if not allow_decimal:
+            raise ValueError("phase_d4_replay_source_decimal_requires_v1_1")
+        if not value.is_finite():
+            raise ValueError("phase_d4_replay_source_non_finite_parameter")
         return value
     if type(value) is float:
         if not math.isfinite(value):
@@ -172,9 +198,9 @@ def _json_value(value: Any) -> JsonValue:
     if isinstance(value, Mapping):
         if any(type(key) is not str for key in value):
             raise ValueError("phase_d4_replay_source_parameter_key_invalid")
-        return {key: _json_value(item) for key, item in value.items()}
+        return {key: _json_value(item, allow_decimal=allow_decimal) for key, item in value.items()}
     if isinstance(value, (list, tuple)):
-        return [_json_value(item) for item in value]
+        return [_json_value(item, allow_decimal=allow_decimal) for item in value]
     raise ValueError("phase_d4_replay_source_parameter_not_json_compatible")
 
 
@@ -240,21 +266,21 @@ def persist_phase_d4_replay_source(
         for key, ref in sorted(source.artifacts_index.items())
     )
     return store.put_json(
-        source,
+        source.model_dump(mode="python"),
         PutOptions(
             kind=PHASE_D4_REPLAY_SOURCE_ARTIFACT_KIND,
             media_type="application/json",
             schema=SchemaInfo(
                 name=PHASE_D4_REPLAY_SOURCE_SCHEMA_NAME,
-                version=PHASE_D4_REPLAY_SOURCE_SCHEMA_VERSION,
+                version=source.schema_version,
             ),
             producer=ProducerInfo(
                 component="polisyos.scientist.methods.backtesting.phase_d4_source",
-                version="1.0",
+                version="1.1",
             ),
             inputs=inputs,
         ),
-        canon_spec=CanonSpec(forbid_floats=False),
+        canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
         return_selected_profile=True,
     )
 
@@ -278,10 +304,10 @@ def load_selected_phase_d4_replay_source(
         or ref.media_type != "application/json"
         or manifest.artifact_schema is None
         or manifest.artifact_schema.name != PHASE_D4_REPLAY_SOURCE_SCHEMA_NAME
-        or manifest.artifact_schema.version != PHASE_D4_REPLAY_SOURCE_SCHEMA_VERSION
+        or manifest.artifact_schema.version not in {"1.0", "1.1"}
         or manifest.producer is None
         or manifest.producer.component != "polisyos.scientist.methods.backtesting.phase_d4_source"
-        or manifest.producer.version != "1.0"
+        or manifest.producer.version not in {"1.0", "1.1"}
         or artifact_manifest_profile_sha256(manifest) != ref.manifest_profile_sha256
     ):
         raise PhaseD4ReplayError("phase_d4_replay_source_manifest_mismatch")
@@ -295,6 +321,8 @@ def load_selected_phase_d4_replay_source(
         )
     except Exception as exc:
         raise PhaseD4ReplayError("phase_d4_replay_source_body_unreadable") from exc
+    if manifest.artifact_schema.version != source.schema_version:
+        raise PhaseD4ReplayError("phase_d4_replay_source_schema_version_mismatch")
     expected_inputs = [
         input_ref_from_artifact_ref(source.candidate_ref, role="candidate"),
         input_ref_from_artifact_ref(

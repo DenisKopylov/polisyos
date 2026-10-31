@@ -1,0 +1,13 @@
+id = "2026-10-31-e02-level5-stress-scope"
+title = "Keep finite stress samples separate from model uncertainty"
+type = "fixed"
+component = "scientist"
+owner = "scientist"
+summary = "Level 5 no longer converts a finite stress fraction into model uncertainty, preserves prior model estimates, and exposes source-replayed complete and partial observed-sample accounting. Objective score status remains separate from stress status. Runtime stress reports persist their actual schema version and count each selected source occurrence once while retaining duplicate-source rejection. Phase D.4 replay source 1.1 preserves native Decimal and null values through the Core codec."
+evidence = ["tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py", "tests/unit/scientist/methods/doe/test_stress_report.py", "tests/unit/scientist/search/test_phase_d4_runtime_integration.py", "tests/unit/scientist/methods/backtesting/test_phase_d4_source.py"]
+compatibility = "Existing stress source admission and promotion gates remain in force; inline scores and scope-shaped metadata cannot establish observed-sample evidence."
+change_class = "Internal search diagnostic semantics."
+surface_classification = "internal: internal-only"
+api = "Internal PhaseD4ReplaySource CAS schema advances to 1.1 for native Decimal values with 1.0 read compatibility; no HTTP or dashboard API change."
+limitations = "Finite observed outcomes establish neither population failure probability nor model uncertainty. Missing or unresolved source components withhold aggregate accounting; incomplete and unbound evidence does not grant a protected score. B106 finding acceptance remains separate."
+generated_client_compatibility = "not_applicable"

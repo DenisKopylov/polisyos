@@ -25,6 +25,20 @@ post-analysis of vulnerabilities.
   artifact; the legacy `scientist.policy_candidate_schema` kind remains candidate-only and is
   not relabeled by the runtime bridge.
 
+Fresh stress resolution also projects finite-sample accounting from verified
+source rows: attempted, finite, violated, unknown and planned scenarios remain
+separate. Partial prefixes must match the selected plan's case order and exact
+parameter values; finite objective classifications are replayed from their
+selected sources. The observed fraction uses finite scenarios before issue
+grouping or top-k. Missing or unresolved components withhold the aggregate
+accounting rather than silently shrinking its denominator. Fresh resolution
+recomputes this projection after restart; persisted source rows remain its basis.
+The existing Level 5 audit artifact records a diagnostic snapshot and its exact
+selected report input, without turning that historical snapshot into current authority.
+Its sample completeness and arithmetic do not grant objective-selection,
+promotion, population-probability or model-uncertainty authority. The protected
+score remains unavailable for partial or unbound evidence.
+
 ## Bounded distribution contract (DOE-02)
 
 `ParameterSpec.lower_bound` and `upper_bound` are always physical support.  The

@@ -12,9 +12,14 @@ from typing import Any
 from pydantic import ValidationError
 
 from polisyos.core.artifacts import (
+    CoreArtifactOwnerProfile,
+    validate_owned_core_model_json_artifact,
+)
+from polisyos.core.artifacts import (
     ensure_ir_artifact_store as _ensure_ir_artifact_store,
 )
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef, SchemaInfo
+from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.core.contracts.ic_verification import (
     ICNegativeCertificate,
     ICNegativeCertificateRef,
@@ -68,13 +73,34 @@ from polisyos.ir.governance.mechanism_semantics import (
     MechanismUtilityModelKind,
 )
 from polisyos.ir.governance.policy_spec import PolicySpec
-from polisyos.ir.trinity import TrinityBundle
+from polisyos.ir.trinity import TrinityBundle, load_trinity_bundle_artifact
 
 _REPORT_SCHEMA_NAME = "polisyos.core.contracts.ic_verification.ICVerificationReport"
 _CERTIFICATE_SCHEMA_NAME = (
     "polisyos.core.contracts.ic_verification.IncentiveCompatibilityCertificate"
 )
 _NEGATIVE_SCHEMA_NAME = "polisyos.core.contracts.ic_verification.ICNegativeCertificate"
+_REQUEST_SCHEMA_NAME = "polisyos.core.contracts.ic_verification.ICVerificationRequest"
+_REQUEST_KIND = "scientist.ic_verification_request"
+_SEMANTICS_SCHEMA_NAME = "polisyos.ir.governance.mechanism_semantics.MechanismSemanticsSpec"
+_REQUEST_OWNER = CoreArtifactOwnerProfile(
+    kind=_REQUEST_KIND,
+    media_type="application/json",
+    schema_variants=(SchemaInfo(name=_REQUEST_SCHEMA_NAME, version="1.0"),),
+    payload_schema_version_by_manifest=(((_REQUEST_SCHEMA_NAME, "1.0"), "1.0"),),
+)
+_REPORT_OWNER = CoreArtifactOwnerProfile(
+    kind="scientist.ic_report",
+    media_type="application/json",
+    schema_variants=(SchemaInfo(name=_REPORT_SCHEMA_NAME, version="1.0"),),
+    payload_schema_version_by_manifest=(((_REPORT_SCHEMA_NAME, "1.0"), "1.0"),),
+)
+_SEMANTICS_OWNER = CoreArtifactOwnerProfile(
+    kind="ir.mechanism_semantics",
+    media_type="application/json",
+    schema_variants=(SchemaInfo(name=_SEMANTICS_SCHEMA_NAME, version="1.0"),),
+    payload_schema_version_by_manifest=(((_SEMANTICS_SCHEMA_NAME, "1.0"), "1.0"),),
+)
 _TAX_MECHANISM_IDS = frozenset({"bayes_tax_pl_v1", "bayes_tax_affine_v1"})
 _LICENSE_MECHANISM_IDS = frozenset({"license_scoring_reserve_v1", "license_myerson_score_v1"})
 _MECHANISM_FAMILY_IDS = _TAX_MECHANISM_IDS | _LICENSE_MECHANISM_IDS
@@ -172,12 +198,16 @@ def _resolve_policy_input(
 ) -> tuple[PolicySpec, str]:
     from polisyos.core.artifacts import load_core_json_artifact
 
-    payload = load_core_json_artifact(store, request.input_ref)
     if request.input_ref.kind == "ir.trinity_bundle":
-        bundle = TrinityBundle.model_validate(payload)
+        if request.input_ref.manifest_profile_sha256 is not None:
+            bundle = load_trinity_bundle_artifact(
+                _ensure_ir_artifact_store(store), request.input_ref
+            )
+        else:
+            bundle = TrinityBundle.model_validate(load_core_json_artifact(store, request.input_ref))
         return bundle.policy_spec, str(request.input_ref.artifact_id)
     if request.input_ref.kind == "ir.policy_spec":
-        policy = PolicySpec.model_validate(payload)
+        policy = PolicySpec.model_validate(load_core_json_artifact(store, request.input_ref))
         return policy, str(request.input_ref.artifact_id)
     raise ValueError(
         f"Unsupported IC input_ref.kind '{request.input_ref.kind}'; "
@@ -193,6 +223,13 @@ def _resolve_semantics(
     if request.semantics_ref is not None:
         if store is None:
             raise ValueError("semantics_ref requires an ArtifactStore")
+        if request.semantics_ref.manifest_profile_sha256 is not None:
+            return validate_owned_core_model_json_artifact(
+                MechanismSemanticsSpec,
+                store,
+                request.semantics_ref,
+                expected_owner=_SEMANTICS_OWNER,
+            ).value
         payload = get_json_artifact(_ensure_ir_artifact_store(store), request.semantics_ref)
         return MechanismSemanticsSpec.model_validate(payload)
     if design.semantics is None:
@@ -1880,8 +1917,9 @@ def _artifact_ref_from_ir_ref(ref: object) -> ArtifactRef:
 
 def _attach_mechanism_family_sidecars(
     store: ArtifactStore,
-    request: ICVerificationRequest,
     evaluation: _MechanismFamilyEvaluation,
+    *,
+    inputs: list[InputRef],
 ) -> IncentiveCompatibilityCertificate | ICNegativeCertificate | None:
     certificate = evaluation.certificate
     if (
@@ -1891,9 +1929,9 @@ def _attach_mechanism_family_sidecars(
     ):
         return _attach_mechanism_family_package_sidecars(
             store,
-            request,
             certificate,
             evaluation.component_evaluations,
+            inputs=inputs,
         )
     if (
         certificate is None
@@ -1902,7 +1940,6 @@ def _attach_mechanism_family_sidecars(
     ):
         return certificate
 
-    inputs = _request_inputs(request)
     family_spec_ref = persist_mechanism_family_spec(
         _ensure_ir_artifact_store(store),
         evaluation.family_spec,
@@ -1940,11 +1977,11 @@ def _attach_mechanism_family_sidecars(
 
 def _attach_mechanism_family_package_sidecars(
     store: ArtifactStore,
-    request: ICVerificationRequest,
     certificate: IncentiveCompatibilityCertificate,
     component_evaluations: tuple[_MechanismFamilyEvaluation, ...],
+    *,
+    inputs: list[InputRef],
 ) -> IncentiveCompatibilityCertificate:
-    inputs = _request_inputs(request)
     proof_artifacts: list[ArtifactRef] = []
     family_spec_refs: dict[str, dict[str, Any]] = {}
     mechanism_certificate_refs: dict[str, dict[str, Any]] = {}
@@ -2112,6 +2149,7 @@ def persist_ic_report(
     report: ICVerificationReport,
     *,
     inputs: list[Any] | None = None,
+    return_selected_profile: bool = False,
 ) -> ICVerificationReportRef:
     ref = put_json_artifact(
         _ensure_ir_artifact_store(store),
@@ -2120,6 +2158,7 @@ def persist_ic_report(
         schema_name=_REPORT_SCHEMA_NAME,
         schema_version=report.schema_version,
         inputs=inputs,
+        return_selected_profile=return_selected_profile,
     )
     return ICVerificationReportRef.model_validate(ref)
 
@@ -2134,6 +2173,7 @@ def persist_ic_certificate(
     certificate: IncentiveCompatibilityCertificate,
     *,
     inputs: list[Any] | None = None,
+    return_selected_profile: bool = False,
 ) -> ICVerificationCertificateRef:
     ref = put_json_artifact(
         _ensure_ir_artifact_store(store),
@@ -2142,6 +2182,7 @@ def persist_ic_certificate(
         schema_name=_CERTIFICATE_SCHEMA_NAME,
         schema_version=certificate.schema_version,
         inputs=inputs,
+        return_selected_profile=return_selected_profile,
     )
     return ICVerificationCertificateRef.model_validate(ref)
 
@@ -2159,6 +2200,7 @@ def persist_ic_negative_certificate(
     certificate: ICNegativeCertificate,
     *,
     inputs: list[Any] | None = None,
+    return_selected_profile: bool = False,
 ) -> ICNegativeCertificateRef:
     ref = put_json_artifact(
         _ensure_ir_artifact_store(store),
@@ -2167,6 +2209,7 @@ def persist_ic_negative_certificate(
         schema_name=_NEGATIVE_SCHEMA_NAME,
         schema_version=certificate.schema_version,
         inputs=inputs,
+        return_selected_profile=return_selected_profile,
     )
     return ICNegativeCertificateRef.model_validate(ref)
 
@@ -2180,16 +2223,127 @@ def load_ic_negative_certificate(
 
 
 def _request_inputs(request: ICVerificationRequest) -> list[InputRef]:
-    inputs = [InputRef(artifact_id=request.input_ref.artifact_id, role="input")]
+    inputs = [
+        InputRef(
+            artifact_id=request.input_ref.artifact_id,
+            role="input",
+            manifest_profile_sha256=request.input_ref.manifest_profile_sha256,
+        )
+    ]
     if request.semantics_ref is not None:
-        inputs.append(InputRef(artifact_id=request.semantics_ref.artifact_id, role="semantics"))
+        inputs.append(
+            InputRef(
+                artifact_id=request.semantics_ref.artifact_id,
+                role="semantics",
+                manifest_profile_sha256=request.semantics_ref.manifest_profile_sha256,
+            )
+        )
     return inputs
+
+
+def _persist_selected_ic_request(
+    store: ArtifactStore, request: ICVerificationRequest
+) -> ArtifactRef | None:
+    """Bind a complete selected request; unselected legacy requests stay unbound."""
+    refs = (request.input_ref,) + (
+        () if request.semantics_ref is None else (request.semantics_ref,)
+    )
+    if any(ref.manifest_profile_sha256 is None for ref in refs):
+        return None
+    if request.schema_version != "1.0":
+        raise ValueError("ic_request_version_not_established")
+    selected = put_json_artifact(
+        _ensure_ir_artifact_store(store),
+        request.model_dump(mode="json"),
+        kind=_REQUEST_KIND,
+        schema_name=_REQUEST_SCHEMA_NAME,
+        schema_version=request.schema_version,
+        inputs=_request_inputs(request),
+        return_selected_profile=True,
+    )
+    ref = _artifact_ref_from_ir_ref(selected)
+    if ref.manifest_profile_sha256 is None:
+        raise ValueError("ic_request_profile_not_established")
+    return ref
+
+
+def _result_inputs(
+    request: ICVerificationRequest, request_ref: ArtifactRef | None
+) -> list[InputRef]:
+    inputs = _request_inputs(request)
+    if request_ref is not None:
+        inputs.append(
+            InputRef(
+                artifact_id=request_ref.artifact_id,
+                role="verification_request",
+                manifest_profile_sha256=request_ref.manifest_profile_sha256,
+            )
+        )
+    return inputs
+
+
+def _input_edge_payloads(inputs: list[Any]) -> list[dict[str, Any]]:
+    return [
+        InputRef.model_validate(item.model_dump(mode="json")).model_dump(mode="json")
+        for item in inputs
+    ]
+
+
+def _load_ic_report_for_request(
+    store: ArtifactStore, ref: ICVerificationReportRef, request: ICVerificationRequest
+) -> ICVerificationReport:
+    """Reopen exact request-bound bytes without asserting producer authority."""
+    if ref.manifest_profile_sha256 is None or any(
+        edge.manifest_profile_sha256 is None for edge in _request_inputs(request)
+    ):
+        raise ValueError("ic_selected_source_profile_not_established")
+    report = validate_owned_core_model_json_artifact(
+        ICVerificationReport, store, ref, expected_owner=_REPORT_OWNER
+    ).value
+    manifest = ArtifactManifest.model_validate(store.get_manifest(ref))
+    request_edges = [edge for edge in manifest.inputs if edge.role == "verification_request"]
+    if len(request_edges) != 1 or request_edges[0].manifest_profile_sha256 is None:
+        raise ValueError("ic_request_edge_not_established")
+    edge = request_edges[0]
+    request_ref = ArtifactRef(
+        artifact_id=edge.artifact_id,
+        kind=_REQUEST_KIND,
+        media_type="application/json",
+        manifest_profile_sha256=edge.manifest_profile_sha256,
+    )
+    if _input_edge_payloads(manifest.inputs) != _input_edge_payloads(
+        _result_inputs(request, request_ref)
+    ):
+        raise ValueError("ic_result_source_edges_mismatch")
+    persisted_request = validate_owned_core_model_json_artifact(
+        ICVerificationRequest, store, request_ref, expected_owner=_REQUEST_OWNER
+    ).value
+    request_manifest = ArtifactManifest.model_validate(store.get_manifest(request_ref))
+    if _input_edge_payloads(request_manifest.inputs) != _input_edge_payloads(
+        _request_inputs(request)
+    ):
+        raise ValueError("ic_request_source_edges_mismatch")
+    canon = CanonSpec(forbid_floats=False, exclude_none=False)
+    if to_canonical_bytes(persisted_request.model_dump(mode="json"), canon) != to_canonical_bytes(
+        request.model_dump(mode="json"), canon
+    ):
+        raise ValueError("ic_request_content_mismatch")
+    if (
+        report.property != request.property
+        or report.mode != request.mode
+        or report.input_digest != str(request.input_ref.artifact_id)
+    ):
+        raise ValueError("ic_report_request_mismatch")
+    return report
 
 
 def verify_incentive_compatibility(
     store: ArtifactStore,
     request: ICVerificationRequest,
 ) -> ICVerificationResult:
+    request_ref = _persist_selected_ic_request(store, request)
+    inputs = _result_inputs(request, request_ref)
+    selected = request_ref is not None
     family_evaluation: _MechanismFamilyEvaluation | None = None
     try:
         policy, input_digest = _resolve_policy_input(store, request)
@@ -2202,8 +2356,8 @@ def verify_incentive_compatibility(
             report = family_evaluation.report
             certificate = _attach_mechanism_family_sidecars(
                 store,
-                request,
                 family_evaluation,
+                inputs=inputs,
             )
         else:
             semantics = _resolve_semantics(
@@ -2234,7 +2388,9 @@ def verify_incentive_compatibility(
             input_digest=digest,
             notes=(str(exc),),
         )
-        report_ref = persist_ic_report(store, report, inputs=_request_inputs(request))
+        report_ref = persist_ic_report(
+            store, report, inputs=inputs, return_selected_profile=selected
+        )
         return ICVerificationResult(
             ok=False,
             verdict=report.verdict,
@@ -2242,8 +2398,7 @@ def verify_incentive_compatibility(
             notes=[str(exc)],
         )
 
-    inputs = _request_inputs(request)
-    report_ref = persist_ic_report(store, report, inputs=inputs)
+    report_ref = persist_ic_report(store, report, inputs=inputs, return_selected_profile=selected)
     if certificate is None:
         return ICVerificationResult(
             ok=False,
@@ -2252,7 +2407,9 @@ def verify_incentive_compatibility(
             notes=list(report.notes),
         )
     if isinstance(certificate, IncentiveCompatibilityCertificate):
-        certificate_ref = persist_ic_certificate(store, certificate, inputs=inputs)
+        certificate_ref = persist_ic_certificate(
+            store, certificate, inputs=inputs, return_selected_profile=selected
+        )
         return ICVerificationResult(
             ok=True,
             verdict=report.verdict,
@@ -2260,7 +2417,9 @@ def verify_incentive_compatibility(
             report_ref=report_ref,
             notes=list(report.notes),
         )
-    certificate_ref = persist_ic_negative_certificate(store, certificate, inputs=inputs)
+    certificate_ref = persist_ic_negative_certificate(
+        store, certificate, inputs=inputs, return_selected_profile=selected
+    )
     return ICVerificationResult(
         ok=False,
         verdict=report.verdict,

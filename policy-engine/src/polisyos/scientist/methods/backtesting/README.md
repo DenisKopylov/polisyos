@@ -195,3 +195,13 @@ and runtime verification remain pending. Focused test targets are
 `tests/unit/scientist/search/test_phase_d4_runtime_integration.py`,
 `tests/unit/scientist/search/test_phase_d4_challenge_suites.py`, and
 `tests/unit/scientist/nodes/builtins/decide/test_policy_blueprint_runtime_benchmarks.py`.
+
+## Phase D.4 selected replay inputs
+
+`PhaseD4ReplaySource` 1.1 retains finite native `Decimal` parameters, nested values,
+and explicit nulls through the existing Core canonical JSON codec. Decimal values
+are not converted to binary floats or strings; selected manifest profiles bind
+the codec, source schema and direct input edges. Historical 1.0 JSON sources remain
+readable under their recorded profile, but cannot contain Decimal parameters.
+The source body version must equal its manifest schema version. This is a replay
+input bridge, not evidence of institutional provenance or model uncertainty.

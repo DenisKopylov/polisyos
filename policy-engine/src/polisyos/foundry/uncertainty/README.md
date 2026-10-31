@@ -59,6 +59,26 @@ ledger. Sampling errors and all other failure classes are not retried. The legac
 candidate behavior is retained only for an unchained built-in `RuntimeError` raised by an individual
 draw. Other errors propagate instead of producing a conditional partial distribution.
 
+## Numerical input admission
+
+Empirical coordinates and weights must be finite real values that retain their
+numeric support in the float64 consumer representation. Raw copied carriers
+cannot discard complex parts, parse numeric strings or round away integer,
+extended-precision or rational support. The existing common input
+preparation refuses these laws before evaluating the response function.
+
+Covariance construction validates marginal variances in float64 before choosing
+the existing float32 storage profile. Overflow and nonzero storage underflow
+refuse. On the actual JAX CPU device, nonzero subnormal covariance operands also
+refuse because arithmetic flushes them even when storage retains their bits;
+that CPU restriction is not imposed on another selected device. Delta admits
+this covariance before its nominal callback. Exact zero variance remains a
+point mass in random, Sobol and Halton sampling rather than receiving an
+artificial minimum spread.
+
+These checks preserve numerical input laws; they do not establish a source
+population, dependence provenance, calibration or downstream authority.
+
 ## Public API
 
 | Type/Function                   | Description                                               |

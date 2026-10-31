@@ -12,14 +12,14 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 ## Summary
 
-- Total IR types: `1678`.
-- Public/root-or-package facade types: `679`.
+- Total IR types: `1674`.
+- Public/root-or-package facade types: `680`.
 - ABI snapshot-backed types: `103`.
 - Export enumeration covers these public packages:
 
 | Package | Export count |
 | ------- | ------------ |
-| `polisyos.ir` | 530 |
+| `polisyos.ir` | 533 |
 | `polisyos.ir.analytics` | 320 |
 | `polisyos.ir.kernel` | 81 |
 | `polisyos.ir.loading` | 12 |
@@ -31,10 +31,10 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 | Section | Type count | Public types | Snapshot-backed |
 | ------- | ---------- | ------------ | ---------------- |
-| `analytics` | 1025 | 341 | 45 |
+| `analytics` | 1027 | 342 | 45 |
 | `artifacts` | 30 | 3 | 0 |
 | `governance` | 99 | 27 | 8 |
-| `kernel` | 66 | 54 | 0 |
+| `kernel` | 60 | 54 | 0 |
 | `linker` | 7 | 0 | 0 |
 | `migrations` | 13 | 0 | 0 |
 | `observation` | 138 | 63 | 30 |
@@ -1465,6 +1465,17 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `statistic` | `float \| NoneType` | `no` | `—` | — |
 | `status` | `str` | `yes` | `—` | — |
 | `unresolved_assumptions` | `list[str]` | `no` | `—` | — |
+
+### `polisyos.ir.analytics.backtest.NativeBacktestVerificationRequiredError` { #polisyos-ir-analytics-backtest-nativebacktestverificationrequirederror }
+
+- Kind: `class`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: A selected native report needs its higher-layer trajectory verifier.
 
 ### `polisyos.ir.analytics.backtest.OutcomeComparison` { #polisyos-ir-analytics-backtest-outcomecomparison }
 
@@ -7712,7 +7723,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 - Kind: `pydantic_model`
 - Public status: `internal`
-- Current version: `—`
+- Current version: `1.0`
 - Exported from: —
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
@@ -7721,11 +7732,15 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
+| `decision_rule_profile` | `Literal[legacy_rule, linear_q_action.v1, linear_q_current_interactions.v1]` | `no` | `'legacy_rule'` | — |
 | `metadata` | `dict[str, Any]` | `no` | `—` | — |
+| `n_covariates` | `int \| NoneType` | `no` | `—` | — |
 | `outcome` | `str` | `yes` | `—` | — |
 | `regime_coefficients` | `tuple[float] \| NoneType` | `no` | `—` | — |
 | `rule` | `polisyos.ir.analytics.dynamic_regime.RegimeRule` | `no` | `<RegimeRule.ALWAYS_TREAT: 'always_treat'>` | `polisyos.ir.analytics.dynamic_regime.RegimeRule` |
 | `scheduled_actions` | `tuple[int] \| NoneType` | `no` | `—` | — |
+| `schema_version` | `Literal[1.0, 1.1]` | `no` | `'1.0'` | — |
+| `stage_coefficients` | `tuple[tuple[float]] \| NoneType` | `no` | `—` | — |
 | `threshold_covariate_index` | `int` | `no` | `0` | — |
 | `threshold_value` | `float` | `no` | `0.0` | — |
 | `time_points` | `tuple[int]` | `yes` | `—` | — |
@@ -14749,6 +14764,22 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `scm_spec` | `polisyos.ir.analytics.structural_causal_model.StructuralCausalModelSpec \| NoneType` | `no` | `—` | `polisyos.ir.analytics.structural_causal_model.StructuralCausalModelSpec` |
 | `source_graph_ref` | `str \| NoneType` | `no` | `—` | — |
 | `structural_equations` | `list[polisyos.ir.analytics.ncm.StructuralEquation]` | `no` | `—` | `polisyos.ir.analytics.ncm.StructuralEquation` |
+
+### `polisyos.ir.analytics.ncm.PreparedNCMSpecSelectedValues` { #polisyos-ir-analytics-ncm-preparedncmspecselectedvalues }
+
+- Kind: `dataclass`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir:PreparedNCMSpecSelectedValues`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Actual selected-codec model values and their complete effective bytes.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `ncm_spec` | `NCMSpec` | `yes` | `—` | — |
+| `value_bytes` | `bytes` | `yes` | `—` | — |
 
 ### `polisyos.ir.analytics.ncm.StructuralEquation` { #polisyos-ir-analytics-ncm-structuralequation }
 
@@ -22455,6 +22486,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `tenant_context` | `_MetadataOption \| None` | `no` | `None` | — |
 | `same_input_closure` | `_MetadataOption \| None` | `no` | `None` | — |
 | `authority` | `_MetadataOption \| None` | `no` | `None` | — |
+| `child_release` | `_MetadataOption \| None` | `no` | `None` | — |
 | `warnings` | `list[_MetadataOption] \| None` | `no` | `None` | — |
 
 ### `polisyos.ir.artifacts.lineage.ArtifactLineageEdge` { #polisyos-ir-artifacts-lineage-artifactlineageedge }
@@ -25766,96 +25798,6 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
 | `kind` | `~UnitKindT` | `yes` | `—` | — |
-
-### `polisyos.ir.kernel.units.UnitSpec[Literal['count']]` { #polisyos-ir-kernel-units-unitspec-literal-count }
-
-- Kind: `pydantic_model`
-- Public status: `internal`
-- Current version: `—`
-- Exported from: —
-- ABI snapshot: `—` / `—`
-- Compatibility mode: `—`
-- References: —
-- Summary: Unit spec data model.
-
-| Field | Type | Required | Default | IR refs |
-| ----- | ---- | -------- | ------- | ------- |
-| `kind` | `Literal[count]` | `yes` | `—` | — |
-
-### `polisyos.ir.kernel.units.UnitSpec[Literal['dimensionless']]` { #polisyos-ir-kernel-units-unitspec-literal-dimensionless }
-
-- Kind: `pydantic_model`
-- Public status: `internal`
-- Current version: `—`
-- Exported from: —
-- ABI snapshot: `—` / `—`
-- Compatibility mode: `—`
-- References: —
-- Summary: Unit spec data model.
-
-| Field | Type | Required | Default | IR refs |
-| ----- | ---- | -------- | ------- | ------- |
-| `kind` | `Literal[dimensionless]` | `yes` | `—` | — |
-
-### `polisyos.ir.kernel.units.UnitSpec[Literal['duration']]` { #polisyos-ir-kernel-units-unitspec-literal-duration }
-
-- Kind: `pydantic_model`
-- Public status: `internal`
-- Current version: `—`
-- Exported from: —
-- ABI snapshot: `—` / `—`
-- Compatibility mode: `—`
-- References: —
-- Summary: Unit spec data model.
-
-| Field | Type | Required | Default | IR refs |
-| ----- | ---- | -------- | ------- | ------- |
-| `kind` | `Literal[duration]` | `yes` | `—` | — |
-
-### `polisyos.ir.kernel.units.UnitSpec[Literal['generic']]` { #polisyos-ir-kernel-units-unitspec-literal-generic }
-
-- Kind: `pydantic_model`
-- Public status: `internal`
-- Current version: `—`
-- Exported from: —
-- ABI snapshot: `—` / `—`
-- Compatibility mode: `—`
-- References: —
-- Summary: Unit spec data model.
-
-| Field | Type | Required | Default | IR refs |
-| ----- | ---- | -------- | ------- | ------- |
-| `kind` | `Literal[generic]` | `yes` | `—` | — |
-
-### `polisyos.ir.kernel.units.UnitSpec[Literal['money']]` { #polisyos-ir-kernel-units-unitspec-literal-money }
-
-- Kind: `pydantic_model`
-- Public status: `internal`
-- Current version: `—`
-- Exported from: —
-- ABI snapshot: `—` / `—`
-- Compatibility mode: `—`
-- References: —
-- Summary: Unit spec data model.
-
-| Field | Type | Required | Default | IR refs |
-| ----- | ---- | -------- | ------- | ------- |
-| `kind` | `Literal[money]` | `yes` | `—` | — |
-
-### `polisyos.ir.kernel.units.UnitSpec[Literal['rate']]` { #polisyos-ir-kernel-units-unitspec-literal-rate }
-
-- Kind: `pydantic_model`
-- Public status: `internal`
-- Current version: `—`
-- Exported from: —
-- ABI snapshot: `—` / `—`
-- Compatibility mode: `—`
-- References: —
-- Summary: Unit spec data model.
-
-| Field | Type | Required | Default | IR refs |
-| ----- | ---- | -------- | ------- | ------- |
-| `kind` | `Literal[rate]` | `yes` | `—` | — |
 
 ### `polisyos.ir.kernel.units.UnitsRegistry` { #polisyos-ir-kernel-units-unitsregistry }
 

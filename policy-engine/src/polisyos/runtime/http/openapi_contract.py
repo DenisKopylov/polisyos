@@ -1617,7 +1617,7 @@ def _normative_evidence_transport_examples() -> dict[str, Any]:
 
 
 def _predictive_coverage_diagnostic_success_examples() -> dict[str, Any]:
-    """Build the limited no-interval example through the canonical reader and projector."""
+    """Build the source-unreconciled example through the canonical reader and projector."""
     from polisyos.core.artifacts import (
         ArtifactID,
         ArtifactManifest,
@@ -1734,20 +1734,19 @@ def _predictive_coverage_diagnostic_success_examples() -> dict[str, Any]:
     )
     if (
         candidate.measurement_status != "not_measured"
-        or candidate.reason_code != "no_evaluated_intervals"
-        or len(candidate.scenarios) != 1
-        or candidate.scenarios[0].interval_requested_count != 1
-        or candidate.scenarios[0].interval_evaluated_count != 0
+        or candidate.reason_code != "unsupported_report_scope"
+        or candidate.scenarios
     ):
         raise ValueError("Controlled predictive fixture no longer emits its intended branch")
     return {
         "limited_not_measured_candidate": {
-            "summary": "Limited diagnostic with a producer-reachable no-interval scenario",
+            "summary": "Unmeasured diagnostic with unreconciled report rows",
             "description": (
                 "Generated through the canonical Core byte/manifest reader and predictive-coverage "
                 "projector from a controlled in-memory report fixture. Its digest is "
-                "content-derived; "
-                "the fixture is not stored production source, measurement, authority, issuer, "
+                "content-derived, but the report rows are not reconciled to selected forecast "
+                "and held-out source values. The projector withholds all quantitative scenarios. "
+                "The fixture is not stored production source, measurement, authority, issuer, "
                 "publication, or currentness evidence."
             ),
             "value": candidate.model_dump(mode="json"),

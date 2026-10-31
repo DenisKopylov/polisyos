@@ -127,6 +127,12 @@ def test_predictive_coverage_openapi_example_uses_canonical_read() -> None:
     assert candidate["source_materialization"] == "reader_materialized"
     assert candidate["assessment"] == "limited"
     assert candidate["producer_attestation_status"] == "not_established"
+    assert candidate["measurement_status"] == "not_measured"
+    assert candidate["reason_code"] == "unsupported_report_scope"
+    assert candidate["scenarios"] == []
+    assert candidate["counterfactual_credibility_status"] == "not_established"
+    assert candidate["causal_effect_status"] == "not_established"
+    assert candidate["source_manifest_profile_sha256"].startswith("sha256:")
     assert candidate["source_artifact_id"].startswith("sha256:")
     assert candidate["source_artifact_id"] != "sha256:" + "a" * 64
 

@@ -51,6 +51,8 @@ def test_real_candidate_is_prepared_in_child_without_mutating_parent(execution_c
     before = parent.model_dump(mode="json")
     outcome = StageBPrepareNode().execute(ctx, parent)
     assert outcome.status == "ok"
+    assert isinstance(outcome.state.params["policy_candidate_schema"], dict)
+    assert outcome.state.params["policy_candidate_schema"] == candidate.model_dump(mode="python")
     assert parent.model_dump(mode="json") == before
     assert ARTIFACT_EXEC_PLAN_REF not in outcome.state.artifacts_index
     assert outcome.state.artifacts_index["unrelated_ref"] == stale

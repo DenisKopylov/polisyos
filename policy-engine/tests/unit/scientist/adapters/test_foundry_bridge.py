@@ -15,8 +15,29 @@ from polisyos.core.contracts.foundry import (
     ExecuteRequest,
     ExecuteResult,
 )
+from polisyos.core.security.settings import SecuritySettings
 from polisyos.core.security.tee import AttestationResult, AttestationStatus
 from polisyos.scientist.orchestration.engine.context import FoundryPort
+
+
+def test_foundry_effect_configuration_cannot_change_after_construction() -> None:
+    """Ordinary configuration changes cannot create an invisible A-to-B-to-A interval."""
+    from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
+
+    settings = SecuritySettings(POLISYOS_TEE_ENABLED=False, POLISYOS_SBOM_ENABLED=False)
+    port = DefaultFoundryPort(settings=settings)
+    other = SecuritySettings(POLISYOS_ENV="test", POLISYOS_SBOM_ENABLED=True)
+    for name, replacement, original in (
+        ("_settings", other, settings),
+        ("_gatekeeper", object(), None),
+    ):
+        with pytest.raises(AttributeError, match="Foundry configuration is immutable"):
+            setattr(port, name, replacement)
+        with pytest.raises(AttributeError, match="Foundry configuration is immutable"):
+            setattr(port, name, original)
+        with pytest.raises(AttributeError, match="Foundry configuration is immutable"):
+            delattr(port, name)
+        assert getattr(port, name) is original
 
 
 class TestDefaultFoundryPortCompile:

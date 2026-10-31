@@ -230,6 +230,68 @@ def _check_unscored_objectives(vector: PolicyEvaluationVector) -> None:
         raise ChildOutputClosureRefusalError("child_output_score_assessment_unsupported")
 
 
+def _managed_candidate_selections(
+    store: ArtifactReader, candidate_ref: ArtifactRef, *, limits: CoreJsonReadLimits
+) -> dict[str, ArtifactRef]:
+    """Recompute one candidate occurrence from Core's actual child invocation history."""
+    from polisyos.core.run.child_custody import _ManagedStore
+    from polisyos.scientist.nodes.builtins.planning.child_stage_b import (
+        _CANDIDATE_KEY,
+        StageBPrepareNode,
+    )
+    from polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search import (
+        _candidate_payload_without_hash,
+    )
+    from polisyos.scientist.orchestration.engine.component_identity import (
+        _capture_configured_component_owner,
+    )
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
+    from polisyos.scientist.policy_design.schema import (
+        load_policy_candidate_schema,
+        policy_candidate_contents_match,
+        validate_policy_candidate_payload,
+    )
+
+    if type(store) is not _ManagedStore:
+        raise ChildOutputClosureRefusalError("child_output_owner_state_binding_unavailable")
+    node = StageBPrepareNode()
+    component_id = str(node.spec.metadata.component_id)
+    implementation = _capture_configured_component_owner(node, {}).reconcile(node, node, {})
+    candidate = load_policy_candidate_schema(store, candidate_ref)
+    matches: list[ExperimentState] = []
+    for source in store._read_owned_child_invocation_sources(
+        component_id, output_ref=candidate_ref, limits=limits
+    ):
+        outcome = source.outcome
+        if outcome is None or outcome.status != "ok" or candidate_ref not in outcome.output_refs:
+            continue
+        if source.basis.implementation_identity != implementation:
+            raise ChildOutputClosureRefusalError("child_output_candidate_producer_changed")
+        state = validate_core_model_bounded_read(ExperimentState, source.input_read)
+        raw_candidate = state.params.get(_CANDIDATE_KEY)
+        if type(raw_candidate) is not dict:
+            raise ChildOutputClosureRefusalError("child_output_candidate_input_unavailable")
+        expected = validate_policy_candidate_payload(_candidate_payload_without_hash(raw_candidate))
+        if not policy_candidate_contents_match(
+            candidate.model_dump(mode="json"), expected.model_dump(mode="json")
+        ):
+            raise ChildOutputClosureRefusalError("child_output_candidate_selection_mismatch")
+        matches.append(state)
+    if len(matches) != 1:
+        raise ChildOutputClosureRefusalError("child_output_unselected_candidate")
+    selected = {"candidate": candidate_ref.model_copy(deep=True)}
+    for role, input_key in (
+        ("model_primary_data_snapshot", "data_snapshot_ref"),
+        ("model_primary_registry", "registry_bundle_ref"),
+    ):
+        ref = matches[0].inputs.get(input_key)
+        if ref is not None:
+            if type(ref) is not ArtifactRef or not ref.manifest_profile_sha256:
+                raise ChildOutputClosureRefusalError("child_output_owner_source_unavailable")
+            selected[role] = ref.model_copy(deep=True)
+    return selected
+
+
 class TypedChildOutputClosureResolver:
     """Bounded profile; unsupported schemas and semantic fields refuse."""
 
@@ -258,12 +320,31 @@ class TypedChildOutputClosureResolver:
         must refer to actual admitted parent-state and served occurrences. A
         payload, manifest, worker declaration or default view cannot supply them.
         """
-        if type(projection_ref) is not ArtifactRef or not projection_ref.manifest_profile_sha256:
-            raise ChildOutputClosureRefusalError("child_output_profile_required")
-        selected_source = getattr(store, "selected_source_ref", None)
+        from polisyos.core.run.child_custody import _snapshot_selected_ref
+
+        try:
+            # Journal wrappers are not new reference selectors. Reuse Core's
+            # raw-field snapshot rather than invoking a subclass serializer.
+            projection_ref = _snapshot_selected_ref(projection_ref)
+        except (PermissionError, ValueError) as exc:
+            raise ChildOutputClosureRefusalError("child_output_profile_required") from exc
+        fixture_selected_source = getattr(store, "selected_source_ref", None)
         prior = getattr(store, "is_previously_authorized", None)
-        if not callable(selected_source) or not callable(prior):
+        if not callable(prior):
             raise ChildOutputClosureRefusalError("child_output_owner_state_binding_unavailable")
+        source_occurrences: dict[tuple[str, str, str, str | None], dict[str, ArtifactRef]] = {}
+
+        def selected_source(role: str, candidate_ref: ArtifactRef) -> ArtifactRef | None:
+            if callable(fixture_selected_source):
+                return fixture_selected_source(role)
+            key = artifact_ref_identity_key(candidate_ref)
+            if key not in source_occurrences:
+                source_occurrences[key] = _managed_candidate_selections(
+                    store, candidate_ref, limits=self._limits
+                )
+            ref = source_occurrences[key].get(role)
+            return ref.model_copy(deep=True) if ref is not None else None
+
         visiting: set[tuple[str, str, str, str | None]] = set()
         done: dict[tuple[str, str, str, str | None], ArtifactRef] = {}
         candidate_ids: dict[tuple[str, str, str, str | None], str] = {}
@@ -319,7 +400,7 @@ class TypedChildOutputClosureResolver:
                 PolicyCandidateSchema.ARTIFACT_SCHEMA_NAME,
                 PolicyCandidateSchema.ARTIFACT_SCHEMA_VERSION,
             ):
-                candidate_owner = selected_source("candidate")
+                candidate_owner = selected_source("candidate", ref)
                 if (
                     type(candidate_owner) is not ArtifactRef
                     or artifact_ref_identity_key(candidate_owner) != key
@@ -338,7 +419,7 @@ class TypedChildOutputClosureResolver:
                 candidate_ids[key] = candidate.candidate_id
                 for role, embedded_id in _candidate_sources(candidate):
                     required_roles.add(role)
-                    owner_ref = selected_source(role)
+                    owner_ref = selected_source(role, ref)
                     edge = declared.get(role)
                     if type(owner_ref) is not ArtifactRef or not owner_ref.manifest_profile_sha256:
                         raise ChildOutputClosureRefusalError(
@@ -365,8 +446,10 @@ class TypedChildOutputClosureResolver:
                 _check_unscored_objectives(vector)
                 if bool(vector.method_metric_observations) != (identity[3] == "1.3"):
                     raise ChildOutputClosureRefusalError("child_output_evaluation_version_mismatch")
-                owner_ref = selected_source("candidate")
                 candidate_edge = declared.get("candidate")
+                if candidate_edge is None:
+                    raise ChildOutputClosureRefusalError("child_output_owner_source_unavailable")
+                owner_ref = selected_source("candidate", candidate_edge)
                 required_roles.add("candidate")
                 if type(owner_ref) is not ArtifactRef or not owner_ref.manifest_profile_sha256:
                     raise ChildOutputClosureRefusalError("child_output_owner_source_unavailable")

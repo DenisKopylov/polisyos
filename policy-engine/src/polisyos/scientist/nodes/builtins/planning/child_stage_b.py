@@ -78,13 +78,24 @@ class StageBPrepareNode:
             persist_stage_b_candidate,
         )
         from polisyos.scientist.nodes.builtins.state_keys import INPUT_TRINITY_BUNDLE_REF
+        from polisyos.scientist.orchestration.engine.context import (
+            _load_engine_owned_invocation_input_state,
+        )
 
-        payload = state.params.get(_CANDIDATE_KEY)
+        source = _load_engine_owned_invocation_input_state(ctx, state)
+        # Engine mutation journals wrap nested dictionaries. Consume the real
+        # persisted invocation input, rather than treating a journal view as a
+        # caller payload or weakening the admitted candidate boundary.
+        params = source.params if source is not None else state.model_dump(mode="json")["params"]
+        payload = params.get(_CANDIDATE_KEY)
         if type(payload) is not dict:
             raise ValueError("child_stage_b_candidate_invalid")
         candidate = PolicyCandidateSchema.model_validate(_candidate_payload_without_hash(payload))
         result = branch_state(state, write_paths=self.spec.state_writes).state
-        result.params["policy_candidate_schema"] = candidate
+        # ExperimentState.params is a JSON-value boundary. Preserve typed
+        # scalar values without installing a mutable Pydantic model into the
+        # mutation journal's JSON tree.
+        result.params["policy_candidate_schema"] = candidate.model_dump(mode="python")
         if "policy_candidate" in state.inputs:
             raise ValueError("child_stage_b_candidate_input_role_reserved")
         candidate_ref = persist_stage_b_candidate(ctx.store, candidate, state.inputs)

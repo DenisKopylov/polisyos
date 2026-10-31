@@ -665,6 +665,7 @@ def test_dynamic_stage_b_candidate_uses_real_guarded_private_session(
         RunHierarchicalPolicySearchNode,
     )
     from polisyos.scientist.orchestration.engine.child_output_closure import (
+        ChildOutputClosureRefusalError,
         TypedChildOutputClosureResolver,
     )
     from polisyos.scientist.orchestration.engine.component_identity import (
@@ -804,6 +805,37 @@ def test_dynamic_stage_b_candidate_uses_real_guarded_private_session(
 
             monkeypatch.setattr(StageBPrepareNode, "execute", record_prepared)
 
+            source_closures: list[tuple[ArtifactRef, ...]] = []
+            source_errors: list[BaseException] = []
+            original_revoke = custody.revoke
+
+            def inspect_selected_source_before_revoke(scope, *, reason):
+                from polisyos.scientist.nodes.builtins.planning.stage_b_projection import (
+                    persist_stage_b_candidate,
+                )
+
+                # The compile failure remains a failure. The completed prepare
+                # invocation nevertheless supplies a real persisted source
+                # occurrence to validate before the session is revoked.
+                if not observed:
+                    return original_revoke(scope, reason=reason)
+                try:
+                    selected = observed[-1]
+                    source_closures.append(resolver.resolve(scope.store, selected))
+                    sibling = candidate.model_copy(update={"candidate_id": "unselected_sibling"})
+                    unselected = persist_stage_b_candidate(
+                        scope.store, sibling, parent_state.inputs
+                    )
+                    with pytest.raises(
+                        ChildOutputClosureRefusalError, match="child_output_unselected_candidate"
+                    ):
+                        resolver.resolve(scope.store, unselected)
+                except (Exception, pytest.fail.Exception) as exc:
+                    source_errors.append(exc)
+                return original_revoke(scope, reason=reason)
+
+            monkeypatch.setattr(custody, "revoke", inspect_selected_source_before_revoke)
+
             class LookalikePrepare:
                 @property
                 def spec(self):
@@ -860,6 +892,9 @@ def test_dynamic_stage_b_candidate_uses_real_guarded_private_session(
                 session.evaluate_candidate(candidate.model_dump(mode="json"), parent_state)
             assert parent_state.model_dump(mode="json") == before
             assert len(observed) == 1
+            if source_errors:
+                raise source_errors[0]
+            assert source_closures == [(data,)]
         finally:
             reader.close()
 

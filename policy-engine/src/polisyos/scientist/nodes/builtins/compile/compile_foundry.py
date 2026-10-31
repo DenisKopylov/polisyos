@@ -7,6 +7,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from polisyos.core.artifacts import ArtifactRef
 from polisyos.core.components import (
     Capability,
     ComponentId,
@@ -17,6 +18,7 @@ from polisyos.core.contracts.execution_plan import ExecutionPlan, ExecutionPlanR
 from polisyos.core.contracts.foundry import (
     METHOD_METRIC_BINDING_LIMIT,
     CompileRequest,
+    CompileResult,
     FoundryCompileConfig,
     FoundryValidationFlags,
     MethodMetricBindingRequest,
@@ -136,7 +138,10 @@ class CompileFoundryNode:
             method_metric_bindings=method_metric_bindings,
         )
 
-    def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+    def _prepare_request(
+        self, ctx: ExecutionContext, state: ExperimentState
+    ) -> CompileRequest | NodeOutcome:
+        """Prepare the canonical request without assigning an Engine outcome."""
         if ctx.foundry is None:
             error = NodeError(
                 code=node_errors.ERROR_FOUNDATION_MISSING,
@@ -300,8 +305,13 @@ class CompileFoundryNode:
             return_selected_profile=True,
         )
 
-        result = ctx.foundry.compile(ctx.store, request)
+        return request
 
+    @staticmethod
+    def _apply_result(
+        state: ExperimentState, result: CompileResult
+    ) -> tuple[ExperimentState, list[ArtifactRef]]:
+        """Apply canonical compile outputs before a caller chooses its outcome contract."""
         new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         new_state.reports_index[REPORT_COMPILE_REPORT_REF] = result.compile_report_ref
 
@@ -329,6 +339,15 @@ class CompileFoundryNode:
         if result.exec_plan_ref is not None:
             artifacts.append(result.exec_plan_ref)
         artifacts.extend([item.ref for item in result.derived_refs])
+        return new_state, artifacts
+
+    def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        """Compile using the canonical producer and retain ordinary fail-fast semantics."""
+        prepared = self._prepare_request(ctx, state)
+        if isinstance(prepared, NodeOutcome):
+            return prepared
+        result = ctx.foundry.compile(ctx.store, prepared)
+        new_state, artifacts = self._apply_result(state, result)
 
         if not result.ok:
             error = NodeError(

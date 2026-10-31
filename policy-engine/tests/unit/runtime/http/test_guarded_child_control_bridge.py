@@ -421,6 +421,66 @@ def test_registered_control_guard_preserves_child_owner_admission(
     _run_owned_fixture(tmp_path, monkeypatch, probe)
 
 
+@pytest.mark.parametrize("transition", ["owner", "completed", "trace", "basis", "older_snapshot"])
+def test_managed_read_reconciles_the_actual_admitted_parent_source(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, transition: str
+) -> None:
+    """A prior successful read cannot outlive changed parent source or bytes."""
+    from polisyos.core.artifacts import ArtifactWriteOptions
+    from polisyos.core.artifacts.child_release import ChildReleaseUnavailableError
+    from polisyos.core.run.context import _FinalizeRecoveryError
+    from polisyos.runtime.http.resilience import _require_runtime_filesystem_guard
+
+    def change_parent(root, _control, custody, _reader, _fence, _grant, binding):
+        intent = custody.job_session_intent(binding)
+        custody.bind_job_intent(intent, _fence.begin_session(intent))
+        managed = custody.parent_store(binding, input_refs=())
+        selected = managed.put_json(
+            {"candidate": True},
+            ArtifactWriteOptions(kind="tests.child.source", media_type="application/json"),
+            return_selected_profile=True,
+        )
+        assert managed.get_bytes(selected)
+        if transition == "owner":
+            root.update_manifest(execution_profile="changed-profile")
+        elif transition == "completed":
+            attempt = next(
+                item
+                for item in root.read_runtime_invocation_attempts()
+                if item.basis_ref == binding.parent_basis_ref
+            )
+            root._record_runtime_invocation_completed(
+                attempt_id=attempt.basis.attempt_id,
+                attempt_number=attempt.basis.attempt_number,
+                basis_ref=attempt.basis_ref,
+                status="ok",
+                outcome_state_ref=attempt.basis.input_state_ref,
+                output_refs=[],
+            )
+        elif transition == "trace":
+            assert root.trace_path is not None
+            with root.trace_path.open("ab") as stream:
+                stream.write(b"not-a-trace-record\n")
+        else:
+            backend = _require_runtime_filesystem_guard(root.store).backend
+            ref = binding.parent_basis_ref
+            if transition == "older_snapshot":
+                from polisyos.core.trace.record import TraceRecord
+
+                assert root.trace_path is not None
+                initial = TraceRecord.model_validate_json(
+                    root.trace_path.read_text().splitlines()[0]
+                )
+                ref = initial.refs.outputs[0]
+                assert ref != root._owner_snapshot_ref
+            blob, _manifest = backend._paths(ref.artifact_id)
+            blob.write_bytes(b"corrupted-parent-basis")
+        with pytest.raises((ChildReleaseUnavailableError, _FinalizeRecoveryError)):
+            managed.get_bytes(selected)
+
+    _run_owned_fixture(tmp_path, monkeypatch, "normal", before_session=change_parent)
+
+
 @pytest.mark.parametrize(
     "probe",
     [

@@ -45,16 +45,28 @@ class DefaultFoundryPort(FoundryPort):
     derived attestation/SBOM refs to the returned `ExecuteResult`.
     """
 
+    def __setattr__(self, name: str, value: object) -> None:
+        if name in {"_settings", "_gatekeeper"} and name in self.__dict__:
+            raise AttributeError("Foundry configuration is immutable")
+        object.__setattr__(self, name, value)
+
+    def __delattr__(self, name: str) -> None:
+        if name in {"_settings", "_gatekeeper"}:
+            raise AttributeError("Foundry configuration is immutable")
+        object.__delattr__(self, name)
+
     def __init__(
         self,
         *,
         settings: SecuritySettings | None = None,
         gatekeeper: TEEGatekeeper | None = None,
     ) -> None:
-        self._settings = settings or get_security_settings()
-        self._gatekeeper = gatekeeper
-        if self._gatekeeper is None and self._settings.tee_enabled:
-            self._gatekeeper = TEEGatekeeper.from_settings(settings=self._settings)
+        configured_settings = settings or get_security_settings()
+        configured_gatekeeper = gatekeeper
+        if configured_gatekeeper is None and configured_settings.tee_enabled:
+            configured_gatekeeper = TEEGatekeeper.from_settings(settings=configured_settings)
+        self._settings = configured_settings
+        self._gatekeeper = configured_gatekeeper
 
     def compile(self, store: ArtifactStore, request: CompileRequest) -> CompileResult:
         """Compile a Trinity/registry request through `polisyos.foundry.compile.api.compile`."""

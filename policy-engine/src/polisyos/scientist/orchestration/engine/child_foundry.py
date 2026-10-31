@@ -119,6 +119,27 @@ class _ScopedChildFoundryPort:
         finally:
             self._current.reset(token)
 
+    def _for_child_scope(self, scope: object) -> _ScopedChildFoundryPort:
+        """Narrow an appointed parent factory to one actual Core child scope."""
+        from polisyos.core.run.child_custody import ChildStagingScope
+
+        binding = self._binding
+        if binding.scope is not None or type(scope) is not ChildStagingScope:
+            raise ValueError("child_foundry_scope_factory_not_appointed")
+        binding.grant.check_current()
+        binding.reconcile_owner()
+        # The real registered owner verifies this scope belongs to the same
+        # live parent. Selecting a store does not manufacture a new read grant.
+        binding.fence.admit_producer(scope)
+        return _ScopedChildFoundryPort(
+            delegate=binding.delegate,
+            store=scope.store,
+            grant=binding.grant,
+            fence=binding.fence,
+            reconcile_owner=binding.reconcile_owner,
+            scope=scope,
+        )
+
     def _admit(self, *, operation: str, node_id: str, store: ArtifactStore) -> None:
         if self._current.get() != node_id:
             raise ValueError("child_foundry_operation_not_admitted")

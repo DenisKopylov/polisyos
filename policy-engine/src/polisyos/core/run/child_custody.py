@@ -54,6 +54,7 @@ from .manifest import RunManifest
 if TYPE_CHECKING:
     from collections.abc import Iterator, Mapping, Sequence
     from pathlib import Path
+    from typing import Any
 
     from polisyos.common.borrowed_execution import _BorrowedControlLiveness
 
@@ -64,7 +65,7 @@ if TYPE_CHECKING:
         CoreJsonReadLimits,
     )
     from ..artifacts.child_release import ChildJobOwnerVerifier
-    from ..artifacts.protocol import ArtifactReader
+    from ..artifacts.protocol import ArtifactReader, ArtifactStore
     from ..artifacts.store import (
         ArtifactMemberReceipt,
         ImportPublication,
@@ -72,6 +73,8 @@ if TYPE_CHECKING:
         _VerifiedCASMemberStream,
     )
     from ..canon import CanonSpec
+    from .context import _RunInvocationAttempt
+    from .manifest import RunInvocationCompleted, RunInvocationStarted
 
 
 class ChildComputationBinding(BaseModel):
@@ -632,6 +635,178 @@ class ChildSelectedTransferCapability:
         return self.__source, self.__served, refs, self.__ledger
 
 
+@dataclass(frozen=True)
+class _ChildInvocationSourceSnapshot:
+    """Core-read source of one actual child invocation, without a raw run handle."""
+
+    scope_id: str
+    basis_ref: ArtifactRef
+    basis: RunInvocationStarted
+    outcome_ref: ArtifactRef | None
+    outcome: RunInvocationCompleted | None
+    input_read: CoreJsonArtifactBoundedRead
+
+
+def _parent_proof_fingerprint(value: bytes | BaseModel) -> bytes:
+    """Bind a real read's complete result, including all selected manifest fields."""
+    digest = hashlib.sha256()
+    if type(value) is bytes:
+        digest.update(value)
+    elif isinstance(value, BaseModel):
+        encoder = json.JSONEncoder(sort_keys=True, separators=(",", ":"), allow_nan=False)
+        for chunk in encoder.iterencode(value.model_dump(mode="json")):
+            digest.update(chunk.encode())
+    else:
+        raise ChildReleaseUnavailableError("parent_proof_read_result_unsupported")
+    return digest.digest()
+
+
+class _ParentProofReads:
+    """Record the existing validator's complete reads through its actual store.
+
+    This object never reaches a node and conveys no read grant. Repeated reads
+    inside one validation use detached results; reconciliation rereads every
+    unique operation on the original store before the result may be reused.
+    """
+
+    def __init__(self, store: ArtifactStore) -> None:
+        self.store = store
+        self.complete = True
+        self.reads: dict[bytes, tuple[str, object, str | None, bytes | BaseModel, bytes]] = {}
+
+    def __getattr__(self, name: str) -> Any:
+        value = getattr(self.store, name)
+        if callable(value):
+            raise ChildReleaseUnavailableError("parent_proof_read_operation_unsupported")
+        return value
+
+    def _read(
+        self, operation: str, ref: ArtifactID | ArtifactRef | str, profile: str | None = None
+    ) -> Any:
+        selector = ref.model_dump(mode="json") if isinstance(ref, BaseModel) else ref
+        key = _bounded_snapshot([operation, selector, profile])
+        previous = self.reads.get(key)
+        if previous is not None:
+            return deepcopy(previous[3])
+        value = self._invoke(operation, ref, profile)
+        if len(self.reads) < _JOB_COLLECTION_MAX_ITEMS:
+            self.reads[key] = (
+                operation,
+                deepcopy(ref),
+                profile,
+                deepcopy(value),
+                _parent_proof_fingerprint(value),
+            )
+        else:
+            # Preserve the validator's supported large-history behavior. Such
+            # a proof is not cached; this is a cache bound, not an admission cap.
+            self.complete = False
+        return value
+
+    def _invoke(self, operation: str, ref: object, profile: str | None) -> Any:
+        method = getattr(self.store, operation)
+        if operation == "get_raw_manifest_bytes":
+            return method(ref, manifest_profile_sha256=profile)
+        return method(ref)
+
+    def get_bytes(self, ref: ArtifactID | ArtifactRef | str) -> bytes:
+        return self._read("get_bytes", ref)
+
+    def get_manifest(self, ref: ArtifactID | ArtifactRef | str) -> ArtifactManifest:
+        return self._read("get_manifest", ref)
+
+    def verify(self, ref: ArtifactID | ArtifactRef | str) -> VerificationReport:
+        return self._read("verify", ref)
+
+    def get_raw_manifest_bytes(
+        self, ref: ArtifactID | ArtifactRef | str, *, manifest_profile_sha256: str | None = None
+    ) -> bytes:
+        return self._read("get_raw_manifest_bytes", ref, manifest_profile_sha256)
+
+    def reconcile(self) -> None:
+        """Fresh-bind every recorded premise, including historical CAS members."""
+        for operation, ref, profile, _value, fingerprint in self.reads.values():
+            if _parent_proof_fingerprint(self._invoke(operation, ref, profile)) != fingerprint:
+                raise ChildReleaseUnavailableError("parent_proof_source_changed")
+
+
+@dataclass(frozen=True)
+class _ParentInvocationProof:
+    """A reusable parse of one validator-consumed source set, never authority."""
+
+    reads: _ParentProofReads
+    trace_records: bytes
+    owner_ref: ArtifactRef
+    tail_ref: ArtifactRef | None
+    attempts: tuple[_RunInvocationAttempt, ...]
+
+    def reconcile(self, root: RunContext) -> bool:
+        from ..trace.record import TraceRecord
+        from .context import _read_run_trace_bytes
+
+        if root.store is not self.reads.store or root.trace_path is None:
+            raise ChildReleaseUnavailableError("parent_proof_owner_changed")
+        # Compare the actual records consumed by the canonical validator, not
+        # an independently sampled post-validation trace digest.
+        raw = _read_run_trace_bytes(root.trace_path, failure_code="parent_proof_trace_unreadable")
+        try:
+            records = [
+                TraceRecord.model_validate_json(line).model_dump(mode="json")
+                for line in raw.decode("utf-8").splitlines()
+                if line.strip()
+            ]
+        except (TypeError, UnicodeError, ValueError) as exc:
+            raise ChildReleaseUnavailableError("parent_proof_trace_changed") from exc
+        try:
+            current_records = _bounded_snapshot(records)
+        except ChildReleaseUnavailableError:
+            return False
+        if current_records != self.trace_records:
+            return False
+        self.reads.reconcile()
+        return True
+
+
+def _read_parent_invocation_proof(
+    root: RunContext,
+) -> tuple[list[_RunInvocationAttempt], _ParentInvocationProof | None]:
+    """Reuse the canonical validators and retain their complete actual premises."""
+    from .context import _read_run_owner_records, _run_invocation_attempt_chain
+
+    if root.trace_path is None:
+        raise ChildReleaseUnavailableError("parent_proof_trace_required")
+    reads = _ParentProofReads(root.store)
+    records, snapshot, last_snapshot_index = _read_run_owner_records(
+        reads, root.trace_path, run_id=root.run_manifest.run_id
+    )
+    owner_ref = records[last_snapshot_index].refs.outputs[0]
+    tail_ref = getattr(snapshot, "runtime_invocation_tail_ref", None)
+    attempts = _run_invocation_attempt_chain(
+        reads, tail_ref=tail_ref, run_manifest=snapshot.run_manifest
+    )
+    if owner_ref != root._owner_snapshot_ref or tail_ref != root._runtime_invocation_tail_ref:
+        raise ChildReleaseUnavailableError("parent_proof_owner_changed")
+    if not reads.complete:
+        reads.reconcile()
+        return attempts, None
+    try:
+        trace_records = _bounded_snapshot([record.model_dump(mode="json") for record in records])
+    except ChildReleaseUnavailableError:
+        # An uncacheable large trace still receives the complete normal replay.
+        reads.reconcile()
+        return attempts, None
+    proof = _ParentInvocationProof(
+        reads=reads,
+        trace_records=trace_records,
+        owner_ref=owner_ref.model_copy(deep=True),
+        tail_ref=tail_ref.model_copy(deep=True) if tail_ref is not None else None,
+        attempts=tuple(deepcopy(attempts)),
+    )
+    if not proof.reconcile(root):
+        raise ChildReleaseUnavailableError("parent_proof_trace_changed_during_validation")
+    return attempts, proof
+
+
 class _ManagedStore:
     """Exact-basis facade; deliberately no generic delegation or raw-store escape."""
 
@@ -773,6 +948,77 @@ class _ManagedStore:
             )
             return _selected(read.manifest) == selected
         return _selected(source.get_manifest(selected)) == selected
+
+    def _read_owned_child_invocation_sources(
+        self, component_id: str, *, output_ref: ArtifactRef, limits: CoreJsonReadLimits
+    ) -> tuple[_ChildInvocationSourceSnapshot, ...]:
+        """Read actual scope history for typed closure, without expanding its grant.
+
+        A child view sees its own history. The parent sees only the already
+        admitted handoffs' histories; a sibling or unselected scope cannot
+        contribute a replacement candidate occurrence.
+        """
+        from ..artifacts.canonical_profile import read_core_json_artifact_bounded
+
+        owner = self.__owner
+        owner._require_store_active(self.__scope_id, writing=False)
+        if type(component_id) is not str or not component_id:
+            raise ChildReleaseUnavailableError("child_source_component_required")
+        output_key = _key(output_ref)
+        with owner._lock:
+            written = owner._writes.get(output_key)
+            if written is None:
+                return ()
+            source_scope_id = written[1]
+            if owner._parent is self:
+                handoff = owner._handoffs.get(source_scope_id)
+                if handoff is None or output_key not in {
+                    _key(ref) for ref in handoff.selected_refs
+                }:
+                    return ()
+            else:
+                selected_scope = owner._scopes.get(self.__scope_id)
+                if selected_scope is None or selected_scope.store is not self:
+                    raise ChildReleaseUnavailableError("child_source_scope_not_owned")
+                if source_scope_id != self.__scope_id:
+                    return ()
+            scopes = (owner._scopes[source_scope_id],)
+        snapshots: list[_ChildInvocationSourceSnapshot] = []
+        for scope in scopes:
+            owner.check_active(scope)
+            for attempt in scope.run.read_runtime_invocation_attempts():
+                if (
+                    attempt.basis.component_id != component_id
+                    or attempt.outcome is None
+                    or output_ref not in attempt.outcome.output_refs
+                ):
+                    continue
+                if len(snapshots) >= _JOB_COLLECTION_MAX_ITEMS:
+                    raise ChildReleaseUnavailableError("child_source_history_limit")
+                input_read = read_core_json_artifact_bounded(
+                    scope.store, attempt.basis.input_state_ref, limits=limits
+                )
+                snapshots.append(
+                    _ChildInvocationSourceSnapshot(
+                        scope_id=scope.scope_id,
+                        basis_ref=attempt.basis_ref.model_copy(deep=True),
+                        basis=attempt.basis.model_copy(deep=True),
+                        outcome_ref=(
+                            attempt.outcome_ref.model_copy(deep=True)
+                            if attempt.outcome_ref is not None
+                            else None
+                        ),
+                        outcome=(
+                            attempt.outcome.model_copy(deep=True)
+                            if attempt.outcome is not None
+                            else None
+                        ),
+                        input_read=input_read,
+                    )
+                )
+            owner.check_active(scope)
+        owner._require_store_active(self.__scope_id, writing=False)
+        return tuple(snapshots)
 
     def _issue_guarded_read(self, ref: ArtifactRef) -> ChildOneRefReadCapability:
         """Mint one owner-held exact-ref capability after current scope admission."""
@@ -2428,6 +2674,8 @@ class ChildComputationCustody:
         self._state = "open"
         self._binding: ChildComputationBinding | None = None
         self._admitted_binding_snapshot: bytes | None = None
+        self._parent_source_owner: tuple[bytes, bytes] | None = None
+        self._parent_invocation_proof: _ParentInvocationProof | None = None
         self._scopes: dict[str, ChildStagingScope] = {}
         self._prepared_scopes: dict[str, ChildPreparedScope] = {}
         self._scope_preparations: set[str] = set()
@@ -2496,9 +2744,17 @@ class ChildComputationCustody:
             self._served.root, self._release_id, root_run.run_manifest.run_id
         )
 
-    def _check_root(self, binding: ChildComputationBinding) -> None:
+    def _check_root(
+        self, binding: ChildComputationBinding, *, replay_parent_history: bool = True
+    ) -> None:
         self._require_guarded_owner_identity()
         self._root._require_active_lease_owner()
+        source_owner = (
+            _model_snapshot(self._root._owner_snapshot_ref),
+            _model_snapshot(self._root._runtime_invocation_tail_ref),
+        )
+        if self._parent_source_owner is not None and source_owner != self._parent_source_owner:
+            raise ChildReleaseUnavailableError("parent_proof_owner_changed")
         self._root._validate_run_owner_binding()
         m = self._root.run_manifest
         if self._root._closed or self._root._suspended or m.status != "running":
@@ -2512,11 +2768,12 @@ class ChildComputationCustody:
             raise ChildReleaseUnavailableError("binding_root_identity_mismatch")
         if binding.deadline <= datetime.now(UTC):
             raise ChildReleaseUnavailableError("inherited_deadline_expired")
-        attempts = [
-            item
-            for item in self._root.read_runtime_invocation_attempts()
-            if item.basis_ref == binding.parent_basis_ref
-        ]
+        proof = self._parent_invocation_proof
+        if replay_parent_history or proof is None or not proof.reconcile(self._root):
+            source_attempts, proof = _read_parent_invocation_proof(self._root)
+        else:
+            source_attempts = list(proof.attempts)
+        attempts = [item for item in source_attempts if item.basis_ref == binding.parent_basis_ref]
         if (
             len(attempts) != 1
             or attempts[0].outcome is not None
@@ -2525,6 +2782,15 @@ class ChildComputationCustody:
             raise ChildReleaseUnavailableError("parent_attempt_not_current")
         if self._fence is not None:
             self._fence.check_active()
+        self._require_guarded_owner_identity()
+        self._root._require_active_lease_owner()
+        if source_owner != (
+            _model_snapshot(self._root._owner_snapshot_ref),
+            _model_snapshot(self._root._runtime_invocation_tail_ref),
+        ):
+            raise ChildReleaseUnavailableError("parent_proof_owner_changed_during_validation")
+        self._parent_source_owner = source_owner
+        self._parent_invocation_proof = proof
 
     @contextmanager
     def _local_consumption(self) -> Iterator[None]:
@@ -3043,7 +3309,7 @@ class ChildComputationCustody:
             raise ChildReleaseUnavailableError("session_writes_closed")
         if not writing and self._state not in {"open", "preparing", "released"}:
             raise ChildReleaseUnavailableError("session_reads_closed")
-        self._check_root(self._bindings[scope_id])
+        self._check_root(self._bindings[scope_id], replay_parent_history=False)
 
     def _capture_write(self, scope_id: str, ref: ArtifactRef) -> None:
         self._require_store_active(scope_id, writing=True)

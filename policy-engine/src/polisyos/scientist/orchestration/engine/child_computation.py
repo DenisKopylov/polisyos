@@ -517,6 +517,9 @@ class _ApprovedChildPorts:
     lex: Any = None
     eval_safety_execution_context: Any = None
     eval_safety_verifier: Any = None
+    prepared_skg_read: Any = None
+    method_metric_selection_owner: Any = None
+    completed_method_hte_selection_owner: Any = None
 
 
 _STAGE_B_SESSION_TOKEN = object()
@@ -592,7 +595,6 @@ class _ManagedChildRunner:
             value is not None
             for value in (
                 approved_ports.fabric,
-                approved_ports.foundry,
                 approved_ports.scholar,
                 approved_ports.lex,
                 approved_ports.eval_safety_execution_context,
@@ -600,6 +602,26 @@ class _ManagedChildRunner:
             )
         ):
             raise ValueError("child_effect_port_owner_not_established")
+        for name in (
+            "prepared_skg_read",
+            "method_metric_selection_owner",
+            "completed_method_hte_selection_owner",
+        ):
+            if getattr(approved_ports, name) is not getattr(parent_context, name):
+                raise ValueError("child_read_port_parent_binding_mismatch")
+        if approved_ports.foundry is not None:
+            from polisyos.scientist.orchestration.engine.child_foundry import (
+                _ScopedChildFoundryPort,
+            )
+
+            port = approved_ports.foundry
+            if type(port) is not _ScopedChildFoundryPort or (
+                port._binding.store is not parent_context.store
+                or port._binding.grant is not parent_seal.grant
+                or port._binding.fence is not custody._fence
+                or port._binding.scope is not None
+            ):
+                raise ValueError("child_effect_port_owner_not_established")
         parent_seal.grant.check_current()
         if (
             monotonic_deadline <= time.monotonic()
@@ -824,11 +846,20 @@ class _ManagedChildRunner:
                 depth=1,
                 logger=logging.getLogger(f"{self._parent_context.logger.name}.child"),
                 fabric=self._ports.fabric,
-                foundry=self._ports.foundry,
+                foundry=(
+                    self._ports.foundry._for_child_scope(scope)
+                    if self._ports.foundry is not None
+                    else None
+                ),
                 scholar=self._ports.scholar,
                 lex=self._ports.lex,
                 eval_safety_execution_context=self._ports.eval_safety_execution_context,
                 eval_safety_verifier=self._ports.eval_safety_verifier,
+                prepared_skg_read=self._ports.prepared_skg_read,
+                method_metric_selection_owner=self._ports.method_metric_selection_owner,
+                completed_method_hte_selection_owner=(
+                    self._ports.completed_method_hte_selection_owner
+                ),
             )
             from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
 
@@ -841,8 +872,11 @@ class _ManagedChildRunner:
             if result.report.status != "ok":
                 raise ValueError("child_workflow_not_successful")
             projection = result.state.artifacts_index.get(self._projection_key)
-            if projection is None or projection.manifest_profile_sha256 is None:
+            if projection is None:
                 raise ValueError("child_selected_projection_missing")
+            from polisyos.core.run.child_custody import _snapshot_selected_ref
+
+            projection = _snapshot_selected_ref(projection)
             self._custody.check_active(scope)
             handoff = self._custody.admit_handoff(scope, projection)
             self._handoffs.append(handoff)

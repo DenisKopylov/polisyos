@@ -21283,8 +21283,8 @@
         "polisyos.calibration"
       ],
       "major_subsystem": false,
-      "export_count": 17,
-      "known_export_count": 17,
+      "export_count": 19,
+      "known_export_count": 19,
       "exports": [
         "REFERENCE_PROFILES",
         "CalibrationPoint",
@@ -21299,7 +21299,9 @@
         "evaluate_continuous",
         "evaluate_multiclass",
         "fit_calibrator",
+        "load_continuous_evaluation",
         "load_empirical_calibration_evidence",
+        "persist_continuous_evaluation",
         "persist_empirical_calibration_evidence",
         "produce_empirical_calibration_evidence",
         "to_validation_report"
@@ -21313,8 +21315,8 @@
         {
           "module": "polisyos.calibration",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 17,
-          "known_export_count": 17,
+          "export_count": 19,
+          "known_export_count": 19,
           "exports": [
             "REFERENCE_PROFILES",
             "CalibrationPoint",
@@ -21329,7 +21331,9 @@
             "evaluate_continuous",
             "evaluate_multiclass",
             "fit_calibrator",
+            "load_continuous_evaluation",
             "load_empirical_calibration_evidence",
+            "persist_continuous_evaluation",
             "persist_empirical_calibration_evidence",
             "produce_empirical_calibration_evidence",
             "to_validation_report"
@@ -21358,8 +21362,8 @@
                 "path": "src/polisyos/calibration/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 2714,
-                "sha256": "c954e24883a1ae9b355b26c2513bbd2a71c41a55946e5b2595e337dfe5b9f786"
+                "bytes": 2861,
+                "sha256": "7bdaff4a0a987a2cabf78cd185243521c4341af5d3a04441b7c1496ad13bd95a"
               },
               {
                 "path": "src/polisyos/calibration",

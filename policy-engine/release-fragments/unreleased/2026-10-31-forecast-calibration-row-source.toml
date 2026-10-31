@@ -1,0 +1,14 @@
+id = "2026-10-31-forecast-calibration-row-source"
+title = "Reconcile backtest rows with selected forecast and holdout inputs"
+type = "fixed"
+component = "calibration"
+owner = "calibration"
+summary = "Reopen the selected observed series, training split and forecast bundle before binding every ordered backtest row; distinguish missing source relations from same-count row/value mismatches through persisted evidence and fresh S10 consumption."
+evidence = ["tests/unit/calibration/test_forecast_bridge.py", "tests/unit/remediation/test_frc_02_empirical_bridge.py"]
+compatibility = "The selected owner route supports profileless scalar series without inventing unit or period identity. Profile/member references add their existing candidate join. Historical generic reports and legacy evidence schemas keep their existing limited interpretation; evidence that cannot reproduce its current selected row relation is refused."
+change_class = "Predictive row-source reconciliation on the existing calibration bridge."
+surface_classification = "public_experimental: polisyos.calibration"
+api = "Add backtest_row_source_not_established and backtest_row_source_mismatch diagnostics; no DTO or schema change."
+limitations = "Stored numerical row agreement does not establish source time/currentness, issuer, population completeness, causal validity or S10 eligibility. The broader backtest_source_not_established limitation remains; B198 and independent G acceptance remain unchanged."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true

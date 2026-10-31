@@ -103,7 +103,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | `polisyos.scholar` | `public_experimental` | `lazy_facade` | 30 | `team-polisyos` | `src/polisyos/scholar/README.md` |
 | `polisyos.data_forge` | `public_experimental` | `lazy_facade` | 49 | `team-data-forge` | `src/polisyos/data_forge/README.md` |
 | `polisyos.berl` | `public_experimental` | `eager_exports` | 16 | `team-scientist` | `src/polisyos/berl/README.md` |
-| `polisyos.calibration` | `public_experimental` | `lazy_facade` | 17 | `team-scientist` | `src/polisyos/calibration/README.md` |
+| `polisyos.calibration` | `public_experimental` | `lazy_facade` | 19 | `team-scientist` | `src/polisyos/calibration/README.md` |
 | `polisyos.ddm` | `internal` | `lazy_facade` | 17 | `team-scientist` | `src/polisyos/ddm/README.md` |
 | `polisyos.foundry.agent_sim.world` | `public_experimental` | `eager_exports` | 23 | `team-foundry` | `src/polisyos/foundry/agent_sim/world/README.md` |
 
@@ -10166,7 +10166,7 @@ validate_persisted_explanation_bundle_payload
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.calibration` | `src/polisyos/calibration/__init__.py` | `lazy_facade` | 17 |
+| `polisyos.calibration` | `src/polisyos/calibration/__init__.py` | `lazy_facade` | 19 |
 
 #### `polisyos.calibration`
 
@@ -10174,7 +10174,7 @@ validate_persisted_explanation_bundle_payload
 - Facade: `lazy_facade`
 - Summary: Calibration diagnostics public entrypoints.
 
-<details><summary>Entrypoint exports (17)</summary>
+<details><summary>Entrypoint exports (19)</summary>
 
 ```text
 REFERENCE_PROFILES
@@ -10190,7 +10190,9 @@ evaluate_binary
 evaluate_continuous
 evaluate_multiclass
 fit_calibrator
+load_continuous_evaluation
 load_empirical_calibration_evidence
+persist_continuous_evaluation
 persist_empirical_calibration_evidence
 produce_empirical_calibration_evidence
 to_validation_report
@@ -10198,7 +10200,7 @@ to_validation_report
 
 </details>
 
-<details><summary>Supported exports (17)</summary>
+<details><summary>Supported exports (19)</summary>
 
 ```text
 REFERENCE_PROFILES
@@ -10214,7 +10216,9 @@ evaluate_binary
 evaluate_continuous
 evaluate_multiclass
 fit_calibrator
+load_continuous_evaluation
 load_empirical_calibration_evidence
+persist_continuous_evaluation
 persist_empirical_calibration_evidence
 produce_empirical_calibration_evidence
 to_validation_report

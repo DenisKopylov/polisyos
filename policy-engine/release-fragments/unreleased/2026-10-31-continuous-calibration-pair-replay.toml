@@ -1,0 +1,14 @@
+id = "2026-10-31-continuous-calibration-pair-replay"
+title = "Retain continuous calibration pairs and reproduce fresh reads"
+type = "added"
+component = "calibration"
+owner = "calibration"
+summary = "Persist effective ordered interval/outcome pairs and the actual evaluator report under exact selected CAS profiles; bounded fresh reads reproduce the complete report before consumption. Foundry interval summaries may explicitly request this persisted path."
+evidence = ["tests/unit/calibration/diagnostics/test_continuous_persistence.py", "tests/unit/foundry/methods/catalog/econometrics/test_advanced.py", "tests/unit/ddm/integration/test_model_registry.py"]
+compatibility = "Existing evaluate_continuous and no-store Foundry summaries retain their behavior. Replay artifacts use distinct schema 1.0 kinds. Seeded bootstrap persistence requires an explicit nonnegative integer seed."
+change_class = "Additive descriptive calibration persistence and composed DDM registry witness."
+surface_classification = "public_experimental: polisyos.calibration"
+api = "Add persist_continuous_evaluation and load_continuous_evaluation to polisyos.calibration; no HTTP or generated DTO change."
+limitations = "Numerical replay does not establish measurement provenance or authority. Continuous diagnostics remain unverified and governance-blocked; finite DDM replay does not establish production feed authority. B198 and independent G acceptance remain unchanged."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true

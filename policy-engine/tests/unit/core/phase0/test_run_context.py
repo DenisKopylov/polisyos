@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING, Any
 
 import pytest
 
+from polisyos.core.artifacts import ArtifactOwnershipError
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
     ArtifactTenantContextInfo,
@@ -32,7 +33,6 @@ from polisyos.core.security.access_scope import AccessScope
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.core.trace import RunTerminality, TraceRecord
 from polisyos.core.trace.record import TraceRefs
-from polisyos.runtime.http.services.adapters.core_run import load_core_run
 
 
 def _fork_run_action(action: Any, run: RunContext) -> dict[str, Any]:
@@ -269,6 +269,8 @@ def _recover_in_process(
     operation_release: Any | None = None,
 ) -> None:
     """Call the real reader/recovery path from a distinct OS process."""
+    from polisyos.runtime.http.services.adapters.core_run import load_core_run
+
     try:
         _record_lease_event(
             event_queue,
@@ -390,6 +392,8 @@ def _assert_core_and_audit_reopen(
     run_id: str,
     output_path: Path,
 ) -> ArtifactRef:
+    from polisyos.runtime.http.services.adapters.core_run import load_core_run
+
     core = load_core_run(store=store, run_dir=run_dir)
     assert core is not None
     assert core.run_id == run_id
@@ -1020,6 +1024,8 @@ def test_run_context_finalize_recovery_repairs_pending_manifest(
     env_info,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    from polisyos.runtime.http.services.adapters.core_run import load_core_run
+
     bundle_ref = _bootstrap_registry_bundle(store)
     run_dir = tmp_path / "runs" / "R_recover"
 
@@ -1084,6 +1090,8 @@ def _run_context_with_output(
     run_id: str,
     producer,
     env_info,
+    tenant_id: str | None = None,
+    cell_id: str | None = None,
 ) -> RunContext:
     bundle_ref = _bootstrap_registry_bundle(store)
     ctx = RunContext.start(
@@ -1093,6 +1101,8 @@ def _run_context_with_output(
         env=env_info,
         run_dir=tmp_path / "runs" / run_id,
         run_id=run_id,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
     )
     ctx.add_output(
         store.put_json(
@@ -1112,6 +1122,39 @@ def _terminal_records(run_dir: Path) -> list[TraceRecord]:
         if record.phase == "core" and record.event == "RUN_FINALIZED":
             records.append(record)
     return records
+
+
+def _leave_pending_finalize_journal(
+    ctx: RunContext,
+    store: FileSystemCAS,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Leave a valid journal after a real finalize attempt stops before its CAS write."""
+    original_put_json = store.put_json
+
+    def _fail_run_manifest_write(
+        obj,
+        opts=None,
+        canon_spec=None,
+        *,
+        return_selected_profile=False,
+    ):
+        if getattr(opts, "kind", None) == "core.run_manifest":
+            raise OSError("simulated finalize crash before manifest write")
+        return original_put_json(
+            obj,
+            opts,
+            canon_spec=canon_spec,
+            return_selected_profile=return_selected_profile,
+        )
+
+    monkeypatch.setattr(store, "put_json", _fail_run_manifest_write)
+    try:
+        with pytest.raises(OSError, match="before manifest write"):
+            ctx.finalize(status="ok")
+    finally:
+        monkeypatch.setattr(store, "put_json", original_put_json)
+    assert (ctx.trace_path.parent / ".finalize-journal.json").exists()
 
 
 def _leave_current_terminal_journal(
@@ -1193,6 +1236,8 @@ def test_recovery_preserves_legacy_profileless_terminal_fact_without_replay(
     env_info,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    from polisyos.runtime.http.services.adapters.core_run import load_core_run
+
     ctx = _run_context_with_output(
         store, tmp_path, run_id="R_legacy_terminal", producer=producer, env_info=env_info
     )
@@ -1221,6 +1266,8 @@ def test_completed_legacy_read_does_not_create_finalize_lock(
     producer,
     env_info,
 ) -> None:
+    from polisyos.runtime.http.services.adapters.core_run import load_core_run
+
     ctx = _run_context_with_output(
         store,
         tmp_path,
@@ -1249,6 +1296,8 @@ def test_recovery_reuses_current_full_terminal_ref_after_clear_crash(
     env_info,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    from polisyos.runtime.http.services.adapters.core_run import load_core_run
+
     ctx = _run_context_with_output(
         store, tmp_path, run_id="R_current_terminal", producer=producer, env_info=env_info
     )
@@ -1257,7 +1306,11 @@ def test_recovery_reuses_current_full_terminal_ref_after_clear_crash(
     assert selected_ref.manifest_profile_sha256 is not None
     writes = _count_run_manifest_writes(store, monkeypatch)
 
-    recovered = run_context.recover_pending_run_finalize(store, ctx.trace_path.parent)
+    recovered = run_context.recover_pending_run_finalize(
+        store,
+        ctx.trace_path.parent,
+        expected_owner=None,
+    )
 
     assert recovered == selected_ref
     assert writes == []
@@ -1268,6 +1321,179 @@ def test_recovery_reuses_current_full_terminal_ref_after_clear_crash(
     assert loaded.manifest_ref.manifest_profile_sha256 == selected_ref.manifest_profile_sha256
 
 
+def test_recovery_completes_exact_matching_expected_owner(
+    store: FileSystemCAS,
+    tmp_path: Path,
+    producer,
+    env_info,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    ctx = _run_context_with_output(
+        store, tmp_path, run_id="R_expected_owner_match", producer=producer, env_info=env_info
+    )
+    _leave_pending_finalize_journal(ctx, store, monkeypatch)
+    expected_owner = (
+        ctx.run_manifest.run_id,
+        ctx.run_manifest.tenant_id,
+        ctx.run_manifest.cell_id,
+    )
+    writes = _count_run_manifest_writes(store, monkeypatch)
+
+    recovered = run_context.recover_pending_run_finalize(
+        store,
+        ctx.trace_path.parent,
+        expected_owner=expected_owner,
+    )
+
+    assert recovered is not None
+    assert len(writes) == 1
+    assert writes[0].run_id == expected_owner[0]
+    terminal = _terminal_records(ctx.trace_path.parent)
+    assert len(terminal) == 1
+    assert (terminal[0].run_id, terminal[0].tenant_id, terminal[0].cell_id) == expected_owner
+    assert terminal[0].refs.outputs == [recovered]
+    assert not (ctx.trace_path.parent / ".finalize-journal.json").exists()
+
+
+def test_recovery_refuses_owner_swap_before_journal_or_mutation(
+    store: FileSystemCAS,
+    tmp_path: Path,
+    producer,
+    env_info,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    admitted = _run_context_with_output(
+        store, tmp_path, run_id="R_expected_owner_scope", producer=producer, env_info=env_info
+    )
+    _leave_pending_finalize_journal(admitted, store, monkeypatch)
+    admitted_dir = admitted.trace_path.parent
+    admitted_trace = admitted_dir / "trace.jsonl"
+    admitted_journal = admitted_dir / ".finalize-journal.json"
+    admitted_trace_bytes = admitted_trace.read_bytes()
+    admitted_journal_bytes = admitted_journal.read_bytes()
+    expected_owner = (
+        admitted.run_manifest.run_id,
+        admitted.run_manifest.tenant_id,
+        admitted.run_manifest.cell_id,
+    )
+    assert run_context._trace_run_started_identity(admitted_trace) == run_context._RunOwnerIdentity(
+        run_id=expected_owner[0],
+        tenant_id=expected_owner[1],
+        cell_id=expected_owner[2],
+    )
+
+    foreign_tenant = "tenant_expected_owner_B"
+    foreign_cell = "cell_expected_owner_B"
+    with tenant_scope(None, tenant_id=foreign_tenant, cell_id=foreign_cell):
+        foreign = _run_context_with_output(
+            store,
+            tmp_path / "foreign",
+            run_id=expected_owner[0],
+            producer=producer,
+            env_info=env_info,
+            tenant_id=foreign_tenant,
+            cell_id=foreign_cell,
+        )
+        _leave_pending_finalize_journal(foreign, store, monkeypatch)
+    foreign_dir = foreign.trace_path.parent
+    foreign_trace_bytes = foreign.trace_path.read_bytes()
+    foreign_journal_bytes = (foreign_dir / ".finalize-journal.json").read_bytes()
+    foreign_trace_owner = run_context._trace_run_started_identity(foreign.trace_path)
+    foreign_manifest = run_context._load_finalize_journal(foreign_dir)
+    assert foreign_trace_owner is not None
+    assert foreign_manifest is not None
+    assert foreign_trace_owner == run_context._RunOwnerIdentity(
+        run_id=expected_owner[0],
+        tenant_id=foreign_tenant,
+        cell_id=foreign_cell,
+    )
+    assert (
+        run_context._RunOwnerIdentity(
+            run_id=foreign_manifest.run_id,
+            tenant_id=foreign_manifest.tenant_id,
+            cell_id=foreign_manifest.cell_id,
+        )
+        == foreign_trace_owner
+    )
+
+    admitted_trace.write_bytes(foreign_trace_bytes)
+    admitted_journal.write_bytes(foreign_journal_bytes)
+    swapped_trace_bytes = admitted_trace.read_bytes()
+    swapped_journal_bytes = admitted_journal.read_bytes()
+    journal_loads: list[Path] = []
+    trace_appends: list[Path] = []
+    journal_clears: list[Path] = []
+    original_load = run_context._load_finalize_journal
+    original_append = run_context._append_run_finalized_event
+    original_clear = run_context._clear_finalize_journal
+    original_put_bytes = store.put_bytes
+
+    def _observe_load(run_dir: Path):
+        journal_loads.append(run_dir)
+        return original_load(run_dir)
+
+    def _observe_append(*, trace_path: Path, **kwargs) -> None:
+        trace_appends.append(trace_path)
+        original_append(trace_path=trace_path, **kwargs)
+
+    def _observe_clear(run_dir: Path) -> None:
+        journal_clears.append(run_dir)
+        original_clear(run_dir)
+
+    cas_writes: list[str] = []
+
+    def _observe_put_bytes(*args, **kwargs):
+        cas_writes.append("put_bytes")
+        return original_put_bytes(*args, **kwargs)
+
+    monkeypatch.setattr(run_context, "_load_finalize_journal", _observe_load)
+    monkeypatch.setattr(run_context, "_append_run_finalized_event", _observe_append)
+    monkeypatch.setattr(run_context, "_clear_finalize_journal", _observe_clear)
+    monkeypatch.setattr(store, "put_bytes", _observe_put_bytes)
+    writes = _count_run_manifest_writes(store, monkeypatch)
+
+    with pytest.raises(
+        ArtifactOwnershipError,
+        match="run_finalize_expected_owner_mismatch",
+    ):
+        run_context.recover_pending_run_finalize(
+            store,
+            admitted_dir,
+            expected_owner=expected_owner,
+        )
+
+    assert journal_loads == []
+    assert writes == []
+    assert cas_writes == []
+    assert trace_appends == []
+    assert journal_clears == []
+    assert admitted_trace.read_bytes() == swapped_trace_bytes
+    assert admitted_journal.read_bytes() == swapped_journal_bytes
+    assert _terminal_records(admitted_dir) == []
+    assert admitted_trace_bytes != swapped_trace_bytes
+    assert admitted_journal_bytes != swapped_journal_bytes
+
+
+def test_recovery_validates_expected_owner_shape_before_filesystem_io(
+    store: FileSystemCAS,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    missing_run_dir = tmp_path / "not-created"
+
+    def _unexpected_path_io(_path, *args, **kwargs):
+        raise AssertionError("malformed expected_owner reached filesystem access")
+
+    monkeypatch.setattr(run_context.Path, "exists", _unexpected_path_io)
+
+    with pytest.raises(TypeError, match="three-item tuple"):
+        run_context.recover_pending_run_finalize(
+            store,
+            missing_run_dir,
+            expected_owner=("R_malformed", None),  # type: ignore[arg-type]
+        )
+
+
 def test_recovery_writes_once_after_cas_before_event_crash(
     store: FileSystemCAS,
     tmp_path: Path,
@@ -1275,6 +1501,8 @@ def test_recovery_writes_once_after_cas_before_event_crash(
     env_info,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    from polisyos.runtime.http.services.adapters.core_run import load_core_run
+
     ctx = _run_context_with_output(
         store, tmp_path, run_id="R_after_cas", producer=producer, env_info=env_info
     )
@@ -1432,6 +1660,8 @@ def test_core_loader_refuses_terminal_manifest_bytes_that_disagree_with_journal(
     env_info,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    from polisyos.runtime.http.services.adapters.core_run import load_core_run
+
     ctx = _run_context_with_output(
         store, tmp_path, run_id="R_payload_conflict", producer=producer, env_info=env_info
     )
@@ -1815,6 +2045,8 @@ def test_incomplete_resume_restores_versioned_manifest_and_finishes_once(
     producer,
     env_info,
 ) -> None:
+    from polisyos.runtime.http.services.adapters.core_run import load_core_run
+
     bundle_ref = _bootstrap_registry_bundle(store, selected_profile=True)
     run_id = "R_resume_owner_snapshot_chain"
     run_dir = tmp_path / "runs" / run_id

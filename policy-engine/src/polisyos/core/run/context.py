@@ -19,7 +19,7 @@ from typing import TYPE_CHECKING, Protocol, cast
 from polisyos.common.logger import get_logger
 from polisyos.common.serialization import fast_json_dumps
 
-from ..artifacts import ManifestLifecycle, artifact_ref_identity_key
+from ..artifacts import ArtifactOwnershipError, ManifestLifecycle, artifact_ref_identity_key
 from ..artifacts._atomic_write import AtomicFileWriter
 from ..artifacts.manifest import (
     ArtifactManifest,
@@ -246,6 +246,22 @@ class _RunOwnerIdentity:
     run_id: str
     tenant_id: str | None
     cell_id: str | None
+
+
+def _expected_run_owner_identity(
+    expected_owner: tuple[str, str | None, str | None] | None,
+) -> _RunOwnerIdentity | None:
+    """Validate and project the optional caller-selected run owner."""
+    if expected_owner is None:
+        return None
+    if not isinstance(expected_owner, tuple) or len(expected_owner) != 3:
+        raise TypeError("expected_owner must be a three-item tuple")
+    run_id, tenant_id, cell_id = expected_owner
+    if not isinstance(run_id, str) or any(
+        value is not None and not isinstance(value, str) for value in (tenant_id, cell_id)
+    ):
+        raise TypeError("expected_owner must contain a run ID and optional string scopes")
+    return _RunOwnerIdentity(run_id=run_id, tenant_id=tenant_id, cell_id=cell_id)
 
 
 @dataclass(frozen=True)
@@ -1387,13 +1403,31 @@ def _recover_pending_run_finalize_locked(
     return run_ref
 
 
-def recover_pending_run_finalize(store: ArtifactStore, run_dir: Path) -> ArtifactRef | None:
-    """Resume a journal under the run-scoped cross-process finalization lease."""
+def recover_pending_run_finalize(
+    store: ArtifactStore,
+    run_dir: Path,
+    *,
+    expected_owner: tuple[str, str | None, str | None] | None = None,
+) -> ArtifactRef | None:
+    """Resume a journal under the run-scoped cross-process finalization lease.
+
+    When supplied, ``expected_owner`` must exactly match the durable RUN_STARTED
+    identity before recovery reads or mutates the pending journal.
+    When omitted or ``None``, recovery applies no additional caller constraint.
+    """
+    owner_identity = _expected_run_owner_identity(expected_owner)
     journal_path = _finalize_journal_path(run_dir)
     lock_path = run_dir / _FINALIZE_LOCK_NAME
     if not journal_path.exists() and not lock_path.exists():
         return None
     with _run_finalize_lease(run_dir):
+        if owner_identity is not None:
+            try:
+                trace_owner = _trace_run_started_identity(run_dir / "trace.jsonl")
+            except (OSError, UnicodeError) as exc:
+                raise ArtifactOwnershipError("run_finalize_expected_owner_mismatch") from exc
+            if trace_owner != owner_identity:
+                raise ArtifactOwnershipError("run_finalize_expected_owner_mismatch")
         return _recover_pending_run_finalize_locked(store, run_dir)
 
 

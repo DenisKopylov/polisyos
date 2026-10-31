@@ -16,6 +16,14 @@ ownership facts, not implementation authenticity, domain currentness, deployment
 authority or a replacement for Runtime authorization. Legacy terminal history
 without an engine finalization reference cannot establish that transition.
 
+`context.recover_pending_run_finalize(..., expected_owner=(run_id, tenant_id,
+cell_id))` rechecks the exact trace owner under the finalization lease before
+loading or mutating a pending journal. Explicit absent tenant/cell values are
+not wildcards. A caller whose earlier authorized metadata no longer matches
+receives `run_finalize_expected_owner_mismatch` without journal/CAS/trace
+mutation. Omitted or `None` expectations retain the legacy recovery behavior;
+Runtime must supply its independently admitted owner to use this guard.
+
 `WorkerLifecycleCapability.for_parent` binds only the exact active Core run
 whose process owns the current lease. It issues a typed dispatch binding from
 the current run and owner snapshot. A worker reconstructs its selected owner

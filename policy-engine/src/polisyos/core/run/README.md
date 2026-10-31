@@ -5,6 +5,17 @@ staging child-worker events and admitting a parent-bound receipt. The
 `polisyos.core.run` package and `RunContext` remain internal implementation
 surfaces.
 
+`readonly.open_terminal_run_source` opens an exact finalized run selected by an
+already authorized caller. Expected run, tenant, cell and control-job coordinates
+are equalities, including explicit absence. Each read replays the actual Core
+start/snapshot/event chain, selected terminal manifest and its persisted trace
+prefix. It returns detached terminal metadata, exact output identities, invocation
+history or the terminal workflow-finalization reference. It never resumes a run,
+acquires a writer lease or exposes lifecycle methods. These are internal Core
+ownership facts, not implementation authenticity, domain currentness, deployment
+authority or a replacement for Runtime authorization. Legacy terminal history
+without an engine finalization reference cannot establish that transition.
+
 `WorkerLifecycleCapability.for_parent` binds only the exact active Core run
 whose process owns the current lease. It issues a typed dispatch binding from
 the current run and owner snapshot. A worker reconstructs its selected owner

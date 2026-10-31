@@ -2,8 +2,8 @@
 
 The leaderboard combines C5a verdicts, C5b backtest/stress summaries,
 specification-curve robustness, transportability, interference fit, and
-strategic-response plausibility into a promotion-oriented score. Missing
-evidence channels become explicit gap flags instead of silently inflating rank.
+strategic-response plausibility into a candidate diagnostic. Missing evidence
+channels and unestablished backtest source binding remain explicit gaps.
 """
 
 from __future__ import annotations
@@ -19,7 +19,11 @@ from polisyos.foundry.methods.catalog.sensitivity.specification import Specifica
 from polisyos.ir.analytics.interference import InterferenceCertificate, NetworkInterferenceReport
 from polisyos.ir.analytics.transportability import TransportabilityResult, TransportabilityStatus
 from polisyos.ir.observation.contract_compilers import SpecificationCurveInput
-from polisyos.scientist.governance.backtest_matrix import BacktestKind, BacktestMatrixResult
+from polisyos.scientist.governance.backtest_matrix import (
+    BacktestKind,
+    BacktestMatrixResult,
+    _admit_matrix_for_leaderboard,
+)
 from polisyos.scientist.governance.calibration import (
     CalibrationAdversarialResult,
     CalibrationGovernanceReport,
@@ -44,12 +48,10 @@ _REQUIRED_NUMERIC_SLOTS = {
 
 
 class CalibrationLeaderboardMetrics(BaseModel):
-    """Normalized promotion metrics used to rank calibration candidates.
+    """Candidate scores and gaps for a calibration leaderboard entry.
 
-    Required evidence channels are captured as nullable scores so missing inputs
-    can be surfaced through `gap_flags`. `eligible_for_promotion` is true only
-    when governance approves, required adversarial suites pass, and no required
-    score is missing.
+    Forecast and holdout source reconciliation is not established, so the
+    leaderboard does not currently grant promotion eligibility.
     """
 
     model_config = ConfigDict(extra="forbid")
@@ -84,14 +86,19 @@ class CalibrationLeaderboardEntry(BaseModel):
 
 
 class CalibrationLeaderboard:
-    """Build and rank calibration-promotion leaderboard entries.
+    """Build and rank limited calibration leaderboard entries.
 
     Candidate generation and governance happen upstream; this class only
-    synthesizes evaluator feedback into one comparable entry per run and orders
-    entries by eligibility, composite score, and deterministic tie-breakers.
+    synthesizes evaluator feedback into a diagnostic entry. Ranking requires
+    the selected Matrix result to retain an entry's diagnostic composite.
+
+    Args:
+        store: CAS used to resolve selected Matrix reports. Without it, Matrix
+            scores cannot be admitted.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, *, store: Any | None = None) -> None:
+        self._store = store
         self._specification_curve_estimator = SpecificationCurveEstimator()
 
     def build_entry(
@@ -113,10 +120,17 @@ class CalibrationLeaderboard:
     ) -> CalibrationLeaderboardEntry:
         """Assemble a leaderboard entry from governance and validation evidence."""
 
+        matrix_admitted, matrix_reasons = (
+            _admit_matrix_for_leaderboard(self._store, backtest_matrix)
+            if backtest_matrix is not None
+            else (False, ["backtest_matrix_missing"])
+        )
         metrics = CalibrationLeaderboardMetrics(
             calibration_fit_score=_clamp(calibration_fit_score),
             backtest_matrix_score=(
-                None if backtest_matrix is None else _clamp(backtest_matrix.composite_score)
+                _clamp(backtest_matrix.composite_score)
+                if backtest_matrix is not None and matrix_admitted
+                else None
             ),
             stress_robustness_score=(
                 None if stress_scenarios is None else _clamp(stress_scenarios.robustness_score)
@@ -140,8 +154,13 @@ class CalibrationLeaderboard:
             adversarial_passed=_adversarial_passed(governance_report.adversarial_results),
         )
         gap_flags = _collect_gap_flags(metrics)
+        if backtest_matrix is not None:
+            candidates = [*(backtest_matrix.gap_flags if matrix_admitted else []), *matrix_reasons]
+            for reason in candidates:
+                if reason not in gap_flags:
+                    gap_flags.append(reason)
         metrics.gap_flags = gap_flags
-        metrics.composite_score = _compute_composite_score(metrics)
+        metrics.composite_score = _compute_composite_score(metrics) if matrix_admitted else None
         metrics.eligible_for_promotion = (
             metrics.governance_verdict == "approve"
             and metrics.adversarial_passed is True
@@ -152,20 +171,44 @@ class CalibrationLeaderboard:
             run_id=run_id,
             candidate_ref=candidate_ref,
             metrics=metrics,
-            worst_backtest_kind=None if backtest_matrix is None else backtest_matrix.worst_kind,
+            worst_backtest_kind=(
+                backtest_matrix.worst_kind
+                if backtest_matrix is not None and matrix_admitted
+                else None
+            ),
             worst_stress_scenario=(
                 None if stress_scenarios is None else stress_scenarios.worst_scenario
             ),
-            metadata=dict(metadata or {}),
+            metadata={
+                **dict(metadata or {}),
+                "backtest_matrix_source_status": "not_established",
+                "composite_score_purpose": "candidate_diagnostic" if matrix_admitted else None,
+            },
         )
 
     def rank(
-        self, entries: Sequence[CalibrationLeaderboardEntry]
+        self,
+        entries: Sequence[CalibrationLeaderboardEntry],
+        *,
+        backtest_matrices: Mapping[str, BacktestMatrixResult] | None = None,
     ) -> list[CalibrationLeaderboardEntry]:
-        """Rank entries by promotion eligibility, composite score, and tie-breakers."""
+        """Rank candidates after resolving each supplied Matrix by entry ID.
 
+        Args:
+            entries: Candidate entries to rank.
+            backtest_matrices: Selected Matrix results keyed by entry ID. An
+                entry without a matching source cannot retain a composite.
+
+        Returns:
+            Limited entries in deterministic rank order.
+        """
+
+        limited = [entry.model_copy(deep=True) for entry in entries]
+        for entry in limited:
+            matrix = None if backtest_matrices is None else backtest_matrices.get(entry.entry_id)
+            _limit_loaded_leaderboard_entry(self._store, matrix, entry)
         ranked = sorted(
-            entries,
+            limited,
             key=lambda item: (
                 -int(item.metrics.eligible_for_promotion),
                 -(item.metrics.composite_score or -1.0),
@@ -191,6 +234,44 @@ class CalibrationLeaderboard:
         share_significant = float(result.get("share_significant", 0.0))
         inverse_iqr = 1.0 / (1.0 + max(float(result.get("iqr", 0.0)), 0.0))
         return _clamp((sign_consistency + share_significant + inverse_iqr) / 3.0)
+
+
+def _limit_loaded_leaderboard_entry(
+    store: Any,
+    matrix: BacktestMatrixResult | None,
+    entry: CalibrationLeaderboardEntry,
+    *,
+    source_available: bool = True,
+) -> bool:
+    """Reconcile a persisted entry as a candidate, never as promotion authority."""
+    admitted, reasons = (
+        _admit_matrix_for_leaderboard(store, matrix)
+        if matrix is not None and source_available
+        else (
+            False,
+            [
+                "backtest_matrix_missing"
+                if matrix is None
+                else "backtest_matrix_report_not_established"
+            ],
+        )
+    )
+    metrics = entry.metrics
+    metrics.backtest_matrix_score = (
+        _clamp(matrix.composite_score) if admitted and matrix is not None else None
+    )
+    metrics.composite_score = _compute_composite_score(metrics) if admitted else None
+    metrics.eligible_for_promotion = False
+    for reason in [*(matrix.gap_flags if admitted and matrix is not None else []), *reasons]:
+        if reason not in metrics.gap_flags:
+            metrics.gap_flags.append(reason)
+    entry.worst_backtest_kind = matrix.worst_kind if admitted and matrix is not None else None
+    entry.metadata = {
+        **entry.metadata,
+        "backtest_matrix_source_status": "not_established",
+        "composite_score_purpose": "candidate_diagnostic" if admitted else None,
+    }
+    return admitted
 
 
 def _collect_gap_flags(metrics: CalibrationLeaderboardMetrics) -> list[str]:

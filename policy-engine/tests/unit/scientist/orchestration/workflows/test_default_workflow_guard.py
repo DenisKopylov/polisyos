@@ -18,3 +18,16 @@ def test_default_workflow_runs_governance_after_causal_evaluation() -> None:
     assert "legal_check" in by_alias["run_governance"].depends_on
     assert "run_normative_arbitration" in by_alias["run_governance"].depends_on
     assert "run_causal_evaluation" in by_alias["run_governance"].depends_on
+
+
+def test_default_workflow_evaluator_has_fresh_governance_on_both_sides() -> None:
+    by_alias = {node.alias: node for node in default_workflow_spec().nodes}
+
+    assert {"run_metric_validation", "propagate_welfare"}.issubset(
+        by_alias["run_governance"].depends_on
+    )
+    assert by_alias["run_evaluator"].depends_on == ["run_governance"]
+    assert by_alias["refresh_governance"].node_id == by_alias["run_governance"].node_id
+    assert by_alias["refresh_governance"].depends_on == ["run_evaluator"]
+    assert by_alias["refresh_governance"].params == {"replay_previous_gate_decision": True}
+    assert "refresh_governance" in by_alias["build_decision_packet"].depends_on

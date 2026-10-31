@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 
 import { runDetailsSchema } from "../../../../api/validators";
 import { runN5InteractionEvidenceFixture } from "@/test/fixtures/runN5InteractionEvidence";
+import { predictiveCalibrationResponseFixture } from "@/test/fixtures/predictiveCalibrationResponse";
 import { c41JointParentObservation } from "@/test/fixtures/c41JointParent";
 import * as performanceTelemetry from "@/shared/telemetry/performance";
 import { renderWithProviders } from "@/test/render";
@@ -871,6 +872,8 @@ describe("OverviewTab", () => {
       error: undefined,
       data: {
         association: {
+          schema_version:
+            "polisyos.runtime.predictive_calibration_association.v5",
           assessment: "limited",
           authority_scope: "predictive_only",
           intent_id: "intent-ui-fixture",
@@ -881,6 +884,7 @@ describe("OverviewTab", () => {
           source_time_status: "not_established",
           population_scope_status: "not_established",
           counterfactual_credibility_status: "not_established",
+          evidence_reason_codes: [],
           empirical_evidence_ref: { artifact_id: `sha256:${"a".repeat(64)}` },
           uncertainty_bundle_ref: {
             artifact_id: `sha256:${"b".repeat(64)}`,
@@ -901,6 +905,12 @@ describe("OverviewTab", () => {
     const panel = screen.getByTestId("overview-predictive-calibration");
     expect(panel).toHaveTextContent("Empirical predictive diagnostic");
     expect(panel).toHaveTextContent("3 / 4");
+    expect(panel).toHaveTextContent("75%");
+    expect(
+      screen.queryByTestId(
+        "overview-predictive-calibration-observation-limitation",
+      ),
+    ).not.toBeInTheDocument();
     expect(panel).toHaveTextContent("predictive_only");
     expect(panel).toHaveTextContent("not_established");
     expect(panel).toHaveTextContent("not a policy recommendation");
@@ -916,6 +926,142 @@ describe("OverviewTab", () => {
       "application/json",
       `sha256:${"c".repeat(64)}`,
     ]);
+  });
+
+  it("withholds populated diagnostic counts when the v5 source is not established", () => {
+    overviewState.predictiveCalibrationQuery = {
+      isPending: false,
+      error: undefined,
+      data: {
+        association: {
+          ...predictiveCalibrationResponseFixture.association,
+          schema_version:
+            "polisyos.runtime.predictive_calibration_association.v5",
+          observed_numerator: 99,
+          observed_denominator: 100,
+          observed_hit_rate: 0.99,
+          evidence_reason_codes: ["backtest_source_not_established"],
+        },
+      },
+    };
+
+    renderWithProviders(<OverviewTab />);
+
+    const panel = screen.getByTestId("overview-predictive-calibration");
+    expect(panel).toHaveTextContent(
+      "The diagnostic could not be verified and is withheld.",
+    );
+    expect(panel).not.toHaveTextContent("99 / 100");
+    expect(panel).not.toHaveTextContent("99%");
+    expect(
+      screen.getByTestId(
+        "overview-predictive-calibration-observation-limitation",
+      ),
+    ).toHaveTextContent("backtest source has not been established");
+  });
+
+  it("shows unavailable for null v5 observations with the source limitation", () => {
+    overviewState.predictiveCalibrationQuery = {
+      isPending: false,
+      error: undefined,
+      data: {
+        association: {
+          ...predictiveCalibrationResponseFixture.association,
+          schema_version:
+            "polisyos.runtime.predictive_calibration_association.v5",
+          observed_numerator: null,
+          observed_denominator: null,
+          observed_hit_rate: null,
+          evidence_reason_codes: ["backtest_source_not_established"],
+        },
+      },
+    };
+
+    renderWithProviders(<OverviewTab />);
+
+    const panel = screen.getByTestId("overview-predictive-calibration");
+    expect(panel).toHaveTextContent(
+      "The diagnostic could not be verified and is withheld.",
+    );
+    expect(panel).not.toHaveTextContent("3 / 4");
+    expect(panel).not.toHaveTextContent("75%");
+    expect(
+      screen.getByTestId(
+        "overview-predictive-calibration-observation-limitation",
+      ),
+    ).toHaveTextContent("backtest source has not been established");
+  });
+
+  it("keeps historical populated counts unavailable when the admission flag is missing", () => {
+    const { evidence_reason_codes: _historicalReasonCodes, ...historical } =
+      predictiveCalibrationResponseFixture.association;
+    overviewState.predictiveCalibrationQuery = {
+      isPending: false,
+      error: undefined,
+      data: {
+        association: {
+          ...historical,
+          schema_version:
+            "polisyos.runtime.predictive_calibration_association.v4",
+          observed_numerator: 12,
+          observed_denominator: 12,
+          observed_hit_rate: 1,
+        },
+      },
+    };
+
+    renderWithProviders(<OverviewTab />);
+
+    const panel = screen.getByTestId("overview-predictive-calibration");
+    expect(panel).toHaveTextContent(
+      "The diagnostic could not be verified and is withheld.",
+    );
+    expect(panel).not.toHaveTextContent("12 / 12");
+    expect(panel).not.toHaveTextContent("100%");
+    expect(
+      screen.getByTestId(
+        "overview-predictive-calibration-observation-limitation",
+      ),
+    ).toHaveTextContent("historical diagnostic");
+    expect(
+      screen.getByTestId(
+        "overview-predictive-calibration-observation-limitation",
+      ),
+    ).toHaveTextContent("not reported as observed");
+  });
+
+  it("does not infer observed counts when the saved association version is missing", () => {
+    const {
+      schema_version: _historicalSchemaVersion,
+      evidence_reason_codes: _historicalReasonCodes,
+      ...unversionedHistorical
+    } = predictiveCalibrationResponseFixture.association;
+    overviewState.predictiveCalibrationQuery = {
+      isPending: false,
+      error: undefined,
+      data: {
+        association: {
+          ...unversionedHistorical,
+          observed_numerator: 7,
+          observed_denominator: 8,
+          observed_hit_rate: 0.875,
+        },
+      },
+    };
+
+    renderWithProviders(<OverviewTab />);
+
+    const panel = screen.getByTestId("overview-predictive-calibration");
+    expect(panel).toHaveTextContent(
+      "The diagnostic could not be verified and is withheld.",
+    );
+    expect(panel).not.toHaveTextContent("7 / 8");
+    expect(panel).not.toHaveTextContent("87.5%");
+    expect(
+      screen.getByTestId(
+        "overview-predictive-calibration-observation-limitation",
+      ),
+    ).toHaveTextContent("historical diagnostic");
   });
 
   it.each(["v3", "v4"] as const)(

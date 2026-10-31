@@ -88,6 +88,65 @@ class TestPrepareInitialState:
 
 
 class TestRunExperiment:
+    @patch("polisyos.scientist.orchestration.workflows.builder.run_selected_workflow")
+    @patch("polisyos.scientist.api._resolve_observability")
+    def test_finalized_run_reference_is_forwarded_without_changing_state_result(
+        self, mock_obs, mock_run
+    ):
+        from polisyos.core.artifacts import ArtifactRef
+        from polisyos.scientist.api import run_experiment
+
+        tracer, _span = _mock_tracer()
+        mock_obs.return_value = (tracer, _mock_metrics())
+        selected_ref = ArtifactRef(
+            artifact_id="sha256:" + "a" * 64,
+            kind="core.run_manifest",
+            media_type="application/json",
+            manifest_profile_sha256="sha256:" + "b" * 64,
+        )
+        mock_run.return_value = MagicMock(
+            state=ExperimentState(run_id="R_result"),
+            report=MagicMock(status="ok"),
+            run_ref=selected_ref,
+        )
+        seen = []
+        result = run_experiment({"run_id": "R_test"}, on_run_finalized=seen.append)
+        assert result["run_id"] == "R_result"
+        assert seen == [selected_ref]
+
+    @patch("polisyos.scientist.orchestration.workflows.builder.run_selected_workflow")
+    @patch("polisyos.scientist.api._resolve_observability")
+    def test_finalization_callback_failure_preserves_actual_workflow_status(
+        self, mock_obs, mock_run
+    ):
+        from polisyos.core.artifacts import ArtifactRef
+        from polisyos.scientist.api import run_experiment
+
+        tracer, _span = _mock_tracer()
+        metrics = _mock_metrics()
+        mock_obs.return_value = (tracer, metrics)
+        selected_ref = ArtifactRef(
+            artifact_id="sha256:" + "a" * 64,
+            kind="core.run_manifest",
+            media_type="application/json",
+            manifest_profile_sha256="sha256:" + "b" * 64,
+        )
+        mock_run.return_value = MagicMock(
+            state=ExperimentState(run_id="R_result"),
+            report=MagicMock(status="ok"),
+            run_ref=selected_ref,
+        )
+
+        def fail_callback(_ref):
+            raise RuntimeError("callback failed")
+
+        with pytest.raises(RuntimeError, match="callback failed"):
+            run_experiment({"run_id": "R_test"}, on_run_finalized=fail_callback)
+        metrics.record_workflow_run.assert_called_once_with("success", "EXECUTE", "orchestrator")
+        metrics.record_slo_dag_run.assert_called_once_with(
+            "success", workflow_id="scientist_default"
+        )
+
     @patch(
         "polisyos.scientist.api.run_selected_workflow"
         if False

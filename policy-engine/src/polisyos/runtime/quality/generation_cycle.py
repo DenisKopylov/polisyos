@@ -17226,6 +17226,13 @@ def _s10_empirical_projection(
     denials = tuple(str(item) for item in _sequence(_object_get(evidence, "may_not_use_for")))
     if set(denials) != _S10_PREDICTIVE_DENIALS:
         return None, "empirical_evidence_authority_denials_mismatch"
+    failure_codes = tuple(str(item) for item in _sequence(_object_get(evidence, "failure_codes")))
+    if _object_get(evidence, "empirical_observations_available") is not True:
+        return None, (
+            "backtest_source_not_established"
+            if "backtest_source_not_established" in failure_codes
+            else "empirical_observations_not_available"
+        )
 
     scalar_refs = {
         "observed_outcome_ref": _s10_artifact_ref_id(_object_get(evidence, "observed_outcome_ref")),
@@ -17282,7 +17289,6 @@ def _s10_empirical_projection(
         else "blocked"
     )
     forecast_tier = "observable_calibrated" if calibration_status == "pass" else "blocked"
-    failure_codes = tuple(str(item) for item in _sequence(_object_get(evidence, "failure_codes")))
     reason = (
         "persisted predictive interval observations were recomputed from held-out data"
         if not failure_codes
@@ -17308,6 +17314,7 @@ def _s10_empirical_projection(
         "counterfactual_credibility": "not_established",
         "interval_coverage_metric": pass_rate if denominator else None,
         "calibration_error_metric": None,
+        "failure_codes": list(failure_codes),
         "source_lineage_refs": list(source_lineage_refs),
         "method_lineage_refs": list(method_lineage_refs),
         "forecast_authority_disposition_reason": reason,
@@ -17366,25 +17373,25 @@ def _resolve_s10_empirical_evidence(
     ):
         return None, "empirical_evidence_ref_kind_mismatch"
 
-    projection, projection_error = _s10_empirical_projection(
-        evidence_ref=raw_ref,
-        evidence=evidence,
-    )
-    if projection_error is not None or projection is None:
-        return None, projection_error or "empirical_evidence_projection_invalid"
-
+    # Bind identity and time even for unavailable observations. Otherwise an
+    # unavailable-source reason would hide a wrong method, rule or temporal input.
     method_ref, separator, method_version = selected_method_fqn.rpartition("@")
     if (
         not separator
-        or _optional_text(projection.get("method_ref")) != method_ref
-        or _optional_text(projection.get("method_version")) != method_version
+        or _optional_text(_object_get(evidence, "method_ref")) != method_ref
+        or _optional_text(_object_get(evidence, "method_version")) != method_version
     ):
         return None, "empirical_evidence_method_mismatch"
     expected_rule = _optional_text(expected_rule_version_ref)
-    if expected_rule is None or _optional_text(projection.get("rule_version_ref")) != expected_rule:
+    if (
+        expected_rule is None
+        or _optional_text(_object_get(evidence, "rule_version_ref")) != expected_rule
+    ):
         return None, "empirical_evidence_rule_mismatch"
 
-    loaded_temporal_roles = _bound_s10_temporal_roles(projection)
+    loaded_temporal_roles = _bound_s10_temporal_roles(
+        {key: _object_get(evidence, key) for key in _S10_TEMPORAL_ROLE_KEYS}
+    )
     if loaded_temporal_roles is None:
         return None, "empirical_evidence_time_mismatch"
     if expected_temporal_roles is not None:
@@ -17397,6 +17404,12 @@ def _resolve_s10_empirical_evidence(
         ):
             return None, "empirical_evidence_time_mismatch"
 
+    projection, projection_error = _s10_empirical_projection(
+        evidence_ref=raw_ref,
+        evidence=evidence,
+    )
+    if projection_error is not None or projection is None:
+        return None, projection_error or "empirical_evidence_projection_invalid"
     return _S10ResolvedEmpiricalEvidence(raw_ref, projection), None
 
 
@@ -17446,8 +17459,7 @@ def _build_s10_forecast_inputs(
     ):
         effective_forecast_tier = "blocked"
     if additional_limitation_refs:
-        # Retain the observed-series calibration grade while preventing it from
-        # being presented as calibration of an unbound N4 outcome variable.
+        # An unbound N4 outcome cannot acquire a calibrated forecast tier.
         effective_forecast_tier = "blocked"
     method_family = _s10_method_family(selected_method_fqn)
     report_ref = gy_content_hash(
@@ -17567,11 +17579,10 @@ def _build_s10_forecast_inputs(
                     if empirical_evidence_error is None and not calibration_bound
                     else "S10 owner forecast over Foundry method output"
                 )
-                + (f" [{empirical_evidence_error}]" if empirical_evidence_error else "")
             )
+            + (f" [{empirical_evidence_error}]" if empirical_evidence_error else "")
             + (
-                "; N4 outcome-to-observed-metric relation is not established; observed-series "
-                "predictive grade is retained without an N4 outcome-calibrated tier."
+                "; N4 outcome-to-observed-metric relation is not established."
                 if additional_limitation_refs
                 else ""
             )

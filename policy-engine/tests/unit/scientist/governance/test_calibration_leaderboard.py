@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+import json
+
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.contracts.backtest import BacktestReportRef
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.contracts.scientist import StressTestReportRef
 from polisyos.foundry.methods.catalog.causal.strategic import StrategicSolveResult
@@ -13,11 +14,12 @@ from polisyos.ir.analytics.interference import (
     NetworkInterferenceReport,
 )
 from polisyos.ir.analytics.strategic import StrategicFallbackMode
+from polisyos.ir.observation.bundles import BacktestPlanBundle, ContractCompatibilityTarget
 from polisyos.ir.observation.contract_compilers import SpecificationCurveInput
 from polisyos.scientist.governance.backtest_matrix import (
     BacktestKind,
-    BacktestKindResult,
     BacktestMatrixResult,
+    BacktestMatrixRunner,
 )
 from polisyos.scientist.governance.calibration import (
     CalibrationAdversarialResult,
@@ -29,6 +31,7 @@ from polisyos.scientist.governance.stress_scenarios import (
     StressScenarioKind,
     StressScenarioResult,
 )
+from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan, PredictionSource
 from polisyos.scientist.methods.discovery.utility_judge import (
     DownstreamUtilityReport,
     HypothesisUtilityScore,
@@ -76,23 +79,26 @@ def _governance_report(*, adversarial_status: str = "passed", with_blocker: bool
     )
 
 
-def _backtest_matrix(score: float = 0.8) -> BacktestMatrixResult:
-    return BacktestMatrixResult(
-        report_id="BTM_test",
-        backtest_report_ref=BacktestReportRef(artifact_id=f"sha256:{'b' * 64}"),
-        kind_results=[
-            BacktestKindResult(
-                kind=kind,
-                status="ok",
-                score=score - (index * 0.02),
-                n_plans=1,
-                n_scenarios=1,
-            )
-            for index, kind in enumerate(BacktestKind)
-        ],
-        composite_score=score,
-        worst_kind=BacktestKind.DISTRESS,
+def _backtest_matrix(tmp_path, store, score: float = 1.0) -> BacktestMatrixResult:
+    path = tmp_path / "historical.json"
+    path.write_text(json.dumps({"metric": [1.0, 1.0]}), encoding="utf-8")
+    plan = HistoricalValidationPlan(
+        plan_id="historical",
+        historical_data_path=str(path),
+        intervention_step=1,
+        ground_truth_outcomes={"metric": [1.0]},
+        target_metrics=["metric"],
+        prediction_source=PredictionSource.PROVIDED,
+        predicted_outcomes={"metric": [1.0 / score]},
     )
+    bundle = BacktestPlanBundle(
+        contract_target=ContractCompatibilityTarget(
+            contract_id="leaderboard_fixture", contract_fqn="polisyos.tests.BacktestPlanBundle"
+        ),
+        required_fields=["metric"],
+        plans=[plan.model_dump(mode="json")],
+    )
+    return BacktestMatrixRunner(store).run(dict.fromkeys(BacktestKind, bundle))
 
 
 def _stress_result(score: float = 0.78) -> StressScenarioResult:
@@ -150,14 +156,12 @@ def _network_interference_report() -> NetworkInterferenceReport:
     )
 
 
-def test_calibration_leaderboard_populates_all_metric_slots() -> None:
-    leaderboard = CalibrationLeaderboard()
-    entry = leaderboard.build_entry(
-        run_id="R_lb_full",
+def test_calibration_leaderboard_populates_all_metric_slots(tmp_path, cas_store) -> None:
+    leaderboard = CalibrationLeaderboard(store=cas_store)
+    inputs = dict(
         candidate_ref=_artifact_ref("a"),
         governance_report=_governance_report(),
         calibration_fit_score=0.92,
-        backtest_matrix=_backtest_matrix(),
         stress_scenarios=_stress_result(),
         specification_curve_input=SpecificationCurveInput(
             specification_ids=["s1", "s2", "s3"],
@@ -177,6 +181,9 @@ def test_calibration_leaderboard_populates_all_metric_slots() -> None:
             "multiplicity_note": "disclosed",
         },
     )
+    matrix = _backtest_matrix(tmp_path, cas_store)
+    assert matrix.metadata["report_trust_eligible"] is False
+    entry = leaderboard.build_entry(run_id="R_lb_full", backtest_matrix=matrix, **inputs)
 
     metrics = entry.metrics
     assert metrics.calibration_fit_score is not None
@@ -187,17 +194,60 @@ def test_calibration_leaderboard_populates_all_metric_slots() -> None:
     assert metrics.interference_fit is not None
     assert metrics.strategic_response_plausibility is not None
     assert metrics.composite_score is not None
-    assert metrics.eligible_for_promotion is True
+    assert not metrics.eligible_for_promotion
+    assert "backtest_matrix_source_not_established" in metrics.gap_flags
+    assert entry.metadata["composite_score_purpose"] == "candidate_diagnostic"
+
+    degraded = _backtest_matrix(tmp_path, cas_store, 0.8)
+    assert degraded.metadata["report_trust_eligible"] is False
+    denied = leaderboard.build_entry(run_id="R_lb_degraded", backtest_matrix=degraded, **inputs)
+    assert denied.metrics.backtest_matrix_score == degraded.composite_score
+    assert denied.metrics.composite_score is not None
+    assert not denied.metrics.eligible_for_promotion
+    assert "backtest_matrix_source_not_established" in denied.metrics.gap_flags
+    assert "backtest_matrix_report_not_trust_eligible" in denied.metrics.gap_flags
 
 
-def test_calibration_leaderboard_renormalizes_composite_on_optional_gaps() -> None:
-    leaderboard = CalibrationLeaderboard()
+def test_unresolved_or_forged_matrix_cannot_supply_promotion_score(tmp_path, cas_store) -> None:
+    matrix = _backtest_matrix(tmp_path, cas_store)
+    entry = CalibrationLeaderboard().build_entry(
+        run_id="R_unresolved",
+        candidate_ref=_artifact_ref("a"),
+        governance_report=_governance_report(),
+        calibration_fit_score=0.92,
+        backtest_matrix=matrix,
+        stress_scenarios=_stress_result(),
+    )
+    assert entry.metrics.backtest_matrix_score is None
+    assert entry.metrics.composite_score is None
+    assert not entry.metrics.eligible_for_promotion
+    assert "backtest_matrix_report_not_established" in entry.metrics.gap_flags
+
+    # A score changed after a selected legacy report was persisted is also refused.
+    matrix.composite_score = 0.9
+    entry = CalibrationLeaderboard(store=cas_store).build_entry(
+        run_id="R_forged_score",
+        candidate_ref=_artifact_ref("a"),
+        governance_report=_governance_report(),
+        calibration_fit_score=0.92,
+        backtest_matrix=matrix,
+        stress_scenarios=_stress_result(),
+    )
+    assert entry.metrics.composite_score is None
+    assert not entry.metrics.eligible_for_promotion
+    assert "backtest_matrix_report_mismatch" in entry.metrics.gap_flags
+
+
+def test_calibration_leaderboard_renormalizes_composite_on_optional_gaps(
+    tmp_path, cas_store
+) -> None:
+    leaderboard = CalibrationLeaderboard(store=cas_store)
     entry = leaderboard.build_entry(
         run_id="R_lb_gaps",
         candidate_ref=_artifact_ref("d"),
         governance_report=_governance_report(),
         calibration_fit_score=0.9,
-        backtest_matrix=_backtest_matrix(0.75),
+        backtest_matrix=_backtest_matrix(tmp_path, cas_store),
         stress_scenarios=_stress_result(0.8),
         specification_curve_input=SpecificationCurveInput(
             specification_ids=["s1", "s2"],
@@ -208,7 +258,7 @@ def test_calibration_leaderboard_renormalizes_composite_on_optional_gaps() -> No
 
     expected = (
         0.9 * 0.20
-        + 0.75 * 0.30
+        + 1.0 * 0.30
         + 0.8 * 0.20
         + entry.metrics.specification_curve_robustness * 0.10
         + entry.metrics.strategic_response_plausibility * 0.05
@@ -218,14 +268,16 @@ def test_calibration_leaderboard_renormalizes_composite_on_optional_gaps() -> No
     assert "missing_metric:transportability_score" in entry.metrics.gap_flags
 
 
-def test_calibration_leaderboard_blocks_promotion_on_governance_or_adversarial_failure() -> None:
-    leaderboard = CalibrationLeaderboard()
+def test_calibration_leaderboard_blocks_promotion_on_governance_or_adversarial_failure(
+    tmp_path, cas_store
+) -> None:
+    leaderboard = CalibrationLeaderboard(store=cas_store)
     entry = leaderboard.build_entry(
         run_id="R_lb_blocked",
         candidate_ref=_artifact_ref("e"),
         governance_report=_governance_report(adversarial_status="failed"),
         calibration_fit_score=0.95,
-        backtest_matrix=_backtest_matrix(0.95),
+        backtest_matrix=_backtest_matrix(tmp_path, cas_store),
         stress_scenarios=_stress_result(0.95),
         strategic_summary=StrategicSolveResult(
             fallback_mode=StrategicFallbackMode.EXACT_EQUILIBRIUM,
@@ -246,14 +298,15 @@ def test_calibration_leaderboard_blocks_promotion_on_governance_or_adversarial_f
     assert entry.metrics.adversarial_passed is False
 
 
-def test_calibration_leaderboard_ranking_is_deterministic_on_ties() -> None:
-    leaderboard = CalibrationLeaderboard()
+def test_calibration_leaderboard_ranking_is_deterministic_on_ties(tmp_path, cas_store) -> None:
+    leaderboard = CalibrationLeaderboard(store=cas_store)
+    matrix = _backtest_matrix(tmp_path, cas_store)
     first = leaderboard.build_entry(
         run_id="R_a",
         candidate_ref=_artifact_ref("f"),
         governance_report=_governance_report(),
         calibration_fit_score=0.8,
-        backtest_matrix=_backtest_matrix(0.8),
+        backtest_matrix=matrix,
         stress_scenarios=_stress_result(0.8),
     )
     second = leaderboard.build_entry(
@@ -261,10 +314,25 @@ def test_calibration_leaderboard_ranking_is_deterministic_on_ties() -> None:
         candidate_ref=_artifact_ref("b"),
         governance_report=_governance_report(),
         calibration_fit_score=0.8,
-        backtest_matrix=_backtest_matrix(0.8),
+        backtest_matrix=matrix,
         stress_scenarios=_stress_result(0.8),
     )
 
+    first.metrics.eligible_for_promotion = True
+    first.metrics.composite_score = 1.0
     ranked = leaderboard.rank([second, first])
     assert [entry.run_id for entry in ranked] == ["R_a", "R_b"]
     assert [entry.rank for entry in ranked] == [1, 2]
+    assert all(not entry.metrics.eligible_for_promotion for entry in ranked)
+    assert all(entry.metrics.composite_score is None for entry in ranked)
+
+    bound = leaderboard.rank(
+        [second, first],
+        backtest_matrices={first.entry_id: matrix, second.entry_id: matrix},
+    )
+    assert [entry.run_id for entry in bound] == ["R_a", "R_b"]
+    assert all(entry.metrics.composite_score is not None for entry in bound)
+    assert all(not entry.metrics.eligible_for_promotion for entry in bound)
+    assert all(
+        entry.metadata["composite_score_purpose"] == "candidate_diagnostic" for entry in bound
+    )

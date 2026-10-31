@@ -44,6 +44,7 @@ else:
 if TYPE_CHECKING:
     from collections.abc import Callable
 
+    from polisyos.core.artifacts import ArtifactRef
     from polisyos.core.artifacts.protocol import ArtifactStore
     from polisyos.core.governance.passes.base import ValidatorPass
     from polisyos.pdc import EvalSafetyVerifierPort, EvaluationExecutionContext
@@ -234,6 +235,7 @@ def run_experiment(
     epoch_certificate_issuance_owner: EpochCertificateIssuanceOwner | None = None,
     method_metric_selection_owner: MethodMetricSelectionOwnerPort | None = None,
     completed_method_hte_selection_owner: CompletedMethodHTESelectionOwnerPort | None = None,
+    on_run_finalized: Callable[[ArtifactRef], None] | None = None,
 ) -> dict[str, Any]:
     """Execute the Scientist workflow selected by the initial state contract.
 
@@ -256,6 +258,8 @@ def run_experiment(
         completed_method_hte_selection_owner: Separate Runtime-owned completed HTE source
             lookup installed for an authorized follow-up policy-design run; never read from
             workflow state.
+        on_run_finalized: Optional consumer of the exact selected run-manifest ref
+            emitted by the completed workflow owner.
 
     Returns:
         Final `ExperimentState` serialized as a JSON-compatible dictionary with
@@ -319,6 +323,7 @@ def run_experiment(
         },
     ) as root_span:
         resolved_metrics.increment_active_runs()
+        workflow_outcome_recorded = False
         try:
             with resolved_metrics.time_slo_dag({"workflow_id": workflow_id}):
                 result = run_selected_workflow(
@@ -341,6 +346,7 @@ def run_experiment(
             status = "success" if result.report.status == "ok" else "error"
             resolved_metrics.record_workflow_run(status, "EXECUTE", "orchestrator")
             resolved_metrics.record_slo_dag_run(status, workflow_id=workflow_id)
+            workflow_outcome_recorded = True
 
             cost_usd = _estimate_run_cost_usd(final_state)
             if cost_usd is not None:
@@ -352,12 +358,15 @@ def run_experiment(
                 root_span.set_status(
                     Status(StatusCode.ERROR, "Workflow report status indicates failure")
                 )
+            if on_run_finalized is not None and result.run_ref is not None:
+                on_run_finalized(result.run_ref)
             return cast("dict[str, Any]", final_state.model_dump())
         except Exception as exc:
             root_span.set_status(Status(StatusCode.ERROR, str(exc)))
             root_span.record_exception(exc)
-            resolved_metrics.record_workflow_run("error", "UNKNOWN", "orchestrator")
-            resolved_metrics.record_slo_dag_run("error", workflow_id=workflow_id)
+            if not workflow_outcome_recorded:
+                resolved_metrics.record_workflow_run("error", "UNKNOWN", "orchestrator")
+                resolved_metrics.record_slo_dag_run("error", workflow_id=workflow_id)
             raise
         finally:
             resolved_metrics.decrement_active_runs()

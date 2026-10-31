@@ -884,7 +884,7 @@ def test_legacy_profileless_evidence_keeps_historical_id_role_semantics(
 def test_persisted_backtest_report_readback_produces_neutral_empirical_interval_hit_evidence(
     tmp_path: Path,
 ) -> None:
-    """Observed bounds are recomputed from the persisted report, not self-attested flags."""
+    """Report arithmetic remains diagnostic until its rows are bound to sources."""
 
     store, report_ref, persisted, refs = _persist_report(
         tmp_path,
@@ -919,11 +919,11 @@ def test_persisted_backtest_report_readback_produces_neutral_empirical_interval_
     )
 
     assert persisted.report_id == "frc02-bridge-neutral"
-    assert evidence.evidence_kind == "observed_interval_comparisons"
-    assert evidence.empirical_observations_available is True
+    assert evidence.evidence_kind == "unavailable"
+    assert evidence.empirical_observations_available is False
     assert evidence.context_bound is True
-    assert evidence.usable_for_calibration is True
-    assert evidence.floor_passed is True
+    assert evidence.usable_for_calibration is False
+    assert evidence.floor_passed is False
     assert evidence.recomputed_numerator == 1
     assert evidence.recomputed_denominator == 2
     assert evidence.recomputed_pass_rate == pytest.approx(0.5)
@@ -936,11 +936,37 @@ def test_persisted_backtest_report_readback_produces_neutral_empirical_interval_
     # authority merely because it has a finite interval hit rate.
     assert evidence.authority_scope == PREDICTIVE_AUTHORITY_SCOPE
     assert set(evidence.may_not_use_for) >= PREDICTIVE_AUTHORITY_DENIALS
-    assert evidence.failure_codes == ()
+    assert evidence.failure_codes == ("backtest_source_not_established",)
 
     evidence_ref = bridge.persist_empirical_calibration_evidence(store, evidence)
     readback = bridge.load_empirical_calibration_evidence(store, evidence_ref)
     assert readback == evidence
+
+    # The same selected input edges cannot make a historical affirmative
+    # payload reproducible after the source-binding limitation is recognized.
+    former_payload = evidence.model_dump(mode="json")
+    former_payload.update(
+        evidence_kind="observed_interval_comparisons",
+        empirical_observations_available=True,
+        usable_for_calibration=True,
+        floor_passed=True,
+        failure_codes=[],
+    )
+    former_manifest = _ensure_ir_artifact_store(store).get_manifest(evidence_ref)
+    former_ref = bridge.EmpiricalCalibrationEvidenceRef.model_validate(
+        put_json_artifact(
+            _ensure_ir_artifact_store(store),
+            former_payload,
+            kind=former_manifest.kind,
+            schema_name="polisyos.calibration.empirical_calibration_evidence",
+            schema_version="1.2",
+            inputs=former_manifest.inputs,
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+    )
+    with pytest.raises(ValueError, match="not reproducible from its report"):
+        bridge.load_empirical_calibration_evidence(store, former_ref)
 
 
 @pytest.mark.parametrize(
@@ -1284,7 +1310,7 @@ def test_embedded_source_reference_must_match_selected_child_edge(
 def test_observed_comparisons_change_empirical_admission_with_same_nominal_confidence(
     tmp_path: Path,
 ) -> None:
-    """The same nominal level admits only the report whose observations meet the floor."""
+    """Different report arithmetic cannot establish source-bound observations."""
 
     pass_store, pass_ref, _pass_report, pass_refs = _persist_report(
         tmp_path,
@@ -1313,11 +1339,14 @@ def test_observed_comparisons_change_empirical_admission_with_same_nominal_confi
     )
 
     assert passing.recomputed_pass_rate == 1.0
-    assert passing.usable_for_calibration is True
+    assert passing.usable_for_calibration is False
+    assert passing.floor_passed is False
+    assert "backtest_source_not_established" in passing.failure_codes
     assert limited.recomputed_pass_rate == 0.5
     assert limited.usable_for_calibration is False
     assert limited.floor_passed is False
-    assert "calibration_floor_not_met" in limited.failure_codes
+    assert "backtest_source_not_established" in limited.failure_codes
+    assert "calibration_floor_not_met" not in limited.failure_codes
 
 
 def test_nominal_confidence_without_observations_is_not_empirical_evidence(

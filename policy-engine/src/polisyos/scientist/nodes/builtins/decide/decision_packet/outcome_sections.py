@@ -26,7 +26,6 @@ from polisyos.ir import (
     WelfareBundleRef,
     load_abm_alignment_report,
     load_abstraction_certificate,
-    load_backtest_report,
     load_distributional_effect_bundle,
     load_distributional_report,
     load_hte_result,
@@ -39,6 +38,7 @@ from polisyos.scientist.feedback.core import (
     DecisionFeedbackService,
     build_monitoring_contract_from_packet,
 )
+from polisyos.scientist.methods.backtesting import load_backtest_report_for_consumption
 from polisyos.scientist.nodes.builtins.decide.decision_packet.basis_sections import (
     _load_normative_arbitration,
 )
@@ -266,8 +266,8 @@ def _build_backtest_section(
 
     payload: dict[str, object] = {"report_ref": str(backtest_ref.artifact_id)}
     try:
-        report = load_backtest_report(
-            _ensure_ir_artifact_store(ctx.store),
+        report = load_backtest_report_for_consumption(
+            ctx.store,
             BacktestReportRef(
                 artifact_id=backtest_ref.artifact_id,
                 manifest_profile_sha256=backtest_ref.manifest_profile_sha256,

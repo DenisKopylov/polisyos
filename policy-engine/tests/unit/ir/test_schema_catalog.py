@@ -4,9 +4,11 @@ import base64
 import hashlib
 import inspect
 import json
+import os
 import pickle
 import subprocess
 import sys
+import textwrap
 from pathlib import Path
 
 from polisyos.ir import (
@@ -42,6 +44,56 @@ def test_schema_catalog_lists_section_filters_and_bridge_exports() -> None:
     assert any(entry.export_name == "DoWhyGraphBridge" for entry in analytics_exports)
     assert any(entry.export_name == "LatentConfounderContract" for entry in analytics_exports)
     assert any(entry.export_name == "ProvODocument" for entry in world_exports)
+
+
+def test_schema_catalog_omits_runtime_generic_specialization_in_either_import_order() -> None:
+    repo_root = Path(__file__).resolve().parents[3]
+    script = textwrap.dedent(
+        """
+        import importlib
+        import sys
+
+        order = sys.argv[1]
+        catalog_module = importlib.import_module("polisyos.ir.schemas.catalog")
+
+        if order == "catalog-first":
+            initial = catalog_module.get_ir_schema_catalog()
+            initial_fqns = {entry.fqn for entry in initial.types}
+            assert "polisyos.ir.connectors.FetchResult" in initial_fqns
+            assert "polisyos.ir.connectors.FetchResult[Any]" not in initial_fqns
+
+        federation_module = importlib.import_module("polisyos.fabric.federated_fetch")
+        connectors_module = importlib.import_module("polisyos.ir.connectors")
+        specialization = vars(connectors_module)["FetchResult[Any]"]
+        assert specialization.__pydantic_generic_metadata__["origin"] is connectors_module.FetchResult
+        assert federation_module.FederatedFetchResult.__name__ == "FederatedFetchResult"
+        assert issubclass(federation_module.FederatedFetchResult, specialization)
+
+        if order == "catalog-first":
+            catalog_module.get_ir_schema_catalog.cache_clear()
+
+        catalog = catalog_module.get_ir_schema_catalog()
+        fqns = {entry.fqn for entry in catalog.types}
+        assert "polisyos.ir.connectors.FetchResult" in fqns
+        assert "polisyos.ir.connectors.FetchResult[Any]" not in fqns
+        assert "polisyos.ir.kernel.units.MoneyUnit" in fqns
+        assert "polisyos.ir.analytics._owner_admission.OwnedJSONRepresentation" in fqns
+        """
+    )
+    env = os.environ.copy()
+    python_path = ["src", ".", env.get("PYTHONPATH", "")]
+    env["PYTHONPATH"] = os.pathsep.join(part for part in python_path if part)
+
+    for order in ("catalog-first", "federation-first"):
+        result = subprocess.run(
+            [sys.executable, "-c", script, order],
+            cwd=repo_root,
+            env=env,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode == 0, result.stderr or result.stdout
 
 
 def test_schema_catalog_tolerates_missing_optional_abi_registry(monkeypatch) -> None:

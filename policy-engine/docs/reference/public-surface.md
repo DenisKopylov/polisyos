@@ -2008,7 +2008,7 @@ security
 | `polisyos.ir.loading` | `src/polisyos/ir/loading/__init__.py` | `lazy_facade` | 12 |
 | `polisyos.ir.model_layer` | `src/polisyos/ir/model_layer/__init__.py` | `lazy_facade` | 6 |
 | `polisyos.ir.registry` | `src/polisyos/ir/registry/__init__.py` | `lazy_facade` | 130 |
-| `polisyos.ir.trinity` | `src/polisyos/ir/trinity/__init__.py` | `lazy_facade` | 6 |
+| `polisyos.ir.trinity` | `src/polisyos/ir/trinity/__init__.py` | `lazy_facade` | 7 |
 | `polisyos.ir.world` | `src/polisyos/ir/world/__init__.py` | `lazy_facade` | 54 |
 
 #### `polisyos.ir`
@@ -3584,7 +3584,7 @@ WelfareSampleBundleRef
 - Facade: `lazy_facade`
 - Summary: Bundle the three Trinity artifacts as one validated policy payload.
 
-<details><summary>Entrypoint exports (6)</summary>
+<details><summary>Entrypoint exports (7)</summary>
 
 ```text
 TRINITY_BUNDLE_SCHEMA_VERSION
@@ -3593,6 +3593,7 @@ PolicySpec
 ProblemFrame
 TrinityBundle
 load_trinity_bundle_artifact
+persist_trinity_bundle_artifact
 ```
 
 </details>
@@ -5061,11 +5062,11 @@ Export total is unknown; the static reader cannot resolve the extension.
 | --- | --- | --- | ---: |
 | `polisyos.foundry` | `src/polisyos/foundry/__init__.py` | `lazy_facade` | 31 |
 | `polisyos.foundry.api` | `src/polisyos/foundry/api.py` | `eager_exports` | 3 |
-| `polisyos.foundry.compile` | `src/polisyos/foundry/compile/__init__.py` | `lazy_facade` | 6 |
+| `polisyos.foundry.compile` | `src/polisyos/foundry/compile/__init__.py` | `lazy_facade` | 7 |
 | `polisyos.foundry.analysis` | `src/polisyos/foundry/analysis/__init__.py` | `eager_exports` | 19 |
 | `polisyos.foundry.calibration` | `src/polisyos/foundry/calibration/__init__.py` | `unresolved_exports` | unknown (no names proven) |
 | `polisyos.foundry.data_plane` | `src/polisyos/foundry/data_plane/__init__.py` | `eager_exports` | 23 |
-| `polisyos.foundry.execute` | `src/polisyos/foundry/execute/__init__.py` | `lazy_facade` | 23 |
+| `polisyos.foundry.execute` | `src/polisyos/foundry/execute/__init__.py` | `lazy_facade` | 25 |
 | `polisyos.foundry.methods` | `src/polisyos/foundry/methods/__init__.py` | `eager_exports` | 225 |
 | `polisyos.foundry.methods.backends` | `src/polisyos/foundry/methods/backends/__init__.py` | `lazy_facade` | 25 |
 | `polisyos.foundry.methods.causal` | `src/polisyos/foundry/methods/causal/__init__.py` | `unresolved_exports` | unknown (no names proven) |
@@ -5138,11 +5139,12 @@ execute
 - Facade: `lazy_facade`
 - Summary: Expose the compile facade without importing the Trinity compiler eagerly.
 
-<details><summary>Entrypoint exports (6)</summary>
+<details><summary>Entrypoint exports (7)</summary>
 
 ```text
 TreasuryPlan
 build_treasury_plan
+build_method_housekeeping_nodes
 compile
 execution_plan_input_refs
 program_graph_input_refs
@@ -5357,7 +5359,7 @@ resolve_bound_state_snapshot_ref
 - Facade: `lazy_facade`
 - Summary: Stable execute facade for compiled Foundry plans.
 
-<details><summary>Entrypoint exports (23)</summary>
+<details><summary>Entrypoint exports (25)</summary>
 
 ```text
 BoundedNumericNPZError
@@ -5373,11 +5375,13 @@ StateSnapshotInputReadRefusal
 SnapshotStateLayoutError
 admit_execution_source
 admit_execution_source_bounded
+apply_state_delta
 execute
 read_method_artifact_output_bounded
 execution_input_basis_sources
 get_state_path
 load_state_snapshot
+put_state_snapshot
 StateSnapshotValueLeaf
 state_snapshot_value_projection
 read_numeric_npz_bounded
@@ -5801,7 +5805,7 @@ validate_source_bound_gcm_spec
 | `polisyos.scientist.adapters` | `src/polisyos/scientist/adapters/__init__.py` | `lazy_facade` | 6 |
 | `polisyos.scientist.compute` | `src/polisyos/scientist/compute/__init__.py` | `lazy_facade` | 17 |
 | `polisyos.scientist.governance.continuous` | `src/polisyos/scientist/governance/continuous/__init__.py` | `lazy_facade` | 87 |
-| `polisyos.scientist.methods.backtesting` | `src/polisyos/scientist/methods/backtesting/__init__.py` | `lazy_facade` | 34 |
+| `polisyos.scientist.methods.backtesting` | `src/polisyos/scientist/methods/backtesting/__init__.py` | `lazy_facade` | 35 |
 | `polisyos.scientist.methods.research_dag` | `src/polisyos/scientist/methods/research_dag/__init__.py` | `eager_exports` | 44 |
 | `polisyos.scientist.orchestration.engine` | `src/polisyos/scientist/orchestration/engine/__init__.py` | `lazy_facade` | 115 |
 | `polisyos.scientist.replay` | `src/polisyos/scientist/replay/__init__.py` | `lazy_facade` | 25 |
@@ -6023,7 +6027,7 @@ persist_published_signature_custody_scan
 - Facade: `lazy_facade`
 - Summary: Stable backtesting facade for replay, masking, challenge suites, and trust scoring.
 
-<details><summary>Entrypoint exports (34)</summary>
+<details><summary>Entrypoint exports (35)</summary>
 
 ```text
 ABSTRACTION_LEAKAGE_SUITE_ID
@@ -6057,6 +6061,7 @@ TrustScorer
 build_temporal_backtest_report
 evaluate_temporal_safe_rejection
 evaluate_temporal_trajectory
+load_backtest_report_for_consumption
 replay_fragment_composition_case
 run_phase_d4_challenge_suites
 summarize_temporal_evaluations

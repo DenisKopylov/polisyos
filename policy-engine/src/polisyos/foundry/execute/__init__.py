@@ -21,11 +21,13 @@ __all__ = [
     "SnapshotStateLayoutError",
     "admit_execution_source",
     "admit_execution_source_bounded",
+    "apply_state_delta",
     "execute",
     "read_method_artifact_output_bounded",
     "execution_input_basis_sources",
     "get_state_path",
     "load_state_snapshot",
+    "put_state_snapshot",
     "StateSnapshotValueLeaf",
     "state_snapshot_value_projection",
     "read_numeric_npz_bounded",
@@ -98,6 +100,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "polisyos.foundry.execute.api",
         "admit_execution_source",
     ),
+    "apply_state_delta": (
+        "polisyos.foundry.execute._internal.patching",
+        "apply_state_delta",
+    ),
     "execute": ("polisyos.foundry.execute.api", "execute"),
     "read_method_artifact_output_bounded": (
         "polisyos.foundry.execute.api",
@@ -111,6 +117,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "load_state_snapshot": (
         "polisyos.foundry.execute._internal.snapshots",
         "load_state_snapshot",
+    ),
+    "put_state_snapshot": (
+        "polisyos.foundry.execute._internal.snapshots",
+        "put_state_snapshot",
     ),
     "read_state_snapshot_inputs_bounded": (
         "polisyos.foundry.execute._internal.snapshots",

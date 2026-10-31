@@ -296,30 +296,50 @@ def test_parameter_search_does_not_promote_infeasible_candidates_to_feasible_fro
     assert all(entry.evaluation.feasible is False for entry in snapshot.entries.values())
 
 
-def test_generate_structure_candidates_marks_degraded_hybrid_seeds_when_gateway_unavailable(
+@pytest.mark.parametrize("gateway_available", [True, False], ids=["available", "absent"])
+def test_generate_structure_candidates_marks_hybrid_seeds_as_deterministic(
     monkeypatch,
+    gateway_available: bool,
 ) -> None:
-    monkeypatch.setattr(
-        "polisyos.scientist.policy_design.search.create_traced_gateway_client",
-        lambda **kwargs: None,
-    )
+    class GatewayCallSpy:
+        def __init__(self) -> None:
+            self.calls: list[dict[str, object]] = []
+
+        def generate(self, **kwargs: object) -> None:
+            self.calls.append(kwargs)
+            raise AssertionError("deterministic hybrid seed generation must not call the gateway")
+
+    client = GatewayCallSpy()
     candidate = _candidate()
     coordinator = HierarchicalSearchCoordinator(
         config=HierarchicalSearchConfig(enable_hybrid_seeds=True, max_hybrid_seeds=2),
     )
+    monkeypatch.setattr(
+        "polisyos.scientist.policy_design.search.create_traced_gateway_client",
+        lambda **kwargs: client if gateway_available else None,
+    )
 
     structures = coordinator.generate_structure_candidates(candidate)
-    hybrid = [item for item in structures if item.source == "hybrid_seed_degraded"]
+    hybrid = [item for item in structures if item.source == "hybrid_seed_deterministic"]
 
-    assert hybrid
-    assert len(hybrid) <= 2
+    assert len(hybrid) == 2
     assert len({item.candidate_hash for item in hybrid}) == len(hybrid)
-    assert all(item.metadata["hybrid_gateway_available"] is False for item in hybrid)
-    assert all(item.metadata["hybrid_degraded_reason"] == "gateway_unavailable" for item in hybrid)
-    assert any(
-        item.candidate.transport_assumptions or item.candidate.evidence_assumptions
+    assert all(item.metadata["hybrid_gateway_available"] is gateway_available for item in hybrid)
+    assert {item.candidate.metadata["hybrid_seed_type"] for item in hybrid} == {
+        "transport_surface",
+        "evidence_surface",
+    }
+    assert all(
+        item.candidate.transport_assumptions
         for item in hybrid
+        if item.candidate.metadata["hybrid_seed_type"] == "transport_surface"
     )
+    assert all(
+        item.candidate.evidence_assumptions
+        for item in hybrid
+        if item.candidate.metadata["hybrid_seed_type"] == "evidence_surface"
+    )
+    assert client.calls == []
 
 
 def test_narrative_search_does_not_mutate_readiness_or_frontier(tmp_path) -> None:

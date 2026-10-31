@@ -16424,11 +16424,11 @@ export interface components {
       /** Nominal Confidence Level */
       nominal_confidence_level?: number | null;
       /** Observed Denominator */
-      observed_denominator: number;
+      observed_denominator?: number | null;
       /** Observed Hit Rate */
-      observed_hit_rate: number;
+      observed_hit_rate?: number | null;
       /** Observed Numerator */
-      observed_numerator: number;
+      observed_numerator?: number | null;
       observed_source_ref: components["schemas"]["ArtifactRef-Output"];
       /**
        * Owner Suitability
@@ -16456,13 +16456,14 @@ export interface components {
       s10: components["schemas"]["PredictiveCalibrationS10Summary"];
       /**
        * Schema Version
-       * @default polisyos.runtime.predictive_calibration_association.v4
+       * @default polisyos.runtime.predictive_calibration_association.v5
        * @enum {string}
        */
       schema_version:
         | "polisyos.runtime.predictive_calibration_association.v2"
         | "polisyos.runtime.predictive_calibration_association.v3"
-        | "polisyos.runtime.predictive_calibration_association.v4";
+        | "polisyos.runtime.predictive_calibration_association.v4"
+        | "polisyos.runtime.predictive_calibration_association.v5";
       /**
        * Source Time Status
        * @default not_established
@@ -16536,7 +16537,7 @@ export interface components {
        */
       counterfactual_credibility: "not_established";
       /** Denominator */
-      denominator: number;
+      denominator?: number | null;
       /** Forecast Tier */
       forecast_tier: string;
       /**
@@ -16547,9 +16548,9 @@ export interface components {
       /** May Not Use For */
       may_not_use_for?: string[] | null;
       /** Numerator */
-      numerator: number;
+      numerator?: number | null;
       /** Observed Pass Rate */
-      observed_pass_rate: number;
+      observed_pass_rate?: number | null;
       /** Outcome Binding Status */
       outcome_binding_status?: "not_established" | null;
     };
@@ -26520,6 +26521,15 @@ export interface operations {
       };
       /** @description Requested representation is not supported for this resource. */
       406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description The cancellation identity conflicts with the current job attempt or disposition. */
+      409: {
         headers: {
           [name: string]: unknown;
         };

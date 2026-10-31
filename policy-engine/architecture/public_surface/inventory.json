@@ -8290,15 +8290,16 @@
         {
           "module": "polisyos.ir.trinity",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 6,
-          "known_export_count": 6,
+          "export_count": 7,
+          "known_export_count": 7,
           "exports": [
             "TRINITY_BUNDLE_SCHEMA_VERSION",
             "ModelSpec",
             "PolicySpec",
             "ProblemFrame",
             "TrinityBundle",
-            "load_trinity_bundle_artifact"
+            "load_trinity_bundle_artifact",
+            "persist_trinity_bundle_artifact"
           ],
           "has___getattr__": true,
           "has___dir__": false,
@@ -8324,8 +8325,8 @@
                 "path": "src/polisyos/ir/trinity/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 2075,
-                "sha256": "3a21b87f5c6b8a71a94b4ddf601020b94228b4752e2bdd0515ae6d101649325e"
+                "bytes": 2478,
+                "sha256": "8e1febca08ed467b4dd9e914da16609b5087914228d4694e332806ad783951cd"
               },
               {
                 "path": "src/polisyos/ir/trinity",
@@ -10826,11 +10827,12 @@
         {
           "module": "polisyos.foundry.compile",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 6,
-          "known_export_count": 6,
+          "export_count": 7,
+          "known_export_count": 7,
           "exports": [
             "TreasuryPlan",
             "build_treasury_plan",
+            "build_method_housekeeping_nodes",
             "compile",
             "execution_plan_input_refs",
             "program_graph_input_refs",
@@ -10860,8 +10862,8 @@
                 "path": "src/polisyos/foundry/compile/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 2513,
-                "sha256": "6e3e9bf4c8ceab9898965e1caf5205b5042af61e3997a4c4a36ac2f7cba8f70f"
+                "bytes": 2736,
+                "sha256": "e33d7b0681af979a6655a697633054fdeb94b34a9e5d89e8918c8eeb5462e863"
               },
               {
                 "path": "src/polisyos/foundry/compile",
@@ -11371,8 +11373,8 @@
         {
           "module": "polisyos.foundry.execute",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 23,
-          "known_export_count": 23,
+          "export_count": 25,
+          "known_export_count": 25,
           "exports": [
             "BoundedNumericNPZError",
             "BoundedStateSnapshotInputs",
@@ -11387,11 +11389,13 @@
             "SnapshotStateLayoutError",
             "admit_execution_source",
             "admit_execution_source_bounded",
+            "apply_state_delta",
             "execute",
             "read_method_artifact_output_bounded",
             "execution_input_basis_sources",
             "get_state_path",
             "load_state_snapshot",
+            "put_state_snapshot",
             "StateSnapshotValueLeaf",
             "state_snapshot_value_projection",
             "read_numeric_npz_bounded",
@@ -11422,8 +11426,8 @@
                 "path": "src/polisyos/foundry/execute/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 4928,
-                "sha256": "e0f4ad1093d825993107a00393c30f6646da9fc4106b5741bae3eb45523eb69a"
+                "bytes": 5218,
+                "sha256": "310e7fdd6de90984338e19d769f547714e34b550cf732590bf8a207f7345fb04"
               },
               {
                 "path": "src/polisyos/foundry/execute",
@@ -13297,8 +13301,8 @@
         {
           "module": "polisyos.scientist.methods.backtesting",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 34,
-          "known_export_count": 34,
+          "export_count": 35,
+          "known_export_count": 35,
           "exports": [
             "ABSTRACTION_LEAKAGE_SUITE_ID",
             "MULTIPLICITY_DISCLOSURE_SUITE_ID",
@@ -13331,6 +13335,7 @@
             "build_temporal_backtest_report",
             "evaluate_temporal_safe_rejection",
             "evaluate_temporal_trajectory",
+            "load_backtest_report_for_consumption",
             "replay_fragment_composition_case",
             "run_phase_d4_challenge_suites",
             "summarize_temporal_evaluations"
@@ -13359,8 +13364,8 @@
                 "path": "src/polisyos/scientist/methods/backtesting/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 3437,
-                "sha256": "ab32305ff929db821a069fd481a21e4bbda6215bd3ee448ef1d876bc7fd41559"
+                "bytes": 3724,
+                "sha256": "4d3f496505ce7a2995f85ad4ebade198ea8fafe8a66d16c7e89ecb8ed265afd7"
               },
               {
                 "path": "src/polisyos/scientist/methods/backtesting",
@@ -13454,6 +13459,12 @@
               },
               {
                 "path": "src/polisyos/scientist/methods/backtesting/orchestrator.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/scientist/methods/backtesting/native_replay.py",
                 "operation": "is_file",
                 "status": "present",
                 "result": true
@@ -13835,6 +13846,12 @@
               },
               {
                 "path": "src/polisyos/scientist/orchestration/engine/convergence.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/scientist/orchestration/engine/child_output_closure.py",
                 "operation": "is_file",
                 "status": "present",
                 "result": true

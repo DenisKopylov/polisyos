@@ -12,7 +12,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 ## Summary
 
-- Total IR types: `1679`.
+- Total IR types: `1674`.
 - Public/root-or-package facade types: `680`.
 - ABI snapshot-backed types: `103`.
 - Export enumeration covers these public packages:
@@ -31,10 +31,10 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 | Section | Type count | Public types | Snapshot-backed |
 | ------- | ---------- | ------------ | ---------------- |
-| `analytics` | 1026 | 342 | 45 |
+| `analytics` | 1027 | 342 | 45 |
 | `artifacts` | 30 | 3 | 0 |
 | `governance` | 99 | 27 | 8 |
-| `kernel` | 66 | 54 | 0 |
+| `kernel` | 60 | 54 | 0 |
 | `linker` | 7 | 0 | 0 |
 | `migrations` | 13 | 0 | 0 |
 | `observation` | 138 | 63 | 30 |
@@ -1465,6 +1465,17 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `statistic` | `float \| NoneType` | `no` | `—` | — |
 | `status` | `str` | `yes` | `—` | — |
 | `unresolved_assumptions` | `list[str]` | `no` | `—` | — |
+
+### `polisyos.ir.analytics.backtest.NativeBacktestVerificationRequiredError` { #polisyos-ir-analytics-backtest-nativebacktestverificationrequirederror }
+
+- Kind: `class`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: A selected native report needs its higher-layer trajectory verifier.
 
 ### `polisyos.ir.analytics.backtest.OutcomeComparison` { #polisyos-ir-analytics-backtest-outcomecomparison }
 
@@ -25782,96 +25793,6 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
 | `kind` | `~UnitKindT` | `yes` | `—` | — |
-
-### `polisyos.ir.kernel.units.UnitSpec[Literal['count']]` { #polisyos-ir-kernel-units-unitspec-literal-count }
-
-- Kind: `pydantic_model`
-- Public status: `internal`
-- Current version: `—`
-- Exported from: —
-- ABI snapshot: `—` / `—`
-- Compatibility mode: `—`
-- References: —
-- Summary: Unit spec data model.
-
-| Field | Type | Required | Default | IR refs |
-| ----- | ---- | -------- | ------- | ------- |
-| `kind` | `Literal[count]` | `yes` | `—` | — |
-
-### `polisyos.ir.kernel.units.UnitSpec[Literal['dimensionless']]` { #polisyos-ir-kernel-units-unitspec-literal-dimensionless }
-
-- Kind: `pydantic_model`
-- Public status: `internal`
-- Current version: `—`
-- Exported from: —
-- ABI snapshot: `—` / `—`
-- Compatibility mode: `—`
-- References: —
-- Summary: Unit spec data model.
-
-| Field | Type | Required | Default | IR refs |
-| ----- | ---- | -------- | ------- | ------- |
-| `kind` | `Literal[dimensionless]` | `yes` | `—` | — |
-
-### `polisyos.ir.kernel.units.UnitSpec[Literal['duration']]` { #polisyos-ir-kernel-units-unitspec-literal-duration }
-
-- Kind: `pydantic_model`
-- Public status: `internal`
-- Current version: `—`
-- Exported from: —
-- ABI snapshot: `—` / `—`
-- Compatibility mode: `—`
-- References: —
-- Summary: Unit spec data model.
-
-| Field | Type | Required | Default | IR refs |
-| ----- | ---- | -------- | ------- | ------- |
-| `kind` | `Literal[duration]` | `yes` | `—` | — |
-
-### `polisyos.ir.kernel.units.UnitSpec[Literal['generic']]` { #polisyos-ir-kernel-units-unitspec-literal-generic }
-
-- Kind: `pydantic_model`
-- Public status: `internal`
-- Current version: `—`
-- Exported from: —
-- ABI snapshot: `—` / `—`
-- Compatibility mode: `—`
-- References: —
-- Summary: Unit spec data model.
-
-| Field | Type | Required | Default | IR refs |
-| ----- | ---- | -------- | ------- | ------- |
-| `kind` | `Literal[generic]` | `yes` | `—` | — |
-
-### `polisyos.ir.kernel.units.UnitSpec[Literal['money']]` { #polisyos-ir-kernel-units-unitspec-literal-money }
-
-- Kind: `pydantic_model`
-- Public status: `internal`
-- Current version: `—`
-- Exported from: —
-- ABI snapshot: `—` / `—`
-- Compatibility mode: `—`
-- References: —
-- Summary: Unit spec data model.
-
-| Field | Type | Required | Default | IR refs |
-| ----- | ---- | -------- | ------- | ------- |
-| `kind` | `Literal[money]` | `yes` | `—` | — |
-
-### `polisyos.ir.kernel.units.UnitSpec[Literal['rate']]` { #polisyos-ir-kernel-units-unitspec-literal-rate }
-
-- Kind: `pydantic_model`
-- Public status: `internal`
-- Current version: `—`
-- Exported from: —
-- ABI snapshot: `—` / `—`
-- Compatibility mode: `—`
-- References: —
-- Summary: Unit spec data model.
-
-| Field | Type | Required | Default | IR refs |
-| ----- | ---- | -------- | ------- | ------- |
-| `kind` | `Literal[rate]` | `yes` | `—` | — |
 
 ### `polisyos.ir.kernel.units.UnitsRegistry` { #polisyos-ir-kernel-units-unitsregistry }
 

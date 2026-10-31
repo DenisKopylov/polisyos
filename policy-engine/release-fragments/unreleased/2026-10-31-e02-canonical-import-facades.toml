@@ -12,6 +12,6 @@ api = "Add the stock component type predicate to the existing FileSystemCAS owne
 migration = "Cross-layer consumers should import supported owning facades rather than private leaf modules. Existing private leaves remain internal and unchanged."
 limitations = "The component predicate is not an access, provenance, or authority decision; graph construction is not execution or completion evidence."
 generated_client_compatibility = "not_applicable"
-public_surface_inventory_reviewed = false
+public_surface_inventory_reviewed = true
 migration_docs = ["src/polisyos/core/artifacts/README.md", "src/polisyos/foundry/README.md", "src/polisyos/foundry/methods/catalog/causal/README.md", "src/polisyos/ir/artifacts/README.md", "src/polisyos/fabric/connectors/README.md"]
 runbook_docs = []

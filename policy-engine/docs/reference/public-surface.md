@@ -331,7 +331,7 @@ timestamps
 | `polisyos.core` | `src/polisyos/core/__init__.py` | `lazy_facade` | 134 |
 | `polisyos.core.artifacts` | `src/polisyos/core/artifacts/__init__.py` | `lazy_facade` | 136 |
 | `polisyos.core.canon` | `src/polisyos/core/canon/__init__.py` | `eager_exports` | 12 |
-| `polisyos.core.components` | `src/polisyos/core/components/__init__.py` | `eager_exports` | 63 |
+| `polisyos.core.components` | `src/polisyos/core/components/__init__.py` | `eager_exports` | 64 |
 | `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 782 |
 | `polisyos.core.governance` | `src/polisyos/core/governance/__init__.py` | `eager_exports` | 5 |
 | `polisyos.core.llm` | `src/polisyos/core/llm/__init__.py` | `eager_exports` | 26 |
@@ -669,7 +669,7 @@ truncated_hash
 - Facade: `eager_exports`
 - Summary: Expose the stable component discovery, metadata, compliance, and registry API.
 
-<details><summary>Entrypoint exports (63)</summary>
+<details><summary>Entrypoint exports (64)</summary>
 
 ```text
 DEFAULT_ENTRY_POINT_GROUPS
@@ -728,6 +728,7 @@ bootstrap_plugin_registries
 build_components_index
 capabilities_from_flags
 compare_semver
+describe_callable_source
 discover_components
 discover_dev_components
 discover_entry_points

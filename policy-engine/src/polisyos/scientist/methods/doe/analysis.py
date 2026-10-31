@@ -205,28 +205,10 @@ def _array_digest(values: np.ndarray) -> str:
 
 
 def _native_implementation(function: object, expected_module: str) -> dict[str, str]:
-    """Describe the observed direct callable, without authenticating its dependencies."""
-    from types import FunctionType
+    """Use Core's public direct-source observer without authenticating dependencies."""
+    from polisyos.core.components import describe_callable_source
 
-    from polisyos.core.components._provider_origin import _callable_source, _OriginError
-
-    if not isinstance(function, FunctionType):
-        return {"basis": "not_established"}
-
-    try:
-        module, source = _callable_source(function)
-        if module.__name__ != expected_module and not module.__name__.startswith(
-            expected_module + "."
-        ):
-            raise ValueError("DOE backend callable belongs to another module")
-        return {
-            "basis": "recomputed",
-            "module": module.__name__,
-            "qualname": function.__qualname__,
-            "module_sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
-        }
-    except (_OriginError, OSError, RuntimeError, TypeError, ValueError):
-        return {"basis": "not_established"}
+    return describe_callable_source(function, expected_module=expected_module)
 
 
 def _backend_identity(plan: SensitivityPlan) -> dict[str, object]:

@@ -1,0 +1,14 @@
+id = "2026-10-31-core-callable-source-observer"
+title = "Route DOE direct-source observations through the Core facade"
+type = "added"
+component = "core"
+owner = "core"
+summary = "Expose the existing code-to-module source observer through core.components and reuse it from DOE, removing the forbidden cross-root private import. Canonicalize public-surface child traversal before recording observations so inventory bytes do not depend on filesystem enumeration order."
+evidence = ["tests/unit/core/components/test_callable_source.py", "tests/integration/fabric_ir/test_fabric_installed_provider_origin.py", "tests/unit/scientist/methods/doe/test_analysis_receipt.py", "tests/repo_quality/architecture/test_public_surface_export_resolution.py"]
+compatibility = "Additive facade function. Existing DOE receipt descriptor keys, installed-provider validation and refusal behavior remain unchanged. No HTTP, DTO or schema change."
+change_class = "Reuse existing canonical source reconciliation and correct deterministic inventory traversal."
+surface_classification = "public_stable: polisyos.core.components"
+api = "Add describe_callable_source(function, *, expected_module) to polisyos.core.components."
+limitations = "A direct source observation does not establish dependency closure, installation RECORD, publisher identity, permission or subsequent execution authority. G acceptance and historical closures are unchanged."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true

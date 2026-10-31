@@ -1366,3 +1366,48 @@ def test_catalog_run_profile_is_exported_from_core_contracts_facade() -> None:
 
     assert "CatalogRunProfile" in contracts.__all__
     assert contracts.CatalogRunProfile is ControlCatalogRunProfile
+
+
+def test_public_inventory_readset_is_independent_of_directory_enumeration_order(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The same real facade/children yield identical inventory on fresh filesystems."""
+    facade, _mapping = _fixture(tmp_path, monkeypatch)
+    package = facade.parent
+    facade.write_text(
+        "import importlib\n"
+        "__all__ = ['alpha', 'omega']\n"
+        "def __getattr__(name):\n"
+        "    if name not in __all__:\n"
+        "        raise AttributeError(name)\n"
+        "    module = importlib.import_module(f'polisyos.fixture.{name}')\n"
+        "    globals()[name] = module\n"
+        "    return module\n",
+        encoding="utf-8",
+    )
+    for name in ("omega.py", "alpha.py", "README.md"):
+        (package / name).write_text("", encoding="utf-8")
+    original_iterdir = Path.iterdir
+    snapshots = []
+    for reverse in (False, True):
+        with monkeypatch.context() as enumeration:
+
+            def reordered(path: Path, *, reverse: bool = reverse):
+                return iter(
+                    sorted(original_iterdir(path), key=lambda child: child.name, reverse=reverse)
+                )
+
+            enumeration.setattr(Path, "iterdir", reordered)
+            snapshots.append(guardrails._entrypoint_inventory("polisyos.fixture"))
+    assert snapshots[0].exports == snapshots[1].exports == ("alpha", "omega")
+    assert snapshots[0].export_resolution == snapshots[1].export_resolution
+
+    # The complete child census still records an actually added child.
+    (package / "added.py").write_text("", encoding="utf-8")
+    changed = guardrails._entrypoint_inventory("polisyos.fixture")
+    assert changed.export_resolution != snapshots[0].export_resolution
+    assert any(
+        row["path"] == "src/polisyos/fixture/added.py"
+        for row in changed.export_resolution["inputs"]
+    )

@@ -67,6 +67,9 @@ The commands below were smoke-tested on `2026-04-17` unless explicitly marked as
 
 - `guardrails.py` is the source of truth for the public-surface inventory, deep-import
   baseline, and README freshness policy.
+- Immediate source-child traversal is sorted before filesystem observations are recorded.
+  Equivalent checkouts therefore preserve the complete inventory readset across
+  directory enumeration orders; an actually added child still changes that readset.
 
 - Deep-import analysis resolves ImportFrom names against importable source-tree
   children, including relative and star imports. A child is treated as a facade

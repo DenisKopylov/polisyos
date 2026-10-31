@@ -16131,13 +16131,6 @@
       "target_root": "ir"
     },
     {
-      "source_module": "polisyos.scientist.methods.doe.analysis",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/methods/doe/analysis.py",
-      "target_module": "polisyos.core.components._provider_origin",
-      "target_root": "core"
-    },
-    {
       "source_module": "polisyos.scientist.methods.research_dag.builder",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/methods/research_dag/builder.py",

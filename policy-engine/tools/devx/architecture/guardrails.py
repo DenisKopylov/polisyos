@@ -5160,7 +5160,7 @@ def _source_child_module_names(module: str) -> tuple[str, ...] | None:
     try:
         if not admitted_is_dir(package_dir, REPO_ROOT):
             return ()
-        children = list(package_dir.iterdir())
+        children = sorted(package_dir.iterdir(), key=lambda child: child.name)
     except (OSError, ValueError):
         return None
 

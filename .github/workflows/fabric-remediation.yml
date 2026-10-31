@@ -126,7 +126,7 @@ jobs:
 
       - name: Ban query.replace in Fabric connector and world paths
         run: |
-          bash ../.github/scripts/require_no_matches.sh -n "query\\.replace\\(" src/polisyos/fabric/connectors src/polisyos/fabric/world src/polisyos/fabric/quality.py
+          bash ../.github/scripts/require_no_matches.sh -n "query\\.replace\\(" src/polisyos/fabric/connectors src/polisyos/fabric/world src/polisyos/fabric/quality
 
       - name: Ban eval-style DataFrame filters
         run: |

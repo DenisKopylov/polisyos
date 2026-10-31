@@ -12,6 +12,10 @@ Use this package when you need the write path for world facts and events, the
 materialization path into DuckDB or Kuzu, or the retained snapshot and branch
 mechanics behind time travel and recovery workflows.
 
+Materialization export names are kept as a closed string tuple. The facade adds
+them only when the DuckDB materialization branch is available; the names tuple
+is metadata and does not certify that a backend can be used.
+
 ## Where to Start
 
 - Read [__init__.py](./__init__.py) for the package facade used by

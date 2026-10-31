@@ -365,7 +365,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.common.text",
@@ -414,7 +415,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.common.config",
@@ -482,7 +484,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.common.canonical",
@@ -540,7 +543,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.common.canonical_profile",
@@ -597,7 +601,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.common.producer_request",
@@ -659,7 +664,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.common.hashing",
@@ -712,7 +718,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.common.migrations",
@@ -796,7 +803,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         }
       ]
     },
@@ -1280,7 +1288,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.core.artifacts",
@@ -1662,7 +1671,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.core.canon",
@@ -1746,7 +1756,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.core.components",
@@ -1971,7 +1982,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.core.contracts",
@@ -3065,7 +3077,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.core.governance",
@@ -3148,7 +3161,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.core.llm",
@@ -3282,7 +3296,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.core.llm.cache_settlement",
@@ -3338,20 +3353,47 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.core.observability",
-          "facade_mode_observed": "unresolved_exports",
-          "export_count": null,
-          "known_export_count": 0,
-          "exports": [],
+          "facade_mode_observed": "eager_exports",
+          "export_count": 25,
+          "known_export_count": 25,
+          "exports": [
+            "DeterminismTier",
+            "MetricsRegistry",
+            "OTelConfig",
+            "PolicyOSTracer",
+            "StructuredFormatter",
+            "TraceContextFilter",
+            "TracedExecutorWrapper",
+            "configure_otel_logging_handler",
+            "estimate_llm_cost_usd",
+            "extract_headers",
+            "get_current_trace_context",
+            "get_default_config",
+            "get_determinism_tier",
+            "get_metrics",
+            "get_trace_context_dict",
+            "get_tracer",
+            "inject_headers",
+            "is_hpc_observability_enabled",
+            "parse_determinism_tier",
+            "pricing_table",
+            "propagate_context",
+            "traced",
+            "traced_method",
+            "with_context_vars",
+            "with_trace_context"
+          ],
           "has___getattr__": false,
           "has___dir__": false,
           "source_file": "src/polisyos/core/observability/__init__.py",
           "summary": "PolicyOS Observability Module \u2014 Production-grade telemetry.",
           "export_resolution": {
-            "complete_verdict": false,
+            "complete_verdict": true,
             "finding_coverage": "explicit file-reader operations only",
             "inputs": [
               {
@@ -3461,39 +3503,10 @@
             "unresolved_by_construction": [
               "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."
             ],
-            "complete": false,
-            "reason": "Unresolved exported binding: src/polisyos/core/observability/__init__.py:MetricsRegistry",
-            "exports_scope": "no names proven by the bounded parser; not an empty runtime namespace",
-            "declared_export_candidates": [
-              "DeterminismTier",
-              "MetricsRegistry",
-              "OTelConfig",
-              "PolicyOSTracer",
-              "StructuredFormatter",
-              "TraceContextFilter",
-              "TracedExecutorWrapper",
-              "configure_otel_logging_handler",
-              "estimate_llm_cost_usd",
-              "extract_headers",
-              "get_current_trace_context",
-              "get_default_config",
-              "get_determinism_tier",
-              "get_metrics",
-              "get_trace_context_dict",
-              "get_tracer",
-              "inject_headers",
-              "is_hpc_observability_enabled",
-              "parse_determinism_tier",
-              "pricing_table",
-              "propagate_context",
-              "traced",
-              "traced_method",
-              "with_context_vars",
-              "with_trace_context"
-            ],
-            "candidate_scope": "Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.",
+            "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.core.security",
@@ -3840,7 +3853,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.core.trace",
@@ -3912,7 +3926,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.core.registry",
@@ -4158,7 +4173,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.core.run.worker_lifecycle",
@@ -4210,7 +4226,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         }
       ]
     },
@@ -5474,7 +5491,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.ir.analytics",
@@ -6529,7 +6547,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.ir.analytics.calibration_diagnostics",
@@ -6583,7 +6602,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.ir.api",
@@ -6645,7 +6665,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.ir.governance",
@@ -6883,7 +6904,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.ir.observation",
@@ -7164,7 +7186,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.ir.connectors",
@@ -7270,7 +7293,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.ir.kernel",
@@ -7582,7 +7606,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.ir.loading",
@@ -7789,7 +7814,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.ir.model_layer",
@@ -7984,7 +8010,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.ir.registry",
@@ -8285,7 +8312,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.ir.trinity",
@@ -8358,7 +8386,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.ir.world",
@@ -8625,7 +8654,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         }
       ]
     },
@@ -8759,7 +8789,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         }
       ]
     },
@@ -8889,7 +8920,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         }
       ]
     },
@@ -9007,7 +9039,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         }
       ]
     },
@@ -9137,7 +9170,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         }
       ]
     },
@@ -9145,7 +9179,7 @@
       "module": "polisyos.fabric",
       "classification": "public_stable",
       "facade_mode_expected": "lazy_facade",
-      "facade_mode_observed": "unresolved_exports",
+      "facade_mode_observed": "lazy_facade",
       "owner": "team-polisyos",
       "readme": "src/polisyos/fabric/README.md",
       "reference_doc": "docs/reference/public-surface.md",
@@ -9161,9 +9195,64 @@
         "polisyos.fabric.product_integration"
       ],
       "major_subsystem": true,
-      "export_count": null,
-      "known_export_count": 0,
-      "exports": [],
+      "export_count": 54,
+      "known_export_count": 54,
+      "exports": [
+        "AccessRef",
+        "AuthoredText",
+        "ConnectorRegistryLike",
+        "ConnectorSchemaContract",
+        "DataSchema",
+        "FabricDecisionData",
+        "FabricDecisionDataCoverage",
+        "FabricDecisionDataResponse",
+        "FabricFetchReceipt",
+        "FederatedFetchResult",
+        "FederationFetchAudit",
+        "FederationFetchRequest",
+        "FederationFetchSource",
+        "FederationSnapshotProjectionError",
+        "FieldSpec",
+        "IngestionStoreBindingError",
+        "LineageRef",
+        "ProcessingGuarantee",
+        "ProcessingGuaranteeContract",
+        "QualityRef",
+        "ReplayRef",
+        "SchemaType",
+        "SimulationDB",
+        "SourceContract",
+        "SourceContractRef",
+        "TemporalRef",
+        "TenantSidecarScope",
+        "TypedGap",
+        "UnitRef",
+        "WorldQueryError",
+        "WorldQueryRequest",
+        "atomic_write_json",
+        "batch_processing_contract",
+        "build_source_contract_requirement_bindings",
+        "execute_world_query",
+        "fabric_claim_to_authored_text",
+        "fabric_event_to_authored_text",
+        "fabric_fact_to_quantity_value",
+        "fabric_get_data",
+        "fabric_get_fresh_registered_sql_data",
+        "file_lock",
+        "freeze_federation_request",
+        "prepare_federation_core_payload",
+        "project_data_requirement_to_catalog_needs",
+        "query_claims",
+        "query_events",
+        "query_world_table",
+        "reopen_federated_fetch_result",
+        "resolve_connector_registry",
+        "resolve_world_snapshot",
+        "run_connectors_ingestion",
+        "stream_processing_contract",
+        "verify_federation_core_payload",
+        "world"
+      ],
       "has___getattr__": true,
       "has___dir__": true,
       "source_file": "src/polisyos/fabric/__init__.py",
@@ -9172,16 +9261,71 @@
       "entrypoints": [
         {
           "module": "polisyos.fabric",
-          "facade_mode_observed": "unresolved_exports",
-          "export_count": null,
-          "known_export_count": 0,
-          "exports": [],
+          "facade_mode_observed": "lazy_facade",
+          "export_count": 54,
+          "known_export_count": 54,
+          "exports": [
+            "AccessRef",
+            "AuthoredText",
+            "ConnectorRegistryLike",
+            "ConnectorSchemaContract",
+            "DataSchema",
+            "FabricDecisionData",
+            "FabricDecisionDataCoverage",
+            "FabricDecisionDataResponse",
+            "FabricFetchReceipt",
+            "FederatedFetchResult",
+            "FederationFetchAudit",
+            "FederationFetchRequest",
+            "FederationFetchSource",
+            "FederationSnapshotProjectionError",
+            "FieldSpec",
+            "IngestionStoreBindingError",
+            "LineageRef",
+            "ProcessingGuarantee",
+            "ProcessingGuaranteeContract",
+            "QualityRef",
+            "ReplayRef",
+            "SchemaType",
+            "SimulationDB",
+            "SourceContract",
+            "SourceContractRef",
+            "TemporalRef",
+            "TenantSidecarScope",
+            "TypedGap",
+            "UnitRef",
+            "WorldQueryError",
+            "WorldQueryRequest",
+            "atomic_write_json",
+            "batch_processing_contract",
+            "build_source_contract_requirement_bindings",
+            "execute_world_query",
+            "fabric_claim_to_authored_text",
+            "fabric_event_to_authored_text",
+            "fabric_fact_to_quantity_value",
+            "fabric_get_data",
+            "fabric_get_fresh_registered_sql_data",
+            "file_lock",
+            "freeze_federation_request",
+            "prepare_federation_core_payload",
+            "project_data_requirement_to_catalog_needs",
+            "query_claims",
+            "query_events",
+            "query_world_table",
+            "reopen_federated_fetch_result",
+            "resolve_connector_registry",
+            "resolve_world_snapshot",
+            "run_connectors_ingestion",
+            "stream_processing_contract",
+            "verify_federation_core_payload",
+            "world"
+          ],
           "has___getattr__": true,
           "has___dir__": true,
           "source_file": "src/polisyos/fabric/__init__.py",
           "summary": "Stable Fabric facade for connector ingestion, world-query, and catalog APIs.",
           "export_resolution": {
-            "complete_verdict": false,
+            "complete_verdict": true,
             "finding_coverage": "explicit file-reader operations only",
             "inputs": [
               {
@@ -9202,73 +9346,189 @@
                 "status": "read",
                 "bytes": 14180,
                 "sha256": "564760afdbb1b823f373d975b33666c715a22da22bd337de40c4ff6447487624"
+              },
+              {
+                "path": "src/polisyos/fabric",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/connectors",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/_internal",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/pii",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/ingestion",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/evidence",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/identity",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/quality",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/config",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/security",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/catalog",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/io",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/__init__.py",
+                "operation": "is_dir",
+                "status": "present",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/fabric/world",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/docs",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/storage",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/extensions",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/README.md",
+                "operation": "is_dir",
+                "status": "present",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/fabric/data_plane",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/federated_fetch.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/product_integration",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/api.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/numerics",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/retrieval",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/provenance",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/trust",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/_adapters",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/entity_resolution",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/claims",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
               }
             ],
             "unresolved_by_construction": [
               "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."
             ],
-            "complete": false,
-            "reason": "Unresolved reflective module-namespace write: src/polisyos/fabric/__init__.py",
-            "exports_scope": "no names proven by the bounded parser; not an empty runtime namespace",
-            "declared_export_candidates": [
-              "AccessRef",
-              "AuthoredText",
-              "ConnectorRegistryLike",
-              "ConnectorSchemaContract",
-              "DataSchema",
-              "FabricDecisionData",
-              "FabricDecisionDataCoverage",
-              "FabricDecisionDataResponse",
-              "FabricFetchReceipt",
-              "FederatedFetchResult",
-              "FederationFetchAudit",
-              "FederationFetchRequest",
-              "FederationFetchSource",
-              "FederationSnapshotProjectionError",
-              "FieldSpec",
-              "IngestionStoreBindingError",
-              "LineageRef",
-              "ProcessingGuarantee",
-              "ProcessingGuaranteeContract",
-              "QualityRef",
-              "ReplayRef",
-              "SchemaType",
-              "SimulationDB",
-              "SourceContract",
-              "SourceContractRef",
-              "TemporalRef",
-              "TenantSidecarScope",
-              "TypedGap",
-              "UnitRef",
-              "WorldQueryError",
-              "WorldQueryRequest",
-              "atomic_write_json",
-              "batch_processing_contract",
-              "build_source_contract_requirement_bindings",
-              "execute_world_query",
-              "fabric_claim_to_authored_text",
-              "fabric_event_to_authored_text",
-              "fabric_fact_to_quantity_value",
-              "fabric_get_data",
-              "fabric_get_fresh_registered_sql_data",
-              "file_lock",
-              "freeze_federation_request",
-              "prepare_federation_core_payload",
-              "project_data_requirement_to_catalog_needs",
-              "query_claims",
-              "query_events",
-              "query_world_table",
-              "reopen_federated_fetch_result",
-              "resolve_connector_registry",
-              "resolve_world_snapshot",
-              "run_connectors_ingestion",
-              "stream_processing_contract",
-              "verify_federation_core_payload",
-              "world"
-            ],
-            "candidate_scope": "Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.",
+            "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.fabric.api",
@@ -9420,7 +9680,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.fabric.connectors",
@@ -9812,7 +10073,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.fabric.data_plane",
@@ -10018,20 +10280,63 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.fabric.world",
-          "facade_mode_observed": "unresolved_exports",
+          "facade_mode_observed": "eager_exports",
           "export_count": null,
-          "known_export_count": 0,
-          "exports": [],
+          "known_export_count": 41,
+          "exports": [
+            "SEGMENTS_INDEX_NAME",
+            "WorldFactError",
+            "WorldIDError",
+            "WorldSegmentError",
+            "WorldSnapshotBackendUnavailable",
+            "WorldSnapshotFactWrite",
+            "WorldSnapshotNodeWrite",
+            "WorldSnapshotWriteRequest",
+            "WorldStoreError",
+            "WorldValidationError",
+            "append_world_segment_index",
+            "emit_attr_fact",
+            "emit_claim_facts",
+            "emit_doc_fragment_facts",
+            "emit_doc_meta_facts",
+            "emit_edge_fact",
+            "emit_world_event_facts",
+            "emit_world_node_facts",
+            "event_world_provenance_v1",
+            "load_world_fact_manifests",
+            "load_world_facts",
+            "persist_claim",
+            "persist_conflict_set",
+            "persist_doc_fragment",
+            "persist_doc_meta",
+            "persist_fact_segment_manifest",
+            "persist_quality_report",
+            "persist_trust_assessment",
+            "persist_world_event",
+            "stable_world_provenance_v1",
+            "validate_claim_id",
+            "validate_conflict_set_id",
+            "validate_doc_fragment_ids",
+            "validate_doc_meta_ids",
+            "validate_fact_is_world_abi",
+            "validate_quality_report_id",
+            "validate_trust_assessment_id",
+            "validate_world_event_id",
+            "validate_world_facts",
+            "write_world_fact_segment",
+            "write_world_snapshot"
+          ],
           "has___getattr__": false,
           "has___dir__": false,
           "source_file": "src/polisyos/fabric/world/__init__.py",
           "summary": "Facade for emitting, validating, persisting, and materializing world facts.",
           "export_resolution": {
-            "complete_verdict": false,
+            "complete_verdict": true,
             "finding_coverage": "explicit file-reader operations only",
             "inputs": [
               {
@@ -10050,62 +10355,263 @@
                 "path": "src/polisyos/fabric/world/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 4343,
-                "sha256": "c9d4d133b0ae4cd6b97251cec6b3620937780aeb4a1aec3d869cea7cf5fbd6c5"
+                "bytes": 5670,
+                "sha256": "10c79dea1d98ecf0c62257bbb803abfe9b250f2f7751f74d1b15738223da2ea3"
+              },
+              {
+                "path": "src/polisyos/fabric/world",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/world/query.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/world/write.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/world/events.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/world/ddl",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/world/__init__.py",
+                "operation": "is_dir",
+                "status": "present",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/fabric/world/README.md",
+                "operation": "is_dir",
+                "status": "present",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/fabric/world/providers.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/world/materialize",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/world/store",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/world",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/world/query.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/world/write.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/world/events.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/world/ddl",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/world/__init__.py",
+                "operation": "is_dir",
+                "status": "present",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/fabric/world/README.md",
+                "operation": "is_dir",
+                "status": "present",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/fabric/world/providers.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/world/materialize",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/fabric/world/store",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
               }
             ],
             "unresolved_by_construction": [
               "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."
             ],
-            "complete": false,
-            "reason": "Unresolved conditional/mutated exports: src/polisyos/fabric/world/__init__.py:__all__",
-            "exports_scope": "no names proven by the bounded parser; not an empty runtime namespace",
-            "declared_export_candidates": [
-              "SEGMENTS_INDEX_NAME",
-              "WorldFactError",
-              "WorldIDError",
-              "WorldSegmentError",
-              "WorldSnapshotBackendUnavailable",
-              "WorldSnapshotFactWrite",
-              "WorldSnapshotNodeWrite",
-              "WorldSnapshotWriteRequest",
-              "WorldStoreError",
-              "WorldValidationError",
-              "append_world_segment_index",
-              "emit_attr_fact",
-              "emit_claim_facts",
-              "emit_doc_fragment_facts",
-              "emit_doc_meta_facts",
-              "emit_edge_fact",
-              "emit_world_event_facts",
-              "emit_world_node_facts",
-              "event_world_provenance_v1",
-              "load_world_fact_manifests",
-              "load_world_facts",
-              "persist_claim",
-              "persist_conflict_set",
-              "persist_doc_fragment",
-              "persist_doc_meta",
-              "persist_fact_segment_manifest",
-              "persist_quality_report",
-              "persist_trust_assessment",
-              "persist_world_event",
-              "stable_world_provenance_v1",
-              "validate_claim_id",
-              "validate_conflict_set_id",
-              "validate_doc_fragment_ids",
-              "validate_doc_meta_ids",
-              "validate_fact_is_world_abi",
-              "validate_quality_report_id",
-              "validate_trust_assessment_id",
-              "validate_world_event_id",
-              "validate_world_facts",
-              "write_world_fact_segment",
-              "write_world_snapshot"
-            ],
-            "candidate_scope": "Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.",
+            "complete": true,
+            "exports_scope": "Complete finite source-conditioned export profiles; exports lists only their common names. No backend condition or native availability was evaluated.",
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": [
+            {
+              "schema_version": "policyos.source-export-profile.v1",
+              "conditions": [
+                {
+                  "expression": "_importlib_util.find_spec('duckdb') is not None",
+                  "value": false
+                }
+              ],
+              "exports": [
+                "SEGMENTS_INDEX_NAME",
+                "WorldFactError",
+                "WorldIDError",
+                "WorldSegmentError",
+                "WorldSnapshotBackendUnavailable",
+                "WorldSnapshotFactWrite",
+                "WorldSnapshotNodeWrite",
+                "WorldSnapshotWriteRequest",
+                "WorldStoreError",
+                "WorldValidationError",
+                "append_world_segment_index",
+                "emit_attr_fact",
+                "emit_claim_facts",
+                "emit_doc_fragment_facts",
+                "emit_doc_meta_facts",
+                "emit_edge_fact",
+                "emit_world_event_facts",
+                "emit_world_node_facts",
+                "event_world_provenance_v1",
+                "load_world_fact_manifests",
+                "load_world_facts",
+                "persist_claim",
+                "persist_conflict_set",
+                "persist_doc_fragment",
+                "persist_doc_meta",
+                "persist_fact_segment_manifest",
+                "persist_quality_report",
+                "persist_trust_assessment",
+                "persist_world_event",
+                "stable_world_provenance_v1",
+                "validate_claim_id",
+                "validate_conflict_set_id",
+                "validate_doc_fragment_ids",
+                "validate_doc_meta_ids",
+                "validate_fact_is_world_abi",
+                "validate_quality_report_id",
+                "validate_trust_assessment_id",
+                "validate_world_event_id",
+                "validate_world_facts",
+                "write_world_fact_segment",
+                "write_world_snapshot"
+              ],
+              "runtime_condition_evaluation": "UNRUN"
+            },
+            {
+              "schema_version": "policyos.source-export-profile.v1",
+              "conditions": [
+                {
+                  "expression": "_importlib_util.find_spec('duckdb') is not None",
+                  "value": true
+                }
+              ],
+              "exports": [
+                "SEGMENTS_INDEX_NAME",
+                "WorldFactError",
+                "WorldIDError",
+                "WorldSegmentError",
+                "WorldSnapshotBackendUnavailable",
+                "WorldSnapshotFactWrite",
+                "WorldSnapshotNodeWrite",
+                "WorldSnapshotWriteRequest",
+                "WorldStoreError",
+                "WorldValidationError",
+                "append_world_segment_index",
+                "emit_attr_fact",
+                "emit_claim_facts",
+                "emit_doc_fragment_facts",
+                "emit_doc_meta_facts",
+                "emit_edge_fact",
+                "emit_world_event_facts",
+                "emit_world_node_facts",
+                "event_world_provenance_v1",
+                "load_world_fact_manifests",
+                "load_world_facts",
+                "persist_claim",
+                "persist_conflict_set",
+                "persist_doc_fragment",
+                "persist_doc_meta",
+                "persist_fact_segment_manifest",
+                "persist_quality_report",
+                "persist_trust_assessment",
+                "persist_world_event",
+                "stable_world_provenance_v1",
+                "validate_claim_id",
+                "validate_conflict_set_id",
+                "validate_doc_fragment_ids",
+                "validate_doc_meta_ids",
+                "validate_fact_is_world_abi",
+                "validate_quality_report_id",
+                "validate_trust_assessment_id",
+                "validate_world_event_id",
+                "validate_world_facts",
+                "write_world_fact_segment",
+                "write_world_snapshot",
+                "MergeStrategy",
+                "WorldArtifactReadError",
+                "WorldKuzuCopyError",
+                "WorldKuzuImportError",
+                "WorldKuzuNotAvailable",
+                "WorldMaterializationError",
+                "WorldMaterializationPolicy",
+                "WorldMaterializeSegmentStats",
+                "WorldMaterializeStats",
+                "WorldMergeConflict",
+                "WorldSchemaError",
+                "WorldSegmentHashMismatch",
+                "apply_world_segment",
+                "ensure_world_kuzu_schema",
+                "ensure_world_materialized",
+                "ensure_world_schema",
+                "materialize_world_duckdb_from_fact_log",
+                "materialize_world_kuzu_from_duckdb"
+              ],
+              "runtime_condition_evaluation": "UNRUN"
+            }
+          ]
         },
         {
           "module": "polisyos.fabric.docs",
@@ -10224,7 +10730,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.fabric.ingestion",
@@ -10319,7 +10826,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.fabric.retrieval",
@@ -10425,7 +10933,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.fabric.product_integration",
@@ -10488,7 +10997,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         }
       ]
     },
@@ -10771,7 +11281,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.foundry.api",
@@ -10822,7 +11333,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.foundry.compile",
@@ -10919,7 +11431,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.foundry.analysis",
@@ -11004,20 +11517,137 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.foundry.calibration",
-          "facade_mode_observed": "unresolved_exports",
-          "export_count": null,
-          "known_export_count": 0,
-          "exports": [],
+          "facade_mode_observed": "eager_exports",
+          "export_count": 115,
+          "known_export_count": 115,
+          "exports": [
+            "CalibrationSourceRead",
+            "CalibrationSourceReadRefusal",
+            "CalibrationSourceStatus",
+            "classify_calibration_source_error",
+            "read_calibration_source",
+            "read_calibration_config_source",
+            "read_calibration_model_source",
+            "read_calibration_registry_source",
+            "read_calibration_execution_input_basis_source",
+            "read_calibration_report_source",
+            "record_calibration_source_error",
+            "affine_bijector",
+            "aggregate_moment_summary",
+            "attach_abm_identifiability_certificate_ref",
+            "attach_identifiability_diagnostic_ref",
+            "apply_nodes_batch",
+            "AuxLossComponent",
+            "build_robust_set_spec_from_samples",
+            "calibrate_discrete_ci",
+            "calibrate_kernel_ci",
+            "calibration_report_series_sha256",
+            "calibration_report_time_axis_sha256",
+            "CALIBRATION_RUNTIME_INPUT_CONTRACT",
+            "CALIBRATION_RUNTIME_INPUT_CONTRACT_V1_2",
+            "CALIBRATION_RUNTIME_INPUT_NAMES",
+            "CALIBRATION_RUNTIME_INPUT_NAMES_V1_2",
+            "CalibrationCoordinateProjection",
+            "CalibrationExecutionInputBasis",
+            "CalibrationOrderedBatchInput",
+            "CalibrationOrderedBatchBackendUnavailable",
+            "CalibrationOrderedBatchReport",
+            "CalibrationOrderedBatchRow",
+            "CalibrationFitMetrics",
+            "CalibrationFitQuality",
+            "CalibrationParameterUnitIdentity",
+            "CalibrationReport",
+            "CalibrationResolvedParameterInput",
+            "CalibrationRuntimeInputBinding",
+            "CalibrationSeriesComparison",
+            "CalibrationTargetBundle",
+            "CalibrationTargetBundleManifest",
+            "CalibrationTargetInputIdentity",
+            "CalibrationUncertainty",
+            "Calibrator",
+            "CalibratorInputs",
+            "OrderedBatchCalibrationEvaluation",
+            "OrderedBatchCalibrationProfile",
+            "canonical_input_sha256",
+            "chain_bijector",
+            "CIFPRInflationBound",
+            "CISampleSizeRequirement",
+            "CITestCalibration",
+            "CITestThresholdPolicy",
+            "CITestThresholdPolicySet",
+            "coerce_dp_context",
+            "compile_program",
+            "compute_effective_weight",
+            "compute_hessian",
+            "DefaultMeasurementAwareLossAdapter",
+            "diagnose_identifiability",
+            "DPContext",
+            "effective_privacy_xi",
+            "envelope_from_calibration_param",
+            "envelopes_from_calibration",
+            "evaluate_ordered_batch_objective",
+            "ExecuteResponseBasisCandidate",
+            "ExecuteResponseSourceIdentity",
+            "fabric_calibration_context_from_decision_data",
+            "fabric_calibration_context_from_evidence_paths",
+            "FabricCalibrationContext",
+            "gaussian_parametric_radius",
+            "HessianResult",
+            "identifiability_diagnostic",
+            "IdentifiabilityDiagnosticConfig",
+            "IdentifiabilityDiagnosticResult",
+            "IdentifiabilityDiagnosticStatus",
+            "IdentifiabilityMomentClass",
+            "IdentifiabilityReport",
+            "IdentifiabilityStatus",
+            "InterferenceLossComponent",
+            "inverse_bijector",
+            "load_calibration_execution_input_basis",
+            "load_execute_response_basis_candidate",
+            "load_identifiability_diagnostic_result",
+            "log_bijector",
+            "logit_bijector",
+            "MeasurementAwareLossAdapter",
+            "MeasurementAwareLossConfig",
+            "MeasurementAwareTarget",
+            "MultiStartResult",
+            "ParamIdentifiability",
+            "persist_posterior_summary_from_method_evidence",
+            "propagate_selected_posterior_summary",
+            "put_calibration_config",
+            "put_calibration_execution_input_basis",
+            "put_calibration_report",
+            "reconcile_ordered_batch_inputs",
+            "put_calibration_ordered_batch_input",
+            "resolve_calibration_ordered_batch_input",
+            "reconcile_ordered_batch_report_identity",
+            "replay_ordered_batch_report_projection",
+            "ordered_batch_fit_metrics",
+            "reconcile_selected_runtime_input",
+            "required_n_chi2",
+            "required_n_kernel",
+            "resolve_ci_threshold_policy",
+            "RobustSetCalibrator",
+            "run_pure_scan",
+            "RUNTIME_REGISTRY_MEMBER_CONTRACT",
+            "RUNTIME_REGISTRY_MEMBER_INPUT_NAMES",
+            "select_robust_set_size",
+            "SetSizeSelector",
+            "SingleRunResult",
+            "softplus_bijector",
+            "StaticBundle"
+          ],
           "has___getattr__": false,
           "has___dir__": false,
           "source_file": "src/polisyos/foundry/calibration/__init__.py",
           "summary": "Expose calibration contracts, loss adapters, and the differentiable calibrator.",
           "export_resolution": {
-            "complete_verdict": false,
+            "complete_verdict": true,
             "finding_coverage": "explicit file-reader operations only",
             "inputs": [
               {
@@ -11157,129 +11787,10 @@
             "unresolved_by_construction": [
               "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."
             ],
-            "complete": false,
-            "reason": "Unresolved exported binding: src/polisyos/foundry/calibration/__init__.py:affine_bijector",
-            "exports_scope": "no names proven by the bounded parser; not an empty runtime namespace",
-            "declared_export_candidates": [
-              "CalibrationSourceRead",
-              "CalibrationSourceReadRefusal",
-              "CalibrationSourceStatus",
-              "classify_calibration_source_error",
-              "read_calibration_source",
-              "read_calibration_config_source",
-              "read_calibration_model_source",
-              "read_calibration_registry_source",
-              "read_calibration_execution_input_basis_source",
-              "read_calibration_report_source",
-              "record_calibration_source_error",
-              "affine_bijector",
-              "aggregate_moment_summary",
-              "attach_abm_identifiability_certificate_ref",
-              "attach_identifiability_diagnostic_ref",
-              "apply_nodes_batch",
-              "AuxLossComponent",
-              "build_robust_set_spec_from_samples",
-              "calibrate_discrete_ci",
-              "calibrate_kernel_ci",
-              "calibration_report_series_sha256",
-              "calibration_report_time_axis_sha256",
-              "CALIBRATION_RUNTIME_INPUT_CONTRACT",
-              "CALIBRATION_RUNTIME_INPUT_CONTRACT_V1_2",
-              "CALIBRATION_RUNTIME_INPUT_NAMES",
-              "CALIBRATION_RUNTIME_INPUT_NAMES_V1_2",
-              "CalibrationCoordinateProjection",
-              "CalibrationExecutionInputBasis",
-              "CalibrationOrderedBatchInput",
-              "CalibrationOrderedBatchBackendUnavailable",
-              "CalibrationOrderedBatchReport",
-              "CalibrationOrderedBatchRow",
-              "CalibrationFitMetrics",
-              "CalibrationFitQuality",
-              "CalibrationParameterUnitIdentity",
-              "CalibrationReport",
-              "CalibrationResolvedParameterInput",
-              "CalibrationRuntimeInputBinding",
-              "CalibrationSeriesComparison",
-              "CalibrationTargetBundle",
-              "CalibrationTargetBundleManifest",
-              "CalibrationTargetInputIdentity",
-              "CalibrationUncertainty",
-              "Calibrator",
-              "CalibratorInputs",
-              "OrderedBatchCalibrationEvaluation",
-              "OrderedBatchCalibrationProfile",
-              "canonical_input_sha256",
-              "chain_bijector",
-              "CIFPRInflationBound",
-              "CISampleSizeRequirement",
-              "CITestCalibration",
-              "CITestThresholdPolicy",
-              "CITestThresholdPolicySet",
-              "coerce_dp_context",
-              "compile_program",
-              "compute_effective_weight",
-              "compute_hessian",
-              "DefaultMeasurementAwareLossAdapter",
-              "diagnose_identifiability",
-              "DPContext",
-              "effective_privacy_xi",
-              "envelope_from_calibration_param",
-              "envelopes_from_calibration",
-              "evaluate_ordered_batch_objective",
-              "ExecuteResponseBasisCandidate",
-              "ExecuteResponseSourceIdentity",
-              "fabric_calibration_context_from_decision_data",
-              "fabric_calibration_context_from_evidence_paths",
-              "FabricCalibrationContext",
-              "gaussian_parametric_radius",
-              "HessianResult",
-              "identifiability_diagnostic",
-              "IdentifiabilityDiagnosticConfig",
-              "IdentifiabilityDiagnosticResult",
-              "IdentifiabilityDiagnosticStatus",
-              "IdentifiabilityMomentClass",
-              "IdentifiabilityReport",
-              "IdentifiabilityStatus",
-              "InterferenceLossComponent",
-              "inverse_bijector",
-              "load_calibration_execution_input_basis",
-              "load_execute_response_basis_candidate",
-              "load_identifiability_diagnostic_result",
-              "log_bijector",
-              "logit_bijector",
-              "MeasurementAwareLossAdapter",
-              "MeasurementAwareLossConfig",
-              "MeasurementAwareTarget",
-              "MultiStartResult",
-              "ParamIdentifiability",
-              "persist_posterior_summary_from_method_evidence",
-              "propagate_selected_posterior_summary",
-              "put_calibration_config",
-              "put_calibration_execution_input_basis",
-              "put_calibration_report",
-              "reconcile_ordered_batch_inputs",
-              "put_calibration_ordered_batch_input",
-              "resolve_calibration_ordered_batch_input",
-              "reconcile_ordered_batch_report_identity",
-              "replay_ordered_batch_report_projection",
-              "ordered_batch_fit_metrics",
-              "reconcile_selected_runtime_input",
-              "required_n_chi2",
-              "required_n_kernel",
-              "resolve_ci_threshold_policy",
-              "RobustSetCalibrator",
-              "run_pure_scan",
-              "RUNTIME_REGISTRY_MEMBER_CONTRACT",
-              "RUNTIME_REGISTRY_MEMBER_INPUT_NAMES",
-              "select_robust_set_size",
-              "SetSizeSelector",
-              "SingleRunResult",
-              "softplus_bijector",
-              "StaticBundle"
-            ],
-            "candidate_scope": "Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.",
+            "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.foundry.data_plane",
@@ -11368,7 +11879,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.foundry.execute",
@@ -11483,7 +11995,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.foundry.methods",
@@ -12112,7 +12625,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.foundry.methods.backends",
@@ -12281,20 +12795,251 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.foundry.methods.causal",
-          "facade_mode_observed": "unresolved_exports",
-          "export_count": null,
-          "known_export_count": 0,
-          "exports": [],
+          "facade_mode_observed": "lazy_facade",
+          "export_count": 229,
+          "known_export_count": 229,
+          "exports": [
+            "AIPWEstimator",
+            "BalkePearlBoundsEstimator",
+            "BipartiteInterferenceEstimator",
+            "BorusyakJaravelSpiessEstimator",
+            "BoundsEngineMethod",
+            "BuildLiteraturePrior",
+            "BunchingEstimator",
+            "CBPSEstimator",
+            "CallawaySantAnnaEstimator",
+            "CausalBCF",
+            "CausalEffectReport",
+            "CausalEngine",
+            "CausalEstimator",
+            "CausalFairnessEngine",
+            "CausalForestEstimator",
+            "CausalMediationEstimator",
+            "CausalMethod",
+            "CausalQueryValidator",
+            "CheckTransportability",
+            "CompatibilityVerdict",
+            "ContinuousTreatmentData",
+            "ControlledDirectEffectEstimator",
+            "CounterfactualFairnessEstimator",
+            "CrossFitContinuousOrchestrator",
+            "DAGMADiscovery",
+            "DRLearnerEstimator",
+            "DeChaisemartinDHaultfoeuilleEstimator",
+            "DiagnosticTest",
+            "DiscreteActionAtlas",
+            "DistributionalBoundsEngineMethod",
+            "DistributionalTreatmentEffectEstimator",
+            "DoWhyIdentifyEstimate",
+            "DoWhyIdentifyEstimateV1",
+            "DoWhyRefute",
+            "DoseResponseResult",
+            "DoubleMachineLearning",
+            "DynamicGraphDSCM",
+            "DynamicGraphDSCMData",
+            "DynamicGraphDSCMResult",
+            "DynamicGraphEvent",
+            "EntropyBalancingContinuousEstimator",
+            "EntropyBalancingEstimator",
+            "EstimationStatus",
+            "FCIDiscovery",
+            "FairnessObservationalData",
+            "FieldNode",
+            "FittedSPDEParameters",
+            "FittedSuperLearner",
+            "ForestDRLearnerEstimator",
+            "GCMQuery",
+            "GESDiscovery",
+            "GeneralizedPropensityScoreEstimator",
+            "GraphCausalData",
+            "GraphCausalDataV1",
+            "GraphReconciliationData",
+            "HTEObservationalData",
+            "HybridSCMFit",
+            "IdentificationResult",
+            "IdentificationStatus",
+            "IPWEstimator",
+            "ImbensManskiBoundsEstimator",
+            "InvariantDiscoveryFromRegimes",
+            "KernelDoseResponseEstimator",
+            "LLMStructuralHint",
+            "LeeBoundsEstimator",
+            "LiteraturePriorBuildData",
+            "LocalDependenceEdgeResult",
+            "ManskiBoundsEstimator",
+            "MarginalTreatmentEffectEstimator",
+            "MetaLearnerEstimator",
+            "MultiArmAIPWEstimator",
+            "MultiTreatmentData",
+            "MultiTreatmentResult",
+            "MultinomialIPWEstimator",
+            "MultinomialPropensityModel",
+            "NetworkAIPWEstimator",
+            "NetworkCausalData",
+            "NetworkHeterogeneousEffectEstimator",
+            "OperatorApplyProbeMethod",
+            "OperatorCMEKRREstimator",
+            "OperatorEdge",
+            "OperatorExportBasisMethod",
+            "OperatorKIVEstimator",
+            "OperatorProximalMinimaxEstimator",
+            "OperatorRLearnerEstimator",
+            "OperatorUnsupportedTargetMethod",
+            "OptimalPolicyLearner",
+            "OptimizationBasedBoundsEstimator",
+            "PCDiscovery",
+            "PCMCIDiscovery",
+            "POINTWISE_NON_UNIFORM_WARNING",
+            "PanelObservationalData",
+            "ParallelTrendsCheck",
+            "ParameterTransfer",
+            "ParameterTransferData",
+            "ParametricConditionalDensity",
+            "PartialInterferenceEstimator",
+            "PathSpecificFairnessEstimator",
+            "PerformativeLoopSpec",
+            "PlaceboResult",
+            "PlannerOptions",
+            "PolicyAIPWEstimator",
+            "PolicyOverlapDiagnostic",
+            "PolicyPluginEstimator",
+            "PolicyTMLEEstimator",
+            "PropensityScoreMatchingEstimator",
+            "ProximalBridgeEstimator",
+            "ProximalMediationEstimator",
+            "RDDObservationalData",
+            "RLearnerEstimator",
+            "ReconcileCausalGraph",
+            "RegressionDiscontinuity",
+            "RegressionKinkDesignEstimator",
+            "SCMAdapter",
+            "SCMFitData",
+            "SCMQueryData",
+            "ScalarOTDistributionalResult",
+            "SPDEEstimatorSpec",
+            "SPDEGenerator",
+            "SPDEMechanism",
+            "SensitivityMetrics",
+            "ShiftInterventionEstimator",
+            "ShiftShareIVEstimator",
+            "SpaceTimeDSCM",
+            "SpaceTimeDomain",
+            "SpaceTimeFieldData",
+            "SpaceTimeIdentificationCertificate",
+            "SpaceTimeIdentificationStatus",
+            "SpaceTimeIntervention",
+            "SpaceTimeInterventionType",
+            "SpaceTimeMeshSpec",
+            "SpaceTimePathSpace",
+            "SpaceTimeSPDEGComputation",
+            "SpaceTimeSPDEGComputationResult",
+            "SpaceTimeSplit",
+            "SpaceTimeSupport",
+            "SpatialInterferenceEstimator",
+            "SpatialProximalBridgeEstimator",
+            "StaggeredDifferenceInDifferences",
+            "StandardDifferenceInDifferences",
+            "StandardFairnessModel",
+            "StrategicSolveResult",
+            "StructuralNestedMeanModel",
+            "StructuralTimeSeries",
+            "SunAbrahamEstimator",
+            "SuperLearnerNuisanceModel",
+            "SymbolicIdentify",
+            "SyntheticControlMethod",
+            "TMLEEstimator",
+            "TVFairnessDecomposer",
+            "TabularCausalDiscoveryData",
+            "TemporalBackendTarget",
+            "TemporalComparatorSemantics",
+            "TemporalCompileError",
+            "TemporalDataContract",
+            "TemporalExecutionPlan",
+            "TemporalFallbackMode",
+            "TemporalTrajectoryResult",
+            "TimeSeriesCausalData",
+            "TwinNetworkQuery",
+            "UnifiedCausalDiscovery",
+            "analyze_performative_loop",
+            "auto_bounds",
+            "best_first_support_search",
+            "branch_and_bound_over_supports",
+            "build_block_stratified_network_causal_data",
+            "build_causal_capability_contract",
+            "build_discrete_atlas",
+            "build_piecewise_linear_fem_matrices",
+            "build_solver_diagnostics",
+            "build_space_time_identification_certificate",
+            "build_strategic_response_bundle",
+            "build_witness_index_from_proof_steps",
+            "check_model_class_compatibility",
+            "check_proof_trace_composability",
+            "check_query_preservation",
+            "check_query_preservation_batch",
+            "compile_temporal_estimand",
+            "compute_reconciliation_diagnostics",
+            "ctf_transport_bounds",
+            "ctf_transportability",
+            "cyclic_id_algorithm",
+            "ensure_causal_methods_registered",
+            "estimate_discretization_error",
+            "estimate_dtr_trajectory",
+            "estimate_dynamic_graph_dscm",
+            "estimate_g_computation_trajectory",
+            "estimate_space_time_spde_g_computation",
+            "estimate_space_time_treatment_density_process",
+            "estimate_structural_time_series_trajectory",
+            "evaluate_query_preservation",
+            "evaluate_query_preservation_batch",
+            "evaluate_strategic_hook",
+            "exact_graph_search",
+            "fairness_bounds",
+            "identify_fairness_effects",
+            "lee_trimming_distributional_bounds",
+            "makarov_distributional_bounds",
+            "mtr_atkinson_distributional_bounds",
+            "mtr_gini_lorenz_distributional_bounds",
+            "mtr_headcount_distributional_bounds",
+            "mtr_theil_distributional_bounds",
+            "negative_certificate_from_query_preservation_trace",
+            "optimal_recourse_intervention",
+            "pairwise_contrasts",
+            "program_cost",
+            "proof_composability_cache_key",
+            "proximal_identify_v1",
+            "proximal_mediation_identify_v1",
+            "register_causal_methods",
+            "replay_graph_witness",
+            "rewrite_ctf_estimand",
+            "sd_atkinson_distributional_bounds",
+            "sd_gini_lorenz_distributional_bounds",
+            "sd_headcount_distributional_bounds",
+            "sd_theil_distributional_bounds",
+            "sigma_identify",
+            "sigma_z_identify",
+            "simulate_linear_diffusion_response",
+            "simulate_reaction_diffusion_response",
+            "solve_strategic_response",
+            "solve_temporal_effect_path",
+            "strategic_result_summary",
+            "transport_bounds",
+            "tv_decomposition",
+            "update_query_preservation_artifact_refs",
+            "update_query_preservation_cache",
+            "Y0_SURROGATE_DATA_PROFILE_ABSENT",
+            "compute_scalar_distributional_effect"
+          ],
           "has___getattr__": true,
           "has___dir__": true,
           "source_file": "src/polisyos/foundry/methods/causal/__init__.py",
           "summary": "Lazy facade for causal catalog methods.",
           "export_resolution": {
-            "complete_verdict": false,
+            "complete_verdict": true,
             "finding_coverage": "explicit file-reader operations only",
             "inputs": [
               {
@@ -12313,33 +13058,229 @@
                 "path": "src/polisyos/foundry/methods/causal/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 993,
-                "sha256": "5c45cf877309f2056b7b81a985161ea69dbfd0b52acad156b4dbb47eaf4ef1a2"
+                "bytes": 557,
+                "sha256": "7641122af39c5a4b11d7b4696e0cfa41c2cec9862fa0897fab27e11086992f1b"
+              },
+              {
+                "path": "src/polisyos/foundry/methods/causal/_exports.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/methods/causal/_exports/__init__.py",
+                "operation": "is_file",
+                "status": "absent",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/foundry/methods/causal/_exports.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 7311,
+                "sha256": "641975e6f5b35e7c3d1b086722bd80975fda18072ef546504262b420f1fc7276"
+              },
+              {
+                "path": "src/polisyos/foundry/methods/causal/_exports.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/methods/causal/_exports/__init__.py",
+                "operation": "is_file",
+                "status": "absent",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/foundry/methods/causal/_exports.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/methods/causal/_exports/__init__.py",
+                "operation": "is_file",
+                "status": "absent",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/foundry/methods/causal/_exports.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 7311,
+                "sha256": "641975e6f5b35e7c3d1b086722bd80975fda18072ef546504262b420f1fc7276"
+              },
+              {
+                "path": "src/polisyos/foundry/methods/causal/_exports.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/methods/causal/_exports/__init__.py",
+                "operation": "is_file",
+                "status": "absent",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/foundry/methods/causal/_exports.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/methods/causal/_exports/__init__.py",
+                "operation": "is_file",
+                "status": "absent",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/foundry/methods/causal/_exports.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 7311,
+                "sha256": "641975e6f5b35e7c3d1b086722bd80975fda18072ef546504262b420f1fc7276"
+              },
+              {
+                "path": "src/polisyos/foundry/methods/causal/_exports.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/methods/causal/_exports/__init__.py",
+                "operation": "is_file",
+                "status": "absent",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/foundry/methods/causal/_exports.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 7311,
+                "sha256": "641975e6f5b35e7c3d1b086722bd80975fda18072ef546504262b420f1fc7276"
+              },
+              {
+                "path": "src/polisyos/foundry/methods/causal/_facade.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/methods/causal/_facade/__init__.py",
+                "operation": "is_file",
+                "status": "absent",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/foundry/methods/causal/_facade.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 7272,
+                "sha256": "86604d84091eeaa0a6a5f3dd41b0bfe713a66f61155a8c330db8d299c4772279"
+              },
+              {
+                "path": "src/polisyos/foundry/methods/causal/_exports.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/methods/causal/_exports/__init__.py",
+                "operation": "is_file",
+                "status": "absent",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/foundry/methods/causal/_exports.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 7311,
+                "sha256": "641975e6f5b35e7c3d1b086722bd80975fda18072ef546504262b420f1fc7276"
+              },
+              {
+                "path": "src/polisyos/foundry/methods/causal",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/methods/causal/_exports.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/methods/causal/__init__.py",
+                "operation": "is_dir",
+                "status": "present",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/foundry/methods/causal/README.md",
+                "operation": "is_dir",
+                "status": "present",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/foundry/methods/causal/_facade.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
               }
             ],
             "unresolved_by_construction": [
               "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."
             ],
-            "complete": false,
-            "reason": "Unresolved export expression: src/polisyos/foundry/methods/causal/__init__.py:_read_exports()",
-            "exports_scope": "no names proven by the bounded parser; not an empty runtime namespace",
-            "declared_export_candidates": [],
-            "candidate_scope": "Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.",
+            "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.foundry.uncertainty",
-          "facade_mode_observed": "unresolved_exports",
-          "export_count": null,
-          "known_export_count": 0,
-          "exports": [],
+          "facade_mode_observed": "lazy_facade",
+          "export_count": 30,
+          "known_export_count": 30,
+          "exports": [
+            "CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1",
+            "CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1",
+            "EXCEPTION_CHAIN_EDGE_LIMIT",
+            "EXCEPTION_CHAIN_NODE_LIMIT",
+            "EvaluationFailureClassification",
+            "build_covariance_matrix",
+            "calibration_covariance_blocks_agree_v1",
+            "classify_evaluation_failure",
+            "preserve_singular_covariance",
+            "AdaptiveStoppingConfig",
+            "AggregationStrategy",
+            "FabricUncertaintyContext",
+            "MonteCarloPropagator",
+            "PropagationConfig",
+            "PropagationDispatcher",
+            "PropagationResult",
+            "PropagationStrategy",
+            "PosteriorJointInputMatrix",
+            "PosteriorPushforwardFailure",
+            "PosteriorPushforwardOutcomeCode",
+            "PosteriorPushforwardOutputSummary",
+            "PosteriorPushforwardResult",
+            "QuasiMCSampler",
+            "aggregate_envelopes",
+            "aggregate_persisted_envelope_views",
+            "load_aggregated_envelope_fresh",
+            "persist_aggregated_envelope",
+            "compute_first_order_indices",
+            "extract_std",
+            "fabric_uncertainty_context_from_decision_data"
+          ],
           "has___getattr__": true,
           "has___dir__": true,
           "source_file": "src/polisyos/foundry/uncertainty/__init__.py",
           "summary": "Expose uncertainty propagation helpers used around Foundry simulation outputs.",
           "export_resolution": {
-            "complete_verdict": false,
+            "complete_verdict": true,
             "finding_coverage": "explicit file-reader operations only",
             "inputs": [
               {
@@ -12455,44 +13396,10 @@
             "unresolved_by_construction": [
               "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."
             ],
-            "complete": false,
-            "reason": "Unresolved exported binding: src/polisyos/foundry/uncertainty/__init__.py:AggregationStrategy",
-            "exports_scope": "no names proven by the bounded parser; not an empty runtime namespace",
-            "declared_export_candidates": [
-              "CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1",
-              "CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1",
-              "EXCEPTION_CHAIN_EDGE_LIMIT",
-              "EXCEPTION_CHAIN_NODE_LIMIT",
-              "EvaluationFailureClassification",
-              "build_covariance_matrix",
-              "calibration_covariance_blocks_agree_v1",
-              "classify_evaluation_failure",
-              "preserve_singular_covariance",
-              "AdaptiveStoppingConfig",
-              "AggregationStrategy",
-              "FabricUncertaintyContext",
-              "MonteCarloPropagator",
-              "PropagationConfig",
-              "PropagationDispatcher",
-              "PropagationResult",
-              "PropagationStrategy",
-              "PosteriorJointInputMatrix",
-              "PosteriorPushforwardFailure",
-              "PosteriorPushforwardOutcomeCode",
-              "PosteriorPushforwardOutputSummary",
-              "PosteriorPushforwardResult",
-              "QuasiMCSampler",
-              "aggregate_envelopes",
-              "aggregate_persisted_envelope_views",
-              "load_aggregated_envelope_fresh",
-              "persist_aggregated_envelope",
-              "compute_first_order_indices",
-              "extract_std",
-              "fabric_uncertainty_context_from_decision_data"
-            ],
-            "candidate_scope": "Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.",
+            "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.foundry.validation",
@@ -12611,7 +13518,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         }
       ]
     },
@@ -12916,7 +13824,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.scientist.adapters",
@@ -13000,7 +13909,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.scientist.compute",
@@ -13095,7 +14005,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.scientist.governance.continuous",
@@ -13296,7 +14207,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.scientist.methods.backtesting",
@@ -13505,7 +14417,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.scientist.methods.research_dag",
@@ -13657,7 +14570,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.scientist.orchestration.engine",
@@ -14096,7 +15010,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.scientist.replay",
@@ -14223,7 +15138,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.scientist.replay.deterministic",
@@ -14291,7 +15207,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.scientist.validation.policy_verified",
@@ -14397,7 +15314,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.scientist.agent",
@@ -14871,7 +15789,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.scientist.policy_design",
@@ -15132,7 +16051,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         }
       ]
     },
@@ -15266,7 +16186,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         }
       ]
     },
@@ -15412,7 +16333,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         }
       ]
     },
@@ -18486,7 +19408,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         }
       ]
     },
@@ -18747,7 +19670,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.lex.knowledge",
@@ -18864,7 +19788,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         }
       ]
     },
@@ -19038,7 +19963,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         }
       ]
     },
@@ -19267,7 +20193,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.data_forge.read_api",
@@ -19582,7 +20509,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.data_forge.read_api.academic",
@@ -19740,7 +20668,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.data_forge.read_api.catalog",
@@ -19944,7 +20873,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.data_forge.read_api.legal",
@@ -20053,7 +20983,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         },
         {
           "module": "polisyos.data_forge.read_api.ukraine",
@@ -20176,7 +21107,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         }
       ]
     },
@@ -20334,14 +21266,15 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         }
       ]
     },
     {
       "module": "polisyos.calibration",
       "classification": "public_experimental",
-      "facade_mode_expected": "eager_exports",
+      "facade_mode_expected": "lazy_facade",
       "facade_mode_observed": "lazy_facade",
       "owner": "team-scientist",
       "readme": "src/polisyos/calibration/README.md",
@@ -20476,7 +21409,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         }
       ]
     },
@@ -20624,7 +21558,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         }
       ]
     },
@@ -20802,7 +21737,8 @@
             ],
             "complete": true,
             "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
-          }
+          },
+          "source_export_profiles": []
         }
       ]
     }

@@ -2,26 +2,10 @@
 
 from __future__ import annotations
 
-import ast
 from importlib import import_module
-from pathlib import Path
 from typing import Any
 
-
-def _read_exports() -> tuple[str, ...]:
-    tree = ast.parse(Path(__file__).with_name("_facade.py").read_text())
-    for node in tree.body:
-        if not isinstance(node, ast.Assign):
-            continue
-        if not any(
-            isinstance(target, ast.Name) and target.id == "__all__" for target in node.targets
-        ):
-            continue
-        return tuple(str(name) for name in ast.literal_eval(node.value))
-    return ()
-
-
-__all__ = _read_exports()
+from ._exports import CAUSAL_METHOD_EXPORTS as __all__  # noqa: N811
 
 
 def __getattr__(name: str) -> Any:

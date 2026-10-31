@@ -5,6 +5,7 @@ from __future__ import annotations
 import ast
 import hashlib
 import json
+import runpy
 import subprocess
 import sys
 from pathlib import Path
@@ -41,9 +42,11 @@ def _fixture(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> tuple[Path, Pat
     return facade, mapping
 
 
+@pytest.mark.parametrize("annotation", ["", ": dict[str, str]"])
 def test_only_empty_static_mapping_loop_is_excluded_from_selected_write_scan(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    annotation: str,
 ) -> None:
     source_root = tmp_path / "src"
     monkeypatch.setattr(guardrails, "SRC_ROOT", source_root)
@@ -52,6 +55,8 @@ def test_only_empty_static_mapping_loop_is_excluded_from_selected_write_scan(
     text = """import importlib
 __all__ = ("child",)
 _COMPAT_MODULE_ALIASES = {}
+def lookup(fullname):
+    return _COMPAT_MODULE_ALIASES.get(fullname)
 def install():
     for alias_fqn, target_fqn in _COMPAT_MODULE_ALIASES.items():
         parent_fqn, _, leaf = alias_fqn.rpartition(".")
@@ -63,6 +68,8 @@ def __getattr__(name):
     globals()[name] = module
     return module
 """
+    declaration = f"_COMPAT_MODULE_ALIASES{annotation} = {{}}"
+    text = text.replace("_COMPAT_MODULE_ALIASES = {}", declaration)
     tree = ast.parse(text, filename=str(source))
     assert not guardrails._export_namespace_write_may_change(
         tree, frozenset({"child", "__all__", "__getattr__"}), source
@@ -70,7 +77,7 @@ def __getattr__(name):
 
     nonempty = ast.parse(
         text.replace(
-            "_COMPAT_MODULE_ALIASES = {}",
+            declaration,
             '_COMPAT_MODULE_ALIASES = {"polisyos.fixture.child": "polisyos.fixture.child"}',
         ),
         filename=str(source),
@@ -81,14 +88,99 @@ def __getattr__(name):
 
     mutated = ast.parse(
         text.replace(
-            "_COMPAT_MODULE_ALIASES = {}",
-            "_COMPAT_MODULE_ALIASES = {}\n_COMPAT_MODULE_ALIASES.update(runtime_aliases)",
+            declaration,
+            declaration + "\n_COMPAT_MODULE_ALIASES.update(runtime_aliases)",
         ),
         filename=str(source),
     )
     assert guardrails._export_namespace_write_may_change(
         mutated, frozenset({"child", "__all__", "__getattr__"}), source
     )
+
+    for unsafe_use in (
+        "alias = _COMPAT_MODULE_ALIASES",
+        "escape(_COMPAT_MODULE_ALIASES)",
+        "lookup_method = _COMPAT_MODULE_ALIASES.get",
+        "_COMPAT_MODULE_ALIASES['polisyos.fixture.child'] = 'replacement'",
+        "_COMPAT_MODULE_ALIASES.clear()",
+        "_COMPAT_MODULE_ALIASES = {}",
+        "del _COMPAT_MODULE_ALIASES",
+        "_COMPAT_MODULE_ALIASES.get('missing', _COMPAT_MODULE_ALIASES)",
+    ):
+        changed = ast.parse(
+            text.replace("def install():", unsafe_use + "\ndef install():"),
+            filename=str(source),
+        )
+        assert guardrails._export_namespace_write_may_change(
+            changed, frozenset({"child", "__all__", "__getattr__"}), source
+        ), unsafe_use
+
+
+def test_actual_fabric_facade_empty_compatibility_map_keeps_export_total_resolvable() -> None:
+    """Read the real facade without installing its finder or importing backends."""
+    source = guardrails._facade_source_for("polisyos.fabric")
+    tree = ast.parse(source.read_bytes())
+    declarations = [
+        ast.literal_eval(node.value)
+        for node in tree.body
+        if isinstance(node, ast.Assign)
+        and any(isinstance(target, ast.Name) and target.id == "__all__" for target in node.targets)
+    ]
+    assert len(declarations) == 1
+    assert guardrails._extract_exports(tree, source) == tuple(declarations[0])
+
+
+def test_closed_negative_guard_resolves_actual_literal_owner_and_refuses_binding_removal(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    facade, _ = _fixture(tmp_path, monkeypatch)
+    owner = facade.with_name("owner.py")
+    owner.write_text("StaticName = None\n__all__ = ('StaticName',)\n", encoding="utf-8")
+    text = """from importlib import import_module
+__all__ = ('StaticName',)
+def __getattr__(name):
+    if name not in __all__:
+        raise AttributeError(name)
+    value = getattr(import_module('polisyos.fixture.owner'), name)
+    globals()[name] = value
+    return value
+"""
+    facade.write_text(text, encoding="utf-8")
+    assert guardrails._extract_exports(ast.parse(text), facade) == ("StaticName",)
+
+    for changed in (
+        text.replace("not in __all__", "in __all__"),
+        text.replace("    return value", "    return None"),
+        text.replace("__all__ =", "getattr = lambda *args: None\n__all__ ="),
+        text.replace("__all__ =", "import_module = lambda *args: None\n__all__ ="),
+        text.replace("    value =", "    import_module ="),
+        text.replace("), name)", "), 'Other')"),
+    ):
+        with pytest.raises(guardrails._UnresolvedExportDeclarationError):
+            guardrails._extract_exports(ast.parse(changed), facade)
+
+    # Keep the selected owner and facade declaration intact; remove the real binding.
+    owner.write_text("__all__ = ('StaticName',)\n", encoding="utf-8")
+    with pytest.raises(guardrails._UnresolvedExportDeclarationError):
+        guardrails._extract_exports(ast.parse(text), facade)
+
+
+def test_actual_causal_facade_routes_the_complete_metadata_tuple_without_execution() -> None:
+    source = guardrails._facade_source_for("polisyos.foundry.methods.causal")
+    tree = ast.parse(source.read_bytes())
+    exports = guardrails._extract_exports(tree, source)
+    metadata = source.with_name("_exports.py")
+    declaration = next(
+        node
+        for node in ast.parse(metadata.read_bytes()).body
+        if isinstance(node, ast.Assign)
+        and any(
+            isinstance(target, ast.Name) and target.id == "CAUSAL_METHOD_EXPORTS"
+            for target in node.targets
+        )
+    )
+    assert exports == ast.literal_eval(declaration.value)
+    assert exports
 
 
 def test_lazy_child_route_is_selected_and_unrelated_imports_do_not_affect_it(
@@ -430,7 +522,7 @@ def __getattr__(name):
     assert rejected.export_resolution["complete_verdict"] is False
 
 
-def test_optional_import_routes_bind_the_same_selected_export_in_every_arm(
+def test_optional_import_outcomes_prove_name_presence_not_backend_callability(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -458,9 +550,17 @@ __all__ = ["Selected"]
 """,
         encoding="utf-8",
     )
-    rejected = guardrails._entrypoint_inventory("polisyos.fixture")
-    assert rejected.export_count is None
-    assert rejected.export_resolution["complete_verdict"] is False
+    bound_fallback = guardrails._entrypoint_inventory("polisyos.fixture")
+    assert bound_fallback.exports == ("Selected",)
+    assert bound_fallback.export_count == 1
+    assert bound_fallback.export_resolution["complete_verdict"] is True
+    # A real failed optional import leaves a present, non-callable export.
+    namespace = runpy.run_path(str(facade))
+    assert "Selected" in namespace
+    assert namespace["Selected"] is None
+    assert not guardrails._module_level_attribute_is_bound(
+        ast.parse(facade.read_bytes()), "Selected"
+    )
 
 
 def test_outside_selector_is_disclosed_and_does_not_become_export(
@@ -756,31 +856,90 @@ def test_unproved_prefix_rebind_or_mutation_still_refuses(mutation: str) -> None
     assert not isinstance(caught.value, guardrails._IncompleteExportDeclarationError)
 
 
-def test_current_world_optional_profile_has_unknown_static_total() -> None:
+def test_current_world_has_complete_conditional_source_profiles_and_separate_native_state() -> None:
     from polisyos.fabric import world
 
     row = guardrails._entrypoint_inventory("polisyos.fabric.world")
+    tree = ast.parse((guardrails.REPO_ROOT / row.source_file).read_bytes())
     literal = next(
         node.value
-        for node in ast.parse((guardrails.REPO_ROOT / row.source_file).read_bytes()).body
+        for node in tree.body
         if isinstance(node, ast.Assign)
         and any(isinstance(target, ast.Name) and target.id == "__all__" for target in node.targets)
     )
     assert row.export_count is None
-    # The source has a literal prefix, but preceding optional-import probes are
-    # outside the effect grammar. That prefix is not a proved runtime total.
     literal_names = ast.literal_eval(literal)
     assert len(literal_names) == 41
-    assert row.known_export_count == 0
-    assert row.exports == ()
-    assert row.export_resolution["complete"] is False
-    assert row.export_resolution["declared_export_candidates"] == literal_names
-    assert tuple(world.__all__[: len(literal_names)]) == tuple(literal_names)
-    # The maintained native namespace is a separate observed profile.
-    if world._MATERIALIZE_AVAILABLE:
-        assert len(world.__all__) == 59 > len(literal_names)
-    else:
-        assert len(world.__all__) == len(literal_names)
+    conditional_names = next(
+        ast.literal_eval(node.value)
+        for node in ast.walk(tree)
+        if isinstance(node, (ast.Assign, ast.AnnAssign))
+        and isinstance(node.value, ast.Tuple)
+        and node.value.elts
+        and any(
+            isinstance(target, ast.Name) and target.id == "_MATERIALIZE_EXPORTS"
+            for target in (node.targets if isinstance(node, ast.Assign) else [node.target])
+        )
+    )
+    predicate = next(
+        node.value
+        for node in tree.body
+        if isinstance(node, ast.Assign)
+        and any(
+            isinstance(target, ast.Name) and target.id == "_DUCKDB_AVAILABLE"
+            for target in node.targets
+        )
+    )
+    assert row.known_export_count == len(literal_names)
+    assert row.exports == tuple(literal_names)
+    assert row.export_resolution["complete"] is True
+    profiles = row.source_export_profiles
+    assert [profile.exports for profile in profiles] == [
+        tuple(literal_names),
+        (*literal_names, *conditional_names),
+    ]
+    assert [len(profile.exports) for profile in profiles] == [41, 59]
+    assert [profile.conditions[0].value for profile in profiles] == [False, True]
+    assert all(
+        len(profile.conditions) == 1
+        and profile.conditions[0].expression == ast.unparse(predicate)
+        and profile.runtime_condition_evaluation == "UNRUN"
+        and profile.schema_version == "policyos.source-export-profile.v1"
+        for profile in profiles
+    )
+    # A loaded native module is an independent observed profile, not the source condition.
+    assert tuple(world.__all__) == profiles[int(world._MATERIALIZE_AVAILABLE)].exports
+
+
+def test_conditional_profiles_reach_json_markdown_and_the_public_surface_check() -> None:
+    policies = [
+        policy
+        for policy in guardrails._parse_public_surface(guardrails.DEFAULT_PUBLIC_MANIFEST)
+        if policy.module == "polisyos.fabric"
+    ]
+    inventory = guardrails.build_public_surface_inventory(policies)
+    row = next(
+        entry for entry in inventory[0].entrypoints if entry.module == "polisyos.fabric.world"
+    )
+    payload = json.loads(guardrails.render_public_surface_json(inventory))
+    served = next(
+        entry for entry in payload["packages"][0]["entrypoints"] if entry["module"] == row.module
+    )
+    assert served["export_count"] is None
+    assert served["exports"] == list(row.exports)
+    assert served["export_resolution"]["complete"] is True
+    assert [profile["exports"] for profile in served["source_export_profiles"]] == [
+        list(profile.exports) for profile in row.source_export_profiles
+    ]
+    assert all(
+        profile["runtime_condition_evaluation"] == "UNRUN"
+        for profile in served["source_export_profiles"]
+    )
+    markdown = guardrails.render_public_surface_markdown(inventory)
+    assert "conditional (41/59)" in markdown
+    assert "there is no single unconditional export count" in markdown
+    assert "runtime condition evaluation: `UNRUN`" in markdown
+    assert guardrails._check_public_surface_contracts(inventory) == []
 
 
 @pytest.mark.parametrize(
@@ -1148,15 +1307,49 @@ def test_unexpected_reader_failure_is_not_relabelled_as_parser_unknown(
     assert caught.value is error
 
 
-def test_complete_representation_does_not_grant_complete_inventory_verdict() -> None:
+def test_complete_representation_does_not_grant_complete_inventory_verdict(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     policies = guardrails._parse_public_surface(guardrails.DEFAULT_PUBLIC_MANIFEST)
     inventory = guardrails.build_public_surface_inventory(policies)
-    payload = json.loads(guardrails.render_public_surface_json(inventory))
     expected = {entry for policy in policies for entry in policy.supported_entrypoints}
+    # Preserve a genuine unknown-source counterexample after the actual world
+    # facade gains a complete finite conditional family.
+    facade, _ = _fixture(tmp_path, monkeypatch)
+    facade.write_text("__all__ = runtime_names()\n", encoding="utf-8")
+    fixture_policy = guardrails.PackagePolicy(
+        module="polisyos.fixture",
+        classification="public_experimental",
+        facade_mode="eager_exports",
+        owner="test-owner",
+        readme=facade,
+        reference_doc=facade,
+        supported_entrypoints=("polisyos.fixture",),
+        major_subsystem=False,
+        notes="opaque source is represented, never counted as complete",
+    )
+    inventory.extend(guardrails.build_public_surface_inventory([fixture_policy]))
+    expected.add("polisyos.fixture")
+    payload = json.loads(guardrails.render_public_surface_json(inventory))
     rows = [row for package in payload["packages"] for row in package["entrypoints"]]
     assert {row["module"] for row in rows} == expected
-    unknown = {row["module"] for row in rows if row["export_count"] is None}
-    assert "polisyos.fabric.world" in unknown
+    conditional = {row["module"] for row in rows if row["source_export_profiles"]}
+    assert "polisyos.fabric.world" in conditional
+    assert all(
+        row["export_resolution"]["complete"] is True
+        and all(
+            profile["runtime_condition_evaluation"] == "UNRUN"
+            for profile in row["source_export_profiles"]
+        )
+        for row in rows
+        if row["module"] in conditional
+    )
+    unknown = {
+        row["module"]
+        for row in rows
+        if row["export_count"] is None and not row["source_export_profiles"]
+    }
+    assert "polisyos.fixture" in unknown
     assert all(
         row["export_resolution"]["complete"] is False for row in rows if row["module"] in unknown
     )

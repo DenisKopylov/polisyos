@@ -7,7 +7,12 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
-from .designs import SensitivityMethod, SensitivityPlan, SensitivityResult
+from .designs import (
+    SensitivityMethod,
+    SensitivityPlan,
+    SensitivityResult,
+    _admit_sensitivity_analysis_plan,
+)
 
 
 @dataclass(frozen=True)
@@ -91,6 +96,7 @@ class AdaptiveSampler:
         *evaluator* takes a 2-D sample array ``(n_samples, n_params)`` and
         returns a 1-D output array ``(n_samples,)``.
         """
+        effective_plan = _admit_sensitivity_analysis_plan(self._plan)
         from .analysis import analyze_sensitivity
         from .sampling import generate_sensitivity_samples
 
@@ -102,19 +108,19 @@ class AdaptiveSampler:
         stop_reason: str | None = None
         attempts: list[AdaptiveAttempt] = []
 
-        current_n = self._plan.n_trajectories
+        current_n = effective_plan.n_trajectories
 
         for round_num in range(1, self._conv.max_rounds + 1):
             # Create a plan copy with updated n_trajectories
-            plan_dict = self._plan.model_dump()
+            plan_dict = effective_plan.model_dump()
             plan_dict["n_trajectories"] = current_n
             # Preserve the caller's explicit permission.  Constructing the
             # round plan keeps the existing SensitivityPlan guardrail as the
             # single source of truth for estimated-run admission.
-            plan_dict["allow_large_run"] = self._plan.allow_large_run
+            plan_dict["allow_large_run"] = effective_plan.allow_large_run
             if (
-                not self._plan.allow_large_run
-                and self._plan.estimated_runs_for(current_n) > self._plan.max_estimated_runs
+                not effective_plan.allow_large_run
+                and effective_plan.estimated_runs_for(current_n) > effective_plan.max_estimated_runs
             ):
                 if last_result is None:
                     raise ValueError(

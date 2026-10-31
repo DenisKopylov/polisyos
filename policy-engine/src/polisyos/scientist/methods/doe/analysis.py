@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import hashlib
 import math
+from collections import Counter
 from dataclasses import dataclass
+from importlib.metadata import version
 
 import numpy as np
 
@@ -14,6 +17,7 @@ from .designs import (
     SensitivityMethod,
     SensitivityPlan,
     SensitivityResult,
+    _admit_sensitivity_analysis_plan,
     _build_salib_problem,
     _derive_backend_seed,
 )
@@ -27,6 +31,25 @@ from .uncertainty import (
 )
 
 
+def _analysis_kwargs(plan: SensitivityPlan) -> dict[str, object]:
+    """Select the actual estimator profile explicitly for stable effect semantics."""
+    kwargs: dict[str, object] = {
+        "num_resamples": 100,
+        "conf_level": plan.confidence_level,
+        "print_to_console": False,
+        "seed": _derive_backend_seed(plan.seed, f"analysis:{plan.method.value}"),
+    }
+    if plan.method == SensitivityMethod.MORRIS:
+        kwargs.update(scaled=False, num_levels=plan.parameter_specs[0].num_levels)
+    elif plan.method == SensitivityMethod.SOBOL:
+        kwargs.update(
+            calc_second_order=True, parallel=False, n_processors=None, keep_resamples=False
+        )
+    else:
+        kwargs["M"] = 4
+    return kwargs
+
+
 def analyze_sensitivity(
     plan: SensitivityPlan,
     samples: np.ndarray,
@@ -35,6 +58,7 @@ def analyze_sensitivity(
     preparation_context: _PreparedAnalysisInputs | None = None,
 ) -> SensitivityResult:
     """Summarize sampled runs into Morris, Sobol, or FAST sensitivity statistics."""
+    plan = _admit_sensitivity_analysis_plan(plan)
     if outputs.ndim != 1:
         raise ValueError("outputs must be a 1D array")
     if samples.ndim != 2:
@@ -81,8 +105,9 @@ def analyze_sensitivity(
             "plan_seed": plan.seed,
         }
     )
+    result.metadata.update(_analysis_identity(plan, samples, raw_outputs))
     names = result.parameter_names
-    backend_seed = _derive_backend_seed(plan.seed, f"analysis:{plan.method.value}")
+    analyzer_kwargs = _analysis_kwargs(plan)
 
     if plan.method == SensitivityMethod.MORRIS:
         _validate_morris_plan_samples(plan, prepared.samples, problem)
@@ -92,9 +117,7 @@ def analyze_sensitivity(
             problem,
             prepared.samples,
             prepared.outputs,
-            conf_level=plan.confidence_level,
-            num_levels=plan.parameter_specs[0].num_levels,
-            seed=backend_seed,
+            **analyzer_kwargs,
         )
         for idx, name in enumerate(names):
             result.mu_star[name] = float(salib_result["mu_star"][idx])
@@ -112,9 +135,7 @@ def analyze_sensitivity(
         salib_result = sobol_analyzer.analyze(
             problem,
             prepared.outputs,
-            calc_second_order=True,
-            conf_level=plan.confidence_level,
-            seed=backend_seed,
+            **analyzer_kwargs,
         )
         for idx, name in enumerate(names):
             result.s1[name] = float(salib_result["S1"][idx])
@@ -146,14 +167,9 @@ def analyze_sensitivity(
         return result
 
     if plan.method == SensitivityMethod.FAST:
-        if plan.seed is not None:
-            raise ValueError(
-                "FAST analysis is compatibility_pending for seeded plans: "
-                "SALib 1.5.2 mutates process-global NumPy RNG"
-            )
         from SALib.analyze import fast as fast_analyzer  # type: ignore[import-not-found]
 
-        salib_result = fast_analyzer.analyze(problem, prepared.outputs)
+        salib_result = fast_analyzer.analyze(problem, prepared.outputs, **analyzer_kwargs)
         for idx, name in enumerate(names):
             result.s1[name] = float(salib_result["S1"][idx])
             result.st[name] = float(salib_result["ST"][idx])
@@ -164,6 +180,174 @@ def analyze_sensitivity(
         return result
 
     raise ValueError(f"Unsupported sensitivity method: {plan.method}")
+
+
+def _array_payload(values: np.ndarray) -> list[object]:
+    """Preserve ordered numeric semantics, including each failed observation."""
+    array = np.asarray(values, dtype=float)
+    if array.ndim == 2:
+        return [_array_payload(row) for row in array]
+    if array.ndim != 1:
+        raise ValueError("DOE experiment arrays must be one- or two-dimensional")
+    return [float(value) if np.isfinite(value) else str(value) for value in array]
+
+
+def _array_digest(values: np.ndarray) -> str:
+    """Hash exactly the canonical stored numeric representation and its shape."""
+    from polisyos.core.canon import CanonSpec, to_canonical_bytes
+
+    return hashlib.sha256(
+        to_canonical_bytes(
+            {"shape": list(values.shape), "values": _array_payload(values)},
+            CanonSpec(forbid_floats=False, exclude_none=False),
+        )
+    ).hexdigest()
+
+
+def _native_implementation(function: object, expected_module: str) -> dict[str, str]:
+    """Describe the observed direct callable, without authenticating its dependencies."""
+    from types import FunctionType
+
+    from polisyos.core.components._provider_origin import _callable_source, _OriginError
+
+    if not isinstance(function, FunctionType):
+        return {"basis": "not_established"}
+
+    try:
+        module, source = _callable_source(function)
+        if module.__name__ != expected_module and not module.__name__.startswith(
+            expected_module + "."
+        ):
+            raise ValueError("DOE backend callable belongs to another module")
+        return {
+            "basis": "recomputed",
+            "module": module.__name__,
+            "qualname": function.__qualname__,
+            "module_sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
+        }
+    except (_OriginError, OSError, RuntimeError, TypeError, ValueError):
+        return {"basis": "not_established"}
+
+
+def _backend_identity(plan: SensitivityPlan) -> dict[str, object]:
+    """Bind direct sampler/analyzer sources; transitive environment remains unverified."""
+    from importlib import import_module
+
+    sampler_name = {
+        SensitivityMethod.MORRIS: "morris",
+        SensitivityMethod.SOBOL: "sobol",
+        SensitivityMethod.FAST: "fast_sampler",
+    }[plan.method]
+    analyzer_name = "fast" if plan.method == SensitivityMethod.FAST else plan.method.value
+    sampler_module = f"SALib.sample.{sampler_name}"
+    analyzer_module = f"SALib.analyze.{analyzer_name}"
+    try:
+        sampler = import_module(sampler_module).sample
+        analyzer = import_module(analyzer_module).analyze
+    except ImportError:
+        # The legacy candidate route may use an older unseeded sampler fallback.
+        # It cannot become an admitted persisted experiment under this profile.
+        return {"distribution": f"SALib@{version('SALib')}", "basis": "not_established"}
+    sampling_owner = import_module(".sampling", __package__)
+    return {
+        "distribution": f"SALib@{version('SALib')}",
+        "sampler": _native_implementation(sampler, sampler_module),
+        "analyzer": _native_implementation(analyzer, analyzer_module),
+        "analysis_owner": _native_implementation(analyze_sensitivity, __name__),
+        "sampling_owner": _native_implementation(
+            sampling_owner.generate_sensitivity_samples,
+            __package__ + ".sampling",
+        ),
+        "sampler_kwargs": sampling_owner._sampling_kwargs(plan),
+        "analyzer_kwargs": _analysis_kwargs(plan),
+        "transitive_environment_status": "not_established",
+    }
+
+
+def _analysis_identity(
+    plan: SensitivityPlan, samples: np.ndarray, outputs: np.ndarray
+) -> dict[str, object]:
+    """Bind the actual complete ordered experiment, units and observed backend."""
+    from polisyos.core.canon import CanonSpec, to_canonical_bytes
+
+    plan = _admit_sensitivity_analysis_plan(plan)
+    if samples.ndim != 2 or outputs.ndim != 1 or samples.shape[0] != outputs.shape[0]:
+        raise ValueError("DOE identity requires paired complete sample/output rows")
+    if samples.shape[1] != plan.num_parameters:
+        raise ValueError("DOE sample columns must match the declared parameter order")
+    plan = _admit_sensitivity_analysis_plan(plan, actual_run_count=int(samples.shape[0]))
+    design_order_basis = "geometry_validated_provenance_not_established"
+    if plan.method == SensitivityMethod.SOBOL:
+        design_order_basis = "not_established"
+        if plan.seed is not None:
+            from .sampling import generate_sensitivity_samples
+
+            expected = generate_sensitivity_samples(plan)
+            _admit_sobol_sample_blocks(plan, samples, expected)
+            design_order_basis = "recomputed"
+    sample_digest = _array_digest(samples)
+    output_digest = _array_digest(outputs)
+    backend = _backend_identity(plan)
+    canon = CanonSpec(forbid_floats=False, exclude_none=False)
+    design_id = hashlib.sha256(
+        to_canonical_bytes(
+            {"plan": plan.model_dump(mode="python"), "ordered_samples_sha256": sample_digest},
+            canon,
+        )
+    ).hexdigest()
+    analysis_id = hashlib.sha256(
+        to_canonical_bytes(
+            {"design_id": design_id, "outputs_sha256": output_digest, "backend": backend}, canon
+        )
+    ).hexdigest()
+    return {
+        "design_id": design_id,
+        "analysis_id": analysis_id,
+        "ordered_samples_sha256": sample_digest,
+        "ordered_outputs_sha256": output_digest,
+        "ordered_parameter_names": [spec.name for spec in plan.parameter_specs],
+        "parameter_units": {spec.name: spec.unit for spec in plan.parameter_specs},
+        "backend_identity": backend,
+        "analyzer_seed": _derive_backend_seed(plan.seed, f"analysis:{plan.method.value}"),
+        "input_law": plan.input_law,
+        "input_law_basis": "consumer_asserted",
+        "authority_purpose": "exploratory_parameter_experiment",
+        "population_law_status": "not_established",
+        "point_effect_scale": (
+            "unit_coordinate_full_range"
+            if plan.method == SensitivityMethod.MORRIS
+            else "variance_fraction"
+        ),
+        "design_order_basis": design_order_basis,
+    }
+
+
+def _admit_sobol_sample_blocks(
+    plan: SensitivityPlan, samples: np.ndarray, expected: np.ndarray
+) -> None:
+    """Admit exact seeded Saltelli block membership and ordered roles, not shape."""
+    if np.array_equal(samples, expected):
+        return
+    if samples.shape == expected.shape:
+        block_size = 2 * plan.num_parameters + 2
+        actual = np.array(samples, dtype="<f8", order="C", copy=True)
+        canonical = np.array(expected, dtype="<f8", order="C", copy=True)
+        actual[actual == 0.0] = 0.0
+        canonical[canonical == 0.0] = 0.0
+        actual_blocks = Counter(
+            block.tobytes(order="C")
+            for block in actual.reshape(-1, block_size, plan.num_parameters)
+        )
+        expected_blocks = Counter(
+            block.tobytes(order="C")
+            for block in canonical.reshape(-1, block_size, plan.num_parameters)
+        )
+        if actual_blocks == expected_blocks:
+            return
+    raise ValueError(
+        "Sobol samples do not match the canonical seeded ordered design "
+        "(only complete Saltelli block permutations are admitted)"
+    )
 
 
 @dataclass(frozen=True)
@@ -182,11 +366,13 @@ def _prepare_analysis_inputs(
     samples: np.ndarray,
     outputs: np.ndarray,
 ) -> _PreparedAnalysisInputs:
+    plan = _admit_sensitivity_analysis_plan(plan)
     if outputs.ndim not in {1, 2}:
         raise ValueError("outputs must be 1-D or 2-D")
     if samples.ndim != 2 or samples.shape[0] != outputs.shape[0]:
         raise ValueError("samples and outputs must have the same row count")
 
+    plan = _admit_sensitivity_analysis_plan(plan, actual_run_count=int(outputs.shape[0]))
     sample_valid = np.all(np.isfinite(samples), axis=1)
     if outputs.ndim == 1:
         output_valid = np.isfinite(outputs)

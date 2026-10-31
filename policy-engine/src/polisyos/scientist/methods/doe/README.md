@@ -108,7 +108,45 @@ Details: [Reference →](../../../../../docs/reference/scientist/index.md)
 
 ## Current state
 
-- Last updated: 2026-10-27
-- Python modules: 11
+- Last updated: 2026-10-31
+- Python modules: 12
 - Exports: 82
 - README reflects that `doe` remains upstream for search/stress flows.
+
+## Selected experiment replay
+
+`SensitivityBridge.analyze_search_space` uses the existing seeded sampler and
+plan admission rather than a separate raw SALib route. Supplying `store` writes
+one complete exploratory experiment as `doe_sensitivity_analysis` schema 1.0,
+returns its full selected CAS reference, and requires an explicit seed. Persisted
+Sobol experiments also require a declared independent experimental input law;
+that declaration is not evidence of the population law. Native callable sources
+and the current pinned SALib profile are reconciled at this boundary. Supported
+sampler/analyzer options are passed explicitly and stored in the identity;
+mutable package defaults cannot silently change the design or effect scale.
+
+The artifact keeps the original ordered float64 experiment rows, including failed
+observations, plan and run denominator, declared units, deterministic identities,
+and the numerical result. Whole Morris trajectories or complete Saltelli blocks
+may be reordered together with their outcomes; altered roles or multiplicities
+are refused. Fresh readers resolve the exact kind/schema/selected canonical
+profile, reconcile the complete seeded design and backend source context, and
+rerun the analysis before the search adapter uses its ranking. Byte integrity,
+a retained ranking string or a shape-correct matrix alone cannot admit it.
+
+`SensitivityAwareCandidateGenerator.from_artifact` exposes the selected reference
+and experiment identities in the existing `_sensitivity` candidate metadata.
+Its default bounded reader admits at most 16 MiB / one million JSON elements;
+a caller may supply explicit `CoreJsonReadLimits` for a different resource
+profile. These limits do not establish scientific sufficiency.
+
+Legacy unseeded in-process analysis and direct candidate construction remain
+available as exploratory inputs. Neither route establishes evaluator provenance,
+transitive environment authenticity, a population law, ranking/promotion rights
+or publication authority. The stored experiment is a numerical replay source,
+not a production provenance or independent-evidence receipt.
+
+All materializing plan consumers reconstruct the current complete request before
+work, including nested mutable fields and actual pre-filter Morris row counts.
+An explicit large-run override admits a declared larger plan, not undeclared
+additional trajectories or completed-work estimates.

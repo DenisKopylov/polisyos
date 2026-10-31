@@ -65,25 +65,6 @@ class DeltaMethodPropagator:
                 failure="unknown_dependency",
             )
 
-        n_params = len(param_names)
-        vector_nominal = jnp.asarray(
-            [float(effective_nominal[name]) for name in param_names],
-            dtype=jnp.float32,
-        )
-
-        nominal_result = simulation_fn(**effective_nominal)
-        if not isinstance(nominal_result, Mapping):
-            raise TypeError("simulation_fn must return a mapping of output metrics")
-
-        available_metric_ids = [
-            metric_id
-            for metric_id in output_metric_ids
-            if metric_id in nominal_result and nominal_result[metric_id] is not None
-        ]
-        missing_metric_ids = [
-            metric_id for metric_id in output_metric_ids if metric_id not in available_metric_ids
-        ]
-
         try:
             cov = build_covariance_matrix(
                 param_names,
@@ -98,6 +79,23 @@ class DeltaMethodPropagator:
                 input_param_names=param_names,
                 failure="incompatible_dependency",
             )
+
+        n_params = len(param_names)
+        vector_nominal = jnp.asarray(
+            [float(effective_nominal[name]) for name in param_names],
+            dtype=jnp.float32,
+        )
+        nominal_result = simulation_fn(**effective_nominal)
+        if not isinstance(nominal_result, Mapping):
+            raise TypeError("simulation_fn must return a mapping of output metrics")
+        available_metric_ids = [
+            metric_id
+            for metric_id in output_metric_ids
+            if metric_id in nominal_result and nominal_result[metric_id] is not None
+        ]
+        missing_metric_ids = [
+            metric_id for metric_id in output_metric_ids if metric_id not in available_metric_ids
+        ]
 
         def _vectorized_fn(theta: jnp.ndarray) -> jnp.ndarray:
             params = dict(effective_nominal)

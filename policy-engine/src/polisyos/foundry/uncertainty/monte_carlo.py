@@ -54,6 +54,7 @@ from .covariance import (
     _SINGULAR_PSD_SCALE_RTOL,
     _SINGULAR_SYMMETRY_ATOL,
     _SINGULAR_SYMMETRY_RTOL,
+    _real_float64,
     build_covariance_matrix,
     extract_std,
     has_unknown_dependency,
@@ -689,16 +690,22 @@ def _build_empirical_joint_spec(
         return None, "incompatible_joint_law"
 
     normalized_weights: list[np.ndarray] = []
-    for carrier in carriers.values():
+    samples: dict[str, np.ndarray] = {}
+    for name, carrier in carriers.items():
         if carrier.sample_axis.strip() != axis or len(carrier.samples) != sample_count:
             return None, "incompatible_joint_law"
-        weights = (
-            np.ones(sample_count, dtype=np.float64)
-            if carrier.weights is None
-            else np.asarray(carrier.weights, dtype=np.float64)
-        )
+        try:
+            samples[name] = _real_float64(carrier.samples)
+            weights = (
+                np.ones(sample_count, dtype=np.float64)
+                if carrier.weights is None
+                else _real_float64(carrier.weights)
+            )
+        except (TypeError, ValueError, OverflowError):
+            return None, "incompatible_joint_law"
         if (
-            weights.shape != (sample_count,)
+            samples[name].shape != (sample_count,)
+            or weights.shape != (sample_count,)
             or not np.all(np.isfinite(weights))
             or np.any(weights < 0.0)
         ):
@@ -720,12 +727,7 @@ def _build_empirical_joint_spec(
             names=tuple(carriers),
             sample_axis=axis,
             sample_count=sample_count,
-            samples={
-                # An unvalidated model-copy update can retain a caller-owned
-                # float64 ndarray.  The cached law must not alias that buffer.
-                name: np.asarray(carrier.samples, dtype=np.float64).copy()
-                for name, carrier in carriers.items()
-            },
+            samples=samples,
             probabilities=probabilities,
             joint_sample_id=joint_sample_id,
         ),
@@ -2582,7 +2584,9 @@ class MonteCarloPropagator:
                 std = extract_std(env)
             else:
                 mean, std = fit
-            return mean + max(std, 1e-12) * jrandom.normal(rng, shape=(n,))
+            if std == 0.0:
+                return jnp.full((n,), mean)
+            return mean + std * jrandom.normal(rng, shape=(n,))
 
         if env.distribution_family == DistributionFamily.UNIFORM:
             return jrandom.uniform(rng, shape=(n,), minval=lo, maxval=hi)
@@ -2666,7 +2670,11 @@ class MonteCarloPropagator:
                     std = extract_std(env)
                 else:
                     mean, std = fit
-                result[name] = sp_norm.ppf(u, loc=mean, scale=max(std, 1e-12))
+                result[name] = (
+                    np.full(u.shape, mean, dtype=np.float64)
+                    if std == 0.0
+                    else sp_norm.ppf(u, loc=mean, scale=std)
+                )
             elif env.distribution_family == DistributionFamily.UNIFORM:
                 result[name] = lo + u * (hi - lo)
             elif env.distribution_family == DistributionFamily.TRIANGULAR:

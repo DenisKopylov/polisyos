@@ -4,7 +4,7 @@ This change is limited to style, annotations, and readable stdout for the existi
 
 The initial Ruff pass found 102 diagnostics across the 13 Python files. The listed Python files now pass Ruff and Ruff format. The MJS file is unchanged and passes `node --check`. Prettier was unavailable in this checkout: `corepack pnpm exec prettier --check docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/can-options/locale-counts.mjs` exited 254 with `Command "prettier" not found`. The Node syntax result does not establish MJS formatting.
 
-The complete commands, stdout/stderr bytes, exit codes, and initial/current SHA-256 values are retained in [the ignored receipt manifest](../raw/probe-hygiene-20261010/manifest.json), alongside each command's full output. Current scope denominator: 14 nonignored untracked `.py`/`.mjs` files under `LOCAL`.
+The complete commands, stdout/stderr bytes, exit codes, and initial/current SHA-256 values are retained in the ignored receipt manifest (`../raw/probe-hygiene-20261010/manifest.json`; unavailable in this checkout), alongside each command's full output. Current scope denominator: 14 nonignored untracked `.py`/`.mjs` files under `LOCAL`.
 
 | Exact path under `LOCAL/` | Hygiene edit |
 |---|---|

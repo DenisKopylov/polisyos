@@ -76,7 +76,7 @@ Generated from `tools.registry` command metadata.
 | `architecture` | `scaffold` | `active` | `polisyos-tools architecture scaffold` | architecture/scaffold | - | - | - |
 | `connectors` | `check-contracts` | `active` | `polisyos-tools connectors check-contracts` | connectors/check_contracts | - | - | - |
 | `connectors` | `scaffold` | `active` | `polisyos-tools connectors scaffold` | CLI scaffold generator for Policy OS connectors. | - | - | - |
-| `foundry` | `generate-stubs` | `active` | `polisyos-tools foundry generate-stubs` | Generate Foundry method stubs through the canonical tools surface. | - | - | - |
+| `foundry` | `generate-stubs` | `active` | `polisyos-tools foundry generate-stubs` | Generate or compare the complete Foundry method stub family. | - | - | - |
 | `foundry` | `sync-dependency-profile` | `active` | `polisyos-tools foundry sync-dependency-profile` | Operate the Foundry-owned dependency profile without minting authority. | - | - | - |
 | `foundry` | `update-signature-baseline` | `active` | `polisyos-tools foundry update-signature-baseline` | Refresh the Foundry signature baseline through the canonical tools surface. | - | - | - |
 
@@ -125,7 +125,7 @@ Generated from `tools.registry` command metadata.
 | `validation` | `build-policy-design-case-wave40-readiness` | `active` | `polisyos-tools validation build-policy-design-case-wave40-readiness` | Build Policy Design Case Wave 40 readiness and bundle-inspection closeout. | - | - | - |
 | `validation` | `build-policy-evidence-capability-index` | `active` | `polisyos-tools validation build-policy-evidence-capability-index` | Build the Policy Evidence Capability Index release artifacts. | - | - | - |
 | `validation` | `build-wave5-honest-diagnostics-evidence` | `active` | `polisyos-tools validation build-wave5-honest-diagnostics-evidence` | Build runtime-backed Wave 5 Honest Diagnostics evidence reports. | - | - | - |
-| `validation` | `capture-layer3-gy-design-generation-replay` | `active` | `polisyos-tools validation capture-layer3-gy-design-generation-replay` | Capture GY-N4 design-generation replay recordings without all-or-nothing writes. | - | - | - |
+| `validation` | `capture-layer3-gy-design-generation-replay` | `active` | `polisyos-tools validation capture-layer3-gy-design-generation-replay` | Capture candidate-only GY-N4 replay inputs in an admitted owned directory. | - | - | - |
 | `validation` | `check-can-i-closeout` | `active` | `polisyos-tools validation check-can-i-closeout` | Validate Can-I-Closeout compatibility for a selected evidence bundle. | - | - | - |
 | `validation` | `check-canonical-vocabulary-crosswalk` | `active` | `polisyos-tools validation check-canonical-vocabulary-crosswalk` | Recompute the VC1 reference from complete source owners and exercise its gates. | - | - | - |
 | `validation` | `check-ci-ratchets` | `active` | `polisyos-tools validation check-ci-ratchets` | Ratchet targeted CI escapes across common/core/runtime HTTP packages. | - | - | - |

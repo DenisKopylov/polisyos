@@ -16,7 +16,7 @@ The review narratives are `R/1548-F-tmle.md`, `1548-F-graph.md`, and `R/1548-F-c
 The graph handoff proposes `closure_ids=[B216,B217]`, labels B216 `closed`
 and describes a closed supported static profile. Those are F's proposed
 bounded outcomes, not G-accepted formal closure. The current
-[`closure-decisions/F.md`](../../closure-decisions/F.md) still requires G
+[`closure-decisions/F.md`](../../../closure-decisions/F.md) still requires G
 acceptance of the finite oracle and its actual consumers. This intake changes
 neither that ledger nor the original finding criteria; adjudicate the complete
 criterion separately after source acceptance and required verification.

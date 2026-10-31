@@ -837,6 +837,7 @@ def test_resume_allows_valid_state_without_cache_refs(tmp_path: Path) -> None:
 
     assert resumed.report.status == "ok"
     assert resumed.report.nodes == []
+    assert not (tmp_path / "runs" / run_id / "trace.jsonl").exists()
 
 
 @pytest.mark.parametrize("async_writer", [False, True], ids=["sync", "async"])

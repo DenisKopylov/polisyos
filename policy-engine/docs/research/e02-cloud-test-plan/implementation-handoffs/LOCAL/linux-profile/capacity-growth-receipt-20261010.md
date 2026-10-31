@@ -30,4 +30,4 @@ The existing environments remain at uv 0.9.21, root Python 3.14.0 and DoWhy Pyth
 
 ## Receipt files
 
-All command stdout, stderr, and exit statuses, plus the pre-change config and before/after config hashes, are under [`raw/capacity-growth-20261010/`](raw/capacity-growth-20261010/). `SHA256SUMS` covers all 140 raw receipt files and verifies cleanly with `shasum -a 256 -c SHA256SUMS`; the manifest SHA-256 is `d7ec1f6529f2e5e5f66d7cc596cd9dd9e8abb7236ec4c877eb4b1b6b01e87675`.
+All command stdout, stderr, and exit statuses, plus the pre-change config and before/after config hashes, are under `raw/capacity-growth-20261010/` (`raw/capacity-growth-20261010/`; unavailable in this checkout). `SHA256SUMS` covers all 140 raw receipt files and verifies cleanly with `shasum -a 256 -c SHA256SUMS`; the manifest SHA-256 is `d7ec1f6529f2e5e5f66d7cc596cd9dd9e8abb7236ec4c877eb4b1b6b01e87675`.

@@ -25,7 +25,7 @@ That cancellation assertion is **SQL control, not HTTP authorization**: the fixt
 
 ## Limits
 
-- The pilot covers seven selected cases. All five former failing selectors pass. A later 183-case affected wave on the same source cut ran the full current C37 module cohort plus the C57 publication and event-log consumers; it recorded 176 pass, three failures, and four PostgreSQL skips. See [the independent broader-wave review](C57-composed-consumers-r1-actual-review.md) for the two failure causes. The broader wave is not green.
+- The pilot covers seven selected cases. All five former failing selectors pass. A later 183-case affected wave on the same source cut ran the full current C37 module cohort plus the C57 publication and event-log consumers; it recorded 176 pass, three failures, and four PostgreSQL skips. See [the independent broader-wave review](C57-composed-consumers-r1-actual-review.md.gz) for the two failure causes. The broader wave is not green.
 - It exercises SQLite only. PostgreSQL, native stop/cancel behavior, all worker-state parameters, production currentness, HTTP cancellation authorization, the full B56 matrix, and downstream surface/G acceptance are not established here.
 - The run plan explicitly disclaims new authority, physical-stop, production-currentness, and G/closure claims. The audit has no closure IDs.
 

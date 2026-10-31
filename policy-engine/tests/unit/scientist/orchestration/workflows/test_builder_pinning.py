@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import inspect
 import logging
+from collections.abc import Iterator
 from types import SimpleNamespace
 from unittest.mock import MagicMock
 
@@ -11,6 +12,7 @@ from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.security.access_scope import AccessScope
 from polisyos.core.security.identity import PIIAccessLevel, PolicyOSRole
 from polisyos.core.security.tenant_context import (
@@ -27,6 +29,7 @@ from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.workflows.builder import (
     _artifact_ref_or_none,
     _resolve_store,
+    build_default_registry,
     build_execution_context,
     run_causal_full_workflow,
     run_default_workflow,
@@ -44,17 +47,19 @@ def _ref(seed: str, kind: str = "scientist.test") -> ArtifactRef:
     )
 
 
-def _stub_execution_context() -> SimpleNamespace:
-    """Return the minimum complete workflow context used by runner fixtures."""
-
-    return SimpleNamespace(
-        run=SimpleNamespace(
-            tenant_id="tenant-fixture",
-            cell_id="cell-fixture",
-            run_manifest=SimpleNamespace(),
-        ),
-        claim_ledger_owner=object(),
+@pytest.fixture
+def runner_context(tmp_path) -> Iterator[ExecutionContext]:
+    """Keep metadata propagation attached to a real persisted run owner."""
+    store = FileSystemCAS(tmp_path / "runner-context")
+    context = build_execution_context(
+        store,
+        build_default_registry(store),
+        run_id="R_runner_context",
     )
+    try:
+        yield context
+    finally:
+        context.run.suspend_for_resume()
 
 
 def test_policy_workflow_rejects_mismatched_graph_prior_refs_before_execution(tmp_path) -> None:
@@ -110,6 +115,7 @@ def test_non_policy_workflows_reject_mismatched_registry_refs_before_execution(
 def test_default_workflow_accepts_injected_store_factory_and_quota_registry(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path,
+    runner_context: ExecutionContext,
 ) -> None:
     state = ExperimentState(run_id="R_provider_builder")
     store = FileSystemCAS(tmp_path)
@@ -134,7 +140,7 @@ def test_default_workflow_accepts_injected_store_factory_and_quota_registry(
     monkeypatch.setattr(
         builder,
         "build_execution_context",
-        lambda *args, **kwargs: _stub_execution_context(),
+        lambda *args, **kwargs: runner_context,
     )
     monkeypatch.setattr(builder, "build_registry_with_builtin_nodes", lambda: object())
     monkeypatch.setattr(builder, "CASCheckpointHook", lambda *args, **kwargs: object())
@@ -175,7 +181,7 @@ def test_build_execution_context_uses_access_scope_tenant_when_tenant_scope_abse
     try:
         ctx = build_execution_context(
             store,
-            _ref("a", "core.registry_bundle"),
+            build_default_registry(store),
             run_id="R_access_scope_tenant",
         )
     finally:
@@ -185,6 +191,92 @@ def test_build_execution_context_uses_access_scope_tenant_when_tenant_scope_abse
     assert ctx.run.cell_id == "cell-a"
     assert ctx.run.run_manifest.tenant_id == "tenant-a"
     assert ctx.run.run_manifest.cell_id == "cell-a"
+    ctx.run.suspend_for_resume()
+
+
+def test_build_execution_context_resumes_persisted_metadata_with_selected_registry(
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_ref = build_default_registry(store)
+    assert registry_ref.manifest_profile_sha256 is not None
+    assert store.verify(registry_ref).ok
+    context = build_execution_context(store, registry_ref, run_id="R_selected_registry")
+    context.run.update_manifest(execution_profile="research", control_job_id="job-123")
+    started_at = context.run.run_manifest.started_at
+    context.run.suspend_for_resume()
+
+    resumed = build_execution_context(
+        FileSystemCAS(tmp_path),
+        registry_ref,
+        run_id="R_selected_registry",
+        resume_run_dir=tmp_path / "runs" / "R_selected_registry",
+    )
+    assert resumed.run.run_manifest.started_at == started_at
+    assert resumed.run.run_manifest.execution_profile == "research"
+    assert resumed.run.run_manifest.control_job_id == "job-123"
+    resumed.run.suspend_for_resume()
+
+
+def test_build_execution_context_resume_requires_the_original_selected_registry(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_ref = build_default_registry_bundle(store).bundle_ref
+    assert registry_ref.manifest_profile_sha256 is None
+    context = build_execution_context(store, registry_ref, run_id="R_unbound_registry")
+    context.run.suspend_for_resume()
+
+    with pytest.raises(ValueError, match="run_resume_registry_profile_not_established"):
+        build_execution_context(
+            FileSystemCAS(tmp_path),
+            registry_ref,
+            run_id="R_unbound_registry",
+            resume_run_dir=tmp_path / "runs" / "R_unbound_registry",
+        )
+
+
+@pytest.mark.parametrize(
+    "assembly_stage", ["metrics_factory", "default_metrics", "claim_owner", "context_constructor"]
+)
+def test_context_assembly_failure_releases_the_resumed_run_owner(
+    tmp_path, monkeypatch: pytest.MonkeyPatch, assembly_stage: str
+) -> None:
+    import polisyos.scientist.orchestration.workflows.builder as builder
+
+    store = FileSystemCAS(tmp_path)
+    registry_ref = build_default_registry(store)
+    context = build_execution_context(store, registry_ref, run_id="R_context_assembly")
+    context.run.suspend_for_resume()
+    run_dir = tmp_path / "runs" / "R_context_assembly"
+
+    def fail_assembly(*_args, **_kwargs):
+        raise RuntimeError(f"assembly failed: {assembly_stage}")
+
+    with monkeypatch.context() as patch:
+        if assembly_stage != "metrics_factory":
+            attribute = {
+                "default_metrics": "_default_engine_metrics",
+                "claim_owner": "build_default_claim_ledger_owner",
+                "context_constructor": "ClaimCapableExecutionContext",
+            }[assembly_stage]
+            patch.setattr(builder, attribute, fail_assembly)
+        with pytest.raises(RuntimeError, match=f"assembly failed: {assembly_stage}"):
+            build_execution_context(
+                FileSystemCAS(tmp_path),
+                registry_ref,
+                run_id="R_context_assembly",
+                resume_run_dir=run_dir,
+                engine_metrics_factory=fail_assembly
+                if assembly_stage == "metrics_factory"
+                else None,
+            )
+
+    resumed = build_execution_context(
+        FileSystemCAS(tmp_path),
+        registry_ref,
+        run_id="R_context_assembly",
+        resume_run_dir=run_dir,
+    )
+    resumed.run.suspend_for_resume()
 
 
 def test_eval_safety_context_fields_are_keyword_only() -> None:
@@ -415,6 +507,7 @@ def test_workflow_runners_use_branch_local_snapshot_state(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path,
     runner,
+    runner_context: ExecutionContext,
 ) -> None:
     state = ExperimentState(
         run_id="R_builder_snapshot",
@@ -443,7 +536,7 @@ def test_workflow_runners_use_branch_local_snapshot_state(
         del args
         captured_safety["execution_context"] = kwargs["eval_safety_execution_context"]
         captured_safety["verifier"] = kwargs["eval_safety_verifier"]
-        return _stub_execution_context()
+        return runner_context
 
     monkeypatch.setattr(builder, "_ensure_snapshot_bind", lambda _state: None)
     monkeypatch.setattr(builder, "acquire_run_lock", lambda *args, **kwargs: lock)
@@ -488,6 +581,7 @@ def test_workflow_runners_use_branch_local_snapshot_state(
 def test_policy_workflow_requests_method_obligations_before_claim_drafting(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path,
+    runner_context: ExecutionContext,
 ) -> None:
     state = ExperimentState(
         run_id="R_policy_method_obligations",
@@ -533,7 +627,7 @@ def test_policy_workflow_requests_method_obligations_before_claim_drafting(
     monkeypatch.setattr(
         builder,
         "build_execution_context",
-        lambda *args, **kwargs: _stub_execution_context(),
+        lambda *args, **kwargs: runner_context,
     )
     monkeypatch.setattr(builder, "build_registry_with_builtin_nodes", lambda: object())
     monkeypatch.setattr(builder, "CASCheckpointHook", lambda *args, **kwargs: object())

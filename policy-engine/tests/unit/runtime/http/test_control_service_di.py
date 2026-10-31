@@ -2117,11 +2117,13 @@ async def _run_controlled_simulate_only_job_fixture(
         RecursiveLeafContextOwner,
     )
     from tests._helpers.controlled_candidate_profile import (
+        ControlledCandidateGateway,
         _build_configured_procurement_profile,
         _configured_procurement_profile,
         _controlled_procurement_recording,
         _controlled_registered_tax_recording,
         _current_compiler_problem,
+        synthetic_controlled_candidate_provider_profile,
     )
     from tests.unit.runtime.http.test_control_job_execution_intent import (
         _valid_intake_for_mode,
@@ -2335,6 +2337,7 @@ async def _run_controlled_simulate_only_job_fixture(
 
     async def compile_fixture_problem(**kwargs):
         compiler_calls.append(kwargs)
+        candidate_gateway.admit_compiled_problem(problem)
         return problem
 
     monkeypatch.setattr(
@@ -2418,7 +2421,12 @@ async def _run_controlled_simulate_only_job_fixture(
     assert n4_port_attempts == []
     assert compiler_calls == compiled_runs == n4_organ_runs == []
 
-    recorded_n4_client = n4_contract.RecordedGenerationReplayClient(controlled_recording)
+    provider_profile = synthetic_controlled_candidate_provider_profile(
+        recording,
+        controlled_recording,
+        problem=problem,
+        evidence_root=tmp_path / "synthetic-provider-exchanges",
+    )
     source_persistence_failures: list[str] = []
     if proposal_source_persistence_failure:
 
@@ -2622,10 +2630,11 @@ async def _run_controlled_simulate_only_job_fixture(
 
             generator = _ControlledN4GenerationPort(
                 model_id=str(recording["model_id"]),
-                llm_client=recorded_n4_client,
                 repo_root=kwargs["repo_root"],
                 cycle_substrate_context=resolved_context,
                 candidate_simulation_handoff=handoff,
+                producer_run_id=handoff.run_id,
+                producer_settlement_store=service._llm_producer_settlement_store,
             )
             n4_proposal_ports.append(generator)
             run_args = list(args)
@@ -2755,7 +2764,28 @@ async def _run_controlled_simulate_only_job_fixture(
             leased_jobs.append(selected_job)
             service._process_control_job(selected_job)
 
-        with n4_contract._recorded_runtime_environment(recording):
+        with (
+            n4_contract._recorded_runtime_environment(recording),
+            ControlledCandidateGateway() as candidate_gateway,
+            monkeypatch.context() as provider_environment,
+        ):
+            candidate_gateway.set_fixture(
+                controlled_recording, problem=problem, provider_profile=provider_profile
+            )
+            # Use the real factory, request issuer, tracing and durable settlement.
+            # These declared provider quantities establish only this candidate
+            # software test's current estimate, never historical/provider spend.
+            provider_environment.setenv("POLISYOS_LLM_SIMULATION_MODE", "0")
+            provider_environment.setenv("POLISYOS_LLM_GATEWAY_BASE_URL", candidate_gateway.base_url)
+            provider_environment.setenv("POLISYOS_LLM_GATEWAY_API_KEY", "synthetic-local-key")
+            provider_environment.setenv("POLISYOS_LLM_GATEWAY_MAX_RETRIES", "0")
+            provider_environment.setenv("POLISYOS_LLM_FALLBACK_URLS", "")
+            from polisyos.scientist.orchestration.llm.factory import GatewayLLMConfig
+
+            provider_config = GatewayLLMConfig.from_env()
+            assert provider_config is not None
+            assert provider_config.base_url == candidate_gateway.base_url
+            assert not provider_config.fallback_urls
             dispatched_job_id = dispatch_one_control_job(
                 store=service._control_store,
                 handler=record_worker_dispatch,

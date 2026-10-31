@@ -429,6 +429,83 @@ class ControlledCandidateGateway:
         n4_contract._validate_recording_fixture(recording)  # type: ignore[arg-type]
 
 
+def synthetic_controlled_candidate_provider_profile(
+    recording: dict[str, Any],
+    controlled: dict[str, Any],
+    *,
+    problem: DesignProblem,
+    evidence_root: Path,
+) -> SyntheticCandidateProviderProfile:
+    """Declare new stage inputs from the exact controlled capture's parent rows.
+
+    The selected successful bodies remain candidate software fixtures. Token
+    magnitudes are explicitly new synthetic quantities, not recovered historical
+    usage or billing; the normal traced client computes the current estimate.
+    """
+    n4_contract._validate_recording_fixture(recording)
+    n4_contract._validate_recording_fixture(controlled)
+    if (
+        controlled.get("derived_from_recording_id") != recording["recording_id"]
+        or controlled.get("derived_from_content_hash") != recording["recording_content_hash"]
+        or len(controlled["responses"]) != len(recording["responses"])
+    ):
+        raise ValueError("synthetic_provider_controlled_parent_mismatch")
+    # Exact row occurrences in the retained decisive capture, including the
+    # successful final formalizer. Consolidation deliberately reuses draft as a
+    # declared stage function; this is not a historical call-order replay.
+    stage_rows = (
+        ("draft", 0, "draft"),
+        ("drafter_multipass", 1, "drafter_multipass"),
+        ("drafter_consolidation", 0, "draft"),
+        ("formalizer", 8, "formalizer"),
+        ("critic", 9, "critic"),
+    )
+    rows = []
+    for stage, index, parent_role in stage_rows:
+        source = recording["responses"][index]
+        selected = controlled["responses"][index]
+        if (
+            source.get("role") != parent_role
+            or selected.get("role") != parent_role
+            or source.get("status") != "success"
+            or selected.get("status") != "success"
+            or source.get("model_id") != recording["model_id"]
+            or selected.get("model_id") != recording["model_id"]
+        ):
+            raise ValueError("synthetic_provider_parent_response_identity_unresolved")
+        quantity = _usage_quantity(source.get("usage"))
+        if quantity.status != "known":
+            raise ValueError("synthetic_provider_explicit_usage_values_invalid")
+        row = {
+            "status": "success",
+            "source_model_id": recording["model_id"],
+            "raw_response": selected["raw_response"],
+            "raw_response_hash": selected["raw_response_hash"],
+            "usage": {
+                "prompt_tokens": quantity.prompt_tokens,
+                "completion_tokens": quantity.completion_tokens,
+                "total_tokens": quantity.total_tokens,
+                "usage_status": "known",
+            },
+            "legacy_counter_availability": "not_established",
+            "usage_declaration": "new_synthetic_test_input_not_provider_measurement",
+            "parent_role": parent_role,
+            "parent_response_hash": source["raw_response_hash"],
+        }
+        rows.append((stage, json.dumps(row, sort_keys=True, separators=(",", ":"))))
+    from polisyos.runtime.quality.cycle_substrate import cycle_job_profile_selection_ref
+
+    return SyntheticCandidateProviderProfile(
+        model_id=str(recording["model_id"]),
+        profile_selection_ref=cycle_job_profile_selection_ref(problem),
+        source_recording_id=str(recording["recording_id"]),
+        source_recording_content_hash=str(recording["recording_content_hash"]),
+        controlled_recording_content_hash=str(controlled["recording_content_hash"]),
+        response_rows=tuple(rows),
+        evidence_root=evidence_root,
+    )
+
+
 def _resolve_controlled_parent_slot(slot_id: str) -> str:
     """Resolve a test-parent alias using the existing controlled slot map."""
 

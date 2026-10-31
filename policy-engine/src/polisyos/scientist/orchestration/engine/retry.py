@@ -332,6 +332,7 @@ def _node_execute_supervisor(
             group_ready,
             completion_time,
             worker_binding=worker_binding,
+            compute_deadline=compute_deadline,
         )
         result_channel.close_writer()
         return
@@ -356,6 +357,7 @@ def _node_execute_supervisor(
             signal.signal(signal.SIGTERM, signal.SIG_DFL)
             try:
                 try:
+                    _remaining_deadline(compute_deadline, execution_state="not_started")
                     _node_execute_worker(
                         node,
                         ctx,
@@ -364,6 +366,7 @@ def _node_execute_supervisor(
                         None,
                         completion_time,
                         worker_binding=worker_binding,
+                        compute_deadline=compute_deadline,
                     )
                 except (SystemExit, KeyboardInterrupt) as exc:
                     completion_time.value = time.monotonic()
@@ -2717,6 +2720,8 @@ def _drain_result_sync(
         completion_time,
         compute_deadline,
     ):
+        if time.monotonic() >= compute_deadline:
+            raise _WorkerComputeTimeout
         raise _WorkerProcessExited(process.exitcode)
     if not _completion_before_deadline(completion_time, compute_deadline):
         raise _WorkerComputeTimeout
@@ -2771,6 +2776,8 @@ async def _drain_result_async(
         completion_time,
         compute_deadline,
     ):
+        if time.monotonic() >= compute_deadline:
+            raise _WorkerComputeTimeout
         raise _WorkerProcessExited(process.exitcode)
     if not _completion_before_deadline(completion_time, compute_deadline):
         raise _WorkerComputeTimeout
@@ -3402,6 +3409,7 @@ def _execute_with_timeout_process(
                 daemon=True,
             )
         raise_if_job_execution_interrupted()
+        _remaining_deadline(lifecycle.compute_deadline, execution_state="not_started")
         process.start()
         result_queue.close_writer()
         lifecycle.process_group_id = _owned_process_group_id(
@@ -3612,6 +3620,7 @@ async def _execute_with_timeout_process_async(
                 daemon=True,
             )
         raise_if_job_execution_interrupted()
+        _remaining_deadline(lifecycle.compute_deadline, execution_state="not_started")
         process.start()
         result_queue.close_writer()
         lifecycle.process_group_id = _owned_process_group_id(
@@ -3775,6 +3784,7 @@ def _node_execute_worker(
     group_ready: Any = None,
     completion_time: Any = None,
     worker_binding: _ForkWorkerReceiptBinding | None = None,
+    compute_deadline: float | None = None,
 ) -> None:
     if group_ready is not None:
         try:
@@ -3865,7 +3875,10 @@ def _node_execute_worker(
         else:
             worker_ctx = ctx
 
-        outcome = node.execute(_node_facing_context(worker_ctx), state)
+        node_ctx = _node_facing_context(worker_ctx)
+        execute = node.execute
+        _remaining_deadline(compute_deadline, execution_state="not_started")
+        outcome = execute(node_ctx, state)
         _mark_completion()
         if isinstance(outcome, NodeOutcome):
             from polisyos.scientist.orchestration.engine.runner.serialization import (

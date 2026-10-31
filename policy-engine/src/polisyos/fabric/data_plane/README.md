@@ -88,6 +88,12 @@ contract, including connectors which synthesize it from offsets.
 Declared stream-schema membership is checked per row against `FieldSpec` before
 quarantine or publication, independently of neighboring rows and batch size.
 
+`benchmark_stream_processing()` forwards the host-configured
+`source_progress_readers` to the same runtime admission path. Benchmarks must
+supply the actual source-owned input contract when dedupe is enabled; the helper
+does not infer keys or manufacture versions. Finite JSONL benchmark results
+retain the runtime's `replay_only` guarantee, including checkpoint recovery.
+
 ## Common Commands
 
 Run from the repository root (`policy-engine/`).

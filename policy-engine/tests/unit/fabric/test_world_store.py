@@ -28,6 +28,7 @@ from polisyos.fabric.world.store import (
     emit_world_node_facts,
     gc_world_segments,
     load_world_fact_manifests,
+    load_world_facts,
     stable_world_provenance_v1,
     vacuum_world_segment_index,
     write_world_fact_segment,
@@ -217,6 +218,70 @@ def test_concurrent_world_segment_index_appends_are_not_corrupt(tmp_path: Path) 
     assert {manifest.segment_id for manifest in manifests} == {
         f"segment.{index}" for index in range(30)
     }
+
+
+def test_write_world_segment_wraps_filesystem_errors(tmp_path: Path) -> None:
+    (tmp_path / "world").write_text("not a directory", encoding="utf-8")
+    with pytest.raises(WorldSegmentError, match="failed to write world fact segment") as error:
+        write_world_fact_segment([], fact_log_root=tmp_path, segment_name="blocked")
+    assert isinstance(error.value.__cause__, OSError)
+
+
+@pytest.mark.parametrize("wrap_read_error", [False, True])
+def test_load_world_facts_preserves_corrupt_parquet_error_policy(
+    tmp_path: Path, wrap_read_error: bool
+) -> None:
+    from pyarrow import ArrowInvalid
+
+    facts = emit_world_node_facts(
+        node_id="doc.corrupt",
+        kind=NodeKind.DOC_SOURCE,
+        label="Corrupt segment",
+        artifact_id=None,
+        props_ref=None,
+        provenance=stable_world_provenance_v1(),
+    )
+    manifest = write_world_fact_segment(facts, fact_log_root=tmp_path, segment_name="corrupt")
+    append_world_segment_index(manifest, fact_log_root=tmp_path)
+    Path(manifest.path).write_bytes(b"not a parquet file")
+    expected = WorldSegmentError if wrap_read_error else ArrowInvalid
+    with pytest.raises(expected) as error:
+        load_world_facts(
+            tmp_path,
+            columns=["fact_id"],
+            read_error_cls=WorldSegmentError if wrap_read_error else None,
+        )
+    if wrap_read_error:
+        assert isinstance(error.value.__cause__, ArrowInvalid)
+        assert manifest.path in str(error.value)
+
+
+@pytest.mark.parametrize("operation", ["write", "read"])
+def test_world_segment_io_does_not_reclassify_unexpected_defects(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, operation: str
+) -> None:
+    def unexpected(*args, **kwargs):
+        del args, kwargs
+        raise RuntimeError("unexpected producer defect")
+
+    if operation == "write":
+        monkeypatch.setattr("polisyos.fabric.world.store.segments.write_fact_segment", unexpected)
+        with pytest.raises(RuntimeError, match="unexpected producer defect"):
+            write_world_fact_segment([], fact_log_root=tmp_path, segment_name="unexpected")
+    else:
+        from polisyos.ir.loading.fact_log import FactSegmentManifest
+
+        path = tmp_path / "exists.parquet"
+        path.touch()
+        append_world_segment_index(
+            FactSegmentManifest(
+                segment_id="unexpected.read", path=str(path), row_count=0, sha256="0" * 64
+            ),
+            fact_log_root=tmp_path,
+        )
+        monkeypatch.setattr(pd, "read_parquet", unexpected)
+        with pytest.raises(RuntimeError, match="unexpected producer defect"):
+            load_world_facts(tmp_path, columns=["fact_id"], read_error_cls=WorldSegmentError)
 
 
 def test_append_world_segment_index_uses_injected_observability_providers(

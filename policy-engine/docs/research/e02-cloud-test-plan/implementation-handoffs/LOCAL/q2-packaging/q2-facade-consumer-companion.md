@@ -1,6 +1,6 @@
 # Q2 public-facade consumer companion (virtual delta)
 
-Status: **UNAPPLIED proposal**. This packet changes no product or test source, manifest, runner, environment, build, install, collection, or test execution. The final source SHA/tree remain **NULL / UNFROZEN** and Q2 remains **UNRUN**. Patch SHA-256: `bb2d4dd716cf02b5b135e82f8c96188b7bb695a040aa003ed1106bb18a485ead`; bytes: 2,594. The only proposed source/test delta is retained in [`raw/q2-facade-consumer-companion.patch`](raw/q2-facade-consumer-companion.patch).
+Status: **UNAPPLIED proposal**. This packet changes no product or test source, manifest, runner, environment, build, install, collection, or test execution. The final source SHA/tree remain **NULL / UNFROZEN** and Q2 remains **UNRUN**. Patch SHA-256: `bb2d4dd716cf02b5b135e82f8c96188b7bb695a040aa003ed1106bb18a485ead`; bytes: 2,594. The only proposed source/test delta is retained in `raw/q2-facade-consumer-companion.patch` (`raw/q2-facade-consumer-companion.patch`; unavailable in this checkout).
 
 This is a successor to `current-contracts-delta-readiness.md` (preserved unchanged at SHA-256 `0b7f9152db4746d3c4bd9a1fff5790d9c66baed7968de1c1ea3aa4cb2c59173b`). Its three exact target preimages, read from the shared worktree for this patch, are:
 

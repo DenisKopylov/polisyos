@@ -2,7 +2,7 @@
 
 **Static verdict: GO for the nine scoped path deltas. Runtime verdict: LIMIT — no imports or tests were run.** The reviewed changes are mechanical or preserve the existing runtime export bridge. This is not acceptance of the larger 12-path Scientist route, which still includes three excluded runtime suites.
 
-I reviewed the exact candidate worktree `/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos`, base and candidate HEAD `f8ff8a9e241badab03fdb4d584d36934970e4e15`, tree `9641b8e4b4eb90078d03ebd6740e9d229aee58e0`. The residual route is `scientist-workflow-evidence-and-search` (12 paths) in [the prior route inventory](../reviews/residual-source-boundaries-independent-20261011.json) (`sha256 4925b2d84684c06fee482e9422158356750e84b56c86ad9c76c01669cb5b8798`). The prior review identifies the route as open and specifically keeps R4 and SKG verification outstanding.
+I reviewed the exact candidate worktree `/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos`, base and candidate HEAD `f8ff8a9e241badab03fdb4d584d36934970e4e15`, tree `9641b8e4b4eb90078d03ebd6740e9d229aee58e0`. The residual route is `scientist-workflow-evidence-and-search` (12 paths) in the prior route inventory (`../reviews/residual-source-boundaries-independent-20261011.json`; unavailable in this checkout) (`sha256 4925b2d84684c06fee482e9422158356750e84b56c86ad9c76c01669cb5b8798`). The prior review identifies the route as open and specifically keeps R4 and SKG verification outstanding.
 
 | Path | Base SHA-256 | Candidate SHA-256 | Static result |
 |---|---|---|---|

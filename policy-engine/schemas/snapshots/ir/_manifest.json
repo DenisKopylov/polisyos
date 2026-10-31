@@ -6,8 +6,8 @@
     "release_fragment_change_class": "persisted-artifact-format",
     "version_owner": "team-ir"
   },
-  "content_hash": "8392fdd8e6cbc765e7fc894c4eeae15cd8214f9cdf63c3f307baec5ca174c873",
-  "generated_at": "2026-10-24T16:23:17+00:00",
+  "content_hash": "2f25d658d45afabdba66edd9c42b25ac901c758eb19bfb4904c69e5d0176b2bc",
+  "generated_at": "2026-10-31T05:50:47+00:00",
   "generator_version": "1.1.0",
   "models": {
     "abm_alignment_report": {
@@ -1281,6 +1281,54 @@
       "sha256_full": "73886dfb8448e44b5eef6ba2fab0191cc09523943cafa9bed6b7285a2cc31ffe",
       "sha256_semantic": "aa041956bb417e0ef86b564e6a5e8aa040dc97c5c3559aec8a42bb56a8f61ba6",
       "version_field": "schema_version"
+    },
+    "value_artifact_subject": {
+      "aliases": [],
+      "compat_mode": "strict",
+      "fqn": "polisyos.ir.analytics.value_subject.ValueArtifactSubject",
+      "lifecycle": "active",
+      "priority": "p1",
+      "schema_file": "value_artifact_subject.schema.json",
+      "schema_version": "1.1",
+      "sha256_full": "3bbe6bbebb8db6d4f25b838b4e1be3eb06696dbb68e0c2e6d1eb4748edbb2afa",
+      "sha256_semantic": "196602277916f16eb8293a21a78624de38520b72bc4738a27d9092f02d3ba8c4",
+      "version_field": "schema_version"
+    },
+    "value_artifact_subject_ref": {
+      "aliases": [],
+      "compat_mode": "strict",
+      "fqn": "polisyos.ir.analytics.value_subject.ValueArtifactSubjectRef",
+      "lifecycle": "active",
+      "priority": "p1",
+      "schema_file": "value_artifact_subject_ref.schema.json",
+      "schema_version": null,
+      "sha256_full": "ad16bf06994ffd780e22941ab060296ac49b5100d3f69dcd637f6e6e969e5b1d",
+      "sha256_semantic": "55e03bd4471cfcdd7e717b8748fd1f5c4fad7419569912c351edac7a7a149298",
+      "version_field": null
+    },
+    "value_subject_relation": {
+      "aliases": [],
+      "compat_mode": "strict",
+      "fqn": "polisyos.ir.analytics.value_subject.ValueSubjectRelation",
+      "lifecycle": "active",
+      "priority": "p1",
+      "schema_file": "value_subject_relation.schema.json",
+      "schema_version": "1.1",
+      "sha256_full": "a9f1b6c28d3d9aa69f4ff4a355ba32f0dd78e6d3a7676e4a5e67bab22a501850",
+      "sha256_semantic": "95e05f14fe9529372a3f70cb8d8eb8a7845eaf47d5856c1cd860876942c76f01",
+      "version_field": "schema_version"
+    },
+    "value_subject_relation_ref": {
+      "aliases": [],
+      "compat_mode": "strict",
+      "fqn": "polisyos.ir.analytics.value_subject.ValueSubjectRelationRef",
+      "lifecycle": "active",
+      "priority": "p1",
+      "schema_file": "value_subject_relation_ref.schema.json",
+      "schema_version": null,
+      "sha256_full": "4b1ddda2bef3ad71e4fc15b4573f5ca1ab585546c48949b7080344fa1bb97e22",
+      "sha256_semantic": "eab82499adc9c74c3f131c454b9afe6bbdba49a4a085ef3a232c9f6f6b4093c8",
+      "version_field": null
     },
     "world_event": {
       "aliases": [],

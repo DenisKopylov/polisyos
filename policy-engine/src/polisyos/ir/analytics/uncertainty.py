@@ -2237,6 +2237,7 @@ def persist_uncertainty_envelope(
     schema_name: str = "ir.uncertainty_envelope",
     schema_version: str = UncertaintyEnvelope.SCHEMA_VERSION,
     return_selected_profile: bool = False,
+    value_subject_ref: ArtifactRefModel | None = None,
 ) -> UncertaintyEnvelopeRef:
     """Persist a typed uncertainty envelope through its owner registration.
 
@@ -2250,6 +2251,10 @@ def persist_uncertainty_envelope(
         or schema_name != _UNCERTAINTY_ENVELOPE_OWNER.registry_key
     ):
         raise ValueError("ir_uncertainty_envelope_owner_mismatch")
+    if value_subject_ref is not None:
+        from polisyos.ir.analytics.value_subject import value_subject_producer_inputs
+
+        inputs = value_subject_producer_inputs(store, value_subject_ref, inputs=inputs)
     ref = _put_owned_json_artifact(
         store,
         envelope.model_dump(mode="python", round_trip=True),

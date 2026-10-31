@@ -1,0 +1,516 @@
+{
+  "$defs": {
+    "ArtifactID": {
+      "description": "IR-local artifact ID model compatible with CAS interfaces.",
+      "maxLength": 71,
+      "minLength": 71,
+      "pattern": "^sha256:[0-9A-Fa-f]{64}$",
+      "title": "ArtifactID",
+      "type": "string"
+    },
+    "ArtifactRefModel": {
+      "additionalProperties": false,
+      "description": "Provide the common mapping-compatible base contract for artifact refs.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Profile Sha256"
+        },
+        "media_type": {
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "kind",
+        "media_type"
+      ],
+      "title": "ArtifactRefModel",
+      "type": "object"
+    },
+    "CountUnit": {
+      "additionalProperties": false,
+      "description": "Count unit public type.",
+      "properties": {
+        "kind": {
+          "const": "count",
+          "default": "count",
+          "title": "Kind",
+          "type": "string"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label"
+        }
+      },
+      "title": "CountUnit",
+      "type": "object"
+    },
+    "DimensionlessUnit": {
+      "additionalProperties": false,
+      "description": "Dimensionless unit public type.",
+      "properties": {
+        "kind": {
+          "const": "dimensionless",
+          "default": "dimensionless",
+          "title": "Kind",
+          "type": "string"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label"
+        }
+      },
+      "title": "DimensionlessUnit",
+      "type": "object"
+    },
+    "DurationUnit": {
+      "additionalProperties": false,
+      "description": "Duration unit public type.",
+      "properties": {
+        "kind": {
+          "const": "duration",
+          "default": "duration",
+          "title": "Kind",
+          "type": "string"
+        },
+        "unit": {
+          "default": "step",
+          "enum": [
+            "step",
+            "day",
+            "month",
+            "quarter",
+            "year"
+          ],
+          "title": "Unit",
+          "type": "string"
+        }
+      },
+      "title": "DurationUnit",
+      "type": "object"
+    },
+    "EstimandASTRef": {
+      "additionalProperties": false,
+      "description": "Stable handle for a persisted normalized estimand AST.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "ir.estimand_ast",
+          "default": "ir.estimand_ast",
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Profile Sha256"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "EstimandASTRef",
+      "type": "object"
+    },
+    "GenericUnit": {
+      "additionalProperties": false,
+      "description": "Generic unit public type.",
+      "properties": {
+        "description": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "kind": {
+          "const": "generic",
+          "default": "generic",
+          "title": "Kind",
+          "type": "string"
+        },
+        "label": {
+          "maxLength": 64,
+          "title": "Label",
+          "type": "string"
+        }
+      },
+      "required": [
+        "label"
+      ],
+      "title": "GenericUnit",
+      "type": "object"
+    },
+    "MoneyUnit": {
+      "additionalProperties": false,
+      "description": "Money unit public type.",
+      "properties": {
+        "currency": {
+          "pattern": "^[A-Z]{3}$",
+          "title": "Currency",
+          "type": "string"
+        },
+        "kind": {
+          "const": "money",
+          "default": "money",
+          "title": "Kind",
+          "type": "string"
+        },
+        "nominal_year": {
+          "anyOf": [
+            {
+              "maximum": 2100,
+              "minimum": 1900,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Nominal Year"
+        },
+        "price_base": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Price Base"
+        }
+      },
+      "required": [
+        "currency"
+      ],
+      "title": "MoneyUnit",
+      "type": "object"
+    },
+    "RateUnit": {
+      "additionalProperties": false,
+      "description": "Rate unit public type.",
+      "properties": {
+        "base": {
+          "default": "ratio",
+          "enum": [
+            "ratio",
+            "percent"
+          ],
+          "title": "Base",
+          "type": "string"
+        },
+        "kind": {
+          "const": "rate",
+          "default": "rate",
+          "title": "Kind",
+          "type": "string"
+        }
+      },
+      "title": "RateUnit",
+      "type": "object"
+    },
+    "ValueArtifactSubject": {
+      "additionalProperties": false,
+      "description": "Declare one quantity before persisting its separate analytical channels.",
+      "properties": {
+        "control_value": {
+          "title": "Control Value",
+          "type": "number"
+        },
+        "epoch": {
+          "minLength": 1,
+          "title": "Epoch",
+          "type": "string"
+        },
+        "estimand_id": {
+          "minLength": 1,
+          "title": "Estimand Id",
+          "type": "string"
+        },
+        "estimand_ref": {
+          "$ref": "#/$defs/EstimandASTRef"
+        },
+        "exposure": {
+          "minLength": 1,
+          "title": "Exposure",
+          "type": "string"
+        },
+        "model_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ArtifactRefModel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "outcome": {
+          "minLength": 1,
+          "title": "Outcome",
+          "type": "string"
+        },
+        "population": {
+          "minLength": 1,
+          "title": "Population",
+          "type": "string"
+        },
+        "prediction_origin": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Prediction Origin"
+        },
+        "production_value_eligible": {
+          "const": false,
+          "default": false,
+          "title": "Production Value Eligible",
+          "type": "boolean"
+        },
+        "scale": {
+          "const": "identity",
+          "default": "identity",
+          "title": "Scale",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "1.1",
+          "default": "1.1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "$ref": "#/$defs/ArtifactRefModel"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "subject_provenance": {
+          "const": "consumer_asserted",
+          "default": "consumer_asserted",
+          "title": "Subject Provenance",
+          "type": "string"
+        },
+        "time_horizon": {
+          "minLength": 1,
+          "title": "Time Horizon",
+          "type": "string"
+        },
+        "treatment_value": {
+          "title": "Treatment Value",
+          "type": "number"
+        },
+        "unit": {
+          "discriminator": {
+            "mapping": {
+              "count": "#/$defs/CountUnit",
+              "dimensionless": "#/$defs/DimensionlessUnit",
+              "duration": "#/$defs/DurationUnit",
+              "generic": "#/$defs/GenericUnit",
+              "money": "#/$defs/MoneyUnit",
+              "rate": "#/$defs/RateUnit"
+            },
+            "propertyName": "kind"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/MoneyUnit"
+            },
+            {
+              "$ref": "#/$defs/RateUnit"
+            },
+            {
+              "$ref": "#/$defs/CountUnit"
+            },
+            {
+              "$ref": "#/$defs/DurationUnit"
+            },
+            {
+              "$ref": "#/$defs/DimensionlessUnit"
+            },
+            {
+              "$ref": "#/$defs/GenericUnit"
+            }
+          ],
+          "title": "Unit"
+        }
+      },
+      "required": [
+        "estimand_ref",
+        "estimand_id",
+        "exposure",
+        "outcome",
+        "control_value",
+        "treatment_value",
+        "population",
+        "unit",
+        "time_horizon",
+        "epoch",
+        "source_refs"
+      ],
+      "title": "ValueArtifactSubject",
+      "type": "object"
+    },
+    "ValueSubjectArtifactIdentity": {
+      "additionalProperties": false,
+      "description": "Retain the resolved payload and selected manifest identities of one input.",
+      "properties": {
+        "content_hash": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Content Hash",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Manifest Profile Sha256",
+          "type": "string"
+        },
+        "ref": {
+          "$ref": "#/$defs/ArtifactRefModel"
+        }
+      },
+      "required": [
+        "ref",
+        "content_hash",
+        "manifest_profile_sha256"
+      ],
+      "title": "ValueSubjectArtifactIdentity",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Keep identification and native uncertainty separate after a content join.",
+  "properties": {
+    "authority_scope": {
+      "const": "resolved_declared_content_join_only",
+      "default": "resolved_declared_content_join_only",
+      "title": "Authority Scope",
+      "type": "string"
+    },
+    "identification": {
+      "$ref": "#/$defs/ValueSubjectArtifactIdentity"
+    },
+    "identification_subject": {
+      "$ref": "#/$defs/ValueSubjectArtifactIdentity"
+    },
+    "native_subject": {
+      "$ref": "#/$defs/ValueSubjectArtifactIdentity"
+    },
+    "native_to_identification_factor": {
+      "exclusiveMinimum": 0,
+      "title": "Native To Identification Factor",
+      "type": "number"
+    },
+    "native_uncertainty": {
+      "$ref": "#/$defs/ValueSubjectArtifactIdentity"
+    },
+    "production_value_eligible": {
+      "const": false,
+      "default": false,
+      "title": "Production Value Eligible",
+      "type": "boolean"
+    },
+    "resolved_subject": {
+      "$ref": "#/$defs/ValueArtifactSubject"
+    },
+    "schema_version": {
+      "const": "1.1",
+      "default": "1.1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "subject_provenance": {
+      "const": "consumer_asserted",
+      "default": "consumer_asserted",
+      "title": "Subject Provenance",
+      "type": "string"
+    },
+    "verifier_provenance": {
+      "const": "selected_content_and_lineage_recomputed.v1.1",
+      "default": "selected_content_and_lineage_recomputed.v1.1",
+      "title": "Verifier Provenance",
+      "type": "string"
+    }
+  },
+  "required": [
+    "identification",
+    "native_uncertainty",
+    "identification_subject",
+    "native_subject",
+    "resolved_subject",
+    "native_to_identification_factor"
+  ],
+  "title": "ValueSubjectRelation",
+  "type": "object"
+}

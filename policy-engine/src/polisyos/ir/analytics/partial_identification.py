@@ -31,7 +31,12 @@ from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_a
 from polisyos.ir.artifacts.io import normalize_input_sequence as _normalize_input_sequence
 from polisyos.ir.migrations.base import CompatibilityMode as _CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec
-from polisyos.ir.registry.refs import BoundsBundleRef, BoundsTighteningLogRef, DualCertificateRef
+from polisyos.ir.registry.refs import (
+    ArtifactRefModel,
+    BoundsBundleRef,
+    BoundsTighteningLogRef,
+    DualCertificateRef,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -766,8 +771,13 @@ def persist_bounds_bundle(
     inputs: list[InputRef] | None = None,
     schema_name: str = "ir.bounds_bundle",
     schema_version: str = "1.0",
+    value_subject_ref: ArtifactRefModel | None = None,
 ) -> BoundsBundleRef:
     """Persist bounds bundle helper."""
+    if value_subject_ref is not None:
+        from polisyos.ir.analytics.value_subject import value_subject_producer_inputs
+
+        inputs = value_subject_producer_inputs(store, value_subject_ref, inputs=inputs)
     ref = _put_owned_json_artifact(
         store,
         bundle.model_dump(mode="json"),

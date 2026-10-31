@@ -12,15 +12,15 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 ## Summary
 
-- Total IR types: `1674`.
-- Public/root-or-package facade types: `680`.
-- ABI snapshot-backed types: `103`.
+- Total IR types: `1679`.
+- Public/root-or-package facade types: `685`.
+- ABI snapshot-backed types: `107`.
 - Export enumeration covers these public packages:
 
 | Package | Export count |
 | ------- | ------------ |
-| `polisyos.ir` | 533 |
-| `polisyos.ir.analytics` | 320 |
+| `polisyos.ir` | 538 |
+| `polisyos.ir.analytics` | 325 |
 | `polisyos.ir.kernel` | 81 |
 | `polisyos.ir.loading` | 12 |
 | `polisyos.ir.model_layer` | 6 |
@@ -31,7 +31,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 | Section | Type count | Public types | Snapshot-backed |
 | ------- | ---------- | ------------ | ---------------- |
-| `analytics` | 1027 | 342 | 45 |
+| `analytics` | 1032 | 347 | 49 |
 | `artifacts` | 30 | 3 | 0 |
 | `governance` | 99 | 27 | 8 |
 | `kernel` | 60 | 54 | 0 |
@@ -22001,6 +22001,115 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `distributional` |
 | `partial_identification` |
 | `transport` |
+
+### `polisyos.ir.analytics.value_subject.ValueArtifactSubject` { #polisyos-ir-analytics-value-subject-valueartifactsubject }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `1.1`
+- Exported from: `polisyos.ir.analytics:ValueArtifactSubject`, `polisyos.ir:ValueArtifactSubject`
+- ABI snapshot: `value_artifact_subject` / `schemas/snapshots/ir/value_artifact_subject.schema.json`
+- Compatibility mode: `—`
+- References: `polisyos.ir.kernel.units.CountUnit`, `polisyos.ir.kernel.units.DimensionlessUnit`, `polisyos.ir.kernel.units.DurationUnit`, `polisyos.ir.kernel.units.GenericUnit`, `polisyos.ir.kernel.units.MoneyUnit`, `polisyos.ir.kernel.units.RateUnit`, `polisyos.ir.registry.refs.ArtifactRefModel`, `polisyos.ir.registry.refs.EstimandASTRef`
+- Summary: Declare one quantity before persisting its separate analytical channels.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `control_value` | `float` | `yes` | `—` | — |
+| `epoch` | `str` | `yes` | `—` | — |
+| `estimand_id` | `str` | `yes` | `—` | — |
+| `estimand_ref` | `polisyos.ir.registry.refs.EstimandASTRef` | `yes` | `—` | `polisyos.ir.registry.refs.EstimandASTRef` |
+| `exposure` | `str` | `yes` | `—` | — |
+| `model_ref` | `polisyos.ir.registry.refs.ArtifactRefModel \| NoneType` | `no` | `—` | `polisyos.ir.registry.refs.ArtifactRefModel` |
+| `outcome` | `str` | `yes` | `—` | — |
+| `population` | `str` | `yes` | `—` | — |
+| `prediction_origin` | `str \| NoneType` | `no` | `—` | — |
+| `production_value_eligible` | `Literal[False]` | `no` | `False` | — |
+| `scale` | `Literal[identity]` | `no` | `'identity'` | — |
+| `schema_version` | `Literal[1.1]` | `no` | `'1.1'` | — |
+| `source_refs` | `tuple[polisyos.ir.registry.refs.ArtifactRefModel]` | `yes` | `—` | `polisyos.ir.registry.refs.ArtifactRefModel` |
+| `subject_provenance` | `Literal[consumer_asserted]` | `no` | `'consumer_asserted'` | — |
+| `time_horizon` | `str` | `yes` | `—` | — |
+| `treatment_value` | `float` | `yes` | `—` | — |
+| `unit` | `polisyos.ir.kernel.units.MoneyUnit \| polisyos.ir.kernel.units.RateUnit \| polisyos.ir.kernel.units.CountUnit \| polisyos.ir.kernel.units.DurationUnit \| polisyos.ir.kernel.units.DimensionlessUnit \| polisyos.ir.kernel.units.GenericUnit` | `yes` | `—` | `polisyos.ir.kernel.units.CountUnit`, `polisyos.ir.kernel.units.DimensionlessUnit`, `polisyos.ir.kernel.units.DurationUnit`, `polisyos.ir.kernel.units.GenericUnit`, `polisyos.ir.kernel.units.MoneyUnit`, `polisyos.ir.kernel.units.RateUnit` |
+
+### `polisyos.ir.analytics.value_subject.ValueArtifactSubjectRef` { #polisyos-ir-analytics-value-subject-valueartifactsubjectref }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:ValueArtifactSubjectRef`, `polisyos.ir:ValueArtifactSubjectRef`
+- ABI snapshot: `value_artifact_subject_ref` / `schemas/snapshots/ir/value_artifact_subject_ref.schema.json`
+- Compatibility mode: `—`
+- References: `polisyos.ir.artifacts.contracts.ArtifactID`
+- Summary: Select one persisted declared scalar subject and its exact manifest view.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
+| `kind` | `Literal[ir.value_artifact_subject]` | `no` | `'ir.value_artifact_subject'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
+| `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
+
+### `polisyos.ir.analytics.value_subject.ValueSubjectArtifactIdentity` { #polisyos-ir-analytics-value-subject-valuesubjectartifactidentity }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:ValueSubjectArtifactIdentity`, `polisyos.ir:ValueSubjectArtifactIdentity`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.registry.refs.ArtifactRefModel`
+- Summary: Retain the resolved payload and selected manifest identities of one input.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `content_hash` | `str` | `yes` | `—` | — |
+| `manifest_profile_sha256` | `str` | `yes` | `—` | — |
+| `ref` | `polisyos.ir.registry.refs.ArtifactRefModel` | `yes` | `—` | `polisyos.ir.registry.refs.ArtifactRefModel` |
+
+### `polisyos.ir.analytics.value_subject.ValueSubjectRelation` { #polisyos-ir-analytics-value-subject-valuesubjectrelation }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `1.1`
+- Exported from: `polisyos.ir.analytics:ValueSubjectRelation`, `polisyos.ir:ValueSubjectRelation`
+- ABI snapshot: `value_subject_relation` / `schemas/snapshots/ir/value_subject_relation.schema.json`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.value_subject.ValueArtifactSubject`, `polisyos.ir.analytics.value_subject.ValueSubjectArtifactIdentity`
+- Summary: Keep identification and native uncertainty separate after a content join.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `authority_scope` | `Literal[resolved_declared_content_join_only]` | `no` | `'resolved_declared_content_join_only'` | — |
+| `identification` | `polisyos.ir.analytics.value_subject.ValueSubjectArtifactIdentity` | `yes` | `—` | `polisyos.ir.analytics.value_subject.ValueSubjectArtifactIdentity` |
+| `identification_subject` | `polisyos.ir.analytics.value_subject.ValueSubjectArtifactIdentity` | `yes` | `—` | `polisyos.ir.analytics.value_subject.ValueSubjectArtifactIdentity` |
+| `native_subject` | `polisyos.ir.analytics.value_subject.ValueSubjectArtifactIdentity` | `yes` | `—` | `polisyos.ir.analytics.value_subject.ValueSubjectArtifactIdentity` |
+| `native_to_identification_factor` | `float` | `yes` | `—` | — |
+| `native_uncertainty` | `polisyos.ir.analytics.value_subject.ValueSubjectArtifactIdentity` | `yes` | `—` | `polisyos.ir.analytics.value_subject.ValueSubjectArtifactIdentity` |
+| `production_value_eligible` | `Literal[False]` | `no` | `False` | — |
+| `resolved_subject` | `polisyos.ir.analytics.value_subject.ValueArtifactSubject` | `yes` | `—` | `polisyos.ir.analytics.value_subject.ValueArtifactSubject` |
+| `schema_version` | `Literal[1.1]` | `no` | `'1.1'` | — |
+| `subject_provenance` | `Literal[consumer_asserted]` | `no` | `'consumer_asserted'` | — |
+| `verifier_provenance` | `Literal[selected_content_and_lineage_recomputed.v1.1]` | `no` | `'selected_content_and_lineage_recomputed.v1.1'` | — |
+
+### `polisyos.ir.analytics.value_subject.ValueSubjectRelationRef` { #polisyos-ir-analytics-value-subject-valuesubjectrelationref }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:ValueSubjectRelationRef`, `polisyos.ir:ValueSubjectRelationRef`
+- ABI snapshot: `value_subject_relation_ref` / `schemas/snapshots/ir/value_subject_relation_ref.schema.json`
+- Compatibility mode: `—`
+- References: `polisyos.ir.artifacts.contracts.ArtifactID`
+- Summary: Select a recomputable content join without granting value authority.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
+| `kind` | `Literal[ir.value_subject_relation]` | `no` | `'ir.value_subject_relation'` | — |
+| `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
+| `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.analytics.welfare.ChannelDecompositionArtifact` { #polisyos-ir-analytics-welfare-channeldecompositionartifact }
 

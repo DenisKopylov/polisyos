@@ -1,0 +1,49 @@
+{
+  "$defs": {
+    "ArtifactID": {
+      "description": "IR-local artifact ID model compatible with CAS interfaces.",
+      "maxLength": 71,
+      "minLength": 71,
+      "pattern": "^sha256:[0-9A-Fa-f]{64}$",
+      "title": "ArtifactID",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Select one persisted declared scalar subject and its exact manifest view.",
+  "properties": {
+    "artifact_id": {
+      "$ref": "#/$defs/ArtifactID"
+    },
+    "kind": {
+      "const": "ir.value_artifact_subject",
+      "default": "ir.value_artifact_subject",
+      "title": "Kind",
+      "type": "string"
+    },
+    "manifest_profile_sha256": {
+      "anyOf": [
+        {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Manifest Profile Sha256"
+    },
+    "media_type": {
+      "const": "application/json",
+      "default": "application/json",
+      "title": "Media Type",
+      "type": "string"
+    }
+  },
+  "required": [
+    "artifact_id"
+  ],
+  "title": "ValueArtifactSubjectRef",
+  "type": "object"
+}

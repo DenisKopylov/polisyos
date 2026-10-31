@@ -12,7 +12,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 ## Snapshot Summary
 
-- IR snapshot: `107` schemas, generated `2026-10-24T16:23:17+00:00`.
+- IR snapshot: `111` schemas, generated `2026-10-31T05:50:47+00:00`.
 - Fabric ABI snapshot: `3` schemas, generated `2026-10-28T12:37:42+00:00`.
 - Direct-read compatibility is declared in `polisyos.ir.migrations.schema_registry` and surfaced below.
 
@@ -65,6 +65,10 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `structural_causal_model_spec` | `polisyos.ir.analytics.structural_causal_model.StructuralCausalModelSpec` | `analytics` | `1.2` | `p1` | `backward` | `root_facade` | [StructuralCausalModelSpec](ir/schema-catalog.md#polisyos-ir-analytics-structural-causal-model-structuralcausalmodelspec) | `schemas/snapshots/ir/structural_causal_model_spec.schema.json` |
 | `transportability_result` | `polisyos.ir.analytics.transportability.TransportabilityResult` | `analytics` | `2.2` | `p1` | `none` | `root_facade` | [TransportabilityResult](ir/schema-catalog.md#polisyos-ir-analytics-transportability-transportabilityresult) | `schemas/snapshots/ir/transportability_result.schema.json` |
 | `uncertainty_envelope` | `polisyos.ir.analytics.uncertainty.UncertaintyEnvelope` | `analytics` | `1.1` | `p1` | `—` | `root_facade` | [UncertaintyEnvelope](ir/schema-catalog.md#polisyos-ir-analytics-uncertainty-uncertaintyenvelope) | `schemas/snapshots/ir/uncertainty_envelope.schema.json` |
+| `value_artifact_subject` | `polisyos.ir.analytics.value_subject.ValueArtifactSubject` | `analytics` | `1.1` | `p1` | `—` | `root_facade` | [ValueArtifactSubject](ir/schema-catalog.md#polisyos-ir-analytics-value-subject-valueartifactsubject) | `schemas/snapshots/ir/value_artifact_subject.schema.json` |
+| `value_artifact_subject_ref` | `polisyos.ir.analytics.value_subject.ValueArtifactSubjectRef` | `analytics` | `—` | `p1` | `—` | `root_facade` | [ValueArtifactSubjectRef](ir/schema-catalog.md#polisyos-ir-analytics-value-subject-valueartifactsubjectref) | `schemas/snapshots/ir/value_artifact_subject_ref.schema.json` |
+| `value_subject_relation` | `polisyos.ir.analytics.value_subject.ValueSubjectRelation` | `analytics` | `1.1` | `p1` | `—` | `root_facade` | [ValueSubjectRelation](ir/schema-catalog.md#polisyos-ir-analytics-value-subject-valuesubjectrelation) | `schemas/snapshots/ir/value_subject_relation.schema.json` |
+| `value_subject_relation_ref` | `polisyos.ir.analytics.value_subject.ValueSubjectRelationRef` | `analytics` | `—` | `p1` | `—` | `root_facade` | [ValueSubjectRelationRef](ir/schema-catalog.md#polisyos-ir-analytics-value-subject-valuesubjectrelationref) | `schemas/snapshots/ir/value_subject_relation_ref.schema.json` |
 | `gate_context` | `polisyos.ir.governance.gate.GateContext` | `governance` | `—` | `p1` | `—` | `root_facade` | [GateContext](ir/schema-catalog.md#polisyos-ir-governance-gate-gatecontext) | `schemas/snapshots/ir/gate_context.schema.json` |
 | `gate_decision` | `polisyos.ir.governance.gate.GateDecision` | `governance` | `1.0` | `p1` | `—` | `root_facade` | [GateDecision](ir/schema-catalog.md#polisyos-ir-governance-gate-gatedecision) | `schemas/snapshots/ir/gate_decision.schema.json` |
 | `gate_event` | `polisyos.ir.governance.gate.GateEvent` | `governance` | `1.0` | `p1` | `—` | `root_facade` | [GateEvent](ir/schema-catalog.md#polisyos-ir-governance-gate-gateevent) | `schemas/snapshots/ir/gate_event.schema.json` |

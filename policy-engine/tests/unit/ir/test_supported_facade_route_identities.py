@@ -42,3 +42,26 @@ def test_model_and_existing_ir_facades_preserve_owner_identity() -> None:
     assert model_layer.SelectorOperator is SelectorOperator
     assert trinity.load_trinity_bundle_artifact is load_trinity_bundle_artifact
     assert set(model_layer.__all__) == set(MODEL_LAYER_FACADE_EXPORTS)
+
+
+def test_value_subject_facades_preserve_owner_types_without_exposing_helpers() -> None:
+    from polisyos import ir
+    from polisyos.ir.analytics import value_subject
+
+    names = {
+        "ValueArtifactSubject",
+        "ValueArtifactSubjectRef",
+        "ValueSubjectArtifactIdentity",
+        "ValueSubjectRelation",
+        "ValueSubjectRelationRef",
+    }
+    assert names <= set(ir.__all__)
+    assert names <= set(analytics.__all__)
+    for name in names:
+        owner_type = getattr(value_subject, name)
+        assert getattr(ir, name) is owner_type
+        assert getattr(analytics, name) is owner_type
+
+    helpers = set(value_subject.__all__) - names
+    assert helpers.isdisjoint(ir.__all__)
+    assert helpers.isdisjoint(analytics.__all__)

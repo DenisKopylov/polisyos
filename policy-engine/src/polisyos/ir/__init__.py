@@ -435,6 +435,11 @@ __all__ = [
     "UncertaintySource",
     "UncertaintyType",
     "UtilityDirection",
+    "ValueArtifactSubject",
+    "ValueArtifactSubjectRef",
+    "ValueSubjectArtifactIdentity",
+    "ValueSubjectRelation",
+    "ValueSubjectRelationRef",
     "WelfareBundle",
     "WelfareBundleRef",
     "WelfareIntervalSemantics",
@@ -746,6 +751,26 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     ),
     "UncertaintyEnvelope": ("polisyos.ir.analytics.uncertainty", "UncertaintyEnvelope"),
     "UncertaintySource": ("polisyos.ir.analytics.uncertainty", "UncertaintySource"),
+    "ValueArtifactSubject": (
+        "polisyos.ir.analytics.value_subject",
+        "ValueArtifactSubject",
+    ),
+    "ValueArtifactSubjectRef": (
+        "polisyos.ir.analytics.value_subject",
+        "ValueArtifactSubjectRef",
+    ),
+    "ValueSubjectArtifactIdentity": (
+        "polisyos.ir.analytics.value_subject",
+        "ValueSubjectArtifactIdentity",
+    ),
+    "ValueSubjectRelation": (
+        "polisyos.ir.analytics.value_subject",
+        "ValueSubjectRelation",
+    ),
+    "ValueSubjectRelationRef": (
+        "polisyos.ir.analytics.value_subject",
+        "ValueSubjectRelationRef",
+    ),
     "EquilibriumMultiplicityWelfareAnnotation": (
         "polisyos.ir.analytics.phase4_dynamics",
         "EquilibriumMultiplicityWelfareAnnotation",

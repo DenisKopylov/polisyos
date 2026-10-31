@@ -25,6 +25,8 @@ specialized surfaces remain in their defining modules.
 - [`uncertainty.py`](./uncertainty.py) — uncertainty algebra, interval semantics, and propagation contracts.
 - [`posterior_summary.py`](./posterior_summary.py) — versioned posterior mean/median, equal-tail
   bounds, exact source draw rows, and CAS persistence for candidate summaries.
+- [`value_subject.py`](./value_subject.py) — selected-profile, candidate-only subject/unit
+  joins that keep identification bounds and native uncertainty as separate artifacts.
 - [`welfare.py`](./welfare.py) — WelfareBundle schema 1.1 nominal PE/post-GE
   component operands and WelfareSampleBundle schema 1.1 draw vectors, bound to
   the selected applied-weight manifest edge for fresh weighted recomputation.
@@ -45,6 +47,41 @@ specialized surfaces remain in their defining modules.
 | `polisyos.ir.analytics.recourse_manifold.InterventionCostManifold`, `OptimalRecourseInterventionQuery` | Use the proof-carrying causal recourse surface rather than an explainability-only report | [`recourse_manifold.py`](./recourse_manifold.py)             |
 | `polisyos.ir.analytics.StrategicSCM`, `StrategicResponseBundle`, `MeanFieldEquilibriumCertificate`     | Use the strategic-response/performative-analysis surface, including MFG certificates     | [`strategic.py`](./strategic.py)                             |
 | `polisyos.ir.analytics.DoWhyGraphBridge`, `EconMLDesignBridge`                                         | Use interoperability bridges for external causal toolchains                              | [`ecosystem_bridges.py`](./ecosystem_bridges.py)             |
+
+## Declared value-subject joins
+
+`persist_value_artifact_subject()` records a scalar `EstimandAST`, the existing
+`UnitSpec` algebra, contrast, population, time roles and selected source/model
+references. The declaration remains `consumer_asserted` and
+`production_value_eligible=False`. Resolved bytes and matching declared names
+do not establish source rights, assignment authority, scientific validity or
+production currentness.
+
+The existing `persist_bounds_bundle()` and `persist_uncertainty_envelope()`
+accept an optional `value_subject_ref`. It adds the selected subject and exact
+dependency roster to the manifest without replacing other producer inputs.
+Legacy unbound artifacts remain readable; the join refuses to invent their
+subject. `persist_value_subject_relation()` accepts only these two owner-bound
+channels. Its fresh reader reopens both channels, subjects and dependencies,
+reconciles selected manifest profiles and content hashes, and recomputes the
+complete relation instead of trusting a stored verification marker.
+Non-reserved producer inputs remain available for their own owners to verify;
+this join does not prove which bytes a producer actually consumed or that it
+computed the declared causal quantity.
+
+Identification bounds and native intervals retain their own values and
+semantics. Matching units use factor one; the existing rate ratio/percent
+coordinate has its exact scale disclosed separately. No numeric payload is
+converted, recentered, narrowed, or substituted for the other interval.
+Other unit differences are refused. The relation proves only
+`resolved_declared_content_join_only`; it does not remove the Runtime value
+gate's `bounds_estimand_relation_not_established` limitation or close B31.
+
+The Bayesian posterior-summary producer and selected evidence bridge already
+exist in `posterior_summary.py` and Foundry's calibration adapter. Their NumPy
+HMC/NUTS route retains actual draw artifacts. A declared value-subject join is
+not a replacement for that bridge, an accelerated sampler's missing draw
+artifact, or the unresolved production propagation/default-workflow wiring.
 
 ## HTE successor artifacts
 

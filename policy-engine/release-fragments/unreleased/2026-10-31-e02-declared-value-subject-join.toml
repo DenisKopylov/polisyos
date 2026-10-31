@@ -1,0 +1,28 @@
+id = "2026-10-31-e02-declared-value-subject-join"
+title = "Reconcile selected declared subjects across separate value channels"
+type = "added"
+component = "ir-analytics"
+owner = "team-policyos-ir"
+summary = "Add candidate-only subject declarations and fresh content/lineage joins for persisted identification bounds and native uncertainty, preserving both intervals and existing producer inputs."
+evidence = ["tests/unit/ir/analytics/test_value_subject.py", "src/polisyos/ir/analytics/README.md"]
+change_class = "python-public-api"
+surface_classification = "public_stable: additive IR facade types; internal defining-module helpers"
+compatibility = "New value-subject and relation artifacts use schema 1.1 with exact selected-profile admission; the historical author-proposal 1.0 shape is not admitted. Existing BoundsBundle and UncertaintyEnvelope payloads, schemas and unbound readers are unchanged; their persistence helpers gain an optional value_subject_ref keyword."
+migration = "Bind newly produced channels through their actual selected subject write. Do not infer a subject, source authority or manifest profile for historical unbound artifacts."
+api = "The stable polisyos.ir and polisyos.ir.analytics facades expose ValueArtifactSubject, ValueArtifactSubjectRef, ValueSubjectArtifactIdentity, ValueSubjectRelation and ValueSubjectRelationRef. Advanced helper implementations remain in their defining module; no Runtime/API/dashboard endpoint or generated client changes."
+limitations = "Only a declared-content join is recomputed. Subject meaning, source rights, assignment, source currentness and scientific validity are not independently established; production_value_eligible remains false. This does not grant S1/B31 acceptance, replace Runtime's value verifier, or complete accelerated Bayesian/default propagation wiring."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/ir/analytics/README.md"]
+
+[[compatibility_change]]
+id = "declared-value-subject-profile-join"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: additive polisyos.ir and polisyos.ir.analytics types and optional value_subject_ref persistence keyword"
+owner = "team-policyos-ir"
+version_owner = "team-architecture"
+deprecation_window = "Not applicable: existing producers retain unbound behavior unless explicitly supplied a selected subject."
+release_note = "Persist and freshly reconcile selected candidate subject/unit lineage while retaining distinct identification and native intervals."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/ir/analytics/README.md"]
+runbook_docs = []

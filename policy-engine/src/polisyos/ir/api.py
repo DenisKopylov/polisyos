@@ -1126,6 +1126,26 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "UncertaintyEnvelope",
     ),
     "UncertaintySource": ("polisyos.ir.analytics.uncertainty", "UncertaintySource"),
+    "ValueArtifactSubject": (
+        "polisyos.ir.analytics.value_subject",
+        "ValueArtifactSubject",
+    ),
+    "ValueArtifactSubjectRef": (
+        "polisyos.ir.analytics.value_subject",
+        "ValueArtifactSubjectRef",
+    ),
+    "ValueSubjectArtifactIdentity": (
+        "polisyos.ir.analytics.value_subject",
+        "ValueSubjectArtifactIdentity",
+    ),
+    "ValueSubjectRelation": (
+        "polisyos.ir.analytics.value_subject",
+        "ValueSubjectRelation",
+    ),
+    "ValueSubjectRelationRef": (
+        "polisyos.ir.analytics.value_subject",
+        "ValueSubjectRelationRef",
+    ),
     "EquilibriumMultiplicityWelfareAnnotation": (
         "polisyos.ir.analytics.phase4_dynamics",
         "EquilibriumMultiplicityWelfareAnnotation",

@@ -28,6 +28,7 @@ from pydantic import (
     model_validator,
 )
 
+from polisyos.core.artifacts import raise_artifact_read_access_error
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, input_ref_from_artifact_ref
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
@@ -1724,7 +1725,10 @@ def bind_world_state_consumption(
         payload["schema_version"] = JOINT_SIMULATION_HORIZON_STATE_CONSUMPTION_SCHEMA_VERSION
     elif result.schema_version == JOINT_SIMULATION_HORIZON_REPLICATION_UNCERTAINTY_SCHEMA_VERSION:
         payload["schema_version"] = JOINT_SIMULATION_HORIZON_REPLICATION_UNCERTAINTY_SCHEMA_VERSION
-    payload["state_consumption"] = consumption.model_dump(mode="json", exclude_none=True)
+    # Fresh receipts bind the same complete typed projection the live verifier
+    # and persisted model expose, including explicit unknown nullable fields.
+    # Historical signed payloads are retained by their existing readers.
+    payload["state_consumption"] = consumption.model_dump(mode="json")
     packet = dict(payload["promotion_ready_value_packet"])
     packet["authority_blockers"] = list(
         dict.fromkeys((*packet.get("authority_blockers", ()), *consumption.authority_limitations))
@@ -1941,6 +1945,9 @@ class JointSimulationHorizonController:
                             for item in produced.budget_observations
                         }
                 except _PhysicalWorkInterruptedError as exc:
+                    # A recorded work interruption must not turn an actual
+                    # access denial into an ordinary partial numerical result.
+                    raise_artifact_read_access_error(exc)
                     trajectories = exc.trajectories
                     diagnostics["physical_work_capture_status"] = "observed"
                     diagnostics["physical_work_interruption"] = exc.code

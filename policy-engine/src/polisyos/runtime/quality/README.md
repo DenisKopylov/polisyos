@@ -141,6 +141,20 @@ Boundary notes:
   corrected, and the persisted fresh-GET verification remains pending.
   This request path is separate from the recourse `InterventionProgram`, which
   remains a distinct estimator input.
+- Persisted N5 numerical results are read through `load_joint_simulation_result`.
+  The reader reconciles the single selected engine decision with the signed
+  receipt and every trajectory identity. N8 and EvalSafety additionally bind the
+  observation's sibling `simulation_ref` to that receipt's content hash; a
+  missing or conflicting sibling refuses consumption. CAS integrity and a valid
+  receipt alone do not establish this join. Fresh readers retain the exact
+  selected manifest profile and existing candidate-only limitations.
+  Fresh state-consumption receipts sign the complete typed projection, including
+  an explicit unknown execution-plan profile, so the live verifier sees the same
+  payload as a fresh reader. Historical signed payload bytes remain unchanged.
+  The common physical-work interruption boundary preserves actual access
+  denials through Core's cause-chain helper; recording a failed invocation does
+  not turn permission failure into partial numerical output. Budget and ordinary
+  numerical interruptions retain their existing typed work observations.
 - `joint_simulation_horizon.py` is the N5 candidate simulation adapter. It resolves
   simultaneous writes before invoking a selected engine. Duplicate writes merge
   only when recursively compared types and values match (including array shape

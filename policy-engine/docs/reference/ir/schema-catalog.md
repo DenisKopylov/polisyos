@@ -7723,7 +7723,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 - Kind: `pydantic_model`
 - Public status: `internal`
-- Current version: `—`
+- Current version: `1.0`
 - Exported from: —
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
@@ -7732,11 +7732,15 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
+| `decision_rule_profile` | `Literal[legacy_rule, linear_q_action.v1, linear_q_current_interactions.v1]` | `no` | `'legacy_rule'` | — |
 | `metadata` | `dict[str, Any]` | `no` | `—` | — |
+| `n_covariates` | `int \| NoneType` | `no` | `—` | — |
 | `outcome` | `str` | `yes` | `—` | — |
 | `regime_coefficients` | `tuple[float] \| NoneType` | `no` | `—` | — |
 | `rule` | `polisyos.ir.analytics.dynamic_regime.RegimeRule` | `no` | `<RegimeRule.ALWAYS_TREAT: 'always_treat'>` | `polisyos.ir.analytics.dynamic_regime.RegimeRule` |
 | `scheduled_actions` | `tuple[int] \| NoneType` | `no` | `—` | — |
+| `schema_version` | `Literal[1.0, 1.1]` | `no` | `'1.0'` | — |
+| `stage_coefficients` | `tuple[tuple[float]] \| NoneType` | `no` | `—` | — |
 | `threshold_covariate_index` | `int` | `no` | `0` | — |
 | `threshold_value` | `float` | `no` | `0.0` | — |
 | `time_points` | `tuple[int]` | `yes` | `—` | — |

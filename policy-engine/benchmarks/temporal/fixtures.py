@@ -4,13 +4,16 @@ from __future__ import annotations
 
 import tempfile
 from dataclasses import dataclass, field
+from math import erfc, sqrt
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 
 from benchmarks.temporal.common import TemporalBenchmarkFixture
+from polisyos.core.artifacts import ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.foundry.methods.catalog.causal import g_computation
 from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
 from polisyos.foundry.methods.catalog.causal.protocols import (
     DynamicTreatmentData,
@@ -22,6 +25,7 @@ from polisyos.foundry.methods.catalog.causal.structural_time_series import (
 )
 from polisyos.foundry.methods.catalog.causal.temporal_estimand_compiler import (
     TemporalCompileError,
+    TemporalExecutionPlan,
     compile_temporal_estimand,
 )
 from polisyos.ir.analytics.dynamic_regime import (
@@ -38,7 +42,7 @@ from polisyos.ir.analytics.dynamic_regime import (
     load_temporal_intervention_trajectory,
     persist_temporal_intervention_trajectory,
 )
-from polisyos.ir.artifacts import get_json_artifact
+from polisyos.ir.artifacts import ArtifactStore, get_json_artifact
 from polisyos.ir.registry.refs import (
     ArtifactRefModel,
     DynamicTreatmentRegimeRef,
@@ -46,6 +50,7 @@ from polisyos.ir.registry.refs import (
     TemporalInterventionTrajectoryRef,
 )
 from polisyos.scientist.methods.backtesting.temporal import (
+    TemporalEvaluationResult,
     TemporalThresholds,
     evaluate_temporal_safe_rejection,
     evaluate_temporal_trajectory,
@@ -192,7 +197,9 @@ def _intervention(
     *,
     time_points: list[float] | tuple[float, ...],
     values: list[float] | tuple[float, ...],
-    interpolation_policy: InterventionInterpolationPolicy = InterventionInterpolationPolicy.PIECEWISE_CONSTANT,
+    interpolation_policy: InterventionInterpolationPolicy = (
+        InterventionInterpolationPolicy.PIECEWISE_CONSTANT
+    ),
     metadata: dict[str, Any] | None = None,
 ) -> TemporalInterventionTrajectory:
     return TemporalInterventionTrajectory(
@@ -281,7 +288,9 @@ def _dynamic_dtr_data() -> DynamicTreatmentData:
     )
 
 
-def _trajectory_plan_panel(*, horizon_end: float, preferred_backend: str = "linear_sde"):
+def _trajectory_plan_panel(
+    *, horizon_end: float, preferred_backend: str = "linear_sde"
+) -> TemporalExecutionPlan:
     panel = PanelObservationalData(
         outcome=np.vstack(
             [
@@ -329,7 +338,7 @@ def _trajectory_with_custom_effect(
 
 def _engine_temporal_trajectory(
     *,
-    data: Any,
+    data: PanelObservationalData | DynamicTreatmentData,
     intervention: TemporalInterventionTrajectory | None,
     outcome_process: str,
     horizon_end: float,
@@ -340,7 +349,7 @@ def _engine_temporal_trajectory(
     query_mode: TemporalQueryMode = TemporalQueryMode.FIXED_INTERVENTION,
 ) -> EngineTemporalExecution:
     with tempfile.TemporaryDirectory(prefix="temporal-bench-") as tmpdir:
-        store = FileSystemCAS(Path(tmpdir) / "cas")
+        store = ensure_ir_artifact_store(FileSystemCAS(Path(tmpdir) / "cas"))
         intervention_ref = (
             None
             if intervention is None
@@ -370,6 +379,7 @@ def _engine_temporal_trajectory(
             trajectory,
             expects_fallback=trajectory.plan.fallback_mode.value == "discrete_time",
             requires_policy_lineage=query_mode is TemporalQueryMode.OPTIMAL_POLICY_DISCOVERY,
+            adaptive_policy_data=data if isinstance(data, DynamicTreatmentData) else None,
         )
     return EngineTemporalExecution(
         trajectory=trajectory,
@@ -379,28 +389,32 @@ def _engine_temporal_trajectory(
 
 
 def _engine_acceptance_checks(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     trajectory: TemporalTrajectoryResult,
     *,
     expects_fallback: bool = False,
     requires_policy_lineage: bool = False,
+    adaptive_policy_data: DynamicTreatmentData | None = None,
 ) -> tuple[dict[str, bool], dict[str, Any]]:
     bundle = trajectory.effect_bundle
-    effect_bundle_artifact_id = trajectory.metadata.get("effect_bundle_artifact_id")
+    effect_bundle_artifact_ref = trajectory.metadata.get("effect_bundle_artifact_ref")
     artifact_loadability = False
     policy_lineage_complete = True
+    adaptive_policy_rule = False
     reload_summary: dict[str, Any] = {
         "artifacts_expected": True,
-        "bundle_artifact_id": effect_bundle_artifact_id,
+        "bundle_artifact_ref": effect_bundle_artifact_ref,
     }
-    if bundle is not None and effect_bundle_artifact_id is not None:
+    if bundle is not None and effect_bundle_artifact_ref is not None:
         try:
-            bundle_ref = EffectTrajectoryBundleRef(artifact_id=str(effect_bundle_artifact_id))
+            bundle_ref = EffectTrajectoryBundleRef.model_validate(effect_bundle_artifact_ref)
+            if not bundle_ref.manifest_profile_sha256:
+                raise ValueError("temporal_bundle_selected_profile_missing")
             restored_bundle = load_effect_trajectory_bundle(store, bundle_ref)
             restored_query = load_continuous_time_query(store, restored_bundle.query_ref)
-            get_json_artifact(store, restored_bundle.trajectory_ref.artifact_id)
-            get_json_artifact(store, restored_bundle.confidence_band_ref.artifact_id)
-            get_json_artifact(store, restored_bundle.solver_diagnostics_ref.artifact_id)
+            get_json_artifact(store, restored_bundle.trajectory_ref)
+            get_json_artifact(store, restored_bundle.confidence_band_ref)
+            get_json_artifact(store, restored_bundle.solver_diagnostics_ref)
 
             intervention_payload = restored_bundle.metadata.get("intervention_artifact_ref")
             if (
@@ -419,10 +433,14 @@ def _engine_acceptance_checks(
             policy_payload = restored_bundle.metadata.get("policy_artifact_ref")
             derived_schedule_payload = restored_bundle.metadata.get("derived_schedule_ref")
             if policy_payload is not None:
-                load_dynamic_treatment_regime(
+                restored_policy = load_dynamic_treatment_regime(
                     store,
                     DynamicTreatmentRegimeRef.model_validate(policy_payload),
                 )
+                if requires_policy_lineage and adaptive_policy_data is not None:
+                    adaptive_policy_rule = _adaptive_policy_replay_check(
+                        restored_policy, adaptive_policy_data
+                    )
             if derived_schedule_payload is not None:
                 load_temporal_intervention_trajectory(
                     store,
@@ -484,10 +502,62 @@ def _engine_acceptance_checks(
             and bundle.continuous_time_degraded is False
         ),
     }
+    if requires_policy_lineage:
+        checks["adaptive_policy_rule"] = adaptive_policy_rule
     return checks, reload_summary
 
 
-def _gold_ode_zero_diffusion_equivalence():
+def _adaptive_policy_replay_check(
+    regime: DynamicTreatmentRegime, data: DynamicTreatmentData
+) -> bool:
+    """Reconcile fresh persisted stage actions with their retained Q models.
+
+    This fixture requires state-dependent actions at every stage. The expected
+    Q features are built directly from raw histories, independently of the
+    canonical consumer history builder; no rule name establishes adaptiveness.
+    """
+    if (
+        regime.schema_version != "1.1"
+        or regime.stage_coefficients is None
+        or regime.n_covariates != data.covariate_sequence.shape[2]
+        or regime.time_points != tuple(range(data.treatment_sequence.shape[1]))
+        or regime.decision_rule_profile
+        not in {"linear_q_action.v1", "linear_q_current_interactions.v1"}
+    ):
+        return False
+    treatment = data.treatment_sequence
+    covariates = data.covariate_sequence
+    for stage, coefficients in enumerate(regime.stage_coefficients):
+        expected_history_columns = []
+        for previous_stage in range(stage + 1):
+            expected_history_columns.extend(covariates[:, previous_stage, :].T)
+            if previous_stage < stage:
+                expected_history_columns.append(treatment[:, previous_stage])
+        expected_q = []
+        for action in (0.0, 1.0):
+            columns = [*expected_history_columns, np.full(len(treatment), action)]
+            if regime.decision_rule_profile == "linear_q_current_interactions.v1":
+                columns.extend(action * covariates[:, stage, :].T)
+            features = np.column_stack(columns)
+            expected_q.append(features @ np.asarray(coefficients[:-1]) + coefficients[-1])
+        expected_actions = (expected_q[1] > expected_q[0]).astype(float)
+        actual_actions = g_computation._apply_regime(
+            g_computation._build_history_matrix(treatment, covariates, stage),
+            covariates[:, stage, :],
+            regime.rule.value,
+            time_index=stage,
+            decision_rule_profile=regime.decision_rule_profile,
+            n_covariates=regime.n_covariates,
+            stage_coefficients=regime.stage_coefficients,
+        )
+        if np.unique(expected_actions).size != 2 or not np.array_equal(
+            actual_actions, expected_actions
+        ):
+            return False
+    return True
+
+
+def _gold_ode_zero_diffusion_equivalence() -> TemporalEvaluationResult:
     panel = PanelObservationalData(
         outcome=np.vstack([np.linspace(0.0, 4.0, 5), np.zeros(5), np.zeros(5)]),
         treatment=np.array([1, 0, 0], dtype=int),
@@ -543,7 +613,7 @@ def _gold_ode_zero_diffusion_equivalence():
     )
 
 
-def _gold_panel_delayed_effect():
+def _gold_panel_delayed_effect() -> TemporalEvaluationResult:
     execution = _engine_temporal_trajectory(
         data=_panel_delayed_data(),
         intervention=_intervention(
@@ -569,7 +639,7 @@ def _gold_panel_delayed_effect():
     )
 
 
-def _gold_g_formula_always_vs_never():
+def _gold_g_formula_always_vs_never() -> TemporalEvaluationResult:
     regime = DynamicTreatmentRegime(
         time_points=(0, 1, 2, 3),
         treatment_variables=("A_0", "A_1", "A_2", "A_3"),
@@ -605,9 +675,11 @@ def _gold_g_formula_always_vs_never():
     )
 
 
-def _gold_dtr_optimal_vs_baseline():
+def _gold_dtr_optimal_vs_baseline() -> TemporalEvaluationResult:
+    data = _dynamic_dtr_data()
+    expected_effect_path = _known_dtr_optimal_state_effect(data)
     execution = _engine_temporal_trajectory(
-        data=_dynamic_dtr_data(),
+        data=data,
         intervention=None,
         outcome_process="state",
         horizon_end=2.0,
@@ -619,18 +691,14 @@ def _gold_dtr_optimal_vs_baseline():
         scenario_id="dtr_optimal_vs_baseline",
         scenario_label="DTR optimal-regime trajectory vs baseline",
         trajectory=trajectory,
-        expected_effect_path=[0.0, 0.35, 0.55],
-        expected_integral_effect=0.625,
+        expected_effect_path=expected_effect_path,
+        expected_integral_effect=float(np.trapezoid(expected_effect_path)),
         thresholds=TemporalThresholds(
             max_path_rmse=0.35,
             max_integral_effect_abs_error=0.35,
             min_band_coverage=0.75,
         ),
-        extra_acceptance_checks={
-            **execution.acceptance_checks,
-            "adaptive_policy_rule": trajectory.diagnostics.get("optimal_regime_rule")
-            == RegimeRule.THRESHOLD.value,
-        },
+        extra_acceptance_checks=execution.acceptance_checks,
         metadata={
             "runtime_path": "engine_temporal_causal_effect",
             "requires_policy_lineage": True,
@@ -639,7 +707,24 @@ def _gold_dtr_optimal_vs_baseline():
     )
 
 
-def _gold_discrete_fallback_alignment():
+def _known_dtr_optimal_state_effect(data: DynamicTreatmentData) -> tuple[float, float, float]:
+    """Integrate the fixture's known SCM for its empirical initial population.
+
+    Treating positive state adds 0.45; treating nonpositive state subtracts 0.20.
+    The optimal rule therefore treats only positive state. At the second step,
+    integrate the known Gaussian transition noise analytically, independently of
+    the fitted Q policy and the estimated transition/trajectory implementations.
+    """
+    initial_state = data.covariate_sequence[:, 0, 0]
+    first_effect = float(0.45 * np.mean(initial_state > 0.0))
+    first_mean = 0.55 * initial_state + 0.45 * (initial_state > 0.0)
+    positive_probability = float(
+        np.mean([0.5 * erfc(-float(mean) / (0.25 * sqrt(2.0))) for mean in first_mean])
+    )
+    return 0.0, first_effect, 0.55 * first_effect + 0.45 * positive_probability
+
+
+def _gold_discrete_fallback_alignment() -> TemporalEvaluationResult:
     regime = DynamicTreatmentRegime(
         time_points=(0, 1, 2, 3),
         treatment_variables=("A_0", "A_1", "A_2", "A_3"),
@@ -682,7 +767,7 @@ def _gold_discrete_fallback_alignment():
     )
 
 
-def _hidden_lag_overshoot_plateau_case():
+def _hidden_lag_overshoot_plateau_case() -> TemporalEvaluationResult:
     expected = [0.0, 0.25, 0.95, 1.25, 1.1, 1.0]
     trajectory = _trajectory_with_custom_effect(expected)
     return evaluate_temporal_trajectory(
@@ -699,7 +784,7 @@ def _hidden_lag_overshoot_plateau_case():
     )
 
 
-def _hidden_weak_signal_wide_band_case():
+def _hidden_weak_signal_wide_band_case() -> TemporalEvaluationResult:
     expected = [0.0, 0.05, 0.10, 0.08, 0.05]
     rng = np.random.default_rng(901)
     effect_samples = np.asarray(
@@ -724,7 +809,7 @@ def _hidden_weak_signal_wide_band_case():
     )
 
 
-def _hidden_fallback_required_case():
+def _hidden_fallback_required_case() -> TemporalEvaluationResult:
     regime = DynamicTreatmentRegime(
         time_points=(0, 1, 2, 3),
         treatment_variables=("A_0", "A_1", "A_2", "A_3"),
@@ -766,7 +851,7 @@ def _hidden_fallback_required_case():
     )
 
 
-def _hidden_diagnostics_omission_trap():
+def _hidden_diagnostics_omission_trap() -> TemporalEvaluationResult:
     trajectory = _trajectory_with_custom_effect([0.0, 0.2, 0.3, 0.35])
     malformed = trajectory.model_copy(
         update={
@@ -790,7 +875,7 @@ def _hidden_diagnostics_omission_trap():
     )
 
 
-def _hidden_irregular_grid_safe_rejection():
+def _hidden_irregular_grid_safe_rejection() -> TemporalEvaluationResult:
     try:
         _engine_temporal_trajectory(
             data=_dynamic_g_data(),
@@ -822,7 +907,7 @@ def _hidden_irregular_grid_safe_rejection():
     raise AssertionError("expected irregular-grid temporal query to be rejected")
 
 
-def _hidden_neural_cde_safe_rejection():
+def _hidden_neural_cde_safe_rejection() -> TemporalEvaluationResult:
     try:
         _engine_temporal_trajectory(
             data=_dynamic_g_data(),
@@ -853,7 +938,7 @@ def _hidden_neural_cde_safe_rejection():
     raise AssertionError("expected neural_cde backend to be rejected")
 
 
-def _hidden_neural_sde_safe_rejection():
+def _hidden_neural_sde_safe_rejection() -> TemporalEvaluationResult:
     try:
         _engine_temporal_trajectory(
             data=_dynamic_g_data(),
@@ -884,9 +969,11 @@ def _hidden_neural_sde_safe_rejection():
     raise AssertionError("expected neural_sde backend to be rejected")
 
 
-def _hidden_adaptive_policy_lineage_case():
+def _hidden_adaptive_policy_lineage_case() -> TemporalEvaluationResult:
+    data = _dynamic_dtr_data()
+    expected_effect_path = _known_dtr_optimal_state_effect(data)
     execution = _engine_temporal_trajectory(
-        data=_dynamic_dtr_data(),
+        data=data,
         intervention=None,
         outcome_process="state",
         horizon_end=2.0,
@@ -898,18 +985,14 @@ def _hidden_adaptive_policy_lineage_case():
         scenario_id="hidden_temporal_case_08",
         scenario_label="Hidden temporal stress case",
         trajectory=trajectory,
-        expected_effect_path=[0.0, 0.35, 0.55],
-        expected_integral_effect=0.625,
+        expected_effect_path=expected_effect_path,
+        expected_integral_effect=float(np.trapezoid(expected_effect_path)),
         thresholds=TemporalThresholds(
             max_path_rmse=0.40,
             max_integral_effect_abs_error=0.40,
             min_band_coverage=0.70,
         ),
-        extra_acceptance_checks={
-            **execution.acceptance_checks,
-            "adaptive_policy_rule": trajectory.diagnostics.get("optimal_regime_rule")
-            == RegimeRule.THRESHOLD.value,
-        },
+        extra_acceptance_checks=execution.acceptance_checks,
         metadata={
             "hidden_case_group": "adaptive_policy",
             "runtime_path": "engine_temporal_causal_effect",
@@ -919,7 +1002,7 @@ def _hidden_adaptive_policy_lineage_case():
     )
 
 
-def _hidden_reloadable_cas_lineage_case():
+def _hidden_reloadable_cas_lineage_case() -> TemporalEvaluationResult:
     execution = _engine_temporal_trajectory(
         data=_panel_delayed_data(),
         intervention=_intervention(

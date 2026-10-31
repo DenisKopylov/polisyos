@@ -74,7 +74,12 @@ if TYPE_CHECKING:
     )
     from ..canon import CanonSpec
     from .context import _RunInvocationAttempt
-    from .manifest import RunInvocationCompleted, RunInvocationStarted
+    from .manifest import (
+        RunInvocationCompleted,
+        RunInvocationStarted,
+        RunOwnerSnapshot,
+        RunOwnerSnapshotV101,
+    )
 
 
 class ChildComputationBinding(BaseModel):
@@ -747,6 +752,7 @@ class _ParentInvocationProof:
     trace_records: bytes
     owner_ref: ArtifactRef
     tail_ref: ArtifactRef | None
+    snapshot: RunOwnerSnapshot | RunOwnerSnapshotV101
     attempts: tuple[_RunInvocationAttempt, ...]
 
     def reconcile(self, root: RunContext) -> bool:
@@ -809,6 +815,7 @@ def _read_parent_invocation_proof(
         trace_records=trace_records,
         owner_ref=owner_ref.model_copy(deep=True),
         tail_ref=tail_ref.model_copy(deep=True) if tail_ref is not None else None,
+        snapshot=snapshot.model_copy(deep=True),
         attempts=tuple(deepcopy(attempts)),
     )
     if not proof.reconcile(root):
@@ -2798,7 +2805,6 @@ class ChildComputationCustody:
         )
         if self._parent_source_owner is not None and source_owner != self._parent_source_owner:
             raise ChildReleaseUnavailableError("parent_proof_owner_changed")
-        self._root._validate_run_owner_binding()
         m = self._root.run_manifest
         if self._root._closed or self._root._suspended or m.status != "running":
             raise ChildReleaseUnavailableError("root_not_active")
@@ -2816,6 +2822,13 @@ class ChildComputationCustody:
             source_attempts, proof = _read_parent_invocation_proof(self._root)
         else:
             source_attempts = list(proof.attempts)
+        if proof is None:
+            # The uncacheable profile still uses the ordinary fresh Core reader.
+            self._root._validate_run_owner_binding()
+        else:
+            # History readers also support completed children. Live-owner
+            # admission belongs to this active-parent boundary, not to parsing.
+            self._root._require_validated_run_owner_binding(proof.snapshot)
         attempts = [item for item in source_attempts if item.basis_ref == binding.parent_basis_ref]
         if (
             len(attempts) != 1

@@ -206,7 +206,7 @@ def test_guarded_foundry_port_uses_the_selected_child_scope(
     _run_owned_fixture(tmp_path, monkeypatch, "runtime_core_appointment", before_session=exercise)
 
 
-@pytest.mark.parametrize("probe", ["progress", "older_snapshot", "basis"])
+@pytest.mark.parametrize("probe", ["progress", "older_snapshot", "basis", "parent_live_manifest"])
 def test_child_history_reuses_only_a_complete_live_owned_readset(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, probe: str
 ) -> None:
@@ -214,6 +214,7 @@ def test_child_history_reuses_only_a_complete_live_owned_readset(
     from uuid import uuid4
 
     from polisyos.core.run import context as run_context
+    from polisyos.core.run.context import _FinalizeRecoveryError
     from polisyos.core.trace.record import TraceRecord
     from polisyos.scientist.orchestration.engine.state import ExperimentState
     from tests.unit.scientist.orchestration.engine.test_admitted_subworkflow_custody import (
@@ -222,7 +223,7 @@ def test_child_history_reuses_only_a_complete_live_owned_readset(
     )
 
     def exercise(root, control, custody, reader, fence, grant, binding):
-        del root, control, reader, grant
+        del control, reader, grant
         intent = custody.job_session_intent(binding)
         custody.bind_job_intent(intent, fence.begin_session(intent))
         custody.parent_store(binding, input_refs=())
@@ -257,6 +258,15 @@ def test_child_history_reuses_only_a_complete_live_owned_readset(
         second = scope.run.read_runtime_invocation_attempts()
         assert second[0].basis.node_alias == "parent"
         assert len(complete_reads) == 1
+        if probe == "parent_live_manifest":
+            seed = root.run_manifest.seed
+            root.run_manifest.seed = (seed or 0) + 1
+            try:
+                with pytest.raises(_FinalizeRecoveryError, match="owner_inputs_mismatch"):
+                    scope.run.read_runtime_invocation_attempts()
+            finally:
+                root.run_manifest.seed = seed
+            return
         if probe == "progress":
             scope.run._record_runtime_invocation_completed(
                 attempt_id=attempt_id,

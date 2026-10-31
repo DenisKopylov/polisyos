@@ -92,6 +92,14 @@ restriction, not a measured latency guarantee or a scientific policy limit.
 Jobless child computation is unsupported and refuses before child work: its
 owning durable authorization decision is not established.
 
+Private invocation-history reads may reuse the canonical reader's detached,
+complete parse after rereading every consumed CAS premise and the actual trace.
+Active-parent admission applies the ordinary live run/scope/store predicate to
+that verified snapshot, without parsing the same owner again. Read-only history
+remains available for completed children. A changed owner or invocation tail
+refreshes the parse; a changed historical blob refuses. The selected head, a
+timestamp, or cache presence alone establishes neither currentness nor admission.
+
 The trusted executor prepares a private child outside the job/resource decision,
 then admits its one-use handle under the actual short job and grant owners. Only
 a confirmed owner decision may complete the handle and hand the scope to a node.

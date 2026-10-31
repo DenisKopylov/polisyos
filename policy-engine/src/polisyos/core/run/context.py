@@ -1601,6 +1601,24 @@ class RunContext:
                 owner_ref,
                 require_registry_profile=False,
             )
+        except _FinalizeRecoveryError as exc:
+            raise _FinalizeRecoveryError("timeout_worker_owner_snapshot_invalid") from exc
+        self._require_validated_run_owner_binding(
+            snapshot, require_store_binding=require_store_binding
+        )
+
+    def _require_validated_run_owner_binding(
+        self,
+        snapshot: RunOwnerSnapshot | RunOwnerSnapshotV101,
+        *,
+        require_store_binding: bool = False,
+    ) -> None:
+        """Reconcile live fields with the actual Core reader's verified snapshot.
+
+        The caller must retain the reader's fresh complete proof. This predicate
+        performs no artifact admission or capability appointment by itself.
+        """
+        try:
             scope_digest = _access_scope_sha256(self.access_scope)
         except _FinalizeRecoveryError as exc:
             raise _FinalizeRecoveryError("timeout_worker_owner_snapshot_invalid") from exc

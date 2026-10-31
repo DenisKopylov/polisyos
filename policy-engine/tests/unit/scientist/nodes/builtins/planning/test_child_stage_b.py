@@ -2,6 +2,7 @@
 
 import pytest
 
+from polisyos.core.artifacts import artifact_ref_identity_key
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.run.child_custody import ChildComputationOutcomeUnknown
 from polisyos.ir.governance.policy_spec import PolicySpec
@@ -57,6 +58,9 @@ def test_real_candidate_is_prepared_in_child_without_mutating_parent(execution_c
     assert ARTIFACT_EXEC_PLAN_REF not in outcome.state.artifacts_index
     assert outcome.state.artifacts_index["unrelated_ref"] == stale
     trinity_ref = outcome.state.inputs["trinity_bundle_ref"]
+    assert artifact_ref_identity_key(trinity_ref) in {
+        artifact_ref_identity_key(ref) for ref in outcome.artifacts
+    }
     assert trinity_ref.manifest_profile_sha256 is not None
     assert load_trinity_bundle_artifact(ctx.store, trinity_ref) == candidate.trinity_bundle
     selected_candidate = outcome.state.artifacts_index["child_stage_b_selected_candidate_ref"]

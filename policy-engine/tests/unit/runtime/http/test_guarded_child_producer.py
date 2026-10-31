@@ -172,12 +172,21 @@ def test_guarded_foundry_port_uses_the_selected_child_scope(
         with pytest.raises(AttributeError):
             port._binding.scope = None
         if probe == "expired":
-            with closing(sqlite3.connect(tmp_path / "control.sqlite3")) as connection:
-                connection.execute(
-                    "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
-                    ("2000-01-01T00:00:00+00:00", "job-a"),
-                )
-                connection.commit()
+            original_admit = ControlPlaneStore._admit_child_producer
+
+            def expire_after_preflight(store, *, control_operation):
+                # Change the real row only after Core/Runtime preflight. An
+                # earlier expiry could be caught by a different owner check
+                # and leave the actual producer decision untested.
+                with closing(sqlite3.connect(tmp_path / "control.sqlite3")) as connection:
+                    connection.execute(
+                        "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                        ("2000-01-01T00:00:00+00:00", "job-a"),
+                    )
+                    connection.commit()
+                return original_admit(store, control_operation=control_operation)
+
+            monkeypatch.setattr(ControlPlaneStore, "_admit_child_producer", expire_after_preflight)
         request = CompileRequest(input_kind="trinity", policy_ref=policy)
         with port._producer_scope(_COMPILE_NODE, _token=_CHILD_FOUNDRY_DISPATCH_TOKEN):
             if probe == "expired":
@@ -193,5 +202,97 @@ def test_guarded_foundry_port_uses_the_selected_child_scope(
                 assert result.compile_report_ref is not None
                 assert scope.store.get_bytes(result.compile_report_ref)
         assert producer_entries == (["compile"] if probe == "normal" else [])
+
+    _run_owned_fixture(tmp_path, monkeypatch, "runtime_core_appointment", before_session=exercise)
+
+
+@pytest.mark.parametrize("probe", ["progress", "older_snapshot", "basis"])
+def test_child_history_reuses_only_a_complete_live_owned_readset(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, probe: str
+) -> None:
+    """Reuse parsing while freshly checking historical bytes and real progress."""
+    from uuid import uuid4
+
+    from polisyos.core.run import context as run_context
+    from polisyos.core.trace.record import TraceRecord
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
+    from tests.unit.scientist.orchestration.engine.test_admitted_subworkflow_custody import (
+        _COMPONENT,
+        _parent_inputs,
+    )
+
+    def exercise(root, control, custody, reader, fence, grant, binding):
+        del root, control, reader, grant
+        intent = custody.job_session_intent(binding)
+        custody.bind_job_intent(intent, fence.begin_session(intent))
+        custody.parent_store(binding, input_refs=())
+        child_binding = binding.model_copy(update={"child_invocation_id": "history-test"})
+        scope = fence.admit_prepared_scope(custody.prepare_scope(child_binding, input_refs=()))
+        fence.admit_producer(scope)
+        workflow, state, _ = _parent_inputs(
+            scope.store, _COMPONENT, state=ExperimentState(run_id=scope.run.run_manifest.run_id)
+        )
+        attempt_id = str(uuid4())
+        basis = scope.run._record_runtime_invocation_started(
+            attempt_id=attempt_id,
+            attempt_number=1,
+            workflow_spec_ref=workflow,
+            node_alias="parent",
+            component_id=str(_COMPONENT),
+            input_state_ref=state,
+        )
+        complete_reads: list[str] = []
+        original_read = run_context._read_run_owner_records
+
+        def observe_complete_read(store, trace_path, *, run_id):
+            if run_id == scope.run.run_manifest.run_id:
+                complete_reads.append(run_id)
+            return original_read(store, trace_path, run_id=run_id)
+
+        monkeypatch.setattr(run_context, "_read_run_owner_records", observe_complete_read)
+        first = scope.run.read_runtime_invocation_attempts()
+        assert len(first) == 1 and first[0].basis_ref == basis and first[0].outcome is None
+        # Mutating a returned object must not alter the reusable detached proof.
+        object.__setattr__(first[0].basis, "node_alias", "counterfeit")
+        second = scope.run.read_runtime_invocation_attempts()
+        assert second[0].basis.node_alias == "parent"
+        assert len(complete_reads) == 1
+        if probe == "progress":
+            scope.run._record_runtime_invocation_completed(
+                attempt_id=attempt_id,
+                attempt_number=1,
+                basis_ref=basis,
+                status="ok",
+                outcome_state_ref=state,
+                output_refs=[],
+            )
+            completed = scope.run.read_runtime_invocation_attempts()
+            assert len(completed) == 1 and completed[0].outcome is not None
+            assert completed[0].outcome.status == "ok"
+            assert len(complete_reads) == 2
+            return
+
+        owner_before = scope.run._owner_snapshot_ref.model_copy(deep=True)
+        tail_before = scope.run._runtime_invocation_tail_ref.model_copy(deep=True)
+        assert scope.run.trace_path is not None
+        trace_before = scope.run.trace_path.read_bytes()
+        selected = basis
+        if probe == "older_snapshot":
+            initial = TraceRecord.model_validate_json(trace_before.splitlines()[0])
+            selected = initial.refs.outputs[0]
+            assert selected != owner_before
+        blob, _ = custody._stage._paths(selected.artifact_id)
+        original = blob.read_bytes()
+        try:
+            blob.write_bytes(b"corrupted-child-history")
+            # Current selected markers and the entire trace stay identical.
+            assert scope.run._owner_snapshot_ref == owner_before
+            assert scope.run._runtime_invocation_tail_ref == tail_before
+            assert scope.run.trace_path.read_bytes() == trace_before
+            with pytest.raises(ChildReleaseUnavailableError):
+                scope.run.read_runtime_invocation_attempts()
+        finally:
+            blob.write_bytes(original)
+        assert scope.run.read_runtime_invocation_attempts()[0].outcome is None
 
     _run_owned_fixture(tmp_path, monkeypatch, "runtime_core_appointment", before_session=exercise)

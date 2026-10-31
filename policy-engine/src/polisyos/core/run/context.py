@@ -437,11 +437,13 @@ def _owner_profile_options_for_persisted_manifest(
         # The selected child marker is accepted only through the actual storage
         # owner. A manifest's own declaration cannot appoint a private scope.
         from ..artifacts.store import FileSystemCAS
-        from .child_custody import _ManagedStore
+        from .child_custody import _ManagedStore, _ParentProofReads
 
         if type(store) is _ManagedStore:
             store._require_owned_release_profile(ref, manifest)
             options = store._options(options)
+        elif type(store) is _ParentProofReads:
+            options = store._owned_release_options(ref, manifest, options)
         elif type(store) is FileSystemCAS:
             if store.get_manifest(ref) != manifest:
                 raise _FinalizeRecoveryError("run_owner_child_release_profile_mismatch")
@@ -2273,6 +2275,10 @@ class RunContext:
         """
         if self._trace_path is None:
             return []
+        from .child_custody import _ManagedStore
+
+        if type(self.store) is _ManagedStore:
+            return self.store._read_owned_run_invocation_attempts(self)
         return _read_runtime_invocation_attempts(
             self.store,
             self._trace_path,

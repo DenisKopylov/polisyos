@@ -63,7 +63,7 @@ class StageBPrepareNode:
                 f"artifacts_index.{_SELECTED_CANDIDATE_KEY}",
                 f"artifacts_index.{_SELECTED_EVALUATION_KEY}",
             ],
-        )
+        ).model_copy(update={"produces": [_SELECTED_CANDIDATE_KEY, INPUT_TRINITY_BUNDLE_REF]})
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
         """Write the candidate and clear preceding candidate artifacts in the child only."""
@@ -120,7 +120,7 @@ class StageBPrepareNode:
         ):
             result.artifacts_index.pop(key, None)
         result.artifacts_index[_SELECTED_CANDIDATE_KEY] = candidate_ref
-        return NodeOutcome(status="ok", state=result, artifacts=[candidate_ref])
+        return NodeOutcome(status="ok", state=result, artifacts=[candidate_ref, selected])
 
 
 def _evaluate_stage_b(ctx: ExecutionContext, state: ExperimentState) -> dict[str, Any]:

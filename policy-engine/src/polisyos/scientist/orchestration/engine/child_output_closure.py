@@ -16,6 +16,7 @@ from polisyos.core.artifacts.canonical_profile import (
     validate_core_model_bounded_read,
 )
 from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
+from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.methods.search.objective import (
     ObjectiveScoreAssessment,
     ObjectiveScoreStatus,
@@ -25,7 +26,10 @@ from polisyos.scientist.nodes.builtins.decide.policy_runtime_method_metrics impo
     CompletedMethodMetricProjection,
 )
 from polisyos.scientist.policy_design.objectives import ObjectiveKind, PolicyEvaluationVector
-from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
+from polisyos.scientist.policy_design.schema import (
+    PolicyCandidateSchema,
+    policy_candidate_trinity_contents_match,
+)
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.protocol import ArtifactReader
@@ -258,7 +262,7 @@ def _managed_candidate_selections(
     component_id = str(node.spec.metadata.component_id)
     implementation = _capture_configured_component_owner(node, {}).reconcile(node, node, {})
     candidate = load_policy_candidate_schema(store, candidate_ref)
-    matches: list[ExperimentState] = []
+    matches: list[tuple[ExperimentState, ArtifactRef]] = []
     for source in store._read_owned_child_invocation_sources(
         component_id, output_ref=candidate_ref, limits=limits
     ):
@@ -276,15 +280,27 @@ def _managed_candidate_selections(
             candidate.model_dump(mode="json"), expected.model_dump(mode="json")
         ):
             raise ChildOutputClosureRefusalError("child_output_candidate_selection_mismatch")
-        matches.append(state)
+        prepared_trinity = [
+            ref
+            for ref in outcome.output_refs
+            if ref.kind == TrinityBundle.ARTIFACT_KIND
+            and ref.media_type == TrinityBundle.ARTIFACT_MEDIA_TYPE
+        ]
+        if len(prepared_trinity) != 1:
+            raise ChildOutputClosureRefusalError("child_output_prepare_trinity_unavailable")
+        matches.append((state, prepared_trinity[0]))
     if len(matches) != 1:
         raise ChildOutputClosureRefusalError("child_output_unselected_candidate")
-    selected = {"candidate": candidate_ref.model_copy(deep=True)}
+    state, prepared_trinity = matches[0]
+    selected = {
+        "candidate": candidate_ref.model_copy(deep=True),
+        "prepared_trinity": prepared_trinity.model_copy(deep=True),
+    }
     for role, input_key in (
         ("model_primary_data_snapshot", "data_snapshot_ref"),
         ("model_primary_registry", "registry_bundle_ref"),
     ):
-        ref = matches[0].inputs.get(input_key)
+        ref = state.inputs.get(input_key)
         if ref is not None:
             if type(ref) is not ArtifactRef or not ref.manifest_profile_sha256:
                 raise ChildOutputClosureRefusalError("child_output_owner_source_unavailable")
@@ -348,6 +364,7 @@ class TypedChildOutputClosureResolver:
         visiting: set[tuple[str, str, str, str | None]] = set()
         done: dict[tuple[str, str, str, str | None], ArtifactRef] = {}
         candidate_ids: dict[tuple[str, str, str, str | None], str] = {}
+        candidate_payloads: dict[tuple[str, str, str, str | None], PolicyCandidateSchema] = {}
 
         def visit(ref: ArtifactRef, *, expected_candidate_id: str | None = None) -> None:
             key = artifact_ref_identity_key(ref)
@@ -417,6 +434,7 @@ class TypedChildOutputClosureResolver:
                         "child_output_candidate_selection_mismatch"
                     )
                 candidate_ids[key] = candidate.candidate_id
+                candidate_payloads[key] = candidate
                 for role, embedded_id in _candidate_sources(candidate):
                     required_roles.add(role)
                     owner_ref = selected_source(role, ref)
@@ -431,6 +449,36 @@ class TypedChildOutputClosureResolver:
                         or artifact_ref_identity_key(edge) != artifact_ref_identity_key(owner_ref)
                     ):
                         raise ChildOutputClosureRefusalError("child_output_payload_input_mismatch")
+            elif identity == (
+                TrinityBundle.ARTIFACT_KIND,
+                TrinityBundle.ARTIFACT_MEDIA_TYPE,
+                TrinityBundle.ARTIFACT_SCHEMA_NAME,
+                TrinityBundle.ARTIFACT_SCHEMA_VERSION,
+            ):
+                trinity = validate_core_model_bounded_read(TrinityBundle, read)
+                _check(trinity, "TrinityBundle", _FIELDS["TrinityBundle"])
+                if trinity.schema_version != TrinityBundle.ARTIFACT_SCHEMA_VERSION:
+                    raise ChildOutputClosureRefusalError("child_output_payload_version_mismatch")
+                candidate_edge = declared.get("policy_candidate")
+                if candidate_edge is None:
+                    raise ChildOutputClosureRefusalError("child_output_owner_source_unavailable")
+                owner_ref = selected_source("prepared_trinity", candidate_edge)
+                if (
+                    type(owner_ref) is not ArtifactRef
+                    or artifact_ref_identity_key(owner_ref) != key
+                ):
+                    raise ChildOutputClosureRefusalError("child_output_unselected_trinity")
+                required_roles.add("policy_candidate")
+                visit(candidate_edge)
+                candidate = candidate_payloads.get(artifact_ref_identity_key(candidate_edge))
+                if candidate is None:
+                    raise ChildOutputClosureRefusalError(
+                        "child_output_candidate_occurrence_required"
+                    )
+                if not policy_candidate_trinity_contents_match(
+                    candidate.model_dump(mode="json"), trinity.model_dump(mode="json")
+                ):
+                    raise ChildOutputClosureRefusalError("child_output_trinity_candidate_mismatch")
             elif identity[:3] == (
                 "scientist.policy_evaluation_vector",
                 "application/json",

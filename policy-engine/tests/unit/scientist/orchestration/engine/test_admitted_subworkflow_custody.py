@@ -9,6 +9,7 @@ import hashlib
 import logging
 import time
 from datetime import UTC, datetime, timedelta
+from decimal import Decimal
 from threading import Event, Thread
 from typing import TYPE_CHECKING
 from uuid import uuid4
@@ -713,7 +714,7 @@ def test_dynamic_stage_b_candidate_uses_real_guarded_private_session(
         parent_state = ExperimentState(
             run_id="run-a",
             inputs={"data_snapshot_ref": data},
-            params={"kept": 1},
+            params={"kept": Decimal("1")},
         )
         parent_state.params["policy_candidate_schema"] = candidate.model_copy(
             update={"candidate_id": "parent_candidate"}
@@ -792,6 +793,7 @@ def test_dynamic_stage_b_candidate_uses_real_guarded_private_session(
                 logger=logging.getLogger("stage-b-test"),
             )
             observed: list[ArtifactRef] = []
+            observed_trinity: list[tuple[ArtifactRef, ArtifactRef]] = []
             original_prepare = StageBPrepareNode.execute
 
             def record_prepared(self, ctx, state):
@@ -801,11 +803,34 @@ def test_dynamic_stage_b_candidate_uses_real_guarded_private_session(
                 with pytest.raises(FileNotFoundError):
                     served.get_bytes(selected)
                 observed.append(selected)
+                from polisyos.core.artifacts.manifest import ProducerInfo
+                from polisyos.core.run.child_custody import _snapshot_selected_ref
+
+                trinity = _snapshot_selected_ref(outcome.state.inputs["trinity_bundle_ref"])
+                manifest = ctx.store.get_manifest(trinity)
+                alternate = ctx.store.put_bytes(
+                    ctx.store.get_bytes(trinity),
+                    PutOptions(
+                        kind=manifest.kind,
+                        media_type=manifest.media_type,
+                        schema=manifest.artifact_schema,
+                        producer=ProducerInfo(component="tests.alternate_trinity", version="1"),
+                        env=manifest.env,
+                        inputs=manifest.inputs,
+                        canon=manifest.canon,
+                        tenant_context=manifest.tenant_context,
+                    ),
+                    return_selected_profile=True,
+                )
+                assert alternate.artifact_id == trinity.artifact_id
+                assert alternate.manifest_profile_sha256 != trinity.manifest_profile_sha256
+                observed_trinity.append((trinity, alternate))
                 return outcome
 
             monkeypatch.setattr(StageBPrepareNode, "execute", record_prepared)
 
             source_closures: list[tuple[ArtifactRef, ...]] = []
+            trinity_closures: list[tuple[ArtifactRef, ...]] = []
             source_errors: list[BaseException] = []
             original_revoke = custody.revoke
 
@@ -822,6 +847,12 @@ def test_dynamic_stage_b_candidate_uses_real_guarded_private_session(
                 try:
                     selected = observed[-1]
                     source_closures.append(resolver.resolve(scope.store, selected))
+                    trinity, alternate = observed_trinity[-1]
+                    trinity_closures.append(resolver.resolve(scope.store, trinity))
+                    with pytest.raises(
+                        ChildOutputClosureRefusalError, match="child_output_unselected_trinity"
+                    ):
+                        resolver.resolve(scope.store, alternate)
                     sibling = candidate.model_copy(update={"candidate_id": "unselected_sibling"})
                     unselected = persist_stage_b_candidate(
                         scope.store, sibling, parent_state.inputs
@@ -886,6 +917,11 @@ def test_dynamic_stage_b_candidate_uses_real_guarded_private_session(
             changed.params["kept"] = 2
             with pytest.raises(ValueError, match="child_parent_input_state_changed"):
                 session.evaluate_candidate(candidate.model_dump(mode="json"), changed)
+            same_json = parent_state.model_copy(deep=True)
+            same_json.params["kept"] = "1"
+            assert same_json.model_dump(mode="json") == parent_state.model_dump(mode="json")
+            with pytest.raises(ValueError, match="child_parent_input_state_changed"):
+                session.evaluate_candidate(candidate.model_dump(mode="json"), same_json)
             assert not observed
             before = parent_state.model_dump(mode="json")
             with pytest.raises(ValueError, match="child_workflow_not_successful"):
@@ -895,6 +931,13 @@ def test_dynamic_stage_b_candidate_uses_real_guarded_private_session(
             if source_errors:
                 raise source_errors[0]
             assert source_closures == [(data,)]
+            from polisyos.core.artifacts import artifact_ref_identity_key
+
+            assert len(trinity_closures) == 1
+            assert {artifact_ref_identity_key(ref) for ref in trinity_closures[0]} == {
+                artifact_ref_identity_key(data),
+                artifact_ref_identity_key(observed[0]),
+            }
         finally:
             reader.close()
 

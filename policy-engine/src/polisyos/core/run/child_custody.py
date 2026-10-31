@@ -729,6 +729,15 @@ class _ParentProofReads:
             if _parent_proof_fingerprint(self._invoke(operation, ref, profile)) != fingerprint:
                 raise ChildReleaseUnavailableError("parent_proof_source_changed")
 
+    def _owned_release_options(
+        self, ref: ArtifactRef, manifest: ArtifactManifest, options: ArtifactWriteOptions
+    ) -> ArtifactWriteOptions:
+        """Delegate ownership to the real scope; the readset itself owns nothing."""
+        if type(self.store) is not _ManagedStore:
+            raise ChildReleaseUnavailableError("invocation_readset_child_owner_not_established")
+        self.store._require_owned_release_profile(ref, manifest)
+        return self.store._options(options)
+
 
 @dataclass(frozen=True)
 class _ParentInvocationProof:
@@ -948,6 +957,39 @@ class _ManagedStore:
             )
             return _selected(read.manifest) == selected
         return _selected(source.get_manifest(selected)) == selected
+
+    def _read_owned_run_invocation_attempts(self, run: RunContext) -> list[_RunInvocationAttempt]:
+        """Reuse one complete proof for this actual owned run, with fresh reads."""
+        owner = self.__owner
+        owner._require_store_active(self.__scope_id, writing=False)
+        scope = owner._scopes.get(self.__scope_id)
+        if scope is None or scope.run is not run or scope.store is not self:
+            raise ChildReleaseUnavailableError("child_history_run_owner_not_established")
+        source_owner = (
+            _model_snapshot(run._owner_snapshot_ref),
+            _model_snapshot(run._runtime_invocation_tail_ref),
+        )
+        proof = owner._child_invocation_proofs.get(self.__scope_id)
+        if (
+            proof is None
+            or run._owner_snapshot_ref != proof.owner_ref
+            or run._runtime_invocation_tail_ref != proof.tail_ref
+            or not proof.reconcile(run)
+        ):
+            attempts, proof = _read_parent_invocation_proof(run)
+        else:
+            attempts = list(proof.attempts)
+        owner.check_active(scope)
+        if source_owner != (
+            _model_snapshot(run._owner_snapshot_ref),
+            _model_snapshot(run._runtime_invocation_tail_ref),
+        ):
+            raise ChildReleaseUnavailableError("child_history_changed_during_validation")
+        if proof is None:
+            owner._child_invocation_proofs.pop(self.__scope_id, None)
+        else:
+            owner._child_invocation_proofs[self.__scope_id] = proof
+        return deepcopy(attempts)
 
     def _read_owned_child_invocation_sources(
         self, component_id: str, *, output_ref: ArtifactRef, limits: CoreJsonReadLimits
@@ -2676,6 +2718,7 @@ class ChildComputationCustody:
         self._admitted_binding_snapshot: bytes | None = None
         self._parent_source_owner: tuple[bytes, bytes] | None = None
         self._parent_invocation_proof: _ParentInvocationProof | None = None
+        self._child_invocation_proofs: dict[str, _ParentInvocationProof] = {}
         self._scopes: dict[str, ChildStagingScope] = {}
         self._prepared_scopes: dict[str, ChildPreparedScope] = {}
         self._scope_preparations: set[str] = set()

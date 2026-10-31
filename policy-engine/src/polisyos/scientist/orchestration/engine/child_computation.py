@@ -60,6 +60,18 @@ def _finite_json(value: object) -> bytes:
     ).encode("utf-8")
 
 
+def _state_snapshot(state: ExperimentState) -> bytes:
+    """Preserve Core's typed scalar grammar for the complete state identity."""
+    return to_canonical_bytes(
+        state.model_dump(mode="python"), CanonSpec(forbid_floats=False, exclude_none=False)
+    )
+
+
+def _state_from_snapshot(payload: bytes) -> ExperimentState:
+    """Restore typed state values rather than treating Decimal tags as strings."""
+    return ExperimentState.model_validate(from_canonical_bytes(payload))
+
+
 def _require_finite_data(value: object) -> None:
     """Reject opaque, cyclic, nonfinite or unreasonably deep child values."""
     active: set[int] = set()
@@ -101,11 +113,13 @@ def _require_finite_data(value: object) -> None:
 def _state_copy(state: ExperimentState, *, run_id: str) -> ExperimentState:
     _require_finite_data(state.params)
     _require_finite_data(state.causal_method_params)
-    payload = state.model_dump(mode="json")
+    payload = from_canonical_bytes(_state_snapshot(state))
+    if type(payload) is not dict:
+        raise ValueError("child_input_state_invalid")
     payload["run_id"] = run_id
     # A previous workflow checkpoint is not a child input or a child recovery grant.
     payload["last_checkpoint_ref"] = None
-    return ExperimentState.model_validate_json(_finite_json(payload))
+    return ExperimentState.model_validate(payload)
 
 
 def _resolve_present(state: ExperimentState, path: str) -> tuple[bool, object]:
@@ -452,7 +466,7 @@ def _hold_admitted_parent_dispatch(
         binding,
         _AdmittedChildDispatch(owner, params, grant),
         grant,
-        _finite_json(basis_state.model_dump(mode="json")),
+        _state_snapshot(basis_state),
         _AdmittedSourceSelections(basis_state),
         token=_PARENT_SEAL_TOKEN,
     )
@@ -657,10 +671,9 @@ class _ManagedChildRunner:
             raise ValueError("child_input_selected_profile_required")
         self._parent_context = parent_context
         self._ports = approved_ports
-        self._budget_bytes = _finite_json(
-            ExperimentState(run_id="budget", budgets=dict(inherited_budgets)).model_dump(
-                mode="json"
-            )["budgets"]
+        self._budget_bytes = to_canonical_bytes(
+            ExperimentState(run_id="budget", budgets=dict(inherited_budgets)).budgets,
+            CanonSpec(forbid_floats=False, exclude_none=False),
         )
         self._grant = parent_seal.grant
         self._parent_input = parent_seal.input_state_json
@@ -743,13 +756,17 @@ class _ManagedChildRunner:
         if type(candidate_payload) is not dict:
             raise ValueError("child_stage_b_candidate_invalid")
         _require_finite_data(candidate_payload)
-        candidate = json.loads(_finite_json(candidate_payload))
+        candidate = from_canonical_bytes(
+            to_canonical_bytes(
+                candidate_payload, CanonSpec(forbid_floats=False, exclude_none=False)
+            )
+        )
         PolicyCandidateSchema.model_validate(_candidate_payload_without_hash(candidate))
         # Recheck the fixed members and parent for every dynamic evaluator call.
         self._require_stage_b_template()
-        if _finite_json(parent_state.model_dump(mode="json")) != self._parent_input:
+        if _state_snapshot(parent_state) != self._parent_input:
             raise ValueError("child_parent_input_state_changed")
-        admitted_state = ExperimentState.model_validate_json(self._parent_input)
+        admitted_state = _state_from_snapshot(self._parent_input)
         config, _ = stage_b_child_template()
         return self._execute_subworkflow(config, admitted_state, candidate_payload=candidate)
 
@@ -798,7 +815,12 @@ class _ManagedChildRunner:
         raise_if_job_execution_interrupted()
         if time.monotonic() >= self._deadline:
             raise ValueError("child_inherited_deadline_expired")
-        if _finite_json(child_input.model_dump(mode="json")["budgets"]) != self._budget_bytes:
+        if (
+            to_canonical_bytes(
+                child_input.budgets, CanonSpec(forbid_floats=False, exclude_none=False)
+            )
+            != self._budget_bytes
+        ):
             raise ValueError("child_inherited_budget_mismatch")
         requested = _selected_state_refs(child_input)
         if any(_ref_key(ref) not in self._allowed for ref in requested):

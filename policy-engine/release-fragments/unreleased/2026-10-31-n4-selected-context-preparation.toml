@@ -1,0 +1,10 @@
+id = "2026-10-31-n4-selected-context-preparation"
+title = "Avoid unused global reference work for selected candidate prompts"
+type = "fixed"
+component = "runtime-quality"
+owner = "team-runtime-quality"
+summary = "Reuse the existing selected-context prompt derivation before candidate-only N4 instead of eagerly constructing a full credal reference that this lane never consumes."
+evidence = ["tests/unit/runtime/quality/test_design_generation.py::test_selected_candidate_context_avoids_unused_reference_but_grounded_lane_requires_it"]
+compatibility = "No DTO, schema or HTTP change. Existing context validation remains; grounded N4 and unbound fallback contexts retain full-reference behavior."
+surface_classification = "internal"
+limitations = "The candidate lane does not establish CG1 admission or a current L2 vintage. Removing unused preparation does not alone prove the full Runtime timeout is resolved."

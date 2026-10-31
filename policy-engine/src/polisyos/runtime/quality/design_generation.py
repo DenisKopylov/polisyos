@@ -1693,6 +1693,27 @@ async def _generate_design_candidate_bundle_under_a(
             candidate_scenario_reference_capture.k_ref_limitation_code = (
                 "candidate_scenario_l2_not_consumed"
             )
+    elif (
+        candidate_proposal_only
+        and cycle_substrate_context is not None
+        and (
+            cycle_substrate_context.candidate_levers
+            or cycle_substrate_context.source_profile is not None
+            or cycle_substrate_context.intervention_substrate is not None
+        )
+    ):
+        # This selected-context route already derives its prompt from the held
+        # substrate. Candidate-only N4 never consumes a full CG1 reference.
+        # Keep the ordinary context reconciliation and grounded lane unchanged.
+        lever_space_prompt_slice = derive_lever_space_prompt_slice(
+            design_problem,
+            repo_root=repo_root,
+            cycle_substrate_context=cycle_substrate_context,
+        )
+        if candidate_scenario_reference_capture is not None:
+            candidate_scenario_reference_capture.k_ref_limitation_code = (
+                "full_credal_reference_not_consumed"
+            )
     else:
         try:
             reference = build_credal_reference(

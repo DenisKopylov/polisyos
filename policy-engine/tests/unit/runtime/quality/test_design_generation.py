@@ -3592,6 +3592,57 @@ async def test_lane0_candidate_scenario_does_not_claim_registered_l2_vintage() -
     assert result.proposal.s8_status == "not_run"
 
 
+@pytest.mark.asyncio
+async def test_selected_candidate_context_avoids_unused_reference_but_grounded_lane_requires_it(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Reuse a typed selected candidate prompt without claiming CG1 authority."""
+    recording = copy.deepcopy(_recordings()[0])
+    problem, context = _historical_education_prompt_context()
+    selected_slice = dg.derive_lever_space_prompt_slice(
+        problem, repo_root=REPO_ROOT, cycle_substrate_context=context
+    )
+    assert selected_slice.status == "derived"
+    assert selected_slice.entries
+    assert {entry.binding_status for entry in selected_slice.entries} == {"candidate_unbound"}
+    reference_calls: list[object] = []
+
+    def unavailable_global_reference(*args: object, **kwargs: object) -> object:
+        reference_calls.append(kwargs.get("world_model_record"))
+        raise ValueError("global reference unavailable for the distinguishing control")
+
+    monkeypatch.setattr(dg, "build_credal_reference", unavailable_global_reference)
+    with contract._recorded_runtime_environment(recording):
+        candidate = await dg.generate_design_candidate_scenario_proposal_under_a(
+            problem,
+            model_id=str(recording["model_id"]),
+            llm_client=contract.RecordedGenerationReplayClient(copy.deepcopy(recording)),
+            repo_root=REPO_ROOT,
+            cycle_substrate_context=context,
+        )
+    assert reference_calls == []
+    assert isinstance(candidate, dg.N4CandidateScenarioProposalRun)
+    assert candidate.k_ref_limitation_code == "full_credal_reference_not_consumed"
+    assert candidate.l2_confidence_vintage is None
+    assert candidate.proposal.authority_purpose == "candidate_proposal"
+    assert candidate.proposal.substrate_status == "unknown"
+    assert candidate.proposal.n5_status == "not_run"
+
+    with contract._recorded_runtime_environment(recording):
+        grounded = await dg.generate_design_candidate_bundle_under_a(
+            problem,
+            model_id=str(recording["model_id"]),
+            llm_client=contract.RecordedGenerationReplayClient(copy.deepcopy(recording)),
+            repo_root=REPO_ROOT,
+            cycle_substrate_context=context,
+        )
+    assert len(reference_calls) == 1
+    assert isinstance(grounded, dg.DesignGenerationOrganRun)
+    assert grounded.result.status == "generation_unavailable"
+    assert grounded.result.degraded_artifacts[0].reason == "cg1_index_prewarm_reference_unavailable"
+    assert grounded.result.candidates == ()
+
+
 def test_recognized_confidence_vintage_round_trips_exact_owner_json() -> None:
     """JSON array decoding must retain the exact tuple-backed owner limitation."""
 

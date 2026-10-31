@@ -1696,6 +1696,15 @@ publication follows from this join.
 
 ## N4 source context and versioned candidate replay
 
+Candidate-only N4 derives its prompt directly from an admitted selected context
+when that context supplies candidate vocabulary, a selected source profile or an
+intervention substrate. The existing context/content reconciliation still runs.
+It does not first build an unused global credal reference, and reports
+`full_credal_reference_not_consumed` without claiming an L2 vintage or CG1
+admission. Unbound fallback contexts retain their reference path. Grounded N4
+still requires the actual credal reference and CG1 prewarm; this optimization
+cannot turn an unavailable grounding source into an admitted policy candidate.
+
 Bound N4 owners record source-issued stages rather than infer roles from prompt
 keywords. The actual configured Core transformation is bound as one opaque
 prepared occurrence. Core claims one invocation before its first await, including

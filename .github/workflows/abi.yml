@@ -203,6 +203,11 @@ jobs:
         with:
           profile: docs
 
+      - name: Setup frontend dependencies for architecture native probes
+        uses: ./.github/actions/setup-runtime-dashboard
+        with:
+          install-playwright: "false"
+
       - name: Run path-aware docs drift gate
         if: github.event_name == 'pull_request'
         env:

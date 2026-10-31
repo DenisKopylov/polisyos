@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import subprocess
+import tomllib
 from pathlib import Path
 
 import pytest
@@ -45,6 +46,8 @@ def supported_real_engine() -> None:
 def test_declared_native_station_is_unrun_before_subprocess(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    # This controlled protocol fixture does not invoke the mutation backend.
+    monkeypatch.setattr(mutation.importlib.metadata, "version", lambda name: "3.5.0")
     root = _project(tmp_path)
     monkeypatch.setattr(mutation.sys, "platform", "darwin")
     monkeypatch.setattr(mutation.sys, "version_info", (3, 14, 3))
@@ -148,6 +151,8 @@ def _controlled_results(work: Path, *, survived: bool = False) -> None:
 def test_controlled_protocol_admission_consumes_outcomes_and_rejects_corruption(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, corruption: str
 ) -> None:
+    # This controlled protocol fixture does not invoke the mutation backend.
+    monkeypatch.setattr(mutation.importlib.metadata, "version", lambda name: "3.5.0")
     root = _project(tmp_path)
     produced = False
 
@@ -199,10 +204,84 @@ def test_controlled_protocol_admission_consumes_outcomes_and_rejects_corruption(
     assert _result(root)["status"] == expected[1]
 
 
+def test_core_runtime_static_inputs_match_curated_catalog_defaults() -> None:
+    from typing import get_args
+
+    from polisyos.data_forge.domains.catalog._resources import CatalogDefaultResource
+
+    assert set(mutation.CORE_RUNTIME_TARGETS["subset"].static_inputs) == {
+        f"data/dataset_catalog/{name}" for name in get_args(CatalogDefaultResource)
+    }
+
+
+def test_stage_copies_only_declared_static_inputs(tmp_path: Path) -> None:
+    root = _project(tmp_path)
+    declared = ("data/dataset_catalog/metrics_map.yaml", "data/dataset_catalog/seed.yaml")
+    for index, relative in enumerate(declared):
+        resource = root / relative
+        resource.parent.mkdir(parents=True, exist_ok=True)
+        resource.write_bytes(f"metric_{index}: {{version: {index + 1}}}\n".encode())
+    (root / "data/dataset_catalog/private.duckdb").write_bytes(b"private catalog")
+    (root / "production_data").mkdir()
+    (root / "production_data/unique.bin").write_bytes(b"private observation")
+    work = tmp_path / "stage"
+    work.mkdir()
+
+    mutation._stage(
+        root, work, ["sample_math.py"], ["tests/test_sample_math.py"], static_inputs=declared
+    )
+
+    for relative in declared:
+        assert (work / relative).read_bytes() == (root / relative).read_bytes()
+    assert sorted(
+        str(path.relative_to(work)) for path in (work / "data").rglob("*") if path.is_file()
+    ) == sorted(declared)
+    assert not (work / "production_data").exists()
+    config = tomllib.loads((work / "pyproject.toml").read_text())["tool"]["mutmut"]
+    # mutmut 3.5 copies nested directories with their parents, but does not
+    # create missing parents for individual also_copy files.
+    assert "data/dataset_catalog" in config["also_copy"]
+    assert "data" not in config["also_copy"]
+    assert config["paths_to_mutate"] == ["sample_math.py"]
+    assert config["pytest_add_cli_args_test_selection"] == ["tests/test_sample_math.py"]
+
+
+@pytest.mark.parametrize("invalid", ["missing", "directory", "outside", "absolute", "symlink"])
+def test_stage_rejects_unavailable_or_outside_static_input(tmp_path: Path, invalid: str) -> None:
+    root = _project(tmp_path)
+    outside = tmp_path / "outside.yaml"
+    outside.write_text("private: true\n")
+    relative = "data/input.yaml"
+    source = root / relative
+    source.parent.mkdir()
+    if invalid == "directory":
+        source.mkdir()
+    elif invalid == "outside":
+        relative = "../outside.yaml"
+    elif invalid == "absolute":
+        relative = str(outside)
+    elif invalid == "symlink":
+        source.symlink_to(outside)
+    work = tmp_path / "stage"
+    work.mkdir()
+
+    with pytest.raises(mutation.MutationEvidenceError, match="static input"):
+        mutation._stage(
+            root,
+            work,
+            ["sample_math.py"],
+            ["tests/test_sample_math.py"],
+            static_inputs=(relative,),
+        )
+    assert not (work / "data").exists()
+
+
 def test_missing_declared_source_never_becomes_empty_success(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr(mutation, "_unsupported_station", lambda: None)
+    # This controlled protocol fixture does not invoke the mutation backend.
+    monkeypatch.setattr(mutation.importlib.metadata, "version", lambda name: "3.5.0")
     root = _project(tmp_path)
     target = mutation.MutationTarget(
         paths="missing.py", tests="tests/test_sample_math.py", threshold_pct=100.0

@@ -156,6 +156,12 @@ The commands below were smoke-tested on `2026-04-17` unless explicitly marked as
 
 ## Current State
 
+- Native filesystem-confined probes keep ordinary output writes inside one fresh
+  external scratch root. The macOS fence also allows data I/O to the kernel
+  `/dev/null` discard sink, which native read-only Git requires. This allowance
+  grants no file creation, rename or unlink outside scratch; checkout, outside
+  files and symlink-mediated writes remain protected. Linux confinement is unchanged.
+
 - `tools/registry.py` still emits generic generated wording that the legacy
   wrappers sunset on 2026-09-01. At the inspected tree,
   `tools/registry.py::LEGACY_ENTRYPOINTS` is empty, and

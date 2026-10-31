@@ -437,6 +437,7 @@ def _filesystem_write_boundary_prefix(
             )
         profile = (
             "(version 1)(deny default)(allow process*)(allow file-read*)"
+            '(allow file-write-data (literal "/dev/null"))'
             "(allow sysctl-read)(allow network*)(allow file-write* "
             f"(subpath {json.dumps(str(writable_root))}))"
         )
@@ -480,7 +481,11 @@ def run_with_filesystem_write_boundary(
     env: Mapping[str, str] | None = None,
     timeout: float = 600,
 ) -> subprocess.CompletedProcess[str]:
-    """Run a command with read-only checkout access and one fresh writable root.
+    """Run a command with read-only checkout access and one fresh output root.
+
+    Persistent writes are confined to the output root. On macOS, the kernel
+    ``/dev/null`` discard sink additionally permits data I/O required by native
+    subprocesses; creation, renaming and deletion outside the root stay denied.
 
     Args:
         argv: Exact child argument vector. Shell syntax is never interpreted.

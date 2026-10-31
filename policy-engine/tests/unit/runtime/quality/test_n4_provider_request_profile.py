@@ -32,6 +32,28 @@ from tests._helpers.controlled_candidate_profile import (
 )
 
 
+def test_controlled_gateway_environment_is_admitted_without_external_fallbacks(monkeypatch):
+    from urllib.parse import urlparse
+
+    from polisyos.scientist.orchestration.llm.factory import GatewayLLMConfig
+
+    # The consumer uses from_env(), while the earlier factory tests supplied
+    # an explicit config and therefore missed syntactically invalid fixture keys.
+    monkeypatch.setenv("POLISYOS_LLM_FALLBACK_URLS", "http://unreachable.invalid/v1")
+    with ControlledCandidateGateway() as gateway:
+        for name, value in gateway.environment().items():
+            monkeypatch.setenv(name, value)
+        config = GatewayLLMConfig.from_env()
+        assert config is not None
+        assert config.base_url == gateway.base_url
+        assert urlparse(config.base_url).hostname == "127.0.0.1"
+        assert config.max_retries == 0
+        assert not config.fallback_urls
+        assert config.api_key == "sk-synthetic-local-fixture-key"
+        monkeypatch.setenv("POLISYOS_LLM_GATEWAY_API_KEY", "synthetic-local-key")
+        assert GatewayLLMConfig.from_env() is None
+
+
 def _inputs(tmp_path):
     recording = load_served_wdi_generation_recording()
     problem = controlled_served_wdi_problem(

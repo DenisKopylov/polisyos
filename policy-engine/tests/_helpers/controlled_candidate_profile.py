@@ -370,6 +370,16 @@ class ControlledCandidateGateway:
         host, port = self._server.server_address
         return f"http://{host}:{port}/v1"
 
+    def environment(self) -> dict[str, str]:
+        """Return explicit local-only fixture configuration, never real credentials."""
+        return {
+            "POLISYOS_LLM_SIMULATION_MODE": "0",
+            "POLISYOS_LLM_GATEWAY_BASE_URL": self.base_url,
+            "POLISYOS_LLM_GATEWAY_API_KEY": "sk-synthetic-local-fixture-key",
+            "POLISYOS_LLM_GATEWAY_MAX_RETRIES": "0",
+            "POLISYOS_LLM_FALLBACK_URLS": "",
+        }
+
     def __enter__(self) -> ControlledCandidateGateway:
         self._thread.start()
         return self

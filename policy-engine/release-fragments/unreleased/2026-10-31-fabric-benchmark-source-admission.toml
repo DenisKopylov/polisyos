@@ -1,11 +1,11 @@
 id = "2026-10-31-fabric-benchmark-source-admission"
-title = "Forward source-owned progress admission through streaming benchmarks"
+title = "Preserve source-owned streaming progress and expected Fabric error boundaries"
 type = "fixed"
 component = "fabric"
 owner = "team-polisyos"
-summary = "Allow streaming benchmarks to supply the existing host-owned finite source readers to the canonical runtime. Keep dedupe admission, replay-only scope and committed checkpoint recovery intact. Restrict world segment error translation to expected filesystem, value and Arrow failures so unexpected defects propagate."
-evidence = ["tests/unit/fabric/data_plane/test_benchmarks.py", "tests/unit/fabric/test_world_store.py"]
-compatibility = "The new benchmark keyword is optional. Dedupe still refuses missing or mismatched source authority; no keys, versions or production guarantees are inferred. Expected segment IO errors retain their existing wrappers; unexpected exceptions now propagate unchanged."
+summary = "Allow streaming benchmarks to supply the existing host-owned finite source readers to the canonical runtime. Keep dedupe admission, replay-only scope and committed checkpoint recovery intact. Restrict world segment error translation to expected filesystem, value and Arrow failures so unexpected defects propagate. Apply the same expected-error boundary to pending startup cleanup ID resolution, optional cache imports, quality indicator conversion and SDMX configuration validation."
+evidence = ["tests/unit/fabric/data_plane/test_benchmarks.py", "tests/unit/fabric/test_world_store.py", "tests/unit/fabric/data_plane/test_streaming_runtime.py", "tests/unit/fabric/connectors/test_registry.py", "tests/unit/fabric/connectors/test_quality_system.py", "tests/unit/fabric/connectors/reference/test_sdmx.py", "tests/repo_quality/tools/test_fabric_exception_baseline.py"]
+compatibility = "The new benchmark keyword is optional. Dedupe still refuses missing or mismatched source authority; no keys, versions or production guarantees are inferred. Expected segment IO errors retain their existing wrappers; unexpected exceptions now propagate unchanged. Expected unavailable connector IDs/imports, malformed optional numeric indicators and invalid SDMX headers retain their existing fallback or validation results; unexpected programming failures propagate."
 change_class = "python-public-api"
 surface_classification = "public_stable: polisyos.fabric.data_plane.benchmark_stream_processing"
 migration = "Hosts running dedupe benchmarks pass their admitted source_progress_readers. No persisted schema or Runtime API changes."

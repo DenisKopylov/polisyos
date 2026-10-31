@@ -22,7 +22,14 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import InputRef, ProducerInfo, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef as CoreArtifactRef,
+)
+from polisyos.core.artifacts.manifest import (
+    InputRef,
+    ProducerInfo,
+    SchemaInfo,
+)
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.scientist.agent.protocols import ProblemFrame as AgentProblemFrame
@@ -381,7 +388,12 @@ class CASRAGIndex:
                 payload = load_core_json_artifact(cas, artifact_id)
             except _RAG_ARTIFACT_LOAD_ERRORS:
                 continue
-            entry = self._entry_from_decision_packet_payload(cas, payload, str(artifact_id))
+            entry = self._entry_from_decision_packet_payload(
+                cas,
+                payload,
+                str(artifact_id),
+                decision_packet_inputs=manifest.inputs,
+            )
             if entry is None:
                 continue
             if self.add_entry(entry):
@@ -393,12 +405,14 @@ class CASRAGIndex:
         cas: FileSystemCAS,
         payload: Any,
         decision_packet_ref: str,
+        *,
+        decision_packet_inputs: Sequence[InputRef],
     ) -> RAGCaseEntry | None:
         from polisyos.core.artifacts import (
             ensure_ir_artifact_store,
             load_core_json_artifact,
         )
-        from polisyos.ir.trinity import load_trinity_bundle_artifact
+        from polisyos.ir.trinity import TrinityBundle, load_trinity_bundle_artifact
 
         if not isinstance(payload, dict):
             return None
@@ -419,11 +433,31 @@ class CASRAGIndex:
         if not trinity_ref_str.startswith("sha256:"):
             return None
 
+        trinity_edges = [
+            input_ref
+            for input_ref in decision_packet_inputs
+            if input_ref.role == "input.trinity_bundle_ref"
+        ]
+        if len(trinity_edges) != 1:
+            return None
+        trinity_input_ref = trinity_edges[0]
+        if (
+            str(trinity_input_ref.artifact_id) != trinity_ref_str
+            or trinity_input_ref.manifest_profile_sha256 is None
+        ):
+            return None
+
         try:
             trinity_aid = ArtifactID.model_validate(trinity_ref_str)
+            trinity_selector = CoreArtifactRef(
+                artifact_id=trinity_aid,
+                kind=TrinityBundle.ARTIFACT_KIND,
+                media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
+                manifest_profile_sha256=trinity_input_ref.manifest_profile_sha256,
+            )
             trinity = load_trinity_bundle_artifact(
                 ensure_ir_artifact_store(cas),
-                trinity_aid,
+                trinity_selector,
             )
         except _RAG_ARTIFACT_LOAD_ERRORS:
             return None

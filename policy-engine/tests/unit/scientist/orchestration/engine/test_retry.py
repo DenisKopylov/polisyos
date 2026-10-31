@@ -2576,11 +2576,15 @@ def test_authenticated_cancel_reaps_owned_child_and_fences_fresh_job(
         _install_authorization_audit_capture,
     )
 
+    fixture_config = runtime_api_env["app"].state.runtime_container.config
+    assert fixture_config.catalog_source_selection is not None
     client, cell, provider = _build_secure_client(
         runtime_api_env,
         opa_client=_AllowOPA(),
         claims_by_token={},
         raise_server_exceptions=False,
+        repo_root=fixture_config.repo_root,
+        catalog_source_selection=fixture_config.catalog_source_selection,
     )
     tenant = runtime_api_env["tenant_a"]
     bearer = _fixture_bearer("cancellation-authorized")
@@ -3277,6 +3281,7 @@ def test_real_process_preserves_control_exception_without_retry(tmp_path, mode, 
     script = """import asyncio,json,multiprocessing,os,sys,time
 from pathlib import Path
 from unittest.mock import MagicMock
+from polisyos.core.errors import PolicyOSError
 from polisyos.scientist.orchestration.engine import retry as retry_module
 from polisyos.scientist.orchestration.engine.retry import RetryPolicy, execute_with_retry_sync, execute_with_retry_async
 from polisyos.scientist.orchestration.engine.state import ExperimentState
@@ -3303,7 +3308,7 @@ try:
  else:asyncio.run(execute_with_retry_async(Node(),ctx,state,**kwargs))
 except BaseException as exc:
  attempts=[json.loads(line) for line in path.read_text().splitlines()] if path.exists() else []
- print(json.dumps(dict(type=type(exc).__name__,code=getattr(exc,'code',None),cause_code=getattr(exc.__cause__,'code',None),cause_category=getattr(exc.__cause__,'category',None),details=getattr(exc,'details',{}),attempts=attempts,parent_pid=os.getpid(),invoked_at=invoked_at,preflight_s=preflight_s,live_children=[p.pid for p in multiprocessing.active_children()])))
+ print(json.dumps(dict(type=type(exc).__name__,code=getattr(exc,'code',None),cause_code=getattr(exc.__cause__,'code',None),cause_category=getattr(exc.__cause__,'category',None),details=exc.to_dict()['details'] if isinstance(exc,PolicyOSError) else {},attempts=attempts,parent_pid=os.getpid(),invoked_at=invoked_at,preflight_s=preflight_s,live_children=[p.pid for p in multiprocessing.active_children()])))
 """
     completed = subprocess.run(
         [sys.executable, "-c", script, str(effects), mode, control, "yes" if late else "no"],

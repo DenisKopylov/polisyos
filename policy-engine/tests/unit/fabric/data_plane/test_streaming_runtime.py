@@ -59,6 +59,7 @@ from polisyos.fabric.quality.processing_guarantees import (
     stream_processing_contract,
 )
 from polisyos.ir.connectors import FetchRequest
+from tests._helpers.source_progress import finite_source_reader
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -1205,7 +1206,18 @@ async def test_stream_source_commit_failure_does_not_promote_local_frontier(
     """A source commit failure must not leave a local cursor ahead of source state."""
 
     stream_path = tmp_path / "source-commit-failure.jsonl"
-    stream_path.write_text('{"_message_id":"m1","value":1}\n', encoding="utf-8")
+    stream_path.write_text('{"event_id":"m1","source_version":1,"value":1}\n', encoding="utf-8")
+    # The actual bounded source file, not a caller key declaration, admits progress.
+    source_owner = finite_source_reader(
+        tmp_path / "source-owner",
+        connector_id="stream.jsonl",
+        dataset_id="source-commit-failure",
+        schema_id="fixture.frontier.events",
+        snapshots=[
+            ("source-current", [json.loads(row) for row in stream_path.read_text().splitlines()])
+        ],
+        transport_path=stream_path,
+    )
     ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
     registry.set_default_config(
@@ -1234,6 +1246,7 @@ async def test_stream_source_commit_failure_does_not_promote_local_frontier(
             sanitize_rows=_valid_rows,
             runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
             registry=registry,
+            source_progress_readers=(source_owner,),
         )
 
     assert len(source_commits) == 1
@@ -1259,7 +1272,18 @@ async def test_stream_local_pair_failure_compensates_source_commit(
     """A local pair failure after source commit must invoke bounded compensation."""
 
     stream_path = tmp_path / "local-pair-failure.jsonl"
-    stream_path.write_text('{"_message_id":"m1","value":1}\n', encoding="utf-8")
+    stream_path.write_text('{"event_id":"m1","source_version":1,"value":1}\n', encoding="utf-8")
+    # The actual bounded source file, not a caller key declaration, admits progress.
+    source_owner = finite_source_reader(
+        tmp_path / "source-owner",
+        connector_id="stream.jsonl",
+        dataset_id="local-pair-failure",
+        schema_id="fixture.frontier.events",
+        snapshots=[
+            ("source-current", [json.loads(row) for row in stream_path.read_text().splitlines()])
+        ],
+        transport_path=stream_path,
+    )
     ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
     registry.set_default_config(
@@ -1307,6 +1331,7 @@ async def test_stream_local_pair_failure_compensates_source_commit(
             sanitize_rows=_valid_rows,
             runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
             registry=registry,
+            source_progress_readers=(source_owner,),
         )
 
     assert len(source_commits) == 1
@@ -1324,7 +1349,18 @@ async def test_stream_first_frontier_partial_cursor_and_failed_restore_is_unreso
     """A first-pair cursor orphan cannot be hidden by a failed empty rollback."""
 
     stream_path = tmp_path / "partial-first-frontier.jsonl"
-    stream_path.write_text('{"_message_id":"m1","value":1}\n', encoding="utf-8")
+    stream_path.write_text('{"event_id":"m1","source_version":1,"value":1}\n', encoding="utf-8")
+    # The actual bounded source file, not a caller key declaration, admits progress.
+    source_owner = finite_source_reader(
+        tmp_path / "source-owner",
+        connector_id="stream.jsonl",
+        dataset_id="partial-first-frontier",
+        schema_id="fixture.frontier.events",
+        snapshots=[
+            ("source-current", [json.loads(row) for row in stream_path.read_text().splitlines()])
+        ],
+        transport_path=stream_path,
+    )
     ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
     registry.set_default_config(
@@ -1392,6 +1428,7 @@ async def test_stream_first_frontier_partial_cursor_and_failed_restore_is_unreso
             sanitize_rows=_valid_rows,
             runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
             registry=registry,
+            source_progress_readers=(source_owner,),
         )
 
     assert len(source_commits) == 1
@@ -1423,7 +1460,18 @@ async def test_stream_first_frontier_restore_does_not_delete_intervening_cursor(
     """Rollback must not remove a newer same-ID cursor published concurrently."""
 
     stream_path = tmp_path / "intervening-frontier.jsonl"
-    stream_path.write_text('{"_message_id":"m1","value":1}\n', encoding="utf-8")
+    stream_path.write_text('{"event_id":"m1","source_version":1,"value":1}\n', encoding="utf-8")
+    # The actual bounded source file, not a caller key declaration, admits progress.
+    source_owner = finite_source_reader(
+        tmp_path / "source-owner",
+        connector_id="stream.jsonl",
+        dataset_id="intervening-frontier",
+        schema_id="fixture.frontier.events",
+        snapshots=[
+            ("source-current", [json.loads(row) for row in stream_path.read_text().splitlines()])
+        ],
+        transport_path=stream_path,
+    )
     ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
     registry.set_default_config(
@@ -1490,6 +1538,7 @@ async def test_stream_first_frontier_restore_does_not_delete_intervening_cursor(
             sanitize_rows=_valid_rows,
             runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
             registry=registry,
+            source_progress_readers=(source_owner,),
         )
 
     assert newer_cursors
@@ -1516,7 +1565,18 @@ async def test_stream_first_frontier_restore_preserves_aba_pair_after_compensati
     """Pair compensation must not overwrite a same-model cursor's newer checkpoint."""
 
     stream_path = tmp_path / "aba-frontier.jsonl"
-    stream_path.write_text('{"_message_id":"m1","value":1}\n', encoding="utf-8")
+    stream_path.write_text('{"event_id":"m1","source_version":1,"value":1}\n', encoding="utf-8")
+    # The actual bounded source file, not a caller key declaration, admits progress.
+    source_owner = finite_source_reader(
+        tmp_path / "source-owner",
+        connector_id="stream.jsonl",
+        dataset_id="aba-frontier",
+        schema_id="fixture.frontier.events",
+        snapshots=[
+            ("source-current", [json.loads(row) for row in stream_path.read_text().splitlines()])
+        ],
+        transport_path=stream_path,
+    )
     ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
     registry.set_default_config(
@@ -1600,6 +1660,7 @@ async def test_stream_first_frontier_restore_preserves_aba_pair_after_compensati
             sanitize_rows=_valid_rows,
             runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
             registry=registry,
+            source_progress_readers=(source_owner,),
         )
 
     assert published_pairs
@@ -1624,7 +1685,18 @@ async def test_stream_frontier_compensation_rejects_prewrite_aba_pair(
     """A same-model cursor cannot mask a newer checkpoint before pair validation."""
 
     stream_path = tmp_path / "prewrite-aba-frontier.jsonl"
-    stream_path.write_text('{"_message_id":"m1","value":1}\n', encoding="utf-8")
+    stream_path.write_text('{"event_id":"m1","source_version":1,"value":1}\n', encoding="utf-8")
+    # The actual bounded source file, not a caller key declaration, admits progress.
+    source_owner = finite_source_reader(
+        tmp_path / "source-owner",
+        connector_id="stream.jsonl",
+        dataset_id="prewrite-aba-frontier",
+        schema_id="fixture.frontier.events",
+        snapshots=[
+            ("source-current", [json.loads(row) for row in stream_path.read_text().splitlines()])
+        ],
+        transport_path=stream_path,
+    )
     ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
     registry.set_default_config(
@@ -1707,6 +1779,7 @@ async def test_stream_frontier_compensation_rejects_prewrite_aba_pair(
             sanitize_rows=_valid_rows,
             runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
             registry=registry,
+            source_progress_readers=(source_owner,),
         )
 
     assert published_pairs
@@ -1734,7 +1807,18 @@ async def test_stream_cancelled_source_commit_leaves_prepared_frontier(
     """Cancellation after intent persistence must block the next recovery."""
 
     stream_path = tmp_path / "cancelled-frontier.jsonl"
-    stream_path.write_text('{"_message_id":"m1","value":1}\n', encoding="utf-8")
+    stream_path.write_text('{"event_id":"m1","source_version":1,"value":1}\n', encoding="utf-8")
+    # The actual bounded source file, not a caller key declaration, admits progress.
+    source_owner = finite_source_reader(
+        tmp_path / "source-owner",
+        connector_id="stream.jsonl",
+        dataset_id="cancelled-frontier",
+        schema_id="fixture.frontier.events",
+        snapshots=[
+            ("source-current", [json.loads(row) for row in stream_path.read_text().splitlines()])
+        ],
+        transport_path=stream_path,
+    )
     ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
     registry.set_default_config(
@@ -1761,6 +1845,7 @@ async def test_stream_cancelled_source_commit_leaves_prepared_frontier(
             sanitize_rows=_valid_rows,
             runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
             registry=registry,
+            source_progress_readers=(source_owner,),
         )
 
     prepared = cursor_store.find_latest_stream_checkpoint(
@@ -1788,6 +1873,7 @@ async def test_stream_cancelled_source_commit_leaves_prepared_frontier(
             sanitize_rows=_valid_rows,
             runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
             registry=registry,
+            source_progress_readers=(source_owner,),
         )
 
 
@@ -1799,7 +1885,18 @@ async def test_stream_rewind_failure_leaves_unresolved_frontier(
     """A failed source compensation keeps an unresolved marker for retry review."""
 
     stream_path = tmp_path / "rewind-failure.jsonl"
-    stream_path.write_text('{"_message_id":"m1","value":1}\n', encoding="utf-8")
+    stream_path.write_text('{"event_id":"m1","source_version":1,"value":1}\n', encoding="utf-8")
+    # The actual bounded source file, not a caller key declaration, admits progress.
+    source_owner = finite_source_reader(
+        tmp_path / "source-owner",
+        connector_id="stream.jsonl",
+        dataset_id="rewind-failure",
+        schema_id="fixture.frontier.events",
+        snapshots=[
+            ("source-current", [json.loads(row) for row in stream_path.read_text().splitlines()])
+        ],
+        transport_path=stream_path,
+    )
     ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
     registry.set_default_config(
@@ -1844,6 +1941,7 @@ async def test_stream_rewind_failure_leaves_unresolved_frontier(
             sanitize_rows=_valid_rows,
             runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
             registry=registry,
+            source_progress_readers=(source_owner,),
         )
 
     unresolved = cursor_store.find_latest_stream_checkpoint(
@@ -1864,6 +1962,7 @@ async def test_stream_rewind_failure_leaves_unresolved_frontier(
             sanitize_rows=_valid_rows,
             runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
             registry=registry,
+            source_progress_readers=(source_owner,),
         )
 
 

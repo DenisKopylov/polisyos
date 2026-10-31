@@ -226,7 +226,7 @@ jobs:
       - name: Run performance suite
         run: |
           mkdir -p _build/.tmp/test-reports
-          uv run pytest tests/performance -m "performance and not quarantine" --durations=25 --junitxml=_build/.tmp/test-reports/performance.xml
+          uv run --extra runtime --extra ml pytest tests/performance -m "performance and not quarantine" --durations=25 --junitxml=_build/.tmp/test-reports/performance.xml
 
       - name: Upload performance JUnit
         if: always()

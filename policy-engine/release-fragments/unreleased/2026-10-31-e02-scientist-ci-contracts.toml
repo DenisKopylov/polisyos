@@ -1,0 +1,10 @@
+id = "2026-10-31-e02-scientist-ci-contracts"
+title = "Preserve selected RAG inputs and actual autotune holdout splits"
+type = "fixed"
+component = "scientist"
+owner = "team-polisyos"
+summary = "Preserve packet-selected Trinity views in RAG and derive autotune runtime splits from complete suite-bound row assignments."
+evidence = ["tests/unit/scientist/agent/test_rag_index.py", "tests/unit/scientist/methods/autotune/test_calibration_autotune.py", "tests/unit/scientist/search/test_cheap_stage_autotune.py", "tests/unit/scientist/nodes/builtins/decide/test_policy_translation.py"]
+compatibility = "Unbound or ambiguous Trinity inputs and foreign or incomplete split assignments remain refused. Persisted schema fields, Runtime APIs, promotion gates and protected authority semantics are unchanged."
+migration = "Supply exact selected benchmark-suite inputs for candidate/evaluation promotion; evaluated dataset rows must match the split manifest's declared string identity field and complete assignments."
+limitations = "These synthetic internal benchmark and retrieval tests do not establish production provenance, calibration validity, external authority or E02 acceptance."

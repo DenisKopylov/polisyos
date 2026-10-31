@@ -2775,11 +2775,8 @@ async def _run_controlled_simulate_only_job_fixture(
             # Use the real factory, request issuer, tracing and durable settlement.
             # These declared provider quantities establish only this candidate
             # software test's current estimate, never historical/provider spend.
-            provider_environment.setenv("POLISYOS_LLM_SIMULATION_MODE", "0")
-            provider_environment.setenv("POLISYOS_LLM_GATEWAY_BASE_URL", candidate_gateway.base_url)
-            provider_environment.setenv("POLISYOS_LLM_GATEWAY_API_KEY", "synthetic-local-key")
-            provider_environment.setenv("POLISYOS_LLM_GATEWAY_MAX_RETRIES", "0")
-            provider_environment.setenv("POLISYOS_LLM_FALLBACK_URLS", "")
+            for name, value in candidate_gateway.environment().items():
+                provider_environment.setenv(name, value)
             from polisyos.scientist.orchestration.llm.factory import GatewayLLMConfig
 
             provider_config = GatewayLLMConfig.from_env()

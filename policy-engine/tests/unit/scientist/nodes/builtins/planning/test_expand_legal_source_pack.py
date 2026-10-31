@@ -50,15 +50,19 @@ def test_expansion_empty_no_candidate(execution_context, minimal_state):
     assert outcome.status == "skip"
 
 
-def test_expansion_already_exists(execution_context, minimal_state, artifact_ref_factory):
-    """When legal_source_pack_ref is already set, no-op."""
+def test_expansion_unbound_cached_pack_is_not_current(
+    execution_context, minimal_state, artifact_ref_factory
+):
+    """A cached pack without its required source is not a current output."""
     ref = artifact_ref_factory(kind="scientist.legal_source_pack")
     state = minimal_state.model_copy(deep=True)
     state.legal_source_pack_ref = ref
     state.artifacts_index[ARTIFACT_LEGAL_SOURCE_PACK_REF] = ref
     outcome = ExpandLegalSourcePackNode().execute(execution_context, state)
-    assert outcome.status == "ok"
-    assert outcome.state is state
+    assert outcome.status == "skip"
+    assert outcome.state.legal_source_pack_ref is None
+    assert ARTIFACT_LEGAL_SOURCE_PACK_REF not in outcome.state.artifacts_index
+    assert state.legal_source_pack_ref == ref
 
 
 def test_expand_source_pack_uses_branch_state_for_declared_outputs(

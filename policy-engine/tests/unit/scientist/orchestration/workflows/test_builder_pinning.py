@@ -8,9 +8,10 @@ from unittest.mock import MagicMock
 import pytest
 
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.manifest import ArtifactRef, input_ref_from_artifact_ref
 from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.registry import load_registry_bundle, load_registry_bundle_content
 from polisyos.core.security.access_scope import AccessScope
 from polisyos.core.security.identity import PIIAccessLevel, PolicyOSRole
 from polisyos.core.security.tenant_context import (
@@ -155,6 +156,55 @@ def test_default_workflow_accepts_injected_store_factory_and_quota_registry(
     enforcer.record_run_start.assert_called_once_with()
     enforcer.record_run_end.assert_called_once_with()
     lock.release.assert_called_once_with()
+
+
+def test_default_workflow_pins_the_new_registry_and_every_member_profile(
+    monkeypatch: pytest.MonkeyPatch, tmp_path
+) -> None:
+    """The actual workflow builder passes its newly selected registry to the run."""
+    import polisyos.scientist.orchestration.workflows.builder as builder
+
+    store = FileSystemCAS(tmp_path / "cas")
+    snapshot_ref = store.put_json(
+        {"synthetic": True},
+        PutOptions(kind="test.snapshot", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    state = ExperimentState(
+        run_id="registry-selected-default", inputs={"data_snapshot_ref": snapshot_ref}
+    )
+    captured = {}
+
+    def executor_factory(ctx, _registry, **_kwargs):
+        captured["run_registry"] = ctx.run.run_manifest.registry_bundle
+
+        def execute(_workflow, selected_state):
+            captured["state_registry"] = selected_state.inputs[INPUT_REGISTRY_BUNDLE_REF]
+            return SimpleNamespace(state=selected_state)
+
+        return SimpleNamespace(execute=execute)
+
+    monkeypatch.setenv("POLISYOS_RUNNER_BACKEND", "local")
+    monkeypatch.setattr(builder, "_maybe_enforce_quota", lambda **_kwargs: None)
+    monkeypatch.setattr(builder, "build_registry_with_builtin_nodes", lambda: object())
+    monkeypatch.setattr(builder, "WorkflowExecutor", executor_factory)
+    monkeypatch.setattr(builder, "default_workflow_spec", lambda: object())
+    run_default_workflow(state, store=store, foundry=object())
+
+    selected = captured["run_registry"]
+    assert selected == captured["state_registry"]
+    fresh = FileSystemCAS(tmp_path / "cas")
+    bundle = load_registry_bundle(fresh, selected)
+    inputs = {item.role: item for item in fresh.get_manifest(selected).inputs}
+    for role in type(bundle).model_fields:
+        if role == "bundle_ref" or (ref := getattr(bundle, role)) is None:
+            continue
+        assert ref.manifest_profile_sha256 is not None, role
+        assert fresh.verify(ref).ok
+        assert inputs[role] == input_ref_from_artifact_ref(ref, role=role)
+    assert selected.manifest_profile_sha256 is not None
+    assert fresh.verify(selected).ok
+    assert load_registry_bundle_content(fresh, selected).bundle_ref == selected
 
 
 def test_build_execution_context_uses_access_scope_tenant_when_tenant_scope_absent(

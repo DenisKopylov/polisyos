@@ -30,6 +30,8 @@ from polisyos.core.artifacts import (
 )
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.core.run.manifest import RunInvocationImplementationIdentity
+from polisyos.scientist.governance.report import GovernanceReport
+from polisyos.scientist.orchestration.engine.producer_currentness import ProducerArtifactCurrentness
 from polisyos.scientist.orchestration.engine.protocol import (
     InputAwareNodeSpec,
     NodeInputContract,
@@ -164,6 +166,401 @@ class NodeInputSelection:
     input_state_ref: ArtifactRef
 
 
+_PHASE5_COMPONENT = "scientist.node_evaluate_verified_policy_phase5@1.0.0"
+_PHASE5_CONTRACT = "policy_verified_phase5.v1"
+_PHASE5_SOURCE_PATHS = (
+    "artifacts_index.verified_policy_body_ref",
+    "artifacts_index.verified_policy_candidate_ref",
+    "reports_index.governance_report_ref",
+)
+_PHASE5_INPUT_PATHS = ("schema_version", "run_id", "execution_profile", *_PHASE5_SOURCE_PATHS)
+_BODY_COMPONENT = "scientist.node_build_verified_policy_body@1.0.0"
+_CANDIDATE_COMPONENT = "scientist.node_select_policy_candidate@1.0.0"
+_GOVERNANCE_COMPONENT = "scientist.node_run_governance@1.2.0"
+
+
+def _phase5_source_profile(contract: NodeInputContract) -> bool:
+    if contract.component_id != _PHASE5_COMPONENT:
+        return False
+    if (
+        contract.contract_id != _PHASE5_CONTRACT
+        or contract.state_paths != _PHASE5_INPUT_PATHS
+        or contract.artifact_ref_paths != _PHASE5_SOURCE_PATHS
+        or contract.bind_param_keys
+    ):
+        raise NodeInputPortError("node_input_source_view_contract_unsupported")
+    return True
+
+
+class VerifiedPolicyPhase5Admission(BaseModel):
+    """Selected-source currentness facts, without predecessor/history access.
+
+    Current source provenance does not confer publication permission or establish
+    the isolation/adequacy of every governance pass. The actual consumer remains
+    the fixed candidate-diagnostic component.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["1.0"] = "1.0"
+    purpose: Literal["selected_source_currentness"] = "selected_source_currentness"
+    run_id: str
+    attempt_id: str
+    component_id: Literal["scientist.node_evaluate_verified_policy_phase5@1.0.0"]
+    contract_id: Literal["policy_verified_phase5.v1"]
+    input_state_ref: ArtifactRef
+    body_ref: ArtifactRef | None
+    candidate_ref: ArtifactRef | None
+    governance_ref: ArtifactRef | None
+    body_status: ProducerArtifactCurrentness
+    candidate_status: ProducerArtifactCurrentness
+    governance_status: ProducerArtifactCurrentness
+    body_reason_code: str
+    candidate_reason_code: str
+    governance_reason_code: str
+    body_attempt_id: str | None = None
+    candidate_attempt_id: str | None = None
+    governance_attempt_id: str | None = None
+    governance_report: GovernanceReport | None = None
+
+    @model_validator(mode="after")
+    def _check_admitted_sources(self) -> VerifiedPolicyPhase5Admission:
+        for ref, status in (
+            (self.body_ref, self.body_status),
+            (self.candidate_ref, self.candidate_status),
+            (self.governance_ref, self.governance_status),
+        ):
+            if status == "current" and (ref is None or ref.manifest_profile_sha256 is None):
+                raise ValueError("node_input_current_source_profile_missing")
+        if (self.governance_status == "current") != (self.governance_report is not None):
+            raise ValueError("node_input_governance_report_not_admitted")
+        return self
+
+    @property
+    def status(self) -> ProducerArtifactCurrentness:
+        """Compose all required source currentness results without promoting a gap."""
+        statuses = (self.body_status, self.candidate_status, self.governance_status)
+        if "invalid" in statuses:
+            return "invalid"
+        if "stale" in statuses:
+            return "stale"
+        if "not_established" in statuses:
+            return "not_established"
+        return "current"
+
+
+def _selected_role_ref(state: ExperimentState, path: str) -> ArtifactRef | None:
+    value = _value_at(state, path)
+    if value is _MISSING or value is None:
+        return None
+    return ArtifactRef.model_validate(
+        value.model_dump() if isinstance(value, ArtifactRef) else value
+    )
+
+
+def _basis_from_input(store: ArtifactStore, input_ref: ArtifactRef) -> NodeInputBasis | None:
+    manifest = store.get_manifest(input_ref)
+    edges = [edge for edge in manifest.inputs if edge.role == _INPUT_BASIS_ROLE]
+    if len(edges) != 1 or edges[0].manifest_profile_sha256 is None:
+        return None
+    edge = edges[0]
+    ref = ArtifactRef(
+        artifact_id=edge.artifact_id,
+        kind=_INPUT_BASIS_KIND,
+        media_type="application/json",
+        manifest_profile_sha256=edge.manifest_profile_sha256,
+    )
+    return NodeInputBasis.model_validate(load_core_json_artifact(store, ref))
+
+
+def _latest_selected_producer(
+    ctx: ExecutionContext,
+    predecessor: ExperimentState,
+    ref: ArtifactRef | None,
+    *,
+    role: Literal["body", "candidate"],
+) -> tuple[ProducerArtifactCurrentness, str, str | None]:
+    """Use the existing owner against the exact latest selected occurrence."""
+    from polisyos.scientist.orchestration.engine.component_identity import (
+        _OWNERS,
+        _require_owner_definition,
+    )
+    from polisyos.scientist.orchestration.engine.producer_currentness import (
+        resolve_engine_produced_artifact,
+    )
+
+    component = _BODY_COMPONENT if role == "body" else _CANDIDATE_COMPONENT
+    if ref is None:
+        return "not_established", f"selected_{role}_absent", None
+    try:
+        owner = _OWNERS.get(component)
+        if owner is None or owner.input_contract_json is None:
+            return "not_established", f"selected_{role}_implementation_not_established", None
+        _, _, spec_accessor = _require_owner_definition(owner)
+        contract = NodeInputContract.model_validate_json(owner.input_contract_json)
+        spec = spec_accessor(owner.node_type())
+        if tuple(spec.state_reads) != contract.state_paths:
+            return "not_established", f"selected_{role}_input_contract_unsupported", None
+        if role == "body":
+            from polisyos.scientist.validation.policy_verified import load_verified_policy_body
+
+            load_verified_policy_body(ctx.store, ref)
+        else:
+            from polisyos.scientist.policy_design.schema import load_policy_candidate_schema
+
+            load_policy_candidate_schema(ctx.store, ref)
+        manifest = ctx.store.get_manifest(ref)
+        attempt_edges = [edge for edge in manifest.inputs if edge.role == "selected_attempt"]
+        input_edges = [edge for edge in manifest.inputs if edge.role == "selected_input"]
+        if len(attempt_edges) != 1 or len(input_edges) != 1:
+            return "not_established", f"selected_{role}_attempt_lineage_missing", None
+        attempts = [
+            attempt
+            for attempt in ctx.run.read_runtime_invocation_attempts()
+            if attempt.basis.component_id == component
+        ]
+        if not attempts:
+            return "not_established", f"selected_{role}_producer_missing", None
+        latest = attempts[-1]
+        if latest.outcome is None or latest.outcome.status != "ok":
+            return (
+                "not_established",
+                f"selected_{role}_latest_attempt_not_successful",
+                latest.basis.attempt_id,
+            )
+        selected_key = artifact_ref_identity_key(ref)
+        if not any(
+            artifact_ref_identity_key(output) == selected_key
+            for output in latest.outcome.output_refs
+        ):
+            return "stale", f"selected_{role}_occurrence_not_latest", latest.basis.attempt_id
+        physical = [
+            attempt
+            for attempt in attempts
+            if input_ref_from_artifact_ref(attempt.basis_ref, role="selected_attempt")
+            == attempt_edges[0]
+            and input_ref_from_artifact_ref(attempt.basis.input_state_ref, role="selected_input")
+            == input_edges[0]
+        ]
+        if len(physical) != 1:
+            return "not_established", f"selected_{role}_attempt_not_owner_linked", None
+        physical_attempt = physical[0]
+        if latest.basis_ref != physical_attempt.basis_ref:
+            replay = _basis_from_input(ctx.store, latest.basis.input_state_ref)
+            if replay is None or replay.execution_kind != "cache_replay":
+                return "stale", f"selected_{role}_occurrence_not_latest", latest.basis.attempt_id
+        physical_admission = resolve_engine_produced_artifact(
+            ctx,
+            predecessor,
+            ref,
+            expected_component_id=component,
+            expected_node_spec=spec,
+            source_read_paths=contract.state_paths,
+            expected_attempt_id=physical_attempt.basis.attempt_id,
+            expected_basis_ref=physical_attempt.basis_ref,
+        )
+        if not physical_admission.is_current:
+            return (
+                physical_admission.status,
+                physical_admission.reason_code,
+                physical_attempt.basis.attempt_id,
+            )
+        current = resolve_engine_produced_artifact(
+            ctx,
+            predecessor,
+            ref,
+            expected_component_id=component,
+            expected_node_spec=spec,
+            source_read_paths=contract.state_paths,
+            expected_attempt_id=latest.basis.attempt_id,
+            expected_basis_ref=latest.basis_ref,
+        )
+        return current.status, current.reason_code, latest.basis.attempt_id
+    except (AttributeError, KeyError, OSError, RuntimeError, TypeError, ValueError):
+        return "not_established", f"selected_{role}_owner_revalidation_failed", None
+
+
+class _VerifiedPolicyPhase5AdmissionOwner:
+    """Fixed readonly run-owner channel; it stores no predecessor state.
+
+    The supported operation reopens the actual pending consumer basis and exact
+    predecessor through the existing owners. Only the detached admission DTO is
+    returned; there is no arbitrary selector, callback, run-history or store API.
+    """
+
+    __slots__ = ("__definition_sha256", "__identity", "__logger", "__run", "__selection", "__store")
+
+    def __init__(
+        self,
+        ctx: ExecutionContext,
+        selection: NodeInputSelection,
+        identity: RunInvocationImplementationIdentity,
+        definition_sha256: str,
+    ) -> None:
+        self.__store, self.__run, self.__logger = ctx.store, ctx.run, ctx.logger
+        self.__selection, self.__identity, self.__definition_sha256 = (
+            selection,
+            identity,
+            definition_sha256,
+        )
+
+    def read(self) -> VerifiedPolicyPhase5Admission:
+        from polisyos.scientist.governance.report_currentness import (
+            resolve_current_governance_report,
+        )
+        from polisyos.scientist.orchestration.engine.component_identity import (
+            _OWNERS,
+            matches_engine_component_identity,
+        )
+        from polisyos.scientist.orchestration.engine.context import (
+            ExecutionContext as Context,
+        )
+        from polisyos.scientist.orchestration.engine.context import (
+            _EngineInvocationBinding,
+            _load_engine_owned_invocation_input_state,
+        )
+
+        selection = self.__selection
+        owner = _OWNERS.get(selection.component_id)
+        if (
+            owner is None
+            or owner.input_definition_sha256 != self.__definition_sha256
+            or not matches_engine_component_identity(self.__identity, selection.component_id, {})
+        ):
+            raise NodeInputPortError("node_input_source_view_consumer_changed")
+        ctx = Context(
+            store=self.__store,
+            run=self.__run,
+            logger=self.__logger,
+            _engine_invocation=_EngineInvocationBinding(
+                run_id=selection.run_id,
+                attempt_id=selection.attempt_id,
+                basis_ref=selection.basis_ref,
+            ),
+        )
+        matches = [
+            attempt
+            for attempt in self.__run.read_runtime_invocation_attempts()
+            if attempt.basis.attempt_id == selection.attempt_id
+            and attempt.basis_ref == selection.basis_ref
+        ]
+        if len(matches) != 1:
+            raise NodeInputPortError("node_input_source_view_attempt_not_owner_linked")
+        attempt = matches[0]
+        if (
+            attempt.outcome is not None
+            or attempt.basis.component_id != selection.component_id
+            or attempt.basis.input_state_ref != selection.input_state_ref
+            or attempt.basis.implementation_identity != self.__identity
+        ):
+            raise NodeInputPortError("node_input_source_view_attempt_mismatch")
+        projected = _load_engine_owned_invocation_input_state(
+            ctx, ExperimentState(run_id=selection.run_id)
+        )
+        if projected is None:
+            raise NodeInputPortError("node_input_source_view_input_missing")
+        basis = _basis_from_input(self.__store, selection.input_state_ref)
+        if basis is None or not _phase5_source_profile(basis.contract):
+            raise NodeInputPortError("node_input_source_view_contract_unsupported")
+        predecessor = ExperimentState.model_validate(
+            load_core_json_artifact(self.__store, basis.predecessor_state_ref)
+        )
+        body_ref, candidate_ref, governance_ref = (
+            _selected_role_ref(predecessor, path) for path in _PHASE5_SOURCE_PATHS
+        )
+        body_status, body_reason, body_attempt = _latest_selected_producer(
+            ctx, predecessor, body_ref, role="body"
+        )
+        candidate_status, candidate_reason, candidate_attempt = _latest_selected_producer(
+            ctx, predecessor, candidate_ref, role="candidate"
+        )
+        governance = resolve_current_governance_report(ctx, predecessor, governance_ref)
+        report = governance.report if governance.is_current else None
+        governance_status = governance.status
+        governance_reason = governance.reason_code
+        governance_attempt = (
+            report.invocation_binding.attempt_id
+            if report is not None and report.invocation_binding is not None
+            else None
+        )
+        governance_attempts = [
+            item
+            for item in self.__run.read_runtime_invocation_attempts()
+            if item.basis.component_id == _GOVERNANCE_COMPONENT
+        ]
+        if governance.is_current and (
+            not governance_attempts
+            or governance_attempts[-1].basis.attempt_id != governance_attempt
+        ):
+            governance_status, governance_reason, report = (
+                "stale",
+                "selected_governance_occurrence_not_latest",
+                None,
+            )
+        return VerifiedPolicyPhase5Admission(
+            run_id=selection.run_id,
+            attempt_id=selection.attempt_id,
+            component_id=_PHASE5_COMPONENT,
+            contract_id=_PHASE5_CONTRACT,
+            input_state_ref=selection.input_state_ref,
+            body_ref=body_ref,
+            candidate_ref=candidate_ref,
+            governance_ref=governance_ref,
+            body_status=body_status,
+            candidate_status=candidate_status,
+            governance_status=governance_status,
+            body_reason_code=body_reason,
+            candidate_reason_code=candidate_reason,
+            governance_reason_code=governance_reason,
+            body_attempt_id=body_attempt,
+            candidate_attempt_id=candidate_attempt,
+            governance_attempt_id=governance_attempt,
+            governance_report=report,
+        )
+
+
+def read_verified_policy_phase5_admission(
+    ctx: ExecutionContext, state: ExperimentState
+) -> VerifiedPolicyPhase5Admission:
+    """Revalidate fixed Phase-5 sources through the private run-owner channel.
+
+    Args:
+        ctx: The active Engine-appointed restricted consumer context.
+        state: The exact unchanged input projection delivered to that consumer.
+
+    Returns:
+        Detached selected-source facts and an admitted governance report, without
+        predecessor content, run history or a completion/publication grant.
+
+    Raises:
+        NodeInputPortError: The consumer, input or pending attempt is not the
+            selected Engine-owned invocation.
+    """
+    selection = read_input_port_basis(ctx, state)
+    owner = ctx._verified_policy_phase5_admission_owner
+    if type(owner) is not _VerifiedPolicyPhase5AdmissionOwner or not _phase5_source_profile(
+        NodeInputContract(
+            contract_id=selection.contract_id,
+            component_id=selection.component_id,
+            state_paths=_PHASE5_INPUT_PATHS,
+            artifact_ref_paths=_PHASE5_SOURCE_PATHS,
+        )
+    ):
+        raise NodeInputPortError("node_input_source_view_not_installed")
+    admission = owner.read()
+    # The scoped read checks timeout/revocation again after owner I/O and binds
+    # the result to the actual unchanged consumer input, never caller flags.
+    current = read_input_port_basis(ctx, state)
+    if (
+        current != selection
+        or admission.run_id != selection.run_id
+        or admission.attempt_id != selection.attempt_id
+        or admission.input_state_ref != selection.input_state_ref
+    ):
+        raise NodeInputPortError("node_input_source_view_attempt_mismatch")
+    return admission.model_copy(deep=True)
+
+
 def _selected_refs(state: ExperimentState, contract: NodeInputContract) -> tuple[ArtifactRef, ...]:
     refs = []
     for path in contract.artifact_ref_paths:
@@ -233,11 +630,12 @@ class _NodeInputStore:
         selection: NodeInputSelection | None = None,
         *,
         definition_sha256: str,
+        readable_refs: tuple[ArtifactRef, ...] | None = None,
     ) -> None:
         self.__definition_sha256 = definition_sha256
         self.__store = store
         self.__lock = RLock()
-        refs = _selected_refs(state, contract)
+        refs = _selected_refs(state, contract) if readable_refs is None else readable_refs
         if selection is not None:
             refs = (*refs, selection.input_state_ref)
         if any(ref.manifest_profile_sha256 is None for ref in refs):
@@ -449,6 +847,24 @@ class _NodeInputRunView:
 def _restricted_context(
     ctx: ExecutionContext, port: _NodeInputPort, selection: NodeInputSelection | None = None
 ) -> ExecutionContext:
+    source_owner = None
+    readable_refs: tuple[ArtifactRef, ...] | None = None
+    if _phase5_source_profile(port.contract):
+        readable_refs = ()
+        if selection is not None:
+            source_owner = _VerifiedPolicyPhase5AdmissionOwner(
+                ctx, selection, port.identity, port.definition_sha256
+            )
+            admission = source_owner.read()
+            readable_refs = tuple(
+                ref
+                for ref, status in (
+                    (admission.body_ref, admission.body_status),
+                    (admission.candidate_ref, admission.candidate_status),
+                    (admission.governance_ref, admission.governance_status),
+                )
+                if ref is not None and status == "current"
+            )
     store = _NodeInputStore(
         ctx.store,
         port.projected,
@@ -458,6 +874,7 @@ def _restricted_context(
         port.contract,
         selection,
         definition_sha256=port.definition_sha256,
+        readable_refs=readable_refs,
     )
     from polisyos.scientist.orchestration.engine.context import ExecutionContext as Context
 
@@ -469,6 +886,7 @@ def _restricted_context(
         "logger": ctx.logger,
         "depth": ctx.depth,
         "_node_input_selection": selection,
+        "_verified_policy_phase5_admission_owner": source_owner,
         "_engine_invocation": ctx._engine_invocation if selection is not None else None,
     }
     return Context(**fields)
@@ -647,6 +1065,7 @@ def preflight_node_input_port(
         contract_json = _preflight_registered_input(registered_node, component_id, params)
         if contract_json is not None:
             contract = NodeInputContract.model_validate_json(contract_json)
+            _phase5_source_profile(contract)
             if contract.component_id != component_id:
                 raise ValueError("node_input_contract_component_mismatch")
             return
@@ -693,6 +1112,7 @@ def admit_node_input_port(
         contract = NodeInputContract.model_validate_json(spec.input_contract.model_dump_json())
     except (TypeError, ValueError) as exc:
         raise NodeInputPortError("node_input_contract_unsupported") from exc
+    _phase5_source_profile(contract)
     if set(params) - set(contract.bind_param_keys):
         raise NodeInputPortError("node_input_bind_params_outside_contract")
     identity = capture_engine_component_identity(node, str(spec.metadata.component_id), params)

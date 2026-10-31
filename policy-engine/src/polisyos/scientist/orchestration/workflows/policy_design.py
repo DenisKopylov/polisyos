@@ -1,8 +1,8 @@
 """Verified policy-design workflow DAG with legal sourcing and hierarchical search.
 
-The spec expands a policy request into verified legal/source packs, generates
-candidate policies, runs hierarchical search, blocks non-identified
-counterfactuals before simulation, and packages the translated champion policy.
+The spec gathers legal-source candidates, generates candidate policies, runs
+hierarchical search and blocks non-identified counterfactuals before simulation.
+Legal claim verification and option-to-program correspondence remain unestablished.
 """
 
 from __future__ import annotations
@@ -13,9 +13,9 @@ from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation
 def policy_design_workflow_spec() -> WorkflowSpec:
     """Build the Scientist policy-design workflow with C6c extensions.
 
-    Adds legal-source verification, hierarchical policy search, causal
-    readiness, and counterfactual gating before simulation so that the chosen
-    policy candidate is both executable and governance-ready.
+    Adds legal-source candidate gathering, hierarchical policy search, causal
+    readiness and counterfactual gating before simulation. The chosen candidate
+    still requires independent source and governance admission.
 
     Returns:
         `WorkflowSpec` for `scientist_policy_design`, including the champion
@@ -204,6 +204,21 @@ def policy_design_workflow_spec() -> WorkflowSpec:
                 ],
             ),
             NodeInvocation(
+                alias="select_policy_candidate",
+                node_id="scientist.node_select_policy_candidate@1.0.0",
+                depends_on=["run_hierarchical_policy_search"],
+            ),
+            NodeInvocation(
+                alias="build_verified_policy_body",
+                node_id="scientist.node_build_verified_policy_body@1.0.0",
+                depends_on=[
+                    "draft_policy_options",
+                    "run_source_gap_review",
+                    "run_simulation",
+                    "run_causal_evaluation",
+                ],
+            ),
+            NodeInvocation(
                 alias="run_governance",
                 node_id="scientist.node_run_governance@1.2.0",
                 depends_on=[
@@ -213,6 +228,10 @@ def policy_design_workflow_spec() -> WorkflowSpec:
                     "run_causal_evaluation",
                     "run_normative_arbitration",
                     "run_causal_readiness",
+                    "select_policy_candidate",
+                    "build_verified_policy_body",
+                    "run_metric_validation",
+                    "propagate_welfare",
                 ],
             ),
             NodeInvocation(
@@ -270,6 +289,8 @@ def policy_design_workflow_spec() -> WorkflowSpec:
             ),
         ],
         notes=[
+            "Independent legal claim verification is not established; source interpretations remain candidates.",
+            "Selected policy option correspondence to the final program is not established.",
             "Policy-design workflow adds a typed policy output bundle before the decision packet.",
             "C6c adds hierarchical policy search, causal readiness, and counterfactual gating before simulation.",
             "Existing scientist_default and scientist_policy_verified workflows remain unchanged.",

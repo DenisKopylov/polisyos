@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
+from polisyos.core.artifacts.manifest import ArtifactRef, input_ref_from_artifact_ref
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.scientist import (
     PolicyOptionSetRef,
@@ -48,6 +48,10 @@ from polisyos.scientist.validation.policy_verified import (
 from polisyos.scientist.validation.policy_verified.currentness import (
     VERIFIED_POLICY_REPORT_SOURCE_READ_PATHS,
     resolve_current_verified_policy_report,
+)
+from polisyos.scientist.validation.policy_verified.selection import (
+    require_selected_policy_source_bindings,
+    select_policy_source_ref,
 )
 from polisyos.scientist.validation.policy_verified.service import build_verified_policy_report
 
@@ -107,15 +111,28 @@ class BuildVerifiedPolicyReportNode:
             state = branch_state(state, write_paths=_SPEC.state_writes).state
             state.verified_policy_report_ref = None
             state.artifacts_index.pop(ARTIFACT_VERIFIED_POLICY_REPORT_REF, None)
-        request_ref = state.policy_request_ref or state.artifacts_index.get(
-            ARTIFACT_POLICY_REQUEST_FRAME_REF
-        )
-        option_ref = state.policy_option_set_ref or state.artifacts_index.get(
-            ARTIFACT_POLICY_OPTION_SET_REF
-        )
-        report_ref = state.source_verification_report_ref or state.artifacts_index.get(
-            ARTIFACT_SOURCE_VERIFICATION_REPORT_REF
-        )
+        try:
+            request_ref = select_policy_source_ref(
+                state.policy_request_ref,
+                state.artifacts_index.get(ARTIFACT_POLICY_REQUEST_FRAME_REF),
+            )
+            option_ref = select_policy_source_ref(
+                state.policy_option_set_ref,
+                state.artifacts_index.get(ARTIFACT_POLICY_OPTION_SET_REF),
+            )
+            report_ref = select_policy_source_ref(
+                state.source_verification_report_ref,
+                state.artifacts_index.get(ARTIFACT_SOURCE_VERIFICATION_REPORT_REF),
+            )
+        except ValueError:
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code="policy_source_selection_conflict",
+                    message="Selected policy-source references disagree.",
+                ),
+            )
         if request_ref is None or option_ref is None or report_ref is None:
             return NodeOutcome(status="skip", state=state)
         frame = load_policy_request_frame(
@@ -127,14 +144,42 @@ class BuildVerifiedPolicyReportNode:
         verification_report = load_source_verification_report(
             ctx.store, SourceVerificationReportRef.model_validate(report_ref.model_dump())
         )
+        if (
+            option_set.request_id != frame.request_id
+            or verification_report.request_id != frame.request_id
+        ):
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code="policy_request_source_mismatch",
+                    message="Selected policy options or source verification belong to a different request.",
+                ),
+            )
+        try:
+            require_selected_policy_source_bindings(
+                ctx.store,
+                request_ref=request_ref,
+                option_ref=option_ref,
+                source_report_ref=report_ref,
+            )
+        except (AttributeError, OSError, RuntimeError, TypeError, ValueError):
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code="policy_source_binding_not_established",
+                    message="Policy sources do not bind the selected request and verification report.",
+                ),
+            )
         payload = build_verified_policy_report(state, frame, verification_report, option_set)
         payload_ref = persist_verified_policy_report(
             ctx.store,
             payload,
             inputs=[
-                InputRef(artifact_id=request_ref.artifact_id, role="policy_request_frame"),
-                InputRef(artifact_id=option_ref.artifact_id, role="policy_option_set"),
-                InputRef(artifact_id=report_ref.artifact_id, role="source_verification_report"),
+                input_ref_from_artifact_ref(request_ref, role="policy_request_frame"),
+                input_ref_from_artifact_ref(option_ref, role="policy_option_set"),
+                input_ref_from_artifact_ref(report_ref, role="source_verification_report"),
             ],
         )
         publication = run_phase5_artifact_preflight(

@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts import (
+    ArtifactRef,
     CanonInfo,
     FileSystemCAS,
     PutOptions,
@@ -17,19 +18,33 @@ from polisyos.core.artifacts import (
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.core.contracts.scientist import (
     LegalCandidatePackRef,
+    LegalSourcePackRef,
+    PolicyOptionSetRef,
+    PolicyRequestFrameRef,
     SourceVerificationReportRef,
     VerifiedPolicyReportRef,
 )
 from polisyos.scientist.validation.policy_verified.models import (
     LegalCandidatePack,
     LegalRetrievalStatus,
+    LegalSourcePack,
+    PolicyOptionSet,
+    PolicyRequestFrame,
     SourceVerificationReport,
     VerifiedPolicyReport,
     load_legal_candidate_pack,
+    load_legal_source_pack,
+    load_policy_option_set,
+    load_policy_request_frame,
     load_source_verification_report,
+    load_verified_policy_body,
     load_verified_policy_report,
     persist_legal_candidate_pack,
+    persist_legal_source_pack,
+    persist_policy_option_set,
+    persist_policy_request_frame,
     persist_source_verification_report,
+    persist_verified_policy_body,
     persist_verified_policy_report,
 )
 
@@ -47,6 +62,33 @@ _CASES: list[
     ],
     ...,
 ] = [
+    (
+        "policy_request_frame",
+        PolicyRequestFrame(request_id="synthetic-request", policy_question="A synthetic question?"),
+        persist_policy_request_frame,
+        load_policy_request_frame,
+        PolicyRequestFrameRef,
+        "polisyos.scientist.PolicyRequestFrame",
+        "1.0",
+    ),
+    (
+        "policy_option_set",
+        PolicyOptionSet(request_id="synthetic-request"),
+        persist_policy_option_set,
+        load_policy_option_set,
+        PolicyOptionSetRef,
+        "polisyos.scientist.PolicyOptionSet",
+        "1.0",
+    ),
+    (
+        "legal_source_pack",
+        LegalSourcePack(request_id="synthetic-request"),
+        persist_legal_source_pack,
+        load_legal_source_pack,
+        LegalSourcePackRef,
+        "polisyos.scientist.LegalSourcePack",
+        "1.0",
+    ),
     (
         "legal_candidate_pack",
         LegalCandidatePack(
@@ -75,6 +117,19 @@ _CASES: list[
         load_source_verification_report,
         SourceVerificationReportRef,
         "polisyos.scientist.SourceVerificationReport",
+        "1.0",
+    ),
+    (
+        "verified_policy_body",
+        VerifiedPolicyReport(
+            request_id="synthetic-body",
+            executive_summary="Synthetic candidate; source authority not established.",
+            needs_expert_review=True,
+        ),
+        persist_verified_policy_body,
+        load_verified_policy_body,
+        ArtifactRef,
+        "polisyos.scientist.VerifiedPolicyReport",
         "1.0",
     ),
     (

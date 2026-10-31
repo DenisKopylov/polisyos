@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import math
 from collections import Counter
 from collections.abc import Mapping
@@ -68,6 +69,9 @@ from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
+from polisyos.scientist.policy_design.option_program_contracts import (
+    OPTION_PROGRAM_CORRESPONDENCE_NOT_ESTABLISHED,
+)
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactStore
@@ -1023,6 +1027,10 @@ def finalize_runtime_session(session: _RuntimeSession) -> NodeOutcome:
             "replay_verification_ref": final_replay_verification_ref,
             "metadata": {
                 **evidence_bundle.metadata,
+                "option_program_correspondence": {
+                    "status": "not_established",
+                    "reason_code": OPTION_PROGRAM_CORRESPONDENCE_NOT_ESTABLISHED,
+                },
                 "voi_model_status": [
                     status.model_dump(mode="json") for status in predictive_voi.model_status()
                 ],
@@ -1132,6 +1140,7 @@ def finalize_runtime_session(session: _RuntimeSession) -> NodeOutcome:
             "params._funnel_outcome",
             "params.policy_level5_gate",
             "params.policy_runtime_source_statuses",
+            "params.option_program_correspondence",
             "params.audit_refs",
             "params.actionable_side_information_refs",
             "params.voi_run_report_ref",
@@ -1159,6 +1168,10 @@ def finalize_runtime_session(session: _RuntimeSession) -> NodeOutcome:
     new_state.params["_funnel_outcome"] = serialized_funnel_outcome
     new_state.params["policy_level5_gate"] = owner._extract_level5_gate(outcome)
     new_state.params["policy_runtime_source_statuses"] = dict(session.runtime_source_statuses)
+    new_state.params["option_program_correspondence"] = {
+        "status": "not_established",
+        "reason_code": OPTION_PROGRAM_CORRESPONDENCE_NOT_ESTABLISHED,
+    }
     new_state.params["audit_refs"] = [ref.model_dump(mode="json") for ref in outcome.audit_refs]
     new_state.params["actionable_side_information_refs"] = [
         ref.model_dump(mode="json") for ref in outcome.actionable_side_information_refs
@@ -1392,7 +1405,11 @@ def _build_runtime_outcome(session: _RuntimeSession) -> NodeOutcome:
                     "Policy runtime inferred evidence source availability from config "
                     "because no cross-graph profile artifact was available."
                 ),
-                attrs={"evidence_source_statuses": dict(session.runtime_source_statuses)},
+                attrs={
+                    "evidence_source_statuses": json.dumps(
+                        session.runtime_source_statuses, ensure_ascii=False, sort_keys=True
+                    )
+                },
             )
         )
     if session.phase_d4_warnings:
@@ -1400,7 +1417,7 @@ def _build_runtime_outcome(session: _RuntimeSession) -> NodeOutcome:
             NodeEvent(
                 level="warn",
                 message="Phase D.4 challenge suites emitted warnings.",
-                attrs={"warnings": list(session.phase_d4_warnings)},
+                attrs={"warnings": json.dumps(session.phase_d4_warnings, ensure_ascii=False)},
             )
         )
     if session.strategic_output.warnings:
@@ -1408,7 +1425,9 @@ def _build_runtime_outcome(session: _RuntimeSession) -> NodeOutcome:
             NodeEvent(
                 level="warn",
                 message="Strategic runtime artifact flow emitted warnings.",
-                attrs={"warnings": list(session.strategic_output.warnings)},
+                attrs={
+                    "warnings": json.dumps(session.strategic_output.warnings, ensure_ascii=False)
+                },
             )
         )
     return NodeOutcome(status="ok", state=session.new_state, artifacts=artifacts, events=events)

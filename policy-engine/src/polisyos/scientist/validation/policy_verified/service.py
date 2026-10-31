@@ -7,11 +7,12 @@ import hashlib
 import json
 import os
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import ValidationError
 
 from polisyos.common.serialization import extract_llm_json_object
+from polisyos.core.artifacts import ArtifactStore, profile_bound_ref
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.scholar import ResearchIntent, ResearchIntentRef
@@ -26,6 +27,15 @@ from polisyos.lex.knowledge.search import LegalKnowledgeGraph
 from polisyos.lex.knowledge.types import LegalFactResult, LegalSourceBundle
 from polisyos.scientist.agent.knowledge_tools import KnowledgeToolkit
 from polisyos.scientist.agent.prompts import get_source_verifier_prompt
+from polisyos.scientist.evidence.claims.models import (
+    ClaimPublishability,
+    ClaimRecord,
+    ClaimSourceClass,
+    ClaimSupportStatus,
+    ClaimType,
+    ClaimUse,
+)
+from polisyos.scientist.evidence.decision_readiness import DecisionReadiness
 from polisyos.scientist.evidence.sources import (
     build_path_source_status,
     normalize_evidence_sources_config,
@@ -41,6 +51,9 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.llm.factory import create_traced_gateway_client
+from polisyos.scientist.policy_design.option_program_contracts import (
+    OPTION_PROGRAM_CORRESPONDENCE_NOT_ESTABLISHED,
+)
 from polisyos.scientist.validation.policy_verified.models import (
     LegalCandidatePack,
     LegalRetrievalStatus,
@@ -73,26 +86,74 @@ _POLICY_VERIFIED_TOOLKIT_ERRORS = (
 _POLICY_VERIFIED_JSON_ERRORS = (TypeError, ValueError, json.JSONDecodeError)
 _POLICY_VERIFIED_ASYNC_RUN_ERRORS = (RuntimeError, TypeError, ValueError)
 POLICY_VERIFIED_HARDCODED_FORMALIZER_STRANGLED = "policy_verified_hardcoded_formalizer_strangled"
+_POLICY_SCOPE_FAILURES = (
+    "policy_request_intent_profile_not_established",
+    "policy_request_question_invalid",
+    "policy_request_question_not_established",
+    "policy_request_jurisdiction_invalid",
+    "policy_request_jurisdiction_conflict",
+    "policy_request_jurisdiction_not_established",
+    "policy_request_jurisdiction_provenance_not_established",
+)
 
 
 def build_policy_request_frame(ctx: ExecutionContext, state: ExperimentState) -> PolicyRequestFrame:
-    """Build policy request frame."""
-    intent = _load_research_intent(ctx.store, state.inputs.get(INPUT_RESEARCH_INTENT_REF))
+    """Build a request from declared inputs without inventing target scope."""
+    intent_ref = state.inputs.get(INPUT_RESEARCH_INTENT_REF)
+    intent = None
     params = state.params
-    raw_question = (
-        str(params.get("policy_question") or "").strip()
-        or str(params.get("policy_request") or "").strip()
-        or str(params.get("problem_statement") or "").strip()
-        or str(params.get("research_question") or "").strip()
-        or str(getattr(intent, "topic", "") or "").strip()
-        or "Design a policy option set grounded in applicable legal sources."
-    )
-    jurisdiction = (
-        str(params.get("policy_request_jurisdiction") or "").strip()
-        or str(params.get("jurisdiction") or "").strip()
-        or str(getattr(intent, "jurisdiction", "") or "").strip()
-        or "UA"
-    )
+    notes = _string_list(params.get("notes"))
+    if intent_ref is not None:
+        try:
+            if (
+                intent_ref.kind != "scholar.research_intent"
+                or intent_ref.media_type != "application/json"
+                or intent_ref.manifest_profile_sha256 is None
+                or profile_bound_ref(ctx.store, intent_ref) != intent_ref
+            ):
+                raise ValueError("policy_request_intent_profile_not_established")
+            intent = _load_research_intent(ctx.store, intent_ref)
+            if intent is None:
+                raise ValueError("policy_request_intent_profile_not_established")
+        except _POLICY_VERIFIED_ARTIFACT_LOAD_ERRORS:
+            notes.append("policy_request_intent_profile_not_established")
+
+    raw_question = ""
+    for key in ("policy_question", "policy_request", "problem_statement", "research_question"):
+        value = params.get(key)
+        if value is None:
+            continue
+        if not isinstance(value, str):
+            notes.append("policy_request_question_invalid")
+            break
+        if value.strip():
+            raw_question = value.strip()
+            break
+    if not raw_question and "policy_request_question_invalid" not in notes:
+        if intent is not None and intent.topic and intent.topic.strip():
+            raw_question = intent.topic.strip()
+            notes.append("policy_request_question_from_research_topic")
+        else:
+            notes.append("policy_request_question_not_established")
+
+    target = params.get("policy_request_jurisdiction")
+    generic = params.get("jurisdiction")
+    jurisdiction = ""
+    jurisdiction_source: Literal["policy_request_jurisdiction", "jurisdiction"] | None = None
+    if any(value is not None and not isinstance(value, str) for value in (target, generic)):
+        notes.append("policy_request_jurisdiction_invalid")
+    else:
+        target_text = target.strip() if isinstance(target, str) else ""
+        generic_text = generic.strip() if isinstance(generic, str) else ""
+        if target_text and generic_text and target_text != generic_text:
+            notes.append("policy_request_jurisdiction_conflict")
+        elif target_text:
+            jurisdiction, jurisdiction_source = target_text, "policy_request_jurisdiction"
+        elif generic_text:
+            jurisdiction, jurisdiction_source = generic_text, "jurisdiction"
+            notes.append("policy_request_jurisdiction_from_generic_field")
+        else:
+            notes.append("policy_request_jurisdiction_not_established")
     as_of = (
         str(params.get("policy_request_as_of") or "").strip()
         or str(params.get("as_of") or "").strip()
@@ -111,14 +172,15 @@ def build_policy_request_frame(ctx: ExecutionContext, state: ExperimentState) ->
     evaluation_criteria = _string_list(params.get("evaluation_criteria")) or _string_list(
         params.get("success_criteria")
     )
-    notes = _string_list(params.get("notes"))
     if intent is not None:
         notes.extend(list(getattr(intent, "notes", []) or []))
     request_id = _stable_id("policy_request", raw_question, jurisdiction, as_of or "", domain or "")
     return PolicyRequestFrame(
+        schema_version="1.1",
         request_id=request_id,
         policy_question=raw_question,
         jurisdiction=jurisdiction,
+        jurisdiction_source=jurisdiction_source,
         as_of=as_of,
         policy_domain=domain,
         target_context=dict(params.get("target_context") or {})
@@ -131,12 +193,55 @@ def build_policy_request_frame(ctx: ExecutionContext, state: ExperimentState) ->
     )
 
 
+def policy_request_scope_reason(frame: PolicyRequestFrame) -> str | None:
+    """Return a declared request-scope limitation, without granting authority."""
+    for reason in _POLICY_SCOPE_FAILURES:
+        if reason in frame.notes:
+            return reason
+    if not frame.policy_question.strip():
+        return "policy_request_question_not_established"
+    if not frame.jurisdiction.strip():
+        return "policy_request_jurisdiction_not_established"
+    if frame.schema_version != "1.1" or frame.jurisdiction_source is None:
+        return "policy_request_jurisdiction_provenance_not_established"
+    return None
+
+
+def _scope_reason_from_notes(notes: list[str]) -> str | None:
+    return next((reason for reason in _POLICY_SCOPE_FAILURES if reason in notes), None)
+
+
+def _scope_blocked_report(
+    report: SourceVerificationReport, reason: str
+) -> SourceVerificationReport:
+    gap = SourceCoverageGap(
+        gap_id=_stable_id("gap", report.request_id, reason),
+        category=reason,
+        description="The policy question or target jurisdiction is not established for legal sourcing.",
+        severity="critical",
+    )
+    return report.model_copy(
+        update={
+            "unresolved_critical_gaps": _merge_gaps(report.unresolved_critical_gaps, [gap]),
+            "needs_expert_review": True,
+            "notes": list(dict.fromkeys([*report.notes, reason])),
+        }
+    )
+
+
 def assemble_legal_candidate_pack(
     ctx: ExecutionContext,
     state: ExperimentState,
     frame: PolicyRequestFrame,
 ) -> LegalCandidatePack:
     """Build candidate legal recall hits for a policy request frame."""
+    reason = policy_request_scope_reason(frame)
+    if reason is not None:
+        return LegalCandidatePack(
+            request_id=frame.request_id,
+            queries=[frame.policy_question] if frame.policy_question else [],
+            notes=[reason],
+        )
     toolkit = _build_legal_toolkit(ctx, state)
     legal_status = _resolve_legal_source_status(ctx, state, toolkit=toolkit)
     if toolkit is None:
@@ -197,6 +302,13 @@ def expand_legal_source_pack(
     candidate_pack: LegalCandidatePack,
 ) -> LegalSourcePack:
     """Resolve candidate hits into legal source bundles and anchor coverage."""
+    reason = _scope_reason_from_notes(candidate_pack.notes)
+    if reason is not None:
+        return LegalSourcePack(
+            request_id=candidate_pack.request_id,
+            source_statuses=dict(candidate_pack.source_statuses),
+            notes=[reason],
+        )
     toolkit = _build_legal_toolkit(ctx, state)
     legal_status = _resolve_legal_source_status(ctx, state, toolkit=toolkit)
     if toolkit is None:
@@ -228,6 +340,51 @@ def expand_legal_source_pack(
     )
 
 
+def _candidate_only_source_report(
+    state: ExperimentState,
+    source_pack: LegalSourcePack,
+    report: SourceVerificationReport,
+) -> SourceVerificationReport:
+    """Reissue historical legal labels as unverified candidate evidence."""
+    legacy_candidates = [
+        _legal_claim_candidate(
+            state=state,
+            claim_id=_stable_id(
+                "claim_candidate", "legacy_unbound", claim.claim_id, str(index), claim.claim_text
+            ),
+            text=claim.claim_text or "Unspecified historical legal claim",
+            source="legacy_unbound",
+            details=claim.model_dump(mode="json"),
+        )
+        for index, claim in enumerate(report.verified_claims)
+    ]
+    verification_gap = SourceCoverageGap(
+        gap_id=_stable_id("gap", report.request_id, "legal_claim_verification_not_established"),
+        category="legal_claim_verification_not_established",
+        description="Independent legal claim verification and current source authority are not established.",
+        severity="critical",
+        related_bundle_ids=[bundle.bundle_id for bundle in source_pack.source_bundles],
+    )
+    return report.model_copy(
+        update={
+            "schema_version": "1.1",
+            "verified_claims": [],
+            "legal_claim_candidates": _merge_candidate_claims(
+                report.legal_claim_candidates, legacy_candidates
+            ),
+            "legal_verification_status": "not_established",
+            "verified_claim_citation_coverage_pct": 0.0,
+            "unresolved_critical_gaps": _merge_gaps(
+                report.unresolved_critical_gaps, [verification_gap]
+            ),
+            "needs_expert_review": True,
+            "notes": list(
+                dict.fromkeys([*report.notes, "legal_claim_verification_not_established"])
+            ),
+        }
+    )
+
+
 def verify_source_pack(
     ctx: ExecutionContext,
     state: ExperimentState,
@@ -235,23 +392,45 @@ def verify_source_pack(
     candidate_pack: LegalCandidatePack,
     source_pack: LegalSourcePack,
 ) -> SourceVerificationReport:
-    """Validate legal source coverage and merge optional LLM verification findings."""
-    baseline_claims = _baseline_verified_claims(candidate_pack, source_pack)
-    gaps = _initial_gaps(source_pack, baseline_claims)
-    report = SourceVerificationReport(
-        request_id=frame.request_id,
-        verified_claims=baseline_claims,
-        unresolved_critical_gaps=gaps,
-        verified_claim_citation_coverage_pct=_claim_citation_coverage_pct(baseline_claims),
-        verification_cycles_completed=max(
-            1, _int_param(state, "verification_cycles_completed", 0) + 1
+    """Retain legal-source proposals without asserting unestablished verification."""
+    reason = (
+        policy_request_scope_reason(frame)
+        or _scope_reason_from_notes(candidate_pack.notes)
+        or _scope_reason_from_notes(source_pack.notes)
+    )
+    if reason is not None:
+        return _scope_blocked_report(
+            _candidate_only_source_report(
+                state,
+                source_pack,
+                SourceVerificationReport(
+                    schema_version="1.1",
+                    request_id=frame.request_id,
+                    source_statuses={
+                        **candidate_pack.source_statuses,
+                        **source_pack.source_statuses,
+                    },
+                ),
+            ),
+            reason,
+        )
+    baseline_claims = _baseline_claim_candidates(state, candidate_pack, source_pack)
+    report = _candidate_only_source_report(
+        state,
+        source_pack,
+        SourceVerificationReport(
+            schema_version="1.1",
+            request_id=frame.request_id,
+            legal_claim_candidates=baseline_claims,
+            unresolved_critical_gaps=_initial_gaps(source_pack, []),
+            verification_cycles_completed=max(
+                1, _int_param(state, "verification_cycles_completed", 0) + 1
+            ),
+            source_statuses={
+                **dict(candidate_pack.source_statuses),
+                **dict(source_pack.source_statuses),
+            },
         ),
-        needs_expert_review=any(gap.severity == "critical" for gap in gaps),
-        source_statuses={
-            **dict(candidate_pack.source_statuses),
-            **dict(source_pack.source_statuses),
-        },
-        notes=["baseline_source_verification"],
     )
     llm_claims, llm_gaps, verifier_calls, adjudicator_calls, disagreement_rate = (
         _maybe_verify_with_llm(
@@ -261,19 +440,17 @@ def verify_source_pack(
             baseline_claims=baseline_claims,
         )
     )
-    if llm_claims:
-        merged = _merge_verified_claims(report.verified_claims, llm_claims)
+    if llm_claims or llm_gaps or verifier_calls:
+        merged = _merge_candidate_claims(report.legal_claim_candidates, llm_claims)
         report = report.model_copy(
             update={
-                "verified_claims": merged,
+                "legal_claim_candidates": merged,
                 "unresolved_critical_gaps": _merge_gaps(report.unresolved_critical_gaps, llm_gaps),
                 "verifier_calls_total": verifier_calls,
                 "adjudicator_calls_total": adjudicator_calls,
                 "verifier_disagreement_rate": disagreement_rate,
-                "verified_claim_citation_coverage_pct": _claim_citation_coverage_pct(merged),
-                "needs_expert_review": report.needs_expert_review
-                or any(gap.severity == "critical" for gap in llm_gaps),
-                "notes": [*report.notes, "llm_source_verification"],
+                "needs_expert_review": True,
+                "notes": [*report.notes, "llm_legal_claim_candidates"],
             }
         )
     return report
@@ -286,13 +463,13 @@ def review_source_gaps(
     report: SourceVerificationReport,
 ) -> SourceVerificationReport:
     """Augment source verification with bundle-level coverage gap review."""
+    report = _candidate_only_source_report(state, source_pack, report)
+    reason = policy_request_scope_reason(frame) or _scope_reason_from_notes(source_pack.notes)
+    if reason is not None:
+        return _scope_blocked_report(report, reason)
     gaps = list(report.unresolved_critical_gaps)
-    if not gaps and report.verified_claims:
-        return report
     extra_gaps = []
     for bundle in source_pack.source_bundles:
-        if any(claim.bundle_id == bundle.bundle_id for claim in report.verified_claims):
-            continue
         extra_gaps.append(
             SourceCoverageGap(
                 gap_id=_stable_id("gap", bundle.bundle_id, "bundle_without_claims"),
@@ -330,6 +507,14 @@ def recover_source_gaps(
     report: SourceVerificationReport,
 ) -> tuple[LegalCandidatePack, LegalSourcePack, SourceVerificationReport]:
     """Run one bounded recovery cycle for unresolved legal source gaps."""
+    report = _candidate_only_source_report(state, source_pack, report)
+    reason = (
+        policy_request_scope_reason(frame)
+        or _scope_reason_from_notes(candidate_pack.notes)
+        or _scope_reason_from_notes(source_pack.notes)
+    )
+    if reason is not None:
+        return candidate_pack, source_pack, _scope_blocked_report(report, reason)
     reviewed_report = review_source_gaps(state, frame, source_pack, report)
     if not reviewed_report.unresolved_critical_gaps:
         return candidate_pack, source_pack, reviewed_report
@@ -439,14 +624,15 @@ def recover_source_gaps(
         merged_candidate_pack,
         merged_source_pack,
     )
-    merged_claims = _merge_verified_claims(
-        reviewed_report.verified_claims, retry_report.verified_claims
+    merged_candidates = _merge_candidate_claims(
+        reviewed_report.legal_claim_candidates, retry_report.legal_claim_candidates
     )
-    recomputed_gaps = _initial_gaps(merged_source_pack, merged_claims)
+    recomputed_gaps = _initial_gaps(merged_source_pack, [])
     merged_gaps = _merge_gaps(recomputed_gaps, retry_report.unresolved_critical_gaps)
-    final_report = reviewed_report.model_copy(
+    final_report = retry_report.model_copy(
         update={
-            "verified_claims": merged_claims,
+            "legal_claim_candidates": merged_candidates,
+            "verified_claims": [],
             "unresolved_critical_gaps": merged_gaps,
             "verification_cycles_completed": max(
                 reviewed_report.verification_cycles_completed,
@@ -460,9 +646,13 @@ def recover_source_gaps(
                 reviewed_report.verifier_disagreement_rate,
                 retry_report.verifier_disagreement_rate,
             ),
-            "verified_claim_citation_coverage_pct": _claim_citation_coverage_pct(merged_claims),
-            "needs_expert_review": any(gap.severity == "critical" for gap in merged_gaps),
-            "notes": [*reviewed_report.notes, "gap_recovery_cycle_completed"],
+            "verified_claim_citation_coverage_pct": 0.0,
+            "needs_expert_review": True,
+            "notes": list(
+                dict.fromkeys(
+                    [*reviewed_report.notes, *retry_report.notes, "gap_recovery_cycle_completed"]
+                )
+            ),
         }
     )
     return merged_candidate_pack, merged_source_pack, final_report
@@ -473,8 +663,11 @@ def draft_policy_option_set(
     frame: PolicyRequestFrame,
     report: SourceVerificationReport,
 ) -> PolicyOptionSet:
-    """Create verified and hypothesis policy options from source verification results."""
-    verified_claims = report.verified_claims
+    """Create policy candidates without promoting unadmitted legal interpretations."""
+    # No supported independent legal-verification owner is connected here.
+    # A caller-supplied status, including one injected with model_copy, cannot
+    # create that authority.
+    verified_claims: list[VerifiedLegalClaim] = []
     citations = sorted({claim.citation_label for claim in verified_claims if claim.citation_label})
     constraints = [
         claim.claim_text
@@ -508,7 +701,9 @@ def draft_policy_option_set(
         notes=["verified_only_option"],
     )
     hypothesis_options: list[PolicyOption] = []
-    if bool(state.params.get("allow_hypotheses", True)) and report.unresolved_critical_gaps:
+    if bool(state.params.get("allow_hypotheses", True)) and (
+        report.unresolved_critical_gaps or report.legal_claim_candidates or not verified_claims
+    ):
         hypothesis_options.append(
             PolicyOption(
                 option_id="hypothesis_option_1",
@@ -524,7 +719,7 @@ def draft_policy_option_set(
         )
     return PolicyOptionSet(
         request_id=frame.request_id,
-        verified_options=[verified_option],
+        verified_options=[verified_option] if verified_claims else [],
         hypothesis_options=hypothesis_options,
     )
 
@@ -550,16 +745,31 @@ def build_verified_policy_report(
     report: SourceVerificationReport,
     option_set: PolicyOptionSet,
 ) -> VerifiedPolicyReport:
-    """Build verified policy report."""
+    """Build candidate report content without promoting unadmitted legal claims."""
+    # Historical labels and mutable caller copies do not establish verification.
+    verified_claims: list[VerifiedLegalClaim] = []
+    verified_options = option_set.verified_options if verified_claims else []
+    candidate_options = list(option_set.hypothesis_options)
+    if not verified_claims:
+        candidate_options = [
+            option.model_copy(
+                update={
+                    "hypothesis_basis": True,
+                    "notes": list(
+                        dict.fromkeys([*option.notes, "legal_claim_verification_not_established"])
+                    ),
+                }
+            )
+            for option in option_set.verified_options
+        ] + candidate_options
     constraints_and_timing = []
-    for option in option_set.verified_options:
+    for option in verified_options:
         constraints_and_timing.extend(option.constraints)
         constraints_and_timing.extend(option.thresholds)
         constraints_and_timing.extend(option.timing)
-    verified_findings = [_format_verified_finding(claim) for claim in report.verified_claims[:30]]
+    verified_findings = [_format_verified_finding(claim) for claim in verified_claims[:30]]
     intervention_legal_basis_map = {
-        option.option_id: list(option.legal_basis_refs)
-        for option in [*option_set.verified_options, *option_set.hypothesis_options]
+        option.option_id: list(option.legal_basis_refs) for option in verified_options
     }
     simulation_notes: list[str] = []
     if ARTIFACT_METRICS_REF in state.artifacts_index:
@@ -569,6 +779,8 @@ def build_verified_policy_report(
             "Causal evaluation artifacts are available for this policy package."
         )
     missing_evidence = [gap.description for gap in report.unresolved_critical_gaps]
+    missing_evidence.append("Independent legal claim verification is not established.")
+    missing_evidence.append("The selected policy option has not been matched to the final program.")
     for source_name, source_status in sorted(report.source_statuses.items()):
         if source_status.status is EvidenceSourceState.AVAILABLE:
             continue
@@ -578,39 +790,42 @@ def build_verified_policy_report(
     citation_appendix = sorted(
         {
             f"{claim.citation_label} [{claim.doc_id}:{claim.anchor}]"
-            for claim in report.verified_claims
+            for claim in verified_claims
             if claim.citation_label or claim.anchor
         }
     )
     executive_summary = (
-        f"Scientist verified {len(report.verified_claims)} legal claims for '{frame.policy_question}'. "
-        f"{len(option_set.verified_options)} verified option(s) and "
-        f"{len(option_set.hypothesis_options)} hypothesis option(s) were prepared."
+        f"Legal claim verification is not established for '{frame.policy_question}'. "
+        f"{len(candidate_options)} candidate option(s) were retained."
     )
     return VerifiedPolicyReport(
         request_id=frame.request_id,
         executive_summary=executive_summary,
-        verified_legal_basis=report.verified_claims,
-        policy_options=[*option_set.verified_options, *option_set.hypothesis_options],
+        verified_legal_basis=verified_claims,
+        policy_options=[*verified_options, *candidate_options],
         constraints_and_timing=constraints_and_timing[:20],
         simulation_and_causal_implications=simulation_notes,
         verified_findings=verified_findings,
-        hypotheses=[option.summary for option in option_set.hypothesis_options],
+        hypotheses=[option.summary for option in candidate_options],
         missing_evidence=missing_evidence,
         unresolved_critical_gaps=report.unresolved_critical_gaps,
         citation_appendix=citation_appendix,
         intervention_legal_basis_map=intervention_legal_basis_map,
-        needs_expert_review=report.needs_expert_review,
+        needs_expert_review=True,
         source_statuses=dict(report.source_statuses),
         notes=[
-            f"evidence_source_unavailable:{name}:{status.status.value}"
-            for name, status in sorted(report.source_statuses.items())
-            if status.status is not EvidenceSourceState.AVAILABLE
+            OPTION_PROGRAM_CORRESPONDENCE_NOT_ESTABLISHED,
+            "legal_claim_verification_not_established",
+            *(
+                f"evidence_source_unavailable:{name}:{status.status.value}"
+                for name, status in sorted(report.source_statuses.items())
+                if status.status is not EvidenceSourceState.AVAILABLE
+            ),
         ],
     )
 
 
-def _load_research_intent(store: FileSystemCAS, raw_ref: Any) -> ResearchIntent | None:
+def _load_research_intent(store: ArtifactStore, raw_ref: Any) -> ResearchIntent | None:
     from polisyos.core.artifacts import load_core_json_artifact
 
     if raw_ref is None:
@@ -757,45 +972,79 @@ def _plan_recall_queries(frame: PolicyRequestFrame, state: ExperimentState) -> l
     return queries
 
 
-def _baseline_verified_claims(
+def _legal_claim_candidate(
+    *,
+    state: ExperimentState,
+    claim_id: str,
+    text: str,
+    source: Literal["retrieved_fact", "llm_candidate", "legacy_unbound"],
+    details: dict[str, Any],
+) -> ClaimRecord:
+    """Use the Claim owner for an unadmitted legal interpretation."""
+    return ClaimRecord(
+        claim_id=claim_id,
+        run_id=state.run_id,
+        claim_type=ClaimType.LEGAL,
+        claim_use=ClaimUse.CONTEXT_ONLY,
+        text=text,
+        support_status=ClaimSupportStatus.NOT_EVALUABLE,
+        publishability=ClaimPublishability.INTERNAL_ONLY,
+        readiness_level=DecisionReadiness.RESEARCH_ARTIFACT,
+        decomposition_source_class=(
+            ClaimSourceClass.LLM_CANDIDATE if source == "llm_candidate" else None
+        ),
+        blocked_reasons=["legal_claim_verification_not_established"],
+        metadata={"legal_source_candidate": {"source": source, **details}},
+    )
+
+
+def _baseline_claim_candidates(
+    state: ExperimentState,
     candidate_pack: LegalCandidatePack,
     source_pack: LegalSourcePack,
-) -> list[VerifiedLegalClaim]:
+) -> list[ClaimRecord]:
     fact_map = {fact.fact_id: fact for fact in candidate_pack.fact_hits}
-    claims: list[VerifiedLegalClaim] = []
+    claims: list[ClaimRecord] = []
     for bundle in source_pack.source_bundles:
-        valid_anchors = {anchor.anchor for anchor in bundle.primary_anchors}
         for fact_id in bundle.candidate_fact_ids:
             fact = fact_map.get(fact_id)
-            if fact is None or not fact.source_quote_uk.strip():
-                continue
-            if (
-                fact.provision_anchor
-                and valid_anchors
-                and fact.provision_anchor not in valid_anchors
-            ):
+            if fact is None or not fact.fact_text.strip():
                 continue
             claim_type = _claim_type_from_fact(fact)
             claim_id = _stable_id(
-                "claim", bundle.bundle_id, fact.fact_id, claim_type, fact.fact_text
+                "claim_candidate", "retrieved_fact", bundle.bundle_id, fact.fact_id, fact.fact_text
             )
             claims.append(
-                VerifiedLegalClaim(
+                _legal_claim_candidate(
+                    state=state,
                     claim_id=claim_id,
-                    bundle_id=bundle.bundle_id,
-                    doc_id=fact.doc_id,
-                    version_id=fact.version_id,
-                    anchor=fact.provision_anchor or next(iter(valid_anchors), ""),
-                    citation_label=fact.provision_citation,
-                    claim_type=claim_type,
-                    claim_text=fact.fact_text,
-                    quote=fact.source_quote_uk,
-                    quote_offsets=None,
-                    confidence=max(0.5, min(float(fact.confidence), 0.99)),
-                    needs_additional_sources=False,
+                    text=fact.fact_text,
+                    source="retrieved_fact",
+                    details={
+                        "bundle_id": bundle.bundle_id,
+                        "doc_id": fact.doc_id,
+                        "version_id": fact.version_id,
+                        "anchor": fact.provision_anchor,
+                        "citation_label": fact.provision_citation,
+                        "claim_type": claim_type,
+                        "quote": fact.source_quote_uk,
+                        "reported_trust_tier": fact.trust_tier,
+                        "reported_grounding_status": fact.grounding_status,
+                        "reported_confidence": fact.confidence,
+                        "raw_retrieved_fact": fact.model_dump(mode="json"),
+                    },
                 )
             )
-    return _merge_verified_claims([], claims)
+    return _merge_candidate_claims([], claims)
+
+
+def _merge_candidate_claims(
+    baseline: list[ClaimRecord], additions: list[ClaimRecord]
+) -> list[ClaimRecord]:
+    """Deduplicate candidate identities without promoting their content."""
+    merged = {claim.claim_id: claim for claim in baseline}
+    merged.update({claim.claim_id: claim for claim in additions})
+    return list(merged.values())
 
 
 def _initial_gaps(
@@ -947,8 +1196,8 @@ def _maybe_verify_with_llm(
     state: ExperimentState,
     frame: PolicyRequestFrame,
     source_pack: LegalSourcePack,
-    baseline_claims: list[VerifiedLegalClaim],
-) -> tuple[list[VerifiedLegalClaim], list[SourceCoverageGap], int, int, float]:
+    baseline_claims: list[ClaimRecord],
+) -> tuple[list[ClaimRecord], list[SourceCoverageGap], int, int, float]:
     client = create_traced_gateway_client(
         model_name=str(state.params.get("source_verifier_model") or "gpt-5.4"),
         run_id=state.run_id,
@@ -957,16 +1206,16 @@ def _maybe_verify_with_llm(
     if client is None or not source_pack.source_bundles:
         return [], [], 0, 0, 0.0
 
-    async def _run() -> tuple[list[VerifiedLegalClaim], list[SourceCoverageGap], int]:
+    async def _run() -> tuple[list[ClaimRecord], list[SourceCoverageGap], int]:
         sem = asyncio.Semaphore(8)
         max_calls = _int_param(state, "max_verifier_calls", 500)
         bundles = source_pack.source_bundles[:max_calls]
-        claims: list[VerifiedLegalClaim] = []
+        claims: list[ClaimRecord] = []
         gaps: list[SourceCoverageGap] = []
 
         async def _verify_bundle(
             bundle: LegalSourceBundle,
-        ) -> tuple[list[VerifiedLegalClaim], list[SourceCoverageGap]]:
+        ) -> tuple[list[ClaimRecord], list[SourceCoverageGap]]:
             async with sem:
                 user_payload = {
                     "policy_question": frame.policy_question,
@@ -984,7 +1233,7 @@ def _maybe_verify_with_llm(
                 payload = _parse_json_object(response.content)
                 if not isinstance(payload, dict):
                     return [], []
-                parsed_claims: list[VerifiedLegalClaim] = []
+                parsed_claims: list[ClaimRecord] = []
                 for item in (
                     payload.get("claims", []) if isinstance(payload.get("claims"), list) else []
                 ):
@@ -994,25 +1243,33 @@ def _maybe_verify_with_llm(
                     quote = str(item.get("quote") or "").strip()
                     claim_text = str(item.get("claim_text") or "").strip()
                     claim_type = str(item.get("claim_type") or "").strip()
-                    if not (anchor and quote and claim_text and claim_type):
+                    if not claim_text:
                         continue
                     parsed_claims.append(
-                        VerifiedLegalClaim(
+                        _legal_claim_candidate(
+                            state=state,
                             claim_id=_stable_id(
-                                "claim", bundle.bundle_id, anchor, claim_type, claim_text
+                                "claim_candidate",
+                                "llm_candidate",
+                                bundle.bundle_id,
+                                anchor,
+                                claim_type,
+                                claim_text,
                             ),
-                            bundle_id=bundle.bundle_id,
-                            doc_id=bundle.doc_id,
-                            version_id=bundle.version_id,
-                            anchor=anchor,
-                            citation_label=str(item.get("citation_label") or "").strip(),
-                            claim_type=claim_type,
-                            claim_text=claim_text,
-                            quote=quote,
-                            confidence=float(item.get("confidence") or 0.7),
-                            needs_additional_sources=bool(
-                                item.get("needs_additional_sources", False)
-                            ),
+                            text=claim_text,
+                            source="llm_candidate",
+                            details={
+                                "bundle_id": bundle.bundle_id,
+                                "doc_id": bundle.doc_id,
+                                "version_id": bundle.version_id,
+                                "anchor": anchor,
+                                "citation_label": str(item.get("citation_label") or "").strip(),
+                                "claim_type": claim_type,
+                                "quote": quote,
+                                "reported_confidence": item.get("confidence"),
+                                "needs_additional_sources": item.get("needs_additional_sources"),
+                                "raw_model_item": dict(item),
+                            },
                         )
                     )
                 parsed_gaps = [
@@ -1053,8 +1310,13 @@ def _maybe_verify_with_llm(
         return [], [], 0, 0, 0.0
     disagreement_rate = 0.0
     if baseline_claims and claims:
-        baseline_keys = {(c.anchor, c.claim_type, c.claim_text) for c in baseline_claims}
-        llm_keys = {(c.anchor, c.claim_type, c.claim_text) for c in claims}
+
+        def claim_key(claim: ClaimRecord) -> tuple[str, str, str]:
+            source = claim.metadata.get("legal_source_candidate", {})
+            return (str(source.get("anchor", "")), str(source.get("claim_type", "")), claim.text)
+
+        baseline_keys = {claim_key(claim) for claim in baseline_claims}
+        llm_keys = {claim_key(claim) for claim in claims}
         disagreement_rate = round(
             1.0 - (len(baseline_keys & llm_keys) / max(len(llm_keys), 1)),
             4,

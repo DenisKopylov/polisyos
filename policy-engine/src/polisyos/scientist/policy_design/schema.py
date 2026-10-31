@@ -2,18 +2,19 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from decimal import Decimal
 from typing import Any, ClassVar, Literal
 
 from pydantic import Field, model_validator
 
-from polisyos.core.artifacts import ArtifactStore
+from polisyos.core.artifacts import ArtifactStore, read_core_json_artifact_bytes
 from polisyos.core.artifacts import (
     require_return_selected_profile_writer as _require_return_selected_profile_writer,
 )
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec, fingerprint
+from polisyos.core.artifacts.store import PutOptions
+from polisyos.core.canon import CanonSpec, fingerprint, from_canonical_bytes, to_canonical_bytes
 from polisyos.ir.governance.problem_frame import KPISpec, ProblemFrame
 from polisyos.ir.governance.schedule import ScheduleSpec, schedule_range
 from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
@@ -399,14 +400,117 @@ def persist_policy_candidate_schema(
 
 
 def load_policy_candidate_schema(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     ref: ArtifactRef,
 ) -> PolicyCandidateSchema:
     """Load policy candidate schema."""
-    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.core.artifacts import validate_core_model_json_artifact
 
-    payload = load_core_json_artifact(store, ref)
-    return PolicyCandidateSchema.model_validate(payload)
+    return validate_core_model_json_artifact(PolicyCandidateSchema, store, ref)
+
+
+def policy_candidate_trinity_contents_match(
+    candidate_payload: Mapping[str, Any], trinity_payload: Mapping[str, Any]
+) -> bool:
+    """Compare both selected program trees through one typed decoding path.
+
+    This compares content only. Callers must separately admit the selected
+    source profiles and producer attempts.
+    """
+    spec = CanonSpec(forbid_floats=False, exclude_none=False)
+    candidate_trinity = TrinityBundle.model_validate(
+        from_canonical_bytes(to_canonical_bytes(candidate_payload["trinity_bundle"], spec=spec))
+    )
+    trinity = TrinityBundle.model_validate(
+        from_canonical_bytes(to_canonical_bytes(trinity_payload, spec=spec))
+    )
+    return to_canonical_bytes(candidate_trinity.model_dump(mode="json"), spec=spec) == (
+        to_canonical_bytes(trinity.model_dump(mode="json"), spec=spec)
+    )
+
+
+def policy_candidate_contents_match(left: Mapping[str, Any], right: Mapping[str, Any]) -> bool:
+    """Compare candidate values without Python's boolean/numeric aliasing."""
+    spec = CanonSpec(forbid_floats=False, exclude_none=False)
+    left_value = validate_policy_candidate_payload(left).model_dump(mode="json")
+    right_value = validate_policy_candidate_payload(right).model_dump(mode="json")
+    return to_canonical_bytes(left_value, spec=spec) == to_canonical_bytes(right_value, spec=spec)
+
+
+def validate_policy_candidate_payload(payload: Mapping[str, Any]) -> PolicyCandidateSchema:
+    """Decode canonical tagged values before validating an inline candidate."""
+    spec = CanonSpec(forbid_floats=False, exclude_none=False)
+    decoded = from_canonical_bytes(to_canonical_bytes(payload, spec=spec))
+    return PolicyCandidateSchema.model_validate(decoded)
+
+
+def reissue_policy_candidate_schema(
+    store: ArtifactStore, ref: ArtifactRef, *, inputs: list[InputRef]
+) -> ArtifactRef:
+    """Reissue one admitted selected candidate without changing its stored content.
+
+    Raises:
+        ValueError: If the selected candidate, writer, or reissued bytes cannot be verified.
+    """
+    if ref.manifest_profile_sha256 is None:
+        raise ValueError("policy_candidate_source_not_established")
+    load_policy_candidate_schema(store, ref)
+    raw = read_core_json_artifact_bytes(store, ref)
+    manifest = store.get_manifest(ref)
+    _require_return_selected_profile_writer(store, "put_bytes")
+    selected = store.put_bytes(
+        raw,
+        PutOptions(
+            kind=PolicyCandidateSchema.ARTIFACT_KIND,
+            media_type=PolicyCandidateSchema.ARTIFACT_MEDIA_TYPE,
+            schema=manifest.artifact_schema,
+            canon=manifest.canon,
+            inputs=inputs,
+        ),
+        return_selected_profile=True,
+    )
+    if (
+        selected.manifest_profile_sha256 is None
+        or selected.artifact_id != ref.artifact_id
+        or read_core_json_artifact_bytes(store, selected) != raw
+    ):
+        raise ValueError("policy_candidate_reissue_not_established")
+    load_policy_candidate_schema(store, selected)
+    return selected
+
+
+def persist_selected_policy_candidate_payload(
+    store: ArtifactStore, payload: Mapping[str, Any], *, inputs: list[InputRef]
+) -> ArtifactRef:
+    """Persist a validated inline candidate without dropping its supplied fields.
+
+    Raises:
+        ValueError: If the candidate version or selected output is unsupported.
+    """
+    candidate = validate_policy_candidate_payload(payload)
+    if candidate.schema_version != PolicyCandidateSchema.ARTIFACT_SCHEMA_VERSION:
+        raise ValueError("policy_candidate_version_not_established")
+    selected_payload = dict(payload)
+    selected_payload.setdefault("schema_version", candidate.schema_version)
+    _require_return_selected_profile_writer(store, "put_json")
+    selected = store.put_json(
+        selected_payload,
+        PutOptions(
+            kind=PolicyCandidateSchema.ARTIFACT_KIND,
+            media_type=PolicyCandidateSchema.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=PolicyCandidateSchema.ARTIFACT_SCHEMA_NAME,
+                version=PolicyCandidateSchema.ARTIFACT_SCHEMA_VERSION,
+            ),
+            inputs=inputs,
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    if selected.manifest_profile_sha256 is None:
+        raise ValueError("policy_candidate_reissue_not_established")
+    load_policy_candidate_schema(store, selected)
+    return selected
 
 
 def _known_metric_ids(problem_frame: ProblemFrame) -> set[str]:
@@ -438,5 +542,10 @@ __all__ = [
     "TargetPopulationSpec",
     "TransportAssumptionSpec",
     "load_policy_candidate_schema",
+    "policy_candidate_contents_match",
+    "policy_candidate_trinity_contents_match",
+    "persist_selected_policy_candidate_payload",
     "persist_policy_candidate_schema",
+    "reissue_policy_candidate_schema",
+    "validate_policy_candidate_payload",
 ]

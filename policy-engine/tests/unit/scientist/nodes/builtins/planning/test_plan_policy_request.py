@@ -1,20 +1,25 @@
 from __future__ import annotations
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 from polisyos.scientist.nodes.builtins.planning.plan_policy_request import PlanPolicyRequestNode
 from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_POLICY_REQUEST_FRAME_REF
 from polisyos.scientist.orchestration.engine.state_branching import (
     branch_state as real_branch_state,
 )
+from polisyos.scientist.validation.policy_verified import PolicyRequestFrame
 
 
 def test_plan_policy_request_success(execution_context, minimal_state, artifact_ref_factory):
     """Successfully creates a policy request frame."""
     frame_ref = artifact_ref_factory(kind="scientist.policy_request_frame")
-    mock_frame = MagicMock()
-    mock_frame.jurisdiction = "US"
-    mock_frame.request_id = "req-001"
+    mock_frame = PolicyRequestFrame(
+        schema_version="1.1",
+        request_id="req-001",
+        policy_question="What is the effect?",
+        jurisdiction="US",
+        jurisdiction_source="policy_request_jurisdiction",
+    )
     with (
         patch(
             "polisyos.scientist.nodes.builtins.planning.plan_policy_request.build_policy_request_frame",
@@ -34,16 +39,20 @@ def test_plan_policy_request_success(execution_context, minimal_state, artifact_
     assert ARTIFACT_POLICY_REQUEST_FRAME_REF in outcome.state.artifacts_index
 
 
-def test_plan_policy_request_already_exists(execution_context, minimal_state, artifact_ref_factory):
-    """When policy_request_ref is already set, the node is a no-op."""
+def test_plan_policy_request_reissues_existing_projection(
+    execution_context, minimal_state, artifact_ref_factory
+):
+    """A cached reference is not a current request receipt."""
     ref = artifact_ref_factory(kind="scientist.policy_request_frame")
     state = minimal_state.model_copy(deep=True)
     state.policy_request_ref = ref
     state.artifacts_index[ARTIFACT_POLICY_REQUEST_FRAME_REF] = ref
+    state.params.update({"policy_question": "Synthetic new question?", "jurisdiction": "synthetic"})
     outcome = PlanPolicyRequestNode().execute(execution_context, state)
     assert outcome.status == "ok"
-    # State unchanged (same object)
-    assert outcome.state is state
+    assert outcome.state is not state
+    assert outcome.state.policy_request_ref != ref
+    assert state.policy_request_ref == ref
 
 
 def test_plan_policy_request_error(execution_context, minimal_state):
@@ -64,9 +73,13 @@ def test_plan_policy_request_uses_branch_state_for_declared_outputs(
     execution_context, minimal_state, artifact_ref_factory
 ):
     frame_ref = artifact_ref_factory(kind="scientist.policy_request_frame")
-    mock_frame = MagicMock()
-    mock_frame.jurisdiction = "US"
-    mock_frame.request_id = "req-branch"
+    mock_frame = PolicyRequestFrame(
+        schema_version="1.1",
+        request_id="req-branch",
+        policy_question="What is the effect?",
+        jurisdiction="US",
+        jurisdiction_source="policy_request_jurisdiction",
+    )
     state = minimal_state.model_copy(deep=True)
     state.params["nested"] = {"baseline": True}
     observed: dict[str, tuple[str, ...]] = {}

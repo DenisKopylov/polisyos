@@ -288,7 +288,11 @@ export function buildDecisionPacketDocument(
   const replay = asRecord(record.replay);
   const analysisLimits = asRecord(record.analysis_limits);
   const distributional = packet.distributional;
-  const verifiedFindings = normalizeStrings(record.verified_findings);
+  const reportedFindings = normalizeStrings(record.verified_findings);
+  // No supported legal-verifier admission is currently available here. A status
+  // string or a historical "verified" field is only a reported value.
+  const legalVerificationNotEstablished =
+    legalVerification !== null || reportedFindings.length > 0;
   const hypotheses = normalizeStrings(record.hypotheses);
   const missingEvidence = normalizeStrings(policyAnswer?.missing_evidence);
   const notes = normalizeStrings(record.notes);
@@ -303,7 +307,7 @@ export function buildDecisionPacketDocument(
 
   if (
     executiveSummary ||
-    verifiedFindings.length > 0 ||
+    reportedFindings.length > 0 ||
     missingEvidence.length > 0 ||
     hypotheses.length > 0
   ) {
@@ -343,7 +347,9 @@ export function buildDecisionPacketDocument(
             `The packet carries owner decision grade ${packet.verdict || "Unknown"} across ${pluralize(packet.interventionCount, "intervention")} and owner confidence ${packet.confidence ?? "Unknown"}.`,
             needsExpertReview
               ? "Expert review is still explicitly required before this packet should be treated as publication-grade guidance."
-              : "No explicit expert-review gate is attached to the current recommendation bundle.",
+              : legalVerificationNotEstablished
+                ? "Legal claim verification is not established; the recorded expert-review gate is a separate status."
+                : "No explicit expert-review gate is attached to the current recommendation bundle.",
             hypotheses.length > 0
               ? `Open hypotheses remain active: ${joinClauses(hypotheses)}.`
               : "No additional policy hypotheses are attached to the decision packet.",
@@ -351,7 +357,7 @@ export function buildDecisionPacketDocument(
           "policy_answer",
         ),
         provenanceItems: buildSectionProvenance("policy", packet),
-        pullQuote: verifiedFindings[0] ?? executiveSummary ?? undefined,
+        pullQuote: executiveSummary ?? undefined,
       }),
     );
   }
@@ -629,10 +635,14 @@ export function buildDecisionPacketDocument(
     governance ||
     legalVerification ||
     sourceCoverage ||
-    verifiedFindings.length > 0
+    reportedFindings.length > 0
   ) {
-    const verifiedClaimCount =
-      asNumber(legalVerification?.verified_claim_count) ?? 0;
+    const candidateClaimCount = asNumber(
+      legalVerification?.candidate_claim_count,
+    );
+    const unboundClaimCount =
+      asNumber(legalVerification?.reported_unbound_claim_count) ??
+      asNumber(legalVerification?.verified_claim_count);
     const unresolvedGaps = asArray(sourceCoverage?.unresolved_critical_gaps);
 
     documentSections.push(
@@ -642,9 +652,11 @@ export function buildDecisionPacketDocument(
         footnotes: unresolvedGaps.length
           ? normalizeDescriptions(unresolvedGaps, 4)
           : undefined,
-        highlights: verifiedFindings,
+        highlights: reportedFindings,
         highlightsTitle:
-          verifiedFindings.length > 0 ? "Verified findings" : undefined,
+          reportedFindings.length > 0
+            ? "Previously reported findings (unverified)"
+            : undefined,
         id: "governance",
         lede:
           packet.issues.blockerCount === null
@@ -654,9 +666,16 @@ export function buildDecisionPacketDocument(
           {
             anchorId: "governance-lede",
             body:
-              verifiedClaimCount > 0
-                ? `${pluralize(verifiedClaimCount, "verified claim")} grounded in the legal verification pass.`
-                : "No verified-claim count is exposed in this preview.",
+              [
+                candidateClaimCount !== null
+                  ? pluralize(candidateClaimCount, "candidate claim")
+                  : null,
+                unboundClaimCount !== null
+                  ? pluralize(unboundClaimCount, "previously reported claim")
+                  : null,
+              ]
+                .filter(Boolean)
+                .join(" · ") || "Verified legal claim count is unknown.",
             id: "governance-claims",
             label: "Claims",
           },
@@ -673,18 +692,17 @@ export function buildDecisionPacketDocument(
         paragraphs: normalizeParagraphs(
           undefined,
           [
-            verifiedClaimCount > 0
-              ? `Legal verification currently grounds ${pluralize(verifiedClaimCount, "verified claim")} across ${
-                  asNumber(legalVerification?.verification_cycles_completed) ??
-                  0
-                } review cycle(s), which gives the packet a traceable legal spine.`
-              : "No dense legal-verification bundle is surfaced in the current preview, so legal certainty still depends on supporting artifacts.",
+            legalVerificationNotEstablished
+              ? "Legal claim verification is not established. The verified legal claim count is unknown; candidate and previously reported claims remain unverified."
+              : "No legal-verification bundle is surfaced in the current preview.",
             unresolvedGaps.length > 0
               ? `Source coverage still records ${pluralize(unresolvedGaps.length, "critical gap")}, so the packet should be read as operationally useful but not fully closed.`
               : "Source coverage does not expose critical unresolved gaps in the current packet preview.",
             needsExpertReview
               ? "The packet still requests expert review, which should be treated as a gating signal rather than a cosmetic warning."
-              : "No additional expert-review escalation is attached to the legal or governance layers.",
+              : legalVerificationNotEstablished
+                ? "The recorded expert-review status does not establish legal claim verification."
+                : "No additional expert-review escalation is attached to the legal or governance layers.",
           ],
           "governance",
         ),

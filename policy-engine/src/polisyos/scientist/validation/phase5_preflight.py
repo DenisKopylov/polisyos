@@ -10,14 +10,16 @@ from pydantic import BaseModel
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
-from polisyos.ir.analytics import ExplanationBundleRef
+from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
+from polisyos.ir.artifacts import ArtifactID as IRArtifactID
+from polisyos.ir.artifacts import InputRef as IRInputRef
 from polisyos.ir.governance.validation import (
     Phase5GateComponent,
     ValidationReport,
     load_validation_report,
     persist_validation_report,
 )
+from polisyos.ir.registry.refs import ExplanationBundleRef
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_DRIFT_READINESS_REF,
     ARTIFACT_EXPLANATION_BUNDLE_REF,
@@ -79,6 +81,17 @@ _PHASE5_REF_HINTS = (
     "shift",
 )
 
+# The role, rather than a payload's self-declared kind, selects an existing
+# owner reader. Additional roles require a real owner contract; they must not
+# silently fall back to an ID-only generic JSON read.
+_PHASE5_OWNER_KINDS = {
+    ARTIFACT_FAIRNESS_AUDIT_REPORT_REF: "scientist.fairness_audit_report",
+    ARTIFACT_SHIFT_DIAGNOSTIC_REPORT_REF: "ir.shift_diagnostic_report",
+    ARTIFACT_SENSITIVITY_ANALYSIS_BUNDLE_REF: "scientist.sensitivity_analysis_bundle",
+    ARTIFACT_SENSITIVITY_RESULT_REF: "ir.sensitivity_result",
+    ARTIFACT_EXPLANATION_BUNDLE_REF: "scientist.explanation_bundle",
+}
+
 
 @dataclass(frozen=True)
 class Phase5ArtifactPreflightInput:
@@ -101,9 +114,14 @@ class Phase5PublicationResult:
     validation_ref: Any
     judge_verdict: Any | None = None
     judge_verdict_ref: ArtifactRef | None = None
+    threshold_basis_ref: ArtifactRef | None = None
+    threshold_basis_status: Literal["current_at_evaluation", "stale", "not_established"] = (
+        "not_established"
+    )
     publishable: bool = False
     readiness: str = "blocked"
     blocked_reason: str | None = None
+    judge_verdict_provenance: Literal["candidate_diagnostic", "not_established"] = "not_established"
 
 
 @dataclass(frozen=True)
@@ -166,7 +184,7 @@ def build_phase5_validation_report(
         _sensitivity_component(all_mappings),
         _drift_component(all_mappings),
         _advisor_component(state, payload, advisor_result),
-        _six_judges_component(state, payload, all_mappings, analyst_facing=analyst_facing),
+        _six_judges_component(state, payload, analyst_facing=analyst_facing),
     ]
 
     readiness = _resolve_readiness(base_readiness, components)
@@ -176,7 +194,9 @@ def build_phase5_validation_report(
     evidence_refs = sorted(
         {ref for component in components for ref in component.evidence_refs if ref}
     )
-    judge_verdict_ref = _first_present_string(
+    # Preserve reported references for audit without treating them as this
+    # report's selected current judge attempt.
+    reported_judge_verdict_ref = _first_present_string(
         payload.get("judge_verdict_ref"),
         state.artifacts_index.get(ARTIFACT_JUDGE_VERDICT_REF),
         state.reports_index.get(ARTIFACT_JUDGE_VERDICT_REF),
@@ -193,7 +213,7 @@ def build_phase5_validation_report(
         phase5_components=components,
         gate_failures=gate_failures,
         evidence_refs=evidence_refs,
-        judge_verdict_ref=judge_verdict_ref,
+        judge_verdict_ref=None,
         advisor_consensus=advisor_consensus,
         fairness_audit=_first_fairness_audit_payload(all_mappings),
         normalized_payload={
@@ -201,6 +221,8 @@ def build_phase5_validation_report(
                 "component_count": len(components),
                 "loaded_evidence_refs": list(evidence.loaded_refs),
                 "failed_evidence_refs": list(evidence.failed_refs),
+                "reported_judge_verdict_ref": reported_judge_verdict_ref,
+                "judge_selection_status": "not_established",
                 "blocking_component_names": [
                     component.name
                     for component in components
@@ -227,19 +249,19 @@ def collect_phase5_evidence(
     loaded_refs: list[str] = []
     failed_refs: list[str] = []
     candidates: dict[str, _Phase5RefCandidate] = {}
-    expected_target_kind = (
-        "scientist.explanation_bundle"
-        if artifact_kind == "scientist.explanation_bundle"
-        else _expected_phase5_ref_kind("target_artifact", artifact_ref)
-    )
 
     _add_ref_candidate(
-        candidates, "target_artifact", artifact_ref, expected_kind=expected_target_kind
+        candidates,
+        failed_refs,
+        "target_artifact",
+        artifact_ref,
+        expected_kind=artifact_kind,
     )
     for key, ref in getattr(state, "artifacts_index", {}).items():
         if _is_phase5_ref_key(key):
             _add_ref_candidate(
                 candidates,
+                failed_refs,
                 key,
                 ref,
                 expected_kind=_expected_phase5_ref_kind(key, ref),
@@ -248,6 +270,7 @@ def collect_phase5_evidence(
         if _is_phase5_ref_key(key):
             _add_ref_candidate(
                 candidates,
+                failed_refs,
                 key,
                 ref,
                 expected_kind=_expected_phase5_ref_kind(key, ref),
@@ -256,6 +279,7 @@ def collect_phase5_evidence(
         if _is_phase5_ref_key(key):
             _add_ref_candidate(
                 candidates,
+                failed_refs,
                 key,
                 value,
                 expected_kind=_expected_phase5_ref_kind(key, value),
@@ -282,33 +306,30 @@ def collect_phase5_evidence(
     for role, reference in _collect_phase5_ref_candidates(payload):
         _add_ref_candidate(
             candidates,
+            failed_refs,
             role,
             reference,
             expected_kind=_expected_phase5_ref_kind(role, reference),
         )
 
     for role, candidate in sorted(candidates.items()):
-        if candidate.expected_kind == "scientist.explanation_bundle":
-            try:
-                loaded = _load_explanation_bundle_payload(ctx, candidate.reference)
-            except (OSError, RuntimeError, TypeError, ValueError) as exc:
-                failed_refs.append(f"{candidate.ref_text} ({exc})")
-                continue
-        else:
-            loaded = _load_ref_payload(ctx, candidate.ref_text)
-            if loaded is None:
-                if _ctx_store(ctx) is not None:
-                    failed_refs.append(candidate.ref_text)
-                continue
+        try:
+            loaded = _load_phase5_owned_evidence(ctx, role, candidate)
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            failed_refs.append(f"{candidate.ref_text} ({exc})")
+            continue
         loaded_refs.append(candidate.ref_text)
         record = {
             "kind": "phase5.loaded_evidence",
             "role": role,
             "artifact_ref": candidate.ref_text,
             "payload": loaded,
+            "selected_artifact_ref": _reference_payload(candidate.reference),
         }
-        if candidate.expected_kind == "scientist.explanation_bundle":
-            record["selected_artifact_ref"] = _reference_payload(candidate.reference)
+        if role == ARTIFACT_SHIFT_DIAGNOSTIC_REPORT_REF:
+            # The strict DTO has no wrapper key; carry its typed payload under
+            # the role the existing shift component consumes.
+            record["shift_diagnostic_report"] = loaded
         evidence_records.append(record)
 
     if evidence_records:
@@ -331,11 +352,19 @@ def run_phase5_artifact_preflight(
     payload = _as_mapping(preflight_input.artifact_payload)
     judge_verdict = None
     judge_verdict_ref = None
+    threshold_basis_ref = None
+    threshold_basis_status: Literal["current_at_evaluation", "stale", "not_established"] = (
+        "not_established"
+    )
+    diagnostic_reason = None
     if preflight_input.analyst_facing:
-        judge_verdict, judge_verdict_ref = _phase5_judge_verdict(ctx, state, payload)
+        (
+            judge_verdict,
+            diagnostic_reason,
+            threshold_basis_ref,
+            threshold_basis_status,
+        ) = _evaluate_selected_candidate_judges(ctx, state, preflight_input)
         payload = dict(payload)
-        payload["judge_verdict"] = _as_mapping(judge_verdict)
-        payload["judge_verdict_ref"] = _artifact_ref_to_text(judge_verdict_ref)
         payload["requires_six_judges"] = True
 
     report = build_phase5_validation_report(
@@ -349,11 +378,29 @@ def run_phase5_artifact_preflight(
         generated_for=preflight_input.generated_for or preflight_input.artifact_kind,
         analyst_facing=preflight_input.analyst_facing,
     )
+    if diagnostic_reason is not None:
+        gate_failures = [*report.gate_failures, diagnostic_reason]
+        report = report.model_copy(
+            update={
+                "gate_failures": gate_failures,
+                "error_summary": _summary(report.verdict, report.readiness, gate_failures),
+            }
+        )
+    if threshold_basis_ref is not None:
+        normalized_payload = dict(report.normalized_payload)
+        phase5 = dict(normalized_payload.get("phase5", {}))
+        phase5["judge_threshold_basis_ref"] = threshold_basis_ref.model_dump(mode="json")
+        phase5["judge_threshold_basis_status"] = threshold_basis_status
+        phase5["judge_threshold_basis_scope"] = "candidate_diagnostic"
+        normalized_payload["phase5"] = phase5
+        report = report.model_copy(update={"normalized_payload": normalized_payload})
     ir_store = _ensure_ir_artifact_store(ctx.store)
     validation_ref = persist_validation_report(
         ir_store,
         report,
-        inputs=_input_refs_for_publication(preflight_input.artifact_ref, judge_verdict_ref),
+        inputs=_input_refs_for_publication(
+            preflight_input.artifact_ref, judge_verdict_ref, threshold_basis_ref
+        ),
     )
     validation_report = load_validation_report(ir_store, validation_ref)
     publishable = validation_report.verdict not in {
@@ -368,9 +415,14 @@ def run_phase5_artifact_preflight(
         validation_ref=validation_ref,
         judge_verdict=judge_verdict,
         judge_verdict_ref=judge_verdict_ref,
+        threshold_basis_ref=threshold_basis_ref,
+        threshold_basis_status=threshold_basis_status,
         publishable=publishable,
         readiness=report.readiness,
         blocked_reason=None if publishable else report.error_summary,
+        judge_verdict_provenance=(
+            "candidate_diagnostic" if judge_verdict is not None else "not_established"
+        ),
     )
 
 
@@ -854,10 +906,12 @@ def _advisor_component(
 def _six_judges_component(
     state: ExperimentState,
     payload: Mapping[str, Any],
-    mappings: Iterable[Mapping[str, Any]],
     *,
     analyst_facing: bool = False,
 ) -> Phase5GateComponent:
+    # A verdict found in a payload or historical state is readable candidate
+    # data, not a selected, completed judge attempt. No current owner binding
+    # exists on the legacy Phase-5 publication path yet.
     required = bool(
         analyst_facing
         or state.params.get("phase5_require_judge_verdict")
@@ -865,52 +919,17 @@ def _six_judges_component(
         or payload.get("judge_verdict")
         or payload.get("judge_verdict_ref")
     )
-    verdicts = [
-        _as_mapping(record.get("judge_verdict") or record)
-        for record in mappings
-        if "judge_verdict" in record or "per_judge" in record
-    ]
-    if not required and not verdicts:
+    if not required:
         return _component(
             "six_judges",
             "not_applicable",
             required=False,
             summary="No six-judge verdict attached.",
         )
-    if not verdicts:
-        return _component(
-            "six_judges",
-            "blocked",
-            blockers=["Phase 5 requires the six-judge stack verdict."],
-        )
-    blockers: list[str] = []
-    warnings: list[str] = []
-    evidence_refs: list[str] = []
-    for verdict in verdicts:
-        evidence_refs.extend(_collect_ref_strings(verdict))
-        per_judge = _as_mapping(verdict.get("per_judge"))
-        present = {str(name) for name in per_judge}
-        missing = sorted(_JUDGES - present)
-        if missing:
-            blockers.append("Six-judge verdict missing: " + ", ".join(missing))
-        for judge_name, judge_verdict in per_judge.items():
-            judge_payload = _as_mapping(judge_verdict)
-            if not judge_payload:
-                blockers.append(f"Judge {judge_name} verdict is unavailable.")
-                continue
-            if judge_payload.get("passed") is False and judge_payload.get("is_fatal", True):
-                blockers.append(f"Judge {judge_name} failed fatally.")
-            status = _norm_status(judge_payload.get("status") or judge_payload.get("availability"))
-            if status in {"inactive", "unavailable", "not_run"}:
-                blockers.append(f"Judge {judge_name} is {status}.")
-            elif status in {"warn", "warning"}:
-                warnings.append(f"Judge {judge_name} passed with warnings.")
     return _component(
         "six_judges",
-        "blocked" if blockers else ("warn" if warnings else "pass"),
-        evidence_refs=evidence_refs,
-        blockers=blockers,
-        warnings=warnings,
+        "blocked",
+        blockers=["Phase-5 six-judge owner selection is not established."],
     )
 
 
@@ -926,7 +945,7 @@ def _component(
 ) -> Phase5GateComponent:
     return Phase5GateComponent(
         name=name,
-        status=status,  # type: ignore[arg-type]
+        status=status,
         required=required,
         evidence_refs=sorted(set(evidence_refs or [])),
         blockers=list(blockers or []),
@@ -977,6 +996,7 @@ def _is_phase5_ref_key(key: str) -> bool:
 
 def _add_ref_candidate(
     candidates: dict[str, _Phase5RefCandidate],
+    failures: list[str],
     role: str,
     value: Any,
     *,
@@ -984,32 +1004,37 @@ def _add_ref_candidate(
 ) -> None:
     if value is None or isinstance(value, list | tuple):
         return
-    kind = _reference_kind(value)
-    required_kind = expected_kind or (
-        "scientist.explanation_bundle" if kind == "scientist.explanation_bundle" else None
-    )
     ref_text = _ref_to_artifact_id(value)
-    if ref_text is None and required_kind is None:
-        return
     if ref_text is None:
         ref_text = value if isinstance(value, str) else f"invalid:{role}"
-    candidates.setdefault(
-        role,
-        _Phase5RefCandidate(
-            reference=value,
-            ref_text=ref_text,
-            expected_kind=required_kind,
-        ),
+    candidate = _Phase5RefCandidate(
+        reference=value,
+        ref_text=ref_text,
+        expected_kind=expected_kind,
     )
+    previous = candidates.get(role)
+    if previous is None:
+        candidates[role] = candidate
+    elif not _same_phase5_selected_ref(previous.reference, value):
+        failures.append(f"{role} (phase5_evidence_role_conflict)")
+
+
+def _same_phase5_selected_ref(left: Any, right: Any) -> bool:
+    """Compare complete selected identities, not only identical content IDs."""
+    try:
+        left_ref = ArtifactRef.model_validate(_reference_payload(left))
+        right_ref = ArtifactRef.model_validate(_reference_payload(right))
+    except (TypeError, ValueError):
+        # Identical legacy strings can remain readable, but cannot establish a
+        # selected owner profile in the admission below.
+        return isinstance(left, str) and left == right
+    return artifact_ref_identity_key(left_ref) == artifact_ref_identity_key(right_ref)
 
 
 def _expected_phase5_ref_kind(role: str, reference: Any) -> str | None:
-    """Resolve the fixed BERL kind from its declared Phase-5 slot or typed ref."""
-    if "explanation_bundle" in str(role).casefold() or (
-        _reference_kind(reference) == "scientist.explanation_bundle"
-    ):
-        return "scientist.explanation_bundle"
-    return None
+    """Resolve only code-declared roles; a reference cannot appoint its owner."""
+    del reference
+    return _PHASE5_OWNER_KINDS.get(role.split(".", 1)[0])
 
 
 def _collect_phase5_ref_candidates(payload: Mapping[str, Any]) -> list[tuple[str, Any]]:
@@ -1054,17 +1079,69 @@ def _ref_to_artifact_id(value: Any) -> str | None:
     return None
 
 
-def _load_ref_payload(ctx: ExecutionContext, ref_text: str) -> Any | None:
-    from polisyos.core.artifacts import load_core_json_artifact
-
+def _load_phase5_owned_evidence(
+    ctx: ExecutionContext,
+    role: str,
+    candidate: _Phase5RefCandidate,
+) -> Any:
+    """Resolve an exact selected reference through the role's existing owner."""
     store = _ctx_store(ctx)
     if store is None:
-        return None
-    try:
-        artifact_id = ArtifactID.model_validate(str(ref_text))
-        return load_core_json_artifact(store, artifact_id)
-    except (OSError, RuntimeError, TypeError, ValueError):
-        return None
+        raise ValueError("phase5_evidence_store_not_established")
+    expected_kind = candidate.expected_kind
+    if expected_kind == "scientist.explanation_bundle":
+        # BERL owns the diagnostic and validates the full selected reference.
+        return _load_explanation_bundle_payload(ctx, candidate.reference)
+    payload = _reference_payload(candidate.reference)
+    if not isinstance(payload, Mapping):
+        raise ValueError("phase5_evidence_selected_profile_not_established")
+    ref = ArtifactRef.model_validate(payload)
+    if ref.manifest_profile_sha256 is None:
+        raise ValueError("phase5_evidence_selected_profile_not_established")
+    if expected_kind is None:
+        raise ValueError(f"phase5_evidence_owner_not_established:{role}")
+    if ref.kind != expected_kind or ref.media_type != "application/json":
+        raise ValueError("phase5_evidence_role_kind_mismatch")
+    if expected_kind == "scientist.verified_policy_report" and role == "target_artifact":
+        from polisyos.core.contracts.scientist import VerifiedPolicyReportRef
+        from polisyos.scientist.validation.policy_verified import load_verified_policy_report
+
+        report = load_verified_policy_report(
+            store, VerifiedPolicyReportRef.model_validate(ref.model_dump(mode="json"))
+        )
+        return report.model_dump(mode="json")
+
+    ir_store = _ensure_ir_artifact_store(store)
+    if expected_kind == "scientist.fairness_audit_report":
+        from polisyos.ir.analytics.fairness_audit_report import load_fairness_audit_report
+        from polisyos.ir.registry.refs import FairnessAuditReportRef
+
+        return load_fairness_audit_report(
+            ir_store, FairnessAuditReportRef.model_validate(ref.model_dump(mode="json"))
+        ).model_dump(mode="json")
+    elif expected_kind == "ir.shift_diagnostic_report":
+        from polisyos.ir.analytics.shift_diagnostics import load_shift_diagnostic_report
+        from polisyos.ir.registry.refs import ShiftDiagnosticReportRef
+
+        return load_shift_diagnostic_report(
+            ir_store, ShiftDiagnosticReportRef.model_validate(ref.model_dump(mode="json"))
+        ).model_dump(mode="json")
+    elif expected_kind == "scientist.sensitivity_analysis_bundle":
+        from polisyos.ir.analytics.sensitivity import load_sensitivity_analysis_bundle
+        from polisyos.ir.registry.refs import SensitivityAnalysisBundleRef
+
+        return load_sensitivity_analysis_bundle(
+            ir_store, SensitivityAnalysisBundleRef.model_validate(ref.model_dump(mode="json"))
+        ).model_dump(mode="json")
+    elif expected_kind == "ir.sensitivity_result":
+        from polisyos.ir.analytics.sensitivity import load_sensitivity_result
+        from polisyos.ir.registry.refs import CausalSensitivityResultRef
+
+        return load_sensitivity_result(
+            ir_store, CausalSensitivityResultRef.model_validate(ref.model_dump(mode="json"))
+        ).model_dump(mode="json")
+    else:
+        raise ValueError(f"phase5_evidence_owner_not_established:{role}")
 
 
 def _load_explanation_bundle_payload(ctx: ExecutionContext, reference: Any) -> dict[str, Any]:
@@ -1090,132 +1167,167 @@ def _reference_payload(reference: Any) -> Any:
     return reference
 
 
-def _reference_kind(reference: Any) -> str | None:
-    if isinstance(reference, Mapping):
-        kind = reference.get("kind")
-    else:
-        kind = getattr(reference, "kind", None)
-    return str(kind) if isinstance(kind, str) else None
-
-
-def _phase5_judge_verdict(
+def _evaluate_selected_candidate_judges(
     ctx: ExecutionContext,
     state: ExperimentState,
-    payload: Mapping[str, Any],
-) -> tuple[Any, ArtifactRef | None]:
-    existing = _extract_existing_judge_verdict(payload)
-    if existing is None:
-        existing = _extract_existing_judge_verdict(state.params)
-    if existing is not None and _has_all_six_judges(_as_mapping(existing)):
-        verdict = existing
-    else:
-        judge_input = _judge_input_bundle_from_state(state)
-        if judge_input is not None:
-            from polisyos.scientist.methods.search.judge_stack import JudgeStack
+    preflight_input: Phase5ArtifactPreflightInput,
+) -> tuple[
+    Any | None,
+    str | None,
+    ArtifactRef | None,
+    Literal["current_at_evaluation", "stale", "not_established"],
+]:
+    """Evaluate a restricted candidate as diagnostics, without publication authority.
 
-            verdict = JudgeStack(store=_ctx_store(ctx)).evaluate_phase5_preflight(judge_input)
-        else:
-            verdict = _blocked_judge_verdict("phase5_judge_input_missing")
+    This does not establish a completed composition, evidence completeness, or
+    a trusted human appointment. It admits only the protected Engine's current
+    input, the exact body/profile it produced from that input, and the current
+    governance report. Other caller state and archived verdicts are not passed
+    to the judges.
+    """
+    from polisyos.core.artifacts import input_ref_from_artifact_ref
+    from polisyos.scientist.governance.report_currentness import resolve_current_governance_report
+    from polisyos.scientist.nodes.builtins.decide.build_verified_policy_report import (
+        BuildVerifiedPolicyReportNode,
+    )
+    from polisyos.scientist.nodes.builtins.state_keys import (
+        ARTIFACT_POLICY_OPTION_SET_REF,
+        ARTIFACT_POLICY_REQUEST_FRAME_REF,
+        ARTIFACT_SOURCE_VERIFICATION_REPORT_REF,
+    )
+    from polisyos.scientist.orchestration.engine.context import (
+        _EngineInvocationBinding,
+        _load_engine_owned_invocation_input_state,
+    )
+    from polisyos.scientist.orchestration.engine.producer_currentness import (
+        engine_invocation_identity_is_current,
+    )
+    from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
+    from polisyos.scientist.validation.policy_verified.selection import select_policy_source_ref
 
-    store = _ctx_store(ctx)
-    if store is None:
-        return verdict, None
-    from polisyos.scientist.methods.search.judge_stack import persist_judge_verdict
+    if preflight_input.artifact_kind != "scientist.verified_policy_report":
+        return None, None, None, "not_established"
+    binding = getattr(ctx, "_engine_invocation", None)
+    if type(binding) is not _EngineInvocationBinding:
+        return None, None, None, "not_established"
+    try:
+        attempts = ctx.run.read_runtime_invocation_attempts()
+        matches = [
+            attempt
+            for attempt in attempts
+            if attempt.basis.attempt_id == binding.attempt_id
+            and attempt.basis_ref == binding.basis_ref
+        ]
+        component_id = str(BuildVerifiedPolicyReportNode().spec.metadata.component_id)
+        if (
+            len(matches) != 1
+            or matches[0].outcome is not None
+            or not engine_invocation_identity_is_current(
+                ctx, matches[0].basis, expected_component_id=component_id
+            )
+        ):
+            return None, None, None, "not_established"
+        source = _load_engine_owned_invocation_input_state(ctx, state)
+        if source is None:
+            return None, None, None, "not_established"
+        request_ref = select_policy_source_ref(
+            source.policy_request_ref, source.artifacts_index.get(ARTIFACT_POLICY_REQUEST_FRAME_REF)
+        )
+        option_ref = select_policy_source_ref(
+            source.policy_option_set_ref, source.artifacts_index.get(ARTIFACT_POLICY_OPTION_SET_REF)
+        )
+        source_ref = select_policy_source_ref(
+            source.source_verification_report_ref,
+            source.artifacts_index.get(ARTIFACT_SOURCE_VERIFICATION_REPORT_REF),
+        )
+        body_ref = ArtifactRef.model_validate(_reference_payload(preflight_input.artifact_ref))
+        if (
+            request_ref is None
+            or option_ref is None
+            or source_ref is None
+            or any(
+                ref.manifest_profile_sha256 is None
+                for ref in (request_ref, option_ref, source_ref, body_ref)
+            )
+            or not ctx.store.verify(body_ref).ok
+        ):
+            return None, None, None, "not_established"
+        expected_inputs = [
+            input_ref_from_artifact_ref(request_ref, role="policy_request_frame"),
+            input_ref_from_artifact_ref(option_ref, role="policy_option_set"),
+            input_ref_from_artifact_ref(source_ref, role="source_verification_report"),
+        ]
+        if ctx.store.get_manifest(body_ref).inputs != expected_inputs:
+            return None, None, None, "not_established"
+        owned_body = _load_phase5_owned_evidence(
+            ctx,
+            "target_artifact",
+            _Phase5RefCandidate(body_ref, str(body_ref.artifact_id), preflight_input.artifact_kind),
+        )
+        if owned_body != _as_mapping(preflight_input.artifact_payload):
+            return None, None, None, "not_established"
+        raw_candidate = source.params.get("policy_candidate_schema")
+        if raw_candidate is None:
+            return None, None, None, "not_established"
+        candidate = PolicyCandidateSchema.model_validate(raw_candidate)
+        assessment = resolve_current_governance_report(ctx, source)
+        if not assessment.is_current or assessment.report is None:
+            return None, None, None, "not_established"
+    except (AttributeError, OSError, RuntimeError, TypeError, ValueError):
+        return None, None, None, "not_established"
 
-    ref = persist_judge_verdict(store, verdict, inputs=_input_refs_for_publication(None, None))
-    model_copy = getattr(verdict, "model_copy", None)
-    if callable(model_copy):
-        verdict = model_copy(update={"audit_log_ref": ref})
-    return verdict, ref
-
-
-def _judge_input_bundle_from_state(state: ExperimentState) -> Any | None:
-    for key in ("phase5_judge_input_bundle", "judge_input_bundle"):
-        value = state.params.get(key)
-        if value is None:
-            continue
-        from polisyos.scientist.methods.search.judge_stack import JudgeInputBundle
-
-        if isinstance(value, JudgeInputBundle):
-            return value
-        try:
-            return JudgeInputBundle.model_validate(value)
-        except (TypeError, ValueError):
-            continue
-    return None
-
-
-def _extract_existing_judge_verdict(payload: Any) -> Any | None:
-    from polisyos.scientist.methods.search.judge_stack import JudgeVerdict
-
-    for record in _walk_mappings(payload):
-        candidate = record.get("judge_verdict") if "judge_verdict" in record else record
-        candidate_mapping = _as_mapping(candidate)
-        if "per_judge" not in candidate_mapping:
-            continue
-        try:
-            return JudgeVerdict.model_validate(candidate_mapping)
-        except (TypeError, ValueError):
-            continue
-    return None
-
-
-def _has_all_six_judges(verdict: Mapping[str, Any]) -> bool:
-    per_judge = _as_mapping(verdict.get("per_judge"))
-    return _JUDGES.issubset({str(name) for name in per_judge})
-
-
-def _blocked_judge_verdict(reason: str) -> Any:
-    from polisyos.ir import FailureSeverity, TypedFailureCard
-    from polisyos.scientist.methods.search.judge_stack import (
-        JudgeName,
-        JudgeVerdict,
-        SingleJudgeVerdict,
+    from polisyos.scientist.validation.policy_verified.models import VerifiedPolicyReport
+    from polisyos.scientist.validation.policy_verified.phase5_candidate import (
+        evaluate_phase5_candidate,
     )
 
-    per_judge = {}
-    failures = []
-    for judge in JudgeName:
-        card = TypedFailureCard(
-            judge_name=judge.value,
-            failure_type=reason,
-            severity=FailureSeverity.BLOCKER,
-            description="Phase 5 could not build a judge input bundle for this artifact.",
-            remediation_hint="Attach phase5_judge_input_bundle or a persisted six-judge verdict.",
-        )
-        failures.append(card)
-        per_judge[judge.value] = SingleJudgeVerdict(
-            judge_name=judge.value,
-            passed=False,
-            is_fatal=True,
-            failure_card=card,
-            violations=[reason],
-            escalation_level="fatal",
-        )
-    return JudgeVerdict(
-        per_judge=per_judge,
-        composite_decision="reject",
-        blocking_failures=failures,
+    evaluation = evaluate_phase5_candidate(
+        ctx.store,
+        candidate=candidate,
+        governance_report=assessment.report,
+        run_id=source.run_id,
+        body=VerifiedPolicyReport.model_validate(owned_body),
+    )
+    return (
+        evaluation.verdict,
+        evaluation.reason,
+        evaluation.threshold_basis_ref,
+        evaluation.threshold_basis_status,
     )
 
 
 def _input_refs_for_publication(
     artifact_ref: ArtifactRef | ExplanationBundleRef | str | None,
     judge_verdict_ref: ArtifactRef | None,
-) -> list[InputRef] | None:
-    inputs: list[InputRef] = []
+    threshold_basis_ref: ArtifactRef | None = None,
+) -> list[IRInputRef] | None:
+    inputs: list[IRInputRef] = []
     artifact_id = _ref_to_artifact_id(artifact_ref)
     if artifact_id:
         manifest_profile_sha256 = _reference_profile(artifact_ref)
         inputs.append(
-            InputRef(
-                artifact_id=ArtifactID.model_validate(artifact_id),
+            IRInputRef(
+                artifact_id=IRArtifactID.model_validate(artifact_id),
                 role="artifact",
                 manifest_profile_sha256=manifest_profile_sha256,
             )
         )
     if judge_verdict_ref is not None:
-        inputs.append(InputRef(artifact_id=judge_verdict_ref.artifact_id, role="judge_verdict"))
+        inputs.append(
+            IRInputRef(
+                artifact_id=IRArtifactID.model_validate(str(judge_verdict_ref.artifact_id)),
+                role="judge_verdict",
+                manifest_profile_sha256=judge_verdict_ref.manifest_profile_sha256,
+            )
+        )
+    if threshold_basis_ref is not None:
+        inputs.append(
+            IRInputRef(
+                artifact_id=IRArtifactID.model_validate(str(threshold_basis_ref.artifact_id)),
+                role="judge_threshold_basis",
+                manifest_profile_sha256=threshold_basis_ref.manifest_profile_sha256,
+            )
+        )
     return inputs or None
 
 

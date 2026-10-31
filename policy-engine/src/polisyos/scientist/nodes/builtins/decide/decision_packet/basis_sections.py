@@ -367,16 +367,24 @@ def _build_sensitivity_section(
     *,
     packet_payload: dict[str, object] | None = None,
 ) -> dict[str, object] | None:
-    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.ir.analytics.sensitivity import (
+        SensitivityAnalysisBundleRef,
+        load_sensitivity_analysis_bundle,
+    )
 
     canonical_ref = artifacts_index.get(ARTIFACT_SENSITIVITY_ANALYSIS_BUNDLE_REF)
     if canonical_ref is not None:
         try:
-            artifact_obj = load_core_json_artifact(ctx.store, canonical_ref)
+            if canonical_ref.manifest_profile_sha256 is None:
+                raise ValueError("sensitivity_bundle_selected_profile_not_established")
+            artifact_obj = load_sensitivity_analysis_bundle(
+                _ensure_ir_artifact_store(ctx.store),
+                SensitivityAnalysisBundleRef.model_validate(canonical_ref.model_dump(mode="json")),
+            )
             return {
                 "ref": str(canonical_ref.artifact_id),
-                "sensitivity_analysis_bundle_ref": str(canonical_ref.artifact_id),
-                "content": artifact_obj,
+                "sensitivity_analysis_bundle_ref": canonical_ref.model_dump(mode="json"),
+                "content": artifact_obj.model_dump(mode="json"),
             }
         except _DECISION_PACKET_LOAD_ERRORS as exc:
             _record_decision_packet_section_degraded(
@@ -387,12 +395,20 @@ def _build_sensitivity_section(
                 ref=canonical_ref,
                 artifact_key=ARTIFACT_SENSITIVITY_ANALYSIS_BUNDLE_REF,
             )
+            # The selected canonical bundle cannot be replaced by a different
+            # legacy source when its owner admission fails.
+            return {
+                "ref": str(canonical_ref.artifact_id),
+                "parse_warning": "sensitivity_bundle_parse_failed",
+            }
 
     ref = artifacts_index.get(ARTIFACT_SENSITIVITY_RESULT_REF)
     if ref is None:
         return None
     payload: dict[str, object] = {"ref": str(ref.artifact_id)}
     try:
+        if ref.manifest_profile_sha256 is None:
+            raise ValueError("sensitivity_result_selected_profile_not_established")
         result = load_sensitivity_result(
             _ensure_ir_artifact_store(ctx.store),
             CausalSensitivityResultRef.model_validate(ref.model_dump(mode="json")),
@@ -406,21 +422,7 @@ def _build_sensitivity_section(
             ref=ref,
             artifact_key=ARTIFACT_SENSITIVITY_RESULT_REF,
         )
-        try:
-            artifact_obj = load_core_json_artifact(ctx.store, ref)
-            if isinstance(artifact_obj, dict):
-                payload["content"] = artifact_obj
-        except _DECISION_PACKET_LOAD_ERRORS as fallback_exc:
-            payload["parse_warning"] = "artifact_parse_failed"
-            _record_decision_packet_section_degraded(
-                packet_payload,
-                operation="load_sensitivity_fallback_artifact",
-                reason="sensitivity_fallback_artifact_load_failed",
-                exc=fallback_exc,
-                ref=ref,
-                artifact_key=ARTIFACT_SENSITIVITY_RESULT_REF,
-            )
-        payload.setdefault("parse_warning", "sensitivity_parse_failed")
+        payload["parse_warning"] = "sensitivity_parse_failed"
         return payload
 
     content = result.model_dump(mode="json")
@@ -435,7 +437,7 @@ def _build_sensitivity_section(
             bundle,
             inputs=[input_ref_from_artifact_ref(ref, role="legacy_sensitivity_result")],
         )
-        payload["sensitivity_analysis_bundle_ref"] = str(bundle_ref.artifact_id)
+        payload["sensitivity_analysis_bundle_ref"] = bundle_ref.model_dump(mode="json")
         payload["sensitivity_analysis_bundle"] = bundle.model_dump(mode="json")
     except _DECISION_PACKET_LOAD_ERRORS as exc:
         payload["parse_warning"] = "sensitivity_bundle_wrap_failed"

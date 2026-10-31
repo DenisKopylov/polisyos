@@ -9,9 +9,9 @@ def policy_verified_workflow_spec() -> WorkflowSpec:
     """Build the `scientist_policy_verified` workflow spec.
 
     The DAG assumes registry input and either research intent or a policy
-    question in `params`, verifies legal/source support before drafting,
-    formalizes the selected option into Trinity, then runs simulation,
-    arbitration, governance, and verified-report packaging.
+    question in `params`, gathers legal-source candidates, drafts options,
+    and runs formalization, simulation, arbitration and governance. Legal
+    verification and option-to-program correspondence remain unestablished.
 
     Returns:
         `WorkflowSpec` for the legacy verified-policy path that does not run
@@ -162,6 +162,21 @@ def policy_verified_workflow_spec() -> WorkflowSpec:
                 ],
             ),
             NodeInvocation(
+                alias="select_policy_candidate",
+                node_id="scientist.node_select_policy_candidate@1.0.0",
+                depends_on=["formalize_verified_policy"],
+            ),
+            NodeInvocation(
+                alias="build_verified_policy_body",
+                node_id="scientist.node_build_verified_policy_body@1.0.0",
+                depends_on=[
+                    "draft_policy_options",
+                    "run_source_gap_review",
+                    "run_simulation",
+                    "run_causal_evaluation",
+                ],
+            ),
+            NodeInvocation(
                 alias="run_governance",
                 node_id="scientist.node_run_governance@1.2.0",
                 depends_on=[
@@ -170,6 +185,10 @@ def policy_verified_workflow_spec() -> WorkflowSpec:
                     "run_distributional_analysis",
                     "run_causal_evaluation",
                     "run_normative_arbitration",
+                    "select_policy_candidate",
+                    "build_verified_policy_body",
+                    "run_metric_validation",
+                    "propagate_welfare",
                 ],
             ),
             NodeInvocation(
@@ -198,8 +217,8 @@ def policy_verified_workflow_spec() -> WorkflowSpec:
             ),
         ],
         notes=[
-            "Scientist production workflow uses lex graph for recall and source verification for final trust.",
-            "Verified-only legal basis is produced before drafting and formalization.",
+            "Independent legal claim verification is not established; source interpretations remain candidates.",
+            "Selected policy option correspondence to the final program is not established.",
             "Workflow is additive and leaves scientist_default and scientist_causal_full unchanged.",
         ],
     )

@@ -4,11 +4,11 @@ type = "added"
 component = "scientist"
 owner = "scientist"
 summary = "Selected trusted builtin components receive physically restricted state and CAS/run APIs, while Engine attempts bind their exact predecessor and merge declared writes without discarding hidden state."
-evidence = ["src/polisyos/scientist/orchestration/engine/README.md", "tests/unit/scientist/orchestration/engine/test_input_ports.py", "tests/unit/scientist/nodes/builtins/decide/test_build_verified_policy_body.py"]
+evidence = ["src/polisyos/scientist/orchestration/engine/README.md", "tests/unit/scientist/orchestration/engine/test_input_ports.py", "tests/unit/scientist/nodes/builtins/decide/test_build_verified_policy_body.py", "tests/unit/scientist/orchestration/engine/test_phase5_source_view.py", "tests/unit/scientist/nodes/builtins/decide/test_evaluate_verified_policy_phase5.py"]
 compatibility = "Ordinary NodeSpec behavior and bytes remain compatible; input-aware components require their independently held supported implementation and contract."
 change_class = "Internal selected-component execution contract and audit lineage."
 surface_classification = "internal: internal-only"
-api = "No stable facade, HTTP, dashboard or generated client API is added. Input-basis lineage also binds the held helper/source-owner definition digest."
+api = "No stable facade, HTTP, dashboard or generated client API is added. Input-basis lineage also binds the held helper/source-owner definition digest. The fixed Phase-5 candidate profile receives a detached currentness view through the existing Engine/run owner, without predecessor or history access."
 limitations = "Trusted selected in-process builtin profile only; arbitrary Python/process isolation and synchronous process-timeout transport are unsupported. Unsupported timed ports refuse before node work. Input coordinates and candidate artifacts do not confer authority or completion."
 generated_client_compatibility = "not_applicable"
 

@@ -43,15 +43,15 @@ def test_source_verification_uses_branch_state_for_declared_outputs(
         ),
         patch(
             "polisyos.scientist.nodes.builtins.planning.run_source_verification.load_policy_request_frame",
-            return_value=MagicMock(),
+            return_value=MagicMock(request_id="synthetic"),
         ),
         patch(
             "polisyos.scientist.nodes.builtins.planning.run_source_verification.load_legal_candidate_pack",
-            return_value=MagicMock(),
+            return_value=MagicMock(request_id="synthetic"),
         ),
         patch(
             "polisyos.scientist.nodes.builtins.planning.run_source_verification.load_legal_source_pack",
-            return_value=MagicMock(),
+            return_value=MagicMock(request_id="synthetic"),
         ),
         patch(
             "polisyos.scientist.nodes.builtins.planning.run_source_verification.verify_source_pack",

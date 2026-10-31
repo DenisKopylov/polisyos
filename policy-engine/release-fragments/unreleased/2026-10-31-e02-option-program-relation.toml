@@ -1,0 +1,26 @@
+id = "2026-10-31-e02-option-program-relation"
+title = "Reconcile explicit option intent with final declared policy programs"
+type = "added"
+component = "scientist"
+owner = "scientist"
+summary = "A profile-bound relation producer and fresh reader compare explicit structured option intent with the actual final candidate and Trinity, including full action content, population, timing and constraints."
+evidence = ["src/polisyos/scientist/policy_design/README.md", "tests/unit/scientist/policy_design/test_option_program.py"]
+compatibility = "Existing option/candidate artifacts remain readable and acquire no correspondence guarantee. The new internal relation is additive and versioned."
+change_class = "Internal candidate-grade declared-program reconciliation."
+surface_classification = "internal: internal-only"
+api = "No HTTP or generated client surface changes. Callers supply exact current selected source refs."
+limitations = "Single explicit IR intent only; prose and multi-option interpretation are unavailable. Declared IR correspondence does not establish actual mechanism behavior, legal authority, workflow composition or G closure."
+generated_client_compatibility = "not_applicable"
+
+[[compatibility_change]]
+id = "option-program-relation-v1"
+change_class = "persisted-artifact-format"
+impact = "additive"
+surface = "internal: internal-only"
+owner = "scientist"
+version_owner = "scientist"
+deprecation_window = "not_applicable"
+release_note = "New relations bind the request, option set, selected options and actual final candidate/Trinity; historical sources stay unbound."
+generated_client_compatibility = "not_applicable"
+migration_docs = []
+runbook_docs = []

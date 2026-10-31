@@ -1,0 +1,41 @@
+id = "2026-10-31-e02-selected-policy-intake"
+title = "Bind selected policy inputs and preserve legal claims as candidates"
+type = "fixed"
+component = "scientist"
+owner = "scientist"
+summary = "Policy request production requires a declared target jurisdiction, and selected request, option, and source-report edges must match their exact profiles. Candidate content is compared through a common typed program view; the body and candidate retain their Engine-selected inputs and attempts. New default registry bundles retain selected member profiles. Retrieved and model-proposed legal interpretations remain unverified candidates, with the missing semantic verifier visible to packet and review consumers. The existing candidate Phase-5 producer is available through the builtin registry but is not yet selected by the staged workflow."
+evidence = ["src/polisyos/scientist/validation/README.md", "tests/unit/scientist/validation/test_policy_request_scope.py", "tests/unit/scientist/validation/test_policy_source_claim_authority.py", "tests/unit/scientist/governance/human_review/test_decision_packet_integration.py", "tests/unit/scientist/policy_design/test_policy_verified_nodes.py", "apps/runtime-dashboard/src/features/artifacts/reading-view/MonographLayout.test.tsx", "tests/unit/scientist/nodes/builtins/decide/test_policy_source_content_binding.py", "tests/unit/scientist/nodes/builtins/decide/test_candidate_selected_content.py", "tests/unit/scientist/nodes/builtins/decide/test_build_verified_policy_body.py", "tests/unit/scientist/nodes/builtins/decide/test_select_policy_candidate.py", "tests/unit/scientist/nodes/test_verified_policy_phase5_registry.py", "tests/unit/scientist/orchestration/workflows/test_policy_candidate_body_stages.py", "tests/unit/scientist/orchestration/workflows/test_builder_pinning.py"]
+compatibility = "PolicyRequestFrame v1 remains readable, but its old implicit jurisdiction cannot establish target scope. New request frames use v1.1 and record the caller field that supplied jurisdiction. Older strict readers must be upgraded before consuming v1.1. Missing or conflicting scope now refuses before legal retrieval. SourceVerificationReport v1 remains readable but its prior legal labels do not establish a verifier; new v1.1 reports preserve candidate claims and require upgraded strict readers. New source events report verified_claims as the string not_established rather than a numeric count. Public review summaries retain public-sector legal-basis uncertainty even when a caller checklist asserts it is documented."
+change_class = "persisted-artifact-format"
+surface_classification = "public_stable: polisyos.scientist.validation.policy_verified; internal: selected candidate and body workflow producers"
+api = "Policy request v1.1 records the caller field supplying the target jurisdiction."
+limitations = "Caller-declared scope is not institutional authority. Retrieved and model-generated legal claims have no independent semantic legal verifier or issuer. Candidate selection and the verified body remain candidate-grade; the completed shared publication, option-to-program correspondence, executable behavior and final approval require their separate owners."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/scientist/validation/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "policy-request-frame-scope-v1-1"
+change_class = "persisted-artifact-format"
+impact = "additive"
+surface = "public_stable: polisyos.scientist.validation.policy_verified"
+owner = "scientist"
+version_owner = "scientist"
+deprecation_window = "not_applicable"
+release_note = "Declare the policy target and its caller field when producing a v1.1 request; old v1 frames remain readable but do not establish target scope provenance."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/scientist/validation/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "source-verification-legal-claims-v1-1"
+change_class = "persisted-artifact-format"
+impact = "breaking"
+surface = "public_stable: polisyos.scientist.validation.policy_verified"
+owner = "scientist"
+version_owner = "scientist"
+deprecation_window = "not_applicable"
+release_note = "Upgrade strict readers for source-report v1.1. Retrieved and model-proposed legal claims remain candidates until independently verified; old v1 labels remain readable but unbound."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/scientist/validation/README.md"]
+runbook_docs = []

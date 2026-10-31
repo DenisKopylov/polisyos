@@ -346,7 +346,10 @@ class CompileFoundryNode:
         prepared = self._prepare_request(ctx, state)
         if isinstance(prepared, NodeOutcome):
             return prepared
-        result = ctx.foundry.compile(ctx.store, prepared)
+        foundry = ctx.foundry
+        if foundry is None:
+            raise RuntimeError("foundry_port_changed_during_request_preparation")
+        result = foundry.compile(ctx.store, prepared)
         new_state, artifacts = self._apply_result(state, result)
 
         if not result.ok:

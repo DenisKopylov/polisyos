@@ -23,6 +23,9 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_TRINITY_BUNDLE_REF,
 )
 from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.policy_design.option_program_contracts import (
+    OPTION_PROGRAM_CORRESPONDENCE_NOT_ESTABLISHED,
+)
 
 if TYPE_CHECKING:
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
@@ -245,15 +248,31 @@ def _populate_optional_report_projections(
                 SourceVerificationReportRef.model_validate(source_verification_ref.model_dump()),
             )
             packet_payload["legal_verification"] = {
-                "verified_claim_count": len(report.verified_claims),
-                "citation_coverage_pct": report.verified_claim_citation_coverage_pct,
+                "verification_status": "not_established",
+                "verified_claim_count": None,
+                "reported_unbound_claim_count": len(report.verified_claims),
+                "candidate_claim_count": len(report.legal_claim_candidates),
+                "citation_coverage_pct": None,
                 "needs_expert_review": report.needs_expert_review,
                 "verification_cycles_completed": report.verification_cycles_completed,
             }
+            gaps = [gap.model_dump(mode="json") for gap in report.unresolved_critical_gaps]
+            if not any(
+                gap.get("category") == "legal_claim_verification_not_established"
+                and gap.get("severity") == "critical"
+                and not gap.get("resolved", False)
+                for gap in gaps
+            ):
+                gaps.append(
+                    {
+                        "category": "legal_claim_verification_not_established",
+                        "description": "Independent legal claim verification is not established.",
+                        "severity": "critical",
+                        "provenance": "consumer_recomputed",
+                    }
+                )
             packet_payload["source_coverage"] = {
-                "unresolved_critical_gaps": [
-                    gap.model_dump(mode="json") for gap in report.unresolved_critical_gaps
-                ],
+                "unresolved_critical_gaps": gaps,
                 "verifier_calls_total": report.verifier_calls_total,
                 "adjudicator_calls_total": report.adjudicator_calls_total,
                 "verifier_disagreement_rate": report.verifier_disagreement_rate,
@@ -278,10 +297,20 @@ def _populate_optional_report_projections(
         if admission.is_current:
             verified_report = admission.report
             assert verified_report is not None
+            missing_evidence = list(verified_report.missing_evidence)
+            correspondence_limitation = (
+                "The selected policy option has not been matched to the final program."
+            )
+            if correspondence_limitation not in missing_evidence:
+                missing_evidence.append(correspondence_limitation)
             packet_payload["policy_answer"] = {
                 "executive_summary": verified_report.executive_summary,
-                "missing_evidence": list(verified_report.missing_evidence),
+                "missing_evidence": missing_evidence,
                 "needs_expert_review": verified_report.needs_expert_review,
+                "option_program_correspondence": {
+                    "status": "not_established",
+                    "reason_code": OPTION_PROGRAM_CORRESPONDENCE_NOT_ESTABLISHED,
+                },
             }
             packet_payload["verified_findings"] = list(verified_report.verified_findings)
             packet_payload["hypotheses"] = list(verified_report.hypotheses)
@@ -320,6 +349,10 @@ def _populate_optional_report_projections(
                     else None
                 ),
                 "phase3_gate": policy_bundle.phase3_gate.model_dump(mode="json"),
+                "option_program_correspondence": {
+                    "status": "not_established",
+                    "reason_code": OPTION_PROGRAM_CORRESPONDENCE_NOT_ESTABLISHED,
+                },
             }
         except _DECISION_PACKET_LOAD_ERRORS as exc:
             _record_decision_packet_degraded(

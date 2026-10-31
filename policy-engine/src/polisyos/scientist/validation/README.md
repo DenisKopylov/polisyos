@@ -15,6 +15,75 @@ verification.
 - IC and implementation-conformance verification: [`verification/`](verification/)
 - Metric and fairness validation: [`metrics.py`](metrics.py), [`benchmarks.py`](benchmarks.py), and [`fairness_audit.py`](fairness_audit.py)
 
+## Phase-5 publication selection
+
+An analyst-facing Phase-5 publication requires an owner-selected six-judge attempt.
+Inline verdicts and archived history are retained as reported data; neither
+establishes that attempt. The current preflight reports
+`judge_selection_status=not_established` and blocks publication until a completed
+staged composition connects the verified body, governance assessment, judges,
+and final governance result. Historical artifact readers remain available.
+
+An explicitly selected protected Engine attempt can run all six judges with
+restricted candidate inputs and persist a `candidate_diagnostic` bound to the
+actual body, candidate, governance, judge attempts, and threshold snapshot. It
+rechecks the live registry after evaluation and refuses missing, invalid, or
+changed snapshots. Its `current_at_evaluation` status is historical: a later
+consumer must recheck currentness. The candidate diagnostic is available in the
+production builtin registry, but no production workflow selects it yet. The
+staged production workflow and shared completion publication remain
+`implemented_but_not_orchestrated` and
+`bridge_missing`; this diagnostic is not a publication decision. Neither a typed
+verdict nor the snapshot supplies calibration or human appointment authority.
+
+The search owner's `judge_threshold_basis` adapter can persist and recheck the
+selected live registry snapshot, including its source and resolver implementation.
+Its frozen view preserves every captured entry. It is wired to the candidate
+diagnostic, but staged publication remains `implemented_but_not_orchestrated`:
+the snapshot alone does not prove that all required thresholds exist, that they
+are calibrated, or that a named approver has authority.
+
+## Policy request scope
+
+The request producer records the caller's target jurisdiction and the field that
+supplied it in `PolicyRequestFrame` v1.1. A Scholar research jurisdiction is a
+source-search scope and does not supply the policy target. Missing, conflicting,
+invalid or unprofiled request inputs refuse before legal retrieval. Historical
+v1 frames remain readable, but their jurisdiction alone cannot show whether it
+was declared or supplied by the former default; legal retrieval reports that
+scope provenance as not established. The v1.1 source is caller-asserted context,
+not institutional authority. Candidate body and report intake also require the
+option and source-verification artifacts to bind the exact selected request, and
+the option to bind that source report, by full manifest profile. Those joins do
+not establish producer provenance or legal authority; unbound historical artifacts
+remain readable.
+
+## Legal claim candidates
+
+`SourceVerificationReport` v1.1 carries retrieved facts and model-proposed
+interpretations as canonical `ClaimRecord` candidates, with their proposed text,
+source facets and raw model fields retained. A quotation, search-candidate label,
+or model response does not independently verify a legal conclusion. These
+claims are context-only, not evaluable or publishable, and the report records
+`legal_claim_verification_not_established` as a critical gap requiring expert
+review. Policy options may remain hypotheses; verified legal findings and options
+are not admitted by this producer. Packet and review projections preserve the
+limitation rather than infer legal basis from a populated section. In newly
+generated reports, `verifier_calls_total` counts LLM candidate-extraction
+attempts plus any carried-forward historical count; it is telemetry, not evidence
+of independent legal verification. New source-producer events expose the
+candidate count and `legal_verification_status`; their `verified_claims` value is
+the string `not_established`, so consumers must not treat it as a number. A
+human-review packet retains any caller-supplied checklist, but the public review
+summary labels a positive legal-documentation flag `consumer_asserted` and keeps
+that item unresolved for public-sector risk without independent admission.
+
+Historical v1 reports remain readable and retain their original recorded labels;
+those labels are unbound to an independent semantic verifier and cannot be
+promoted into current legal findings. New v1.1 artifacts require readers that
+understand the candidate fields. An institutional legal verifier and reviewer
+appointment are not supplied by this change.
+
 ## Compatibility
 
 The old first-level packages `polisyos.scientist.decision_validity`,

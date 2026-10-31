@@ -32,6 +32,8 @@ __all__ = [
     "BudgetLedgerMutation",
     "BudgetLedgerMutationResult",
     "BudgetLedgerSnapshot",
+    "BudgetLedgerSourceProfile",
+    "BudgetLedgerRead",
     "BudgetLedgerComputeReservation",
     "BudgetLedgerWriter",
     "BudgetLedgerSpendReceipt",
@@ -451,6 +453,36 @@ class BudgetLedgerSnapshot(BaseModel):
     )
 
 
+class BudgetLedgerSourceProfile(BaseModel):
+    """Recomputed source facts from the exact persisted snapshot bytes.
+
+    Field presence and schema describe the source before compatibility defaults
+    and normalization. This local accounting observation grants no permission,
+    external billing authority, or inference that monetary obligations are absent.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    predicate_provenance: Literal["recomputed"] = "recomputed"
+    schema_version: str
+    snapshot_fields: frozenset[str]
+    state_fields: frozenset[str]
+    ledger_id: str | None
+    canonical_contract: str
+    coordination_mode: str
+    revision: int = Field(ge=0)
+    content_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+
+
+class BudgetLedgerRead(BaseModel):
+    """Detached compatible snapshot and its same-read persisted source profile."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    snapshot: BudgetLedgerSnapshot
+    source_profile: BudgetLedgerSourceProfile
+
+
 _PERSISTED_SNAPSHOT_SCHEMA = BudgetLedgerSnapshot.model_json_schema(mode="serialization")
 
 
@@ -617,6 +649,7 @@ class BudgetLedger(Protocol):
 
     def load(self) -> BudgetState: ...
     def snapshot(self) -> BudgetLedgerSnapshot: ...
+    def snapshot_with_source(self) -> BudgetLedgerRead: ...
     def load_or_bootstrap(self, initial_state: BudgetState) -> BudgetState: ...
     def record_spend(
         self,
@@ -754,6 +787,23 @@ class FileBudgetLedger:
         if snapshot is None:
             raise FileNotFoundError("budget ledger requires explicit load_or_bootstrap before use")
         return self._normalize_snapshot(snapshot)
+
+    def snapshot_with_source(self) -> BudgetLedgerRead:
+        """Read compatible state and original source facts under one shared lock.
+
+        Missing or invalid sources raise as for ordinary reads. Normalization
+        cannot establish field presence or an identity absent from stored bytes.
+        """
+        with self._file_lock(exclusive=False):
+            read = self._load_snapshot_with_source()
+            if read is None:
+                raise FileNotFoundError(
+                    "budget ledger requires explicit load_or_bootstrap before use"
+                )
+            return BudgetLedgerRead(
+                snapshot=self._normalize_snapshot(read.snapshot),
+                source_profile=read.source_profile,
+            )
 
     def load_or_bootstrap(self, initial_state: BudgetState) -> BudgetState:
         with self._thread_lock:
@@ -1507,11 +1557,28 @@ class FileBudgetLedger:
                 )
 
     def _load_snapshot(self) -> BudgetLedgerSnapshot | None:
+        read = self._load_snapshot_with_source()
+        return None if read is None else read.snapshot
+
+    def _load_snapshot_with_source(self) -> BudgetLedgerRead | None:
         try:
-            raw = self._path.read_text(encoding="utf-8")
+            raw = self._path.read_bytes()
         except FileNotFoundError:
             return None
-        return _decode_snapshot(raw)
+        snapshot = _decode_snapshot(raw.decode("utf-8"))
+        return BudgetLedgerRead(
+            snapshot=snapshot,
+            source_profile=BudgetLedgerSourceProfile(
+                schema_version=snapshot.schema_version,
+                snapshot_fields=frozenset(snapshot.model_fields_set),
+                state_fields=frozenset(snapshot.state.model_fields_set),
+                ledger_id=snapshot.ledger_id,
+                canonical_contract=snapshot.canonical_contract,
+                coordination_mode=snapshot.coordination_mode,
+                revision=snapshot.revision,
+                content_sha256=hashlib.sha256(raw).hexdigest(),
+            ),
+        )
 
     def _persist_snapshot(self, snapshot: BudgetLedgerSnapshot) -> BudgetLedgerSnapshot:
         normalized = self._normalize_snapshot(snapshot)

@@ -115,8 +115,14 @@ def builtin_nodes() -> list[Node]:
     from polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle import (
         BuildPolicyOutputBundleNode,
     )
+    from polisyos.scientist.nodes.builtins.decide.build_verified_policy_body import (
+        BuildVerifiedPolicyBodyNode,
+    )
     from polisyos.scientist.nodes.builtins.decide.build_verified_policy_report import (
         BuildVerifiedPolicyReportNode,
+    )
+    from polisyos.scientist.nodes.builtins.decide.evaluate_verified_policy_phase5 import (
+        EvaluateVerifiedPolicyPhase5Node,
     )
     from polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime import (
         RunPolicyBlueprintRuntimeNode,
@@ -126,6 +132,9 @@ def builtin_nodes() -> list[Node]:
     )
     from polisyos.scientist.nodes.builtins.decide.run_translator_compliance import (
         RunTranslatorComplianceNode,
+    )
+    from polisyos.scientist.nodes.builtins.decide.select_policy_candidate import (
+        SelectPolicyCandidateNode,
     )
     from polisyos.scientist.nodes.builtins.governance.data_plane_gate import DataPlaneGateNode
     from polisyos.scientist.nodes.builtins.governance.legal_check import LegalCheckNode
@@ -226,6 +235,9 @@ def builtin_nodes() -> list[Node]:
         RunNormativeArbitrationNode(),
         RunGovernanceNode(),
         RunEvaluatorNode(),
+        SelectPolicyCandidateNode(),
+        BuildVerifiedPolicyBodyNode(),
+        EvaluateVerifiedPolicyPhase5Node(),
         BuildVerifiedPolicyReportNode(),
         RunPolicyBlueprintRuntimeNode(),
         RunPolicyTranslationNode(),

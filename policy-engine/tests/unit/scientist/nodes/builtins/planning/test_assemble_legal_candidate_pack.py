@@ -51,15 +51,19 @@ def test_assemble_no_sources(execution_context, minimal_state):
     assert outcome.status == "skip"
 
 
-def test_assemble_already_exists(execution_context, minimal_state, artifact_ref_factory):
-    """When legal_candidate_pack_ref is already set, no-op."""
+def test_assemble_unbound_cached_pack_is_not_current(
+    execution_context, minimal_state, artifact_ref_factory
+):
+    """A cached pack without its required source is not a current output."""
     ref = artifact_ref_factory(kind="scientist.legal_candidate_pack")
     state = minimal_state.model_copy(deep=True)
     state.legal_candidate_pack_ref = ref
     state.artifacts_index[ARTIFACT_LEGAL_CANDIDATE_PACK_REF] = ref
     outcome = AssembleLegalCandidatePackNode().execute(execution_context, state)
-    assert outcome.status == "ok"
-    assert outcome.state is state
+    assert outcome.status == "skip"
+    assert outcome.state.legal_candidate_pack_ref is None
+    assert ARTIFACT_LEGAL_CANDIDATE_PACK_REF not in outcome.state.artifacts_index
+    assert state.legal_candidate_pack_ref == ref
 
 
 def test_assemble_pack_uses_branch_state_for_declared_outputs(

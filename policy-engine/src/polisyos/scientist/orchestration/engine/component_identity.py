@@ -1,7 +1,7 @@
 """Capture and recompute engine-observed identities for protected builtin producers.
 
 The proof is intentionally limited to the selected in-process implementation. It
-does not attest transitive imports, dynamic plugins, the deployment image, or a
+does not attest arbitrary transitive imports, dynamic plugins, the deployment image, or a
 release signature. Those remain separate custody evidence.
 """
 
@@ -66,6 +66,9 @@ def _load_builtin_node_types() -> tuple[type[Any], ...]:
     from polisyos.scientist.nodes.builtins.decide.build_verified_policy_report import (
         BuildVerifiedPolicyReportNode,
     )
+    from polisyos.scientist.nodes.builtins.decide.evaluate_verified_policy_phase5 import (
+        EvaluateVerifiedPolicyPhase5Node,
+    )
     from polisyos.scientist.nodes.builtins.decide.select_policy_candidate import (
         SelectPolicyCandidateNode,
     )
@@ -80,6 +83,7 @@ def _load_builtin_node_types() -> tuple[type[Any], ...]:
     return (
         BuildVerifiedPolicyBodyNode,
         BuildVerifiedPolicyReportNode,
+        EvaluateVerifiedPolicyPhase5Node,
         SelectPolicyCandidateNode,
         RunGovernanceNode,
         RunTransportabilityNode,
@@ -91,6 +95,7 @@ def _load_builtin_node_types() -> tuple[type[Any], ...]:
 (
     _BuildVerifiedPolicyBodyNode,
     _BuildVerifiedPolicyReportNode,
+    _EvaluateVerifiedPolicyPhase5Node,
     _SelectPolicyCandidateNode,
     _RunGovernanceNode,
     _RunTransportabilityNode,
@@ -175,11 +180,21 @@ class _DefinitionBinding:
         return self.namespace[self.name]
 
 
+def _wrapped_python_definition(value: object) -> types.FunctionType | None:
+    """Read an actual decorator-held Python definition without calling it."""
+    wrapped = inspect.getattr_static(value, "__wrapped__", None)
+    return wrapped if isinstance(wrapped, types.FunctionType) else None
+
+
 def _definition_projection(
-    value: object, files: dict[str, str], active: set[int] | None = None
+    value: object,
+    files: dict[str, str],
+    active: set[int] | None = None,
+    source_cache: dict[str, str] | None = None,
 ) -> object:
     """Bind code, DTO definitions and frozen owner profiles without invoking work."""
     active = set() if active is None else active
+    source_cache = {} if source_cache is None else source_cache
     if id(value) in active:
         return ["cycle", f"{id(value):x}"]
     active = {*active, id(value)}
@@ -192,15 +207,17 @@ def _definition_projection(
     if isinstance(value, types.FunctionType):
         source = inspect.getsourcefile(value)
         if source is not None and Path(source).is_file() and source not in files:
-            files[source] = _digest_bytes(Path(source).read_bytes())
+            if source not in source_cache:
+                source_cache[source] = _digest_bytes(Path(source).read_bytes())
+            files[source] = source_cache[source]
         return [
             "function",
             _callable_code_token(value),
             _code_sha256(value),
-            _definition_projection(value.__defaults__, files, active),
-            _definition_projection(value.__kwdefaults__, files, active),
+            _definition_projection(value.__defaults__, files, active, source_cache),
+            _definition_projection(value.__kwdefaults__, files, active, source_cache),
             [
-                _definition_projection(cell.cell_contents, files, active)
+                _definition_projection(cell.cell_contents, files, active, source_cache)
                 for cell in value.__closure__ or ()
             ],
         ]
@@ -210,7 +227,7 @@ def _definition_projection(
         for name, member in vars(value).items():
             function = _function_from_descriptor(member)
             if function is not None:
-                functions[name] = _definition_projection(function, files, active)
+                functions[name] = _definition_projection(function, files, active, source_cache)
             elif not name.startswith("_") and type(member) in (
                 str,
                 int,
@@ -219,7 +236,7 @@ def _definition_projection(
                 tuple,
                 frozenset,
             ):
-                constants[name] = _definition_projection(member, files, active)
+                constants[name] = _definition_projection(member, files, active, source_cache)
         compiled = {
             name: f"{id(vars(value)[name]):x}"
             for name in ("__pydantic_validator__", "__pydantic_serializer__")
@@ -234,6 +251,15 @@ def _definition_projection(
             constants,
             compiled,
         ]
+    wrapped = _wrapped_python_definition(value)
+    if wrapped is not None:
+        return [
+            "wrapped_callable",
+            type(value).__module__,
+            type(value).__qualname__,
+            f"{id(value):x}",
+            _definition_projection(wrapped, files, active, source_cache),
+        ]
     from pydantic import BaseModel
 
     if isinstance(value, BaseModel):
@@ -243,22 +269,25 @@ def _definition_projection(
             "owner",
             f"{id(value):x}",
             {
-                field.name: _definition_projection(getattr(value, field.name), files, active)
+                field.name: _definition_projection(
+                    getattr(value, field.name), files, active, source_cache
+                )
                 for field in fields(value)
             },
         ]
     if isinstance(value, dict):
         return {
-            str(key): _definition_projection(item, files, active) for key, item in value.items()
+            str(key): _definition_projection(item, files, active, source_cache)
+            for key, item in value.items()
         }
     if isinstance(value, (tuple, list, frozenset)):
-        return [_definition_projection(item, files, active) for item in value]
+        return [_definition_projection(item, files, active, source_cache) for item in value]
     return ["object", f"{id(value):x}"]
 
 
-def _definition_sha256(value: object) -> str:
+def _definition_sha256(value: object, source_cache: dict[str, str] | None = None) -> str:
     files: dict[str, str] = {}
-    projection = _definition_projection(value, files)
+    projection = _definition_projection(value, files, source_cache=source_cache)
     return _digest_value({"definition": projection, "sources": files})
 
 
@@ -269,6 +298,7 @@ def _definition_value(value: object) -> bool:
         value is None
         or type(value) in (str, int, float, bool, bytes, tuple, frozenset)
         or isinstance(value, (types.FunctionType, types.ModuleType, type, BaseModel))
+        or _wrapped_python_definition(value) is not None
         or (
             is_dataclass(value)
             and getattr(vars(type(value)).get("__dataclass_params__"), "frozen", False) is True
@@ -282,7 +312,9 @@ def _source_owner_function(function: types.FunctionType, producer_module: str) -
         module == producer_module
         or (
             module.startswith("polisyos.scientist.")
-            and not module.startswith("polisyos.scientist.orchestration.engine.")
+            and not module.startswith(
+                ("polisyos.scientist.orchestration.engine.", "polisyos.scientist.replay.")
+            )
         )
         or module in {"polisyos.ir.trinity.loaders", "polisyos.ir.analytics.causal"}
     )
@@ -291,8 +323,8 @@ def _source_owner_function(function: types.FunctionType, producer_module: str) -
 def _input_definition_bindings(node_type: type[Any]) -> tuple[_DefinitionBinding, ...]:
     """Follow referenced domain helper definitions to existing generic owner seams.
 
-    Core/IR JSON validators, artifact stores and Engine input owners are terminal
-    owners. This binds their called entrypoints, not arbitrary transitive Python,
+    Core/IR JSON validators, artifact stores, Engine input and replay evidence
+    verification owners are terminal owners. This binds their called entrypoints, not arbitrary transitive Python,
     external libraries, process memory or a deployment image.
     """
     roots = [
@@ -317,17 +349,45 @@ def _input_definition_bindings(node_type: type[Any]) -> tuple[_DefinitionBinding
             return
         key = (id(namespace), name)
         if key not in bindings:
+            from pydantic import BaseModel
+
+            if isinstance(value, type) and value is not BaseModel and issubclass(value, BaseModel):
+                # Compile a deferred DTO once before holding its validator and
+                # serializer identities. Revalidation never rebuilds a changed
+                # definition or accepts a replacement compiled entrypoint.
+                value.model_rebuild()
             bindings[key] = _DefinitionBinding(namespace, name, _definition_sha256(value))
             if isinstance(value, types.FunctionType) and _source_owner_function(
                 value, node_type.__module__
             ):
                 pending.append(value)
+            elif (wrapped := _wrapped_python_definition(value)) is not None:
+                if _source_owner_function(wrapped, node_type.__module__):
+                    pending.append(wrapped)
+            elif isinstance(value, type):
+                # A referenced source-owned class executes through its methods;
+                # pin those methods' real helper/global bindings by the same
+                # traversal as functions, not only their class/source marker.
+                for descriptor in vars(value).values():
+                    function = _function_from_descriptor(descriptor)
+                    if function is not None and _source_owner_function(
+                        function, node_type.__module__
+                    ):
+                        pending.append(function)
 
     while pending:
         function = pending.pop()
         if id(function) in visited:
             continue
         visited.add(id(function))
+        # Context-manager/decorator closures also execute held source functions;
+        # their globals must be reconciled by the same actual-definition walk.
+        for cell in function.__closure__ or ():
+            child = cell.cell_contents
+            if isinstance(child, types.FunctionType) and _source_owner_function(
+                child, node_type.__module__
+            ):
+                pending.append(child)
         codes = [function.__code__]
         while codes:
             code = codes.pop()
@@ -385,7 +445,7 @@ def _require_owner_definition(
         raise ValueError("engine_component_async_callable_changed")
     if _module_source_digest(node_type) != owner.module_source_sha256:
         raise ValueError("engine_component_source_changed")
-    if owner.input_contract_sha256 is not None:
+    if owner.input_class_sha256 is not None:
         for name, function, code in owner.input_callback_owners:
             current = _function_from_descriptor(inspect.getattr_static(node_type, name, None))
             if (
@@ -393,10 +453,22 @@ def _require_owner_definition(
                 or (current.__code__ if current is not None else None) is not code
             ):
                 raise ValueError("engine_component_input_callback_changed")
-        if _definition_sha256(node_type) != owner.input_class_sha256:
+        # One check observes each definition/source once. The next operation
+        # starts fresh; no successful identity survives a later source/helper
+        # change through a process-global or across-callback cache.
+        source_cache: dict[str, str] = {}
+        definition_cache: dict[int, str] = {}
+
+        def observed_definition(value: object) -> str:
+            key = id(value)
+            if key not in definition_cache:
+                definition_cache[key] = _definition_sha256(value, source_cache)
+            return definition_cache[key]
+
+        if observed_definition(node_type) != owner.input_class_sha256:
             raise ValueError("engine_component_input_class_changed")
         for binding in owner.input_definition_bindings:
-            if _definition_sha256(binding.current()) != binding.value_sha256:
+            if observed_definition(binding.current()) != binding.value_sha256:
                 raise ValueError("engine_component_input_dependency_changed")
     return execute_function, bind_function, spec_function
 
@@ -459,9 +531,13 @@ def _owner(node_type: type[Any]) -> _BuiltinOwner:
     spec = instance.spec
     spec_sha256 = _digest_value(spec.model_dump(mode="json"))
     input_contract = getattr(spec, "input_contract", None)
-    definition_bindings = (
-        _input_definition_bindings(node_type) if input_contract is not None else ()
+    # The fixed C source-currentness roles include ordinary report/governance
+    # nodes. Their helper ownership must not depend on selecting a physical port.
+    bind_definitions = input_contract is not None or node_type in (
+        _BuildVerifiedPolicyReportNode,
+        _RunGovernanceNode,
     )
+    definition_bindings = _input_definition_bindings(node_type) if bind_definitions else ()
     return _BuiltinOwner(
         component_id=str(spec.metadata.component_id),
         node_type=node_type,
@@ -505,10 +581,10 @@ def _owner(node_type: type[Any]) -> _BuiltinOwner:
                     ],
                 }
             )
-            if input_contract is not None
+            if bind_definitions
             else None
         ),
-        input_class_sha256=(_definition_sha256(node_type) if input_contract is not None else None),
+        input_class_sha256=(_definition_sha256(node_type) if bind_definitions else None),
     )
 
 
@@ -517,6 +593,7 @@ _OWNERS = {
     for owner in (
         _owner(_BuildVerifiedPolicyBodyNode),
         _owner(_BuildVerifiedPolicyReportNode),
+        _owner(_EvaluateVerifiedPolicyPhase5Node),
         _owner(_SelectPolicyCandidateNode),
         _owner(_RunGovernanceNode),
         _owner(_RunTransportabilityNode),

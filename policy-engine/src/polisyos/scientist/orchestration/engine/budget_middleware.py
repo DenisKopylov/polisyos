@@ -21,6 +21,7 @@ from polisyos.scientist.orchestration.engine.budget_ledger import (
     BudgetLedger,
     BudgetLedgerProducerRecord,
     BudgetLedgerProducerRunBinding,
+    BudgetLedgerRead,
     BudgetLedgerSettlementOutcomeUnknownError,
     BudgetLedgerSnapshot,
     BudgetLedgerSpendReceipt,
@@ -372,6 +373,25 @@ class BudgetMiddleware:
                 raise TypeError("budget_ledger_snapshot_must_be_typed")
             self._budget = snapshot.state.model_copy(deep=True)
             return snapshot.model_copy(deep=True)
+
+    def snapshot_with_source_safe(self) -> BudgetLedgerRead:
+        """Read detached state and persisted source facts in one ledger transaction.
+
+        Consumers requiring original field presence must use this read rather
+        than infer it from the normalized compatibility snapshot. A ledger that
+        cannot establish source facts cannot supply this accounting evidence.
+        """
+        with self._lock:
+            if self._ledger is None:
+                raise RuntimeError("durable budget settlement requires a configured ledger")
+            reader = getattr(self._ledger, "snapshot_with_source", None)
+            if not callable(reader):
+                raise RuntimeError("budget_ledger_source_profile_not_established")
+            read = reader()
+            if type(read) is not BudgetLedgerRead:
+                raise TypeError("budget_ledger_read_must_be_typed")
+            self._budget = read.snapshot.state.model_copy(deep=True)
+            return read.model_copy(deep=True)
 
     def _active_run_binding_for_key(
         self,

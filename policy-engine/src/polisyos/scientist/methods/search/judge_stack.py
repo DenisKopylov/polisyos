@@ -2,14 +2,23 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable
+from collections.abc import Iterable, Iterator
+from contextlib import contextmanager
+from contextvars import ContextVar
+from dataclasses import dataclass
 from decimal import Decimal
 from enum import Enum
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.core.artifacts import ArtifactStore
+from polisyos.core.artifacts import (
+    ArtifactStore,
+    CoreArtifactOwnerProfile,
+    require_return_selected_profile_writer,
+    validate_owned_core_model_json_artifact,
+    validate_return_selected_profile,
+)
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
@@ -94,7 +103,9 @@ from polisyos.scientist.replay.verification import (
 )
 
 _STRICT_PROFILE = ValidationProfile.strict()
+_HIDDEN_HOLDOUT_MAX_DEGRADATION = 0.10
 JUDGE_VERDICT_SCHEMA_NAME = "polisyos.scientist.search.JudgeVerdict"
+CANDIDATE_JUDGE_VERDICT_KIND = "scientist.judge_candidate_verdict"
 
 
 class JudgeName(str, Enum):
@@ -106,6 +117,32 @@ class JudgeName(str, Enum):
     GOVERNANCE = "governance"
     REPRODUCIBILITY = "reproducibility"
     COMPUTE = "compute"
+
+
+@dataclass(frozen=True)
+class JudgeValidationProfileUse:
+    """One actual validation profile passed to a judge's governance checks."""
+
+    level: str
+    pass_ids: tuple[str, ...]
+    thresholds: tuple[tuple[str, float], ...]
+    short_circuit_on_blocker: bool
+
+
+_JUDGE_VALIDATION_PROFILES: ContextVar[list[JudgeValidationProfileUse] | None] = ContextVar(
+    "judge_validation_profiles", default=None
+)
+
+
+@contextmanager
+def capture_judge_validation_profiles() -> Iterator[list[JudgeValidationProfileUse]]:
+    """Capture actual per-call profiles without asserting their authority."""
+    profiles: list[JudgeValidationProfileUse] = []
+    token = _JUDGE_VALIDATION_PROFILES.set(profiles)
+    try:
+        yield profiles
+    finally:
+        _JUDGE_VALIDATION_PROFILES.reset(token)
 
 
 class SingleJudgeVerdict(BaseModel):
@@ -145,22 +182,76 @@ class JudgeVerdict(BaseModel):
         return fatal_ok and self.composite_decision == "promote"
 
 
+_JUDGE_VERDICT_OWNER = CoreArtifactOwnerProfile(
+    kind="scientist.judge_verdict",
+    media_type="application/json",
+    schema_variants=(SchemaInfo(name=JUDGE_VERDICT_SCHEMA_NAME, version="1.0"),),
+    payload_schema_version_by_manifest="not_applicable",
+)
+_CANDIDATE_JUDGE_VERDICT_OWNER = CoreArtifactOwnerProfile(
+    kind=CANDIDATE_JUDGE_VERDICT_KIND,
+    media_type="application/json",
+    schema_variants=(SchemaInfo(name=JUDGE_VERDICT_SCHEMA_NAME, version="1.0"),),
+    payload_schema_version_by_manifest="not_applicable",
+)
+
+
 def persist_judge_verdict(
     store: ArtifactStore,
     verdict: JudgeVerdict,
     *,
     inputs: list[InputRef] | None = None,
+    return_selected_profile: bool = False,
 ) -> ArtifactRef:
-    """Persist judge verdict helper."""
-    return store.put_json(
+    """Persist a judge verdict without asserting producer or promotion authority."""
+    return _persist_judge_verdict(
+        store,
         verdict,
-        PutOptions(
-            kind="scientist.judge_verdict",
-            media_type="application/json",
-            schema=SchemaInfo(name=JUDGE_VERDICT_SCHEMA_NAME, version="1.0"),
-            inputs=list(inputs or []),
-        ),
-        canon_spec=CanonSpec(forbid_floats=False),
+        kind="scientist.judge_verdict",
+        inputs=inputs,
+        return_selected_profile=return_selected_profile,
+    )
+
+
+def _persist_judge_verdict(
+    store: ArtifactStore,
+    verdict: JudgeVerdict,
+    *,
+    kind: str,
+    inputs: list[InputRef] | None,
+    return_selected_profile: bool,
+) -> ArtifactRef:
+    validate_return_selected_profile(return_selected_profile)
+    options = PutOptions(
+        kind=kind,
+        media_type="application/json",
+        schema=SchemaInfo(name=JUDGE_VERDICT_SCHEMA_NAME, version="1.0"),
+        inputs=list(inputs or []),
+    )
+    if return_selected_profile:
+        require_return_selected_profile_writer(store, "put_json")
+        ref = store.put_json(
+            verdict,
+            options,
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        if ref.manifest_profile_sha256 is None:
+            raise ValueError("judge_verdict_selected_profile_not_established")
+        return ref
+    return store.put_json(verdict, options, canon_spec=CanonSpec(forbid_floats=False))
+
+
+def persist_candidate_judge_verdict(
+    store: ArtifactStore, verdict: JudgeVerdict, *, inputs: list[InputRef] | None = None
+) -> ArtifactRef:
+    """Persist a candidate-only judge verdict under a distinct selected owner kind."""
+    return _persist_judge_verdict(
+        store,
+        verdict,
+        kind=CANDIDATE_JUDGE_VERDICT_KIND,
+        inputs=inputs,
+        return_selected_profile=True,
     )
 
 
@@ -168,11 +259,19 @@ def load_judge_verdict(
     store: ArtifactStore,
     ref: ArtifactRef,
 ) -> JudgeVerdict:
-    """Load judge verdict."""
-    from polisyos.core.artifacts import load_core_json_artifact
+    """Read the defining judge owner ABI; this alone does not establish authority."""
+    return validate_owned_core_model_json_artifact(
+        JudgeVerdict, store, ref, expected_owner=_JUDGE_VERDICT_OWNER
+    ).value
 
-    payload = load_core_json_artifact(store, ref)
-    return JudgeVerdict.model_validate(payload)
+
+def load_candidate_judge_verdict(store: ArtifactStore, ref: ArtifactRef) -> JudgeVerdict:
+    """Read a candidate-only verdict without establishing publication authority."""
+    if ref.manifest_profile_sha256 is None:
+        raise ValueError("candidate_judge_verdict_profile_not_established")
+    return validate_owned_core_model_json_artifact(
+        JudgeVerdict, store, ref, expected_owner=_CANDIDATE_JUDGE_VERDICT_OWNER
+    ).value
 
 
 class JudgeInputBundle(BaseModel):
@@ -372,6 +471,16 @@ class JudgeInputBundle(BaseModel):
             thresholds=dict(_STRICT_PROFILE.thresholds),
             short_circuit_on_blocker=False,
         )
+        observed_profiles = _JUDGE_VALIDATION_PROFILES.get()
+        if observed_profiles is not None:
+            observed_profiles.append(
+                JudgeValidationProfileUse(
+                    level=profile.level.value,
+                    pass_ids=tuple(sorted(profile.pass_ids)),
+                    thresholds=tuple(sorted(profile.thresholds.items())),
+                    short_circuit_on_blocker=profile.short_circuit_on_blocker,
+                )
+            )
         return PassContext(
             ir=self.resolved_trinity_bundle(),
             state=self.build_state(),
@@ -1904,11 +2013,13 @@ def _hidden_holdout_degradation_card_with_threshold(
             resolved,
             metric_name="hidden_holdout_degradation",
             observed_value=delta,
+            fallback_rule="hidden_holdout_degradation_max_0.10",
+            fallback_value=_HIDDEN_HOLDOUT_MAX_DEGRADATION,
         )
         if resolved is not None
         else None
     )
-    if violation is None and delta <= 0.10:
+    if violation is None and delta <= _HIDDEN_HOLDOUT_MAX_DEGRADATION:
         return None
     return TypedFailureCard(
         judge_name=JudgeName.ROBUSTNESS.value,
@@ -1920,7 +2031,9 @@ def _hidden_holdout_degradation_card_with_threshold(
         uncertainty_type=UncertaintyType.MODEL,
         metric_name="hidden_holdout_degradation",
         observed_value=delta,
-        threshold_value=(violation.threshold_value if violation is not None else 0.10),
+        threshold_value=(
+            violation.threshold_value if violation is not None else _HIDDEN_HOLDOUT_MAX_DEGRADATION
+        ),
         threshold_direction="max",
         metadata={
             "selection_metric_name": metric,
@@ -1979,6 +2092,7 @@ def _judge_result(
                 resolved_thresholds,
                 metric_name=metric_name,
                 observed_value=observed_value,
+                record_requirement=False,
             )
             for metric_name, observed_value in metrics.items()
         )
@@ -2323,10 +2437,12 @@ __all__ = [
     "JudgeInputBundle",
     "JudgeName",
     "JudgeStack",
+    "JudgeValidationProfileUse",
     "JudgeVerdict",
     "PolicyPromotionCoordinator",
     "PolicyPromotionResult",
     "SingleJudgeVerdict",
+    "capture_judge_validation_profiles",
     "compliance_issue_to_failure_card",
     "to_search_uncertainty_envelope",
 ]

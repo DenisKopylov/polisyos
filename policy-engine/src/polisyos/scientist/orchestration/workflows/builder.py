@@ -287,7 +287,7 @@ def build_default_registry(store: ArtifactStore) -> ArtifactRef:
     Returns:
         CAS reference to the generated registry bundle.
     """
-    bundle = build_default_registry_bundle(store)
+    bundle = build_default_registry_bundle(store, return_selected_profile=True)
     return bundle.bundle_ref
 
 
@@ -1035,7 +1035,6 @@ def run_policy_verified_workflow(
     state.execution_profile = state.execution_profile or "policy_verified_async"
     state.params.setdefault("policy_answer_mode", "verified_async")
     state.params.setdefault("allow_hypotheses", True)
-    state.params.setdefault("policy_request_jurisdiction", "UA")
     state.params.setdefault("max_candidate_queries", 40)
     state.params.setdefault("max_source_docs", 120)
     state.params.setdefault("max_source_anchors", 400)

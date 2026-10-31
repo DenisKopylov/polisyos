@@ -221,6 +221,7 @@ def test_policy_verified_workflow_runs_end_to_end_with_verified_artifacts(
         params={
             "policy_answer_mode": "verified_async",
             "policy_question": "Як реформувати ліцензування перевізників?",
+            "policy_request_jurisdiction": "UA",
             "policy_request_domain": "transport",
             "initial_rate": Decimal("0.1"),
             "judge_verdict": _passing_judge_verdict(),

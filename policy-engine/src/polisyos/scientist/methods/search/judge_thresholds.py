@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+import json
+from collections.abc import Iterator, Mapping
+from contextlib import contextmanager
+from contextvars import ContextVar
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from tempfile import NamedTemporaryFile
@@ -26,6 +30,7 @@ from polisyos.scientist.methods.autotune.models import default_search_registry_r
 __all__ = [
     "JudgeThresholdEntry",
     "JudgeThresholdRegistry",
+    "JudgeThresholdRequirement",
     "JudgeThresholdSnapshot",
     "ResolvedThresholdSet",
     "ThresholdViolation",
@@ -35,6 +40,7 @@ __all__ = [
     "_normalize_scope_value",
     "bucket_dp_delta",
     "bucket_dp_epsilon",
+    "capture_judge_threshold_requirements",
 ]
 
 
@@ -132,6 +138,41 @@ class ResolvedThresholdSet(BaseModel):
         key = metric_name if threshold_tier == "blocker" else f"{metric_name}:{threshold_tier}"
         entry = self.entries.get(key)
         return None if entry is None else float(entry.threshold_value)
+
+
+@dataclass(frozen=True)
+class JudgeThresholdRequirement:
+    """One threshold actually consulted by a judge's decision path."""
+
+    judge_name: str | None
+    metric_name: str
+    threshold_tier: Literal["warning", "blocker"]
+    scope: tuple[tuple[str, str | None], ...]
+    source: Literal["registry", "fallback", "missing"]
+    selected_entry: JudgeThresholdEntry | None
+    fallback_rule: str | None
+    fallback_value: float | None
+    observed_value: float
+
+
+_THRESHOLD_REQUIREMENTS: ContextVar[list[JudgeThresholdRequirement] | None] = ContextVar(
+    "judge_threshold_requirements", default=None
+)
+
+
+@contextmanager
+def capture_judge_threshold_requirements() -> Iterator[list[JudgeThresholdRequirement]]:
+    """Collect actual decision-path threshold lookups for this execution context.
+
+    The observations are diagnostic until a producer binds them to its inputs,
+    the selected registry snapshot, and its completed Engine attempt.
+    """
+    requirements: list[JudgeThresholdRequirement] = []
+    token = _THRESHOLD_REQUIREMENTS.set(requirements)
+    try:
+        yield requirements
+    finally:
+        _THRESHOLD_REQUIREMENTS.reset(token)
 
 
 class JudgeThresholdRegistry:
@@ -299,6 +340,16 @@ class JudgeThresholdRegistry:
             threshold_registry_version=resolved.registry_version,
         )
 
+    def frozen_view(self) -> JudgeThresholdRegistry:
+        """Capture this registry's current contents for stable, read-only resolution.
+
+        The view does not establish the captured snapshot's authority or currentness.
+
+        Returns:
+            JudgeThresholdRegistry: A resolver backed by an independent captured snapshot.
+        """
+        return _FrozenJudgeThresholdRegistry(self)
+
     def snapshot(self) -> JudgeThresholdSnapshot:
         return self._load_snapshot()
 
@@ -350,6 +401,42 @@ class JudgeThresholdRegistry:
             return None
         ranked.sort(key=lambda payload: (payload[0], payload[1]), reverse=True)
         return ranked[0][2]
+
+
+class _FrozenJudgeThresholdRegistry(JudgeThresholdRegistry):
+    """Provide read-only resolution, not a boundary against reflective Python."""
+
+    _captured_snapshot_json: str
+
+    def __init__(self, registry: JudgeThresholdRegistry) -> None:
+        # Preserve every value the existing registry reader accepts; Pydantic's
+        # default JSON serialization otherwise turns non-finite floats into null.
+        snapshot_json = json.dumps(
+            registry._load_snapshot().model_dump(mode="json"), allow_nan=True
+        )
+        object.__setattr__(self, "_captured_snapshot_json", snapshot_json)
+
+    def __setattr__(self, name: str, value: object) -> None:
+        raise AttributeError("frozen threshold registry is read-only")
+
+    def __delattr__(self, name: str) -> None:
+        raise AttributeError("frozen threshold registry is read-only")
+
+    def _load_snapshot(self) -> JudgeThresholdSnapshot:
+        return JudgeThresholdSnapshot.model_validate_json(self._captured_snapshot_json)
+
+    def record(
+        self,
+        entry: JudgeThresholdEntry,
+        *,
+        allow_loosen: bool = False,
+        change_reason: str | None = None,
+        approved_by: str | None = None,
+    ) -> None:
+        raise RuntimeError("frozen threshold registry is read-only")
+
+    def _write_snapshot(self, snapshot: JudgeThresholdSnapshot) -> None:
+        raise RuntimeError("frozen threshold registry is read-only")
 
 
 def _default_threshold_entries() -> list[JudgeThresholdEntry]:
@@ -566,11 +653,31 @@ def _check_threshold_violation(
     metric_name: str,
     observed_value: float,
     threshold_tier: Literal["warning", "blocker"] = "blocker",
+    fallback_rule: str | None = None,
+    fallback_value: float | None = None,
+    record_requirement: bool = True,
 ) -> ThresholdViolation | None:
-    if resolved is None:
-        return None
+    if (fallback_rule is None) != (fallback_value is None):
+        raise ValueError("judge_threshold_fallback_contract_incomplete")
     key = metric_name if threshold_tier == "blocker" else f"{metric_name}:{threshold_tier}"
-    entry = resolved.entries.get(key)
+    entry = None if resolved is None else resolved.entries.get(key)
+    trace = _THRESHOLD_REQUIREMENTS.get()
+    if trace is not None and record_requirement:
+        trace.append(
+            JudgeThresholdRequirement(
+                judge_name=None if resolved is None else resolved.judge_name,
+                metric_name=metric_name,
+                threshold_tier=threshold_tier,
+                scope=() if resolved is None else tuple(sorted(resolved.scope.items())),
+                source="registry"
+                if entry is not None
+                else ("fallback" if fallback_rule else "missing"),
+                selected_entry=entry,
+                fallback_rule=fallback_rule,
+                fallback_value=fallback_value,
+                observed_value=observed_value,
+            )
+        )
     if entry is None:
         return None
     observed = float(observed_value)

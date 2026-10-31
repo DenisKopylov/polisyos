@@ -82,10 +82,15 @@ Before each real attempt, the existing run owner records its selected projected
 input. A `scientist.node_input_basis` lineage edge binds that input to the exact
 full predecessor, component implementation, versioned contract, bind parameters
 and attempt. Its implementation-dependency digest binds the held producer/domain
-helper callables, DTO classes and fixed owner-profile definitions as well as the
-primary class. The code-derived dependency closure follows source wrappers to
-the existing Core/IR JSON validators, artifact-store and Engine-input owner
-entrypoints. Those generic owners are the declared stopping point; this is not
+helper callables, source-owned class methods, DTO classes and fixed owner-profile
+definitions as well as the primary class. Deferred DTO schemas compile before
+their validator/serializer identities are captured; later replacements refuse. The same
+source-definition ownership covers the fixed ordinary governance/report roles
+used by this composition; it does not depend on those roles selecting a physical
+input port. Their dynamically selected validation plugins remain outside the
+selected implementation/isolation claim. The code-derived dependency closure follows source wrappers to
+the existing Core/IR JSON validators, artifact-store, Engine-input and replay
+evidence-verification owner entrypoints. Those generic owners are the declared stopping point; this is not
 an assertion about arbitrary transitive libraries or dynamic Python. Engine
 validation reads and reconciles that basis before invoking the node. The full predecessor remains with the executor; only declared writes
 merge back through the existing mutation journal and state merge owner. Hidden
@@ -98,6 +103,25 @@ projection and returns safe input/attempt coordinates. It returns no predecessor
 content or read grant. These coordinates can bind a candidate artifact's lineage;
 they do not establish authority, currentness or successful completion by a caller.
 Upstream authority admission remains an Engine-owner operation.
+
+The fixed `policy_verified_phase5.v1` candidate-diagnostic consumer additionally
+uses `read_verified_policy_phase5_admission(ctx, state)`. Before its callback, the
+run owner reopens the exact pending consumer attempt and predecessor, then uses
+the existing producer and governance currentness owners for the selected Body,
+Candidate and governance refs. Body/Candidate lineage must identify an exact
+successful physical producer and the latest selected occurrence; an owned cache
+replay retains both its fresh attempt and the original physical output lineage.
+The returned frozen view contains only detached typed currentness, exact selected
+refs and an admitted governance report. Missing, changed, foreign or stale roles
+never enroll their refs as readable CAS input. The callback cannot traverse the
+source input/attempt lineage to recover predecessor state or run history, and
+fresh reads revalidate its actual unchanged projection and pending attempt.
+
+This view establishes selected-source currentness for that diagnostic only.
+It does not establish plugin isolation, option-to-program correspondence,
+publication permission or completion. A later completion profile, including a
+historical initial governance basis and a separately current final governance
+report, is not supplied by this profile.
 
 The supported boundary is an exact trusted builtin in the selected in-process
 profile, through its state, CAS and run APIs. It does not isolate arbitrary
@@ -683,3 +707,11 @@ revocation or persisted job lease loss does not retroactively undo that decision
 it does not prove callback quiescence, effect settlement, or permission for a later
 action. The persisted-lease-loss ordering is a declared bounded limitation, not
 a verified runtime property.
+
+`BudgetMiddleware.snapshot_with_source_safe()` and
+`FileBudgetLedger.snapshot_with_source()` return compatible state together with
+its original persisted schema, supplied field set, identity, revision and exact
+byte digest from the same locked read. Normalized legacy defaults cannot prove
+that the original source enumerated monetary obligations. Missing, corrupt or
+unsupported sources provide no such evidence; the profile grants no permission,
+price or absence-of-obligation decision.

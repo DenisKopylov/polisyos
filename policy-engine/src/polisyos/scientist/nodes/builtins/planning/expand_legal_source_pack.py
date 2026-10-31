@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from polisyos.core.artifacts.manifest import InputRef
+from polisyos.core.artifacts.manifest import input_ref_from_artifact_ref
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.scientist import LegalCandidatePackRef
 from polisyos.scientist.nodes.builtins.state_keys import (
@@ -12,13 +12,19 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_LEGAL_SOURCE_PACK_REF,
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.validation.policy_verified import (
     load_legal_candidate_pack,
     persist_legal_source_pack,
 )
+from polisyos.scientist.validation.policy_verified.selection import select_policy_source_ref
 from polisyos.scientist.validation.policy_verified.service import expand_legal_source_pack
 
 _METADATA = ComponentMetadata(
@@ -34,10 +40,12 @@ _METADATA = ComponentMetadata(
 _SPEC = NodeSpec(
     metadata=_METADATA,
     state_reads=[
+        "run_id",
+        "execution_profile",
+        "inputs",
+        "params",
+        "artifacts_index",
         "legal_candidate_pack_ref",
-        f"artifacts_index.{ARTIFACT_LEGAL_CANDIDATE_PACK_REF}",
-        "params.max_source_docs",
-        "params.max_reference_hops",
     ],
     state_writes=[
         "legal_source_pack_ref",
@@ -60,19 +68,24 @@ class ExpandLegalSourcePackNode:
         return _SPEC
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
-        if (
-            state.legal_source_pack_ref is not None
-            and ARTIFACT_LEGAL_SOURCE_PACK_REF in state.artifacts_index
-        ):
-            return NodeOutcome(status="ok", state=state)
-
-        raw_ref = state.legal_candidate_pack_ref or state.artifacts_index.get(
-            ARTIFACT_LEGAL_CANDIDATE_PACK_REF
-        )
+        try:
+            raw_ref = select_policy_source_ref(
+                state.legal_candidate_pack_ref,
+                state.artifacts_index.get(ARTIFACT_LEGAL_CANDIDATE_PACK_REF),
+            )
+        except ValueError:
+            return NodeOutcome(
+                status="fail",
+                state=_without_current_source(state),
+                error=NodeError(
+                    code="policy_source_selection_conflict",
+                    message="Policy-source selectors disagree.",
+                ),
+            )
         if raw_ref is None:
             return NodeOutcome(
                 status="skip",
-                state=state,
+                state=_without_current_source(state),
                 events=[
                     NodeEvent(
                         level="warn",
@@ -87,7 +100,7 @@ class ExpandLegalSourcePackNode:
         pack_ref = persist_legal_source_pack(
             ctx.store,
             source_pack,
-            inputs=[InputRef(artifact_id=raw_ref.artifact_id, role="legal_candidate_pack")],
+            inputs=[input_ref_from_artifact_ref(raw_ref, role="legal_candidate_pack")],
         )
         new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         new_state.legal_source_pack_ref = pack_ref
@@ -104,6 +117,19 @@ class ExpandLegalSourcePackNode:
                 )
             ],
         )
+
+
+def _without_current_source(state: ExperimentState) -> ExperimentState:
+    """Keep an unverified prior pack out of this direct output projection."""
+    if (
+        state.legal_source_pack_ref is None
+        and ARTIFACT_LEGAL_SOURCE_PACK_REF not in state.artifacts_index
+    ):
+        return state
+    projected = branch_state(state, write_paths=_SPEC.state_writes).state
+    projected.legal_source_pack_ref = None
+    projected.artifacts_index.pop(ARTIFACT_LEGAL_SOURCE_PACK_REF, None)
+    return projected
 
 
 __all__ = ["ExpandLegalSourcePackNode"]

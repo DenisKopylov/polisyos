@@ -32,10 +32,10 @@ def test_gaps_found_success(execution_context, minimal_state, artifact_ref_facto
     state.legal_source_pack_ref = source_ref
     state.source_verification_report_ref = report_ref
 
-    mock_frame = MagicMock()
-    mock_candidate_pack = MagicMock()
-    mock_source_pack = MagicMock()
-    mock_report = MagicMock()
+    mock_frame = MagicMock(request_id="synthetic")
+    mock_candidate_pack = MagicMock(request_id="synthetic")
+    mock_source_pack = MagicMock(request_id="synthetic")
+    mock_report = MagicMock(request_id="synthetic")
 
     updated_candidate = MagicMock()
     updated_source = MagicMock()
@@ -108,19 +108,19 @@ def test_gaps_error_propagates(execution_context, minimal_state, artifact_ref_fa
     with (
         patch(
             "polisyos.scientist.nodes.builtins.planning.run_source_gap_review.load_policy_request_frame",
-            return_value=MagicMock(),
+            return_value=MagicMock(request_id="synthetic"),
         ),
         patch(
             "polisyos.scientist.nodes.builtins.planning.run_source_gap_review.load_legal_candidate_pack",
-            return_value=MagicMock(),
+            return_value=MagicMock(request_id="synthetic"),
         ),
         patch(
             "polisyos.scientist.nodes.builtins.planning.run_source_gap_review.load_legal_source_pack",
-            return_value=MagicMock(),
+            return_value=MagicMock(request_id="synthetic"),
         ),
         patch(
             "polisyos.scientist.nodes.builtins.planning.run_source_gap_review.load_source_verification_report",
-            return_value=MagicMock(),
+            return_value=MagicMock(request_id="synthetic"),
         ),
         patch(
             "polisyos.scientist.nodes.builtins.planning.run_source_gap_review.recover_source_gaps",
@@ -170,19 +170,19 @@ def test_gap_review_uses_branch_state_for_declared_outputs(
         ),
         patch(
             "polisyos.scientist.nodes.builtins.planning.run_source_gap_review.load_policy_request_frame",
-            return_value=MagicMock(),
+            return_value=MagicMock(request_id="synthetic"),
         ),
         patch(
             "polisyos.scientist.nodes.builtins.planning.run_source_gap_review.load_legal_candidate_pack",
-            return_value=MagicMock(),
+            return_value=MagicMock(request_id="synthetic"),
         ),
         patch(
             "polisyos.scientist.nodes.builtins.planning.run_source_gap_review.load_legal_source_pack",
-            return_value=MagicMock(),
+            return_value=MagicMock(request_id="synthetic"),
         ),
         patch(
             "polisyos.scientist.nodes.builtins.planning.run_source_gap_review.load_source_verification_report",
-            return_value=MagicMock(),
+            return_value=MagicMock(request_id="synthetic"),
         ),
         patch(
             "polisyos.scientist.nodes.builtins.planning.run_source_gap_review.recover_source_gaps",

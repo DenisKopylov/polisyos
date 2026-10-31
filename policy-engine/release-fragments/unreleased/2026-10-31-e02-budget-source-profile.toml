@@ -1,0 +1,13 @@
+id = "2026-10-31-e02-budget-source-profile"
+title = "Retain persisted budget source facts for accounting consumers"
+type = "fixed"
+component = "scientist"
+owner = "scientist"
+summary = "Budget ledger reads can return the original persisted schema, field presence, owner identity, revision and exact byte digest with their compatible snapshot under the same file lock."
+evidence = ["tests/unit/scientist/orchestration/engine/test_budget_ledger_source_profile.py"]
+compatibility = "Existing snapshot and legacy 1.0 through 1.5 reads preserve their normalized defaults; consumers needing original field presence use the additive source-profile read."
+change_class = "Internal durable accounting read evidence."
+surface_classification = "internal: internal-only"
+api = "FileBudgetLedger.snapshot_with_source and BudgetMiddleware.snapshot_with_source_safe return detached typed BudgetLedgerRead evidence."
+limitations = "Local accounting observation only; source facts do not establish absent monetary obligations, prices, external billing authority or dispatch permission. Missing or corrupt sources cannot supply a profile."
+generated_client_compatibility = "not_applicable"

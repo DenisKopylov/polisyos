@@ -6,6 +6,31 @@ outside this package: outputs here are candidate or analytic material until
 they are bound by governed runtime-quality producers and closeout gates.
 The `polisyos.scientist.policy_design` package facade is the supported import path for policy candidate schemas, builders, and `derive_phase2_parameter_bounds()`. The latter is the same owner function defined in `search.py`. LLM-authored values remain candidate-grade until grounded and separately admitted.
 
+## Explicit Option-to-Program Relation
+
+The internal `option_program` owner persists a versioned relation between an
+exact request, option set, selected option, final candidate and final Trinity.
+Its fresh reader recomputes the relation from those selected sources, including
+their profiles and source roles; a stored status or producer action map is not
+evidence of correspondence. Callers must pass their actual final champion and
+reissue after search changes it.
+
+The first interpretation profile accepts one explicitly structured
+`ExplicitPolicyProgramIntent` as the option's whole `intervention_outline`.
+It reconciles the complete declared IR program, target population, target
+jurisdiction/time and hard/soft constraints. Equivalent inclusive schedule
+spellings have the same meaning. Unsupported prose obligations, multi-option
+composition and legacy requests with implicit target scope remain
+`not_established`. A correctly rebound ban intent still mismatches a subsidy
+program; matching identities alone cannot satisfy this check.
+
+`declared_program_match` is candidate-grade correspondence to declared IR,
+not proof of an implemented mechanism's behavior, effects, legal validity or
+publication eligibility. `execution_correspondence` remains
+`not_established`; actual compiler/registry semantics and final workflow
+consumers are separate integration work. Until that integration is present,
+staged reports retain `option_program_correspondence_not_established`.
+
 ## Persisted Frontier Artifacts
 
 `PolicyFrontierReport` and `RejectedAlternativesSummary` support schema v1 and

@@ -122,15 +122,15 @@ def _sensitivity_analysis_bundle_ref_from_packet(
     if not isinstance(section, dict):
         return None
     ref = section.get("sensitivity_analysis_bundle_ref")
-    if not isinstance(ref, str):
+    if not isinstance(ref, dict):
         return None
-    return SensitivityAnalysisBundleRef.model_validate(
-        {
-            "artifact_id": ref,
-            "kind": "scientist.sensitivity_analysis_bundle",
-            "media_type": "application/json",
-        }
-    )
+    try:
+        selected = SensitivityAnalysisBundleRef.model_validate(ref)
+    except ValueError:
+        return None
+    if selected.manifest_profile_sha256 is None:
+        return None
+    return selected
 
 
 def _build_inputs_section(

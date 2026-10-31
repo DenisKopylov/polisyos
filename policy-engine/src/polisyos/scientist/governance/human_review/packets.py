@@ -62,7 +62,8 @@ def build_review_packet(
         public_sector_use=resolved_risk is ReviewRiskTier.PUBLIC_SECTOR_HIGH,
         affects_fundamental_rights=bool(payload.get("affects_fundamental_rights")),
         automated_decision_support=True,
-        legal_basis_documented=_has_section(payload, "legal_verification"),
+        # A section in a caller projection is not a verified legal-basis admission.
+        legal_basis_documented=False,
         privacy_impact_considered=_section_has_no_issue(payload, "privacy"),
         fairness_impact_considered=_section_has_no_issue(payload, "fairness"),
         human_override_available=ReviewControl.OVERRIDE_RELEASE in controls,
@@ -163,8 +164,13 @@ def load_review_packet(store: FileSystemCAS, ref: ArtifactRef) -> HumanReviewPac
 
 
 def review_packet_summary(packet: HumanReviewPacket) -> dict[str, Any]:
-    """Return a compact packet summary for governance/decision artifacts."""
+    """Return a compact packet summary without promoting caller assertions."""
 
+    checklist = packet.fundamental_rights_checklist
+    unresolved = set(checklist.unresolved_items)
+    if checklist.public_sector_use or packet.risk_tier is ReviewRiskTier.PUBLIC_SECTOR_HIGH:
+        # The packet has no independently admitted legal-documentation verifier.
+        unresolved.add("legal_basis_documented")
     return {
         "packet_id": packet.packet_id,
         "run_id": packet.run_id,
@@ -178,7 +184,11 @@ def review_packet_summary(packet: HumanReviewPacket) -> dict[str, Any]:
             item.value for item in packet.recommended_reviewer_actions
         ],
         "controls": [item.value for item in packet.controls],
-        "fundamental_rights_unresolved": packet.fundamental_rights_checklist.unresolved_items,
+        "fundamental_rights_unresolved": sorted(unresolved),
+        "legal_basis_documentation_status": (
+            "consumer_asserted" if checklist.legal_basis_documented else "not_established"
+        ),
+        "legal_verification_status": "not_established",
     }
 
 
@@ -310,10 +320,6 @@ def _dedupe_refs(refs: Iterable[ArtifactRef]) -> list[ArtifactRef]:
 def _dict_section(payload: Mapping[str, Any], key: str) -> dict[str, Any]:
     value = payload.get(key)
     return dict(value) if isinstance(value, Mapping) else {}
-
-
-def _has_section(payload: Mapping[str, Any], key: str) -> bool:
-    return bool(_dict_section(payload, key))
 
 
 def _section_has_no_issue(payload: Mapping[str, Any], key: str) -> bool:

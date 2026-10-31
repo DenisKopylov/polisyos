@@ -6,8 +6,8 @@
     "release_fragment_change_class": "persisted-artifact-format",
     "version_owner": "team-scientist"
   },
-  "content_hash": "8dc74aa43d44405ce23ef7b9ac82537af97596d0f891d1ed98d43e95cbd845a0",
-  "generated_at": "2026-10-30T19:15:23+00:00",
+  "content_hash": "da1a7c7e27c8cdc6eb9f6d476f39194e7bd2512409712dc0c0759929863d430d",
+  "generated_at": "2026-10-31T01:53:56+00:00",
   "generator_version": "1.1.0",
   "models": {
     "calibration_validation_bundle_v1_1": {
@@ -20,7 +20,7 @@
       "schema_mode": "serialization",
       "schema_variant_version": "1.1",
       "schema_version": "1.1",
-      "sha256_full": "9461dba8e1dfaa54a17867f3375337ca0776f7f2fe1c79c98364620b0cd9053c",
+      "sha256_full": "fe17c6c11746ae9744ab764381c6d345e7c7dfbba81335b8bb7d8bf83ec50bec",
       "sha256_semantic": "ea2dadae80b45d382848a49d2a396293062d03e4ef7ecf6178077e0294eabd22",
       "version_field": "schema_version"
     },

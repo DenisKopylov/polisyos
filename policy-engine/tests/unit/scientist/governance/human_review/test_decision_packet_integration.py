@@ -7,12 +7,20 @@ from typing import TYPE_CHECKING
 import pytest
 
 import polisyos.scientist.nodes.builtins.decide.decision_packet.enrichment as decision_packet_enrichment
+from polisyos.core.artifacts import ArtifactRef, ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.signing import Ed25519Signer, Ed25519Verifier, KeyPair
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import Metrics
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
+from polisyos.ir.analytics.causal_graph import (
+    CausalEdge,
+    CausalGraphModel,
+    EdgeSource,
+    GraphType,
+    persist_causal_graph_model,
+)
 from polisyos.scientist.governance.human_review.admission import (
     HumanReviewAdmissionStatus,
     resolve_human_review_admission,
@@ -30,10 +38,10 @@ from polisyos.scientist.governance.human_review.packets import (
     build_review_packet,
     persist_review_packet,
 )
-from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.nodes.builtins.decide.build_decision_packet import (
     BuildDecisionPacketNode,
 )
+from polisyos.scientist.nodes.builtins.governance.run_governance import RunGovernanceNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_DECISION_PACKET_REF,
     ARTIFACT_HUMAN_REVIEW_DECISION_REF,
@@ -45,7 +53,14 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     REPORT_GOVERNANCE_REPORT_REF,
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
+from polisyos.scientist.orchestration.engine.registry import NodeRegistry
 from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
+from tests.unit.scientist.nodes.test_decision_packet_node_v3 import _persist_trinity_bundle
+from tests.unit.scientist.policy_design.test_policy_verified_nodes import (
+    _persist_test_data_snapshot,
+)
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -55,44 +70,24 @@ def _ctx_and_state(
     tmp_path,
     *,
     params: dict[str, object] | None = None,
-    governance_report: GovernanceReport | None = None,
 ):
     store = FileSystemCAS(tmp_path)
-    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    registry_bundle = build_default_registry_bundle(store, return_selected_profile=True).bundle_ref
     run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="R_human_review")
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.hr.packet"))
-    trinity_ref = store.put_json(
-        {"trinity": {}},
-        PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
-        ),
+    trinity_ref = ArtifactRef.model_validate(
+        _persist_trinity_bundle(store).model_dump(mode="python")
     )
-    state_snapshot_ref = store.put_json(
-        {"state": {}},
-        PutOptions(kind="foundry.state_snapshot", media_type="application/json"),
-    )
-    data_snapshot_ref = store.put_json(
-        {
-            "data_ref": {
-                "artifact_id": str(state_snapshot_ref.artifact_id),
-                "kind": "foundry.state_snapshot",
-                "media_type": "application/json",
-            }
-        },
-        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
-    )
+    assert trinity_ref.manifest_profile_sha256 is not None
+    data_snapshot_ref = _persist_test_data_snapshot(store, "req_human_review")
     metrics_ref = store.put_json(
         Metrics(values={"applied_nodes": 1, "status": "ok"}),
-        PutOptions(kind="foundry.metrics", media_type="application/json"),
-    )
-    governance_ref = store.put_json(
-        governance_report or GovernanceReport(verdict="approve", issues=[]),
         PutOptions(
-            kind="scientist.governance_report",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.scientist.GovernanceReport", version="1.0"),
+            kind=Metrics.ARTIFACT_KIND,
+            media_type=Metrics.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=Metrics.ARTIFACT_SCHEMA_NAME, version=Metrics.ARTIFACT_SCHEMA_VERSION
+            ),
         ),
         return_selected_profile=True,
     )
@@ -104,10 +99,34 @@ def _ctx_and_state(
             INPUT_DATA_SNAPSHOT_REF: data_snapshot_ref,
         },
         artifacts_index={ARTIFACT_METRICS_REF: metrics_ref},
-        reports_index={REPORT_GOVERNANCE_REPORT_REF: governance_ref},
         params={"random_seed": 123, **(params or {})},
     )
     return store, ctx, state
+
+
+def _run_governance_and_packet(ctx: ExecutionContext, state: ExperimentState):
+    """Run the actual governed packet attempt on the already selected review inputs."""
+    governance = RunGovernanceNode()
+    packet = BuildDecisionPacketNode()
+    registry = NodeRegistry()
+    registry.register(governance)
+    registry.register(packet)
+    workflow = WorkflowSpec(
+        workflow_id="synthetic_human_review",
+        nodes=[
+            NodeInvocation(alias="governance", node_id=governance.spec.metadata.component_id),
+            NodeInvocation(
+                alias="packet", node_id=packet.spec.metadata.component_id, depends_on=["governance"]
+            ),
+        ],
+    )
+    result = WorkflowExecutor(ctx, registry).execute(workflow, state)
+    records = {item.alias: item for item in result.report.nodes}
+    assert records["governance"].status == "ok", records["governance"].error
+    assert (
+        result.state.reports_index[REPORT_GOVERNANCE_REPORT_REF].manifest_profile_sha256 is not None
+    )
+    return records["packet"]
 
 
 def test_decision_packet_requires_review_refs_when_publication_gate_is_on(tmp_path) -> None:
@@ -116,7 +135,7 @@ def test_decision_packet_requires_review_refs_when_publication_gate_is_on(tmp_pa
         params={"require_human_review_for_publication": True},
     )
 
-    outcome = BuildDecisionPacketNode().execute(ctx, state)
+    outcome = _run_governance_and_packet(ctx, state)
 
     assert outcome.status == "fail"
     assert outcome.error is not None
@@ -128,20 +147,28 @@ def test_decision_packet_requires_review_refs_when_publication_gate_is_on(tmp_pa
 def test_decision_packet_requires_review_refs_when_governance_is_human_gate(
     tmp_path,
 ) -> None:
-    _store, ctx, state = _ctx_and_state(
-        tmp_path,
-        governance_report=GovernanceReport(
-            verdict="human_gate",
-            issues=[
-                {
-                    "code": "HUMAN_REVIEW_REQUESTED",
-                    "message": "Manual release review is required.",
-                }
-            ],
-        ),
+    store, ctx, state = _ctx_and_state(tmp_path, params={"governance_profile": "strict"})
+    graph = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["tariff", "imports"],
+        edges=[
+            CausalEdge(
+                src="tariff",
+                dst="imports",
+                sources=[EdgeSource.LLM_PRIOR],
+                unsupported_by_evidence=True,
+            )
+        ],
+        discovery_method="synthetic_human_review",
+    )
+    graph_ref = persist_causal_graph_model(
+        ensure_ir_artifact_store(store), graph, return_selected_profile=True
+    )
+    state.artifacts_index["causal_graph_ref"] = ArtifactRef.model_validate(
+        graph_ref.model_dump(mode="python")
     )
 
-    outcome = BuildDecisionPacketNode().execute(ctx, state)
+    outcome = _run_governance_and_packet(ctx, state)
 
     assert outcome.status == "fail"
     assert outcome.error is not None
@@ -181,7 +208,7 @@ def test_decision_packet_does_not_admit_unsigned_unassigned_human_review(tmp_pat
     state.artifacts_index[ARTIFACT_HUMAN_REVIEW_PACKET_REF] = packet_ref
     state.artifacts_index[ARTIFACT_HUMAN_REVIEW_DECISION_REF] = decision_ref
 
-    outcome = BuildDecisionPacketNode().execute(ctx, state)
+    outcome = _run_governance_and_packet(ctx, state)
 
     assert outcome.status == "fail"
     assert outcome.error is not None
@@ -258,7 +285,7 @@ def test_fully_bound_signed_candidate_still_requires_institutional_review_custod
     state.artifacts_index[ARTIFACT_HUMAN_REVIEW_PACKET_REF] = packet_ref
     state.artifacts_index[ARTIFACT_HUMAN_REVIEW_DECISION_REF] = decision_ref
 
-    outcome = BuildDecisionPacketNode().execute(ctx, state)
+    outcome = _run_governance_and_packet(ctx, state)
 
     assert outcome.status == "fail"
     assert outcome.error is not None
@@ -365,7 +392,7 @@ def test_copied_admitted_diagnostic_cannot_promote_real_decision_packet_node(
         lambda *_args, **_kwargs: forged,
     )
 
-    outcome = BuildDecisionPacketNode().execute(ctx, state)
+    outcome = _run_governance_and_packet(ctx, state)
 
     assert outcome.status == "fail"
     assert outcome.error is not None

@@ -332,7 +332,10 @@ def test_governance_refresh_replays_only_owner_bound_gate_decisions(
     run_id = "governance-refresh-gate-rejection"
     run = RunContext.start(store=store, registry_bundle=registry_ref, run_id=run_id)
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger(__name__))
-    initial = ExperimentState(run_id=run_id, params={"require_human_gate": False})
+    initial = ExperimentState(
+        run_id=run_id,
+        params={"require_human_gate": False, "plugin_owned_policy_input": "original"},
+    )
     request, request_ref = _create_gate_request(
         ctx=ctx, protocol=HumanGateProtocol(run), state=initial
     )
@@ -493,9 +496,8 @@ def test_governance_refresh_replays_only_owner_bound_gate_decisions(
     changed.params["gate_decision_ref"] = foreign_decision_ref.model_dump(mode="json")
     assert_replay_blocked(changed)
 
-    # Isolate the selected-profile comparison after an actual successful Engine
-    # replay. The full runtime also rejects the altered state at the transition
-    # check; bypassing that one guard here lets this test reach the profile guard.
+    # A changed helper must invalidate the real producer, even with its original
+    # input. This check runs after the successful owner-bound replay above.
     from polisyos.scientist.nodes.builtins.governance import governance_gate_requests
 
     with monkeypatch.context() as isolated:
@@ -503,18 +505,38 @@ def test_governance_refresh_replays_only_owner_bound_gate_decisions(
             governance_gate_requests, "_gate_replay_follows_exact_evaluator", lambda *_: True
         )
         status, _ = _resolve_previous_gate_decision(
-            ctx=replay_ctx, state=changed, request=request, request_ref=selected_request_ref
+            ctx=replay_ctx, state=replay_input, request=request, request_ref=selected_request_ref
         )
         assert status == "not_established"
-        isolated.setattr(
-            governance_gate_requests,
-            "artifact_ref_identity_key",
-            lambda ref: (str(ref.artifact_id), ref.kind, ref.media_type),
-        )
-        status, _ = _resolve_previous_gate_decision(
-            ctx=replay_ctx, state=changed, request=request, request_ref=selected_request_ref
-        )
-        assert status == "current"
+
+    # Isolate the original profile comparison without changing the protected
+    # producer module. The detached function uses the exact consumer bytecode;
+    # this is a removal experiment, not a claimed production replay.
+    from types import FunctionType
+
+    probe_globals = dict(_resolve_previous_gate_decision.__globals__)
+    probe_globals["_gate_replay_follows_exact_evaluator"] = lambda *_: True
+    profile_probe = FunctionType(_resolve_previous_gate_decision.__code__, probe_globals)
+    status, _ = profile_probe(
+        ctx=replay_ctx, state=changed, request=request, request_ref=selected_request_ref
+    )
+    assert status == "not_established"
+    changed_source = replay_input.model_copy(deep=True)
+    changed_source.params["plugin_owned_policy_input"] = "corrupted"
+    assert_replay_blocked(changed_source)
+    status, _ = profile_probe(
+        ctx=replay_ctx, state=changed_source, request=request, request_ref=selected_request_ref
+    )
+    assert status == "current"
+    probe_globals["artifact_ref_identity_key"] = lambda ref: (
+        str(ref.artifact_id),
+        ref.kind,
+        ref.media_type,
+    )
+    status, _ = profile_probe(
+        ctx=replay_ctx, state=changed, request=request, request_ref=selected_request_ref
+    )
+    assert status == "current"
 
     foreign_request_ref = store.put_json(
         request.model_dump(mode="json"),
@@ -633,9 +655,16 @@ def test_engine_blocks_packet_when_gate_replay_binding_is_corrupted(
     assert records["corrupt_gate_binding"].status == "ok"
     assert records["refresh_governance"].status == "ok"
     if remove_transition_check:
-        assert records["build_decision_packet"].status == "ok"
-        packet = json.loads(store.get_bytes(result.state.artifacts_index["decision_packet_ref"]))
-        assert packet["governance"]["verdict"] == "reject"
+        # The real producer owner now refuses the changed helper before its
+        # report can authorize a packet. The transition-removal falsifier is
+        # exercised separately through the detached exact-code probe above.
+        assert records["build_decision_packet"].status == "fail"
+        assert records["build_decision_packet"].error is not None
+        assert records["build_decision_packet"].error.code == "governance_report_not_established"
+        assert records["build_decision_packet"].error.details["governance_report_refusal_code"] == (
+            "producer_implementation_identity_not_established"
+        )
+        assert "decision_packet_ref" not in result.state.artifacts_index
         return
     assert records["build_decision_packet"].status == "fail"
     assert records["build_decision_packet"].error is not None

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from polisyos.core.artifacts.manifest import InputRef
+from polisyos.core.artifacts.manifest import input_ref_from_artifact_ref
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.scientist import (
     LegalCandidatePackRef,
@@ -19,7 +19,12 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_SOURCE_VERIFICATION_REPORT_REF,
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.validation.policy_verified import (
@@ -31,6 +36,7 @@ from polisyos.scientist.validation.policy_verified import (
     persist_legal_source_pack,
     persist_source_verification_report,
 )
+from polisyos.scientist.validation.policy_verified.selection import select_policy_source_ref
 from polisyos.scientist.validation.policy_verified.service import recover_source_gaps
 
 _METADATA = ComponentMetadata(
@@ -46,15 +52,15 @@ _METADATA = ComponentMetadata(
 _SPEC = NodeSpec(
     metadata=_METADATA,
     state_reads=[
+        "run_id",
+        "execution_profile",
+        "inputs",
+        "params",
+        "artifacts_index",
         "policy_request_ref",
         "legal_candidate_pack_ref",
         "legal_source_pack_ref",
         "source_verification_report_ref",
-        "params.max_gap_review_calls",
-        "params.max_source_docs",
-        "params.max_reference_hops",
-        "params.verification_cycles_completed",
-        "artifacts_index",
     ],
     state_writes=[
         "legal_candidate_pack_ref",
@@ -88,18 +94,32 @@ class RunSourceGapReviewNode:
         return _SPEC
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
-        request_ref = state.policy_request_ref or state.artifacts_index.get(
-            ARTIFACT_POLICY_REQUEST_FRAME_REF
-        )
-        candidate_ref = state.legal_candidate_pack_ref or state.artifacts_index.get(
-            ARTIFACT_LEGAL_CANDIDATE_PACK_REF
-        )
-        source_ref = state.legal_source_pack_ref or state.artifacts_index.get(
-            ARTIFACT_LEGAL_SOURCE_PACK_REF
-        )
-        report_ref = state.source_verification_report_ref or state.artifacts_index.get(
-            ARTIFACT_SOURCE_VERIFICATION_REPORT_REF
-        )
+        try:
+            request_ref = select_policy_source_ref(
+                state.policy_request_ref,
+                state.artifacts_index.get(ARTIFACT_POLICY_REQUEST_FRAME_REF),
+            )
+            candidate_ref = select_policy_source_ref(
+                state.legal_candidate_pack_ref,
+                state.artifacts_index.get(ARTIFACT_LEGAL_CANDIDATE_PACK_REF),
+            )
+            source_ref = select_policy_source_ref(
+                state.legal_source_pack_ref,
+                state.artifacts_index.get(ARTIFACT_LEGAL_SOURCE_PACK_REF),
+            )
+            report_ref = select_policy_source_ref(
+                state.source_verification_report_ref,
+                state.artifacts_index.get(ARTIFACT_SOURCE_VERIFICATION_REPORT_REF),
+            )
+        except ValueError:
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code="policy_source_selection_conflict",
+                    message="Policy-source selectors disagree.",
+                ),
+            )
         if request_ref is None or candidate_ref is None or source_ref is None or report_ref is None:
             return NodeOutcome(status="skip", state=state)
 
@@ -115,6 +135,17 @@ class RunSourceGapReviewNode:
         report = load_source_verification_report(
             ctx.store, SourceVerificationReportRef.model_validate(report_ref.model_dump())
         )
+        if any(
+            item.request_id != frame.request_id for item in (candidate_pack, source_pack, report)
+        ):
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code="policy_request_source_mismatch",
+                    message="Legal sources belong to a different policy request.",
+                ),
+            )
         updated_candidate_pack, updated_source_pack, updated = recover_source_gaps(
             ctx,
             state,
@@ -123,27 +154,30 @@ class RunSourceGapReviewNode:
             source_pack,
             report,
         )
+        source_inputs = [
+            input_ref_from_artifact_ref(request_ref, role="policy_request_frame"),
+            input_ref_from_artifact_ref(candidate_ref, role="prior_legal_candidate_pack"),
+            input_ref_from_artifact_ref(source_ref, role="prior_legal_source_pack"),
+            input_ref_from_artifact_ref(report_ref, role="prior_source_verification_report"),
+        ]
         updated_candidate_ref = persist_legal_candidate_pack(
-            ctx.store,
-            updated_candidate_pack,
-            inputs=[InputRef(artifact_id=request_ref.artifact_id, role="policy_request_frame")],
+            ctx.store, updated_candidate_pack, inputs=source_inputs
         )
         updated_source_ref = persist_legal_source_pack(
             ctx.store,
             updated_source_pack,
             inputs=[
-                InputRef(artifact_id=updated_candidate_ref.artifact_id, role="legal_candidate_pack")
+                *source_inputs,
+                input_ref_from_artifact_ref(updated_candidate_ref, role="legal_candidate_pack"),
             ],
         )
         updated_ref = persist_source_verification_report(
             ctx.store,
             updated,
             inputs=[
-                InputRef(artifact_id=request_ref.artifact_id, role="policy_request_frame"),
-                InputRef(
-                    artifact_id=updated_candidate_ref.artifact_id, role="legal_candidate_pack"
-                ),
-                InputRef(artifact_id=updated_source_ref.artifact_id, role="legal_source_pack"),
+                *source_inputs,
+                input_ref_from_artifact_ref(updated_candidate_ref, role="legal_candidate_pack"),
+                input_ref_from_artifact_ref(updated_source_ref, role="legal_source_pack"),
             ],
         )
         new_state = branch_state(state, write_paths=_SPEC.state_writes).state
@@ -164,7 +198,10 @@ class RunSourceGapReviewNode:
                     level="info",
                     message="Source gap review completed.",
                     attrs={
-                        "critical_gaps": len(updated.unresolved_critical_gaps),
+                        "critical_gaps": sum(
+                            gap.severity == "critical" and not gap.resolved
+                            for gap in updated.unresolved_critical_gaps
+                        ),
                         "needs_expert_review": updated.needs_expert_review,
                         "verification_cycles_completed": updated.verification_cycles_completed,
                     },

@@ -35,16 +35,18 @@ def _passing_judge_verdict() -> dict[str, object]:
     }
 
 
-def test_report_success(execution_context, minimal_state, artifact_ref_factory):
-    """Successfully builds a verified policy report."""
+def test_report_refuses_unbound_caller_verdict(
+    execution_context, minimal_state, artifact_ref_factory
+):
+    """A caller-provided six-judge marker cannot authorize a report."""
     request_ref = artifact_ref_factory(kind="scientist.policy_request_frame")
     option_ref = artifact_ref_factory(kind="scientist.policy_option_set")
     report_ref = artifact_ref_factory(kind="scientist.source_verification_report")
     payload_ref = artifact_ref_factory(kind="scientist.verified_policy_report")
 
-    mock_frame = MagicMock()
-    mock_option_set = MagicMock()
-    mock_verification = MagicMock()
+    mock_frame = MagicMock(request_id="synthetic")
+    mock_option_set = MagicMock(request_id="synthetic")
+    mock_verification = MagicMock(request_id="synthetic")
     mock_payload = MagicMock()
     mock_payload.verified_findings = [MagicMock()]
     mock_payload.needs_expert_review = False
@@ -69,6 +71,9 @@ def test_report_success(execution_context, minimal_state, artifact_ref_factory):
             return_value=mock_verification,
         ),
         patch(
+            "polisyos.scientist.nodes.builtins.decide.build_verified_policy_report.require_selected_policy_source_bindings",
+        ),
+        patch(
             "polisyos.scientist.nodes.builtins.decide.build_verified_policy_report.build_verified_policy_report",
             return_value=mock_payload,
         ),
@@ -79,9 +84,10 @@ def test_report_success(execution_context, minimal_state, artifact_ref_factory):
     ):
         outcome = BuildVerifiedPolicyReportNode().execute(execution_context, state)
 
-    assert outcome.status == "ok"
-    assert ARTIFACT_VERIFIED_POLICY_REPORT_REF in outcome.state.artifacts_index
-    assert outcome.state.verified_policy_report_ref == payload_ref
+    assert outcome.status == "fail"
+    assert outcome.error is not None and outcome.error.code == "phase5_validation_failed"
+    assert ARTIFACT_VERIFIED_POLICY_REPORT_REF not in outcome.state.artifacts_index
+    assert outcome.state.verified_policy_report_ref is None
 
 
 def test_report_missing_inputs(execution_context, minimal_state):
@@ -109,7 +115,7 @@ def test_engine_owned_verified_report_cache_replays_sources(tmp_path, monkeypatc
     import logging
 
     import polisyos.scientist.nodes.builtins.decide.build_verified_policy_report as report_module
-    from polisyos.core.artifacts import PutOptions, SchemaInfo
+    from polisyos.core.artifacts import PutOptions, SchemaInfo, input_ref_from_artifact_ref
     from polisyos.core.artifacts.store import FileSystemCAS
     from polisyos.core.components import ComponentId
     from polisyos.core.registry import build_default_registry_bundle
@@ -158,10 +164,18 @@ def test_engine_owned_verified_report_cache_replays_sources(tmp_path, monkeypatc
         ],
     )
     frame_ref = persist_policy_request_frame(store, frame)
-    option_ref = persist_policy_option_set(store, original_options)
     verification_ref = persist_source_verification_report(
         store,
         SourceVerificationReport(request_id=frame.request_id, needs_expert_review=True),
+        inputs=[input_ref_from_artifact_ref(frame_ref, role="policy_request_frame")],
+    )
+    option_ref = persist_policy_option_set(
+        store,
+        original_options,
+        inputs=[
+            input_ref_from_artifact_ref(frame_ref, role="policy_request_frame"),
+            input_ref_from_artifact_ref(verification_ref, role="source_verification_report"),
+        ],
     )
     validation_ref = store.put_json(
         {"verdict": "pass"},
@@ -237,7 +251,14 @@ def test_engine_owned_verified_report_cache_replays_sources(tmp_path, monkeypatc
             )
         ],
     )
-    revised_option_ref = persist_policy_option_set(store, revised_options)
+    revised_option_ref = persist_policy_option_set(
+        store,
+        revised_options,
+        inputs=[
+            input_ref_from_artifact_ref(frame_ref, role="policy_request_frame"),
+            input_ref_from_artifact_ref(verification_ref, role="source_verification_report"),
+        ],
+    )
     changed = result.state.model_copy(deep=True)
     changed.policy_option_set_ref = revised_option_ref
     changed.artifacts_index[state_keys.ARTIFACT_POLICY_OPTION_SET_REF] = revised_option_ref
@@ -318,15 +339,18 @@ def test_verified_policy_report_uses_branch_state_for_declared_outputs(
         ),
         patch(
             "polisyos.scientist.nodes.builtins.decide.build_verified_policy_report.load_policy_request_frame",
-            return_value=MagicMock(),
+            return_value=MagicMock(request_id="synthetic"),
         ),
         patch(
             "polisyos.scientist.nodes.builtins.decide.build_verified_policy_report.load_policy_option_set",
-            return_value=MagicMock(),
+            return_value=MagicMock(request_id="synthetic"),
         ),
         patch(
             "polisyos.scientist.nodes.builtins.decide.build_verified_policy_report.load_source_verification_report",
-            return_value=MagicMock(),
+            return_value=MagicMock(request_id="synthetic"),
+        ),
+        patch(
+            "polisyos.scientist.nodes.builtins.decide.build_verified_policy_report.require_selected_policy_source_bindings",
         ),
         patch(
             "polisyos.scientist.nodes.builtins.decide.build_verified_policy_report.build_verified_policy_report",
@@ -339,8 +363,12 @@ def test_verified_policy_report_uses_branch_state_for_declared_outputs(
     ):
         outcome = BuildVerifiedPolicyReportNode().execute(execution_context, state)
 
-    assert outcome.status == "ok"
-    assert observed["write_paths"] == tuple(BuildVerifiedPolicyReportNode().spec.state_writes)
+    assert outcome.status == "fail"
+    assert outcome.error is not None and outcome.error.code == "phase5_validation_failed"
+    assert observed["write_paths"] == (
+        "artifacts_index.validation_report_ref",
+        "artifacts_index.judge_verdict_ref",
+    )
     assert state.params["nested"] == {"baseline": True}
     assert ARTIFACT_VERIFIED_POLICY_REPORT_REF not in state.artifacts_index
-    assert outcome.state.verified_policy_report_ref == payload_ref
+    assert outcome.state.verified_policy_report_ref is None

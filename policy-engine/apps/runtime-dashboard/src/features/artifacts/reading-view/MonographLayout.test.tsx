@@ -184,10 +184,113 @@ describe("MonographLayout", () => {
     expect(
       screen.getByRole("heading", { name: /evidence and uncertainty/i }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/verified findings/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/previously reported findings \(unverified\)/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/4 previously reported claims/i),
+    ).toBeInTheDocument();
     expect(
       screen.getAllByText(/licensing remains mandatory/i).length,
     ).toBeGreaterThan(0);
+  });
+
+  it("shows the unresolved option-to-program match without inventing a human gate", () => {
+    const limitation =
+      "The selected policy option has not been matched to the final program.";
+    const document = buildDecisionPacketDocument({
+      ...packetPreview,
+      legal_verification: undefined,
+      verified_findings: [],
+      policy_answer: {
+        ...packetPreview.policy_answer,
+        missing_evidence: [limitation],
+        needs_expert_review: false,
+        option_program_correspondence: {
+          status: "not_established",
+          reason_code: "option_program_correspondence_not_established",
+        },
+      },
+    });
+    expect(document).not.toBeNull();
+
+    render(<MonographLayout document={document!} />);
+
+    expect(screen.getByText(limitation)).toBeInTheDocument();
+    expect(
+      screen.getByText(/no explicit expert-review gate is attached/i),
+    ).toBeInTheDocument();
+  });
+
+  it.each([
+    {
+      name: "explicitly unestablished",
+      status: { verification_status: "not_established" },
+    },
+    { name: "missing marker", status: {} },
+    {
+      name: "caller-asserted current marker",
+      status: { verification_status: "current" },
+    },
+  ])("keeps $name legal claims unverified", ({ status }) => {
+    const document = buildDecisionPacketDocument({
+      ...packetPreview,
+      legal_verification: {
+        candidate_claim_count: 2,
+        needs_expert_review: false,
+        reported_unbound_claim_count: 4,
+        ...status,
+        verified_claim_count: 4,
+      },
+      policy_answer: {
+        ...packetPreview.policy_answer,
+        needs_expert_review: false,
+      },
+    });
+    expect(document).not.toBeNull();
+
+    render(<MonographLayout document={document!} />);
+
+    expect(
+      screen.getByText(/verified legal claim count is unknown/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/2 candidate claims.*4 previously reported claims/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/previously reported findings \(unverified\)/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/recorded expert-review status does not establish/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(/4 verified claims grounded/i),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/no additional expert-review escalation/i),
+    ).not.toBeInTheDocument();
+  });
+
+  it("keeps reported findings unverified even without a legal section", () => {
+    const document = buildDecisionPacketDocument({
+      ...packetPreview,
+      legal_verification: undefined,
+      policy_answer: {
+        ...packetPreview.policy_answer,
+        needs_expert_review: false,
+      },
+    });
+    expect(document).not.toBeNull();
+
+    render(<MonographLayout document={document!} />);
+
+    expect(
+      screen.getByText(/previously reported findings \(unverified\)/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getAllByText(/verified legal claim count is unknown/i).length,
+    ).toBeGreaterThan(0);
+    expect(screen.queryByText(/^verified findings$/i)).not.toBeInTheDocument();
   });
 
   it("carries a bounded HTE preview into the reading and print document with traversable refs", () => {

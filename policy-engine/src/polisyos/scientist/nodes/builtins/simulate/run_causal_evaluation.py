@@ -662,6 +662,22 @@ def _to_core_artifact_ref(ref: object | None) -> core_artifacts.ArtifactRef | No
     return core_artifacts.ArtifactRef.model_validate(ref)
 
 
+def _persist_selected_causal_report(
+    ctx: ExecutionContext,
+    report: CausalEffectReport,
+    *,
+    inputs: list[core_artifacts.InputRef] | None,
+) -> core_artifacts.ArtifactRef:
+    """Persist this producer's exact causal owner profile and preserve its lineage."""
+    ref = persist_causal_effect_report(
+        _ensure_ir_artifact_store(ctx.store),
+        report,
+        inputs=inputs,
+        return_selected_profile=True,
+    )
+    return core_artifacts.ArtifactRef.model_validate(ref.model_dump(mode="json"))
+
+
 def _revalidate_causal_artifact_ref(ref: object) -> core_artifacts.ArtifactRef:
     """Normalize a typed or structured ref through the canonical ArtifactRef owner."""
     normalized = _to_core_artifact_ref(ref)
@@ -1481,13 +1497,7 @@ class RunCausalEvaluationNode:
             inputs=input_refs,
         )
 
-        report_ref = _to_core_artifact_ref(
-            persist_causal_effect_report(
-                _ensure_ir_artifact_store(ctx.store),
-                report,
-                inputs=input_refs or None,
-            )
-        )
+        report_ref = _persist_selected_causal_report(ctx, report, inputs=input_refs or None)
 
         envelope_ref = None
         envelope_raw = output.get("envelope")

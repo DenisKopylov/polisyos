@@ -93,6 +93,9 @@ from polisyos.scientist.orchestration.engine.protocol import (
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.orchestration.kernel.gate_protocol import HumanGateProtocol
+from polisyos.scientist.policy_design.option_program_contracts import (
+    OPTION_PROGRAM_CORRESPONDENCE_NOT_ESTABLISHED,
+)
 from polisyos.scientist.validation.policy_verified.currentness import (
     resolve_current_verified_policy_report,
 )
@@ -354,6 +357,18 @@ class RunGovernanceNode:
             issues=issues,
             events=events,
         )
+        if (
+            new_state.params.get("workflow_id")
+            in {"scientist_policy_verified", "scientist_policy_design"}
+            or "verified_policy_candidate_ref" in new_state.artifacts_index
+        ):
+            issues.append(
+                {
+                    "code": OPTION_PROGRAM_CORRESPONDENCE_NOT_ESTABLISHED,
+                    "status": "not_established",
+                    "message": "The selected policy option has not been matched to the final program.",
+                }
+            )
 
         report = GovernanceReport(
             schema_version="2.0" if invocation_binding is not None else "1.0",

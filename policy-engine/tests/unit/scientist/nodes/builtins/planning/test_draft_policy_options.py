@@ -16,8 +16,8 @@ def test_draft_success(execution_context, minimal_state, artifact_ref_factory):
     request_ref = artifact_ref_factory(kind="scientist.policy_request_frame")
     report_ref = artifact_ref_factory(kind="scientist.source_verification_report")
     option_ref = artifact_ref_factory(kind="scientist.policy_option_set")
-    mock_frame = MagicMock()
-    mock_report = MagicMock()
+    mock_frame = MagicMock(request_id="synthetic")
+    mock_report = MagicMock(request_id="synthetic")
     mock_option_set = MagicMock()
     mock_option_set.verified_options = [MagicMock()]
     mock_option_set.hypothesis_options = []
@@ -54,15 +54,19 @@ def test_draft_no_options_missing_refs(execution_context, minimal_state):
     assert outcome.status == "skip"
 
 
-def test_draft_already_exists(execution_context, minimal_state, artifact_ref_factory):
-    """When policy_option_set_ref is already set, no-op."""
+def test_draft_unbound_cached_option_is_not_current(
+    execution_context, minimal_state, artifact_ref_factory
+):
+    """A cached option without its required source inputs is not a current output."""
     ref = artifact_ref_factory(kind="scientist.policy_option_set")
     state = minimal_state.model_copy(deep=True)
     state.policy_option_set_ref = ref
     state.artifacts_index[ARTIFACT_POLICY_OPTION_SET_REF] = ref
     outcome = DraftPolicyOptionsNode().execute(execution_context, state)
-    assert outcome.status == "ok"
-    assert outcome.state is state
+    assert outcome.status == "skip"
+    assert outcome.state.policy_option_set_ref is None
+    assert ARTIFACT_POLICY_OPTION_SET_REF not in outcome.state.artifacts_index
+    assert state.policy_option_set_ref == ref
 
 
 def test_draft_policy_options_uses_branch_state_for_declared_outputs(
@@ -91,11 +95,11 @@ def test_draft_policy_options_uses_branch_state_for_declared_outputs(
         ),
         patch(
             "polisyos.scientist.nodes.builtins.planning.draft_policy_options.load_policy_request_frame",
-            return_value=MagicMock(),
+            return_value=MagicMock(request_id="synthetic"),
         ),
         patch(
             "polisyos.scientist.nodes.builtins.planning.draft_policy_options.load_source_verification_report",
-            return_value=MagicMock(),
+            return_value=MagicMock(request_id="synthetic"),
         ),
         patch(
             "polisyos.scientist.nodes.builtins.planning.draft_policy_options.draft_policy_option_set",

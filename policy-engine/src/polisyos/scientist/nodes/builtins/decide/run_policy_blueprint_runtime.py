@@ -298,6 +298,7 @@ _SPEC = NodeSpec(
         "policy_brief_ref",
         "champion_policy_dossier_ref",
         "params.policy_runtime_source_statuses",
+        "params.option_program_correspondence",
         "params.promotion_evidence_bundle_ref",
         "params.replay_bundle_ref",
         "params.replay_verification_ref",

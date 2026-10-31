@@ -6,12 +6,17 @@ from datetime import UTC, datetime
 
 import pytest
 
+from polisyos.core.artifacts import load_core_json_artifact
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import from_canonical_bytes
-from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef, DataViewRequestRef
-from polisyos.core.contracts.scientist import GovernanceReportRef
+from polisyos.core.contracts.fabric import (
+    DataSnapshot,
+    DataSnapshotOwnerBound,
+    DataSnapshotRef,
+    DataViewRequestRef,
+)
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.ir.connectors import DataVersion, FetchResult, QualityTier, VersionStrategy
@@ -23,16 +28,13 @@ from polisyos.lex.knowledge.types import (
 )
 from polisyos.scientist.adapters.fabric_bridge import DefaultFabricPort
 from polisyos.scientist.evidence.claims.head_index import build_default_claim_ledger_owner
-from polisyos.scientist.evidence.claims.projections import project_governance_report_claims
-from polisyos.scientist.governance.report import (
-    GovernanceReport,
-    GovernanceReportLinks,
-    load_governance_report_artifact,
-)
+from polisyos.scientist.governance.report import load_governance_report_artifact
 from polisyos.scientist.nodes.builtins.decide.build_decision_packet import BuildDecisionPacketNode
+from polisyos.scientist.nodes.builtins.governance.run_governance import RunGovernanceNode
 from polisyos.scientist.nodes.builtins.planning.run_source_gap_review import RunSourceGapReviewNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
+    ARTIFACT_DECISION_PACKET_REF,
     ARTIFACT_LEGAL_CANDIDATE_PACK_REF,
     ARTIFACT_LEGAL_SOURCE_PACK_REF,
     ARTIFACT_POLICY_REQUEST_FRAME_REF,
@@ -43,8 +45,14 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_TRINITY_BUNDLE_REF,
     REPORT_GOVERNANCE_REPORT_REF,
 )
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.context import (
+    ClaimCapableExecutionContext,
+    ExecutionContext,
+)
+from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
+from polisyos.scientist.orchestration.engine.registry import NodeRegistry
 from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
 from polisyos.scientist.validation.policy_verified import (
     LegalCandidatePack,
     LegalRetrievalStatus,
@@ -56,6 +64,7 @@ from polisyos.scientist.validation.policy_verified import (
     VerifiedPolicyReport,
     load_legal_candidate_pack,
     load_source_verification_report,
+    load_verified_policy_report,
     persist_legal_candidate_pack,
     persist_legal_source_pack,
     persist_policy_request_frame,
@@ -74,7 +83,7 @@ from polisyos.scientist.validation.policy_verified.service import (
 
 def _make_ctx(tmp_path, run_id: str) -> tuple[FileSystemCAS, ExecutionContext, object]:
     store = FileSystemCAS(tmp_path)
-    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    registry_bundle = build_default_registry_bundle(store, return_selected_profile=True).bundle_ref
     run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id=run_id)
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger(run_id))
     return store, ctx, registry_bundle
@@ -130,7 +139,13 @@ def _persist_test_data_snapshot(store: FileSystemCAS, request_id: str) -> DataSn
     manifest = store.get_manifest(snapshot_ref)
     assert manifest.artifact_schema == SchemaInfo(
         name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
-        version="0.2.0",
+        version=DataSnapshotOwnerBound.ARTIFACT_SCHEMA_VERSION,
+    )
+    assert (
+        DataSnapshotOwnerBound.model_validate(
+            load_core_json_artifact(store, snapshot_ref)
+        ).source_lineage
+        is not None
     )
     assert snapshot_ref.manifest_profile_sha256 is not None
     assert any(
@@ -140,37 +155,53 @@ def _persist_test_data_snapshot(store: FileSystemCAS, request_id: str) -> DataSn
     return snapshot_ref
 
 
-def _persist_test_governance_report(
-    store: FileSystemCAS, report: GovernanceReport
-) -> GovernanceReportRef:
-    """Persist one controlled report through the governance producer ABI."""
-    ref = store.put_json(
-        report,
-        PutOptions(
-            kind="scientist.governance_report",
-            media_type="application/json",
-            schema=SchemaInfo(
-                name="polisyos.scientist.GovernanceReport",
-                version="1.0",
+def _run_engine_governance_and_packet(
+    store: FileSystemCAS, ctx: ExecutionContext, state: ExperimentState
+) -> dict[str, object]:
+    """Run the actual governance producer before its packet consumer."""
+    governed_ctx = ClaimCapableExecutionContext(
+        store=ctx.store,
+        run=ctx.run,
+        logger=ctx.logger,
+        claim_ledger_owner=build_default_claim_ledger_owner(store=store),
+    )
+    governance = RunGovernanceNode()
+    packet = BuildDecisionPacketNode()
+    registry = NodeRegistry()
+    registry.register(governance)
+    registry.register(packet)
+    workflow = WorkflowSpec(
+        workflow_id="synthetic_policy_packet",
+        nodes=[
+            NodeInvocation(alias="governance", node_id=governance.spec.metadata.component_id),
+            NodeInvocation(
+                alias="packet", node_id=packet.spec.metadata.component_id, depends_on=["governance"]
             ),
-        ),
-        return_selected_profile=True,
+        ],
     )
-    report_ref = GovernanceReportRef.model_validate(ref.model_dump(mode="python"))
-    assert report_ref.manifest_profile_sha256 is not None
-    assert store.get_manifest(report_ref).artifact_schema == SchemaInfo(
-        name="polisyos.scientist.GovernanceReport",
-        version="1.0",
-    )
-    return report_ref
+    result = WorkflowExecutor(governed_ctx, registry).execute(workflow, state)
+    nodes = {item.alias: item for item in result.report.nodes}
+    assert nodes["governance"].status == "ok", nodes["governance"].error
+    assert nodes["packet"].status == "ok", nodes["packet"].error
+    report_ref = result.state.reports_index[REPORT_GOVERNANCE_REPORT_REF]
+    report = load_governance_report_artifact(store, report_ref)
+    assert report.schema_version == "2.0" and report.invocation_binding is not None
+    assert report.links.claims_ref is not None
+    packet_ref = result.state.artifacts_index[ARTIFACT_DECISION_PACKET_REF]
+    assert packet_ref.manifest_profile_sha256 is not None
+    payload = from_canonical_bytes(store.get_bytes(packet_ref))
+    assert isinstance(payload, dict)
+    return payload
 
 
 def test_run_source_gap_review_node_performs_second_recovery_cycle(monkeypatch, tmp_path) -> None:
     store, ctx, registry_bundle = _make_ctx(tmp_path, "R_policy_verified_gap_review")
     frame = PolicyRequestFrame(
+        schema_version="1.1",
         request_id="req-1",
         policy_question="Як змінити ліцензування перевізників?",
         jurisdiction="UA",
+        jurisdiction_source="policy_request_jurisdiction",
         policy_domain="transport",
     )
     frame_ref = persist_policy_request_frame(store, frame)
@@ -200,7 +231,10 @@ def test_run_source_gap_review_node_performs_second_recovery_cycle(monkeypatch, 
                         context_prefix=["Розділ I"],
                     )
                 ],
-            )
+            ),
+            LegalSourceBundle(
+                bundle_id="warning-bundle", doc_id="warning-document", source_family="general"
+            ),
         ],
     )
     source_ref = persist_legal_source_pack(store, source_pack)
@@ -303,7 +337,7 @@ def test_run_source_gap_review_node_performs_second_recovery_cycle(monkeypatch, 
     outcome = RunSourceGapReviewNode().execute(ctx, state)
     assert outcome.status == "ok"
     assert outcome.state.params["verification_cycles_completed"] == 2
-    assert outcome.state.params["needs_expert_review"] is False
+    assert outcome.state.params["needs_expert_review"] is True
 
     updated_candidate_pack = load_legal_candidate_pack(
         store, outcome.state.legal_candidate_pack_ref
@@ -312,12 +346,25 @@ def test_run_source_gap_review_node_performs_second_recovery_cycle(monkeypatch, 
     updated_report = load_source_verification_report(
         store, outcome.state.source_verification_report_ref
     )
-    assert len(updated_report.verified_claims) == 1
-    assert updated_report.verified_claims[0].claim_type == "procedure"
-    assert updated_report.unresolved_critical_gaps == []
+    assert not updated_report.verified_claims
+    assert len(updated_report.legal_claim_candidates) == 1
+    assert (
+        updated_report.legal_claim_candidates[0].metadata["legal_source_candidate"]["claim_type"]
+        == "procedure"
+    )
+    assert any(
+        gap.category == "legal_claim_verification_not_established" and gap.severity == "critical"
+        for gap in updated_report.unresolved_critical_gaps
+    )
+    assert any(gap.severity == "warning" for gap in updated_report.unresolved_critical_gaps)
+    assert outcome.events[0].attrs["critical_gaps"] == sum(
+        gap.severity == "critical" and not gap.resolved
+        for gap in updated_report.unresolved_critical_gaps
+    )
+    assert outcome.events[0].attrs["critical_gaps"] < len(updated_report.unresolved_critical_gaps)
 
 
-def test_build_decision_packet_includes_verified_policy_sections(tmp_path) -> None:
+def test_engine_packet_keeps_historical_policy_sections_unbound(tmp_path) -> None:
     store, ctx, registry_bundle = _make_ctx(tmp_path, "R_policy_verified_packet")
     trinity_ref = store.put_json(
         {"trinity": {"interventions": []}},
@@ -361,31 +408,12 @@ def test_build_decision_packet_includes_verified_policy_sections(tmp_path) -> No
             intervention_legal_basis_map={"verified_option_1": ["стаття 1"]},
         ),
     )
-    governance_report = GovernanceReport(
-        verdict="approve",
-        issues=[],
-        links=GovernanceReportLinks(
-            source_verification_report_ref=verification_ref,
-            verified_policy_report_ref=verified_policy_ref,
-        ),
-    )
-    claims_candidate = project_governance_report_claims(
-        governance_report,
-        run_id="R_policy_verified_packet",
-        source_artifact_refs=[verification_ref, verified_policy_ref],
-    )
-    claims_ref = build_default_claim_ledger_owner(store=store).persist_candidate_ledger(
-        ledger=claims_candidate
-    )
-    governance_report = governance_report.model_copy(
-        update={
-            "links": governance_report.links.model_copy(update={"claims_ref": claims_ref}),
-        }
-    )
-    governance_ref = _persist_test_governance_report(store, governance_report)
-    reopened_governance_report = load_governance_report_artifact(store, governance_ref)
-    assert reopened_governance_report.links == governance_report.links
-    assert reopened_governance_report.links.claims_ref == claims_ref
+
+    historical_source = load_source_verification_report(store, verification_ref)
+    historical_policy = load_verified_policy_report(store, verified_policy_ref)
+    assert historical_source.verified_claims[0].claim_text == "Ліцензія є обов'язковою."
+    assert historical_policy.executive_summary == "Verified policy summary"
+    assert historical_policy.verified_findings == ["Ліцензія є обов'язковою. [стаття 1]"]
 
     state = ExperimentState(
         run_id="R_policy_verified_packet",
@@ -398,24 +426,27 @@ def test_build_decision_packet_includes_verified_policy_sections(tmp_path) -> No
             ARTIFACT_SOURCE_VERIFICATION_REPORT_REF: verification_ref,
             ARTIFACT_VERIFIED_POLICY_REPORT_REF: verified_policy_ref,
         },
-        reports_index={REPORT_GOVERNANCE_REPORT_REF: governance_ref},
     )
 
-    outcome = BuildDecisionPacketNode().execute(ctx, state)
-    payload = from_canonical_bytes(store.get_bytes(outcome.artifacts[0].artifact_id))
+    payload = _run_engine_governance_and_packet(store, ctx, state)
 
-    assert payload["legal_verification"]["verified_claim_count"] == 1
+    assert payload["legal_verification"]["verification_status"] == "not_established"
+    assert payload["legal_verification"]["verified_claim_count"] is None
+    assert payload["legal_verification"]["reported_unbound_claim_count"] == 1
     assert payload["legal_verification"]["verification_cycles_completed"] == 2
-    assert payload["source_coverage"]["unresolved_critical_gaps"] == []
-    assert payload["policy_answer"]["executive_summary"] == "Verified policy summary"
-    assert payload["policy_answer"]["missing_evidence"] == ["Потрібно окремо перевірити додаток 2."]
-    assert payload["verified_findings"] == ["Ліцензія є обов'язковою. [стаття 1]"]
-    assert payload["hypotheses"] == ["Можливе пом'якшення вимог для пілотного режиму."]
-    assert payload["intervention_legal_basis_map"]["verified_option_1"] == ["стаття 1"]
+    assert any(
+        gap["category"] == "legal_claim_verification_not_established"
+        for gap in payload["source_coverage"]["unresolved_critical_gaps"]
+    )
+    assert payload["policy_answer"] is None
+    assert payload["verified_findings"] == []
+    assert payload["hypotheses"] == []
+    assert payload["intervention_legal_basis_map"] == {}
+    assert any(
+        item["reason"] == "verified_policy_report_currentness_not_established"
+        for item in payload["degraded_paths"]
+    )
     outline = {entry["section_id"]: entry for entry in payload["document_outline"]}
-    assert outline["policy_answer"]["section_type"] == "policy"
-    assert outline["policy_answer"]["title"] == "Recommendation"
-    assert outline["policy_summary"]["section_type"] == "intervention"
     assert outline["governance"]["section_type"] == "governance"
 
 
@@ -434,10 +465,6 @@ def test_build_decision_packet_records_degraded_paths_for_invalid_policy_verific
     data_snapshot_ref = _persist_test_data_snapshot(
         store,
         "req_policy_verified_packet_degraded",
-    )
-    governance_ref = _persist_test_governance_report(
-        store,
-        GovernanceReport(verdict="approve", issues=[]),
     )
     invalid_verification_ref = store.put_json(
         ["invalid"],
@@ -459,11 +486,9 @@ def test_build_decision_packet_records_degraded_paths_for_invalid_policy_verific
             ARTIFACT_SOURCE_VERIFICATION_REPORT_REF: invalid_verification_ref,
             ARTIFACT_VERIFIED_POLICY_REPORT_REF: invalid_verified_policy_ref,
         },
-        reports_index={REPORT_GOVERNANCE_REPORT_REF: governance_ref},
     )
 
-    outcome = BuildDecisionPacketNode().execute(ctx, state)
-    payload = from_canonical_bytes(store.get_bytes(outcome.artifacts[0].artifact_id))
+    payload = _run_engine_governance_and_packet(store, ctx, state)
     degraded_reasons = {item["reason"] for item in payload["degraded_paths"]}
 
     assert payload["legal_verification"] is None
@@ -474,7 +499,7 @@ def test_build_decision_packet_records_degraded_paths_for_invalid_policy_verific
     assert payload["intervention_legal_basis_map"] == {}
     assert {
         "source_verification_report_load_failed",
-        "verified_policy_report_load_failed",
+        "verified_policy_report_currentness_not_established",
     }.issubset(degraded_reasons)
     assert payload["diagnostics_summary"]["degraded_path_count"] >= 2
 
@@ -635,9 +660,11 @@ def test_maybe_verify_with_llm_assertion_is_not_swallowed(monkeypatch: pytest.Mo
 def test_assemble_legal_candidate_pack_surfaces_typed_degraded_legal_status(tmp_path) -> None:
     _, ctx, registry_bundle = _make_ctx(tmp_path, "R_policy_verified_degraded")
     frame = PolicyRequestFrame(
+        schema_version="1.1",
         request_id="req-degraded",
         policy_question="Як змінити ліцензування перевізників?",
         jurisdiction="UA",
+        jurisdiction_source="policy_request_jurisdiction",
         policy_domain="transport",
     )
     state = ExperimentState(
@@ -662,9 +689,11 @@ def test_assemble_legal_candidate_pack_preserves_mixed_query_statuses(
 ) -> None:
     _, ctx, _ = _make_ctx(tmp_path, "R_policy_verified_mixed_retrieval")
     frame = PolicyRequestFrame(
+        schema_version="1.1",
         request_id="req-mixed-retrieval",
         policy_question="first retrieval query",
         jurisdiction="UA",
+        jurisdiction_source="policy_request_jurisdiction",
         goals=["second retrieval query"],
     )
     state = ExperimentState(

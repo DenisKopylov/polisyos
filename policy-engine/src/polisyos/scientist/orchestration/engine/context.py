@@ -11,7 +11,11 @@ if TYPE_CHECKING:
     from polisyos.data_forge.read_api.academic import PreparedSKGRead
     from polisyos.pdc import EvalSafetyVerifierPort, EvaluationExecutionContext
     from polisyos.scientist.evidence.claims.head_index import ClaimLedgerOwnerPort
-    from polisyos.scientist.orchestration.engine.input_ports import NodeInputSelection
+    from polisyos.scientist.orchestration.engine.child_computation import _ManagedStageBSession
+    from polisyos.scientist.orchestration.engine.input_ports import (
+        NodeInputSelection,
+        _VerifiedPolicyPhase5AdmissionOwner,
+    )
     from polisyos.scientist.orchestration.engine.metrics_protocol import (
         EngineMetricsCollector,
     )
@@ -290,6 +294,14 @@ class ExecutionContext:
         repr=False,
     )
     _node_input_selection: NodeInputSelection | None = field(default=None, kw_only=True, repr=False)
+    _verified_policy_phase5_admission_owner: _VerifiedPolicyPhase5AdmissionOwner | None = field(
+        default=None, kw_only=True, repr=False
+    )
+    _child_stage_b_session: _ManagedStageBSession | None = field(
+        default=None,
+        kw_only=True,
+        repr=False,
+    )
     _engine_invocation: _EngineInvocationBinding | None = field(
         default=None,
         kw_only=True,

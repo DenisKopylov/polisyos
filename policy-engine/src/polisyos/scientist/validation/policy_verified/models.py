@@ -5,14 +5,22 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    SerializerFunctionWrapHandler,
+    model_serializer,
+    model_validator,
+)
 
 from polisyos.core.artifacts import (
+    ArtifactStore,
     CoreArtifactOwnerProfile,
     validate_owned_core_model_json_artifact,
 )
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.scientist import (
     LegalCandidatePackRef,
@@ -24,6 +32,15 @@ from polisyos.core.contracts.scientist import (
 )
 from polisyos.ir.analytics.cross_graph import EvidenceSourceStatus
 from polisyos.lex.knowledge.types import LegalFactResult, LegalProvisionResult, LegalSourceBundle
+from polisyos.scientist.evidence.claims.models import (
+    ClaimPublishability,
+    ClaimRecord,
+    ClaimSourceClass,
+    ClaimSupportStatus,
+    ClaimType,
+    ClaimUse,
+)
+from polisyos.scientist.evidence.decision_readiness import DecisionReadiness
 
 
 class PolicyRequestFrame(BaseModel):
@@ -34,7 +51,8 @@ class PolicyRequestFrame(BaseModel):
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
     request_id: str
     policy_question: str
-    jurisdiction: str = "UA"
+    jurisdiction: str = ""
+    jurisdiction_source: Literal["policy_request_jurisdiction", "jurisdiction"] | None = None
     as_of: str | None = None
     policy_domain: str | None = None
     target_context: dict[str, Any] = Field(default_factory=dict)
@@ -42,6 +60,13 @@ class PolicyRequestFrame(BaseModel):
     goals: list[str] = Field(default_factory=list)
     constraints: list[str] = Field(default_factory=list)
     notes: list[str] = Field(default_factory=list)
+
+    @model_serializer(mode="wrap")
+    def _serialize_legacy_request(self, handler: SerializerFunctionWrapHandler) -> dict[str, Any]:
+        payload: dict[str, Any] = handler(self)
+        if self.schema_version == "1.0":
+            payload.pop("jurisdiction_source", None)
+        return payload
 
 
 class LegalRetrievalStatus(BaseModel):
@@ -154,6 +179,8 @@ class SourceVerificationReport(BaseModel):
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
     request_id: str
     verified_claims: list[VerifiedLegalClaim] = Field(default_factory=list)
+    legal_claim_candidates: list[ClaimRecord] = Field(default_factory=list)
+    legal_verification_status: Literal["not_established"] = "not_established"
     unresolved_critical_gaps: list[SourceCoverageGap] = Field(default_factory=list)
     verifier_calls_total: int = 0
     adjudicator_calls_total: int = 0
@@ -163,6 +190,40 @@ class SourceVerificationReport(BaseModel):
     needs_expert_review: bool = False
     source_statuses: dict[str, EvidenceSourceStatus] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _preserve_candidate_authority_boundary(self) -> SourceVerificationReport:
+        if self.schema_version == "1.0" and self.legal_claim_candidates:
+            raise ValueError("legacy_source_report_cannot_store_candidate_claims")
+        if self.schema_version == "1.1" and self.verified_claims:
+            raise ValueError("legal_claim_verification_not_established")
+        for claim in self.legal_claim_candidates:
+            source = claim.metadata.get("legal_source_candidate")
+            if (
+                claim.claim_type is not ClaimType.LEGAL
+                or claim.claim_use is not ClaimUse.CONTEXT_ONLY
+                or claim.support_status is not ClaimSupportStatus.NOT_EVALUABLE
+                or claim.publishability is not ClaimPublishability.INTERNAL_ONLY
+                or claim.readiness_level is not DecisionReadiness.RESEARCH_ARTIFACT
+                or "legal_claim_verification_not_established" not in claim.blocked_reasons
+                or not isinstance(source, dict)
+                or source.get("source") not in {"retrieved_fact", "llm_candidate", "legacy_unbound"}
+                or (claim.decomposition_source_class is ClaimSourceClass.LLM_CANDIDATE)
+                != (source.get("source") == "llm_candidate")
+                or claim.decomposition_source_class not in {None, ClaimSourceClass.LLM_CANDIDATE}
+            ):
+                raise ValueError("legal_claim_candidate_authority_invalid")
+        return self
+
+    @model_serializer(mode="wrap")
+    def _serialize_legacy_report(self, handler: SerializerFunctionWrapHandler) -> dict[str, Any]:
+        if self.schema_version == "1.0" and self.legal_claim_candidates:
+            raise ValueError("legacy_source_report_cannot_store_candidate_claims")
+        payload: dict[str, Any] = handler(self)
+        if self.schema_version == "1.0":
+            payload.pop("legal_claim_candidates", None)
+            payload.pop("legal_verification_status", None)
+        return payload
 
 
 class PolicyEvidenceLink(BaseModel):
@@ -229,6 +290,24 @@ class VerifiedPolicyReport(BaseModel):
     notes: list[str] = Field(default_factory=list)
 
 
+_POLICY_REQUEST_FRAME_OWNER = CoreArtifactOwnerProfile(
+    kind="scientist.policy_request_frame",
+    media_type="application/json",
+    schema_variants=(
+        SchemaInfo(name="polisyos.scientist.PolicyRequestFrame", version="1.0"),
+        SchemaInfo(name="polisyos.scientist.PolicyRequestFrame", version="1.1"),
+    ),
+    payload_schema_version_by_manifest=(
+        (("polisyos.scientist.PolicyRequestFrame", "1.0"), "1.0"),
+        (("polisyos.scientist.PolicyRequestFrame", "1.1"), "1.1"),
+    ),
+)
+_POLICY_OPTION_SET_OWNER = CoreArtifactOwnerProfile(
+    kind="scientist.policy_option_set",
+    media_type="application/json",
+    schema_variants=(SchemaInfo(name="polisyos.scientist.PolicyOptionSet", version="1.0"),),
+    payload_schema_version_by_manifest=((("polisyos.scientist.PolicyOptionSet", "1.0"), "1.0"),),
+)
 _LEGAL_CANDIDATE_PACK_OWNER = CoreArtifactOwnerProfile(
     kind="scientist.legal_candidate_pack",
     media_type="application/json",
@@ -241,14 +320,30 @@ _LEGAL_CANDIDATE_PACK_OWNER = CoreArtifactOwnerProfile(
         (("polisyos.scientist.LegalCandidatePack", "1.1"), "1.1"),
     ),
 )
+_LEGAL_SOURCE_PACK_OWNER = CoreArtifactOwnerProfile(
+    kind="scientist.legal_source_pack",
+    media_type="application/json",
+    schema_variants=(SchemaInfo(name="polisyos.scientist.LegalSourcePack", version="1.0"),),
+    payload_schema_version_by_manifest=((("polisyos.scientist.LegalSourcePack", "1.0"), "1.0"),),
+)
 _SOURCE_VERIFICATION_REPORT_OWNER = CoreArtifactOwnerProfile(
     kind="scientist.source_verification_report",
     media_type="application/json",
     schema_variants=(
         SchemaInfo(name="polisyos.scientist.SourceVerificationReport", version="1.0"),
+        SchemaInfo(name="polisyos.scientist.SourceVerificationReport", version="1.1"),
     ),
     payload_schema_version_by_manifest=(
         (("polisyos.scientist.SourceVerificationReport", "1.0"), "1.0"),
+        (("polisyos.scientist.SourceVerificationReport", "1.1"), "1.1"),
+    ),
+)
+_VERIFIED_POLICY_BODY_OWNER = CoreArtifactOwnerProfile(
+    kind="scientist.verified_policy_body",
+    media_type="application/json",
+    schema_variants=(SchemaInfo(name="polisyos.scientist.VerifiedPolicyReport", version="1.0"),),
+    payload_schema_version_by_manifest=(
+        (("polisyos.scientist.VerifiedPolicyReport", "1.0"), "1.0"),
     ),
 )
 _VERIFIED_POLICY_REPORT_OWNER = CoreArtifactOwnerProfile(
@@ -262,13 +357,14 @@ _VERIFIED_POLICY_REPORT_OWNER = CoreArtifactOwnerProfile(
 
 
 def _persist_model(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     model: BaseModel,
     *,
     kind: str,
     schema_name: str,
     inputs: list[InputRef] | None = None,
     owner_profile: CoreArtifactOwnerProfile | None = None,
+    canon_spec: CanonSpec | None = None,
 ) -> dict[str, Any]:
     payload_schema_version = getattr(model, "schema_version", "1.0")
     if owner_profile is None:
@@ -303,7 +399,7 @@ def _persist_model(
             schema=SchemaInfo(name=schema_name, version=schema_version),
             inputs=inputs,
         ),
-        canon_spec=CanonSpec(forbid_floats=False),
+        canon_spec=canon_spec or CanonSpec(forbid_floats=False),
         return_selected_profile=return_selected_profile,
     )
     return artifact.model_dump()
@@ -311,7 +407,7 @@ def _persist_model(
 
 def _load_owned_model[ModelT: BaseModel](
     model: type[ModelT],
-    store: FileSystemCAS,
+    store: ArtifactStore,
     ref: ArtifactRef,
     *,
     owner_profile: CoreArtifactOwnerProfile,
@@ -326,7 +422,7 @@ def _load_owned_model[ModelT: BaseModel](
 
 
 def persist_policy_request_frame(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     frame: PolicyRequestFrame,
     *,
     inputs: list[InputRef] | None = None,
@@ -339,21 +435,25 @@ def persist_policy_request_frame(
             kind="scientist.policy_request_frame",
             schema_name="polisyos.scientist.PolicyRequestFrame",
             inputs=inputs,
+            owner_profile=_POLICY_REQUEST_FRAME_OWNER,
         )
     )
 
 
 def load_policy_request_frame(
-    store: FileSystemCAS, ref: PolicyRequestFrameRef
+    store: ArtifactStore, ref: PolicyRequestFrameRef
 ) -> PolicyRequestFrame:
     """Load policy request frame."""
-    from polisyos.core.artifacts import load_core_json_artifact
-
-    return PolicyRequestFrame.model_validate(load_core_json_artifact(store, ref))
+    return _load_owned_model(
+        PolicyRequestFrame,
+        store,
+        ref,
+        owner_profile=_POLICY_REQUEST_FRAME_OWNER,
+    )
 
 
 def persist_legal_candidate_pack(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     pack: LegalCandidatePack,
     *,
     inputs: list[InputRef] | None = None,
@@ -372,7 +472,7 @@ def persist_legal_candidate_pack(
 
 
 def load_legal_candidate_pack(
-    store: FileSystemCAS, ref: LegalCandidatePackRef
+    store: ArtifactStore, ref: LegalCandidatePackRef
 ) -> LegalCandidatePack:
     """Load legal candidate pack."""
     return _load_owned_model(
@@ -384,7 +484,7 @@ def load_legal_candidate_pack(
 
 
 def persist_legal_source_pack(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     pack: LegalSourcePack,
     *,
     inputs: list[InputRef] | None = None,
@@ -397,24 +497,31 @@ def persist_legal_source_pack(
             kind="scientist.legal_source_pack",
             schema_name="polisyos.scientist.LegalSourcePack",
             inputs=inputs,
+            owner_profile=_LEGAL_SOURCE_PACK_OWNER,
         )
     )
 
 
-def load_legal_source_pack(store: FileSystemCAS, ref: LegalSourcePackRef) -> LegalSourcePack:
+def load_legal_source_pack(store: ArtifactStore, ref: LegalSourcePackRef) -> LegalSourcePack:
     """Load legal source pack."""
-    from polisyos.core.artifacts import load_core_json_artifact
-
-    return LegalSourcePack.model_validate(load_core_json_artifact(store, ref))
+    return _load_owned_model(
+        LegalSourcePack,
+        store,
+        ref,
+        owner_profile=_LEGAL_SOURCE_PACK_OWNER,
+    )
 
 
 def persist_source_verification_report(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     report: SourceVerificationReport,
     *,
     inputs: list[InputRef] | None = None,
 ) -> SourceVerificationReportRef:
     """Persist the source-verification audit report and return its typed artifact reference."""
+    report = SourceVerificationReport.model_validate(
+        {name: getattr(report, name) for name in SourceVerificationReport.model_fields}
+    )
     return SourceVerificationReportRef.model_validate(
         _persist_model(
             store,
@@ -423,12 +530,17 @@ def persist_source_verification_report(
             schema_name="polisyos.scientist.SourceVerificationReport",
             inputs=inputs,
             owner_profile=_SOURCE_VERIFICATION_REPORT_OWNER,
+            canon_spec=(
+                CanonSpec(forbid_floats=False, exclude_none=False)
+                if report.schema_version == "1.1"
+                else None
+            ),
         )
     )
 
 
 def load_source_verification_report(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     ref: SourceVerificationReportRef,
 ) -> SourceVerificationReport:
     """Load source verification report."""
@@ -441,7 +553,7 @@ def load_source_verification_report(
 
 
 def persist_policy_option_set(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     option_set: PolicyOptionSet,
     *,
     inputs: list[InputRef] | None = None,
@@ -454,19 +566,52 @@ def persist_policy_option_set(
             kind="scientist.policy_option_set",
             schema_name="polisyos.scientist.PolicyOptionSet",
             inputs=inputs,
+            owner_profile=_POLICY_OPTION_SET_OWNER,
         )
     )
 
 
-def load_policy_option_set(store: FileSystemCAS, ref: PolicyOptionSetRef) -> PolicyOptionSet:
+def load_policy_option_set(store: ArtifactStore, ref: PolicyOptionSetRef) -> PolicyOptionSet:
     """Load policy option set."""
-    from polisyos.core.artifacts import load_core_json_artifact
+    return _load_owned_model(
+        PolicyOptionSet,
+        store,
+        ref,
+        owner_profile=_POLICY_OPTION_SET_OWNER,
+    )
 
-    return PolicyOptionSet.model_validate(load_core_json_artifact(store, ref))
+
+def persist_verified_policy_body(
+    store: ArtifactStore,
+    report: VerifiedPolicyReport,
+    *,
+    inputs: list[InputRef] | None = None,
+) -> ArtifactRef:
+    """Persist an internal candidate body without granting publication authority."""
+    return ArtifactRef.model_validate(
+        _persist_model(
+            store,
+            report,
+            kind="scientist.verified_policy_body",
+            schema_name="polisyos.scientist.VerifiedPolicyReport",
+            inputs=inputs,
+            owner_profile=_VERIFIED_POLICY_BODY_OWNER,
+        )
+    )
+
+
+def load_verified_policy_body(store: ArtifactStore, ref: ArtifactRef) -> VerifiedPolicyReport:
+    """Read the selected candidate-body owner profile; this does not admit authority."""
+    return _load_owned_model(
+        VerifiedPolicyReport,
+        store,
+        ref,
+        owner_profile=_VERIFIED_POLICY_BODY_OWNER,
+    )
 
 
 def persist_verified_policy_report(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     report: VerifiedPolicyReport,
     *,
     inputs: list[InputRef] | None = None,
@@ -485,7 +630,7 @@ def persist_verified_policy_report(
 
 
 def load_verified_policy_report(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     ref: VerifiedPolicyReportRef,
 ) -> VerifiedPolicyReport:
     """Load verified policy report."""
@@ -513,11 +658,13 @@ __all__ = [
     "load_policy_option_set",
     "load_policy_request_frame",
     "load_source_verification_report",
+    "load_verified_policy_body",
     "load_verified_policy_report",
     "persist_legal_candidate_pack",
     "persist_legal_source_pack",
     "persist_policy_option_set",
     "persist_policy_request_frame",
     "persist_source_verification_report",
+    "persist_verified_policy_body",
     "persist_verified_policy_report",
 ]

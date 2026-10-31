@@ -20,6 +20,7 @@ from pydantic import (
 )
 
 from polisyos.core.artifacts.registry import RegistryBundlePayload
+from polisyos.core.compiler.report import CompileCandidateRejection
 from polisyos.ir.kernel import MethodMetricSemanticContract, MethodMetricSourceUnit, UnitSpecType
 from polisyos.ir.registry.refs import WelfareBundleRef
 
@@ -1479,6 +1480,23 @@ class CompileResult(BaseModel):
 
     derived_refs: list[DerivedArtifact] = Field(default_factory=list)
     notes: list[str] = Field(default_factory=list)
+    candidate_rejection: CompileCandidateRejection | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+
+    @model_validator(mode="after")
+    def validate_candidate_rejection(self) -> CompileResult:
+        """Require an actual failed, selected report for versioned rejection evidence."""
+        if self.candidate_rejection is not None and (
+            self.schema_version != "1.1"
+            or self.ok
+            or self.exec_plan_ref is not None
+            or self.compile_report_ref.kind != "compiler.compile_report"
+            or self.compile_report_ref.media_type != "application/json"
+            or self.compile_report_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("compile_candidate_rejection_requires_failed_result_1_1")
+        return self
 
 
 class FoundryExecConfig(BaseModel):

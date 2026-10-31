@@ -13,7 +13,7 @@ import types
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from .api import build_method_housekeeping_nodes
+    from .api import build_method_housekeeping_nodes, verify_expected_candidate_rejection
     from .manifest_inputs import execution_plan_input_refs, program_graph_input_refs
     from .randomization import TreasuryPlan, build_treasury_plan
 
@@ -25,6 +25,7 @@ __all__ = [
     "execution_plan_input_refs",
     "program_graph_input_refs",
     "replay_method_program_graph",
+    "verify_expected_candidate_rejection",
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
@@ -44,6 +45,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "program_graph_input_refs",
     ),
     "replay_method_program_graph": ("polisyos.foundry.compile.api", "replay_method_program_graph"),
+    "verify_expected_candidate_rejection": (
+        "polisyos.foundry.compile.api",
+        "verify_expected_candidate_rejection",
+    ),
 }
 
 

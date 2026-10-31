@@ -22,8 +22,9 @@ from polisyos.core.artifacts.manifest import (
 )
 from polisyos.core.artifacts.protocol import ArtifactStore, CoreJSONArtifactStore
 from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.canon import CanonSpec
+from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.core.compiler.report import (
+    CompileCandidateRejection,
     CompileReport,
     put_compile_report,
     put_link_report,
@@ -74,7 +75,7 @@ from polisyos.ir.kernel.method_metrics import (
     registered_method_metric_unit_adapter_metadata,
     resolve_registered_method_metric_unit_adapter,
 )
-from polisyos.ir.linker import link_trinity
+from polisyos.ir.linker import LinkIssueCode, LinkReport, link_trinity
 from polisyos.ir.linker.reports import LinkSeverity
 from polisyos.ir.registry.registry_fragments import RegistryBundle
 from polisyos.ir.trinity import TrinityBundle
@@ -92,6 +93,172 @@ def _require_bounded_method_metric_bindings(request: CompileRequest) -> None:
         raise ValueError("method_metric_binding_inventory_exceeds_capture_limit")
 
 
+def _link_registries(content: RegistryBundleContent) -> RegistryBundle:
+    """Use the same materialized registry projection for compile and replay."""
+    return RegistryBundle(
+        schema_version="1.0",
+        mechanisms=content.mechanism_registry,
+        slots=content.slot_registry,
+        merge_rules=content.merge_registry,
+        constraints=content.constraint_registry,
+        selector_fields=content.selector_field_registry,
+        units=content.units_registry,
+        metrics=content.metric_registry,
+    )
+
+
+def _compile_request_sha256(request: CompileRequest) -> str:
+    """Bind every submitted request field, including later optional additions."""
+    payload = to_canonical_bytes(request.model_dump(mode="json"), CanonSpec(forbid_floats=False))
+    return hashlib.sha256(payload).hexdigest()
+
+
+def _parameter_failure_is_eligible(report: LinkReport) -> bool:
+    """Recognize only the explicit v1 parameter-validator rejection profile.
+
+    This bounded profile excludes missing registries/mechanisms, source refusal,
+    and every unrecognized linker category. A future issue is not implicitly a
+    candidate rejection merely because it is a linker error.
+    """
+    parameter_codes = {
+        LinkIssueCode.MISSING_PARAM,
+        LinkIssueCode.PARAM_PATH,
+        LinkIssueCode.PARAM_TYPE,
+        LinkIssueCode.PARAM_ENUM,
+        LinkIssueCode.PARAM_RANGE,
+    }
+    errors = [issue for issue in report.issues if issue.severity == LinkSeverity.ERROR]
+    return (
+        report.schema_version == "1.0"
+        and not report.ok
+        and bool(errors)
+        and all(issue.code in parameter_codes for issue in errors)
+    )
+
+
+def _registry_members_are_selected(store: CoreJSONArtifactStore, ref: ArtifactRef) -> bool:
+    """Require existing selected member references instead of reconstructing legacy views."""
+    registry = load_registry_bundle(store, ref)
+    return all(
+        member is None
+        or (isinstance(member, ArtifactRef) and member.manifest_profile_sha256 is not None)
+        for name in type(registry).model_fields
+        if name != "bundle_ref"
+        for member in (getattr(registry, name),)
+    )
+
+
+def _requested_selection_matches(requested: ArtifactRef, selected: ArtifactRef) -> bool:
+    """Honor a requested profile when present; never replace an explicit selector."""
+    return (
+        requested.artifact_id == selected.artifact_id
+        and requested.kind == selected.kind
+        and requested.media_type == selected.media_type
+        and (
+            requested.manifest_profile_sha256 is None
+            or requested.manifest_profile_sha256 == selected.manifest_profile_sha256
+        )
+    )
+
+
+def _canonical_equal(left: object, right: object) -> bool:
+    """Compare typed content without Python's boolean/numeric equality aliases."""
+    spec = CanonSpec(forbid_floats=False)
+    return to_canonical_bytes(left, spec) == to_canonical_bytes(right, spec)
+
+
+def verify_expected_candidate_rejection(
+    store: CoreJSONArtifactStore, request: CompileRequest, result: CompileResult
+) -> CompileCandidateRejection | None:
+    """Recompute a completed parameter failure from its selected source graph.
+
+    The public wrapper handles malformed/missing source data as unqualified.
+    This function provides no run appointment or custody permission: the caller
+    still must bind the actual returned result to the genuine producer attempt.
+    """
+    from polisyos.core.artifacts import validate_core_model_json_artifact
+
+    request = CompileRequest.model_validate(request.model_dump(mode="json"))
+    result = CompileResult.model_validate(result.model_dump(mode="json"))
+    rejection = result.candidate_rejection
+    if rejection is None or not request.validation_flags.strict_link:
+        return None
+    if rejection.request_sha256 != _compile_request_sha256(request):
+        return None
+    if not _requested_selection_matches(request.policy_ref, rejection.policy_ref):
+        return None
+
+    report_manifest = store.get_manifest(result.compile_report_ref)
+    if (
+        report_manifest.artifact_schema is None
+        or report_manifest.artifact_schema.name != "polisyos.core.CompileReport"
+        or report_manifest.artifact_schema.version != "1.1"
+    ):
+        return None
+    report = validate_core_model_json_artifact(CompileReport, store, result.compile_report_ref)
+    if report.candidate_rejection != rejection:
+        return None
+    expected_report_inputs = [
+        input_ref_from_artifact_ref(rejection.policy_ref, role="ir"),
+        input_ref_from_artifact_ref(rejection.registry_bundle_ref, role="registry_bundle"),
+        input_ref_from_artifact_ref(rejection.link_report_ref, role="link_report"),
+    ]
+    if not _canonical_equal(
+        [item.model_dump(mode="json") for item in report_manifest.inputs],
+        [item.model_dump(mode="json") for item in expected_report_inputs],
+    ):
+        return None
+    if len(result.derived_refs) != 1 or result.derived_refs[0].role != "link_report":
+        return None
+    if artifact_ref_identity_key(result.derived_refs[0].ref) != artifact_ref_identity_key(
+        rejection.link_report_ref
+    ):
+        return None
+
+    if request.method_execution_plan_ref is not None:
+        # The actual compiler admits this selected input before it reaches the
+        # parameter validator; replay the same owner-mediated prerequisite.
+        _load_selected_method_execution_plan(
+            store,
+            policy_ref=request.policy_ref,
+            method_plan_ref=request.method_execution_plan_ref,
+        )
+    bundle = validate_core_model_json_artifact(TrinityBundle, store, rejection.policy_ref)
+    requested_registry = _resolve_registry_bundle_ref(
+        request.registry_bundle_ref, bundle.model_spec.registry_bundle_ref
+    )
+    if requested_registry is None or not _requested_selection_matches(
+        requested_registry, rejection.registry_bundle_ref
+    ):
+        return None
+    if not _registry_members_are_selected(store, rejection.registry_bundle_ref):
+        return None
+    link_manifest = store.get_manifest(rejection.link_report_ref)
+    if (
+        link_manifest.artifact_schema is None
+        or link_manifest.artifact_schema.name != "polisyos.ir.LinkReport"
+        or link_manifest.artifact_schema.version != "1.0"
+        or not _canonical_equal(
+            [item.model_dump(mode="json") for item in link_manifest.inputs],
+            [item.model_dump(mode="json") for item in expected_report_inputs[:2]],
+        )
+    ):
+        return None
+    persisted = validate_core_model_json_artifact(LinkReport, store, rejection.link_report_ref)
+    content = load_registry_bundle_content(store, rejection.registry_bundle_ref)
+    _, recomputed = link_trinity(
+        bundle,
+        _link_registries(content),
+        allow_extra_params=request.validation_flags.allow_extra_params,
+        strict=request.validation_flags.strict_link,
+    )
+    if not _parameter_failure_is_eligible(recomputed) or not _canonical_equal(
+        persisted.model_dump(mode="json"), recomputed.model_dump(mode="json")
+    ):
+        return None
+    return rejection
+
+
 def compile_trinity(store: CoreJSONArtifactStore, request: CompileRequest) -> CompileResult:
     """Compile a Trinity bundle and persist the execution graph artifacts.
 
@@ -107,6 +274,7 @@ def compile_trinity(store: CoreJSONArtifactStore, request: CompileRequest) -> Co
         `treasury_plan` refs when compilation succeeds.
     """
     _require_bounded_method_metric_bindings(request)
+    submitted_request = request
 
     from polisyos.core.artifacts import validate_core_model_json_artifact
 
@@ -139,7 +307,8 @@ def compile_trinity(store: CoreJSONArtifactStore, request: CompileRequest) -> Co
                 lowered_ir_ref=None,
                 semantic_closure_notes=[],
             )
-    bundle = validate_core_model_json_artifact(TrinityBundle, store, policy_ref)
+    read_policy_ref = _selected_profile_ref(store, policy_ref)
+    bundle = validate_core_model_json_artifact(TrinityBundle, store, read_policy_ref)
 
     registry_bundle_ref = _resolve_registry_bundle_ref(
         request.registry_bundle_ref, bundle.model_spec.registry_bundle_ref
@@ -156,18 +325,9 @@ def compile_trinity(store: CoreJSONArtifactStore, request: CompileRequest) -> Co
             semantic_closure_notes=[],
         )
 
-    registry_content = load_registry_bundle_content(store, registry_bundle_ref)
-
-    registries = RegistryBundle(
-        schema_version="1.0",
-        mechanisms=registry_content.mechanism_registry,
-        slots=registry_content.slot_registry,
-        merge_rules=registry_content.merge_registry,
-        constraints=registry_content.constraint_registry,
-        selector_fields=registry_content.selector_field_registry,
-        units=registry_content.units_registry,
-        metrics=registry_content.metric_registry,
-    )
+    read_registry_ref = _selected_profile_ref(store, registry_bundle_ref)
+    registry_content = load_registry_bundle_content(store, read_registry_ref)
+    registries = _link_registries(registry_content)
 
     link_inputs = [
         input_ref_from_artifact_ref(policy_ref, role="ir"),
@@ -179,24 +339,46 @@ def compile_trinity(store: CoreJSONArtifactStore, request: CompileRequest) -> Co
         allow_extra_params=request.validation_flags.allow_extra_params,
         strict=request.validation_flags.strict_link,
     )
+    candidate_rejected = (
+        request.validation_flags.strict_link
+        and _parameter_failure_is_eligible(link_report)
+        and _registry_members_are_selected(store, read_registry_ref)
+    )
+    if candidate_rejected:
+        # These are the exact sources used above, not a later default-view lookup.
+        link_inputs = [
+            input_ref_from_artifact_ref(read_policy_ref, role="ir"),
+            input_ref_from_artifact_ref(read_registry_ref, role="registry_bundle"),
+        ]
     link_report_ref = put_link_report(
         store,
         link_report,
         inputs=link_inputs,
-        return_selected_profile=request.return_selected_profile,
+        return_selected_profile=request.return_selected_profile or candidate_rejected,
     )
     compile_notes = _link_warning_notes(link_report)
 
     if request.validation_flags.strict_link and not link_report.ok:
+        rejection = (
+            CompileCandidateRejection(
+                request_sha256=_compile_request_sha256(submitted_request),
+                policy_ref=read_policy_ref,
+                registry_bundle_ref=read_registry_ref,
+                link_report_ref=link_report_ref,
+            )
+            if candidate_rejected
+            else None
+        )
         return _compile_error(
             store,
             ok=False,
-            policy_ref=policy_ref,
-            registry_bundle_ref=registry_bundle_ref,
+            policy_ref=read_policy_ref if rejection is not None else policy_ref,
+            registry_bundle_ref=read_registry_ref if rejection is not None else registry_bundle_ref,
             link_report_ref=link_report_ref,
             notes=compile_notes + ["link_failed"],
             lowered_ir_ref=None,
             semantic_closure_notes=[],
+            candidate_rejection=rejection,
         )
 
     try:
@@ -844,9 +1026,10 @@ def _compile_error(
     lowered_ir_ref: ArtifactRef | None,
     semantic_closure_notes: list[str],
     notes: list[str],
+    candidate_rejection: CompileCandidateRejection | None = None,
 ) -> CompileResult:
     compile_report = CompileReport(
-        schema_version="1.0",
+        schema_version="1.1" if candidate_rejection is not None else "1.0",
         ok=ok,
         policy_ref=policy_ref,
         registry_bundle_ref=registry_bundle_ref,
@@ -854,6 +1037,7 @@ def _compile_error(
         lowered_ir_ref=lowered_ir_ref,
         semantic_closure_notes=semantic_closure_notes,
         notes=notes,
+        candidate_rejection=candidate_rejection,
     )
     compile_inputs = _compile_inputs(
         policy_ref=policy_ref,
@@ -865,7 +1049,12 @@ def _compile_error(
         slot_layout_ref=None,
         treasury_plan_ref=None,
     )
-    compile_report_ref = put_compile_report(store, compile_report, inputs=compile_inputs)
+    compile_report_ref = put_compile_report(
+        store,
+        compile_report,
+        inputs=compile_inputs,
+        return_selected_profile=candidate_rejection is not None,
+    )
 
     derived_refs: list[DerivedArtifact] = []
     if lowered_ir_ref is not None:
@@ -873,12 +1062,13 @@ def _compile_error(
     if link_report_ref is not None:
         derived_refs.append(DerivedArtifact(role="link_report", ref=link_report_ref))
     return CompileResult(
-        schema_version="1.0",
+        schema_version="1.1" if candidate_rejection is not None else "1.0",
         ok=ok,
         exec_plan_ref=None,
         compile_report_ref=compile_report_ref,
         derived_refs=derived_refs,
         notes=notes,
+        candidate_rejection=candidate_rejection,
     )
 
 

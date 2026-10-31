@@ -1,0 +1,17 @@
+id = "2026-10-31-e02-compile-candidate-rejection"
+title = "Separate completed parameter rejection from opaque compile failures"
+type = "fixed"
+component = "foundry"
+owner = "E02"
+summary = "The canonical strict linker emits optional selected-source rejection evidence in CompileReport and CompileResult 1.1; the existing compile API can reload and recompute it."
+evidence = ["tests/unit/foundry/compile/test_compile_candidate_rejection.py"]
+compatibility = "Successful, legacy and unclassified envelopes retain 1.0 and omit the absent rejection field. Actual compile failure remains ok=false."
+change_class = "persisted-artifact-format"
+surface_classification = "public_stable: core.compiler rejection transport and foundry.compile verifier"
+api = "Expose CompileCandidateRejection and verify_expected_candidate_rejection through the existing owning facades."
+migration = "Only an actual completed strict parameter validator with selected registry members may emit the new evidence. Historical/profileless or unclassified failures remain unknown."
+limitations = "The verifier establishes relative parameter validation against the selected source graph, not producer appointment, institutional truth, custody permission, quiescence, settlement, or search continuation. Actual invocation and operation outcome require separate owner-mediated reconciliation."
+generated_client_compatibility = "No new HTTP endpoint; generated contract and public inventory companions require coordinator review."
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/foundry/README.md"]
+runbook_docs = []

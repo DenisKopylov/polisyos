@@ -75,6 +75,7 @@ boundaries.
 | ----------------------------- | ---------------------------------------------------------------------------------------------------------- |
 | `compile()`                   | Compile a Trinity bundle into `foundry.program_graph`, `foundry.exec_plan`, and a compile report artifact. |
 | `compile_program()`           | Compatibility alias for `compile()` on the package facade.                                                 |
+| `compile.verify_expected_candidate_rejection()` | Recompute a versioned strict-parameter rejection from its selected policy, registry and validator report. |
 | `execute()`                   | Execute a compiled plan from `FoundryInputBindingsRef` and persist simulation evidence.                    |
 | `admit_execution_source()`     | Recompute a persisted simulation result's source mode and complete selected basis inventory.               |
 | `SnapshotStateLayoutError`   | Stable exception identity for valid state bytes that do not reconstruct the canonical `GlobalState`; legacy consumers may handle this specific compatibility case. |
@@ -100,6 +101,23 @@ its selected input refs; it does not accept a caller's prepared state or digest
 as authority. This preparation only establishes the actual effective numerical
 input to the existing writer. It does not decide equivalence of evaluations,
 currentness, native acquisition admission, or permission to skip a later stage.
+
+Compile failures remain `ok=False`. A completed strict parameter validator can
+emit a `CompileCandidateRejection` in report/result 1.1 when every referenced
+registry member is already selected by profile. The verifier reloads the exact
+source graph and diagnostic, checks request and lineage bindings, and reruns the
+canonical linker. Presence of the object, an error code, a `ValueError`, or a
+matching message does not qualify a rejection. Legacy 1.0 and unclassified
+backend, permission, integrity, timeout and lowering failures remain unknown.
+Absent rejection fields are omitted, preserving legacy report serialization.
+
+This is source-validation evidence, not permission to continue a search or
+close a child scope. The consumer must separately reconcile the actual producer
+invocation, completed operation, quiescence and settlement. Infrastructure or
+settlement errors dominate a valid parameter rejection. Registry bundles with
+profileless members must be reissued by their real producer using the existing
+`return_selected_profile=True` option; the verifier does not reconstruct a
+historical selection from current default views.
 
 The HTE input exports are an additive public-stable API through the existing
 `polisyos.foundry.data_plane` entrypoint; see the [release fragment](../../../release-fragments/unreleased/2026-10-21-e02-hte-physical-source-binding.toml).

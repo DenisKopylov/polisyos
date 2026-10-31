@@ -10,9 +10,13 @@ envelope when compilation cannot produce an executable plan.
 from __future__ import annotations
 
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
+from polisyos.core.artifacts.manifest import ArtifactRef, input_ref_from_artifact_ref
 from polisyos.core.artifacts.protocol import ArtifactStore
-from polisyos.core.compiler.report import CompileReport, put_compile_report
+from polisyos.core.compiler.report import (
+    CompileCandidateRejection,
+    CompileReport,
+    put_compile_report,
+)
 from polisyos.core.contracts.execution_plan import ExecutionPlan
 from polisyos.core.contracts.foundry import (
     CompileRequest,
@@ -99,6 +103,35 @@ def _resolve_compiler(request: CompileRequest) -> str:
     raise ValueError(f"Unsupported input_kind: {request.input_kind}")
 
 
+def verify_expected_candidate_rejection(
+    store: ArtifactStore, request: CompileRequest, result: CompileResult
+) -> CompileCandidateRejection | None:
+    """Recompute strict parameter-rejection evidence from exact selected sources.
+
+    A marker, exception message, failed result or legacy report is insufficient.
+    The caller must additionally reconcile the actual producer invocation and
+    settlement; this function does not authorize scope closure or continuation.
+
+    Args:
+        store: The actual scoped store used by the failed compile.
+        request: The actual submitted request retained by the caller.
+        result: The actual result returned by the admitted compile operation.
+
+    Returns:
+        Recomputed selected-source evidence, or None when it cannot be established.
+        Backend, permission and other infrastructure errors may still propagate.
+    """
+    core_json_store = resolve_core_json_profile_store(store)
+    if core_json_store is None:
+        return None
+    from .trinity_compiler import verify_expected_candidate_rejection as verify
+
+    try:
+        return verify(core_json_store, request, result)
+    except (ValueError, TypeError, FileNotFoundError):
+        return None
+
+
 def _compile_exception(
     store: ArtifactStore, request: CompileRequest, exc: Exception
 ) -> CompileResult:
@@ -111,10 +144,10 @@ def _compile_exception(
         registry_bundle_ref=request.registry_bundle_ref,
         notes=notes,
     )
-    inputs = [InputRef(artifact_id=request.policy_ref.artifact_id, role="ir")]
+    inputs = [input_ref_from_artifact_ref(request.policy_ref, role="ir")]
     if request.registry_bundle_ref is not None:
         inputs.append(
-            InputRef(artifact_id=request.registry_bundle_ref.artifact_id, role="registry_bundle")
+            input_ref_from_artifact_ref(request.registry_bundle_ref, role="registry_bundle")
         )
     compile_report_ref = put_compile_report(store, compile_report, inputs=inputs)
     return CompileResult(

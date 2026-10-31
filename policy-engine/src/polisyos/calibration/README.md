@@ -75,18 +75,24 @@ This bridge imports IR only when selected. Its evidence remains predictive-only:
 content binding and profile verification establish the selected view, not
 completeness, issuer authority, currentness, causal effects, or S10.
 
-The current reader recomputes arithmetic from report rows and checks the selected
-source edges, but does not reconcile each row with its selected forecast and
-holdout. It therefore persists a limited result with
-`backtest_source_not_established`, no empirical availability or calibration pass.
-Its counts and rate are row-only diagnostics. Older affirmative evidence that
-cannot be reproduced under this limitation is refused on fresh read; its CAS
-bytes remain available for technical inspection. Establishing the row-to-source
-relation remains a separate verification capability. The Runtime association
-schema v5 preserves the candidate attachment with null observed counts/rates,
-limited owner suitability, and blocked S10 support without a calibration record.
-It carries the exact source limitation through publication and fresh readback;
-row arithmetic cannot supply public observed-measurement labels.
+The current reader recomputes report arithmetic and, for the selected
+ForecastOwner route, reopens the observed series, training split and forecast
+bundle to reconcile every ordered row's target, outcome, prediction and bounds.
+Optional member/profile refs add their existing candidate series join. A
+same-count row permutation produces `backtest_row_source_mismatch`; missing or
+corrupt selected owner inputs produce `backtest_row_source_not_established`.
+This stored numerical row relation does not establish source time/currentness,
+issuer, population completeness or causal authority. The bridge therefore
+retains `backtest_source_not_established`, no empirical availability and no
+calibration pass. Counts and rates remain descriptive predictive diagnostics.
+
+Older affirmative evidence that cannot be reproduced under these checks is
+refused on fresh read; its CAS bytes remain available for technical inspection.
+The Runtime association schema v5 preserves the candidate attachment with null
+observed counts/rates, limited owner suitability, and blocked S10 support without
+a calibration record. It carries the exact source limitation through publication
+and fresh readback; row arithmetic cannot supply public observed-measurement
+labels.
 
 ## Internal implementation groups
 

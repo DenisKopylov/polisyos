@@ -15,6 +15,7 @@ self-described lineage cannot substitute for those observations.
 from __future__ import annotations
 
 import hashlib
+import math
 from collections.abc import Mapping, Sequence
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
@@ -40,6 +41,16 @@ from polisyos.core.artifacts import (
 from polisyos.core.artifacts import (
     resolve_manifest_by_profile as _resolve_manifest_by_profile,
 )
+from polisyos.core.contracts import (
+    FORECAST_PROFILE_MEMBER_KIND,
+    FORECAST_PROFILE_MEMBER_SCHEMA,
+    FORECAST_PROFILE_MEMBER_SCHEMA_VERSION,
+    VALUE_DATA_PROFILE_KIND,
+    VALUE_OWNER_PROJECTION_KIND,
+    DataSnapshot,
+    ForecastProfileMemberV1,
+    forecast_profile_observed_series_sha256,
+)
 from polisyos.ir import (
     ArtifactID,
     ArtifactRefModel,
@@ -47,9 +58,11 @@ from polisyos.ir import (
     BacktestReport,
     BacktestReportRef,
     CanonSpec,
+    ForecastingUncertaintyBundleRef,
     InputRef,
     get_json_artifact,
     load_backtest_report,
+    load_forecasting_uncertainty_bundle,
     put_json_artifact,
 )
 
@@ -213,6 +226,8 @@ _TRIVIAL_IDENTITY_VALUES = frozenset(
 _OBSERVATION_BLOCKERS = frozenset(
     {
         "backtest_source_not_established",
+        "backtest_row_source_not_established",
+        "backtest_row_source_mismatch",
         "interval_bounds_missing",
         "interval_bounds_partial",
         "within_ci_missing",
@@ -236,6 +251,8 @@ _OBSERVATION_BLOCKERS = frozenset(
 _PERSISTENCE_ALLOWED_LIMITATIONS = frozenset(
     {
         "backtest_source_not_established",
+        "backtest_row_source_not_established",
+        "backtest_row_source_mismatch",
         "calibration_floor_not_met",
         "zero_observation_denominator",
         "nominal_confidence_only",
@@ -480,10 +497,15 @@ def _produce_empirical_calibration_evidence(
         observation_issues,
     ) = _recompute_and_reconcile(report)
 
-    # The report reader can reconcile arithmetic, but there is currently no
-    # owner that compares each row with the selected forecast and holdout.
-    # A report's own metadata cannot establish that missing relation.
+    # The selected-row join is narrower than source authority. Even an exact
+    # row match cannot establish issuer, population, source time, or causality.
     issues = [*observation_issues, "backtest_source_not_established"]
+    if require_selected_profiles:
+        row_status = _reconcile_backtest_rows(store, validated_report_ref, report)
+        if row_status == "not_established":
+            issues.append("backtest_row_source_not_established")
+        elif row_status == "mismatch":
+            issues.append("backtest_row_source_mismatch")
     report_profile_issues = (
         ("report_profile_not_established",)
         if require_selected_profiles and validated_report_ref.manifest_profile_sha256 is None
@@ -1258,6 +1280,293 @@ def _report_input_relations(
     """Return report input edges as a set for relation membership checks."""
 
     return set(_report_input_edges(store, report_ref))
+
+
+def _selected_row_source_ref(
+    store: ArtifactStore,
+    edges: Sequence[tuple[str, str, str | None]],
+    role: str,
+    *,
+    kind: str | None = None,
+) -> ArtifactRefModel:
+    """Resolve one exact report input, including its selected manifest view."""
+
+    matches = [edge for edge in edges if edge[1] == role]
+    if len(matches) != 1:
+        raise ValueError("selected row source edge is missing or ambiguous")
+    artifact_id, _role, profile = matches[0]
+    if profile is None:
+        raise ValueError("selected row source edge has no profile")
+    manifest = _resolve_report_source_manifest(store, artifact_id, profile)
+    actual_kind = _field(manifest, "kind")
+    if (
+        not isinstance(actual_kind, str)
+        or (kind is not None and actual_kind != kind)
+        or _field(manifest, "media_type") != "application/json"
+    ):
+        raise ValueError("selected row source profile has an unexpected kind or media type")
+    return ArtifactRefModel(
+        artifact_id=artifact_id,
+        kind=actual_kind,
+        media_type="application/json",
+        manifest_profile_sha256=profile,
+    )
+
+
+def _row_source_edge(ref: ArtifactRefModel, role: str) -> tuple[str, str, str | None]:
+    return str(ref.artifact_id), role, ref.manifest_profile_sha256
+
+
+def _require_row_source_edges(
+    store: ArtifactStore,
+    ref: ArtifactRefModel,
+    expected: Sequence[tuple[str, str, str | None]],
+) -> None:
+    actual = _manifest_input_edges(store, ref)
+    if len(actual) != len(set(actual)) or sorted(actual) != sorted(expected):
+        raise ValueError("selected row source input edges differ")
+
+
+def _row_source_numbers(value: object) -> tuple[float, ...]:
+    if not isinstance(value, (list, tuple)) or not value:
+        raise ValueError("selected row source series is missing")
+    result: list[float] = []
+    for item in value:
+        if _coerce_decimal(item) is None:
+            raise ValueError("selected row source series is not finite numeric data")
+        numeric = float(item)
+        if not math.isfinite(numeric):
+            raise ValueError("selected row source series is not finite numeric data")
+        result.append(numeric)
+    return tuple(result)
+
+
+def _row_source_scalar(value: object) -> float:
+    # The univariate producer accepts a scalar or a singleton array of any
+    # rank. Preserve that shape contract without accepting a multi-value row.
+    while isinstance(value, (list, tuple)):
+        if len(value) != 1:
+            raise ValueError("forecast horizon is not univariate")
+        value = value[0]
+    if _coerce_decimal(value) is None:
+        raise ValueError("forecast horizon is not finite numeric data")
+    numeric = float(value)
+    if not math.isfinite(numeric):
+        raise ValueError("forecast horizon is not finite numeric data")
+    return numeric
+
+
+def _reconcile_backtest_rows(
+    store: ArtifactStore,
+    report_ref: BacktestReportRef,
+    report: BacktestReport,
+) -> Literal["recomputed", "mismatch", "not_established", "profileless"]:
+    """Reconcile all ordered report rows to selected forecast and holdout inputs.
+
+    This establishes only a stored row/position relation. Profileless owners
+    do not thereby acquire a unit or period identity, and source time, issuer,
+    population and causal authority remain unestablished for every route.
+    """
+
+    edges = _report_input_edges(store, report_ref)
+    profile_edges = [
+        edge for edge in edges if edge[1] in {"value_data_profile", "forecast_profile_member"}
+    ]
+    join_status = report.metadata.get("profile_join_status")
+    if (
+        not any(edge[1] == "observed_data" for edge in edges)
+        and not profile_edges
+        and join_status not in {"joined_candidate", "profileless_legacy"}
+    ):
+        # Historical generic reports have no owner-specific selected source
+        # shape. Preserve their existing broad limitation and replay behavior.
+        return "profileless"
+    try:
+        if report_ref.manifest_profile_sha256 is None:
+            raise ValueError("report has no selected profile")
+        source = _selected_row_source_ref(
+            store, edges, "observed_source", kind="fabric.data_snapshot"
+        )
+        observed = _selected_row_source_ref(store, edges, "observed_data")
+        training = _selected_row_source_ref(
+            store, edges, "training_slice", kind="ir.forecast_training_slice"
+        )
+        bundle_ref = _selected_row_source_ref(
+            store, edges, "uncertainty_bundle", kind="ir.forecasting_uncertainty_bundle"
+        )
+        method = _selected_row_source_ref(store, edges, "method_artifact")
+        rule = _selected_row_source_ref(store, edges, "calibration_rule")
+        _validate_json_artifact(
+            store,
+            training,
+            expected_kind="ir.forecast_training_slice",
+            expected_media_type="application/json",
+            expected_schema_name="polisyos.ir.ForecastTrainingSlice",
+            expected_schema_version="1.0",
+        )
+        ir_store = _ensure_ir_artifact_store(store)
+        snapshot = DataSnapshot.model_validate(get_json_artifact(ir_store, source))
+        if ArtifactRefModel.model_validate(snapshot.data_ref.model_dump(mode="json")) != observed:
+            raise ValueError("snapshot data reference differs")
+        training_payload = _as_mapping(get_json_artifact(ir_store, training))
+        target = training_payload.get("target_metric")
+        if not isinstance(target, str) or not target or target != target.strip():
+            raise ValueError("training target is malformed")
+        observed_payload = _as_mapping(get_json_artifact(ir_store, observed))
+        values = _row_source_numbers(observed_payload.get(target))
+        split = _as_mapping(training_payload.get("split"))
+        split_values = tuple(
+            split.get(name)
+            for name in ("train_start", "train_end", "holdout_start", "holdout_end", "horizon")
+        )
+        if any(type(value) is not int for value in split_values):
+            raise ValueError("training split is malformed")
+        train_start, train_end, holdout_start, holdout_end, horizon = split_values
+        if not (
+            0 <= train_start < train_end == holdout_start < holdout_end <= len(values)
+            and horizon == holdout_end - holdout_start
+        ):
+            raise ValueError("training split does not bind a complete holdout")
+        if (
+            training_payload.get("schema_version") != "1.0"
+            or ArtifactRefModel.model_validate(training_payload.get("source_ref")) != source
+            or ArtifactRefModel.model_validate(training_payload.get("observed_data_ref"))
+            != observed
+            or _row_source_numbers(training_payload.get("values")) != values[train_start:train_end]
+            or ArtifactRefModel.model_validate(report.metadata.get("uncertainty_bundle_ref"))
+            != bundle_ref
+        ):
+            raise ValueError("training/report payload does not bind its selected sources")
+
+        optional_edges: tuple[tuple[str, str, str | None], ...] = ()
+        if profile_edges or join_status == "joined_candidate":
+            profile = _selected_row_source_ref(
+                store, edges, "value_data_profile", kind=VALUE_DATA_PROFILE_KIND
+            )
+            member_ref = _selected_row_source_ref(
+                store, edges, "forecast_profile_member", kind=FORECAST_PROFILE_MEMBER_KIND
+            )
+            member_bytes = _validate_json_artifact(
+                store,
+                member_ref,
+                expected_kind=FORECAST_PROFILE_MEMBER_KIND,
+                expected_media_type="application/json",
+                expected_schema_name=FORECAST_PROFILE_MEMBER_SCHEMA,
+                expected_schema_version=FORECAST_PROFILE_MEMBER_SCHEMA_VERSION,
+            )
+            member = ForecastProfileMemberV1.model_validate_json(member_bytes, strict=True)
+            if (
+                join_status != "joined_candidate"
+                or training_payload.get("profile_join_status") != "joined_candidate"
+                or member.profile_ref != profile
+                or member.observed_source_ref != source
+                or member.observed_data_ref != observed
+                or member.target_metric != target
+                or member.row_count != len(values)
+                or member.observed_series_sha256 != forecast_profile_observed_series_sha256(values)
+                or ArtifactRefModel.model_validate(report.metadata.get("value_data_profile_ref"))
+                != profile
+                or ArtifactRefModel.model_validate(
+                    report.metadata.get("forecast_profile_member_ref")
+                )
+                != member_ref
+                or ArtifactRefModel.model_validate(training_payload.get("value_data_profile_ref"))
+                != profile
+                or ArtifactRefModel.model_validate(
+                    training_payload.get("forecast_profile_member_ref")
+                )
+                != member_ref
+            ):
+                raise ValueError("profile member does not bind the selected observed series")
+            projection = member.source_projection_ref
+            projection_manifest = _resolve_report_source_manifest(
+                store, str(projection.artifact_id), str(projection.manifest_profile_sha256)
+            )
+            if (
+                _field(projection_manifest, "kind") != VALUE_OWNER_PROJECTION_KIND
+                or _field(projection_manifest, "media_type") != "application/json"
+            ):
+                raise ValueError("selected source projection differs")
+            _require_row_source_edges(
+                store,
+                member_ref,
+                (
+                    _row_source_edge(profile, "value_data_profile"),
+                    _row_source_edge(projection, "activated_source_projection"),
+                    _row_source_edge(source, "observed_source"),
+                    _row_source_edge(observed, "observed_data"),
+                ),
+            )
+            optional_edges = (
+                _row_source_edge(profile, "value_data_profile"),
+                _row_source_edge(member_ref, "forecast_profile_member"),
+            )
+        elif (
+            join_status != "profileless_legacy"
+            or training_payload.get("profile_join_status") != "profileless_legacy"
+        ):
+            raise ValueError("profileless forecast owner status is missing")
+
+        _require_row_source_edges(
+            store,
+            training,
+            (
+                _row_source_edge(source, "observed_source"),
+                _row_source_edge(observed, "observed_data"),
+                *optional_edges,
+            ),
+        )
+        _require_row_source_edges(
+            store,
+            bundle_ref,
+            (
+                _row_source_edge(source, "observed_source"),
+                _row_source_edge(observed, "observed_data"),
+                _row_source_edge(training, "training_slice"),
+                _row_source_edge(method, "method_artifact"),
+                _row_source_edge(rule, "calibration_rule"),
+                *optional_edges,
+            ),
+        )
+        bundle = load_forecasting_uncertainty_bundle(
+            ir_store,
+            ForecastingUncertaintyBundleRef.model_validate(bundle_ref.model_dump(mode="json")),
+        )
+        if bundle.target_id != target or bundle.metadata.get("target_metric") != target:
+            raise ValueError("forecast target differs")
+        intervals = {item.horizon: item for item in bundle.prediction_interval}
+        if len(intervals) != len(bundle.prediction_interval) or set(intervals) != set(
+            range(1, horizon + 1)
+        ):
+            raise ValueError("forecast horizons do not cover the complete holdout")
+        forecast_rows = tuple(
+            (
+                _row_source_scalar(intervals[i].point),
+                _row_source_scalar(intervals[i].lower),
+                _row_source_scalar(intervals[i].upper),
+            )
+            for i in range(1, horizon + 1)
+        )
+    except (OSError, TypeError, ValueError, OverflowError):
+        return "not_established"
+
+    if len(report.scenarios) != 1:
+        return "mismatch"
+    scenario = report.scenarios[0]
+    rows = scenario.outcome_comparisons
+    if len(rows) != horizon or scenario.data_source != str(observed.artifact_id):
+        return "mismatch"
+    for index, (row, forecast) in enumerate(zip(rows, forecast_rows, strict=True)):
+        point, lower, upper = forecast
+        if (
+            row.metric_name != target
+            or row.y_true != values[holdout_start + index]
+            or not math.isclose(row.y_pred, point, rel_tol=0.0, abs_tol=1e-12)
+            or row.ci_lower != lower
+            or row.ci_upper != upper
+        ):
+            return "mismatch"
+    return "recomputed"
 
 
 def _scope_binding_issues(

@@ -12,6 +12,7 @@ from pathlib import Path
 
 import pytest
 
+import polisyos.calibration.forecast_bridge as forecast_bridge
 from polisyos.calibration.forecast_bridge import (
     REFERENCE_SOURCE_INPUT_ROLES,
     persist_empirical_calibration_evidence,
@@ -374,6 +375,9 @@ def test_real_forecast_owner_cas_bridge_reopen_reaches_limited_s10_candidate(
     assert evidence.empirical_observations_available is False
     assert evidence.usable_for_calibration is False
     assert evidence.floor_passed is False
+    assert (
+        forecast_bridge._reconcile_backtest_rows(store, selected_report_ref, report) == "recomputed"
+    )
     assert evidence.failure_codes == ("backtest_source_not_established",)
     evidence_ref = persist_empirical_calibration_evidence(store, evidence)
     assert evidence_ref.manifest_profile_sha256 is not None
@@ -449,10 +453,14 @@ def test_real_forecast_owner_cas_bridge_reopen_reaches_limited_s10_candidate(
     assert forged.context_bound is True
     assert forged.recomputed_numerator == evidence.recomputed_numerator
     assert forged.recomputed_denominator == evidence.recomputed_denominator
+    assert forged.recomputed_pass_rate == evidence.recomputed_pass_rate
     assert forged.empirical_observations_available is False
     assert forged.floor_passed is False
     assert forged.usable_for_calibration is False
-    assert "backtest_source_not_established" in forged.failure_codes
+    assert forged.failure_codes == (
+        "backtest_source_not_established",
+        "backtest_row_source_mismatch",
+    )
     forged_evidence_ref = persist_empirical_calibration_evidence(store, forged)
     assert load_empirical_calibration_evidence(store, forged_evidence_ref) == forged
     forged_projection = _produce_forecast_inputs(

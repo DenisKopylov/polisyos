@@ -11,27 +11,45 @@ from .designs import (
     AdversarialStrategy,
     SensitivityMethod,
     SensitivityPlan,
+    _admit_sensitivity_plan,
     _build_salib_problem,
     _derive_backend_seed,
 )
 from .morris_geometry import _declared_morris_num_levels
 
 
+def _sampling_kwargs(plan: SensitivityPlan) -> dict[str, object]:
+    """Select every supported sampler option instead of mutable backend defaults."""
+    seed = _derive_backend_seed(plan.seed, f"sampling:{plan.method.value}")
+    if plan.method == SensitivityMethod.MORRIS:
+        return {
+            "N": plan.n_trajectories,
+            "num_levels": _declared_morris_num_levels(plan),
+            "optimal_trajectories": None,
+            "local_optimization": True,
+            "seed": seed,
+        }
+    if plan.method == SensitivityMethod.SOBOL:
+        return {
+            "N": plan.n_trajectories,
+            "calc_second_order": True,
+            "scramble": True,
+            "skip_values": 0,
+            "seed": seed,
+        }
+    return {"N": plan.n_trajectories, "M": 4, "seed": seed}
+
+
 def generate_sensitivity_samples(plan: SensitivityPlan) -> np.ndarray:
     """Generate parameter samples for the configured sensitivity plan."""
+    plan = _admit_sensitivity_plan(plan)
     problem = _plan_to_salib_problem(plan)
-    backend_seed = _derive_backend_seed(plan.seed, f"sampling:{plan.method.value}")
+    kwargs = _sampling_kwargs(plan)
 
     if plan.method == SensitivityMethod.MORRIS:
-        num_levels = _declared_morris_num_levels(plan)
         from SALib.sample import morris as morris_sampler  # type: ignore[import-not-found]
 
-        return morris_sampler.sample(
-            problem,
-            N=plan.n_trajectories,
-            num_levels=num_levels,
-            seed=backend_seed,
-        )
+        return morris_sampler.sample(problem, **kwargs)
 
     if plan.method == SensitivityMethod.SOBOL:
         try:
@@ -39,7 +57,7 @@ def generate_sensitivity_samples(plan: SensitivityPlan) -> np.ndarray:
         except ImportError:
             from SALib.sample import saltelli as saltelli_sampler  # type: ignore[import-not-found]
 
-            if backend_seed is not None:
+            if plan.seed is not None:
                 raise RuntimeError(
                     "Seeded Sobol sampling requires SALib's seed-capable sobol backend"
                 )
@@ -48,17 +66,12 @@ def generate_sensitivity_samples(plan: SensitivityPlan) -> np.ndarray:
                 N=plan.n_trajectories,
                 calc_second_order=True,
             )
-        return sobol_sampler.sample(
-            problem,
-            N=plan.n_trajectories,
-            calc_second_order=True,
-            seed=backend_seed,
-        )
+        return sobol_sampler.sample(problem, **kwargs)
 
     if plan.method == SensitivityMethod.FAST:
         from SALib.sample import fast_sampler  # type: ignore[import-not-found]
 
-        return fast_sampler.sample(problem, N=plan.n_trajectories, seed=backend_seed)
+        return fast_sampler.sample(problem, **kwargs)
 
     raise ValueError(f"Unsupported sensitivity method: {plan.method}")
 

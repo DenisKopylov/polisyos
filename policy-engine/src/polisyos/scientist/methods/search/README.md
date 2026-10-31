@@ -523,3 +523,14 @@ changing a presentation cap or adding a direction label cannot establish it.
 ## Lesson evidence age on transfer (B137)
 
 Local lesson reads and transfer materialization apply the same evidence-age confidence cap before effective-quality filtering. The source CAS record remains unchanged; a stale lesson within the transfer TTL window may remain available at reduced weight. Read or transfer activity does not establish a new evidence verification. An authorized scientific revalidation producer and production authority remain unestablished.
+
+### Persisted sensitivity priors
+
+`SensitivityAwareCandidateGenerator.from_artifact` reopens a fully selected DOE
+experiment and reproduces its numerical result before adding `_sensitivity`
+metadata. The metadata includes the exact CAS selector and design/analysis
+identities; this is an exploratory prior, not a ranking or promotion grant.
+Unselected profiles, changed plan/data/results or unreconciled native numerical
+sources refuse before adapter construction. This is a replayed snapshot, not
+an ongoing source-currentness certification. Direct in-process construction
+remains a legacy candidate-only route. See the [DOE owner](../doe/README.md#selected-experiment-replay).

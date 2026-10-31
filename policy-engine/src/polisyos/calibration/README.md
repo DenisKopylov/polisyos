@@ -1,6 +1,6 @@
 # polisyos.calibration
 
-- Last updated: 2026-10-14
+- Last updated: 2026-10-31
 
 Calibration diagnostics package for binary, multiclass, and continuous
 calibration checks plus fit/apply helpers for recalibration workflows.
@@ -19,11 +19,36 @@ separate `scientist/calibration` package root.
 
 - `evaluate_binary`
 - `evaluate_continuous`
+- `persist_continuous_evaluation` / `load_continuous_evaluation`
 - `evaluate_multiclass`
 - `fit_calibrator`
 - `apply_calibrator`
 - `compare_calibrators`
 - `to_validation_report`
+
+## Continuous interval/outcome replay
+
+`persist_continuous_evaluation` invokes the existing continuous evaluator on an
+immutable snapshot of the effective ordered outcomes, interval sets, levels,
+predictive samples and replay options. It stores that snapshot as
+`calibration.continuous_inputs` and the resulting report as
+`calibration.continuous_evaluation`, both schema `1.0`. The latter carries one
+exact selected-profile manifest edge to its inputs. Seeded bootstrap replay
+requires an explicit nonnegative integer seed. Both writes and fresh reads
+admit at most 1,000,000 expanded bootstrap pair evaluations (repetitions ×
+outcomes × interval levels), separately from the bounded payload reads.
+
+`load_continuous_evaluation` uses bounded Core reads, reopens that exact input
+profile, reruns the evaluator and compares the complete report. A fresh reader
+refuses valid-hash reports with altered coverage, counts, metrics or receipts,
+and rejects changed input profiles when an independently expected reference is
+supplied. This proves numerical reproduction of the retained effective inputs;
+it does not establish their measurement source, issuer, currentness, population
+law or causal adequacy. The continuous report's truthfulness remains
+`unverified`, `measurement_source_assurance` remains `not_established`, and the
+validation adapter remains blocked/fail. Foundry's interval summary accepts an
+explicit calibration store for this persisted path; callers without a store
+retain the existing candidate-only behavior.
 
 ## Selected report and context profiles
 
@@ -77,8 +102,8 @@ The shared implementation is organized by the existing capability contracts:
 - `recalibration/` owns fitted calibrator models and fit/apply/compare behavior,
   with its private sklearn compatibility implementation beside that owner.
 
-Foundry callers use the Calibration root facade. This layout change leaves the
-17-name root API and empirical-evidence lazy bridge unchanged; it does not claim
+Foundry callers use the Calibration root facade. This layout preserves the
+existing root API and empirical-evidence lazy bridge; it does not claim
 that unrelated unclassified package-root files or the full repository gate are
 closed.
 

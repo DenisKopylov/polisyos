@@ -3,6 +3,13 @@ from __future__ import annotations
 from polisyos.scientist.nodes.builtins import builtin_nodes
 
 
+def test_verified_policy_report_versions_are_registered_once() -> None:
+    registered = [str(node.spec.metadata.component_id) for node in builtin_nodes()]
+
+    assert registered.count("scientist.node_build_verified_policy_report@1.0.0") == 1
+    assert registered.count("scientist.node_build_verified_policy_report@1.1.0") == 1
+
+
 def test_builtin_registry_excludes_legacy_policy_shortcut_nodes() -> None:
     registered = {str(node.spec.metadata.component_id) for node in builtin_nodes()}
 

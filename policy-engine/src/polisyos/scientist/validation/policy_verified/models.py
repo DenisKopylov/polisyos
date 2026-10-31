@@ -10,6 +10,7 @@ from pydantic import (
     ConfigDict,
     Field,
     SerializerFunctionWrapHandler,
+    field_validator,
     model_serializer,
     model_validator,
 )
@@ -19,9 +20,15 @@ from polisyos.core.artifacts import (
     CoreArtifactOwnerProfile,
     validate_owned_core_model_json_artifact,
 )
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    InputRef,
+    SchemaInfo,
+    artifact_ref_identity_key,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.canon import CanonSpec
+from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.core.contracts.scientist import (
     LegalCandidatePackRef,
     LegalSourcePackRef,
@@ -266,8 +273,81 @@ class PolicyOptionSet(BaseModel):
     notes: list[str] = Field(default_factory=list)
 
 
+class PolicyReportCompositionBinding(BaseModel):
+    """Declared inputs for a limited policy composition, pending owner admission.
+
+    These typed references do not establish a completed Engine attempt or grant
+    publication authority. A consumer must revalidate the selected occurrences.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["1.0"] = "1.0"
+    purpose: Literal["limited_policy_composition"] = "limited_policy_composition"
+    result_status: Literal["limited"] = "limited"
+    requirement_authority: Literal["not_established"] = "not_established"
+    publishable: Literal[False] = False
+    legal_verification_status: Literal["not_established"] = "not_established"
+    option_program_correspondence: Literal["not_established"] = "not_established"
+    run_id: str = Field(min_length=1)
+    body_ref: ArtifactRef
+    candidate_ref: ArtifactRef
+    phase5_assessment_ref: ArtifactRef
+    initial_governance_ref: ArtifactRef
+    final_governance_ref: ArtifactRef
+    selected_input_ref: ArtifactRef
+    selected_attempt_ref: ArtifactRef
+
+    @field_validator("publishable", mode="before")
+    @classmethod
+    def _require_false_bool(cls, value: object) -> object:
+        if value is not False:
+            raise ValueError("policy_composition_publishability_invalid")
+        return value
+
+    @field_validator(
+        "body_ref",
+        "candidate_ref",
+        "phase5_assessment_ref",
+        "initial_governance_ref",
+        "final_governance_ref",
+        "selected_input_ref",
+        "selected_attempt_ref",
+        mode="before",
+    )
+    @classmethod
+    def _normalize_reference_model(cls, value: object) -> object:
+        if isinstance(value, ArtifactRef):
+            return value.model_dump(mode="python")
+        return value
+
+    @model_validator(mode="after")
+    def _require_selected_role_profiles(self) -> PolicyReportCompositionBinding:
+        expected_kinds = (
+            (self.body_ref, "scientist.verified_policy_body"),
+            (self.candidate_ref, "scientist.policy_design.candidate"),
+            (self.phase5_assessment_ref, "scientist.policy_phase5_candidate_assessment"),
+            (self.initial_governance_ref, "scientist.governance_report"),
+            (self.final_governance_ref, "scientist.governance_report"),
+            (self.selected_input_ref, "scientist.experiment_state"),
+            (self.selected_attempt_ref, "core.run_invocation_attempt"),
+        )
+        if any(
+            ref.kind != kind
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+            for ref, kind in expected_kinds
+        ):
+            raise ValueError("policy_composition_selected_role_profile_invalid")
+        if artifact_ref_identity_key(self.initial_governance_ref) == artifact_ref_identity_key(
+            self.final_governance_ref
+        ):
+            raise ValueError("policy_composition_governance_occurrences_not_distinct")
+        return self
+
+
 class VerifiedPolicyReport(BaseModel):
-    """Delivery-ready policy report combining verified legal basis, options, implications, and gaps."""
+    """Policy report content, with an optional limited-composition declaration."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -288,6 +368,24 @@ class VerifiedPolicyReport(BaseModel):
     needs_expert_review: bool = False
     source_statuses: dict[str, EvidenceSourceStatus] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)
+    composition: PolicyReportCompositionBinding | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+
+    @model_validator(mode="after")
+    def _validate_composition_version(self) -> VerifiedPolicyReport:
+        if (self.schema_version, self.composition is None) not in {
+            ("1.0", True),
+            ("1.1", False),
+        }:
+            raise ValueError("policy_report_composition_schema_mismatch")
+        if self.composition is not None and (
+            self.verified_legal_basis
+            or self.intervention_legal_basis_map
+            or not self.needs_expert_review
+        ):
+            raise ValueError("limited_policy_report_legal_authority_not_established")
+        return self
 
 
 _POLICY_REQUEST_FRAME_OWNER = CoreArtifactOwnerProfile(
@@ -349,9 +447,13 @@ _VERIFIED_POLICY_BODY_OWNER = CoreArtifactOwnerProfile(
 _VERIFIED_POLICY_REPORT_OWNER = CoreArtifactOwnerProfile(
     kind="scientist.verified_policy_report",
     media_type="application/json",
-    schema_variants=(SchemaInfo(name="polisyos.scientist.VerifiedPolicyReport", version="1.0"),),
+    schema_variants=(
+        SchemaInfo(name="polisyos.scientist.VerifiedPolicyReport", version="1.0"),
+        SchemaInfo(name="polisyos.scientist.VerifiedPolicyReport", version="1.1"),
+    ),
     payload_schema_version_by_manifest=(
         (("polisyos.scientist.VerifiedPolicyReport", "1.0"), "1.0"),
+        (("polisyos.scientist.VerifiedPolicyReport", "1.1"), "1.1"),
     ),
 )
 
@@ -610,13 +712,71 @@ def load_verified_policy_body(store: ArtifactStore, ref: ArtifactRef) -> Verifie
     )
 
 
+def _policy_composition_inputs(binding: PolicyReportCompositionBinding) -> list[InputRef]:
+    return [
+        input_ref_from_artifact_ref(ref, role=role)
+        for role, ref in (
+            ("verified_body", binding.body_ref),
+            ("policy_candidate", binding.candidate_ref),
+            ("phase5_candidate_assessment", binding.phase5_assessment_ref),
+            ("initial_governance_assessment", binding.initial_governance_ref),
+            ("final_governance_report", binding.final_governance_ref),
+            ("selected_input", binding.selected_input_ref),
+            ("selected_attempt", binding.selected_attempt_ref),
+        )
+    ]
+
+
+def _compose_limited_policy_report(
+    body: VerifiedPolicyReport, binding: PolicyReportCompositionBinding
+) -> VerifiedPolicyReport:
+    """Copy candidate body content into the limited report wire format."""
+    if body.schema_version != "1.0" or body.composition is not None:
+        raise ValueError("policy_composition_body_version_invalid")
+    payload = body.model_dump(mode="python")
+    missing_evidence = list(body.missing_evidence)
+    for limitation in (
+        "Applicable requirement authority is not established.",
+        "Independent legal claim verification is not established.",
+        "The selected policy option has not been matched to the final program.",
+    ):
+        if limitation not in missing_evidence:
+            missing_evidence.append(limitation)
+    payload["missing_evidence"] = missing_evidence
+    payload.update(schema_version="1.1", composition=binding.model_dump(mode="python"))
+    return VerifiedPolicyReport.model_validate(payload)
+
+
+def _require_composition_body_content(store: ArtifactStore, report: VerifiedPolicyReport) -> None:
+    """Recompute report content from its selected body; this is not attempt admission."""
+    binding = report.composition
+    if binding is None:
+        raise ValueError("policy_composition_binding_missing")
+    body = load_verified_policy_body(store, binding.body_ref)
+    expected = _compose_limited_policy_report(body, binding)
+    canon = CanonSpec(forbid_floats=False, exclude_none=False)
+    if to_canonical_bytes(expected.model_dump(mode="json"), canon) != to_canonical_bytes(
+        report.model_dump(mode="json"), canon
+    ):
+        raise ValueError("policy_composition_body_content_mismatch")
+
+
 def persist_verified_policy_report(
     store: ArtifactStore,
     report: VerifiedPolicyReport,
     *,
     inputs: list[InputRef] | None = None,
 ) -> VerifiedPolicyReportRef:
-    """Persist the final verified policy report assembled for delivery or governance review."""
+    """Persist report content; a composition declaration still requires owner admission."""
+    if report.schema_version != "1.0" or report.composition is not None:
+        # Revalidate mutable/model_copy callers before writing a new wire version.
+        report = VerifiedPolicyReport.model_validate(report.model_dump(mode="python"))
+        assert report.composition is not None
+        expected_inputs = _policy_composition_inputs(report.composition)
+        if inputs is not None and inputs != expected_inputs:
+            raise ValueError("policy_composition_source_edges_mismatch")
+        _require_composition_body_content(store, report)
+        inputs = expected_inputs
     return VerifiedPolicyReportRef.model_validate(
         _persist_model(
             store,
@@ -633,19 +793,27 @@ def load_verified_policy_report(
     store: ArtifactStore,
     ref: VerifiedPolicyReportRef,
 ) -> VerifiedPolicyReport:
-    """Load verified policy report."""
-    return _load_owned_model(
+    """Read the owner profile and exact declared edges, without granting authority."""
+    report = _load_owned_model(
         VerifiedPolicyReport,
         store,
         ref,
         owner_profile=_VERIFIED_POLICY_REPORT_OWNER,
     )
+    if report.composition is not None:
+        if ref.manifest_profile_sha256 is None:
+            raise ValueError("policy_composition_selected_profile_not_established")
+        if store.get_manifest(ref).inputs != _policy_composition_inputs(report.composition):
+            raise ValueError("policy_composition_source_edges_mismatch")
+        _require_composition_body_content(store, report)
+    return report
 
 
 __all__ = [
     "LegalCandidatePack",
     "LegalSourcePack",
     "PolicyEvidenceLink",
+    "PolicyReportCompositionBinding",
     "PolicyOption",
     "PolicyOptionSet",
     "PolicyRequestFrame",

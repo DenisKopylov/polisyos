@@ -22,6 +22,7 @@ __all__ = [
     "BuildLiteraturePriorNode",
     "BuildMethodCatalogSnapshotNode",
     "BuildPolicyOutputBundleNode",
+    "BuildVerifiedPolicyReportCompositionNode",
     "BuildVerifiedPolicyReportNode",
     "CompileCrossGraphEvidenceNode",
     "CompileFoundryNode",
@@ -119,6 +120,7 @@ def builtin_nodes() -> list[Node]:
         BuildVerifiedPolicyBodyNode,
     )
     from polisyos.scientist.nodes.builtins.decide.build_verified_policy_report import (
+        BuildVerifiedPolicyReportCompositionNode,
         BuildVerifiedPolicyReportNode,
     )
     from polisyos.scientist.nodes.builtins.decide.evaluate_verified_policy_phase5 import (
@@ -238,6 +240,7 @@ def builtin_nodes() -> list[Node]:
         SelectPolicyCandidateNode(),
         BuildVerifiedPolicyBodyNode(),
         EvaluateVerifiedPolicyPhase5Node(),
+        BuildVerifiedPolicyReportCompositionNode(),
         BuildVerifiedPolicyReportNode(),
         RunPolicyBlueprintRuntimeNode(),
         RunPolicyTranslationNode(),
@@ -480,6 +483,12 @@ def __getattr__(name: str) -> Any:
         )
 
         return BuildVerifiedPolicyReportNode
+    if name == "BuildVerifiedPolicyReportCompositionNode":
+        from polisyos.scientist.nodes.builtins.decide.build_verified_policy_report import (
+            BuildVerifiedPolicyReportCompositionNode,
+        )
+
+        return BuildVerifiedPolicyReportCompositionNode
     if name == "RunPolicyBlueprintRuntimeNode":
         from polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime import (
             RunPolicyBlueprintRuntimeNode,

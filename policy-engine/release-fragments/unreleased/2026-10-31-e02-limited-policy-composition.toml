@@ -1,0 +1,26 @@
+id = "2026-10-31-e02-limited-policy-composition"
+title = "Compose selected policy stages into an explicitly limited report"
+type = "added"
+component = "scientist"
+owner = "scientist"
+summary = "Add a separate input-aware report producer at 1.1.0, with exact completed-stage source bindings, a fresh blocked ValidationReport and live completed-owner currentness reconciliation."
+evidence = ["src/polisyos/scientist/validation/README.md", "tests/unit/scientist/validation/test_policy_report_composition.py", "tests/unit/scientist/nodes/builtins/decide/test_limited_policy_report_composition.py"]
+compatibility = "The existing 1.0.0 report node and historical schema 1.0 reports remain available. Schema 1.1 reports require exact composition bindings and explicit unresolved authority."
+change_class = "Additive limited report version and source-currentness consumer."
+surface_classification = "public_experimental: builtin report component and typed CAS artifact"
+api = "New scientist.node_build_verified_policy_report@1.1.0 uses policy_verified_completion.v1 with 23 fixed reads and 3 writes. It emits report 1.1 and ValidationReport 2.0; no HTTP route or generated-client field is changed directly."
+limitations = "The result is limited and non-publishable; requirement authority, independent legal verification and option/program correspondence stay not_established. Registry availability alone does not select or qualify a production workflow. Currentness qualification uses the same finalized in-process RunContext owner; cross-process, restart and worker-to-parent admission are not established."
+generated_client_compatibility = "not_applicable"
+
+[[compatibility_change]]
+id = "limited-policy-composition-report-v1.1"
+change_class = "persisted-artifact-format"
+impact = "additive"
+surface = "public_experimental: typed CAS report"
+owner = "scientist"
+version_owner = "scientist"
+deprecation_window = "not_applicable"
+release_note = "VerifiedPolicyReport 1.1 carries exact selected-stage/attempt references, requirement_authority=not_established and publishable=false; historical 1.0 reports remain readable."
+generated_client_compatibility = "not_applicable"
+migration_docs = []
+runbook_docs = []

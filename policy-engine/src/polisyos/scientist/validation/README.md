@@ -84,6 +84,35 @@ promoted into current legal findings. New v1.1 artifacts require readers that
 understand the candidate fields. An institutional legal verifier and reviewer
 appointment are not supplied by this change.
 
+## Limited composition report
+
+`BuildVerifiedPolicyReportCompositionNode` is the separate `@1.1.0` version of
+the existing report producer; the `@1.0.0` node remains available. Its fixed
+Engine port admits the selected body, candidate, initial governance, Phase-5
+assessment and distinct final governance occurrences without exposing the raw
+predecessor or history to the callback. The new producer writes only the report
+and validation aliases declared by that port. It never reuses an inherited
+validation reference.
+
+The schema-1.1 report binds those exact source profiles and its selected Engine
+input/attempt. It carries `result_status=limited`,
+`requirement_authority=not_established`, `publishable=false`, and explicit legal
+verification and option/program correspondence limitations. The existing
+ValidationReport owner stores a fresh blocked result for these unresolved
+boundaries. A fresh report-currentness read reopens the exact successful producer
+and the fixed completed-composition source reconciliation, including live
+threshold currentness. Qualification uses a new CAS/context reader and persisted
+Core history with the same finalized in-process RunContext owner; cross-process,
+restart and worker-to-parent admission are not established. Current source
+integrity does not turn the limited report into publication approval. Unknown
+callers and unowned/reissued reports cannot supply the completed occurrence by
+copying the declaration.
+
+Registering the version does not by itself select a new production workflow.
+The staged producer-to-consumer path and its affected consumers must be qualified
+together; legal verification, applicability authority and institutional appointment
+remain distinct requirements.
+
 ## Selected IC verification
 
 The existing exact IC verifier retains the complete selected Trinity and optional

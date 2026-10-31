@@ -86,6 +86,9 @@ def resolve_current_verified_policy_report(
             "invalid", None, artifact_ref, "verified_policy_report_owner_profile_invalid"
         )
 
+    if report.composition is not None:
+        return _resolve_current_composition(ctx, state, artifact_ref, report)
+
     try:
         from polisyos.scientist.nodes.builtins.decide.build_verified_policy_report import (
             BuildVerifiedPolicyReportNode,
@@ -112,6 +115,67 @@ def resolve_current_verified_policy_report(
         report,
         artifact_ref,
         producer.reason_code,
+    )
+
+
+def _resolve_current_composition(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    artifact_ref: ArtifactRef,
+    report: VerifiedPolicyReport,
+) -> VerifiedPolicyReportAdmission:
+    """Reconcile the completed owner occurrence and its live fixed source basis."""
+    from polisyos.scientist.nodes.builtins.decide.build_verified_policy_report import (
+        BuildVerifiedPolicyReportCompositionNode,
+    )
+    from polisyos.scientist.orchestration.engine.input_ports import (
+        read_completed_verified_policy_composition,
+    )
+    from polisyos.scientist.orchestration.engine.producer_currentness import (
+        resolve_engine_produced_artifact,
+    )
+
+    binding = report.composition
+    assert binding is not None
+    if binding.run_id != state.run_id:
+        return VerifiedPolicyReportAdmission(
+            "stale", report, artifact_ref, "verified_policy_composition_run_mismatch"
+        )
+    try:
+        spec = BuildVerifiedPolicyReportCompositionNode().spec
+        producer = resolve_engine_produced_artifact(
+            ctx,
+            state,
+            artifact_ref,
+            expected_component_id=str(spec.metadata.component_id),
+            expected_node_spec=spec,
+            source_read_paths=tuple(spec.state_reads),
+            expected_basis_ref=binding.selected_attempt_ref,
+        )
+        if not producer.is_current:
+            return VerifiedPolicyReportAdmission(
+                producer.status, report, artifact_ref, producer.reason_code
+            )
+        facts = read_completed_verified_policy_composition(
+            ctx,
+            current_state=state,
+            report_ref=artifact_ref,
+            expected_attempt_ref=binding.selected_attempt_ref,
+            expected_input_ref=binding.selected_input_ref,
+        )
+    except (AttributeError, KeyError, OSError, RuntimeError, TypeError, ValueError):
+        return VerifiedPolicyReportAdmission(
+            "not_established", report, artifact_ref, "verified_policy_composition_not_established"
+        )
+    if facts.status != "current":
+        return VerifiedPolicyReportAdmission(
+            facts.status,
+            report,
+            artifact_ref,
+            "verified_policy_composition_sources_" + facts.status,
+        )
+    return VerifiedPolicyReportAdmission(
+        "current", report, artifact_ref, "verified_policy_composition_source_current"
     )
 
 

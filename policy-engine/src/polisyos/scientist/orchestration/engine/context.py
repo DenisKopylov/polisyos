@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from polisyos.scientist.orchestration.engine.child_computation import _ManagedStageBSession
     from polisyos.scientist.orchestration.engine.input_ports import (
         NodeInputSelection,
+        _VerifiedPolicyCompletionAdmissionOwner,
         _VerifiedPolicyPhase5AdmissionOwner,
     )
     from polisyos.scientist.orchestration.engine.metrics_protocol import (
@@ -296,6 +297,9 @@ class ExecutionContext:
     _node_input_selection: NodeInputSelection | None = field(default=None, kw_only=True, repr=False)
     _verified_policy_phase5_admission_owner: _VerifiedPolicyPhase5AdmissionOwner | None = field(
         default=None, kw_only=True, repr=False
+    )
+    _verified_policy_completion_admission_owner: _VerifiedPolicyCompletionAdmissionOwner | None = (
+        field(default=None, kw_only=True, repr=False)
     )
     _child_stage_b_session: _ManagedStageBSession | None = field(
         default=None,

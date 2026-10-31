@@ -88,15 +88,28 @@ their validator/serializer identities are captured; later replacements refuse. T
 source-definition ownership covers the fixed ordinary governance/report roles
 used by this composition; it does not depend on those roles selecting a physical
 input port. Their dynamically selected validation plugins remain outside the
-selected implementation/isolation claim. The code-derived dependency closure follows source wrappers to
-the existing Core/IR JSON validators, artifact-store, Engine-input and replay
-evidence-verification owner entrypoints. Those generic owners are the declared stopping point; this is not
-an assertion about arbitrary transitive libraries or dynamic Python. Engine
-validation reads and reconciles that basis before invoking the node. The full predecessor remains with the executor; only declared writes
+selected implementation/isolation claim. The code-derived dependency closure
+follows source wrappers to the existing Core/IR JSON validators, artifact-store
+and replay evidence-verification owner entrypoints. Fixed Engine input-owner
+operations follow their actual domain-admission bindings through the same
+definition walk. Those generic owners are the declared stopping point; this is
+not an assertion about arbitrary transitive libraries or dynamic Python. Engine
+validation reads and reconciles that basis before invoking the node. The full
+predecessor remains with the executor; only declared writes
 merge back through the existing mutation journal and state merge owner. Hidden
 state and archived history survive unchanged. Cache replay binds the physical
 input and implementation in its key and creates a fresh run-owned attempt with
 the exact verified selected cache-entry occurrence as provenance.
+
+Capture retains the exact detached projection and per-binding source map used
+by each canonical implementation digest. Every admission reobserves current
+namespace bindings, callable/code identities, defaults, closures, class/DTO
+definitions and source bytes, then compares those projections with exact leaf
+types. It does not repeatedly encode each definition as a new artifact, and the
+persisted digest algorithm is unchanged. Only provably immutable code-object
+digests use a bounded identity-keyed cache. Code with mutable constants keeps
+the original fresh digest path; successful admission and mutable definition or
+source observations are never cached across operations.
 
 `read_input_port_basis(ctx, state)` accepts only the unchanged persisted
 projection and returns safe input/attempt coordinates. It returns no predecessor
@@ -122,6 +135,42 @@ It does not establish plugin isolation, option-to-program correspondence,
 publication permission or completion. A later completion profile, including a
 historical initial governance basis and a separately current final governance
 report, is not supplied by this profile.
+
+The separate `policy_verified_completion.v1` port selects the Body, Candidate,
+completed Phase-5 diagnostic, final governance report, five explicit evidence
+roles under both ref maps, and six explicit requirement inputs. Its fixed owner
+reopens the diagnostic's original input and recorded projected outcome, verifies
+its exact successful occurrence and historical initial governance, and merges
+only the declared assessment-ref write into the full predecessor. The final
+governance attempt must receive exactly that reconstructed state; its actual
+successful output must be the completion predecessor. No map or archive is
+dropped to make those transitions agree. The governance gate owner can reuse
+`reconcile_verified_policy_phase5_transition` for the actual pending final
+governance occurrence without receiving any predecessor content.
+
+`read_verified_policy_completion_admission(ctx, state)` returns detached source
+occurrences, candidate assessment/verdict, final governance content, live
+threshold currentness and explicit evidence/unsupported-requirement facts.
+Historical and current Body/Candidate selections are revalidated separately;
+initial and final governance must be distinct selected occurrences. Missing
+optional evidence stays explicit, conflicting or unsupported selected roles
+refuse, and false or absent caller flags do not establish nonrequirements.
+Even a source-current view remains limited and non-publishable: legal
+verification, option/program correspondence and independent requirement coverage
+are not supplied by it. The domain producer and downstream consumer must still
+use this fixed view and their own precise admitted output transitions.
+
+After the real 1.1 report producer succeeds,
+`read_completed_verified_policy_composition` reopens the exact report-selected
+input and attempt through the actual run owner. It checks successful ownership,
+the fixed projected output and its two artifacts before repeating the same
+source-occurrence and live-threshold reconciliation. The report declaration
+cannot appoint a producer or substitute a different attempt. The required
+`current_state` additionally reconciles recognized evidence and unsupported
+selection channels: newly supplied advisor or Phase-5 evidence cannot keep a
+historical composition current while disappearing from its physical input.
+Unrelated hidden state is preserved and does not become an undeclared read.
+Returned facts remain detached, limited and non-publishable.
 
 The supported boundary is an exact trusted builtin in the selected in-process
 profile, through its state, CAS and run APIs. It does not isolate arbitrary

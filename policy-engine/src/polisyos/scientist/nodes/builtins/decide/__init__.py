@@ -8,6 +8,7 @@ from typing import Any
 __all__ = [
     "BuildDecisionPacketNode",
     "BuildPolicyOutputBundleNode",
+    "BuildVerifiedPolicyReportCompositionNode",
     "BuildVerifiedPolicyReportNode",
     "RunPolicyBlueprintRuntimeNode",
     "RunPolicyTranslationNode",
@@ -17,6 +18,7 @@ __all__ = [
 _MODULE_BY_EXPORT = {
     "BuildDecisionPacketNode": "build_decision_packet",
     "BuildPolicyOutputBundleNode": "build_policy_output_bundle",
+    "BuildVerifiedPolicyReportCompositionNode": "build_verified_policy_report",
     "BuildVerifiedPolicyReportNode": "build_verified_policy_report",
     "RunPolicyBlueprintRuntimeNode": "run_policy_blueprint_runtime",
     "RunPolicyTranslationNode": "run_policy_translation",

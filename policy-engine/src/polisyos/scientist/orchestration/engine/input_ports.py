@@ -7,6 +7,7 @@ boundary, not a Python, filesystem, or arbitrary artifact-store sandbox.
 from __future__ import annotations
 
 import hashlib
+from copy import deepcopy
 from dataclasses import dataclass, replace
 from threading import RLock
 from typing import TYPE_CHECKING, Any, Literal, TypeGuard
@@ -31,7 +32,10 @@ from polisyos.core.artifacts import (
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.core.run.manifest import RunInvocationImplementationIdentity
 from polisyos.scientist.governance.report import GovernanceReport
-from polisyos.scientist.orchestration.engine.producer_currentness import ProducerArtifactCurrentness
+from polisyos.scientist.orchestration.engine.producer_currentness import (
+    ProducerArtifactAdmission,
+    ProducerArtifactCurrentness,
+)
 from polisyos.scientist.orchestration.engine.protocol import (
     InputAwareNodeSpec,
     NodeInputContract,
@@ -56,8 +60,13 @@ if TYPE_CHECKING:
         CoreJSONArtifactMemberStream,
         VerificationReport,
     )
+    from polisyos.core.run.context import _RunInvocationAttempt
     from polisyos.core.run.manifest import RunInvocationStarted
+    from polisyos.scientist.methods.search.judge_stack import JudgeVerdict
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
+    from polisyos.scientist.validation.policy_verified.phase5_candidate import (
+        Phase5CandidateAssessment,
+    )
 
 _INPUT_BASIS_ROLE = "node_input_basis"
 _INPUT_BASIS_KIND = "scientist.node_input_basis"
@@ -177,6 +186,47 @@ _PHASE5_INPUT_PATHS = ("schema_version", "run_id", "execution_profile", *_PHASE5
 _BODY_COMPONENT = "scientist.node_build_verified_policy_body@1.0.0"
 _CANDIDATE_COMPONENT = "scientist.node_select_policy_candidate@1.0.0"
 _GOVERNANCE_COMPONENT = "scientist.node_run_governance@1.2.0"
+_PHASE5_OUTPUT_PATH = "artifacts_index.phase5_candidate_assessment_ref"
+_COMPLETION_COMPONENT = "scientist.node_build_verified_policy_report@1.1.0"
+_COMPLETION_CONTRACT = "policy_verified_completion.v1"
+_COMPLETION_SOURCE_PATHS = (
+    *_PHASE5_SOURCE_PATHS[:2],
+    _PHASE5_OUTPUT_PATH,
+    _PHASE5_SOURCE_PATHS[2],
+)
+_COMPLETION_EVIDENCE_ROLES = (
+    "fairness_audit_report_ref",
+    "shift_diagnostic_report_ref",
+    "sensitivity_analysis_bundle_ref",
+    "sensitivity_result_ref",
+    "explanation_bundle_ref",
+)
+_COMPLETION_EVIDENCE_PATHS = tuple(
+    f"{mapping}.{role}"
+    for role in _COMPLETION_EVIDENCE_ROLES
+    for mapping in ("artifacts_index", "reports_index")
+)
+_COMPLETION_REQUIREMENT_PATHS = (
+    "params.high_impact",
+    "params.phase5_requires_fairness",
+    "params.protected_attributes",
+    "params.phase5_require_advisor_consensus",
+    "params.phase5_require_judge_verdict",
+    "params.phase5_enforce_publication",
+)
+_COMPLETION_REF_PATHS = (*_COMPLETION_SOURCE_PATHS, *_COMPLETION_EVIDENCE_PATHS)
+_COMPLETION_INPUT_PATHS = (
+    "schema_version",
+    "run_id",
+    "execution_profile",
+    *_COMPLETION_REF_PATHS,
+    *_COMPLETION_REQUIREMENT_PATHS,
+)
+_COMPLETION_OUTPUT_PATHS = (
+    "verified_policy_report_ref",
+    "artifacts_index.verified_policy_report_ref",
+    "artifacts_index.validation_report_ref",
+)
 
 
 def _phase5_source_profile(contract: NodeInputContract) -> bool:
@@ -190,6 +240,132 @@ def _phase5_source_profile(contract: NodeInputContract) -> bool:
     ):
         raise NodeInputPortError("node_input_source_view_contract_unsupported")
     return True
+
+
+def _completion_source_profile(contract: NodeInputContract) -> bool:
+    if contract.component_id != _COMPLETION_COMPONENT:
+        return False
+    if (
+        contract.contract_id != _COMPLETION_CONTRACT
+        or contract.state_paths != _COMPLETION_INPUT_PATHS
+        or contract.artifact_ref_paths != _COMPLETION_REF_PATHS
+        or contract.bind_param_keys
+    ):
+        raise NodeInputPortError("node_input_completion_contract_unsupported")
+    return True
+
+
+def _source_view_profile(contract: NodeInputContract) -> None:
+    _phase5_source_profile(contract)
+    _completion_source_profile(contract)
+
+
+def _composed_currentness(
+    statuses: tuple[ProducerArtifactCurrentness, ...],
+) -> ProducerArtifactCurrentness:
+    if "invalid" in statuses:
+        return "invalid"
+    if "stale" in statuses:
+        return "stale"
+    if "not_established" in statuses:
+        return "not_established"
+    return "current"
+
+
+@dataclass(frozen=True)
+class PolicyCompositionOccurrence:
+    """Detached selected output and currentness; carries no readable basis grant."""
+
+    artifact_ref: ArtifactRef | None
+    status: ProducerArtifactCurrentness
+    reason_code: str
+    attempt_id: str | None = None
+    attempt_basis_ref: ArtifactRef | None = None
+
+
+@dataclass(frozen=True)
+class PolicyCompositionEvidence:
+    """An explicit evidence role, including absent or conflicting selections."""
+
+    role: str
+    artifact_ref: ArtifactRef | None
+    status: ProducerArtifactCurrentness
+    reason_code: str
+
+
+@dataclass(frozen=True)
+class VerifiedPolicyCompletionAdmission:
+    """Fixed limited-composition facts for an exact pending report attempt.
+
+    ``current`` describes source/occurrence integrity. It does not establish a
+    legal verifier, evidence adequacy, independent nonrequirements or permission
+    to publish. Nested domain DTOs are detached on every owner read.
+    """
+
+    run_id: str
+    attempt_id: str
+    input_state_ref: ArtifactRef
+    selected_attempt_ref: ArtifactRef
+    body: PolicyCompositionOccurrence
+    candidate: PolicyCompositionOccurrence
+    phase5: PolicyCompositionOccurrence
+    historical_body: PolicyCompositionOccurrence
+    historical_candidate: PolicyCompositionOccurrence
+    initial_governance: PolicyCompositionOccurrence
+    final_governance: PolicyCompositionOccurrence
+    threshold: ProducerArtifactAdmission
+    evidence: tuple[PolicyCompositionEvidence, ...]
+    assessment: Phase5CandidateAssessment | None
+    candidate_verdict: JudgeVerdict | None
+    governance_report: GovernanceReport | None
+    unsupported_requirements: tuple[str, ...] = ()
+    limitation_codes: tuple[str, ...] = ()
+    purpose: Literal["limited_policy_composition"] = "limited_policy_composition"
+    requirement_authority: Literal["not_established"] = "not_established"
+    publishable: Literal[False] = False
+
+    @property
+    def body_ref(self) -> ArtifactRef | None:
+        """Return the exact selected body identity without a read capability."""
+        return self.body.artifact_ref
+
+    @property
+    def candidate_ref(self) -> ArtifactRef | None:
+        """Return the exact selected candidate identity."""
+        return self.candidate.artifact_ref
+
+    @property
+    def phase5_assessment_ref(self) -> ArtifactRef | None:
+        """Return the exact selected diagnostic identity."""
+        return self.phase5.artifact_ref
+
+    @property
+    def initial_governance_ref(self) -> ArtifactRef | None:
+        """Return the diagnostic's authenticated historical governance identity."""
+        return self.initial_governance.artifact_ref
+
+    @property
+    def final_governance_ref(self) -> ArtifactRef | None:
+        """Return the separately selected current governance identity."""
+        return self.final_governance.artifact_ref
+
+    @property
+    def status(self) -> ProducerArtifactCurrentness:
+        """Combine source integrity without interpreting missing evidence as approval."""
+        return _composed_currentness(
+            (
+                self.body.status,
+                self.candidate.status,
+                self.phase5.status,
+                self.historical_body.status,
+                self.historical_candidate.status,
+                self.initial_governance.status,
+                self.final_governance.status,
+                self.threshold.status,
+                *(item.status for item in self.evidence if item.artifact_ref is not None),
+                *(("not_established",) if self.unsupported_requirements else ()),
+            )
+        )
 
 
 class VerifiedPolicyPhase5Admission(BaseModel):
@@ -273,12 +449,30 @@ def _basis_from_input(store: ArtifactStore, input_ref: ArtifactRef) -> NodeInput
     return NodeInputBasis.model_validate(load_core_json_artifact(store, ref))
 
 
+def _preceding_attempts(
+    ctx: ExecutionContext, before: _RunInvocationAttempt | None
+) -> list[_RunInvocationAttempt]:
+    attempts = ctx.run.read_runtime_invocation_attempts()
+    if before is None:
+        return attempts
+    indexes = [
+        index
+        for index, attempt in enumerate(attempts)
+        if attempt.basis.attempt_id == before.basis.attempt_id
+        and attempt.basis_ref == before.basis_ref
+    ]
+    if len(indexes) != 1:
+        raise NodeInputPortError("node_input_source_occurrence_not_owner_linked")
+    return attempts[: indexes[0]]
+
+
 def _latest_selected_producer(
     ctx: ExecutionContext,
     predecessor: ExperimentState,
     ref: ArtifactRef | None,
     *,
     role: Literal["body", "candidate"],
+    before: _RunInvocationAttempt | None = None,
 ) -> tuple[ProducerArtifactCurrentness, str, str | None]:
     """Use the existing owner against the exact latest selected occurrence."""
     from polisyos.scientist.orchestration.engine.component_identity import (
@@ -316,7 +510,7 @@ def _latest_selected_producer(
             return "not_established", f"selected_{role}_attempt_lineage_missing", None
         attempts = [
             attempt
-            for attempt in ctx.run.read_runtime_invocation_attempts()
+            for attempt in _preceding_attempts(ctx, before)
             if attempt.basis.component_id == component
         ]
         if not attempts:
@@ -378,6 +572,305 @@ def _latest_selected_producer(
         return current.status, current.reason_code, latest.basis.attempt_id
     except (AttributeError, KeyError, OSError, RuntimeError, TypeError, ValueError):
         return "not_established", f"selected_{role}_owner_revalidation_failed", None
+
+
+class _CompletedOccurrenceRefused(NodeInputPortError):
+    def __init__(self, status: ProducerArtifactCurrentness, reason_code: str) -> None:
+        self.admission = ProducerArtifactAdmission(status, reason_code)
+        super().__init__(reason_code)
+
+
+@dataclass(frozen=True)
+class _CompletedPhase5Occurrence:
+    """Engine-local reconstruction; never install it in a node context."""
+
+    attempt: _RunInvocationAttempt
+    predecessor: ExperimentState
+    successor: ExperimentState
+    assessment: Phase5CandidateAssessment
+    initial_governance: GovernanceReport
+    initial_attempt: _RunInvocationAttempt
+    body_attempt_id: str
+    candidate_attempt_id: str
+
+
+def _invocation_context(
+    ctx: ExecutionContext, attempt: _RunInvocationAttempt, *, successful: bool
+) -> ExecutionContext:
+    from polisyos.scientist.orchestration.engine.context import (
+        ExecutionContext as Context,
+    )
+    from polisyos.scientist.orchestration.engine.context import _EngineInvocationBinding
+
+    return Context(
+        store=ctx.store,
+        run=ctx.run,
+        logger=ctx.logger,
+        _engine_invocation=_EngineInvocationBinding(
+            run_id=attempt.basis.run_id,
+            attempt_id=attempt.basis.attempt_id,
+            basis_ref=attempt.basis_ref,
+            require_successful_completion=successful,
+        ),
+    )
+
+
+def _invocation_precedes(
+    ctx: ExecutionContext, prior: _RunInvocationAttempt, later: _RunInvocationAttempt
+) -> bool:
+    """Use the actual selected workflow graph, never an alias or timestamp policy."""
+    from polisyos.scientist.orchestration.engine.workflow_spec import WorkflowSpec
+
+    if (
+        prior.basis.workflow_spec_ref != later.basis.workflow_spec_ref
+        or prior.basis.run_id != later.basis.run_id
+        or not any(item.basis_ref == prior.basis_ref for item in _preceding_attempts(ctx, later))
+    ):
+        return False
+    workflow = WorkflowSpec.model_validate(
+        load_core_json_artifact(ctx.store, later.basis.workflow_spec_ref)
+    )
+    nodes = {node.alias: node for node in workflow.nodes}
+    if later.basis.node_alias not in nodes or prior.basis.node_alias not in nodes:
+        return False
+    pending = list(nodes[later.basis.node_alias].depends_on)
+    ancestors: set[str] = set()
+    while pending:
+        alias = pending.pop()
+        if alias not in nodes:
+            return False
+        if alias not in ancestors:
+            ancestors.add(alias)
+            pending.extend(nodes[alias].depends_on)
+    return prior.basis.node_alias in ancestors
+
+
+def _completed_phase5_occurrence(
+    ctx: ExecutionContext,
+    selected_ref: ArtifactRef,
+    *,
+    before: _RunInvocationAttempt,
+) -> _CompletedPhase5Occurrence:
+    """Reopen a fixed successful diagnostic, preserving its historical source basis."""
+    from polisyos.scientist.governance.report_currentness import (
+        resolve_current_governance_report,
+    )
+    from polisyos.scientist.orchestration.engine.component_identity import (
+        _OWNERS,
+        _require_owner_definition,
+    )
+    from polisyos.scientist.orchestration.engine.context import (
+        _load_engine_owned_invocation_input_state,
+    )
+    from polisyos.scientist.orchestration.engine.producer_currentness import (
+        _load_invocation_output_state,
+        engine_invocation_identity_is_current,
+    )
+    from polisyos.scientist.validation.policy_verified.phase5_candidate import (
+        load_phase5_candidate_assessment,
+    )
+
+    attempts = _preceding_attempts(ctx, before)
+    selected = [item for item in attempts if item.basis.component_id == _PHASE5_COMPONENT]
+    if not selected:
+        raise _CompletedOccurrenceRefused("not_established", "completed_phase5_producer_missing")
+    attempt = selected[-1]
+    outcome = attempt.outcome
+    if outcome is None or outcome.status != "ok" or outcome.outcome_state_ref is None:
+        raise _CompletedOccurrenceRefused(
+            "not_established", "completed_phase5_latest_attempt_not_successful"
+        )
+    if not any(
+        artifact_ref_identity_key(ref) == artifact_ref_identity_key(selected_ref)
+        for ref in outcome.output_refs
+    ):
+        raise _CompletedOccurrenceRefused("stale", "completed_phase5_occurrence_not_latest")
+    if not _invocation_precedes(ctx, attempt, before):
+        raise _CompletedOccurrenceRefused(
+            "not_established", "completed_phase5_not_selected_workflow_ancestor"
+        )
+    owner = _OWNERS.get(_PHASE5_COMPONENT)
+    if owner is None or owner.input_contract_json is None:
+        raise _CompletedOccurrenceRefused(
+            "not_established", "completed_phase5_implementation_not_established"
+        )
+    _, _, spec_accessor = _require_owner_definition(owner)
+    contract = NodeInputContract.model_validate_json(owner.input_contract_json)
+    spec = spec_accessor(owner.node_type())
+    if (
+        not _phase5_source_profile(contract)
+        or tuple(spec.state_reads) != contract.state_paths
+        or tuple(spec.state_writes) != (_PHASE5_OUTPUT_PATH,)
+        or not engine_invocation_identity_is_current(
+            ctx, attempt.basis, expected_component_id=_PHASE5_COMPONENT
+        )
+    ):
+        raise _CompletedOccurrenceRefused(
+            "not_established", "completed_phase5_implementation_not_established"
+        )
+    bound_ctx = _invocation_context(ctx, attempt, successful=True)
+    projected = _load_engine_owned_invocation_input_state(
+        bound_ctx, ExperimentState(run_id=attempt.basis.run_id)
+    )
+    basis = _basis_from_input(ctx.store, attempt.basis.input_state_ref)
+    if projected is None or basis is None or basis.execution_kind != "producer":
+        raise _CompletedOccurrenceRefused(
+            "not_established", "completed_phase5_input_basis_not_established"
+        )
+    predecessor = _load_invocation_output_state(ctx, basis.predecessor_state_ref)
+    output = _load_invocation_output_state(ctx, outcome.outcome_state_ref)
+    assessment = load_phase5_candidate_assessment(ctx.store, selected_ref)
+    if (
+        assessment.run_id != attempt.basis.run_id
+        or assessment.selected_input_ref != attempt.basis.input_state_ref
+        or assessment.selected_attempt_ref != attempt.basis_ref
+        or _selected_role_ref(output, _PHASE5_OUTPUT_PATH) != selected_ref
+        or len(outcome.output_refs) != 3
+        or {artifact_ref_identity_key(ref) for ref in outcome.output_refs}
+        != {
+            artifact_ref_identity_key(ref)
+            for ref in (selected_ref, assessment.judge_verdict_ref, assessment.threshold_basis_ref)
+        }
+        or any(
+            _selected_role_ref(predecessor, path) != ref
+            for path, ref in zip(
+                _PHASE5_SOURCE_PATHS,
+                (assessment.body_ref, assessment.candidate_ref, assessment.governance_ref),
+                strict=True,
+            )
+        )
+    ):
+        raise _CompletedOccurrenceRefused(
+            "invalid", "completed_phase5_selected_source_or_attempt_mismatch"
+        )
+    # Core records the physically projected outcome. Reapply precisely the one
+    # owned ref write to the original full predecessor; hidden maps are never
+    # deleted or recovered by projecting the consumer backwards.
+    outcome_state = NodeOutcome(status="ok", state=output, artifacts=list(outcome.output_refs))
+    projected_merge = merge_parallel_outcomes(
+        projected, {"phase5": outcome_state}, {"phase5": [_PHASE5_OUTPUT_PATH]}
+    )
+    full_merge = merge_parallel_outcomes(
+        predecessor, {"phase5": outcome_state}, {"phase5": [_PHASE5_OUTPUT_PATH]}
+    )
+    if (
+        projected_merge.conflicts
+        or full_merge.conflicts
+        or _state_bytes(projected_merge.state) != _state_bytes(output)
+    ):
+        raise _CompletedOccurrenceRefused("invalid", "completed_phase5_output_outside_contract")
+    source_attempt_ids = []
+    sources: tuple[tuple[Literal["body", "candidate"], ArtifactRef], ...] = (
+        ("body", assessment.body_ref),
+        ("candidate", assessment.candidate_ref),
+    )
+    for role, ref in sources:
+        status, reason, source_attempt_id = _latest_selected_producer(
+            ctx, predecessor, ref, role=role, before=attempt
+        )
+        if status != "current" or source_attempt_id is None:
+            raise _CompletedOccurrenceRefused(status, reason)
+        source = [item for item in attempts if item.basis.attempt_id == source_attempt_id]
+        if len(source) != 1 or not _invocation_precedes(ctx, source[0], attempt):
+            raise _CompletedOccurrenceRefused(
+                "not_established", f"completed_phase5_{role}_not_selected_workflow_ancestor"
+            )
+        source_attempt_ids.append(source_attempt_id)
+    initial = resolve_current_governance_report(ctx, predecessor, assessment.governance_ref)
+    binding = initial.report.invocation_binding if initial.report is not None else None
+    if not initial.is_current or binding is None:
+        raise _CompletedOccurrenceRefused(initial.status, initial.reason_code)
+    prior_governance = [
+        item
+        for item in _preceding_attempts(ctx, attempt)
+        if item.basis.component_id == _GOVERNANCE_COMPONENT
+    ]
+    if (
+        not prior_governance
+        or prior_governance[-1].basis_ref != binding.attempt_basis_ref
+        or prior_governance[-1].basis.attempt_id != binding.attempt_id
+    ):
+        raise _CompletedOccurrenceRefused("stale", "completed_phase5_initial_governance_not_latest")
+    initial_attempt = prior_governance[-1]
+    initial_outcome = initial_attempt.outcome
+    if (
+        initial_outcome is None
+        or initial_outcome.outcome_state_ref is None
+        or not _invocation_precedes(ctx, initial_attempt, attempt)
+        or _state_bytes(_load_invocation_output_state(ctx, initial_outcome.outcome_state_ref))
+        != _state_bytes(predecessor)
+    ):
+        raise _CompletedOccurrenceRefused(
+            "stale", "completed_phase5_initial_governance_transition_changed"
+        )
+    assert initial.report is not None
+    return _CompletedPhase5Occurrence(
+        attempt=attempt,
+        predecessor=predecessor,
+        successor=full_merge.state,
+        assessment=assessment,
+        initial_governance=initial.report,
+        initial_attempt=initial_attempt,
+        body_attempt_id=source_attempt_ids[0],
+        candidate_attempt_id=source_attempt_ids[1],
+    )
+
+
+def reconcile_verified_policy_phase5_transition(
+    ctx: ExecutionContext, state: ExperimentState, initial_basis_ref: ArtifactRef
+) -> ProducerArtifactAdmission:
+    """Recompute the exact initial-Gov → Phase-5 → pending final-Gov transition.
+
+    Only the fixed candidate diagnostic's declared output may bridge the two
+    governance occurrences. The whole original predecessor is compared; this
+    operation returns no state, history, grant or publication authority.
+    """
+    from polisyos.scientist.orchestration.engine.context import (
+        _EngineInvocationBinding,
+        _load_engine_owned_invocation_input_state,
+    )
+    from polisyos.scientist.orchestration.engine.producer_currentness import (
+        engine_invocation_identity_is_current,
+    )
+
+    try:
+        binding = ctx._engine_invocation
+        if type(binding) is not _EngineInvocationBinding:
+            raise NodeInputPortError("phase5_transition_consumer_not_owner_linked")
+        matches = [
+            item
+            for item in ctx.run.read_runtime_invocation_attempts()
+            if item.basis.attempt_id == binding.attempt_id and item.basis_ref == binding.basis_ref
+        ]
+        if (
+            len(matches) != 1
+            or matches[0].outcome is not None
+            or matches[0].basis.component_id != _GOVERNANCE_COMPONENT
+            or not engine_invocation_identity_is_current(
+                ctx, matches[0].basis, expected_component_id=_GOVERNANCE_COMPONENT
+            )
+        ):
+            raise NodeInputPortError("phase5_transition_consumer_not_owner_linked")
+        current = matches[0]
+        current_input = _load_engine_owned_invocation_input_state(ctx, state)
+        if current_input is None or _state_bytes(current_input) != _state_bytes(state):
+            raise NodeInputPortError("phase5_transition_consumer_input_changed")
+        ref = _selected_role_ref(current_input, _PHASE5_OUTPUT_PATH)
+        if ref is None:
+            raise NodeInputPortError("phase5_transition_selected_assessment_absent")
+        occurrence = _completed_phase5_occurrence(ctx, ref, before=current)
+        if occurrence.initial_attempt.basis_ref != initial_basis_ref:
+            raise NodeInputPortError("phase5_transition_initial_governance_mismatch")
+        if _state_bytes(occurrence.successor) != _state_bytes(current_input):
+            raise _CompletedOccurrenceRefused("stale", "phase5_transition_full_state_changed")
+        return ProducerArtifactAdmission("current", "phase5_transition_recomputed")
+    except _CompletedOccurrenceRefused as exc:
+        return exc.admission
+    except (AttributeError, KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
+        reason = (
+            str(exc) if isinstance(exc, NodeInputPortError) else "phase5_transition_not_established"
+        )
+        return ProducerArtifactAdmission("not_established", reason)
 
 
 class _VerifiedPolicyPhase5AdmissionOwner:
@@ -559,6 +1052,553 @@ def read_verified_policy_phase5_admission(
     ):
         raise NodeInputPortError("node_input_source_view_attempt_mismatch")
     return admission.model_copy(deep=True)
+
+
+def _completion_evidence(
+    ctx: ExecutionContext, predecessor: ExperimentState
+) -> tuple[tuple[PolicyCompositionEvidence, ...], tuple[str, ...]]:
+    from polisyos.scientist.validation.phase5_preflight import (
+        _PHASE5_OWNER_KINDS,
+        _is_phase5_ref_key,
+        _load_phase5_owned_evidence,
+        _Phase5RefCandidate,
+    )
+
+    evidence = []
+    unsupported = []
+    for role in _COMPLETION_EVIDENCE_ROLES:
+        selected = tuple(
+            ref
+            for mapping in ("artifacts_index", "reports_index")
+            if (ref := _selected_role_ref(predecessor, f"{mapping}.{role}")) is not None
+        )
+        if not selected:
+            evidence.append(
+                PolicyCompositionEvidence(role, None, "not_established", "phase5_evidence_absent")
+            )
+            continue
+        ref = selected[0]
+        if any(
+            artifact_ref_identity_key(item) != artifact_ref_identity_key(ref) for item in selected
+        ):
+            evidence.append(
+                PolicyCompositionEvidence(role, ref, "invalid", "phase5_evidence_role_conflict")
+            )
+            continue
+        try:
+            _load_phase5_owned_evidence(
+                ctx,
+                role,
+                _Phase5RefCandidate(
+                    reference=ref,
+                    ref_text=str(ref.artifact_id),
+                    expected_kind=_PHASE5_OWNER_KINDS[role],
+                ),
+            )
+        except (AttributeError, KeyError, OSError, RuntimeError, TypeError, ValueError):
+            evidence.append(
+                PolicyCompositionEvidence(role, ref, "invalid", "phase5_evidence_owner_invalid")
+            )
+        else:
+            evidence.append(
+                PolicyCompositionEvidence(role, ref, "current", "phase5_evidence_owner_recomputed")
+            )
+    for mapping_name in ("inputs", "artifacts_index", "reports_index", "params"):
+        for key, value in getattr(predecessor, mapping_name).items():
+            path = f"{mapping_name}.{key}"
+            if value is not None and _is_phase5_ref_key(key) and path not in _COMPLETION_REF_PATHS:
+                unsupported.append(path)
+    # These legacy payload channels are data, never selected judge/advisor
+    # occurrences. Their presence must not vanish when the physical port is cut.
+    for key, value in predecessor.params.items():
+        path = f"params.{key}"
+        if value is not None and (
+            key
+            in {
+                "judge_verdict",
+                "phase5_judge_verdict",
+                "method_advisor",
+                "method_advisor_result",
+                "advisor_result",
+                "cross_method_consensus",
+                "advisor_consensus",
+                "ddm_readiness",
+                "drift_readiness",
+            }
+            or (key.startswith("phase5_") and path not in _COMPLETION_REQUIREMENT_PATHS)
+        ):
+            unsupported.append(path)
+    if predecessor.params.get("phase5_require_advisor_consensus"):
+        # There is no selected advisor evidence owner in the fixed profile.
+        unsupported.append("params.phase5_require_advisor_consensus")
+    return tuple(evidence), tuple(sorted(set(unsupported)))
+
+
+def _completion_occurrence(
+    ctx: ExecutionContext,
+    ref: ArtifactRef | None,
+    status: ProducerArtifactCurrentness,
+    reason: str,
+    attempt_id: str | None,
+) -> PolicyCompositionOccurrence:
+    attempts = [
+        item
+        for item in ctx.run.read_runtime_invocation_attempts()
+        if item.basis.attempt_id == attempt_id
+    ]
+    return PolicyCompositionOccurrence(
+        ref,
+        status,
+        reason,
+        attempt_id,
+        attempts[0].basis_ref if len(attempts) == 1 else None,
+    )
+
+
+def _completion_facts(
+    ctx: ExecutionContext,
+    selection: NodeInputSelection,
+    consumer: _RunInvocationAttempt,
+    predecessor: ExperimentState,
+) -> VerifiedPolicyCompletionAdmission:
+    from polisyos.scientist.governance.report_currentness import (
+        resolve_current_governance_report,
+    )
+    from polisyos.scientist.methods.search.judge_stack import load_candidate_judge_verdict
+    from polisyos.scientist.methods.search.judge_threshold_basis import (
+        resolve_judge_threshold_basis,
+        selected_judge_threshold_registry,
+    )
+    from polisyos.scientist.orchestration.engine.context import (
+        _load_engine_owned_invocation_input_state,
+    )
+    from polisyos.scientist.orchestration.engine.producer_currentness import (
+        _load_invocation_output_state,
+    )
+
+    body_ref, candidate_ref, phase5_ref, final_ref = (
+        _selected_role_ref(predecessor, path) for path in _COMPLETION_SOURCE_PATHS
+    )
+
+    def absent(ref: ArtifactRef | None) -> PolicyCompositionOccurrence:
+        return PolicyCompositionOccurrence(
+            ref, "not_established", "completion_source_not_established"
+        )
+
+    body, candidate, phase5 = absent(body_ref), absent(candidate_ref), absent(phase5_ref)
+    historical_body, historical_candidate, initial_governance = (
+        absent(None),
+        absent(None),
+        absent(None),
+    )
+    final_governance = absent(final_ref)
+    threshold = ProducerArtifactAdmission("not_established", "completion_threshold_not_established")
+    assessment = None
+    candidate_verdict = None
+    governance_report = None
+    evidence, unsupported = _completion_evidence(ctx, predecessor)
+    limitations = [
+        "legal_claim_verification_not_established",
+        "option_program_correspondence_not_established",
+        "phase5_requirement_scope_not_established",
+        *(f"phase5_evidence_absent:{item.role}" for item in evidence if item.artifact_ref is None),
+    ]
+    try:
+        if body_ref is None or candidate_ref is None or phase5_ref is None or final_ref is None:
+            raise NodeInputPortError("completion_selected_source_absent")
+        occurrence = _completed_phase5_occurrence(ctx, phase5_ref, before=consumer)
+        assessment = occurrence.assessment
+        phase5 = _completion_occurrence(
+            ctx,
+            phase5_ref,
+            "current",
+            "completed_phase5_occurrence_recomputed",
+            occurrence.attempt.basis.attempt_id,
+        )
+        historical_body = _completion_occurrence(
+            ctx,
+            assessment.body_ref,
+            "current",
+            "completion_historical_body_recomputed",
+            occurrence.body_attempt_id,
+        )
+        historical_candidate = _completion_occurrence(
+            ctx,
+            assessment.candidate_ref,
+            "current",
+            "completion_historical_candidate_recomputed",
+            occurrence.candidate_attempt_id,
+        )
+        initial_governance = _completion_occurrence(
+            ctx,
+            assessment.governance_ref,
+            "current",
+            "completion_initial_governance_recomputed",
+            occurrence.initial_attempt.basis.attempt_id,
+        )
+        if artifact_ref_identity_key(body_ref) != artifact_ref_identity_key(
+            assessment.body_ref
+        ) or artifact_ref_identity_key(candidate_ref) != artifact_ref_identity_key(
+            assessment.candidate_ref
+        ):
+            raise _CompletedOccurrenceRefused("stale", "completion_selected_source_changed")
+        body = _completion_occurrence(
+            ctx,
+            body_ref,
+            *_latest_selected_producer(ctx, predecessor, body_ref, role="body", before=consumer),
+        )
+        candidate = _completion_occurrence(
+            ctx,
+            candidate_ref,
+            *_latest_selected_producer(
+                ctx, predecessor, candidate_ref, role="candidate", before=consumer
+            ),
+        )
+        final = resolve_current_governance_report(ctx, predecessor, final_ref)
+        final_binding = final.report.invocation_binding if final.report is not None else None
+        final_governance = _completion_occurrence(
+            ctx,
+            final_ref,
+            final.status,
+            final.reason_code,
+            final_binding.attempt_id if final_binding is not None else None,
+        )
+        if not final.is_current or final_binding is None:
+            raise _CompletedOccurrenceRefused(final.status, final.reason_code)
+        final_attempts = [
+            item
+            for item in _preceding_attempts(ctx, consumer)
+            if item.basis.component_id == _GOVERNANCE_COMPONENT
+        ]
+        if (
+            not final_attempts
+            or final_attempts[-1].basis_ref != final_binding.attempt_basis_ref
+            or final_binding.attempt_basis_ref == occurrence.initial_attempt.basis_ref
+            or artifact_ref_identity_key(final_ref)
+            == artifact_ref_identity_key(assessment.governance_ref)
+        ):
+            raise _CompletedOccurrenceRefused(
+                "stale", "completion_final_governance_not_latest_distinct"
+            )
+        final_attempt = final_attempts[-1]
+        final_input = _load_engine_owned_invocation_input_state(
+            _invocation_context(ctx, final_attempt, successful=True), predecessor
+        )
+        final_outcome = final_attempt.outcome
+        if (
+            final_input is None
+            or final_outcome is None
+            or final_outcome.outcome_state_ref is None
+            or not _invocation_precedes(ctx, occurrence.attempt, final_attempt)
+            or not _invocation_precedes(ctx, final_attempt, consumer)
+            or _state_bytes(final_input) != _state_bytes(occurrence.successor)
+            or _state_bytes(_load_invocation_output_state(ctx, final_outcome.outcome_state_ref))
+            != _state_bytes(predecessor)
+        ):
+            raise _CompletedOccurrenceRefused(
+                "stale", "completion_final_governance_transition_changed"
+            )
+        live_threshold = resolve_judge_threshold_basis(
+            ctx.store, assessment.threshold_basis_ref, selected_judge_threshold_registry()
+        )
+        threshold = ProducerArtifactAdmission(live_threshold.status, live_threshold.reason_code)
+        candidate_verdict = load_candidate_judge_verdict(ctx.store, assessment.judge_verdict_ref)
+        governance_report = final.report
+        limitations.extend(assessment.limitation_codes)
+        if any(item.source == "missing" for item in assessment.threshold_uses):
+            limitations.append("phase5_threshold_requirement_not_established")
+        if governance_report is not None and governance_report.verdict != "approve":
+            limitations.append(f"final_governance_{governance_report.verdict}")
+    except _CompletedOccurrenceRefused as exc:
+        phase5 = replace(phase5, status=exc.admission.status, reason_code=exc.admission.reason_code)
+        limitations.append(exc.admission.reason_code)
+    except (AttributeError, KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
+        reason = (
+            str(exc)
+            if isinstance(exc, NodeInputPortError)
+            else "completion_owner_revalidation_failed"
+        )
+        phase5 = replace(phase5, status="not_established", reason_code=reason)
+        limitations.append(reason)
+    return VerifiedPolicyCompletionAdmission(
+        run_id=selection.run_id,
+        attempt_id=selection.attempt_id,
+        input_state_ref=selection.input_state_ref,
+        selected_attempt_ref=selection.basis_ref,
+        body=body,
+        candidate=candidate,
+        phase5=phase5,
+        historical_body=historical_body,
+        historical_candidate=historical_candidate,
+        initial_governance=initial_governance,
+        final_governance=final_governance,
+        threshold=threshold,
+        evidence=evidence,
+        assessment=assessment,
+        candidate_verdict=candidate_verdict,
+        governance_report=governance_report,
+        unsupported_requirements=unsupported,
+        limitation_codes=tuple(dict.fromkeys(limitations)),
+    )
+
+
+class _VerifiedPolicyCompletionAdmissionOwner:
+    """Fixed completion read operation; raw predecessor exists only as a local."""
+
+    __slots__ = ("__definition_sha256", "__identity", "__logger", "__run", "__selection", "__store")
+
+    def __init__(
+        self,
+        ctx: ExecutionContext,
+        selection: NodeInputSelection,
+        identity: RunInvocationImplementationIdentity,
+        definition_sha256: str,
+    ) -> None:
+        self.__store, self.__run, self.__logger = ctx.store, ctx.run, ctx.logger
+        self.__selection, self.__identity, self.__definition_sha256 = (
+            selection,
+            identity,
+            definition_sha256,
+        )
+
+    def read(self) -> VerifiedPolicyCompletionAdmission:
+        from polisyos.scientist.orchestration.engine.component_identity import (
+            _OWNERS,
+            matches_engine_component_identity,
+        )
+        from polisyos.scientist.orchestration.engine.context import (
+            ExecutionContext as Context,
+        )
+        from polisyos.scientist.orchestration.engine.context import (
+            _EngineInvocationBinding,
+            _load_engine_owned_invocation_input_state,
+        )
+        from polisyos.scientist.orchestration.engine.producer_currentness import (
+            _load_invocation_output_state,
+        )
+
+        selection = self.__selection
+        owner = _OWNERS.get(selection.component_id)
+        if (
+            owner is None
+            or owner.input_definition_sha256 != self.__definition_sha256
+            or not matches_engine_component_identity(self.__identity, _COMPLETION_COMPONENT, {})
+        ):
+            raise NodeInputPortError("node_input_completion_consumer_changed")
+        ctx = Context(
+            store=self.__store,
+            run=self.__run,
+            logger=self.__logger,
+            _engine_invocation=_EngineInvocationBinding(
+                run_id=selection.run_id,
+                attempt_id=selection.attempt_id,
+                basis_ref=selection.basis_ref,
+            ),
+        )
+        matches = [
+            item
+            for item in self.__run.read_runtime_invocation_attempts()
+            if item.basis.attempt_id == selection.attempt_id
+            and item.basis_ref == selection.basis_ref
+        ]
+        if (
+            len(matches) != 1
+            or matches[0].outcome is not None
+            or matches[0].basis.component_id != _COMPLETION_COMPONENT
+            or matches[0].basis.input_state_ref != selection.input_state_ref
+            or matches[0].basis.implementation_identity != self.__identity
+        ):
+            raise NodeInputPortError("node_input_completion_attempt_mismatch")
+        projected = _load_engine_owned_invocation_input_state(
+            ctx, ExperimentState(run_id=selection.run_id)
+        )
+        basis = _basis_from_input(self.__store, selection.input_state_ref)
+        if projected is None or basis is None or not _completion_source_profile(basis.contract):
+            raise NodeInputPortError("node_input_completion_contract_unsupported")
+        predecessor = _load_invocation_output_state(ctx, basis.predecessor_state_ref)
+        return _completion_facts(ctx, selection, matches[0], predecessor)
+
+
+def read_verified_policy_completion_admission(
+    ctx: ExecutionContext, state: ExperimentState
+) -> VerifiedPolicyCompletionAdmission:
+    """Revalidate completed source occurrences for the fixed limited report port.
+
+    The returned immutable coordinates and detached domain DTOs carry no public
+    predecessor/history interface, raw CAS grant, or permission to publish.
+    """
+    selection = read_input_port_basis(ctx, state)
+    owner = ctx._verified_policy_completion_admission_owner
+    if (
+        type(owner) is not _VerifiedPolicyCompletionAdmissionOwner
+        or selection.component_id != _COMPLETION_COMPONENT
+        or selection.contract_id != _COMPLETION_CONTRACT
+    ):
+        raise NodeInputPortError("node_input_completion_view_not_installed")
+    result = owner.read()
+    if read_input_port_basis(ctx, state) != selection or (
+        result.run_id,
+        result.attempt_id,
+        result.input_state_ref,
+        result.selected_attempt_ref,
+    ) != (selection.run_id, selection.attempt_id, selection.input_state_ref, selection.basis_ref):
+        raise NodeInputPortError("node_input_completion_attempt_mismatch")
+    return deepcopy(result)
+
+
+def read_completed_verified_policy_composition(
+    ctx: ExecutionContext,
+    *,
+    current_state: ExperimentState,
+    report_ref: ArtifactRef,
+    expected_attempt_ref: ArtifactRef,
+    expected_input_ref: ArtifactRef,
+) -> VerifiedPolicyCompletionAdmission:
+    """Fresh-read a report's exact completed composition through the run owner.
+
+    The report declaration selects an occurrence; it cannot establish one. This
+    operation reopens that successful occurrence, its fixed projected output and
+    private predecessor before reusing the pending owner's source reconciliation.
+    Returned facts expose neither predecessor/history access nor publication
+    permission. Recognized current evidence and unsupported selections are checked
+    without granting access to unrelated hidden state. The caller must separately
+    reconcile its current report selection and fixed input values.
+
+    Raises:
+        NodeInputPortError: The report, selected occurrence or fixed transition
+            cannot be independently established by the actual run owner.
+    """
+    from polisyos.scientist.orchestration.engine.context import (
+        _load_engine_owned_invocation_input_state,
+    )
+    from polisyos.scientist.orchestration.engine.producer_currentness import (
+        _load_invocation_output_state,
+    )
+    from polisyos.scientist.validation.policy_verified.models import load_verified_policy_report
+
+    try:
+        if any(
+            ref.manifest_profile_sha256 is None
+            for ref in (report_ref, expected_attempt_ref, expected_input_ref)
+        ):
+            raise NodeInputPortError("completed_composition_selected_profile_missing")
+        report = load_verified_policy_report(ctx.store, report_ref)
+        binding = report.composition
+        if binding is None or (
+            current_state.run_id != binding.run_id
+            or artifact_ref_identity_key(binding.selected_attempt_ref)
+            != artifact_ref_identity_key(expected_attempt_ref)
+            or artifact_ref_identity_key(binding.selected_input_ref)
+            != artifact_ref_identity_key(expected_input_ref)
+        ):
+            raise NodeInputPortError("completed_composition_declared_occurrence_mismatch")
+        matches = [
+            attempt
+            for attempt in ctx.run.read_runtime_invocation_attempts()
+            if artifact_ref_identity_key(attempt.basis_ref)
+            == artifact_ref_identity_key(expected_attempt_ref)
+        ]
+        if len(matches) != 1:
+            raise NodeInputPortError("completed_composition_occurrence_not_owner_linked")
+        attempt = matches[0]
+        outcome = attempt.outcome
+        if (
+            attempt.basis.component_id != _COMPLETION_COMPONENT
+            or attempt.basis.run_id != binding.run_id
+            or artifact_ref_identity_key(attempt.basis.input_state_ref)
+            != artifact_ref_identity_key(expected_input_ref)
+            or outcome is None
+            or outcome.status != "ok"
+            or outcome.outcome_state_ref is None
+            or not any(
+                artifact_ref_identity_key(ref) == artifact_ref_identity_key(report_ref)
+                for ref in outcome.output_refs
+            )
+        ):
+            raise NodeInputPortError("completed_composition_occurrence_mismatch")
+        projected = _load_engine_owned_invocation_input_state(
+            _invocation_context(ctx, attempt, successful=True),
+            ExperimentState(run_id=attempt.basis.run_id),
+        )
+        basis = _basis_from_input(ctx.store, attempt.basis.input_state_ref)
+        if (
+            projected is None
+            or basis is None
+            or basis.execution_kind != "producer"
+            or not _completion_source_profile(basis.contract)
+        ):
+            raise NodeInputPortError("completed_composition_input_basis_not_established")
+        output = _load_invocation_output_state(ctx, outcome.outcome_state_ref)
+        validation_ref = _selected_role_ref(output, "artifacts_index.validation_report_ref")
+        selected_reports = tuple(
+            _selected_role_ref(output, path) for path in _COMPLETION_OUTPUT_PATHS[:2]
+        )
+        if (
+            any(
+                ref is None
+                or artifact_ref_identity_key(ref) != artifact_ref_identity_key(report_ref)
+                for ref in selected_reports
+            )
+            or validation_ref is None
+            or validation_ref.kind != "scientist.validation_report"
+            or validation_ref.manifest_profile_sha256 is None
+            or len(outcome.output_refs) != 2
+            or {artifact_ref_identity_key(ref) for ref in outcome.output_refs}
+            != {
+                artifact_ref_identity_key(report_ref),
+                artifact_ref_identity_key(validation_ref),
+            }
+        ):
+            raise NodeInputPortError("completed_composition_selected_output_mismatch")
+        merged = merge_parallel_outcomes(
+            projected,
+            {"completion": NodeOutcome(status="ok", state=output)},
+            {"completion": list(_COMPLETION_OUTPUT_PATHS)},
+        )
+        if merged.conflicts or _state_bytes(merged.state) != _state_bytes(output):
+            raise NodeInputPortError("completed_composition_output_outside_contract")
+        predecessor = _load_invocation_output_state(ctx, basis.predecessor_state_ref)
+        selection = NodeInputSelection(
+            run_id=attempt.basis.run_id,
+            component_id=attempt.basis.component_id,
+            contract_id=basis.contract.contract_id,
+            node_alias=attempt.basis.node_alias,
+            attempt_id=attempt.basis.attempt_id,
+            basis_ref=attempt.basis_ref,
+            input_state_ref=attempt.basis.input_state_ref,
+        )
+        facts = _completion_facts(ctx, selection, attempt, predecessor)
+        if any(
+            actual is None
+            or artifact_ref_identity_key(actual) != artifact_ref_identity_key(declared)
+            for actual, declared in (
+                (facts.body_ref, binding.body_ref),
+                (facts.candidate_ref, binding.candidate_ref),
+                (facts.phase5_assessment_ref, binding.phase5_assessment_ref),
+                (facts.initial_governance_ref, binding.initial_governance_ref),
+                (facts.final_governance_ref, binding.final_governance_ref),
+            )
+        ):
+            raise NodeInputPortError("completed_composition_source_binding_mismatch")
+        current_evidence, current_unsupported = _completion_evidence(ctx, current_state)
+        if (
+            current_evidence != facts.evidence
+            or current_unsupported != facts.unsupported_requirements
+        ):
+            reason = "completion_current_evidence_scope_changed"
+            facts = replace(
+                facts,
+                phase5=replace(facts.phase5, status="stale", reason_code=reason),
+                unsupported_requirements=tuple(
+                    sorted(set(facts.unsupported_requirements) | set(current_unsupported))
+                ),
+                limitation_codes=tuple(dict.fromkeys((*facts.limitation_codes, reason))),
+            )
+        return deepcopy(facts)
+    except NodeInputPortError:
+        raise
+    except (AttributeError, KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
+        raise NodeInputPortError("completed_composition_owner_revalidation_failed") from exc
 
 
 def _selected_refs(state: ExperimentState, contract: NodeInputContract) -> tuple[ArtifactRef, ...]:
@@ -848,6 +1888,7 @@ def _restricted_context(
     ctx: ExecutionContext, port: _NodeInputPort, selection: NodeInputSelection | None = None
 ) -> ExecutionContext:
     source_owner = None
+    completion_owner = None
     readable_refs: tuple[ArtifactRef, ...] | None = None
     if _phase5_source_profile(port.contract):
         readable_refs = ()
@@ -862,6 +1903,24 @@ def _restricted_context(
                     (admission.body_ref, admission.body_status),
                     (admission.candidate_ref, admission.candidate_status),
                     (admission.governance_ref, admission.governance_status),
+                )
+                if ref is not None and status == "current"
+            )
+    if _completion_source_profile(port.contract):
+        readable_refs = ()
+        if selection is not None:
+            completion_owner = _VerifiedPolicyCompletionAdmissionOwner(
+                ctx, selection, port.identity, port.definition_sha256
+            )
+            completion = completion_owner.read()
+            readable_refs = tuple(
+                ref
+                for ref, status in (
+                    (completion.body_ref, completion.body.status),
+                    (completion.candidate_ref, completion.candidate.status),
+                    (completion.phase5_assessment_ref, completion.phase5.status),
+                    (completion.final_governance_ref, completion.final_governance.status),
+                    *((item.artifact_ref, item.status) for item in completion.evidence),
                 )
                 if ref is not None and status == "current"
             )
@@ -887,6 +1946,7 @@ def _restricted_context(
         "depth": ctx.depth,
         "_node_input_selection": selection,
         "_verified_policy_phase5_admission_owner": source_owner,
+        "_verified_policy_completion_admission_owner": completion_owner,
         "_engine_invocation": ctx._engine_invocation if selection is not None else None,
     }
     return Context(**fields)
@@ -1065,7 +2125,7 @@ def preflight_node_input_port(
         contract_json = _preflight_registered_input(registered_node, component_id, params)
         if contract_json is not None:
             contract = NodeInputContract.model_validate_json(contract_json)
-            _phase5_source_profile(contract)
+            _source_view_profile(contract)
             if contract.component_id != component_id:
                 raise ValueError("node_input_contract_component_mismatch")
             return
@@ -1112,7 +2172,12 @@ def admit_node_input_port(
         contract = NodeInputContract.model_validate_json(spec.input_contract.model_dump_json())
     except (TypeError, ValueError) as exc:
         raise NodeInputPortError("node_input_contract_unsupported") from exc
-    _phase5_source_profile(contract)
+    _source_view_profile(contract)
+    if (
+        _completion_source_profile(contract)
+        and tuple(spec.state_writes) != _COMPLETION_OUTPUT_PATHS
+    ):
+        raise NodeInputPortError("node_input_completion_writes_unsupported")
     if set(params) - set(contract.bind_param_keys):
         raise NodeInputPortError("node_input_bind_params_outside_contract")
     identity = capture_engine_component_identity(node, str(spec.metadata.component_id), params)

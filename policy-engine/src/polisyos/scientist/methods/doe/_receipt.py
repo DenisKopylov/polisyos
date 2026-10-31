@@ -19,7 +19,7 @@ from .designs import (
 
 if TYPE_CHECKING:
     from polisyos.core import artifacts as core_artifacts
-    from polisyos.core.artifacts.canonical_profile import CoreJsonReadLimits
+    from polisyos.core.artifacts import CoreJsonReadLimits
 
 
 class _AnalysisReceipt(BaseModel):
@@ -142,7 +142,7 @@ def _load_analysis(
     limits: CoreJsonReadLimits | None = None,
 ) -> SensitivityResult:
     """Resolve a full selected view and reproduce it before search consumption."""
-    from polisyos.core.artifacts.canonical_profile import (
+    from polisyos.core.artifacts import (
         CoreJsonReadLimits,
         read_core_json_artifact_bounded,
         validate_core_model_bounded_read,

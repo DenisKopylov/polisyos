@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from polisyos.core import artifacts as core_artifacts
-    from polisyos.core.artifacts.canonical_profile import CoreJsonReadLimits
+    from polisyos.core.artifacts import CoreJsonReadLimits
 
 from polisyos.scientist.methods.doe.designs import SensitivityResult
 from polisyos.scientist.methods.search.controller import SearchIteration

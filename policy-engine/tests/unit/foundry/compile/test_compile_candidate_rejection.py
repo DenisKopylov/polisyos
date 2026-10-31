@@ -90,6 +90,135 @@ def test_actual_parameter_rejection_is_recomputed_from_selected_sources(tmp_path
     assert api.verify_expected_candidate_rejection(reopened, request, result) == rejection
 
 
+class _BoundedOnlyStore:
+    """Expose the real bounded owner methods while denying legacy source reads."""
+
+    def __init__(self, store):
+        self.store = store
+
+    def __getattr__(self, name):
+        return getattr(self.store, name)
+
+    def get_bytes(self, *args, **kwargs):
+        raise AssertionError("rejection verifier attempted an unbounded payload fallback")
+
+    def get_manifest(self, *args, **kwargs):
+        raise AssertionError("rejection verifier attempted an unbounded manifest fallback")
+
+
+def _bounded_limits(max_bytes=1_000_000):
+    from polisyos.core.artifacts.canonical_profile import CoreJsonReadLimits
+
+    return CoreJsonReadLimits(
+        max_bytes=max_bytes, max_depth=100, max_elements=100_000, max_manifest_bytes=1_000_000
+    )
+
+
+def test_actual_rejection_reuses_bounded_intake_for_every_registry_member(tmp_path) -> None:
+    from polisyos.scientist.orchestration.engine.child_compiler_closure import _ExecutionReader
+
+    store = FileSystemCAS(tmp_path / "cas")
+    request = _request(store)
+    result = api.compile(store, request)
+    bounded = _BoundedOnlyStore(store)
+
+    class RecordingReader(_ExecutionReader):
+        def __init__(self):
+            super().__init__(bounded, _bounded_limits())
+            self.models = []
+
+        def read_typed_model(self, model, ref):
+            self.models.append(model.__name__)
+            return super().read_typed_model(model, ref)
+
+    reader = RecordingReader()
+    assert (
+        api.verify_expected_candidate_rejection(bounded, request, result, reader=reader)
+        == result.candidate_rejection
+    )
+    assert {
+        "CompileReport",
+        "TrinityBundle",
+        "LinkReport",
+        "RegistryBundlePayload",
+        "SlotRegistry",
+        "MergeRuleRegistry",
+        "MechanismTypeRegistry",
+        "ConstraintRegistry",
+        "SelectorFieldRegistry",
+        "MetricRegistry",
+        "UnitsRegistry",
+    } <= set(reader.models)
+
+
+def test_actual_rejection_budget_refusal_has_no_unbounded_fallback(tmp_path) -> None:
+    from polisyos.scientist.orchestration.engine.child_compiler_closure import _ExecutionReader
+
+    store = FileSystemCAS(tmp_path / "cas")
+    request = _request(store)
+    result = api.compile(store, request)
+    cap = len(store.get_raw_manifest_bytes(result.compile_report_ref)) + len(
+        store.get_bytes(result.compile_report_ref)
+    )
+    bounded = _BoundedOnlyStore(store)
+    reader = _ExecutionReader(bounded, _bounded_limits(cap))
+    assert api.verify_expected_candidate_rejection(bounded, request, result, reader=reader) is None
+    assert reader.manifest_bytes + reader.payload_bytes <= cap
+
+
+@pytest.mark.parametrize("invalid", ["manifest_count", "manifest_identity", "model_type"])
+def test_rejection_bounded_intake_refuses_a_malformed_reader_reply(tmp_path, invalid) -> None:
+    from polisyos.scientist.orchestration.engine.child_compiler_closure import _ExecutionReader
+
+    store = FileSystemCAS(tmp_path / "cas")
+    request = _request(store)
+    result = api.compile(store, request)
+    bounded = _BoundedOnlyStore(store)
+
+    class InvalidReader(_ExecutionReader):
+        def read_selected_manifest(self, ref):
+            manifest, count = super().read_selected_manifest(ref)
+            if invalid == "manifest_count":
+                count = True
+            elif invalid == "manifest_identity":
+                manifest = manifest.model_copy(update={"kind": "test.foreign"})
+            return manifest, count
+
+        def read_typed_model(self, model, ref):
+            manifest, value, manifest_bytes, payload_bytes = super().read_typed_model(model, ref)
+            if invalid == "model_type":
+                value = LinkReport(ok=False)
+            return manifest, value, manifest_bytes, payload_bytes
+
+    assert (
+        api.verify_expected_candidate_rejection(
+            bounded, request, result, reader=InvalidReader(bounded, _bounded_limits())
+        )
+        is None
+    )
+
+
+def test_bounded_stage_b_rejection_profile_refuses_optional_method_plan(tmp_path) -> None:
+    from polisyos.scientist.orchestration.engine.child_compiler_closure import _ExecutionReader
+
+    store = FileSystemCAS(tmp_path / "cas")
+    request = _request(store)
+    result = api.compile(store, request)
+    request = request.model_copy(
+        update={
+            "schema_version": "1.2",
+            "method_execution_plan_ref": ExecutionPlanRef(
+                artifact_id=request.policy_ref.artifact_id,
+                manifest_profile_sha256=request.policy_ref.manifest_profile_sha256,
+            ),
+        }
+    )
+    bounded = _BoundedOnlyStore(store)
+    reader = _ExecutionReader(bounded, _bounded_limits())
+    assert api.verify_expected_candidate_rejection(bounded, request, result, reader=reader) is None
+    assert reader.manifest_bytes == reader.payload_bytes == 0
+
+
 @pytest.mark.parametrize("failure", [ValueError, PermissionError, TimeoutError])
 def test_backend_error_with_validation_looking_text_stays_unclassified(
     tmp_path, monkeypatch: pytest.MonkeyPatch, failure: type[Exception]

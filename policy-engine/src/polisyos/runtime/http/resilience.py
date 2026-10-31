@@ -39,6 +39,7 @@ if TYPE_CHECKING:
         ArtifactMemberReceipt,
         ArtifactRef,
         ArtifactStore,
+        ArtifactStoreReadUsage,
         CoreJsonArtifactBoundedRead,
         CoreJsonManifestBoundedRead,
         CoreJsonReadLimits,
@@ -1783,6 +1784,40 @@ class ChildGuardedReadOwner:
             raise ValueError("child_read_blob_result_must_be_bytes")
         return result
 
+    def read_blob_bounded(
+        self,
+        capability: object,
+        *,
+        max_manifest_bytes: int,
+        expected_manifest_sha256: str,
+        max_member_bytes: int,
+    ) -> tuple[bytes, ArtifactMemberReceipt, ArtifactStoreReadUsage]:
+        """Consume one bounded member wholly inside the appointed CAS worker.
+
+        Core supplies the digest of its sealed selected-manifest read and
+        independently reconciles the returned bytes and actual owner receipts.
+        The live stream never crosses the guard or escapes its bounded lease.
+        """
+        proxy, ref = self._claim(capability)
+
+        def read() -> tuple[bytes, ArtifactMemberReceipt, ArtifactStoreReadUsage]:
+            attempt = proxy.open_member_bounded(
+                ref,
+                "blob",
+                max_manifest_bytes=max_manifest_bytes,
+                expected_manifest_sha256=expected_manifest_sha256,
+                max_member_bytes=max_member_bytes,
+            )
+            with attempt as stream:
+                chunks = []
+                while chunk := stream.read(65536):
+                    chunks.append(chunk)
+            return b"".join(chunks), stream.receipt, attempt.usage
+
+        result = self._run_read(proxy, read)
+        self._confirm(capability, proxy, ref)
+        return result
+
     def read_manifest(
         self, capability: object, *, max_manifest_bytes: int, allow_profile_absent: bool
     ) -> CoreJsonManifestBoundedRead:
@@ -1833,14 +1868,21 @@ class ChildGuardedReadOwner:
         return result
 
     def read_json(
-        self, capability: object, *, limits: CoreJsonReadLimits
+        self,
+        capability: object,
+        *,
+        limits: CoreJsonReadLimits,
+        manifest_read: CoreJsonManifestBoundedRead | None = None,
     ) -> CoreJsonArtifactBoundedRead:
         """Run the entire canonical bounded reader and preserve its actual usage."""
         from polisyos.core.artifacts import read_core_json_artifact_bounded
 
         proxy, ref = self._claim(capability)
         result = self._run_read(
-            proxy, lambda: read_core_json_artifact_bounded(proxy, ref, limits=limits)
+            proxy,
+            lambda: read_core_json_artifact_bounded(
+                proxy, ref, limits=limits, manifest_read=manifest_read
+            ),
         )
         self._confirm(capability, proxy, ref)
         return result

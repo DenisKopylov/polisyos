@@ -292,6 +292,14 @@ def lower_trinity(
             inputs=[
                 input_ref_from_artifact_ref(policy_ref, role="ir"),
                 input_ref_from_artifact_ref(registry_bundle_ref, role="registry_bundle"),
+                *(
+                    input_ref_from_artifact_ref(
+                        mechanism.effective_params_ref,
+                        role=f"effective_params:{mechanism.intervention_ids[0]}",
+                    )
+                    for mechanism in lowered_mechanisms
+                    if mechanism.effective_params_ref is not None
+                ),
             ],
         ),
         return_selected_profile=return_selected_profile,

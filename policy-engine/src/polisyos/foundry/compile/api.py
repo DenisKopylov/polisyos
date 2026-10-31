@@ -9,6 +9,8 @@ envelope when compilation cannot produce an executable plan.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts.manifest import ArtifactRef, input_ref_from_artifact_ref
 from polisyos.core.artifacts.protocol import ArtifactStore
@@ -30,6 +32,9 @@ from polisyos.core.contracts.foundry import (
 from polisyos.foundry._artifact_capabilities import resolve_core_json_profile_store
 from polisyos.ir.kernel import ConstraintRegistry
 from polisyos.ir.trinity import TrinityBundle
+
+if TYPE_CHECKING:
+    from polisyos.foundry.execute.api import BoundedExecutionSourceReader
 
 
 def compile(store: ArtifactStore, request: CompileRequest) -> CompileResult:
@@ -104,7 +109,11 @@ def _resolve_compiler(request: CompileRequest) -> str:
 
 
 def verify_expected_candidate_rejection(
-    store: ArtifactStore, request: CompileRequest, result: CompileResult
+    store: ArtifactStore,
+    request: CompileRequest,
+    result: CompileResult,
+    *,
+    reader: BoundedExecutionSourceReader | None = None,
 ) -> CompileCandidateRejection | None:
     """Recompute strict parameter-rejection evidence from exact selected sources.
 
@@ -116,6 +125,8 @@ def verify_expected_candidate_rejection(
         store: The actual scoped store used by the failed compile.
         request: The actual submitted request retained by the caller.
         result: The actual result returned by the admitted compile operation.
+        reader: Optional fixed scoped source reader. When supplied, every source
+            read uses its existing aggregate bounds with no legacy read fallback.
 
     Returns:
         Recomputed selected-source evidence, or None when it cannot be established.
@@ -127,7 +138,9 @@ def verify_expected_candidate_rejection(
     from .trinity_compiler import verify_expected_candidate_rejection as verify
 
     try:
-        return verify(core_json_store, request, result)
+        if reader is None:
+            return verify(core_json_store, request, result)
+        return verify(core_json_store, request, result, reader=reader)
     except (ValueError, TypeError, FileNotFoundError):
         return None
 

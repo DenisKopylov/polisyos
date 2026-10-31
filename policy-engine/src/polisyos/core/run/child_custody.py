@@ -58,7 +58,11 @@ if TYPE_CHECKING:
 
     from polisyos.common.borrowed_execution import _BorrowedControlLiveness
 
-    from ..artifacts._integrity_ops import ArtifactBoundedManifestRead, VerificationReport
+    from ..artifacts._integrity_ops import (
+        ArtifactBoundedManifestRead,
+        ArtifactStoreReadUsage,
+        VerificationReport,
+    )
     from ..artifacts.canonical_profile import (
         CoreJsonArtifactBoundedRead,
         CoreJsonManifestBoundedRead,
@@ -350,10 +354,23 @@ class _ChildGuardedReadService(Protocol):
     ) -> CoreJsonManifestBoundedRead: ...
 
     def read_json(
-        self, capability: ChildOneRefReadCapability, *, limits: CoreJsonReadLimits
+        self,
+        capability: ChildOneRefReadCapability,
+        *,
+        limits: CoreJsonReadLimits,
+        manifest_read: CoreJsonManifestBoundedRead | None = None,
     ) -> CoreJsonArtifactBoundedRead: ...
 
     def read_blob(self, capability: ChildOneRefReadCapability) -> bytes: ...
+
+    def read_blob_bounded(
+        self,
+        capability: ChildOneRefReadCapability,
+        *,
+        max_manifest_bytes: int,
+        expected_manifest_sha256: str,
+        max_member_bytes: int,
+    ) -> tuple[bytes, ArtifactMemberReceipt, ArtifactStoreReadUsage]: ...
 
     def has(self, capability: ChildOneRefReadCapability) -> bool: ...
 
@@ -650,6 +667,7 @@ class _ChildInvocationSourceSnapshot:
     outcome_ref: ArtifactRef | None
     outcome: RunInvocationCompleted | None
     input_read: CoreJsonArtifactBoundedRead
+    outcome_read: CoreJsonArtifactBoundedRead | None
 
 
 def _parent_proof_fingerprint(value: bytes | BaseModel) -> bytes:
@@ -1063,6 +1081,14 @@ class _ManagedStore:
                             else None
                         ),
                         input_read=input_read,
+                        outcome_read=(
+                            read_core_json_artifact_bounded(
+                                scope.store, attempt.outcome.outcome_state_ref, limits=limits
+                            )
+                            if attempt.outcome is not None
+                            and attempt.outcome.outcome_state_ref is not None
+                            else None
+                        ),
                     )
                 )
             owner.check_active(scope)
@@ -1295,7 +1321,7 @@ class _ManagedStore:
             raise ChildReleaseUnavailableError("guarded_reader_not_appointed")
         capability = self._issue_guarded_read(selected)
         try:
-            result = service.read_json(capability, limits=limits)
+            result = service.read_json(capability, limits=limits, manifest_read=manifest_read)
             if (
                 type(result) is not CoreJsonArtifactBoundedRead
                 or result.effective_ref != selected
@@ -1339,6 +1365,94 @@ class _ManagedStore:
             capability._claim_for_runtime(self.__owner)
         finally:
             self._release_guarded_read(capability)
+
+    def _read_owned_blob_bounded(
+        self,
+        ref: ArtifactRef,
+        *,
+        manifest_read: CoreJsonManifestBoundedRead,
+        max_member_bytes: int,
+    ) -> tuple[bytes, ArtifactStoreReadUsage]:
+        """Read selected binary bytes through the actual bounded owner transport.
+
+        The guarded branch never exposes a stream or falls back to ``get_bytes``.
+        Manifest selection is charged by the supplied sealed Core read; the
+        returned sealed receipt reports the member read's actual verification
+        and payload transfers, rather than a reconstructed byte estimate.
+        """
+        from ..artifacts._integrity_ops import _is_artifact_store_read_usage
+        from ..artifacts.canonical_profile import CoreJsonManifestBoundedRead
+        from ..artifacts.store import ArtifactMemberReceipt
+
+        source, selected = self._resolve(ref)
+        if (
+            type(manifest_read) is not CoreJsonManifestBoundedRead
+            or manifest_read.effective_ref != selected
+            or type(max_member_bytes) is not int
+            or max_member_bytes < 1
+        ):
+            raise ChildReleaseUnavailableError("child_bounded_blob_selection_invalid")
+        expected_digest = hashlib.sha256(manifest_read.raw_manifest_bytes).hexdigest()
+        service = self.__owner._guarded_reader_service
+        capability = self._issue_guarded_read(selected) if service is not None else None
+        try:
+            if service is not None:
+                if capability is None:
+                    raise ChildReleaseUnavailableError("child_bounded_blob_capability_missing")
+                result = service.read_blob_bounded(
+                    capability,
+                    max_manifest_bytes=len(manifest_read.raw_manifest_bytes),
+                    expected_manifest_sha256=expected_digest,
+                    max_member_bytes=max_member_bytes,
+                )
+            else:
+                attempt = source.open_member_bounded(
+                    selected,
+                    "blob",
+                    max_manifest_bytes=len(manifest_read.raw_manifest_bytes),
+                    expected_manifest_sha256=expected_digest,
+                    max_member_bytes=max_member_bytes,
+                )
+                with attempt as stream:
+                    chunks = []
+                    while chunk := stream.read(65536):
+                        chunks.append(chunk)
+                result = (b"".join(chunks), stream.receipt, attempt.usage)
+            if type(result) is not tuple or len(result) != 3:
+                raise ChildReleaseUnavailableError("child_bounded_blob_result_invalid")
+            payload, receipt, usage = result
+            if (
+                type(payload) is not bytes
+                or len(payload) > max_member_bytes
+                or manifest_read.manifest.byte_size != len(payload)
+                or hashlib.sha256(payload).hexdigest() != selected.artifact_id.hex
+                or type(receipt) is not ArtifactMemberReceipt
+                or receipt.member
+                != source._member_name(
+                    selected.artifact_id, "blob", selected.manifest_profile_sha256
+                )
+                or receipt.sha256 != selected.artifact_id.hex
+                or receipt.byte_size != len(payload)
+                or not _is_artifact_store_read_usage(usage)
+                or usage.observed_manifest_selection_bytes != 0
+                or usage.observed_manifest_verification_bytes
+                != len(manifest_read.raw_manifest_bytes)
+                or usage.observed_payload_bytes != len(payload)
+                or usage.observed_payload_size != len(payload)
+                or not usage.payload_integrity_verified
+                or usage.failure_stage is not None
+                or usage.cleanup_failure_stage is not None
+                or usage.cleanup_exception_type is not None
+                or usage.cleanup_exception_code is not None
+            ):
+                raise ChildReleaseUnavailableError("child_bounded_blob_receipt_mismatch")
+            if capability is not None:
+                capability._claim_for_runtime(self.__owner)
+            self._resolve(selected)
+            return payload, usage
+        finally:
+            if capability is not None:
+                self._release_guarded_read(capability)
 
     def has(self, artifact_id: ArtifactID | ArtifactRef | str) -> bool:
         """Test availability only inside this exact authorized view."""

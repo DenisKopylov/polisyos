@@ -11,6 +11,7 @@ from __future__ import annotations
 import hashlib
 import inspect
 import json
+from typing import TYPE_CHECKING
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import (
@@ -50,6 +51,10 @@ from polisyos.core.registry import (
     load_registry_bundle,
     load_registry_bundle_content,
 )
+from polisyos.core.registry.loader import (
+    _read_model_from_reader,
+    _require_selected_reader_manifest,
+)
 from polisyos.foundry.compile.manifest_inputs import (
     execution_plan_input_refs,
     program_graph_input_refs,
@@ -82,6 +87,12 @@ from polisyos.ir.trinity import TrinityBundle
 
 from ._graph import build_exec_order, build_program_graph
 from ._lowering import lower_trinity
+
+if TYPE_CHECKING:
+    from pydantic import BaseModel
+
+    from polisyos.core.artifacts.manifest import ArtifactManifest
+    from polisyos.foundry.execute.api import BoundedExecutionSourceReader
 
 
 def _require_bounded_method_metric_bindings(request: CompileRequest) -> None:
@@ -136,9 +147,18 @@ def _parameter_failure_is_eligible(report: LinkReport) -> bool:
     )
 
 
-def _registry_members_are_selected(store: CoreJSONArtifactStore, ref: ArtifactRef) -> bool:
+def _registry_members_are_selected(
+    store: CoreJSONArtifactStore,
+    ref: ArtifactRef,
+    *,
+    reader: BoundedExecutionSourceReader | None = None,
+) -> bool:
     """Require existing selected member references instead of reconstructing legacy views."""
-    registry = load_registry_bundle(store, ref)
+    registry = (
+        load_registry_bundle(store, ref)
+        if reader is None
+        else load_registry_bundle(store, ref, reader=reader)
+    )
     return all(
         member is None
         or (isinstance(member, ArtifactRef) and member.manifest_profile_sha256 is not None)
@@ -167,8 +187,42 @@ def _canonical_equal(left: object, right: object) -> bool:
     return to_canonical_bytes(left, spec) == to_canonical_bytes(right, spec)
 
 
+def _rejection_manifest(
+    store: CoreJSONArtifactStore,
+    ref: ArtifactRef,
+    reader: BoundedExecutionSourceReader | None,
+) -> ArtifactManifest:
+    if reader is None:
+        return store.get_manifest(ref)
+    result = reader.read_selected_manifest(ref)
+    if type(result) is not tuple or len(result) != 2:
+        raise ValueError("compile_rejection_reader_manifest_receipt_invalid")
+    manifest, observed_bytes = result
+    _require_selected_reader_manifest(ref, manifest)
+    if type(observed_bytes) is not int or observed_bytes < 0:
+        raise ValueError("compile_rejection_reader_manifest_receipt_invalid")
+    return manifest
+
+
+def _rejection_model[ModelT: BaseModel](
+    store: CoreJSONArtifactStore,
+    ref: ArtifactRef,
+    model: type[ModelT],
+    reader: BoundedExecutionSourceReader | None,
+) -> ModelT:
+    if reader is not None:
+        return _read_model_from_reader(reader, ref, model)
+    from polisyos.core.artifacts import validate_core_model_json_artifact
+
+    return validate_core_model_json_artifact(model, store, ref)
+
+
 def verify_expected_candidate_rejection(
-    store: CoreJSONArtifactStore, request: CompileRequest, result: CompileResult
+    store: CoreJSONArtifactStore,
+    request: CompileRequest,
+    result: CompileResult,
+    *,
+    reader: BoundedExecutionSourceReader | None = None,
 ) -> CompileCandidateRejection | None:
     """Recompute a completed parameter failure from its selected source graph.
 
@@ -176,26 +230,28 @@ def verify_expected_candidate_rejection(
     This function provides no run appointment or custody permission: the caller
     still must bind the actual returned result to the genuine producer attempt.
     """
-    from polisyos.core.artifacts import validate_core_model_json_artifact
-
     request = CompileRequest.model_validate(request.model_dump(mode="json"))
     result = CompileResult.model_validate(result.model_dump(mode="json"))
     rejection = result.candidate_rejection
     if rejection is None or not request.validation_flags.strict_link:
+        return None
+    if reader is not None and request.method_execution_plan_ref is not None:
+        # The selected StageB closure excludes method plans. Preserve the
+        # historical prerequisite replay only on the default compatibility path.
         return None
     if rejection.request_sha256 != _compile_request_sha256(request):
         return None
     if not _requested_selection_matches(request.policy_ref, rejection.policy_ref):
         return None
 
-    report_manifest = store.get_manifest(result.compile_report_ref)
+    report_manifest = _rejection_manifest(store, result.compile_report_ref, reader)
     if (
         report_manifest.artifact_schema is None
         or report_manifest.artifact_schema.name != "polisyos.core.CompileReport"
         or report_manifest.artifact_schema.version != "1.1"
     ):
         return None
-    report = validate_core_model_json_artifact(CompileReport, store, result.compile_report_ref)
+    report = _rejection_model(store, result.compile_report_ref, CompileReport, reader)
     if report.candidate_rejection != rejection:
         return None
     expected_report_inputs = [
@@ -223,7 +279,7 @@ def verify_expected_candidate_rejection(
             policy_ref=request.policy_ref,
             method_plan_ref=request.method_execution_plan_ref,
         )
-    bundle = validate_core_model_json_artifact(TrinityBundle, store, rejection.policy_ref)
+    bundle = _rejection_model(store, rejection.policy_ref, TrinityBundle, reader)
     requested_registry = _resolve_registry_bundle_ref(
         request.registry_bundle_ref, bundle.model_spec.registry_bundle_ref
     )
@@ -231,9 +287,9 @@ def verify_expected_candidate_rejection(
         requested_registry, rejection.registry_bundle_ref
     ):
         return None
-    if not _registry_members_are_selected(store, rejection.registry_bundle_ref):
+    if not _registry_members_are_selected(store, rejection.registry_bundle_ref, reader=reader):
         return None
-    link_manifest = store.get_manifest(rejection.link_report_ref)
+    link_manifest = _rejection_manifest(store, rejection.link_report_ref, reader)
     if (
         link_manifest.artifact_schema is None
         or link_manifest.artifact_schema.name != "polisyos.ir.LinkReport"
@@ -244,8 +300,12 @@ def verify_expected_candidate_rejection(
         )
     ):
         return None
-    persisted = validate_core_model_json_artifact(LinkReport, store, rejection.link_report_ref)
-    content = load_registry_bundle_content(store, rejection.registry_bundle_ref)
+    persisted = _rejection_model(store, rejection.link_report_ref, LinkReport, reader)
+    content = (
+        load_registry_bundle_content(store, rejection.registry_bundle_ref)
+        if reader is None
+        else load_registry_bundle_content(store, rejection.registry_bundle_ref, reader=reader)
+    )
     _, recomputed = link_trinity(
         bundle,
         _link_registries(content),

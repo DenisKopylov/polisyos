@@ -14,6 +14,59 @@ from polisyos.foundry.compile._lowering import (
 )
 
 
+@pytest.mark.parametrize("return_selected_profile", [False, True])
+def test_real_lowering_records_each_effective_parameter_child(
+    tmp_path, return_selected_profile: bool
+) -> None:
+    """The persisted lowering exposes real parameter children without changing legacy refs."""
+    from polisyos.core.artifacts import validate_core_model_json_artifact
+    from polisyos.core.artifacts.manifest import SchemaInfo, input_ref_from_artifact_ref
+    from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+    from polisyos.core.contracts.foundry import LoweredIR
+    from polisyos.core.registry import build_default_registry_bundle
+    from polisyos.core.registry.loader import load_registry_bundle_content
+    from polisyos.foundry._internal.quickstart import build_trivial_trinity_bundle
+    from polisyos.foundry.compile.trinity_compiler import _link_registries
+    from polisyos.ir.linker import link_trinity
+    from polisyos.ir.trinity import TrinityBundle
+
+    store = FileSystemCAS(tmp_path / "cas")
+    registry = build_default_registry_bundle(store, return_selected_profile=return_selected_profile)
+    bundle = build_trivial_trinity_bundle(str(registry.bundle_ref.artifact_id))
+    policy = store.put_json(
+        bundle,
+        PutOptions(
+            kind=TrinityBundle.ARTIFACT_KIND,
+            media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(name=TrinityBundle.ARTIFACT_SCHEMA_NAME, version="1.0"),
+        ),
+        return_selected_profile=return_selected_profile,
+    )
+    content = load_registry_bundle_content(store, registry.bundle_ref)
+    linked, report = link_trinity(bundle, _link_registries(content))
+    assert report.ok
+    ref, lowered, _ = lower_trinity(
+        store,
+        policy_ref=policy,
+        registry_bundle_ref=registry.bundle_ref,
+        bundle=bundle,
+        linked_bundle=linked,
+        registry_content=content,
+        return_selected_profile=return_selected_profile,
+    )
+    assert lowered.mechanisms
+    persisted = validate_core_model_json_artifact(LoweredIR, store, ref)
+    manifest = store.get_manifest(ref)
+    for mechanism in persisted.mechanisms:
+        assert mechanism.effective_params_ref is not None
+        expected = input_ref_from_artifact_ref(
+            mechanism.effective_params_ref,
+            role=f"effective_params:{mechanism.intervention_ids[0]}",
+        )
+        assert sum(item == expected for item in manifest.inputs) == 1
+        assert bool(expected.manifest_profile_sha256) is return_selected_profile
+
+
 def _artifact_ref(kind: str = "ir") -> ArtifactRef:
     return ArtifactRef(
         artifact_id=ArtifactID("sha256:" + "a" * 64),

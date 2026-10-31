@@ -11,12 +11,18 @@ import importlib
 import logging
 import sys
 import warnings
-from collections.abc import Sequence
+from collections.abc import Callable, Iterator, Sequence
+from dataclasses import dataclass
 from importlib import metadata
 from pathlib import Path
 
 from polisyos.core import discovery as core_discovery
-from polisyos.foundry.plugins.core import DomainPlugin, PluginRegistry, get_registry
+from polisyos.foundry.plugins.core import (
+    DomainPlugin,
+    PluginMetadata,
+    PluginRegistry,
+    get_registry,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -24,20 +30,64 @@ LEGACY_DOMAIN_PLUGIN_ENTRY_POINT_GROUP = "polisyos.plugins"
 CANONICAL_METHOD_ENTRY_POINT_GROUP = "polisyos.foundry_methods"
 
 
+@dataclass(slots=True)
+class _DomainPluginSource:
+    """Adapt one legacy DomainPlugin source to Core's shared collector."""
+
+    name: str
+    loader: Callable[[], Sequence[DomainPlugin]]
+
+    def discover(self) -> Iterator[DomainPlugin]:
+        """Load candidates from this source in its declared position."""
+        return iter(self.loader())
+
+
 def discover_plugins(
     search_paths: Sequence[str | Path] | None = None,
     package_prefix: str = "polisyos_plugin_",
 ) -> list[DomainPlugin]:
-    """Discover and load plugins from built-ins, installed packages, and directories."""
+    """Discover plugins in built-in, entry-point, dev-root, then prefix order."""
+    sources = [
+        _DomainPluginSource("builtin", _discover_builtin_plugins),
+        _DomainPluginSource("entry_points", _discover_entry_point_plugins),
+    ]
+    sources.extend(
+        _DomainPluginSource(
+            f"dev_path:{path}",
+            lambda path=Path(path): _discover_directory_plugins(path),
+        )
+        for path in search_paths or ()
+    )
+    sources.append(
+        _DomainPluginSource(
+            "distribution_prefix",
+            lambda: _discover_distribution_plugins(package_prefix),
+        )
+    )
+    collector = core_discovery.BaseDiscovery[
+        DomainPlugin,
+        core_discovery.DiscoveryError,
+    ](
+        sources=sources,
+        on_source_error=lambda source, exc: core_discovery.DiscoveryError(
+            source=str(getattr(source, "name", type(source).__name__)),
+            item=None,
+            error_type=type(exc).__name__,
+            message=str(exc),
+            traceback=core_discovery.format_traceback(),
+        ),
+    )
+    batches, _ = collector.collect()
+
     plugins: list[DomainPlugin] = []
-
-    plugins.extend(_discover_builtin_plugins())
-    plugins.extend(_discover_installed_plugins(package_prefix))
-
-    if search_paths:
-        for path in search_paths:
-            plugins.extend(_discover_directory_plugins(Path(path)))
-
+    for batch in batches:
+        plugins.extend(batch.items)
+        for error in batch.errors:
+            logger.warning(
+                "Failed to discover plugins from %s: %s",
+                error.source,
+                error.message,
+            )
     return plugins
 
 
@@ -50,21 +100,31 @@ def _discover_builtin_plugins() -> list[DomainPlugin]:
     for module_name in builtin_modules:
         try:
             module = importlib.import_module(module_name)
-            for name in dir(module):
+            for name in sorted(dir(module)):
                 obj = getattr(module, name)
                 if (
                     isinstance(obj, type)
                     and issubclass(obj, DomainPlugin)
                     and obj is not DomainPlugin
                 ):
-                    plugins.append(obj())
+                    try:
+                        plugins.append(_coerce_domain_plugin(obj))
+                    except Exception as exc:
+                        logger.warning(
+                            "Failed to load builtin plugin '%s.%s': %s",
+                            module_name,
+                            name,
+                            exc,
+                            exc_info=True,
+                        )
         except ImportError:
             continue
 
     return plugins
 
 
-def _discover_installed_plugins(prefix: str) -> list[DomainPlugin]:
+def _discover_entry_point_plugins() -> list[DomainPlugin]:
+    """Load plugins declared through the preserved legacy entry-point group."""
     plugins: list[DomainPlugin] = []
 
     try:
@@ -81,13 +141,17 @@ def _discover_installed_plugins(prefix: str) -> list[DomainPlugin]:
 
     for ep in entry_points:
         try:
-            plugin_class = ep.load()
-            if issubclass(plugin_class, DomainPlugin):
-                plugins.append(plugin_class())
+            plugins.append(_coerce_domain_plugin(ep.load()))
         except Exception:
             logger.warning("Failed to load plugin entry point '%s'", ep.name, exc_info=True)
             continue
 
+    return plugins
+
+
+def _discover_distribution_plugins(prefix: str) -> list[DomainPlugin]:
+    """Load plugins found by the legacy distribution-name prefix heuristic."""
+    plugins: list[DomainPlugin] = []
     distributions = []
     try:
         distributions = sorted(
@@ -106,7 +170,7 @@ def _discover_installed_plugins(prefix: str) -> list[DomainPlugin]:
         try:
             module = importlib.import_module(project_name.replace("-", "_"))
             if hasattr(module, "create_plugin"):
-                plugins.append(module.create_plugin())
+                plugins.append(_coerce_domain_plugin(module.create_plugin()))
         except Exception:
             logger.warning("Failed to load plugin package '%s'", project_name, exc_info=True)
             continue
@@ -144,9 +208,13 @@ def _discover_directory_plugins(directory: Path) -> list[DomainPlugin]:
             )
 
             if hasattr(module, "create_plugin"):
-                plugins.append(module.create_plugin())
+                candidate = module.create_plugin()
             elif hasattr(module, "Plugin"):
-                plugins.append(module.Plugin())
+                candidate = module.Plugin()
+            else:
+                raise TypeError("plugin.py must expose create_plugin() or Plugin")
+
+            plugins.append(_coerce_domain_plugin(candidate))
         except Exception as exc:
             warnings.warn(
                 f"Failed to load plugin from {plugin_dir}: {exc}",
@@ -156,6 +224,22 @@ def _discover_directory_plugins(directory: Path) -> list[DomainPlugin]:
             sys.modules.pop(module_name, None)
 
     return plugins
+
+
+def _coerce_domain_plugin(candidate: object) -> DomainPlugin:
+    """Admit only materialized plugins that satisfy the legacy DomainPlugin ABI."""
+    if isinstance(candidate, type):
+        if not issubclass(candidate, DomainPlugin):
+            raise TypeError("plugin candidate class must inherit DomainPlugin")
+        candidate = candidate()
+
+    if not isinstance(candidate, DomainPlugin):
+        raise TypeError("plugin candidate must be a DomainPlugin instance")
+
+    if not isinstance(candidate.metadata, PluginMetadata):
+        raise TypeError("DomainPlugin.metadata must return PluginMetadata")
+
+    return candidate
 
 
 def _distribution_name(distribution: object) -> str:

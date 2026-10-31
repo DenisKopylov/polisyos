@@ -2263,6 +2263,154 @@ async def test_stream_refuses_oversized_input_before_materialization(
     assert not list((tmp_path / ".polisyos").rglob("*.manifest.json"))
 
 
+@pytest.mark.parametrize("strategy", list(BackpressureStrategy))
+@pytest.mark.asyncio
+async def test_stream_capacity_uses_exact_nested_escaped_json_utf8_bytes(
+    tmp_path: Path,
+    strategy: BackpressureStrategy,
+) -> None:
+    """Admit exact escaped JSON bytes, then refuse the next retained event row."""
+    from tests._helpers.source_progress import finite_source_reader
+
+    rows = [
+        {
+            "event_id": "m0",
+            "source_version": 1,
+            "event_time": "2024-06-15T12:00:00+00:00",
+            "value": 'quote " slash \\ newline\n snowman ☃',
+        },
+        {
+            "event_id": "m1",
+            "source_version": 1,
+            "event_time": "2024-06-15T12:00:01+00:00",
+            "value": {"z": [1, True, None], "a": "café"},
+        },
+        {
+            "event_id": "m2",
+            "source_version": 1,
+            "event_time": "2024-06-15T12:00:02+00:00",
+            "value": ["overshoot", "🧭"],
+        },
+        {
+            "event_id": "m3",
+            "source_version": 1,
+            "event_time": "2024-06-15T12:00:03+00:00",
+            "value": "unreached",
+        },
+    ]
+    encoded_rows = [
+        json.dumps(row, sort_keys=True, ensure_ascii=True).encode("utf-8") for row in rows
+    ]
+    row_sizes = [len(row) for row in encoded_rows]
+    assert row_sizes == [137, 133, 122, 104]
+    exact_cap = sum(row_sizes[:2])
+
+    dataset_id = f"capacity-exact-json-{strategy.value}"
+    stream_path = tmp_path / f"{dataset_id}.jsonl"
+    source_bytes = b"\n".join(encoded_rows) + b"\n"
+    assert b"\\u2603" in source_bytes
+    assert b"\\u00e9" in source_bytes
+    assert b"\\ud83e\\udded" in source_bytes
+    stream_path.write_bytes(source_bytes)
+    source_reader = finite_source_reader(
+        tmp_path / "source-owner",
+        connector_id="stream.jsonl",
+        dataset_id=dataset_id,
+        schema_id=f"test.stream.capacity.{strategy.value}",
+        snapshots=[("fixture-current", rows)],
+        event_fields=("event_id",),
+        version_fields=("source_version",),
+        transport_path=stream_path,
+    )
+
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    registry.set_default_config(
+        "stream.jsonl",
+        ConnectionConfig(
+            url=stream_path.as_uri(),
+            headers={"X-Stream-ChunkSize": "1"},
+        ),
+    )
+    contract = stream_processing_contract(
+        dedupe_key_fields=("event_id", "source_version"),
+        max_dedupe_keys=16,
+        max_buffered_rows=100,
+        max_buffered_bytes=exact_cap,
+    )
+    contract = contract.model_copy(
+        update={"backpressure": contract.backpressure.model_copy(update={"strategy": strategy})}
+    )
+    options = StreamRuntimeOptions(
+        batch_size=1,
+        checkpoint_every_chunks=1,
+        dedupe_key_fields=("event_id", "source_version"),
+        max_dedupe_keys=16,
+        max_buffered_rows=100,
+        max_buffered_bytes=exact_cap,
+        max_input_rows=100,
+        max_input_bytes=exact_cap,
+        pause_seconds=0.0,
+        window_policy=WindowPolicy(
+            strategy=WindowStrategy.SESSION,
+            size=300,
+            session_gap_seconds=10,
+            timestamp_field="event_time",
+        ),
+        processing_contract=contract,
+    )
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    cursor_store = CursorStore(store)
+    try:
+        with pytest.raises(StreamCapacityError) as refusal:
+            await process_stream_dataset(
+                connector_id="stream.jsonl",
+                dataset_id=dataset_id,
+                store=store,
+                cursor_store=cursor_store,
+                sanitize_rows=_valid_rows,
+                runtime_options=options,
+                registry=registry,
+                source_progress_readers=(source_reader,),
+            )
+    finally:
+        await registry.shutdown_async()
+
+    assert refusal.value.stage == "operator"
+    assert refusal.value.rows == 3
+    assert refusal.value.bytes_size == sum(row_sizes[:3])
+    assert refusal.value.max_bytes == exact_cap
+    checkpoint = cursor_store.find_latest_stream_checkpoint("stream.jsonl", dataset_id)
+    assert checkpoint is not None
+    assert checkpoint.offset == 1
+    retained_entries = checkpoint.metadata["operator_state"]["accumulator"]["session_rows"]
+    retained_rows = [entry["row"] for entry in retained_entries]
+    assert [(row["event_id"], row["source_version"]) for row in retained_rows] == [
+        ("m0", 1),
+        ("m1", 1),
+    ]
+    assert (
+        sum(
+            len(json.dumps(row, sort_keys=True, ensure_ascii=True).encode("utf-8"))
+            for row in retained_rows
+        )
+        == exact_cap
+    )
+
+    persisted_event_versions: list[tuple[str, int]] = []
+    for artifact_id in store.iter_artifact_ids():
+        manifest = store.get_manifest(artifact_id)
+        if manifest.kind != "fabric.stream_chunk":
+            continue
+        payload = from_canonical_bytes(store.get_bytes(str(artifact_id)))
+        if payload.get("dataset_id") == dataset_id:
+            persisted_event_versions.extend(
+                (str(row["event_id"]), int(row["source_version"])) for row in payload["data"]
+            )
+    # CAS enumeration is ordered by content identity, not transport sequence.
+    assert sorted(persisted_event_versions) == [("m0", 1), ("m1", 1)]
+
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("cap_name", "cap_value", "expected_stage"),

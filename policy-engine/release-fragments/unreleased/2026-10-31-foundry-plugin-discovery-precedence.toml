@@ -1,0 +1,21 @@
+id = "2026-10-31-foundry-plugin-discovery-precedence"
+title = "Prefer declared sources in Foundry DomainPlugin discovery"
+type = "changed"
+component = "foundry"
+owner = "team-foundry"
+summary = "Legacy DomainPlugin discovery now checks built-ins, declared polisyos.plugins entry points, supplied development roots, then the distribution-name prefix fallback. Malformed candidates are refused before registry admission."
+evidence = [
+  "src/polisyos/foundry/plugins/discovery.py",
+  "src/polisyos/foundry/plugins/README.md",
+  "tests/unit/remediation/test_plg_01.py",
+]
+compatibility = "The DomainPlugin ABI and polisyos.plugins entry-point group are unchanged. Duplicate IDs can resolve to a different candidate because the first valid source in the documented order wins."
+change_class = "python-runtime-behavior"
+surface_classification = "public_stable: polisyos.foundry.plugins.discover_plugins; signature and DomainPlugin ABI unchanged"
+migration = "No API migration is required. Reconcile duplicate plugin IDs if callers relied on implicit precedence; caller-supplied development roots now precede the distribution-prefix fallback."
+api = "Built-ins, polisyos.plugins entry points, supplied development roots, and prefix-discovered packages are considered in that order. Every candidate must be a DomainPlugin instance with PluginMetadata before it is returned. Precedence only resolves duplicate registration names; it does not attest source trust, quality, or policy authority."
+limitations = "Only bounded discovery and registry selection behavior is covered. This does not create a Components bridge, establish a trust boundary, or run installed-plugin simulations."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/foundry/plugins/README.md"]
+runbook_docs = []

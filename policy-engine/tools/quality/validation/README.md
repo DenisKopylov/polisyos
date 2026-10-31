@@ -51,6 +51,34 @@ collector. These controls retain compact per-case deciding receipts in scratch.
 
 `check_docs_lifecycle.py` keeps the lifecycle checker and CLI surface. Its removed-stub reference scan is implemented by `docs_lifecycle_reference_scan.py`; the facade supplies the current repository enumerator, reader, selector, finding type, and path formatter through a typed dependency value. This preserves injected test enumerators without mutating scanner module globals. The scan receipt remains scoped to this one check. Excluded, opaque, or malformed inputs continue to produce partial or ambiguous coverage rather than a complete lifecycle-gate claim.
 
+The default `--reference-scope exhaustive` retains that full tracked-byte question:
+opaque, excluded and malformed inputs leave it UNRUN. CI and the path-aware docs
+gate explicitly use `--reference-scope live-authored` to check a different,
+operational contract: known removed topology references in maintained authored
+text, plus removed-directory presence across **all** tracked paths. The receipt
+lists the selected suffix/name grammar and the complete path counts and digests.
+Observed per-file-type counts reconcile tracked, selected and outside-scope paths;
+the path-role counts reconcile the same complete denominator.
+Markdown, MDX, reStructuredText and HTML remain selected inside test fixtures and
+vendor trees. Source/config text and research scripts remain selected. Maintained
+component roots take precedence over ambiguous output-directory
+names such as a frontend feature named `runs`. True environment/dependency roots
+remain outside the authored-reference claim. Test source literals, fixture
+payloads, dependency locks, vendor payloads, non-documentary
+research/archive records and named captured-source directories are outside this
+authored-reference claim. No absence claim is made about their contents.
+The text check runs after the existing editorial documentary-role projection
+(journal records, declared historical audits, archive-member fields and columns).
+Those role markers do not prove record authenticity, currentness or authority.
+
+Unknown file types are outside the explicitly named text grammar. Unreadable,
+malformed JSON or opaque inputs **inside** that grammar remain blocking UNRUN;
+non-text control bytes, including NUL in valid UTF-8, also leave it UNRUN.
+Live stale document references and source/config path literals still fail. The
+live-authored CLI prints compact counts/digests and all findings, avoiding copied
+payloads and per-file operation arrays; Python callers can inspect the full
+in-memory scan receipt. Other lifecycle checks and their failures are unchanged.
+
 ## Directory-health dashboard composition
 
 `directory_health.py` remains the CLI and report facade. Its dashboard metrics and inventory

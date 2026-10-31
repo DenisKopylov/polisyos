@@ -7,7 +7,8 @@ import sys
 from collections.abc import Callable
 from pathlib import Path
 
-_REPO_SENTINELS = ("pyproject.toml", "tools", "src")
+_REPO_FILE_SENTINELS = ("pyproject.toml",)
+_REPO_DIRECTORY_SENTINELS = ("tools", "src")
 
 
 def repo_root_from(file_path: str | Path) -> Path:
@@ -16,7 +17,9 @@ def repo_root_from(file_path: str | Path) -> Path:
     path = Path(file_path).resolve()
     current = path.parent if path.is_file() else path
     for candidate in (current, *current.parents):
-        if all((candidate / sentinel).exists() for sentinel in _REPO_SENTINELS):
+        if all((candidate / sentinel).is_file() for sentinel in _REPO_FILE_SENTINELS) and all(
+            (candidate / sentinel).is_dir() for sentinel in _REPO_DIRECTORY_SENTINELS
+        ):
             return candidate
     raise ValueError(f"Could not infer repository root from {file_path!r}")
 

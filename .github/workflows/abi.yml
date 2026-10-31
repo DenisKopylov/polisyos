@@ -219,7 +219,7 @@ jobs:
         run: uv run polisyos-tools validation check-docs-freshness-baseline
 
       - name: Check docs lifecycle gates
-        run: uv run polisyos-tools validation check-docs-lifecycle
+        run: uv run polisyos-tools validation check-docs-lifecycle --reference-scope live-authored
 
       - name: Check ADR thematic index freshness
         run: uv run python tools/quality/validation/generate_adr_index.py --check

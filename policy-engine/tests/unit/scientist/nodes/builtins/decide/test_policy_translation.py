@@ -33,6 +33,50 @@ from polisyos.scientist.policy_design.output import (
     UncertaintyReport,
 )
 
+_POLICY_PROMOTION_PROJECTION_WRITE_PATHS = (
+    "params.policy_promotion_result",
+    "params.judge_verdict",
+    "params.decision_readiness_contract",
+    "params.promotion_decision",
+    "params.policy_promotion_projection_status",
+    "params.policy_brief",
+    "params.translator_compliance",
+    "params.reported_policy_promotion_history",
+    "policy_output_bundle_ref",
+    "policy_brief_ref",
+    "champion_policy_dossier_ref",
+    "artifacts_index.champion_policy_dossier_ref",
+    "artifacts_index.claims_ref",
+    "artifacts_index.constraint_satisfaction_report_ref",
+    "artifacts_index.decision_readiness_contract_ref",
+    "artifacts_index.governance_gate_packet_ref",
+    "artifacts_index.implementation_plan_ref",
+    "artifacts_index.judge_verdict_ref",
+    "artifacts_index.policy_brief_ref",
+    "artifacts_index.policy_frontier_report_ref",
+    "artifacts_index.policy_output_bundle_ref",
+    "artifacts_index.policy_transportability_report_ref",
+    "artifacts_index.policy_uncertainty_report_ref",
+    "artifacts_index.rejected_alternatives_summary_ref",
+    "artifacts_index.replayable_audit_bundle_ref",
+    "artifacts_index.subgroup_impact_report_ref",
+    "artifacts_index.validation_report_ref",
+    "reports_index.governance_report_ref",
+    "params.reported_governance_report_history",
+)
+
+
+def _expected_branch_write_paths(*output_paths: str) -> tuple[str, ...]:
+    """Return the explicit output contract plus complete promotion invalidation scope."""
+    return (
+        *output_paths,
+        *(
+            path
+            for path in _POLICY_PROMOTION_PROJECTION_WRITE_PATHS
+            if path not in output_paths
+        ),
+    )
+
 
 def _passing_judge_verdict() -> dict[str, object]:
     return {
@@ -173,6 +217,15 @@ def test_policy_translation_uses_branch_state_for_declared_outputs(
     state.params["nested"] = {"baseline": True}
     state.params["judge_verdict"] = _passing_judge_verdict()
     observed: dict[str, tuple[str, ...]] = {}
+    expected_write_paths = _expected_branch_write_paths(
+        "params.policy_brief",
+        "policy_brief_ref",
+        "artifacts_index.policy_brief_ref",
+        "artifacts_index.validation_report_ref",
+        "artifacts_index.judge_verdict_ref",
+    )
+    node = RunPolicyTranslationNode()
+    assert tuple(node.spec.state_writes) == expected_write_paths
 
     def _spy_branch(base_state, *, write_paths=()):
         observed["write_paths"] = tuple(write_paths)
@@ -220,16 +273,12 @@ def test_policy_translation_uses_branch_state_for_declared_outputs(
         ) as worker_cls,
     ):
         worker_cls.return_value.translate_and_persist.return_value = (brief, brief_ref)
-        outcome = RunPolicyTranslationNode().execute(execution_context, state)
+        outcome = node.execute(execution_context, state)
 
     assert outcome.status == "ok"
-    assert observed["write_paths"] == (
-        "params.policy_brief",
-        "policy_brief_ref",
-        "artifacts_index.policy_brief_ref",
-        "artifacts_index.validation_report_ref",
-        "artifacts_index.judge_verdict_ref",
-    )
+    assert observed["write_paths"] == expected_write_paths
+    assert outcome.state.params is not state.params
+    assert outcome.state.params["nested"] is state.params["nested"]
     assert state.params["nested"] == {"baseline": True}
     assert ARTIFACT_POLICY_BRIEF_REF not in state.artifacts_index
     assert outcome.state.policy_brief_ref == brief_ref
@@ -264,6 +313,9 @@ def test_translator_compliance_uses_branch_state_for_declared_outputs(
     state = minimal_state.model_copy(deep=True)
     state.params["nested"] = {"baseline": True}
     observed: dict[str, tuple[str, ...]] = {}
+    expected_write_paths = _expected_branch_write_paths("params.translator_compliance")
+    node = RunTranslatorComplianceNode()
+    assert tuple(node.spec.state_writes) == expected_write_paths
 
     def _spy_branch(base_state, *, write_paths=()):
         observed["write_paths"] = tuple(write_paths)
@@ -311,10 +363,12 @@ def test_translator_compliance_uses_branch_state_for_declared_outputs(
         ) as compliance_cls,
     ):
         compliance_cls.return_value.evaluate.return_value = compliance
-        outcome = RunTranslatorComplianceNode().execute(execution_context, state)
+        outcome = node.execute(execution_context, state)
 
     assert outcome.status == "ok"
-    assert observed["write_paths"] == ("params.translator_compliance",)
+    assert observed["write_paths"] == expected_write_paths
+    assert outcome.state.params is not state.params
+    assert outcome.state.params["nested"] is state.params["nested"]
     assert state.params["nested"] == {"baseline": True}
     assert outcome.state.params["translator_compliance"] == {"passed": True}
 
@@ -352,7 +406,9 @@ def test_stale_positive_promotion_and_cached_brief_remain_report_only(
             "translator_compliance": {"passed": True},
         }
     )
-    state.policy_brief_ref = artifact_ref_factory(kind="scientist.policy_brief")
+    stale_brief_ref = artifact_ref_factory(kind="scientist.policy_brief")
+    state.policy_brief_ref = stale_brief_ref
+    state.artifacts_index[ARTIFACT_POLICY_BRIEF_REF] = stale_brief_ref
 
     current, reason = _resolve_current_policy_promotion_result(state)
     assert current is None
@@ -385,3 +441,19 @@ def test_stale_positive_promotion_and_cached_brief_remain_report_only(
         compliance = RunTranslatorComplianceNode().execute(execution_context, state)
     assert compliance.status == "skip"
     assert state.params["translator_compliance"] == {"passed": True}
+
+    for projected_state in (translated.state, compliance.state):
+        projection_status = projected_state.params["policy_promotion_projection_status"]
+        assert projection_status["status"] == "reported_only"
+        assert projection_status["authority_status"] == "not_established"
+        assert "policy_brief" not in projected_state.params
+        assert "translator_compliance" not in projected_state.params
+        assert projected_state.policy_brief_ref is None
+        assert ARTIFACT_POLICY_BRIEF_REF not in projected_state.artifacts_index
+        archived_projection = next(
+            entry
+            for entry in projected_state.params["reported_policy_promotion_history"]
+            if entry.get("record_type") == "prior_current_projection"
+        )
+        assert archived_projection["params"]["policy_brief"]["title"] == _policy_brief().title
+        assert archived_projection["refs"]["artifacts_index"][ARTIFACT_POLICY_BRIEF_REF]

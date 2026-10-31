@@ -19,7 +19,6 @@ from typing import Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from .acquisition_authority import derive_license_disposition
 from .variable_alignment import score_variable_pair
 
 
@@ -353,6 +352,8 @@ def evaluate_catalog_selection_candidate(
         codes.add(CatalogSelectionRejectionCode.OWNER_METRIC_MISMATCH)
     if evidence.canonical_variable != policy.owner_canonical_variable:
         codes.add(CatalogSelectionRejectionCode.OWNER_CANONICAL_VARIABLE_MISMATCH)
+    from .acquisition_authority import derive_license_disposition
+
     if derive_license_disposition(evidence.access_license).value != "admissible_open":
         codes.add(CatalogSelectionRejectionCode.LICENSE_NOT_ADMISSIBLE)
     if evidence.alignment_method is None or evidence.alignment_confidence is None:

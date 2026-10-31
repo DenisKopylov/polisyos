@@ -1712,8 +1712,11 @@ def _empty_stream_frontier_checkpoint(
     session: StreamingSourceSession,
     *,
     operator_state: dict[str, Any],
+    source_progress_ref: ArtifactRef | None,
+    clock_profile: str,
+    schema_binding: StreamSchemaBinding | None,
 ) -> StreamCheckpoint:
-    """Build an explicit empty frontier for source compensation."""
+    """Keep admission bindings on an empty, non-promoted recovery frontier."""
     checkpoint = session.checkpoint(
         chunk=None,
         use_observed_chunk=False,
@@ -1731,6 +1734,15 @@ def _empty_stream_frontier_checkpoint(
                 "operator_state_required": True,
                 "operator_state": operator_state,
                 "frontier_committed": False,
+                "source_progress_witness_ref": (
+                    source_progress_ref.model_dump(mode="json") if source_progress_ref else None
+                ),
+                "ingestion_clock_profile": clock_profile,
+                "schema_binding": (
+                    schema_binding.snapshot()
+                    if schema_binding is not None
+                    else {"status": "not_established"}
+                ),
             }
         }
     )
@@ -2478,10 +2490,6 @@ async def process_stream_dataset(
         )
         previous_schema: tuple[str, ...] | None = None
         visible_schema: tuple[str, ...] | None = None
-        empty_frontier = _empty_stream_frontier_checkpoint(
-            session,
-            operator_state=_empty_stream_operator_state(options.window_policy),
-        )
         latest_checkpoint = await async_cursor_store.find_latest_stream_checkpoint(
             connector_id,
             dataset_id,
@@ -2939,7 +2947,13 @@ async def process_stream_dataset(
                     intent=intent,
                     previous_checkpoint=committed_checkpoint,
                     previous_cursor=committed_cursor,
-                    empty_frontier=empty_frontier,
+                    empty_frontier=_empty_stream_frontier_checkpoint(
+                        session,
+                        operator_state=_empty_stream_operator_state(options.window_policy),
+                        source_progress_ref=source_progress_ref,
+                        clock_profile=clock_profile,
+                        schema_binding=schema_binding,
+                    ),
                 )
                 pending_frontier = None
                 committed_cursor = cursor
@@ -3036,7 +3050,13 @@ async def process_stream_dataset(
             intent=intent,
             previous_checkpoint=committed_checkpoint,
             previous_cursor=committed_cursor,
-            empty_frontier=empty_frontier,
+            empty_frontier=_empty_stream_frontier_checkpoint(
+                session,
+                operator_state=_empty_stream_operator_state(options.window_policy),
+                source_progress_ref=source_progress_ref,
+                clock_profile=clock_profile,
+                schema_binding=schema_binding,
+            ),
         )
         pending_frontier = None
         result.final_checkpoint = committed_checkpoint
@@ -3065,14 +3085,14 @@ async def process_stream_dataset(
                 frontier_metadata = dict(committed_checkpoint.metadata)
                 frontier_metadata.pop("frontier_intent", None)
             else:
-                checkpoint = session.checkpoint(
-                    chunk=None,
-                    use_observed_chunk=False,
-                    dedupe_keys=(),
-                    schema_fingerprint="",
-                    lifecycle_state=StreamLifecycleState.PAUSED,
+                checkpoint = _empty_stream_frontier_checkpoint(
+                    session,
+                    operator_state=_empty_stream_operator_state(options.window_policy),
+                    source_progress_ref=source_progress_ref,
+                    clock_profile=clock_profile,
+                    schema_binding=schema_binding,
                 )
-                frontier_metadata = {}
+                frontier_metadata = dict(checkpoint.metadata)
 
             if "operator_state" not in frontier_metadata:
                 frontier_metadata["operator_state_required"] = True

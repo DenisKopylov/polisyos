@@ -1617,7 +1617,7 @@ def _normative_evidence_transport_examples() -> dict[str, Any]:
 
 
 def _predictive_coverage_diagnostic_success_examples() -> dict[str, Any]:
-    """Build the limited no-interval example through the canonical reader and projector."""
+    """Build the source-unreconciled example through the canonical reader and projector."""
     from polisyos.core.artifacts import (
         ArtifactID,
         ArtifactManifest,
@@ -1734,20 +1734,19 @@ def _predictive_coverage_diagnostic_success_examples() -> dict[str, Any]:
     )
     if (
         candidate.measurement_status != "not_measured"
-        or candidate.reason_code != "no_evaluated_intervals"
-        or len(candidate.scenarios) != 1
-        or candidate.scenarios[0].interval_requested_count != 1
-        or candidate.scenarios[0].interval_evaluated_count != 0
+        or candidate.reason_code != "unsupported_report_scope"
+        or candidate.scenarios
     ):
         raise ValueError("Controlled predictive fixture no longer emits its intended branch")
     return {
         "limited_not_measured_candidate": {
-            "summary": "Limited diagnostic with a producer-reachable no-interval scenario",
+            "summary": "Unmeasured diagnostic with unreconciled report rows",
             "description": (
                 "Generated through the canonical Core byte/manifest reader and predictive-coverage "
                 "projector from a controlled in-memory report fixture. Its digest is "
-                "content-derived; "
-                "the fixture is not stored production source, measurement, authority, issuer, "
+                "content-derived, but the report rows are not reconciled to selected forecast "
+                "and held-out source values. The projector withholds all quantitative scenarios. "
+                "The fixture is not stored production source, measurement, authority, issuer, "
                 "publication, or currentness evidence."
             ),
             "value": candidate.model_dump(mode="json"),
@@ -2014,7 +2013,6 @@ def _predictive_calibration_success_examples() -> dict[str, Any]:
         PredictiveCalibrationAssociation,
         PredictiveCalibrationResponse,
         PredictiveCalibrationS10Summary,
-        _calibration_status,
     )
     from polisyos.runtime.quality.design_axes.outcome_prediction import build_forecast_support
     from polisyos.runtime.quality.generation_cycle import _s10_value_authority_boundary
@@ -2027,8 +2025,12 @@ def _predictive_calibration_success_examples() -> dict[str, Any]:
             artifact_id=f"sha256:{digest}",
             kind=kind,
             media_type="application/json",
+            manifest_profile_sha256=(
+                "sha256:" + hashlib.sha256(f"openapi-synthetic-profile:{role}".encode()).hexdigest()
+            ),
         )
 
+    source_limitation = "s10://calibration/fail-closed/backtest_source_not_established"
     authority = _s10_value_authority_boundary(predictive=True)
     support = build_forecast_support(
         support_id="n8.forecast-support.openapi-fixture",
@@ -2049,7 +2051,7 @@ def _predictive_calibration_success_examples() -> dict[str, Any]:
         s5_base_origin="validated_local_model",
         s5_claim_scope="system_effect",
         s6_firewall_status_refs=["s6://openapi-fixture"],
-        s6_limitation_refs=[_N4_OUTCOME_BINDING_LIMITATION_REF],
+        s6_limitation_refs=[_N4_OUTCOME_BINDING_LIMITATION_REF, source_limitation],
         s8_value_choice_provenance_ref="s8://openapi-fixture/value-choice",
         s8_value_tradeoff_disclosure_ref="s8://openapi-fixture/tradeoff",
         source_contract_ref="source-contract://openapi-fixture",
@@ -2062,18 +2064,18 @@ def _predictive_calibration_success_examples() -> dict[str, Any]:
             "Controlled OpenAPI example with an N4 binding limitation."
         ),
         method_family="foundry_forecast",
-        limitation_refs=[_N4_OUTCOME_BINDING_LIMITATION_REF],
+        limitation_refs=[_N4_OUTCOME_BINDING_LIMITATION_REF, source_limitation],
         authority_boundary=authority,
         may_not_use_for=authority["may_not_use_for"],
         rule_version_ref="policyos.layer2.s10.outcome_prediction.v1",
     )
     s10_summary = PredictiveCalibrationS10Summary(
-        calibration_status=_calibration_status("insufficient_history"),
+        calibration_status="blocked",
         forecast_tier=support.forecast_tier,
         counterfactual_credibility="not_established",
-        numerator=0,
-        denominator=0,
-        observed_pass_rate=0.0,
+        numerator=None,
+        denominator=None,
+        observed_pass_rate=None,
         outcome_binding_status="not_established",
         limitation_refs=tuple(support.limitation_refs),
         authority_boundary=support.authority_boundary.model_copy(deep=True),
@@ -2101,13 +2103,13 @@ def _predictive_calibration_success_examples() -> dict[str, Any]:
             "empirical_evidence", "runtime.empirical_calibration_evidence"
         ),
         uncertainty_bundle_ref=fixture_ref("uncertainty_bundle", "ir.uncertainty_bundle"),
-        observed_numerator=0,
-        observed_denominator=1,
-        observed_hit_rate=0.0,
+        observed_numerator=None,
+        observed_denominator=None,
+        observed_hit_rate=None,
         owner_suitability="limited",
         s10=s10_summary,
         may_not_use_for=s10_summary.may_not_use_for or (),
-        evidence_reason_codes=("explicit_context_missing",),
+        evidence_reason_codes=("backtest_source_not_established",),
         created_at=fixture_time,
     )
     association_bytes = to_canonical_bytes(
@@ -2117,6 +2119,9 @@ def _predictive_calibration_success_examples() -> dict[str, Any]:
         artifact_id=f"sha256:{content_hash(association_bytes)}",
         kind=_ASSOCIATION_KIND,
         media_type="application/json",
+        manifest_profile_sha256=(
+            "sha256:" + hashlib.sha256(b"openapi-synthetic-profile:association").hexdigest()
+        ),
     )
     response = PredictiveCalibrationResponse(
         meta=ApiMeta(
@@ -2136,15 +2141,29 @@ def _predictive_calibration_success_examples() -> dict[str, Any]:
     if (
         candidate.association.assessment != "limited"
         or candidate.association.owner_suitability != "limited"
-        or candidate.association.s10.calibration_status != "insufficient_history"
+        or candidate.association.s10.calibration_status != "blocked"
+        or candidate.association.s10.forecast_tier != "blocked"
+        or any(
+            value is not None
+            for value in (
+                candidate.association.observed_numerator,
+                candidate.association.observed_denominator,
+                candidate.association.observed_hit_rate,
+                candidate.association.s10.numerator,
+                candidate.association.s10.denominator,
+                candidate.association.s10.observed_pass_rate,
+                candidate.association.s10.calibration_record_ref,
+            )
+        )
+        or source_limitation not in candidate.association.s10.limitation_refs
         or candidate.association.issuer_status != "not_established"
         or candidate.association.source_time_status != "not_established"
         or candidate.association.population_scope_status != "not_established"
         or candidate.association.counterfactual_credibility_status != "not_established"
         or candidate.association.authority_scope != "predictive_only"
-        or candidate.association_ref.manifest_profile_sha256 is not None
+        or candidate.association_ref.manifest_profile_sha256 is None
         or any(
-            getattr(candidate.association, field).manifest_profile_sha256 is not None
+            getattr(candidate.association, field).manifest_profile_sha256 is None
             for field in (
                 "run_manifest_ref",
                 "candidate_source_ref",
@@ -2161,13 +2180,16 @@ def _predictive_calibration_success_examples() -> dict[str, Any]:
         raise ValueError("Predictive calibration example exceeded its limited fixture scope")
     return {
         "controlled_insufficient_history_candidate": {
-            "summary": "Limited candidate with insufficient history",
+            "summary": "Limited candidate with unavailable observations",
             "description": (
                 "Typed through the current predictive-calibration response and status owner. "
-                "All artifact identifiers are deterministic example handles without selected "
-                "manifest profiles; the response is not persisted or reopenable evidence. "
-                "The required 0/1 and S10 0/0 count slots are structural fixture values, not "
-                "observations. This example asserts no POST outcome, currentness, issuer, "
+                "All artifact and manifest-profile identifiers are deterministic synthetic "
+                "example handles matching the selected-reference wire shape; they establish "
+                "no stored profile or provenance. The response is not persisted or reopenable "
+                "evidence. "
+                "Observed counts and hit rate are null because the empirical source is not "
+                "established; S10 is blocked and carries the source limitation. "
+                "This example asserts no POST outcome, currentness, issuer, "
                 "population, causal, publication, or policy-selection authority."
             ),
             "value": candidate.model_dump(mode="json"),

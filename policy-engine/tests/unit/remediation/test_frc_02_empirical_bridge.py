@@ -12,6 +12,7 @@ from pathlib import Path
 
 import pytest
 
+import polisyos.calibration.forecast_bridge as forecast_bridge
 from polisyos.calibration.forecast_bridge import (
     REFERENCE_SOURCE_INPUT_ROLES,
     persist_empirical_calibration_evidence,
@@ -97,10 +98,11 @@ def test_real_forecast_owner_bridge_recomputes_holdout_but_refuses_unbound_persi
     for result, report_evidence in zip((in_profile, out_of_profile), evidence, strict=True):
         assert report_evidence.recomputed_numerator == result.coverage_numerator
         assert report_evidence.recomputed_denominator == result.coverage_denominator
-        assert report_evidence.empirical_observations_available is True
+        assert report_evidence.empirical_observations_available is False
         assert report_evidence.context_bound is False
         assert report_evidence.usable_for_calibration is False
         assert report_evidence.floor_passed is False
+        assert "backtest_source_not_established" in report_evidence.failure_codes
         assert "explicit_context_missing" in report_evidence.failure_codes
         assert "s10_authority" in report_evidence.may_not_use_for
 
@@ -370,8 +372,13 @@ def test_real_forecast_owner_cas_bridge_reopen_reaches_limited_s10_candidate(
     )
     assert evidence.report_ref == selected_report_ref
     assert evidence.context_bound is True
-    assert evidence.usable_for_calibration is True
-    assert evidence.failure_codes == ()
+    assert evidence.empirical_observations_available is False
+    assert evidence.usable_for_calibration is False
+    assert evidence.floor_passed is False
+    assert (
+        forecast_bridge._reconcile_backtest_rows(store, selected_report_ref, report) == "recomputed"
+    )
+    assert evidence.failure_codes == ("backtest_source_not_established",)
     evidence_ref = persist_empirical_calibration_evidence(store, evidence)
     assert evidence_ref.manifest_profile_sha256 is not None
     reopened = load_empirical_calibration_evidence(store, evidence_ref)
@@ -413,6 +420,60 @@ def test_real_forecast_owner_cas_bridge_reopen_reaches_limited_s10_candidate(
         method_result=method_result,
     )
     record = candidate_projection["forecast_calibration_record"]
-    assert record is not None
-    assert record.calibration_status == "pass"
-    assert record.counterfactual_credibility == "not_established"
+    assert record is None
+    support = candidate_projection["forecast_support"]
+    assert support.forecast_tier == "blocked"
+    assert "backtest_source_not_established" in support.forecast_authority_disposition_reason
+    assert (
+        "s10://calibration/fail-closed/backtest_source_not_established"
+        in support.s6_limitation_refs
+    )
+
+    # Keep every selected owner and semantic-role edge, but reverse the actual
+    # report rows relative to the selected forecast/observed time positions.
+    # Row-only coverage arithmetic remains unchanged, showing why edge
+    # identity alone does not establish the report's empirical observations.
+    original_scenario = report.scenarios[0]
+    original_rows = original_scenario.outcome_comparisons
+    reordered_rows = list(reversed(original_rows))
+    assert [row.y_true for row in reordered_rows] != [row.y_true for row in original_rows]
+    forged_report = report.model_copy(
+        update={
+            "scenarios": [
+                original_scenario.model_copy(update={"outcome_comparisons": reordered_rows})
+            ]
+        }
+    )
+    forged_ref = persist_backtest_report(ir_store, forged_report, inputs=report_inputs)
+    assert {
+        (str(edge.artifact_id), edge.role, edge.manifest_profile_sha256)
+        for edge in ir_store.get_manifest(forged_ref).inputs
+    } == report_edges
+    forged = produce_empirical_calibration_evidence(store, forged_ref, context=context)
+    assert forged.context_bound is True
+    assert forged.recomputed_numerator == evidence.recomputed_numerator
+    assert forged.recomputed_denominator == evidence.recomputed_denominator
+    assert forged.recomputed_pass_rate == evidence.recomputed_pass_rate
+    assert forged.empirical_observations_available is False
+    assert forged.floor_passed is False
+    assert forged.usable_for_calibration is False
+    assert forged.failure_codes == (
+        "backtest_source_not_established",
+        "backtest_row_source_mismatch",
+    )
+    forged_evidence_ref = persist_empirical_calibration_evidence(store, forged)
+    assert load_empirical_calibration_evidence(store, forged_evidence_ref) == forged
+    forged_projection = _produce_forecast_inputs(
+        store=store,
+        evidence_ref=forged_evidence_ref,
+        method_result=_method_result(
+            evidence_ref=forged_evidence_ref,
+            temporal_roles=temporal_roles,
+            report=forged_report,
+            expected_rule_version_ref=RULE_VERSION_REF,
+        ),
+    )
+    assert forged_projection["forecast_calibration_record"] is None
+    forged_support = forged_projection["forecast_support"]
+    assert forged_support.forecast_tier == "blocked"
+    assert "backtest_source_not_established" in forged_support.forecast_authority_disposition_reason

@@ -43,7 +43,7 @@ from polisyos.runtime.http.services.control.evaluation_safety import (
     EvaluationSafetyAdmissionVerifier,
     EvaluationSafetyPersistenceService,
 )
-from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+from polisyos.runtime.http.services.control_plane_store import ControlJobRecord, ControlPlaneStore
 from polisyos.runtime.http.services.control_registry_providers import (
     ControlRegistryProviders,
     resolve_control_registry_providers,
@@ -67,7 +67,7 @@ from polisyos.runtime.quality.recursive_generation_cycle import (
 )
 from polisyos.scientist.evidence.claims.head_index import UnappointedClaimLedgerOwner
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
-from tests._helpers.control_worker import dispatch_one_control_job
+from tests._helpers.control_worker import dispatch_one_control_job, stop_embedded_control_worker
 from tests._helpers.runtime_http import (
     _build_control_service,
     _build_registry_providers,
@@ -108,12 +108,14 @@ def _explicit_simulation_execution_context(problem: object) -> EvaluationExecuti
     )
 
 
-def _fixture_claims() -> UserIdentityClaims:
+def _fixture_claims(
+    *, tenant_id: str = "tenant-fixture", cell_id: str = "cell-fixture"
+) -> UserIdentityClaims:
     return UserIdentityClaims(
         sub="user-fixture",
         email="fixture@example.test",
-        tenant_id="tenant-fixture",
-        cell_id="cell-fixture",
+        tenant_id=tenant_id,
+        cell_id=cell_id,
         roles=frozenset({PolicyOSRole.ANALYST}),
         mfa_verified=True,
         iss="https://idp.example/realms/polisyos",
@@ -124,7 +126,9 @@ def _fixture_claims() -> UserIdentityClaims:
     )
 
 
-def _install_fixture_tenant_lifespan(app: Any) -> None:
+def _install_fixture_tenant_lifespan(
+    app: Any, *, tenant_id: str = "tenant-fixture", cell_id: str = "cell-fixture"
+) -> None:
     """Keep the fixture's declared owner active in the API lifespan task."""
     from contextlib import asynccontextmanager
 
@@ -134,7 +138,7 @@ def _install_fixture_tenant_lifespan(app: Any) -> None:
 
     @asynccontextmanager
     async def fixture_tenant_lifespan(application: Any) -> AsyncIterator[Any]:
-        with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
             async with original_lifespan(application) as lifespan_state:
                 yield lifespan_state
 
@@ -2062,6 +2066,8 @@ async def _run_controlled_simulate_only_job_fixture(
     root_input_factory: Callable[[Any], None] | None = None,
     registered_ncm_outcome: bool = True,
     source_repo_root: Path | None = None,
+    tenant_id: str = "tenant-fixture",
+    cell_id: str = "cell-fixture",
 ) -> SimpleNamespace:
     """Run the controlled candidate N5 path; sibling mode is local mechanism only.
 
@@ -2111,11 +2117,13 @@ async def _run_controlled_simulate_only_job_fixture(
         RecursiveLeafContextOwner,
     )
     from tests._helpers.controlled_candidate_profile import (
+        ControlledCandidateGateway,
         _build_configured_procurement_profile,
         _configured_procurement_profile,
         _controlled_procurement_recording,
         _controlled_registered_tax_recording,
         _current_compiler_problem,
+        synthetic_controlled_candidate_provider_profile,
     )
     from tests.unit.runtime.http.test_control_job_execution_intent import (
         _valid_intake_for_mode,
@@ -2174,15 +2182,15 @@ async def _run_controlled_simulate_only_job_fixture(
     # Scope the CAS before profile, source, and context writes so the fresh
     # tenant-scoped reader resolves the same owner-bound artifacts.
     store = FileSystemCAS(tmp_path / ".polisyos").for_tenant(
-        "tenant-fixture",
-        "cell-fixture",
+        tenant_id,
+        cell_id,
     )
     profile_args = {
         "recorded_problem": problem,
         "tmp_path": tmp_path,
         "artifact_store": store,
-        "tenant_id": "tenant-fixture",
-        "cell_id": "cell-fixture",
+        "tenant_id": tenant_id,
+        "cell_id": cell_id,
         "repo_root": REPO_ROOT,
     }
     if registered_ncm_outcome:
@@ -2199,7 +2207,7 @@ async def _run_controlled_simulate_only_job_fixture(
     else:
         profile, model_declaration = _configured_procurement_profile(**profile_args)
     assert profile.profile_selection_ref == cycle_job_profile_selection_ref(problem)
-    with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
         service = _build_control_service(
             tmp_path,
             artifact_store=store,
@@ -2207,6 +2215,19 @@ async def _run_controlled_simulate_only_job_fixture(
             candidate_simulation_model_declarations=(model_declaration,),
             repo_root=source_repo_root,
         )
+    from polisyos.scientist.orchestration.engine.budget import BudgetState
+    from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+
+    # Dispatch through the same durable producer owner used by real control jobs.
+    # The worker still admits its own tenant/cell/job/attempt binding from the row.
+    service.bind_llm_producer_settlement_store(
+        BudgetMiddleware(
+            BudgetState(),
+            ledger=FileBudgetLedger(tmp_path / ".polisyos" / "producer-ledger.json"),
+        )
+    )
+    stop_embedded_control_worker(service)
     assert service._artifact_store is store
     source_owner = service._cycle_substrate_context_admission_owner
     assert type(source_owner) is ConfiguredCandidateSimulationContextAdmissionOwner
@@ -2316,6 +2337,7 @@ async def _run_controlled_simulate_only_job_fixture(
 
     async def compile_fixture_problem(**kwargs):
         compiler_calls.append(kwargs)
+        candidate_gateway.admit_compiled_problem(problem)
         return problem
 
     monkeypatch.setattr(
@@ -2385,8 +2407,8 @@ async def _run_controlled_simulate_only_job_fixture(
             problem=probe_problem,
             job_id="negative-control-job",
             run_id="negative-control-run",
-            tenant_id="tenant-fixture",
-            cell_id="cell-fixture",
+            tenant_id=tenant_id,
+            cell_id=cell_id,
         )
     assert mismatch.value.code == "candidate_simulation_model_outcome_problem_mismatch"
     assert len(admission_attempts) == 1
@@ -2399,7 +2421,12 @@ async def _run_controlled_simulate_only_job_fixture(
     assert n4_port_attempts == []
     assert compiler_calls == compiled_runs == n4_organ_runs == []
 
-    recorded_n4_client = n4_contract.RecordedGenerationReplayClient(controlled_recording)
+    provider_profile = synthetic_controlled_candidate_provider_profile(
+        recording,
+        controlled_recording,
+        problem=problem,
+        evidence_root=tmp_path / "synthetic-provider-exchanges",
+    )
     source_persistence_failures: list[str] = []
     if proposal_source_persistence_failure:
 
@@ -2478,9 +2505,16 @@ async def _run_controlled_simulate_only_job_fixture(
                         repo_root=repo_root,
                         verified_nl_job_scope=changed_scope,
                     )
+        artifact = original_resolve(
+            owner,
+            ref,
+            problem=problem,
+            repo_root=repo_root,
+            verified_nl_job_scope=verified_nl_job_scope,
+        )
         if not owner_replay_currentness_refusals:
-            # The same persisted artifact must reject changed job scope, problem
-            # basis, and source root; valid CAS bytes and markers are insufficient.
+            # Job/problem mismatches refuse even with valid CAS bytes. Source-bound
+            # contexts reject a foreign root; legacy ones cannot gain a source claim.
             changed_scope = verified_nl_job_scope.model_copy(
                 update={"attempt": verified_nl_job_scope.attempt + 1}
             )
@@ -2517,25 +2551,33 @@ async def _run_controlled_simulate_only_job_fixture(
             owner_replay_currentness_refusals.append("changed_problem_basis_refused")
             unrelated_source_root = tmp_path / "empty-current-source-root"
             unrelated_source_root.mkdir()
-            with pytest.raises(
-                CycleSubstrateContextOwnerError,
-                match="candidate_cycle_source_profile_resolve_owner_refused",
-            ):
-                original_resolve(
+            if artifact.context.source_profile is not None:
+                with pytest.raises(
+                    CycleSubstrateContextOwnerError,
+                    match="candidate_cycle_source_profile_resolve_owner_refused",
+                ):
+                    original_resolve(
+                        owner,
+                        ref,
+                        problem=problem,
+                        repo_root=unrelated_source_root,
+                        verified_nl_job_scope=verified_nl_job_scope,
+                    )
+                owner_replay_currentness_refusals.append("unrelated_source_root_refused")
+            else:
+                # A legacy context has no selected source profile to revalidate.
+                # A different caller root cannot introduce one or change its binding.
+                profileless_replay = original_resolve(
                     owner,
                     ref,
                     problem=problem,
                     repo_root=unrelated_source_root,
                     verified_nl_job_scope=verified_nl_job_scope,
                 )
-            owner_replay_currentness_refusals.append("unrelated_source_root_refused")
-        artifact = original_resolve(
-            owner,
-            ref,
-            problem=problem,
-            repo_root=repo_root,
-            verified_nl_job_scope=verified_nl_job_scope,
-        )
+                assert type(profileless_replay) is type(artifact)
+                assert profileless_replay.context.source_profile is None
+                assert profileless_replay.context.content_hash == artifact.context.content_hash
+                owner_replay_currentness_refusals.append("profileless_source_root_no_escalation")
         owner_replay_calls.append((owner, ref, problem, repo_root, verified_nl_job_scope))
         owner_replays.append(artifact)
         owner_replay_refs.append(ref)
@@ -2588,10 +2630,11 @@ async def _run_controlled_simulate_only_job_fixture(
 
             generator = _ControlledN4GenerationPort(
                 model_id=str(recording["model_id"]),
-                llm_client=recorded_n4_client,
                 repo_root=kwargs["repo_root"],
                 cycle_substrate_context=resolved_context,
                 candidate_simulation_handoff=handoff,
+                producer_run_id=handoff.run_id,
+                producer_settlement_store=service._llm_producer_settlement_store,
             )
             n4_proposal_ports.append(generator)
             run_args = list(args)
@@ -2706,7 +2749,7 @@ async def _run_controlled_simulate_only_job_fixture(
             context=context_payload,
             max_iterations=1,
         )
-        claims = _fixture_claims()
+        claims = _fixture_claims(tenant_id=tenant_id, cell_id=cell_id)
         launch = await service.launch_nl_run(
             request,
             principal=RuntimePrincipal.from_user_claims(claims),
@@ -2714,21 +2757,42 @@ async def _run_controlled_simulate_only_job_fixture(
         )
         job = service._control_store.get_job(launch.job_id)
         assert job is not None and job.run_id is not None
-        leased = service._control_store.lease_next_job(
-            worker_id="r1-fixture-worker",
-            lease_seconds=60,
-        )
-        assert leased is not None and leased.job_id == launch.job_id
-        assert leased.attempt == 1
+        leased_jobs: list[ControlJobRecord] = []
+
+        def record_worker_dispatch(selected_job: ControlJobRecord) -> None:
+            # Observe the real worker's row; it remains the admission/fence owner.
+            leased_jobs.append(selected_job)
+            service._process_control_job(selected_job)
+
         with (
             n4_contract._recorded_runtime_environment(recording),
-            service._control_store.job_execution_fence(
-                job_id=leased.job_id,
-                worker_id=leased.lease_owner,
-                attempt=leased.attempt,
-            ),
+            ControlledCandidateGateway() as candidate_gateway,
+            monkeypatch.context() as provider_environment,
         ):
-            service._process_control_job(leased)
+            candidate_gateway.set_fixture(
+                controlled_recording, problem=problem, provider_profile=provider_profile
+            )
+            # Use the real factory, request issuer, tracing and durable settlement.
+            # These declared provider quantities establish only this candidate
+            # software test's current estimate, never historical/provider spend.
+            for name, value in candidate_gateway.environment().items():
+                provider_environment.setenv(name, value)
+            from polisyos.scientist.orchestration.llm.factory import GatewayLLMConfig
+
+            provider_config = GatewayLLMConfig.from_env()
+            assert provider_config is not None
+            assert provider_config.base_url == candidate_gateway.base_url
+            assert not provider_config.fallback_urls
+            dispatched_job_id = dispatch_one_control_job(
+                store=service._control_store,
+                handler=record_worker_dispatch,
+                expected_job_id=launch.job_id,
+            )
+        assert dispatched_job_id == launch.job_id
+        assert len(leased_jobs) == 1
+        leased = leased_jobs[0]
+        assert leased.job_id == launch.job_id and leased.attempt == 1
+        assert leased.lease_owner is not None
 
         completed = service._control_store.get_job(launch.job_id)
         assert completed is not None and completed.state == "completed"
@@ -2788,8 +2852,8 @@ async def _run_controlled_simulate_only_job_fixture(
                     core_runs_root=service._core_runs_root,
                     job=completed,
                     expected_control_run_id=str(completed.run_id),
-                    tenant_id="tenant-fixture",
-                    cell_id="cell-fixture",
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
                 )
             service_transferred = True
             return SimpleNamespace(service=service, job=completed, terminal=terminal)
@@ -2831,8 +2895,8 @@ async def _run_controlled_simulate_only_job_fixture(
             core_runs_root=service._core_runs_root,
             job=completed,
             expected_control_run_id=str(completed.run_id),
-            tenant_id="tenant-fixture",
-            cell_id="cell-fixture",
+            tenant_id=tenant_id,
+            cell_id=cell_id,
         )
         assert selected_core.run_id == started_context.run_manifest.run_id
         assert selected_core.manifest.control_job_id == completed.job_id
@@ -2848,8 +2912,8 @@ async def _run_controlled_simulate_only_job_fixture(
                     },
                 ),
                 expected_control_run_id=str(completed.run_id),
-                tenant_id="tenant-fixture",
-                cell_id="cell-fixture",
+                tenant_id=tenant_id,
+                cell_id=cell_id,
             )
         with pytest.raises(ValueError, match="control_job_core_run_source_not_completed"):
             load_completed_control_job_core_run_source(
@@ -2860,8 +2924,8 @@ async def _run_controlled_simulate_only_job_fixture(
                     progress={**progress, "core_run_attempt": True},
                 ),
                 expected_control_run_id=str(completed.run_id),
-                tenant_id="tenant-fixture",
-                cell_id="cell-fixture",
+                tenant_id=tenant_id,
+                cell_id=cell_id,
             )
         assert progress["cycle_substrate_context_job_ref"]
         assert len(compiler_calls) == 1
@@ -2874,7 +2938,11 @@ async def _run_controlled_simulate_only_job_fixture(
         assert owner_replay_currentness_refusals == [
             "issued_scope_mismatch_refused",
             "changed_problem_basis_refused",
-            "unrelated_source_root_refused",
+            (
+                "unrelated_source_root_refused"
+                if owner_replays[0].context.source_profile is not None
+                else "profileless_source_root_no_escalation"
+            ),
         ]
         assert len(owner_replay_calls) == len(owner_replays)
         assert all(
@@ -2887,8 +2955,7 @@ async def _run_controlled_simulate_only_job_fixture(
             and verified_scope is verified_scope_observations[0]
             and verified_scope._was_issued_by_verified_nl_execution_owner
             and (verified_scope.job_id, verified_scope.run_id) == (launch.job_id, str(job.run_id))
-            and (verified_scope.tenant_id, verified_scope.cell_id)
-            == ("tenant-fixture", "cell-fixture")
+            and (verified_scope.tenant_id, verified_scope.cell_id) == (tenant_id, cell_id)
             for owner, ref, replay_problem, replay_repo_root, verified_scope in owner_replay_calls
         )
         assert admission_observations
@@ -2903,8 +2970,8 @@ async def _run_controlled_simulate_only_job_fixture(
             and cycle_job_design_problem_ref(call["problem"]) == problem_ref
             and call["job_id"] == launch.job_id
             and call["run_id"] == str(job.run_id)
-            and call["tenant_id"] == "tenant-fixture"
-            and call["cell_id"] == "cell-fixture"
+            and call["tenant_id"] == tenant_id
+            and call["cell_id"] == cell_id
             for call, _ in admission_observations
         )
         assert all(
@@ -2927,8 +2994,8 @@ async def _run_controlled_simulate_only_job_fixture(
         assert verified_scope_observations[0]._was_issued_by_verified_nl_execution_owner
         assert verified_scope_observations[0].job_id == launch.job_id
         assert verified_scope_observations[0].run_id == str(job.run_id)
-        assert verified_scope_observations[0].tenant_id == "tenant-fixture"
-        assert verified_scope_observations[0].cell_id == "cell-fixture"
+        assert verified_scope_observations[0].tenant_id == tenant_id
+        assert verified_scope_observations[0].cell_id == cell_id
         assert verified_scope_observations[0].worker_id == leased.lease_owner
         assert verified_scope_observations[0].attempt == leased.attempt
         assert str(owner_refs[0].artifact_id) == progress["cycle_substrate_context_job_ref"]
@@ -2938,14 +3005,14 @@ async def _run_controlled_simulate_only_job_fixture(
         context_artifact = owner_replays[-1]
         assert context_artifact.job_id == launch.job_id
         assert context_artifact.run_id == str(job.run_id)
-        assert context_artifact.tenant_id == "tenant-fixture"
-        assert context_artifact.cell_id == "cell-fixture"
+        assert context_artifact.tenant_id == tenant_id
+        assert context_artifact.cell_id == cell_id
         assert context_artifact.problem == problem
         assert all(
             replay.job_id == launch.job_id
             and replay.run_id == str(job.run_id)
-            and replay.tenant_id == "tenant-fixture"
-            and replay.cell_id == "cell-fixture"
+            and replay.tenant_id == tenant_id
+            and replay.cell_id == cell_id
             and replay.problem == problem
             and replay.context.content_hash == context_artifact.context.content_hash
             for replay in owner_replays
@@ -3039,8 +3106,8 @@ async def _run_controlled_simulate_only_job_fixture(
             input_record.n4_source_ref,
             expected_run_id=str(completed.run_id),
             expected_job_id=completed.job_id,
-            expected_tenant_id="tenant-fixture",
-            expected_cell_id="cell-fixture",
+            expected_tenant_id=tenant_id,
+            expected_cell_id=cell_id,
         )
         assert type(selected_source) is N4CandidateScenarioSourceRecordV3
         assert selected_source.origin_source_ref is None
@@ -3110,8 +3177,8 @@ async def _run_controlled_simulate_only_job_fixture(
         selected_ncm = load_ncm_spec_selected_view(
             _ensure_ir_artifact_store(service._artifact_store),
             input_record.ncm_ref,
-            expected_tenant_id="tenant-fixture",
-            expected_cell_id="cell-fixture",
+            expected_tenant_id=tenant_id,
+            expected_cell_id=cell_id,
             expected_declaration_ref=input_record.model_declaration_ref,
         )
         expected_ncm_variables = {
@@ -4456,7 +4523,33 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
     tmp_path,
     request: pytest.FixtureRequest,
 ) -> None:
-    """The actual run form inputs persist through ForecastOwner, CAS, event, and reopened GET."""
+    """Keep the full acquisition/profile-owner chain as its original separate scope."""
+    await _exercise_predictive_calibration_run_surface(
+        monkeypatch, tmp_path, request, include_owner_profile=True
+    )
+
+
+@pytest.mark.skipif(TestClient is None, reason="fastapi is not installed")
+@pytest.mark.asyncio
+async def test_candidate_predictive_calibration_post_event_fresh_get_and_exact_retry(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+    request: pytest.FixtureRequest,
+) -> None:
+    """An actual controlled owned run supports the honest limited v5 candidate surface."""
+    await _exercise_predictive_calibration_run_surface(
+        monkeypatch, tmp_path, request, include_owner_profile=False
+    )
+
+
+async def _exercise_predictive_calibration_run_surface(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+    request: pytest.FixtureRequest,
+    *,
+    include_owner_profile: bool,
+) -> None:
+    """Exercise one actual owned run; full acquisition is a separate input scope."""
     import hashlib
     from dataclasses import replace
     from typing import cast
@@ -4495,8 +4588,13 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
     from polisyos.scientist.methods.backtesting.forecast_owner import ForecastOwner
     from tests.unit.remediation.test_frc_02_owner import _rule, _source, _spec
 
+    # Synthetic identities satisfy the real Fabric tenant sidecar contract and
+    # remain the same through acquisition, controlled job, claims and fresh apps.
+    tenant_id = "7cf3b2a8-0d6b-4d25-a01c-f248e933e1f0"
+    cell_id = "5f7ca7a3-2d66-4bbc-a7a2-f35c60ba3a7f"
+
     def assert_persisted_evidence_identity(store: Any, stored_association: dict[str, Any]) -> None:
-        with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
             ir_store = _ensure_ir_artifact_store(store)
             report_ref = BacktestReportRef.model_validate(stored_association["backtest_report_ref"])
             report = load_backtest_report(ir_store, report_ref)
@@ -4580,268 +4678,303 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
 
     cas_root = tmp_path / ".polisyos"
     shared_cas = FileSystemCAS(cas_root)
-    from tests.integration.core_runtime.test_acquisition_world_growth_chain import (
-        _admit_served_wdi_projection,
-    )
+    if include_owner_profile:
+        from polisyos.runtime.quality import generation_cycle as generation_cycle_module
+        from tests.integration.core_runtime.test_acquisition_world_growth_chain import (
+            _admit_served_wdi_projection,
+        )
 
-    owner_admission = await _admit_served_wdi_projection(
-        tmp_path / "profile-owner",
-        monkeypatch,
-        request,
-        baseline_country_code="UKR",
-        baseline_period_count=14,
-        tenant_id="tenant-fixture",
-        cell_id="cell-fixture",
-        revised_source=False,
-        artifact_store=shared_cas,
-    )
-    owner_repo_root = owner_admission.served.case.authority.repo_root
-    owner_overlay_path = owner_admission.served.case.call_args["overlay_path"]
-    assert (
-        owner_overlay_path.resolve() == default_acquisition_overlay_path(owner_repo_root).resolve()
-    )
-    selected_source = resolve_catalog_serving_source(
-        owner_repo_root,
-        selection=None,
-        requested_profile="preflight_core",
-    )
-    tenant_cas = shared_cas.for_tenant("tenant-fixture", cell_id="cell-fixture")
-    with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
-        with catalog_serving_source_scope(selected_source):
-            value_profile = RealValueOwnerGateway(
-                repo_root=owner_repo_root,
-                catalog_serving_source=selected_source,
-                catalog_overlay_path=owner_overlay_path,
-                artifact_store=tenant_cas,
-                activated_observation_projection=owner_admission.projection,
-            ).load_value_data_profile(
-                candidate=object(),
-                problem=owner_admission.served.closure.design_problem_basis,
-                world_record=object(),
+        # This served fixture consumes a source-owned L1 variable route, not the
+        # default generic compiler requirement. Opt into the actual N7 source
+        # emitter as its canonical route tests do; keep its grounding and CAS joins.
+        with monkeypatch.context() as source_emission:
+            source_emission.setattr(
+                generation_cycle_module, "_N7_SOURCE_SEMANTIC_EMISSION_ENABLED", True
             )
-        profile_unit_id = value_profile.rows[0].unit_id
-        profile_rows = tuple(
-            sorted(
-                (row for row in value_profile.rows if row.unit_id == profile_unit_id),
-                key=lambda row: row.period_id,
+            owner_admission = await _admit_served_wdi_projection(
+                tmp_path / "profile-owner",
+                monkeypatch,
+                request,
+                baseline_country_code="UKR",
+                baseline_period_count=14,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                revised_source=False,
+                artifact_store=shared_cas,
             )
+        owner_repo_root = owner_admission.served.case.authority.repo_root
+        owner_overlay_path = owner_admission.served.case.call_args["overlay_path"]
+        assert (
+            owner_overlay_path.resolve()
+            == default_acquisition_overlay_path(owner_repo_root).resolve()
         )
-        assert len(profile_rows) == 15
-        assert len({row.period_id for row in profile_rows}) == len(profile_rows)
-        profile_values = [row.outcome_value for row in profile_rows]
-        ir_store = _ensure_ir_artifact_store(tenant_cas)
-        projection_ref = put_json_artifact(
-            ir_store,
-            owner_admission.projection.model_dump(mode="json"),
-            kind="runtime.value_owner_source_projection",
-            schema_name="runtime.value_owner_source_projection.v1",
-            schema_version="1.0",
-            canon_spec=CanonSpec(forbid_floats=False),
-            return_selected_profile=True,
+        selected_source = resolve_catalog_serving_source(
+            owner_repo_root,
+            selection=None,
+            requested_profile="preflight_core",
         )
-        selected_profile_ref = ArtifactRef.model_validate(
-            put_json_artifact(
+        tenant_cas = shared_cas.for_tenant(tenant_id, cell_id=cell_id)
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            with catalog_serving_source_scope(selected_source):
+                value_profile = RealValueOwnerGateway(
+                    repo_root=owner_repo_root,
+                    catalog_serving_source=selected_source,
+                    catalog_overlay_path=owner_overlay_path,
+                    artifact_store=tenant_cas,
+                    activated_observation_projection=owner_admission.projection,
+                ).load_value_data_profile(
+                    candidate=object(),
+                    problem=owner_admission.served.closure.design_problem_basis,
+                    world_record=object(),
+                )
+            profile_unit_id = value_profile.rows[0].unit_id
+            profile_rows = tuple(
+                sorted(
+                    (row for row in value_profile.rows if row.unit_id == profile_unit_id),
+                    key=lambda row: row.period_id,
+                )
+            )
+            assert len(profile_rows) == 15
+            assert len({row.period_id for row in profile_rows}) == len(profile_rows)
+            profile_values = [row.outcome_value for row in profile_rows]
+            ir_store = _ensure_ir_artifact_store(tenant_cas)
+            projection_ref = put_json_artifact(
                 ir_store,
-                value_profile.model_dump(mode="json"),
-                kind="runtime.value_data_profile",
-                schema_name="runtime.value_data_profile.v2",
-                schema_version="2.0",
-                inputs=(
-                    InputRef(
-                        artifact_id=projection_ref["artifact_id"],
-                        role="activated_source_projection",
-                        manifest_profile_sha256=projection_ref["manifest_profile_sha256"],
+                owner_admission.projection.model_dump(mode="json"),
+                kind="runtime.value_owner_source_projection",
+                schema_name="runtime.value_owner_source_projection.v1",
+                schema_version="1.0",
+                canon_spec=CanonSpec(forbid_floats=False),
+                return_selected_profile=True,
+            )
+            selected_profile_ref = ArtifactRef.model_validate(
+                put_json_artifact(
+                    ir_store,
+                    value_profile.model_dump(mode="json"),
+                    kind="runtime.value_data_profile",
+                    schema_name="runtime.value_data_profile.v2",
+                    schema_version="2.0",
+                    inputs=(
+                        InputRef(
+                            artifact_id=projection_ref["artifact_id"],
+                            role="activated_source_projection",
+                            manifest_profile_sha256=projection_ref["manifest_profile_sha256"],
+                        ),
                     ),
-                ),
-                canon_spec=CanonSpec(forbid_floats=False),
-                return_selected_profile=True,
+                    canon_spec=CanonSpec(forbid_floats=False),
+                    return_selected_profile=True,
+                )
             )
-        )
-        observed_data_ref = put_json_artifact(
-            ir_store,
-            {value_profile.outcome: profile_values},
-            kind="test.forecast.profile_observed_data",
-            schema_name="test.forecast.profile_observed_data.v1",
-            schema_version="1.0",
-            canon_spec=CanonSpec(forbid_floats=False),
-            return_selected_profile=True,
-        )
-        observed_snapshot = DataSnapshot(
-            data_ref=ArtifactRef.model_validate(observed_data_ref),
-            stats={"rows": len(profile_values), "source": "selected_owner_profile_fixture"},
-        )
-        selected_profile_observed_ref = DataSnapshotRef.model_validate(
-            put_json_artifact(
+            observed_data_ref = put_json_artifact(
                 ir_store,
-                observed_snapshot.model_dump(mode="json"),
-                kind="fabric.data_snapshot",
-                schema_name="polisyos.core.DataSnapshot",
-                schema_version="0.2.0",
+                {value_profile.outcome: profile_values},
+                kind="test.forecast.profile_observed_data",
+                schema_name="test.forecast.profile_observed_data.v1",
+                schema_version="1.0",
                 canon_spec=CanonSpec(forbid_floats=False),
                 return_selected_profile=True,
             )
+            observed_snapshot = DataSnapshot(
+                data_ref=ArtifactRef.model_validate(observed_data_ref),
+                stats={"rows": len(profile_values), "source": "selected_owner_profile_fixture"},
+            )
+            selected_profile_observed_ref = DataSnapshotRef.model_validate(
+                put_json_artifact(
+                    ir_store,
+                    observed_snapshot.model_dump(mode="json"),
+                    kind="fabric.data_snapshot",
+                    schema_name="polisyos.core.DataSnapshot",
+                    schema_version="0.2.0",
+                    canon_spec=CanonSpec(forbid_floats=False),
+                    return_selected_profile=True,
+                )
+            )
+
+        # Build a second real Data Forge owner projection whose source contains two
+        # distinct declared condition groups for each unit-period. The candidate
+        # aggregate below is content-bound to those owner rows, but the supported
+        # serving producer refuses to aggregate them because no source rule grants
+        # aggregation at one unit-period.
+        from polisyos.pdc import gy_content_hash
+        from polisyos.runtime.quality.generation_cycle import (
+            ValueDataProfile,
+            _derived_value_data_modalities,
+            _value_owner_row,
+        )
+        from tests._helpers.semantic_epoch_native import (
+            make_native_multivariable_active_projections,
         )
 
-    # Build a second real Data Forge owner projection whose source contains two
-    # distinct declared condition groups for each unit-period. The candidate
-    # aggregate below is content-bound to those owner rows, but the supported
-    # serving producer refuses to aggregate them because no source rule grants
-    # aggregation at one unit-period.
-    from polisyos.pdc import gy_content_hash
-    from polisyos.runtime.quality.generation_cycle import (
-        ValueDataProfile,
-        _derived_value_data_modalities,
-        _value_owner_row,
-    )
-    from tests._helpers.semantic_epoch_native import make_native_multivariable_active_projections
-
-    local_source_rows = [
-        {
-            "country_code": "UA",
-            "year": year,
-            "balance": value,
-            "condition_json": json.dumps({"series": series}, sort_keys=True, separators=(",", ":")),
-        }
-        for year, values in zip(
-            (2021, 2022, 2023, 2024),
-            ((-20.0, -18.0), (-19.0, -17.0), (-18.0, -16.0), (-17.0, -15.0)),
-            strict=True,
-        )
-        for series, value in zip(("published", "revised"), values, strict=True)
-    ]
-    local_owner = make_native_multivariable_active_projections(
-        tmp_path / "local-profile-owner",
-        source_rows=local_source_rows,
-        variable_specs=(
+        local_source_rows = [
             {
-                "target_variable": "government.balance",
-                "raw_field": "balance",
-                "raw_unit": "percent_gdp",
-                "canonical_unit": "percent_gdp",
-                "valid_min": -100.0,
-                "valid_max": 100.0,
-                "temporal_start": "2021",
-                "temporal_end": "2024",
-            },
-        ),
-        condition_units_by_raw_field={"balance": "percent_gdp"},
-        artifact_store=tenant_cas,
-    )
-    local_projection = local_owner.projections["government.balance"]
-    local_sources_by_period: dict[int, list[tuple[float, str, str, str]]] = {}
-    for projected_row in local_projection.observations:
-        observation = projected_row.observation
-        assert observation.year is not None
-        local_sources_by_period.setdefault(observation.year, []).append(
-            (
-                observation.value,
-                observation.dataset_id,
-                observation.observation_id,
-                "percent_gdp",
-            )
-        )
-    assert tuple(sorted(local_sources_by_period)) == (2021, 2022, 2023, 2024)
-    assert all(len(rows) == 2 for rows in local_sources_by_period.values())
-    local_profile_rows = tuple(
-        _value_owner_row(
-            outcome="government.balance",
-            unit_id="UA",
-            period_id=period_id,
-            source_rows=tuple(source_rows),
-        )
-        for period_id, source_rows in sorted(local_sources_by_period.items())
-    )
-    local_rows_payload = tuple(row.model_dump(mode="json") for row in local_profile_rows)
-    local_profile_payload = {
-        "schema_version": "policyos.runtime.value_data_profile.v2",
-        "outcome": "government.balance",
-        "measurement_unit": "percent_gdp",
-        "rows": local_rows_payload,
-        "owner_row_count": len(local_profile_rows),
-        "unit_count": 1,
-        "period_count": 4,
-        "available_data_modalities": _derived_value_data_modalities(local_profile_rows),
-        "treatment_assignment_status": "owner_assignment_unresolved",
-        "owner_access_ref": "candidate://actual-local-lift-owner-row-aggregate",
-        "owner_rows_content_hash": gy_content_hash(local_rows_payload),
-    }
-    local_aggregate_profile = ValueDataProfile.model_validate(
-        {
-            **local_profile_payload,
-            "content_hash": gy_content_hash(local_profile_payload),
-        }
-    )
-    assert all(len(row.source_row_content_hashes) == 2 for row in local_aggregate_profile.rows)
-    with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
-        local_ir_store = _ensure_ir_artifact_store(tenant_cas)
-        local_projection_ref = put_json_artifact(
-            local_ir_store,
-            local_projection.model_dump(mode="json"),
-            kind="runtime.value_owner_source_projection",
-            schema_name="runtime.value_owner_source_projection.v1",
-            schema_version="1.0",
-            canon_spec=CanonSpec(forbid_floats=False),
-            return_selected_profile=True,
-        )
-        local_profile_ref = ArtifactRef.model_validate(
-            put_json_artifact(
-                local_ir_store,
-                local_aggregate_profile.model_dump(mode="json"),
-                kind="runtime.value_data_profile",
-                schema_name="runtime.value_data_profile.v2",
-                schema_version="2.0",
-                inputs=(
-                    InputRef(
-                        artifact_id=local_projection_ref["artifact_id"],
-                        role="activated_source_projection",
-                        manifest_profile_sha256=local_projection_ref["manifest_profile_sha256"],
-                    ),
+                "country_code": "UA",
+                "year": year,
+                "balance": value,
+                "condition_json": json.dumps(
+                    {"series": series}, sort_keys=True, separators=(",", ":")
                 ),
-                canon_spec=CanonSpec(forbid_floats=False),
-                return_selected_profile=True,
+            }
+            for year, values in zip(
+                (2021, 2022, 2023, 2024),
+                ((-20.0, -18.0), (-19.0, -17.0), (-18.0, -16.0), (-17.0, -15.0)),
+                strict=True,
             )
+            for series, value in zip(("published", "revised"), values, strict=True)
+        ]
+        local_owner = make_native_multivariable_active_projections(
+            tmp_path / "local-profile-owner",
+            source_rows=local_source_rows,
+            variable_specs=(
+                {
+                    "target_variable": "government.balance",
+                    "raw_field": "balance",
+                    "raw_unit": "percent_gdp",
+                    "canonical_unit": "percent_gdp",
+                    "valid_min": -100.0,
+                    "valid_max": 100.0,
+                    "temporal_start": "2021",
+                    "temporal_end": "2024",
+                },
+            ),
+            condition_units_by_raw_field={"balance": "percent_gdp"},
+            artifact_store=tenant_cas,
         )
-        local_observed_values = [row.outcome_value for row in local_aggregate_profile.rows]
-        local_observed_data_ref = put_json_artifact(
-            local_ir_store,
-            {local_aggregate_profile.outcome: local_observed_values},
-            kind="test.forecast.profile_observed_data",
-            schema_name="test.forecast.profile_observed_data.v1",
-            schema_version="1.0",
-            canon_spec=CanonSpec(forbid_floats=False),
-            return_selected_profile=True,
+        local_projection = local_owner.projections["government.balance"]
+        local_sources_by_period: dict[int, list[tuple[float, str, str, str]]] = {}
+        for projected_row in local_projection.observations:
+            observation = projected_row.observation
+            assert observation.year is not None
+            local_sources_by_period.setdefault(observation.year, []).append(
+                (
+                    observation.value,
+                    observation.dataset_id,
+                    observation.observation_id,
+                    "percent_gdp",
+                )
+            )
+        assert tuple(sorted(local_sources_by_period)) == (2021, 2022, 2023, 2024)
+        assert all(len(rows) == 2 for rows in local_sources_by_period.values())
+        local_profile_rows = tuple(
+            _value_owner_row(
+                outcome="government.balance",
+                unit_id="UA",
+                period_id=period_id,
+                source_rows=tuple(source_rows),
+            )
+            for period_id, source_rows in sorted(local_sources_by_period.items())
         )
-        local_observed_snapshot = DataSnapshot(
-            data_ref=ArtifactRef.model_validate(local_observed_data_ref),
-            stats={"rows": len(local_observed_values), "source": "candidate_local_owner_rows"},
+        local_rows_payload = tuple(row.model_dump(mode="json") for row in local_profile_rows)
+        local_profile_payload = {
+            "schema_version": "policyos.runtime.value_data_profile.v2",
+            "outcome": "government.balance",
+            "measurement_unit": "percent_gdp",
+            "rows": local_rows_payload,
+            "owner_row_count": len(local_profile_rows),
+            "unit_count": 1,
+            "period_count": 4,
+            "available_data_modalities": _derived_value_data_modalities(local_profile_rows),
+            "treatment_assignment_status": "owner_assignment_unresolved",
+            "owner_access_ref": "candidate://actual-local-lift-owner-row-aggregate",
+            "owner_rows_content_hash": gy_content_hash(local_rows_payload),
+        }
+        local_aggregate_profile = ValueDataProfile.model_validate(
+            {
+                **local_profile_payload,
+                "content_hash": gy_content_hash(local_profile_payload),
+            }
         )
-        local_observed_ref = DataSnapshotRef.model_validate(
-            put_json_artifact(
+        assert all(len(row.source_row_content_hashes) == 2 for row in local_aggregate_profile.rows)
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            local_ir_store = _ensure_ir_artifact_store(tenant_cas)
+            local_projection_ref = put_json_artifact(
                 local_ir_store,
-                local_observed_snapshot.model_dump(mode="json"),
-                kind="fabric.data_snapshot",
-                schema_name="polisyos.core.DataSnapshot",
-                schema_version="0.2.0",
+                local_projection.model_dump(mode="json"),
+                kind="runtime.value_owner_source_projection",
+                schema_name="runtime.value_owner_source_projection.v1",
+                schema_version="1.0",
                 canon_spec=CanonSpec(forbid_floats=False),
                 return_selected_profile=True,
             )
+            local_profile_ref = ArtifactRef.model_validate(
+                put_json_artifact(
+                    local_ir_store,
+                    local_aggregate_profile.model_dump(mode="json"),
+                    kind="runtime.value_data_profile",
+                    schema_name="runtime.value_data_profile.v2",
+                    schema_version="2.0",
+                    inputs=(
+                        InputRef(
+                            artifact_id=local_projection_ref["artifact_id"],
+                            role="activated_source_projection",
+                            manifest_profile_sha256=local_projection_ref["manifest_profile_sha256"],
+                        ),
+                    ),
+                    canon_spec=CanonSpec(forbid_floats=False),
+                    return_selected_profile=True,
+                )
+            )
+            local_observed_values = [row.outcome_value for row in local_aggregate_profile.rows]
+            local_observed_data_ref = put_json_artifact(
+                local_ir_store,
+                {local_aggregate_profile.outcome: local_observed_values},
+                kind="test.forecast.profile_observed_data",
+                schema_name="test.forecast.profile_observed_data.v1",
+                schema_version="1.0",
+                canon_spec=CanonSpec(forbid_floats=False),
+                return_selected_profile=True,
+            )
+            local_observed_snapshot = DataSnapshot(
+                data_ref=ArtifactRef.model_validate(local_observed_data_ref),
+                stats={"rows": len(local_observed_values), "source": "candidate_local_owner_rows"},
+            )
+            local_observed_ref = DataSnapshotRef.model_validate(
+                put_json_artifact(
+                    local_ir_store,
+                    local_observed_snapshot.model_dump(mode="json"),
+                    kind="fabric.data_snapshot",
+                    schema_name="polisyos.core.DataSnapshot",
+                    schema_version="0.2.0",
+                    canon_spec=CanonSpec(forbid_floats=False),
+                    return_selected_profile=True,
+                )
+            )
+
+        def selected_snapshot(repo_root, target_root):
+            selected_database = target_root / "datasets" / "graph" / "dataset_catalog.duckdb"
+            selected_database.parent.mkdir(parents=True, exist_ok=True)
+            copyfile(repo_root / "catalog" / "catalog.duckdb", selected_database)
+            return CatalogServingSourceSelection(
+                snapshot_root=target_root,
+                catalog_run_profile=selected_source.catalog_run_profile,
+            )
+
+        wdi_source_selection = selected_snapshot(owner_repo_root, tmp_path / "selected-wdi-source")
+        local_source_selection = selected_snapshot(
+            local_owner.repo_root, tmp_path / "selected-local-source"
+        )
+    else:
+        from tests.unit.runtime.quality.test_generation_cycle import REPO_ROOT
+
+        # The profileless candidate API consumes actual Core-owned run inputs.
+        # The normal selected Catalog context is not an observed-data input here;
+        # no native epoch appointment, L5 permission or production provenance is claimed.
+        owner_repo_root = REPO_ROOT
+        selected_source = resolve_catalog_serving_source(
+            owner_repo_root, selection=None, requested_profile="preflight_core"
         )
 
-    def selected_snapshot(repo_root, target_root):
-        selected_database = target_root / "datasets" / "graph" / "dataset_catalog.duckdb"
-        selected_database.parent.mkdir(parents=True, exist_ok=True)
-        copyfile(repo_root / "catalog" / "catalog.duckdb", selected_database)
-        return CatalogServingSourceSelection(
-            snapshot_root=target_root,
-            catalog_run_profile=selected_source.catalog_run_profile,
+    owner_profile_inputs = (
+        (
+            selected_profile_ref,
+            ArtifactRef.model_validate(selected_profile_observed_ref),
+            local_profile_ref,
+            ArtifactRef.model_validate(local_observed_ref),
         )
-
-    wdi_source_selection = selected_snapshot(owner_repo_root, tmp_path / "selected-wdi-source")
-    local_source_selection = selected_snapshot(
-        local_owner.repo_root, tmp_path / "selected-local-source"
+        if include_owner_profile
+        else ()
     )
-
     captured_inputs: list[ArtifactRef] = []
+    ordinary_observed_inputs: list[ArtifactRef] = []
 
     def attach_selected_inputs(context: Any) -> None:
         if not captured_inputs:
@@ -4855,6 +4988,12 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
                 context.store,
                 training=training,
                 holdout=[1000.0, 1001.0, 1002.0, 1003.0],
+            )
+            ordinary_observed_inputs.extend(
+                (
+                    ArtifactRef.model_validate(observed),
+                    ArtifactRef.model_validate(comparison_observed),
+                )
             )
             model_default = _spec(
                 context.store, kind="ir.model_spec", spec_id="forecast-model-fixture"
@@ -4897,14 +5036,10 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
                     policy_default,
                     policy_selected,
                     _rule(context.store),
-                    ArtifactRef.model_validate(local_profile_ref),
-                    ArtifactRef.model_validate(local_observed_ref),
                 ]
             )
-            context.add_input(selected_profile_ref)
-            context.add_input(ArtifactRef.model_validate(selected_profile_observed_ref))
-            context.add_input(local_profile_ref)
-            context.add_input(ArtifactRef.model_validate(local_observed_ref))
+            for owner_input in owner_profile_inputs:
+                context.add_input(owner_input)
         existing = {
             (str(item.artifact_id), item.manifest_profile_sha256)
             for item in context.run_manifest.inputs
@@ -4919,6 +5054,9 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         monkeypatch,
         tmp_path,
         root_input_factory=attach_selected_inputs,
+        source_repo_root=None if include_owner_profile else owner_repo_root,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
     )
     request.addfinalizer(fixture.service.close)
     core_run_id = str(fixture.job.progress["core_run_id"])
@@ -4940,7 +5078,7 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
     monkeypatch.setattr(
         dev_identity_middleware,
         "build_fixture_identity_claims",
-        _fixture_claims,
+        lambda: _fixture_claims(tenant_id=tenant_id, cell_id=cell_id),
     )
 
     def new_reader_app(
@@ -4954,7 +5092,7 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
             app_options["allow_candidate_run_predictive_calibration_surface"] = (
                 allow_candidate_run_predictive_calibration_surface
             )
-        with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
             app = create_runtime_api_app(
                 cas_root=cas_root,
                 core_runs_root=core_runs_root,
@@ -4968,7 +5106,7 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
                 catalog_source_selection=catalog_source_selection,
                 **app_options,
             )
-        _install_fixture_tenant_lifespan(app)
+        _install_fixture_tenant_lifespan(app, tenant_id=tenant_id, cell_id=cell_id)
         control_service = app.state.runtime_container.control_service
         assert control_service is not None
         app_source = control_service.catalog_serving_source
@@ -5090,12 +5228,7 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
                 and actual_ref["manifest_profile_sha256"] == expected_ref.manifest_profile_sha256
                 for actual_ref in input_refs
             )
-        for expected_ref in (
-            selected_profile_ref,
-            ArtifactRef.model_validate(selected_profile_observed_ref),
-            local_profile_ref,
-            ArtifactRef.model_validate(local_observed_ref),
-        ):
+        for expected_ref in owner_profile_inputs:
             assert any(
                 actual_ref["artifact_id"] == str(expected_ref.artifact_id)
                 and actual_ref["kind"] == expected_ref.kind
@@ -5104,9 +5237,7 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
                 for actual_ref in input_refs
             )
         selected_observed_sources = [
-            expected_ref.model_dump(mode="json")
-            for expected_ref in captured_inputs
-            if expected_ref.kind == "fabric.data_snapshot"
+            expected_ref.model_dump(mode="json") for expected_ref in ordinary_observed_inputs
         ]
         assert len(selected_observed_sources) == 2
         selected = {
@@ -5141,7 +5272,7 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
             },
             "seed": 0,
         }
-        analyst_claims = _fixture_claims()
+        analyst_claims = _fixture_claims(tenant_id=tenant_id, cell_id=cell_id)
         viewer_claims = analyst_claims.model_copy(
             update={"roles": frozenset({PolicyOSRole.VIEWER})}
         )
@@ -5212,7 +5343,7 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
             )
             for role_field, error_role in root_bound_roles:
                 selected_ref = ArtifactRef.model_validate(body[role_field])
-                with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
+                with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
                     sibling_profile_ref = context_store.put_bytes(
                         context_store.get_bytes(selected_ref),
                         PutOptions(
@@ -5250,8 +5381,8 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
                 typed_request = PredictiveCalibrationRequest.model_validate(rejected_body)
                 intent_key = calibration_service.RuntimeOperationIntentKey(
                     purpose="run.predictive_calibration.v1",
-                    tenant_id="tenant-fixture",
-                    cell_id="cell-fixture",
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
                     actor_subject_sha256=hashlib.sha256(b"user-fixture").hexdigest(),
                     run_id=core_run_id,
                     intent_id=body["intent_id"],
@@ -5259,8 +5390,8 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
                         request=typed_request,
                         run_id=core_run_id,
                         job_id=job_id,
-                        tenant_id="tenant-fixture",
-                        cell_id="cell-fixture",
+                        tenant_id=tenant_id,
+                        cell_id=cell_id,
                         run_manifest_ref=ArtifactRef.model_validate(run["manifest_ref"]),
                     ),
                 )
@@ -5298,7 +5429,7 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         )
 
         candidate_ref = ArtifactRef.model_validate(body["candidate_source_ref"])
-        with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
             alternate_profile_candidate_ref = context_store.put_bytes(
                 context_store.get_bytes(candidate_ref),
                 PutOptions(
@@ -5335,7 +5466,7 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         )
 
         # Scope the direct CAS fixture write; keep its HTTP request outside this scope.
-        with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
             unrooted_model_ref = _spec(
                 context_store,
                 kind="ir.model_spec",
@@ -5388,8 +5519,8 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
             disabled_cas_before = cas_byte_inventory()
             disabled_intent_key = calibration_service.RuntimeOperationIntentKey(
                 purpose="run.predictive_calibration.v1",
-                tenant_id="tenant-fixture",
-                cell_id="cell-fixture",
+                tenant_id=tenant_id,
+                cell_id=cell_id,
                 actor_subject_sha256=hashlib.sha256(b"user-fixture").hexdigest(),
                 run_id=core_run_id,
                 intent_id=body["intent_id"],
@@ -5397,8 +5528,8 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
                     request=PredictiveCalibrationRequest.model_validate(body),
                     run_id=core_run_id,
                     job_id=job_id,
-                    tenant_id="tenant-fixture",
-                    cell_id="cell-fixture",
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
                     run_manifest_ref=ArtifactRef.model_validate(run["manifest_ref"]),
                 ),
             )
@@ -5538,7 +5669,10 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         assert association["profile_join_status"] == "profileless_legacy"
         assert association.get("value_data_profile_ref") is None
         assert association.get("forecast_profile_member_ref") is None
-        assert association["evidence_reason_codes"] == []
+        assert "backtest_source_not_established" in association["evidence_reason_codes"]
+        assert association["schema_version"] == (
+            "polisyos.runtime.predictive_calibration_association.v5"
+        )
         assert association["candidate_source_ref"] == body["candidate_source_ref"]
         assert association["assessment"] == "limited"
         assert association["authority_scope"] == "predictive_only"
@@ -5600,8 +5734,8 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         assert published[0].payload_sha256 is not None
         operation_key = calibration_service.RuntimeOperationIntentKey(
             purpose="run.predictive_calibration.v1",
-            tenant_id="tenant-fixture",
-            cell_id="cell-fixture",
+            tenant_id=tenant_id,
+            cell_id=cell_id,
             actor_subject_sha256=hashlib.sha256(b"user-fixture").hexdigest(),
             run_id=core_run_id,
             intent_id=body["intent_id"],
@@ -5609,8 +5743,8 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
                 request=PredictiveCalibrationRequest.model_validate(body),
                 run_id=core_run_id,
                 job_id=job_id,
-                tenant_id="tenant-fixture",
-                cell_id="cell-fixture",
+                tenant_id=tenant_id,
+                cell_id=cell_id,
                 run_manifest_ref=ArtifactRef.model_validate(run["manifest_ref"]),
             ),
         )
@@ -5718,7 +5852,7 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         )
         reopened_store = cast("FileSystemCAS", fresh_app.state.runtime_api_ctx.store)
         # Materialize legacy CAS/event state under the fixture owner only; the retry stays unscoped.
-        with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
             legacy_association_ref = calibration_service._persist_association(
                 store=reopened_store,
                 association=legacy_association,
@@ -5751,8 +5885,8 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         )
         legacy_key = calibration_service.RuntimeOperationIntentKey(
             purpose="run.predictive_calibration.v1",
-            tenant_id="tenant-fixture",
-            cell_id="cell-fixture",
+            tenant_id=tenant_id,
+            cell_id=cell_id,
             actor_subject_sha256=hashlib.sha256(b"user-fixture").hexdigest(),
             run_id=core_run_id,
             intent_id=legacy_request.intent_id,
@@ -5760,8 +5894,8 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
                 request=legacy_request,
                 run_id=core_run_id,
                 job_id=job_id,
-                tenant_id="tenant-fixture",
-                cell_id="cell-fixture",
+                tenant_id=tenant_id,
+                cell_id=cell_id,
                 run_manifest_ref=ArtifactRef.model_validate(run["manifest_ref"]),
             ),
         )
@@ -5772,8 +5906,8 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
 
     # Hold prediction inputs, interval geometry, and method/run context constant;
     # only the run-rooted held-out observations differ. The second default-app
-    # POST persists the real owner's empirical grade, and a new default app must
-    # reopen that same grade from the association/report/evidence chain.
+    # POST preserves those distinct diagnostics while fresh publication/readback
+    # withhold empirical authority until the row-to-source relation is verified.
     comparison_body = {
         **body,
         "intent_id": "ui-intent-r228-e2e-2",
@@ -5800,7 +5934,7 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         comparison_reopened_result = comparison_reopened_response.json()
         assert comparison_reopened_result["association"] == comparison_post_result["association"]
         assert (
-            "calibration_floor_not_met"
+            "backtest_source_not_established"
             in comparison_reopened_result["association"]["evidence_reason_codes"]
         )
         assert_persisted_evidence_identity(
@@ -5849,7 +5983,7 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
     assert comparison_association["profile_join_status"] == "profileless_legacy"
     assert comparison_association.get("value_data_profile_ref") is None
     assert comparison_association.get("forecast_profile_member_ref") is None
-    assert "calibration_floor_not_met" in comparison_association["evidence_reason_codes"]
+    assert "backtest_source_not_established" in comparison_association["evidence_reason_codes"]
     assert comparison_association["intent_id"] == comparison_body["intent_id"]
     assert comparison_association["request_sha256"] != association["request_sha256"]
     assert comparison_association["observed_source_ref"] == selected_observed_sources[1]
@@ -5875,12 +6009,23 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         (association, first_owner),
         (comparison_association, comparison_owner),
     ):
-        assert stored["observed_numerator"] == owner_result.coverage_numerator
-        assert stored["observed_denominator"] == owner_result.coverage_denominator == 4
-        assert stored["owner_suitability"] == owner_result.empirical_suitability
-        assert stored["s10"]["numerator"] == owner_result.coverage_numerator
-        assert stored["s10"]["denominator"] == owner_result.coverage_denominator
-        assert stored["s10"]["observed_pass_rate"] == owner_result.empirical_coverage
+        # The owner retains row arithmetic as diagnostics, without proving its
+        # forecast/held-out source values. The public candidate is not a measurement.
+        assert owner_result.coverage_denominator == 4
+        assert stored["observed_numerator"] is None
+        assert stored["observed_denominator"] is None
+        assert stored["observed_hit_rate"] is None
+        assert stored["owner_suitability"] == "limited"
+        assert "backtest_source_not_established" in stored["evidence_reason_codes"]
+        assert stored["s10"]["numerator"] is None
+        assert stored["s10"]["denominator"] is None
+        assert stored["s10"]["observed_pass_rate"] is None
+        assert stored["s10"]["calibration_record_ref"] is None
+        assert stored["s10"]["calibration_status"] == "blocked"
+        assert (
+            "s10://calibration/fail-closed/backtest_source_not_established"
+            in (stored["s10"]["limitation_refs"])
+        )
         assert stored["assessment"] == "limited"
         assert stored["authority_scope"] == "predictive_only"
         assert stored["s10"]["counterfactual_credibility"] == "not_established"
@@ -5891,16 +6036,12 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
             "counterfactual_credibility_status",
         ):
             assert stored[field] == "not_established"
-    assert association["owner_suitability"] != comparison_association["owner_suitability"]
-    assert (
-        association["s10"]["calibration_status"]
-        != comparison_association["s10"]["calibration_status"]
-    )
+    assert association["owner_suitability"] == comparison_association["owner_suitability"]
     assert association["s10"]["forecast_tier"] == "blocked"
     assert comparison_association["s10"]["forecast_tier"] == "blocked"
     assert (
         association["s10"]["calibration_status"]
-        != (comparison_association["s10"]["calibration_status"])
+        == comparison_association["s10"]["calibration_status"]
     )
     assert (
         association["s10"]["limitation_refs"] == (comparison_association["s10"]["limitation_refs"])
@@ -5925,7 +6066,13 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
     )
     assert comparison_reopened_result["association"] == comparison_association
     assert comparison_reopened_result["association"]["s10"] == comparison_association["s10"]
-    assert comparison_reopened_result["association"]["s10"] != reopened_result["association"]["s10"]
+    assert comparison_reopened_result["association"]["s10"] == reopened_result["association"]["s10"]
+
+    if not include_owner_profile:
+        # This proves the ordinary candidate POST/event/fresh-read/retry chain.
+        # Full WDI acquisition/native-epoch/profile-owner intake remains a separate
+        # criterion; the unsupported L5 scope-relation bridge is not bypassed.
+        return
 
     # The selected EMP-01 route consumes a profile issued from the actual
     # Data Forge owner above. Its profile and aligned observed series were
@@ -6006,8 +6153,8 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         local_request = PredictiveCalibrationRequest.model_validate(aggregate_body)
         local_intent_key = calibration_service.RuntimeOperationIntentKey(
             purpose="run.predictive_calibration.v1",
-            tenant_id="tenant-fixture",
-            cell_id="cell-fixture",
+            tenant_id=tenant_id,
+            cell_id=cell_id,
             actor_subject_sha256=hashlib.sha256(b"user-fixture").hexdigest(),
             run_id=core_run_id,
             intent_id=aggregate_body["intent_id"],
@@ -6015,8 +6162,8 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
                 request=local_request,
                 run_id=core_run_id,
                 job_id=job_id,
-                tenant_id="tenant-fixture",
-                cell_id="cell-fixture",
+                tenant_id=tenant_id,
+                cell_id=cell_id,
                 run_manifest_ref=ArtifactRef.model_validate(run["manifest_ref"]),
             ),
         )

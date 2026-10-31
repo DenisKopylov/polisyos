@@ -13,10 +13,17 @@ for _path in (str(_SRC), str(_BENCH_ROOT)):
     if _path not in sys.path:
         sys.path.insert(0, _path)
 
-from benchmarks.harness import BenchmarkCircuit, BenchmarkHarness
-from benchmarks.reporting import build_preflight, build_report_payload, print_preflight
-from benchmarks.runtime import resolve_mode, resolve_tier
-from benchmarks.temporal.common import (
+# Direct CLI execution needs the source-path bootstrap above.
+from benchmarks.harness import BenchmarkCircuit, BenchmarkHarness  # noqa: E402
+from benchmarks.reporting import (  # noqa: E402
+    build_preflight,
+    build_report_payload,
+    print_preflight,
+    suite_overall_status_from_counts,
+    summarize_report_outcomes,
+)
+from benchmarks.runtime import resolve_mode, resolve_tier  # noqa: E402
+from benchmarks.temporal.common import (  # noqa: E402
     TEMPORAL_BENCHMARK_FAMILY,
     TEMPORAL_LITERATURE_ANCHOR,
     benchmark_case_from_fixture,
@@ -25,24 +32,31 @@ from benchmarks.temporal.common import (
     extract_temporal_evaluations,
     temporal_case_details,
 )
-from benchmarks.temporal.fixtures import gold_fixtures
+from benchmarks.temporal.fixtures import gold_fixtures  # noqa: E402
 
 SUITE_ID = "temporal_gold"
 
 
 def _build_payload(mode: str, *, quiet: bool) -> dict[str, object]:
     harness = BenchmarkHarness()
-    for fixture in gold_fixtures():
+    fixtures = gold_fixtures()
+    for fixture in fixtures:
         harness.register(benchmark_case_from_fixture(fixture, circuit=BenchmarkCircuit.ESTIMATION))
 
     report = harness.run(circuit=BenchmarkCircuit.ESTIMATION)
     evaluations = extract_temporal_evaluations(report)
     scorecard = build_gold_scorecard(evaluations)
-    suite_status = (
-        "passed"
-        if resolve_mode(mode).value == "smoke"
-        else ("passed" if scorecard["passes_all"] else "failed")
+    counts = summarize_report_outcomes(report)
+    all_cases_evaluated = (
+        counts["n_total"] == len(fixtures) == len(evaluations)
+        and counts["n_total"] == counts["n_passed"]
     )
+    scorecard["checks"]["all_registered_cases_evaluated"] = all_cases_evaluated
+    scorecard["passes_all"] = bool(scorecard["passes_all"]) and all_cases_evaluated
+    suite_status = suite_overall_status_from_counts(counts)
+    if suite_status == "passed" and not scorecard["passes_all"]:
+        suite_status = "failed"
+    public_claim_eligible = bool(scorecard["passes_all"])
     preflight = build_preflight(
         mode=mode,
         benchmark_tier=resolve_tier(mode=resolve_mode(mode)).value,
@@ -64,7 +78,7 @@ def _build_payload(mode: str, *, quiet: bool) -> dict[str, object]:
             "frontier_frontier_claim",
             "full_stack_publication_claim",
         ],
-        public_claim_eligible=True,
+        public_claim_eligible=public_claim_eligible,
         literature_anchor=TEMPORAL_LITERATURE_ANCHOR,
         baseline_snapshot_ref="temporal_gold@synthetic-v1",
         regression_guard={
@@ -72,7 +86,7 @@ def _build_payload(mode: str, *, quiet: bool) -> dict[str, object]:
             "requires_all_cases_pass": True,
         },
         aggregate_metrics={"temporal_scorecard": scorecard},
-        blockers=[],
+        blockers=[] if public_claim_eligible else ["temporal_gold_scorecard_not_met"],
         release_gate_results={
             "checks": dict(scorecard.get("checks") or {}),
             "passes_all": bool(scorecard.get("passes_all")),
@@ -105,7 +119,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.json:
         Path(args.json).write_text(output + "\n", encoding="utf-8")
     if not args.quiet:
-        print(output)
+        print(output)  # noqa: T201 - requested CLI JSON output
     return 0 if payload.get("overall_status") in {"passed", "over_budget", "skipped"} else 1
 
 

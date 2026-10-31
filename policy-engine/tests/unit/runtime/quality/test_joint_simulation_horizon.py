@@ -3157,3 +3157,59 @@ def test_coupled_source_times_remain_candidate_through_fresh_cas_read(
         close = getattr(store, "close", None)
         if callable(close):
             close()
+
+
+def test_fresh_state_consumption_receipt_matches_complete_typed_projection(tmp_path: Path) -> None:
+    """A fresh ordinary plan retains an unknown profile without self-refusal."""
+    from polisyos.core.security.tenant_context import tenant_scope
+    from tests.unit.runtime.quality.test_generation_cycle import _owner_program_graph_n5_witness
+
+    witness = _owner_program_graph_n5_witness(tmp_path, income_values=(1000.0, 2000.0))
+    try:
+        result = witness.result
+        assert result.state_consumption is not None
+        assert result.state_consumption.exec_plan_manifest_profile_sha256 is None
+        payload = result.content_bound_payload()
+        assert "exec_plan_manifest_profile_sha256" in payload["state_consumption"]
+        assert payload["state_consumption"]["exec_plan_manifest_profile_sha256"] is None
+        assert payload == result.model_dump(mode="json", exclude={"receipt"})
+        verify_simulation_receipt(result.receipt, payload)
+        assert result.state_consumption.exec_plan_provenance == "not_established"
+        assert set(result.state_consumption.authority_limitations).issubset(
+            result.promotion_ready_value_packet["authority_blockers"]
+        )
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            ref = witness.simulation.simulation_result_ref
+            assert ref is not None
+            persisted = json.loads(witness.store.get_bytes(ref))
+        assert persisted["state_consumption"] == payload["state_consumption"]
+    finally:
+        witness.store.close()
+
+
+def test_numerical_failure_stays_recorded_without_becoming_access_denial(monkeypatch) -> None:
+    """The shared access-error choke point leaves ordinary failed work intact."""
+    request = _request().model_copy(update={"horizon": HorizonSpec(start=0, end=0, step=1)})
+    controller = JointSimulationHorizonController()
+    selected = controller._select_engine(request)
+    assert selected.decision.decision == "selected"
+    assert selected.decision.method_fqn is not None
+    method = controller._registry.get(selected.decision.method_fqn)
+    calls: list[str] = []
+
+    def fail_numeric(_state: object, _params: object) -> None:
+        calls.append("actual-selected-method")
+        raise ValueError("controlled numerical failure")
+
+    monkeypatch.setattr(method, "pure_step", staticmethod(fail_numeric))
+    result = controller.run(request)
+    assert calls == ["actual-selected-method"]
+    assert result.trajectories == ()
+    assert result.diagnostics["physical_work_interruption"] == "n5_physical_work_failed"
+    assert len(result.physical_work_observations) == 1
+    work = result.physical_work_observations[0]
+    assert work.status == "failed"
+    assert work.error_type == "ValueError"
+    assert result.receipt.trajectory_count == 0
+    assert result.receipt.calibration_status == "no_run"
+    verify_simulation_receipt(result.receipt, result.content_bound_payload())

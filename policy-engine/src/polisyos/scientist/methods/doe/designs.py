@@ -124,6 +124,7 @@ class ParameterSpec(BaseModel):
     distribution_spec: DistributionSpecV1 | None = None
     baseline: float | None = None
     description: str = ""
+    unit: str = Field(default="unspecified", min_length=1)
     num_levels: int = Field(default=4, ge=2)
 
     @model_validator(mode="after")
@@ -164,6 +165,8 @@ class SensitivityPlan(BaseModel):
     n_trajectories: int = Field(default=10, ge=1)
     confidence_level: float = Field(default=0.95, gt=0.0, lt=1.0)
     seed: int | None = None
+    input_law: Literal["unknown", "independent", "dependent"] = "unknown"
+    """Declared experimental law, never evidence of a population law."""
 
     # Guardrails for expensive batches.
     max_estimated_runs: int = Field(default=1000, ge=1)
@@ -222,6 +225,46 @@ class SensitivityPlan(BaseModel):
             )
 
         return self
+
+
+def _admit_sensitivity_plan(
+    plan: SensitivityPlan,
+    *,
+    actual_run_count: int | None = None,
+) -> SensitivityPlan:
+    """Revalidate a detached complete request before work or backend materialization.
+
+    Existing construction-time bounds also apply after assignment, nested model
+    mutation or ``model_copy``.  Failed-run filtering cannot hide a larger
+    original Morris experiment than the declared trajectory count.
+    """
+    admitted = SensitivityPlan.model_validate(plan.model_dump(mode="python"))
+    if (
+        admitted.method == SensitivityMethod.MORRIS
+        and actual_run_count is not None
+        and actual_run_count > admitted.estimated_runs
+    ):
+        raise ValueError(
+            "actual Morris analysis rows exceed admitted plan "
+            f"({actual_run_count} > {admitted.estimated_runs}); "
+            "declare the actual trajectory count in SensitivityPlan"
+        )
+    return admitted
+
+
+def _admit_sensitivity_analysis_plan(
+    plan: SensitivityPlan,
+    *,
+    actual_run_count: int | None = None,
+) -> SensitivityPlan:
+    """Admit both the request and known analyzer compatibility before external work."""
+    admitted = _admit_sensitivity_plan(plan, actual_run_count=actual_run_count)
+    if admitted.method == SensitivityMethod.FAST and admitted.seed is not None:
+        raise ValueError(
+            "FAST analysis is compatibility_pending for seeded plans: "
+            "SALib 1.5.2 mutates process-global NumPy RNG"
+        )
+    return admitted
 
 
 def _derive_backend_seed(seed: int | None, stream: str) -> int | None:
@@ -289,6 +332,7 @@ def _salib_parameter_mapping(
 
 def _build_salib_problem(plan: SensitivityPlan) -> tuple[dict[str, object], str]:
     """Build the canonical bounded SALib problem and its mapping fingerprint."""
+    plan = _admit_sensitivity_plan(plan)
     names = [item.name for item in plan.parameter_specs]
     bounds: list[list[float]] = []
     dists: list[str] = []

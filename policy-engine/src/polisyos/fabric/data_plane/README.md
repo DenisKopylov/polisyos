@@ -88,6 +88,12 @@ contract, including connectors which synthesize it from offsets.
 Declared stream-schema membership is checked per row against `FieldSpec` before
 quarantine or publication, independently of neighboring rows and batch size.
 
+`benchmark_stream_processing()` forwards the host-configured
+`source_progress_readers` to the same runtime admission path. Benchmarks must
+supply the actual source-owned input contract when dedupe is enabled; the helper
+does not infer keys or manufacture versions. Finite JSONL benchmark results
+retain the runtime's `replay_only` guarantee, including checkpoint recovery.
+
 ## Common Commands
 
 Run from the repository root (`policy-engine/`).
@@ -199,6 +205,17 @@ wrong partitions, inactive owners, missing keys and hidden actual keys cannot
 activate dedupe. Finite processing is explicitly `replay_only`. Its retained
 witness, limitations and selected input edge survive chunk/window/CDC artifacts,
 the aggregate manifest/evidence and snapshot.
+
+An error before the first committed chunk, or a successfully compensated first
+local-pair write, keeps an explicitly empty frontier with the actual source
+witness, ingestion clock profile and schema binding. It advances neither cursor
+nor dedupe keys. A fresh reader can replay it under the same bindings; a changed
+clock or schema still refuses. An unresolved source commit or failed compensation
+remains unresolved. The empty frontier is built when its actual witness is
+available, after input capacity admission, rather than persisting a guessed
+source binding before effects. The streaming runtime tests use explicit versioned
+JSONL inputs and independently frozen finite-owner files; cleanup faults wrap
+real acquired sessions, and window lineage includes the selected source witness.
 
 The horizon stores UTC first-acceptance times for 86,400 seconds and refuses live
 key overflow before eviction. Two OS processes with an explicit injected UTC

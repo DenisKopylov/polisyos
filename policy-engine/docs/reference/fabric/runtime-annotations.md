@@ -1,5 +1,8 @@
 # Fabric runtime annotation compatibility
 
+Owner: Fabric owners, with Core contract owners for runtime annotation types.
+Source of truth: `src/polisyos/fabric/evidence/decision_data.py`, `src/polisyos/fabric/data_plane/__init__.py`, and their facade-reflection tests under `tests/unit/fabric/`.
+
 Decision: `AD-E02-FABRIC-REFLECTION-01`, selected as alternative A in the G decision
 pack at commit `8f8a0bf53e687c07c8de62d934a61c98448e5530`. The implementation
 source reviewed for this candidate is commit `8533003b91961cf9ba1305ec296dab7f3ed40e4b`

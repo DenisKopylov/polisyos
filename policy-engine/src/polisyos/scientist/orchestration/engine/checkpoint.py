@@ -51,6 +51,7 @@ from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.protocol import ArtifactStore, AsyncArtifactStore
+    from polisyos.scientist.orchestration.engine.context import ExecutionContext
     from polisyos.scientist.orchestration.engine.workflow_spec import WorkflowSpec
 
 logger = get_logger(__name__)
@@ -2488,7 +2489,6 @@ def resume_from_checkpoint(
         build_workflow_runner,
     )
     from polisyos.scientist.orchestration.workflows.builder import (
-        build_default_registry,
         build_execution_context,
         build_registry_with_builtin_nodes,
     )
@@ -2510,6 +2510,7 @@ def resume_from_checkpoint(
     active_scope = _active_checkpoint_scope()
     run_dir = _resolve_run_dir(store=store, run_id=run_id, run_dir=run_dir)
     lock = acquire_run_lock(run_dir, run_id=run_id, mode="resume", force=force_lock)
+    ctx: ExecutionContext | None = None
     try:
         resolved = resolve_latest_checkpoint(
             store,
@@ -2592,16 +2593,30 @@ def resume_from_checkpoint(
                     + ", ".join(missing_state_paths)
                 )
 
+        if len(resumed_workflow.nodes) == 0:
+            return WorkflowExecutionResult(
+                state=restored_state,
+                report=WorkflowReport(
+                    schema_version="1.0",
+                    workflow_id=workflow_spec.workflow_id,
+                    run_id=run_id,
+                    error_policy=workflow_spec.error_policy,
+                    status=WorkflowExecutionStatus.OK.value,
+                    nodes=[],
+                ),
+            )
+
         registry_bundle_ref = registry_bundle_ref or restored_state.inputs.get(
             INPUT_REGISTRY_BUNDLE_REF
         )
         if registry_bundle_ref is None:
-            registry_bundle_ref = build_default_registry(store)
+            raise CheckpointCorruptedError("checkpoint resume registry bundle ref not established")
 
         ctx = build_execution_context(
             store,
             registry_bundle_ref,
             run_id=run_id,
+            resume_run_dir=run_dir,
         )
 
         ctx.run.emit(
@@ -2635,19 +2650,6 @@ def resume_from_checkpoint(
         )
 
         runner_config = WorkflowRunnerConfig.from_env()
-        if len(resumed_workflow.nodes) == 0:
-            return WorkflowExecutionResult(
-                state=restored_state,
-                report=WorkflowReport(
-                    schema_version="1.0",
-                    workflow_id=workflow_spec.workflow_id,
-                    run_id=run_id,
-                    error_policy=workflow_spec.error_policy,
-                    status=WorkflowExecutionStatus.OK.value,
-                    nodes=[],
-                ),
-            )
-
         try:
             runner = build_workflow_runner(runner_config)
         except (ImportError, RuntimeError, ValueError) as exc:
@@ -2690,7 +2692,11 @@ def resume_from_checkpoint(
             return run_coro_sync(execution_coro)
         return asyncio.run(execution_coro)
     finally:
-        lock.release()
+        try:
+            if ctx is not None:
+                ctx.run.suspend_for_resume()
+        finally:
+            lock.release()
 
 
 __all__ = [

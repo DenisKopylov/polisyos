@@ -6,7 +6,11 @@ platform. Component packages should publish `ComponentMetadata` plus a
 entry-point discovery, dev scanning, ABI validation, and version resolution.
 """
 
-from ._provider_origin import ProviderModuleBinding, ProviderOriginBinding
+from ._provider_origin import (
+    ProviderModuleBinding,
+    ProviderOriginBinding,
+    describe_callable_source,
+)
 from .bootstrap import (
     BootstrapDomainReport,
     BootstrapReport,
@@ -128,6 +132,7 @@ __all__ = [
     "build_components_index",
     "capabilities_from_flags",
     "compare_semver",
+    "describe_callable_source",
     "discover_components",
     "discover_dev_components",
     "discover_entry_points",

@@ -96,3 +96,59 @@ export function responseWithUnknownMetaAuthority(): unknown {
   Object.assign(response.meta, { authority_scope: "causal" });
   return response;
 }
+
+export function createNullablePredictiveCalibrationResponseFixture() {
+  const legacy = structuredClone(predictiveCalibrationResponseFixture);
+  const deniedUses = [
+    "promotion",
+    "publication",
+    "policy_selection",
+    "causal_effect_claim",
+    "production_claim_authority",
+  ];
+  return {
+    ...legacy,
+    association: {
+      ...legacy.association,
+      schema_version: "polisyos.runtime.predictive_calibration_association.v5",
+      observed_numerator: null as number | null,
+      observed_denominator: null as number | null,
+      observed_hit_rate: null as number | null,
+      value_data_profile_ref: null,
+      forecast_profile_member_ref: null,
+      profile_join_status: "profileless_legacy",
+      evidence_reason_codes: ["backtest_source_not_established"],
+      may_not_use_for: [...deniedUses],
+      s10: {
+        ...legacy.association.s10,
+        calibration_status: "blocked",
+        forecast_tier: "blocked",
+        numerator: null as number | null,
+        denominator: null as number | null,
+        observed_pass_rate: null as number | null,
+        calibration_record_ref: null as string | null,
+        outcome_binding_status: "not_established",
+        limitation_refs: [
+          "s10://calibration/fail-closed/n4_outcome_target_binding_not_established",
+          "s10://calibration/fail-closed/backtest_source_not_established",
+        ],
+        authority_boundary: {
+          boundary_id: null,
+          authoritative_for: [
+            "forecast_support_tiering",
+            "observable_subset_calibration",
+          ],
+          may_not_use_for: [...deniedUses],
+          source_authority: "deterministic_producer",
+          posture: "shadow",
+          rule_version_refs: ["policyos.layer2.s10.outcome_prediction.v1"],
+          evidence_kind: null,
+          decision_grade: null,
+          evidence_basis: null,
+          known_limits: [],
+        },
+        may_not_use_for: [...deniedUses],
+      },
+    },
+  };
+}

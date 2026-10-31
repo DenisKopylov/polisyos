@@ -8,7 +8,7 @@ Date: 2026-10-27. This packet is a decision input, not source acceptance. For th
 
 Open API-domain choice: should ordinary input mappings with exact _type values reserved by the selected .2 owner remain representable as mappings in persistence and cache inputs (Option A: a versioned lossless mapping escape), or be rejected before persistence and cache lookup under .2 (Option B)?
 
-Reuse the existing draft and its inputs/evidence as written: [CAN decision draft](../canonical-raw-mapping-20261026/README.md) and [source/readout pins](../canonical-raw-mapping-20261026/inputs.json). The current-source consumer oracle is [here](../../raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/can-composed-consumer-oracle-20261027-r1/can-current-source-oracle.md). This packet does not copy or replace them. The decision remains pending G. Do not reopen AD-E02-05's shared-mechanics/Core-vs-IR separation or IR-Q1/Q2's typed owner admission, already selected in local G docs at 978921662b2d89006759cdd2ae96dbccc9bdcf11.
+Reuse the existing draft and its inputs/evidence as written: [CAN decision draft](../canonical-raw-mapping-20261026/README.md) and [source/readout pins](../canonical-raw-mapping-20261026/inputs.json). The current-source consumer oracle is here (`../../raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/can-composed-consumer-oracle-20261027-r1/can-current-source-oracle.md`; unavailable in this checkout). This packet does not copy or replace them. The decision remains pending G. Do not reopen AD-E02-05's shared-mechanics/Core-vs-IR separation or IR-Q1/Q2's typed owner admission, already selected in local G docs at 978921662b2d89006759cdd2ae96dbccc9bdcf11.
 
 ### TC-01 — define the request time scope named by ADR-0148
 
@@ -16,7 +16,7 @@ Open scope choice: does ADR-0148's generic time_context_ref mean the existing ru
 
 Recommendation: reuse TemporalScope for the explicit request cursor; keep policy_time, data requirement time_role, source time, and legal valid time separate. Independently, apply one typed owner/wire and profile-bound SameInputClosure identity rule to every selected CAS-view pointer, not only time_context_ref. Legal snapshot remains governed by the independent Lex barrier.
 
-Source/readiness input: [TimeContext compatibility and falsifier record](../../raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/time-context-existing-contract-prototype-20261027-r1/implementation-readiness.md). This is a narrow owner decision, not permission to treat prototype compatibility as an ordinary POST or authority proof.
+Source/readiness input: TimeContext compatibility and falsifier record (`../../raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/time-context-existing-contract-prototype-20261027-r1/implementation-readiness.md`; unavailable in this checkout). This is a narrow owner decision, not permission to treat prototype compatibility as an ordinary POST or authority proof.
 
 ## G and source state
 

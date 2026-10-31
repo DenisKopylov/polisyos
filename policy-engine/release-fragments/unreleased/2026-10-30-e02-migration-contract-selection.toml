@@ -1,0 +1,15 @@
+id = "2026-10-30-e02-migration-contract-selection"
+title = "Execute selected migration helpers with isolated per-call edges"
+type = "fixed"
+component = "migrations"
+owner = "team-ops"
+summary = "Artifact migration commands execute the contract-selected callable and isolate dataset conversion from concurrent global registry replacement."
+evidence = ["tests/unit/remediation/test_migration_dispatch_contract.py", "tests/unit/remediation/test_mig_01.py", "tests/unit/remediation/test_mig_02.py", "tests/unit/remediation/test_mig_04.py", "tests/unit/remediation/test_mig_05.py"]
+compatibility = "Existing schema conversion profiles and global registration APIs remain available. Missing, ambiguous or invalid bindings now fail before writing output."
+change_class = "tooling"
+surface_classification = "public_stable: polisyos.common.migrations.migrate_artifact; internal: polisyos-tools migration CLI"
+migration = "No artifact is rewritten automatically. Operators invoke the existing migration command with a selected output path."
+limitations = "Contract-root layout and callable resolution do not establish source authenticity or artifact provenance. The installed-shaped test does not replace an installed wheel execution."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["tools/ops_runners/migrations/README.md", "src/polisyos/common/migrations/README.md"]
+runbook_docs = ["docs/runbooks/migration-release-promotion.md"]

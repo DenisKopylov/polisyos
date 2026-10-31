@@ -333,6 +333,8 @@ def write_world_fact_segment(
     segment_name: str,
 ) -> FactSegmentManifest:
     """Write one deduplicated world fact segment under the fact-log `world/` lane."""
+    from pyarrow import ArrowException
+
     try:
         segment_dir = fact_log_root / "world"
         normalized = _normalize_segment_name(segment_name)
@@ -342,7 +344,7 @@ def write_world_fact_segment(
             segment_dir=segment_dir,
             segment_name=normalized,
         )
-    except Exception as exc:  # pragma: no cover - defensive
+    except (OSError, ValueError, ArrowException) as exc:
         raise WorldSegmentError(f"failed to write world fact segment: {exc}") from exc
 
 
@@ -425,6 +427,7 @@ def load_world_facts[E: Exception](
 ) -> pd.DataFrame:
     """Load requested columns from every readable world fact segment."""
     import pandas as pd
+    from pyarrow import ArrowException
 
     manifests = load_world_fact_manifests(fact_log_root)
     frames: list[pd.DataFrame] = []
@@ -434,7 +437,7 @@ def load_world_facts[E: Exception](
             continue
         try:
             frame = pd.read_parquet(path, columns=columns)
-        except Exception as exc:
+        except (OSError, ValueError, ArrowException) as exc:
             if read_error_cls is not None:
                 raise read_error_cls(f"{read_error_prefix} {path}: {exc}") from exc
             raise

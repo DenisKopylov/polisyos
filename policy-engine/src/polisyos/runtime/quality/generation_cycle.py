@@ -1462,6 +1462,21 @@ def _validate_loaded_joint_simulation_result(
         )
     if result.receipt.trajectory_count != len(result.trajectories):
         _joint_simulation_result_integrity_error("trajectory_count_mismatch")
+    selected_decisions = tuple(
+        decision for decision in result.engine_decisions if decision.decision == "selected"
+    )
+    if len(selected_decisions) != 1:
+        _joint_simulation_result_integrity_error("selected_engine_decision_not_unique")
+    selected = selected_decisions[0]
+    selected_identity = (selected.engine_kind, selected.method_fqn, selected.objective_ref)
+    if result.receipt.engine_kind != selected.engine_kind:
+        _joint_simulation_result_integrity_error("receipt_engine_selection_mismatch")
+    if any(
+        (trajectory.engine_kind, trajectory.method_fqn, trajectory.objective_ref)
+        != selected_identity
+        for trajectory in result.trajectories
+    ):
+        _joint_simulation_result_integrity_error("trajectory_engine_selection_mismatch")
     atom_ids = set(result.atom_ids)
     selected_outcomes = set(result.selected_outcomes)
     for trajectory in result.trajectories:
@@ -1487,9 +1502,15 @@ def load_joint_simulation_result(
     expected_world_model_record_content_hash: str | None = None,
     expected_atom_ids: Sequence[str] | None = None,
     expected_selected_outcomes: Sequence[str] | None = None,
+    expected_receipt_payload_hash: str | None = None,
     expected_request: JointSimulationRequest | None = None,
 ) -> JointSimulationResult:
-    """Resolve, verify, and semantically bind one persisted N5 result."""
+    """Resolve, verify, and semantically bind one persisted N5 result.
+
+    Standalone historical reads may omit the expected receipt hash. An
+    observation-bound consumer supplies its sibling hash, using an empty string
+    for an absent sibling so that missing evidence cannot become an unbound read.
+    """
     from polisyos.common.canonical_profile import CanonicalProfileRefusalError
     from polisyos.core.artifacts import artifact_manifest_profile_sha256
 
@@ -1593,6 +1614,11 @@ def load_joint_simulation_result(
         verify_simulation_receipt(result.receipt, result.content_bound_payload())
     except (ProofReceiptError, TypeError, ValueError) as exc:
         _joint_simulation_result_integrity_error("receipt_or_payload_invalid", exc)
+    if (
+        expected_receipt_payload_hash is not None
+        and result.receipt.payload_hash != expected_receipt_payload_hash
+    ):
+        _joint_simulation_result_integrity_error("receipt_payload_hash_binding_mismatch")
     _validate_loaded_joint_simulation_result(
         result,
         expected_world_model_record_content_hash=expected_world_model_record_content_hash,
@@ -4330,7 +4356,8 @@ class JointSimulationPort:
                     world_model_record=request.world_model_record,
                 )
         if (
-            type(candidate_simulation_input) is CandidateSimulationN5InputV5
+            candidate_simulation_input is not None
+            and type(candidate_simulation_input) is CandidateSimulationN5InputV5
             and candidate_simulation_input_ref is not None
         ):
             from polisyos.runtime.quality.n5_execution_basis import (
@@ -6234,12 +6261,12 @@ def simulation_evaluation_input_ref(
                 expected_world_model_record_content_hash=(
                     simulation.world_model_record.content_hash
                 ),
+                expected_receipt_payload_hash=simulation.simulation_ref or "",
             )
         except GenerationCycleError:
             return None
         if (
             result.schema_version != JOINT_SIMULATION_HORIZON_REPLICATION_UNCERTAINTY_SCHEMA_VERSION
-            or result.receipt.payload_hash != simulation.simulation_ref
             or not set(result.promotion_ready_value_packet.get("authority_blockers", ())).issubset(
                 blockers
             )
@@ -7144,6 +7171,7 @@ def _conditional_simulation_value_observation(
             expected_world_model_record_content_hash=world_hash,
             expected_atom_ids=atom_ids or None,
             expected_selected_outcomes=(outcome,) if outcome else None,
+            expected_receipt_payload_hash=simulation.simulation_ref or "",
         )
     except GenerationCycleError as exc:
         if propagate_artifact_access_errors:
@@ -17226,6 +17254,13 @@ def _s10_empirical_projection(
     denials = tuple(str(item) for item in _sequence(_object_get(evidence, "may_not_use_for")))
     if set(denials) != _S10_PREDICTIVE_DENIALS:
         return None, "empirical_evidence_authority_denials_mismatch"
+    failure_codes = tuple(str(item) for item in _sequence(_object_get(evidence, "failure_codes")))
+    if _object_get(evidence, "empirical_observations_available") is not True:
+        return None, (
+            "backtest_source_not_established"
+            if "backtest_source_not_established" in failure_codes
+            else "empirical_observations_not_available"
+        )
 
     scalar_refs = {
         "observed_outcome_ref": _s10_artifact_ref_id(_object_get(evidence, "observed_outcome_ref")),
@@ -17282,7 +17317,6 @@ def _s10_empirical_projection(
         else "blocked"
     )
     forecast_tier = "observable_calibrated" if calibration_status == "pass" else "blocked"
-    failure_codes = tuple(str(item) for item in _sequence(_object_get(evidence, "failure_codes")))
     reason = (
         "persisted predictive interval observations were recomputed from held-out data"
         if not failure_codes
@@ -17308,6 +17342,7 @@ def _s10_empirical_projection(
         "counterfactual_credibility": "not_established",
         "interval_coverage_metric": pass_rate if denominator else None,
         "calibration_error_metric": None,
+        "failure_codes": list(failure_codes),
         "source_lineage_refs": list(source_lineage_refs),
         "method_lineage_refs": list(method_lineage_refs),
         "forecast_authority_disposition_reason": reason,
@@ -17366,25 +17401,25 @@ def _resolve_s10_empirical_evidence(
     ):
         return None, "empirical_evidence_ref_kind_mismatch"
 
-    projection, projection_error = _s10_empirical_projection(
-        evidence_ref=raw_ref,
-        evidence=evidence,
-    )
-    if projection_error is not None or projection is None:
-        return None, projection_error or "empirical_evidence_projection_invalid"
-
+    # Bind identity and time even for unavailable observations. Otherwise an
+    # unavailable-source reason would hide a wrong method, rule or temporal input.
     method_ref, separator, method_version = selected_method_fqn.rpartition("@")
     if (
         not separator
-        or _optional_text(projection.get("method_ref")) != method_ref
-        or _optional_text(projection.get("method_version")) != method_version
+        or _optional_text(_object_get(evidence, "method_ref")) != method_ref
+        or _optional_text(_object_get(evidence, "method_version")) != method_version
     ):
         return None, "empirical_evidence_method_mismatch"
     expected_rule = _optional_text(expected_rule_version_ref)
-    if expected_rule is None or _optional_text(projection.get("rule_version_ref")) != expected_rule:
+    if (
+        expected_rule is None
+        or _optional_text(_object_get(evidence, "rule_version_ref")) != expected_rule
+    ):
         return None, "empirical_evidence_rule_mismatch"
 
-    loaded_temporal_roles = _bound_s10_temporal_roles(projection)
+    loaded_temporal_roles = _bound_s10_temporal_roles(
+        {key: _object_get(evidence, key) for key in _S10_TEMPORAL_ROLE_KEYS}
+    )
     if loaded_temporal_roles is None:
         return None, "empirical_evidence_time_mismatch"
     if expected_temporal_roles is not None:
@@ -17397,6 +17432,12 @@ def _resolve_s10_empirical_evidence(
         ):
             return None, "empirical_evidence_time_mismatch"
 
+    projection, projection_error = _s10_empirical_projection(
+        evidence_ref=raw_ref,
+        evidence=evidence,
+    )
+    if projection_error is not None or projection is None:
+        return None, projection_error or "empirical_evidence_projection_invalid"
     return _S10ResolvedEmpiricalEvidence(raw_ref, projection), None
 
 
@@ -17446,8 +17487,7 @@ def _build_s10_forecast_inputs(
     ):
         effective_forecast_tier = "blocked"
     if additional_limitation_refs:
-        # Retain the observed-series calibration grade while preventing it from
-        # being presented as calibration of an unbound N4 outcome variable.
+        # An unbound N4 outcome cannot acquire a calibrated forecast tier.
         effective_forecast_tier = "blocked"
     method_family = _s10_method_family(selected_method_fqn)
     report_ref = gy_content_hash(
@@ -17567,11 +17607,10 @@ def _build_s10_forecast_inputs(
                     if empirical_evidence_error is None and not calibration_bound
                     else "S10 owner forecast over Foundry method output"
                 )
-                + (f" [{empirical_evidence_error}]" if empirical_evidence_error else "")
             )
+            + (f" [{empirical_evidence_error}]" if empirical_evidence_error else "")
             + (
-                "; N4 outcome-to-observed-metric relation is not established; observed-series "
-                "predictive grade is retained without an N4 outcome-calibrated tier."
+                "; N4 outcome-to-observed-metric relation is not established."
                 if additional_limitation_refs
                 else ""
             )

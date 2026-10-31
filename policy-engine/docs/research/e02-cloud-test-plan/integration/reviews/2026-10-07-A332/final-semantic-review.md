@@ -11,7 +11,7 @@
 
 ## Final native-result delta
 
-The current [native checks](../../../../docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/native-checks.md) and [tester report](../../../../docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/native-report.md) bind all runs to candidate 332/tree above. I checked the compact receipt and all 51 output aliases: all files exist and recorded byte counts/SHA-256 values match. No G source/ref changed. The exact candidate outcomes are:
+The current [native checks](native-checks.md) and [tester report](native-report.md) bind all runs to candidate 332/tree above. I checked the compact receipt and all 51 output aliases: all files exist and recorded byte counts/SHA-256 values match. No G source/ref changed. The exact candidate outcomes are:
 
 - Direct N5-v2 mapping and foreign/tampered-reference refusal: **PASS 3/3**.
 - Default conditional simulation plus persisted history: **FAIL 1/1**, at `validate_generation_cycle_run_history(persisted)` with `generation_cycle_historical_projection_mismatch`. The preceding N5/N8 result and limitations were reached, but persisted history is not accepted. No exact slice-base replay was made, so introduction/inheritance attribution is `not_established`.
@@ -24,7 +24,7 @@ The output manifest’s 51 entries were independently checked against local file
 
 - Code admission stays **HOLD** on the actual history failure. Return the exact failing path to canonical A owner; keep P41 attribution `not_established` absent slice-base replay. Reconcile the full unaccepted A ancestry and accepted G/V11 content by an ordinary history-preserving owner merge; 4ef’s additive two-file diff is not a substitute for whole-history admission. No finding is closed by this result.
 - B11 wording is now aligned across native checks, README, consumer review, admission, and the appended A prompt: the original scheduler/budget and honest-heuristic criteria stand. Ordinary-worker production and positive public inspection remain unverified only for claims that include those surfaces; they are not new B11 prerequisites. B27 remains open for a valid revised context, successful second N4/N5, and shared saved-history positive. Do not repeat the unchanged guard-removal probe.
-- The isolated export `native-A/candidate` was moved to native Trash after its 77,930,496-byte allocated-size measurement. [Cleanup receipt](../cleanup-20261007/A332-export-native-receipt.json) records `verified_in_native_Trash`, source absent, and the same device/inode at `/Users/deniskopylov/.Trash/candidate`. The deciding outputs and Git source remain in their separate locations; Trash was not emptied.
+- The isolated export `native-A/candidate` was moved to native Trash after its 77,930,496-byte allocated-size measurement. Cleanup receipt (`../cleanup-20261007/A332-export-native-receipt.json`; unavailable in this checkout) records `verified_in_native_Trash`, source absent, and the same device/inode at `/Users/deniskopylov/.Trash/candidate`. The deciding outputs and Git source remain in their separate locations; Trash was not emptied.
 
 ## Earlier report corrections
 

@@ -30,6 +30,10 @@ from typing import Any, Literal, Protocol, get_args, get_origin, get_type_hints
 import yaml
 
 from polisyos.common.markdown import split_markdown_table_row
+from tools.devx.architecture.conditional_exports import (
+    SourceExportProfile,
+    resolve_conditional_export_profiles,
+)
 from tools.lib.fs import (
     admitted_file_digest,
     admitted_is_dir,
@@ -156,6 +160,7 @@ class SupportedEntrypointInventory:
     source_file: str
     summary: str
     export_resolution: dict[str, Any]
+    source_export_profiles: tuple[SourceExportProfile, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -3367,27 +3372,49 @@ def _export_namespace_write_may_change(
         ):
             return False
         mapping_name = node.iter.func.value.id
-        definitions = [
-            statement
-            for statement in tree.body
-            if isinstance(statement, ast.Assign)
-            and len(statement.targets) == 1
-            and isinstance(statement.targets[0], ast.Name)
-            and statement.targets[0].id == mapping_name
-            and isinstance(statement.value, ast.Dict)
-            and not statement.value.keys
-        ]
+        definitions: list[ast.Name] = []
+        for statement in tree.body:
+            if not isinstance(statement, (ast.Assign, ast.AnnAssign)):
+                continue
+            targets = statement.targets if isinstance(statement, ast.Assign) else [statement.target]
+            if (
+                len(targets) == 1
+                and isinstance(targets[0], ast.Name)
+                and targets[0].id == mapping_name
+                and isinstance(statement.value, ast.Dict)
+                and not statement.value.keys
+            ):
+                definitions.append(targets[0])
         if len(definitions) != 1:
             return False
-        definition_target = definitions[0].targets[0]
+        definition_target = definitions[0]
         loop_read = node.iter.func.value
         if any(
             isinstance(child, (ast.Global, ast.Nonlocal)) and mapping_name in child.names
             for child in ast.walk(tree)
         ):
             return False
+
+        def is_closed_read(child: ast.Name) -> bool:
+            attribute = parents.get(child)
+            if not isinstance(attribute, ast.Attribute):
+                return False
+            call = parents.get(attribute)
+            if not (
+                isinstance(child.ctx, ast.Load)
+                and attribute.value is child
+                and isinstance(call, ast.Call)
+                and call.func is attribute
+                and not call.keywords
+                and not any(isinstance(argument, ast.Starred) for argument in call.args)
+            ):
+                return False
+            return (attribute.attr == "items" and not call.args) or (
+                attribute.attr == "get" and 1 <= len(call.args) <= 2
+            )
+
         return all(
-            child is definition_target or child is loop_read
+            child is definition_target or child is loop_read or is_closed_read(child)
             for child in ast.walk(tree)
             if isinstance(child, ast.Name) and child.id == mapping_name
         )
@@ -4379,6 +4406,123 @@ def _lazy_attribute_map_routes(
     return frozenset()
 
 
+def _guarded_literal_lazy_owner_routes(source: Path, tree: ast.Module) -> dict[str, str]:
+    """Follow a closed membership guard to a literal same-name owner lookup."""
+    info = _module_name_for_path(source)
+    getter = _top_level_function(tree, "__getattr__")
+    if (
+        info is None
+        or getter is None
+        or getter.decorator_list
+        or not _has_exact_positional_parameters(getter, "name")
+    ):
+        return {}
+    body = _function_body_without_docstring(getter)
+    if len(body) not in {3, 4}:
+        return {}
+    guard, assignment, returned = body[0], body[1], body[-1]
+    if not (
+        isinstance(guard, ast.If)
+        and not guard.orelse
+        and isinstance(guard.test, ast.Compare)
+        and isinstance(guard.test.left, ast.Name)
+        and guard.test.left.id == "name"
+        and len(guard.test.ops) == 1
+        and isinstance(guard.test.ops[0], ast.NotIn)
+        and len(guard.test.comparators) == 1
+        and isinstance(guard.test.comparators[0], ast.Name)
+        and guard.test.comparators[0].id == "__all__"
+        and len(guard.body) == 1
+        and isinstance(guard.body[0], ast.Raise)
+        and isinstance(guard.body[0].exc, ast.Call)
+        and isinstance(guard.body[0].exc.func, ast.Name)
+        and guard.body[0].exc.func.id == "AttributeError"
+        and guard.body[0].cause is None
+        and isinstance(assignment, ast.Assign)
+        and len(assignment.targets) == 1
+        and isinstance(assignment.targets[0], ast.Name)
+        and isinstance(assignment.value, ast.Call)
+        and isinstance(assignment.value.func, ast.Name)
+        and assignment.value.func.id == "getattr"
+        and len(assignment.value.args) == 2
+        and not assignment.value.keywords
+        and isinstance(assignment.value.args[0], ast.Call)
+        and isinstance(assignment.value.args[1], ast.Name)
+        and assignment.value.args[1].id == "name"
+        and isinstance(returned, ast.Return)
+        and isinstance(returned.value, ast.Name)
+        and returned.value.id == assignment.targets[0].id
+    ):
+        return {}
+    local = assignment.targets[0].id
+    owner_call = assignment.value.args[0]
+    if (
+        not owner_call.args
+        or not isinstance(owner_call.args[0], ast.Constant)
+        or not isinstance(owner_call.args[0].value, str)
+        or local in {"name", "__all__", "getattr", "globals", "AttributeError"}
+        or any(isinstance(node, ast.Name) and node.id == local for node in ast.walk(owner_call))
+        or any(
+            list(_module_scope_symbol_bindings(tree, name))
+            for name in ("getattr", "globals", "AttributeError")
+        )
+    ):
+        return {}
+    if len(body) == 4:
+        cache = body[2]
+        if not (
+            isinstance(cache, ast.Assign)
+            and len(cache.targets) == 1
+            and isinstance(cache.targets[0], ast.Subscript)
+            and isinstance(cache.targets[0].value, ast.Call)
+            and isinstance(cache.targets[0].value.func, ast.Name)
+            and cache.targets[0].value.func.id == "globals"
+            and not cache.targets[0].value.args
+            and not cache.targets[0].value.keywords
+            and isinstance(cache.targets[0].slice, ast.Name)
+            and cache.targets[0].slice.id == "name"
+            and isinstance(cache.value, ast.Name)
+            and cache.value.id == local
+        ):
+            return {}
+    try:
+        exports = _StaticExportResolver(source, tree).resolve(source, "__all__")
+        if not isinstance(exports, (tuple, list)) or not all(
+            isinstance(name, str) for name in exports
+        ):
+            return {}
+        targets = {
+            _lazy_import_module_target(info[0], source, tree, owner_call, name) for name in exports
+        }
+        if None in targets or len(targets) != 1:
+            return {}
+        owner = next(iter(targets))
+        if owner is None:
+            return {}
+        owner_source = _facade_source_for(owner)
+        if owner_source == source:
+            return {}
+        owner_tree = ast.parse(admitted_read_bytes(owner_source, REPO_ROOT))
+        owner_exports = _StaticExportResolver(owner_source, owner_tree).resolve(
+            owner_source, "__all__"
+        )
+        if not isinstance(owner_exports, (tuple, list)) or _export_namespace_write_may_change(
+            owner_tree, frozenset((*exports, "__all__")), owner_source
+        ):
+            return {}
+    except (OSError, ValueError, TypeError, SyntaxError):
+        return {}
+    return {
+        name: owner
+        for name in exports
+        if name in owner_exports
+        and (
+            _branch_public_binding(owner_tree.body, name) is not None
+            or _optional_import_export_binding(owner_tree, name)
+        )
+    }
+
+
 def _lazy_named_owner_routes(source: Path, tree: ast.Module) -> dict[str, str]:
     """Resolve finite name-gated imports and same-name attribute loads statically."""
     info = _module_name_for_path(source)
@@ -4386,7 +4530,9 @@ def _lazy_named_owner_routes(source: Path, tree: ast.Module) -> dict[str, str]:
     if info is None or getter is None or not _has_exact_positional_parameters(getter, "name"):
         return {}
     module = info[0]
-    route_targets: dict[str, set[str]] = {}
+    route_targets: dict[str, set[str]] = {
+        name: {owner} for name, owner in _guarded_literal_lazy_owner_routes(source, tree).items()
+    }
     for branch in _function_body_without_docstring(getter):
         if not isinstance(branch, ast.If) or branch.orelse:
             continue
@@ -4583,14 +4729,19 @@ def _lazy_exports_have_owner_routes(
 
 def _runtime_module_statements(tree: ast.Module) -> tuple[ast.stmt, ...]:
     """Return module execution statements, unwrapping the standard TYPE_CHECKING split."""
-    type_checking = {
-        alias.asname or alias.name
+    type_checking_imports = {
+        alias.asname or alias.name: statement
         for statement in tree.body
         if isinstance(statement, ast.ImportFrom)
         and statement.module == "typing"
         and statement.level == 0
         for alias in statement.names
         if alias.name == "TYPE_CHECKING"
+    }
+    type_checking = {
+        name
+        for name, statement in type_checking_imports.items()
+        if list(_module_scope_symbol_bindings(tree, name)) == [statement]
     }
     statements: list[ast.stmt] = []
     for statement in tree.body:
@@ -4611,41 +4762,39 @@ def _branch_bindings(statements: list[ast.stmt], name: str) -> list[ast.AST]:
     return [node for node in _module_scope_symbol_bindings(module, name) if node in statements]
 
 
-def _branch_imports_selected_symbol(
-    statements: list[ast.stmt], name: str
-) -> tuple[str, str] | None:
-    """Identify one import that binds the requested public symbol directly."""
-    if len(statements) != 1 or not isinstance(statements[0], (ast.Import, ast.ImportFrom)):
+def _branch_public_binding(statements: list[ast.stmt], name: str) -> ast.AST | None:
+    """Resolve one unconditional binding, without claiming its runtime availability."""
+    branch = ast.Module(body=statements, type_ignores=[])
+    binding = _direct_public_binding(branch, name)
+    if (
+        isinstance(binding, (ast.Assign, ast.AnnAssign))
+        and isinstance(binding.value, ast.Name)
+        and not _public_alias_target_is_bound(branch, binding.value.id)
+    ):
         return None
-    statement = statements[0]
-    if len(statement.names) != 1:
-        return None
-    alias = statement.names[0]
-    if alias.name == "*":
-        return None
-    if isinstance(statement, ast.ImportFrom):
-        if alias.name != name or (alias.asname or alias.name) != name:
-            return None
-        return ("symbol", name)
-    bound_name = alias.asname or alias.name.split(".", 1)[0]
-    if bound_name != name:
-        return None
-    return ("module", name)
+    return binding
 
 
-def _optional_import_export_binding(tree: ast.Module, name: str, bindings: list[ast.AST]) -> bool:
-    """Prove one selected name is bound in every direct optional-import outcome."""
+def _optional_import_export_binding(tree: ast.Module, name: str) -> bool:
+    """Prove a declared name exists in each successful optional-import outcome.
+
+    A fallback such as ``None`` is a bound export, not proof that an optional
+    backend, callable or type is available. Import resolution retains its own
+    stricter owner-binding checks.
+    """
+    runtime = ast.Module(body=list(_runtime_module_statements(tree)), type_ignores=[])
+    bindings = list(_module_scope_symbol_bindings(runtime, name))
     if len(bindings) < 2:
         return False
-    for statement in _runtime_module_statements(tree):
+    for statement in runtime.body:
         if not isinstance(statement, ast.Try) or not statement.handlers:
             continue
         contained = {id(node) for node in ast.walk(statement)}
         if not all(id(binding) in contained for binding in bindings):
             continue
         try_bindings = _branch_bindings(statement.body, name)
-        try_identity = _branch_imports_selected_symbol(statement.body, name)
-        if try_identity is None or len(try_bindings) != 1:
+        try_binding = _branch_public_binding(statement.body, name)
+        if not isinstance(try_binding, (ast.Import, ast.ImportFrom)) or len(try_bindings) != 1:
             continue
         if _branch_bindings(statement.orelse, name) or _branch_bindings(statement.finalbody, name):
             continue
@@ -4674,7 +4823,7 @@ def _optional_import_export_binding(tree: ast.Module, name: str, bindings: list[
                     "IndentationError",
                 }
                 or any(list(_module_scope_symbol_bindings(tree, item)) for item in exception_names)
-                or _branch_imports_selected_symbol(handler.body, name) != try_identity
+                or _branch_public_binding(handler.body, name) is None
             ):
                 valid_handlers = False
                 break
@@ -4715,7 +4864,7 @@ def _exported_names_have_bindings(source: Path, tree: ast.Module, exports: tuple
     for name in exports:
         bindings = _indexed_symbol_bindings(binding_index, wildcard_imports, name)
         binding = _direct_public_binding(tree, name, bindings)
-        if binding is None and _optional_import_export_binding(tree, name, bindings):
+        if binding is None and _optional_import_export_binding(tree, name):
             continue
         if binding is not None:
             if (
@@ -4852,6 +5001,7 @@ def _entrypoint_inventory(module: str) -> SupportedEntrypointInventory:
     incomplete_reason = None
     exports_scope = None
     declared_candidates: tuple[str, ...] = ()
+    source_profiles: tuple[SourceExportProfile, ...] = ()
     with measure_file_reads(REPO_ROOT) as reads:
         try:
             source_file = _facade_source_for(module)
@@ -4870,11 +5020,28 @@ def _entrypoint_inventory(module: str) -> SupportedEntrypointInventory:
                 exports_scope = (
                     "no names proven by the bounded parser; not an empty runtime namespace"
                 )
+            if incomplete_reason is not None:
+                source_profiles = resolve_conditional_export_profiles(
+                    tree, lambda profile_tree: _extract_exports(profile_tree, source_file)
+                )
+                if source_profiles:
+                    shared_names = set(source_profiles[0].exports).intersection(
+                        *(set(profile.exports) for profile in source_profiles[1:])
+                    )
+                    exports = tuple(
+                        name for name in source_profiles[0].exports if name in shared_names
+                    )
+                    incomplete_reason = None
         except (OSError, ValueError, SyntaxError, TypeError) as exc:
             exc.add_note(json.dumps(reads.snapshot(complete_verdict=False), sort_keys=True))
             raise
         export_resolution = reads.snapshot(complete_verdict=incomplete_reason is None)
     export_resolution["complete"] = incomplete_reason is None
+    if source_profiles:
+        export_resolution["exports_scope"] = (
+            "Complete finite source-conditioned export profiles; exports lists only their "
+            "common names. No backend condition or native availability was evaluated."
+        )
     if incomplete_reason is not None:
         export_resolution["reason"] = incomplete_reason
         export_resolution["exports_scope"] = exports_scope
@@ -4903,7 +5070,7 @@ def _entrypoint_inventory(module: str) -> SupportedEntrypointInventory:
             if incomplete_reason is not None and not exports
             else _observed_facade_mode(exports=exports, has_getattr="__getattr__" in function_names)
         ),
-        export_count=len(exports) if incomplete_reason is None else None,
+        export_count=len(exports) if incomplete_reason is None and not source_profiles else None,
         known_export_count=len(exports),
         exports=exports,
         has___getattr__="__getattr__" in function_names,
@@ -4911,6 +5078,7 @@ def _entrypoint_inventory(module: str) -> SupportedEntrypointInventory:
         source_file=str(source_file.relative_to(REPO_ROOT)),
         summary=summary[0] if summary else "",
         export_resolution=export_resolution,
+        source_export_profiles=source_profiles,
     )
 
 
@@ -4992,7 +5160,7 @@ def _source_child_module_names(module: str) -> tuple[str, ...] | None:
     try:
         if not admitted_is_dir(package_dir, REPO_ROOT):
             return ()
-        children = list(package_dir.iterdir())
+        children = sorted(package_dir.iterdir(), key=lambda child: child.name)
     except (OSError, ValueError):
         return None
 
@@ -6181,6 +6349,18 @@ def render_public_surface_json(
                         "source_file": entrypoint.source_file,
                         "summary": entrypoint.summary,
                         "export_resolution": entrypoint.export_resolution,
+                        "source_export_profiles": [
+                            {
+                                "schema_version": profile.schema_version,
+                                "conditions": [
+                                    {"expression": condition.expression, "value": condition.value}
+                                    for condition in profile.conditions
+                                ],
+                                "exports": list(profile.exports),
+                                "runtime_condition_evaluation": profile.runtime_condition_evaluation,
+                            }
+                            for profile in entrypoint.source_export_profiles
+                        ],
                     }
                     for entrypoint in item.entrypoints
                 ],
@@ -6195,6 +6375,13 @@ def _export_count_display(count: int | None, known_count: int) -> str:
     if count is not None:
         return str(count)
     return f"unknown ({known_count} known prefix)" if known_count else "unknown (no names proven)"
+
+
+def _entrypoint_export_count_display(entrypoint: SupportedEntrypointInventory) -> str:
+    if entrypoint.source_export_profiles:
+        counts = sorted({len(profile.exports) for profile in entrypoint.source_export_profiles})
+        return "conditional (" + "/".join(str(count) for count in counts) + ")"
+    return _export_count_display(entrypoint.export_count, entrypoint.known_export_count)
 
 
 def _markdown_code_span(value: str) -> str:
@@ -6334,7 +6521,7 @@ def render_public_surface_markdown(inventory: list[PackageInventory]) -> str:
                 "| --- | --- | --- | ---: |",
                 *(
                     f"| `{entrypoint.module}` | `{entrypoint.source_file}` | "
-                    f"`{entrypoint.facade_mode_observed}` | {_export_count_display(entrypoint.export_count, entrypoint.known_export_count)} |"
+                    f"`{entrypoint.facade_mode_observed}` | {_entrypoint_export_count_display(entrypoint)} |"
                     for entrypoint in item.entrypoints
                 ),
             ]
@@ -6351,7 +6538,38 @@ def render_public_surface_markdown(inventory: list[PackageInventory]) -> str:
             )
             if entrypoint.summary:
                 lines.append(f"- Summary: {entrypoint.summary}")
-            if entrypoint.export_count is None:
+            if entrypoint.source_export_profiles:
+                lines.extend(
+                    [
+                        "- Complete finite source-conditioned export profiles follow. "
+                        "These conditions were not evaluated against a native environment.",
+                        f"- Common source exports: {entrypoint.known_export_count}; "
+                        "there is no single unconditional export count.",
+                    ]
+                )
+                for profile in entrypoint.source_export_profiles:
+                    conditions = "; ".join(
+                        f"{_markdown_code_span(condition.expression)} = "
+                        f"`{str(condition.value).lower()}`"
+                        for condition in profile.conditions
+                    )
+                    lines.extend(
+                        [
+                            "",
+                            f"- Source conditions: {conditions}",
+                            f"- Profile schema: `{profile.schema_version}`; "
+                            f"runtime condition evaluation: `{profile.runtime_condition_evaluation}`.",
+                            "",
+                            f"<details><summary>Conditional source exports ({len(profile.exports)})</summary>",
+                            "",
+                            "```text",
+                            *profile.exports,
+                            "```",
+                            "",
+                            "</details>",
+                        ]
+                    )
+            elif entrypoint.export_count is None:
                 resolution = entrypoint.export_resolution
                 reason = resolution["reason"]
                 if "\n" in reason:
@@ -6396,9 +6614,13 @@ def render_public_surface_markdown(inventory: list[PackageInventory]) -> str:
                     )
             if entrypoint.known_export_count:
                 label = (
-                    f"Known literal prefix ({entrypoint.known_export_count}; total unknown)"
-                    if entrypoint.export_count is None
-                    else f"Entrypoint exports ({entrypoint.export_count})"
+                    f"Common source exports ({entrypoint.known_export_count})"
+                    if entrypoint.source_export_profiles
+                    else (
+                        f"Known literal prefix ({entrypoint.known_export_count}; total unknown)"
+                        if entrypoint.export_count is None
+                        else f"Entrypoint exports ({entrypoint.export_count})"
+                    )
                 )
                 lines.extend(
                     [
@@ -6646,7 +6868,7 @@ def _check_public_surface_contracts(inventory: list[PackageInventory]) -> list[G
     violations: list[GuardrailViolation] = []
     for item in inventory:
         for entrypoint in item.entrypoints:
-            if entrypoint.export_count is None:
+            if entrypoint.export_count is None and not entrypoint.source_export_profiles:
                 violations.append(
                     GuardrailViolation(
                         check="public_surface",
@@ -8016,6 +8238,7 @@ def _isolated_probe_environment(
             "PYTHONPYCACHEPREFIX": str(bytecode_cache_root),
             "PYTHONDONTWRITEBYTECODE": "1",
             "PYTHONNOUSERSITE": "1",
+            "POLISYOS_TOOLS_TIMING_LOG": str(source_root.parent / "diagnostics" / "timing.jsonl"),
             "PATH": os.pathsep.join(
                 (str(private_environment / "bin"), environment.get("PATH", ""))
             ),

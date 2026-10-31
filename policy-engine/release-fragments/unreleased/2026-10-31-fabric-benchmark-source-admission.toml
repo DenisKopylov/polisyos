@@ -1,0 +1,30 @@
+id = "2026-10-31-fabric-benchmark-source-admission"
+title = "Preserve source-owned streaming progress and expected Fabric error boundaries"
+type = "fixed"
+component = "fabric"
+owner = "team-polisyos"
+summary = "Allow streaming benchmarks to supply the existing host-owned finite source readers to the canonical runtime. Keep dedupe admission, replay-only scope and committed checkpoint recovery intact. Restrict world segment error translation to expected filesystem, value and Arrow failures so unexpected defects propagate. Apply the same expected-error boundary to pending startup cleanup ID resolution, optional cache imports, quality indicator conversion and SDMX configuration validation."
+evidence = ["tests/unit/fabric/data_plane/test_benchmarks.py", "tests/unit/fabric/test_world_store.py", "tests/unit/fabric/data_plane/test_streaming_runtime.py", "tests/unit/fabric/connectors/test_registry.py", "tests/unit/fabric/connectors/test_quality_system.py", "tests/unit/fabric/connectors/reference/test_sdmx.py", "tests/repo_quality/tools/test_fabric_exception_baseline.py"]
+compatibility = "The new benchmark keyword is optional. Dedupe still refuses missing or mismatched source authority; no keys, versions or production guarantees are inferred. Expected segment IO errors retain their existing wrappers; unexpected exceptions now propagate unchanged. Expected unavailable connector IDs/imports, malformed optional numeric indicators and invalid SDMX headers retain their existing fallback or validation results; unexpected programming failures propagate."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.fabric.data_plane.benchmark_stream_processing"
+migration = "Hosts running dedupe benchmarks pass their admitted source_progress_readers. No persisted schema or Runtime API changes."
+limitations = "The regression input is a bounded synthetic finite JSONL source. It establishes software replay/dedupe behavior only, not production throughput, key semantics, source authenticity or E02 acceptance."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/fabric/data_plane/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "fabric-benchmark-source-readers"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.fabric.data_plane.benchmark_stream_processing source_progress_readers keyword"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Streaming benchmark callers can pass the existing source-owner reader contract to the canonical runtime; absent authority remains a typed refusal."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/fabric/data_plane/README.md"]
+runbook_docs = []

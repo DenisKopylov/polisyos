@@ -1,0 +1,11 @@
+id = "2026-10-31-uncertainty-numeric-admission"
+title = "Admit numerical uncertainty laws before evaluator effects"
+type = "fixed"
+component = "foundry"
+owner = "team-polisyos"
+summary = "Reject real-domain and float64 support loss before empirical sampling, validate covariance storage range before Delta callbacks, and preserve exact zero-spread Gaussian laws."
+evidence = ["tests/unit/foundry/uncertainty/test_numeric_admission.py", "tests/unit/foundry/uncertainty/test_covariance.py", "tests/unit/foundry/uncertainty/test_monte_carlo.py", "tests/unit/foundry/uncertainty/test_delta.py"]
+compatibility = "Public signatures and IR schemas are unchanged. Previously erased complex/string/lossy raw carriers now retain the existing incompatible-law limitation. Float32 covariance overflow/underflow refuses before callbacks; the CPU arithmetic subnormal restriction follows the actual selected device. Zero standard deviation remains exactly deterministic."
+migration = "Supply real representable carrier values or a supported covariance/device profile. A wider empirical float64 representation is not globally restricted to float32."
+limitations = "Numerical admission does not establish population law, source provenance, units, production calibration or G acceptance. B198 historical closure is unchanged."
+surface_classification = "public_stable"

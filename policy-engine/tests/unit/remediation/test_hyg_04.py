@@ -21,6 +21,7 @@ from tempfile import TemporaryDirectory
 
 import pytest
 
+from tools.lib import imports as tool_imports
 from tools.lib.fs import iter_repository_files
 from tools.quality.validation import (
     check_docs_lifecycle,
@@ -234,6 +235,44 @@ def test_workspace_bootstrap_subprocess_exposes_real_profiles(
             == 0
         )
         assert capture.read_text(encoding="utf-8").splitlines() == expected_argv
+
+
+@pytest.mark.parametrize(
+    ("malformed_sentinel", "malformed_type"),
+    [("pyproject.toml", "directory"), ("tools", "file"), ("src", "file")],
+)
+def test_repo_root_resolution_rejects_malformed_sentinel_layouts(
+    tmp_path: Path,
+    malformed_sentinel: str,
+    malformed_type: str,
+) -> None:
+    """Root lookup requires expected file and directory types, not just names."""
+
+    fake_root = tmp_path / f"malformed-{malformed_sentinel.replace('.', '-')}"
+    fake_root.mkdir()
+    for sentinel in ("pyproject.toml", "tools", "src"):
+        path = fake_root / sentinel
+        if sentinel == malformed_sentinel:
+            if malformed_type == "directory":
+                path.mkdir()
+            else:
+                path.write_text("not a directory", encoding="utf-8")
+        elif sentinel == "pyproject.toml":
+            path.write_text("[project]\nname = 'decoy'\n", encoding="utf-8")
+        else:
+            path.mkdir()
+
+    fake_module = fake_root / "fake_module.py"
+    fake_module.touch()
+
+    with pytest.raises(ValueError, match="Could not infer repository root"):
+        tool_imports.repo_root_from(fake_module)
+
+
+def test_repo_root_resolution_accepts_current_product_layout() -> None:
+    """The actual product source path still resolves to its workspace root."""
+
+    assert tool_imports.repo_root_from(__file__) == REPO_ROOT
 
 
 def test_benchmark_shims_preserve_canonical_object_identity() -> None:

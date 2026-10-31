@@ -884,7 +884,7 @@ def test_legacy_profileless_evidence_keeps_historical_id_role_semantics(
 def test_persisted_backtest_report_readback_produces_neutral_empirical_interval_hit_evidence(
     tmp_path: Path,
 ) -> None:
-    """Observed bounds are recomputed from the persisted report, not self-attested flags."""
+    """Report arithmetic remains diagnostic until its rows are bound to sources."""
 
     store, report_ref, persisted, refs = _persist_report(
         tmp_path,
@@ -919,11 +919,11 @@ def test_persisted_backtest_report_readback_produces_neutral_empirical_interval_
     )
 
     assert persisted.report_id == "frc02-bridge-neutral"
-    assert evidence.evidence_kind == "observed_interval_comparisons"
-    assert evidence.empirical_observations_available is True
+    assert evidence.evidence_kind == "unavailable"
+    assert evidence.empirical_observations_available is False
     assert evidence.context_bound is True
-    assert evidence.usable_for_calibration is True
-    assert evidence.floor_passed is True
+    assert evidence.usable_for_calibration is False
+    assert evidence.floor_passed is False
     assert evidence.recomputed_numerator == 1
     assert evidence.recomputed_denominator == 2
     assert evidence.recomputed_pass_rate == pytest.approx(0.5)
@@ -936,11 +936,37 @@ def test_persisted_backtest_report_readback_produces_neutral_empirical_interval_
     # authority merely because it has a finite interval hit rate.
     assert evidence.authority_scope == PREDICTIVE_AUTHORITY_SCOPE
     assert set(evidence.may_not_use_for) >= PREDICTIVE_AUTHORITY_DENIALS
-    assert evidence.failure_codes == ()
+    assert evidence.failure_codes == ("backtest_source_not_established",)
 
     evidence_ref = bridge.persist_empirical_calibration_evidence(store, evidence)
     readback = bridge.load_empirical_calibration_evidence(store, evidence_ref)
     assert readback == evidence
+
+    # The same selected input edges cannot make a historical affirmative
+    # payload reproducible after the source-binding limitation is recognized.
+    former_payload = evidence.model_dump(mode="json")
+    former_payload.update(
+        evidence_kind="observed_interval_comparisons",
+        empirical_observations_available=True,
+        usable_for_calibration=True,
+        floor_passed=True,
+        failure_codes=[],
+    )
+    former_manifest = _ensure_ir_artifact_store(store).get_manifest(evidence_ref)
+    former_ref = bridge.EmpiricalCalibrationEvidenceRef.model_validate(
+        put_json_artifact(
+            _ensure_ir_artifact_store(store),
+            former_payload,
+            kind=former_manifest.kind,
+            schema_name="polisyos.calibration.empirical_calibration_evidence",
+            schema_version="1.2",
+            inputs=former_manifest.inputs,
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+    )
+    with pytest.raises(ValueError, match="not reproducible from its report"):
+        bridge.load_empirical_calibration_evidence(store, former_ref)
 
 
 @pytest.mark.parametrize(
@@ -1284,7 +1310,7 @@ def test_embedded_source_reference_must_match_selected_child_edge(
 def test_observed_comparisons_change_empirical_admission_with_same_nominal_confidence(
     tmp_path: Path,
 ) -> None:
-    """The same nominal level admits only the report whose observations meet the floor."""
+    """Different report arithmetic cannot establish source-bound observations."""
 
     pass_store, pass_ref, _pass_report, pass_refs = _persist_report(
         tmp_path,
@@ -1313,11 +1339,14 @@ def test_observed_comparisons_change_empirical_admission_with_same_nominal_confi
     )
 
     assert passing.recomputed_pass_rate == 1.0
-    assert passing.usable_for_calibration is True
+    assert passing.usable_for_calibration is False
+    assert passing.floor_passed is False
+    assert "backtest_source_not_established" in passing.failure_codes
     assert limited.recomputed_pass_rate == 0.5
     assert limited.usable_for_calibration is False
     assert limited.floor_passed is False
-    assert "calibration_floor_not_met" in limited.failure_codes
+    assert "backtest_source_not_established" in limited.failure_codes
+    assert "calibration_floor_not_met" not in limited.failure_codes
 
 
 def test_nominal_confidence_without_observations_is_not_empirical_evidence(
@@ -1747,3 +1776,203 @@ def test_forged_context_scope_bytes_and_threshold_manifest_fail_before_cas_write
             context=context,
         ),
     )
+
+
+@pytest.fixture(scope="module")
+def selected_profile_owner_case(tmp_path_factory: pytest.TempPathFactory) -> tuple[Any, ...]:
+    """Produce real selected owner inputs once for row and corruption controls."""
+    from polisyos.scientist.methods.backtesting.forecast_owner import ForecastOwner
+    from tests.unit.remediation.test_frc_02_owner import _rule, _source
+    from tests.unit.scientist.methods.backtesting.test_forecast_owner_profile import (
+        _cas_profile,
+        _request_with_profile,
+    )
+
+    store = FileSystemCAS(tmp_path_factory.mktemp("forecast-bridge-selected-owner") / "cas")
+    profile_ref, values, projection_ref, projection = _cas_profile(store)
+    source_ref = _source(store, training=values[:30], holdout=values[30:])
+    request = _request_with_profile(
+        store,
+        source_ref,
+        _rule(store),
+        profile_ref,
+        projection_ref,
+        projection,
+        unit_id="UA",
+    )
+    result = ForecastOwner(store).run(request)
+    ir_store = _ensure_ir_artifact_store(store)
+    report = load_backtest_report(ir_store, result.backtest_report_ref)
+    return store, result, report
+
+
+def _copy_report_with_input_edges(
+    store: FileSystemCAS, report_ref: BacktestReportRef, inputs: list[Any]
+) -> BacktestReportRef:
+    """Create a selected sibling view without altering its source CAS bytes."""
+    ir_store = _ensure_ir_artifact_store(store)
+    manifest = ir_store.get_manifest(report_ref)
+    sibling = store.put_bytes(
+        ir_store.get_bytes(report_ref),
+        PutOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=manifest.artifact_schema,
+            producer=manifest.producer,
+            env=manifest.env,
+            inputs=inputs,
+            canon=manifest.canon,
+            governance=manifest.governance,
+            tenant_context=manifest.tenant_context,
+            same_input_closure=manifest.same_input_closure,
+            authority=manifest.authority,
+            warnings=manifest.warnings,
+        ),
+        return_selected_profile=True,
+    )
+    return BacktestReportRef.model_validate(sibling.model_dump(mode="json"))
+
+
+def test_selected_owner_rows_reconcile_every_position_and_value(
+    selected_profile_owner_case: tuple[Any, ...],
+) -> None:
+    """Every ordered occurrence binds its target, holdout and forecast values."""
+    store, result, report = selected_profile_owner_case
+    bridge = _bridge()
+    assert (
+        bridge._reconcile_backtest_rows(store, result.backtest_report_ref, report) == "recomputed"
+    )
+    scenario = report.scenarios[0]
+    rows = scenario.outcome_comparisons
+    assert len(rows) == 4
+    assert len({row.y_true for row in rows}) == len(rows)
+
+    altered_rows = [
+        list(reversed(rows)),
+        rows[:-1],
+        [*rows, rows[-1]],
+        [rows[0], rows[0], *rows[2:]],
+    ]
+    for field, value in (
+        ("metric_name", "different-metric"),
+        ("y_true", rows[0].y_true + 1.0),
+        ("y_pred", rows[0].y_pred + 1.0),
+        ("ci_lower", rows[0].ci_lower - 1.0),
+        ("ci_upper", rows[0].ci_upper + 1.0),
+    ):
+        altered_rows.append([rows[0].model_copy(update={field: value}), *rows[1:]])
+    for changed in altered_rows:
+        altered = report.model_copy(
+            update={"scenarios": [scenario.model_copy(update={"outcome_comparisons": changed})]}
+        )
+        assert (
+            bridge._reconcile_backtest_rows(store, result.backtest_report_ref, altered)
+            == "mismatch"
+        )
+
+
+def test_selected_owner_requires_each_source_and_exact_profile_edge(
+    selected_profile_owner_case: tuple[Any, ...],
+) -> None:
+    """Missing, duplicate or alternate-view sources cannot establish a row join."""
+    store, result, report = selected_profile_owner_case
+    bridge = _bridge()
+    report_ref = result.backtest_report_ref
+    assert bridge._reconcile_backtest_rows(store, report_ref, report) == "recomputed"
+    manifest = _ensure_ir_artifact_store(store).get_manifest(report_ref)
+    inputs = list(manifest.inputs)
+    for role in (
+        "observed_source",
+        "observed_data",
+        "training_slice",
+        "uncertainty_bundle",
+        "value_data_profile",
+        "forecast_profile_member",
+    ):
+        missing = _copy_report_with_input_edges(
+            store, report_ref, [item for item in inputs if item.role != role]
+        )
+        evidence = bridge.produce_empirical_calibration_evidence(store, missing)
+        assert "backtest_row_source_not_established" in evidence.failure_codes, role
+        assert "backtest_row_source_mismatch" not in evidence.failure_codes, role
+
+    observed = next(item for item in inputs if item.role == "observed_data")
+    duplicate = _copy_report_with_input_edges(store, report_ref, [*inputs, observed])
+    assert (
+        "backtest_row_source_not_established"
+        in bridge.produce_empirical_calibration_evidence(store, duplicate).failure_codes
+    )
+    no_profile = _copy_report_with_input_edges(
+        store,
+        report_ref,
+        [
+            item.model_copy(update={"manifest_profile_sha256": None})
+            if item.role == "observed_data"
+            else item
+            for item in inputs
+        ],
+    )
+    assert (
+        "backtest_row_source_not_established"
+        in bridge.produce_empirical_calibration_evidence(store, no_profile).failure_codes
+    )
+
+    # The snapshot's exact source is available directly from the selected edge;
+    # a sibling view has identical bytes but a different manifest profile.
+    ir_store = _ensure_ir_artifact_store(store)
+    original = bridge._selected_row_source_ref(
+        store, bridge._report_input_edges(store, report_ref), "observed_data"
+    )
+    original_manifest = ir_store.get_manifest(original)
+    sibling = store.put_bytes(
+        ir_store.get_bytes(original),
+        PutOptions(
+            kind=original_manifest.kind,
+            media_type=original_manifest.media_type,
+            schema=original_manifest.artifact_schema,
+            producer=ProducerInfo(component="test.sibling-observed-data", version="1.0"),
+            inputs=original_manifest.inputs,
+            canon=original_manifest.canon,
+        ),
+        return_selected_profile=True,
+    )
+    assert str(sibling.artifact_id) == str(observed.artifact_id)
+    assert sibling.manifest_profile_sha256 != observed.manifest_profile_sha256
+    rebound = _copy_report_with_input_edges(
+        store,
+        report_ref,
+        [
+            item.model_copy(update={"manifest_profile_sha256": sibling.manifest_profile_sha256})
+            if item.role == "observed_data"
+            else item
+            for item in inputs
+        ],
+    )
+    assert (
+        "backtest_row_source_not_established"
+        in bridge.produce_empirical_calibration_evidence(store, rebound).failure_codes
+    )
+
+
+def test_selected_member_content_corruption_refuses_row_reconciliation(
+    selected_profile_owner_case: tuple[Any, ...], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A forged member byte stream cannot borrow a selected manifest identity."""
+    store, result, report = selected_profile_owner_case
+    bridge = _bridge()
+    assert (
+        bridge._reconcile_backtest_rows(store, result.backtest_report_ref, report) == "recomputed"
+    )
+    assert result.forecast_profile_member_ref is not None
+    member_id = str(result.forecast_profile_member_ref.artifact_id)
+    get_bytes = store.get_bytes
+
+    def altered_bytes(selector: object) -> bytes:
+        if str(getattr(selector, "artifact_id", selector)) == member_id:
+            return b'{"corrupt":true}'
+        return get_bytes(selector)
+
+    monkeypatch.setattr(store, "get_bytes", altered_bytes)
+    evidence = bridge.produce_empirical_calibration_evidence(store, result.backtest_report_ref)
+    assert "backtest_row_source_not_established" in evidence.failure_codes
+    assert evidence.usable_for_calibration is False

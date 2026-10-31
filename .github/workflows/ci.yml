@@ -52,7 +52,7 @@ jobs:
 
   frontend-quality:
     name: Standard PR / Frontend quality
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     defaults:
       run:
@@ -99,7 +99,7 @@ jobs:
 
   frontend-components:
     name: Standard PR / Frontend component smoke
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     defaults:
       run:
@@ -170,7 +170,7 @@ jobs:
 
   frontend-smoke:
     name: Standard PR / Frontend smoke
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     needs:
       - runtime-http
@@ -226,7 +226,7 @@ jobs:
       - name: Run performance suite
         run: |
           mkdir -p _build/.tmp/test-reports
-          uv run pytest tests/performance -m "performance and not quarantine" --durations=25 --junitxml=_build/.tmp/test-reports/performance.xml
+          uv run --extra runtime --extra ml pytest tests/performance -m "performance and not quarantine" --durations=25 --junitxml=_build/.tmp/test-reports/performance.xml
 
       - name: Upload performance JUnit
         if: always()
@@ -354,7 +354,7 @@ jobs:
 
   frontend-unit-coverage:
     name: Standard PR / Frontend unit coverage
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     defaults:
       run:

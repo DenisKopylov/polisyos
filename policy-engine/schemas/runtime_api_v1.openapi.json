@@ -33182,20 +33182,41 @@
             "title": "Nominal Confidence Level"
           },
           "observed_denominator": {
-            "minimum": 1.0,
-            "title": "Observed Denominator",
-            "type": "integer"
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observed Denominator"
           },
           "observed_hit_rate": {
-            "maximum": 1.0,
-            "minimum": 0.0,
-            "title": "Observed Hit Rate",
-            "type": "number"
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observed Hit Rate"
           },
           "observed_numerator": {
-            "minimum": 0.0,
-            "title": "Observed Numerator",
-            "type": "integer"
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observed Numerator"
           },
           "observed_source_ref": {
             "$ref": "#/components/schemas/ArtifactRef-Output"
@@ -33244,11 +33265,12 @@
             "$ref": "#/components/schemas/PredictiveCalibrationS10Summary"
           },
           "schema_version": {
-            "default": "polisyos.runtime.predictive_calibration_association.v4",
+            "default": "polisyos.runtime.predictive_calibration_association.v5",
             "enum": [
               "polisyos.runtime.predictive_calibration_association.v2",
               "polisyos.runtime.predictive_calibration_association.v3",
-              "polisyos.runtime.predictive_calibration_association.v4"
+              "polisyos.runtime.predictive_calibration_association.v4",
+              "polisyos.runtime.predictive_calibration_association.v5"
             ],
             "title": "Schema Version",
             "type": "string"
@@ -33296,9 +33318,6 @@
           "backtest_report_ref",
           "empirical_evidence_ref",
           "uncertainty_bundle_ref",
-          "observed_numerator",
-          "observed_denominator",
-          "observed_hit_rate",
           "owner_suitability",
           "s10",
           "created_at"
@@ -33461,9 +33480,16 @@
             "type": "string"
           },
           "denominator": {
-            "minimum": 0.0,
-            "title": "Denominator",
-            "type": "integer"
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Denominator"
           },
           "forecast_tier": {
             "maxLength": 120,
@@ -33496,15 +33522,29 @@
             "title": "May Not Use For"
           },
           "numerator": {
-            "minimum": 0.0,
-            "title": "Numerator",
-            "type": "integer"
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numerator"
           },
           "observed_pass_rate": {
-            "maximum": 1.0,
-            "minimum": 0.0,
-            "title": "Observed Pass Rate",
-            "type": "number"
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observed Pass Rate"
           },
           "outcome_binding_status": {
             "anyOf": [
@@ -33522,10 +33562,7 @@
         "required": [
           "calibration_status",
           "forecast_tier",
-          "counterfactual_credibility",
-          "numerator",
-          "denominator",
-          "observed_pass_rate"
+          "counterfactual_credibility"
         ],
         "title": "PredictiveCalibrationS10Summary",
         "type": "object"
@@ -52396,8 +52433,8 @@
               "application/json": {
                 "examples": {
                   "limited_not_measured_candidate": {
-                    "description": "Generated through the canonical Core byte/manifest reader and predictive-coverage projector from a controlled in-memory report fixture. Its digest is content-derived; the fixture is not stored production source, measurement, authority, issuer, publication, or currentness evidence.",
-                    "summary": "Limited diagnostic with a producer-reachable no-interval scenario",
+                    "description": "Generated through the canonical Core byte/manifest reader and predictive-coverage projector from a controlled in-memory report fixture. Its digest is content-derived, but the report rows are not reconciled to selected forecast and held-out source values. The projector withholds all quantitative scenarios. The fixture is not stored production source, measurement, authority, issuer, publication, or currentness evidence.",
+                    "summary": "Unmeasured diagnostic with unreconciled report rows",
                     "value": {
                       "assessment": "limited",
                       "canon_read_status": "declared_bytes_conformant",
@@ -52414,22 +52451,10 @@
                       "measurement_status": "not_measured",
                       "metric": "predictive_interval_coverage",
                       "producer_attestation_status": "not_established",
-                      "reason_code": "no_evaluated_intervals",
+                      "reason_code": "unsupported_report_scope",
                       "s10_metric_mapping_status": "not_established",
                       "s10_threshold_status": "not_established",
-                      "scenarios": [
-                        {
-                          "interval_available_count": 0,
-                          "interval_evaluated_count": 0,
-                          "interval_hit_count": 0,
-                          "interval_requested_count": 1,
-                          "interval_type": "prediction",
-                          "metric_name": "outcome",
-                          "nominal_confidence_level": 0.9,
-                          "observed_hit_rate": null,
-                          "scenario_id": "openapi-no-intervals"
-                        }
-                      ],
+                      "scenarios": [],
                       "source_artifact_id": "sha256:0842d275aa73d47d96580633444cc0a3b11697f86520fcf155c2ab7c7a33f047",
                       "source_manifest_profile_sha256": "sha256:7bdf7798abb83b6463e4b672f4b388730f442965f1fef930d3504b1eeef7f123",
                       "source_materialization": "reader_materialized",
@@ -61090,6 +61115,32 @@
               }
             },
             "description": "Requested representation is not supported for this resource."
+          },
+          "409": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "The cancellation identity conflicts with the current job attempt or disposition.",
+                    "value": {
+                      "code": "conflict",
+                      "detail": "conflict while processing request.",
+                      "error": "conflict",
+                      "instance": "/api/v1/control/jobs/{job_id}/cancel",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 409,
+                      "status_code": 409,
+                      "title": "Conflict",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "The cancellation identity conflicts with the current job attempt or disposition."
           },
           "422": {
             "content": {
@@ -89196,8 +89247,8 @@
               "application/json": {
                 "examples": {
                   "controlled_insufficient_history_candidate": {
-                    "description": "Typed through the current predictive-calibration response and status owner. All artifact identifiers are deterministic example handles without selected manifest profiles; the response is not persisted or reopenable evidence. The required 0/1 and S10 0/0 count slots are structural fixture values, not observations. This example asserts no POST outcome, currentness, issuer, population, causal, publication, or policy-selection authority.",
-                    "summary": "Limited candidate with insufficient history",
+                    "description": "Typed through the current predictive-calibration response and status owner. All artifact and manifest-profile identifiers are deterministic synthetic example handles matching the selected-reference wire shape; they establish no stored profile or provenance. The response is not persisted or reopenable evidence. Observed counts and hit rate are null because the empirical source is not established; S10 is blocked and carries the source limitation. This example asserts no POST outcome, currentness, issuer, population, causal, publication, or policy-selection authority.",
+                    "summary": "Limited candidate with unavailable observations",
                     "value": {
                       "association": {
                         "assessment": "limited",
@@ -89205,16 +89256,19 @@
                         "backtest_report_ref": {
                           "artifact_id": "sha256:3d0410259487701c0d673d290da294f15ada6090f5f5a8561bc119cefb22e9c9",
                           "kind": "ir.backtest_report",
+                          "manifest_profile_sha256": "sha256:6dbc5ae2dc757d755504fa709f0a417e8b7b09f41f2bcdf52683726934022ef8",
                           "media_type": "application/json"
                         },
                         "calibration_rule_ref": {
                           "artifact_id": "sha256:b8e46f3510f43975197376c9ec17e9cac6783b68596dcdbd8931c9e0e02705ce",
                           "kind": "ir.forecast_calibration_rule",
+                          "manifest_profile_sha256": "sha256:d78642c09f5c60829c0d7f6d75a4004fd33e8499cd282109a2642b00351f7d5c",
                           "media_type": "application/json"
                         },
                         "candidate_source_ref": {
                           "artifact_id": "sha256:e6744760dafef325b3e2547e1ef4f67b83de9f4239a9b606e6b114f5441de924",
                           "kind": "runtime.quality.n4_candidate_scenario_source",
+                          "manifest_profile_sha256": "sha256:103535760af622161120611b7929277737c60405c043c91c302ab4ca64fb3953",
                           "media_type": "application/json"
                         },
                         "cell_id": "cell-openapi-fixture",
@@ -89224,11 +89278,12 @@
                         "empirical_evidence_ref": {
                           "artifact_id": "sha256:61701c56c630cd82a3adab0f83ae8c7e77a97f4b076dce1a94fc8df582b0bb01",
                           "kind": "runtime.empirical_calibration_evidence",
+                          "manifest_profile_sha256": "sha256:0b6dbe3e778d481be36851b51d5caf64ed693608374e2d4c57c9476c8937d1c5",
                           "media_type": "application/json"
                         },
                         "event_id": "evt_predictive_calibration_openapi_fixture",
                         "evidence_reason_codes": [
-                          "explicit_context_missing"
+                          "backtest_source_not_established"
                         ],
                         "forecast_profile_member_ref": null,
                         "intent_id": "openapi-calibration-fixture",
@@ -89255,21 +89310,24 @@
                         "model_spec_ref": {
                           "artifact_id": "sha256:b3308c2d6acbb6a75cd1ef85b0578b7b768ad118042750fd9c47ed2ce30454d0",
                           "kind": "ir.model_spec",
+                          "manifest_profile_sha256": "sha256:f88e90c48f3de2993a1a9a6faf1dc606278df66a841e4a3147fcbc89eb36e956",
                           "media_type": "application/json"
                         },
                         "nominal_confidence_level": null,
-                        "observed_denominator": 1,
-                        "observed_hit_rate": 0.0,
-                        "observed_numerator": 0,
+                        "observed_denominator": null,
+                        "observed_hit_rate": null,
+                        "observed_numerator": null,
                         "observed_source_ref": {
                           "artifact_id": "sha256:ec5cea237c90ae1ae41e736820125c17d0fe0b70ce1980a4f4ee3e828ec83d1c",
                           "kind": "fabric.data_snapshot",
+                          "manifest_profile_sha256": "sha256:ac5109435fc024443261e7606b73882a150b5d3b07d006ea8b8bae92477095d0",
                           "media_type": "application/json"
                         },
                         "owner_suitability": "limited",
                         "policy_spec_ref": {
                           "artifact_id": "sha256:bc0a68b877e18144b302870188e195b7c55813ed0a82eea61fc8d61e9a822ddf",
                           "kind": "ir.policy_spec",
+                          "manifest_profile_sha256": "sha256:3d050ee43b9162f227614e5e496a2fa1e40068209315a334edd7f40856331168",
                           "media_type": "application/json"
                         },
                         "population_scope_status": "not_established",
@@ -89279,6 +89337,7 @@
                         "run_manifest_ref": {
                           "artifact_id": "sha256:cbaa6d8bd89cf165030f66588bcd3f9fbad0bb1b818ee3583248f72b7670c627",
                           "kind": "ir.run_manifest",
+                          "manifest_profile_sha256": "sha256:0c31040411495124ee83f972bbf33c58ccf697cebc510eb9e878c85d2270225f",
                           "media_type": "application/json"
                         },
                         "s10": {
@@ -89317,12 +89376,13 @@
                             "source_authority": "deterministic_producer"
                           },
                           "calibration_record_ref": null,
-                          "calibration_status": "insufficient_history",
+                          "calibration_status": "blocked",
                           "counterfactual_credibility": "not_established",
-                          "denominator": 0,
+                          "denominator": null,
                           "forecast_tier": "blocked",
                           "limitation_refs": [
-                            "s10://calibration/fail-closed/n4_outcome_target_binding_not_established"
+                            "s10://calibration/fail-closed/n4_outcome_target_binding_not_established",
+                            "s10://calibration/fail-closed/backtest_source_not_established"
                           ],
                           "may_not_use_for": [
                             "production_recommendation",
@@ -89342,23 +89402,25 @@
                             "s10_authority",
                             "treatment_assignment_authority"
                           ],
-                          "numerator": 0,
-                          "observed_pass_rate": 0.0,
+                          "numerator": null,
+                          "observed_pass_rate": null,
                           "outcome_binding_status": "not_established"
                         },
-                        "schema_version": "polisyos.runtime.predictive_calibration_association.v4",
+                        "schema_version": "polisyos.runtime.predictive_calibration_association.v5",
                         "source_time_status": "not_established",
                         "tenant_id": "tenant-openapi-fixture",
                         "uncertainty_bundle_ref": {
                           "artifact_id": "sha256:bfef8cbd1fa1885d29dcba7e427433bc8ff2ff28d6b19d9c5f7a8d6584828119",
                           "kind": "ir.uncertainty_bundle",
+                          "manifest_profile_sha256": "sha256:8f1422578e6bdf7b7c2ca3083a503f18747af1863f22eaa69b0e3e3e7f05f125",
                           "media_type": "application/json"
                         },
                         "value_data_profile_ref": null
                       },
                       "association_ref": {
-                        "artifact_id": "sha256:46f9bf64037218384dc84be5f3ace8a11a6417b293d7199373280729cf73baa1",
+                        "artifact_id": "sha256:3a346978005e9835cea7b118735ee527a7cbf2c1750e0d1a7298f924c86e3fce",
                         "kind": "runtime.predictive_calibration_association",
+                        "manifest_profile_sha256": "sha256:b1d0cb814032df92761738032cbb79dba46927f9b56ea2753eba814c1336ef91",
                         "media_type": "application/json"
                       },
                       "meta": {
@@ -89605,8 +89667,8 @@
               "application/json": {
                 "examples": {
                   "controlled_insufficient_history_candidate": {
-                    "description": "Typed through the current predictive-calibration response and status owner. All artifact identifiers are deterministic example handles without selected manifest profiles; the response is not persisted or reopenable evidence. The required 0/1 and S10 0/0 count slots are structural fixture values, not observations. This example asserts no POST outcome, currentness, issuer, population, causal, publication, or policy-selection authority.",
-                    "summary": "Limited candidate with insufficient history",
+                    "description": "Typed through the current predictive-calibration response and status owner. All artifact and manifest-profile identifiers are deterministic synthetic example handles matching the selected-reference wire shape; they establish no stored profile or provenance. The response is not persisted or reopenable evidence. Observed counts and hit rate are null because the empirical source is not established; S10 is blocked and carries the source limitation. This example asserts no POST outcome, currentness, issuer, population, causal, publication, or policy-selection authority.",
+                    "summary": "Limited candidate with unavailable observations",
                     "value": {
                       "association": {
                         "assessment": "limited",
@@ -89614,16 +89676,19 @@
                         "backtest_report_ref": {
                           "artifact_id": "sha256:3d0410259487701c0d673d290da294f15ada6090f5f5a8561bc119cefb22e9c9",
                           "kind": "ir.backtest_report",
+                          "manifest_profile_sha256": "sha256:6dbc5ae2dc757d755504fa709f0a417e8b7b09f41f2bcdf52683726934022ef8",
                           "media_type": "application/json"
                         },
                         "calibration_rule_ref": {
                           "artifact_id": "sha256:b8e46f3510f43975197376c9ec17e9cac6783b68596dcdbd8931c9e0e02705ce",
                           "kind": "ir.forecast_calibration_rule",
+                          "manifest_profile_sha256": "sha256:d78642c09f5c60829c0d7f6d75a4004fd33e8499cd282109a2642b00351f7d5c",
                           "media_type": "application/json"
                         },
                         "candidate_source_ref": {
                           "artifact_id": "sha256:e6744760dafef325b3e2547e1ef4f67b83de9f4239a9b606e6b114f5441de924",
                           "kind": "runtime.quality.n4_candidate_scenario_source",
+                          "manifest_profile_sha256": "sha256:103535760af622161120611b7929277737c60405c043c91c302ab4ca64fb3953",
                           "media_type": "application/json"
                         },
                         "cell_id": "cell-openapi-fixture",
@@ -89633,11 +89698,12 @@
                         "empirical_evidence_ref": {
                           "artifact_id": "sha256:61701c56c630cd82a3adab0f83ae8c7e77a97f4b076dce1a94fc8df582b0bb01",
                           "kind": "runtime.empirical_calibration_evidence",
+                          "manifest_profile_sha256": "sha256:0b6dbe3e778d481be36851b51d5caf64ed693608374e2d4c57c9476c8937d1c5",
                           "media_type": "application/json"
                         },
                         "event_id": "evt_predictive_calibration_openapi_fixture",
                         "evidence_reason_codes": [
-                          "explicit_context_missing"
+                          "backtest_source_not_established"
                         ],
                         "forecast_profile_member_ref": null,
                         "intent_id": "openapi-calibration-fixture",
@@ -89664,21 +89730,24 @@
                         "model_spec_ref": {
                           "artifact_id": "sha256:b3308c2d6acbb6a75cd1ef85b0578b7b768ad118042750fd9c47ed2ce30454d0",
                           "kind": "ir.model_spec",
+                          "manifest_profile_sha256": "sha256:f88e90c48f3de2993a1a9a6faf1dc606278df66a841e4a3147fcbc89eb36e956",
                           "media_type": "application/json"
                         },
                         "nominal_confidence_level": null,
-                        "observed_denominator": 1,
-                        "observed_hit_rate": 0.0,
-                        "observed_numerator": 0,
+                        "observed_denominator": null,
+                        "observed_hit_rate": null,
+                        "observed_numerator": null,
                         "observed_source_ref": {
                           "artifact_id": "sha256:ec5cea237c90ae1ae41e736820125c17d0fe0b70ce1980a4f4ee3e828ec83d1c",
                           "kind": "fabric.data_snapshot",
+                          "manifest_profile_sha256": "sha256:ac5109435fc024443261e7606b73882a150b5d3b07d006ea8b8bae92477095d0",
                           "media_type": "application/json"
                         },
                         "owner_suitability": "limited",
                         "policy_spec_ref": {
                           "artifact_id": "sha256:bc0a68b877e18144b302870188e195b7c55813ed0a82eea61fc8d61e9a822ddf",
                           "kind": "ir.policy_spec",
+                          "manifest_profile_sha256": "sha256:3d050ee43b9162f227614e5e496a2fa1e40068209315a334edd7f40856331168",
                           "media_type": "application/json"
                         },
                         "population_scope_status": "not_established",
@@ -89688,6 +89757,7 @@
                         "run_manifest_ref": {
                           "artifact_id": "sha256:cbaa6d8bd89cf165030f66588bcd3f9fbad0bb1b818ee3583248f72b7670c627",
                           "kind": "ir.run_manifest",
+                          "manifest_profile_sha256": "sha256:0c31040411495124ee83f972bbf33c58ccf697cebc510eb9e878c85d2270225f",
                           "media_type": "application/json"
                         },
                         "s10": {
@@ -89726,12 +89796,13 @@
                             "source_authority": "deterministic_producer"
                           },
                           "calibration_record_ref": null,
-                          "calibration_status": "insufficient_history",
+                          "calibration_status": "blocked",
                           "counterfactual_credibility": "not_established",
-                          "denominator": 0,
+                          "denominator": null,
                           "forecast_tier": "blocked",
                           "limitation_refs": [
-                            "s10://calibration/fail-closed/n4_outcome_target_binding_not_established"
+                            "s10://calibration/fail-closed/n4_outcome_target_binding_not_established",
+                            "s10://calibration/fail-closed/backtest_source_not_established"
                           ],
                           "may_not_use_for": [
                             "production_recommendation",
@@ -89751,23 +89822,25 @@
                             "s10_authority",
                             "treatment_assignment_authority"
                           ],
-                          "numerator": 0,
-                          "observed_pass_rate": 0.0,
+                          "numerator": null,
+                          "observed_pass_rate": null,
                           "outcome_binding_status": "not_established"
                         },
-                        "schema_version": "polisyos.runtime.predictive_calibration_association.v4",
+                        "schema_version": "polisyos.runtime.predictive_calibration_association.v5",
                         "source_time_status": "not_established",
                         "tenant_id": "tenant-openapi-fixture",
                         "uncertainty_bundle_ref": {
                           "artifact_id": "sha256:bfef8cbd1fa1885d29dcba7e427433bc8ff2ff28d6b19d9c5f7a8d6584828119",
                           "kind": "ir.uncertainty_bundle",
+                          "manifest_profile_sha256": "sha256:8f1422578e6bdf7b7c2ca3083a503f18747af1863f22eaa69b0e3e3e7f05f125",
                           "media_type": "application/json"
                         },
                         "value_data_profile_ref": null
                       },
                       "association_ref": {
-                        "artifact_id": "sha256:46f9bf64037218384dc84be5f3ace8a11a6417b293d7199373280729cf73baa1",
+                        "artifact_id": "sha256:3a346978005e9835cea7b118735ee527a7cbf2c1750e0d1a7298f924c86e3fce",
                         "kind": "runtime.predictive_calibration_association",
+                        "manifest_profile_sha256": "sha256:b1d0cb814032df92761738032cbb79dba46927f9b56ea2753eba814c1336ef91",
                         "media_type": "application/json"
                       },
                       "meta": {

@@ -125,3 +125,22 @@ historical decision does not establish currentness or publication authority.
 Regenerate Runtime OpenAPI, the runtime client and dashboard API types together
 before rollout; strict older clients do not understand this new union member.
 The display fixtures are wire-contract examples, not Runtime verifier evidence.
+
+## Native predictive-calibration projection
+
+The predictive-calibration response validator accepts association versions v2–v5.
+The v5 unavailable-source variant carries `backtest_source_not_established`, an
+entirely null observed-value tuple, limited suitability, blocked S10 calibration
+and forecast tiers, and the matching limitation ref. The overview displays this
+as unavailable evidence; it must not turn absent observations into a zero hit
+rate or a successful calibration. Populated observations still require a complete
+numerator/denominator/rate tuple. Selected value-profile and forecast-member refs
+travel together with their exact manifest-profile identity.
+
+The generated API types, validator, hook parsing tests, and overview tests are
+companions to the Runtime/OpenAPI contract. These UI checks establish wire
+handling and presentation only. Association refs and displayed diagnostics do
+not establish producer authenticity, scientific calibration, issuer authority,
+source currentness, or permission to publish. See the
+[persisted-artifact compatibility runbook](../../docs/runbooks/e02-persisted-artifact-compatibility.md)
+for legacy association refusal and an intentional new diagnostic.

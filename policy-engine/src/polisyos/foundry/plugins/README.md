@@ -16,6 +16,13 @@ than operate directly on the low-level agent-sim runtime. This package owns the
 legacy domain-plugin contract, discovery/registration path, composite execution, and the
 `PolisySimulator` orchestration facade.
 
+`discover_plugins()` checks sources in this order: built-ins, declared
+`polisyos.plugins` entry points, caller-supplied development roots, then the
+distribution-name prefix fallback. Within a source, existing Core, path, and
+distribution sorting rules remain in effect. Registration keeps the first
+valid plugin for a duplicate name; this is conflict resolution, not a trust or
+authority judgment about the source.
+
 The selected Economics training bridge admits finite, nonnegative active
 wealth and income because each `EconomicState` projection materializes both
 classical Gini values. It checks native-to-composite inputs and each
@@ -50,7 +57,7 @@ under `examples/extensions/foundry_method/`.
 | ------------------------- | ---------------------------------------------------- |
 | `DomainPlugin`            | Base contract for a pluggable domain.                |
 | `PluginRegistry`          | Registry for loaded plugins and metadata.            |
-| `discover_plugins()`      | Finds built-in and entry-point plugins.              |
+| `discover_plugins()`      | Finds built-ins, explicit declarations, dev roots, and prefix fallback in precedence order. |
 | `auto_register_plugins()` | Registers built-in plugins into a registry.          |
 | `create_simple_plugin()`  | Helper for lightweight plugin scaffolding.           |
 | `CompositeState`          | Combined state across multiple domains.              |

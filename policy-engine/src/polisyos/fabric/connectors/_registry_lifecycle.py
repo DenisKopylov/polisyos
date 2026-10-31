@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol
 from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
 from polisyos.fabric.connectors._registry_errors import (
+    AmbiguousConnectorError,
     ConnectorAlreadyRegisteredError,
     ConnectorConfigError,
     ConnectorNotFoundError,
@@ -698,7 +699,7 @@ class RegistryLifecycleMixin:
         """Retain an unresolved startup pool outside the ordinary LRU cache."""
         try:
             fqid = self._resolve_id(connector_id)
-        except Exception:
+        except (ConnectorNotFoundError, AmbiguousConnectorError):
             # The connector may already be unregistering.  The supplied ID is
             # still enough to route an internal retry to this owner.
             fqid = connector_id

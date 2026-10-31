@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
-from .designs import SensitivityPlan, SensitivityResult
+from .designs import SensitivityPlan, SensitivityResult, _admit_sensitivity_analysis_plan
 
 
 @dataclass
@@ -62,6 +62,7 @@ class MultiOutputAnalyzer:
             Output array ``(n_samples, n_outputs)``.  If 1-D, treated as
             single-output fallback.
         """
+        plan = _admit_sensitivity_analysis_plan(plan)
         from .analysis import _prepare_analysis_inputs, analyze_sensitivity
 
         if outputs.ndim == 1:

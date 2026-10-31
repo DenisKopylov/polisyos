@@ -1739,6 +1739,39 @@ function PredictiveCalibrationPanel({
   };
 
   const { association } = query.data ?? {};
+  const associationSchemaVersion = association
+    ? String(association.schema_version)
+    : null;
+  const backtestSourceNotEstablished = Boolean(
+    association?.evidence_reason_codes?.includes(
+      "backtest_source_not_established",
+    ),
+  );
+  const observedCoverage =
+    associationSchemaVersion ===
+      "polisyos.runtime.predictive_calibration_association.v5" &&
+    !backtestSourceNotEstablished &&
+    typeof association?.observed_numerator === "number" &&
+    Number.isFinite(association.observed_numerator) &&
+    typeof association.observed_denominator === "number" &&
+    Number.isFinite(association.observed_denominator) &&
+    typeof association.observed_hit_rate === "number" &&
+    Number.isFinite(association.observed_hit_rate)
+      ? {
+          denominator: association.observed_denominator,
+          hitRate: association.observed_hit_rate,
+          numerator: association.observed_numerator,
+        }
+      : null;
+  const observedCoverageLimitation =
+    observedCoverage === null && association
+      ? backtestSourceNotEstablished
+        ? "Observed forecast outcomes are unavailable because the backtest source has not been established."
+        : associationSchemaVersion !==
+            "polisyos.runtime.predictive_calibration_association.v5"
+          ? "This historical diagnostic has no source-reconciliation status; its stored counts are unverified and are not reported as observed."
+          : "Verified observed outcome counts and hit rate are unavailable."
+      : null;
   return (
     <Card className="space-y-4" data-testid="overview-predictive-calibration">
       <div>
@@ -1763,16 +1796,29 @@ function PredictiveCalibrationPanel({
           <div className="grid gap-3 md:grid-cols-2">
             <MetricCard
               label={t("pages.runs.predictiveCalibration.observedCoverage")}
-              value={t("pages.runs.predictiveCalibration.coverageCount", {
-                numerator: formatNumber(association.observed_numerator),
-                denominator: formatNumber(association.observed_denominator),
-              })}
+              value={
+                observedCoverage
+                  ? t("pages.runs.predictiveCalibration.coverageCount", {
+                      numerator: formatNumber(observedCoverage.numerator),
+                      denominator: formatNumber(observedCoverage.denominator),
+                    })
+                  : t("pages.runs.predictiveCalibration.unavailable")
+              }
             />
             <MetricCard
               label={t("pages.runs.predictiveCalibration.s10Status")}
               value={association.s10.calibration_status}
             />
           </div>
+          {observedCoverageLimitation ? (
+            <p
+              className="text-muted text-sm"
+              data-testid="overview-predictive-calibration-observation-limitation"
+              role="status"
+            >
+              {observedCoverageLimitation}
+            </p>
+          ) : null}
           <dl className="grid gap-2 text-sm md:grid-cols-2">
             <div>
               <dt className="text-muted">
@@ -1790,7 +1836,11 @@ function PredictiveCalibrationPanel({
               <dt className="text-muted">
                 {t("pages.runs.predictiveCalibration.observedRate")}
               </dt>
-              <dd>{formatPercent(association.observed_hit_rate)}</dd>
+              <dd>
+                {observedCoverage
+                  ? formatPercent(observedCoverage.hitRate)
+                  : t("pages.runs.predictiveCalibration.unavailable")}
+              </dd>
             </div>
             <div>
               <dt className="text-muted">

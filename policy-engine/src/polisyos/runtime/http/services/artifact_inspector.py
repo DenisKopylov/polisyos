@@ -261,6 +261,52 @@ def _predictive_coverage_preview(
     ):
         return invalid("unsupported_report_scope")
 
+    # This bounded diagnostic does not verify native trajectories or replica
+    # cohorts. Keep the report inspectable, but do not calculate coverage from
+    # their unverified comparisons or trust optional scenario markers alone.
+    native_fields = {
+        "native_forecast_ref",
+        "native_replica_projection",
+        "native_request_ref",
+        "native_forecast_purpose",
+        "native_workflow_status",
+        "native_workflow_failures",
+        "native_foundry_step_count",
+        "native_randomness_scope",
+        "native_limitations",
+        "native_requested_replicas",
+        "native_started_replicas",
+        "native_requested_count_status",
+        "native_started_count_status",
+    }
+    native_modes = ("scientist_candidate", "scientist_unavailable")
+    if (
+        any(
+            edge.role.startswith(("native_forecast:", "replica_cohort:"))
+            for edge in manifest.inputs
+        )
+        or payload.get("prediction_mode_effective") in native_modes
+        or any(
+            isinstance(reason, str) and (reason.startswith("native_") or ": native_" in reason)
+            for reason in degraded_reasons
+        )
+        or any(
+            isinstance(scenario, Mapping)
+            and isinstance(scenario.get("metadata"), Mapping)
+            and (
+                bool(native_fields.intersection(scenario["metadata"]))
+                or scenario["metadata"].get("prediction_source_effective") in native_modes
+            )
+            for scenario in scenarios
+        )
+    ):
+        return PredictiveCoverageDiagnosticPreview(
+            **shared,
+            measurement_status="not_measured",
+            reason_code="unsupported_report_scope",
+            scenarios=[],
+        )
+
     summaries: list[PredictiveCoverageScenarioPreview] = []
     for scenario in scenarios:
         if not isinstance(scenario, Mapping):
@@ -373,12 +419,16 @@ def _predictive_coverage_preview(
             )
         )
 
-    measured = any(item.interval_evaluated_count > 0 for item in summaries)
+    # Even a structurally consistent legacy report can replace its comparison
+    # rows while retaining selected source edges. This bounded preview does not
+    # reconcile those rows to the selected forecast and held-out source values.
+    # Keep shape/corruption diagnostics above, but do not publish row-only
+    # arithmetic as measured observations.
     return PredictiveCoverageDiagnosticPreview(
         **shared,
-        measurement_status="measured" if measured else "not_measured",
-        reason_code="none" if measured else "no_evaluated_intervals",
-        scenarios=summaries,
+        measurement_status="not_measured",
+        reason_code="unsupported_report_scope",
+        scenarios=[],
     )
 
 

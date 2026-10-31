@@ -221,32 +221,24 @@ class CalibrationMetaEvaluator(BenchmarkedEvaluator):
             raise ValueError("context['calibration_runner'] must be callable")
         rows = _read_jsonl(Path(suite.dataset_path))
         split_manifest = read_split_manifest(Path(suite.split_manifest_path))
+        split_rows = split_manifest.partition_rows(rows, suite=suite)
+        holdout_rows = split_rows[BenchmarkSplit.HOLDOUT]
         champion_uncertainty = self._champion_uncertainty_score(
             candidate_ref=candidate_ref,
-            suite=suite,
-            rows=rows,
+            holdout_rows=holdout_rows,
             runner=runner,
-            split_manifest=split_manifest,
             context=context,
         )
         selection_reports = _run_calibration_cases(
             config=config,
-            rows=[
-                row
-                for row in rows
-                if split_manifest.split_for(str(row["case_id"])) == BenchmarkSplit.SELECTION
-            ],
+            rows=split_rows[BenchmarkSplit.SELECTION],
             runner=runner,
             context=context,
             store=store,
         )
         holdout_reports = _run_calibration_cases(
             config=config,
-            rows=[
-                row
-                for row in rows
-                if split_manifest.split_for(str(row["case_id"])) == BenchmarkSplit.HOLDOUT
-            ],
+            rows=holdout_rows,
             runner=runner,
             context=context,
             store=store,
@@ -287,6 +279,9 @@ class CalibrationMetaEvaluator(BenchmarkedEvaluator):
             },
             guardrails=guardrails,
             promotable=all(guardrails.values()),
+            runtime_split_type=(
+                BenchmarkSplit.HOLDOUT if holdout_reports else BenchmarkSplit.SELECTION
+            ),
             status="ok" if metric_sources_ready else "limited",
             notes=limitations,
             metadata=(
@@ -305,10 +300,8 @@ class CalibrationMetaEvaluator(BenchmarkedEvaluator):
         self,
         *,
         candidate_ref,
-        suite: BenchmarkSuite,
-        rows: list[dict[str, Any]],
+        holdout_rows: list[dict[str, Any]],
         runner: Any,
-        split_manifest,
         context: dict[str, Any],
     ) -> float | None:
         registry = context.get("registry") or self._registry
@@ -322,11 +315,7 @@ class CalibrationMetaEvaluator(BenchmarkedEvaluator):
         metrics = _calibration_metrics(
             _run_calibration_cases(
                 config=cfg,
-                rows=[
-                    row
-                    for row in rows
-                    if split_manifest.split_for(str(row["case_id"])) == BenchmarkSplit.HOLDOUT
-                ],
+                rows=holdout_rows,
                 runner=runner,
                 context=context,
                 store=store,

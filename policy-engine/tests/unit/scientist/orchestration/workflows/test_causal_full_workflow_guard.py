@@ -50,3 +50,16 @@ def test_causal_full_workflow_runs_transportability_before_governance() -> None:
     aliases_in_order = [node.alias for node in spec.nodes]
 
     assert aliases_in_order.index("run_transportability") < aliases_in_order.index("run_governance")
+
+
+def test_causal_full_workflow_evaluator_has_fresh_governance_on_both_sides() -> None:
+    by_alias = {node.alias: node for node in causal_full_workflow_spec().nodes}
+
+    assert {"run_metric_validation", "propagate_welfare"}.issubset(
+        by_alias["run_governance"].depends_on
+    )
+    assert by_alias["run_evaluator"].depends_on == ["run_governance"]
+    assert by_alias["refresh_governance"].node_id == by_alias["run_governance"].node_id
+    assert by_alias["refresh_governance"].depends_on == ["run_evaluator"]
+    assert by_alias["refresh_governance"].params == {"replay_previous_gate_decision": True}
+    assert "refresh_governance" in by_alias["build_decision_packet"].depends_on

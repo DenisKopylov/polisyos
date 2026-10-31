@@ -1791,6 +1791,55 @@ class TestRetryTimeoutWorker:
         result_queue.put.assert_not_called()
 
 
+@pytest.mark.parametrize("preparation", ["context", "execute_lookup"])
+@pytest.mark.parametrize("expired", [False, True], ids=["on-time", "expired"])
+def test_worker_preparation_cannot_enter_body_after_absolute_deadline(
+    tmp_path, ctx, state, monkeypatch, preparation, expired
+):
+    """The final body guard includes context projection and callable lookup."""
+    from types import SimpleNamespace
+
+    effects = tmp_path / "physical-body"
+    clock = [0.0]
+    monkeypatch.setattr(retry_module, "time", SimpleNamespace(monotonic=lambda: clock[0]))
+    project_context = retry_module._node_facing_context
+
+    def prepare_context(worker_ctx):
+        node_ctx = project_context(worker_ctx)
+        if preparation == "context":
+            clock[0] = 2.0 if expired else 0.5
+        return node_ctx
+
+    class Node:
+        @property
+        def execute(self):
+            if preparation == "execute_lookup":
+                clock[0] = 2.0 if expired else 0.5
+            return self._execute
+
+        def _execute(self, passed_ctx, passed_state):
+            effects.write_text("body")
+            return _ok_outcome(passed_state)
+
+    monkeypatch.setattr(retry_module, "_node_facing_context", prepare_context)
+    result_queue = MagicMock()
+
+    def invoke():
+        _node_execute_worker(Node(), ctx, state, result_queue, compute_deadline=1.0)
+
+    if expired:
+        with pytest.raises(NodeTimeoutError) as timeout:
+            invoke()
+        assert timeout.value.code == "node.timeout"
+        assert timeout.value.details["execution_state"] == "not_started"
+        result_queue.put.assert_not_called()
+        assert not effects.exists()
+    else:
+        invoke()
+        assert effects.read_text() == "body"
+        assert result_queue.put.call_args.args[0][0] == "ok"
+
+
 class _PayloadTransportNode:
     """Return a deterministic result large enough to exercise Queue backpressure."""
 
@@ -2195,11 +2244,12 @@ class _ImmediateResultQueue:
 
 
 @pytest.mark.parametrize("mode", ["sync", "async"])
-def test_late_worker_completion_is_not_delivery_success(mode) -> None:
+@pytest.mark.parametrize("expired", [False, True], ids=["early-exit", "expired"])
+def test_late_worker_completion_is_not_delivery_success(mode, expired) -> None:
     """A dead worker alone cannot prove computation met its deadline."""
     process = _ExitedWorker()
     result_queue = _ImmediateResultQueue()
-    compute_deadline = _time.monotonic() - 1.0
+    compute_deadline = _time.monotonic() + (-1.0 if expired else 1.0)
 
     def invoke():
         if mode == "sync":
@@ -2217,7 +2267,8 @@ def test_late_worker_completion_is_not_delivery_success(mode) -> None:
                 )
             )
 
-    with pytest.raises(retry_module._WorkerProcessExited):
+    expected = retry_module._WorkerComputeTimeout if expired else retry_module._WorkerProcessExited
+    with pytest.raises(expected):
         invoke()
 
 
@@ -2525,11 +2576,15 @@ def test_authenticated_cancel_reaps_owned_child_and_fences_fresh_job(
         _install_authorization_audit_capture,
     )
 
+    fixture_config = runtime_api_env["app"].state.runtime_container.config
+    assert fixture_config.catalog_source_selection is not None
     client, cell, provider = _build_secure_client(
         runtime_api_env,
         opa_client=_AllowOPA(),
         claims_by_token={},
         raise_server_exceptions=False,
+        repo_root=fixture_config.repo_root,
+        catalog_source_selection=fixture_config.catalog_source_selection,
     )
     tenant = runtime_api_env["tenant_a"]
     bearer = _fixture_bearer("cancellation-authorized")
@@ -3054,6 +3109,106 @@ def test_absolute_deadline_refuses_admission_after_expiry(tmp_path, ctx, state, 
     assert not effects.exists()
 
 
+@pytest.mark.skipif(
+    retry_module._timeout_worker_start_method() != "fork",
+    reason="native Linux fork process admission required",
+)
+@pytest.mark.parametrize("mode", ["sync", "async"])
+def test_process_setup_cannot_admit_worker_after_absolute_deadline(
+    tmp_path, ctx, state, monkeypatch, mode
+):
+    """A constructor delay must not admit even the supervisor after expiry."""
+    effects = tmp_path / "physical-body"
+    starts = []
+    process_factory = retry_module._process_factory
+
+    def delayed_factory(context):
+        original = process_factory(context)
+
+        def construct(**kwargs):
+            process = original(**kwargs)
+            start = process.start
+
+            def observed_start():
+                starts.append(process)
+                start()
+
+            process.start = observed_start
+            _time.sleep(0.03)
+            return process
+
+        return construct
+
+    class Node:
+        def execute(self, passed_ctx, passed_state):
+            effects.write_text("body")
+            return _ok_outcome(passed_state)
+
+    monkeypatch.setattr(retry_module, "_process_factory", delayed_factory)
+    execute = (
+        retry_module._execute_with_timeout_process
+        if mode == "sync"
+        else retry_module._execute_with_timeout_process_async
+    )
+
+    def invoke():
+        result = execute(Node(), ctx, state, timeout_s=0.01)
+        if mode == "async":
+            return asyncio.run(result)
+        return result
+
+    with pytest.raises(NodeTimeoutError) as expired:
+        invoke()
+    assert expired.value.details["execution_state"] == "not_started"
+    assert starts == []
+    assert not effects.exists()
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="native Linux owned-process supervisor")
+def test_supervisor_scheduled_after_deadline_never_enters_node(tmp_path, ctx, state):
+    """An admitted supervisor cannot admit node code after scheduling delay."""
+    effects = tmp_path / "physical-body"
+
+    class Node:
+        def execute(self, passed_ctx, passed_state):
+            effects.write_text("body")
+            return _ok_outcome(passed_state)
+
+    context = mp.get_context("fork")
+    channel = retry_module._WorkerResultChannel(context)
+    ready = context.Event()
+    completed_at = context.Value("d", 0.0)
+    cleanup_complete = context.Value("b", False)
+    process = context.Process(
+        target=retry_module._node_execute_supervisor,
+        args=(
+            Node(),
+            ctx,
+            state,
+            channel,
+            ready,
+            completed_at,
+            _time.monotonic() - 0.01,
+            cleanup_complete,
+        ),
+    )
+    try:
+        process.start()
+        channel.close_writer()
+        process.join(timeout=2)
+        assert not process.is_alive()
+        assert process.exitcode == 0
+        assert ready.is_set()
+        assert cleanup_complete.value
+        assert not effects.exists()
+    finally:
+        if process.is_alive():
+            process.terminate()
+            process.join(timeout=2)
+        process.close()
+        channel.close()
+
+
 @pytest.mark.parametrize("termination", ["deadline", "cancellation"])
 @pytest.mark.asyncio
 async def test_queued_async_thread_attempt_never_enters_body_after_termination(
@@ -3118,31 +3273,45 @@ async def test_queued_async_thread_attempt_never_enters_body_after_termination(
     retry_module._timeout_worker_start_method() != "fork",
     reason="control-exception transport is verified on the native Linux fork route",
 )
+@pytest.mark.parametrize("late", [False, True], ids=["before-deadline", "after-deadline"])
 @pytest.mark.parametrize("control", ["SystemExit", "KeyboardInterrupt", "SystemExitUnsupported"])
 @pytest.mark.parametrize("mode", ["sync", "async"])
-def test_real_process_preserves_control_exception_without_retry(tmp_path, mode, control):
+def test_real_process_preserves_control_exception_without_retry(tmp_path, mode, control, late):
     effects = tmp_path / "attempts"
-    script = """import asyncio,json,multiprocessing,sys
+    script = """import asyncio,json,multiprocessing,os,sys,time
 from pathlib import Path
 from unittest.mock import MagicMock
+from polisyos.core.errors import PolicyOSError
+from polisyos.scientist.orchestration.engine import retry as retry_module
 from polisyos.scientist.orchestration.engine.retry import RetryPolicy, execute_with_retry_sync, execute_with_retry_async
 from polisyos.scientist.orchestration.engine.state import ExperimentState
-path=Path(sys.argv[1]); mode, control=sys.argv[2:]
+path=Path(sys.argv[1]); mode, control, late=sys.argv[2:]
 class Node:
  def execute(self,ctx,state):
-  with path.open('a') as stream:stream.write('attempt\\n')
+  with path.open('a') as stream:stream.write(json.dumps(dict(pid=os.getpid(),entered_at=time.monotonic()))+'\\n')
+  if late=='yes':time.sleep(.75)
   if control=='SystemExit':raise SystemExit(17)
   if control=='SystemExitUnsupported':raise SystemExit(object())
   raise KeyboardInterrupt()
+# This witness is about control propagation from a running worker. Resolve the
+# actual cold parent/worker context imports before the unchanged .5s deadline.
+# Cold admission expiry and late worker admission have separate negative tests.
+ctx=MagicMock(); state=ExperimentState(run_id='R_control')
+preflight=time.monotonic()
+retry_module._build_fork_worker_receipt_binding(Node(),ctx,state,alias='actual-control',timeout_s=.5,dispatch_params=None)
+retry_module._node_facing_context(ctx)
+preflight_s=time.monotonic()-preflight
 kwargs=dict(retry_policy=RetryPolicy(max_retries=2),timeout_s=.5,alias='actual-control')
+invoked_at=time.monotonic()
 try:
- if mode=='sync':execute_with_retry_sync(Node(),MagicMock(),ExperimentState(run_id='R_control'),**kwargs)
- else:asyncio.run(execute_with_retry_async(Node(),MagicMock(),ExperimentState(run_id='R_control'),**kwargs))
+ if mode=='sync':execute_with_retry_sync(Node(),ctx,state,**kwargs)
+ else:asyncio.run(execute_with_retry_async(Node(),ctx,state,**kwargs))
 except BaseException as exc:
- print(json.dumps(dict(type=type(exc).__name__,code=getattr(exc,'code',None),cause_code=getattr(exc.__cause__,'code',None),cause_category=getattr(exc.__cause__,'category',None),attempts=len(path.read_text().splitlines()),live_children=[p.pid for p in multiprocessing.active_children()])))
+ attempts=[json.loads(line) for line in path.read_text().splitlines()] if path.exists() else []
+ print(json.dumps(dict(type=type(exc).__name__,code=getattr(exc,'code',None),cause_code=getattr(exc.__cause__,'code',None),cause_category=getattr(exc.__cause__,'category',None),details=exc.to_dict()['details'] if isinstance(exc,PolicyOSError) else {},attempts=attempts,parent_pid=os.getpid(),invoked_at=invoked_at,preflight_s=preflight_s,live_children=[p.pid for p in multiprocessing.active_children()])))
 """
     completed = subprocess.run(
-        [sys.executable, "-c", script, str(effects), mode, control],
+        [sys.executable, "-c", script, str(effects), mode, control, "yes" if late else "no"],
         capture_output=True,
         text=True,
         check=False,
@@ -3150,14 +3319,20 @@ except BaseException as exc:
     )
     assert completed.returncode == 0, completed.stderr
     observed = json.loads(completed.stdout)
-    if control == "SystemExitUnsupported":
+    if late:
+        assert observed["type"] == "NodeTimeoutError", observed
+        assert observed["details"]["cleanup_complete"] is True, observed
+    elif control == "SystemExitUnsupported":
         assert observed["type"] == "RetryExhaustedError", observed
         assert observed["cause_code"] == "node.control_unsupported", observed
         assert observed["cause_category"] == "fatal", observed
     else:
         assert observed["type"] == control, observed
         assert observed["code"] == (17 if control == "SystemExit" else None), observed
-    assert observed["attempts"] == 1
+    assert len(observed["attempts"]) == 1, observed
+    attempt = observed["attempts"][0]
+    assert attempt["pid"] != observed["parent_pid"], observed
+    assert 0 <= attempt["entered_at"] - observed["invoked_at"] < 0.5, observed
     assert observed["live_children"] == []
 
 

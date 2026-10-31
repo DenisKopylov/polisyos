@@ -84,6 +84,8 @@ boundaries.
 | `MethodRouteConstraint`       | Stable candidate route constraint contract, implemented by the existing method-selection owner. |
 | `method_accepts_input_contract()` | Stable relation predicate over a method's actual input slots and executable type hints. |
 | `data_plane.prepare_input_bindings()` | Resolve a selected Fabric snapshot and registry, apply the real binding rules, and inspect the complete candidate state without writing CAS artifacts. |
+| `execute.put_state_snapshot()` | Persist a state or numeric slot map through the existing state-snapshot owner, optionally retaining its selected CAS profile. |
+| `execute.apply_state_delta()` | Recompute a state from a selected base, delta and registry merge rules through the existing execution owner. |
 | `data_plane.InputBindingsPreparation` | Worker-local computed state, effective rules, applied IDs and warnings. It is neither an authority receipt nor an admitted evaluation-retention basis. |
 | `data_plane.prepare_hte_observational_input()` | Prepare a bounded, selected-profile HTE input for candidate method execution. |
 | `data_plane.PreparedHTEObservationalInput` | Worker-local prepared data plus source/effective refs and typed input metadata. |
@@ -417,6 +419,11 @@ constraint registry and Scientist plan profiles first. It checks lowering conten
 against Trinity and retains the full merge/check operator plane. It writes no CAS
 objects and issues no completion, observation or publication authority. Enabled
 intervention mechanisms remain outside this bounded replay profile.
+
+The `polisyos.foundry.compile.build_method_housekeeping_nodes` facade delegates
+to the compiler's canonical merge/check node and edge builder for one method,
+including collision handling. It does not validate the supplied node's kind or
+semantic inputs, and grants no execution, completion, or publication authority.
 
 The `polisyos.foundry.compile` facade exposes `program_graph_input_refs` and
 `execution_plan_input_refs`, the same ordered selected-edge builders used by the

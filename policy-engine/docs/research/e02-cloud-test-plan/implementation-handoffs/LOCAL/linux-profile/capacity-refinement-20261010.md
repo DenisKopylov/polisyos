@@ -34,4 +34,4 @@ Host snapshot: 16 GiB RAM, 8 CPUs, page size 16 KiB; `vm_stat` reported 78,243 f
 
 ## Receipt
 
-Full stdout, stderr, and exit status for each bounded read-only check are in [`raw/capacity-refinement-20261010/`](raw/capacity-refinement-20261010/). `SHA256SUMS` covers those captures; its SHA-256 is `db3c84a011b680f48a0f6b7541b40f0986878c760d39e4250f4435375503e042`. The source and test status remains as in [`final-wave-readiness.md`](final-wave-readiness.md): freeze identity and root's heavy-slot release are still prerequisites.
+Full stdout, stderr, and exit status for each bounded read-only check are in `raw/capacity-refinement-20261010/` (`raw/capacity-refinement-20261010/`; unavailable in this checkout). `SHA256SUMS` covers those captures; its SHA-256 is `db3c84a011b680f48a0f6b7541b40f0986878c760d39e4250f4435375503e042`. The source and test status remains as in [`final-wave-readiness.md`](final-wave-readiness.md): freeze identity and root's heavy-slot release are still prerequisites.

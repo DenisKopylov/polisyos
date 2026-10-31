@@ -70,6 +70,121 @@ assert capture.failed
     assert result.returncode == 0, result.stderr
 
 
+def test_inherited_finder_retains_its_real_defining_class(tmp_path: Path) -> None:
+    """An inherited static finder is held with its source class and descriptor."""
+    program = r"""
+import hashlib
+import pathlib
+import sys
+sys.path.insert(0, sys.argv[1])
+from tools.loaded_execution_capture import CaptureError, ExpectedSource, SourceExecutionCapture
+root = pathlib.Path(sys.argv[2])
+package = root / 'inherited_finder'
+package.mkdir()
+files = {
+    'inherited_finder': ('inherited_finder/__init__.py', b'''import sys
+from .base import Base
+class Finder(Base):
+    flag = None
+    def __init__(self):
+        self.selection = None
+    @classmethod
+    def find_distributions(cls, *, selected=None):
+        return ()
+finder = Finder()
+sys.meta_path.append(finder)
+'''),
+    'inherited_finder.base': ('inherited_finder/base.py', b'''class Base:
+    @staticmethod
+    def find_spec(fullname, path=None, target=None):
+        return None
+    @staticmethod
+    def substitute(fullname, path=None, target=None):
+        return 'changed'
+'''),
+}
+for relative, source in files.values():
+    (root / relative).write_bytes(source)
+capture = SourceExecutionCapture(root, {
+    name: ExpectedSource(relative, hashlib.sha256(source).hexdigest())
+    for name, (relative, source) in files.items()
+})
+capture.install()
+sys.path.insert(0, str(root))
+import inherited_finder
+from inherited_finder.base import Base
+assert sys.meta_path[0] is capture._finder
+capture.assert_retained(frozenset({'inherited_finder', 'inherited_finder.base'}))
+original_code = Base.find_spec.__code__
+original_defaults = Base.find_spec.__defaults__
+original_distributions = vars(inherited_finder.Finder)['find_distributions']
+original_keywords = original_distributions.__func__.__kwdefaults__
+removed_record = None
+# MUTATION
+try:
+    capture.assert_retained(frozenset({'inherited_finder', 'inherited_finder.base'}))
+except CaptureError as exc:
+    assert str(exc) == 'capture_finder_state_changed'
+else:
+    raise AssertionError('changed inherited finder state was accepted')
+finally:
+    Base.find_spec.__code__ = original_code
+    Base.find_spec.__defaults__ = original_defaults
+    original_keywords.pop('changed', None)
+    original_keywords['selected'] = None
+    inherited_finder.Finder.find_distributions = original_distributions
+    if 'changed_flag' in vars(inherited_finder.Finder):
+        del inherited_finder.Finder.changed_flag
+    inherited_finder.Finder.flag = None
+    if 'find_spec' in vars(inherited_finder.Finder):
+        del inherited_finder.Finder.find_spec
+    if 'extra' in vars(inherited_finder.finder):
+        del inherited_finder.finder.extra
+    if 'changed_selection' in vars(inherited_finder.finder):
+        del inherited_finder.finder.changed_selection
+    inherited_finder.finder.selection = None
+    if removed_record is not None:
+        capture._completed['inherited_finder.base'] = removed_record
+assert capture.failed
+try:
+    capture.assert_retained(frozenset({'inherited_finder', 'inherited_finder.base'}))
+except CaptureError:
+    pass
+else:
+    raise AssertionError('restoring the method erased the failed capture')
+"""
+    mutations = {
+        "method-code": "Base.find_spec.__code__ = Base.substitute.__code__",
+        "method-defaults": "Base.find_spec.__defaults__ = ('changed',)",
+        "keyword-presence": "original_keywords.pop('selected'); original_keywords['changed'] = None",
+        "class-descriptor": "inherited_finder.Finder.find_distributions = classmethod(Base.substitute)",
+        "class-presence": "del inherited_finder.Finder.flag; inherited_finder.Finder.changed_flag = None",
+        "subclass-shadow": "inherited_finder.Finder.find_spec = staticmethod(Base.substitute)",
+        "instance-state": "inherited_finder.finder.extra = object()",
+        "instance-presence": "del inherited_finder.finder.selection; inherited_finder.finder.changed_selection = None",
+        "lost-source-record": "removed_record = capture._completed.pop('inherited_finder.base')",
+    }
+    for label, mutation in mutations.items():
+        case_root = tmp_path / label
+        case_root.mkdir()
+        result = _run(case_root, program.replace("# MUTATION", mutation))
+        assert result.returncode == 0, f"{label}: {result.stderr}"
+    removal_root = tmp_path / "finder-check-removed"
+    removal_root.mkdir()
+    removal = _run(
+        removal_root,
+        program.replace(
+            "# MUTATION",
+            "capture._source_finder_matches = lambda reference: True\n"
+            "Base.find_spec.__code__ = Base.substitute.__code__",
+        ),
+    )
+    print(f"inherited finder check removal exit: {removal.returncode}")
+    print(removal.stderr, end="")
+    assert removal.returncode != 0
+    assert "changed inherited finder state was accepted" in removal.stderr
+
+
 def test_separate_package_search_lists_remain_bound(tmp_path: Path) -> None:
     """Retain both legitimate search lists and reject changes to either."""
     program = r"""

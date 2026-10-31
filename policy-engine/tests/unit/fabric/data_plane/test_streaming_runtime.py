@@ -59,9 +59,12 @@ from polisyos.fabric.quality.processing_guarantees import (
     stream_processing_contract,
 )
 from polisyos.ir.connectors import FetchRequest
+from tests._helpers.source_progress import finite_source_reader
 
 if TYPE_CHECKING:
     from pathlib import Path
+
+    from polisyos.fabric.ingestion.source_progress import FiniteSourceProgressReader
 
 
 class _Net01StreamingConnector(EventStreamConnector):
@@ -107,6 +110,69 @@ class _Net01StreamingConnector(EventStreamConnector):
             raise RuntimeError("controlled close failure")
 
 
+def _versioned_jsonl_owner(
+    stream_path: Path,
+    *,
+    dataset_id: str,
+    event_field: str = "message_id",
+    partition_key: str = "default",
+) -> FiniteSourceProgressReader:
+    """Write fixture revision 1, then freeze its independent finite owner view.
+
+    This is explicit test input preparation, before session acquisition. Physical
+    redeliveries share one event/version; non-key payload stays candidate. The owner
+    file is separate from the actual JSONL transport and remains frozen during
+    failure injection/restart. No production identity or completeness is claimed.
+    """
+    rows = [json.loads(line) for line in stream_path.read_text().splitlines() if line.strip()]
+    logical_rows: dict[tuple[object, int], dict[str, Any]] = {}
+    for row in rows:
+        if event_field == "message_id" and event_field not in row:
+            row[event_field] = row["_message_id"]
+        assert event_field in row
+        assert row.get("source_version", 1) == 1
+        row["source_version"] = 1
+        key = (row[event_field], row["source_version"])
+        # The owner admits identity only; redelivery annotations may differ.
+        # Underscored transport annotations are not SourceContract schema fields.
+        logical_rows.setdefault(
+            key, {name: value for name, value in row.items() if not name.startswith("_")}
+        )
+    stream_path.write_text(
+        "".join(json.dumps(row, sort_keys=True) + "\n" for row in rows), encoding="utf-8"
+    )
+    return finite_source_reader(
+        stream_path.parent / f"owner-{dataset_id}-{partition_key}",
+        connector_id="stream.jsonl",
+        dataset_id=dataset_id,
+        schema_id="fixture.versioned_stream.events",
+        snapshots=[("fixture-revision-1", list(logical_rows.values()))],
+        event_fields=(event_field,),
+        version_fields=("source_version",),
+        transport_path=stream_path,
+        partition_key=partition_key,
+    )
+
+
+def _source_bound_checkpoint_metadata(
+    source_owner: FiniteSourceProgressReader,
+    store: FileSystemCAS,
+) -> dict[str, Any]:
+    """Reach the corruption under test with a real current finite-source witness.
+
+    These malformed-checkpoint controls deliberately omit later fields, while
+    the independent source and clock admissions retain their normal inputs.
+    """
+    frame = source_owner.freeze(tenant_id=None).bind_transport(
+        ConnectionConfig(url=source_owner.transport_path.as_uri()),
+        partition_key=source_owner.extension.partition_key,
+    )
+    return {
+        "ingestion_clock_profile": "system_utc",
+        "source_progress_witness_ref": frame.witness(store).model_dump(mode="json"),
+    }
+
+
 def _valid_rows(batch, **kwargs):
     del kwargs
     return [dict(row) for row in batch if isinstance(row, dict)], [], 0
@@ -122,6 +188,7 @@ def _register_optional_stream_contract(
         version=SchemaVersion(1, 0, 0),
         fields=(
             FieldSpec(name="message_id", data_type=SchemaType.STRING, nullable=False),
+            FieldSpec(name="source_version", data_type=SchemaType.INT64, nullable=False),
             FieldSpec(name="value", data_type=SchemaType.FLOAT64, nullable=False),
             FieldSpec(
                 name="note",
@@ -350,50 +417,55 @@ async def test_net01_checkpoint_lookup_failure_closes_owned_session(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Checkpoint preparation errors still finalize an acquired stream session."""
+    """Checkpoint errors finalize an actual admitted JSONL session."""
+    dataset_id = "checkpoint-failure"
+    stream_path = tmp_path / "net01.jsonl"
+    stream_path.write_text('{"message_id":"m1","source_version":1,"value":1}\n')
+    source_owner = _versioned_jsonl_owner(stream_path, dataset_id=dataset_id)
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    registry.set_default_config("stream.jsonl", ConnectionConfig(url=stream_path.as_uri()))
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    cursor_store = CursorStore(store)
+    sessions: list[StreamingSourceSession] = []
+    disconnected: list[str] = []
+    original_create = StreamingSourceSession.create
+    original_disconnect = EventStreamConnector.disconnect
 
-    connector = _Net01StreamingConnector(connector_id="net01-stream")
-    pool = ConnectionPool[SourceConnectorValue[object]](
-        connector_factory=lambda: connector,
-        config=ConnectionConfig(url="https://stream.example"),
-        pool_config=PoolConfig(max_size=1, validate_on_acquire=False),
-    )
-    session = StreamingSourceSession(
-        connector_id="net01-stream",
-        dataset_id="checkpoint-failure",
-        pool=pool,
-        request=FetchRequest(dataset_id="checkpoint-failure"),
-    )
-    await session.subscribe()
-
-    async def fake_create(cls, **kwargs: Any) -> StreamingSourceSession:
-        del cls, kwargs
+    async def capture_create(cls, **kwargs: Any) -> StreamingSourceSession:
+        del cls
+        session = await original_create(**kwargs)
+        assert session.handle is not None and session.connector is not None
+        sessions.append(session)
         return session
+
+    async def track_disconnect(self, handle: ConnectionHandle) -> None:
+        disconnected.append(handle.session_id)
+        await original_disconnect(self, handle)
+
+    monkeypatch.setattr(StreamingSourceSession, "create", classmethod(capture_create))
+    monkeypatch.setattr(EventStreamConnector, "disconnect", track_disconnect)
 
     async def fail_lookup(self, *args: Any, **kwargs: Any) -> None:
         del self, args, kwargs
         raise RuntimeError("controlled checkpoint lookup failure")
 
-    monkeypatch.setattr(StreamingSourceSession, "create", classmethod(fake_create))
-    monkeypatch.setattr(
-        AsyncCursorStoreAdapter,
-        "find_latest_stream_checkpoint",
-        fail_lookup,
-    )
-
-    store = FileSystemCAS(tmp_path / ".polisyos")
+    monkeypatch.setattr(AsyncCursorStoreAdapter, "find_latest_stream_checkpoint", fail_lookup)
     with pytest.raises(RuntimeError, match="controlled checkpoint lookup failure"):
         await process_stream_dataset(
-            connector_id="net01-stream",
-            dataset_id="checkpoint-failure",
+            connector_id="stream.jsonl",
+            dataset_id=dataset_id,
             store=store,
-            cursor_store=CursorStore(store),
+            cursor_store=cursor_store,
             sanitize_rows=_valid_rows,
+            registry=registry,
+            source_progress_readers=(source_owner,),
         )
 
-    assert session._closed is True
-    assert session.handle is None
-    assert len(connector.disconnect_calls) == 1
+    assert len(sessions) == 1
+    assert sessions[0]._closed is True
+    assert sessions[0].handle is None
+    assert len(disconnected) == 1
 
 
 @pytest.mark.asyncio
@@ -401,62 +473,66 @@ async def test_net01_rewind_failure_closes_owned_session(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Rewind preparation errors cannot bypass the session finalizer."""
+    """Rewind errors finalize a real session after a qualified checkpoint."""
+    dataset_id = "rewind-failure"
+    stream_path = tmp_path / "net01.jsonl"
+    stream_path.write_text('{"message_id":"m1","source_version":1,"value":1}\n')
+    source_owner = _versioned_jsonl_owner(stream_path, dataset_id=dataset_id)
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    registry.set_default_config("stream.jsonl", ConnectionConfig(url=stream_path.as_uri()))
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    cursor_store = CursorStore(store)
+    # Produce the complete source witness, paired frontier and operator state.
+    await process_stream_dataset(
+        connector_id="stream.jsonl",
+        dataset_id=dataset_id,
+        store=store,
+        cursor_store=cursor_store,
+        sanitize_rows=_valid_rows,
+        registry=registry,
+        source_progress_readers=(source_owner,),
+    )
+    sessions: list[StreamingSourceSession] = []
+    disconnected: list[str] = []
+    original_create = StreamingSourceSession.create
+    original_disconnect = EventStreamConnector.disconnect
 
-    connector = _Net01StreamingConnector(connector_id="net01-stream")
-    pool = ConnectionPool[SourceConnectorValue[object]](
-        connector_factory=lambda: connector,
-        config=ConnectionConfig(url="https://stream.example"),
-        pool_config=PoolConfig(max_size=1, validate_on_acquire=False),
-    )
-    session = StreamingSourceSession(
-        connector_id="net01-stream",
-        dataset_id="rewind-failure",
-        pool=pool,
-        request=FetchRequest(dataset_id="rewind-failure"),
-    )
-    await session.subscribe()
-    checkpoint = StreamCheckpoint(
-        checkpoint_id="net01-stream:rewind-failure:default:1",
-        stream_id="net01-stream:rewind-failure:default",
-        connector_id="net01-stream",
-        dataset_id="rewind-failure",
-        offset=0,
-        created_at=datetime.now(UTC),
-    )
-
-    async def fake_create(cls, **kwargs: Any) -> StreamingSourceSession:
-        del cls, kwargs
+    async def capture_create(cls, **kwargs: Any) -> StreamingSourceSession:
+        del cls
+        session = await original_create(**kwargs)
+        assert session.handle is not None and session.connector is not None
+        sessions.append(session)
         return session
 
-    async def fake_lookup(self, *args: Any, **kwargs: Any) -> StreamCheckpoint:
-        del self, args, kwargs
-        return checkpoint
+    async def track_disconnect(self, handle: ConnectionHandle) -> None:
+        disconnected.append(handle.session_id)
+        await original_disconnect(self, handle)
 
-    async def fail_rewind(_checkpoint: StreamCheckpoint) -> None:
+    monkeypatch.setattr(StreamingSourceSession, "create", classmethod(capture_create))
+    monkeypatch.setattr(EventStreamConnector, "disconnect", track_disconnect)
+
+    async def fail_rewind(self, checkpoint: StreamCheckpoint) -> None:
+        assert self.handle is not None
+        assert checkpoint.metadata["source_progress_witness_ref"]
         raise RuntimeError("controlled rewind failure")
 
-    monkeypatch.setattr(StreamingSourceSession, "create", classmethod(fake_create))
-    monkeypatch.setattr(
-        AsyncCursorStoreAdapter,
-        "find_latest_stream_checkpoint",
-        fake_lookup,
-    )
-    monkeypatch.setattr(session, "rewind", fail_rewind)
-
-    store = FileSystemCAS(tmp_path / ".polisyos")
+    monkeypatch.setattr(StreamingSourceSession, "rewind", fail_rewind)
     with pytest.raises(RuntimeError, match="controlled rewind failure"):
         await process_stream_dataset(
-            connector_id="net01-stream",
-            dataset_id="rewind-failure",
+            connector_id="stream.jsonl",
+            dataset_id=dataset_id,
             store=store,
-            cursor_store=CursorStore(store),
+            cursor_store=cursor_store,
             sanitize_rows=_valid_rows,
+            registry=registry,
+            source_progress_readers=(source_owner,),
         )
 
-    assert session._closed is True
-    assert session.handle is None
-    assert len(connector.disconnect_calls) == 1
+    assert len(sessions) == 1
+    assert sessions[0]._closed is True
+    assert sessions[0].handle is None
+    assert len(disconnected) == 1
 
 
 @pytest.mark.asyncio
@@ -464,46 +540,66 @@ async def test_net01_stream_cleanup_does_not_mask_primary_failure(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """A finalizer failure is evidence on, not a replacement for, the run error."""
+    """Keep the primary error and a cleanup note for an actual acquired handle."""
+    dataset_id = "primary-and-cleanup-failure"
+    stream_path = tmp_path / "net01.jsonl"
+    stream_path.write_text('{"message_id":"m1","source_version":1,"value":1}\n')
+    source_owner = _versioned_jsonl_owner(stream_path, dataset_id=dataset_id)
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    registry.set_default_config("stream.jsonl", ConnectionConfig(url=stream_path.as_uri()))
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    cursor_store = CursorStore(store)
+    sessions: list[StreamingSourceSession] = []
+    disconnected: list[str] = []
+    original_create = StreamingSourceSession.create
+    original_disconnect = EventStreamConnector.disconnect
 
-    connector = _Net01StreamingConnector(connector_id="net01-stream")
-    pool = ConnectionPool[SourceConnectorValue[object]](
-        connector_factory=lambda: connector,
-        config=ConnectionConfig(url="https://stream.example"),
-        pool_config=PoolConfig(max_size=1, validate_on_acquire=False),
-    )
-    session = StreamingSourceSession(
-        connector_id="net01-stream",
-        dataset_id="primary-and-cleanup-failure",
-        pool=pool,
-        request=FetchRequest(dataset_id="primary-and-cleanup-failure"),
-    )
-
-    async def fake_create(cls, **kwargs: Any) -> StreamingSourceSession:
-        del cls, kwargs
+    async def capture_create(cls, **kwargs: Any) -> StreamingSourceSession:
+        del cls
+        session = await original_create(**kwargs)
+        assert session.handle is not None and session.connector is not None
+        sessions.append(session)
         return session
 
-    async def fail_poll() -> None:
+    async def track_disconnect(self, handle: ConnectionHandle) -> None:
+        disconnected.append(handle.session_id)
+        await original_disconnect(self, handle)
+
+    monkeypatch.setattr(StreamingSourceSession, "create", classmethod(capture_create))
+    monkeypatch.setattr(EventStreamConnector, "disconnect", track_disconnect)
+    original_close = StreamingSourceSession.close
+
+    async def fail_poll(self) -> None:
+        assert self.handle is not None
         raise RuntimeError("controlled primary stream failure")
 
-    async def fail_close() -> None:
+    async def fail_close(self) -> None:
+        assert self.handle is not None
         raise RuntimeError("controlled cleanup failure")
 
-    monkeypatch.setattr(StreamingSourceSession, "create", classmethod(fake_create))
-    monkeypatch.setattr(session, "poll", fail_poll)
-    monkeypatch.setattr(session, "close", fail_close)
+    monkeypatch.setattr(StreamingSourceSession, "poll", fail_poll)
+    monkeypatch.setattr(StreamingSourceSession, "close", fail_close)
+    try:
+        with pytest.raises(RuntimeError, match="controlled primary stream failure") as exc_info:
+            await process_stream_dataset(
+                connector_id="stream.jsonl",
+                dataset_id=dataset_id,
+                store=store,
+                cursor_store=cursor_store,
+                sanitize_rows=_valid_rows,
+                registry=registry,
+                source_progress_readers=(source_owner,),
+            )
 
-    store = FileSystemCAS(tmp_path / ".polisyos")
-    with pytest.raises(RuntimeError, match="controlled primary stream failure") as exc_info:
-        await process_stream_dataset(
-            connector_id="net01-stream",
-            dataset_id="primary-and-cleanup-failure",
-            store=store,
-            cursor_store=CursorStore(store),
-            sanitize_rows=_valid_rows,
-        )
-
-    assert any("controlled cleanup failure" in note for note in exc_info.value.__notes__)
+        assert any("controlled cleanup failure" in note for note in exc_info.value.__notes__)
+    finally:
+        for session in sessions:
+            await original_close(session)
+    assert len(sessions) == 1
+    assert sessions[0]._closed is True
+    assert sessions[0].handle is None
+    assert len(disconnected) == 1
 
 
 @pytest.mark.asyncio
@@ -523,6 +619,9 @@ async def test_process_stream_dataset_recovers_from_checkpoint_and_dedupes_repla
         )
         + "\n",
         encoding="utf-8",
+    )
+    source_owner = _versioned_jsonl_owner(
+        stream_path, dataset_id="events", event_field="message_id"
     )
     ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
@@ -550,6 +649,7 @@ async def test_process_stream_dataset_recovers_from_checkpoint_and_dedupes_repla
     monkeypatch.setattr(StreamingSourceSession, "poll", flaky_poll)
     with pytest.raises(RuntimeError, match="poll boom"):
         await process_stream_dataset(
+            source_progress_readers=(source_owner,),
             connector_id="stream.jsonl",
             dataset_id="events",
             store=store,
@@ -563,11 +663,15 @@ async def test_process_stream_dataset_recovers_from_checkpoint_and_dedupes_repla
     assert paused.lifecycle_state == StreamLifecycleState.PAUSED
     assert paused.offset == 0
     assert paused.dedupe_keys == tuple(
-        resolve_dedupe_key({"_message_id": key}, fields=("_message_id",)) for key in ("m1", "m2")
+        resolve_dedupe_key(
+            {"message_id": key, "source_version": 1}, fields=("message_id", "source_version")
+        )
+        for key in ("m1", "m2")
     )
 
     monkeypatch.setattr(StreamingSourceSession, "poll", original_poll)
     recovered = await process_stream_dataset(
+        source_progress_readers=(source_owner,),
         connector_id="stream.jsonl",
         dataset_id="events",
         store=store,
@@ -593,10 +697,16 @@ async def test_stream_partitions_keep_frontiers_isolated_across_restart(
 
     left_path = tmp_path / "left.jsonl"
     left_path.write_text('{"value":"left"}\n', encoding="utf-8")
+    left_owner = _versioned_jsonl_owner(
+        left_path, dataset_id="shared-events", event_field="value", partition_key="left"
+    )
     right_path = tmp_path / "right.jsonl"
     right_path.write_text(
         '{"value":"right-1"}\n{"value":"right-2"}\n',
         encoding="utf-8",
+    )
+    right_owner = _versioned_jsonl_owner(
+        right_path, dataset_id="shared-events", event_field="value", partition_key="right"
     )
 
     ConnectorRegistry.reset_instance()
@@ -613,6 +723,7 @@ async def test_stream_partitions_keep_frontiers_isolated_across_restart(
     )
 
     await process_stream_dataset(
+        source_progress_readers=(left_owner,),
         connector_id="stream.jsonl",
         dataset_id="shared-events",
         store=store,
@@ -626,6 +737,7 @@ async def test_stream_partitions_keep_frontiers_isolated_across_restart(
         registry=registry,
     )
     await process_stream_dataset(
+        source_progress_readers=(right_owner,),
         connector_id="stream.jsonl",
         dataset_id="shared-events",
         store=store,
@@ -654,6 +766,7 @@ async def test_stream_partitions_keep_frontiers_isolated_across_restart(
     assert right_checkpoint.offset == 1
 
     resumed_left = await process_stream_dataset(
+        source_progress_readers=(left_owner,),
         connector_id="stream.jsonl",
         dataset_id="shared-events",
         store=store,
@@ -696,6 +809,9 @@ async def test_stream_live_dedupe_keys_survive_capacity_refusal_and_restart(
         + "\n",
         encoding="utf-8",
     )
+    source_owner = _versioned_jsonl_owner(
+        stream_path, dataset_id="events", event_field="message_id"
+    )
     now = datetime(2026, 10, 6, tzinfo=UTC)
     monkeypatch.setattr("polisyos.fabric.data_plane.streaming._ingestion_utc", lambda: now)
     ConnectorRegistry.reset_instance()
@@ -712,6 +828,7 @@ async def test_stream_live_dedupe_keys_survive_capacity_refusal_and_restart(
     for _ in range(2):
         with pytest.raises(StreamDedupeUnsupported, match="before eviction"):
             await process_stream_dataset(
+                source_progress_readers=(source_owner,),
                 connector_id="stream.jsonl",
                 dataset_id="events",
                 store=store,
@@ -724,7 +841,10 @@ async def test_stream_live_dedupe_keys_survive_capacity_refusal_and_restart(
         saved = cursor_store.find_latest_stream_checkpoint("stream.jsonl", "events")
         assert saved is not None and saved.offset == 1
         keys = tuple(
-            json.dumps([["_message_id", key]], separators=(",", ":")) for key in ("a", "b")
+            resolve_dedupe_key(
+                {"message_id": key, "source_version": 1}, fields=("message_id", "source_version")
+            )
+            for key in ("a", "b")
         )
         assert saved.dedupe_keys == keys
         assert saved.metadata["dedupe_horizon"]["entries"] == {key: now.isoformat() for key in keys}
@@ -751,6 +871,9 @@ async def test_stream_failure_before_chunk_persistence_replays_dedupe_rows(
         '{"_message_id":"m1","value":1}\n{"_message_id":"m2","value":2}\n',
         encoding="utf-8",
     )
+    source_owner = _versioned_jsonl_owner(
+        stream_path, dataset_id="pre-chunk-failure", event_field="message_id"
+    )
     ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
     registry.set_default_config(
@@ -774,6 +897,7 @@ async def test_stream_failure_before_chunk_persistence_replays_dedupe_rows(
     )
     with pytest.raises(RuntimeError, match="pre-chunk persistence failure"):
         await process_stream_dataset(
+            source_progress_readers=(source_owner,),
             connector_id="stream.jsonl",
             dataset_id="pre-chunk-failure",
             store=store,
@@ -796,6 +920,7 @@ async def test_stream_failure_before_chunk_persistence_replays_dedupe_rows(
         original_persist,
     )
     recovered = await process_stream_dataset(
+        source_progress_readers=(source_owner,),
         connector_id="stream.jsonl",
         dataset_id="pre-chunk-failure",
         store=store,
@@ -822,6 +947,9 @@ async def test_stream_failure_after_raw_chunk_before_checkpoint_replays_pending_
         '{"_message_id":"m3","value":3}\n',
         encoding="utf-8",
     )
+    source_owner = _versioned_jsonl_owner(
+        stream_path, dataset_id="post-raw-failure", event_field="message_id"
+    )
     ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
     registry.set_default_config(
@@ -842,6 +970,7 @@ async def test_stream_failure_after_raw_chunk_before_checkpoint_replays_pending_
     monkeypatch.setattr(StreamingSourceSession, "poll", fail_on_second_poll)
     with pytest.raises(RuntimeError, match="post-raw checkpoint failure"):
         await process_stream_dataset(
+            source_progress_readers=(source_owner,),
             connector_id="stream.jsonl",
             dataset_id="post-raw-failure",
             store=store,
@@ -864,6 +993,7 @@ async def test_stream_failure_after_raw_chunk_before_checkpoint_replays_pending_
 
     monkeypatch.setattr(StreamingSourceSession, "poll", original_poll)
     recovered = await process_stream_dataset(
+        source_progress_readers=(source_owner,),
         connector_id="stream.jsonl",
         dataset_id="post-raw-failure",
         store=store,
@@ -978,6 +1108,9 @@ async def test_stream_interrupted_pending_window_resumes_with_lineage(
         "".join(f"{json.dumps(row)}\n" for row in rows),
         encoding="utf-8",
     )
+    source_owner = _versioned_jsonl_owner(
+        stream_path, dataset_id=f"resume-{policy.strategy.value}", event_field="message_id"
+    )
     ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
     registry.set_default_config(
@@ -998,6 +1131,7 @@ async def test_stream_interrupted_pending_window_resumes_with_lineage(
     monkeypatch.setattr(StreamingSourceSession, "poll", fail_after_first_checkpoint)
     with pytest.raises(RuntimeError, match="interrupted pending window"):
         await process_stream_dataset(
+            source_progress_readers=(source_owner,),
             connector_id="stream.jsonl",
             dataset_id=f"resume-{policy.strategy.value}",
             store=store,
@@ -1020,6 +1154,7 @@ async def test_stream_interrupted_pending_window_resumes_with_lineage(
 
     monkeypatch.setattr(StreamingSourceSession, "poll", original_poll)
     recovered = await process_stream_dataset(
+        source_progress_readers=(source_owner,),
         connector_id="stream.jsonl",
         dataset_id=f"resume-{policy.strategy.value}",
         store=store,
@@ -1036,8 +1171,10 @@ async def test_stream_interrupted_pending_window_resumes_with_lineage(
     assert len(recovered.window_refs) == 1
     manifest = store.get_manifest(recovered.window_refs[0].artifact_id)
     manifest_refs = {str(item.artifact_id) for item in manifest.inputs}
-    assert paused_refs <= manifest_refs
-    assert len(manifest_refs) == 3
+    witness_id = recovered.source_progress_scope["source_witness_ref"]["artifact_id"]
+    assert manifest_refs == paused_refs | {str(ref.artifact_id) for ref in recovered.chunk_refs} | {
+        witness_id
+    }
     latest = cursor_store.find_latest_stream_checkpoint(
         "stream.jsonl",
         f"resume-{policy.strategy.value}",
@@ -1057,6 +1194,9 @@ async def test_stream_window_manifest_contains_all_contributor_chunks(tmp_path: 
         '{"_message_id":"m3","value":3}\n',
         encoding="utf-8",
     )
+    source_owner = _versioned_jsonl_owner(
+        stream_path, dataset_id="lineage", event_field="message_id"
+    )
     ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
     registry.set_default_config(
@@ -1065,6 +1205,7 @@ async def test_stream_window_manifest_contains_all_contributor_chunks(tmp_path: 
     )
     store = FileSystemCAS(tmp_path / ".polisyos")
     result = await process_stream_dataset(
+        source_progress_readers=(source_owner,),
         connector_id="stream.jsonl",
         dataset_id="lineage",
         store=store,
@@ -1079,9 +1220,10 @@ async def test_stream_window_manifest_contains_all_contributor_chunks(tmp_path: 
     assert len(result.chunk_refs) == 2
     assert len(result.window_refs) == 1
     manifest = store.get_manifest(result.window_refs[0].artifact_id)
+    witness_id = result.source_progress_scope["source_witness_ref"]["artifact_id"]
     assert {str(item.artifact_id) for item in manifest.inputs} == {
         str(ref.artifact_id) for ref in result.chunk_refs
-    }
+    } | {witness_id}
     window_payload = from_canonical_bytes(store.get_bytes(result.window_refs[0].artifact_id))
     assert window_payload["window_policy"] == {
         "version": 1,
@@ -1104,6 +1246,9 @@ async def test_stream_window_lineage_covers_trigger_and_final_flush(tmp_path: Pa
         ),
         encoding="utf-8",
     )
+    source_owner = _versioned_jsonl_owner(
+        stream_path, dataset_id="trigger-final-lineage", event_field="message_id"
+    )
     ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
     registry.set_default_config(
@@ -1112,6 +1257,7 @@ async def test_stream_window_lineage_covers_trigger_and_final_flush(tmp_path: Pa
     )
     store = FileSystemCAS(tmp_path / ".polisyos")
     result = await process_stream_dataset(
+        source_progress_readers=(source_owner,),
         connector_id="stream.jsonl",
         dataset_id="trigger-final-lineage",
         store=store,
@@ -1128,12 +1274,15 @@ async def test_stream_window_lineage_covers_trigger_and_final_flush(tmp_path: Pa
     assert len(result.window_refs) == 2
     trigger_manifest = store.get_manifest(result.window_refs[0].artifact_id)
     final_manifest = store.get_manifest(result.window_refs[1].artifact_id)
+    witness_id = result.source_progress_scope["source_witness_ref"]["artifact_id"]
     assert {str(item.artifact_id) for item in trigger_manifest.inputs} == {
         str(result.chunk_refs[0].artifact_id),
         str(result.chunk_refs[1].artifact_id),
+        witness_id,
     }
     assert {str(item.artifact_id) for item in final_manifest.inputs} == {
         str(result.chunk_refs[2].artifact_id),
+        witness_id,
     }
 
 
@@ -1146,6 +1295,7 @@ async def test_stream_checkpoint_missing_operator_state_fails_closed(
 
     stream_path = tmp_path / "missing-state.jsonl"
     stream_path.write_text('{"_message_id":"m1","value":1}\n', encoding="utf-8")
+    source_owner = _versioned_jsonl_owner(stream_path, dataset_id="missing-state")
     ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
     registry.set_default_config(
@@ -1153,6 +1303,7 @@ async def test_stream_checkpoint_missing_operator_state_fails_closed(
         ConnectionConfig(url=stream_path.as_uri()),
     )
     store = FileSystemCAS(tmp_path / ".polisyos")
+    source_metadata = _source_bound_checkpoint_metadata(source_owner, store)
     cursor_store = CursorStore(store)
     original_lookup = AsyncCursorStoreAdapter.find_latest_stream_checkpoint
 
@@ -1165,6 +1316,7 @@ async def test_stream_checkpoint_missing_operator_state_fails_closed(
                 connector_id="stream.jsonl",
                 dataset_id="missing-state",
                 metadata={
+                    **source_metadata,
                     "operator_state_required": True,
                     "rows_emitted": 1,
                 },
@@ -1188,6 +1340,7 @@ async def test_stream_checkpoint_missing_operator_state_fails_closed(
     )
     with pytest.raises(CursorStoreError, match="operator state"):
         await process_stream_dataset(
+            source_progress_readers=(source_owner,),
             connector_id="stream.jsonl",
             dataset_id="missing-state",
             store=store,
@@ -1205,7 +1358,18 @@ async def test_stream_source_commit_failure_does_not_promote_local_frontier(
     """A source commit failure must not leave a local cursor ahead of source state."""
 
     stream_path = tmp_path / "source-commit-failure.jsonl"
-    stream_path.write_text('{"_message_id":"m1","value":1}\n', encoding="utf-8")
+    stream_path.write_text('{"event_id":"m1","source_version":1,"value":1}\n', encoding="utf-8")
+    # The actual bounded source file, not a caller key declaration, admits progress.
+    source_owner = finite_source_reader(
+        tmp_path / "source-owner",
+        connector_id="stream.jsonl",
+        dataset_id="source-commit-failure",
+        schema_id="fixture.frontier.events",
+        snapshots=[
+            ("source-current", [json.loads(row) for row in stream_path.read_text().splitlines()])
+        ],
+        transport_path=stream_path,
+    )
     ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
     registry.set_default_config(
@@ -1234,6 +1398,7 @@ async def test_stream_source_commit_failure_does_not_promote_local_frontier(
             sanitize_rows=_valid_rows,
             runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
             registry=registry,
+            source_progress_readers=(source_owner,),
         )
 
     assert len(source_commits) == 1
@@ -1259,7 +1424,18 @@ async def test_stream_local_pair_failure_compensates_source_commit(
     """A local pair failure after source commit must invoke bounded compensation."""
 
     stream_path = tmp_path / "local-pair-failure.jsonl"
-    stream_path.write_text('{"_message_id":"m1","value":1}\n', encoding="utf-8")
+    stream_path.write_text('{"event_id":"m1","source_version":1,"value":1}\n', encoding="utf-8")
+    # The actual bounded source file, not a caller key declaration, admits progress.
+    source_owner = finite_source_reader(
+        tmp_path / "source-owner",
+        connector_id="stream.jsonl",
+        dataset_id="local-pair-failure",
+        schema_id="fixture.frontier.events",
+        snapshots=[
+            ("source-current", [json.loads(row) for row in stream_path.read_text().splitlines()])
+        ],
+        transport_path=stream_path,
+    )
     ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
     registry.set_default_config(
@@ -1307,6 +1483,7 @@ async def test_stream_local_pair_failure_compensates_source_commit(
             sanitize_rows=_valid_rows,
             runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
             registry=registry,
+            source_progress_readers=(source_owner,),
         )
 
     assert len(source_commits) == 1
@@ -1317,6 +1494,95 @@ async def test_stream_local_pair_failure_compensates_source_commit(
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("fixture_clock", [False, True], ids=["system-clock", "fixture-clock"])
+async def test_stream_empty_compensated_frontier_replays_with_bound_source_and_schema(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    fixture_clock: bool,
+) -> None:
+    """A real first-pair rollback remains resumable without promoting its rows."""
+    dataset_id = "empty-compensation"
+    stream_path = tmp_path / "empty-compensation.jsonl"
+    stream_path.write_text('{"message_id":"m1","value":1}\n', encoding="utf-8")
+    source_owner = _versioned_jsonl_owner(stream_path, dataset_id=dataset_id)
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    registry.set_default_config("stream.jsonl", ConnectionConfig(url=stream_path.as_uri()))
+    contracts, contract = _register_optional_stream_contract(registry, dataset_id=dataset_id)
+    binding = StreamSchemaBinding.from_contract(contract, registry_revision=contracts.revision)
+    root = tmp_path / ".polisyos"
+    store = FileSystemCAS(root)
+    cursor_store = CursorStore(store)
+    now = datetime(2026, 10, 31, tzinfo=UTC)
+    options = StreamRuntimeOptions(ingestion_clock=(lambda: now) if fixture_clock else None)
+
+    async def fail_local_pair(self, **kwargs: Any) -> None:
+        del self, kwargs
+        raise RuntimeError("controlled first pair failure")
+
+    with monkeypatch.context() as injection:
+        injection.setattr(AsyncCursorStoreAdapter, "commit_stream_progress", fail_local_pair)
+        with pytest.raises(RuntimeError, match="controlled first pair failure"):
+            await process_stream_dataset(
+                connector_id="stream.jsonl",
+                dataset_id=dataset_id,
+                store=store,
+                cursor_store=cursor_store,
+                sanitize_rows=_valid_rows,
+                registry=registry,
+                source_progress_readers=(source_owner,),
+                schema_binding=binding,
+                runtime_options=options,
+            )
+
+    paused = cursor_store.find_latest_stream_checkpoint("stream.jsonl", dataset_id)
+    assert paused is not None and paused.metadata["frontier_committed"] is False
+    assert paused.dedupe_keys == ()
+    assert cursor_store.find_latest_cursor("stream.jsonl", dataset_id) is None
+    before_artifacts = {str(artifact_id) for artifact_id in store.iter_artifact_ids()}
+    wrong_clock = StreamRuntimeOptions(ingestion_clock=None if fixture_clock else lambda: now)
+    with pytest.raises(StreamDedupeUnsupported, match="ingestion clock profile changed"):
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id=dataset_id,
+            store=store,
+            cursor_store=cursor_store,
+            sanitize_rows=_valid_rows,
+            registry=registry,
+            source_progress_readers=(source_owner,),
+            schema_binding=binding,
+            runtime_options=wrong_clock,
+        )
+    assert {str(artifact_id) for artifact_id in store.iter_artifact_ids()} == before_artifacts
+    assert cursor_store.find_latest_stream_checkpoint("stream.jsonl", dataset_id) == paused
+
+    # Fresh durable readers, actual source rewind and ordinary local pair commit.
+    reopened_store = FileSystemCAS(root)
+    reopened_cursor = CursorStore(reopened_store)
+    recovered = await process_stream_dataset(
+        connector_id="stream.jsonl",
+        dataset_id=dataset_id,
+        store=reopened_store,
+        cursor_store=reopened_cursor,
+        sanitize_rows=_valid_rows,
+        registry=registry,
+        source_progress_readers=(source_owner,),
+        schema_binding=binding,
+        runtime_options=options,
+    )
+    assert recovered.rows_emitted == 1 and recovered.dedupe_dropped == 0
+    assert recovered.processing_guarantee == "replay_only"
+    assert recovered.final_checkpoint is not None
+    assert recovered.final_checkpoint.lifecycle_state == StreamLifecycleState.CLOSED
+    assert recovered.final_checkpoint.metadata["schema_binding"] == binding.snapshot()
+    assert (
+        recovered.final_checkpoint.metadata["source_progress_witness_ref"]
+        == (paused.metadata["source_progress_witness_ref"])
+    )
+    assert reopened_cursor.find_latest_cursor("stream.jsonl", dataset_id) is not None
+
+
+@pytest.mark.asyncio
 async def test_stream_first_frontier_partial_cursor_and_failed_restore_is_unresolved(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -1324,7 +1590,18 @@ async def test_stream_first_frontier_partial_cursor_and_failed_restore_is_unreso
     """A first-pair cursor orphan cannot be hidden by a failed empty rollback."""
 
     stream_path = tmp_path / "partial-first-frontier.jsonl"
-    stream_path.write_text('{"_message_id":"m1","value":1}\n', encoding="utf-8")
+    stream_path.write_text('{"event_id":"m1","source_version":1,"value":1}\n', encoding="utf-8")
+    # The actual bounded source file, not a caller key declaration, admits progress.
+    source_owner = finite_source_reader(
+        tmp_path / "source-owner",
+        connector_id="stream.jsonl",
+        dataset_id="partial-first-frontier",
+        schema_id="fixture.frontier.events",
+        snapshots=[
+            ("source-current", [json.loads(row) for row in stream_path.read_text().splitlines()])
+        ],
+        transport_path=stream_path,
+    )
     ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
     registry.set_default_config(
@@ -1392,6 +1669,7 @@ async def test_stream_first_frontier_partial_cursor_and_failed_restore_is_unreso
             sanitize_rows=_valid_rows,
             runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
             registry=registry,
+            source_progress_readers=(source_owner,),
         )
 
     assert len(source_commits) == 1
@@ -1423,7 +1701,18 @@ async def test_stream_first_frontier_restore_does_not_delete_intervening_cursor(
     """Rollback must not remove a newer same-ID cursor published concurrently."""
 
     stream_path = tmp_path / "intervening-frontier.jsonl"
-    stream_path.write_text('{"_message_id":"m1","value":1}\n', encoding="utf-8")
+    stream_path.write_text('{"event_id":"m1","source_version":1,"value":1}\n', encoding="utf-8")
+    # The actual bounded source file, not a caller key declaration, admits progress.
+    source_owner = finite_source_reader(
+        tmp_path / "source-owner",
+        connector_id="stream.jsonl",
+        dataset_id="intervening-frontier",
+        schema_id="fixture.frontier.events",
+        snapshots=[
+            ("source-current", [json.loads(row) for row in stream_path.read_text().splitlines()])
+        ],
+        transport_path=stream_path,
+    )
     ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
     registry.set_default_config(
@@ -1490,6 +1779,7 @@ async def test_stream_first_frontier_restore_does_not_delete_intervening_cursor(
             sanitize_rows=_valid_rows,
             runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
             registry=registry,
+            source_progress_readers=(source_owner,),
         )
 
     assert newer_cursors
@@ -1516,7 +1806,18 @@ async def test_stream_first_frontier_restore_preserves_aba_pair_after_compensati
     """Pair compensation must not overwrite a same-model cursor's newer checkpoint."""
 
     stream_path = tmp_path / "aba-frontier.jsonl"
-    stream_path.write_text('{"_message_id":"m1","value":1}\n', encoding="utf-8")
+    stream_path.write_text('{"event_id":"m1","source_version":1,"value":1}\n', encoding="utf-8")
+    # The actual bounded source file, not a caller key declaration, admits progress.
+    source_owner = finite_source_reader(
+        tmp_path / "source-owner",
+        connector_id="stream.jsonl",
+        dataset_id="aba-frontier",
+        schema_id="fixture.frontier.events",
+        snapshots=[
+            ("source-current", [json.loads(row) for row in stream_path.read_text().splitlines()])
+        ],
+        transport_path=stream_path,
+    )
     ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
     registry.set_default_config(
@@ -1600,6 +1901,7 @@ async def test_stream_first_frontier_restore_preserves_aba_pair_after_compensati
             sanitize_rows=_valid_rows,
             runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
             registry=registry,
+            source_progress_readers=(source_owner,),
         )
 
     assert published_pairs
@@ -1624,7 +1926,18 @@ async def test_stream_frontier_compensation_rejects_prewrite_aba_pair(
     """A same-model cursor cannot mask a newer checkpoint before pair validation."""
 
     stream_path = tmp_path / "prewrite-aba-frontier.jsonl"
-    stream_path.write_text('{"_message_id":"m1","value":1}\n', encoding="utf-8")
+    stream_path.write_text('{"event_id":"m1","source_version":1,"value":1}\n', encoding="utf-8")
+    # The actual bounded source file, not a caller key declaration, admits progress.
+    source_owner = finite_source_reader(
+        tmp_path / "source-owner",
+        connector_id="stream.jsonl",
+        dataset_id="prewrite-aba-frontier",
+        schema_id="fixture.frontier.events",
+        snapshots=[
+            ("source-current", [json.loads(row) for row in stream_path.read_text().splitlines()])
+        ],
+        transport_path=stream_path,
+    )
     ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
     registry.set_default_config(
@@ -1707,6 +2020,7 @@ async def test_stream_frontier_compensation_rejects_prewrite_aba_pair(
             sanitize_rows=_valid_rows,
             runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
             registry=registry,
+            source_progress_readers=(source_owner,),
         )
 
     assert published_pairs
@@ -1734,7 +2048,18 @@ async def test_stream_cancelled_source_commit_leaves_prepared_frontier(
     """Cancellation after intent persistence must block the next recovery."""
 
     stream_path = tmp_path / "cancelled-frontier.jsonl"
-    stream_path.write_text('{"_message_id":"m1","value":1}\n', encoding="utf-8")
+    stream_path.write_text('{"event_id":"m1","source_version":1,"value":1}\n', encoding="utf-8")
+    # The actual bounded source file, not a caller key declaration, admits progress.
+    source_owner = finite_source_reader(
+        tmp_path / "source-owner",
+        connector_id="stream.jsonl",
+        dataset_id="cancelled-frontier",
+        schema_id="fixture.frontier.events",
+        snapshots=[
+            ("source-current", [json.loads(row) for row in stream_path.read_text().splitlines()])
+        ],
+        transport_path=stream_path,
+    )
     ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
     registry.set_default_config(
@@ -1761,6 +2086,7 @@ async def test_stream_cancelled_source_commit_leaves_prepared_frontier(
             sanitize_rows=_valid_rows,
             runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
             registry=registry,
+            source_progress_readers=(source_owner,),
         )
 
     prepared = cursor_store.find_latest_stream_checkpoint(
@@ -1788,6 +2114,7 @@ async def test_stream_cancelled_source_commit_leaves_prepared_frontier(
             sanitize_rows=_valid_rows,
             runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
             registry=registry,
+            source_progress_readers=(source_owner,),
         )
 
 
@@ -1799,7 +2126,18 @@ async def test_stream_rewind_failure_leaves_unresolved_frontier(
     """A failed source compensation keeps an unresolved marker for retry review."""
 
     stream_path = tmp_path / "rewind-failure.jsonl"
-    stream_path.write_text('{"_message_id":"m1","value":1}\n', encoding="utf-8")
+    stream_path.write_text('{"event_id":"m1","source_version":1,"value":1}\n', encoding="utf-8")
+    # The actual bounded source file, not a caller key declaration, admits progress.
+    source_owner = finite_source_reader(
+        tmp_path / "source-owner",
+        connector_id="stream.jsonl",
+        dataset_id="rewind-failure",
+        schema_id="fixture.frontier.events",
+        snapshots=[
+            ("source-current", [json.loads(row) for row in stream_path.read_text().splitlines()])
+        ],
+        transport_path=stream_path,
+    )
     ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
     registry.set_default_config(
@@ -1844,6 +2182,7 @@ async def test_stream_rewind_failure_leaves_unresolved_frontier(
             sanitize_rows=_valid_rows,
             runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
             registry=registry,
+            source_progress_readers=(source_owner,),
         )
 
     unresolved = cursor_store.find_latest_stream_checkpoint(
@@ -1864,6 +2203,7 @@ async def test_stream_rewind_failure_leaves_unresolved_frontier(
             sanitize_rows=_valid_rows,
             runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
             registry=registry,
+            source_progress_readers=(source_owner,),
         )
 
 
@@ -1876,10 +2216,12 @@ async def test_stream_legacy_paused_nonzero_checkpoint_without_state_fails_close
 
     stream_path = tmp_path / "legacy-paused.jsonl"
     stream_path.write_text('{"_message_id":"m1","value":1}\n', encoding="utf-8")
+    source_owner = _versioned_jsonl_owner(stream_path, dataset_id="legacy-paused")
     ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
     registry.set_default_config("stream.jsonl", ConnectionConfig(url=stream_path.as_uri()))
     store = FileSystemCAS(tmp_path / ".polisyos")
+    source_metadata = _source_bound_checkpoint_metadata(source_owner, store)
     cursor_store = CursorStore(store)
 
     async def legacy_lookup(
@@ -1896,7 +2238,7 @@ async def test_stream_legacy_paused_nonzero_checkpoint_without_state_fails_close
             offset=2,
             lifecycle_state=StreamLifecycleState.PAUSED,
             dedupe_keys=(),
-            metadata={"observed_offset": 2},
+            metadata={**source_metadata, "observed_offset": 2},
             created_at=datetime.now(UTC),
         )
 
@@ -1907,6 +2249,7 @@ async def test_stream_legacy_paused_nonzero_checkpoint_without_state_fails_close
     )
     with pytest.raises(CursorStoreError, match="operator state"):
         await process_stream_dataset(
+            source_progress_readers=(source_owner,),
             connector_id="stream.jsonl",
             dataset_id="legacy-paused",
             store=store,
@@ -1925,10 +2268,12 @@ async def test_stream_operator_state_without_max_event_time_fails_closed(
 
     stream_path = tmp_path / "missing-watermark.jsonl"
     stream_path.write_text('{"_message_id":"m1","value":1}\n', encoding="utf-8")
+    source_owner = _versioned_jsonl_owner(stream_path, dataset_id="missing-watermark")
     ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
     registry.set_default_config("stream.jsonl", ConnectionConfig(url=stream_path.as_uri()))
     store = FileSystemCAS(tmp_path / ".polisyos")
+    source_metadata = _source_bound_checkpoint_metadata(source_owner, store)
     cursor_store = CursorStore(store)
     policy = WindowPolicy(strategy=WindowStrategy.COUNT, size=2)
     operator_state = {
@@ -1948,6 +2293,7 @@ async def test_stream_operator_state_without_max_event_time_fails_closed(
             connector_id="stream.jsonl",
             dataset_id="missing-watermark",
             metadata={
+                **source_metadata,
                 "operator_state_required": True,
                 "operator_state": operator_state,
                 "frontier_committed": True,
@@ -1962,6 +2308,7 @@ async def test_stream_operator_state_without_max_event_time_fails_closed(
     )
     with pytest.raises(CursorStoreError, match="operator state"):
         await process_stream_dataset(
+            source_progress_readers=(source_owner,),
             connector_id="stream.jsonl",
             dataset_id="missing-watermark",
             store=store,
@@ -2123,6 +2470,9 @@ async def test_process_stream_dataset_propagates_backpressure(tmp_path: Path):
         + "\n",
         encoding="utf-8",
     )
+    source_owner = _versioned_jsonl_owner(
+        stream_path, dataset_id="backpressure", event_field="message_id"
+    )
     ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
     registry.set_default_config(
@@ -2136,6 +2486,7 @@ async def test_process_stream_dataset_propagates_backpressure(tmp_path: Path):
     store = FileSystemCAS(tmp_path / ".polisyos")
     cursor_store = CursorStore(store)
     result = await process_stream_dataset(
+        source_progress_readers=(source_owner,),
         connector_id="stream.jsonl",
         dataset_id="backpressure",
         store=store,
@@ -2171,6 +2522,9 @@ async def test_stream_refuses_input_above_byte_capacity(tmp_path: Path):
         + "\n",
         encoding="utf-8",
     )
+    source_owner = _versioned_jsonl_owner(
+        stream_path, dataset_id="byte-backpressure", event_field="message_id"
+    )
     ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
     registry.set_default_config(
@@ -2185,6 +2539,7 @@ async def test_stream_refuses_input_above_byte_capacity(tmp_path: Path):
     cursor_store = CursorStore(store)
     with pytest.raises(StreamCapacityError) as refusal:
         await process_stream_dataset(
+            source_progress_readers=(source_owner,),
             connector_id="stream.jsonl",
             dataset_id="byte-backpressure",
             store=store,
@@ -2224,6 +2579,9 @@ async def test_stream_refuses_oversized_input_before_materialization(
         "\n".join(json.dumps(row, sort_keys=True) for row in rows) + "\n",
         encoding="utf-8",
     )
+    source_owner = _versioned_jsonl_owner(
+        stream_path, dataset_id="oversized-chunk", event_field="message_id"
+    )
     ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
     registry.set_default_config(
@@ -2242,6 +2600,7 @@ async def test_stream_refuses_oversized_input_before_materialization(
     cursor_store = CursorStore(store)
     with pytest.raises(StreamCapacityError) as refusal:
         await process_stream_dataset(
+            source_progress_readers=(source_owner,),
             connector_id="stream.jsonl",
             dataset_id="oversized-chunk",
             store=store,
@@ -2261,6 +2620,154 @@ async def test_stream_refuses_oversized_input_before_materialization(
     assert cursor_store.find_latest_cursor("stream.jsonl", "oversized-chunk") is None
     assert cursor_store.find_latest_stream_checkpoint("stream.jsonl", "oversized-chunk") is None
     assert not list((tmp_path / ".polisyos").rglob("*.manifest.json"))
+
+
+@pytest.mark.parametrize("strategy", list(BackpressureStrategy))
+@pytest.mark.asyncio
+async def test_stream_capacity_uses_exact_nested_escaped_json_utf8_bytes(
+    tmp_path: Path,
+    strategy: BackpressureStrategy,
+) -> None:
+    """Admit exact escaped JSON bytes, then refuse the next retained event row."""
+    from tests._helpers.source_progress import finite_source_reader
+
+    rows = [
+        {
+            "event_id": "m0",
+            "source_version": 1,
+            "event_time": "2024-06-15T12:00:00+00:00",
+            "value": 'quote " slash \\ newline\n snowman ☃',
+        },
+        {
+            "event_id": "m1",
+            "source_version": 1,
+            "event_time": "2024-06-15T12:00:01+00:00",
+            "value": {"z": [1, True, None], "a": "café"},
+        },
+        {
+            "event_id": "m2",
+            "source_version": 1,
+            "event_time": "2024-06-15T12:00:02+00:00",
+            "value": ["overshoot", "🧭"],
+        },
+        {
+            "event_id": "m3",
+            "source_version": 1,
+            "event_time": "2024-06-15T12:00:03+00:00",
+            "value": "unreached",
+        },
+    ]
+    encoded_rows = [
+        json.dumps(row, sort_keys=True, ensure_ascii=True).encode("utf-8") for row in rows
+    ]
+    row_sizes = [len(row) for row in encoded_rows]
+    assert row_sizes == [137, 133, 122, 104]
+    exact_cap = sum(row_sizes[:2])
+
+    dataset_id = f"capacity-exact-json-{strategy.value}"
+    stream_path = tmp_path / f"{dataset_id}.jsonl"
+    source_bytes = b"\n".join(encoded_rows) + b"\n"
+    assert b"\\u2603" in source_bytes
+    assert b"\\u00e9" in source_bytes
+    assert b"\\ud83e\\udded" in source_bytes
+    stream_path.write_bytes(source_bytes)
+    source_reader = finite_source_reader(
+        tmp_path / "source-owner",
+        connector_id="stream.jsonl",
+        dataset_id=dataset_id,
+        schema_id=f"test.stream.capacity.{strategy.value}",
+        snapshots=[("fixture-current", rows)],
+        event_fields=("event_id",),
+        version_fields=("source_version",),
+        transport_path=stream_path,
+    )
+
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    registry.set_default_config(
+        "stream.jsonl",
+        ConnectionConfig(
+            url=stream_path.as_uri(),
+            headers={"X-Stream-ChunkSize": "1"},
+        ),
+    )
+    contract = stream_processing_contract(
+        dedupe_key_fields=("event_id", "source_version"),
+        max_dedupe_keys=16,
+        max_buffered_rows=100,
+        max_buffered_bytes=exact_cap,
+    )
+    contract = contract.model_copy(
+        update={"backpressure": contract.backpressure.model_copy(update={"strategy": strategy})}
+    )
+    options = StreamRuntimeOptions(
+        batch_size=1,
+        checkpoint_every_chunks=1,
+        dedupe_key_fields=("event_id", "source_version"),
+        max_dedupe_keys=16,
+        max_buffered_rows=100,
+        max_buffered_bytes=exact_cap,
+        max_input_rows=100,
+        max_input_bytes=exact_cap,
+        pause_seconds=0.0,
+        window_policy=WindowPolicy(
+            strategy=WindowStrategy.SESSION,
+            size=300,
+            session_gap_seconds=10,
+            timestamp_field="event_time",
+        ),
+        processing_contract=contract,
+    )
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    cursor_store = CursorStore(store)
+    try:
+        with pytest.raises(StreamCapacityError) as refusal:
+            await process_stream_dataset(
+                connector_id="stream.jsonl",
+                dataset_id=dataset_id,
+                store=store,
+                cursor_store=cursor_store,
+                sanitize_rows=_valid_rows,
+                runtime_options=options,
+                registry=registry,
+                source_progress_readers=(source_reader,),
+            )
+    finally:
+        await registry.shutdown_async()
+
+    assert refusal.value.stage == "operator"
+    assert refusal.value.rows == 3
+    assert refusal.value.bytes_size == sum(row_sizes[:3])
+    assert refusal.value.max_bytes == exact_cap
+    checkpoint = cursor_store.find_latest_stream_checkpoint("stream.jsonl", dataset_id)
+    assert checkpoint is not None
+    assert checkpoint.offset == 1
+    retained_entries = checkpoint.metadata["operator_state"]["accumulator"]["session_rows"]
+    retained_rows = [entry["row"] for entry in retained_entries]
+    assert [(row["event_id"], row["source_version"]) for row in retained_rows] == [
+        ("m0", 1),
+        ("m1", 1),
+    ]
+    assert (
+        sum(
+            len(json.dumps(row, sort_keys=True, ensure_ascii=True).encode("utf-8"))
+            for row in retained_rows
+        )
+        == exact_cap
+    )
+
+    persisted_event_versions: list[tuple[str, int]] = []
+    for artifact_id in store.iter_artifact_ids():
+        manifest = store.get_manifest(artifact_id)
+        if manifest.kind != "fabric.stream_chunk":
+            continue
+        payload = from_canonical_bytes(store.get_bytes(str(artifact_id)))
+        if payload.get("dataset_id") == dataset_id:
+            persisted_event_versions.extend(
+                (str(row["event_id"]), int(row["source_version"])) for row in payload["data"]
+            )
+    # CAS enumeration is ordered by content identity, not transport sequence.
+    assert sorted(persisted_event_versions) == [("m0", 1), ("m1", 1)]
 
 
 @pytest.mark.asyncio
@@ -2287,6 +2794,9 @@ async def test_stream_manifest_caps_reach_real_admission(
     stream_path.write_text(
         "\n".join(json.dumps(row, sort_keys=True) for row in rows) + "\n",
         encoding="utf-8",
+    )
+    source_owner = _versioned_jsonl_owner(
+        stream_path, dataset_id="manifest-capped", event_field="message_id"
     )
     ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
@@ -2319,6 +2829,7 @@ async def test_stream_manifest_caps_reach_real_admission(
     try:
         with pytest.raises(StreamCapacityError) as refusal:
             await process_stream_dataset(
+                source_progress_readers=(source_owner,),
                 connector_id="stream.jsonl",
                 dataset_id="manifest-capped",
                 store=store,
@@ -2370,6 +2881,12 @@ async def test_stream_spill_to_disk_does_not_silently_buffer_oversized_chunk(
         "\n".join(json.dumps(row, sort_keys=True) for row in rows) + "\n",
         encoding="utf-8",
     )
+    source_owner = _versioned_jsonl_owner(
+        stream_path, dataset_id="spill-control", event_field="message_id"
+    )
+    source_owner_2 = _versioned_jsonl_owner(
+        stream_path, dataset_id="spill-pressure", event_field="message_id"
+    )
 
     def registry_for_stream() -> ConnectorRegistry:
         ConnectorRegistry.reset_instance()
@@ -2391,6 +2908,7 @@ async def test_stream_spill_to_disk_does_not_silently_buffer_oversized_chunk(
     )
     control_store = FileSystemCAS(tmp_path / "control")
     control = await process_stream_dataset(
+        source_progress_readers=(source_owner,),
         connector_id="stream.jsonl",
         dataset_id="spill-control",
         store=control_store,
@@ -2449,6 +2967,7 @@ async def test_stream_spill_to_disk_does_not_silently_buffer_oversized_chunk(
     )
     try:
         pressured = await process_stream_dataset(
+            source_progress_readers=(source_owner_2,),
             connector_id="stream.jsonl",
             dataset_id="spill-pressure",
             store=pressure_store,
@@ -2499,6 +3018,9 @@ async def test_process_stream_dataset_enforces_backpressure_event_budget(tmp_pat
         + "\n",
         encoding="utf-8",
     )
+    source_owner = _versioned_jsonl_owner(
+        stream_path, dataset_id="backpressure-budget", event_field="message_id"
+    )
     ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
     registry.set_default_config(
@@ -2516,6 +3038,7 @@ async def test_process_stream_dataset_enforces_backpressure_event_budget(tmp_pat
 
     with pytest.raises(RuntimeError, match="backpressure event budget"):
         await process_stream_dataset(
+            source_progress_readers=(source_owner,),
             connector_id="stream.jsonl",
             dataset_id="backpressure-budget",
             store=FileSystemCAS(tmp_path / ".polisyos"),
@@ -2552,6 +3075,9 @@ async def test_process_stream_dataset_uses_async_adapters_and_injected_registry(
         + "\n",
         encoding="utf-8",
     )
+    source_owner = _versioned_jsonl_owner(
+        stream_path, dataset_id="async-events", event_field="message_id"
+    )
     ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
     registry.set_default_config(
@@ -2574,6 +3100,7 @@ async def test_process_stream_dataset_uses_async_adapters_and_injected_registry(
     )
 
     result = await process_stream_dataset(
+        source_progress_readers=(source_owner,),
         connector_id="stream.jsonl",
         dataset_id="async-events",
         store=async_store,
@@ -2636,12 +3163,15 @@ async def test_bound_optional_presence_does_not_emit_removal_cdc(
     stream_path.write_text(
         "\n".join(
             [
-                '{"message_id":"m1","value":1,"note":"first"}',
-                '{"message_id":"m2","value":2}',
+                '{"_message_id":"m1","message_id":"m1","value":1,"note":"first"}',
+                '{"_message_id":"m2","message_id":"m2","value":2}',
             ]
         )
         + "\n",
         encoding="utf-8",
+    )
+    source_owner = _versioned_jsonl_owner(
+        stream_path, dataset_id="optional-cdc-events", event_field="message_id"
     )
     ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
@@ -2672,6 +3202,7 @@ async def test_bound_optional_presence_does_not_emit_removal_cdc(
         )
 
     result = await process_stream_dataset(
+        source_progress_readers=(source_owner,),
         connector_id="stream.jsonl",
         dataset_id="optional-cdc-events",
         store=store,
@@ -2698,6 +3229,7 @@ async def test_bound_optional_presence_does_not_emit_removal_cdc(
     assert result.final_checkpoint.metadata["visible_fields"] == [
         "_message_id",
         "message_id",
+        "source_version",
         "value",
     ]
 
@@ -2753,6 +3285,7 @@ async def test_stream_resume_rejects_legacy_checkpoint_without_schema_binding(
     """A declared schema cannot silently reinterpret a legacy checkpoint."""
     stream_path = tmp_path / "legacy-binding-stream.jsonl"
     stream_path.write_text('{"message_id":"m1","value":1}\n', encoding="utf-8")
+    source_owner = _versioned_jsonl_owner(stream_path, dataset_id="legacy-binding-events")
     ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
     registry.set_default_config(
@@ -2765,6 +3298,7 @@ async def test_stream_resume_rejects_legacy_checkpoint_without_schema_binding(
     )
 
     store = FileSystemCAS(tmp_path / ".polisyos")
+    source_metadata = _source_bound_checkpoint_metadata(source_owner, store)
     CursorStore(store).save_stream_checkpoint(
         StreamCheckpoint(
             checkpoint_id="stream.jsonl:legacy-binding-events:default:1",
@@ -2772,13 +3306,14 @@ async def test_stream_resume_rejects_legacy_checkpoint_without_schema_binding(
             connector_id="stream.jsonl",
             dataset_id="legacy-binding-events",
             offset=1,
-            metadata={"schema_fields": ["message_id", "value", "note"]},
+            metadata={**source_metadata, "schema_fields": ["message_id", "value", "note"]},
             created_at=datetime.now(UTC),
         )
     )
 
     with pytest.raises(CursorStoreError, match="schema binding is missing"):
         await process_stream_dataset(
+            source_progress_readers=(source_owner,),
             connector_id="stream.jsonl",
             dataset_id="legacy-binding-events",
             store=store,
@@ -2803,6 +3338,9 @@ async def test_process_stream_dataset_persists_cdc_events_via_async_store_adapte
         )
         + "\n",
         encoding="utf-8",
+    )
+    source_owner = _versioned_jsonl_owner(
+        stream_path, dataset_id="cdc-events", event_field="message_id"
     )
     ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
@@ -2836,6 +3374,7 @@ async def test_process_stream_dataset_persists_cdc_events_via_async_store_adapte
     )
 
     result = await process_stream_dataset(
+        source_progress_readers=(source_owner,),
         connector_id="stream.jsonl",
         dataset_id="cdc-events",
         store=async_store,
@@ -2851,7 +3390,7 @@ async def test_process_stream_dataset_persists_cdc_events_via_async_store_adapte
     cdc_payload = from_canonical_bytes(sync_store.get_bytes(result.cdc_event_refs[0].artifact_id))
     assert cdc_payload["compatibility"] == "compatible_additive"
     assert cdc_payload["handling_action"] == "accept"
-    assert cdc_payload["processing"]["guarantee"] == "at_least_once_with_dedupe"
+    assert cdc_payload["processing"]["guarantee"] == "replay_only"
 
 
 @pytest.mark.asyncio
@@ -2869,6 +3408,9 @@ async def test_process_stream_dataset_quarantines_incompatible_cdc_breaking_chan
         + "\n",
         encoding="utf-8",
     )
+    source_owner = _versioned_jsonl_owner(
+        stream_path, dataset_id="breaking-cdc-events", event_field="message_id"
+    )
     ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
     registry.set_default_config(
@@ -2881,6 +3423,7 @@ async def test_process_stream_dataset_quarantines_incompatible_cdc_breaking_chan
 
     store = FileSystemCAS(tmp_path / ".polisyos")
     result = await process_stream_dataset(
+        source_progress_readers=(source_owner,),
         connector_id="stream.jsonl",
         dataset_id="breaking-cdc-events",
         store=store,

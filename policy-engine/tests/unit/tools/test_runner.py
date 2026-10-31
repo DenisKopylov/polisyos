@@ -3,6 +3,9 @@ from __future__ import annotations
 import errno
 import json
 import os
+import shutil
+import stat
+import subprocess
 import sys
 import tempfile
 from pathlib import Path
@@ -13,11 +16,26 @@ from tools.lib import runner
 
 
 def test_filesystem_write_boundary_confines_native_and_python_writers(tmp_path: Path) -> None:
-    """Allow writes only in a fresh scratch subtree for the process tree."""
+    """Confine persistent writes while native Git uses the nonpersistent null sink."""
+    git = shutil.which("git")
+    if git is None:
+        pytest.skip("read-only Git probe requires the Git executable")
+    if sys.platform != "darwin" and not sys.platform.startswith("linux"):
+        pytest.skip("native filesystem write fence requires macOS or Linux")
     checkout = tmp_path / "checkout"
     checkout.mkdir()
     protected = checkout / "source.txt"
     protected.write_text("source preimage\n", encoding="utf-8")
+    git_env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+    git_env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull, GIT_OPTIONAL_LOCKS="0")
+    subprocess.run(
+        [git, "init", "--quiet", str(checkout)], env=git_env, capture_output=True, check=True
+    )
+    subprocess.run(
+        [git, "add", "--", "source.txt"], cwd=checkout, env=git_env, capture_output=True, check=True
+    )
+    null_before = os.stat(os.devnull, follow_symlinks=False)
+    assert stat.S_ISCHR(null_before.st_mode)
     outside = tmp_path / "outside.txt"
     outside.write_text("outside preimage\n", encoding="utf-8")
     scratch = tmp_path / "scratch"
@@ -29,6 +47,14 @@ def test_filesystem_write_boundary_confines_native_and_python_writers(tmp_path: 
             "import json, os, subprocess, sys",
             "from pathlib import Path",
             "protected, outside, scratch = map(Path, sys.argv[1:])",
+            f"git = {git!r}",
+            "fd = os.open(os.devnull, os.O_RDWR)",
+            "try:",
+            "    discarded = os.write(fd, b'discarded-data')",
+            "    assert os.read(fd, 1) == b''",
+            "finally: os.close(fd)",
+            "listed = subprocess.run([git, 'ls-files', '--cached', '-z', '--', '.'], capture_output=True, check=True)",
+            "assert listed.stdout == b'source.txt\\0'",
             "def attempt(path):",
             "    try:",
             "        fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)",
@@ -37,9 +63,13 @@ def test_filesystem_write_boundary_confines_native_and_python_writers(tmp_path: 
             "    except OSError as error:",
             "        return {'result': 'denied', 'errno': error.errno}",
             "    return {'result': 'written', 'errno': None}",
+            "def unlink_attempt(path):",
+            "    try: path.unlink()",
+            "    except OSError as error: return {'result': 'denied', 'errno': error.errno}",
+            "    return {'result': 'unlinked', 'errno': None}",
             "os.symlink(protected, scratch / 'checkout-alias')",
             "shell = subprocess.run(['/bin/sh', '-c', 'printf blocked > \"$1\"', 'probe', str(protected)], capture_output=True, text=True, check=False)",
-            "print(json.dumps({'checkout': attempt(protected), 'outside': attempt(outside), 'symlink': attempt(scratch / 'checkout-alias'), 'allowed': attempt(scratch / 'allowed.txt'), 'shell_returncode': shell.returncode, 'shell_stderr': shell.stderr}, sort_keys=True))",
+            "print(json.dumps({'checkout': attempt(protected), 'outside': attempt(outside), 'outside_create': attempt(outside.with_name('outside-new.txt')), 'outside_unlink': unlink_attempt(outside), 'symlink': attempt(scratch / 'checkout-alias'), 'allowed': attempt(scratch / 'allowed.txt'), 'shell_returncode': shell.returncode, 'shell_stderr': shell.stderr, 'discarded': discarded}, sort_keys=True))",
         )
     )
     try:
@@ -48,6 +78,7 @@ def test_filesystem_write_boundary_confines_native_and_python_writers(tmp_path: 
             repo_root=checkout,
             cwd=checkout,
             writable_root=scratch,
+            env=git_env,
         )
     except runner.FilesystemWriteBoundaryUnavailableError as error:
         pytest.skip(f"native filesystem write fence unavailable: {error.backend}: {error}")
@@ -56,16 +87,28 @@ def test_filesystem_write_boundary_confines_native_and_python_writers(tmp_path: 
     report = json.loads(completed.stdout.strip())
     assert report["checkout"]["result"] == "denied"
     assert report["outside"]["result"] == "denied"
+    assert report["outside_create"]["result"] == "denied"
+    assert report["outside_unlink"]["result"] == "denied"
+    assert report["discarded"] == len(b"discarded-data")
     assert report["symlink"]["result"] == "denied"
     assert report["allowed"]["result"] == "written"
     assert report["shell_returncode"] != 0
     denied_errnos = {errno.EPERM, errno.EACCES, errno.EROFS}
     assert report["checkout"]["errno"] in denied_errnos
     assert report["outside"]["errno"] in denied_errnos
+    assert report["outside_create"]["errno"] in denied_errnos
+    assert report["outside_unlink"]["errno"] in denied_errnos
     assert report["symlink"]["errno"] in denied_errnos
     assert protected.read_text(encoding="utf-8") == "source preimage\n"
     assert outside.read_text(encoding="utf-8") == "outside preimage\n"
     assert allowed.read_bytes() == b"changed\n"
+    assert not outside.with_name("outside-new.txt").exists()
+    null_after = os.stat(os.devnull, follow_symlinks=False)
+    assert (null_after.st_mode, null_after.st_rdev, null_after.st_ino) == (
+        null_before.st_mode,
+        null_before.st_rdev,
+        null_before.st_ino,
+    )
 
 
 def test_filesystem_write_boundary_rejects_scratch_inside_checkout(tmp_path: Path) -> None:

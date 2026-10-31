@@ -5228,6 +5228,7 @@ class CausalEngineArtifactsMixin:
             )
             trajectory.effect_bundle = bundle
             trajectory.metadata["effect_bundle_artifact_id"] = str(bundle_ref.artifact_id)
+            trajectory.metadata["effect_bundle_artifact_ref"] = bundle_ref.model_dump(mode="json")
             trajectory.metadata["proof_bundle_artifact_id"] = str(proof_bundle_ref.artifact_id)
             trajectory.metadata["proof_status"] = proof_payload.proof_status
         elif (

@@ -67,6 +67,9 @@ The commands below were smoke-tested on `2026-04-17` unless explicitly marked as
 
 - `guardrails.py` is the source of truth for the public-surface inventory, deep-import
   baseline, and README freshness policy.
+- Immediate source-child traversal is sorted before filesystem observations are recorded.
+  Equivalent checkouts therefore preserve the complete inventory readset across
+  directory enumeration orders; an actually added child still changes that readset.
 
 - Deep-import analysis resolves ImportFrom names against importable source-tree
   children, including relative and star imports. A child is treated as a facade
@@ -79,6 +82,22 @@ The commands below were smoke-tested on `2026-04-17` unless explicitly marked as
 
 - `scaffold.py` is the unified golden-path scaffolding surface; new README/runbook/ADR
   templates should use it instead of ad hoc copy-paste.
+
+- `conditional_exports.py` resolves up to 32 finite source profiles for closed,
+  unrebound literal `importlib.util.find_spec(...) is not None` conditions. It
+  delegates each selected source branch to the existing export/binding reader;
+  it never imports a backend or evaluates its availability. JSON records typed
+  `policyos.source-export-profile.v1` conditions and complete ordered names with
+  runtime evaluation `UNRUN`; Markdown shows the separate profiles. A conditional
+  family has no scalar `export_count`; common names remain in `exports` and
+  `known_export_count`. Unknown conditions, unbound names and opaque mutations
+  remain incomplete and fail the ordinary public-surface check.
+
+- Isolated generated-artifact probes bind CLI timing records and their lock to
+  the retained probe workspace's `diagnostics/` directory. They override an
+  inherited host timing sink; neither diagnostic file is a generated artifact.
+  The copied source and caller worktree remain protected by the ordinary write
+  comparison, including writes to a source-local `.polisyos-tools/` directory.
 
 - Connector scaffolding remains available through both the architecture surface and
   `polisyos-tools connectors`.

@@ -284,10 +284,10 @@ def test_exact_zero_error_control_does_not_claim_backend_availability(
     assert report.detected_biases == []
     assert report.metric_diagnostics[0].status == "exact_zero"
     assert report.metric_diagnostics[0].method_id is None
-    assert report.degraded is False
-    assert report.degraded_reasons == []
-    assert report.trust_eligible is True
-    assert report.trust_grade == "A"
+    assert report.degraded is True
+    assert "backtest_source_not_established" in report.degraded_reasons
+    assert report.trust_eligible is False
+    assert report.trust_score is None and report.trust_grade is None
 
 
 def test_s1_report_retains_method_identity_for_nonsignificant_result(tmp_path: Path) -> None:

@@ -1,10 +1,4 @@
-"""Behavioral witnesses for the PLG-01 DomainPlugin discovery migration.
-
-These tests deliberately exercise the legacy DomainPlugin boundary while keeping
-the source fixtures small.  They are test-first: the ordering and duplicate
-assertions describe the intended Core-discovery behavior and are expected to be
-red until the adapter is migrated.
-"""
+"""Behavioral witnesses for PLG-01 DomainPlugin discovery and source precedence."""
 
 # Resource profile: L. These witnesses stop at discovery, metadata, and registry
 # lifecycle; they do not construct JAX arrays, enter native pools, install packages,
@@ -15,7 +9,8 @@ from __future__ import annotations
 import sys
 from collections.abc import Iterator
 from pathlib import Path
-from types import ModuleType
+from types import ModuleType, SimpleNamespace
+from typing import cast
 
 import pytest
 
@@ -251,6 +246,8 @@ def test_duplicate_ids_keep_deterministic_winner_and_visible_registration_error(
 
 
 class _LifecyclePlugin(DomainPlugin):
+    source: str
+
     def __init__(
         self,
         name: str,
@@ -260,6 +257,7 @@ class _LifecyclePlugin(DomainPlugin):
         self._name = name
         self._events = events
         self._dependencies = dependencies
+        self.source = "lifecycle"
 
     @property
     def metadata(self) -> PluginMetadata:
@@ -287,6 +285,132 @@ class _LifecyclePlugin(DomainPlugin):
 
     def on_unload(self) -> None:
         self._events.append(f"{self._name}:unload")
+
+
+def _source_plugin(name: str, source: str) -> _LifecyclePlugin:
+    """Build one small ABI-valid plugin tagged with its discovery source."""
+    plugin = _LifecyclePlugin(name, [])
+    plugin.source = source
+    return plugin
+
+
+def _configure_prefix_candidate(
+    monkeypatch: pytest.MonkeyPatch,
+    distribution_name: str,
+    plugin: DomainPlugin,
+) -> None:
+    """Expose one in-memory package through the real distribution-prefix path."""
+    module_name = distribution_name.replace("-", "_")
+    module = ModuleType(module_name)
+    module.create_plugin = lambda: plugin
+    original_import_module = plugin_discovery.importlib.import_module
+
+    def import_module(name: str, package: str | None = None) -> ModuleType:
+        if name == module_name:
+            return module
+        return original_import_module(name, package)
+
+    monkeypatch.setattr(
+        plugin_discovery.metadata,
+        "distributions",
+        lambda: [SimpleNamespace(name=distribution_name)],
+    )
+    monkeypatch.setattr(plugin_discovery.importlib, "import_module", import_module)
+
+
+def test_discovery_orders_builtin_entry_point_dev_root_then_prefix_fallback(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """All four legacy sources retain declared precedence and local scope."""
+    builtin = _source_plugin("plg01-shared", "builtin")
+    entrypoint = _source_plugin("plg01-shared", "entrypoint")
+    prefix = _source_plugin("plg01-shared", "prefix")
+    dev_root = tmp_path / "declared"
+    dev_root.mkdir()
+    _write_dev_plugin(dev_root, "selected", "plg01-shared")
+
+    class EntryPoint:
+        name = "plg01-shared"
+        value = "plg01_shared:Plugin"
+
+        def load(self) -> DomainPlugin:
+            return entrypoint
+
+    monkeypatch.setattr(plugin_discovery, "_discover_builtin_plugins", lambda: [builtin])
+    monkeypatch.setattr(
+        core_discovery,
+        "list_entry_points",
+        lambda *, group: [EntryPoint()] if group == "polisyos.plugins" else [],
+    )
+    _configure_prefix_candidate(monkeypatch, "plg01_prefix", prefix)
+
+    plugins = plugin_discovery.discover_plugins(
+        search_paths=[dev_root],
+        package_prefix="plg01_",
+    )
+
+    sources = [
+        cast("_LifecyclePlugin", plugin).source
+        for plugin in plugins
+        if plugin.metadata.name == "plg01-shared"
+    ]
+    assert sources == ["builtin", "entrypoint", "selected", "prefix"]
+
+
+def test_declared_dev_root_wins_duplicate_id_over_distribution_prefix(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """The explicit root is admitted before a same-ID heuristic package."""
+    _isolate_core_entry_points(monkeypatch)
+    monkeypatch.setattr(plugin_discovery, "_discover_builtin_plugins", lambda: [])
+    _write_dev_plugin(tmp_path, "declared", "plg01-shared")
+    _configure_prefix_candidate(
+        monkeypatch,
+        "polisyos_plugin_plg01",
+        _source_plugin("plg01-shared", "prefix"),
+    )
+
+    registry = PluginRegistry()
+    registry.clear()
+
+    with pytest.warns(RuntimeWarning, match="Could not register plg01-shared"):
+        registered = plugin_discovery.auto_register_plugins(registry, search_paths=[tmp_path])
+
+    assert registered == ["plg01-shared"]
+    assert cast("_LifecyclePlugin", registry.get("plg01-shared")).source == "declared"
+    registry.clear()
+
+
+def test_malformed_distribution_candidate_is_rejected_before_registration(
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """Malformed metadata is refused at discovery, before registry consumption."""
+
+    class MalformedPlugin(_LifecyclePlugin):
+        @property
+        def metadata(self) -> PluginMetadata:
+            return cast("PluginMetadata", {"name": "plg01-malformed"})
+
+    monkeypatch.setattr(plugin_discovery, "_discover_builtin_plugins", lambda: [])
+    _isolate_core_entry_points(monkeypatch)
+    _configure_prefix_candidate(
+        monkeypatch,
+        "polisyos_plugin_malformed",
+        MalformedPlugin("plg01-malformed", []),
+    )
+
+    registry = PluginRegistry()
+    registry.clear()
+    with caplog.at_level("WARNING", logger=plugin_discovery.__name__):
+        registered = plugin_discovery.auto_register_plugins(registry)
+
+    assert registered == []
+    assert registry.list_plugins() == []
+    assert "DomainPlugin.metadata must return PluginMetadata" in caplog.text
+    registry.clear()
 
 
 def test_domain_plugin_dependencies_and_lifecycle_remain_intact() -> None:

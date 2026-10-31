@@ -18,7 +18,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec
+from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.ir import FailureSeverity, TypedFailureCard
 from polisyos.scientist.methods.autotune.models import default_search_registry_root
 from polisyos.scientist.methods.search.objective import ObjectiveScoreStatus
@@ -120,6 +120,7 @@ class LessonQuery(BaseModel):
     min_confidence: float = Field(default=0.0, ge=0.0, le=1.0)
     min_tag_overlap: int = Field(default=1, ge=0, le=50)
     limit: int = Field(default=10, ge=1, le=100)
+    as_of: datetime | None = None
 
 
 class LessonIndexEntry(BaseModel):
@@ -565,13 +566,14 @@ class LessonRegistry:
         return card_ref
 
     def query(self, context: LessonQuery) -> list[LessonCard]:
+        now = self._query_time(context)
         target = resolve_transfer_context(
             task_family=context.task_family,
             domain=context.domain,
             fallback_run_id=context.source_run_id or "unknown",
             tenant_hash=context.tenant_hash,
             tenant_hash_is_explicit="tenant_hash" in context.model_fields_set,
-        )
+        ).model_copy(update={"timestamp": now})
         if self._should_aggregate_local_query(context):
             return self._query_local_aggregated(context, target_context=target)
         return self._query_local(context, target_context=target)
@@ -600,11 +602,15 @@ class LessonRegistry:
                 tenant_hash=context.tenant_hash,
                 tenant_hash_is_explicit="tenant_hash" in context.model_fields_set,
             )
+        now = self._query_time(context, target_context=target_context)
+        active_target = active_target.model_copy(update={"timestamp": now})
         if self._should_use_aggregated_local_transfer_lookup(context, active_target):
-            results = self._query_local_aggregated(context, target_context=active_target)
+            results = self._query_local_aggregated(
+                context, target_context=active_target, policy=policy
+            )
             return results[: context.limit]
 
-        results = self._query_local(context, target_context=active_target)
+        results = self._query_local(context, target_context=active_target, policy=policy)
         if len(results) >= context.limit:
             return results[: context.limit]
 
@@ -613,6 +619,7 @@ class LessonRegistry:
             target_context=active_target,
             policy=policy,
             candidate_limit=None,
+            exclude_cards=results,
         )
         blocking_refusals = [
             refusal
@@ -641,13 +648,15 @@ class LessonRegistry:
         *,
         target_context: TransferContext,
         policy: TransferPolicy | None = None,
+        exclude_cards: Iterable[LessonCard] = (),
     ) -> LessonTransferBundle:
-        """Return up to the requested number of ordered source candidates."""
+        """Return ordered source candidates, excluding repeated original evidence."""
         return self._find_transfer_candidates(
             context,
             target_context=target_context,
             policy=policy,
             candidate_limit=context.limit,
+            exclude_cards=exclude_cards,
         )
 
     def _find_transfer_candidates(
@@ -657,6 +666,7 @@ class LessonRegistry:
         target_context: TransferContext,
         policy: TransferPolicy | None = None,
         candidate_limit: int | None,
+        exclude_cards: Iterable[LessonCard] = (),
     ) -> LessonTransferBundle:
         """Select source candidates, optionally retaining the complete set.
 
@@ -666,7 +676,9 @@ class LessonRegistry:
         """
         matches: list[tuple[float, datetime, LessonCard]] = []
         scope_refusals: list[TransferScopeRefusal] = []
-        target_context = resolve_transfer_context(transfer_context=target_context)
+        active_target = resolve_transfer_context(transfer_context=target_context)
+        now = self._query_time(context, target_context=target_context)
+        target_context = active_target.model_copy(update={"timestamp": now})
         active_policy = policy or self._transfer_policy
         target_path = self._index_path_for_context(target_context)
         for path_binding, path in self._iter_index_paths():
@@ -739,16 +751,17 @@ class LessonRegistry:
                         )
                     )
                     continue
-                card = load_lesson_card(self._store, entry.artifact_ref)
-                if (
-                    card.task_family != source_scope.task_family
-                    or card.domain != source_scope.domain
-                    or card.origin_tenant_hash != source_scope.tenant_hash
-                    or card.origin_tenant_scope_status != source_scope.tenant_scope_status
-                ):
-                    scope_refusals.append(
-                        _scope_refusal(path, TransferScopeRefusalReason.ENTRY_SCOPE_MISMATCH)
+                try:
+                    card = self._materialize_query_card(
+                        entry,
+                        now=now,
+                        source_context=source_context,
+                        ttl_days=active_policy.ttl_days,
                     )
+                except TransferScopeRefusedError as exc:
+                    scope_refusals.extend(exc.refusals)
+                    continue
+                if card is None:
                     continue
                 weight = compute_provenance_weight(
                     source_context,
@@ -772,9 +785,16 @@ class LessonRegistry:
             for refusal in scope_refusals
             if refusal.reason is not TransferScopeRefusalReason.CROSS_TENANT_NOT_AUTHORIZED
         ]
-        candidates = [card for _, _, card in matches]
-        if candidate_limit is not None:
-            candidates = candidates[:candidate_limit]
+        seen = {self._evidence_identity(card) for card in exclude_cards}
+        candidates: list[LessonCard] = []
+        for _, _, card in matches:
+            identity = self._evidence_identity(card)
+            if identity in seen:
+                continue
+            seen.add(identity)
+            candidates.append(card)
+            if candidate_limit is not None and len(candidates) >= candidate_limit:
+                break
         return LessonTransferBundle(
             candidates=[] if blocking_refusals else candidates,
             scope_refusals=scope_refusals,
@@ -791,7 +811,9 @@ class LessonRegistry:
     ) -> LessonCard | None:
         # Source provenance is verified from the stored source record; it is not
         # an additional declaration of the destination TransferContext.
-        target_context = resolve_transfer_context(transfer_context=target_context)
+        active_target = resolve_transfer_context(transfer_context=target_context)
+        now = self._query_time(query or LessonQuery(), target_context=target_context)
+        target_context = active_target.model_copy(update={"timestamp": now})
         active_policy = policy or self._transfer_policy
         source_binding = self._verified_source_binding_for_card(card)
         if source_binding is None:
@@ -806,10 +828,12 @@ class LessonRegistry:
         source_context = source_scope.context(run_id=card.origin_run_id or card.source_run_id)
         effective_card = self._materialize_query_card(
             source_entry,
-            now=datetime.now(UTC),
+            now=now,
             source_context=source_context,
             ttl_days=active_policy.ttl_days,
         )
+        if effective_card is None:
+            return None
         # A caller may present an already-demoted candidate; never raise it.
         effective_card = effective_card.model_copy(
             update={
@@ -854,7 +878,7 @@ class LessonRegistry:
                         else LessonTrustLevel.LOW_CONFIDENCE
                     ),
                     "provenance_weight": weight,
-                    "last_accessed_at": target_context.timestamp,
+                    "last_accessed_at": datetime.now(UTC),
                     "transfer_chain": [*card.transfer_chain, transfer_hop],
                     "metadata": {
                         **card.metadata,
@@ -1001,23 +1025,31 @@ class LessonRegistry:
         query: LessonQuery,
         *,
         target_context: TransferContext,
+        policy: TransferPolicy | None = None,
     ) -> list[LessonCard]:
+        now = self._query_time(query, target_context=target_context)
+        accessed_at = datetime.now(UTC)
         snapshot = self.index_snapshot(context=target_context)
         results: list[LessonCard] = []
-        now = datetime.now(UTC)
         for entry in self._sorted_entries(snapshot):
             if entry.invalidated:
                 continue
             if not self._entry_matches(entry, query):
                 continue
-            card = self._materialize_query_card(entry, now=now, source_context=target_context)
-            if not self._matches_query(card, query):
+            card = self._materialize_query_card(
+                entry,
+                now=now,
+                source_context=target_context,
+                ttl_days=policy.ttl_days if policy is not None else None,
+                accessed_at=accessed_at,
+            )
+            if card is None or not self._matches_query(card, query):
                 continue
             results.append(card)
             self._record_access(
                 entry,
                 index_path=self._index_path_for_context(target_context),
-                now=now,
+                now=accessed_at,
             )
             if len(results) >= query.limit:
                 break
@@ -1028,8 +1060,10 @@ class LessonRegistry:
         query: LessonQuery,
         *,
         target_context: TransferContext,
+        policy: TransferPolicy | None = None,
     ) -> list[LessonCard]:
-        now = datetime.now(UTC)
+        now = self._query_time(query, target_context=target_context)
+        accessed_at = datetime.now(UTC)
         candidates: list[
             tuple[
                 tuple[bool, float, int, float],
@@ -1070,15 +1104,26 @@ class LessonRegistry:
                 )
 
         results: list[LessonCard] = []
+        seen: set[bytes] = set()
         for _, entry, namespace_context in sorted(candidates, key=lambda item: item[0]):
-            card = self._materialize_query_card(entry, now=now, source_context=namespace_context)
-            if not self._matches_query(card, query):
+            card = self._materialize_query_card(
+                entry,
+                now=now,
+                source_context=namespace_context,
+                ttl_days=policy.ttl_days if policy is not None else None,
+                accessed_at=accessed_at,
+            )
+            if card is None or not self._matches_query(card, query):
                 continue
+            identity = self._evidence_identity(card)
+            if identity in seen:
+                continue
+            seen.add(identity)
             results.append(card)
             self._record_access(
                 entry,
                 index_path=self._index_path_for_context(namespace_context),
-                now=now,
+                now=accessed_at,
             )
             if len(results) >= query.limit:
                 break
@@ -1214,7 +1259,8 @@ class LessonRegistry:
         now: datetime,
         source_context: TransferContext,
         ttl_days: int | None = None,
-    ) -> LessonCard:
+        accessed_at: datetime | None = None,
+    ) -> LessonCard | None:
         card = load_lesson_card(self._store, entry.artifact_ref)
         if (
             entry.task_family != source_context.task_family
@@ -1235,8 +1281,13 @@ class LessonRegistry:
                 ]
             )
         normalized = self._normalize_card(card, resolved_context=source_context)
+        stamps = (entry.last_seen, normalized.created_at, now)
+        if any(stamp.tzinfo is None or stamp.utcoffset() is None for stamp in stamps):
+            return None
         evidence_anchor = self._evidence_anchor(entry, normalized)
-        age = max(timedelta(), now - evidence_anchor)
+        if normalized.created_at > now or evidence_anchor > now:
+            return None
+        age = now - evidence_anchor
         trust_level = normalized.trust_level
         confidence = normalized.confidence
         if age > timedelta(days=self._transfer_policy.ttl_days if ttl_days is None else ttl_days):
@@ -1246,10 +1297,48 @@ class LessonRegistry:
             update={
                 "trust_level": trust_level,
                 "confidence": confidence,
-                "last_accessed_at": now,
+                "last_accessed_at": accessed_at or datetime.now(UTC),
                 "provenance_weight": entry.provenance_weight,
             }
         )
+
+    @staticmethod
+    def _query_time(
+        query: LessonQuery, *, target_context: TransferContext | None = None
+    ) -> datetime:
+        """Bind one evidence cutoff across routes before reading or writing."""
+        if (
+            target_context is not None
+            and "timestamp" in target_context.model_fields_set
+            and query.as_of is not None
+            and query.as_of != target_context.timestamp
+        ):
+            raise ValueError("Lesson query as-of conflicts with the target context timestamp")
+        now = query.as_of or (
+            target_context.timestamp
+            if target_context is not None and "timestamp" in target_context.model_fields_set
+            else datetime.now(UTC)
+        )
+        if now.tzinfo is None or now.utcoffset() is None:
+            raise ValueError("Lesson query as-of must include a timezone")
+        return now
+
+    @staticmethod
+    def _evidence_identity(card: LessonCard) -> bytes:
+        """Retain source content/scope while excluding route and access projections."""
+        evidence = card.model_dump(
+            mode="python",
+            exclude={
+                "lesson_id",
+                "domain",
+                "trust_level",
+                "provenance_weight",
+                "last_accessed_at",
+                "transfer_chain",
+            },
+        )
+        evidence["metadata"].pop("materialized_transfer", None)
+        return to_canonical_bytes(evidence, CanonSpec(forbid_floats=False, exclude_none=False))
 
     def _verified_source_binding_for_card(
         self,
@@ -1511,7 +1600,9 @@ class LessonRegistry:
                 media_type="application/json",
                 schema=_LESSON_INDEX_SCHEMA,
             ),
-            canon_spec=CanonSpec(forbid_floats=False),
+            # source_scope.tenant_hash is required even for explicit null;
+            # omission would make our own unscoped 3.0 snapshot unreadable.
+            canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
         )
 
     @staticmethod

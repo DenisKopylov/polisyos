@@ -203,6 +203,11 @@ jobs:
         with:
           profile: docs
 
+      - name: Setup frontend dependencies for architecture native probes
+        uses: ./.github/actions/setup-runtime-dashboard
+        with:
+          install-playwright: "false"
+
       - name: Run path-aware docs drift gate
         if: github.event_name == 'pull_request'
         env:
@@ -219,7 +224,7 @@ jobs:
         run: uv run polisyos-tools validation check-docs-freshness-baseline
 
       - name: Check docs lifecycle gates
-        run: uv run polisyos-tools validation check-docs-lifecycle
+        run: uv run polisyos-tools validation check-docs-lifecycle --reference-scope live-authored
 
       - name: Check ADR thematic index freshness
         run: uv run python tools/quality/validation/generate_adr_index.py --check

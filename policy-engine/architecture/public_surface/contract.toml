@@ -400,7 +400,7 @@ notes = "Active Bounded Explanation Reliability Layer facade for Scientist valid
 [[package]]
 module = "polisyos.calibration"
 classification = "public_experimental"
-facade_mode = "eager_exports"
+facade_mode = "lazy_facade"
 owner = "team-scientist"
 readme = "src/polisyos/calibration/README.md"
 reference_doc = "docs/reference/public-surface.md"

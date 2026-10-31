@@ -55,10 +55,74 @@ def test_backtest_matrix_runner_runs_all_five_backtests(tmp_path, cas_store) -> 
 
     report = load_backtest_report(_ensure_ir_artifact_store(cas_store), result.backtest_report_ref)
     assert report.n_scenarios == 5
-    assert report.trust_eligible is True
-    assert report.degraded is False
+    assert not report.trust_eligible
+    assert report.degraded
+    assert report.metadata["source_reconciliation_status"] == "not_established"
+    assert "backtest_matrix_source_not_established" in result.gap_flags
     assert all("backtest_kind" in scenario.metadata for scenario in report.scenarios)
     assert all(":" in scenario.scenario_id for scenario in report.scenarios)
+
+
+def test_historical_matrix_report_readback_withholds_unbound_trust(tmp_path, cas_store) -> None:
+    from polisyos.ir.analytics.backtest import (
+        load_backtest_report_candidate,
+        persist_backtest_report,
+    )
+    from polisyos.scientist.methods.backtesting.trust_scorer import TrustScorer
+
+    result = BacktestMatrixRunner(cas_store).run(
+        {kind: _bundle(tmp_path, kind) for kind in BacktestKind}
+    )
+    report = load_backtest_report(_ensure_ir_artifact_store(cas_store), result.backtest_report_ref)
+    score, grade = TrustScorer().compute(scenarios=report.scenarios, biases=report.detected_biases)
+    assert score is not None and grade is not None
+    historical = report.model_copy(
+        update={
+            "metadata": {
+                key: value
+                for key, value in report.metadata.items()
+                if key != "source_reconciliation_status"
+            },
+            "degraded": False,
+            "degraded_reasons": [],
+            "trust_eligible": True,
+            "trust_score": score,
+            "trust_grade": grade,
+        }
+    )
+    ref = persist_backtest_report(_ensure_ir_artifact_store(cas_store), historical)
+    assert load_backtest_report_candidate(_ensure_ir_artifact_store(cas_store), ref).trust_eligible
+    fresh = load_backtest_report(_ensure_ir_artifact_store(cas_store), ref)
+    assert fresh.degraded and not fresh.trust_eligible
+    assert fresh.trust_score is None and fresh.trust_grade is None
+    assert fresh.metadata["source_reconciliation_status"] == "not_established"
+    assert "backtest_source_not_established" in fresh.degraded_reasons
+
+
+def test_matrix_keeps_unavailable_native_plan_as_unscored_gap(tmp_path, cas_store, monkeypatch):
+    import polisyos.scientist.methods.backtesting.orchestrator as orchestrator_module
+    from polisyos.scientist.methods.backtesting.native_replay import (
+        load_backtest_report_for_consumption,
+    )
+
+    bundle = _bundle(tmp_path, BacktestKind.MACRO)
+    bundle.plans[0]["prediction_source"] = "scientist"
+    bundle.plans[0]["scientist_state"] = {"params": {"backtest_native_forecast": {}}}
+    runner = BacktestMatrixRunner(cas_store)
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("unadmitted native plan reached the workflow")
+
+    monkeypatch.setattr(orchestrator_module, "run_experiment", forbidden)
+    result = runner.run({BacktestKind.MACRO: bundle})
+    assert result.composite_score is None
+    assert "native_predictive_simulation_only:macro" in result.gap_flags
+    macro = next(item for item in result.kind_results if item.kind is BacktestKind.MACRO)
+    assert macro.status == "gap" and macro.score is None
+    report = load_backtest_report_for_consumption(cas_store, result.backtest_report_ref)
+    assert report.prediction_mode_effective == "scientist_unavailable"
+    assert not report.trust_eligible
+    assert not report.scenarios[0].outcome_comparisons
 
 
 def test_backtest_matrix_runner_marks_missing_bundles_as_explicit_gaps(tmp_path, cas_store) -> None:
@@ -72,7 +136,7 @@ def test_backtest_matrix_runner_marks_missing_bundles_as_explicit_gaps(tmp_path,
 
     report = load_backtest_report(_ensure_ir_artifact_store(cas_store), result.backtest_report_ref)
     assert report.n_scenarios == 1
-    assert report.trust_eligible is True
+    assert not report.trust_eligible
 
 
 def test_backtest_matrix_preserves_preallocated_id_and_manifest_inputs(

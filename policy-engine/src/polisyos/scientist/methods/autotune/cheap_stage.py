@@ -115,21 +115,12 @@ class CheapStageBenchmarkEvaluator(BenchmarkedEvaluator):
         split_manifest = BenchmarkSplitManifest.model_validate_json(
             Path(suite.split_manifest_path).read_text(encoding="utf-8")
         )
-        selection_records = _records_for_split(
-            records,
-            split_manifest=split_manifest,
-            split=BenchmarkSplit.SELECTION,
-        )
-        holdout_records = _records_for_split(
-            records,
-            split_manifest=split_manifest,
-            split=BenchmarkSplit.HOLDOUT,
-        )
+        split_rows = split_manifest.partition_rows(records, suite=suite)
+        selection_records = split_rows[BenchmarkSplit.SELECTION]
+        holdout_records = split_rows[BenchmarkSplit.HOLDOUT]
         champion_eval_rate = self._champion_stage_b_eval_rate(
             candidate_ref=candidate_ref,
-            suite=suite,
-            records=records,
-            split_manifest=split_manifest,
+            holdout_records=holdout_records,
             context=context,
         )
         selection_metrics = _cheap_stage_metrics(
@@ -169,24 +160,20 @@ class CheapStageBenchmarkEvaluator(BenchmarkedEvaluator):
             },
             guardrails=guardrails,
             promotable=all(guardrails.values()),
+            runtime_split_type=(
+                BenchmarkSplit.HOLDOUT if holdout_records else BenchmarkSplit.SELECTION
+            ),
         )
 
     def _champion_stage_b_eval_rate(
         self,
         *,
         candidate_ref,
-        suite: BenchmarkSuite,
-        records: list[dict[str, Any]],
-        split_manifest: BenchmarkSplitManifest,
+        holdout_records: list[dict[str, Any]],
         context: dict[str, Any],
     ) -> float:
         registry = context.get("registry") or self._registry
         store = context.get("store") or self._store
-        holdout_records = _records_for_split(
-            records,
-            split_manifest=split_manifest,
-            split=BenchmarkSplit.HOLDOUT,
-        )
         if registry is None or store is None:
             return _cheap_stage_metrics(
                 holdout_records,
@@ -292,15 +279,6 @@ def _read_jsonl(path: Path) -> list[dict[str, Any]]:
             if line:
                 rows.append(json.loads(line))
     return rows
-
-
-def _records_for_split(
-    records: list[dict[str, Any]],
-    *,
-    split_manifest: BenchmarkSplitManifest,
-    split: BenchmarkSplit,
-) -> list[dict[str, Any]]:
-    return [row for row in records if split_manifest.split_for(str(row["candidate_hash"])) == split]
 
 
 def _cheap_stage_metrics(

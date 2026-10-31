@@ -287,7 +287,7 @@ def build_default_registry(store: ArtifactStore) -> ArtifactRef:
     Returns:
         CAS reference to the generated registry bundle.
     """
-    bundle = build_default_registry_bundle(store)
+    bundle = build_default_registry_bundle(store, return_selected_profile=True)
     return bundle.bundle_ref
 
 
@@ -303,6 +303,7 @@ def build_execution_context(
     registry_bundle_ref: ArtifactRef,
     *,
     run_id: str,
+    resume_run_dir: Path | None = None,
     logger: logging.Logger | None = None,
     tracer: Tracer | None = None,
     foundry: FoundryPort | None = None,
@@ -326,6 +327,7 @@ def build_execution_context(
         store: Artifact store used for node inputs, outputs, and checkpoints.
         registry_bundle_ref: Registry bundle ref pinned into the run manifest.
         run_id: Run identifier used by provenance, metrics, and artifact lineage.
+        resume_run_dir: Existing incomplete lifecycle to reopen through Core admission.
         logger: Optional logger injected into node execution.
         tracer: Optional tracer propagated to the executor.
         foundry: Optional Foundry port override, otherwise nodes may use defaults.
@@ -341,7 +343,7 @@ def build_execution_context(
             composition; never read from workflow state.
 
     Returns:
-        Fully initialized `ExecutionContext` with a started `RunContext`.
+        Fully initialized `ExecutionContext` with a started or resumed `RunContext`.
     """
     access_scope = get_current_access_scope_or_none()
     tenant_id = get_current_tenant_id_or_none()
@@ -350,41 +352,56 @@ def build_execution_context(
         tenant_id = tenant_id or access_scope.tenant_id
         cell_id = cell_id or access_scope.cell_id
 
-    run = RunContext.start(
-        store,
-        registry_bundle_ref,
-        run_id=run_id,
-        tenant_id=tenant_id,
-        cell_id=cell_id,
-        access_scope=access_scope,
-    )
-    resolved_metrics: EngineMetricsCollector | None = metrics
-    if resolved_metrics is None and engine_metrics_factory is not None:
-        resolved_metrics = engine_metrics_factory()
+    if resume_run_dir is None:
+        run = RunContext.start(
+            store,
+            registry_bundle_ref,
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            access_scope=access_scope,
+        )
+    else:
+        run = RunContext.resume(
+            store,
+            run_id=run_id,
+            run_dir=resume_run_dir,
+            registry_bundle=registry_bundle_ref,
+            producer=None,
+            env=None,
+            access_scope=access_scope,
+        )
+    try:
+        resolved_metrics: EngineMetricsCollector | None = metrics
+        if resolved_metrics is None and engine_metrics_factory is not None:
+            resolved_metrics = engine_metrics_factory()
 
-    return ClaimCapableExecutionContext(
-        store=store,
-        run=run,
-        logger=cast(
-            "logging.Logger",
-            logger or get_logger("polisyos.scientist.orchestration.engine"),
-        ),
-        tracer=tracer,
-        depth=depth,
-        metrics=resolved_metrics if resolved_metrics is not None else _default_engine_metrics(),
-        audit=audit,
-        fabric=fabric,
-        foundry=foundry,
-        scholar=scholar,
-        lex=lex,
-        eval_safety_execution_context=eval_safety_execution_context,
-        eval_safety_verifier=eval_safety_verifier,
-        epoch_certificate_issuance_owner=epoch_certificate_issuance_owner,
-        method_metric_selection_owner=method_metric_selection_owner,
-        completed_method_hte_selection_owner=completed_method_hte_selection_owner,
-        memory=memory,
-        claim_ledger_owner=build_default_claim_ledger_owner(store=store),
-    )
+        return ClaimCapableExecutionContext(
+            store=store,
+            run=run,
+            logger=cast(
+                "logging.Logger",
+                logger or get_logger("polisyos.scientist.orchestration.engine"),
+            ),
+            tracer=tracer,
+            depth=depth,
+            metrics=resolved_metrics if resolved_metrics is not None else _default_engine_metrics(),
+            audit=audit,
+            fabric=fabric,
+            foundry=foundry,
+            scholar=scholar,
+            lex=lex,
+            eval_safety_execution_context=eval_safety_execution_context,
+            eval_safety_verifier=eval_safety_verifier,
+            epoch_certificate_issuance_owner=epoch_certificate_issuance_owner,
+            method_metric_selection_owner=method_metric_selection_owner,
+            completed_method_hte_selection_owner=completed_method_hte_selection_owner,
+            memory=memory,
+            claim_ledger_owner=build_default_claim_ledger_owner(store=store),
+        )
+    except BaseException:
+        run.suspend_for_resume()
+        raise
 
 
 def _propagate_runtime_run_metadata(ctx: ExecutionContext, state: ExperimentState) -> None:

@@ -133,6 +133,55 @@ class BenchmarkSplitManifest(_PydanticBaseModel):
                 return split
         return None
 
+    def partition_rows(
+        self,
+        rows: list[dict[str, Any]],
+        *,
+        suite: BenchmarkSuite,
+    ) -> dict[BenchmarkSplit, list[dict[str, Any]]]:
+        """Partition actual dataset rows against this suite's complete assignments.
+
+        Args:
+            rows: Dataset rows carrying the declared string identity field.
+            suite: Persisted suite whose identity selected this split manifest.
+
+        Returns:
+            Rows grouped by their verified manifest assignments.
+
+        Raises:
+            ValueError: The suite, row identities, or complete assignment basis differs.
+        """
+        if self.suite_id != suite.suite_id:
+            raise ValueError("benchmark_split_suite_id_mismatch")
+        if self.suite_version != suite.suite_version:
+            raise ValueError("benchmark_split_suite_version_mismatch")
+        assignments: dict[str, BenchmarkSplit] = {}
+        for split in BenchmarkSplit:
+            for item_id in self.ids_for_split(split):
+                if item_id in assignments:
+                    raise ValueError("benchmark_split_duplicate_assignment")
+                assignments[item_id] = split
+        partitions: dict[BenchmarkSplit, list[dict[str, Any]]] = {
+            split: [] for split in BenchmarkSplit
+        }
+        seen: set[str] = set()
+        for row in rows:
+            if self.id_field not in row:
+                raise ValueError("benchmark_split_row_id_missing")
+            item_id = row[self.id_field]
+            if not isinstance(item_id, str) or not item_id:
+                raise ValueError("benchmark_split_row_id_invalid")
+            if item_id in seen:
+                raise ValueError("benchmark_split_duplicate_row_id")
+            seen.add(item_id)
+            split = assignments.get(item_id)
+            if split is None:
+                raise ValueError("benchmark_split_dataset_ids_mismatch")
+            partitions[split].append(row)
+        if seen != set(assignments):
+            raise ValueError("benchmark_split_dataset_ids_mismatch")
+        return partitions
+
 
 class BenchmarkSuite(_PydanticBaseModel):
     """Benchmark suite public type."""

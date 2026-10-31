@@ -498,7 +498,7 @@ class ConnectorRegistry(RegistryLifecycleMixin):
         if self._enable_caching and enable_cache and self._cache_store is not None:
             try:
                 from polisyos.fabric.connectors.cache.proxy import CachingConnectorProxy
-            except Exception:
+            except ImportError:
                 logger.debug(
                     "Failed to load caching proxy for connector %s, using unwrapped",
                     fqid,

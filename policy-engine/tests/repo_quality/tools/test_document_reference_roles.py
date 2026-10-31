@@ -14,6 +14,188 @@ OLD_DASHBOARD = "frontend" + "/runtime-dashboard"
 OLD_CLIENT = "frontend" + "/runtime-api-client"
 
 
+def test_live_authored_scope_names_payloads_without_certifying_their_contents(
+    tmp_path: Path,
+) -> None:
+    _git(tmp_path, "init")
+    _write(tmp_path, "docs/current.md", "The current guide uses maintained paths.\n")
+    _write(tmp_path, "docs/research/topic/owned.py", "SOURCE = 'src/current.py'\n")
+    _write(tmp_path, "tests/unit/test_old_paths.py", f"RECORDED = '{OLD_CLIENT}'\n")
+    _write(tmp_path, "docs/research/e02/results/received.txt", OLD_CLIENT)
+    archive = tmp_path / "vendor" / "source.whl"
+    archive.parent.mkdir(parents=True)
+    archive.write_bytes(gzip.compress(OLD_CLIENT.encode()))
+    _git(tmp_path, "add", ".")
+    receipt: dict[str, object] = {}
+
+    findings = lifecycle.check_removed_stub_references(
+        tmp_path, receipt=receipt, reference_scope="live-authored"
+    )
+
+    assert findings == []
+    assert receipt["scope"] == "live-authored-removed-stub-reference-scan-only"
+    assert receipt["reference_scan_status"] == "complete"
+    assert receipt["denominator"]["tracked_path_count"] == 5
+    assert receipt["denominator"]["selected_path_count"] == 2
+    assert receipt["outside_authored_claim_path_count"] == 3
+    assert receipt["file_type_counts"][".py"] == {
+        "tracked": 2,
+        "selected": 1,
+        "outside_authored_claim": 1,
+    }
+    assert sum(receipt["path_role_counts"].values()) == 5
+    assert receipt["receipt_coverage"] == "partial"
+    assert "No absence claim" in receipt["measured_property"]
+    assert {operation["path"] for operation in receipt["read_evidence"]["operations"]} == {
+        "docs/current.md",
+        "docs/research/topic/owned.py",
+    }
+    exhaustive_receipt: dict[str, object] = {}
+    exhaustive = lifecycle.check_removed_stub_references(tmp_path, receipt=exhaustive_receipt)
+    assert exhaustive_receipt["reference_scope"] == "exhaustive"
+    assert exhaustive_receipt["reference_scan_status"] == "partial"
+    assert any(finding.check == "reference_scan_unresolved" for finding in exhaustive)
+    assert any(finding.check == "removed_stub_reference" for finding in exhaustive)
+
+
+@pytest.mark.parametrize(
+    "relative",
+    [
+        "docs/current.md",
+        "src/current.py",
+        "apps/page.ts",
+        "architecture/config.json",
+        "architecture/config.toml",
+        "tools/current.sh",
+        "docs/research/topic/owned.py",
+        "apps/runtime-dashboard/src/features/runs/page.tsx",
+        "src/worker/runs/context.py",
+        "tools/owned/production_data/config.toml",
+        "tests/fixtures/README.md",
+        "tests/fixtures/production_data/README.md",
+    ],
+)
+def test_live_authored_scope_keeps_real_document_and_code_path_failures(
+    tmp_path: Path, relative: str
+) -> None:
+    text = json.dumps({"path": OLD_CLIENT}) if relative.endswith(".json") else OLD_CLIENT
+    _write(tmp_path, relative, text)
+    receipt: dict[str, object] = {}
+
+    findings = lifecycle.check_removed_stub_references(
+        tmp_path, receipt=receipt, reference_scope="live-authored"
+    )
+
+    assert [(finding.check, finding.path) for finding in findings] == [
+        ("removed_stub_reference", relative)
+    ]
+    assert receipt["selected_reference_scan_complete"] is True
+
+
+@pytest.mark.parametrize(
+    ("relative", "payload"),
+    [
+        ("docs/current.md", gzip.compress(b"opaque document")),
+        ("architecture/current.json", b"{not JSON"),
+        ("tools/current.py", b"invalid UTF8: \xff"),
+        ("docs/current.md", b"UTF8-decodable binary: \x00"),
+        ("tools/current.py", b"UTF8-decodable control: \x01"),
+    ],
+)
+def test_live_authored_scope_does_not_green_unreadable_selected_inputs(
+    tmp_path: Path, relative: str, payload: bytes
+) -> None:
+    target = tmp_path / relative
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes(payload)
+    receipt: dict[str, object] = {}
+
+    findings = lifecycle.check_removed_stub_references(
+        tmp_path, receipt=receipt, reference_scope="live-authored"
+    )
+
+    assert receipt["reference_scan_status"] == "partial"
+    assert receipt["selected_reference_scan_complete"] is False
+    assert {finding.check for finding in findings} <= {
+        "reference_scan_unresolved",
+        "reference_scan_ambiguous",
+    }
+    assert findings
+
+
+def test_live_authored_scope_checks_removed_directories_even_in_payloads(tmp_path: Path) -> None:
+    removed = "/".join(("tests", "architecture"))
+    target = tmp_path / removed / "production_data" / "retained.bin"
+    target.parent.mkdir(parents=True)
+    target.write_bytes(b"\xff")
+
+    findings = lifecycle.check_removed_stub_references(tmp_path, reference_scope="live-authored")
+
+    assert ("removed_stub_path", removed) in {(finding.check, finding.path) for finding in findings}
+
+
+def test_docs_gate_explicitly_selects_live_authored_reference_contract() -> None:
+    from tools.quality.validation.check_docs_gate import GATE_COMMANDS
+
+    assert GATE_COMMANDS["docs_lifecycle"].argv[-2:] == ("--reference-scope", "live-authored")
+    assert lifecycle._build_parser().parse_args([]).reference_scope == "exhaustive"
+
+
+@pytest.mark.parametrize(
+    ("relative", "role"),
+    [
+        ("apps/feature/runs/node_modules/vendor.js", "dependency-or-environment:node_modules"),
+        ("apps/feature/runs/.polisyos/config.toml", "dependency-or-environment:.polisyos"),
+        ("apps/feature/runs/package-lock.json", "filename:package-lock.json"),
+        ("apps/feature/runs/pnpm-lock.yaml", "filename:pnpm-lock.yaml"),
+    ],
+)
+def test_live_authored_maintained_root_does_not_admit_nested_dependencies(
+    tmp_path: Path, relative: str, role: str
+) -> None:
+    _write(tmp_path, relative, OLD_CLIENT)
+    receipt: dict[str, object] = {}
+
+    findings = lifecycle.check_removed_stub_references(
+        tmp_path, receipt=receipt, reference_scope="live-authored"
+    )
+
+    assert findings == []
+    assert receipt["denominator"]["tracked_path_count"] == 1
+    assert receipt["denominator"]["selected_path_count"] == 0
+    assert receipt["outside_authored_claim_path_count"] == 1
+    assert receipt["path_role_counts"][f"outside-live-authored:{role}"] == 1
+
+
+@pytest.mark.parametrize("declared_historical_role", [True, False])
+def test_live_authored_scope_discloses_editorial_historical_role_boundary(
+    tmp_path: Path, declared_historical_role: bool
+) -> None:
+    relative = "docs/research/topic/audits/record.md"
+    header = "---\nkind: research-audit\nresearch_only: true\n"
+    if declared_historical_role:
+        header += (
+            f"historical_repository_commit: {'a' * 40}\ncurrent_repository_commit: {'b' * 40}\n"
+        )
+    _write(tmp_path, relative, header + f"---\nRecorded reference: {OLD_CLIENT}\n")
+    receipt: dict[str, object] = {}
+
+    findings = lifecycle.check_removed_stub_references(
+        tmp_path, receipt=receipt, reference_scope="live-authored"
+    )
+
+    assert receipt["denominator"]["selected_path_count"] == 1
+    assert (
+        "after the declared documentary-reference role projection" in receipt["measured_property"]
+    )
+    assert any("not content-bound proof" in item for item in receipt["unresolved_by_construction"])
+    assert bool(findings) is not declared_historical_role
+    if findings:
+        assert [(finding.check, finding.path) for finding in findings] == [
+            ("removed_stub_reference", relative)
+        ]
+
+
 def _write(root: Path, relative: str, text: str) -> Path:
     path = root / relative
     path.parent.mkdir(parents=True, exist_ok=True)

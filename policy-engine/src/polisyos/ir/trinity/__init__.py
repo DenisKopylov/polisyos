@@ -21,6 +21,9 @@ if TYPE_CHECKING:
     from polisyos.ir.trinity.loaders import (
         load_trinity_bundle_artifact as load_trinity_bundle_artifact,
     )
+    from polisyos.ir.trinity.loaders import (
+        persist_trinity_bundle_artifact as persist_trinity_bundle_artifact,
+    )
 
 TRINITY_BUNDLE_SCHEMA_VERSION = "1.0"
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
@@ -49,6 +52,7 @@ __all__ = [
     "ProblemFrame",
     "TrinityBundle",
     "load_trinity_bundle_artifact",
+    "persist_trinity_bundle_artifact",
 ]
 
 
@@ -58,4 +62,9 @@ def __getattr__(name: str) -> object:
 
         globals()[name] = load_trinity_bundle_artifact
         return load_trinity_bundle_artifact
+    if name == "persist_trinity_bundle_artifact":
+        from polisyos.ir.trinity.loaders import persist_trinity_bundle_artifact
+
+        globals()[name] = persist_trinity_bundle_artifact
+        return persist_trinity_bundle_artifact
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

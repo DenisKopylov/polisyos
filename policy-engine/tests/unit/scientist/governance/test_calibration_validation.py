@@ -418,6 +418,52 @@ def _accountability_input() -> GovernanceAccountabilityInput:
     )
 
 
+@pytest.mark.parametrize("purpose", ["promotion", "candidate_diagnostic"])
+def test_calibration_validation_refuses_native_before_any_promotion_bundle(
+    tmp_path, cas_store, purpose
+) -> None:
+    class ForbiddenMatrix:
+        def run(self, *args, **kwargs):
+            pytest.fail("unsupported native calibration reached the matrix producer")
+
+    bundle = _plan_bundle(tmp_path, BacktestKind.MACRO)
+    bundle.plans[0]["prediction_source"] = "scientist"
+    bundle.plans[0]["scientist_state"] = {"params": {"backtest_native_forecast": {}}}
+    candidate_ref = _persist_calibration_candidate(cas_store)
+    registry = LessonRegistry(root=tmp_path / "lessons", store=cas_store)
+    source_inputs = []
+    for role in ("household_candidate_panel", "household_source_basis", "selected_split_manifest"):
+        ref = cas_store.put_json(
+            {"source": role},
+            PutOptions(kind="test.native_calibration_input", media_type="application/json"),
+            return_selected_profile=True,
+        )
+        source_inputs.append(
+            InputRef(
+                artifact_id=ref.artifact_id,
+                role=role,
+                manifest_profile_sha256=ref.manifest_profile_sha256,
+            )
+        )
+    before = list(cas_store.iter_artifact_ids())
+    with pytest.raises(ValueError, match="native_calibration_validation_not_supported"):
+        CalibrationValidationRunner(cas_store, backtest_runner=ForbiddenMatrix()).run(
+            CalibrationValidationRunnerInput(
+                run_id="R_native_not_calibration",
+                candidate_ref=candidate_ref,
+                governance_report=_governance_report(),
+                backtest_plan_bundles={BacktestKind.MACRO: bundle},
+                lesson_registry=registry,
+                purpose=purpose,
+                input_refs=source_inputs,
+                selected_training_role="fixture_training",
+                selected_validation_role="fixture_validation",
+                selected_holdout_role="fixture_holdout",
+            )
+        )
+    assert list(cas_store.iter_artifact_ids()) == before
+
+
 def test_calibration_validation_runner_executes_backtest_stress_leaderboard_and_lesson(
     tmp_path,
     cas_store,
@@ -517,7 +563,11 @@ def test_calibration_validation_runner_executes_backtest_stress_leaderboard_and_
     assert readout["backtest_report_status"] == "available"
     assert readout["backtest_metric_diagnostics_status"] == "computed"
     assert readout["backtest_metric_diagnostics"]
-    assert result.bundle.leaderboard_entry.metrics.eligible_for_promotion is True
+    assert not result.bundle.leaderboard_entry.metrics.eligible_for_promotion
+    assert (
+        "backtest_matrix_source_not_established"
+        in result.bundle.leaderboard_entry.metrics.gap_flags
+    )
     assert readout["source_json_snapshot_binding_status"] == "not_established"
     assert readout["source_json_snapshot_profile_status"] == "not_established"
     assert readout["source_json_snapshot_profile_provenance"] == "not_established"
@@ -531,7 +581,32 @@ def test_calibration_validation_runner_executes_backtest_stress_leaderboard_and_
     card = load_lesson_card(cas_store, result.bundle.lesson_card_ref)
     assert card.stage_name == "calibration_validation"
     assert card.domain == "general"
-    assert card.kind == LessonKind.FAILURE
+    assert card.kind == LessonKind.OPPORTUNITY
+    assert card.failure_type == "calibration_validation_source_verification_missing"
+    assert card.trust_level.value == "low_confidence"
+
+    failed_governance = _governance_report()
+    failed_governance.adversarial_results[0].status = "failed"
+    observed_failure = CalibrationValidationRunner(cas_store).run(
+        CalibrationValidationRunnerInput(
+            run_id="R_c5b_observed_adversarial_failure",
+            candidate_ref=candidate_ref,
+            governance_report=failed_governance,
+            calibration_fit_score=0.91,
+            backtest_plan_bundles={
+                BacktestKind.MACRO: _plan_bundle(
+                    tmp_path, BacktestKind.MACRO, exact_predictions=True
+                )
+            },
+            lesson_registry=registry,
+        )
+    )
+    assert observed_failure.bundle.leaderboard_entry is not None
+    assert observed_failure.bundle.leaderboard_entry.metrics.adversarial_passed is False
+    assert observed_failure.bundle.lesson_card_ref is not None
+    failure_card = load_lesson_card(cas_store, observed_failure.bundle.lesson_card_ref)
+    assert failure_card.kind == LessonKind.FAILURE
+    assert failure_card.failure_type == "calibration_validation_observed_failure"
 
     declared_target = TransferContext(task_family="policy", domain="general", run_id="R_c5b_full")
     for supplied_domain in ("finance", ""):
@@ -548,7 +623,7 @@ def test_calibration_validation_promotion_requires_recomputed_d4_profiles(
     tmp_path,
     cas_store: FileSystemCAS,
 ) -> None:
-    """A real exact backtest is eligible only with recomputed, bound D4 profiles."""
+    """D4 profile conformance does not establish backtest forecast/holdout provenance."""
     from polisyos.data_forge.read_api.ukraine import (
         UkraineJSONSnapshotRefusalError,
         read_ukraine_json_snapshot,
@@ -600,16 +675,48 @@ def test_calibration_validation_promotion_requires_recomputed_d4_profiles(
     )
 
     assert result.bundle.leaderboard_entry is not None
-    assert result.bundle.leaderboard_entry.metrics.eligible_for_promotion is True
+    assert not result.bundle.leaderboard_entry.metrics.eligible_for_promotion
     summary = result.bundle.readout_summary()
     assert summary["source_json_snapshot_binding_status"] == "available"
     assert summary["source_json_snapshot_profile_status"] == "declared_bytes_conformant"
     assert summary["source_json_snapshot_profile_provenance"] == "recomputed"
-    assert summary["eligible_for_promotion"] is True
-    assert summary["backtest_trust_status"] == "recomputed"
+    assert summary["eligible_for_promotion"] is False
+    assert summary["backtest_source_reconciliation_status"] == "not_established"
+    assert summary["backtest_trust_status"] == "not_established"
+    assert summary["backtest_trust_score"] is None
     assert lesson_registry.calls == 1 and result.bundle.lesson_card_ref is not None
     lesson = load_lesson_card(cas_store, result.bundle.lesson_card_ref)
-    assert lesson.kind == LessonKind.SUCCESS
+    assert lesson.kind == LessonKind.OPPORTUNITY
+
+    # A persisted historical or forged eligibility bit cannot restore authority
+    # when the actual forecast/holdout source binding is unavailable.
+    claimed_bundle = result.bundle.model_copy(deep=True)
+    assert claimed_bundle.leaderboard_entry is not None
+    claimed_bundle.leaderboard_entry.metrics.eligible_for_promotion = True
+    claimed_bundle.leaderboard_entry.metrics.gap_flags = []
+    unbound = type(claimed_bundle).model_validate(claimed_bundle.model_dump(mode="python"))
+    assert unbound.readout_summary()["composite_score"] is None
+    assert not unbound.readout_summary()["eligible_for_promotion"]
+    claimed_ref = persist_calibration_validation_bundle(
+        cas_store,
+        claimed_bundle,
+        inputs=[
+            InputRef(
+                artifact_id=candidate_ref.artifact_id,
+                role="candidate",
+                manifest_profile_sha256=candidate_ref.manifest_profile_sha256,
+            ),
+            *source_inputs,
+        ],
+    )
+    claimed_fresh = load_calibration_validation_bundle(cas_store, claimed_ref)
+    assert claimed_fresh.leaderboard_entry is not None
+    assert not claimed_fresh.leaderboard_entry.metrics.eligible_for_promotion
+    assert (
+        "backtest_matrix_source_not_established"
+        in claimed_fresh.leaderboard_entry.metrics.gap_flags
+    )
+    assert not claimed_fresh.readout_summary()["eligible_for_promotion"]
 
     # The historical 1.0 reader stays compatible while refusing an unbound
     # source-profile promotion claim over the exact same qualifying backtest.
@@ -640,7 +747,7 @@ def test_calibration_validation_promotion_requires_recomputed_d4_profiles(
         "source_json_snapshot_reads_absent"
     )
     assert legacy.leaderboard_entry is not None
-    assert legacy.leaderboard_entry.metrics.eligible_for_promotion is True
+    assert not legacy.leaderboard_entry.metrics.eligible_for_promotion
     assert legacy_summary["eligible_for_promotion"] is False
 
     # A sibling source ID cannot satisfy the exact profile-to-input binding.
@@ -991,12 +1098,12 @@ def test_promotion_fresh_reader_rejects_valid_report_with_sibling_source_edges(
 
     positive = result.bundle.readout_summary()
     assert positive["source_json_snapshot_binding_status"] == "available"
-    assert positive["eligible_for_promotion"] is True
+    assert positive["eligible_for_promotion"] is False
     assert result.bundle.backtest_report_ref is not None
     assert result.bundle.leaderboard_entry is not None
-    assert result.bundle.leaderboard_entry.metrics.eligible_for_promotion is True
+    assert not result.bundle.leaderboard_entry.metrics.eligible_for_promotion
     assert result.bundle.lesson_card_ref is not None
-    assert load_lesson_card(cas_store, result.bundle.lesson_card_ref).kind is LessonKind.SUCCESS
+    assert load_lesson_card(cas_store, result.bundle.lesson_card_ref).kind is LessonKind.OPPORTUNITY
 
     # This is a distinct, valid profile with the same registered JSON contract.
     # The C5b bundle keeps its original typed refs and source edges.
@@ -1094,7 +1201,7 @@ def test_promotion_fresh_reader_rejects_valid_report_with_sibling_source_edges(
     assert negative["source_json_snapshot_binding_status"] == "unavailable"
     assert negative["eligible_for_promotion"] is False
     assert fresh.leaderboard_entry is not None
-    assert fresh.leaderboard_entry.metrics.eligible_for_promotion is True
+    assert not fresh.leaderboard_entry.metrics.eligible_for_promotion
 
     consumer_input = runner_input.model_copy(
         update={"run_id": "R_c5b_report_edge_binding_negative"}
@@ -1105,4 +1212,4 @@ def test_promotion_fresh_reader_rejects_valid_report_with_sibling_source_edges(
         record_local=lesson_registry.registry.record_local,
     )
     assert failure_lesson_ref is not None
-    assert load_lesson_card(cas_store, failure_lesson_ref).kind is LessonKind.FAILURE
+    assert load_lesson_card(cas_store, failure_lesson_ref).kind is LessonKind.OPPORTUNITY

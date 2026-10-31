@@ -2,7 +2,7 @@
 
 Дата: 2026-10-27. Статус: **архитектурный выбор G для реализации**. Это не приёмка source, не результат runtime wave и не adjudication findings: `code_acceptance=false`, `closure_ids=[]`. Изменяется только документация.
 
-Вход — [пакет исполнителя @757e407b](https://github.com/DenisKopylov/polisyos/blob/757e407bba28da5f1995335350bf7c427ecce431/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-questions/implementation-choices-20261027/README.md). Анализ source привязан к `7a4c713186188f5795da3a8745e42843443dcd88`, tree `f49503f969b9a3d68bf82d23e0c8435e9d20c847`; собственная база G — `978921662b2d89006759cdd2ae96dbccc9bdcf11`. Изменения coding-agent после этого source требуют delta review. [Inputs](inputs.json) фиксирует происхождение и границы свидетельств.
+Вход — [пакет исполнителя @757e407b](https://github.com/DenisKopylov/polisyos/blob/757e407bba28da5f1995335350bf7c427ecce431/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-questions/implementation-choices-20261027/README.md). Анализ source привязан к `7a4c713186188f5795da3a8745e42843443dcd88`, tree `f49503f969b9a3d68bf82d23e0c8435e9d20c847`; собственная база G — `978921662b2d89006759cdd2ae96dbccc9bdcf11`. Изменения coding-agent после этого source требуют delta review. Inputs (`inputs.json`; unavailable in this checkout) фиксирует происхождение и границы свидетельств.
 
 ## Два выбора и обязательное следствие
 
@@ -20,9 +20,9 @@
 2. [TC-01: request semantics и полная цепочка выполнения](02-request-time-context.md).
 3. [SameInputClosure: identity, verification и schema rollout](03-exact-view-closure.md).
 4. [Последовательность работ, границы writers и acceptance matrix](04-delivery-and-acceptance.md).
-5. [Исследование, redteam, самостоятельное review и ограничения](05-research-and-review.md).
+5. Исследование, redteam, самостоятельное review и ограничения (`05-research-and-review.md`; unavailable in this checkout).
 
-Это расширяет уже выбранные [AD-E02-05](../architecture-decisions-2026-10-21/05-canonical-profile-and-context.md) и [IR-Q2](../architecture-decisions-2026-10-23/02-ir-version-compatibility.md), не переоткрывая shared-mechanics/Core-vs-IR separation. Изменения `system-design-decisions` не требуются.
+Это расширяет уже выбранные AD-E02-05 (`../architecture-decisions-2026-10-21/05-canonical-profile-and-context.md`; unavailable in this checkout) и IR-Q2 (`../architecture-decisions-2026-10-23/02-ir-version-compatibility.md`; unavailable in this checkout), не переоткрывая shared-mechanics/Core-vs-IR separation. Изменения `system-design-decisions` не требуются.
 
 CAN и TC можно реализовывать параллельно на разных owners. TC не обязан ждать CAN `.3`: собственный scope payload может использовать уже принятый точный профиль `.2`. Пересечение находится в Core manifest/profile contracts; там один canonical writer и согласованный небольшой companion. Включение writers зависит от готовности **их реальных readers**, а не от миграции всего репозитория сразу.
 

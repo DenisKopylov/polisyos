@@ -3,6 +3,10 @@
 `polisyos.foundry.methods.causal` is the flat public facade for causal catalog
 methods.
 
+The export-name tuple lives in the lightweight `_exports.py` module. Importing
+the facade root reads this metadata without loading catalog implementations;
+first attribute access resolves the canonical owner from `_facade.py`.
+
 The implementation remains under `catalog/causal/`; this package exists so
 callers have a documented family home while removed deep legacy paths such as
 `polisyos.foundry.methods.causal.synthetic_control` stay unavailable.

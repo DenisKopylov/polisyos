@@ -28,11 +28,12 @@ from tools.lib.runner import run_command
 
 @dataclass(frozen=True, slots=True)
 class MutationTarget:
-    """Source/test selection and minimum measured mutation score."""
+    """Source/test selection, required static files and minimum mutation score."""
 
     paths: str
     tests: str
     threshold_pct: float
+    static_inputs: tuple[str, ...] = ()
 
 
 FOUNDRY_TARGETS: dict[str, MutationTarget] = {
@@ -133,6 +134,14 @@ CORE_RUNTIME_TARGETS: dict[str, MutationTarget] = {
         ),
         # The existing release workflow had no score floor; do not invent one here.
         threshold_pct=0.0,
+        # Source-checkout defaults used by the actual Runtime fixture catalog.
+        # Only these curated files travel, never mutable/ignored data siblings.
+        static_inputs=(
+            "data/dataset_catalog/seed_variable_alignments.yaml",
+            "data/dataset_catalog/proxy_metric_alignments.yaml",
+            "data/dataset_catalog/wvs_indicator_registry.yaml",
+            "data/dataset_catalog/metrics_map.yaml",
+        ),
     ),
 }
 _MUTANT_NAME = re.compile(r".+__mutmut_\d+$")
@@ -194,7 +203,25 @@ def _scope(root: Path, target: MutationTarget) -> tuple[list[str], list[str]]:
     return sorted(sources), tests
 
 
-def _stage(root: Path, work: Path, sources: list[str], tests: list[str]) -> None:
+def _stage(
+    root: Path,
+    work: Path,
+    sources: list[str],
+    tests: list[str],
+    *,
+    static_inputs: tuple[str, ...] = (),
+) -> None:
+    for relative in static_inputs:
+        path = Path(relative)
+        source = root / path
+        if (
+            path.is_absolute()
+            or ".." in path.parts
+            or source.is_symlink()
+            or not source.is_file()
+            or not source.resolve().is_relative_to(root.resolve())
+        ):
+            raise MutationEvidenceError(f"missing or outside-root static input: {relative}")
     # Copy source context, never another environment or its cached mutation results.
     context = ("src", "tests", "tools", "schemas", "architecture", "ops", "pytest.ini")
     for name in context:
@@ -210,6 +237,17 @@ def _stage(root: Path, work: Path, sources: list[str], tests: list[str]) -> None
             destination.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(root / relative, destination)
     also_copy = [name for name in context if (work / name).exists() and name != "pytest.ini"]
+    for relative in static_inputs:
+        destination = work / relative
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(root / relative, destination)
+        # The pinned mutmut copies directories with mkdir, but individual nested
+        # files require their destination parents to exist already. This staged
+        # parent contains only declared inputs, not the source data directory.
+        parent = Path(relative).parent
+        copy_path = str(parent) if parent != Path(".") else relative
+        if copy_path not in also_copy:
+            also_copy.append(copy_path)
     config = {
         "paths_to_mutate": sources,
         "pytest_add_cli_args": ["--import-mode=importlib", "--rootdir=.", "--no-header"],
@@ -310,6 +348,7 @@ def _run_target(repo_root: Path, *, name: str, target: MutationTarget) -> int:
         "target": name,
         "source_selection": target.paths,
         "test_selection": target.tests,
+        "static_input_files": list(target.static_inputs),
     }
     output = repo_root / "_build/mutation"
     output.mkdir(parents=True, exist_ok=True)
@@ -322,7 +361,7 @@ def _run_target(repo_root: Path, *, name: str, target: MutationTarget) -> int:
         sources, tests = _scope(repo_root, target)
         work = Path(tempfile.mkdtemp(prefix=f"{name}-", dir=output))
         result["workspace"] = str(work)
-        _stage(repo_root, work, sources, tests)
+        _stage(repo_root, work, sources, tests, static_inputs=target.static_inputs)
         env = {
             key: value
             for key, value in os.environ.items()

@@ -48,6 +48,23 @@ Details: [Reference →](../../../../../../docs/reference/scientist/index.md)
   dependencies load successfully.
 - README synchronized with the package's current lazy/optional import behavior.
 
+`NeuralSearchStrategy` can checkpoint the Sobol phase with a selected transfer
+corpus. Give it the existing `TransferLearningManager` and receiver
+`RunFingerprint`, then call `warm_start_from_transfer` with source fingerprints
+carrying exact selected history profiles. The manager reopens and reconciles
+the selected CAS histories when a checkpoint is written, restored, or consumed;
+cached transfer bytes also require live selected-CAS verification. Verification
+and subsequent use are not atomic against concurrent mutation.
+The selected source list admits at most one history per run, even when two
+manifest profiles describe the same content, so the same observations cannot
+be counted twice through profile aliases.
+An unselected warm corpus, incompatible basis, damaged selected history,
+legacy count-only checkpoint, and checkpoint after attempting a surrogate fit
+are refused. The transfer reader currently reconstructs observation timestamps,
+so this checkpoint does not preserve their original time or establish temporal
+provenance. The matching synthetic Sobol path is verified; deterministic fitted
+GP continuation and an automatic production caller remain unestablished.
+
 `BayesianOptimizer.warm_start` stores every rejected `Evaluation` together
 with its original rejection reason in `StrategyState.metadata.warm_start_rejections`
 (version 1). `StrategyState.to_artifact/from_artifact` and `set_state/get_state`

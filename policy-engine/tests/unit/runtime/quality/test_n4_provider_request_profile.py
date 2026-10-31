@@ -32,6 +32,28 @@ from tests._helpers.controlled_candidate_profile import (
 )
 
 
+def test_controlled_gateway_environment_is_admitted_without_external_fallbacks(monkeypatch):
+    from urllib.parse import urlparse
+
+    from polisyos.scientist.orchestration.llm.factory import GatewayLLMConfig
+
+    # The consumer uses from_env(), while the earlier factory tests supplied
+    # an explicit config and therefore missed syntactically invalid fixture keys.
+    monkeypatch.setenv("POLISYOS_LLM_FALLBACK_URLS", "http://unreachable.invalid/v1")
+    with ControlledCandidateGateway() as gateway:
+        for name, value in gateway.environment().items():
+            monkeypatch.setenv(name, value)
+        config = GatewayLLMConfig.from_env()
+        assert config is not None
+        assert config.base_url == gateway.base_url
+        assert urlparse(config.base_url).hostname == "127.0.0.1"
+        assert config.max_retries == 0
+        assert not config.fallback_urls
+        assert config.api_key == "sk-synthetic-local-fixture-key"
+        monkeypatch.setenv("POLISYOS_LLM_GATEWAY_API_KEY", "synthetic-local-key")
+        assert GatewayLLMConfig.from_env() is None
+
+
 def _inputs(tmp_path):
     recording = load_served_wdi_generation_recording()
     problem = controlled_served_wdi_problem(
@@ -402,3 +424,149 @@ def test_actual_factory_new_raw_issued_marker_keeps_normal_privacy_scan(tmp_path
     ]
     assert len(requests) == 1
     assert requests[0]["metadata"]["secret"] == request["metadata"]["secret"]
+
+
+@pytest.mark.parametrize("provider_mode", ["synthetic", "legacy_unknown"])
+def test_controlled_candidate_factory_settles_only_declared_new_provider_quantities(
+    tmp_path, monkeypatch, provider_mode
+):
+    """Exercise the exact HTTP/factory/ledger seam before numerical Runtime work."""
+    from decimal import Decimal
+
+    from polisyos.core.observability.pricing import estimate_llm_cost_usd
+    from polisyos.runtime.quality.design_generation import RecordingLLMClient
+    from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+    from polisyos.scientist.orchestration.engine.budget_ledger import (
+        BudgetLedgerProducerRunBinding,
+        FileBudgetLedger,
+    )
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+    from polisyos.scientist.orchestration.engine.producer_budget import (
+        ProducerBudgetObserver,
+        ProducerBudgetSourceError,
+    )
+    from polisyos.scientist.orchestration.llm._n4_request import _request_args
+    from polisyos.scientist.orchestration.llm.factory import (
+        GatewayLLMConfig,
+        create_traced_gateway_client,
+    )
+    from tests._helpers.controlled_candidate_profile import (
+        _controlled_registered_tax_recording,
+        synthetic_controlled_candidate_provider_profile,
+    )
+
+    recording = load_served_wdi_generation_recording()
+    problem = _current_compiler_problem(recording)
+    controlled = _controlled_registered_tax_recording(
+        recording, outcome_variable=problem.outcome_of_interest.target_variable
+    )
+    profile = synthetic_controlled_candidate_provider_profile(
+        recording, controlled, problem=problem, evidence_root=tmp_path / "exchanges"
+    )
+    binding = BudgetLedgerProducerRunBinding(
+        run_id="controlled-candidate-preflight",
+        tenant_id="candidate-test-tenant",
+        cell_id="candidate-test-cell",
+        profile_id="candidate-test-profile",
+        control_job_id="candidate-test-job",
+    )
+    ledger_path = tmp_path / "producer-ledger.json"
+    middleware = BudgetMiddleware(BudgetState(), ledger=FileBudgetLedger(ledger_path))
+    state = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("10"))})
+    monkeypatch.setenv("POLISYOS_LLM_SIMULATION_MODE", "0")
+    with ControlledCandidateGateway() as gateway:
+        gateway.set_fixture(
+            controlled,
+            problem=problem,
+            provider_profile=profile if provider_mode == "synthetic" else None,
+        )
+        gateway.admit_compiled_problem(problem)
+
+        async def run():
+            client = create_traced_gateway_client(
+                model_name=profile.model_id,
+                run_id=binding.run_id,
+                config=GatewayLLMConfig(
+                    base_url=gateway.base_url,
+                    api_key="synthetic-local-key",
+                    timeout_s=10,
+                    max_retries=0,
+                    cache_ttl_s=0,
+                    cache_maxsize=0,
+                ),
+                producer_settlement_store=middleware,
+                producer_budget_key=f"nl-run:{binding.run_id}",
+            )
+            assert client is not None
+            recorder = RecordingLLMClient(
+                client,
+                model_id=profile.model_id,
+                producer_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+            )
+            try:
+                request = _request_args(
+                    recorder, stage="draft", user="Controlled candidate transport preflight"
+                )
+                with middleware.producer_run_binding_scope(binding, control_job_attempt=1):
+                    return await recorder.generate(**request)
+            finally:
+                await client.aclose()
+
+        response = asyncio.run(run())
+    snapshot = FileBudgetLedger(ledger_path).snapshot()
+    assert len(snapshot.producer_settlements) == 1
+    record = next(iter(snapshot.producer_settlements.values()))
+    assert record.run_binding == binding
+    assert record.key == f"nl-run:{binding.run_id}"
+    assert record.control_job_attempt == 1
+    assert record.payload_digest is not None
+    observer = ProducerBudgetObserver(
+        settlement_store=middleware, producer_run_binding=binding, budget_state=state
+    )
+    if provider_mode == "legacy_unknown":
+        assert (
+            record.status == "unknown" and record.amount is None and record.cost_origin == "unknown"
+        )
+        with pytest.raises(ProducerBudgetSourceError, match="producer_event_not_settled"):
+            observer.observe()
+        return
+    assert record.status == "committed" and record.cost_origin == "estimated"
+    usage = json.loads(dict(profile.response_rows)["draft"])["usage"]
+    expected = Decimal(
+        str(
+            estimate_llm_cost_usd(
+                model=profile.model_id,
+                prompt_tokens=usage["prompt_tokens"],
+                completion_tokens=usage["completion_tokens"],
+            )
+        )
+    )
+    assert record.amount == expected
+    observed = observer.observe()
+    assert observed.producer_spent_usd == expected
+    assert observed.producer_events[0][0] == record.event_id
+    assert observed.run_binding == binding
+    assert response.content == json.loads(dict(profile.response_rows)["draft"])["raw_response"]
+    assert "n5_usd_price_not_established" in observed.limitations
+
+
+def test_controlled_candidate_provider_rejects_another_overlay_parent(tmp_path):
+    from tests._helpers.controlled_candidate_profile import (
+        _controlled_registered_tax_recording,
+        synthetic_controlled_candidate_provider_profile,
+    )
+
+    recording = load_served_wdi_generation_recording()
+    problem = _current_compiler_problem(recording)
+    controlled = _controlled_registered_tax_recording(
+        recording, outcome_variable=problem.outcome_of_interest.target_variable
+    )
+    controlled["derived_from_content_hash"] = "sha256:" + "0" * 64
+    controlled["recording_content_hash"] = gy_content_hash(
+        {key: value for key, value in controlled.items() if key != "recording_content_hash"}
+    )
+    with pytest.raises(ValueError, match="synthetic_provider_controlled_parent_mismatch"):
+        synthetic_controlled_candidate_provider_profile(
+            recording, controlled, problem=problem, evidence_root=tmp_path / "exchanges"
+        )
+    assert not (tmp_path / "exchanges").exists()

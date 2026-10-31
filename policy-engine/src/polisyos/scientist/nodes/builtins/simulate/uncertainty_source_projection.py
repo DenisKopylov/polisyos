@@ -18,7 +18,7 @@ from pydantic import (
     model_validator,
 )
 
-from polisyos.core.artifacts._profiled_ref import profile_bound_ref
+from polisyos.core.artifacts import profile_bound_ref
 from polisyos.core.artifacts.canonical_profile import (
     read_core_manifest_profile,
     validate_core_model_json_artifact,

@@ -94,8 +94,10 @@ _LEGACY_ASSOCIATION_SCHEMA = "polisyos.runtime.predictive_calibration_associatio
 _LEGACY_ASSOCIATION_VERSION = "2.0"
 _PRIOR_ASSOCIATION_SCHEMA = "polisyos.runtime.predictive_calibration_association.v3"
 _PRIOR_ASSOCIATION_VERSION = "3.0"
-_ASSOCIATION_SCHEMA = "polisyos.runtime.predictive_calibration_association.v4"
-_ASSOCIATION_VERSION = "4.0"
+_PREVIOUS_ASSOCIATION_SCHEMA = "polisyos.runtime.predictive_calibration_association.v4"
+_PREVIOUS_ASSOCIATION_VERSION = "4.0"
+_ASSOCIATION_SCHEMA = "polisyos.runtime.predictive_calibration_association.v5"
+_ASSOCIATION_VERSION = "5.0"
 _N4_OUTCOME_BINDING_LIMITATION_CODE = "n4_outcome_target_binding_not_established"
 _N4_OUTCOME_BINDING_LIMITATION_REF = (
     f"s10://calibration/fail-closed/{_N4_OUTCOME_BINDING_LIMITATION_CODE}"
@@ -128,6 +130,27 @@ class _ControlJob(Protocol):
     state: str
     kind: str
     progress: Mapping[str, Any]
+
+
+class _ObservedEvidence(Protocol):
+    """Fields needed to project only loader-admitted empirical observations."""
+
+    empirical_observations_available: bool
+    recomputed_numerator: int
+    recomputed_denominator: int
+    recomputed_pass_rate: float | None
+
+
+def _admitted_observations(
+    evidence: _ObservedEvidence,
+) -> tuple[int | None, int | None, float | None]:
+    if not evidence.empirical_observations_available:
+        return None, None, None
+    return (
+        evidence.recomputed_numerator,
+        evidence.recomputed_denominator,
+        evidence.recomputed_pass_rate,
+    )
 
 
 class _ControlStore(Protocol):
@@ -230,9 +253,9 @@ class PredictiveCalibrationS10Summary(BaseModel):
     ]
     forecast_tier: str = Field(min_length=1, max_length=120)
     counterfactual_credibility: Literal["not_established"]
-    numerator: int = Field(ge=0)
-    denominator: int = Field(ge=0)
-    observed_pass_rate: float = Field(ge=0.0, le=1.0)
+    numerator: int | None = Field(default=None, ge=0)
+    denominator: int | None = Field(default=None, ge=0)
+    observed_pass_rate: float | None = Field(default=None, ge=0.0, le=1.0)
     calibration_record_ref: str | None = None
     outcome_binding_status: Literal["not_established"] | None = None
     limitation_refs: tuple[str, ...] = ()
@@ -249,6 +272,7 @@ class PredictiveCalibrationAssociation(BaseModel):
         "polisyos.runtime.predictive_calibration_association.v2",
         "polisyos.runtime.predictive_calibration_association.v3",
         "polisyos.runtime.predictive_calibration_association.v4",
+        "polisyos.runtime.predictive_calibration_association.v5",
     ] = _ASSOCIATION_SCHEMA
     event_id: str = Field(min_length=1)
     intent_id: str = Field(min_length=1, max_length=120)
@@ -276,9 +300,9 @@ class PredictiveCalibrationAssociation(BaseModel):
     source_time_status: Literal["not_established"] = "not_established"
     population_scope_status: Literal["not_established"] = "not_established"
     counterfactual_credibility_status: Literal["not_established"] = "not_established"
-    observed_numerator: int = Field(ge=0)
-    observed_denominator: int = Field(ge=1)
-    observed_hit_rate: float = Field(ge=0.0, le=1.0)
+    observed_numerator: int | None = Field(default=None, ge=0)
+    observed_denominator: int | None = Field(default=None, ge=1)
+    observed_hit_rate: float | None = Field(default=None, ge=0.0, le=1.0)
     nominal_confidence_level: float | None = Field(default=None, gt=0.0, lt=1.0)
     owner_suitability: Literal["supported", "limited", "blocked"]
     s10: PredictiveCalibrationS10Summary
@@ -292,6 +316,34 @@ class PredictiveCalibrationAssociation(BaseModel):
 
     @model_validator(mode="after")
     def _validate_n4_s10_scope(self) -> PredictiveCalibrationAssociation:
+        observed = (self.observed_numerator, self.observed_denominator, self.observed_hit_rate)
+        source_unestablished = "backtest_source_not_established" in self.evidence_reason_codes
+        if (
+            self.schema_version == _ASSOCIATION_SCHEMA
+            and source_unestablished
+            and any(value is not None for value in observed)
+        ):
+            raise ValueError("predictive_calibration_unavailable_observations_claimed")
+        if any(value is None for value in observed):
+            if any(value is not None for value in observed):
+                raise ValueError("predictive_calibration_observations_incomplete")
+            if self.schema_version != _ASSOCIATION_SCHEMA:
+                raise ValueError("predictive_calibration_legacy_observations_missing")
+            if not source_unestablished or (
+                "s10://calibration/fail-closed/backtest_source_not_established"
+                not in self.s10.limitation_refs
+            ):
+                raise ValueError("predictive_calibration_observations_limitation_missing")
+            if (
+                self.owner_suitability != "limited"
+                or self.s10.calibration_status != "blocked"
+                or self.s10.forecast_tier != "blocked"
+                or self.s10.calibration_record_ref is not None
+                or self.s10.numerator is not None
+                or self.s10.denominator is not None
+                or self.s10.observed_pass_rate is not None
+            ):
+                raise ValueError("predictive_calibration_unavailable_observations_claimed")
         if (self.value_data_profile_ref is None) != (self.forecast_profile_member_ref is None):
             raise ValueError("predictive_calibration_profile_member_refs_incomplete")
         if self.value_data_profile_ref is None:
@@ -308,7 +360,8 @@ class PredictiveCalibrationAssociation(BaseModel):
         ):
             raise ValueError("predictive_calibration_profile_member_binding_invalid")
         if (
-            self.schema_version in {_ASSOCIATION_SCHEMA, _PRIOR_ASSOCIATION_SCHEMA}
+            self.schema_version
+            in {_ASSOCIATION_SCHEMA, _PREVIOUS_ASSOCIATION_SCHEMA, _PRIOR_ASSOCIATION_SCHEMA}
             or self.candidate_source_ref.kind == "runtime.quality.n4_candidate_scenario_source"
         ) and (
             self.s10.outcome_binding_status != "not_established"
@@ -333,7 +386,9 @@ class PredictiveCalibrationResponse(BaseModel):
     association: PredictiveCalibrationAssociation
 
 
-def _s10_summary_from_owner(record: object, support: object) -> PredictiveCalibrationS10Summary:
+def _s10_summary_from_owner(
+    record: object | None, support: object
+) -> PredictiveCalibrationS10Summary:
     """Copy the real S10 support boundary into the persisted API projection."""
     from polisyos.runtime.quality.design_axes.outcome_prediction import ForecastSupport
 
@@ -343,16 +398,28 @@ def _s10_summary_from_owner(record: object, support: object) -> PredictiveCalibr
     may_not_use_for = tuple(support.may_not_use_for)
     if tuple(authority_boundary.may_not_use_for) != may_not_use_for:
         raise PredictiveCalibrationError("predictive_calibration_s10_authority_projection_mismatch")
+    if record is None and support.forecast_tier != "blocked":
+        raise PredictiveCalibrationError("predictive_calibration_s10_record_missing")
     return PredictiveCalibrationS10Summary(
-        calibration_status=_calibration_status(getattr(record, "calibration_status", None)),
+        calibration_status=(
+            "blocked"
+            if record is None
+            else _calibration_status(getattr(record, "calibration_status", None))
+        ),
         forecast_tier=_required_text(getattr(support, "forecast_tier", None), "forecast_tier"),
         counterfactual_credibility="not_established",
-        numerator=int(getattr(record, "numerator", 0)),
-        denominator=int(getattr(record, "denominator", 0)),
-        observed_pass_rate=float(getattr(record, "pass_rate", 0.0) or 0.0),
+        numerator=None if record is None else int(getattr(record, "numerator", 0)),
+        denominator=None if record is None else int(getattr(record, "denominator", 0)),
+        observed_pass_rate=(
+            None if record is None else float(getattr(record, "pass_rate", 0.0) or 0.0)
+        ),
         calibration_record_ref=getattr(record, "calibration_ref", None),
         outcome_binding_status="not_established",
-        limitation_refs=tuple(str(item) for item in support.limitation_refs),
+        limitation_refs=tuple(
+            dict.fromkeys(
+                str(item) for item in (*support.limitation_refs, *support.s6_limitation_refs)
+            )
+        ),
         authority_boundary=authority_boundary.model_copy(deep=True),
         may_not_use_for=may_not_use_for,
     )
@@ -692,13 +759,22 @@ def produce_run_predictive_calibration(
             ) from exc
         s10_record = s10_result.get("forecast_calibration_record")
         s10_support = s10_result.get("forecast_support")
-        if s10_record is None or s10_support is None:
+        if s10_support is None or (
+            evidence.empirical_observations_available and s10_record is None
+        ):
             raise PredictiveCalibrationError("predictive_calibration_s10_record_missing")
-        counterfactual_status = _required_text(
-            getattr(s10_record, "counterfactual_credibility", None),
-            "counterfactual_credibility",
-        )
-        if counterfactual_status != "not_established":
+        if not evidence.empirical_observations_available and s10_record is not None:
+            raise PredictiveCalibrationError(
+                "predictive_calibration_unavailable_observations_claimed"
+            )
+        if (
+            s10_record is not None
+            and _required_text(
+                getattr(s10_record, "counterfactual_credibility", None),
+                "counterfactual_credibility",
+            )
+            != "not_established"
+        ):
             raise PredictiveCalibrationError(
                 "predictive_calibration_s10_credibility_not_conservative"
             )
@@ -706,6 +782,9 @@ def produce_run_predictive_calibration(
         created_at = datetime.now(UTC).replace(microsecond=0)
         s10_summary = _s10_summary_from_owner(s10_record, s10_support)
         nominal = evidence.nominal_confidence_level
+        observed_numerator, observed_denominator, observed_hit_rate = _admitted_observations(
+            evidence
+        )
         association = PredictiveCalibrationAssociation(
             event_id=event_id,
             intent_id=request.intent_id,
@@ -739,11 +818,15 @@ def produce_run_predictive_calibration(
                 if owner_result.value_data_profile_ref is not None
                 else "profileless_legacy"
             ),
-            observed_numerator=evidence.recomputed_numerator,
-            observed_denominator=evidence.recomputed_denominator,
-            observed_hit_rate=evidence.recomputed_pass_rate or 0.0,
+            observed_numerator=observed_numerator,
+            observed_denominator=observed_denominator,
+            observed_hit_rate=observed_hit_rate,
             nominal_confidence_level=nominal,
-            owner_suitability=owner_result.empirical_suitability,
+            owner_suitability=(
+                owner_result.empirical_suitability
+                if evidence.empirical_observations_available
+                else "limited"
+            ),
             s10=s10_summary,
             may_not_use_for=s10_summary.may_not_use_for or (),
             evidence_reason_codes=evidence.failure_codes,
@@ -908,6 +991,7 @@ def load_run_predictive_calibration(
     payload = _read_event_payload(store, record)
     if payload.get("schema_version") not in {
         _ASSOCIATION_VERSION,
+        _PREVIOUS_ASSOCIATION_VERSION,
         _LEGACY_ASSOCIATION_VERSION,
     }:
         raise PredictiveCalibrationError("predictive_calibration_event_payload_schema_mismatch")
@@ -980,6 +1064,7 @@ def _n4_outcome_target_binding_record(
 def _association_event_version(schema_version: str) -> str:
     versions = {
         _ASSOCIATION_SCHEMA: _ASSOCIATION_VERSION,
+        _PREVIOUS_ASSOCIATION_SCHEMA: _PREVIOUS_ASSOCIATION_VERSION,
         _PRIOR_ASSOCIATION_SCHEMA: _PRIOR_ASSOCIATION_VERSION,
         _LEGACY_ASSOCIATION_SCHEMA: _LEGACY_ASSOCIATION_VERSION,
     }
@@ -1137,6 +1222,7 @@ def _load_existing_intent(
     payload = _read_event_payload(store, record)
     if payload.get("schema_version") not in {
         _ASSOCIATION_VERSION,
+        _PREVIOUS_ASSOCIATION_VERSION,
         _LEGACY_ASSOCIATION_VERSION,
     }:
         raise PredictiveCalibrationError("predictive_calibration_event_payload_schema_mismatch")
@@ -1482,6 +1568,7 @@ def _load_association(store: ArtifactStore, ref: ArtifactRef) -> PredictiveCalib
     manifest = store.get_manifest(ref)
     schema_contracts = {
         _ASSOCIATION_VERSION: _ASSOCIATION_SCHEMA,
+        _PREVIOUS_ASSOCIATION_VERSION: _PREVIOUS_ASSOCIATION_SCHEMA,
         _PRIOR_ASSOCIATION_VERSION: _PRIOR_ASSOCIATION_SCHEMA,
         _LEGACY_ASSOCIATION_VERSION: _LEGACY_ASSOCIATION_SCHEMA,
     }
@@ -1728,7 +1815,7 @@ def _revalidate_profile_member_binding(
         if association.profile_join_status != "profileless_legacy":
             raise PredictiveCalibrationError("predictive_calibration_profileless_status_mismatch")
         if (
-            association.schema_version == _ASSOCIATION_SCHEMA
+            association.schema_version in {_ASSOCIATION_SCHEMA, _PREVIOUS_ASSOCIATION_SCHEMA}
             and report.metadata.get("profile_join_status") != "profileless_legacy"
         ):
             raise PredictiveCalibrationError("predictive_calibration_profileless_report_mismatch")
@@ -1894,17 +1981,25 @@ def _validate_current_run_binding(
         _as_ir_artifact_ref(association.backtest_report_ref),
     )
     _revalidate_profile_member_binding(store, association, report)
-    evidence = load_empirical_calibration_evidence(
-        store,
-        _as_ir_empirical_calibration_evidence_ref(association.empirical_evidence_ref),
-    )
+    try:
+        evidence = load_empirical_calibration_evidence(
+            store,
+            _as_ir_empirical_calibration_evidence_ref(association.empirical_evidence_ref),
+        )
+    except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
+        raise PredictiveCalibrationError(
+            "predictive_calibration_evidence_reopen_unresolved"
+        ) from exc
     if (
         report.report_id != evidence.report_id
         or artifact_ref_identity_key(ArtifactRef.model_validate(evidence.report_ref))
         != artifact_ref_identity_key(association.backtest_report_ref)
-        or evidence.recomputed_numerator != association.observed_numerator
-        or evidence.recomputed_denominator != association.observed_denominator
-        or evidence.recomputed_pass_rate != association.observed_hit_rate
+        or _admitted_observations(evidence)
+        != (
+            association.observed_numerator,
+            association.observed_denominator,
+            association.observed_hit_rate,
+        )
         or evidence.failure_codes != association.evidence_reason_codes
     ):
         raise PredictiveCalibrationError("predictive_calibration_evidence_reopen_mismatch")
@@ -1983,7 +2078,11 @@ def _recompute_s10(
         ensure_ir_artifact_store(store),
         _as_ir_artifact_ref(association.backtest_report_ref),
     )
-    if association.schema_version in {_ASSOCIATION_SCHEMA, _PRIOR_ASSOCIATION_SCHEMA}:
+    if association.schema_version in {
+        _ASSOCIATION_SCHEMA,
+        _PREVIOUS_ASSOCIATION_SCHEMA,
+        _PRIOR_ASSOCIATION_SCHEMA,
+    }:
         target_metric = _required_text(report.metadata.get("target_metric"), "target_metric")
         expected_binding = _n4_outcome_target_binding_record(candidate_source, target_metric)
         if report.metadata.get("n4_outcome_target_binding") != expected_binding:
@@ -2031,8 +2130,10 @@ def _recompute_s10(
     )
     record = result.get("forecast_calibration_record")
     support = result.get("forecast_support")
-    if record is None or support is None:
+    if support is None or (evidence.empirical_observations_available and record is None):
         raise PredictiveCalibrationError("predictive_calibration_s10_record_missing")
+    if not evidence.empirical_observations_available and record is not None:
+        raise PredictiveCalibrationError("predictive_calibration_unavailable_observations_claimed")
     return _s10_summary_from_owner(record, support)
 
 

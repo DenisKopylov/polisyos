@@ -398,3 +398,24 @@ binds reads to the exact owner row and canonical profile, and returns the same
 strict DTO type. References carried inside reports and certificates are
 preserved as typed payload data; the owner does not enumerate resource IDs or
 claim those resources exist.
+
+## Native backtest reads
+
+`load_backtest_report` refuses selected native trajectory reports because IR
+cannot verify their Foundry execution. `load_backtest_report_candidate` admits
+the typed report bytes for a higher-layer verifier; it is not an authority or
+prediction-verification result. Scientist's guarded report reader performs the
+native trajectory and workflow checks before its consumers use the report.
+
+## Learned dynamic decision profiles
+
+`DynamicTreatmentRegime` 1.1 binds a versioned Q feature-layout profile, the
+covariate dimension and every stage's full finite weights/intercept. It uses the
+existing `LINEAR_BLIP` rule; the profile distinguishes action-only models from
+action × current-covariate models. The existing owner validates and persists
+manifest/payload 1.1 together. Versionless manifest 1.0 artifacts remain
+readable through an explicit backward route and retain their original wire when
+written; they acquire no learned-rule guarantee. A historical `linear_blip`
+without a selected model profile is readable but cannot be executed as an
+invented constant policy. The artifact records a program, not evidence of its
+optimality or causal authority.

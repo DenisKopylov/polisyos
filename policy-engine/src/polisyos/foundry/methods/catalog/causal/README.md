@@ -11,6 +11,19 @@ catalog family, not a public subsystem facade: stable access flows through
 method registration, the exported causal names in `__init__.py`, and the
 broader `polisyos.foundry.methods` facade.
 
+Temporal `CausalEngine` results retain the legacy `effect_bundle_artifact_id` and
+also carry `effect_bundle_artifact_ref`, the exact selected profile returned by
+the producer's bundle write. Fresh consumers should use that full reference and
+preserve the selected profiles of its child references. This is persistence and
+replay evidence, not proof that the estimated trajectory is causally valid.
+Temporal benchmarks use the existing Core-to-IR store adapter and withhold public
+claim eligibility when any registered case or required acceptance check fails;
+smoke mode does not turn an execution error or numerical failure into a pass.
+Scientist's causal-contract compiler keeps the DTR estimator and temporal backend
+selections separate, resolves the producer-selected bundle before aggregate
+publication, and retains selected profiles in the execution entry and aggregate
+lineage. An ID-only legacy producer result cannot establish that trajectory link.
+
 ## Role in System
 
 - **Depends on:** `polisyos.foundry.methods`, `polisyos.ir.analytics.causal`
@@ -205,6 +218,12 @@ These adapter behaviors do not establish causal identification, external
 validity, scientific qualification, calibration, or publication authority.
 
 ### HTE observational input admission
+
+`polisyos.foundry.methods.catalog.causal.build_hte_data` delegates to the
+existing typed HTE observational adapter, preserving its input validation and
+array conversions. It constructs method inputs and confers no source,
+causal-identification, or publication authority.
+
 
 `polisyos.foundry.data_plane.prepare_hte_observational_input` is the Foundry
 owner for two explicit source protocols: a selected-profile
@@ -574,3 +593,20 @@ This is candidate sensitivity over the explicitly selected finite member family.
 does not turn a PAG or CPDAG into a direct scalar graph, assign probabilities to members,
 or promote candidate outcomes into transport authority. A caller verifies selected-profile
 CAS references and persists admitted members before invoking the helper.
+
+### Learned dynamic policy preservation
+
+Q-learning and DR-DTR retain every fitted float64 Q model in the existing
+`DynamicTreatmentRegime` 1.1 artifact. The selected `linear_q_action.v1` or
+`linear_q_current_interactions.v1` profile specifies the history/action feature
+order. G-computation replays both full predictions and selects action one only
+when `Q(1) > Q(0)`, including the producer's floating-point tie behavior. A
+treated-cohort median or majority is not a substitute for that policy.
+
+A-learning retains each stage's actual constant action as an explicit schedule.
+OWL currently has no typed SVC policy representation: its finite learning value
+remains a candidate diagnostic, while its report is `assumption_failed` and has
+no executable `DTRResult`. Historical unbound `linear_blip`, unknown profiles,
+missing stages and incompatible dimensions refuse execution. These checks
+preserve the learned rule; they do not establish optimality, causal identification
+or the adequacy of fitted state-transition models.

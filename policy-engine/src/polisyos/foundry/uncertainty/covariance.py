@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Mapping
+from numbers import Integral, Real
 
 import jax.numpy as jnp
 import numpy as np
@@ -22,6 +23,55 @@ _SINGULAR_SYMMETRY_RTOL = 1e-5
 _SINGULAR_SYMMETRY_ATOL = 1e-6
 _SINGULAR_PSD_SCALE_RTOL = 1e-10
 _COVARIANCE_VALIDATION_DTYPE = np.dtype(np.float64)
+
+
+def _real_float64(values: object) -> np.ndarray:
+    """Own finite real values without erasing their domain or numeric support."""
+    # Retain container elements before mixed-list promotion can round a large
+    # integer beside a float. Native arrays already declare their storage law.
+    original = (
+        np.asarray(values) if isinstance(values, np.ndarray) else np.asarray(values, dtype=object)
+    )
+    if original.dtype.kind not in "biuf" and not (
+        original.dtype.kind == "O" and all(isinstance(value, Real) for value in original.flat)
+    ):
+        raise ValueError("sampling coordinates and masses require real numeric values")
+    try:
+        with np.errstate(over="ignore", under="ignore", invalid="ignore"):
+            converted = np.asarray(original, dtype=np.float64)
+    except (TypeError, ValueError, OverflowError) as error:
+        raise ValueError("sampling values must be representable as finite float64") from error
+    if not np.all(np.isfinite(converted)) or np.any((original != 0) & (converted == 0)):
+        raise ValueError("sampling support cannot collapse during float64 conversion")
+    if original.dtype.kind == "O":
+        unchanged = all(
+            (int(value) if isinstance(value, Integral) else value) == float(converted_value)
+            for value, converted_value in zip(original.flat, converted.flat, strict=True)
+        )
+    else:
+        try:
+            with np.errstate(over="raise", invalid="raise"):
+                restored = converted.astype(original.dtype, copy=False)
+        except FloatingPointError as error:
+            raise ValueError("sampling support cannot change during float64 conversion") from error
+        unchanged = np.array_equal(original, restored)
+    if not unchanged:
+        raise ValueError("sampling support cannot change during float64 conversion")
+    return converted.copy()
+
+
+def _float32_covariance(values: object) -> jnp.ndarray:
+    """Admit the actual float32 device profile before narrowing a covariance."""
+    covariance = _real_float64(values)
+    limits = np.finfo(np.float32)
+    # CPU JAX arithmetic flushes subnormal operands even when storage retains
+    # them. Do not impose that CPU-only restriction on other selected devices.
+    platform = jnp.asarray(0.0, dtype=jnp.float32).device.platform
+    lower = limits.tiny if platform == "cpu" else limits.smallest_subnormal
+    magnitudes = np.abs(covariance)
+    if np.any(magnitudes > limits.max) or np.any((magnitudes != 0.0) & (magnitudes < lower)):
+        raise ValueError("covariance exceeds the selected finite float32 backend range")
+    return jnp.asarray(covariance, dtype=jnp.float32)
 
 
 def extract_std(env: UncertaintyEnvelope) -> float:
@@ -105,9 +155,13 @@ def build_covariance_matrix(
             or declared_std < 0
         ):
             raise ValueError(f"declared std is invalid for parameter {name!r}")
-        marginal_stds.append(float(declared_std))
-    stds = jnp.asarray(marginal_stds, dtype=jnp.float32)
-    diag_cov = jnp.diag(stds**2)
+        marginal_stds.append(declared_std)
+    stds = _real_float64(marginal_stds)
+    with np.errstate(over="ignore", under="ignore", invalid="ignore"):
+        variances = np.square(stds)
+    if not np.all(np.isfinite(variances)) or np.any((stds != 0.0) & (variances == 0.0)):
+        raise ValueError("marginal variance exceeds the selected float32 backend range")
+    diagonal = np.diag(variances)
 
     if not use_full_covariance:
         if any(
@@ -116,7 +170,7 @@ def build_covariance_matrix(
             for name in param_names
         ):
             raise ValueError("diagonal mode cannot ignore a declared covariance")
-        return diag_cov
+        return _float32_covariance(diagonal)
 
     rows: list[list[float]] = []
     expected_params: list[str] | None = None
@@ -133,7 +187,7 @@ def build_covariance_matrix(
         if not isinstance(row, list):
             if has_covariance_metadata:
                 raise ValueError(f"covariance row is missing for parameter {name!r}")
-            return diag_cov
+            return _float32_covariance(diagonal)
         if not all(isinstance(item, (int, float)) and not isinstance(item, bool) for item in row):
             raise ValueError(f"covariance row is not numeric for parameter {name!r}")
         if len(row) != len(param_names):
@@ -151,7 +205,7 @@ def build_covariance_matrix(
                 raise ValueError("covariance_params must use one common column ordering")
         else:
             saw_undeclared_params = True
-        rows.append([float(v) for v in row])
+        rows.append(list(row))
 
     if saw_undeclared_params:
         raise ValueError("covariance_params must be declared for every covariance row")
@@ -160,20 +214,19 @@ def build_covariance_matrix(
         if set(expected_params) != set(param_names):
             raise ValueError("covariance_params must cover exactly the requested parameters")
         reorder_idx = [expected_params.index(name) for name in param_names]
-        covariance_values = np.asarray(rows, dtype=_COVARIANCE_VALIDATION_DTYPE)
+        covariance_values = _real_float64(rows)
         # Every row belongs to the envelope that supplied it.  Only the
         # declared columns need moving into the requested parameter order;
         # moving rows as well changes row ownership and can manufacture a
         # covariance matrix that no producer emitted.
         covariance_values = covariance_values[:, reorder_idx]
     else:
-        covariance_values = np.asarray(rows, dtype=_COVARIANCE_VALIDATION_DTYPE)
+        covariance_values = _real_float64(rows)
 
-    if covariance_values.shape != tuple(diag_cov.shape):
+    if covariance_values.shape != diagonal.shape:
         raise ValueError("covariance matrix has the wrong dimension")
 
     covariance = covariance_values
-    diagonal = np.diag(np.square(np.asarray(marginal_stds, dtype=_COVARIANCE_VALIDATION_DTYPE)))
     if not np.all(np.isfinite(covariance)):
         raise ValueError("covariance matrix must contain finite values")
     if not np.allclose(
@@ -198,7 +251,7 @@ def build_covariance_matrix(
 
     if not np.all(np.isfinite(covariance)):
         raise ValueError("covariance matrix must contain finite values")
-    return jnp.asarray(covariance, dtype=jnp.float32)
+    return _float32_covariance(covariance)
 
 
 def preserve_singular_covariance(

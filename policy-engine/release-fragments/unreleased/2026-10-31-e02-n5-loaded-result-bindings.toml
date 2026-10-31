@@ -1,0 +1,15 @@
+id = "2026-10-31-e02-n5-loaded-result-bindings"
+title = "Reconcile persisted N5 engine and observation bindings before consumption"
+type = "fixed"
+component = "runtime-quality"
+owner = "team-runtime"
+summary = "Reconcile selected N5 engine/receipt/trajectory identity and consumer sibling hashes; sign fresh state-consumption payloads through the complete existing typed projection, while preserving historical signed bytes and ordinary/generic request dispatch and typed access denials through physical-work recording."
+evidence = ["src/polisyos/runtime/quality/generation_cycle.py", "src/polisyos/runtime/quality/joint_simulation_horizon.py", "tests/unit/remediation/test_cyc_02.py", "tests/unit/runtime/quality/test_joint_simulation_horizon.py"]
+compatibility = "The loader adds an optional expected receipt hash; existing unbound reads remain supported. Consumer joins refuse missing/conflicting sibling hashes and internally inconsistent signed numerical artifacts. No artifact schema or authority upgrade."
+change_class = "internal-api"
+surface_classification = "Existing Runtime quality helper; backward-compatible optional loader argument."
+migration = "No stored-data migration. Regenerate affected public signature metadata at the shared composition freeze."
+limitations = "Candidate consistency only; this does not authenticate production provenance, calibrate K_world, or grant promotion. Eligible EvalSafety execution is not established by the candidate N8 witness. No G acceptance or closure."
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

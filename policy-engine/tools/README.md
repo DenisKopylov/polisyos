@@ -18,11 +18,40 @@ initializer only when its source matches those selected bytes. A mismatch may
 still run as candidate work, without producing qualifying execution evidence.
 The host uses the checkout's existing `.venv`; tests and non-Python data are
 outside this source selection.
+Module subclasses can be retained when their class hierarchy and callable
+surfaces are bound in selected initializer namespaces. The recorder reads their
+module dictionaries without invoking subclass getters, and refuses unbound
+classes or unsupported mutable class and callable state. This does not prove
+which class-construction provider produced a class: a substituted empty class
+with matching module metadata can remain structurally bound. The retained
+diagnostic therefore does not establish class construction provenance, lazy
+export resolution, or provider state through a protected operation.
+In the selected environment, pytest's default assertion-rewriting finder changes
+its session state and causes the capture to fail closed. A Protocol control with
+`--assert=plain --noconftest` can collect evidence, but does not qualify the
+default profile.
+For installed Python providers encountered by normal imports, the host may
+download the corresponding wheel named in the committed `uv.lock` into memory
+and compare its locked digest, metadata, and source member with installed bytes.
+Downloads are bounded; unavailable, ambiguous, modified, or unsupported inputs
+remain unqualified and imports can continue as candidate work. This check does
+not install or persist wheels, qualify native extensions, or establish a complete
+dependency profile. Reentrant or concurrent imports during selection and mutable
+installer or finder state remain unqualified. `diagnose` reports the selected and
+refused module counts. The checkout's selected `.venv` may point to an existing
+environment; a provider member reached through an additional symlink is refused.
+The unified tools dispatcher offers the host another diagnostic handoff after
+a preflight lookup or tool import has loaded the ledger. An unavailable or
+unverified handoff leaves the command in the candidate band.
 The shell supplies a minimal environment, so configurations needed by services
 must be admitted separately. A recorder or diagnostic alone does not establish
 N9 authority: provider, decision-state, currentness, and protected-use premises
 remain the confidence ledger's responsibility. Direct console scripts and
 module invocations remain candidate routes until they use the early host.
+After the target returns and its output is flushed, the host closes the capture,
+releases its live execution holds, and restores its own import hooks. A closed or
+failed capture cannot support a later authority decision or be restarted in the
+same process. An in-progress initializer prevents closing.
 
 ## Where to Start
 
@@ -126,6 +155,12 @@ The commands below were smoke-tested on `2026-04-17` unless explicitly marked as
 - [CI/CD Platform How-To](../docs/how-to/operate-ci-cd-platform.md)
 
 ## Current State
+
+- Native filesystem-confined probes keep ordinary output writes inside one fresh
+  external scratch root. The macOS fence also allows data I/O to the kernel
+  `/dev/null` discard sink, which native read-only Git requires. This allowance
+  grants no file creation, rename or unlink outside scratch; checkout, outside
+  files and symlink-mediated writes remain protected. Linux confinement is unchanged.
 
 - `tools/registry.py` still emits generic generated wording that the legacy
   wrappers sunset on 2026-09-01. At the inspected tree,

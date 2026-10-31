@@ -593,3 +593,20 @@ This is candidate sensitivity over the explicitly selected finite member family.
 does not turn a PAG or CPDAG into a direct scalar graph, assign probabilities to members,
 or promote candidate outcomes into transport authority. A caller verifies selected-profile
 CAS references and persists admitted members before invoking the helper.
+
+### Learned dynamic policy preservation
+
+Q-learning and DR-DTR retain every fitted float64 Q model in the existing
+`DynamicTreatmentRegime` 1.1 artifact. The selected `linear_q_action.v1` or
+`linear_q_current_interactions.v1` profile specifies the history/action feature
+order. G-computation replays both full predictions and selects action one only
+when `Q(1) > Q(0)`, including the producer's floating-point tie behavior. A
+treated-cohort median or majority is not a substitute for that policy.
+
+A-learning retains each stage's actual constant action as an explicit schedule.
+OWL currently has no typed SVC policy representation: its finite learning value
+remains a candidate diagnostic, while its report is `assumption_failed` and has
+no executable `DTRResult`. Historical unbound `linear_blip`, unknown profiles,
+missing stages and incompatible dimensions refuse execution. These checks
+preserve the learned rule; they do not establish optimality, causal identification
+or the adequacy of fitted state-transition models.

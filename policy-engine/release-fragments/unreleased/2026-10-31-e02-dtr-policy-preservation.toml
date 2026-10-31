@@ -1,0 +1,17 @@
+id = "2026-10-31-e02-dtr-policy-preservation"
+title = "Preserve actual per-stage learned DTR decisions"
+type = "fixed"
+component = "foundry"
+owner = "E02"
+summary = "Q-learning and DR-DTR retain full stage models in a versioned regime profile; g-computation replays their selected feature layout and strict Q prediction comparison. A-learning keeps its actual stage schedule. Unsupported OWL projection no longer fabricates a majority-constant policy."
+evidence = ["tests/unit/foundry/methods/catalog/causal/test_dtr_policy_preservation.py", "tests/unit/foundry/methods/catalog/causal/test_dtr.py", "tests/unit/ir/analytics/test_phase_c_contracts.py", "tests/unit/ir/mirror_contracts/test_owned_dynamic_evidence_families.py"]
+compatibility = "DynamicTreatmentRegime 1.1 adds finite stage models and an explicit decision profile. Versionless manifest 1.0 remains readable and writable through its historical representation. Historical unbound LINEAR_BLIP and unknown rules refuse execution instead of silently treating all units."
+change_class = "persisted-artifact-format"
+surface_classification = "public_stable: existing DynamicTreatmentRegime DTO and persistence functions; versioned learned-rule profile"
+api = "The existing DynamicTreatmentRegime contract carries selected float64 Q layout, dimensions and all stage coefficients. OWL returns an assumption_failed report with candidate-only learning metadata until an executable SVC representation exists."
+migration = "New learned Q regimes use manifest/payload 1.1. Historical artifacts remain historical; do not infer learned policy correspondence from legacy coefficients or cohort majorities."
+limitations = "Policy preservation does not establish optimality, causal identification, state-transition model adequacy, production applicability, or E02/G closure. Typed SVC decision-rule transport remains unsupported."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/foundry/methods/catalog/causal/README.md", "src/polisyos/ir/analytics/README.md"]
+runbook_docs = []

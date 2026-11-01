@@ -1341,16 +1341,21 @@
           "output": "policy-engine/_cache/e02/lane06-foundation-composed",
           "result": "239 PASS in21.63s; peak sampled process-tree1.404GiB; ten named source/test inputs unchanged",
           "scope": "Composed local family regressions for six packets; not full E02-I06 scenarios or all75 local TEST contracts."
+        },
+        {
+          "output": "policy-engine/_cache/e02/lane06-can3-native-dispatch-r3/",
+          "result": "3 PASS,14.39s,1.362GB RSS;17 named inputs unchanged",
+          "scope": "Actual registered MethodDispatcher→NumPyRunner→pure_step→enrolled .3 bundle→fresh selected reader; strengthened budget and callback refusal reasons both executed. Candidate-only unsigned ownership-disabled fixture profile."
         }
       ],
       "blockers": [
-        "Installed distribution and actual production historical corpus are not established. Enrolled .3 software checks use unsigned ownership-disabled fixture storage, not custody or native method-execution evidence. Full I06-E remains NOT_RUN."
+        "Shared noneditable installed I06-E remains; finite Git-owned corpus does not establish a production historical/plugin corpus. No new source mechanism or CAN.3 negative check remains unrun."
       ],
       "deferred_ids": [],
       "execution_profile": {
         "test_slot": "released; relevant sources frozen through composition",
         "source_scope": "Only leased paths; root owns index/commits/refs/generated families and imported working state. Read-only analysis of downstream packets allowed; no second active lane.",
-        "independent_review": "GO for the described local slice; no G or whole-packet acceptance",
+        "independent_review": "GO for final c802feea test hash and source-bound native3 PASS; no G acceptance.",
         "delegate_limit": "At most one read-only child; explicit allowed model; grandchild is leaf."
       },
       "requirement_results": [
@@ -1370,7 +1375,7 @@
           "requirement_id": "REQ-CAN-01-03",
           "test_id": "TEST-CAN-01-03",
           "status": "PARTIAL",
-          "basis": "Real sync/async selected CAS paths and bounded enrolled .3 software controls passed; enrolled storage is unsigned/ownership-disabled. Installed/scoped custody claims remain open."
+          "basis": "Actual enrolled .3 native method dispatch, producer/bundle/fresh selected reader and exact budget/callback refusals pass. The candidate fixture profile is unsigned/ownership-disabled; shared installed compatibility remains separate."
         }
       ]
     },

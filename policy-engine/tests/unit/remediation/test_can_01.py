@@ -402,3 +402,180 @@ def test_explicit_sha1_keeps_deprecated_legacy_hash_identity(module: ModuleType)
         observed = module.content_hash(payload, algorithm="sha1", prefix=True)
 
     assert observed == f"sha1:{expected}"
+
+
+@pytest.mark.parametrize("payload_case", ["literal", "overbudget", "callback"])
+def test_enrolled_v3_actual_numpy_method_dispatch_and_fresh_selected_consumer(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, payload_case: str
+) -> None:
+    """A real dispatcher produces the bounded sidecar; fixture policy stays candidate-only."""
+    from pydantic import BaseModel, model_serializer
+
+    from polisyos.core.artifacts import (
+        artifact_ref_for_manifest,
+        validate_core_model_json_artifact,
+    )
+    from polisyos.core.contracts.foundry import MethodExecutionBundle
+    from polisyos.foundry.contracts.state import GlobalState
+    from polisyos.foundry.execute import read_method_artifact_output_bounded
+    from polisyos.foundry.execute._internal.graph import (
+        execute_program_graph,
+        new_method_execution_capture,
+    )
+    from polisyos.foundry.execute._internal.models import ExecutionStrictness
+    from polisyos.foundry.methods.exceptions import MethodNotFoundError
+    from polisyos.foundry.methods.registry import MethodRegistry
+    from polisyos.ir.kernel import (
+        DEFAULT_MECHANISM_REGISTRY,
+        DEFAULT_MERGE_RULE_REGISTRY,
+        DEFAULT_SLOT_REGISTRY,
+    )
+    from tests._helpers.method_artifact_writer import local_store, raw_identity
+    from tests.unit.foundry.runtime.test_method_metric_capture import (
+        _make_graph_and_plan,
+        _ReturnsMetricScalar,
+    )
+
+    monkeypatch.setenv("POLISYOS_HPC_OBSERVABILITY_ENABLED", "false")
+    callback_events = []
+    dispatch_events = []
+
+    class CallbackPayload(BaseModel):
+        value: int = 7
+
+        @model_serializer
+        def serialize(self):
+            callback_events.append("serializer")
+            return {"value": self.value}
+
+    expected = {
+        "_type": "decimal",
+        "value": "literal, not an admitted Decimal",
+        "nested": [None, True, 1, 1.25, {"_type": "unknown", "value": 3}],
+    }
+    if payload_case == "literal":
+        raw = expected
+    elif payload_case == "overbudget":
+        raw = {"value": "x" * 65536}
+    else:
+        raw = {"value": CallbackPayload()}
+
+    class NativeSidecarMethod(_ReturnsMetricScalar):
+        @staticmethod
+        def pure_step(state, params):
+            del state, params
+            dispatch_events.append("real_numpy_pure_step")
+            return {"result": 0.25, "__numpy_artifacts__": {"can3_native": raw}}
+
+    registry = MethodRegistry.get_instance()
+    try:
+        prior_method = registry.get(NativeSidecarMethod.signature.fqn)
+    except MethodNotFoundError:
+        prior_method = None
+    registry.register(NativeSidecarMethod, override=True)
+    root = tmp_path / "enrolled-local-cas"
+    # This is precisely the accepted local primitive profile: no ownership or
+    # signing callbacks. It does not enroll scoped custody or stock .3 writers.
+    store = local_store(root)
+    try:
+        graph_ref, plan_ref = _make_graph_and_plan(store)
+        capture = new_method_execution_capture(
+            store,
+            program_ref=graph_ref,
+            exec_plan_ref=plan_ref,
+            artifact_output_codec="bounded_v3",
+        )
+        assert capture is not None
+        result = execute_program_graph(
+            store,
+            program_ref=graph_ref,
+            exec_plan_ref=plan_ref,
+            base_state=GlobalState.empty(n_agents=1, n_firms=1),
+            mechanism_registry=DEFAULT_MECHANISM_REGISTRY,
+            slot_registry=DEFAULT_SLOT_REGISTRY,
+            merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+            strictness=ExecutionStrictness.RESEARCH,
+            method_execution_capture=capture,
+        )
+    finally:
+        registry.unregister(NativeSidecarMethod.signature.fqn)
+        if prior_method is not None:
+            registry.register(prior_method, override=True)
+    assert dispatch_events == ["real_numpy_pure_step"]
+    assert callback_events == []
+    assert not result.failure_cards
+    assert result.method_execution_bundle_ref is not None
+    bundle = validate_core_model_json_artifact(
+        MethodExecutionBundle, store, result.method_execution_bundle_ref
+    )
+    (occurrence,) = bundle.occurrences
+    assert occurrence.status == "succeeded"
+    assert occurrence.dispatch.outcome == "succeeded"
+    assert occurrence.dispatch.actual_backend == "numpy"
+    (sidecar,) = [row for row in occurrence.artifacts if row.artifact_key == "can3_native"]
+    if payload_case != "literal":
+        assert sidecar.status == "unavailable"
+        assert sidecar.artifact_ref is None
+        expected_reason = (
+            "canonical_wire_bytes_exceeded"
+            if payload_case == "overbudget"
+            else "canonical_bounded_projection_required"
+        )
+        assert sidecar.limitation == f"method_artifact_capture_failed:{expected_reason}"
+        # Full denominator: every durable artifact in this owned temporary CAS.
+        # Other genuine backend sidecars may publish, but the refused key may not.
+        for artifact_id in store.iter_artifact_ids():
+            persisted = store.get_manifest(artifact_id)
+            if persisted.kind == "foundry.method_artifact_output":
+                persisted_ref = artifact_ref_for_manifest(persisted)
+                actual = read_method_artifact_output_bounded(
+                    store, persisted_ref, max_bytes=65536
+                ).value
+                assert actual["artifact_key"] != "can3_native"
+        return
+    assert sidecar.status == "captured"
+    ref = sidecar.artifact_ref
+    assert ref is not None and ref.manifest_profile_sha256 is not None
+    manifest = store.get_manifest(ref)
+    assert manifest.canon.version == "0.3.0"
+    assert manifest.producer.component == "foundry.execute.method_artifact_output"
+    assert hashlib.sha256(store.get_bytes(ref)).hexdigest() == ref.artifact_id.hex
+    assert raw_identity(
+        read_method_artifact_output_bounded(store, ref, max_bytes=65536).value["payload"]
+    ) == raw_identity(expected)
+    child = r"""
+import hashlib, json, sys
+from pathlib import Path
+from polisyos.core.artifacts import ArtifactRef, FileSystemCAS, validate_core_model_json_artifact
+from polisyos.core.contracts.foundry import MethodArtifactOutputRef, MethodExecutionBundle
+from polisyos.foundry.execute import read_method_artifact_output_bounded
+store = FileSystemCAS.open_existing_read_only(Path(sys.argv[1]))
+ref = MethodArtifactOutputRef.model_validate_json(sys.argv[2])
+bundle_ref = ArtifactRef.model_validate_json(sys.argv[3])
+bundle = validate_core_model_json_artifact(MethodExecutionBundle, store, bundle_ref)
+(row,) = [row for item in bundle.occurrences for row in item.artifacts
+          if row.artifact_key == "can3_native"]
+assert row.status == "captured" and row.artifact_ref == ref
+read = read_method_artifact_output_bounded(store, ref, max_bytes=65536)
+assert read.profile_read.reader_policy_id == "core-tag-policy@2"
+assert store.get_manifest(ref).canon.version == "0.3.0"
+assert hashlib.sha256(store.get_bytes(ref)).hexdigest() == ref.artifact_id.hex
+print(json.dumps(read.value["payload"], sort_keys=True))
+"""
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "-B",
+            "-c",
+            child,
+            str(root),
+            ref.model_dump_json(),
+            result.method_execution_bundle_ref.model_dump_json(),
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    assert completed.returncode == 0, completed.stderr or completed.stdout
+    assert raw_identity(json.loads(completed.stdout)) == raw_identity(expected)

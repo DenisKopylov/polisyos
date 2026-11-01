@@ -3,14 +3,18 @@
 from __future__ import annotations
 
 import pytest
+from pydantic import BaseModel
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.orchestration.engine.state_merge import (
+    _MISSING,
     MergeConflictPolicy,
     StateReplayIncompatible,
+    _get_path,
+    _state_paths_may_overlap,
     merge_parallel_outcomes,
 )
 
@@ -31,6 +35,130 @@ def _artifact_ref(tag: str = "a") -> ArtifactRef:
         kind="test.ref",
         media_type="application/json",
     )
+
+
+def test_model_path_lookup_never_evaluates_undeclared_properties():
+    """Declared state reads cannot invoke a model's computed property."""
+    calls = []
+
+    class ModelWithProperty(BaseModel):
+        value: int = 3
+
+        @property
+        def computed(self) -> int:
+            calls.append("called")
+            return 4
+
+    root = ModelWithProperty()
+    assert _get_path(root, ("value",)) == 3
+    assert _get_path(root, ("computed",)) is _MISSING
+    assert calls == []
+
+
+def test_branch_isolation_does_not_read_undeclared_state_property():
+    calls = []
+
+    class StateWithProperty(ExperimentState):
+        @property
+        def computed(self) -> int:
+            calls.append("called")
+            return 4
+
+    branch_state(StateWithProperty(run_id="property"), write_paths=("computed",))
+    assert calls == []
+
+
+def test_state_path_comparison_detects_cross_parent_shared_descendant(base_state):
+    shared = {"value": "initial"}
+    params = {"left": {"child": shared}, "right": {"child": shared}}
+    root = base_state.model_copy(update={"params": params})
+    assert _state_paths_may_overlap(
+        root, ("params", "left", "child", "value"), ("params", "right", "child", "value")
+    )
+    assert not _state_paths_may_overlap(
+        root, ("params", "left", "other"), ("params", "right", "new")
+    )
+
+
+def test_state_path_comparison_conservatively_limits_large_or_unknown_graphs(base_state):
+    root = base_state.model_copy(update={"params": {"large": list(range(10_001)), "other": []}})
+    assert _state_paths_may_overlap(root, ("params", "large"), ("params", "other"))
+    assert _state_paths_may_overlap(root, ("params", "missing", "child"), ("params", "other"))
+
+
+def test_declared_list_slots_commit_independently_from_real_journals(base_state):
+    """Single-index journal operations stay within their declared slots."""
+    source = base_state.model_copy(update={"params": {"items": ["first", "second"]}})
+    a = branch_state(source, write_paths=("params.items.0",), enforce_write_scope=True)
+    b = branch_state(source, write_paths=("params.items.1",), enforce_write_scope=True)
+    a.state.params["items"][0] = "from-a"
+    b.state.params["items"][1] = "from-b"
+
+    result = merge_parallel_outcomes(
+        source,
+        {"a": _ok_outcome(a.state), "b": _ok_outcome(b.state)},
+        {"a": ["params.items.0"], "b": ["params.items.1"]},
+    )
+    assert result.applied is True
+    assert result.state.params["items"] == ["from-a", "from-b"]
+    assert source.params["items"] == ["first", "second"]
+
+
+def test_unrestricted_journal_replays_a_declared_list_slot(base_state):
+    """Isolate journal selection from the stricter producer admission check."""
+    source = base_state.model_copy(update={"params": {"items": ["first", "second"]}})
+    branch = branch_state(source, write_paths=("params.items.0",))
+    branch.state.params["items"][0] = "from-a"
+    result = merge_parallel_outcomes(
+        source,
+        {"a": _ok_outcome(branch.state)},
+        {"a": ["params.items.0"]},
+    )
+    assert result.applied is True
+    assert result.state.params["items"] == ["from-a", "second"]
+    assert source.params["items"] == ["first", "second"]
+
+
+def test_unrestricted_journals_detect_alias_conflict(base_state):
+    source = base_state.model_copy(update={"params": {"items": ["original"]}})
+    a = branch_state(source, write_paths=("params.items.0",))
+    b = branch_state(source, write_paths=("params.items.00",))
+    a.state.params["items"][0] = "from-a"
+    b.state.params["items"][0] = "from-b"
+    result = merge_parallel_outcomes(
+        source,
+        {"a": _ok_outcome(a.state), "b": _ok_outcome(b.state)},
+        {"a": ["params.items.0"], "b": ["params.items.00"]},
+    )
+    assert result.applied is False
+    assert result.state.params["items"] == ["original"]
+    assert len(result.conflicts) == 1
+
+
+@pytest.mark.parametrize("alias", ["00", "+0", "-1"])
+def test_equivalent_declared_list_slots_conflict_atomically(base_state, alias):
+    source = base_state.model_copy(update={"params": {"items": ["original"]}})
+    a = branch_state(source, write_paths=("params.items.0",), enforce_write_scope=True)
+    b = branch_state(source, write_paths=(f"params.items.{alias}",), enforce_write_scope=True)
+    a.state.params["items"][0] = "from-a"
+    b.state.params["items"][0] = "from-b"
+
+    result = merge_parallel_outcomes(
+        source,
+        {"a": _ok_outcome(a.state), "b": _ok_outcome(b.state)},
+        {"a": ["params.items.0"], "b": [f"params.items.{alias}"]},
+    )
+    assert result.applied is False
+    assert result.state.params["items"] == ["original"]
+    assert len(result.conflicts) == 1
+
+
+def test_declared_list_slot_does_not_authorize_structural_mutation(base_state):
+    source = base_state.model_copy(update={"params": {"items": ["first", "second"]}})
+    branch = branch_state(source, write_paths=("params.items.0",), enforce_write_scope=True)
+    with pytest.raises(ValueError, match="undeclared state_writes"):
+        del branch.state.params["items"][0]
+    assert source.params["items"] == ["first", "second"]
 
 
 # ---------------------------------------------------------------------------

@@ -18,12 +18,20 @@ from polisyos.core.artifacts import ArtifactRef
 from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import (
+    _MISSING as _BRANCHING_MISSING,
+)
+from polisyos.scientist.orchestration.engine.state_branching import (
     StateMutation,
     StateMutationJournal,
     StateMutationTargetKind,
     StateMutationTargetPresence,
+    _state_path_contains,
+    _state_paths_may_overlap,
     branch_state,
     mutation_journal_for_state,
+)
+from polisyos.scientist.orchestration.engine.state_branching import (
+    _get_path as _branching_get_path,
 )
 
 _MISSING = object()
@@ -129,6 +137,7 @@ def merge_parallel_outcomes(
     )
     accepted, conflicts, resolved_conflicts = _resolve_conflicts(
         staged,
+        base_state=base_state,
         conflict_policy=conflict_policy,
     )
     if conflicts:
@@ -243,6 +252,7 @@ def _writes_for_spec(
     if mutation_journal is not None:
         return _writes_from_mutations(
             alias=alias,
+            base_state=base_state,
             write_parts=parts,
             mutations=mutation_journal.operations,
         )
@@ -285,17 +295,14 @@ def _writes_for_spec(
 def _writes_from_mutations(
     *,
     alias: str,
+    base_state: ExperimentState,
     write_parts: tuple[str, ...],
     mutations: list[StateMutation],
 ) -> list[_StagedWrite]:
     staged: list[_StagedWrite] = []
     for ordinal, mutation in enumerate(mutations):
         parts = tuple(part for part in mutation.path.split(".") if part)
-        if (
-            not parts
-            or not _paths_overlap(write_parts, parts)
-            or not _path_contains(write_parts, parts)
-        ):
+        if not parts or not _mutation_is_declared(base_state, write_parts, mutation):
             continue
         staged.append(
             _StagedWrite(
@@ -317,6 +324,22 @@ def _writes_from_mutations(
     return staged
 
 
+def _mutation_is_declared(
+    root: ExperimentState, write_parts: tuple[str, ...], mutation: StateMutation
+) -> bool:
+    """Authorize the slot of an index assignment; shape changes own the list."""
+    parts = tuple(part for part in mutation.path.split(".") if part)
+    if mutation.operation == "set_index" and mutation.index is not None:
+        parts = (*parts, str(mutation.index))
+    return bool(parts) and _state_path_contains(root, write_parts, parts)
+
+
+def _write_target_parts(write: _StagedWrite) -> tuple[str, ...]:
+    if write.operation == "set_index" and write.index is not None:
+        return (*write.parts, str(write.index))
+    return write.parts
+
+
 def _restore_mutation_value(mutation: StateMutation) -> Any:
     if mutation.value_kind != "artifact_ref":
         return mutation.value
@@ -331,13 +354,10 @@ def _restore_mutation_value(mutation: StateMutation) -> Any:
         ) from exc
 
 
-def _path_contains(parent: tuple[str, ...], child: tuple[str, ...]) -> bool:
-    return len(parent) <= len(child) and parent == child[: len(parent)]
-
-
 def _resolve_conflicts(
     staged: list[_StagedWrite],
     *,
+    base_state: ExperimentState,
     conflict_policy: MergeConflictPolicy,
 ) -> tuple[list[_StagedWrite], list[MergeConflict], list[MergeConflict]]:
     accepted: list[_StagedWrite] = []
@@ -348,7 +368,10 @@ def _resolve_conflicts(
         overlapping = [
             existing
             for existing in accepted
-            if existing.alias != candidate.alias and _paths_overlap(existing.parts, candidate.parts)
+            if existing.alias != candidate.alias
+            and _state_paths_may_overlap(
+                base_state, _write_target_parts(existing), _write_target_parts(candidate)
+            )
         ]
         if not overlapping:
             accepted.append(candidate)
@@ -378,7 +401,9 @@ def _resolve_conflicts(
             for existing in accepted
             if not (
                 existing.alias != candidate.alias
-                and _paths_overlap(existing.parts, candidate.parts)
+                and _state_paths_may_overlap(
+                    base_state, _write_target_parts(existing), _write_target_parts(candidate)
+                )
             )
         ]
         accepted.append(candidate)
@@ -397,32 +422,9 @@ def _common_conflict_path(a: tuple[str, ...], b: tuple[str, ...]) -> str:
     return ".".join(a)
 
 
-def _paths_overlap(a: tuple[str, ...], b: tuple[str, ...]) -> bool:
-    shared = min(len(a), len(b))
-    return a[:shared] == b[:shared]
-
-
 def _get_path(root: Any, parts: tuple[str, ...]) -> Any:
-    current: Any = root
-    for part in parts:
-        if isinstance(current, BaseModel):
-            if not hasattr(current, part):
-                return _MISSING
-            current = getattr(current, part)
-            continue
-        if isinstance(current, dict):
-            if part not in current:
-                return _MISSING
-            current = current[part]
-            continue
-        if isinstance(current, list):
-            try:
-                current = current[int(part)]
-            except (IndexError, TypeError, ValueError):
-                return _MISSING
-            continue
-        return _MISSING
-    return current
+    value = _branching_get_path(root, parts)
+    return _MISSING if value is _BRANCHING_MISSING else value
 
 
 def _set_path(root: Any, parts: tuple[str, ...], value: Any) -> None:
@@ -433,7 +435,7 @@ def _set_path(root: Any, parts: tuple[str, ...], value: Any) -> None:
     current: Any = root
     for index, part in enumerate(parts[:-1]):
         if isinstance(current, BaseModel):
-            child = getattr(current, part, _MISSING)
+            child = _get_path(current, (part,))
             if child is _MISSING or child is None:
                 raise TypeError(f"Cannot descend through missing state path segment {part!r}")
             current = child
@@ -456,6 +458,8 @@ def _set_path(root: Any, parts: tuple[str, ...], value: Any) -> None:
 
 def _assign_value(root: Any, key: str, value: Any) -> None:
     if isinstance(root, BaseModel):
+        if key not in type(root).model_fields:
+            raise TypeError(f"Cannot assign undeclared model field {key!r}")
         setattr(root, key, value)
         return
     if isinstance(root, dict):

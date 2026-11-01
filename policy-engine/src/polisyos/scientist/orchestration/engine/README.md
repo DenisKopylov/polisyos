@@ -640,3 +640,9 @@ profile before publication; unsupported reserved tags or foreign paths refuse.
 The transport digest establishes integrity, independently of CAS access/tenant
 admission. Native process controls distinguish a completed producer whose
 outcome cannot be serialized from a new physical attempt.
+
+State branching scopes a list index assignment to its concrete slot while
+structural list operations require the containing list. Merge compares declared
+paths using model fields, exact mapping keys and the current list shape,
+conservatively treating unresolved or shared mutable targets as overlapping.
+State reads consult declared Pydantic fields without evaluating unrelated properties.

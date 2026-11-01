@@ -569,6 +569,189 @@ def test_exact_existing_descriptor_does_not_write_source_again(
         prepared.close()
 
 
+def test_retained_source_cold_warm_costs_disclose_measured_operations(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    record_testsuite_property: Callable[[str, object], None],
+) -> None:
+    """Measure one real source; counters cover named operations, not OS-wide I/O."""
+    from polisyos.data_forge.domains.academic.knowledge import skg_query
+
+    source = tmp_path / "measured-source.duckdb"
+    _seed(source, 1.25)
+    source_bytes = source.stat().st_size
+    source_sha256 = hashlib.sha256(source.read_bytes()).hexdigest()
+    store = FileSystemCAS(tmp_path / "measured-cas", ownership_enforced=False)
+    rows: list[dict[str, Any]] = []
+    operations: list[dict[str, Any]] = []
+    original_digest = skg_query._file_sha256
+    original_local_digest = skg_snapshot._require_local_file
+    original_copy = FileSystemCAS.copy_member_to
+    original_put = FileSystemCAS.put_bytes
+    original_materialize = skg_snapshot._materialize_loaded_retained_skg_snapshot
+
+    def measure_digest(path: Path) -> str:
+        started = _time.monotonic_ns()
+        result = original_digest(path)
+        elapsed = _time.monotonic_ns() - started
+        operations.append(
+            {
+                "operation": "prepared_source_digest",
+                "path": str(path),
+                "input_bytes": path.stat().st_size,
+                "sha256": result,
+                "elapsed_ns": elapsed,
+            }
+        )
+        return result
+
+    def measure_local_digest(path: Path, snapshot: Any) -> None:
+        started = _time.monotonic_ns()
+        original_local_digest(path, snapshot)
+        elapsed = _time.monotonic_ns() - started
+        operations.append(
+            {
+                "operation": "materialized_file_digest",
+                "path": str(path),
+                "input_bytes": snapshot.byte_size,
+                "sha256": snapshot.source_sha256,
+                "elapsed_ns": elapsed,
+            }
+        )
+
+    def measure_copy(target: FileSystemCAS, artifact_id: Any, member: Any, output: Any) -> Any:
+        started = _time.monotonic_ns()
+        receipt = original_copy(target, artifact_id, member, output)
+        elapsed = _time.monotonic_ns() - started
+        operations.append(
+            {
+                "operation": "verified_member_copy",
+                "artifact_ref": str(artifact_id),
+                "input_bytes": receipt.byte_size,
+                "sha256": receipt.sha256,
+                "elapsed_ns": elapsed,
+            }
+        )
+        return receipt
+
+    def measure_materialize(target: Any, snapshot: Any, *, directory: Path) -> Path:
+        started = _time.monotonic_ns()
+        result = original_materialize(target, snapshot, directory=directory)
+        elapsed = _time.monotonic_ns() - started
+        operations.append(
+            {
+                "operation": "materialize_retained_source",
+                "path": str(result),
+                "input_bytes": snapshot.byte_size,
+                "sha256": snapshot.source_sha256,
+                "elapsed_ns": elapsed,
+            }
+        )
+        return result
+
+    def measure_put(
+        target: FileSystemCAS,
+        data: bytes,
+        options: ArtifactWriteOptions,
+        *,
+        return_selected_profile: bool = False,
+    ) -> ArtifactRef:
+        started = _time.monotonic_ns()
+        ref = original_put(target, data, options, return_selected_profile=return_selected_profile)
+        elapsed = _time.monotonic_ns() - started
+        if options.kind == "scientist.skg_source_chunk":
+            operations.append(
+                {
+                    "operation": "source_chunk_write",
+                    "artifact_ref": str(ref),
+                    "input_bytes": len(data),
+                    "sha256": hashlib.sha256(data).hexdigest(),
+                    "elapsed_ns": elapsed,
+                }
+            )
+        return ref
+
+    monkeypatch.setattr(skg_query, "_file_sha256", measure_digest)
+    monkeypatch.setattr(skg_snapshot, "_require_local_file", measure_local_digest)
+    monkeypatch.setattr(
+        skg_snapshot, "_materialize_loaded_retained_skg_snapshot", measure_materialize
+    )
+    monkeypatch.setattr(FileSystemCAS, "copy_member_to", measure_copy)
+    monkeypatch.setattr(FileSystemCAS, "put_bytes", measure_put)
+
+    def finish_phase(phase: str, started_ns: int) -> None:
+        rows.append(
+            {
+                "phase": phase,
+                "elapsed_ns": _time.monotonic_ns() - started_ns,
+                "operations": list(operations),
+            }
+        )
+        operations.clear()
+
+    started = _time.monotonic_ns()
+    prepared = SKGQuery.prepare_read(db_path=source, index_dir=tmp_path)
+    try:
+        assert _value(prepared) == 1.25
+        ref = retain_prepared_skg_read(store, prepared)
+    finally:
+        prepared.close()
+    finish_phase("capture", started)
+
+    directory = tmp_path / "measured-restored"
+    for phase in ("cold_materialization", "warm_materialization"):
+        started = _time.monotonic_ns()
+        fresh_store = FileSystemCAS(store.root, ownership_enforced=False)
+        reopened = prepare_retained_skg_read(
+            fresh_store, ref, directory=directory, index_dir=tmp_path
+        )
+        try:
+            assert reopened.source_snapshot_sha256 == source_sha256
+            assert _value(reopened) == 1.25
+        finally:
+            reopened.close()
+        finish_phase(phase, started)
+
+    capture, cold, warm = (row["operations"] for row in rows)
+    assert (
+        sum(op["input_bytes"] for op in capture if op["operation"] == "source_chunk_write")
+        == source_bytes
+    )
+    assert (
+        sum(op["input_bytes"] for op in cold if op["operation"] == "verified_member_copy")
+        == source_bytes
+    )
+    assert not any(op["operation"] == "verified_member_copy" for op in warm)
+    for restore in (cold, warm):
+        assert sum(op["operation"] == "materialize_retained_source" for op in restore) == 1
+    for row in rows:
+        assert row["elapsed_ns"] > 0
+        digests = [op for op in row["operations"] if op["operation"] == "prepared_source_digest"]
+        assert len(digests) == 1
+        assert digests[0]["input_bytes"] == source_bytes
+        assert digests[0]["sha256"] == source_sha256
+    assert (directory / f"{source_sha256}.duckdb").read_bytes() == source.read_bytes()
+    report = {
+        "workload": "One version/one parameter real DuckDB; value1.25; no production data",
+        "source": str(source),
+        "source_bytes": source_bytes,
+        "source_sha256": source_sha256,
+        "selected_descriptor": ref.model_dump(mode="json"),
+        "measurements": rows,
+        "bytes_semantics": "Input bytes to named verified operations, not physical disk traffic",
+        "timing_semantics": (
+            "Operation timers stop before observer metadata collection; "
+            "phase timers include that collection and assertions"
+        ),
+        "unresolved_by_construction": [
+            "CAS manifest/integrity reads outside the named copy operation",
+            "DuckDB internal page reads, imports, OS cache and syscall-level I/O",
+            "Production-scale representativeness, scientific applicability and latency SLO",
+        ],
+    }
+    record_testsuite_property("sta02_source_costs", json.dumps(report, sort_keys=True))
+
+
 def test_capture_refuses_actual_source_generation_replacement(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -712,6 +895,55 @@ def _workflow_fixture(
     _seed(replacement, 9.75)
     os.replace(replacement, source)
     return source, store, run, ctx, state, ref
+
+
+@pytest.mark.parametrize("changed_selector", ["context", "domain", "required"])
+def test_selected_bundle_matcher_and_real_recompute_honor_changed_request(
+    tmp_path: Path, changed_selector: str
+) -> None:
+    """External hit admission and actual resolver reject the same stale request."""
+    with tenant_scope(None, tenant_id="retained-tenant", cell_id="retained-cell"):
+        _, store, _, ctx, state, source_ref = _workflow_fixture(tmp_path)
+        state.inputs[SNAPSHOT_INPUT_KEY] = source_ref
+        state.params["phase15_runtime_backend"] = "numpy"
+        state = _bind_retained_workflow_input(ctx, state)
+        node = ResolveParametersNode()
+        original = node.execute(ctx, state)
+        assert original.status == "ok"
+        assert node.validate_cache_hit(ctx, original.state, original)
+        original_ref = original.state.artifacts_index[
+            ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF
+        ]
+        changed = original.state.model_copy(deep=True)
+        if changed_selector == "context":
+            changed.params["target_context"] = {**_CONTEXT, "context_id": "other-context"}
+        elif changed_selector == "domain":
+            changed.params["domain"] = "monetary"
+        else:
+            changed.params["required_parameters"] = ["fiscal_multiplier", "unavailable_parameter"]
+        assert not node.validate_cache_hit(ctx, changed, original)
+        updated = node.execute(ctx, changed)
+        assert updated.status == "ok"
+        updated_ref = updated.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+        assert updated_ref != original_ref
+        bundle = load_context_adaptive_parameter_bundle(
+            _ensure_ir_artifact_store(store), updated_ref
+        )
+        assert bundle.target_context == ContextProfile.model_validate(
+            changed.params["target_context"]
+        )
+        assert bundle.simulation_domain == changed.params["domain"]
+        assert set(changed.params["required_parameters"]).issubset(
+            set(bundle.parameters) | set(bundle.unsupported_parameters)
+        )
+        if changed_selector == "required":
+            assert "unavailable_parameter" in bundle.unsupported_parameters
+            assert "unavailable_parameter" not in bundle.parameters
+        assert bundle.parameters["fiscal_multiplier"].value == 1.25
+        assert node.validate_cache_hit(ctx, updated.state, updated)
+        assert (
+            changed.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF] == original_ref
+        )
 
 
 def test_source_bound_prior_reaches_native_hybrid_fit_and_fresh_query(tmp_path: Path) -> None:

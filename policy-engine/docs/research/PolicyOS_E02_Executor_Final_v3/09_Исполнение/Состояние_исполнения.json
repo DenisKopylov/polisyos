@@ -503,11 +503,11 @@
       "track_id": "06-A",
       "track_position": 7,
       "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
+      "local_qualification": "REVIEWED_LOCAL_SLICE",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "/root/lane06_replay",
       "base_commit": "e7a49fdf939b492fc7742906658159cd2fc89ff6",
-      "integrated_commit": null,
+      "integrated_commit": "77c4d8963da81608bc6542e6daf11785e97c4b78",
       "actual_write_set": [
         "policy-engine/src/polisyos/scientist/replay/deterministic.py",
         "policy-engine/src/polisyos/scientist/replay/backend.py",
@@ -530,7 +530,13 @@
         "TEST-REP-01-02",
         "TEST-REP-01-03"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "locator": "policy-engine/_cache/e02/rep01-original-source-and-budget-r7/",
+          "result": "6PASS,27pins stable; native original-source Foundry/CLI/A-defaultB/budget scope. Prior r4 81PASS/6FAIL retained; later r6 3PASS has separate sourcebinding. Retry/resume/installed pending.",
+          "independent_review": "GO for bounded coherent source delta; full packet/shared acceptance remains open"
+        }
+      ],
       "blockers": [],
       "deferred_ids": [],
       "execution_profile": {
@@ -876,7 +882,7 @@
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "/root/lane06_async",
       "base_commit": "1d3a377c677126d1bc51365336e282470a25c3a0",
-      "integrated_commit": null,
+      "integrated_commit": "721f19a6a130ff84407bfac218020483e45bd31b",
       "actual_write_set": [
         "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
         "policy-engine/tests/unit/remediation/test_run_03.py",
@@ -923,7 +929,7 @@
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "/root/lane06_budget",
       "base_commit": "388064755fa8833107f35ae097633b1b3445b59f",
-      "integrated_commit": null,
+      "integrated_commit": "721f19a6a130ff84407bfac218020483e45bd31b",
       "actual_write_set": [
         "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
         "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
@@ -969,18 +975,22 @@
       "track_id": "06-B",
       "track_position": 7,
       "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
+      "local_qualification": "REVIEWED_LOCAL_SLICE",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "/root/lane06_durable_worker",
       "base_commit": "388064755fa8833107f35ae097633b1b3445b59f",
-      "integrated_commit": null,
+      "integrated_commit": "4781b9a3a39803fca0f4241e8b12eb4ec7701396",
       "actual_write_set": [
         "policy-engine/src/polisyos/runtime/http/services/control_worker.py",
         "policy-engine/tests/unit/remediation/test_dur_02.py",
         "policy-engine/tests/unit/remediation/test_dur_02_process.py",
         "policy-engine/src/polisyos/runtime/http/services/control/job_scope_admission.py",
         "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
-        "policy-engine/tests/unit/runtime/http/test_control_checkpoint_handover.py"
+        "policy-engine/tests/unit/runtime/http/test_control_checkpoint_handover.py",
+        "policy-engine/src/polisyos/common/job_execution_interrupt.py",
+        "policy-engine/tests/unit/common/test_job_execution_interrupt.py",
+        "policy-engine/src/polisyos/scientist/api.py",
+        "policy-engine/src/polisyos/scientist/orchestration/workflows/builder.py"
       ],
       "shared_writer": "/root/lane06_durable_worker",
       "decision_records": [],
@@ -994,7 +1004,13 @@
         "TEST-DUR-02-02",
         "TEST-DUR-02-03"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "locator": "policy-engine/_cache/e02/dur02-live-owner-r1/",
+          "result": "24 PASS,13pins stable; actual SQL owner recheck primitive only. Earlier native-handover-r1 22PASS/3FAIL retained; changed full handover remains UNRUN.",
+          "independent_review": "GO for bounded coherent source delta; full packet/shared acceptance remains open"
+        }
+      ],
       "blockers": [],
       "deferred_ids": [],
       "execution_profile": {
@@ -1190,11 +1206,11 @@
       "track_id": "06-C",
       "track_position": 3,
       "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
+      "local_qualification": "REVIEWED_LOCAL_SLICE",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "/root/lane06_cas",
       "base_commit": "388064755fa8833107f35ae097633b1b3445b59f",
-      "integrated_commit": null,
+      "integrated_commit": "d41804e343691f0c3dabadef6232f7a11aabd810",
       "actual_write_set": [
         "policy-engine/src/polisyos/core/artifacts/store.py",
         "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
@@ -1221,7 +1237,13 @@
         "TEST-CAS-03-03",
         "TEST-CAS-03-04"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "locator": "policy-engine/_cache/e02/lane06-cas03-configured-native-r3/",
+          "result": "67PASS/1FAIL actual cross-tenant audit missing event; attribution not established. completion-r4 threePASS and authorizer-removal semanticRED retained.",
+          "independent_review": "GO for bounded coherent source delta; full packet/shared acceptance remains open"
+        }
+      ],
       "blockers": [],
       "deferred_ids": [],
       "execution_profile": {
@@ -6748,6 +6770,19 @@
         "RUN-02",
         "RES-02"
       ]
+    },
+    {
+      "status": "REVIEWED_LOCAL_SLICES_NOT_LANE_ACCEPTANCE",
+      "commits": [
+        "721f19a6a130ff84407bfac218020483e45bd31b",
+        "4781b9a3a39803fca0f4241e8b12eb4ec7701396",
+        "232fced191936bb114a8b39142887e6824b41a4b",
+        "d41804e343691f0c3dabadef6232f7a11aabd810",
+        "77c4d8963da81608bc6542e6daf11785e97c4b78"
+      ],
+      "readback": "Released deciding source/test blobs verified from commits; remote d41804e34/tree af55d492fbb2f44b199f65dbe9f361874abe4389 matches author topic. PR70 not merged; required CI not green.",
+      "shared_integration_status": "NOT_RUN",
+      "next": "Finish actual continuation, child custody, typed path/journal, configured import policy and partial-result route; then one source/profile-frozen I06 wave plus eight local-only requirements."
     }
   ]
 }

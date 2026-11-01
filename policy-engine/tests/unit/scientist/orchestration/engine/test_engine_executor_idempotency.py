@@ -300,6 +300,140 @@ def test_executor_cache_hit_preserves_unrelated_current_state(tmp_path) -> None:
     assert_one_resumed_terminal_lifecycle(ctx_b.run)
 
 
+def test_fresh_cache_replays_exact_journal_without_repeating_settled_effect(tmp_path) -> None:
+    """Native CAS replay preserves operations while the real effect owner stays once."""
+    import hashlib
+    from decimal import Decimal
+
+    from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+    from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+    from polisyos.scientist.orchestration.engine.protocol import NodeEvent
+
+    run_id = "R_exact_journal_effect"
+    operation_id = f"{run_id}/selected-operation-7"
+    effect_bytes = operation_id.encode()
+    effect_digest = hashlib.sha256(effect_bytes).hexdigest()
+    effect_path = tmp_path / "effect"
+    ledger_path = tmp_path / "budget.json"
+    calls: list[str] = []
+
+    class JournalEffectNode:
+        spec = _BROAD_CACHED_SPEC.model_copy(
+            update={
+                "metadata": _BROAD_CACHED_METADATA.model_copy(
+                    update={
+                        "component_id": ComponentId.parse("scientist.node_journal_effect@1.0.0")
+                    }
+                )
+            }
+        )
+
+        def execute(self, _ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+            calls.append(operation_id)
+            # Exclusive creation distinguishes a cache replay from a second physical call.
+            with effect_path.open("xb") as effect:
+                effect.write(effect_bytes)
+            middleware = BudgetMiddleware(
+                BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("10"))}),
+                ledger=FileBudgetLedger(ledger_path),
+            )
+            middleware.settle_spend_safe(
+                event_id=operation_id,
+                key="run",
+                amount=Decimal("2"),
+                provider="local-test-producer",
+                payload_digest=effect_digest,
+            )
+            state.params["y"] = 4
+            del state.params["drop"]
+            state.params["null"] = None
+            return NodeOutcome(
+                status="ok",
+                state=state,
+                events=[
+                    NodeEvent(
+                        code="test.physical_effect",
+                        message="One owned effect",
+                        attrs={"operation_id": operation_id},
+                    )
+                ],
+            )
+
+    store = FileSystemCAS(tmp_path / "cas")
+    first_ctx, first_registry = _build_context(store, run_id)
+    first_registry.register(JournalEffectNode())
+    workflow = WorkflowSpec(
+        workflow_id="exact_journal_effect",
+        nodes=[
+            NodeInvocation(alias="effect", node_id=JournalEffectNode.spec.metadata.component_id)
+        ],
+    )
+    origin = ExperimentState(
+        run_id=run_id,
+        params={
+            "seed": 7,
+            "y": 4,
+            "drop": 1,
+            "null": 8,
+            "unwritten": "old",
+            "unrelated": "old",
+            "removed_elsewhere": "old",
+        },
+    )
+    cold_events = interrupt_before_finalize(
+        first_ctx.run,
+        lambda: WorkflowExecutor(first_ctx, first_registry).execute(workflow, origin),
+    )
+    assert sum(event.get("event") == "NODE_CACHE_STORE" for event in cold_events) == 1
+    first_settlement = FileBudgetLedger(ledger_path).snapshot()
+    assert first_settlement.state.spent["run"] == Decimal("2")
+    ledger_bytes = ledger_path.read_bytes()
+
+    fresh_store = FileSystemCAS(store.root)
+    fresh_ctx, fresh_registry = _build_context(fresh_store, run_id, resume_from=first_ctx)
+    fresh_registry.register(JournalEffectNode())
+    current = ExperimentState(
+        run_id=run_id,
+        params={
+            "seed": 7,
+            "y": 9,
+            "drop": 99,
+            "null": 88,
+            "unwritten": "current",
+            "unrelated": "new",
+        },
+    )
+    result = WorkflowExecutor(fresh_ctx, fresh_registry).execute(workflow, current)
+    assert result.report.status == "ok"
+    assert result.state.params == {
+        "seed": 7,
+        "y": 4,
+        "null": None,
+        "unwritten": "current",
+        "unrelated": "new",
+    }
+    assert current.params == {
+        "seed": 7,
+        "y": 9,
+        "drop": 99,
+        "null": 88,
+        "unwritten": "current",
+        "unrelated": "new",
+    }
+    assert calls == [operation_id]
+    assert effect_path.read_bytes() == effect_bytes
+    assert ledger_path.read_bytes() == ledger_bytes
+    final_settlement = FileBudgetLedger(ledger_path).snapshot()
+    assert (
+        final_settlement.spend_receipts[operation_id]
+        == first_settlement.spend_receipts[operation_id]
+    )
+    assert final_settlement.state.spent["run"] == Decimal("2")
+    events = assert_one_resumed_terminal_lifecycle(fresh_ctx.run)
+    assert sum(event.get("event") == "NODE_CACHE_HIT" for event in events) == 1
+
+
 # Production mutation caught: a cache hit must replay a declared top-level
 # scalar/ref write, including when the current base still carries None.
 def test_executor_cache_hit_replays_top_level_ref_write(tmp_path) -> None:

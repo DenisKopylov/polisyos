@@ -92,9 +92,14 @@ def _register(*method_classes: type) -> MethodRegistry:
     return registry
 
 
-def _partial_chain(*, fail_b: bool = True) -> tuple[MethodComposer, MethodRegistry, dict[str, Any]]:
+def _partial_chain(
+    *,
+    fail_b: bool = True,
+    right_error: Exception | None = None,
+) -> tuple[MethodComposer, MethodRegistry, dict[str, Any]]:
     """Build a previous level, an independent A/B level, and dependent C."""
-    observations: dict[str, Any] = {"c_calls": 0}
+    right_error = right_error or ValueError("right node failed exactly")
+    observations: dict[str, Any] = {"c_calls": 0, "right_error": right_error}
 
     previous = _make_method(
         "previous",
@@ -118,7 +123,7 @@ def _partial_chain(*, fail_b: bool = True) -> tuple[MethodComposer, MethodRegist
 
     def right_step(_state: Any, _params: Mapping[str, Any]) -> Any:
         if fail_b:
-            raise ValueError("right node failed exactly")
+            raise right_error
         return {
             "right": 11,
             "scope": "world:right",
@@ -154,7 +159,7 @@ def _partial_chain(*, fail_b: bool = True) -> tuple[MethodComposer, MethodRegist
 
 def test_independent_success_survives_sibling_failure_with_exact_error_and_scope() -> None:
     """A's result remains readable with its scope while B's exact error stays terminal."""
-    composer, registry, _observations = _partial_chain()
+    composer, registry, observations = _partial_chain()
     chain = composer.build(validate_semantics=False)
 
     with pytest.raises(AsyncChainExecutionError) as raised:
@@ -164,6 +169,7 @@ def test_independent_success_survives_sibling_failure_with_exact_error_and_scope
     assert len(error.node_errors) == 1
     assert error.node_errors[0].method_fqn == "tests.res03.right@1.0.0"
     assert type(error.node_errors[0].error) is ValueError
+    assert error.node_errors[0].error is observations["right_error"]
     assert str(error.node_errors[0].error) == "right node failed exactly"
 
     partial = error.partial_result
@@ -176,6 +182,80 @@ def test_independent_success_survives_sibling_failure_with_exact_error_and_scope
         if _node.method_fqn in {"tests.res03.previous@1.0.0", "tests.res03.left@1.0.0"}
     ]
     assert error.failed_level_index == 1
+
+    # Each completed node retains its own scope even when the shallow merged
+    # state legitimately selects the later node's value for the same key.
+    outputs = {
+        chain.get_node(node_id).method_fqn: result.output
+        for node_id, result in partial.node_results
+    }
+    assert outputs == {
+        "tests.res03.previous@1.0.0": {
+            "previous": "previous-value",
+            "scope": "world:previous",
+            "artifact_ref": "sha256:previous",
+        },
+        "tests.res03.left@1.0.0": {
+            "left": 7,
+            "scope": "world:left",
+            "artifact_ref": "sha256:left",
+        },
+    }
+
+
+def test_terminal_partial_preserves_the_original_typed_error_instance() -> None:
+    """A real dispatched failure is retained, rather than reconstructed from prose."""
+
+    class TypedValueError(RuntimeError):
+        code: ClassVar[str] = "res03.value_failed"
+
+    failure = TypedValueError("selected value failed after its sibling completed")
+    composer, registry, observations = _partial_chain(right_error=failure)
+    chain = composer.build(validate_semantics=False)
+
+    with pytest.raises(AsyncChainExecutionError) as raised:
+        asyncio.run(AsyncChainExecutor(registry=registry).execute(chain, initial_state={}))
+
+    error = raised.value
+    assert error.node_errors[0].error is failure
+    assert error.node_errors[0].error.code == "res03.value_failed"
+    assert str(error.node_errors[0].error) == str(failure)
+    assert error.partial_result.final_state["left"] == 7
+    assert observations["c_calls"] == 0
+
+
+def test_completed_result_oracle_detects_removed_level_merge(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Removing only A's merge loses its result while preserving B's real failure."""
+    composer, registry, observations = _partial_chain()
+    chain = composer.build(validate_semantics=False)
+    original_merge = AsyncChainExecutor._merge_level_results
+
+    def remove_left_merge(**kwargs: Any) -> Any:
+        kwargs["level_results"] = tuple(
+            (node_id, result)
+            for node_id, result in kwargs["level_results"]
+            if not isinstance(result.output, dict) or "left" not in result.output
+        )
+        return original_merge(**kwargs)
+
+    def execute_and_require_completed_result() -> None:
+        with pytest.raises(AsyncChainExecutionError) as raised:
+            asyncio.run(AsyncChainExecutor(registry=registry).execute(chain, initial_state={}))
+        error = raised.value
+        assert error.node_errors[0].error is observations["right_error"]
+        assert observations["c_calls"] == 0
+        assert error.partial_result.final_state["previous"] == "previous-value"
+        assert "left" in error.partial_result.final_state, "completed numerical result was lost"
+        assert error.partial_result.final_state["left"] == 7
+
+    with monkeypatch.context() as removed:
+        removed.setattr(AsyncChainExecutor, "_merge_level_results", staticmethod(remove_left_merge))
+        with pytest.raises(AssertionError, match="completed numerical result was lost"):
+            execute_and_require_completed_result()
+
+    execute_and_require_completed_result()
 
 
 def test_dependent_node_is_not_reported_as_successful_partial_result() -> None:

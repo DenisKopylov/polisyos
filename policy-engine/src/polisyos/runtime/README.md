@@ -245,3 +245,26 @@ return its typed nonreceipt result for an unverifiable record. Regenerate the Op
 runtime clients from `schemas/runtime_api_v1.openapi.json`; the R210 source packet records
 those outputs as UNRUN under the current compute hold. Reader-default compatibility remains
 explicitly non-attesting for legacy profileless artifacts.
+
+## Persisted RunManifest path normalization
+
+`manifest_migrations.migrate_run_manifest_paths` is the sole path-only converter
+used by the registered `polisyos-tools migrations migrate run_manifest` command.
+It preflights every entry before the shared atomic writer publishes output.
+Normalization keeps the declared `run_root` spelling and resolves nested paths
+and internal symlinks to the same existing object; absent roots default to the
+input manifest's grandparent. External, missing, broken-link and conflicting
+references, and any `--to`, are refused. There is no implicit copy or relocation.
+
+A relative root remains bound to the invocation's CWD. Moving only the output
+manifest does not rebase it, while changing CWD can select a different root.
+Callers requiring a portable address must provide an appropriate explicit root.
+The native qualification covers actual Runtime start/artifact/audit/finalize,
+JSON/YAML conversion, all-entry fresh-process DTO/resolver reads, and bounded
+legacy path-layout controls. The retained protocol-4 model fixture from
+`cf6a076` additionally qualifies the rootless, `relative_path`-only model/layout
+with owned controlled artifact bytes. Its original pickle bytes stay unchanged;
+the derived JSON is not an original production manifest. Other controlled
+layouts are software fixtures, not an inventory of external historical runs. Point-in-time same-path and byte
+identity establish neither immutable custody nor journal/pickle recovery,
+scientific validity, release eligibility, or authority.

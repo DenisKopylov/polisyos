@@ -1,22 +1,32 @@
-"""Test-first witnesses for identity-preserving RunManifest path migration.
-
-The current migration CLI rewrites paths relative to the input location and
-falls back to a basename when that calculation fails.  These tests pin the
-identity and fail-closed contract that the Runtime-owned converter must
-provide before the CLI relocation is implemented.
-"""
+"""Qualify path normalization with native Runtime persistence and fresh readers."""
 
 from __future__ import annotations
 
+import base64
+import hashlib
 import json
+import pickle
+import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 
 import pytest
 
 import tools.lib.fs as fs
-from polisyos.runtime.api import resolve_artifact_path
+from polisyos.runtime.api import (
+    append_audit,
+    finalize_run,
+    log_artifact,
+    resolve_artifact_path,
+    start_run,
+)
 from polisyos.runtime.manifest import RunManifest
+from polisyos.runtime.manifest_migrations import (
+    RunManifestPathMigrationError,
+    migrate_run_manifest_paths,
+)
+from tools.cli import main as tools_cli_main
 from tools.ops_runners.migrations.migrate import main as canonical_main
 
 pytestmark = pytest.mark.unit
@@ -306,3 +316,279 @@ def test_external_paths_fail_closed_without_implicit_copy(tmp_path: Path) -> Non
     assert output_path.read_text(encoding="utf-8") == "previous-output\n"
     assert first.read_text(encoding="utf-8") == "first"
     assert second.read_text(encoding="utf-8") == "second"
+
+
+_FRESH_READER = r"""
+import hashlib
+import json
+import sys
+from pathlib import Path
+import polisyos.runtime.api as api
+from polisyos.runtime.manifest import RunManifest
+source = Path(sys.argv[1])
+if source.suffix == ".json":
+    raw = json.loads(source.read_text())
+else:
+    import yaml
+    raw = yaml.safe_load(source.read_text())
+manifest = RunManifest.model_validate(raw)
+if len(sys.argv) > 2:
+    persisted = api._load_manifest(source.parent.parent, source.parent.name)
+    assert persisted.model_dump(mode="json") == manifest.model_dump(mode="json")
+refs = []
+for ref in manifest.artifacts:
+    root = Path(manifest.run_root) if manifest.run_root else source.resolve().parent.parent
+    path = api.resolve_artifact_path(ref, run_root=root, allow_absolute=True)
+    refs.append({"type": ref.artifact_type, "path": str(path),
+                 "sha256": hashlib.sha256(path.read_bytes()).hexdigest()})
+print(json.dumps({"schema": manifest.schema_version, "status": manifest.status,
+                  "root": manifest.run_root, "refs": refs,
+                  "api_origin": str(Path(api.__file__).resolve())}, sort_keys=True))
+"""
+
+
+def _fresh_read(path: Path, *, runtime_load: bool = False) -> dict[str, Any]:
+    """Read every reference with a new native Runtime process."""
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-B",
+            "-c",
+            _FRESH_READER,
+            str(path),
+            *(["runtime"] if runtime_load else []),
+        ],
+        check=False,
+        text=True,
+        capture_output=True,
+        timeout=20,
+    )
+    assert result.returncode == 0, result.stderr or result.stdout
+    observed = json.loads(result.stdout)
+    import polisyos.runtime.api as runtime_api
+
+    assert observed["api_origin"] == str(Path(runtime_api.__file__).resolve())
+    return observed
+
+
+@pytest.mark.parametrize("suffix", [".json", ".yaml"])
+def test_actual_runtime_writer_registered_cli_and_fresh_all_entry_reader(
+    tmp_path: Path, suffix: str
+) -> None:
+    """Real lifecycle/audit/payload bytes survive the registered converter."""
+    root = tmp_path / "runs"
+    run = start_run(run_id="native-mig02", base_dir=root)
+    log_artifact(
+        run_id=run.run_id,
+        artifact_type="payload",
+        payload={"actual": [1, 2]},
+        filename="payload.json",
+        base_dir=root,
+    )
+    append_audit(run_id=run.run_id, record={"event": "native-migration"}, base_dir=root)
+    finalize_run(run_id=run.run_id, status="completed", base_dir=root)
+    original = root / run.run_id / "manifest.json"
+    source_bytes = original.read_bytes()
+    before = _fresh_read(original, runtime_load=True)
+    assert {ref["type"] for ref in before["refs"]} == {"audit_trail", "payload"}
+    assert before["schema"] == "1.0"
+    assert before["status"] == "completed"
+    source = tmp_path / f"source{suffix}"
+    if suffix == ".json":
+        source.write_bytes(source_bytes)
+    else:
+        yaml = pytest.importorskip("yaml")
+        source.write_text(yaml.safe_dump(json.loads(source_bytes), sort_keys=False))
+    source_copy = source.read_bytes()
+    outputs = tmp_path / "elsewhere"
+    outputs.mkdir()
+    output = outputs / f"normalized{suffix}"
+    second = outputs / f"normalized-again{suffix}"
+    for selected_input, selected_output in ((source, output), (output, second)):
+        assert (
+            tools_cli_main(
+                [
+                    "migrations",
+                    "migrate",
+                    "--timing-log",
+                    str(tmp_path / "timing.jsonl"),
+                    "run_manifest",
+                    str(selected_input),
+                    str(selected_output),
+                ]
+            )
+            == 0
+        )
+        assert _fresh_read(selected_output) == before
+    assert output.read_bytes() == second.read_bytes()
+    restored = tmp_path / "fresh-runtime" / run.run_id / "manifest.json"
+    restored.parent.mkdir(parents=True)
+    if suffix == ".json":
+        restored.write_bytes(output.read_bytes())
+    else:
+        restored.write_text(json.dumps(yaml.safe_load(output.read_text())))
+    assert _fresh_read(restored, runtime_load=True) == before
+    assert original.read_bytes() == source_bytes
+    assert source.read_bytes() == source_copy
+
+
+@pytest.mark.parametrize("bad_kind", ["missing", "conflict", "escape", "broken_link"])
+def test_mixed_second_entry_refuses_before_any_output(tmp_path: Path, bad_kind: str) -> None:
+    """A valid first entry never hides a later identity failure."""
+    root = tmp_path / "run"
+    root.mkdir()
+    first = root / "first.json"
+    first.write_bytes(b"first")
+    second = root / "second.json"
+    second.write_bytes(b"second")
+    bad = _artifact("missing.json")
+    match = "source does not exist"
+    if bad_kind == "conflict":
+        bad = _artifact("first.json")
+        bad["relative_path"] = "second.json"
+        match = "identify different sources"
+    elif bad_kind in {"escape", "broken_link"}:
+        outside = tmp_path / "outside.json"
+        outside.write_bytes(b"outside")
+        target = outside if bad_kind == "escape" else root / "absent.json"
+        (root / "link.json").symlink_to(target)
+        bad = _artifact("link.json")
+        if bad_kind == "escape":
+            match = "outside declared run_root"
+    source, output = _write_input_and_output(
+        tmp_path,
+        _manifest_payload(run_root=root, artifacts=[_artifact("first.json"), bad]),
+        output_sentinel="old output",
+    )
+    original = source.read_bytes()
+    with pytest.raises(RunManifestPathMigrationError, match=match):
+        canonical_main(["run_manifest", str(source), str(output)])
+    assert output.read_bytes() == b"old output"
+    assert source.read_bytes() == original
+    assert first.read_bytes() == b"first"
+    assert second.read_bytes() == b"second"
+
+
+def test_internal_symlink_preserves_real_source_not_alias_basename(tmp_path: Path) -> None:
+    """An internal link normalizes to its same-root target."""
+    root = tmp_path / "run"
+    target = root / "nested" / "data.json"
+    target.parent.mkdir(parents=True)
+    target.write_bytes(b"chosen")
+    (root / "data.json").write_bytes(b"wrong-basename")
+    (root / "alias.json").symlink_to(target)
+    source, output = _write_input_and_output(
+        tmp_path, _manifest_payload(run_root=root, artifacts=[_artifact("alias.json")])
+    )
+    before = _fresh_read(source)
+    assert canonical_main(["run_manifest", str(source), str(output)]) == 0
+    assert _fresh_read(output) == before
+    assert _read_manifest(output)["artifacts"][0]["path"] == "nested/data.json"
+
+
+def test_relative_root_is_cwd_bound_not_output_relative(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Root spelling is retained; changing CWD is not portable relocation."""
+    first_cwd = tmp_path / "first-cwd"
+    first_root = first_cwd / "runs"
+    first_root.mkdir(parents=True)
+    (first_root / "data.json").write_bytes(b"first-root")
+    source, output = _write_input_and_output(
+        tmp_path, _manifest_payload(run_root=Path("runs"), artifacts=[_artifact("data.json")])
+    )
+    monkeypatch.chdir(first_cwd)
+    assert canonical_main(["run_manifest", str(source), str(output)]) == 0
+    assert _read_manifest(output)["run_root"] == "runs"
+    before = _fresh_read(output)
+    assert before["refs"][0]["path"] == str((first_root / "data.json").resolve())
+    moved = tmp_path / "moved-manifest.json"
+    moved.write_bytes(output.read_bytes())
+    assert _fresh_read(moved) == before
+    second_cwd = tmp_path / "second-cwd"
+    second_root = second_cwd / "runs"
+    second_root.mkdir(parents=True)
+    (second_root / "data.json").write_bytes(b"different-root")
+    monkeypatch.chdir(second_cwd)
+    changed = _fresh_read(moved)
+    assert changed["refs"][0]["path"] == str((second_root / "data.json").resolve())
+    assert changed["refs"][0]["sha256"] != before["refs"][0]["sha256"]
+
+
+def test_absent_root_uses_input_grandparent_without_mutating_source(tmp_path: Path) -> None:
+    """The legacy default follows input ancestry, not output location."""
+    root = tmp_path / "legacy"
+    source = root / "run-id" / "manifest.json"
+    source.parent.mkdir(parents=True)
+    artifact = root / "run-id" / "data.json"
+    artifact.write_bytes(b"legacy-default")
+    data = _manifest_payload(run_root=root, artifacts=[_artifact("run-id/data.json")])
+    del data["run_root"]
+    source.write_text(json.dumps(data))
+    original = source.read_bytes()
+    output = tmp_path / "elsewhere.json"
+    before = _fresh_read(source)
+    result = migrate_run_manifest_paths(data, manifest_path=source)
+    assert result["run_root"] == str(root.resolve())
+    assert "run_root" not in data
+    assert canonical_main(["run_manifest", str(source), str(output)]) == 0
+    observed = _fresh_read(output)
+    assert observed["refs"] == before["refs"]
+    assert observed["refs"][0]["path"] == str(artifact.resolve())
+    assert observed["refs"][0]["sha256"] == hashlib.sha256(artifact.read_bytes()).hexdigest()
+    assert source.read_bytes() == original
+
+
+@pytest.mark.parametrize("artifacts", [{"legacy_name": "data.json"}, ["data.json"]])
+def test_unsupported_layout_is_diagnostic_without_basename_fallback(
+    tmp_path: Path, artifacts: Any
+) -> None:
+    """Unknown legacy containers are not promoted into the supported DTO profile."""
+    root = tmp_path / "run"
+    root.mkdir()
+    (root / "data.json").write_bytes(b"available but not a guessed reference")
+    payload = _manifest_payload(run_root=root, artifacts=[])
+    payload["artifacts"] = artifacts
+    source, output = _write_input_and_output(tmp_path, payload, output_sentinel="old output")
+    original = source.read_bytes()
+    with pytest.raises(RunManifestPathMigrationError, match=r"artifacts must be a list|entry 0"):
+        canonical_main(["run_manifest", str(source), str(output)])
+    assert source.read_bytes() == original
+    assert output.read_bytes() == b"old output"
+
+
+def test_git_retained_protocol4_model_qualifies_legacy_relative_only_layout(
+    tmp_path: Path,
+) -> None:
+    """Historical model bytes bind the layout; artifact bytes remain controlled."""
+    fixture_path = (
+        Path(__file__).resolve().parents[2]
+        / "fixtures/package_path_compatibility/runtime_abi_protocol4.json"
+    )
+    fixture_bytes = fixture_path.read_bytes()
+    fixture = json.loads(fixture_bytes)
+    assert fixture["source_head"] == "cf6a076a8415dc4092cfd3d4e9c8862f81c15a9a"
+    serialized = base64.b64decode(fixture["objects"]["RunManifest"]["pickle_base64"])
+    assert hashlib.sha256(serialized).hexdigest() == fixture["objects"]["RunManifest"]["sha256"]
+    historical = pickle.loads(serialized)  # noqa: S301 -- fixed repo-owned historical fixture.
+    assert type(historical) is RunManifest
+    assert historical.run_root is None
+    assert historical.artifacts[0].path is None
+    assert historical.artifacts[0].relative_path == "legacy/evidence.json"
+    root = tmp_path / "controlled-root"
+    artifact = root / "legacy/evidence.json"
+    artifact.parent.mkdir(parents=True)
+    artifact.write_bytes(b"controlled payload, not historical production data")
+    source = root / historical.run_id / "manifest.json"
+    source.parent.mkdir()
+    source.write_text(json.dumps(historical.model_dump(mode="json")))
+    before = source.read_bytes()
+    observed_before = _fresh_read(source, runtime_load=True)
+    output = tmp_path / "normalized.json"
+    assert canonical_main(["run_manifest", str(source), str(output)]) == 0
+    observed_after = _fresh_read(output)
+    assert observed_after["refs"] == observed_before["refs"]
+    assert observed_after["status"] == observed_before["status"] == "limited"
+    assert observed_after["schema"] == "1.0"
+    assert source.read_bytes() == before
+    assert fixture_path.read_bytes() == fixture_bytes

@@ -681,7 +681,7 @@
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "/root/lane06_async",
       "base_commit": "388064755fa8833107f35ae097633b1b3445b59f",
-      "integrated_commit": null,
+      "integrated_commit": "1d3a377c677126d1bc51365336e282470a25c3a0",
       "actual_write_set": [
         "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
         "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
@@ -787,14 +787,18 @@
       "lane_sequence": 1,
       "track_id": "06-B",
       "track_position": 5,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "/root/lane06_async",
+      "base_commit": "1d3a377c677126d1bc51365336e282470a25c3a0",
       "integrated_commit": null,
-      "actual_write_set": [],
-      "shared_writer": null,
+      "actual_write_set": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+        "policy-engine/tests/unit/remediation/test_run_03.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py"
+      ],
+      "shared_writer": "/root/lane06_async",
       "decision_records": [],
       "requirement_ids": [
         "REQ-RUN-03-01",
@@ -810,7 +814,12 @@
       ],
       "evidence": [],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "execution_profile": {
+        "test_slot": "Root batches narrow red with other measured light checks; no competing native job",
+        "source_scope": "RUN02 bytes secured in parent commit; one canonical retry writer after WIRE source freeze",
+        "delegate_limit": "One read-only leaf explicit permitted model"
+      }
     },
     {
       "packet_id": "DUR-01",
@@ -829,7 +838,8 @@
         "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
         "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_producer_events.py",
         "policy-engine/tests/unit/core/llm/test_traced_client_settlement.py",
-        "policy-engine/src/polisyos/scientist/orchestration/engine/README.md"
+        "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py"
       ],
       "shared_writer": "/root/lane06_budget",
       "decision_records": [],
@@ -1353,8 +1363,8 @@
       "lane_sequence": 1,
       "track_id": "06-D",
       "track_position": 4,
-      "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
+      "implementation_status": "REVIEWED_LOCAL_SLICE",
+      "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "/root/lane06_canonical",
       "base_commit": "388064755fa8833107f35ae097633b1b3445b59f",
@@ -1375,14 +1385,44 @@
         "TEST-MIG-02-02",
         "TEST-MIG-02-03"
       ],
-      "evidence": [],
-      "blockers": [],
+      "evidence": [
+        {
+          "output": "policy-engine/_cache/e02/lane06-migration-current-consumers",
+          "observed_result": "69 PASS / 0 FAIL / 0 ERROR / 0 SKIP,15.20s,345030656 bytes RSS,16 pins unchanged",
+          "scope": "Real Runtime lifecycle→registered CLI→fresh reader; persisted ManifestRegistry, selected edges and historical protocol4 bounded native layout. Shared installed profile not run."
+        }
+      ],
+      "blockers": [
+        "Shared noneditable installed I06-E qualification still required.",
+        "Existing historical Runtime schema-hash failure retained separately; attribution not established, exact isolated discriminator prepared."
+      ],
       "deferred_ids": [],
       "execution_profile": {
-        "test_slot": "Queued; existing native CLI and fresh reader; no new environment",
+        "test_slot": "Released; frozen four-path author delta",
         "source_scope": "Two paths only, request actual defect owner separately",
-        "delegate_limit": "One read-only leaf, explicit allowed model"
-      }
+        "delegate_limit": "One read-only leaf, explicit allowed model",
+        "independent_review": "GO; exact hashes/current16pins/fulloutputs verified"
+      },
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-MIG-02-01",
+          "test_id": "TEST-MIG-02-01",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Actual Runtime lifecycle, every reference SHA/path/schema/status, JSON/YAML, mixed second-entry refusals and idempotence."
+        },
+        {
+          "requirement_id": "REQ-MIG-02-02",
+          "test_id": "TEST-MIG-02-02",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Relative CWD/internal links/default root/unsupported containers and full source preservation."
+        },
+        {
+          "requirement_id": "REQ-MIG-02-03",
+          "test_id": "TEST-MIG-02-03",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Real source-qualified protocol4 legacy model/layout, finite supported forms; unknown production bytes not synthesized."
+        }
+      ]
     },
     {
       "packet_id": "MIG-04",
@@ -1390,8 +1430,8 @@
       "lane_sequence": 1,
       "track_id": "06-D",
       "track_position": 5,
-      "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
+      "implementation_status": "REVIEWED_LOCAL_SLICE",
+      "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "/root/lane06_canonical",
       "base_commit": "388064755fa8833107f35ae097633b1b3445b59f",
@@ -1412,13 +1452,43 @@
         "TEST-MIG-04-02",
         "TEST-MIG-04-03"
       ],
-      "evidence": [],
-      "blockers": [],
+      "evidence": [
+        {
+          "output": "policy-engine/_cache/e02/lane06-migration-current-consumers",
+          "observed_result": "69 PASS / 0 FAIL / 0 ERROR / 0 SKIP,15.20s,345030656 bytes RSS,16 pins unchanged",
+          "scope": "Real Runtime lifecycle→registered CLI→fresh reader; persisted ManifestRegistry, selected edges and historical protocol4 bounded native layout. Shared installed profile not run."
+        }
+      ],
+      "blockers": [
+        "Shared noneditable installed I06-E qualification still required.",
+        "Existing historical Runtime schema-hash failure retained separately; attribution not established, exact isolated discriminator prepared."
+      ],
       "deferred_ids": [],
       "execution_profile": {
-        "test_slot": "Queued, independent test authorship; migration owner only",
-        "source_scope": "Two paths; preserve per-call selected_edges; no source edits without actual reproduced defect"
-      }
+        "test_slot": "Released; frozen four-path author delta",
+        "source_scope": "Two paths; preserve per-call selected_edges; no source edits without actual reproduced defect",
+        "independent_review": "GO; exact hashes/current16pins/fulloutputs verified"
+      },
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-MIG-04-01",
+          "test_id": "TEST-MIG-04-01",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Registered JSON/YAML converter default/explicit/unsupported routes and copied nested raw/public/noop contracts."
+        },
+        {
+          "requirement_id": "REQ-MIG-04-02",
+          "test_id": "TEST-MIG-04-02",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Eight actual persisted registry admission/reconciliation profiles, valid/default timestamp distinction."
+        },
+        {
+          "requirement_id": "REQ-MIG-04-03",
+          "test_id": "TEST-MIG-04-03",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Fresh old/new import order and six callback vectors, generic/legacy imports; explicit per-call selected_edges retained."
+        }
+      ]
     },
     {
       "packet_id": "DFK-02",

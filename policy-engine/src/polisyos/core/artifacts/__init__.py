@@ -31,7 +31,7 @@ from ._integrity_ops import (
 )
 from ._manifest_lifecycle import ManifestLifecycle as ManifestLifecycle
 from ._profiled_ref import profile_bound_ref
-from ._transfer_ops import ExportReport, ImportReport
+from ._transfer_ops import ExportDurabilityError, ExportReport, ImportReport
 from .async_store import (
     AsyncArtifactStoreAdapter,
     AsyncFileSystemArtifactStore,
@@ -387,6 +387,7 @@ __all__ = [
     "Ed25519Signer",
     "Ed25519Verifier",
     "EnvInfo",
+    "ExportDurabilityError",
     "ExportReport",
     "FileSystemCAS",
     "GitInfo",

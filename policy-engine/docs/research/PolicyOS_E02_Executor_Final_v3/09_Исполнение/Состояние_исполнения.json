@@ -142,7 +142,7 @@
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "/root/lane06_state",
       "base_commit": "3865c5ca668fb8aa507246f318cdeb7bd98b2d02",
-      "integrated_commit": null,
+      "integrated_commit": "06e1b7125365ca60525d99e9bba1ad97c8db0024",
       "actual_write_set": [
         "policy-engine/src/polisyos/scientist/orchestration/engine/state_merge.py",
         "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py"
@@ -236,7 +236,8 @@
       "integrated_commit": null,
       "actual_write_set": [
         "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py",
-        "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py"
+        "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py"
       ],
       "shared_writer": "/root/lane06_state",
       "decision_records": [
@@ -245,6 +246,11 @@
           "status": "PARTIAL",
           "chosen_profile": "Current NumPy ParameterTransfer; native_hybrid is the actual existing prior-capable Foundry consumer; default dowhy_gcm refuses priors.",
           "remaining": "No established Scientist/Runtime reader maps state.params literature_priors into SCMFitData; require explicit existing-caller bridge/proof before G02 acceptance."
+        },
+        {
+          "id": "DEC-STA-02-01-manual-profile",
+          "status": "QUALIFIED_MANUAL_PROFILE",
+          "decision": "A declared manual research caller is allowed: actual ResolveParametersNode selected source-bound bundle→emitted priors→registered CausalEngine native_hybrid method→persisted model→fresh native consumer. Require non-root prior target, independent analytic posterior and changed-source-prior control plus unsupported dowhy_gcm refusal. Exact graph/bundle/SKG CAS lineage retained. This is not automatic Scientist workflow wiring or empirical authority. Earlier automatic-bridge-only interpretation was too restrictive; qualify actual route before claim."
         }
       ],
       "requirement_ids": [
@@ -269,16 +275,34 @@
           "output": "policy-engine/_cache/e02/lane06-foundation-composed",
           "result": "239 PASS in21.63s; peak sampled process-tree1.404GiB; ten named source/test inputs unchanged",
           "scope": "Composed local family regressions for six packets; not full E02-I06 scenarios or all75 local TEST contracts."
+        },
+        {
+          "output": "policy-engine/_cache/e02/sta02-native-manual-r2",
+          "result": "1 PASS;14.02s/1.43GB peak; six pins unchanged; independent review GO",
+          "scope": "Real selected DuckDB→ResolveParameters/ParameterTransfer→registered native_hybrid fit→independent posterior→persisted SCM→fresh CAS/GCMQuery; selected lineage is in exact manifest InputRefs. Manual research composition only."
+        },
+        {
+          "output": "policy-engine/_cache/e02/lane06-second-composed",
+          "result": "338 PASS /87 platform SKIP;25 named inputs unchanged",
+          "scope": "One composed affected-family wave including real native CLI and the manual SCM consumer; not all I06 scenario bindings or all75 local TEST contracts."
         }
       ],
       "blockers": [
-        "Actual Scientist state→prior-capable native_hybrid SCM fit bridge and prepared-source cold/warm qualification remain open."
+        "Prepared-source cold/warm metrics and complete I06-A remain unqualified. Automatic workflow assembly and empirical applicability are outside the named manual witness."
       ],
       "deferred_ids": [],
       "execution_profile": {
         "test_slot": "released; relevant sources frozen through composition",
         "source_scope": "Current reused bundle→ParameterTransfer materialization only; main executor/idempotency retained. No tests/shared files outside leased paths.",
-        "independent_review": "GO for the described local slice; no G or whole-packet acceptance"
+        "independent_review": "GO for the described local slice; no G or whole-packet acceptance",
+        "native_consumer_test_lease": {
+          "executor": "/root/lane06_state",
+          "paths": [
+            "policy-engine/tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py"
+          ],
+          "test_slot": "held until CAS source freeze/native window complete",
+          "allowed_profile": "manual native_hybrid with actual method, selected source and fresh persisted consumer; no fake backend or invented institutional authority"
+        }
       },
       "requirement_results": [
         {
@@ -302,8 +326,8 @@
         {
           "requirement_id": "REQ-STA-02-04",
           "test_id": "TEST-STA-02-04",
-          "status": "BLOCKED_IMPLEMENTATION",
-          "basis": "Actual Scientist state-to-SCMFitData mapping is not established. Existing native_hybrid consumer is prior-capable; default dowhy_gcm refuses priors. Implement the scoped bridge before full consumer acceptance."
+          "status": "PARTIAL",
+          "basis": "Named manual native_hybrid path is now freshly demonstrated with actual selected source, fit, persistence and consumer; automatic orchestration is not claimed. Measured digest/materialization calls/bytes/time and representative scientific applicability remain open."
         }
       ]
     },
@@ -469,7 +493,7 @@
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "/root/lane06_async",
       "base_commit": "3865c5ca668fb8aa507246f318cdeb7bd98b2d02",
-      "integrated_commit": null,
+      "integrated_commit": "06e1b7125365ca60525d99e9bba1ad97c8db0024",
       "actual_write_set": [
         "policy-engine/src/polisyos/common/async_tools/__init__.py",
         "policy-engine/tests/unit/common/test_async_tools.py"
@@ -543,15 +567,36 @@
       "lane_sequence": 1,
       "track_id": "06-B",
       "track_position": 2,
-      "implementation_status": "NOT_STARTED",
-      "local_qualification": "NOT_RUN",
+      "implementation_status": "REVIEWED_LOCAL_SLICE",
+      "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "/root/lane06_async",
+      "base_commit": "06e1b7125365ca60525d99e9bba1ad97c8db0024",
       "integrated_commit": null,
-      "actual_write_set": [],
-      "shared_writer": null,
-      "decision_records": [],
+      "actual_write_set": [
+        "policy-engine/src/polisyos/common/async_tools/__init__.py",
+        "policy-engine/src/polisyos/common/README.md",
+        "policy-engine/tests/unit/common/test_async_tools.py",
+        "policy-engine/tests/unit/common/test_blocking_worker_completion.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+        "policy-engine/tests/unit/common/test_package_rehome.py"
+      ],
+      "shared_writer": "/root/lane06_async",
+      "decision_records": [
+        {
+          "status": "CHOSEN",
+          "decision": "DEC-EXE-01-01: one Common wrap_shared_executor_future transport adapter for exact _SharedFuture; fixed loop handoff only, no arbitrary callback bypass parameter, foreign futures retain stdlib behavior. Preserve physical completion/receipt/deadline/cancellation/shutdown ownership; three actual consumers. No second executor."
+        },
+        {
+          "status": "CHOSEN",
+          "decision": "Update exact AST public-declaration companion to all actual supported Common declarations, including the new adapter. Preserve set equality and no global TypeVar leakage. Do not attribute older seven-name mismatch without exact baseline replay."
+        },
+        {
+          "status": "CHOSEN",
+          "decision": "Independent review reproduced queued cancellation with pre-attached user callbacks blocking the event loop. Widen the same existing owner with a nonblocking async cancellation request acknowledged by its already reserved queue/worker path. Keep direct synchronous Future.cancel behavior, defer arbitrary callback execution to existing bounded physical ownership, retain reservation until drain, no new executor/thread or authority registry. Route every owned async cancellation call site, not only the new adapter. Explicit request/ack distinction and exact races/shutdown controls are mandatory."
+        }
+      ],
       "requirement_ids": [
         "REQ-EXE-01-01",
         "REQ-EXE-01-02",
@@ -564,9 +609,59 @@
         "TEST-EXE-01-03",
         "TEST-EXE-01-04"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "output": "policy-engine/_cache/e02/lane06-exe01-final-composed",
+          "result": "172 PASS /87 platform SKIP before cancellation-class repair; not final acceptance"
+        },
+        {
+          "output": "policy-engine/_cache/e02/lane06-exe01-arbitrary-cancel-probe",
+          "result": "FAIL: exact queued future/user callback cancellation stalls event loop; independent review P1 confirms required gap"
+        },
+        {
+          "output": "policy-engine/_cache/e02/lane06-exe01-cancel-composed-final",
+          "result": "184 PASS /87 explicitly unsupported native Linux/profile SKIP; zero FAIL/ERROR;23.30s/1.35GiB peak",
+          "scope": "All owned asynchronous completion and pre-attached callback cancellation paths, request/start/completion races, shutdown/closed-loop and real Scientist retry. Seven final pins unchanged; independent implementation review GO."
+        },
+        {
+          "output": "policy-engine/_cache/e02/lane06-second-composed",
+          "result": "338 PASS /87 platform SKIP;25 named inputs unchanged",
+          "scope": "One composed affected-family wave including real native CLI and the manual SCM consumer; not all I06 scenario bindings or all75 local TEST contracts."
+        }
+      ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "execution_profile": {
+        "test_slot": "released; seven leased paths frozen",
+        "independent_review": "GO after original P1 repair and final seven hashes",
+        "source_scope": "Only leased files. Root owns index/refs/generated companions/working state. Do not change source under a dependent deciding run."
+      },
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-EXE-01-01",
+          "test_id": "TEST-EXE-01-01",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Three owned async result routes and every owned async cancellation path keep event loop responsive; pre-attached callbacks remain bounded, requests/start/completion linearize, shutdown/closed-loop/capacity controls pass."
+        },
+        {
+          "requirement_id": "REQ-EXE-01-02",
+          "test_id": "TEST-EXE-01-02",
+          "status": "NOT_RUN",
+          "basis": "Real zero-run-budget admitted cache hit/read admission/compute charge scenario remains a distinct integration obligation."
+        },
+        {
+          "requirement_id": "REQ-EXE-01-03",
+          "test_id": "TEST-EXE-01-03",
+          "status": "PARTIAL",
+          "basis": "Thread retry/physical completion and owner deadline controls pass; real cache publication/recovery and fresh CAS consumer still required."
+        },
+        {
+          "requirement_id": "REQ-EXE-01-04",
+          "test_id": "TEST-EXE-01-04",
+          "status": "PARTIAL",
+          "basis": "Underlying physical ownership and cancellation are exercised; full waiting-node fail-fast/continue and optional metric scenario remains open."
+        }
+      ]
     },
     {
       "packet_id": "RUN-02",
@@ -726,7 +821,7 @@
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "/root/lane06_cas",
       "base_commit": "3865c5ca668fb8aa507246f318cdeb7bd98b2d02",
-      "integrated_commit": null,
+      "integrated_commit": "06e1b7125365ca60525d99e9bba1ad97c8db0024",
       "actual_write_set": [
         "policy-engine/tests/unit/remediation/test_cas_01.py"
       ],
@@ -801,15 +896,35 @@
       "lane_sequence": 1,
       "track_id": "06-C",
       "track_position": 2,
-      "implementation_status": "NOT_STARTED",
-      "local_qualification": "NOT_RUN",
+      "implementation_status": "REVIEWED_LOCAL_SLICE",
+      "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "/root/lane06_cas",
+      "base_commit": "06e1b7125365ca60525d99e9bba1ad97c8db0024",
       "integrated_commit": null,
-      "actual_write_set": [],
-      "shared_writer": null,
-      "decision_records": [],
+      "actual_write_set": [
+        "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+        "policy-engine/src/polisyos/core/artifacts/__init__.py",
+        "policy-engine/tests/unit/remediation/test_cas_02.py",
+        "policy-engine/tests/unit/core/artifacts/test_transfer_generation_publication.py",
+        "policy-engine/src/polisyos/core/components/_cli_replay.py",
+        "policy-engine/tests/unit/core/components/test_cli_replay.py"
+      ],
+      "shared_writer": "/root/lane06_cas",
+      "decision_records": [
+        {
+          "status": "CHOSEN",
+          "decision": "Retain previous directory generation at a returned unique sibling path without automatic deletion or fabricated retention TTL. Expose previous_generation optional field and typed durability error. Stream archive through owned same-parent temporary file then fsync/replace/fsync-parent; preserve existing archive before replace, report postreplace durability uncertainty without rollback promise. API locator is sufficient for retained directory paths; CLI currently calls archive-only route and need not introduce unrelated directory flags."
+        },
+        {
+          "status": "CHOSEN",
+          "decision": "Recovered archive publication also retains a prior archive generation. Expose its existing previous_generation locator through actual CLI JSON/text only when non-null; preserve first-export response and arguments. Mandatory companion, not a new runtime registry."
+        },
+        {
+          "status": "CHOSEN",
+          "decision": "The entire export failure cleanup class retains stages instead of unlinking by pathname or recursively sweeping. Native exclusive/exchange handles files and directories, original descriptor owns tar bytes, actual displaced target is retained, published identity reconciled. New ExportDurabilityError is OSError with replaced bool|None plus previous_generation/staging_path; unknown visibility is not forced into a false bool. No new retention registry/TTL."
+        }
+      ],
       "requirement_ids": [
         "REQ-CAS-02-01",
         "REQ-CAS-02-02",
@@ -820,9 +935,60 @@
         "TEST-CAS-02-02",
         "TEST-CAS-02-03"
       ],
-      "evidence": [],
-      "blockers": [],
-      "deferred_ids": []
+      "evidence": [
+        {
+          "output": "policy-engine/_cache/e02/lane06-cas02-final-native-r8",
+          "result": "79 PASS,0FAIL/ERROR/SKIP;18.89s/1151MiB peak; six pins unchanged",
+          "scope": "Complete native publication/process interruption/FIFO/socket/CLI positive and adversarial ownership class."
+        },
+        {
+          "output": "policy-engine/_cache/e02/lane06-cas02-affected-consumers-r1",
+          "result": "121 PASS,0FAIL/ERROR/SKIP;8.23s/191MiB peak; six pins unchanged",
+          "scope": "Signing, exact import, tenant, native fresh-process and CAS01 consumers."
+        },
+        {
+          "output": "policy-engine/_cache/e02/lane06-cas02-removal-archive-r1",
+          "result": "Intended semantic FAIL: old archive A was overwritten by failed B."
+        },
+        {
+          "output": "policy-engine/_cache/e02/lane06-cas02-removal-directory-r1",
+          "result": "Intended semantic FAIL: public directory generation absent at real syscall."
+        },
+        {
+          "output": "policy-engine/_cache/e02/lane06-second-composed",
+          "result": "338 PASS /87 platform SKIP;25 named inputs unchanged",
+          "scope": "One composed affected-family wave including real native CLI and the manual SCM consumer; not all I06 scenario bindings or all75 local TEST contracts."
+        }
+      ],
+      "blockers": [
+        "Finite repeated-export retention/reclamation policy is not established by manual locators. Native Linux, power-loss/distributed profiles, mandatory revocation/trust configuration and full I06-D remain unqualified."
+      ],
+      "deferred_ids": [],
+      "execution_profile": {
+        "test_slot": "released; source and tests frozen",
+        "independent_review": "GO for final six hashes and full ownership class; importer unchanged from06e1",
+        "source_scope": "Adapt export helpers and exact native oracles from existing373c962 branch. Preserve current import/admission code and all later repairs; no full-module rollback. Root owns generated/release docs and refs."
+      },
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-CAS-02-01",
+          "test_id": "TEST-CAS-02-01",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Native no-replace/exchange retains actual displaced directory and late foreign data; returned locator and conditional CLI consumer, complete B and real directory-gap removal control."
+        },
+        {
+          "requirement_id": "REQ-CAS-02-02",
+          "test_id": "TEST-CAS-02-02",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Owned fd tar, complete footer/sync, exact inventory and old A preserved on prepublication errors. Typed true/false/unknown visibility and actual archive-private removal failure are verified."
+        },
+        {
+          "requirement_id": "REQ-CAS-02-03",
+          "test_id": "TEST-CAS-02-03",
+          "status": "PARTIAL",
+          "basis": "Native exact import/signing/tenant/fresh-process/current-consumer checks pass; configured mandatory revocation/trust and full I06-D remain unqualified."
+        }
+      ]
     },
     {
       "packet_id": "CAS-03",
@@ -866,7 +1032,7 @@
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "/root/lane06_canonical",
       "base_commit": "3865c5ca668fb8aa507246f318cdeb7bd98b2d02",
-      "integrated_commit": null,
+      "integrated_commit": "06e1b7125365ca60525d99e9bba1ad97c8db0024",
       "actual_write_set": [
         "policy-engine/tests/unit/remediation/test_can_01.py",
         "policy-engine/src/polisyos/core/canon/README.md"
@@ -944,7 +1110,7 @@
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "/root/lane06_canonical",
       "base_commit": "7bbc075e3a19056b762db7a5abc1df6a886742b4",
-      "integrated_commit": null,
+      "integrated_commit": "06e1b7125365ca60525d99e9bba1ad97c8db0024",
       "actual_write_set": [
         "policy-engine/src/polisyos/ir/migrations/base.py",
         "policy-engine/tests/unit/remediation/test_mig_05.py",
@@ -1018,15 +1184,24 @@
       "lane_sequence": 1,
       "track_id": "06-D",
       "track_position": 3,
-      "implementation_status": "NOT_STARTED",
-      "local_qualification": "NOT_RUN",
+      "implementation_status": "REVIEWED_LOCAL_SLICE",
+      "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "/root/lane06_canonical",
+      "base_commit": "06e1b7125365ca60525d99e9bba1ad97c8db0024",
       "integrated_commit": null,
-      "actual_write_set": [],
-      "shared_writer": null,
-      "decision_records": [],
+      "actual_write_set": [
+        "policy-engine/tools/lib/fs.py",
+        "policy-engine/tests/unit/remediation/test_mig_01.py",
+        "policy-engine/tools/README.md"
+      ],
+      "shared_writer": "/root/lane06_canonical",
+      "decision_records": [
+        {
+          "status": "CHOSEN",
+          "decision": "Preserve both text/bytes atomic writer siblings and existing descriptor-root owner. Record temporary path before fallible write/flush/fsync. Cleanup error must not replace primary error; retain exact residual path diagnostic. Post-replace fsync failure is indeterminate, never guaranteed rollback. No retirement of tuple/auto_migrate/format-only compatibility."
+        }
+      ],
       "requirement_ids": [
         "REQ-MIG-01-01",
         "REQ-MIG-01-02",
@@ -1037,9 +1212,45 @@
         "TEST-MIG-01-02",
         "TEST-MIG-01-03"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "output": "policy-engine/_cache/e02/lane06-mig01-ownership-final",
+          "result": "74 PASS;0FAIL/ERROR/SKIP;13.39s/250MiB peak; six pins unchanged",
+          "scope": "Both atomic writer siblings, real IO errors, primary-error/cleanup denial, retained foreign temp replacements, actual MIG01/02/04/Trinity consumers and native output scope. Genuine eight original and four ownership failures retained."
+        },
+        {
+          "output": "policy-engine/_cache/e02/lane06-second-composed",
+          "result": "338 PASS /87 platform SKIP;25 named inputs unchanged",
+          "scope": "One composed affected-family wave including real native CLI and the manual SCM consumer; not all I06 scenario bindings or all75 local TEST contracts."
+        }
+      ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "execution_profile": {
+        "test_slot": "released; three leased paths frozen",
+        "independent_review": "GO including final fstat/lstat ownership delta",
+        "source_scope": "Only leased files. Root owns index/refs/generated companions/working state. Do not change source under a dependent deciding run."
+      },
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-MIG-01-01",
+          "test_id": "TEST-MIG-01-01",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Both writer siblings record temporary path and fstat identity before IO; preserve old output/input/original errors, retain foreign name replacements and native output owner."
+        },
+        {
+          "requirement_id": "REQ-MIG-01-02",
+          "test_id": "TEST-MIG-01-02",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Actual registered JSON/YAML CLI and nested Trinity validators preserve same-version mapping identity, refuse invalid/unsupported/missing-contract inputs before output, and publish valid payloads."
+        },
+        {
+          "requirement_id": "REQ-MIG-01-03",
+          "test_id": "TEST-MIG-01-03",
+          "status": "PARTIAL",
+          "basis": "Finite existing helper/parse/tuple/error/lifecycle matrix passes; external historical command callers and installed support window remain unqualified."
+        }
+      ]
     },
     {
       "packet_id": "MIG-02",
@@ -6226,6 +6437,33 @@
         "import_policy": "PASS, enforced complete gate on actual source",
         "independent_reviews": "GO including final CAS adversarial-test and MIG DataForge/DTO deltas"
       }
+    },
+    {
+      "base_commit": "06e1b7125365ca60525d99e9bba1ad97c8db0024",
+      "packets": [
+        "EXE-01",
+        "CAS-02",
+        "MIG-01"
+      ],
+      "status": "REVIEWED_LOCAL_COMPOSITION",
+      "reuse_source": "CAS export/report/native-test mechanism from codex/e02-C-net-ing-20261007 at373c9623071f60c08f5e362e61d211829e5d8f5a; originals40f5c58bfa09e2dd3b545f64664e6a050cc34314 and subsequent oracle corrections. No branch retirement before complete content/protection/occupancy adjudication.",
+      "source_binding": "Use commit containing this state change with lane06-second-composed/after.json; Root verifies committed blobs before publication.",
+      "local_result": "338 PASS /87 explicitly unsupported Linux/profile SKIP,0FAIL/ERROR;44.46s/1.476GiB peak;25 named inputs unchanged",
+      "shared_integration_status": "NOT_RUN",
+      "gate_results": {
+        "ruff": "PASS",
+        "public_inventory": "PASS normal sync; only additive ExportDurabilityError changes Core artifacts136→137",
+        "static_architecture": "PASS with --skip-generated-checks; isolated probes explicitly NOT_RUN",
+        "trust_freshness": "PASS unchanged payload",
+        "independent_reviews": "GO for CAS ownership class, EXE cancellation class, MIG temp ownership, STA manual native consumer",
+        "common_typing": "PASS for Common async_tools only, --follow-imports=skip; not a repository typecheck",
+        "import_policy": "PASS enforced complete gate on actual source"
+      },
+      "next_readiness_batch": [
+        "CAS-03",
+        "RUN-02",
+        "RES-02"
+      ]
     }
   ]
 }

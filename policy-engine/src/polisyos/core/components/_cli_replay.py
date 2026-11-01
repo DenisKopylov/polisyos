@@ -141,6 +141,9 @@ def _cmd_replay_with_store(
                 "missing_artifacts": export_report.missing_artifacts,
                 "missing_manifests": export_report.missing_manifests,
             }
+            if export_report.previous_generation is not None:
+                payload["previous_generation"] = str(export_report.previous_generation)
+                payload["previous_generation_retention"] = "caller_owned_manual_reclamation"
             if import_report is not None:
                 payload["bundle_import"] = _bundle_import_payload(import_report)
             print(json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True))
@@ -150,6 +153,11 @@ def _cmd_replay_with_store(
                 f"bytes={export_report.total_bytes} "
                 f"path={export_report.output_path}"
             )
+            if export_report.previous_generation is not None:
+                print(
+                    f"previous_generation={export_report.previous_generation} "
+                    "retention=caller_owned_manual_reclamation"
+                )
             if import_report is not None:
                 print(_bundle_import_summary(import_report))
         return 0 if not export_report.missing_artifacts else 1

@@ -141,18 +141,18 @@ class SharedExecutionHandle[T]:
 
     async def result_async(self, timeout: float | None = None) -> SharedExecutionCompletion[T]:
         """Wait without occupying a shared worker and preserve running slot ownership."""
-        wrapped = asyncio.wrap_future(self._future)
+        wrapped = wrap_shared_executor_future(self._future)
         try:
             return await asyncio.wait_for(asyncio.shield(wrapped), timeout=timeout)
         except TimeoutError:
             if self._future.done():
                 return self._future.result()
-            cancelled = self.cancel()
+            cancelled = request_shared_executor_cancellation(self._future)
             if not cancelled and self._future.done():
                 return self._future.result()
             raise SharedExecutorWaitTimeoutError(cancelled_before_start=cancelled) from None
         except asyncio.CancelledError:
-            self.cancel()
+            request_shared_executor_cancellation(self._future)
             raise
 
 
@@ -167,6 +167,33 @@ class _SharedFuture[T](concurrent.futures.Future[T]):
         self._slot_held = True
         self._work_reserved = False
         self._queued_slot = False
+        self._start_gate = threading.Lock()
+        self._async_cancel_requested = False
+
+    def _request_async_cancel(self) -> bool:
+        """Reserve cancellation against start without invoking user callbacks here."""
+        with self._start_gate, self._condition:
+            if self._async_cancel_requested:
+                return True
+            if self.done():
+                return self.cancelled()
+            if self.running():
+                return False
+            self._async_cancel_requested = True
+            return True
+
+    def _start_or_acknowledge_cancel(self) -> bool:
+        """Atomically choose worker start or queued cancellation acknowledgment."""
+        with self._start_gate:
+            requested = self._async_cancel_requested
+            if not requested:
+                return self.set_running_or_notify_cancel()
+        # User callbacks run outside the start gate, in the reserved owner slot.
+        try:
+            self.cancel()
+        finally:
+            self.set_running_or_notify_cancel()
+        return False
 
     def _mark_work_reserved(self) -> None:
         """Record the queue and work reservations made at admission."""
@@ -241,6 +268,96 @@ class _SharedFuture[T](concurrent.futures.Future[T]):
                 executor.run_callback_sync(selected_callback, future)
 
         super().add_done_callback(invoke)
+
+
+def request_shared_executor_cancellation[T](future: concurrent.futures.Future[T]) -> bool:
+    """Request cancellation before a shared worker starts without running its callbacks.
+
+    An accepted request reserves the no-start outcome; the existing worker
+    acknowledges it and runs callbacks when it reaches the queued item. Its
+    physical reservation remains held until that work drains. Ordinary futures
+    retain their existing ``cancel()`` behavior.
+
+    Args:
+        future: A concurrent future to cancel before its callable starts.
+
+    Returns:
+        Whether cancellation was accepted or was already acknowledged.
+    """
+    if type(future) is _SharedFuture:
+        return future._request_async_cancel()
+    return future.cancel()
+
+
+def wrap_shared_executor_future[T](
+    future: concurrent.futures.Future[T],
+    *,
+    loop: asyncio.AbstractEventLoop | None = None,
+) -> asyncio.Future[T]:
+    """Transfer a shared executor result to an event loop without waiting for a worker.
+
+    The owned future's internal transport callback only schedules a state copy;
+    ordinary user callbacks keep the bounded executor dispatch contract. Other
+    concurrent futures use the standard asyncio adapter.
+
+    Args:
+        future: A concurrent future returned by an executor.
+        loop: The target event loop; defaults to the currently running loop.
+
+    Returns:
+        An asyncio future carrying the result, exception, or cancellation.
+    """
+    if type(future) is not _SharedFuture:
+        return asyncio.wrap_future(future, loop=loop)
+    selected_loop = loop if loop is not None else asyncio.get_running_loop()
+    destination: asyncio.Future[T] = selected_loop.create_future()
+    binding_lock = threading.Lock()
+    binding: tuple[asyncio.AbstractEventLoop, asyncio.Future[T]] | None = (
+        selected_loop,
+        destination,
+    )
+
+    def _set_state(target: asyncio.Future[T], source: concurrent.futures.Future[T]) -> None:
+        if target.done():
+            return
+        if source.cancelled():
+            target.cancel()
+            return
+        error = source.exception()
+        if error is None:
+            target.set_result(source.result())
+            return
+        if type(error) is concurrent.futures.CancelledError:
+            error = asyncio.CancelledError(*error.args).with_traceback(error.__traceback__)
+        elif type(error) is concurrent.futures.InvalidStateError:
+            error = asyncio.InvalidStateError(*error.args).with_traceback(error.__traceback__)
+        target.set_exception(error)
+
+    def _deliver(source: concurrent.futures.Future[T]) -> None:
+        nonlocal binding
+        with binding_lock:
+            selected, binding = binding, None
+        if selected is None:
+            return
+        target_loop, target = selected
+        try:
+            target_loop.call_soon_threadsafe(_set_state, target, source)
+        except RuntimeError:
+            if not target_loop.is_closed():
+                raise
+
+    def _cancel_source(target: asyncio.Future[T]) -> None:
+        nonlocal binding
+        with binding_lock:
+            binding = None
+        if target.cancelled():
+            request_shared_executor_cancellation(future)
+
+    destination.add_done_callback(_cancel_source)
+    # The bypass is confined to the fixed transport handoff above. Registering
+    # a user callback still goes through _SharedFuture.add_done_callback.
+    concurrent.futures.Future.add_done_callback(future, _deliver)
+    return destination
 
 
 class _SharedExecutor(concurrent.futures.ThreadPoolExecutor):
@@ -410,7 +527,7 @@ class _SharedExecutor(concurrent.futures.ThreadPoolExecutor):
             context = contextvars.copy_context()
 
             def invoke() -> None:
-                if not future.set_running_or_notify_cancel():
+                if not future._start_or_acknowledge_cancel():
                     return
                 try:
                     result = fn(*args, **kwargs)
@@ -841,6 +958,7 @@ async def run_blocking_async[T](
     if unbounded and timeout_seconds is not None:
         raise ValueError("unbounded cannot be combined with timeout_seconds")
     timeout = None if unbounded else _normalize_timeout(timeout_seconds)
+    deadline = None if timeout is None else time.monotonic() + timeout
     loop = asyncio.get_running_loop()
     call = functools.partial(func, *args, **kwargs)
     context = contextvars.copy_context()
@@ -896,6 +1014,8 @@ async def run_blocking_async[T](
             worker_thread_ident = threading.get_ident()
             worker_is_executor = is_current_shared_executor_worker()
         try:
+            if deadline is not None and time.monotonic() >= deadline:
+                raise TimeoutError(f"Blocking call did not complete within {timeout:.3f}s")
             receipt.value = context.run(call)
         except BaseException as exc:
             status = "error"
@@ -960,11 +1080,13 @@ async def run_blocking_async[T](
                         )
         return receipt
 
+    if deadline is not None and time.monotonic() >= deadline:
+        raise TimeoutError(f"Blocking call did not complete within {timeout:.3f}s")
     worker_future = executor.submit(invoke)
-    future = asyncio.wrap_future(worker_future, loop=loop)
-    deadline = None if timeout is None else time.monotonic() + timeout
+    future = wrap_shared_executor_future(worker_future, loop=loop)
+    remaining = None if deadline is None else max(0.0, deadline - time.monotonic())
     try:
-        completed_receipt = await asyncio.wait_for(future, timeout=timeout)
+        completed_receipt = await asyncio.wait_for(future, timeout=remaining)
     except TimeoutError as exc:
         # Future delivery may miss the wait even when the callable finished in time.
         if (
@@ -973,15 +1095,15 @@ async def run_blocking_async[T](
             and (deadline is None or receipt.completed_at <= deadline)
         ):
             return receipt.result()
-        worker_future.cancel()
+        request_shared_executor_cancellation(worker_future)
         raise TimeoutError(f"Blocking call did not complete within {timeout:.3f}s") from exc
     except asyncio.CancelledError:
-        worker_future.cancel()
+        request_shared_executor_cancellation(worker_future)
         raise
 
     if receipt.completed_at is None or (deadline is not None and receipt.completed_at > deadline):
         future.cancel()
-        worker_future.cancel()
+        request_shared_executor_cancellation(worker_future)
         raise TimeoutError(f"Blocking call did not complete within {timeout:.3f}s")
     return completed_receipt.result()
 

@@ -77,6 +77,27 @@ def normalize_filesystem_path(
     return path
 
 
+def _cleanup_failed_atomic_write(
+    tmp_path: Path | None, tmp_identity: tuple[int, int] | None, error: BaseException
+) -> None:
+    """Clean only the observed owned temporary leaf, retaining the original error."""
+    if tmp_path is None:
+        return
+    if tmp_identity is None:
+        error.add_note(f"Atomic output temporary ownership unavailable; retained {tmp_path}")
+        return
+    try:
+        observed = tmp_path.lstat()
+        if not stat.S_ISREG(observed.st_mode) or (observed.st_dev, observed.st_ino) != tmp_identity:
+            error.add_note(f"Atomic output temporary ownership changed; retained {tmp_path}")
+            return
+        tmp_path.unlink(missing_ok=True)
+    except FileNotFoundError:
+        return
+    except OSError as cleanup_error:
+        error.add_note(f"Atomic output temporary cleanup failed for {tmp_path}: {cleanup_error}")
+
+
 def atomic_write_text(path: Path, data: str, *, encoding: str = "utf-8") -> None:
     """Write text atomically normally, or through the active native output root."""
     output_root = active_secure_output_root()
@@ -85,6 +106,7 @@ def atomic_write_text(path: Path, data: str, *, encoding: str = "utf-8") -> None
         return
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp_path: Path | None = None
+    tmp_identity: tuple[int, int] | None = None
     try:
         with tempfile.NamedTemporaryFile(
             mode="w",
@@ -94,14 +116,16 @@ def atomic_write_text(path: Path, data: str, *, encoding: str = "utf-8") -> None
             suffix=".tmp",
             delete=False,
         ) as handle:
+            tmp_path = Path(handle.name)
+            created = os.fstat(handle.fileno())
+            tmp_identity = (created.st_dev, created.st_ino)
             handle.write(data)
             handle.flush()
             os.fsync(handle.fileno())
-            tmp_path = Path(handle.name)
         os.replace(tmp_path, path)
-    finally:
-        if tmp_path is not None and tmp_path.exists():
-            tmp_path.unlink(missing_ok=True)
+    except BaseException as error:
+        _cleanup_failed_atomic_write(tmp_path, tmp_identity, error)
+        raise
 
 
 def atomic_write_bytes(path: Path, data: bytes) -> None:
@@ -112,6 +136,7 @@ def atomic_write_bytes(path: Path, data: bytes) -> None:
         return
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp_path: Path | None = None
+    tmp_identity: tuple[int, int] | None = None
     try:
         with tempfile.NamedTemporaryFile(
             mode="wb",
@@ -120,14 +145,16 @@ def atomic_write_bytes(path: Path, data: bytes) -> None:
             suffix=".tmp",
             delete=False,
         ) as handle:
+            tmp_path = Path(handle.name)
+            created = os.fstat(handle.fileno())
+            tmp_identity = (created.st_dev, created.st_ino)
             handle.write(data)
             handle.flush()
             os.fsync(handle.fileno())
-            tmp_path = Path(handle.name)
         os.replace(tmp_path, path)
-    finally:
-        if tmp_path is not None and tmp_path.exists():
-            tmp_path.unlink(missing_ok=True)
+    except BaseException as error:
+        _cleanup_failed_atomic_write(tmp_path, tmp_identity, error)
+        raise
 
 
 def atomic_write_json(

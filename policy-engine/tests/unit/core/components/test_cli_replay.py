@@ -16,6 +16,7 @@ from polisyos.core.artifacts.manifest import (
     ArtifactRef,
     ArtifactTenantContextInfo,
     InputRef,
+    SchemaInfo,
     input_ref_from_artifact_ref,
 )
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -115,7 +116,14 @@ def _build_executable_foundry_packet(store: FileSystemCAS) -> ArtifactRef:
     state_ref = StateSnapshotRef.model_validate(state_blob.model_dump(mode="python"))
     data_snapshot = store.put_json(
         DataSnapshot(data_ref=state_ref),
-        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+        PutOptions(
+            kind=DataSnapshot.ARTIFACT_KIND,
+            media_type="application/json",
+            schema=SchemaInfo(
+                name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
         return_selected_profile=True,
     )
     policy = TrinityBundle(
@@ -144,7 +152,14 @@ def _build_executable_foundry_packet(store: FileSystemCAS) -> ArtifactRef:
     )
     policy_ref = store.put_json(
         policy,
-        PutOptions(kind="ir.trinity_bundle", media_type="application/json"),
+        PutOptions(
+            kind=TrinityBundle.ARTIFACT_KIND,
+            media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
+                version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
         return_selected_profile=True,
     )
     compile_result = compile_foundry(
@@ -171,7 +186,14 @@ def _build_executable_foundry_packet(store: FileSystemCAS) -> ArtifactRef:
             rules=[],
             bound_state_snapshot_ref=state_ref,
         ),
-        PutOptions(kind="foundry.input_bindings", media_type="application/json"),
+        PutOptions(
+            kind=FoundryInputBindings.ARTIFACT_KIND,
+            media_type="application/json",
+            schema=SchemaInfo(
+                name=FoundryInputBindings.ARTIFACT_SCHEMA_NAME,
+                version=FoundryInputBindings.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
         return_selected_profile=True,
     )
     packet_inputs = {
@@ -243,6 +265,8 @@ def test_replay_cli_runs_native_foundry_replay_and_persists_result(
     """The ordinary non-dry CLI path executes Foundry and leaves a readable result."""
     store = FileSystemCAS(tmp_path / "cas")
     packet_ref = _build_executable_foundry_packet(store)
+    # Compiler diagnostics belong to setup; the CLI must itself emit one JSON value.
+    capsys.readouterr()
 
     exit_code = main(
         [
@@ -654,6 +678,7 @@ def test_all_replay_import_surfaces_project_one_typed_report(
             output_path=tmp_path / "export",
             missing_artifacts=[],
             missing_manifests=[],
+            previous_generation=None,
         )
     )
     replay_result = SimpleNamespace(
@@ -695,3 +720,56 @@ def test_all_replay_import_surfaces_project_one_typed_report(
         assert "bundle_import received_unique_ids=1" in output
         assert "integrity=not_requested:0" in output
         assert "disposition_basis=exact_owned_view_admission" in output
+
+
+@pytest.mark.parametrize("as_json", [True, False])
+def test_export_overwrite_cli_exposes_the_actual_retained_generation(
+    tmp_path: Path,
+    capsys,
+    as_json: bool,
+) -> None:
+    """The real CLI export names retained bytes; the first export shape stays stable."""
+    source = FileSystemCAS(tmp_path / "source")
+    packet_ref, _expected_ids = _build_replay_bundle(
+        source, tmp_path / "bundle", run_id="retained_export_cli"
+    )
+    target = tmp_path / "cli-export.tar.gz"
+    argv = [
+        "replay",
+        str(packet_ref.artifact_id),
+        "--bundle",
+        str(tmp_path / "bundle"),
+        "--export",
+        str(target),
+    ]
+    if as_json:
+        argv.append("--json")
+    assert main(argv) == 0
+    first = capsys.readouterr()
+    assert first.err == ""
+    if as_json:
+        first_payload = json.loads(first.out)
+        assert "previous_generation" not in first_payload
+        assert "previous_generation_retention" not in first_payload
+    else:
+        assert "previous_generation=" not in first.out
+    original_bytes = target.read_bytes()
+    assert main(argv) == 0
+    second = capsys.readouterr()
+    assert second.err == ""
+    if as_json:
+        payload = json.loads(second.out)
+        retained = Path(payload["previous_generation"])
+        assert payload["previous_generation_retention"] == "caller_owned_manual_reclamation"
+    else:
+        line = next(
+            line for line in second.out.splitlines() if line.startswith("previous_generation=")
+        )
+        retained = Path(line.removeprefix("previous_generation=").split(" retention=", 1)[0])
+        assert "retention=caller_owned_manual_reclamation" in line
+    assert retained.parent == target.parent
+    assert retained.read_bytes() == original_bytes
+    fresh = FileSystemCAS(tmp_path / "fresh-reader")
+    imported = fresh.import_subgraph(retained, verify_integrity=True)
+    assert imported.verification_failed == []
+    assert fresh.get_bytes(packet_ref) == source.get_bytes(packet_ref)

@@ -1,0 +1,14 @@
+id = "2026-11-01-lane06-transfer-and-async-cancellation"
+title = "Keep event loops responsive and preserve export generations"
+type = "added"
+component = "core"
+owner = "e02-coordinator"
+summary = "Reuse the bounded Common worker for result transport and asynchronous cancellation acknowledgement; retain actual displaced export generations with native atomic publication and expose their locators through the existing CLI. Atomic text/bytes cleanup retains foreign replacements and the primary failure."
+evidence = ["tests/unit/common/test_async_tools.py", "tests/unit/common/test_blocking_worker_completion.py", "tests/unit/scientist/orchestration/engine/test_retry.py", "tests/unit/core/artifacts/test_transfer_generation_publication.py", "tests/unit/core/components/test_cli_replay.py", "tests/unit/remediation/test_mig_01.py"]
+compatibility = "Ordinary synchronous Future.cancel remains unchanged. Async requests retain reservations until physical acknowledgement. ExportReport gains optional previous_generation; first-export CLI output remains unchanged. Existing canonical profiles and the newer importer admission remain intact."
+change_class = "Compatible bounded execution and phase-aware native export publication."
+surface_classification = "public_stable: polisyos.common and polisyos.core.artifacts"
+api = "Add wrap_shared_executor_future and request_shared_executor_cancellation in Common async_tools; export ExportDurabilityError and optional retained-generation coordinates. No HTTP or persisted-schema change."
+limitations = "Native APFS qualification does not establish Linux, power-loss, hostile-parent or distributed filesystem guarantees. Retained generations require caller-owned reclamation; a locator alone is not a finite operational retention bound. No whole-lane or G acceptance."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true

@@ -23,6 +23,191 @@ async def _wait_for_thread_event(event: threading.Event, *, timeout: float = 2.0
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("route", ["blocking_helper", "completion_handle"])
+async def test_completed_shared_work_does_not_block_loop_during_saturated_delivery(
+    monkeypatch: pytest.MonkeyPatch,
+    route: str,
+) -> None:
+    """Completion registration must not wait for an unrelated occupied worker."""
+    executor = async_tools._SharedExecutor(max_workers=1, max_queued=0)
+    monkeypatch.setattr(async_tools, "_get_shared_executor", lambda: executor)
+    original_submit = executor.submit
+    started = threading.Event()
+    release = threading.Event()
+    heartbeat = threading.Event()
+    forced_release = threading.Event()
+    calls: list[str] = []
+    blocker_future = None
+
+    def work() -> int:
+        calls.append("work")
+        return 42
+
+    def block() -> None:
+        started.set()
+        assert release.wait(timeout=3)
+
+    def occupy_after_completion() -> None:
+        nonlocal blocker_future
+        with executor._capacity_changed:
+            assert executor._capacity_changed.wait_for(lambda: executor._outstanding_jobs == 0, 2)
+        blocker_future = original_submit(block)
+        assert started.wait(timeout=2)
+
+    def watchdog() -> None:
+        if not heartbeat.wait(timeout=0.5):
+            forced_release.set()
+            release.set()
+
+    if route == "completion_handle":
+        handle = executor.submit_cancellable(work)
+        assert handle.result(timeout=2).value == 42
+        occupy_after_completion()
+    else:
+        submitted = False
+
+        def complete_before_return(fn, /, *args, **kwargs):
+            nonlocal submitted
+            result = original_submit(fn, *args, **kwargs)
+            if not submitted:
+                submitted = True
+                result.result(timeout=2)
+                occupy_after_completion()
+            return result
+
+        monkeypatch.setattr(executor, "submit", complete_before_return)
+
+    watcher = threading.Thread(target=watchdog)
+    watcher.start()
+    asyncio.get_running_loop().call_soon(heartbeat.set)
+    try:
+        if route == "completion_handle":
+            result = await handle.result_async(timeout=2)
+            assert result.status == "completed" and result.value == 42
+        else:
+            assert await run_blocking_async(work, timeout_seconds=2) == 42
+        assert heartbeat.is_set() and not forced_release.is_set()
+        assert not release.is_set() and calls == ["work"]
+        with executor._admission_lock:
+            assert executor._physical_workers == 1 and executor._outstanding_jobs == 1
+    finally:
+        release.set()
+        watcher.join(timeout=2)
+        if blocker_future is not None:
+            blocker_future.result(timeout=2)
+        executor.shutdown(wait=True, cancel_futures=True)
+
+
+@pytest.mark.asyncio
+async def test_blocking_helper_deadline_includes_pre_admission_setup(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A consumed invocation budget cannot start the callable with a new deadline."""
+    executor = async_tools._SharedExecutor(max_workers=1, max_queued=0)
+    calls: list[str] = []
+    delay = threading.Event()
+
+    def delayed_executor():
+        delay.wait(timeout=0.12)
+        return executor
+
+    monkeypatch.setattr(async_tools, "_get_shared_executor", delayed_executor)
+    try:
+        with pytest.raises(TimeoutError, match="Blocking call did not complete within"):
+            await run_blocking_async(calls.append, "must-not-start", timeout_seconds=0.03)
+        assert calls == []
+    finally:
+        executor.shutdown(wait=True, cancel_futures=True)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "route", ["helper_cancel", "helper_timeout", "handle_cancel", "handle_timeout"]
+)
+async def test_async_cancellation_routes_do_not_wait_for_queued_user_callbacks(
+    monkeypatch: pytest.MonkeyPatch,
+    route: str,
+) -> None:
+    """Cancellation and timeout return while a queued source's worker is occupied."""
+    executor = async_tools._SharedExecutor(max_workers=1, max_queued=1)
+    monkeypatch.setattr(async_tools, "_get_shared_executor", lambda: executor)
+    started = threading.Event()
+    release = threading.Event()
+    heartbeat = threading.Event()
+    forced_release = threading.Event()
+    callback_finished = threading.Event()
+    calls: list[str] = []
+    sources = []
+
+    def block() -> None:
+        started.set()
+        assert release.wait(timeout=3)
+
+    def user_callback(_future) -> None:
+        calls.append("callback")
+        callback_finished.set()
+
+    def watchdog() -> None:
+        if not heartbeat.wait(timeout=0.5):
+            forced_release.set()
+            release.set()
+
+    running = executor.submit(block)
+    assert started.wait(timeout=2)
+    is_timeout = route.endswith("timeout")
+    if route.startswith("handle"):
+        handle = executor.submit_cancellable(lambda: calls.append("must-not-run"))
+        source = handle._future
+        source.add_done_callback(user_callback)
+        task = asyncio.create_task(handle.result_async(timeout=0.03 if is_timeout else 2))
+    else:
+        original_submit = executor.submit
+
+        def attach_before_return(fn, /, *args, **kwargs):
+            source = original_submit(fn, *args, **kwargs)
+            source.add_done_callback(user_callback)
+            sources.append(source)
+            return source
+
+        monkeypatch.setattr(executor, "submit", attach_before_return)
+        task = asyncio.create_task(
+            run_blocking_async(
+                calls.append, "must-not-run", timeout_seconds=0.03 if is_timeout else 2
+            )
+        )
+    await asyncio.sleep(0)
+    if not route.startswith("handle"):
+        assert len(sources) == 1
+        source = sources[0]
+    assert not source.done()
+    watcher = threading.Thread(target=watchdog)
+    watcher.start()
+    try:
+        if is_timeout:
+            asyncio.get_running_loop().call_later(0.08, heartbeat.set)
+            with pytest.raises(TimeoutError):
+                await task
+        else:
+            task.cancel()
+            asyncio.get_running_loop().call_soon(heartbeat.set)
+            with pytest.raises(asyncio.CancelledError):
+                await task
+        await asyncio.sleep(0.1)
+        assert heartbeat.is_set() and not forced_release.is_set()
+        assert not release.is_set() and calls == []
+        with executor._admission_lock:
+            assert executor._physical_workers == 1 and executor._outstanding_jobs == 2
+    finally:
+        release.set()
+        watcher.join(timeout=2)
+        running.result(timeout=2)
+        assert callback_finished.wait(timeout=2)
+        executor.shutdown(wait=True, cancel_futures=True)
+    assert source.cancelled() and calls == ["callback"]
+    assert executor._outstanding_jobs == 0
+
+
+@pytest.mark.asyncio
 async def test_completed_work_survives_delayed_future_delivery(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

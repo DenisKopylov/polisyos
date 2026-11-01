@@ -67,6 +67,156 @@ def _fail_outcome(state, code="node.exception"):
     )
 
 
+@pytest.mark.asyncio
+async def test_thread_attempt_completed_before_wrap_does_not_stall_saturated_loop(
+    ctx,
+    state,
+    monkeypatch,
+) -> None:
+    """The real async retry bridge must deliver completed work without a spare worker."""
+    from polisyos.common import async_tools
+
+    executor = async_tools._SharedExecutor(max_workers=1, max_queued=0)
+    monkeypatch.setattr(retry_module, "get_shared_executor", lambda: executor)
+    original_submit = retry_module._submit_thread_attempt
+    started = threading.Event()
+    release = threading.Event()
+    heartbeat = threading.Event()
+    forced_release = threading.Event()
+    calls: list[str] = []
+    blocker_future = None
+
+    class Node:
+        def execute(self, attempt_ctx, attempt_state):
+            del attempt_ctx
+            calls.append("work")
+            return _ok_outcome(attempt_state)
+
+    def block() -> None:
+        started.set()
+        assert release.wait(timeout=3)
+
+    def completed_before_return(node, selected_ctx, selected_state, deadline):
+        nonlocal blocker_future
+        future, authority, completed = original_submit(node, selected_ctx, selected_state, deadline)
+        assert future.result(timeout=2).status == "ok"
+        with executor._capacity_changed:
+            assert executor._capacity_changed.wait_for(lambda: executor._outstanding_jobs == 0, 2)
+        blocker_future = executor.submit(block)
+        assert started.wait(timeout=2)
+        return future, authority, completed
+
+    def watchdog() -> None:
+        if not heartbeat.wait(timeout=0.5):
+            forced_release.set()
+            release.set()
+
+    monkeypatch.setattr(retry_module, "_submit_thread_attempt", completed_before_return)
+    watcher = threading.Thread(target=watchdog)
+    watcher.start()
+    asyncio.get_running_loop().call_soon(heartbeat.set)
+    try:
+        result = await retry_module._execute_with_timeout_thread_async(
+            Node(), ctx, state, timeout_s=2
+        )
+        assert result.status == "ok" and result.state.run_id == state.run_id
+        assert heartbeat.is_set() and not forced_release.is_set()
+        assert not release.is_set() and calls == ["work"]
+        with executor._admission_lock:
+            assert executor._physical_workers == 1 and executor._outstanding_jobs == 1
+    finally:
+        release.set()
+        watcher.join(timeout=2)
+        if blocker_future is not None:
+            blocker_future.result(timeout=2)
+        executor.shutdown(wait=True, cancel_futures=True)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("mode", ["cancel", "timeout"])
+async def test_thread_attempt_queued_cancellation_never_waits_for_user_callbacks(
+    ctx,
+    state,
+    monkeypatch,
+    mode: str,
+) -> None:
+    """Async retry preserves a queued no-start outcome without blocking its loop."""
+    from polisyos.common import async_tools
+
+    executor = async_tools._SharedExecutor(max_workers=1, max_queued=1)
+    monkeypatch.setattr(retry_module, "get_shared_executor", lambda: executor)
+    original_submit = retry_module._submit_thread_attempt
+    started = threading.Event()
+    release = threading.Event()
+    heartbeat = threading.Event()
+    forced_release = threading.Event()
+    callback_finished = threading.Event()
+    calls: list[str] = []
+    sources = []
+
+    class Node:
+        def execute(self, attempt_ctx, attempt_state):
+            del attempt_ctx
+            calls.append("must-not-run")
+            return _ok_outcome(attempt_state)
+
+    def block() -> None:
+        started.set()
+        assert release.wait(timeout=3)
+
+    def callback(_future) -> None:
+        calls.append("callback")
+        callback_finished.set()
+
+    def attach_callback(node, selected_ctx, selected_state, deadline):
+        future, authority, completed = original_submit(node, selected_ctx, selected_state, deadline)
+        future.add_done_callback(callback)
+        sources.append(future)
+        return future, authority, completed
+
+    def watchdog() -> None:
+        if not heartbeat.wait(timeout=0.5):
+            forced_release.set()
+            release.set()
+
+    running = executor.submit(block)
+    assert started.wait(timeout=2)
+    monkeypatch.setattr(retry_module, "_submit_thread_attempt", attach_callback)
+    task = asyncio.create_task(
+        retry_module._execute_with_timeout_thread_async(
+            Node(), ctx, state, timeout_s=0.03 if mode == "timeout" else 2
+        )
+    )
+    await asyncio.sleep(0)
+    assert len(sources) == 1 and not sources[0].done()
+    watcher = threading.Thread(target=watchdog)
+    watcher.start()
+    try:
+        if mode == "timeout":
+            asyncio.get_running_loop().call_later(0.08, heartbeat.set)
+            with pytest.raises(NodeTimeoutError) as captured:
+                await task
+            assert captured.value.details["execution_state"] == "not_started"
+        else:
+            task.cancel()
+            asyncio.get_running_loop().call_soon(heartbeat.set)
+            with pytest.raises(asyncio.CancelledError):
+                await task
+        await asyncio.sleep(0.1)
+        assert heartbeat.is_set() and not forced_release.is_set()
+        assert not release.is_set() and calls == []
+        with executor._admission_lock:
+            assert executor._physical_workers == 1 and executor._outstanding_jobs == 2
+    finally:
+        release.set()
+        watcher.join(timeout=2)
+        running.result(timeout=2)
+        assert callback_finished.wait(timeout=2)
+        executor.shutdown(wait=True, cancel_futures=True)
+    assert sources[0].cancelled() and calls == ["callback"]
+    assert executor._outstanding_jobs == 0
+
+
 def _select_timeout_test_route(monkeypatch, route: str) -> None:
     """Select a route that this platform actually admits for the tested input."""
     if route.endswith("-fork"):

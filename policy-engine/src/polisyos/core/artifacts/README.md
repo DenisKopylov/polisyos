@@ -373,29 +373,41 @@ signature publication consumer remains explicitly absent until separately integr
 
 ### Transfer generations
 
-Reusable exports publish a complete privately staged generation. Archive destinations admit
-only missing paths or regular files; symlink aliases and other filesystem kinds are refused
-before staging. Existing archive permission bits are preserved. The archive is synced before
-one atomic replace, and the previous inode remains available at `ExportReport.previous_generation`.
-New archive and directory outputs start with private staging modes (0600 and 0700); existing
-output modes are retained.
+Reusable exports write privately staged generations before publication. Archive
+output paths admit only missing paths or regular files; aliases and other kinds
+refuse before staging. Tar headers, members and footer use the original owned
+`mkstemp` descriptor, followed by file sync. Directory members are created through
+the pinned staging directory with exclusive, no-follow descriptor operations.
+New staging modes are 0600/0700; ordinary existing permission bits are preserved.
 
-An existing owned nonempty directory requires a native atomic exchange (`renameat2` on Linux,
-`renamex_np` on Darwin). Missing or empty directories use atomic replacement. Unsupported
-platforms/filesystems refuse the exchange rather than temporarily removing the public path.
-The previous directory remains at the named generation path returned by the report. The
-operator owns retention and eventual reclamation of these history paths; publication does
-not sweep them. Inventory metadata, files, and directory entries are synced before selection.
+A shared native generation rename uses exclusive/no-replace publication for a
+missing destination and atomic exchange for an existing archive or directory
+(`renameat2` on Linux, `renamex_np` on Darwin). A destination created after
+preflight is not silently overwritten. The actually displaced generation remains
+at `ExportReport.previous_generation`; the CLI exposes this locator conditionally
+in JSON and text. The published inode is reconciled with the staged owner.
 
-A parent-directory sync failure after replacement raises `ExportDurabilityError` with
-`replaced=True` and `previous_generation`; both complete generations remain readable, while
-crash durability remains uncertain. This is a local filesystem publication boundary, not a
-power-loss, hostile-parent-mutation, ACL/ownership, or distributed filesystem guarantee.
-Archive import sources likewise require a regular supplied pathname and a regular opened
-descriptor, with no-follow and nonblocking open flags. Ordinary permission modes are verified;
-special set-ID bits and uid/gid ownership remain outside the native permission witness.
-Importers keep one archive inode or one directory descriptor pinned from inventory through
-member reads, so a concurrent generation replacement cannot mix their input bytes.
+Failed archive files and directory trees remain available. Export does not
+recursively sweep a failed stage or unlink a pathname that another actor could
+have replaced. `ExportDurabilityError` is an `OSError` exposing `replaced=True`
+when the published inode is established, `False` for a prepublication failure,
+and `None` when its visibility cannot be established. `previous_generation` names
+the displaced entry and `staging_path` identifies retained partial bytes; neither
+means a failed stage is complete. A post-publication sync failure does not promise
+rollback. Original causes and typed visibility remain inspectable.
+
+Callers own reclamation of retained generations/stages. Returned locators do not
+establish a finite retention bound or permission to delete changed user files.
+Native macOS/APFS checks cover the declared publication window; they do not
+establish power-loss, indefinitely hostile parent mutation, special set-ID bits, ACL/uid/gid ownership,
+Linux runtime or distributed-filesystem guarantees.
+
+The importer remains independently pinned: supplied archive path and opened
+descriptor must be regular, with no-follow/nonblocking open flags. It holds one
+archive inode or directory descriptor from inventory through member reads, so a
+concurrent generation replacement cannot mix its input bytes. This export repair
+does not weaken that admission or promote signature/byte evidence to scientific
+or institutional authority.
 
 ### Scoped import admission and passive caches
 

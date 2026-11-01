@@ -714,6 +714,168 @@ def _workflow_fixture(
     return source, store, run, ctx, state, ref
 
 
+def test_source_bound_prior_reaches_native_hybrid_fit_and_fresh_query(tmp_path: Path) -> None:
+    """A named manual research route consumes the actual selected SKG prior.
+
+    The fit is conditional on the declared graph/data and conveys no empirical
+    or institutional authority. The same physical source path has an older
+    retained 1.25 version and a newer live 9.75 version; both are actually read.
+    """
+    from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
+    from polisyos.foundry.methods.catalog.causal.estimand_compiler import (
+        ExecutorGraph,
+        ExecutorNode,
+    )
+    from polisyos.foundry.methods.catalog.causal.gcm_fit import HybridSCMFit
+    from polisyos.foundry.methods.catalog.causal.gcm_query import GCMQuery
+    from polisyos.foundry.methods.catalog.causal.protocols import SCMQueryData
+    from polisyos.foundry.methods.registry import MethodRegistry
+    from polisyos.ir.analytics.causal_graph import CausalEdge
+    from polisyos.ir.analytics.parameters import ContextAdaptiveParameterBundleV12
+    from polisyos.ir.analytics.structural_causal_model import (
+        MechanismSource,
+        load_structural_causal_model_spec,
+        persist_structural_causal_model_spec,
+    )
+    from polisyos.ir.artifacts import InputRef as IRInputRef
+
+    with tenant_scope(None, tenant_id="retained-tenant", cell_id="retained-cell"):
+        _source, store, _run, ctx, original_state, old_source_ref = _workflow_fixture(tmp_path)
+        graph = CausalGraphModel(
+            graph_type=GraphType.DAG,
+            nodes=["X", "fiscal_multiplier"],
+            edges=[CausalEdge(src="X", dst="fiscal_multiplier")],
+        )
+        graph_ref = persist_causal_graph_model(
+            _ensure_ir_artifact_store(store), graph, return_selected_profile=True
+        )
+        state = original_state.model_copy(deep=True)
+        state.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF] = graph_ref
+        state.params["phase15_runtime_backend"] = "numpy"
+        old_state = state.model_copy(deep=True)
+        old_state.inputs[SNAPSHOT_INPUT_KEY] = old_source_ref
+        old_state = _bind_retained_workflow_input(ctx, old_state)
+
+        # Keep graph, target context, observations, backend and selected method
+        # fixed; only the actual selected DuckDB snapshot changes.
+        resolved = [
+            ResolveParametersNode().execute(ctx, old_state),
+            ResolveParametersNode().execute(ctx, state),
+        ]
+        assert all(item.status == "ok" for item in resolved)
+        registry = MethodRegistry.get_instance()
+        registry.register(HybridSCMFit, override=True)
+        engine = CausalEngine(registry=registry, artifact_store=store)
+        fit_node = ExecutorNode(
+            node_id="manual_native_hybrid_fit",
+            method_fqn="causal.structural.gcm_fit",
+            method_version="1.0.0",
+            params={"fit_backend": "native_hybrid", "bayes_ridge": 1e-6},
+            depends_on=(),
+            reads_slots=(),
+            writes_slots=(),
+        )
+        fit_graph = ExecutorGraph(nodes=(fit_node,), edges=(), nuisance_schedule=())
+        outputs = []
+        sources = []
+        for selected, expected_mean in zip(resolved, (1.25, 9.75), strict=True):
+            bundle_ref = selected.state.artifacts_index[
+                ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF
+            ]
+            bundle = load_context_adaptive_parameter_bundle(_ensure_ir_artifact_store(store), bundle_ref)
+            assert isinstance(bundle, ContextAdaptiveParameterBundleV12)
+            source_ref = bundle.selected_skg_source.descriptor_ref
+            assert source_ref.manifest_profile_sha256 is not None
+            assert bundle.parameters["fiscal_multiplier"].value == pytest.approx(expected_mean)
+            assert bundle.applicability["fiscal_multiplier"].is_applicable is True
+            multiplier = bundle.applicability["fiscal_multiplier"].uncertainty_multiplier
+            prior = selected.state.params["literature_priors"]["fiscal_multiplier"]["__intercept__"]
+            # The source CI is [1, 2]; independently translate its width to
+            # the bridge's documented 95%-normal std and source multiplier.
+            assert prior["mean"] == pytest.approx(expected_mean)
+            assert prior["std"] == pytest.approx(multiplier / 3.92)
+            assert selected.state.params["parameter_uncertainty_multipliers"][
+                "fiscal_multiplier"
+            ] == pytest.approx(multiplier)
+            fit_request = {
+                "data": [[-1.0, 0.0], [0.0, 2.0], [1.0, 0.0]],
+                "column_names": ["X", "fiscal_multiplier"],
+                "graph": graph,
+                "graph_ref": str(graph_ref.artifact_id),
+                "literature_priors": selected.state.params["literature_priors"],
+                "skg_snapshot_ref": bundle.skg_snapshot_ref,
+            }
+            # No unavailable GCM worker can be mistaken for the explicit
+            # pre-worker prior refusal on the default profile.
+            with pytest.raises(ValueError, match="does not support literature-prior"):
+                HybridSCMFit.pure_step(fit_request, {"fit_backend": "dowhy_gcm"})
+            _report, node_outputs = engine.estimate(fit_graph, fit_request)
+            assert fit_node.node_id in node_outputs
+            model = node_outputs[fit_node.node_id]["scm_spec"]
+            assert model.fit_method == "native_hybrid"
+            assert model.fit_metrics["n_hybrid_fallback"] == 0
+            mechanism = next(m for m in model.mechanisms if m.variable == "fiscal_multiplier")
+            assert mechanism.source is MechanismSource.HYBRID
+            assert mechanism.literature_prior["__intercept__"] == prior
+            # X is centered; the independently derived residual variance is
+            # 8/9 and sum(Y)=2. No production fitting helper defines expected.
+            prior_variance = (multiplier / 3.92) ** 2
+            expected_intercept = (expected_mean / prior_variance + 2 / (8 / 9)) / (
+                1 / prior_variance + 3 / (8 / 9) + 1e-6
+            )
+            assert mechanism.family_params["posterior_mean"]["__intercept__"] == pytest.approx(
+                expected_intercept, abs=1e-10
+            )
+            assert model.source_graph_ref == str(graph_ref.artifact_id)
+            assert model.skg_snapshot_ref == bundle.skg_snapshot_ref
+            refs = [
+                input_ref_from_artifact_ref(
+                    ArtifactRef.model_validate(ref.model_dump(mode="json")), role=role
+                )
+                for role, ref in (
+                    ("causal_graph", graph_ref),
+                    ("parameter_bundle", bundle_ref),
+                    ("skg_source_snapshot", source_ref),
+                )
+            ]
+            model_ref = persist_structural_causal_model_spec(
+                _ensure_ir_artifact_store(store),
+                model,
+                inputs=[IRInputRef.model_validate(ref.model_dump(mode="json")) for ref in refs],
+            )
+            fresh_store = FileSystemCAS(store.root).for_tenant("retained-tenant", "retained-cell")
+            fresh_model = load_structural_causal_model_spec(
+                _ensure_ir_artifact_store(fresh_store), model_ref
+            )
+            assert [ref.model_dump(mode="json") for ref in fresh_store.get_manifest(model_ref).inputs] == [
+                ref.model_dump(mode="json") for ref in refs
+            ]
+            fresh_bundle = load_context_adaptive_parameter_bundle(
+                _ensure_ir_artifact_store(fresh_store), bundle_ref
+            )
+            assert fresh_bundle.applicability["fiscal_multiplier"].is_applicable
+            assert fresh_bundle.selected_skg_source.descriptor_ref == source_ref
+            query = SCMQueryData(
+                scm_spec=fresh_model,
+                query={
+                    "query_type": "interventional",
+                    "treatment_variable": "X",
+                    "treatment_value": 0.0,
+                    "outcome_variable": "fiscal_multiplier",
+                    "n_samples": 2048,
+                },
+            )
+            query_result = GCMQuery.pure_step(
+                query, {"__seed__": 123, "enable_dowhy_comparison": False}
+            )["query_result"]
+            outputs.append((expected_intercept, query_result.result_mean))
+            sources.append(source_ref.model_dump(mode="json"))
+
+        assert sources[0] != sources[1]
+        assert outputs[1][0] > outputs[0][0]
+        assert outputs[1][1] > outputs[0][1]
+
+
 def _spawn_timeout_payload(task: Any) -> dict[str, Any]:
     """Build the exact worker payload from a parent-issued dispatch task."""
     return {

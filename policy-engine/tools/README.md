@@ -156,6 +156,21 @@ The commands below were smoke-tested on `2026-04-17` unless explicitly marked as
 
 ## Current State
 
+- `tools.lib.fs.atomic_write_text` and `atomic_write_bytes` record their own
+  temporary pathname and descriptor device/inode before write, flush or file-fsync.
+  A pre-replace failure preserves the prior destination and attempts to remove only that temporary
+  output. If the OS denies cleanup, the original exception remains primary and
+  an exception note names the residual pathname and cleanup error.
+  Cleanup checks the leaf without following links and retains a replaced file
+  or symlink with an ownership-change note. This check does not claim protection
+  against arbitrary concurrent pathname mutation after that observation.
+  `atomic_write_json` renders before delegating to the same text writer.
+  Successful bytes and the existing migration CLI formats are unchanged.
+  Replace is the publication boundary: a failure reported after publication does
+  not promise rollback or power-loss durability. The active `SecureOutputRoot`
+  continues to use its existing descriptor-owned writer; its scoped writes do
+  not acquire the unscoped atomic-replace or rollback contract.
+
 - Native filesystem-confined probes keep ordinary output writes inside one fresh
   external scratch root. The macOS fence also allows data I/O to the kernel
   `/dev/null` discard sink, which native read-only Git requires. This allowance

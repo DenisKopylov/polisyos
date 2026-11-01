@@ -41,7 +41,12 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
-from polisyos.common.async_tools import get_shared_executor, run_blocking_async
+from polisyos.common.async_tools import (
+    get_shared_executor,
+    request_shared_executor_cancellation,
+    run_blocking_async,
+    wrap_shared_executor_future,
+)
 from polisyos.common.canonical import _admit_canon_spec
 from polisyos.common.job_execution_interrupt import (
     JobExecutionInterrupted,
@@ -2491,16 +2496,17 @@ async def _execute_with_timeout_thread_async(
     assert deadline is not None
     _remaining_deadline(deadline)
     future, authority, completed = _submit_thread_attempt(node, ctx, state, deadline)
-    wrapped = asyncio.wrap_future(future)
+    wrapped = wrap_shared_executor_future(future)
     try:
         done, _ = await asyncio.wait([wrapped], timeout=_remaining_deadline(deadline))
         if not done or completed[0] > deadline:
-            raise _thread_deadline_error(future)
+            cancelled = request_shared_executor_cancellation(future)
+            raise _deadline_error("not_started" if cancelled else "external_outcome_unknown")
         return _require_node_outcome(wrapped.result())
     except BaseException:
-        # The actual concurrent Future is cancelled before handing ownership back;
-        # asyncio's deferred cancellation callback cannot admit a queued late job.
-        future.cancel()
+        # Reserve the no-start outcome before returning; its worker acknowledges
+        # cancellation and executes user callbacks without blocking this loop.
+        request_shared_executor_cancellation(future)
         wrapped.add_done_callback(_consume_finished_task)
         raise
     finally:

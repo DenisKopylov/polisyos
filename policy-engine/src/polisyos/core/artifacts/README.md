@@ -209,8 +209,8 @@ local Python API and adds no HTTP endpoint.
   callbacks, and returns their rows with `state="aborted"` and
   `abort_reason="authorization_lost"`. This signal does not preempt active work,
   infer authorization from per-artifact errors, or itself establish a permission
-  decision. The current CAS/CLI chain has no production authorizer bridge into this
-  signal.
+  decision. ``verify_all_signatures(request_authorizer=...)`` can bind a configured
+  caller to the actual CAS tenant/cell scope; the CLI does not infer such a grant.
 - exact chronology evidence: direct module API
   `polisyos.core.artifacts.signed_evidence.FileSystemSignedArtifactEvidenceRepository`; it is not
   added to the eager artifacts facade because that would create a contracts/artifacts import cycle
@@ -337,7 +337,7 @@ callback results remain in the report, along with a `<batch>` ERROR row for a gl
 Both `BulkSigningReport` and `BulkVerificationReport` expose runtime `state`, `admitted`,
 `finished`, `inventory_exhausted` and `abort_reason` fields. `admitted` counts successful executor
 submissions; `finished` counts callback results collected by the batch; and `inventory_exhausted`
-becomes true only when the iterator's `StopIteration` is observed. `state=complete` means the
+becomes true only when the iterator's `StopIteration` is observed without a concurrent stop. `state=complete` means the
 inventory was exhausted without a batch abort; it does not mean every item succeeded. The legacy
 `BulkVerificationReport.ok` remains outcome-only, may be true for unsigned or untrusted rows, and
 is not a completeness or publication predicate. Historical report payloads without runtime
@@ -347,10 +347,20 @@ report cannot authorize a publication that requires confirmations for every sele
 Bulk verification also accepts an optional `BatchAuthorizationLossSignal`. The caller owns the
 decision to request it after its configured request-scope authorizer establishes authorization loss;
 the batch stops new admissions, drains admitted callbacks, and retains their rows with an explicit
-`authorization_lost` abort reason. The signal is caller input, not permission evidence. No configured
-request-scope authorizer currently reaches the CAS batch-verification callsite, so this is a bounded
-mechanism with a controlled consumer witness rather than a production authorization bridge. Batch
-signing remains cancellation-only and its report excludes this verification-only reason.
+`authorization_lost` abort reason. The signal is caller input, not permission evidence. The optional
+`request_authorizer(tenant_id, cell_id)` callback receives the scope resolved by the CAS owner,
+including during inventory preparation. Only `AuthorizationDeniedError` requests the signal;
+configuration, backend and other callback failures abort as `inventory_failed`, never as a fabricated
+authorization denial. Runtime's `CASBatchRequestAuthorizer` reuses the current
+`DeploymentPrincipalGrantResolver`, exact issuer/audience/subject/tenant/cell bindings, expiry and
+`ARTIFACTS_BATCH_READ`. Runtime's `verify_cas_batch_for_request` is the explicit native caller
+that constructs this adapter and invokes the real CAS batch. The caller supplies authenticated
+claims and its current configuration
+supplier. This is a configured native caller port, not JWT authentication, a new HTTP route or an
+automatically configured CLI/deployment authorizer. A local grant-withdrawal test proves this
+software path without asserting external institutional authority. Checks establish the observed
+cooperative admission boundary, not continuous revocation. Batch signing remains cancellation-only
+and its report excludes this verification-only reason.
 
 These APIs do not provide `require_complete_valid(required_refs)` or an all-confirmations publisher.
 A consumer that needs that policy must supply and reconcile its own exact required set and freshly
@@ -361,10 +371,16 @@ Cancellation stops future admission but does not preempt callbacks already runni
 iterator operation may block; this is not hard preemption of arbitrary producer code.
 
 The default filesystem inventory materializes the full CAS name/member census and visible IDs
-before yielding, without reading every manifest or blob during that first census. On successful
-exhaustion it recomputes active-scope membership. Cancellation cannot interrupt the initial
-filesystem walk; it stops later item admission only. These signature batch methods do not accept
-a deadline. Detailed reports also require O(N) memory.
+before yielding, without reading every manifest or blob during that first census. One optional
+private stop probe reaches every filesystem scan, directory entry, canonical membership and
+visibility loop, as well as the final active-scope recheck. Explicit deduplication checks before
+and after each source `next()`, including duplicates and exhaustion; cancellation cannot be
+misreported as a complete empty/finished inventory. The scanner and source may finish an already
+in-flight synchronous call, and sorting is not hard-preempted. A successful complete report still
+requires the full canonical membership census and recheck; unrelated tenant/signature churn is
+not mistaken for a scoped change. These methods do not accept a deadline. The census, deduplication
+seen set and detailed report retain O(N) memory; the pending window bounds submitted work, not
+total memory. Verified snapshots also retain the selected payload bytes.
 The importer with `verify_integrity=True` consumes a full typed per-view integrity report,
 reconciling exact member membership, actual blob digest/size and manifest digest/profile
 against its measured intake before publishing. This does not add a signature trust policy

@@ -1,7 +1,11 @@
 from __future__ import annotations
 
+import os
+import threading
+import time
 from typing import Any
 
+import pytest
 from fastapi.testclient import TestClient
 
 from polisyos.core.security.cell import CellSpec, CellTier, TenantSpec
@@ -241,3 +245,216 @@ def test_cross_tenant_run_denial_is_persisted_under_request_principal(
         ),
     )
     assert [entry["request_id"] for entry in visible_to_compliance_reader] == [request_id]
+
+
+@pytest.mark.parametrize(
+    "failure",
+    [
+        "none",
+        "before",
+        "during_next",
+        "after_result",
+        "scope",
+        "unavailable",
+        "wrong_type",
+        "expired",
+    ],
+)
+def test_cas_batch_authorizer_uses_current_exact_configured_grants(
+    tmp_path, monkeypatch, failure: str
+) -> None:
+    """Local configured grants reach real CAS admission, never signal-as-permission."""
+    from polisyos.core.artifacts import FileSystemCAS, PutOptions
+    from polisyos.core.artifacts.signing import Ed25519Signer, Ed25519Verifier, KeyPair
+    from polisyos.runtime.http.authorization import (
+        DeploymentPrincipalGrantResolver,
+        verify_cas_batch_for_request,
+    )
+
+    identity = ("https://local-native.invalid", "cas03-local", "worker", "tenant-a", "cell-a")
+    claims = UserIdentityClaims(
+        iss=identity[0],
+        aud=identity[1],
+        sub=identity[2],
+        tenant_id=identity[3],
+        cell_id=identity[4],
+        exp=int(time.time()) + (-60 if failure == "expired" else 300),
+        iat=int(time.time()) - 120,
+    )
+    active = DeploymentPrincipalGrantResolver(
+        [(identity, [RuntimePermission.ARTIFACTS_BATCH_READ])]
+    )
+    withdrawn = DeploymentPrincipalGrantResolver([])
+    current = [withdrawn if failure == "before" else active]
+
+    def configured_resolver():
+        if failure == "unavailable":
+            raise OSError("configured grant source unavailable")
+        if failure == "wrong_type":
+            return None
+        return current[0]
+
+    store = FileSystemCAS(
+        tmp_path / "cas",
+        tenant_id="tenant-b" if failure == "scope" else "tenant-a",
+        cell_id="cell-a",
+    )
+    key = KeyPair.generate()
+    signer = Ed25519Signer.from_pem(key.private_pem())
+    verifier = Ed25519Verifier()
+    verifier.add_trusted_key(key.public_key, key_id=key.key_id)
+    refs = [
+        store.put_bytes(
+            f"grant-item-{i}".encode(), PutOptions(kind="cas03.grant", media_type="text/plain")
+        )
+        for i in range(3)
+    ]
+    for ref in refs:
+        store.sign_artifact(ref, signer)
+    consumed = []
+
+    def source():
+        for index, ref in enumerate(refs):
+            consumed.append(ref)
+            if failure == "during_next" and index == 1:
+                current[0] = withdrawn
+            yield ref.artifact_id
+
+    if os.environ.get("E02_CAS03_REMOVAL") == "request-authorizer":
+        verify_batch = store.verify_all_signatures
+
+        def remove_authorizer(*args, **kwargs):
+            kwargs.pop("request_authorizer", None)
+            return verify_batch(*args, **kwargs)
+
+        monkeypatch.setattr(store, "verify_all_signatures", remove_authorizer)
+
+    verify_one = store.verify_signature
+
+    def verify_and_withdraw(*args, **kwargs):
+        result = verify_one(*args, **kwargs)
+        if failure == "after_result":
+            current[0] = withdrawn
+        return result
+
+    monkeypatch.setattr(store, "verify_signature", verify_and_withdraw)
+    report = verify_cas_batch_for_request(
+        store,
+        verifier,
+        artifact_ids=source(),
+        claims=claims,
+        current_resolver=configured_resolver,
+        max_workers=1,
+        pending_window=1,
+    )
+    expected = 3 if failure == "none" else (1 if failure in {"during_next", "after_result"} else 0)
+    assert report.valid == report.admitted == report.finished == expected
+    if failure == "none":
+        assert report.state == "complete" and report.inventory_exhausted is True
+        assert report.abort_reason is None
+    else:
+        assert report.state == "aborted" and report.inventory_exhausted is False
+        assert report.abort_reason == (
+            "inventory_failed" if failure in {"unavailable", "wrong_type"} else "authorization_lost"
+        )
+        assert report.errors == 1
+        assert len(consumed) == (2 if failure == "during_next" else expected)
+    for row in report.details[:expected]:
+        assert row.status.value == "valid"
+
+
+def test_configured_cas_grant_loss_drains_real_inflight_callbacks(tmp_path, monkeypatch) -> None:
+    """Observed native grant denial preserves both already-admitted crypto rows."""
+    from polisyos.core.artifacts import FileSystemCAS, PutOptions
+    from polisyos.core.artifacts.signing import Ed25519Signer, Ed25519Verifier, KeyPair
+    from polisyos.runtime.http.authorization import (
+        DeploymentPrincipalGrantResolver,
+        verify_cas_batch_for_request,
+    )
+
+    identity = (
+        "https://local-native.invalid",
+        "cas03-local",
+        "inflight-worker",
+        "tenant-a",
+        "cell-a",
+    )
+    claims = UserIdentityClaims(
+        iss=identity[0],
+        aud=identity[1],
+        sub=identity[2],
+        tenant_id=identity[3],
+        cell_id=identity[4],
+        exp=int(time.time()) + 300,
+        iat=int(time.time()) - 60,
+    )
+    active = DeploymentPrincipalGrantResolver(
+        [(identity, [RuntimePermission.ARTIFACTS_BATCH_READ])]
+    )
+    withdrawn = DeploymentPrincipalGrantResolver([])
+    current = [active]
+    loss_observed = threading.Event()
+    second_verified = threading.Event()
+    second_finished_after_loss = threading.Event()
+
+    def configured_resolver():
+        resolver = current[0]
+        if resolver is withdrawn:
+            loss_observed.set()
+        return resolver
+
+    store = FileSystemCAS(tmp_path / "cas", tenant_id="tenant-a", cell_id="cell-a")
+    key = KeyPair.generate()
+    signer = Ed25519Signer.from_pem(key.private_pem())
+    verifier = Ed25519Verifier()
+    verifier.add_trusted_key(key.public_key, key_id=key.key_id)
+    refs = [
+        store.put_bytes(
+            f"inflight-{i}".encode(), PutOptions(kind="cas03.inflight", media_type="text/plain")
+        )
+        for i in range(3)
+    ]
+    for ref in refs:
+        store.sign_artifact(ref, signer)
+    consumed = []
+
+    def source():
+        for ref in refs:
+            consumed.append(ref)
+            yield ref.artifact_id
+
+    verify_one = store.verify_signature
+
+    def verify_then_wait(artifact_id, selected_verifier, **kwargs):
+        result = verify_one(artifact_id, selected_verifier, **kwargs)
+        assert result.status.value == "valid"
+        if artifact_id == refs[0].artifact_id:
+            assert second_verified.wait(5), "second real callback was not admitted"
+            current[0] = withdrawn
+        else:
+            assert artifact_id == refs[1].artifact_id, "post-loss artifact was admitted"
+            second_verified.set()
+            assert loss_observed.wait(5), "configured grant denial was not observed"
+            second_finished_after_loss.set()
+        return result
+
+    monkeypatch.setattr(store, "verify_signature", verify_then_wait)
+    report = verify_cas_batch_for_request(
+        store,
+        verifier,
+        claims=claims,
+        current_resolver=configured_resolver,
+        artifact_ids=source(),
+        max_workers=2,
+        pending_window=2,
+    )
+    assert second_finished_after_loss.is_set()
+    assert consumed == refs[:2]
+    assert report.state == "aborted"
+    assert report.abort_reason == "authorization_lost"
+    assert report.inventory_exhausted is False
+    assert report.admitted == report.finished == report.valid == 2
+    assert report.errors == 1
+    assert {row.artifact_id for row in report.details if row.status.value == "valid"} == {
+        str(ref.artifact_id) for ref in refs[:2]
+    }

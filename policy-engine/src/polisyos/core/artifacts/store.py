@@ -39,6 +39,7 @@ from pydantic import ValidationError
 
 from polisyos.common.canonical import _admit_canon_spec
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+from polisyos.core.security.exceptions import AuthorizationDeniedError
 
 from ..canon import content_hash
 from ..canon.canon_json import (
@@ -137,6 +138,7 @@ from ._transfer_ops import (
 from ._transfer_ops import (
     validate_transfer_signatures as _validate_transfer_signatures,
 )
+from .batch_control import BatchAuthorizationLossSignal, _probe_batch_stop, _raise_if_batch_stopped
 from .ids import ArtifactID
 from .manifest import (
     ArtifactManifest,
@@ -187,7 +189,6 @@ if TYPE_CHECKING:
     from ..observability import MetricsRegistry, PolicyOSTracer
     from ._transfer_ops import CASMemberStream
     from .backends.config import ArtifactStoreConfig
-    from .batch_control import BatchAuthorizationLossSignal
     from .owned_json import _PreparedCoreJsonWrite
 
 
@@ -281,10 +282,20 @@ def _canonical_artifact_id_sequence(
 
 def _iter_canonical_artifact_ids(
     artifact_ids: Iterable[ArtifactID],
+    *,
+    stop_probe: Callable[[], None] | None = None,
 ) -> Iterator[ArtifactID]:
     """Yield first-seen typed IDs without draining an explicit source."""
     seen: set[str] = set()
-    for artifact_id in artifact_ids:
+    iterator = iter(artifact_ids)
+    while True:
+        _probe_batch_stop(stop_probe)
+        try:
+            artifact_id = next(iterator)
+        except StopIteration:
+            _probe_batch_stop(stop_probe)
+            return
+        _probe_batch_stop(stop_probe)
         identity = artifact_id.hex
         if identity in seen:
             continue
@@ -3023,10 +3034,14 @@ class FileSystemCAS:
         cancel_event: threading.Event | None = None,
     ) -> BulkSigningReport:
         """Sign many artifacts concurrently and summarize signed/skipped/error counts."""
+
+        def stop_probe() -> None:
+            _raise_if_batch_stopped(cancel_event)
+
         ids = (
-            self._iter_artifact_ids_lazy()
+            self._iter_artifact_ids_lazy(stop_probe=stop_probe)
             if artifact_ids is None
-            else _iter_canonical_artifact_ids(artifact_ids)
+            else _iter_canonical_artifact_ids(artifact_ids, stop_probe=stop_probe)
         )
         return _sign_all_artifacts(
             signer=signer,
@@ -3053,12 +3068,36 @@ class FileSystemCAS:
         pending_window: int | None = None,
         cancel_event: threading.Event | None = None,
         authorization_loss_signal: BatchAuthorizationLossSignal | None = None,
+        request_authorizer: Callable[[str | None, str | None], None] | None = None,
     ) -> BulkVerificationReport:
-        """Verify many artifact signatures concurrently and summarize verifier outcomes."""
+        """Verify signatures with optional caller-owned request authorization.
+
+        The authorizer receives the actual CAS tenant/cell scope. Only its typed
+        ``AuthorizationDeniedError`` means request-wide loss; other failures
+        remain inventory errors. Checks are cooperative admission boundaries,
+        not continuous revocation or preemption of running callbacks.
+        """
+        if request_authorizer is not None and authorization_loss_signal is None:
+            authorization_loss_signal = BatchAuthorizationLossSignal()
+
+        def stop_probe() -> None:
+            _raise_if_batch_stopped(cancel_event, authorization_loss_signal)
+            if request_authorizer is not None:
+                owner = self._resolve_owner(required=self._ownership_requires_scope)
+                try:
+                    request_authorizer(*owner)
+                except AuthorizationDeniedError:
+                    if authorization_loss_signal is None:
+                        raise RuntimeError(
+                            "request authorizer requires an authorization loss signal"
+                        ) from None
+                    authorization_loss_signal.request()
+            _raise_if_batch_stopped(cancel_event, authorization_loss_signal)
+
         ids = (
-            self._iter_artifact_ids_lazy()
+            self._iter_artifact_ids_lazy(stop_probe=stop_probe)
             if artifact_ids is None
-            else _iter_canonical_artifact_ids(artifact_ids)
+            else _iter_canonical_artifact_ids(artifact_ids, stop_probe=stop_probe)
         )
         return _verify_all_signatures(
             verifier=verifier,
@@ -3073,6 +3112,7 @@ class FileSystemCAS:
             pending_window=pending_window,
             cancel_event=cancel_event,
             authorization_loss_signal=authorization_loss_signal,
+            stop_probe=stop_probe,
         )
 
     def _transaction_stage_relative(self, operation_id: str, name: str) -> str:
@@ -5374,30 +5414,34 @@ class FileSystemCAS:
 
     def _capture_inventory_member_paths(
         self,
+        *,
+        stop_probe: Callable[[], None] | None = None,
     ) -> tuple[tuple[str, ...], dict[tuple[str, str], Path]]:
         """Parse the complete canonical member-name set without reading contents."""
         names: set[str] = set()
-        walk_errors: list[OSError] = []
-
-        def onerror(error: OSError) -> None:
-            walk_errors.append(error)
-
-        for directory, children, files in os.walk(
-            self.base,
-            topdown=True,
-            followlinks=False,
-            onerror=onerror,
-        ):
-            parent = Path(directory)
-            if any((parent / child).is_symlink() for child in children):
-                raise ArtifactIntegrityError("cas_inventory_symlink_directory")
-            for filename in files:
-                path = parent / filename
-                if path.is_symlink() or not path.is_file():
-                    raise ArtifactIntegrityError("cas_inventory_nonregular_member")
-                names.add(path.relative_to(self.base).as_posix())
-        if walk_errors:
-            raise walk_errors[0]
+        pending_directories = [self.base]
+        while pending_directories:
+            _probe_batch_stop(stop_probe)
+            parent = pending_directories.pop()
+            # Own the scandir loop so cancellation also reaches entry processing;
+            # os.walk would consume a complete directory inside its opaque next().
+            with os.scandir(parent) as entries:
+                while True:
+                    _probe_batch_stop(stop_probe)
+                    try:
+                        entry = next(entries)
+                    except StopIteration:
+                        _probe_batch_stop(stop_probe)
+                        break
+                    _probe_batch_stop(stop_probe)
+                    if entry.is_symlink():
+                        raise ArtifactIntegrityError("cas_inventory_symlink_member")
+                    if entry.is_dir(follow_symlinks=False):
+                        pending_directories.append(Path(entry.path))
+                    elif entry.is_file(follow_symlinks=False):
+                        names.add(Path(entry.path).relative_to(self.base).as_posix())
+                    else:
+                        raise ArtifactIntegrityError("cas_inventory_nonregular_member")
 
         members: dict[tuple[str, str], Path] = {}
         member_pattern = re.compile(
@@ -5405,6 +5449,7 @@ class FileSystemCAS:
             r"\.(?P<kind>blob|manifest\.json|sig)$"
         )
         for name in names:
+            _probe_batch_stop(stop_probe)
             relative = Path(name)
             if len(relative.parts) != 3:
                 raise ArtifactIntegrityError("cas_inventory_member_path_invalid")
@@ -5423,20 +5468,25 @@ class FileSystemCAS:
                 raise ArtifactIntegrityError("cas_inventory_duplicate_member")
             members[key] = self.base / relative
 
-        artifacts = {artifact_hex for artifact_hex, _member_key in members}
+        artifacts: set[str] = set()
+        manifests: set[str] = set()
+        for artifact_hex, member_key in members:
+            _probe_batch_stop(stop_probe)
+            artifacts.add(artifact_hex)
+            if member_key.endswith(":manifest.json"):
+                manifests.add(artifact_hex)
         for artifact_hex in artifacts:
+            _probe_batch_stop(stop_probe)
             if (artifact_hex, "default:blob") not in members:
                 raise ArtifactIntegrityError("cas_inventory_blob_missing")
-            if not any(
-                key[0] == artifact_hex and key[1].endswith(":manifest.json") for key in members
-            ):
+            if artifact_hex not in manifests:
                 raise ArtifactIntegrityError("cas_inventory_manifest_missing")
-            for member_key, _path in (
-                (key[1], path) for key, path in members.items() if key[0] == artifact_hex
-            ):
-                selector, kind = member_key.split(":", 1)
-                if kind == "sig" and (artifact_hex, f"{selector}:manifest.json") not in members:
-                    raise ArtifactIntegrityError("cas_inventory_signature_view_missing")
+        for (artifact_hex, member_key), _path in members.items():
+            _probe_batch_stop(stop_probe)
+            selector, kind = member_key.split(":", 1)
+            if kind == "sig" and (artifact_hex, f"{selector}:manifest.json") not in members:
+                raise ArtifactIntegrityError("cas_inventory_signature_view_missing")
+        _probe_batch_stop(stop_probe)
 
         return tuple(sorted(names)), members
 
@@ -5444,18 +5494,23 @@ class FileSystemCAS:
         self,
         *,
         owner_scope: tuple[str | None, str | None],
+        stop_probe: Callable[[], None] | None = None,
     ) -> tuple[tuple[str, ...], tuple[ArtifactID, ...], str]:
         """Capture visible default-view identities without reading manifests or blobs."""
-        _all_names, members = self._capture_inventory_member_paths()
-        default_ids = {
-            artifact_hex
-            for artifact_hex, selector_kind in members
-            if selector_kind == "default:blob"
-            and (artifact_hex, "default:manifest.json") in members
-        }
+        _all_names, members = self._capture_inventory_member_paths(stop_probe=stop_probe)
+        default_ids: set[str] = set()
+        for artifact_hex, selector_kind in members:
+            _probe_batch_stop(stop_probe)
+            if (
+                selector_kind == "default:blob"
+                and (artifact_hex, "default:manifest.json") in members
+            ):
+                default_ids.add(artifact_hex)
         tenant_id, cell_id = owner_scope
         visible_ids: list[ArtifactID] = []
+        _probe_batch_stop(stop_probe)
         for artifact_hex in sorted(default_ids):
+            _probe_batch_stop(stop_probe)
             artifact_id = ArtifactID.from_sha256_hex(artifact_hex)
             if self._ownership_enforced:
                 if tenant_id is None:
@@ -5467,31 +5522,40 @@ class FileSystemCAS:
                     cell_id=cell_id,
                 ):
                     continue
+            _probe_batch_stop(stop_probe)
             visible_ids.append(artifact_id)
-        visible_hex = {artifact_id.hex for artifact_id in visible_ids}
-        default_names = tuple(
-            sorted(
-                path.relative_to(self.base).as_posix()
-                for (artifact_hex, selector_kind), path in members.items()
-                if artifact_hex in visible_hex
-                and selector_kind in {"default:blob", "default:manifest.json"}
-            )
-        )
+        visible_hex: set[str] = set()
+        for artifact_id in visible_ids:
+            _probe_batch_stop(stop_probe)
+            visible_hex.add(artifact_id.hex)
+        selected_names: list[str] = []
+        for (artifact_hex, selector_kind), path in members.items():
+            _probe_batch_stop(stop_probe)
+            if artifact_hex in visible_hex and selector_kind in {
+                "default:blob",
+                "default:manifest.json",
+            }:
+                selected_names.append(path.relative_to(self.base).as_posix())
+        _probe_batch_stop(stop_probe)
+        default_names = tuple(sorted(selected_names))
         return default_names, tuple(visible_ids), self._owner_generation_token()
 
-    def _authenticated_default_inventory_cursor(self) -> Iterator[ArtifactID]:
+    def _authenticated_default_inventory_cursor(
+        self, *, stop_probe: Callable[[], None] | None = None
+    ) -> Iterator[ArtifactID]:
         """Yield default IDs from the active-scope membership projection.
 
         The first iteration walks the complete CAS name tree and materializes
         its member map and visible default IDs before yielding. It does not read
         every manifest or blob during that census. Cancellation stops later
-        item admission, but cannot interrupt the initial filesystem walk. On
+        item admission and cooperatively interrupts scanner/member preparation. On
         successful exhaustion, the owner recomputes the active-scope default
         IDs and their blob/manifest member names. The shared owner-generation
         token is sampled but is not itself the completion predicate: unrelated
         tenant claims and signature-only writes may advance it without changing
         this scope's default membership.
         """
+        _probe_batch_stop(stop_probe)
         owner_scope = (
             self._resolve_owner(required=self._ownership_requires_scope)
             if self._ownership_enforced
@@ -5500,26 +5564,33 @@ class FileSystemCAS:
         try:
             with self._coordinator.root_exclusive():
                 names_before, ids_before, generation_before = self._capture_default_inventory_state(
-                    owner_scope=owner_scope
+                    owner_scope=owner_scope, stop_probe=stop_probe
                 )
         except (ArtifactIntegrityError, OSError, ValueError, TypeError) as exc:
             raise ArtifactIntegrityError("cas_batch_inventory_capture_failed") from exc
 
         processed: set[str] = set()
         for artifact_id in ids_before:
+            _probe_batch_stop(stop_probe)
             processed.add(artifact_id.hex)
             yield artifact_id
 
         try:
             with self._coordinator.root_exclusive():
                 names_after, ids_after, generation_after = self._capture_default_inventory_state(
-                    owner_scope=owner_scope
+                    owner_scope=owner_scope, stop_probe=stop_probe
                 )
         except (ArtifactIntegrityError, OSError, ValueError, TypeError) as exc:
             raise ArtifactIntegrityError("cas_batch_inventory_recheck_failed") from exc
-        visible_membership_changed = names_before != names_after or tuple(
-            artifact_id.hex for artifact_id in ids_after
-        ) != tuple(sorted(processed))
+        _probe_batch_stop(stop_probe)
+        after_hex: list[str] = []
+        for artifact_id in ids_after:
+            _probe_batch_stop(stop_probe)
+            after_hex.append(artifact_id.hex)
+        _probe_batch_stop(stop_probe)
+        visible_membership_changed = names_before != names_after or tuple(after_hex) != tuple(
+            sorted(processed)
+        )
         owner_generation_changed = generation_before != generation_after
         if visible_membership_changed:
             raise ArtifactIntegrityError("cas_batch_inventory_changed_during_scan")
@@ -5900,9 +5971,11 @@ class FileSystemCAS:
             entries=tuple(entries),
         )
 
-    def _iter_artifact_ids_lazy(self) -> Iterator[ArtifactID]:
+    def _iter_artifact_ids_lazy(
+        self, *, stop_probe: Callable[[], None] | None = None
+    ) -> Iterator[ArtifactID]:
         """Yield authenticated default IDs through the bounded batch cursor."""
-        yield from self._authenticated_default_inventory_cursor()
+        yield from self._authenticated_default_inventory_cursor(stop_probe=stop_probe)
 
     def export_subgraph(
         self,

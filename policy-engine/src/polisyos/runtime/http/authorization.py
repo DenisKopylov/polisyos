@@ -13,6 +13,7 @@ from enum import StrEnum
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Any, Literal, Protocol, cast
 
+from polisyos.core.security.exceptions import AuthorizationDeniedError
 from polisyos.runtime.http.access_audit import (
     RuntimeAuthorizationAuditError,
     RuntimeAuthorizationOutcome,
@@ -29,10 +30,14 @@ from polisyos.runtime.http.permissions import RuntimePermission, permissions_for
 from polisyos.runtime.http.security import PolicyOSRole, UserIdentityClaims
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator, Mapping, Sequence
+    from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
+    from threading import Event
 
     from fastapi import Request
     from fastapi.routing import APIRoute as _ImportedAPIRoute
+
+    from polisyos.core.artifacts import ArtifactID, FileSystemCAS
+    from polisyos.core.artifacts.signing import BulkVerificationReport, Ed25519Verifier
 
     _APIRoute: type[_ImportedAPIRoute] | None
 
@@ -178,6 +183,67 @@ class DeploymentPrincipalGrantResolver:
             tenant_id=claims.tenant_id,
             cell_id=effective_cell_id,
         )
+
+
+@dataclass(frozen=True, slots=True)
+class CASBatchRequestAuthorizer:
+    """Recheck a configured principal grant against the actual CAS request scope.
+
+    The caller supplies already authenticated claims and a live configuration
+    supplier. This adapter does not authenticate JWTs, create grants, or install
+    an HTTP route. Supplier failures remain unavailable/error, not a denial.
+    """
+
+    claims: UserIdentityClaims
+    current_resolver: Callable[[], DeploymentPrincipalGrantResolver]
+
+    def __call__(self, tenant_id: str | None, cell_id: str | None) -> None:
+        """Allow the exact configured batch-read grant or raise typed denial."""
+        if not isinstance(self.claims, UserIdentityClaims):
+            raise TypeError("claims must be authenticated UserIdentityClaims")
+        resolver = self.current_resolver()
+        if type(resolver) is not DeploymentPrincipalGrantResolver:
+            raise TypeError("current resolver must be DeploymentPrincipalGrantResolver")
+        permissions = resolver.resolve_claim_permissions(
+            self.claims,
+            effective_subject=self.claims.sub,
+            effective_tenant_id=tenant_id or "",
+            effective_cell_id=cell_id,
+        )
+        if self.claims.is_expired or RuntimePermission.ARTIFACTS_BATCH_READ not in (
+            permissions or ()
+        ):
+            raise AuthorizationDeniedError("configured CAS batch request grant denied")
+
+
+def verify_cas_batch_for_request(
+    store: FileSystemCAS,
+    verifier: Ed25519Verifier,
+    *,
+    claims: UserIdentityClaims,
+    current_resolver: Callable[[], DeploymentPrincipalGrantResolver],
+    artifact_ids: Iterable[ArtifactID] | None = None,
+    max_workers: int = 8,
+    pending_window: int | None = None,
+    cancel_event: Event | None = None,
+) -> BulkVerificationReport:
+    """Verify a native request's CAS batch under its current exact configured grant.
+
+    This explicit native caller composes an authenticated request context, live
+    deployment grants and the CAS owner's actual scope. It does not authenticate
+    the claims, install an HTTP endpoint, or imply a configured deployment.
+    Running callbacks drain normally after cooperative authorization loss.
+    """
+    return store.verify_all_signatures(
+        verifier,
+        artifact_ids=artifact_ids,
+        max_workers=max_workers,
+        pending_window=pending_window,
+        cancel_event=cancel_event,
+        request_authorizer=CASBatchRequestAuthorizer(
+            claims=claims, current_resolver=current_resolver
+        ),
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -1076,6 +1142,7 @@ __all__ = [
     "ActionPermissionDependency",
     "ActionPermissionVerification",
     "BoundActionPermissionVerification",
+    "CASBatchRequestAuthorizer",
     "DeploymentPrincipalGrantResolver",
     "MatchedAuthorizationRoute",
     "RelatedRunBindingSource",
@@ -1090,4 +1157,5 @@ __all__ = [
     "principal_from_access_scope",
     "require_action_permission",
     "route_action_permission_dependencies",
+    "verify_cas_batch_for_request",
 ]

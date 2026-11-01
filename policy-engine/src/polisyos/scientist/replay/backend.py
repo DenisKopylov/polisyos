@@ -21,7 +21,9 @@ from polisyos.core.contracts.foundry import (
     ExecuteRequest,
     FoundryExecConfig,
     FoundryInputBindingsRef,
+    SimulationResultRef,
 )
+from polisyos.foundry.execute import admit_execution_source
 from polisyos.foundry.execute import execute as execute_foundry
 from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
 from polisyos.scientist.nodes.builtins.state_keys import (
@@ -36,6 +38,10 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_STATE_SNAPSHOT_REF,
     INPUT_TRINITY_BUNDLE_REF,
 )
+from polisyos.scientist.orchestration.engine.executor import (
+    WorkflowExecutionResult,
+    WorkflowExecutionStatus,
+)
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.workflows.builder import run_selected_workflow
 from polisyos.scientist.replay.deterministic import (
@@ -44,6 +50,7 @@ from polisyos.scientist.replay.deterministic import (
     ReplayStrategy,
     VerificationConfig,
     VerificationResult,
+    _selected_replay_reference,
     build_replay_plan,
     compare_current_environment,
     set_global_seeds,
@@ -86,6 +93,7 @@ class ReplayBackendResult:
     environment_diffs: list[EnvironmentDiff] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
+    replay_artifact_refs: dict[str, ArtifactRef] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -145,28 +153,52 @@ def replay_packet(
             errors=[plan.completeness.summary()],
         )
 
-    env_diffs = compare_current_environment(store, plan.payload)
+    if plan.legacy_reference_roles:
+        warnings.append(
+            "legacy_payload_reference_profiles_not_established:"
+            + ",".join(plan.legacy_reference_roles)
+        )
+    env_diffs = compare_current_environment(
+        store, plan.payload, reference_bindings=plan.reference_bindings
+    )
     for diff in env_diffs:
         if diff.risk_level in (RiskLevel.CRITICAL, RiskLevel.HIGH):
             warnings.append(f"environment_mismatch:{diff.field_path}:{diff.risk_level.value}")
 
     set_global_seeds(plan.seed.value)
-    replay_decision_packet_ref: ArtifactID | None = None
-    replay_simulation_result_ref: ArtifactID | None = None
+    replay_decision_packet_ref: ArtifactID | ArtifactRef | None = None
+    replay_simulation_result_ref: ArtifactID | ArtifactRef | None = None
     try:
         if strategy == ReplayStrategy.FOUNDRY:
-            replay_simulation_result_ref = _execute_foundry_replay(
+            request, source_limitations = _foundry_replay_request(
                 store=store,
                 payload=plan.payload,
                 seed=plan.seed.value,
+                reference_bindings=plan.reference_bindings or None,
+            )
+            warnings.extend(source_limitations)
+            replay_simulation_result_ref = _execute_foundry_replay(
+                store=store,
+                request=request,
             )
         elif strategy == ReplayStrategy.SCIENTIST:
-            replay_decision_packet_ref, replay_simulation_result_ref = _execute_scientist_replay(
+            scientist_result = _execute_scientist_replay(
                 store=store,
                 payload=plan.payload,
                 run_id=run_id,
                 seed=plan.seed.value,
+                reference_bindings=plan.reference_bindings or None,
             )
+            replay_decision_packet_ref = scientist_result.state.artifacts_index.get(
+                ARTIFACT_DECISION_PACKET_REF
+            )
+            replay_simulation_result_ref = scientist_result.state.artifacts_index.get(
+                ARTIFACT_SIMULATION_RESULT_REF
+            )
+            if scientist_result.report.status != WorkflowExecutionStatus.OK:
+                errors.append(f"replay_scientist_execution_status:{scientist_result.report.status}")
+            if replay_decision_packet_ref is None and replay_simulation_result_ref is None:
+                errors.append("replay_scientist_output_missing")
         else:
             errors.append("strategy_unresolved")
     except Exception as exc:
@@ -174,14 +206,32 @@ def replay_packet(
 
     verification = None
     if verify and not errors:
-        verification = verify_replay(
-            store,
-            original_payload=plan.payload,
-            replay_simulation_ref=replay_simulation_result_ref,
-            config=config,
+        try:
+            verification = verify_replay(
+                store,
+                original_payload=plan.payload,
+                replay_simulation_ref=replay_simulation_result_ref,
+                config=config,
+                original_reference_bindings=plan.reference_bindings,
+            )
+            if not verification.passed and not verification.skipped:
+                errors.append("verification_failed")
+        except (OSError, TypeError, ValueError, RuntimeError) as exc:
+            errors.append(f"replay_verification_failed:{type(exc).__name__}:{exc}")
+
+    replay_refs = {
+        role: ref
+        for role, ref in (
+            ("decision_packet", replay_decision_packet_ref),
+            ("simulation_result", replay_simulation_result_ref),
         )
-        if not verification.passed:
-            errors.append("verification_failed")
+        if isinstance(ref, ArtifactRef)
+    }
+    warnings.extend(
+        f"replay_output_profile_not_established:{role}"
+        for role, ref in replay_refs.items()
+        if ref.manifest_profile_sha256 is None
+    )
 
     return ReplayBackendResult(
         success=len(errors) == 0,
@@ -189,17 +239,26 @@ def replay_packet(
         strategy=strategy,
         original_packet_ref=str(packet_ref),
         replay_decision_packet_ref=(
-            str(replay_decision_packet_ref) if replay_decision_packet_ref else None
+            str(_replay_artifact_id(replay_decision_packet_ref))
+            if replay_decision_packet_ref
+            else None
         ),
         replay_simulation_result_ref=(
-            str(replay_simulation_result_ref) if replay_simulation_result_ref else None
+            str(_replay_artifact_id(replay_simulation_result_ref))
+            if replay_simulation_result_ref
+            else None
         ),
         completeness=plan.completeness,
         verification=verification,
         environment_diffs=env_diffs,
         errors=errors,
         warnings=warnings,
+        replay_artifact_refs=replay_refs,
     )
+
+
+def _replay_artifact_id(ref: ArtifactID | ArtifactRef) -> ArtifactID:
+    return ref.artifact_id if isinstance(ref, ArtifactRef) else ref
 
 
 def load_dead_letter(
@@ -458,12 +517,14 @@ async def replay_dead_letter(
     )
 
 
-def _execute_foundry_replay(
+def _foundry_replay_request(
     *,
     store: ArtifactStore,
     payload: dict[str, Any],
     seed: int,
-) -> ArtifactID:
+    reference_bindings: Mapping[str, ArtifactRef] | None = None,
+) -> tuple[ExecuteRequest, list[str]]:
+    """Reuse stronger original source admission or retain explicit candidate replay."""
     inputs = _artifact_mapping(payload.get("inputs"))
     artifacts = _artifact_mapping(payload.get("artifacts"))
 
@@ -480,22 +541,69 @@ def _execute_foundry_replay(
 
     request = ExecuteRequest(
         schema_version="1.0",
-        exec_plan_ref=ExecPlanRef(artifact_id=exec_plan_id),
-        input_bindings_ref=FoundryInputBindingsRef(artifact_id=input_bindings_id),
-        registry_bundle_ref=ArtifactRef(
-            artifact_id=registry_id,
-            kind="core.registry_bundle",
-            media_type="application/json",
+        exec_plan_ref=ExecPlanRef.model_validate(
+            _replay_input_ref(
+                reference_bindings, "artifact.exec_plan_ref", exec_plan_id, "foundry.exec_plan"
+            ).model_dump(mode="python")
+        ),
+        input_bindings_ref=FoundryInputBindingsRef.model_validate(
+            _replay_input_ref(
+                reference_bindings,
+                "input.input_bindings_ref",
+                input_bindings_id,
+                "foundry.input_bindings",
+            ).model_dump(mode="python")
+        ),
+        registry_bundle_ref=_replay_input_ref(
+            reference_bindings, "input.registry_bundle_ref", registry_id, "core.registry_bundle"
         ),
         exec_config=FoundryExecConfig(schema_version="1.0", seed=seed, capture_env=True),
     )
+    original_result = (reference_bindings or {}).get("artifact.simulation_result_ref")
+    if original_result is None:
+        return request, ["original_execution_source_not_established:legacy_candidate"]
+    admitted = admit_execution_source(
+        store,
+        SimulationResultRef.model_validate(original_result.model_dump(mode="python")),
+    )
+    if admitted.mode == "legacy_profileless":
+        return request, ["original_execution_source_not_established:legacy_candidate"]
+    if admitted.mode != "single_step_basis" or admitted.basis is None:
+        raise ValueError("replay_execution_source_uncomposed")
+    original_request = admitted.basis.request
+    for expected, recorded in (
+        (request.exec_plan_ref, original_request.exec_plan_ref),
+        (request.input_bindings_ref, original_request.input_bindings_ref),
+        (request.registry_bundle_ref, original_request.registry_bundle_ref),
+    ):
+        if (
+            expected is None
+            or recorded is None
+            or artifact_ref_identity_key(expected) != artifact_ref_identity_key(recorded)
+        ):
+            raise ValueError("replay_packet_execution_source_binding_mismatch")
+    if seed != admitted.basis.effective_seed:
+        raise ValueError("replay_seed_disagrees_with_execution_source")
+    replay_request = original_request.model_copy(deep=True)
+    replay_request.exec_config = FoundryExecConfig.model_construct(
+        _fields_set=set(admitted.basis.request_exec_config_fields_set),
+        **original_request.exec_config.model_dump(mode="python"),
+    )
+    return replay_request, []
+
+
+def _execute_foundry_replay(
+    *,
+    store: ArtifactStore,
+    request: ExecuteRequest,
+) -> ArtifactRef:
     result = execute_foundry(
         _require_filesystem_store(store, operation="scientist.replay_backend.execute_foundry"),
         request,
     )
     if not result.ok or result.simulation_result_ref is None:
         raise RuntimeError(f"Foundry replay failed: {result.notes}")
-    return result.simulation_result_ref.artifact_id
+    return result.simulation_result_ref
 
 
 def _execute_scientist_replay(
@@ -504,24 +612,23 @@ def _execute_scientist_replay(
     payload: dict[str, Any],
     run_id: str,
     seed: int,
-) -> tuple[ArtifactID | None, ArtifactID | None]:
-    state_inputs = _build_replay_state_inputs(payload)
+    reference_bindings: Mapping[str, ArtifactRef] | None = None,
+) -> WorkflowExecutionResult:
+    state_inputs = _build_replay_state_inputs(payload, reference_bindings=reference_bindings)
     state = ExperimentState(
         schema_version="1.0",
         run_id=run_id,
         inputs=state_inputs,
         params={"random_seed": seed, "replay_mode": True},
     )
-    result = run_selected_workflow(state, store=store, foundry=DefaultFoundryPort())
-    decision_packet = result.state.artifacts_index.get(ARTIFACT_DECISION_PACKET_REF)
-    simulation_result = result.state.artifacts_index.get(ARTIFACT_SIMULATION_RESULT_REF)
-    return (
-        decision_packet.artifact_id if decision_packet is not None else None,
-        simulation_result.artifact_id if simulation_result is not None else None,
-    )
+    return run_selected_workflow(state, store=store, foundry=DefaultFoundryPort())
 
 
-def _build_replay_state_inputs(payload: dict[str, Any]) -> dict[str, ArtifactRef]:
+def _build_replay_state_inputs(
+    payload: dict[str, Any],
+    *,
+    reference_bindings: Mapping[str, ArtifactRef] | None = None,
+) -> dict[str, ArtifactRef]:
     inputs = _artifact_mapping(payload.get("inputs"))
     mapping: dict[str, tuple[str, str]] = {
         INPUT_TRINITY_BUNDLE_REF: ("ir.trinity_bundle", "application/json"),
@@ -538,12 +645,27 @@ def _build_replay_state_inputs(payload: dict[str, Any]) -> dict[str, ArtifactRef
         artifact_id = try_parse_artifact_id(inputs.get(key))
         if artifact_id is None:
             continue
-        state_inputs[key] = ArtifactRef(
-            artifact_id=artifact_id,
-            kind=kind,
-            media_type=media_type,
+        state_inputs[key] = _replay_input_ref(
+            reference_bindings, f"input.{key}", artifact_id, kind, media_type=media_type
         )
     return state_inputs
+
+
+def _replay_input_ref(
+    bindings: Mapping[str, ArtifactRef] | None,
+    role: str,
+    artifact_id: ArtifactID,
+    kind: str,
+    *,
+    media_type: str = "application/json",
+) -> ArtifactRef:
+    """Preserve one admitted selected view; only the declared legacy path lacks one."""
+    if bindings is not None and role not in bindings:
+        raise ValueError(f"replay_input_binding_mismatch:{role}")
+    selected = _selected_replay_reference(bindings, role, artifact_id)
+    if isinstance(selected, ArtifactRef):
+        return selected
+    return ArtifactRef(artifact_id=artifact_id, kind=kind, media_type=media_type)
 
 
 def _new_replay_run_id() -> str:

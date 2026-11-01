@@ -8,9 +8,11 @@ distinguish bit-exact checks from tolerance-bounded metric comparisons.
 
 from __future__ import annotations
 
+import math
 import random
 import re
-from dataclasses import dataclass, field
+from collections.abc import Mapping
+from dataclasses import dataclass, field, replace
 from enum import StrEnum
 from typing import TYPE_CHECKING, Any, cast
 
@@ -46,6 +48,19 @@ _STATE_SOURCE_ROLES = frozenset(
         "artifact.state_snapshot_ref",
     }
 )
+_REPLAY_REFERENCE_KINDS = {
+    "input.trinity_bundle_ref": "ir.trinity_bundle",
+    "input.registry_bundle_ref": "core.registry_bundle",
+    "input.data_snapshot_ref": "fabric.data_snapshot",
+    "input.state_snapshot_ref": "foundry.state_snapshot",
+    "input.input_bindings_ref": "foundry.input_bindings",
+    "input.norm_pack_ref": "lex.norm_pack",
+    "input.knowledge_bundle_ref": "scholar.knowledge_bundle",
+    "input.research_intent_ref": "scholar.research_intent",
+    "input.environment_manifest_ref": "foundry.environment_manifest",
+    "artifact.exec_plan_ref": "foundry.exec_plan",
+    "artifact.simulation_result_ref": "foundry.simulation_result",
+}
 logger = get_logger(__name__)
 
 if TYPE_CHECKING:
@@ -96,6 +111,7 @@ class MissingArtifact:
     kind: str | None
     critical: bool
     status: NodeStatus
+    manifest_profile_sha256: str | None = None
 
 
 @dataclass
@@ -133,6 +149,26 @@ class CompletenessReport:
         return "\n".join(lines)
 
 
+def _finite_relative_tolerance(value: float) -> float:
+    try:
+        tolerance = float(value)
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise ValueError("relative_tolerance must be finite and nonnegative") from exc
+    if not math.isfinite(tolerance) or tolerance < 0:
+        raise ValueError("relative_tolerance must be finite and nonnegative")
+    return tolerance
+
+
+def _finite_confidence_level(value: float) -> float:
+    try:
+        confidence = float(value)
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise ValueError("confidence_level must be finite and strictly between 0 and 1") from exc
+    if not math.isfinite(confidence) or not 0 < confidence < 1:
+        raise ValueError("confidence_level must be finite and strictly between 0 and 1")
+    return confidence
+
+
 @dataclass(frozen=True)
 class VerificationConfig:
     """Configure replay verification mode and numeric tolerance parameters."""
@@ -140,6 +176,15 @@ class VerificationConfig:
     mode: VerificationMode = VerificationMode.BIT_EXACT
     relative_tolerance: float = 1e-6
     confidence_level: float = 0.95
+
+    def __post_init__(self) -> None:
+        """Reject an undefined or unbounded numeric comparison configuration."""
+        object.__setattr__(
+            self, "relative_tolerance", _finite_relative_tolerance(self.relative_tolerance)
+        )
+        object.__setattr__(
+            self, "confidence_level", _finite_confidence_level(self.confidence_level)
+        )
 
 
 @dataclass
@@ -152,6 +197,11 @@ class VerificationResult:
     original_ref: str | None = None
     replay_ref: str | None = None
 
+    @property
+    def skipped(self) -> bool:
+        """Return whether the requested comparison was deliberately not performed."""
+        return self.mode is VerificationMode.SKIP
+
 
 @dataclass
 class ReplayPlan:
@@ -162,6 +212,80 @@ class ReplayPlan:
     seed: SeedResolution
     completeness: CompletenessReport
     payload: dict[str, Any]
+    packet_profile_ref: ArtifactRef | None = None
+    reference_bindings: dict[str, ArtifactRef] = field(default_factory=dict)
+    legacy_reference_roles: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class _PacketSnapshot:
+    """One root manifest selection and payload read through that immutable view."""
+
+    ref: ArtifactRef
+    payload: dict[str, Any]
+    inputs: tuple[core_artifacts.InputRef, ...]
+
+
+def _read_packet_snapshot(store: ArtifactStore, packet_ref: ArtifactID) -> _PacketSnapshot:
+    manifest, _declaration = core_artifacts.read_core_manifest_profile(store, packet_ref)
+    selected = core_artifacts.artifact_ref_for_manifest(manifest)
+    return _PacketSnapshot(
+        ref=selected,
+        payload=_load_packet_payload(store, selected),
+        inputs=tuple(manifest.inputs),
+    )
+
+
+def _packet_reference_bindings(
+    snapshot: _PacketSnapshot,
+) -> tuple[dict[str, ArtifactRef], tuple[str, ...]]:
+    """Bind consumed payload IDs to exact edges, keeping legacy provenance explicit."""
+    references = [
+        (role, artifact_id)
+        for role, artifact_id in _extract_payload_refs(snapshot.payload)
+        if role in _REPLAY_REFERENCE_KINDS
+    ]
+    if not any(edge.manifest_profile_sha256 is not None for edge in snapshot.inputs):
+        return {}, tuple(role for role, _artifact_id in references)
+
+    bindings: dict[str, ArtifactRef] = {}
+    for role, artifact_id in references:
+        aliases = {role, role.split(".", 1)[1]}
+        candidates = [edge for edge in snapshot.inputs if edge.role in aliases]
+        identities = {(str(edge.artifact_id), edge.manifest_profile_sha256) for edge in candidates}
+        if len(identities) != 1:
+            raise ValueError(f"replay_input_binding_missing_or_ambiguous:{role}")
+        selected_id, profile = identities.pop()
+        if selected_id != str(artifact_id) or profile is None:
+            raise ValueError(f"replay_input_binding_mismatch:{role}")
+        bindings[role] = ArtifactRef(
+            artifact_id=artifact_id,
+            kind=_REPLAY_REFERENCE_KINDS[role],
+            media_type="application/json",
+            manifest_profile_sha256=profile,
+        )
+    return bindings, ()
+
+
+def _selected_replay_reference(
+    bindings: Mapping[str, ArtifactRef] | None,
+    role: str,
+    expected_id: ArtifactID | None,
+) -> ArtifactID | ArtifactRef | None:
+    """Select a view of the named payload ID, never substitute a different artifact."""
+    if bindings is None or role not in bindings:
+        return expected_id
+    selected = bindings[role]
+    if (
+        not isinstance(selected, ArtifactRef)
+        or expected_id is None
+        or selected.artifact_id != expected_id
+        or selected.kind != _REPLAY_REFERENCE_KINDS[role]
+        or selected.media_type != "application/json"
+        or selected.manifest_profile_sha256 is None
+    ):
+        raise ValueError(f"replay_input_binding_mismatch:{role}")
+    return selected
 
 
 @dataclass(frozen=True)
@@ -240,10 +364,16 @@ def resolve_effective_seed(
     *,
     store: ArtifactStore | None = None,
     default: int = 0,
+    reference_bindings: Mapping[str, ArtifactRef] | None = None,
 ) -> SeedResolution:
     """Resolve the replay seed from packet metadata, run records, or ExecPlan."""
     from polisyos.core.artifacts import load_core_json_artifact
 
+    artifacts = _dict_section(payload, "artifacts")
+    exec_plan_ref = try_parse_artifact_id(artifacts.get("exec_plan_ref"))
+    selector = _selected_replay_reference(
+        reference_bindings, "artifact.exec_plan_ref", exec_plan_ref
+    )
     replay_block = payload.get("replay")
     if isinstance(replay_block, dict):
         replay_seed = replay_block.get("effective_seed")
@@ -260,17 +390,14 @@ def resolve_effective_seed(
     if isinstance(seed, int):
         return SeedResolution(value=seed, source="payload.seed")
 
-    if store is not None:
-        artifacts = _dict_section(payload, "artifacts")
-        exec_plan_ref = try_parse_artifact_id(artifacts.get("exec_plan_ref"))
-        if exec_plan_ref is not None:
-            try:
-                plan_payload = load_core_json_artifact(store, exec_plan_ref)
-                plan = ExecPlan.model_validate(plan_payload)
-                posture = resolve_execution_posture(plan, None)
-                return SeedResolution(value=posture.seed, source=posture.seed_source)
-            except (OSError, TypeError, ValueError, RuntimeError) as exc:
-                logger.debug("Failed to resolve effective seed from exec plan: %s", exc)
+    if store is not None and selector is not None:
+        try:
+            plan_payload = load_core_json_artifact(store, selector)
+            plan = ExecPlan.model_validate(plan_payload)
+            posture = resolve_execution_posture(plan, None)
+            return SeedResolution(value=posture.seed, source=posture.seed_source)
+        except (OSError, TypeError, ValueError, RuntimeError) as exc:
+            logger.debug("Failed to resolve effective seed from exec plan: %s", exc)
 
     return SeedResolution(value=default, source="default")
 
@@ -278,6 +405,8 @@ def resolve_effective_seed(
 def compare_current_environment(
     store: ArtifactStore,
     payload: dict[str, Any],
+    *,
+    reference_bindings: Mapping[str, ArtifactRef] | None = None,
 ) -> list[EnvironmentDiff]:
     """Compare the captured environment manifest with the current process environment.
 
@@ -288,10 +417,13 @@ def compare_current_environment(
 
     inputs = _dict_section(payload, "inputs")
     env_ref = try_parse_artifact_id(inputs.get("environment_manifest_ref"))
-    if env_ref is None:
+    selector = _selected_replay_reference(
+        reference_bindings, "input.environment_manifest_ref", env_ref
+    )
+    if selector is None:
         return []
     try:
-        original_payload = load_core_json_artifact(store, env_ref)
+        original_payload = load_core_json_artifact(store, selector)
         original_env = EnvironmentManifest.model_validate(original_payload)
         current_env = capture_environment(include_git=False, include_dependencies=True)
         return compare_environments(original_env, current_env)
@@ -302,16 +434,34 @@ def compare_current_environment(
 
 def build_replay_plan(store: ArtifactStore, packet_ref: ArtifactID) -> ReplayPlan:
     """Load a decision packet, infer strategy/seed, and compute completeness."""
-    payload = _load_packet_payload(store, packet_ref)
-    completeness = completeness_check(store, packet_ref, payload=payload)
+    try:
+        snapshot = _read_packet_snapshot(store, packet_ref)
+    except (OSError, TypeError, ValueError, RuntimeError) as exc:
+        logger.debug("Failed to load replay packet snapshot: %s", exc)
+        return ReplayPlan(
+            packet_ref=packet_ref,
+            strategy=ReplayStrategy.NONE,
+            seed=SeedResolution(value=0, source="packet_unavailable"),
+            completeness=_unreadable_packet_report(packet_ref),
+            payload={},
+        )
+    payload = snapshot.payload
+    completeness = _snapshot_completeness(store, snapshot)
     strategy = determine_replay_strategy(payload)
-    seed = resolve_effective_seed(payload, store=store)
+    bindings: dict[str, ArtifactRef] = {}
+    legacy_roles: tuple[str, ...] = ()
+    if completeness.level is not CompletenessLevel.INCOMPLETE:
+        bindings, legacy_roles = _packet_reference_bindings(snapshot)
+    seed = resolve_effective_seed(payload, store=store, reference_bindings=bindings)
     return ReplayPlan(
         packet_ref=packet_ref,
         strategy=strategy,
         seed=seed,
         completeness=completeness,
         payload=payload,
+        packet_profile_ref=snapshot.ref,
+        reference_bindings=bindings,
+        legacy_reference_roles=legacy_roles,
     )
 
 
@@ -618,27 +768,62 @@ def completeness_check(
     side artifacts downgrade the report to `RECOVERABLE`; unresolved strategy,
     missing required roles, or corruption yield `INCOMPLETE`.
     """
-    reasons: list[str] = []
     try:
-        packet_payload = payload or _load_packet_payload(store, packet_ref)
+        snapshot = _read_packet_snapshot(store, packet_ref)
     except (FileNotFoundError, OSError, TypeError, ValueError, RuntimeError) as exc:
         logger.debug("Failed to load replay packet payload: %s", exc)
-        return CompletenessReport(
-            level=CompletenessLevel.INCOMPLETE,
-            strategy=ReplayStrategy.NONE,
-            total_artifacts=1,
-            present_artifacts=0,
-            missing=[
-                MissingArtifact(
-                    artifact_id=str(packet_ref),
-                    role="root",
-                    kind="scientist.decision_packet",
-                    critical=True,
-                    status=NodeStatus.MISSING,
-                )
-            ],
-            reason_codes=["packet_unreadable"],
-        )
+        return _unreadable_packet_report(packet_ref)
+    if payload is not None and payload != snapshot.payload:
+        report = _unreadable_packet_report(packet_ref)
+        report.reason_codes = ["packet_payload_binding_mismatch"]
+        return report
+    return _snapshot_completeness(
+        store,
+        snapshot,
+        max_depth=max_depth,
+        max_nodes=max_nodes,
+        verify_integrity=verify_integrity,
+    )
+
+
+def _unreadable_packet_report(packet_ref: ArtifactID) -> CompletenessReport:
+    return CompletenessReport(
+        level=CompletenessLevel.INCOMPLETE,
+        strategy=ReplayStrategy.NONE,
+        total_artifacts=1,
+        present_artifacts=0,
+        missing=[
+            MissingArtifact(
+                artifact_id=str(packet_ref),
+                role="root",
+                kind="scientist.decision_packet",
+                critical=True,
+                status=NodeStatus.MISSING,
+            )
+        ],
+        reason_codes=["packet_unreadable"],
+    )
+
+
+def _snapshot_completeness(
+    store: ArtifactStore,
+    snapshot: _PacketSnapshot,
+    *,
+    max_depth: int = 200,
+    max_nodes: int = 10_000,
+    verify_integrity: bool = True,
+) -> CompletenessReport:
+    packet_payload = snapshot.payload
+    reasons: list[str] = []
+    legacy_roles: tuple[str, ...] = ()
+    try:
+        bindings, legacy_roles = _packet_reference_bindings(snapshot)
+    except ValueError as exc:
+        bindings = {}
+        reasons.append(str(exc))
+    legacy_edges_only = not any(edge.manifest_profile_sha256 for edge in snapshot.inputs)
+    if legacy_edges_only and (legacy_roles or snapshot.inputs):
+        reasons.append("legacy_payload_reference_profiles_not_established")
 
     strategy = determine_replay_strategy(packet_payload)
     if strategy == ReplayStrategy.NONE:
@@ -646,7 +831,7 @@ def completeness_check(
 
     graph = resolve_dependency_graph(
         store,
-        packet_ref,
+        snapshot.ref,
         root_role="root",
         max_depth=max_depth,
         max_nodes=max_nodes,
@@ -656,24 +841,68 @@ def completeness_check(
     roles_by_id: dict[str, set[str]] = {}
     for role, artifact_id in payload_refs:
         roles_by_id.setdefault(str(artifact_id), set()).add(role)
-        if artifact_id.hex in graph.nodes:
+    traversal_refs = list(payload_refs)
+    if legacy_edges_only:
+        # Keep the selected root frozen. Only explicitly ID-only children use
+        # Core's existing weaker reader; modern missing profiles stay unresolved.
+        traversal_refs.extend((edge.role, edge.artifact_id) for edge in snapshot.inputs)
+    graph_ids = {node.artifact_id.hex for node in graph.nodes.values()}
+    graph_views = {
+        (node.artifact_id.hex, node.manifest_profile_sha256) for node in graph.nodes.values()
+    }
+    legacy_present = {
+        node.artifact_id.hex
+        for node in graph.nodes.values()
+        if node.manifest_profile_sha256 is None and node.status == NodeStatus.PRESENT
+    }
+    for role, artifact_id in traversal_refs:
+        selected = bindings.get(role)
+        if legacy_edges_only and selected is None:
+            if artifact_id.hex in legacy_present:
+                continue
+        elif (selected is None and artifact_id.hex in graph_ids) or (
+            selected is not None
+            and (artifact_id.hex, selected.manifest_profile_sha256) in graph_views
+        ):
             continue
-        subgraph = resolve_dependency_graph(
-            store,
-            artifact_id,
-            root_role=role,
-            max_depth=max_depth,
-            max_nodes=max_nodes,
-            verify_integrity=verify_integrity,
+        if max_depth < 1:
+            continue
+        profile = selected.manifest_profile_sha256 if selected is not None else None
+        already_counted_root = (artifact_id.hex, profile) in graph_views
+        remaining_nodes = max_nodes - len(graph.nodes) + int(already_counted_root)
+        if remaining_nodes < 1:
+            raise ValueError(f"Dependency graph exceeded max_nodes={max_nodes}")
+        try:
+            subgraph = resolve_dependency_graph(
+                store,
+                selected or artifact_id,
+                root_role=role,
+                max_depth=max_depth - 1,
+                max_nodes=remaining_nodes,
+                verify_integrity=verify_integrity,
+            )
+        except ValueError as exc:
+            raise ValueError(
+                f"Replay subgraph admission refused with traversal capacity={remaining_nodes}, "
+                f"merged max_nodes={max_nodes}; final union feasibility not established: {exc}"
+            ) from exc
+        _merge_graph(graph, subgraph, max_nodes=max_nodes, depth_offset=1)
+        graph_ids.update(node.artifact_id.hex for node in subgraph.nodes.values())
+        graph_views.update(
+            (node.artifact_id.hex, node.manifest_profile_sha256) for node in subgraph.nodes.values()
         )
-        _merge_graph(graph, subgraph)
+        legacy_present.update(
+            node.artifact_id.hex
+            for node in subgraph.nodes.values()
+            if node.manifest_profile_sha256 is None and node.status == NodeStatus.PRESENT
+        )
 
     critical_roles = _critical_roles(strategy)
     missing: list[MissingArtifact] = []
     corrupted: list[MissingArtifact] = []
 
-    snapshot_status = _snapshot_presence_status(graph, roles_by_id)
-    for hex_id, node in graph.nodes.items():
+    snapshot_status = _snapshot_presence_status(graph, roles_by_id, bindings)
+    for node in graph.nodes.values():
         if node.status == NodeStatus.PRESENT:
             continue
         role = _resolve_role(node.role, roles_by_id.get(str(node.artifact_id)))
@@ -684,11 +913,12 @@ def completeness_check(
             snapshot_status=snapshot_status,
         )
         item = MissingArtifact(
-            artifact_id=f"sha256:{hex_id}",
+            artifact_id=str(node.artifact_id),
             role=role,
             kind=node.kind,
             critical=critical,
             status=node.status,
+            manifest_profile_sha256=node.manifest_profile_sha256,
         )
         if node.status == NodeStatus.CORRUPTED:
             corrupted.append(item)
@@ -700,7 +930,12 @@ def completeness_check(
         reasons.extend(required_missing)
     has_critical_missing = any(item.critical for item in missing) or len(corrupted) > 0
     has_missing = len(missing) > 0
-    if strategy == ReplayStrategy.NONE or has_critical_missing or required_missing:
+    if (
+        strategy == ReplayStrategy.NONE
+        or has_critical_missing
+        or required_missing
+        or any(reason.startswith("replay_input_binding_") for reason in reasons)
+    ):
         level = CompletenessLevel.INCOMPLETE
     elif has_missing:
         level = CompletenessLevel.RECOVERABLE
@@ -725,18 +960,27 @@ def verify_replay(
     store: ArtifactStore,
     *,
     original_payload: dict[str, Any],
-    replay_simulation_ref: ArtifactID | None,
+    replay_simulation_ref: ArtifactID | ArtifactRef | None,
     config: VerificationConfig,
+    original_reference_bindings: Mapping[str, ArtifactRef] | None = None,
 ) -> VerificationResult:
     """Compare original and replayed simulation outputs using the selected mode."""
     if config.mode == VerificationMode.SKIP:
         return VerificationResult(
-            passed=True,
+            passed=False,
             mode=VerificationMode.SKIP,
             details={"reason": "verification_skipped"},
         )
 
     original_sim_ref = _extract_simulation_result_ref(original_payload)
+    original_selector = _selected_replay_reference(
+        original_reference_bindings, "artifact.simulation_result_ref", original_sim_ref
+    )
+    replay_id = (
+        replay_simulation_ref.artifact_id
+        if isinstance(replay_simulation_ref, ArtifactRef)
+        else replay_simulation_ref
+    )
     if config.mode == VerificationMode.BIT_EXACT:
         if original_sim_ref is None or replay_simulation_ref is None:
             return VerificationResult(
@@ -744,30 +988,34 @@ def verify_replay(
                 mode=VerificationMode.BIT_EXACT,
                 details={"reason": "missing_simulation_result_ref"},
                 original_ref=str(original_sim_ref) if original_sim_ref else None,
-                replay_ref=str(replay_simulation_ref) if replay_simulation_ref else None,
+                replay_ref=str(replay_id) if replay_id else None,
             )
-        passed = original_sim_ref == replay_simulation_ref
+        passed = original_sim_ref == replay_id
         return VerificationResult(
             passed=passed,
             mode=VerificationMode.BIT_EXACT,
             details={"match": passed},
             original_ref=str(original_sim_ref),
-            replay_ref=str(replay_simulation_ref),
+            replay_ref=str(replay_id),
         )
 
-    if original_sim_ref is None or replay_simulation_ref is None:
+    if original_sim_ref is None or original_selector is None or replay_simulation_ref is None:
         return VerificationResult(
             passed=False,
             mode=VerificationMode.CI_BOUNDED,
-            details={"reason": "missing_simulation_result_ref"},
+            details={
+                "reason": "missing_simulation_result_ref",
+                "scientific_qualification": "UNQUALIFIED",
+            },
             original_ref=str(original_sim_ref) if original_sim_ref else None,
-            replay_ref=str(replay_simulation_ref) if replay_simulation_ref else None,
+            replay_ref=str(replay_id) if replay_id else None,
         )
 
-    original_metrics = _load_metrics_values(store, original_sim_ref)
+    tolerance = _finite_relative_tolerance(config.relative_tolerance)
+    confidence = _finite_confidence_level(config.confidence_level)
+    original_metrics = _load_metrics_values(store, original_selector)
     replay_metrics = _load_metrics_values(store, replay_simulation_ref)
     mismatches: dict[str, dict[str, Any]] = {}
-    tolerance = max(float(config.relative_tolerance), 0.0)
     for key in sorted(set(original_metrics) | set(replay_metrics)):
         if key not in original_metrics or key not in replay_metrics:
             mismatches[key] = {"reason": "missing_key"}
@@ -797,15 +1045,18 @@ def verify_replay(
         passed=len(mismatches) == 0,
         mode=VerificationMode.CI_BOUNDED,
         details={
-            "confidence_level": config.confidence_level,
+            "confidence_level": confidence,
+            "scientific_qualification": "UNQUALIFIED",
             "mismatches": mismatches,
         },
         original_ref=str(original_sim_ref),
-        replay_ref=str(replay_simulation_ref),
+        replay_ref=str(replay_id),
     )
 
 
-def _load_packet_payload(store: ArtifactStore, packet_ref: ArtifactID) -> dict[str, Any]:
+def _load_packet_payload(
+    store: ArtifactStore, packet_ref: ArtifactID | ArtifactRef
+) -> dict[str, Any]:
     from polisyos.core.artifacts import load_core_json_artifact
 
     payload = load_core_json_artifact(store, packet_ref)
@@ -828,13 +1079,32 @@ def _extract_payload_refs(payload: dict[str, Any]) -> list[tuple[str, ArtifactID
     return refs
 
 
-def _merge_graph(target: DependencyGraph, source: DependencyGraph) -> None:
+def _merge_graph(
+    target: DependencyGraph,
+    source: DependencyGraph,
+    *,
+    max_nodes: int,
+    depth_offset: int,
+) -> None:
+    if len(target.nodes.keys() | source.nodes.keys()) > max_nodes:
+        raise ValueError(f"Dependency graph exceeded max_nodes={max_nodes}")
     for hex_id, src_node in source.nodes.items():
+        src_node = replace(src_node, depth=src_node.depth + depth_offset)
         dst_node = target.nodes.get(hex_id)
         if dst_node is None:
             target.nodes[hex_id] = src_node
             continue
-        if dst_node.status != NodeStatus.PRESENT and src_node.status == NodeStatus.PRESENT:
+        if src_node.status == NodeStatus.CORRUPTED or (
+            dst_node.status == NodeStatus.MISSING_MANIFEST
+            and dst_node.manifest_profile_sha256 is None
+            and src_node.manifest_profile_sha256 is None
+        ):
+            target.nodes[hex_id] = src_node
+            continue
+        if (
+            dst_node.status not in (NodeStatus.PRESENT, NodeStatus.CORRUPTED)
+            and src_node.status == NodeStatus.PRESENT
+        ):
             target.nodes[hex_id] = src_node
             continue
         if dst_node.role is None and src_node.role is not None:
@@ -872,14 +1142,22 @@ def _resolve_role(node_role: str | None, payload_roles: set[str] | None) -> str:
 def _snapshot_presence_status(
     graph: DependencyGraph,
     roles_by_id: dict[str, set[str]],
+    bindings: Mapping[str, ArtifactRef],
 ) -> dict[str, bool]:
     status = dict.fromkeys(_STATE_SOURCE_ROLES, False)
     for artifact_ref, roles in roles_by_id.items():
-        node = graph.nodes.get(ArtifactID.model_validate(artifact_ref).hex)
-        if node is None or node.status != NodeStatus.PRESENT:
-            continue
+        artifact_id = ArtifactID.model_validate(artifact_ref)
         for role in roles:
-            if role in status:
+            selected = bindings.get(role)
+            if role in status and any(
+                node.artifact_id == artifact_id
+                and node.status == NodeStatus.PRESENT
+                and (
+                    selected is None
+                    or node.manifest_profile_sha256 == selected.manifest_profile_sha256
+                )
+                for node in graph.nodes.values()
+            ):
                 status[role] = True
     return status
 
@@ -938,7 +1216,9 @@ def _extract_simulation_result_ref(payload: dict[str, Any]) -> ArtifactID | None
     return try_parse_artifact_id(artifacts.get("simulation_result_ref"))
 
 
-def _load_metrics_values(store: ArtifactStore, sim_ref: ArtifactID) -> dict[str, float | int | str]:
+def _load_metrics_values(
+    store: ArtifactStore, sim_ref: ArtifactID | ArtifactRef
+) -> dict[str, float | int | str]:
     from polisyos.core.artifacts import load_core_json_artifact
 
     sim_payload = load_core_json_artifact(store, sim_ref)

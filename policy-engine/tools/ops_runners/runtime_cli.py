@@ -1065,13 +1065,21 @@ def _build_parser() -> argparse.ArgumentParser:
         "--confidence-level",
         type=float,
         default=0.95,
-        help="Confidence level for ci_bounded reports",
+        help="Finite confidence metadata in (0, 1); not a calibrated statistical interval",
     )
     cmd_replay.add_argument("--json", action="store_true")
 
     cmd_resume = components.add_parser("resume")
     cmd_resume.add_argument("run_id", help="Run ID to resume (e.g. R_abc123)")
     cmd_resume.add_argument("--cas-root", default=".polisyos/cas", help="CAS root directory")
+    cmd_resume.add_argument(
+        "--workflow-ref",
+        help="Original workflow CAS ID; requires --workflow-profile and matching checkpoint fingerprint",
+    )
+    cmd_resume.add_argument(
+        "--workflow-profile",
+        help="Exact selected workflow manifest profile (sha256:<64 lowercase hex>)",
+    )
     cmd_resume.add_argument(
         "--checkpoint-policy",
         choices=["off", "strict", "best_effort"],

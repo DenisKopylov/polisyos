@@ -16,8 +16,12 @@ import sys
 import tomllib
 from pathlib import Path
 from types import SimpleNamespace
+from typing import TYPE_CHECKING
 
 import pytest
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts import ArtifactRef, FileSystemCAS
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 SRC_ROOT = PROJECT_ROOT / "src"
@@ -80,6 +84,7 @@ def _run_isolated(code: str) -> subprocess.CompletedProcess[str]:
         capture_output=True,
         text=True,
         check=False,
+        timeout=60,
     )
 
 
@@ -91,6 +96,9 @@ import importlib
 import sys
 
 runtime = importlib.import_module('polisyos.runtime')
+assert not any(name == 'polisyos.scientist' or name.startswith('polisyos.scientist.')
+               for name in sys.modules), sorted(sys.modules)
+assert 'polisyos.runtime.replay' not in sys.modules
 canonical = importlib.import_module('polisyos.scientist.replay.deterministic')
 expected = {ROOT_EXPORTS!r}
 assert tuple(runtime.__all__) == expected
@@ -294,7 +302,7 @@ def test_resume_cli_executes_remaining_native_workflow_and_persists_fresh_head(
     capsys: pytest.CaptureFixture[str],
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """The non-dry CLI resumes a real remaining node and advances the CAS head."""
+    """Retain the original default-workflow compatibility probe, not fresh CLI proof."""
     from polisyos.core.artifacts.store import FileSystemCAS
     from polisyos.scientist.orchestration.engine.checkpoint import (
         COMPLETED_NODE_STATUS_CONTRACT,
@@ -382,6 +390,173 @@ def test_resume_cli_executes_remaining_native_workflow_and_persists_fresh_head(
     assert checkpoint.metadata.completed_node_status_contract == COMPLETED_NODE_STATUS_CONTRACT
 
 
+def test_fresh_cli_resumes_selected_original_workflow_without_default_override(
+    tmp_path: Path,
+) -> None:
+    """Actual builtin production, explicit selected input and fresh CLI resume compose."""
+    cas_root = tmp_path / "cas"
+    run_id = "R_rep_01_fresh_cli"
+    produced = _run_isolated(
+        f"""
+import json
+import logging
+from pathlib import Path
+from polisyos.core.artifacts import FileSystemCAS
+from polisyos.core.registry import build_default_registry_bundle
+from polisyos.core.run.context import RunContext
+from polisyos.scientist.orchestration.engine.builtins import builtin_nodes
+from polisyos.scientist.orchestration.engine.checkpoint import CASCheckpointHook, resolve_latest_checkpoint
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
+from polisyos.scientist.orchestration.engine.registry import NodeRegistry
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
+
+class StoppedAfterPublication(RuntimeError):
+    pass
+
+class StopAfterFirst(CASCheckpointHook):
+    def on_node_complete(self, **kwargs):
+        result = super().on_node_complete(**kwargs)
+        if kwargs["alias"] == "start":
+            raise StoppedAfterPublication("stop after the real durable first head")
+        return result
+
+store = FileSystemCAS(Path({str(cas_root)!r}))
+bundle = build_default_registry_bundle(store, return_selected_profile=True)
+run = RunContext.start(store=store, registry_bundle=bundle.bundle_ref, run_id={run_id!r})
+ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("rep01.native"))
+registry = NodeRegistry()
+for node in builtin_nodes():
+    registry.register(node)
+workflow = WorkflowSpec(workflow_id="rep01_selected_original", nodes=[
+    NodeInvocation(alias="start", node_id="scientist.node_set_state@1.0.0",
+                   params={{"key": "first_value", "value": 1}}),
+    NodeInvocation(alias="finish", node_id="scientist.node_emit_artifact@1.0.0",
+                   depends_on=["start"],
+                   params={{"key": "finish_result", "payload": {{"seed": 7, "value": 2}}}}),
+])
+state = ExperimentState(run_id={run_id!r}, inputs={{"registry_bundle_ref": bundle.bundle_ref}},
+                        params={{"random_seed": 7}})
+hook = StopAfterFirst(store=store, run_dir=store.root / "runs" / {run_id!r},
+                      checkpoint_policy="strict")
+try:
+    WorkflowExecutor(ctx, registry, checkpoint_hook=hook).execute(workflow, state)
+except StoppedAfterPublication:
+    pass
+else:
+    raise AssertionError("publication stop was never reached")
+selected = [ref for ref in run.run_manifest.inputs if ref.kind == "scientist.workflow_spec"]
+assert len(selected) == 1
+assert selected[0].manifest_profile_sha256
+resolved = resolve_latest_checkpoint(store, {run_id!r})
+assert resolved is not None
+assert resolved[1].metadata.completed_nodes == ["start"]
+assert resolved[1].state["params"]["first_value"] == 1
+run.suspend_for_resume()
+print(json.dumps(selected[0].model_dump(mode="json"), sort_keys=True))
+""",
+    )
+    assert produced.returncode == 0, f"stdout={produced.stdout}\nstderr={produced.stderr}"
+    selected = json.loads(produced.stdout.splitlines()[-1])
+    trace_path = cas_root / "runs" / run_id / "trace.jsonl"
+
+    def started_aliases() -> list[str]:
+        records = [json.loads(line) for line in trace_path.read_text().splitlines() if line]
+        return [
+            record["phase"].removeprefix("scientist.node.")
+            for record in records
+            if record["event"] == "NODE_STARTED"
+        ]
+
+    assert started_aliases() == ["start"]
+    command = [
+        sys.executable,
+        "-B",
+        "-m",
+        "tools.ops_runners.runtime_cli",
+        "resume",
+        run_id,
+        "--cas-root",
+        str(cas_root),
+        "--workflow-ref",
+        selected["artifact_id"],
+        "--workflow-profile",
+        selected["manifest_profile_sha256"],
+        "--checkpoint-policy",
+        "strict",
+        "--json",
+    ]
+    environment = _isolated_environment()
+    environment["POLISYOS_RUNNER_BACKEND"] = "local"
+    for _attempt in range(2):
+        resumed = subprocess.run(
+            command,
+            cwd=PROJECT_ROOT,
+            env=environment,
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=60,
+        )
+        assert resumed.returncode == 0, f"stdout={resumed.stdout}\nstderr={resumed.stderr}"
+        assert json.loads(resumed.stdout)["resume"]["status"] == "ok"
+        assert started_aliases() == ["start", "finish"]
+
+    from polisyos.core.artifacts import ArtifactRef, FileSystemCAS
+    from polisyos.core.canon import from_canonical_bytes
+    from polisyos.scientist.orchestration.engine.checkpoint import resolve_latest_checkpoint
+
+    fresh = FileSystemCAS(cas_root)
+    resolved = resolve_latest_checkpoint(fresh, run_id)
+    assert resolved is not None
+    head, checkpoint = resolved
+    assert head.node_alias == "finish"
+    assert checkpoint.metadata.completed_nodes == ["start", "finish"]
+    assert checkpoint.state["params"]["first_value"] == 1
+    output_ref = checkpoint.state["artifacts_index"]["finish_result"]
+    assert from_canonical_bytes(fresh.get_bytes(ArtifactRef.model_validate(output_ref))) == {
+        "seed": 7,
+        "value": 2,
+    }
+
+
+@pytest.mark.parametrize(
+    ("workflow_ref", "workflow_profile"),
+    [
+        ("sha256:" + "a" * 64, None),
+        (None, "sha256:" + "b" * 64),
+        ("not-an-id", "sha256:" + "b" * 64),
+        ("sha256:" + "a" * 64, "bad-profile"),
+    ],
+)
+def test_resume_cli_refuses_unselected_workflow_before_store_creation(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+    workflow_ref: str | None,
+    workflow_profile: str | None,
+) -> None:
+    """The explicit original-workflow input is all-or-nothing and fully selected."""
+    from polisyos.core.components import _cli_replay
+
+    cas_root = tmp_path / "absent-cas"
+    result = _cli_replay._cmd_resume(
+        SimpleNamespace(
+            cas_root=cas_root,
+            run_id="R_invalid_workflow_selection",
+            workflow_ref=workflow_ref,
+            workflow_profile=workflow_profile,
+            checkpoint_policy="strict",
+            dry_run=False,
+            force=False,
+            json=True,
+        )
+    )
+    assert result == 2
+    assert "workflow" in capsys.readouterr().err
+    assert not cas_root.exists()
+
+
 def test_run_manifest_and_quality_replay_contracts_remain_available(tmp_path: Path) -> None:
     """REP-01 must not retire the independent historical RunManifest or quality replay path."""
     from polisyos.runtime.api import log_artifact, start_run
@@ -404,3 +579,236 @@ def test_run_manifest_and_quality_replay_contracts_remain_available(tmp_path: Pa
 
     quality_replay = importlib.import_module("polisyos.runtime.quality.replay")
     assert callable(quality_replay.build_replay_manifest)
+
+
+def test_skip_verification_never_claims_a_pass(tmp_path: Path) -> None:
+    """An explicitly skipped comparison grants no verification evidence."""
+    from polisyos.core.artifacts import FileSystemCAS
+    from polisyos.scientist.replay.deterministic import (
+        VerificationConfig,
+        VerificationMode,
+        verify_replay,
+    )
+
+    result = verify_replay(
+        FileSystemCAS(tmp_path / "cas"),
+        original_payload={},
+        replay_simulation_ref=None,
+        config=VerificationConfig(mode=VerificationMode.SKIP),
+    )
+
+    assert result.passed is False
+    assert result.skipped is True
+    assert result.mode is VerificationMode.SKIP
+    assert result.details == {"reason": "verification_skipped"}
+
+
+@pytest.mark.parametrize("same_ref", [True, False])
+def test_bit_exact_reports_reference_identity_without_scientific_promotion(
+    tmp_path: Path, same_ref: bool
+) -> None:
+    """Bit-exact compares persisted result identity, without a scientific claim."""
+    from polisyos.core.artifacts import FileSystemCAS
+    from polisyos.core.artifacts.store import PutOptions
+    from polisyos.scientist.replay.deterministic import (
+        VerificationConfig,
+        VerificationMode,
+        verify_replay,
+    )
+
+    store = FileSystemCAS(tmp_path / "cas")
+    original = store.put_json(
+        {"numerical_result": 1},
+        PutOptions(kind="foundry.simulation_result", media_type="application/json"),
+    )
+    other = store.put_json(
+        {"numerical_result": 2},
+        PutOptions(kind="foundry.simulation_result", media_type="application/json"),
+    )
+    replay_ref = original if same_ref else other
+    result = verify_replay(
+        store,
+        original_payload={"artifacts": {"simulation_result_ref": str(original.artifact_id)}},
+        replay_simulation_ref=replay_ref.artifact_id,
+        config=VerificationConfig(mode=VerificationMode.BIT_EXACT),
+    )
+
+    assert result.passed is same_ref
+    assert result.skipped is False
+    assert result.details == {"match": same_ref}
+    assert result.original_ref == str(original.artifact_id)
+    assert result.replay_ref == str(replay_ref.artifact_id)
+
+
+def _persist_metric_result(store: FileSystemCAS, value: int) -> ArtifactRef:
+    """Persist real typed metrics and their result for comparator boundary tests."""
+    from polisyos.core.artifacts import ArtifactID
+    from polisyos.core.artifacts.store import PutOptions
+    from polisyos.core.contracts.foundry import (
+        ExecPlanRef,
+        Metrics,
+        MetricsRef,
+        SimulationResult,
+    )
+
+    metrics = store.put_json(
+        Metrics(values={"controlled_value": value}),
+        PutOptions(kind="foundry.metrics", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    return store.put_json(
+        SimulationResult(
+            exec_plan_ref=ExecPlanRef(artifact_id=ArtifactID.model_validate("sha256:" + "e" * 64)),
+            metrics_ref=MetricsRef.model_validate(metrics.model_dump(mode="python")),
+        ),
+        PutOptions(kind="foundry.simulation_result", media_type="application/json"),
+        return_selected_profile=True,
+    )
+
+
+@pytest.mark.parametrize("tolerance", [float("nan"), float("inf"), float("-inf"), -0.1])
+def test_ci_bounded_rejects_invalid_tolerance_before_comparing_real_metrics(
+    tmp_path: Path, tolerance: float
+) -> None:
+    """An unbounded/undefined numeric tolerance cannot turn real drift into a pass."""
+    from polisyos.core.artifacts import FileSystemCAS
+    from polisyos.scientist.replay.deterministic import (
+        VerificationConfig,
+        VerificationMode,
+        verify_replay,
+    )
+
+    store = FileSystemCAS(tmp_path / "cas")
+    original = _persist_metric_result(store, 1)
+    changed = _persist_metric_result(store, 10)
+    with pytest.raises(ValueError, match=r"relative_tolerance.*finite.*nonnegative"):
+        verify_replay(
+            store,
+            original_payload={"artifacts": {"simulation_result_ref": str(original.artifact_id)}},
+            replay_simulation_ref=changed,
+            config=VerificationConfig(
+                mode=VerificationMode.CI_BOUNDED, relative_tolerance=tolerance
+            ),
+        )
+
+
+@pytest.mark.parametrize("inlet", ["verification", "seed", "environment"])
+def test_replay_public_selected_binding_cannot_replace_the_payload_id(
+    tmp_path: Path, inlet: str
+) -> None:
+    """A selected view names the payload artifact, rather than an alternative ID."""
+    from polisyos.core.artifacts import FileSystemCAS
+    from polisyos.core.artifacts.store import PutOptions
+    from polisyos.scientist.replay.deterministic import (
+        VerificationConfig,
+        VerificationMode,
+        compare_current_environment,
+        resolve_effective_seed,
+        verify_replay,
+    )
+
+    store = FileSystemCAS(tmp_path / "cas")
+    if inlet == "verification":
+        original = _persist_metric_result(store, 1)
+        changed = _persist_metric_result(store, 10)
+        with pytest.raises(ValueError, match="replay_input_binding_mismatch"):
+            # B must not be loaded while the report attributes that comparison to A.
+            verify_replay(
+                store,
+                original_payload={
+                    "artifacts": {"simulation_result_ref": str(original.artifact_id)}
+                },
+                replay_simulation_ref=changed,
+                config=VerificationConfig(mode=VerificationMode.CI_BOUNDED),
+                original_reference_bindings={"artifact.simulation_result_ref": changed},
+            )
+        return
+
+    kind = "foundry.exec_plan" if inlet == "seed" else "foundry.environment_manifest"
+    original = store.put_json(
+        {"controlled_input": "A"},
+        PutOptions(kind=kind, media_type="application/json"),
+        return_selected_profile=True,
+    )
+    changed = store.put_json(
+        {"controlled_input": "B"},
+        PutOptions(kind=kind, media_type="application/json"),
+        return_selected_profile=True,
+    )
+    if inlet == "seed":
+        with pytest.raises(ValueError, match="replay_input_binding_mismatch"):
+            resolve_effective_seed(
+                {"artifacts": {"exec_plan_ref": str(original.artifact_id)}},
+                store=store,
+                reference_bindings={"artifact.exec_plan_ref": changed},
+            )
+    else:
+        with pytest.raises(ValueError, match="replay_input_binding_mismatch"):
+            compare_current_environment(
+                store,
+                {"inputs": {"environment_manifest_ref": str(original.artifact_id)}},
+                reference_bindings={"input.environment_manifest_ref": changed},
+            )
+
+
+@pytest.mark.parametrize(
+    ("original_value", "replay_value", "tolerance", "expected_pass"),
+    [(100, 101, 0.01, True), (100, 102, 0.01, False), (1, 1, 0.0, True), (1, 10, 0.0, False)],
+)
+def test_ci_bounded_has_a_finite_numeric_oracle_and_no_scientific_promotion(
+    tmp_path: Path,
+    original_value: int,
+    replay_value: int,
+    tolerance: float,
+    expected_pass: bool,
+) -> None:
+    """Relative metric agreement is measured separately from scientific qualification."""
+    from polisyos.core.artifacts import FileSystemCAS
+    from polisyos.scientist.replay.deterministic import (
+        VerificationConfig,
+        VerificationMode,
+        verify_replay,
+    )
+
+    store = FileSystemCAS(tmp_path / "cas")
+    original = _persist_metric_result(store, original_value)
+    replayed = _persist_metric_result(store, replay_value)
+    result = verify_replay(
+        store,
+        original_payload={"artifacts": {"simulation_result_ref": str(original.artifact_id)}},
+        replay_simulation_ref=replayed,
+        config=VerificationConfig(mode=VerificationMode.CI_BOUNDED, relative_tolerance=tolerance),
+        original_reference_bindings={"artifact.simulation_result_ref": original},
+    )
+    assert result.passed is expected_pass
+    assert result.skipped is False
+    assert result.details["scientific_qualification"] == "UNQUALIFIED"
+    if not expected_pass:
+        assert result.details["mismatches"]["controlled_value"]["relative_diff"] > tolerance
+
+
+@pytest.mark.parametrize(
+    "confidence", [float("nan"), float("inf"), float("-inf"), -0.1, 0.0, 1.0, 1.1]
+)
+def test_ci_bounded_refuses_nonfinite_or_out_of_range_confidence_metadata(
+    tmp_path: Path, confidence: float
+) -> None:
+    """Agreement of real metrics cannot validate undefined probability metadata."""
+    from polisyos.core.artifacts import FileSystemCAS
+    from polisyos.scientist.replay.deterministic import (
+        VerificationConfig,
+        VerificationMode,
+        verify_replay,
+    )
+
+    store = FileSystemCAS(tmp_path / "cas")
+    original = _persist_metric_result(store, 1)
+    with pytest.raises(ValueError, match=r"confidence_level.*finite.*between 0 and 1"):
+        verify_replay(
+            store,
+            original_payload={"artifacts": {"simulation_result_ref": str(original.artifact_id)}},
+            replay_simulation_ref=original,
+            config=VerificationConfig(
+                mode=VerificationMode.CI_BOUNDED, confidence_level=confidence
+            ),
+        )

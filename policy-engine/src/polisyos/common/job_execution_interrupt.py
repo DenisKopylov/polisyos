@@ -101,3 +101,24 @@ def require_current_job_execution_owner(expected_job_id: str) -> None:
     ):
         raise JobExecutionOwnerNotEstablishedError("job_execution_current_owner_not_established")
     raise_if_job_execution_interrupted(check_current_owner=True)
+
+
+def has_job_execution_owner_check() -> bool:
+    """Report a bound live-check capability's presence, without checking its owner.
+
+    This is only a transport restriction: a caller may refuse a route that cannot
+    carry the check. True establishes neither currentness nor permission.
+    """
+    current = _CURRENT.get()
+    return current is not None and current.current_owner_check is not None
+
+
+def has_job_execution_scope() -> bool:
+    """Report a bound attempt's presence without establishing live authority.
+
+    An event-only legacy scope is still worker-bound and cannot be transported
+    through a child route that cannot preserve its interruption capability.
+    A lost bound attempt still reports present. The predicate performs no owner
+    lookup and grants no execution permission.
+    """
+    return _CURRENT.get() is not None

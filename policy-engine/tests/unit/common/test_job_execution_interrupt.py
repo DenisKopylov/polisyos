@@ -11,6 +11,8 @@ from polisyos.common.job_execution_interrupt import (
     JobExecutionInterrupt,
     JobExecutionInterrupted,
     JobExecutionOwnerNotEstablishedError,
+    has_job_execution_owner_check,
+    has_job_execution_scope,
     job_execution_interrupt_scope,
     raise_if_job_execution_interrupted,
     require_current_job_execution_owner,
@@ -117,3 +119,46 @@ def test_unexpected_owner_lookup_error_cannot_become_a_retryable_node_error() ->
         require_current_job_execution_owner("job")
     assert caught.value.__cause__ is error
     assert lost.is_set()
+
+
+def test_owner_check_presence_restricts_transport_without_claiming_currentness() -> None:
+    checks = []
+    assert has_job_execution_owner_check() is False
+    legacy = JobExecutionInterrupt("job", "worker", 1, Event())
+    with job_execution_interrupt_scope(legacy):
+        assert has_job_execution_owner_check() is False
+    lost = Event()
+    lost.set()
+    signal = JobExecutionInterrupt(
+        "job", "worker", 1, lost, current_owner_check=lambda: checks.append("checked")
+    )
+    with job_execution_interrupt_scope(signal):
+        assert has_job_execution_owner_check() is True
+        assert checks == []
+        with pytest.raises(JobExecutionInterrupted):
+            require_current_job_execution_owner("job")
+    assert has_job_execution_owner_check() is False
+
+
+@pytest.mark.parametrize("live_check", [False, True])
+@pytest.mark.parametrize("already_lost", [False, True])
+def test_scope_presence_includes_legacy_and_lost_attempt_without_owner_lookup(
+    live_check: bool, already_lost: bool
+) -> None:
+    checks = []
+    lost = Event()
+    if already_lost:
+        lost.set()
+    signal = JobExecutionInterrupt(
+        "job",
+        "worker",
+        1,
+        lost,
+        current_owner_check=(lambda: checks.append("checked")) if live_check else None,
+    )
+    assert has_job_execution_scope() is False
+    with job_execution_interrupt_scope(signal):
+        assert has_job_execution_scope() is True
+        assert has_job_execution_owner_check() is live_check
+        assert checks == [] and lost.is_set() is already_lost
+    assert has_job_execution_scope() is False

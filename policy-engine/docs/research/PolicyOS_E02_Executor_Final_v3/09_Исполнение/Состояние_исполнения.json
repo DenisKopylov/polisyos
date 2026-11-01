@@ -1032,6 +1032,7 @@
       "base_commit": "3865c5ca668fb8aa507246f318cdeb7bd98b2d02",
       "integrated_commit": "06e1b7125365ca60525d99e9bba1ad97c8db0024",
       "actual_write_set": [
+        "policy-engine/tests/_helpers/cas_custody_process.py",
         "policy-engine/tests/unit/remediation/test_cas_01.py"
       ],
       "shared_writer": "/root/lane06_cas",
@@ -1066,6 +1067,16 @@
           "output": "policy-engine/_cache/e02/lane06-foundation-composed",
           "result": "239 PASS in21.63s; peak sampled process-tree1.404GiB; ten named source/test inputs unchanged",
           "scope": "Composed local family regressions for six packets; not full E02-I06 scenarios or all75 local TEST contracts."
+        },
+        {
+          "output": "policy-engine/_cache/e02/cas01-publication-matrix-r1/",
+          "result": "12 PASS on18 stable pins;10.89s;219MB RSS",
+          "scope": "Actual process publication/fsync/recovery cuts, selected/default views preserved."
+        },
+        {
+          "output": "policy-engine/_cache/e02/cas01-inner-owner-removal-r1/",
+          "result": "Intended semantic FAIL; restored2 PASS at cas01-withdrawal-restored-r1/",
+          "scope": "Real persisted owner withdrawal, not a callback assertion."
         }
       ],
       "blockers": [
@@ -1106,18 +1117,26 @@
       "track_id": "06-C",
       "track_position": 2,
       "implementation_status": "REVIEWED_LOCAL_SLICE",
-      "local_qualification": "PARTIAL",
+      "local_qualification": "CONFIRMED_NATIVE_PROFILE",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "/root/lane06_cas",
       "base_commit": "06e1b7125365ca60525d99e9bba1ad97c8db0024",
       "integrated_commit": "388064755fa8833107f35ae097633b1b3445b59f",
       "actual_write_set": [
-        "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+        "policy-engine/src/polisyos/core/artifacts/README.md",
         "policy-engine/src/polisyos/core/artifacts/__init__.py",
-        "policy-engine/tests/unit/remediation/test_cas_02.py",
-        "policy-engine/tests/unit/core/artifacts/test_transfer_generation_publication.py",
+        "policy-engine/src/polisyos/core/artifacts/_export_admission.py",
+        "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+        "policy-engine/src/polisyos/core/artifacts/store.py",
         "policy-engine/src/polisyos/core/components/_cli_replay.py",
-        "policy-engine/tests/unit/core/components/test_cli_replay.py"
+        "policy-engine/src/polisyos/fabric/storage/tenant_cas.py",
+        "policy-engine/tests/unit/core/artifacts/test_export_admission.py",
+        "policy-engine/tests/unit/core/artifacts/test_import_signature_policy.py",
+        "policy-engine/tests/unit/core/artifacts/test_transfer_generation_publication.py",
+        "policy-engine/tests/unit/core/components/test_cli_replay.py",
+        "policy-engine/tests/unit/fabric/storage/test_tenant_storage_quota_admission.py",
+        "policy-engine/tests/unit/remediation/test_cas_02.py",
+        "policy-engine/tools/ops_runners/runtime_cli.py"
       ],
       "shared_writer": "/root/lane06_cas",
       "decision_records": [
@@ -1167,15 +1186,35 @@
           "output": "policy-engine/_cache/e02/lane06-second-composed",
           "result": "338 PASS /87 platform SKIP;25 named inputs unchanged",
           "scope": "One composed affected-family wave including real native CLI and the manual SCM consumer; not all I06 scenario bindings or all75 local TEST contracts."
+        },
+        {
+          "output": "policy-engine/_cache/e02/lane06-cas02-policy-export-final-r1/",
+          "result": "43 PASS;21 stable named inputs;5.48s;214MB sampled RSS",
+          "scope": "Actual Ed25519 configured policy including exact no-ops; directory/archive retention and native process lease."
+        },
+        {
+          "output": "policy-engine/_cache/e02/lane06-cas02-signature-removal-r1/",
+          "result": "Intended semantic FAIL; restored3 PASS at signature-restored-r1",
+          "scope": "Revoked incoming signature cannot publish owner intents/views."
+        },
+        {
+          "output": "policy-engine/_cache/e02/lane06-cas02-resource-removal-r1/",
+          "result": "Intended semantic FAIL; restored1 PASS at resource-restored-r1",
+          "scope": "Configured retained-generation bound is enforced before source consumption."
+        },
+        {
+          "output": "policy-engine/_cache/e02/cas02-affected-final-r1/",
+          "result": "200 PASS/1 stale expected ExportDurabilityError; corrected stronger ExportResourceError symlink control passes separately at cas02-stage-symlink-final-r1/",
+          "scope": "No claim of one201-green run. Original archive/foreign sentinel/symlink preservation assertions retained."
         }
       ],
       "blockers": [
-        "Finite repeated-export retention/reclamation policy is not established by manual locators. Native Linux, power-loss/distributed profiles, mandatory revocation/trust configuration and full I06-D remain unqualified."
+        "Shared I06-D complete binding adjudication remains. Native macOS/APFS only; no Linux/power-loss/distributed-filesystem guarantee or production trust authority. No automatic reclamation of unknown foreign entries."
       ],
       "deferred_ids": [],
       "execution_profile": {
         "test_slot": "released; source and tests frozen",
-        "independent_review": "GO for final six hashes and full ownership class; importer unchanged from06e1",
+        "independent_review": "GO for released13-file hashes and actual policy/resource removal controls; root composes generated companions.",
         "source_scope": "Adapt export helpers and exact native oracles from existing373c962 branch. Preserve current import/admission code and all later repairs; no full-module rollback. Root owns generated/release docs and refs."
       },
       "requirement_results": [
@@ -1194,8 +1233,8 @@
         {
           "requirement_id": "REQ-CAS-02-03",
           "test_id": "TEST-CAS-02-03",
-          "status": "PARTIAL",
-          "basis": "Native exact import/signing/tenant/fresh-process/current-consumer checks pass; configured mandatory revocation/trust and full I06-D remain unqualified."
+          "status": "CONFIRMED_NATIVE_PROFILE",
+          "basis": "Actual configured Ed25519 trust/revocation and unsigned compatibility, initialized durable owners, both transfer formats, selected/default/no-op view conflicts and recovery; real signature removal control. Shared integration and institutional authority remain separate."
         }
       ]
     },
@@ -1242,6 +1281,11 @@
           "locator": "policy-engine/_cache/e02/lane06-cas03-configured-native-r3/",
           "result": "67PASS/1FAIL actual cross-tenant audit missing event; attribution not established. completion-r4 threePASS and authorizer-removal semanticRED retained.",
           "independent_review": "GO for bounded coherent source delta; full packet/shared acceptance remains open"
+        },
+        {
+          "output": "policy-engine/_cache/e02/lane06-cas02-signature-restored-r1/",
+          "result": "3 PASS",
+          "scope": "Fresh CAS03 selected import signature verification VALID→REVOKED on actual cryptography; no deployment authorization claim."
         }
       ],
       "blockers": [],

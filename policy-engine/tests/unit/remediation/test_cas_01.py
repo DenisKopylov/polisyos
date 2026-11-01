@@ -5,6 +5,8 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import subprocess
+import sys
 import threading
 from contextlib import contextmanager
 from dataclasses import replace
@@ -1517,3 +1519,180 @@ def test_native_publication_fault_keeps_prior_view_and_requires_exact_recovery(
     _assert_manifest_profile(fresh.get_manifest(restored), options, data=payload)
     assert fresh.verify_signature(restored, verifier).ok is True
     assert fresh.get_manifest_bytes(prior) == prior_manifest
+
+
+def _custody_process(request: dict[str, Any], *, interrupted: bool = False) -> dict[str, Any]:
+    """Run one small real-CAS operation in an independent interpreter."""
+    product = Path(__file__).resolve().parents[3]
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-B",
+            str(product / "tests" / "_helpers" / "cas_custody_process.py"),
+            json.dumps(request),
+        ],
+        cwd=product,
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=20,
+    )
+    assert result.returncode == (73 if interrupted else 0), (result.stdout, result.stderr)
+    observed = json.loads(result.stdout)
+    assert observed["pid"] != os.getpid()
+    if not interrupted:
+        assert Path(observed["store_origin"]).is_relative_to(product / "src")
+    return observed
+
+
+@pytest.mark.parametrize(
+    "boundary", ["blob", "default", "view", "owner_generation_file", "owner_pointer"]
+)
+@pytest.mark.parametrize("phase", ["before", "after"])
+def test_process_restart_reconciles_signed_views_and_owner_publication_cuts(
+    tmp_path: Path, boundary: str, phase: str
+) -> None:
+    """A stopped writer's intent stays pending until actual scoped recovery succeeds."""
+    store, config, _verifier = _native_signed_store(tmp_path)
+    first, second, _first_options, _second_options, default = _native_owned_views(store)
+    basis = store.put_bytes(
+        b"process-owned restart basis",
+        _options("cas.restart.basis", "text/plain"),
+        return_selected_profile=True,
+    )
+    payload = b"process restart must reconcile actual signed custody"
+    aid = ArtifactID.from_sha256_hex(hashlib.sha256(payload).hexdigest())
+    target = ArtifactRef(artifact_id=aid, kind="cas.restart.interrupted", media_type="text/plain")
+    expected_prior = [
+        {
+            "ref": ref.model_dump(mode="json"),
+            "payload_sha256": hashlib.sha256(PAYLOAD).hexdigest(),
+            "manifest_sha256": hashlib.sha256(store.get_manifest_bytes(ref)).hexdigest(),
+            "signature_ok": True,
+        }
+        for ref in (first, second)
+    ]
+    request = {
+        "root": str(store.root),
+        "config": config.model_dump(mode="json"),
+        "prior_refs": [ref.model_dump(mode="json") for ref in (first, second)],
+        "target_ref": target.model_dump(mode="json"),
+        "basis": InputRef(
+            artifact_id=basis.artifact_id,
+            manifest_profile_sha256=basis.manifest_profile_sha256,
+            role="owned_input",
+        ).model_dump(mode="json"),
+        "payload_hex": payload.hex(),
+    }
+    cut = _custody_process(
+        {**request, "mode": "interrupt", "boundary": boundary, "phase": phase},
+        interrupted=True,
+    )
+    assert (cut["cut"], cut["phase"]) == (boundary, phase)
+    blocked = _custody_process({**request, "mode": "read_pending"})
+    assert blocked["pid"] != cut["pid"]
+    assert blocked["target_read_code"] == "artifact_transaction_pending"
+    assert blocked["pending"]["status"] == "pending"
+    assert blocked["prior"] == expected_prior
+    assert blocked["default_sha256"] == hashlib.sha256(default).hexdigest()
+    restored = _custody_process({**request, "mode": "recover"})
+    assert restored["pid"] not in (cut["pid"], blocked["pid"])
+    assert restored["prior"] == expected_prior
+    assert restored["default_sha256"] == hashlib.sha256(default).hexdigest()
+    assert restored["target_payload_sha256"] == hashlib.sha256(payload).hexdigest()
+    assert restored["target_signature_ok"] is True
+    assert restored["pending"] is None
+    restored_ref = ArtifactRef.model_validate(restored["target_ref"])
+    manifest = ArtifactManifest.model_validate(restored["target_manifest"])
+    assert restored_ref.artifact_id == aid
+    assert restored_ref.manifest_profile_sha256 is not None
+    assert manifest.inputs == [InputRef.model_validate(request["basis"])]
+    assert manifest.producer == ProducerInfo(component="tests.cas01", version="1.0")
+    assert manifest.kind == target.kind
+    assert manifest.media_type == target.media_type
+    assert len(blocked["foreign_denied"]) == len(restored["foreign_denied"]) == 3
+
+
+@pytest.mark.parametrize("withdrawal", ["selected_view", "all_claims"])
+def test_signed_input_owner_withdrawal_after_preflight_refuses_publication(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, withdrawal: str
+) -> None:
+    """Recompute real mutable owner-generation state inside the publication lease.
+
+    The fixture administrator uses the actual index writer to withdraw a claim;
+    this does not assert a deployed public owner-revocation API exists.
+    """
+    store, config, verifier = _native_signed_store(tmp_path)
+    first, second, _first_options, _second_options, default = _native_owned_views(store)
+    basis = store.put_bytes(
+        b"withdrawable signed basis",
+        _options("cas.withdraw.basis", "text/plain"),
+        return_selected_profile=True,
+    )
+    assert store.verify_signature(basis, verifier).ok is True
+    index = store._ownership_index
+    previous_generation = index.evidence()["ownership_index_generation_sha256"]
+    original_put = store._put_blob_and_manifest_once
+    original_check = store._require_input_owners
+    checks = 0
+    revoked = False
+
+    def observe_input_check(options: PutOptions) -> None:
+        nonlocal checks
+        checks += 1
+        if os.environ.get("POLISYOS_CAS01_SKIP_INNER_OWNER_CHECK_PROBE") == "1" and checks > 1:
+            return
+        original_check(options)
+
+    def withdraw_before_publication(**kwargs):
+        nonlocal revoked
+        assert checks == 1
+        with index._lock, index._cross_instance_write_lock():
+            snapshot = index._load_snapshot()
+            payload = snapshot.payload
+            claims = payload["artifacts"][str(basis.artifact_id)]
+            if withdrawal == "all_claims":
+                payload["artifacts"].pop(str(basis.artifact_id))
+                payload["blob_readers"].pop(str(basis.artifact_id), None)
+            else:
+                remaining = [
+                    row
+                    for row in claims
+                    if row.get("manifest_profile_sha256") != basis.manifest_profile_sha256
+                ]
+                assert len(remaining) < len(claims)
+                payload["artifacts"][str(basis.artifact_id)] = remaining
+            index._write_payload(payload, previous_snapshot=snapshot)
+        revoked = True
+        return original_put(**kwargs)
+
+    monkeypatch.setattr(store, "_require_input_owners", observe_input_check)
+    monkeypatch.setattr(store, "_put_blob_and_manifest_once", withdraw_before_publication)
+    payload = b"a prior owner check is not a reusable publication permit"
+    aid = ArtifactID.from_sha256_hex(hashlib.sha256(payload).hexdigest())
+    options = replace(
+        _options("cas.withdraw.result", "text/plain"),
+        inputs=[
+            InputRef(
+                artifact_id=basis.artifact_id,
+                manifest_profile_sha256=basis.manifest_profile_sha256,
+                role="withdrawn_input",
+            )
+        ],
+    )
+    with pytest.raises(PermissionError):
+        store.put_bytes(payload, options, return_selected_profile=True)
+    assert revoked and checks == 2
+    assert index.evidence()["ownership_index_generation_sha256"] != previous_generation
+    assert not index.has_any_tenant_claim(aid)
+    assert index._read_transaction_intent(aid) is None
+    assert not store._paths(aid)[0].exists()
+    fresh = FileSystemCAS(store.root, signing_config=config).for_tenant(
+        "tenant-a", cell_id="cell-a"
+    )
+    with pytest.raises(PermissionError):
+        fresh.get_manifest(basis)
+    assert fresh.get_manifest_bytes(first.artifact_id) == default
+    for ref in (first, second):
+        assert fresh.get_bytes(ref) == PAYLOAD
+        assert fresh.verify_signature(ref, verifier).ok is True

@@ -15,7 +15,7 @@ import tarfile
 import tempfile
 from collections.abc import Iterator
 from contextlib import ExitStack, contextmanager, suppress
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from io import BytesIO
 from pathlib import Path, PurePosixPath
 from typing import TYPE_CHECKING, BinaryIO, Literal, Protocol
@@ -23,6 +23,14 @@ from typing import TYPE_CHECKING, BinaryIO, Literal, Protocol
 from polisyos.common.serialization import fast_json_dumps_bytes
 
 from ._atomic_write import fsync_directory
+from ._export_admission import (
+    DEFAULT_MAX_RETAINED_BYTES,
+    DEFAULT_MAX_RETAINED_GENERATIONS,
+    ExportResourceError,
+    _BudgetedArchiveWriter,
+    _export_target_admission,
+    _ExportAdmission,
+)
 from ._integrity_ops import ArtifactIntegrityError, validate_manifest_identity
 from ._manifest_lifecycle import ManifestLifecycle
 from .ids import ArtifactID
@@ -32,6 +40,7 @@ from .signing import (
     SIGNATURE_FORMAT_VERSION,
     SIGNATURE_STATEMENT_TYPE,
     DetachedSignature,
+    SignatureVerificationResult,
 )
 
 if TYPE_CHECKING:
@@ -86,7 +95,11 @@ class ImportPublication:
     refs: tuple[ArtifactRef, ...]
     published_refs: tuple[ArtifactRef, ...]
     reused_refs: tuple[ArtifactRef, ...]
-    basis: Literal["durable_owner_manifest_stage_intent"] = "durable_owner_manifest_stage_intent"
+    basis: Literal["durable_owner_manifest_stage_intent", "exact_owned_view_admission"] = (
+        "durable_owner_manifest_stage_intent"
+    )
+    signature_verified_refs: tuple[ArtifactRef, ...] = ()
+    imported_member_count: int | None = None
 
 
 def snapshot_transfer_member(member: str, stream: _TransferReadStream) -> TransferMemberSnapshot:
@@ -246,6 +259,10 @@ class ExportReport:
     missing_artifacts: list[str]
     missing_manifests: list[str]
     previous_generation: Path | None = None
+    retained_paths: tuple[Path, ...] = ()
+    retained_bytes: int = 0
+    max_retained_generations: int = DEFAULT_MAX_RETAINED_GENERATIONS
+    max_retained_bytes: int = DEFAULT_MAX_RETAINED_BYTES
 
 
 @dataclass(frozen=True)
@@ -271,6 +288,8 @@ class ImportReport:
         "verification_failed_before_publication",
         "legacy_callback_refs_without_transaction_disposition",
     ] = "received_members_rejected_before_admission"
+    signature_verification_requested: bool = False
+    signature_verified_refs: tuple[ArtifactRef, ...] = ()
 
 
 def _canonical_import_refs(
@@ -454,6 +473,18 @@ def _export_entry_identity(path: Path) -> tuple[int, int] | None:
     except OSError:
         return None
     return metadata.st_dev, metadata.st_ino
+
+
+class ImportSignatureVerificationError(ArtifactIntegrityError):
+    """Refuse a required selected signature before any import publication."""
+
+    def __init__(self, artifact_ref: ArtifactRef, result: SignatureVerificationResult) -> None:
+        self.artifact_ref = artifact_ref
+        self.result = result
+        super().__init__(
+            f"Required import signature {result.status.value} for {artifact_ref.artifact_id} "
+            f"profile={artifact_ref.manifest_profile_sha256}: {result.message}"
+        )
 
 
 class ExportDurabilityError(OSError):
@@ -866,6 +897,69 @@ def export_subgraph(
     target: Path,
     compress: bool = True,
     include_manifests: bool = True,
+    max_retained_generations: int = DEFAULT_MAX_RETAINED_GENERATIONS,
+    max_retained_bytes: int = DEFAULT_MAX_RETAINED_BYTES,
+) -> ExportReport:
+    """Admit finite target resources before consuming source IDs or creating a stage."""
+    output = normalize_archive_path(target) if compress else target
+    target_mode: int | None = None
+
+    def validate_target() -> None:
+        nonlocal target_mode
+        if compress:
+            target_mode = _regular_archive_mode(output)
+        else:
+            _validate_directory_export(output)
+            target_mode = stat.S_IMODE(output.stat().st_mode) if output.exists() else None
+
+    with _export_target_admission(
+        output,
+        max_retained_generations=max_retained_generations,
+        max_retained_bytes=max_retained_bytes,
+        validate_target=validate_target,
+    ) as admission:
+        try:
+            report = _export_generation(
+                open_member=open_member,
+                member_name=member_name,
+                artifact_ids=artifact_ids,
+                target=output,
+                compress=compress,
+                include_manifests=include_manifests,
+                _admission=admission,
+                _target_mode=target_mode,
+            )
+            # After selection only the actually displaced locator can remain.
+            admission.staging_path = report.previous_generation
+            snapshot = admission.after_publication()
+        except ExportResourceError as error:
+            # Reconcile actual retained bytes after the owned stream has closed.
+            snapshot = admission.snapshot()
+            raise admission.refusal(
+                error.reason,
+                snapshot.paths,
+                snapshot.byte_size,
+                replaced=error.replaced,
+            ) from error
+        return replace(
+            report,
+            retained_paths=snapshot.paths,
+            retained_bytes=snapshot.byte_size,
+            max_retained_generations=max_retained_generations,
+            max_retained_bytes=max_retained_bytes,
+        )
+
+
+def _export_generation(
+    *,
+    open_member: Callable[[ArtifactID | ArtifactRef, str], AbstractContextManager[CASMemberStream]],
+    member_name: Callable[[ArtifactID | ArtifactRef, str], str],
+    artifact_ids: Iterable[ArtifactID | ArtifactRef | str],
+    target: Path,
+    _admission: _ExportAdmission,
+    _target_mode: int | None,
+    compress: bool = True,
+    include_manifests: bool = True,
 ) -> ExportReport:
     """Export selected CAS members through their owner-held streaming reads."""
     missing_artifacts: list[str] = []
@@ -918,6 +1012,7 @@ def export_subgraph(
             _new_export_member(staging_descriptor, name) as sink,
         ):
             while payload := stream.read(1024 * 1024):
+                _admission.consume(len(payload))
                 sink.write(payload)
             sink.flush()
             os.fsync(sink.fileno())
@@ -928,19 +1023,23 @@ def export_subgraph(
 
     if compress:
         archive_path = normalize_archive_path(target)
-        target_mode = _regular_archive_mode(archive_path)
+        target_mode = _target_mode
         archive_path.parent.mkdir(parents=True, exist_ok=True)
         descriptor, name = tempfile.mkstemp(
             prefix=f".{archive_path.name}.staging-", dir=archive_path.parent
         )
         staging_archive = Path(name)
+        _admission.staging_path = staging_archive
         metadata = os.fstat(descriptor)
         archive_identity = metadata.st_dev, metadata.st_ino
         archive_replaced: bool | None = False
         try:
             with os.fdopen(descriptor, "w+b") as output:
                 with tarfile.open(
-                    staging_archive, "w:gz", fileobj=output, format=tarfile.PAX_FORMAT
+                    staging_archive,
+                    "w:gz",
+                    fileobj=_BudgetedArchiveWriter(output, _admission),
+                    format=tarfile.PAX_FORMAT,
                 ) as tar:
                     for request in requests:
                         artifact_id, profile_sha256, _ref = artifact_reference_parts(request)
@@ -982,12 +1081,13 @@ def export_subgraph(
                 os.fsync(output.fileno())
                 # Confirm the completed private entry before any target selection.
                 fsync_directory(archive_path.parent)
+                _admission.before_publication(staging_archive)
                 archive_replaced = None
                 previous_generation = _publish_archive_generation(
                     staging_archive, archive_path, expected_identity=archive_identity
                 )
                 archive_replaced = True
-        except ExportDurabilityError:
+        except (ExportDurabilityError, ExportResourceError):
             raise
         except BaseException as error:
             if not isinstance(error, Exception):
@@ -1005,11 +1105,11 @@ def export_subgraph(
         # Preserve failed stages and displaced generations for explicit reclamation.
         output_path = archive_path
     else:
-        _validate_directory_export(target)
-        target_mode = stat.S_IMODE(target.stat().st_mode) if target.exists() else None
+        target_mode = _target_mode
         staging_root = Path(
             tempfile.mkdtemp(prefix=f".{target.name}.generation-", dir=target.parent)
         )
+        _admission.staging_path = staging_root
         staging_descriptor = os.open(staging_root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
         metadata = os.fstat(staging_descriptor)
         staging_identity = metadata.st_dev, metadata.st_ino
@@ -1049,6 +1149,7 @@ def export_subgraph(
                 sort_keys=True,
             )
             with _new_export_member(staging_descriptor, "export_manifest.json") as inventory:
+                _admission.consume(len(meta_bytes))
                 inventory.write(meta_bytes)
                 inventory.flush()
                 os.fsync(inventory.fileno())
@@ -1060,12 +1161,13 @@ def export_subgraph(
             _sync_directory_generation(staging_root)
             # An unknown staging member is not part of a complete owned export.
             _validate_directory_export(staging_root)
+            _admission.before_publication(staging_root)
             publication_attempted = True
             previous_generation = _publish_directory_generation(
                 staging_root, target, expected_identity=staging_identity
             )
             _validate_directory_export(target)
-        except ExportDurabilityError:
+        except (ExportDurabilityError, ExportResourceError):
             raise
         except BaseException as error:
             if not isinstance(error, Exception):
@@ -1108,6 +1210,7 @@ def import_subgraph(
     ],
     source: Path,
     verify_integrity: bool = False,
+    signature_verification_requested: bool = False,
 ) -> ImportReport:
     """Admit a content-bound transfer before staging or publishing CAS members."""
     imported_artifacts: set[str] = set()
@@ -1242,12 +1345,13 @@ def import_subgraph(
                 verification_failed=sorted(binding_failures),
                 received_artifact_ids=tuple(sorted(imported_artifacts)),
                 integrity_verification_requested=verify_integrity,
+                signature_verification_requested=signature_verification_requested,
                 disposition_basis="received_members_rejected_before_admission",
             )
 
         admission = source_handles.enter_context(admit_members(intake))
         canonical_exact_refs = admission.canonical_exact_refs or admission.exact_refs
-        if not admission.pending_artifact_ids:
+        if not admission.pending_artifact_ids and not signature_verification_requested:
             exact_failures: set[str] = set()
             if verify_integrity:
                 for ref, canonical_ref in zip(
@@ -1270,6 +1374,7 @@ def import_subgraph(
                     reused_refs=_canonical_import_refs(canonical_exact_refs),
                     integrity_verified_refs=_canonical_import_refs(verified_refs),
                     integrity_verification_requested=verify_integrity,
+                    signature_verification_requested=signature_verification_requested,
                     disposition_basis="verification_failed_before_publication",
                 )
             return ImportReport(
@@ -1284,6 +1389,7 @@ def import_subgraph(
                 reused_refs=_canonical_import_refs(canonical_exact_refs),
                 integrity_verified_refs=_canonical_import_refs(verified_refs),
                 integrity_verification_requested=verify_integrity,
+                signature_verification_requested=signature_verification_requested,
                 disposition_basis="exact_owned_view_admission",
             )
 
@@ -1295,7 +1401,10 @@ def import_subgraph(
         for safe_path, stream in incoming_members():
             member_name = safe_path.as_posix()
             artifact_id = artifact_id_from_member(member_name)
-            if artifact_id is None or str(artifact_id) not in admission.pending_artifact_ids:
+            if artifact_id is None or (
+                not signature_verification_requested
+                and str(artifact_id) not in admission.pending_artifact_ids
+            ):
                 continue
             _stage_member(
                 staging_root=staging_root,
@@ -1313,7 +1422,8 @@ def import_subgraph(
         expected_staged = {
             member
             for member in intake
-            if str(artifact_id_from_member(member)) in admission.pending_artifact_ids
+            if signature_verification_requested
+            or str(artifact_id_from_member(member)) in admission.pending_artifact_ids
         }
         if expected_staged != staged_members:
             raise ValueError("Transfer changed its admitted member set before staging")
@@ -1400,6 +1510,7 @@ def import_subgraph(
                 reused_refs=_canonical_import_refs(canonical_exact_refs),
                 integrity_verified_refs=_canonical_import_refs(verified_refs),
                 integrity_verification_requested=verify_integrity,
+                signature_verification_requested=signature_verification_requested,
                 disposition_basis="verification_failed_before_publication",
             )
 
@@ -1412,6 +1523,7 @@ def import_subgraph(
             )
             disposition_basis: Literal[
                 "durable_owner_manifest_stage_intent",
+                "exact_owned_view_admission",
                 "legacy_callback_refs_without_transaction_disposition",
             ] = publication.basis
         else:
@@ -1421,7 +1533,12 @@ def import_subgraph(
             disposition_basis = "legacy_callback_refs_without_transaction_disposition"
         imported_refs = admission.exact_refs + callback_refs
         return ImportReport(
-            imported_files=len(staged_members),
+            imported_files=(
+                publication.imported_member_count
+                if isinstance(publication, ImportPublication)
+                and publication.imported_member_count is not None
+                else len(staged_members)
+            ),
             imported_artifacts=len(imported_artifacts),
             total_bytes=intake_total_bytes,
             source=source,
@@ -1433,6 +1550,12 @@ def import_subgraph(
             reused_refs=reused_refs,
             integrity_verified_refs=_canonical_import_refs(verified_refs),
             integrity_verification_requested=verify_integrity,
+            signature_verification_requested=signature_verification_requested,
+            signature_verified_refs=(
+                publication.signature_verified_refs
+                if isinstance(publication, ImportPublication)
+                else ()
+            ),
             disposition_basis=disposition_basis,
         )
     finally:

@@ -115,6 +115,7 @@ if TYPE_CHECKING:
         CoreJSONArtifactStore,
         _CASStorageMember,
     )
+    from polisyos.core.artifacts.signing import Ed25519Verifier
     from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
     from polisyos.core.security import QuotaEnforcer, TenantQuotaLimits
@@ -366,21 +367,40 @@ class TenantScopedCAS:
     def iter_artifact_ids(self) -> list[ArtifactID]:
         return self._cas.iter_artifact_ids()
 
-    def export_subgraph(self, artifact_ids: list[ArtifactID], output_path: Path) -> ExportReport:
+    def export_subgraph(
+        self,
+        artifact_ids: list[ArtifactID],
+        output_path: Path,
+        *,
+        max_retained_generations: int | None = None,
+        max_retained_bytes: int | None = None,
+    ) -> ExportReport:
+        """Export with the canonical finite limits, optionally overridden by the caller."""
+        limits: dict[str, int] = {}
+        if max_retained_generations is not None:
+            limits["max_retained_generations"] = max_retained_generations
+        if max_retained_bytes is not None:
+            limits["max_retained_bytes"] = max_retained_bytes
         return cast(
             "ExportReport",
-            cast("Any", self._cas).export_subgraph(artifact_ids, output_path),
+            cast("Any", self._cas).export_subgraph(artifact_ids, output_path, **limits),
         )
 
-    def import_subgraph(self, archive_path: Path, *, verify_integrity: bool = True) -> ImportReport:
-        """Import a complete staged generation under one aggregate quota admission."""
+    def import_subgraph(
+        self,
+        archive_path: Path,
+        *,
+        verify_integrity: bool = True,
+        signature_verifier: Ed25519Verifier | None = None,
+    ) -> ImportReport:
+        """Import under aggregate quota and optional mandatory all-view signatures."""
         with self._storage_mutation():
+            options: dict[str, Any] = {"verify_integrity": verify_integrity}
+            if signature_verifier is not None:
+                options["signature_verifier"] = signature_verifier
             return cast(
                 "ImportReport",
-                cast("Any", self._cas).import_subgraph(
-                    archive_path,
-                    verify_integrity=verify_integrity,
-                ),
+                cast("Any", self._cas).import_subgraph(archive_path, **options),
             )
 
     @staticmethod

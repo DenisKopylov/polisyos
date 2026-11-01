@@ -1067,6 +1067,27 @@ def _build_parser() -> argparse.ArgumentParser:
         default=0.95,
         help="Finite confidence metadata in (0, 1); not a calibrated statistical interval",
     )
+    cmd_replay.add_argument(
+        "--require-bundle-signatures",
+        action="store_true",
+        help="Require trusted current Ed25519 signatures for every imported view before publication",
+    )
+    cmd_replay.add_argument("--bundle-trust-dir", default=str(DEFAULT_TRUST_DIR))
+    cmd_replay.add_argument("--bundle-revoked-dir", default=str(DEFAULT_REVOKED_DIR))
+    cmd_replay.add_argument("--bundle-identities", default=str(DEFAULT_IDENTITIES_PATH))
+    cmd_replay.add_argument("--bundle-strict-identity", action="store_true")
+    cmd_replay.add_argument(
+        "--export-max-retained-generations",
+        type=int,
+        default=None,
+        help="Finite reserved sibling limit for --export (default: 8)",
+    )
+    cmd_replay.add_argument(
+        "--export-max-retained-bytes",
+        type=int,
+        default=None,
+        help="Finite retained/stage logical-byte limit for --export (default: 1073741824)",
+    )
     cmd_replay.add_argument("--json", action="store_true")
 
     cmd_resume = components.add_parser("resume")

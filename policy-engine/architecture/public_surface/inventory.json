@@ -1294,8 +1294,8 @@
         {
           "module": "polisyos.core.artifacts",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 137,
-          "known_export_count": 137,
+          "export_count": 139,
+          "known_export_count": 139,
           "exports": [
             "AUTHORITY_ENVELOPE_ARTIFACT_KIND",
             "AUTHORITY_ENVELOPE_SCHEMA_NAME",
@@ -1366,9 +1366,11 @@
             "EnvInfo",
             "ExportDurabilityError",
             "ExportReport",
+            "ExportResourceError",
             "FileSystemCAS",
             "GitInfo",
             "ImportReport",
+            "ImportSignatureVerificationError",
             "InputRef",
             "IntegrityInfo",
             "KeyPair",
@@ -1459,8 +1461,8 @@
                 "path": "src/polisyos/core/artifacts/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 14614,
-                "sha256": "8f1da3dd387263708049f33340fdf76f9f80c759203dbf56954978795006b0df"
+                "bytes": 14787,
+                "sha256": "a9252794206027e9ba831aeea35a8721be07a37d3dbb2dc6dce1d82eec055661"
               },
               {
                 "path": "src/polisyos/core/artifacts",
@@ -1506,6 +1508,12 @@
               },
               {
                 "path": "src/polisyos/core/artifacts/_env_utils.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/core/artifacts/_export_admission.py",
                 "operation": "is_file",
                 "status": "present",
                 "result": true
@@ -15194,8 +15202,8 @@
                 "path": "src/polisyos/scientist/replay/deterministic.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 35370,
-                "sha256": "c568fc6ff5a9dbba7aa75d59ab2972d63c90aeff49e0d994ce398f2350896481"
+                "bytes": 46725,
+                "sha256": "3de4c7c386b7f2b5c976240f6958a11c00c911d117f54dfc4d9ff18caa647ffa"
               },
               {
                 "path": "src/polisyos/scientist/replay/deterministic",

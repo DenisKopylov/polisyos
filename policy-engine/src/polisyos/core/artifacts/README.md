@@ -381,11 +381,32 @@ requires the full canonical membership census and recheck; unrelated tenant/sign
 not mistaken for a scoped change. These methods do not accept a deadline. The census, deduplication
 seen set and detailed report retain O(N) memory; the pending window bounds submitted work, not
 total memory. Verified snapshots also retain the selected payload bytes.
+A filesystem caller may pass `signature_verifier=Ed25519Verifier(...)` to `import_subgraph`.
+That explicit profile requires a `VALID` real Ed25519 result for **every** incoming default and
+selected manifest view, including exact owned no-ops, before any owner transaction begins.
+The configured verifier rechecks its current trust, revocation and identity policy; an absent,
+untrusted, revoked or invalid signature refuses the closed set. `ImportSignatureVerificationError`
+identifies the exact selected reference and actual typed verifier outcome.
+
+The policy path stages the complete measured input, including reused views, before the canonical
+owner gate. It verifies one immutable blob snapshot at a time against the exact captured manifest
+and signature bytes that publication consumes. Streamed transaction staging remains bound to the
+measured content digest. This adds a whole-input private disk requirement and at most one payload
+snapshot at a time; it is not a zero-copy or constant-total-memory claim. The returned
+`signature_verification_requested` and `signature_verified_refs` are distinct from integrity
+verification and from `published_refs`/`reused_refs`. A claimed no-op cannot skip current crypto
+policy after a key is revoked. Verification-only staging does not increase `imported_files`: an
+exact no-op reports zero and `exact_owned_view_admission`; a mixed input counts only members
+consumed by actual owner publication. An explicit selected view owns its destination slot, including
+an absent sidecar, even when an incoming default view cannot replace the existing default.
+Omitting the verifier preserves the existing permitted unsigned profile; it does not claim signature
+trust or external institutional authority.
+
 The importer with `verify_integrity=True` consumes a full typed per-view integrity report,
 reconciling exact member membership, actual blob digest/size and manifest digest/profile
-against its measured intake before publishing. This does not add a signature trust policy
-or replace a scientific publisher's required all-signature confirmations. That A-owned
-signature publication consumer remains explicitly absent until separately integrated.
+against its measured intake before publishing. The integrity flag alone does not apply
+signature trust. The explicit verifier profile above gates this CAS import; it does not
+replace a scientific publisher's exact required-reference signature confirmations.
 
 ### Transfer generations
 
@@ -412,8 +433,37 @@ the displaced entry and `staging_path` identifies retained partial bytes; neithe
 means a failed stage is complete. A post-publication sync failure does not promise
 rollback. Original causes and typed visibility remain inspectable.
 
-Callers own reclamation of retained generations/stages. Returned locators do not
-establish a finite retention bound or permission to delete changed user files.
+Exports have configurable finite limits: `max_retained_generations=8` and
+`max_retained_bytes=1073741824` by default. The byte unit is logical regular-file bytes,
+not a physical-filesystem quota or a forecast of free space. Target-local admission
+acquires a nonblocking thread gate and native `flock` before consuming the caller's ID
+iterable, opening CAS members or creating a generation. Its permanent regular lockfile
+is never unlinked; busy callers refuse rather than waiting or forcing past another writer.
+The kernel releases the lease on process exit, including an interrupted exporter.
+
+Admission counts all reserved sibling `staging-*`, `generation-*` and legacy `previous-*`
+entries conservatively, including partial/unknown entries, and reserves one possible
+failed stage for every attempt. It measures the current target's projected displacement
+and limits actual compressed archive writes or copied directory/inventory bytes to the
+remaining byte allowance. Thus one oversized failed attempt cannot bypass the limit.
+An abandoned stage consumes capacity on the next attempt; there is no stale-PID/TTL
+cleanup. Unknown or unmeasurable entries refuse admission and retain their locators.
+
+`ExportReport.retained_paths` and `retained_bytes` describe the observed reserved siblings;
+they do not prove completeness or exporter ownership of those bytes. `ExportResourceError`
+reports busy/capacity/unavailable measurements, limits and occupied paths. A resource
+observation error after successful selection carries `replaced=True`, so it cannot be
+misread as rollback. Cooperating writers are serialized; uncoordinated foreign mutation
+can change occupancy after a measurement and is diagnosed, never erased to regain space.
+
+Reclamation requires the caller's explicit inspection and authority; no returned locator
+permits deletion of changed foreign files. Replay CLI exposes finite overrides through
+`--export-max-retained-generations` and `--export-max-retained-bytes`, reports retained
+resources and typed refusal, and preserves the ordinary first-export output. Its explicit
+`--require-bundle-signatures` profile consumes configured `--bundle-trust-dir`,
+`--bundle-revoked-dir`, `--bundle-identities` and optional `--bundle-strict-identity` before
+replay consumes a bundle. The default bundle profile remains compatible and unsigned.
+
 Native macOS/APFS checks cover the declared publication window; they do not
 establish power-loss, indefinitely hostile parent mutation, special set-ID bits, ACL/uid/gid ownership,
 Linux runtime or distributed-filesystem guarantees.

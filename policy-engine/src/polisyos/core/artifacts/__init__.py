@@ -19,6 +19,7 @@ from ._atomic_write import (
 from ._atomic_write import (
     AtomicFileWriter as _AtomicFileWriter,
 )
+from ._export_admission import ExportResourceError
 from ._integrity_ops import (
     ArtifactBoundedManifestRead,
     ArtifactBoundedManifestReadError,
@@ -31,7 +32,12 @@ from ._integrity_ops import (
 )
 from ._manifest_lifecycle import ManifestLifecycle as ManifestLifecycle
 from ._profiled_ref import profile_bound_ref
-from ._transfer_ops import ExportDurabilityError, ExportReport, ImportReport
+from ._transfer_ops import (
+    ExportDurabilityError,
+    ExportReport,
+    ImportReport,
+    ImportSignatureVerificationError,
+)
 from .async_store import (
     AsyncArtifactStoreAdapter,
     AsyncFileSystemArtifactStore,
@@ -389,9 +395,11 @@ __all__ = [
     "EnvInfo",
     "ExportDurabilityError",
     "ExportReport",
+    "ExportResourceError",
     "FileSystemCAS",
     "GitInfo",
     "ImportReport",
+    "ImportSignatureVerificationError",
     "InputRef",
     "IntegrityInfo",
     "KeyPair",

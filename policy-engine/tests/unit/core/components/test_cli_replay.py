@@ -1434,3 +1434,151 @@ def test_export_overwrite_cli_exposes_the_actual_retained_generation(
     imported = fresh.import_subgraph(retained, verify_integrity=True)
     assert imported.verification_failed == []
     assert fresh.get_bytes(packet_ref) == source.get_bytes(packet_ref)
+
+
+@pytest.mark.parametrize("as_json", [False, True])
+@pytest.mark.parametrize("policy", ["trusted", "revoked", "unsigned"])
+def test_bundle_cli_required_signatures_use_real_crypto_and_graph(
+    tmp_path: Path, capsys, as_json: bool, policy: str
+) -> None:
+    """Configured trust is consumed before the actual graph-completeness reader."""
+    from polisyos.core.artifacts.signing import Ed25519Signer, KeyPair
+
+    source = FileSystemCAS(tmp_path / "source")
+    package = tmp_path / "bundle"
+    packet, expected = _build_replay_bundle(source, package, run_id="signature-policy-cli")
+    key = KeyPair.generate()
+    trust, revoked = tmp_path / "trust", tmp_path / "revoked"
+    trust.mkdir()
+    revoked.mkdir()
+    (trust / "signer.pub").write_bytes(key.public_pem())
+    if policy != "unsigned":
+        signer = Ed25519Signer.from_pem(key.private_pem())
+        for artifact_id in source.iter_artifact_ids():
+            source.sign_artifact(artifact_id, signer)
+        source.export_subgraph(
+            [ArtifactID.model_validate(value) for value in expected], package, compress=False
+        )
+    if policy == "revoked":
+        (revoked / "signer.pub").write_bytes(key.public_pem())
+    args = [
+        "replay",
+        str(packet.artifact_id),
+        "--bundle",
+        str(package),
+        "--check-only",
+        "--require-bundle-signatures",
+        "--bundle-trust-dir",
+        str(trust),
+        "--bundle-revoked-dir",
+        str(revoked),
+        "--bundle-identities",
+        str(tmp_path / "identities.json"),
+    ]
+    if as_json:
+        args.append("--json")
+    capsys.readouterr()
+    code = main(args)
+    captured = capsys.readouterr()
+    assert code == (0 if policy == "trusted" else 1)
+    if as_json:
+        result = json.loads(captured.out)
+        if policy == "trusted":
+            assert result["level"] == "complete"
+            assert result["bundle_import"]["signature_verification_requested"] is True
+            assert len(result["bundle_import"]["signature_verified_refs"]) == len(expected)
+        else:
+            assert result["error"] == "required_bundle_signature_refused"
+            assert result["signature_result"]["status"] == policy
+            assert "bundle_import" not in result
+    elif policy == "trusted":
+        assert f"signature=required:{len(expected)}" in captured.out
+    else:
+        assert "required_bundle_signature_refused" in captured.err
+        assert policy in captured.err
+
+
+@pytest.mark.parametrize("as_json", [False, True])
+def test_replay_export_reports_finite_retention_and_capacity_refusal(
+    tmp_path: Path, capsys, as_json
+):
+    source = FileSystemCAS(tmp_path / "source")
+    packet, _expected = _build_replay_bundle(
+        source, tmp_path / "input", run_id="finite-retention-cli"
+    )
+    output = tmp_path / "replay.tar.gz"
+    args = [
+        "replay",
+        str(packet.artifact_id),
+        "--cas-root",
+        str(source.root),
+        "--export",
+        str(output),
+        "--export-max-retained-generations",
+        "1",
+    ]
+    if as_json:
+        args.append("--json")
+    capsys.readouterr()
+    assert main(args) == 0
+    first = capsys.readouterr()
+    if as_json:
+        result = json.loads(first.out)
+        assert result["retention"]["max_generations"] == 1
+        assert result["retention"]["paths"] == []
+    else:
+        assert "retained_count=0" in first.out
+    assert main(args) == 0
+    second = capsys.readouterr()
+    if as_json:
+        result = json.loads(second.out)
+        assert result["retention"]["paths"] == [result["previous_generation"]]
+        assert result["retention"]["logical_bytes"] > 0
+    else:
+        assert "retained_count=1" in second.out
+        assert "previous_generation=" in second.out
+    before = output.read_bytes()
+    assert main(args) == 1
+    refused = capsys.readouterr()
+    assert output.read_bytes() == before
+    if as_json:
+        result = json.loads(refused.out)
+        assert result["error"] == "export_resource_refused"
+        assert result["reason"] == "retention_limit"
+        assert result["replaced"] is False
+        assert len(result["occupied_paths"]) == 1
+    else:
+        assert "retention_limit" in refused.err
+
+
+def test_export_retention_flags_validate_before_store_creation(tmp_path: Path, capsys):
+    output = tmp_path / "must-not-exist.tar.gz"
+    code = main(
+        [
+            "replay",
+            "sha256:" + "f" * 64,
+            "--export",
+            str(output),
+            "--export-max-retained-bytes",
+            "-1",
+            "--json",
+        ]
+    )
+    assert code == 2
+    assert not output.exists()
+    assert "nonnegative integers" in capsys.readouterr().err
+
+
+def test_required_bundle_signatures_validate_before_scientist_import(
+    tmp_path: Path, monkeypatch, capsys
+):
+    original = _cli_replay.importlib.import_module
+
+    def no_scientist(name, *args, **kwargs):
+        if name == "polisyos.scientist.replay.deterministic":
+            pytest.fail("invalid required-signature command imported the execution backend")
+        return original(name, *args, **kwargs)
+
+    monkeypatch.setattr(_cli_replay.importlib, "import_module", no_scientist)
+    assert main(["replay", "sha256:" + "f" * 64, "--require-bundle-signatures"]) == 2
+    assert "requires --bundle" in capsys.readouterr().err

@@ -16,7 +16,7 @@ from typing import Any
 
 import pytest
 
-from polisyos.core.artifacts import FileSystemCAS, PutOptions
+from polisyos.core.artifacts import ExportResourceError, FileSystemCAS, PutOptions
 from polisyos.core.artifacts import _transfer_ops as transfer
 from polisyos.core.artifacts.manifest import ProducerInfo
 
@@ -217,7 +217,10 @@ def test_archive_refuses_nonregular_final_path_before_staging(
             stat.S_IFMT(before.st_mode),
         )
         assert referent.read_bytes() == old_bytes
-        assert not list(tmp_path.glob(f".{target.name}.*"))
+        # Admission retains one permanent coordination inode, not a generation.
+        lock_path = target.with_name(f".{target.name}.export.lock")
+        assert list(tmp_path.glob(f".{target.name}.*")) == [lock_path]
+        assert lock_path.is_file() and lock_path.stat().st_size == 0
     finally:
         if sock is not None:
             sock.close()
@@ -918,10 +921,16 @@ def test_owned_archive_descriptor_never_truncates_a_swapped_stage_symlink(
         return original(name, mode, *args, **kwargs)
 
     monkeypatch.setattr(tarfile, "open", swap_stage_path)
-    with pytest.raises(transfer.ExportDurabilityError, match="staging identity") as refusal:
+    # The finite admission layer rejects an unmeasurable symlink before the
+    # later native publication identity check; it must preserve the same bytes.
+    with pytest.raises(ExportResourceError, match="unmeasurable_retained_entry") as refusal:
         source.export_subgraph([new], target)
+    assert refusal.value.reason == "unmeasurable_retained_entry"
     assert refusal.value.replaced is False
     assert swapped and swapped[0].is_symlink()
+    assert refusal.value.staging_path == swapped[0]
+    assert refusal.value.occupied_paths == (swapped[0],)
+    assert refusal.value.occupied_bytes is None
     assert sentinel.read_bytes() == b"foreign bytes must never be truncated"
     assert target.read_bytes() == before
 

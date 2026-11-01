@@ -47,7 +47,7 @@ def _artifact_ref_payload(ref: Any) -> dict[str, str | None]:
 
 def _bundle_import_payload(report: Any) -> dict[str, Any]:
     """Project every import outcome from the same typed report fields."""
-    return {
+    payload = {
         "imported_files": report.imported_files,
         "imported_artifacts": report.imported_artifacts,
         "received_artifact_ids": list(report.received_artifact_ids),
@@ -61,21 +61,43 @@ def _bundle_import_payload(report: Any) -> dict[str, Any]:
         "verification_failed": report.verification_failed,
         "disposition_basis": report.disposition_basis,
     }
+    if getattr(report, "signature_verification_requested", False):
+        payload["signature_verification_requested"] = True
+        payload["signature_verified_refs"] = [
+            _artifact_ref_payload(ref) for ref in report.signature_verified_refs
+        ]
+    return payload
 
 
 def _bundle_import_summary(report: Any) -> str:
     """Render the same outcome fields for every human-readable CLI branch."""
     requested = "requested" if report.integrity_verification_requested else "not_requested"
+    signature = (
+        f" signature=required:{len(report.signature_verified_refs)}"
+        if getattr(report, "signature_verification_requested", False)
+        else ""
+    )
     return (
         f"bundle_import received_unique_ids={report.imported_artifacts} "
         f"published_views={len(report.published_refs)} reused_views={len(report.reused_refs)} "
         f"integrity={requested}:{len(report.integrity_verified_refs)} "
         f"verification_failed={len(report.verification_failed)} "
-        f"disposition_basis={report.disposition_basis}"
+        f"disposition_basis={report.disposition_basis}{signature}"
     )
 
 
 def _cmd_replay(args: Any) -> int:
+    for name in ("export_max_retained_generations", "export_max_retained_bytes"):
+        limit = getattr(args, name, None)
+        if limit is not None and (not args.export or type(limit) is not int or limit < 0):
+            print(
+                "ERROR: export retention limits require --export and nonnegative integers",
+                file=sys.stderr,
+            )
+            return 2
+    if getattr(args, "require_bundle_signatures", False) and not args.bundle:
+        print("ERROR: --require-bundle-signatures requires --bundle", file=sys.stderr)
+        return 2
     with _library_output(args.json):
         scientist_replay = importlib.import_module("polisyos.scientist.replay.deterministic")
     normalize_artifact_id = scientist_replay.normalize_artifact_id
@@ -90,10 +112,48 @@ def _cmd_replay(args: Any) -> int:
 
     packet_ref = normalize_artifact_id(args.packet_ref)
     if args.bundle:
+        from polisyos.core.artifacts import ImportSignatureVerificationError
+        from polisyos.core.artifacts.signing import Ed25519Verifier
+
+        signature_verifier = None
+        if getattr(args, "require_bundle_signatures", False):
+            try:
+                signature_verifier = Ed25519Verifier(
+                    strict_identity=bool(args.bundle_strict_identity)
+                )
+                signature_verifier.load_trust_dir(Path(args.bundle_trust_dir))
+                signature_verifier.load_revoked_dir(Path(args.bundle_revoked_dir))
+                signature_verifier.load_identity_bindings(Path(args.bundle_identities))
+            except (OSError, ValueError, TypeError) as error:
+                print(
+                    f"ERROR: required bundle trust configuration unavailable: {error}",
+                    file=sys.stderr,
+                )
+                return 2
+        refusal: dict[str, Any] | None = None
         with tempfile.TemporaryDirectory(prefix="polisyos-replay-") as tmp_dir:
             with _library_output(args.json):
                 store = build_cli_filesystem_cas(Path(tmp_dir))
-                import_report = store.import_subgraph(Path(args.bundle), verify_integrity=False)
+                options: dict[str, Any] = {"verify_integrity": False}
+                if signature_verifier is not None:
+                    options["signature_verifier"] = signature_verifier
+                try:
+                    import_report = store.import_subgraph(Path(args.bundle), **options)
+                except ImportSignatureVerificationError as error:
+                    refusal = {
+                        "error": "required_bundle_signature_refused",
+                        "artifact_ref": _artifact_ref_payload(error.artifact_ref),
+                        "signature_result": error.result.model_dump(mode="json"),
+                    }
+            if refusal is not None:
+                if args.json:
+                    print(json.dumps(refusal, sort_keys=True))
+                else:
+                    print(
+                        f"ERROR: {refusal['error']}: {refusal['signature_result']['status']}",
+                        file=sys.stderr,
+                    )
+                return 1
             return _cmd_replay_with_store(
                 args=args,
                 store=store,
@@ -145,13 +205,48 @@ def _cmd_replay_with_store(
                 if import_report is not None:
                     print(_bundle_import_summary(import_report), file=sys.stderr)
             return 1
-        with _library_output(args.json):
-            export_report = store.export_subgraph(
-                completeness.graph.all_artifact_ids(),
-                Path(args.export),
-                compress=True,
-                include_manifests=True,
-            )
+        from polisyos.core.artifacts import ExportResourceError
+
+        limits = {
+            name: value
+            for name in ("max_retained_generations", "max_retained_bytes")
+            if (value := getattr(args, f"export_{name}", None)) is not None
+        }
+        try:
+            with _library_output(args.json):
+                export_report = store.export_subgraph(
+                    completeness.graph.all_artifact_ids(),
+                    Path(args.export),
+                    compress=True,
+                    include_manifests=True,
+                    **limits,
+                )
+        except ExportResourceError as error:
+            refusal = {
+                "error": "export_resource_refused",
+                "reason": error.reason,
+                "target": str(error.target),
+                "lock_path": str(error.lock_path),
+                "replaced": error.replaced,
+                "staging_path": str(error.staging_path) if error.staging_path is not None else None,
+                "occupied_paths": [str(path) for path in error.occupied_paths],
+                "occupied_bytes": error.occupied_bytes,
+                "max_retained_generations": error.max_retained_generations,
+                "max_retained_bytes": error.max_retained_bytes,
+            }
+            if args.json:
+                print(json.dumps(refusal, sort_keys=True))
+            else:
+                print(f"ERROR: {error}", file=sys.stderr)
+            return 1
+        retained_paths = getattr(export_report, "retained_paths", ())
+        retention = {
+            "paths": [str(path) for path in retained_paths],
+            "logical_bytes": getattr(export_report, "retained_bytes", 0),
+            "max_generations": getattr(export_report, "max_retained_generations", None),
+            "max_logical_bytes": getattr(export_report, "max_retained_bytes", None),
+            "reclamation": "manual_inspection_no_foreign_deletion",
+        }
         if args.json:
             payload: dict[str, Any] = {
                 "exported_artifacts": export_report.exported_artifacts,
@@ -160,6 +255,8 @@ def _cmd_replay_with_store(
                 "missing_artifacts": export_report.missing_artifacts,
                 "missing_manifests": export_report.missing_manifests,
             }
+            if retained_paths or limits:
+                payload["retention"] = retention
             if export_report.previous_generation is not None:
                 payload["previous_generation"] = str(export_report.previous_generation)
                 payload["previous_generation_retention"] = "caller_owned_manual_reclamation"
@@ -176,6 +273,12 @@ def _cmd_replay_with_store(
                 print(
                     f"previous_generation={export_report.previous_generation} "
                     "retention=caller_owned_manual_reclamation"
+                )
+            if retained_paths or limits:
+                print(
+                    f"retained_count={len(retained_paths)} "
+                    f"retained_logical_bytes={retention['logical_bytes']} "
+                    f"limits={retention['max_generations']}/{retention['max_logical_bytes']}"
                 )
             if import_report is not None:
                 print(_bundle_import_summary(import_report))

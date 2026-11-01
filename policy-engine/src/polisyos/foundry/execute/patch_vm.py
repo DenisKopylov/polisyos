@@ -7,24 +7,20 @@ from typing import Any
 
 import numpy as np
 
+from polisyos.core.artifacts import validate_return_selected_profile
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.protocol import ArtifactStore
-from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.contracts.foundry import PatchOp
+from polisyos.foundry.execute._internal.models import put_tensor
 from polisyos.foundry.methods.components.merge_engine import MergeEngine, MergeRecord
 from polisyos.ir.kernel import MergeRuleKind, MergeRuleRegistry, SlotRegistry
 
 
-def _put_tensor(store: ArtifactStore, value: Any) -> ArtifactRef:
-    array = np.asarray(value)
-    buf = BytesIO()
-    np.save(buf, array, allow_pickle=False)
-    data = buf.getvalue()
-    return store.put_bytes(
-        data,
-        PutOptions(kind="foundry.patch_value", media_type="application/x-npy"),
-    )
+def _put_tensor(
+    store: ArtifactStore, value: Any, *, return_selected_profile: bool = False
+) -> ArtifactRef:
+    return put_tensor(store, value, return_selected_profile=return_selected_profile)
 
 
 def _load_tensor(store: ArtifactStore, ref: ArtifactRef | str) -> np.ndarray:
@@ -40,8 +36,10 @@ def merge_patch_records(
     base_values: dict[str, Any] | None = None,
     slot_registry: SlotRegistry,
     merge_registry: MergeRuleRegistry,
+    return_selected_profile: bool = False,
 ) -> list[PatchOp]:
     """Merge patch records into concrete PatchOp list using merge rules."""
+    validate_return_selected_profile(return_selected_profile)
     engine = MergeEngine(slot_registry, merge_registry)
     records: list[MergeRecord] = []
     effective_base_values = dict(base_values or {})
@@ -80,7 +78,7 @@ def merge_patch_records(
         payload = merged_value
         if rule.kind == MergeRuleKind.SUM and slot_id in effective_base_values:
             payload = merged_value - effective_base_values[slot_id]
-        value_ref = _put_tensor(store, payload)
+        value_ref = _put_tensor(store, payload, return_selected_profile=return_selected_profile)
         ops.append(
             PatchOp(
                 slot_id=slot_id,

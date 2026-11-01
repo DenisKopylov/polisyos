@@ -11,7 +11,12 @@ import numpy as np
 from pydantic import BaseModel, Field
 
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
-from polisyos.core.artifacts import ArtifactStore, CoreJSONArtifactStore
+from polisyos.core.artifacts import (
+    ArtifactStore,
+    CoreJSONArtifactStore,
+    require_return_selected_profile_writer,
+    validate_return_selected_profile,
+)
 from polisyos.core.artifacts.environment import EnvironmentManifestRef
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import (
@@ -236,16 +241,26 @@ def load_payload(
     raise ValueError("Invalid intervention payload")
 
 
-def put_tensor(store: ArtifactStore, value: Any) -> ArtifactRef:
-    """Persist an array-like value as a NumPy tensor artifact."""
+def put_tensor(
+    store: ArtifactStore, value: Any, *, return_selected_profile: bool = False
+) -> ArtifactRef:
+    """Persist a tensor, optionally retaining the exact profile from its write."""
+    validate_return_selected_profile(return_selected_profile)
+    if return_selected_profile:
+        require_return_selected_profile_writer(store, "put_bytes")
     array = np.asarray(value)
     buf = BytesIO()
     np.save(buf, array, allow_pickle=False)
     data = buf.getvalue()
-    return store.put_bytes(
-        data,
-        PutOptions(kind="foundry.patch_value", media_type="application/x-npy"),
-    )
+    options = PutOptions(kind="foundry.patch_value", media_type="application/x-npy")
+    if not return_selected_profile:
+        return store.put_bytes(data, options)
+    ref = store.put_bytes(data, options, return_selected_profile=True)
+    if not isinstance(ref, ArtifactRef):
+        raise ValueError("artifact_write_selected_ref_invalid")
+    if ref.manifest_profile_sha256 is None:
+        raise ValueError("artifact_write_selected_profile_missing")
+    return ref
 
 
 def load_tensor(store: ArtifactStore, ref: ArtifactRef | ArtifactID | str) -> np.ndarray:

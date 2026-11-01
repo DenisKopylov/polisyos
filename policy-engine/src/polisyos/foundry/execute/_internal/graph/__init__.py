@@ -26,6 +26,7 @@ from polisyos.core.artifacts import (
     artifact_ref_for_manifest,
     declare_core_json_writer_policy,
     put_core_json_artifact_bounded,
+    require_return_selected_profile_writer,
 )
 from polisyos.core.artifacts.environment import (
     EnvironmentManifest,
@@ -2825,6 +2826,8 @@ def execute_program_graph(
                 reason="method_execution_node_identity_exceeds_capture_limit",
             )
     selected_profile = return_selected_profile or capture is not None
+    if selected_profile:
+        require_return_selected_profile_writer(store, "put_bytes")
     current_invocation_id: str | None = None
     invocation_occurrence_ids: dict[int, str] = {}
     if capture is not None:
@@ -2969,6 +2972,7 @@ def execute_program_graph(
             base_values=base_values,
             slot_registry=slot_registry,
             merge_registry=merge_registry,
+            return_selected_profile=selected_profile,
         )
         visible_state = apply_ops_to_state(
             store,
@@ -3472,6 +3476,7 @@ def execute_program_graph(
         touched_slots=touched_slots,
         slot_registry=slot_registry,
         merge_registry=merge_registry,
+        return_selected_profile=selected_profile,
     )
 
     latency_ms = int((time.perf_counter() - start_time) * 1000)
@@ -4020,6 +4025,7 @@ def _build_state_delta_ops(
     touched_slots: set[str],
     slot_registry: SlotRegistry,
     merge_registry: MergeRuleRegistry,
+    return_selected_profile: bool = False,
 ) -> list[PatchOp]:
     ops: list[PatchOp] = []
     for slot_id in sorted(touched_slots):
@@ -4037,7 +4043,7 @@ def _build_state_delta_ops(
         else:
             payload = jnp.asarray(final_value)
             op_kind = "set"
-        value_ref = put_tensor(store, payload)
+        value_ref = put_tensor(store, payload, return_selected_profile=return_selected_profile)
         ops.append(
             PatchOp(
                 slot_id=slot_id,

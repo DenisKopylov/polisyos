@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from hashlib import sha256
+from io import BytesIO
 from pathlib import Path
 
 import jax
@@ -34,6 +35,7 @@ from polisyos.foundry.agent_sim.agents import AdaptiveAgentMechanism
 from polisyos.foundry.compile.api import compile
 from polisyos.foundry.compile.randomization import TreasuryPlan, build_treasury_plan
 from polisyos.foundry.contracts.state import GlobalState
+from polisyos.foundry.execute._internal import graph as graph_module
 from polisyos.foundry.execute._internal.graph import execute_program_graph
 from polisyos.foundry.execute._internal.ops import apply_ops_to_state
 from polisyos.foundry.execute.api import execute as execute_foundry
@@ -176,6 +178,86 @@ def test_compiled_seed_and_persisted_salts_drive_actual_native_kernel(tmp_path, 
     override = _execute(reopened, report, content, seed=101)
     np.testing.assert_array_equal(override, _oracle(101, seed or 0, node.node_id))
     assert not np.array_equal(actual, override)
+
+
+def test_native_graph_pins_patch_value_write_profiles_despite_same_bytes_default(
+    tmp_path, monkeypatch
+):
+    root = tmp_path / "cas"
+    store, report, content = _compile(root)
+    graph = _load(store, report.program_graph_ref, ProgramGraph)
+    (node,) = [item for item in graph.nodes if item.mechanism_type == "adaptive_agent"]
+    expected = _oracle(17, 17, node.node_id)
+    encoded = BytesIO()
+    np.save(encoded, expected, allow_pickle=False)
+    unrelated_ref = store.put_bytes(
+        encoded.getvalue(),
+        PutOptions(
+            kind="foundry.patch_value",
+            media_type="application/x-npy",
+            schema=SchemaInfo(name="test.UnrelatedNativePatchView", version="1.0"),
+        ),
+        return_selected_profile=True,
+    )
+    merged_refs = []
+    native_merge = graph_module.merge_patch_records
+
+    def observe_native_merge(*args, **kwargs):
+        ops = native_merge(*args, **kwargs)
+        merged_refs.extend(op.value_ref for op in ops)
+        return ops
+
+    monkeypatch.setattr(graph_module, "merge_patch_records", observe_native_merge)
+
+    artifacts = execute_program_graph(
+        store,
+        program_ref=report.program_graph_ref,
+        exec_plan_ref=report.exec_plan_ref,
+        base_state=_base_state(),
+        mechanism_registry=content.mechanism_registry,
+        slot_registry=content.slot_registry,
+        merge_registry=content.merge_registry,
+        selector_field_registry=content.selector_field_registry,
+        constraint_registry=content.constraint_registry,
+        welfare_bound_mode="off",
+        return_selected_profile=True,
+    )
+
+    assert not artifacts.failure_cards
+    assert artifacts.constraint_report_ref is not None
+    fresh = FileSystemCAS(root)
+    delta = _load(fresh, artifacts.state_delta_ref, StateDelta)
+    (op,) = delta.ops
+    assert op.value_ref.artifact_id == unrelated_ref.artifact_id
+    assert op.value_ref.manifest_profile_sha256 is not None
+    assert op.value_ref.manifest_profile_sha256 != unrelated_ref.manifest_profile_sha256
+    assert fresh.get_manifest(op.value_ref).artifact_schema is None
+    assert fresh.get_manifest(op.value_ref.artifact_id).artifact_schema is not None
+    assert merged_refs
+    for ref in merged_refs:
+        assert ref.artifact_id == unrelated_ref.artifact_id
+        assert ref.manifest_profile_sha256 is not None
+        assert ref.manifest_profile_sha256 != unrelated_ref.manifest_profile_sha256
+        assert fresh.get_manifest(ref).artifact_schema is None
+    for output_ref in (
+        artifacts.state_delta_ref,
+        artifacts.metrics_ref,
+        artifacts.constraint_report_ref,
+    ):
+        patch_inputs = [
+            item for item in fresh.get_manifest(output_ref).inputs if item.role == "patch_value"
+        ]
+        assert len(patch_inputs) == 1
+        assert patch_inputs[0].artifact_id == op.value_ref.artifact_id
+        assert patch_inputs[0].manifest_profile_sha256 == op.value_ref.manifest_profile_sha256
+    replayed = apply_ops_to_state(
+        fresh,
+        base_state=_base_state(),
+        ops=delta.ops,
+        slot_registry=content.slot_registry,
+        merge_registry=content.merge_registry,
+    )
+    np.testing.assert_array_equal(np.asarray(replayed.agents.income), expected)
 
 
 def _replace_plan(store, report, *, plan=None, inputs=None):
@@ -499,16 +581,15 @@ def test_actual_registered_dispatcher_consumes_versioned_node_seed(tmp_path, mon
         update={"nodes": [method_node if n.node_id == node.node_id else n for n in graph.nodes]}
     )
     report = _replace_graph(store, report, graph)
-    dispatcher = MethodDispatcher.get_instance()
-    original = dispatcher.dispatch
+    original = MethodDispatcher.dispatch
     observed = []
 
-    def observe(**kwargs):
-        result = original(**kwargs)
+    def observe(self, **kwargs):
+        result = original(self, **kwargs)
         observed.append((kwargs["seed"], result))
         return result
 
-    monkeypatch.setattr(dispatcher, "dispatch", observe)
+    monkeypatch.setattr(MethodDispatcher, "dispatch", observe)
     _execute(store, report, content)
     seed, result = observed.pop()
     key = jax.random.PRNGKey(17)

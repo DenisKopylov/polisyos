@@ -3,27 +3,37 @@ from __future__ import annotations
 import json
 import logging
 import multiprocessing
+from copy import deepcopy
 
+import pytest
 from _helpers.process_run_lifecycle import (
     _CACHED_SPEC,
     CachedCounterNode,
-    produce_cached_run_then_exit_before_finalize,
+    CheckpointedCacheEffectNode,
+    checkpointed_cache_registry,
+    checkpointed_cache_workflow,
+    produce_cached_checkpoint_then_exit,
 )
 from _helpers.run_lifecycle import (
-    assert_one_resumed_terminal_lifecycle,
     interrupt_before_finalize,
     resume_same_run,
 )
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.runtime.http.services.adapters.core_run import load_terminal_core_run_source
+from polisyos.scientist.orchestration.engine.checkpoint import (
+    resolve_latest_checkpoint,
+    resume_from_checkpoint,
+)
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
 from polisyos.scientist.orchestration.engine.idempotency import (
+    NodeCacheEntry,
     NodeResultCache,
     compute_idempotency_key,
 )
@@ -113,6 +123,39 @@ _MUTATING_FAIL_SPEC = NodeSpec(
     metadata=_MUTATING_FAIL_METADATA,
     state_writes=["params.leaked"],
 )
+
+_CACHE_BASE_MUTATOR_SPEC = NodeSpec(
+    metadata=ComponentMetadata(
+        component_id=ComponentId.parse("scientist.node_cache_base_mutator@1.0.0"),
+        kind=ComponentKind.SCIENTIST_NODE,
+        abi_targets={"world_abi": "1.x"},
+        display_name="Cache replay current-base mutator",
+        capabilities=Capability.SCIENTIST_NODE,
+    ),
+    state_writes=["params", "preflight_report_ref"],
+)
+
+
+class CacheBaseMutator:
+    """Change only a subsequent alias's base inside one actual workflow."""
+
+    def __init__(self, updates=None, *, delete=(), reset_preflight: bool = False) -> None:
+        self._updates = dict(updates or {})
+        self._delete = tuple(delete)
+        self._reset_preflight = reset_preflight
+
+    @property
+    def spec(self) -> NodeSpec:
+        return _CACHE_BASE_MUTATOR_SPEC
+
+    def execute(self, _ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        for key, value in self._updates.items():
+            state.params[key] = deepcopy(value)
+        for key in self._delete:
+            state.params.pop(key, None)
+        if self._reset_preflight:
+            state.preflight_report_ref = None
+        return NodeOutcome(status="ok", state=state)
 
 
 class BroadCachedCounterNode:
@@ -222,37 +265,44 @@ def _load_trace_events(store: FileSystemCAS, ctx: ExecutionContext) -> list[dict
     return [json.loads(line) for line in payload.splitlines() if line.strip()]
 
 
-def test_executor_cache_hit_after_restart_same_run_id(tmp_path) -> None:
+def test_executor_cache_hit_with_distinct_original_dag_aliases(tmp_path) -> None:
     CachedCounterNode.calls = 0
     store = FileSystemCAS(tmp_path)
+    ctx, registry = _build_context(store, "R_cache_restart")
     workflow = WorkflowSpec(
         workflow_id="cache_restart",
         nodes=[
             NodeInvocation(
-                alias="cached",
+                alias="cold",
                 node_id=ComponentId.parse("scientist.node_cached_counter@1.0.0"),
+            ),
+            NodeInvocation(
+                alias="warm",
+                node_id=ComponentId.parse("scientist.node_cached_counter@1.0.0"),
+                depends_on=["cold"],
             ),
         ],
     )
     initial_state = ExperimentState(run_id="R_cache_restart", params={"seed": 7})
-
-    ctx_a, registry_a = _build_context(store, "R_cache_restart")
-    cold_events = interrupt_before_finalize(
-        ctx_a.run,
-        lambda: WorkflowExecutor(ctx_a, registry_a).execute(workflow, initial_state),
+    warm_state = initial_state.model_copy(
+        update={"params": {"seed": 7, "cached_counter": 1}}, deep=True
     )
+    assert compute_idempotency_key(_CACHED_SPEC, initial_state) == compute_idempotency_key(
+        _CACHED_SPEC, warm_state
+    )
+    result = WorkflowExecutor(ctx, registry).execute(workflow, initial_state)
+    assert result.report.status == "ok"
     assert CachedCounterNode.calls == 1
-    assert sum(event.get("event") == "NODE_CACHE_STORE" for event in cold_events) == 1
-
-    ctx_b, registry_b = _build_context(store, "R_cache_restart", resume_from=ctx_a)
-    result_b = WorkflowExecutor(ctx_b, registry_b).execute(workflow, initial_state)
-    assert result_b.report.status == "ok"
-    assert CachedCounterNode.calls == 1
-    assert result_b.state.params["cached_counter"] == 1
-
-    events = assert_one_resumed_terminal_lifecycle(ctx_b.run)
-    hit_events = [evt for evt in events if evt.get("event") == "NODE_CACHE_HIT"]
-    assert len(hit_events) == 1
+    assert result.state.params["cached_counter"] == 1
+    events = _load_trace_events(store, ctx)
+    assert any(
+        e.get("event") == "NODE_CACHE_STORE" and e.get("phase") == "scientist.node.cold"
+        for e in events
+    )
+    assert any(
+        e.get("event") == "NODE_CACHE_HIT" and e.get("phase") == "scientist.node.warm"
+        for e in events
+    )
 
 
 # Production mutation caught: a cache hit must replay only actual writes, not
@@ -260,47 +310,52 @@ def test_executor_cache_hit_after_restart_same_run_id(tmp_path) -> None:
 def test_executor_cache_hit_preserves_unrelated_current_state(tmp_path) -> None:
     BroadCachedCounterNode.calls = 0
     store = FileSystemCAS(tmp_path)
+    ctx, registry = _build_context(store, "R_broad_cache_replay")
+    registry.register(CacheBaseMutator({"unrelated": "new", "cached_counter": 9}))
+    initial = ExperimentState(run_id="R_broad_cache_replay", params={"seed": 7, "unrelated": "old"})
+    warm_base = ExperimentState(
+        run_id=initial.run_id,
+        params={"seed": 7, "unrelated": "new", "cached_counter": 9},
+    )
+    assert compute_idempotency_key(_BROAD_CACHED_SPEC, initial) == compute_idempotency_key(
+        _BROAD_CACHED_SPEC, warm_base
+    )
     workflow = WorkflowSpec(
         workflow_id="broad_cache_replay",
         nodes=[
             NodeInvocation(
-                alias="cached",
+                alias="cold",
                 node_id=ComponentId.parse("scientist.node_broad_cached_counter@1.0.0"),
+            ),
+            NodeInvocation(
+                alias="mutate",
+                node_id=_CACHE_BASE_MUTATOR_SPEC.metadata.component_id,
+                depends_on=["cold"],
+            ),
+            NodeInvocation(
+                alias="warm",
+                node_id=ComponentId.parse("scientist.node_broad_cached_counter@1.0.0"),
+                depends_on=["mutate"],
             ),
         ],
     )
-
-    ctx_a, registry_a = _build_context(store, "R_broad_cache_replay")
-    cold_events = interrupt_before_finalize(
-        ctx_a.run,
-        lambda: WorkflowExecutor(ctx_a, registry_a).execute(
-            workflow,
-            ExperimentState(
-                run_id="R_broad_cache_replay",
-                params={"seed": 7, "unrelated": "old"},
-            ),
-        ),
-    )
+    result = WorkflowExecutor(ctx, registry).execute(workflow, initial)
+    assert result.report.status == "ok"
     assert BroadCachedCounterNode.calls == 1
-    assert sum(event.get("event") == "NODE_CACHE_STORE" for event in cold_events) == 1
-
-    ctx_b, registry_b = _build_context(store, "R_broad_cache_replay", resume_from=ctx_a)
-    result_b = WorkflowExecutor(ctx_b, registry_b).execute(
-        workflow,
-        ExperimentState(
-            run_id="R_broad_cache_replay",
-            params={"seed": 7, "unrelated": "new"},
-        ),
+    assert result.state.params["unrelated"] == "new"
+    assert result.state.params["cached_counter"] == 1
+    events = _load_trace_events(store, ctx)
+    assert any(
+        e.get("event") == "NODE_CACHE_STORE" and e.get("phase") == "scientist.node.cold"
+        for e in events
+    )
+    assert any(
+        e.get("event") == "NODE_CACHE_HIT" and e.get("phase") == "scientist.node.warm"
+        for e in events
     )
 
-    assert result_b.report.status == "ok"
-    assert BroadCachedCounterNode.calls == 1
-    assert result_b.state.params["unrelated"] == "new"
-    assert result_b.state.params["cached_counter"] == 1
-    assert_one_resumed_terminal_lifecycle(ctx_b.run)
 
-
-def test_fresh_cache_replays_exact_journal_without_repeating_settled_effect(tmp_path) -> None:
+def test_cache_replays_exact_journal_without_repeating_settled_effect(tmp_path) -> None:
     """Native CAS replay preserves operations while the real effect owner stays once."""
     import hashlib
     from decimal import Decimal
@@ -317,6 +372,8 @@ def test_fresh_cache_replays_exact_journal_without_repeating_settled_effect(tmp_
     effect_path = tmp_path / "effect"
     ledger_path = tmp_path / "budget.json"
     calls: list[str] = []
+    first_settlements = []
+    original_ledger_bytes = []
 
     class JournalEffectNode:
         spec = _BROAD_CACHED_SPEC.model_copy(
@@ -360,13 +417,35 @@ def test_fresh_cache_replays_exact_journal_without_repeating_settled_effect(tmp_
                 ],
             )
 
+    class ObserveAndMutate(CacheBaseMutator):
+        def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+            first_settlements.append(FileBudgetLedger(ledger_path).snapshot())
+            original_ledger_bytes.append(ledger_path.read_bytes())
+            return super().execute(ctx, state)
+
     store = FileSystemCAS(tmp_path / "cas")
-    first_ctx, first_registry = _build_context(store, run_id)
-    first_registry.register(JournalEffectNode())
+    ctx, registry = _build_context(store, run_id)
+    registry.register(JournalEffectNode())
+    registry.register(
+        ObserveAndMutate(
+            {"y": 9, "drop": 99, "null": 88, "unwritten": "current", "unrelated": "new"},
+            delete=("removed_elsewhere",),
+        )
+    )
     workflow = WorkflowSpec(
         workflow_id="exact_journal_effect",
         nodes=[
-            NodeInvocation(alias="effect", node_id=JournalEffectNode.spec.metadata.component_id)
+            NodeInvocation(alias="cold", node_id=JournalEffectNode.spec.metadata.component_id),
+            NodeInvocation(
+                alias="mutate",
+                node_id=_CACHE_BASE_MUTATOR_SPEC.metadata.component_id,
+                depends_on=["cold"],
+            ),
+            NodeInvocation(
+                alias="warm",
+                node_id=JournalEffectNode.spec.metadata.component_id,
+                depends_on=["mutate"],
+            ),
         ],
     )
     origin = ExperimentState(
@@ -381,18 +460,6 @@ def test_fresh_cache_replays_exact_journal_without_repeating_settled_effect(tmp_
             "removed_elsewhere": "old",
         },
     )
-    cold_events = interrupt_before_finalize(
-        first_ctx.run,
-        lambda: WorkflowExecutor(first_ctx, first_registry).execute(workflow, origin),
-    )
-    assert sum(event.get("event") == "NODE_CACHE_STORE" for event in cold_events) == 1
-    first_settlement = FileBudgetLedger(ledger_path).snapshot()
-    assert first_settlement.state.spent["run"] == Decimal("2")
-    ledger_bytes = ledger_path.read_bytes()
-
-    fresh_store = FileSystemCAS(store.root)
-    fresh_ctx, fresh_registry = _build_context(fresh_store, run_id, resume_from=first_ctx)
-    fresh_registry.register(JournalEffectNode())
     current = ExperimentState(
         run_id=run_id,
         params={
@@ -404,7 +471,10 @@ def test_fresh_cache_replays_exact_journal_without_repeating_settled_effect(tmp_
             "unrelated": "new",
         },
     )
-    result = WorkflowExecutor(fresh_ctx, fresh_registry).execute(workflow, current)
+    assert compute_idempotency_key(JournalEffectNode.spec, origin) == compute_idempotency_key(
+        JournalEffectNode.spec, current
+    )
+    result = WorkflowExecutor(ctx, registry).execute(workflow, origin)
     assert result.report.status == "ok"
     assert result.state.params == {
         "seed": 7,
@@ -413,25 +483,36 @@ def test_fresh_cache_replays_exact_journal_without_repeating_settled_effect(tmp_
         "unwritten": "current",
         "unrelated": "new",
     }
-    assert current.params == {
+    assert origin.params == {
         "seed": 7,
-        "y": 9,
-        "drop": 99,
-        "null": 88,
-        "unwritten": "current",
-        "unrelated": "new",
+        "y": 4,
+        "drop": 1,
+        "null": 8,
+        "unwritten": "old",
+        "unrelated": "old",
+        "removed_elsewhere": "old",
     }
     assert calls == [operation_id]
     assert effect_path.read_bytes() == effect_bytes
-    assert ledger_path.read_bytes() == ledger_bytes
+    assert len(first_settlements) == len(original_ledger_bytes) == 1
+    first_settlement = first_settlements[0]
+    assert first_settlement.state.spent["run"] == Decimal("2")
+    assert ledger_path.read_bytes() == original_ledger_bytes[0]
     final_settlement = FileBudgetLedger(ledger_path).snapshot()
     assert (
         final_settlement.spend_receipts[operation_id]
         == first_settlement.spend_receipts[operation_id]
     )
     assert final_settlement.state.spent["run"] == Decimal("2")
-    events = assert_one_resumed_terminal_lifecycle(fresh_ctx.run)
-    assert sum(event.get("event") == "NODE_CACHE_HIT" for event in events) == 1
+    events = _load_trace_events(store, ctx)
+    assert any(
+        e.get("event") == "NODE_CACHE_STORE" and e.get("phase") == "scientist.node.cold"
+        for e in events
+    )
+    assert any(
+        e.get("event") == "NODE_CACHE_HIT" and e.get("phase") == "scientist.node.warm"
+        for e in events
+    )
 
 
 # Production mutation caught: a cache hit must replay a declared top-level
@@ -439,37 +520,45 @@ def test_fresh_cache_replays_exact_journal_without_repeating_settled_effect(tmp_
 def test_executor_cache_hit_replays_top_level_ref_write(tmp_path) -> None:
     TopLevelRefNode.calls = 0
     store = FileSystemCAS(tmp_path)
+    ctx, registry = _build_context(store, "R_top_level_ref_cache")
+    registry.register(CacheBaseMutator(reset_preflight=True))
+    initial = ExperimentState(run_id="R_top_level_ref_cache", params={"seed": 7})
+    assert compute_idempotency_key(_TOP_LEVEL_REF_SPEC, initial) == compute_idempotency_key(
+        _TOP_LEVEL_REF_SPEC,
+        initial.model_copy(update={"preflight_report_ref": _TOP_LEVEL_REF}, deep=True),
+    )
     workflow = WorkflowSpec(
         workflow_id="top_level_ref_cache",
         nodes=[
             NodeInvocation(
-                alias="ref_writer",
+                alias="cold",
                 node_id=ComponentId.parse("scientist.node_top_level_ref@1.0.0"),
+            ),
+            NodeInvocation(
+                alias="mutate",
+                node_id=_CACHE_BASE_MUTATOR_SPEC.metadata.component_id,
+                depends_on=["cold"],
+            ),
+            NodeInvocation(
+                alias="warm",
+                node_id=ComponentId.parse("scientist.node_top_level_ref@1.0.0"),
+                depends_on=["mutate"],
             ),
         ],
     )
-
-    ctx_a, registry_a = _build_context(store, "R_top_level_ref_cache")
-    cold_events = interrupt_before_finalize(
-        ctx_a.run,
-        lambda: WorkflowExecutor(ctx_a, registry_a).execute(
-            workflow,
-            ExperimentState(run_id="R_top_level_ref_cache", params={"seed": 7}),
-        ),
-    )
+    result = WorkflowExecutor(ctx, registry).execute(workflow, initial)
+    assert result.report.status == "ok"
     assert TopLevelRefNode.calls == 1
-    assert sum(event.get("event") == "NODE_CACHE_STORE" for event in cold_events) == 1
-
-    ctx_b, registry_b = _build_context(store, "R_top_level_ref_cache", resume_from=ctx_a)
-    result_b = WorkflowExecutor(ctx_b, registry_b).execute(
-        workflow,
-        ExperimentState(run_id="R_top_level_ref_cache", params={"seed": 7}),
+    assert result.state.preflight_report_ref == _TOP_LEVEL_REF
+    events = _load_trace_events(store, ctx)
+    assert any(
+        e.get("event") == "NODE_CACHE_STORE" and e.get("phase") == "scientist.node.cold"
+        for e in events
     )
-
-    assert result_b.report.status == "ok"
-    assert TopLevelRefNode.calls == 1
-    assert result_b.state.preflight_report_ref == _TOP_LEVEL_REF
-    assert_one_resumed_terminal_lifecycle(ctx_b.run)
+    assert any(
+        e.get("event") == "NODE_CACHE_HIT" and e.get("phase") == "scientist.node.warm"
+        for e in events
+    )
 
 
 def test_cache_rejects_boolean_integer_alias_in_live_mutation_journal(tmp_path) -> None:
@@ -501,46 +590,53 @@ def test_cache_rejects_boolean_integer_alias_in_live_mutation_journal(tmp_path) 
 def test_executor_reexecutes_when_cached_replay_target_is_incompatible(tmp_path) -> None:
     InvalidReplayNode.calls = 0
     store = FileSystemCAS(tmp_path)
+    ctx, registry = _build_context(store, "R_invalid_replay_target")
+    registry.register(CacheBaseMutator({"items": {}}))
+    initial = ExperimentState(
+        run_id="R_invalid_replay_target", params={"seed": 7, "items": ["cached", "removed"]}
+    )
+    warm_base = ExperimentState(run_id=initial.run_id, params={"seed": 7, "items": {}})
+    assert compute_idempotency_key(_INVALID_REPLAY_SPEC, initial) == compute_idempotency_key(
+        _INVALID_REPLAY_SPEC, warm_base
+    )
     workflow = WorkflowSpec(
         workflow_id="invalid_replay_target",
         nodes=[
             NodeInvocation(
-                alias="invalid_replay",
+                alias="cold",
                 node_id=ComponentId.parse("scientist.node_invalid_replay@1.0.0"),
+            ),
+            NodeInvocation(
+                alias="mutate",
+                node_id=_CACHE_BASE_MUTATOR_SPEC.metadata.component_id,
+                depends_on=["cold"],
+            ),
+            NodeInvocation(
+                alias="warm",
+                node_id=ComponentId.parse("scientist.node_invalid_replay@1.0.0"),
+                depends_on=["mutate"],
             ),
         ],
     )
-
-    ctx_a, registry_a = _build_context(store, "R_invalid_replay_target")
-    cold_events = interrupt_before_finalize(
-        ctx_a.run,
-        lambda: WorkflowExecutor(ctx_a, registry_a).execute(
-            workflow,
-            ExperimentState(
-                run_id="R_invalid_replay_target",
-                params={"seed": 7, "items": ["cached", "removed"]},
-            ),
-        ),
-    )
-    assert InvalidReplayNode.calls == 1
-    assert sum(event.get("event") == "NODE_CACHE_STORE" for event in cold_events) == 1
-
-    ctx_b, registry_b = _build_context(store, "R_invalid_replay_target", resume_from=ctx_a)
-    result_b = WorkflowExecutor(ctx_b, registry_b).execute(
-        workflow,
-        ExperimentState(
-            run_id="R_invalid_replay_target",
-            params={"seed": 7, "items": {}},
-        ),
-    )
-
-    assert result_b.report.status == "ok"
+    result = WorkflowExecutor(ctx, registry).execute(workflow, initial)
+    assert result.report.status == "ok"
     assert InvalidReplayNode.calls == 2
-    assert result_b.state.params["reexecuted"] is True
-    assert_one_resumed_terminal_lifecycle(ctx_b.run)
+    assert result.state.params["items"] == {}
+    assert result.state.params["reexecuted"] is True
+    events = _load_trace_events(store, ctx)
+    assert any(
+        e.get("event") == "NODE_CACHE_BYPASS"
+        and e.get("phase") == "scientist.node.warm"
+        and e.get("metrics", {}).get("reason_code") == 4
+        for e in events
+    )
+    assert not any(
+        e.get("event") == "NODE_CACHE_HIT" and e.get("phase") == "scientist.node.warm"
+        for e in events
+    )
 
 
-def test_executor_resume_retries_failed_node_and_reuses_cached_ok_node(tmp_path) -> None:
+def test_executor_refuses_blind_resume_after_known_failure(tmp_path) -> None:
     CachedCounterNode.calls = 0
     AlwaysFailNode.calls = 0
     store = FileSystemCAS(tmp_path)
@@ -571,17 +667,55 @@ def test_executor_resume_retries_failed_node_and_reuses_cached_ok_node(tmp_path)
     assert sum(event.get("event") == "NODE_CACHE_STORE" for event in cold_events) == 1
 
     ctx_b, registry_b = _build_context(store, "R_cache_resume", resume_from=ctx_a)
-    result_b = WorkflowExecutor(ctx_b, registry_b).execute(workflow, initial_state)
-    assert result_b.report.status == "fail"
+    with pytest.raises(ValueError, match="workflow_execution_admission_frontier_not_reconciled"):
+        WorkflowExecutor(ctx_b, registry_b).execute(workflow, initial_state)
+    assert CachedCounterNode.calls == 1
+    assert AlwaysFailNode.calls == 1
+
+
+def test_executor_cached_success_and_distinct_failed_aliases(tmp_path) -> None:
+    CachedCounterNode.calls = 0
+    AlwaysFailNode.calls = 0
+    store = FileSystemCAS(tmp_path)
+    ctx, registry = _build_context(store, "R_distinct_cache_failures")
+    workflow = WorkflowSpec(
+        workflow_id="cache_distinct_failures",
+        error_policy="continue",
+        nodes=[
+            NodeInvocation(alias="cold", node_id=_CACHED_SPEC.metadata.component_id),
+            NodeInvocation(
+                alias="first_failure",
+                node_id=_FAIL_SPEC.metadata.component_id,
+                depends_on=["cold"],
+            ),
+            NodeInvocation(
+                alias="warm",
+                node_id=_CACHED_SPEC.metadata.component_id,
+                depends_on=["cold"],
+            ),
+            NodeInvocation(
+                alias="second_failure",
+                node_id=_FAIL_SPEC.metadata.component_id,
+                depends_on=["warm"],
+            ),
+        ],
+    )
+    result = WorkflowExecutor(ctx, registry).execute(
+        workflow, ExperimentState(run_id="R_distinct_cache_failures", params={"seed": 42})
+    )
+    assert result.report.status == "fail"
     assert CachedCounterNode.calls == 1
     assert AlwaysFailNode.calls == 2
-
-    cached_record = next(rec for rec in result_b.report.nodes if rec.alias == "cached")
-    failing_record = next(rec for rec in result_b.report.nodes if rec.alias == "failing")
-    assert cached_record.status == "ok"
-    assert failing_record.status == "fail"
-    events = assert_one_resumed_terminal_lifecycle(ctx_b.run)
-    assert any(evt.get("event") == "NODE_CACHE_HIT" for evt in events)
+    assert {record.alias: record.status for record in result.report.nodes} == {
+        "cold": "ok",
+        "first_failure": "fail",
+        "warm": "ok",
+        "second_failure": "fail",
+    }
+    assert any(
+        event.get("event") == "NODE_CACHE_HIT" and event.get("phase") == "scientist.node.warm"
+        for event in _load_trace_events(store, ctx)
+    )
 
 
 def test_executor_failed_node_state_is_not_committed(tmp_path) -> None:
@@ -612,13 +746,22 @@ def test_executor_failed_node_state_is_not_committed(tmp_path) -> None:
     assert result.state.params == {"baseline": True}
 
 
-def test_incomplete_process_run_resumes_same_cache_and_one_terminal_lifecycle(tmp_path) -> None:
-    CachedCounterNode.calls = 0
+def test_incomplete_process_run_resumes_same_cache_and_one_terminal_lifecycle(
+    tmp_path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import sqlite3
+    from decimal import Decimal
+
+    from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
+
+    monkeypatch.setenv("POLISYOS_RUNNER_BACKEND", "local")
     run_id = "R_process_loss_resume"
     root = tmp_path / "cas"
+    database = tmp_path / "effect.sqlite3"
+    ledger = tmp_path / "budget.json"
     process = multiprocessing.get_context("spawn").Process(
-        target=produce_cached_run_then_exit_before_finalize,
-        args=(str(root), run_id),
+        target=produce_cached_checkpoint_then_exit,
+        args=(str(root), run_id, str(database), str(ledger)),
     )
     process.start()
     process.join(timeout=30)
@@ -636,44 +779,85 @@ def test_incomplete_process_run_resumes_same_cache_and_one_terminal_lifecycle(tm
     assert sum(event.get("event") == "RUN_STARTED" for event in child_events) == 1
     assert sum(event.get("event") == "RUN_RESUMED" for event in child_events) == 0
     assert sum(event.get("event") == "RUN_FINALIZED" for event in child_events) == 0
-    assert sum(event.get("event") == "NODE_CACHE_STORE" for event in child_events) == 1
+    assert (
+        sum(
+            event.get("event") == "NODE_CACHE_STORE" and event.get("phase") == "scientist.node.cold"
+            for event in child_events
+        )
+        == 1
+    )
 
     store = FileSystemCAS(root)
-    bundle = build_default_registry_bundle(store, return_selected_profile=True)
     run_dir = root / "runs" / run_id
-    resumed = RunContext.resume(
+    resolved = resolve_latest_checkpoint(store, run_id, run_dir=run_dir)
+    assert resolved is not None
+    _, checkpoint = resolved
+    assert checkpoint.metadata.completed_nodes == ["cold", "mutate"]
+    assert checkpoint.metadata.execution_budget_contract == "admitted_workflow_budget_v1"
+    assert all(store.verify(ref).ok for ref in checkpoint.metadata.cache_entry_refs)
+    entries = [
+        NodeCacheEntry.model_validate(from_canonical_bytes(store.get_bytes(ref)))
+        for ref in checkpoint.metadata.cache_entry_refs
+    ]
+    assert checkpoint.state is not None
+    restored = ExperimentState.model_validate(checkpoint.state)
+    bundle_ref = restored.inputs["registry_bundle_ref"]
+    cold = ExperimentState(
+        run_id=run_id, inputs={"registry_bundle_ref": bundle_ref}, params={"seed": 7}
+    )
+    node = CheckpointedCacheEffectNode(database, ledger, value=7)
+    cold_key = compute_idempotency_key(node.spec, cold)
+    assert cold_key == compute_idempotency_key(node.spec, restored)
+    original_entries = [
+        entry for entry in entries if entry.node_id == "scientist.node_admission_probe@1.0.0"
+    ]
+    assert len(original_entries) == 1 and original_entries[0].idempotency_key == cold_key
+    assert restored.params == {
+        "seed": 7,
+        "result": 7,
+        "y": 9,
+        "drop": 99,
+        "null": 88,
+        "unwritten": "current",
+        "unrelated": "new",
+    }
+    with sqlite3.connect(database) as connection:
+        assert connection.execute("SELECT COUNT(*) FROM effects").fetchone() == (1,)
+    first_settlement = FileBudgetLedger(ledger).snapshot()
+    original_ledger = ledger.read_bytes()
+    assert first_settlement.state.spent["run"] == Decimal("2")
+
+    result = resume_from_checkpoint(
         store,
-        run_id=run_id,
+        run_id,
+        workflow=checkpointed_cache_workflow(),
+        registry=checkpointed_cache_registry(database, ledger),
+        registry_bundle_ref=bundle_ref,
         run_dir=run_dir,
-        registry_bundle=bundle.bundle_ref,
-        producer=None,
-        env=None,
-        access_scope=None,
-    )
-    ctx = ExecutionContext(
-        store=store,
-        run=resumed,
-        logger=logging.getLogger("idempotency_resume_test"),
-    )
-    registry = NodeRegistry()
-    registry.register(CachedCounterNode())
-    workflow = WorkflowSpec(
-        workflow_id="cache_resume_after_process_loss",
-        nodes=[
-            NodeInvocation(
-                alias="cached",
-                node_id=ComponentId.parse("scientist.node_cached_counter@1.0.0"),
-            ),
-        ],
-    )
-    result = WorkflowExecutor(ctx, registry).execute(
-        workflow,
-        ExperimentState(run_id=run_id, params={"seed": 7}),
+        require_reconciled_attempts=True,
     )
     assert result.report.status == "ok"
-    assert result.state.params["cached_counter"] == 1
-    assert CachedCounterNode.calls == 0
-    assert resumed.run_manifest.run_id == run_id
+    assert [record.alias for record in result.report.nodes] == ["warm"]
+    assert result.state.run_id == run_id
+    assert result.state.params == {
+        "seed": 7,
+        "result": 7,
+        "y": 4,
+        "null": None,
+        "unwritten": "current",
+        "unrelated": "new",
+    }
+    with sqlite3.connect(database) as connection:
+        assert connection.execute("SELECT COUNT(*) FROM effects").fetchone() == (1,)
+    final_settlement = FileBudgetLedger(ledger).snapshot()
+    operation_id = f"{run_id}/selected-operation-7"
+    assert ledger.read_bytes() == original_ledger
+    assert len(first_settlement.spend_receipts) == len(final_settlement.spend_receipts) == 1
+    assert (
+        final_settlement.spend_receipts[operation_id]
+        == first_settlement.spend_receipts[operation_id]
+    )
+    assert final_settlement.state.spent["run"] == Decimal("2")
 
     terminal = load_terminal_core_run_source(
         store=store,
@@ -685,8 +869,14 @@ def test_incomplete_process_run_resumes_same_cache_and_one_terminal_lifecycle(tm
         for line in terminal.trace_path.read_text(encoding="utf-8").splitlines()
         if line.strip()
     ]
-    assert_one_resumed_terminal_lifecycle(resumed)
+    assert sum(record.get("event") == "RUN_STARTED" for record in records) == 1
+    assert sum(record.get("event") == "RUN_RESUMED" for record in records) == 1
+    assert sum(record.get("event") == "RUN_FINALIZED" for record in records) == 1
     assert sum(record.get("event") == "NODE_CACHE_HIT" for record in records) == 1
+    assert any(
+        record.get("event") == "NODE_CACHE_HIT" and record.get("phase") == "scientist.node.warm"
+        for record in records
+    )
     assert terminal.manifest_ref.manifest_profile_sha256 is not None
 
     from polisyos.core.artifacts.manifest import artifact_ref_identity_key

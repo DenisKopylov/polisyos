@@ -400,8 +400,11 @@ def build_execution_context(
             memory=memory,
             claim_ledger_owner=build_default_claim_ledger_owner(store=store),
         )
-    except BaseException:
-        run.suspend_for_resume()
+    except BaseException as primary:
+        try:
+            run.suspend_for_resume()
+        except BaseException as cleanup:
+            primary.add_note(f"execution_context_suspend_failed: {type(cleanup).__name__}")
         raise
 
 

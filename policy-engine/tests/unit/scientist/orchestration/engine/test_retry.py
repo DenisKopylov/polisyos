@@ -1978,11 +1978,17 @@ def test_worker_preparation_cannot_enter_body_after_absolute_deadline(
         _node_execute_worker(Node(), ctx, state, result_queue, compute_deadline=1.0)
 
     if expired:
-        with pytest.raises(NodeTimeoutError) as timeout:
-            invoke()
-        assert timeout.value.code == "node.timeout"
-        assert timeout.value.details["execution_state"] == "not_started"
-        result_queue.put.assert_not_called()
+        invoke()
+        result_queue.put.assert_called_once()
+        status, payload = result_queue.put.call_args.args[0]
+        assert status == "error"
+        error = retry_module._worker_node_error(payload, expected_run_id=state.run_id)
+        assert error.code == "node.worker_outcome_unknown"
+        assert error.category == "fatal"
+        assert error.deadline_execution_state == "not_started"
+        assert not retry_module._should_retry_exception(
+            error, RetryPolicy(max_retries=2, retry_on=[error.code])
+        )
         assert not effects.exists()
     else:
         invoke()
@@ -3053,7 +3059,10 @@ def test_authenticated_cancel_reaps_owned_child_and_fences_fresh_job(
             effects = owned_tree_dir / "grandchild-effects.txt"
             deadline = _time.monotonic() + 30
             while not effects.exists() or not effects.stat().st_size:
-                assert thread.is_alive() and _time.monotonic() < deadline
+                assert thread.is_alive() and _time.monotonic() < deadline, (
+                    f"dispatch stopped before owned child started; errors={errors!r}; "
+                    f"job={store.get_job(job.job_id)!r}"
+                )
                 _time.sleep(0.01)
             running = store.get_job(job.job_id)
             assert running is not None and running.state == "running"

@@ -309,14 +309,20 @@ def test_resume_cli_executes_remaining_native_workflow_and_persists_fresh_head(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Retain the original default-workflow compatibility probe, not fresh CLI proof."""
+    import logging
+
     from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.core.registry import build_default_registry_bundle
+    from polisyos.core.run.context import RunContext
+    from polisyos.scientist.orchestration.engine.builtins import builtin_nodes
     from polisyos.scientist.orchestration.engine.checkpoint import (
         COMPLETED_NODE_STATUS_CONTRACT,
-        compute_workflow_fingerprint,
-        create_checkpoint,
+        CASCheckpointHook,
         resolve_latest_checkpoint,
-        update_checkpoint_head,
     )
+    from polisyos.scientist.orchestration.engine.context import ExecutionContext
+    from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
+    from polisyos.scientist.orchestration.engine.registry import NodeRegistry
     from polisyos.scientist.orchestration.engine.state import ExperimentState
     from polisyos.scientist.orchestration.engine.workflow_spec import (
         NodeInvocation,
@@ -343,30 +349,54 @@ def test_resume_cli_executes_remaining_native_workflow_and_persists_fresh_head(
     )
 
     store = FileSystemCAS(cas_root)
-    state = ExperimentState(run_id=run_id, params={"phase": "PLAN"})
-    created = create_checkpoint(
-        store,
+    registry_bundle = build_default_registry_bundle(store, return_selected_profile=True).bundle_ref
+    run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id=run_id)
+    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("rep01.default_resume"))
+    registry = NodeRegistry()
+    for node in builtin_nodes():
+        registry.register(node)
+    state = ExperimentState(
         run_id=run_id,
-        state=state.model_dump(mode="python", by_alias=True, exclude_none=False),
-        sequence_number=0,
-        completed_node_alias="start",
-        completed_node_id="scientist.node_noop@1.0.0",
-        completed_nodes=["start"],
-        completed_node_status_contract=COMPLETED_NODE_STATUS_CONTRACT,
-        workflow_id=workflow.workflow_id,
-        workflow_fingerprint=compute_workflow_fingerprint(workflow),
-        fsm_phase="PLAN",
-        cache_entry_refs=[],
+        inputs={"registry_bundle_ref": registry_bundle},
+        params={"phase": "PLAN"},
     )
-    update_checkpoint_head(
-        cas_root / "runs" / run_id,
-        run_id=run_id,
-        checkpoint_ref=created.checkpoint_ref,
-        sequence_number=0,
-        node_alias="start",
-        writer_pid=os.getpid(),
-        writer_hostname="rep-01-test",
+
+    class PrefixPublishedError(RuntimeError):
+        pass
+
+    class StopAfterStart(CASCheckpointHook):
+        def on_node_complete(self, **kwargs):
+            result = super().on_node_complete(**kwargs)
+            if kwargs["alias"] == "start":
+                raise PrefixPublishedError("stop after the first durable head")
+            return result
+
+    hook = StopAfterStart(
+        store=store,
+        run_dir=cas_root / "runs" / run_id,
+        checkpoint_policy="strict",
     )
+    with pytest.raises(PrefixPublishedError, match="first durable head"):
+        WorkflowExecutor(ctx, registry, checkpoint_hook=hook).execute(workflow, state)
+    initial = resolve_latest_checkpoint(store, run_id)
+    assert initial is not None
+    assert initial[0].sequence_number == 0
+    assert initial[0].node_alias == "start"
+    assert initial[1].metadata.completed_nodes == ["start"]
+    assert initial[1].metadata.completed_node_status_contract == COMPLETED_NODE_STATUS_CONTRACT
+    run.suspend_for_resume()
+
+    def started_aliases() -> list[str]:
+        trace = cas_root / "runs" / run_id / "trace.jsonl"
+        records = [json.loads(line) for line in trace.read_text().splitlines() if line]
+        return [
+            record["phase"].removeprefix("scientist.node.")
+            for record in records
+            if record["event"] == "NODE_STARTED"
+        ]
+
+    assert started_aliases() == ["start"]
+    capsys.readouterr()
 
     exit_code = runtime_cli_main(
         [
@@ -381,7 +411,7 @@ def test_resume_cli_executes_remaining_native_workflow_and_persists_fresh_head(
     )
 
     output = capsys.readouterr()
-    assert exit_code == 0
+    assert exit_code == 0, f"stdout={output.out}\nstderr={output.err}"
     assert output.err == ""
     payload = json.loads(output.out)
     assert payload["resume"]["status"] == "ok"
@@ -394,6 +424,7 @@ def test_resume_cli_executes_remaining_native_workflow_and_persists_fresh_head(
     assert head.node_alias == "finish"
     assert checkpoint.metadata.completed_nodes == ["start", "finish"]
     assert checkpoint.metadata.completed_node_status_contract == COMPLETED_NODE_STATUS_CONTRACT
+    assert started_aliases() == ["start", "finish"]
 
 
 def test_fresh_cli_resumes_selected_original_workflow_without_default_override(

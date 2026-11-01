@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import inspect
 import logging
 from collections.abc import Iterator
@@ -276,6 +277,58 @@ def test_context_assembly_failure_releases_the_resumed_run_owner(
         run_id="R_context_assembly",
         resume_run_dir=run_dir,
     )
+    resumed.run.suspend_for_resume()
+
+
+@pytest.mark.parametrize("primary_kind", ["exception", "keyboard_interrupt", "cancelled"])
+def test_context_setup_preserves_primary_after_real_suspend_release_then_error(
+    tmp_path, monkeypatch: pytest.MonkeyPatch, primary_kind: str
+) -> None:
+    """A secondary cleanup failure cannot replace the actual setup interruption."""
+    import polisyos.scientist.orchestration.workflows.builder as builder
+
+    primary = {
+        "exception": RuntimeError("actual setup failure"),
+        "keyboard_interrupt": KeyboardInterrupt("actual setup interruption"),
+        "cancelled": asyncio.CancelledError("actual setup cancellation"),
+    }[primary_kind]
+    cleanup = OSError("suspend failed after releasing the actual Core lease")
+    store = FileSystemCAS(tmp_path)
+    registry_ref = build_default_registry(store)
+    run_id = "R_context_cleanup_primary"
+    initial = build_execution_context(store, registry_ref, run_id=run_id)
+    initial.run.suspend_for_resume()
+    run_dir = tmp_path / "runs" / run_id
+    real_suspend = builder.RunContext.suspend_for_resume
+    released = []
+
+    def fail_setup():
+        raise primary
+
+    def release_then_error(run):
+        real_suspend(run)
+        released.append(run)
+        raise cleanup
+
+    with monkeypatch.context() as patch:
+        patch.setattr(builder.RunContext, "suspend_for_resume", release_then_error)
+        with pytest.raises(type(primary)) as caught:
+            build_execution_context(
+                FileSystemCAS(tmp_path),
+                registry_ref,
+                run_id=run_id,
+                resume_run_dir=run_dir,
+                engine_metrics_factory=fail_setup,
+            )
+        assert caught.value is primary
+        assert "execution_context_suspend_failed: OSError" in getattr(primary, "__notes__", ())
+        assert len(released) == 1
+
+    # This is a fresh real Core owner, not a mocked release/constructor call.
+    resumed = build_execution_context(
+        FileSystemCAS(tmp_path), registry_ref, run_id=run_id, resume_run_dir=run_dir
+    )
+    assert resumed.run.run_manifest.started_at == initial.run.run_manifest.started_at
     resumed.run.suspend_for_resume()
 
 

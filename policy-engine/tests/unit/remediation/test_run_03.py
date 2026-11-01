@@ -987,3 +987,242 @@ def test_original_interruption_survives_owner_loss_during_finalization(mode, ret
     assert raised.value is original
     assert isinstance(raised.value.__cause__, JobExecutionInterrupted)
     assert calls == [1]
+
+
+@pytest.mark.asyncio
+async def test_pinned_physical_worker_keeps_resource_until_running_body_stops():
+    """A cancelled waiter cannot close a resource used by its live worker."""
+    import threading
+
+    from polisyos.scientist.orchestration.engine import retry as retry_module
+
+    started = threading.Event()
+    finish = threading.Event()
+    released = threading.Event()
+    calls: list[str] = []
+
+    class Node:
+        def execute(self, _ctx, state):
+            started.set()
+            assert finish.wait(10)
+            calls.append("body_finished")
+            return _ok(state)
+
+    def pin():
+        calls.append("pinned")
+
+        def release():
+            calls.append("released")
+            released.set()
+
+        return release
+
+    task = asyncio.create_task(
+        retry_module._run_pinned_blocking(
+            Node(), _context(), ExperimentState(run_id="pin-running"), pin
+        )
+    )
+    try:
+        for _ in range(500):
+            if started.is_set():
+                break
+            await asyncio.sleep(0.01)
+        assert started.is_set()
+        task.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await asyncio.wait_for(task, 1)
+        assert not released.is_set()
+        finish.set()
+        for _ in range(500):
+            if released.is_set():
+                break
+            await asyncio.sleep(0.01)
+        assert calls == ["pinned", "body_finished", "released"]
+    finally:
+        finish.set()
+
+
+@pytest.mark.asyncio
+async def test_pinned_submit_error_abandons_enqueued_body_and_releases_once(monkeypatch):
+    """An enqueue-then-error cannot later start against a released resource."""
+    from polisyos.scientist.orchestration.engine import retry as retry_module
+
+    queued = []
+    calls: list[str] = []
+
+    async def submit_then_raise(func, *args, **_kwargs):
+        queued.append((func, args))
+        raise RuntimeError("submit_reply_lost")
+
+    class Node:
+        def execute(self, _ctx, state):
+            calls.append("body")
+            return _ok(state)
+
+    monkeypatch.setattr(retry_module, "run_blocking_async", submit_then_raise)
+    with pytest.raises(RuntimeError, match="submit_reply_lost"):
+        await retry_module._run_pinned_blocking(
+            Node(),
+            _context(),
+            ExperimentState(run_id="pin-submit"),
+            lambda: lambda: calls.append("release"),
+        )
+    assert calls == ["release"]
+    func, args = queued[0]
+    with pytest.raises(RuntimeError, match="physical_resource_call_abandoned"):
+        func(*args)
+    assert calls == ["release"]
+
+
+@pytest.mark.asyncio
+async def test_pinned_started_submit_error_is_unknown_and_never_replays(monkeypatch):
+    """A lost submit acknowledgment cannot replay an already running body."""
+    import threading
+
+    from polisyos.scientist.orchestration.engine import retry as retry_module
+
+    started = threading.Event()
+    finish = threading.Event()
+    released = threading.Event()
+    calls = []
+    workers = []
+    worker_errors = []
+
+    async def submit_then_raise(func, *args, **_kwargs):
+        def run():
+            try:
+                func(*args)
+            except BaseException as exc:
+                worker_errors.append(exc)
+
+        worker = threading.Thread(target=run)
+        workers.append(worker)
+        worker.start()
+        for _ in range(500):
+            if started.is_set():
+                break
+            await asyncio.sleep(0.01)
+        assert started.is_set()
+        raise RuntimeError("submit_reply_lost")
+
+    class Node:
+        def execute(self, _ctx, state):
+            calls.append("body")
+            started.set()
+            assert finish.wait(10)
+            return _ok(state)
+
+    monkeypatch.setattr(retry_module, "run_blocking_async", submit_then_raise)
+    try:
+        with pytest.raises(RetryExhaustedError) as failure:
+            await execute_with_retry_async(
+                Node(),
+                _context(),
+                ExperimentState(run_id="pin-started-submit"),
+                retry_policy=RetryPolicy(max_retries=2, retry_on=["node.exception"]),
+                timeout_s=None,
+                alias="pin",
+                physical_resource_pin=lambda: released.set,
+            )
+        assert isinstance(failure.value.__cause__, retry_module._WorkerOutcomeUnknown)
+        assert calls == ["body"]
+        assert not released.is_set()
+    finally:
+        finish.set()
+        for worker in workers:
+            worker.join(timeout=5)
+    assert released.is_set()
+    assert calls == ["body"]
+
+
+@pytest.mark.asyncio
+async def test_pinned_release_failure_after_success_cannot_replay_effect():
+    """A completed body plus failed cleanup cannot be retried as a provider error."""
+    calls = []
+
+    class Node:
+        def execute(self, _ctx, state):
+            calls.append("body")
+            return _ok(state)
+
+    def pin():
+        def release():
+            raise OSError("close_failed")
+
+        return release
+
+    with pytest.raises(RetryExhaustedError) as failure:
+        await execute_with_retry_async(
+            Node(),
+            _context(),
+            ExperimentState(run_id="pin-release-failure"),
+            retry_policy=RetryPolicy(max_retries=2, retry_on=["node.exception"]),
+            timeout_s=None,
+            alias="pin",
+            physical_resource_pin=pin,
+        )
+    from polisyos.scientist.orchestration.engine import retry as retry_module
+
+    assert isinstance(failure.value.__cause__, retry_module._WorkerOutcomeUnknown)
+    assert calls == ["body"]
+
+
+@pytest.mark.asyncio
+async def test_queued_pinned_cancellation_releases_once_and_refuses_late_body(monkeypatch):
+    """Queued cancellation closes admission even if the queued callable is later run."""
+    from polisyos.scientist.orchestration.engine import retry as retry_module
+
+    entered = asyncio.Event()
+    queued = []
+    calls = []
+
+    async def queued_call(func, *args, **_kwargs):
+        queued.append((func, args))
+        entered.set()
+        await asyncio.Future()
+
+    class Node:
+        def execute(self, _ctx, state):
+            calls.append("body")
+            return _ok(state)
+
+    monkeypatch.setattr(retry_module, "run_blocking_async", queued_call)
+    task = asyncio.create_task(
+        retry_module._run_pinned_blocking(
+            Node(),
+            _context(),
+            ExperimentState(run_id="pin-queued"),
+            lambda: lambda: calls.append("release"),
+        )
+    )
+    await asyncio.wait_for(entered.wait(), 1)
+    task.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await task
+    assert calls == ["release"]
+    func, args = queued[0]
+    with pytest.raises(RuntimeError, match="physical_resource_call_abandoned"):
+        func(*args)
+    assert calls == ["release"]
+
+
+@pytest.mark.asyncio
+async def test_managed_child_rejects_prepared_resource_before_dispatch():
+    """Managed child may not silently discard the caller's physical pin."""
+    from polisyos.scientist.orchestration.engine.child_workflow import _ManagedSubWorkflowDispatch
+    from polisyos.scientist.orchestration.engine.errors import NodeTimeoutError
+
+    node = object.__new__(_ManagedSubWorkflowDispatch)
+    pin = MagicMock(side_effect=AssertionError("unsupported path must not acquire pin"))
+    with pytest.raises(NodeTimeoutError) as refused:
+        await execute_with_retry_async(
+            node,
+            _context(),
+            ExperimentState(run_id="pin-child"),
+            retry_policy=RetryPolicy(max_retries=0),
+            timeout_s=None,
+            alias="managed",
+            physical_resource_pin=pin,
+        )
+    assert refused.value.details["reason"] == "prepared_managed_child_lifetime_not_established"
+    pin.assert_not_called()

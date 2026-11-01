@@ -1815,12 +1815,14 @@ class _WorkerNodeError(RuntimeError):
         code: str,
         known_spend: dict[str, Decimal] | None = None,
         child_unknowns: tuple[ChildOutcomeUnknownError, ...] = (),
+        deadline_execution_state: str | None = None,
     ) -> None:
         super().__init__(message)
         self.category = category
         self.code = code
         self.known_spend = known_spend
         self.child_unknowns = child_unknowns
+        self.deadline_execution_state = deadline_execution_state
 
 
 class _CompletedAttemptError(RuntimeError):
@@ -1885,6 +1887,13 @@ def _worker_node_error(payload: Any, *, expected_run_id: str | None = None) -> _
         or not isinstance(payload.get("message"), str)
     ):
         raise ValueError("invalid typed node error payload")
+    deadline_execution_state = payload.get("deadline_execution_state")
+    if deadline_execution_state is not None and (
+        deadline_execution_state != "not_started"
+        or payload["code"] != _WorkerOutcomeUnknown.code
+        or payload["category"] != "fatal"
+    ):
+        raise ValueError("invalid worker deadline state")
     child_unknowns = []
     raw_children = payload.get("child_unknowns", [])
     if not isinstance(raw_children, list):
@@ -1928,6 +1937,7 @@ def _worker_node_error(payload: Any, *, expected_run_id: str | None = None) -> _
         code=payload["code"],
         known_spend=known_spend,
         child_unknowns=tuple(child_unknowns),
+        deadline_execution_state=deadline_execution_state,
     )
 
 
@@ -4481,12 +4491,19 @@ def _node_execute_worker(
 
     staged_trace = None
 
-    def _send_worker_error(exc: BaseException, *, known_spend: dict[str, Decimal]) -> None:
+    def _send_worker_error(
+        exc: BaseException,
+        *,
+        known_spend: dict[str, Decimal],
+        deadline_not_started: bool = False,
+    ) -> None:
         error_payload = _worker_error_payload(
             exc,
             known_spend=known_spend,
             run_id=state.run_id,
         )
+        if deadline_not_started:
+            error_payload["deadline_execution_state"] = "not_started"
         if worker_binding is None:
             _send("error", error_payload)
             return
@@ -4541,7 +4558,12 @@ def _node_execute_worker(
 
         node_ctx = _node_facing_context(worker_ctx)
         execute = node.execute
-        _remaining_deadline(compute_deadline, execution_state="not_started")
+        try:
+            _remaining_deadline(compute_deadline, execution_state="not_started")
+        except NodeTimeoutError as exc:
+            _mark_completion()
+            _send_worker_error(exc, known_spend={}, deadline_not_started=True)
+            return
         outcome = execute(node_ctx, state)
         _mark_completion()
         if isinstance(outcome, NodeOutcome):
@@ -4601,6 +4623,96 @@ def _node_execute_worker(
         )
 
 
+class _PinnedPhysicalCall:
+    """Keep a caller-owned resource pinned until the physical callable ends."""
+
+    def __init__(self, release: Callable[[], None]) -> None:
+        self._lock = threading.Lock()
+        self._release: Callable[[], None] | None = release
+        self._started = False
+        self._abandoned = False
+        self._body_error: BaseException | None = None
+
+    def _take_release(self) -> Callable[[], None] | None:
+        release, self._release = self._release, None
+        return release
+
+    def abandon_if_not_started(self) -> None:
+        with self._lock:
+            if self._started or self._abandoned:
+                return
+            self._abandoned = True
+            release = self._take_release()
+        if release is not None:
+            release()
+
+    def outcome_may_be_unknown(self, error: BaseException) -> bool:
+        """Separate an undelivered worker result from the actual body exception."""
+        with self._lock:
+            return self._started and self._body_error is not error
+
+    def run[T](self, fn: Callable[[], T]) -> T:
+        with self._lock:
+            if self._abandoned:
+                raise RuntimeError("physical_resource_call_abandoned")
+            self._started = True
+        try:
+            result = fn()
+        except BaseException as primary:
+            with self._lock:
+                self._body_error = primary
+                release = self._take_release()
+            if release is not None:
+                try:
+                    release()
+                except BaseException as cleanup:
+                    primary.add_note("Physical resource release failed after node interruption")
+                    raise primary from cleanup
+            raise
+        with self._lock:
+            release = self._take_release()
+        if release is not None:
+            try:
+                release()
+            except BaseException as cleanup:
+                raise _WorkerOutcomeUnknown(
+                    "physical_resource_release_after_completion_failed"
+                ) from cleanup
+        return result
+
+
+async def _run_pinned_callable[T](
+    fn: Callable[[], T],
+    pin: Callable[[], Callable[[], None]],
+) -> T:
+    """Cancel before start safely; a running worker owns the release."""
+    admission = _PinnedPhysicalCall(pin())
+    try:
+        return await run_blocking_async(admission.run, fn, unbounded=True)
+    except BaseException as primary:
+        try:
+            admission.abandon_if_not_started()
+        except BaseException as cleanup:
+            primary.add_note("Physical resource release failed during cancellation")
+            raise primary from cleanup
+        if not isinstance(primary, asyncio.CancelledError) and admission.outcome_may_be_unknown(
+            primary
+        ):
+            raise _WorkerOutcomeUnknown("physical_worker_result_not_established") from primary
+        raise
+    finally:
+        admission.abandon_if_not_started()
+
+
+async def _run_pinned_blocking(
+    node: Any,
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    pin: Callable[[], Callable[[], None]],
+) -> NodeOutcome:
+    return await _run_pinned_callable(lambda: _execute_capture_failure(node, ctx, state), pin)
+
+
 async def execute_with_retry_async(
     node: Any,
     ctx: ExecutionContext,
@@ -4618,6 +4730,7 @@ async def execute_with_retry_async(
     attempt_completed: Callable[[str, NodeOutcome | None], Awaitable[None]] | None = None,
     attempt_context: Callable[[str], ExecutionContext] | None = None,
     attempt_admission: Callable[[], Awaitable[None]] | None = None,
+    physical_resource_pin: Callable[[], Callable[[], None]] | None = None,
 ) -> NodeOutcome:
     """Async retry wrapper for ``AsyncWorkflowExecutor``.
 
@@ -4658,6 +4771,10 @@ async def execute_with_retry_async(
             )
 
             if node_type is _ManagedSubWorkflowDispatch:
+                if physical_resource_pin is not None:
+                    raise _timeout_worker_unsupported(
+                        "prepared_managed_child_lifetime_not_established"
+                    )
                 binding = (
                     attempt_ctx._engine_invocation
                     if isinstance(attempt_ctx, ExecutionContext)
@@ -4699,6 +4816,8 @@ async def execute_with_retry_async(
                     )
                 finally:
                     authority.revoke()
+        if _has_async and physical_resource_pin is not None:
+            raise _timeout_worker_unsupported("prepared_async_resource_lifetime_not_established")
         if _has_async:
             if remaining is None:
                 from polisyos.scientist.orchestration.engine.context import (
@@ -4760,6 +4879,8 @@ async def execute_with_retry_async(
                 deadline_monotonic=deadline,
             )
         if remaining is not None:
+            if physical_resource_pin is not None:
+                raise _timeout_worker_unsupported("prepared_resource_not_transportable")
             if _timeout_worker_start_method() is not None:
                 return await _execute_with_timeout_process_async(
                     node,
@@ -4783,6 +4904,10 @@ async def execute_with_retry_async(
         worker_ctx = _build_attempt_context(attempt_ctx, authority)
         worker_state = attempt_state.model_copy(deep=True)
         try:
+            if physical_resource_pin is not None:
+                return await _run_pinned_blocking(
+                    node, worker_ctx, worker_state, physical_resource_pin
+                )
             return await run_blocking_async(
                 _execute_capture_failure, node, worker_ctx, worker_state, unbounded=True
             )

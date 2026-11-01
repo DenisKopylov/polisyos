@@ -376,15 +376,27 @@ def _validate_producer_state(base_state: ExperimentState) -> None:
 
 
 def snapshot_state(base_state: ExperimentState) -> ExperimentState:
-    """Return a full rollback-safe snapshot of the mutable state surfaces."""
+    """Return a rollback-safe snapshot, preserving aliases and producer tracking.
 
-    branched = base_state.model_copy(deep=False)
-    memo: dict[int, Any] = {}
-    for field_name in _TOP_LEVEL_MUTABLE_FIELDS:
-        value = getattr(base_state, field_name, None)
-        if isinstance(value, dict):
-            object.__setattr__(branched, field_name, deepcopy(value, memo))
-            _bind_mutation_root(getattr(branched, field_name), branched, field_name, (field_name,))
+    Unlike a declared-write branch, a snapshot must isolate the complete state
+    graph: references outside the mapping fields are mutable too. A shared memo
+    retains aliases across fields and runtime slots.
+    """
+
+    # The guarded override binds shallow children to its result. Bypass that
+    # intermediate binding: those children are about to be detached, and must
+    # not acquire a root pointing to the snapshot on the source graph.
+    branched = (
+        BaseModel.model_copy(base_state, deep=False)
+        if type(base_state) is _JournaledExperimentState
+        else base_state.model_copy(deep=False)
+    )
+    memo: dict[int, Any] = {id(base_state): branched}
+    object.__setattr__(branched, "__dict__", deepcopy(base_state.__dict__, memo))
+    for slot in ("__pydantic_extra__", "__pydantic_private__"):
+        object.__setattr__(branched, slot, deepcopy(getattr(base_state, slot), memo))
+    for field_name in type(base_state).model_fields:
+        _bind_mutation_root(getattr(branched, field_name), branched, field_name, (field_name,))
     return branched
 
 

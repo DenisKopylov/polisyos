@@ -420,6 +420,80 @@ def test_snapshot_state_deep_clones_mutable_state_surfaces() -> None:
     assert base_state.causal_method_params["method"]["thresholds"] == [0.1]
 
 
+def test_snapshot_state_isolates_refs_and_preserves_cross_field_aliases() -> None:
+    reference = _artifact_ref()
+    base_state = ExperimentState(run_id="R_snapshot_ref", execution_plan_ref=reference)
+    base_state.inputs["shared"] = reference
+    base_state.artifacts_index["shared"] = reference
+    fields_set = set(base_state.model_fields_set)
+
+    snapshot = snapshot_state(base_state)
+    copied = snapshot.execution_plan_ref
+    assert copied is not None
+    assert type(copied) is ArtifactRef
+    assert copied is snapshot.inputs["shared"] is snapshot.artifacts_index["shared"]
+    assert copied is not reference
+    assert snapshot.model_fields_set == fields_set
+    assert copied.model_fields_set == reference.model_fields_set
+    copied.artifact_id.root = f"sha256:{'b' * 64}"
+    copied.manifest_profile_sha256 = f"sha256:{'c' * 64}"
+
+    assert reference.artifact_id.root == f"sha256:{'a' * 64}"
+    assert reference.manifest_profile_sha256 is None
+
+
+def test_snapshot_state_root_detachment_removal_exposes_ref_mutation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    reference = _artifact_ref()
+    base_state = ExperimentState(run_id="R_snapshot_removal", execution_plan_ref=reference)
+    base_state.inputs["shared"] = reference
+    original_deepcopy = snapshot_state.__globals__["deepcopy"]
+
+    def remove_root_detachment(value: Any, memo: dict[int, Any]) -> Any:
+        if value is base_state.__dict__:
+            return value.copy()
+        return original_deepcopy(value, memo)
+
+    monkeypatch.setitem(snapshot_state.__globals__, "deepcopy", remove_root_detachment)
+    snapshot = snapshot_state(base_state)
+    assert snapshot.execution_plan_ref is reference
+    assert snapshot.execution_plan_ref is snapshot.inputs["shared"]
+    snapshot.execution_plan_ref.artifact_id.root = f"sha256:{'b' * 64}"
+    assert reference.artifact_id.root == f"sha256:{'b' * 64}"
+
+
+def test_snapshot_state_retains_guarded_producer_tracking() -> None:
+    source = branch_state(
+        ExperimentState(run_id="R_snapshot_guard", params={"items": ["base"]}),
+        write_paths=("params.items",),
+        enforce_write_scope=True,
+    )
+    snapshot = snapshot_state(source.state)
+    assert mutation_journal_for_state(snapshot) is source.journal
+    snapshot.params["items"].append("snapshot")
+    assert source.state.params["items"] == ["base"]
+    assert source.journal.operations[-1].path == "params.items"
+    with pytest.raises(ValueError, match="undeclared state_writes"):
+        snapshot.run_id = "not-allowed"
+
+
+def test_snapshot_state_copies_private_runtime_state_with_shared_alias() -> None:
+    class StateWithPrivate(ExperimentState):
+        _private: Any = PrivateAttr()
+
+    base_state = StateWithPrivate(run_id="R_snapshot_private")
+    shared = ["base"]
+    base_state.params["shared"] = shared
+    base_state._private = shared
+    snapshot = snapshot_state(base_state)
+
+    assert isinstance(snapshot, StateWithPrivate)
+    assert snapshot._private is snapshot.params["shared"]
+    snapshot._private.append("snapshot")
+    assert shared == ["base"]
+
+
 def test_producer_admission_rejects_nested_custom_leaf_before_deepcopy() -> None:
     probe = _DeepcopyProbe()
     base_state = ExperimentState(run_id="R_unknown_nested_leaf")

@@ -19,6 +19,7 @@ from typing import Any, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.core.errors import ErrorCategory
 from polisyos.core.llm.cache_settlement import CacheSettlementSession
 from polisyos.core.llm.settlement import LLMProducerEvent
 from polisyos.scientist.orchestration.engine.budget import BudgetState
@@ -385,6 +386,11 @@ def _validate_producer_settlement_origin_graph(
 class BudgetLedgerSettlementOutcomeUnknownError(RuntimeError):
     """A filesystem publication failed without establishing charge acknowledgment."""
 
+    # Fatal means a retry dispatcher must not repeat a potentially executed
+    # effect. It does not assert that the settlement itself failed.
+    default_category = ErrorCategory.FATAL
+    code = "node.budget_settlement_outcome_unknown"
+
     def __init__(self, event_id: str, payload_digest: str) -> None:
         self.event_id = event_id
         self.payload_digest = payload_digest
@@ -541,6 +547,8 @@ def _decode_snapshot(raw: str) -> BudgetLedgerSnapshot:
         version=version,
     )
     snapshot = BudgetLedgerSnapshot.model_validate_json(raw, strict=True)
+    if snapshot.ledger_id is not None and not snapshot.ledger_id.strip():
+        raise ValueError("budget_ledger_identity_invalid")
     _require_nonnegative_amounts(snapshot)
     amounts: dict[str, Decimal] = {}
     provider_amounts: dict[str, Decimal] = {}
@@ -616,6 +624,7 @@ class BudgetLedger(Protocol):
     def settlement_owner_identity(self) -> tuple[str, str, str]: ...
 
     def load(self) -> BudgetState: ...
+    def load_existing(self, expected_owner_identity: tuple[str, str, str]) -> BudgetState: ...
     def snapshot(self) -> BudgetLedgerSnapshot: ...
     def load_or_bootstrap(self, initial_state: BudgetState) -> BudgetState: ...
     def record_spend(
@@ -713,11 +722,15 @@ class FileBudgetLedger:
         writer_id: str | None = None,
         mutation_history_limit: int = 32,
     ) -> None:
+        if ledger_id is not None and (not isinstance(ledger_id, str) or not ledger_id.strip()):
+            raise ValueError("budget_ledger_identity_invalid")
         self._path = Path(path)
         self._path.parent.mkdir(parents=True, exist_ok=True)
         self._lock_path = self._path.with_suffix(self._path.suffix + ".lock")
         self._thread_lock = threading.Lock()
-        self._ledger_id = str(ledger_id or _default_ledger_id(self._path))
+        self._expected_ledger_id = ledger_id
+        self._require_existing = False
+        self._ledger_id = ledger_id if ledger_id is not None else _default_ledger_id(self._path)
         resolved_host_id = str(
             host_id or os.getenv("POLISYOS_LEDGER_HOST_ID") or socket.gethostname()
         )
@@ -731,11 +744,45 @@ class FileBudgetLedger:
         self._mutation_history_limit = max(int(mutation_history_limit), 1)
 
     def load(self) -> BudgetState:
-        with self._file_lock(exclusive=False):
+        with self._thread_lock, self._file_lock(exclusive=True):
             snapshot = self._load_snapshot()
-        if snapshot is None:
-            raise FileNotFoundError("budget ledger requires explicit load_or_bootstrap before use")
-        return snapshot.state
+            if snapshot is None:
+                raise FileNotFoundError(
+                    "budget ledger requires explicit load_or_bootstrap before use"
+                )
+            self._confirm_snapshot_durability("ledger-snapshot", snapshot)
+            return snapshot.state
+
+    def load_existing(self, expected_owner_identity: tuple[str, str, str]) -> BudgetState:
+        """Bind a continuing owner to an existing, confirmed ledger without bootstrap.
+
+        The supplied identity must come from the original admitted execution.
+        Once continuation is requested, this instance never bootstraps a
+        missing ledger or adopts an ID-less snapshot.
+        """
+        if (
+            type(expected_owner_identity) is not tuple
+            or len(expected_owner_identity) != 3
+            or any(
+                not isinstance(value, str) or not value.strip() for value in expected_owner_identity
+            )
+            or expected_owner_identity[1:] != (_CANONICAL_LEDGER_CONTRACT, _COORDINATION_MODE)
+        ):
+            raise ValueError("budget_ledger_identity_invalid")
+        expected_id = expected_owner_identity[0]
+        with self._thread_lock, self._file_lock(exclusive=True):
+            self._require_existing = True
+            if self._expected_ledger_id is not None and self._expected_ledger_id != expected_id:
+                raise ValueError("budget_ledger_identity_mismatch")
+            self._expected_ledger_id = expected_id
+            snapshot = self._load_snapshot()
+            if snapshot is None:
+                raise FileNotFoundError("budget ledger continuation requires an existing snapshot")
+            if self._needs_contract_upgrade(snapshot):
+                snapshot = self._persist_snapshot(self._normalize_snapshot(snapshot))
+            else:
+                self._confirm_snapshot_durability("ledger-snapshot", snapshot)
+            return snapshot.state
 
     @property
     def settlement_owner_identity(self) -> tuple[str, str, str]:
@@ -749,19 +796,27 @@ class FileBudgetLedger:
         return snapshot.ledger_id, snapshot.canonical_contract, snapshot.coordination_mode
 
     def snapshot(self) -> BudgetLedgerSnapshot:
-        with self._file_lock(exclusive=False):
+        with self._thread_lock, self._file_lock(exclusive=True):
             snapshot = self._load_snapshot()
-        if snapshot is None:
-            raise FileNotFoundError("budget ledger requires explicit load_or_bootstrap before use")
-        return self._normalize_snapshot(snapshot)
+            if snapshot is None:
+                raise FileNotFoundError(
+                    "budget ledger requires explicit load_or_bootstrap before use"
+                )
+            self._confirm_snapshot_durability("ledger-snapshot", snapshot)
+            return self._normalize_snapshot(snapshot)
 
     def load_or_bootstrap(self, initial_state: BudgetState) -> BudgetState:
         with self._thread_lock:
             with self._file_lock(exclusive=True):
                 snapshot = self._load_snapshot()
                 if snapshot is None:
+                    if self._require_existing:
+                        raise FileNotFoundError(
+                            "budget ledger continuation requires an existing snapshot"
+                        )
                     snapshot = self._persist_snapshot(
                         self._build_snapshot(
+                            prior_snapshot=None,
                             state=initial_state,
                             recent_mutations=(
                                 self._build_mutation(
@@ -773,6 +828,8 @@ class FileBudgetLedger:
                     )
                 else:
                     needs_upgrade = self._needs_contract_upgrade(snapshot)
+                    if not needs_upgrade:
+                        self._confirm_snapshot_durability("ledger-snapshot", snapshot)
                     snapshot = self._normalize_snapshot(snapshot)
                     if needs_upgrade:
                         snapshot = self._persist_snapshot(snapshot)
@@ -871,7 +928,7 @@ class FileBudgetLedger:
                     or existing.reserved_amount != amount
                 ):
                     raise ValueError("compute_reservation_event_conflict")
-                self._confirm_compute_durability(event_id, snapshot)
+                self._confirm_snapshot_durability(event_id, snapshot)
                 return existing
             if event_id in snapshot.spend_receipts or event_id in snapshot.producer_settlements:
                 raise ValueError("compute_reservation_event_conflict")
@@ -891,6 +948,7 @@ class FileBudgetLedger:
             try:
                 written = self._persist_snapshot(
                     self._build_snapshot(
+                        prior_snapshot=snapshot,
                         state=state,
                         revision=record.revision,
                         recent_mutations=[
@@ -934,7 +992,7 @@ class FileBudgetLedger:
                     or existing.settlement_digest != settlement_digest
                 ):
                     raise ValueError("compute_settlement_event_conflict")
-                self._confirm_compute_durability(event_id, snapshot)
+                self._confirm_snapshot_durability(event_id, snapshot)
                 return existing
             if event_id in snapshot.spend_receipts:
                 raise ValueError("compute_settlement_receipt_conflict")
@@ -964,6 +1022,7 @@ class FileBudgetLedger:
             try:
                 written = self._persist_snapshot(
                     self._build_snapshot(
+                        prior_snapshot=snapshot,
                         state=state,
                         revision=revision,
                         recent_mutations=[
@@ -1001,7 +1060,7 @@ class FileBudgetLedger:
             if existing.status == "settled":
                 raise ValueError("compute_settlement_already_known")
             if existing.status == "unknown":
-                self._confirm_compute_durability(event_id, snapshot)
+                self._confirm_snapshot_durability(event_id, snapshot)
                 return existing
             revision = snapshot.revision + 1
             record = existing.model_copy(update={"status": "unknown", "revision": revision})
@@ -1010,6 +1069,7 @@ class FileBudgetLedger:
             try:
                 written = self._persist_snapshot(
                     self._build_snapshot(
+                        prior_snapshot=snapshot,
                         state=snapshot.state,
                         revision=revision,
                         recent_mutations=[
@@ -1029,14 +1089,17 @@ class FileBudgetLedger:
                 raise BudgetLedgerSettlementOutcomeUnknownError(event_id, request_digest) from exc
             return written.compute_reservations[event_id]
 
-    def _confirm_compute_durability(self, event_id: str, snapshot: BudgetLedgerSnapshot) -> None:
+    def _confirm_snapshot_durability(
+        self, event_id: str, snapshot: BudgetLedgerSnapshot, *, payload_digest: str = "readback"
+    ) -> None:
+        """Confirm the selected snapshot under the caller's stable exclusive lock."""
         try:
             _fsync_dir(self._path.parent)
             confirmed = self._load_snapshot()
-        except OSError as exc:
-            raise BudgetLedgerSettlementOutcomeUnknownError(event_id, "readback") from exc
+        except (OSError, ValueError) as exc:
+            raise BudgetLedgerSettlementOutcomeUnknownError(event_id, payload_digest) from exc
         if confirmed != snapshot:
-            raise BudgetLedgerSettlementOutcomeUnknownError(event_id, "readback")
+            raise BudgetLedgerSettlementOutcomeUnknownError(event_id, payload_digest)
 
     def resolve_compute(self, event_id: str) -> BudgetLedgerComputeReservation | None:
         """Reread this owner's durable record; absent does not prove zero work."""
@@ -1048,7 +1111,7 @@ class FileBudgetLedger:
                 event_id in snapshot.spend_receipts or event_id in snapshot.producer_settlements
             ):
                 raise ValueError("budget_event_kind_conflict")
-            self._confirm_compute_durability(event_id, snapshot)
+            self._confirm_snapshot_durability(event_id, snapshot)
             return snapshot.compute_reservations.get(event_id)
 
     def settle_spend(
@@ -1091,6 +1154,9 @@ class FileBudgetLedger:
                         getattr(existing, field) != getattr(candidate, field) for field in identity
                     ):
                         raise ValueError("settlement event ID conflicts with an existing charge")
+                    self._confirm_snapshot_durability(
+                        event_id, snapshot, payload_digest=payload_digest
+                    )
                     return existing
                 state = _branch_budget_state(snapshot.state)
                 state.record_spend(key, candidate.amount, provider=provider)
@@ -1112,6 +1178,7 @@ class FileBudgetLedger:
                 try:
                     written = self._persist_snapshot(
                         self._build_snapshot(
+                            prior_snapshot=snapshot,
                             state=state,
                             revision=revision,
                             recent_mutations=mutations,
@@ -1160,6 +1227,9 @@ class FileBudgetLedger:
                         or existing.pre_admission_attempt_id != pre_admission_attempt_id
                     ):
                         raise ValueError("producer event ID conflicts with an existing intent")
+                    self._confirm_snapshot_durability(
+                        event_id, snapshot, payload_digest=request_digest
+                    )
                     return existing
                 revision = snapshot.revision + 1
                 record = BudgetLedgerProducerRecord(
@@ -1190,6 +1260,7 @@ class FileBudgetLedger:
                 try:
                     written = self._persist_snapshot(
                         self._build_snapshot(
+                            prior_snapshot=snapshot,
                             state=snapshot.state,
                             revision=revision,
                             recent_mutations=mutations,
@@ -1312,6 +1383,9 @@ class FileBudgetLedger:
                             for field in identity
                         ):
                             raise ValueError("producer event retry conflicts with prior outcome")
+                        self._confirm_snapshot_durability(
+                            event_id, snapshot, payload_digest=payload_digest
+                        )
                         return existing_record
 
                 origin_source = (
@@ -1372,6 +1446,7 @@ class FileBudgetLedger:
                 try:
                     written = self._persist_snapshot(
                         self._build_snapshot(
+                            prior_snapshot=snapshot,
                             state=state,
                             revision=revision,
                             recent_mutations=mutations,
@@ -1388,13 +1463,22 @@ class FileBudgetLedger:
 
     def resolve_producer_event(self, event_id: str) -> BudgetLedgerProducerRecord | None:
         """Read exact pending, unknown, or committed producer status."""
-        with self._file_lock(exclusive=False):
+        with self._thread_lock, self._file_lock(exclusive=True):
             snapshot = self._load_snapshot()
-        if snapshot is None:
-            raise FileNotFoundError("budget ledger requires explicit load_or_bootstrap before use")
-        if event_id in snapshot.compute_reservations:
-            raise ValueError("budget_event_kind_conflict")
-        return snapshot.producer_settlements.get(event_id)
+            if snapshot is None:
+                raise FileNotFoundError(
+                    "budget ledger requires explicit load_or_bootstrap before use"
+                )
+            if event_id in snapshot.compute_reservations:
+                raise ValueError("budget_event_kind_conflict")
+            record = snapshot.producer_settlements.get(event_id)
+            digest = (
+                (record.payload_digest or record.request_digest)
+                if record is not None
+                else "readback"
+            )
+            self._confirm_snapshot_durability(event_id, snapshot, payload_digest=digest)
+            return record
 
     def list_producer_events_for_run(
         self,
@@ -1403,26 +1487,34 @@ class FileBudgetLedger:
         """Read only producer records whose immutable run binding exactly matches."""
         if type(run_binding) is not BudgetLedgerProducerRunBinding:
             raise TypeError("producer_run_binding_must_be_typed")
-        with self._file_lock(exclusive=False):
+        with self._thread_lock, self._file_lock(exclusive=True):
             snapshot = self._load_snapshot()
-        if snapshot is None:
-            raise FileNotFoundError("budget ledger requires explicit load_or_bootstrap before use")
-        records = (
-            record
-            for record in snapshot.producer_settlements.values()
-            if record.run_binding == run_binding
-        )
-        return tuple(sorted(records, key=lambda record: (record.revision, record.event_id)))
+            if snapshot is None:
+                raise FileNotFoundError(
+                    "budget ledger requires explicit load_or_bootstrap before use"
+                )
+            self._confirm_snapshot_durability("ledger-snapshot", snapshot)
+            records = (
+                record
+                for record in snapshot.producer_settlements.values()
+                if record.run_binding == run_binding
+            )
+            return tuple(sorted(records, key=lambda record: (record.revision, record.event_id)))
 
     def resolve_spend(self, event_id: str) -> BudgetLedgerSpendReceipt | None:
         """Resolve a durable local receipt; absence is not an assertion of zero cost."""
-        with self._file_lock(exclusive=False):
+        with self._thread_lock, self._file_lock(exclusive=True):
             snapshot = self._load_snapshot()
-        if snapshot is None:
-            raise FileNotFoundError("budget ledger requires explicit load_or_bootstrap before use")
-        if event_id in snapshot.compute_reservations:
-            raise ValueError("budget_event_kind_conflict")
-        return snapshot.spend_receipts.get(event_id)
+            if snapshot is None:
+                raise FileNotFoundError(
+                    "budget ledger requires explicit load_or_bootstrap before use"
+                )
+            if event_id in snapshot.compute_reservations:
+                raise ValueError("budget_event_kind_conflict")
+            receipt = snapshot.spend_receipts.get(event_id)
+            digest = receipt.payload_digest if receipt is not None else "readback"
+            self._confirm_snapshot_durability(event_id, snapshot, payload_digest=digest)
+            return receipt
 
     @contextmanager
     def _file_lock(self, *, exclusive: bool) -> Iterator[None]:
@@ -1491,6 +1583,7 @@ class FileBudgetLedger:
                 )
                 written = self._persist_snapshot(
                     self._build_snapshot(
+                        prior_snapshot=snapshot,
                         revision=revision,
                         state=state,
                         recent_mutations=tuple(mutations[-self._mutation_history_limit :]),
@@ -1511,7 +1604,16 @@ class FileBudgetLedger:
             raw = self._path.read_text(encoding="utf-8")
         except FileNotFoundError:
             return None
-        return _decode_snapshot(raw)
+        snapshot = _decode_snapshot(raw)
+        if self._require_existing and snapshot.ledger_id is None:
+            raise ValueError("budget_ledger_identity_not_established")
+        if (
+            self._expected_ledger_id is not None
+            and snapshot.ledger_id is not None
+            and snapshot.ledger_id != self._expected_ledger_id
+        ):
+            raise ValueError("budget_ledger_identity_mismatch")
+        return snapshot
 
     def _persist_snapshot(self, snapshot: BudgetLedgerSnapshot) -> BudgetLedgerSnapshot:
         normalized = self._normalize_snapshot(snapshot)
@@ -1546,6 +1648,7 @@ class FileBudgetLedger:
     def _build_snapshot(
         self,
         *,
+        prior_snapshot: BudgetLedgerSnapshot | None,
         state: BudgetState,
         revision: int = 0,
         recent_mutations: tuple[BudgetLedgerMutation, ...] | list[BudgetLedgerMutation] = (),
@@ -1556,7 +1659,8 @@ class FileBudgetLedger:
         return BudgetLedgerSnapshot(
             canonical_contract=_CANONICAL_LEDGER_CONTRACT,
             coordination_mode=_COORDINATION_MODE,
-            ledger_id=self._ledger_id,
+            ledger_id=(prior_snapshot.ledger_id if prior_snapshot is not None else None)
+            or self._ledger_id,
             revision=revision,
             updated_at=datetime.now(UTC),
             last_writer=self._writer,

@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import asyncio
+import json
+import os
 from contextlib import contextmanager
 from decimal import Decimal
 from pathlib import Path
@@ -18,8 +20,13 @@ from polisyos.core.llm.settlement import (
 )
 from polisyos.core.llm.traced_client import TracedLLMClient, _settlement_ack
 from polisyos.core.security.tenant_context import tenant_scope
+from polisyos.scientist.orchestration.engine import budget_ledger as ledger_module
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
-from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
+from polisyos.scientist.orchestration.engine.budget_ledger import (
+    BudgetLedgerProducerRunBinding,
+    BudgetLedgerSettlementOutcomeUnknownError,
+    FileBudgetLedger,
+)
 from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMResponse, GatewayUsage
 from polisyos.scientist.orchestration.llm.prepared_request import prepare_immutable_call
@@ -363,6 +370,90 @@ async def test_lost_settlement_ack_resolves_exact_durable_event(tmp_path: Path) 
     assert len(events) == 1
     assert events[0]["durability"] == "ledger"
     assert events[0]["settlement_status"] == "committed"
+
+
+@pytest.mark.asyncio
+async def test_traced_producer_never_acknowledges_visible_unsynced_settlement(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The actual producer's fallback cannot treat readable bytes as durable."""
+    path = tmp_path / "ledger.json"
+    middleware = _middleware(path)
+    binding = BudgetLedgerProducerRunBinding(
+        run_id="sync-run",
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        profile_id="research",
+        control_job_id="job-sync",
+    )
+    provider = _Provider(cost=0.02)
+    client = TracedLLMClient(
+        provider,
+        model_name="fixture-model",
+        tracer=_Tracer(),
+        metrics=_Metrics(),
+        producer_settlement_store=middleware,
+        producer_budget_key="nl-run:sync-run",
+    )
+    real_replace = os.replace
+    real_sync = ledger_module._fsync_dir
+    fail = False
+    sync_failures = 0
+
+    def replace_then_fail_sync(source: object, destination: object) -> None:
+        nonlocal fail
+        will_publish_producer = False
+        if Path(destination) == path:
+            payload = json.loads(Path(source).read_bytes())
+            will_publish_producer = any(
+                record["status"] == "committed"
+                for record in payload["producer_settlements"].values()
+            )
+        real_replace(source, destination)
+        if will_publish_producer:
+            fail = True
+
+    def fail_directory_sync(directory: Path) -> None:
+        nonlocal sync_failures
+        if fail:
+            sync_failures += 1
+            raise OSError("persistent directory sync failure after replace")
+        real_sync(directory)
+
+    monkeypatch.setattr(os, "replace", replace_then_fail_sync)
+    monkeypatch.setattr(ledger_module, "_fsync_dir", fail_directory_sync)
+    with middleware.producer_run_binding_scope(binding, control_job_attempt=2):
+        response = await client.generate(user="policy question")
+
+    event = response.settlement.event
+    visible = json.loads(path.read_bytes())["producer_settlements"][event.event_id]
+    assert visible["status"] == "committed" and visible["amount"] == "0.02"
+    assert response.settlement.ack.status == "unknown"
+    assert response.settlement.ack.durability == "none"
+    assert response.settlement.ack.receipts == ()
+    with pytest.raises(BudgetLedgerSettlementOutcomeUnknownError):
+        middleware.resolve_producer_event_safe(event.event_id)
+    with pytest.raises(BudgetLedgerSettlementOutcomeUnknownError):
+        middleware.snapshot_safe()
+    assert sync_failures >= 3
+
+    fail = False
+    record = middleware.settle_producer_event_safe(
+        event.event_id,
+        event.request_digest,
+        event.payload_digest,
+        key="nl-run:sync-run",
+        model=event.model,
+        provider=event.provider,
+        amount=event.amount,
+        cost_origin=event.cost_origin,
+    )
+    reopened = FileBudgetLedger(path).snapshot()
+    assert provider.calls == 1
+    assert record.revision == visible["revision"] and record.control_job_attempt == 2
+    assert record.run_binding == binding
+    assert reopened.state.spent["nl-run:sync-run"] == Decimal("0.02")
+    assert reopened.spend_receipts[event.event_id].amount == Decimal("0.02")
 
 
 @pytest.mark.asyncio

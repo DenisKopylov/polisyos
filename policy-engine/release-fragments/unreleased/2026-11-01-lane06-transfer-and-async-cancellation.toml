@@ -12,3 +12,7 @@ api = "Add wrap_shared_executor_future and request_shared_executor_cancellation 
 limitations = "Native APFS qualification does not establish Linux, power-loss, hostile-parent or distributed filesystem guarantees. Retained generations require caller-owned reclamation; a locator alone is not a finite operational retention bound. Darwin Core-bound small/1MiB transport does not qualify native Linux supervisor or warm numerical topology. No whole-lane or G acceptance."
 generated_client_compatibility = "not_applicable"
 public_surface_inventory_reviewed = true
+
+# Durable accounting and cancellation companions
+accounting = "Confirm ledger durability before reuse; preserve configured owner identity without continuation bootstrap; reconcile known completed attempt cost exactly once through cancellation. Unknown settlement is terminal for redispatch and requires same-event reconciliation."
+accounting_evidence = ["tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py", "tests/unit/scientist/orchestration/engine/test_budget_ledger_producer_events.py", "tests/unit/core/llm/test_traced_client_settlement.py", "tests/unit/remediation/test_run_03.py"]

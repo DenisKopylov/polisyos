@@ -46,11 +46,17 @@ class BudgetMiddleware:
         budget_state: BudgetState,
         *,
         ledger: BudgetLedger | None = None,
+        continuation_owner_identity: tuple[str, str, str] | None = None,
     ) -> None:
         self._ledger = ledger
-        self._budget = (
-            ledger.load_or_bootstrap(budget_state) if ledger is not None else budget_state
-        )
+        if continuation_owner_identity is not None:
+            if ledger is None:
+                raise RuntimeError("budget continuation requires a configured ledger")
+            self._budget = ledger.load_existing(continuation_owner_identity)
+        else:
+            self._budget = (
+                ledger.load_or_bootstrap(budget_state) if ledger is not None else budget_state
+            )
         self._lock = threading.Lock()
         # Registry lifetime cannot wait behind monetary dependency I/O.
         self._producer_binding_lock = threading.Lock()
@@ -172,7 +178,7 @@ class BudgetMiddleware:
             )
             try:
                 self._budget = self._ledger.load()
-            except OSError as exc:
+            except (OSError, BudgetLedgerSettlementOutcomeUnknownError) as exc:
                 raise BudgetLedgerSettlementOutcomeUnknownError(event_id, payload_digest) from exc
             return receipt
 
@@ -182,7 +188,11 @@ class BudgetMiddleware:
             if self._ledger is None:
                 raise RuntimeError("durable budget settlement requires a configured ledger")
             receipt = self._ledger.resolve_spend(event_id)
-            self._budget = self._ledger.load()
+            try:
+                self._budget = self._ledger.load()
+            except (OSError, BudgetLedgerSettlementOutcomeUnknownError) as exc:
+                digest = receipt.payload_digest if receipt is not None else "readback"
+                raise BudgetLedgerSettlementOutcomeUnknownError(event_id, digest) from exc
             return receipt
 
     def begin_producer_event_safe(
@@ -271,7 +281,10 @@ class BudgetMiddleware:
                 cache_reuse_session=cache_reuse_session,
                 cache_reuse_response=cache_reuse_response,
             )
-            self._budget = self._ledger.load()
+            try:
+                self._budget = self._ledger.load()
+            except (OSError, BudgetLedgerSettlementOutcomeUnknownError) as exc:
+                raise BudgetLedgerSettlementOutcomeUnknownError(event_id, payload_digest) from exc
             return record
 
     def resolve_producer_event_safe(self, event_id: str) -> BudgetLedgerProducerRecord | None:
@@ -280,7 +293,15 @@ class BudgetMiddleware:
             if self._ledger is None:
                 raise RuntimeError("durable producer settlement requires a configured ledger")
             record = self._ledger.resolve_producer_event(event_id)
-            self._budget = self._ledger.load()
+            try:
+                self._budget = self._ledger.load()
+            except (OSError, BudgetLedgerSettlementOutcomeUnknownError) as exc:
+                digest = (
+                    (record.payload_digest or record.request_digest)
+                    if record is not None
+                    else "readback"
+                )
+                raise BudgetLedgerSettlementOutcomeUnknownError(event_id, digest) from exc
             return record
 
     @contextmanager

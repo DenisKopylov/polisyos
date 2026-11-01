@@ -93,6 +93,32 @@ filesystem failure raises `BudgetLedgerSettlementOutcomeUnknownError` rather
 than reporting zero spend. This contract acknowledges local ledger accounting;
 an external provider needs its own receipt or status/idempotency contract.
 
+For a returned receipt, producer intent, settled run list or current budget
+snapshot, a reader or exact retry confirms the parent-directory sync and the
+same strictly decoded snapshot under the stable exclusive ledger lock. A
+readable replacement alone does not prove durability. If confirmation fails,
+the outcome remains unknown: reconcile the same event rather than rerunning a
+possibly dispatched effect. Automatic retry classifies that unknown effect as
+fatal for redispatch; this does not mean that the charge or producer failed.
+
+The supported local profile assumes a cooperatively locked ledger in a
+pre-existing directory whose ancestor entries have already been made durable
+by the environment. The constructor's convenience directory creation does not
+establish ancestor durability. No power-loss or multi-host guarantee follows
+from the process-crash tests. Recovery of a damaged ledger is not currently
+implemented: an authentic older copy cannot prove currentness or the complete
+set of later confirmed receipts. Operators must stop writers and obtain an
+independently established current generation and its complete receipt history
+before any restore; without that source, restore and further spending remain
+blocked rather than resetting the budget.
+
+Continuation uses `FileBudgetLedger.load_existing(expected_owner_identity)` and
+`BudgetMiddleware(..., continuation_owner_identity=...)` to open the original
+ledger without bootstrap. The ledger ID, canonical contract and coordination
+profile must match; later loss of that file remains a refusal. Custom nonblank
+ledger IDs survive all writers. This is an existing-owner binding, not proof of
+physical resource identity, rollback resistance or a new deployment permit.
+
 The internal identified-compute reservation path stores a stable event and request
 digest under the same durable ledger lock. It converts the reservation and records
 the actual charge in one snapshot transaction; exact retries reconcile the durable

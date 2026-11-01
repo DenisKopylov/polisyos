@@ -10,10 +10,12 @@ from pathlib import Path
 
 import pytest
 
+from polisyos.scientist.orchestration.engine import budget_ledger as ledger_module
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from polisyos.scientist.orchestration.engine.budget_ledger import (
     BudgetLedgerProducerRecord,
     BudgetLedgerProducerRunBinding,
+    BudgetLedgerSettlementOutcomeUnknownError,
     FileBudgetLedger,
 )
 from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
@@ -26,6 +28,143 @@ def _middleware(path: Path) -> BudgetMiddleware:
 
 def _dig(value: str) -> str:
     return hashlib.sha256(value.encode()).hexdigest()
+
+
+@pytest.mark.parametrize("operation", ["settle", "resolve"])
+def test_event_reload_sync_failure_retains_producer_identity(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, operation: str
+) -> None:
+    path = tmp_path / "ledger.json"
+    middleware = _middleware(path)
+    event_id, request, payload = "producer", _dig("request"), _dig("response")
+    middleware.begin_producer_event_safe(event_id, request, key="run", model="m", provider="p")
+
+    def settle() -> BudgetLedgerProducerRecord:
+        return middleware.settle_producer_event_safe(
+            event_id,
+            request,
+            payload,
+            key="run",
+            model="m",
+            provider="p",
+            amount=Decimal("0.12"),
+            cost_origin="reported",
+        )
+
+    if operation == "resolve":
+        settle()
+    sync = ledger_module._fsync_dir
+    calls = 0
+    reload_call = 3 if operation == "settle" else 2
+
+    def fail_reload(directory: Path) -> None:
+        nonlocal calls
+        calls += 1
+        if calls >= reload_call:
+            raise OSError("fresh budget reload sync failure")
+        sync(directory)
+
+    monkeypatch.setattr(ledger_module, "_fsync_dir", fail_reload)
+    action = (
+        settle
+        if operation == "settle"
+        else (lambda: middleware.resolve_producer_event_safe(event_id))
+    )
+    with pytest.raises(BudgetLedgerSettlementOutcomeUnknownError) as caught:
+        action()
+    assert caught.value.event_id == event_id
+    assert caught.value.payload_digest == payload
+
+
+def test_pending_intent_cannot_authorize_dispatch_before_directory_sync(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    path = tmp_path / "ledger.json"
+    _middleware(path)
+    ledger = FileBudgetLedger(path)
+    sync = ledger_module._fsync_dir
+    calls = 0
+
+    def fail_sync(_directory: Path) -> None:
+        nonlocal calls
+        calls += 1
+        raise OSError("persistent directory sync failure")
+
+    monkeypatch.setattr(ledger_module, "_fsync_dir", fail_sync)
+    for _ in range(2):
+        with pytest.raises(BudgetLedgerSettlementOutcomeUnknownError):
+            ledger.begin_producer_event("pending", _dig("request"), "run", "m", "p")
+    assert calls == 2
+    pending = json.loads(path.read_bytes())["producer_settlements"]["pending"]
+    assert pending["status"] == "pending" and pending.get("amount") is None
+
+    monkeypatch.setattr(ledger_module, "_fsync_dir", sync)
+    accepted = ledger.begin_producer_event("pending", _dig("request"), "run", "m", "p")
+    assert accepted.status == "pending" and accepted.revision == pending["revision"]
+
+
+@pytest.mark.parametrize("reader", ["begin", "retry", "resolve", "list", "snapshot"])
+def test_visible_producer_event_requires_confirmed_directory_sync(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, reader: str
+) -> None:
+    """All durable producer readers reject the same visible, unconfirmed event."""
+    path = tmp_path / "ledger.json"
+    middleware = _middleware(path)
+    ledger = FileBudgetLedger(path)
+    owner = BudgetLedgerProducerRunBinding(
+        run_id="run-sync",
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        profile_id="research",
+        control_job_id="job-sync",
+    )
+    begin = {
+        "event_id": "producer-sync",
+        "request_digest": _dig("request-sync"),
+        "key": "nl-run:run-sync",
+        "model": "m",
+        "provider": "p",
+        "run_binding": owner,
+        "control_job_attempt": 2,
+    }
+    settle = {
+        **begin,
+        "payload_digest": _dig("response-sync"),
+        "amount": Decimal("0.12"),
+        "cost_origin": "reported",
+    }
+    ledger.begin_producer_event(**begin)
+    sync = ledger_module._fsync_dir
+    attempts: list[Path] = []
+
+    def fail_sync(directory: Path) -> None:
+        attempts.append(directory)
+        raise OSError("persistent directory sync failure")
+
+    monkeypatch.setattr(ledger_module, "_fsync_dir", fail_sync)
+    with pytest.raises(BudgetLedgerSettlementOutcomeUnknownError):
+        ledger.settle_producer_event(**settle)
+    visible = json.loads(path.read_bytes())
+    assert visible["producer_settlements"]["producer-sync"]["status"] == "committed"
+    assert visible["spend_receipts"]["producer-sync"]["amount"] == "0.12"
+    actions = {
+        "begin": lambda: ledger.begin_producer_event(**begin),
+        "retry": lambda: ledger.settle_producer_event(**settle),
+        "resolve": lambda: middleware.resolve_producer_event_safe("producer-sync"),
+        "list": lambda: middleware.list_producer_events_for_run_safe(owner),
+        "snapshot": middleware.snapshot_safe,
+    }
+    with pytest.raises(BudgetLedgerSettlementOutcomeUnknownError):
+        actions[reader]()
+    assert len(attempts) >= 2
+    monkeypatch.setattr(ledger_module, "_fsync_dir", sync)
+
+    record = ledger.settle_producer_event(**settle)
+    reopened = FileBudgetLedger(path).snapshot()
+    assert record.revision == visible["producer_settlements"]["producer-sync"]["revision"]
+    assert record.run_binding == owner and record.control_job_attempt == 2
+    assert reopened.state.spent["nl-run:run-sync"] == Decimal("0.12")
+    assert reopened.spend_receipts["producer-sync"].amount == Decimal("0.12")
 
 
 def test_pending_unknown_estimated_reported_zero_and_reuse_survive_reopen(tmp_path: Path) -> None:

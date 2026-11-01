@@ -1628,10 +1628,16 @@ class RetryPolicy(BaseModel):
     )
 
 
+_OUTCOME_UNKNOWN_CODES = frozenset({
+    _WorkerOutcomeUnknown.code,
+    "node.budget_settlement_outcome_unknown",
+})
+
+
 def _should_retry(error: NodeError | None, policy: RetryPolicy) -> bool:
     if error is None:
         return False
-    return error.code in policy.retry_on
+    return error.code not in _OUTCOME_UNKNOWN_CODES and error.code in policy.retry_on
 
 
 def _retry_write_paths(node: Any) -> tuple[str, ...]:
@@ -1686,7 +1692,8 @@ def _exception_code(exc: BaseException) -> str:
 
 def _should_retry_exception(exc: BaseException, policy: RetryPolicy) -> bool:
     """Apply the same semantic category/code on direct, thread and IPC routes."""
-    return _exception_category(exc) != "fatal" and _exception_code(exc) in policy.retry_on
+    code = _exception_code(exc)
+    return code not in _OUTCOME_UNKNOWN_CODES and _exception_category(exc) != "fatal" and code in policy.retry_on
 
 
 def _worker_control_error(payload: Any) -> BaseException:
@@ -1874,6 +1881,22 @@ def _merge_spend(state: ExperimentState, spend: dict[str, Decimal]) -> None:
         except InvalidOperation, TypeError, ValueError:
             continue
         budgets[key] = current_decimal + value
+
+
+def _project_completed_spend(
+    state: ExperimentState,
+    baseline: dict[str, Decimal],
+    completed: dict[str, Decimal],
+) -> None:
+    """Project exactly the known completed costs onto the original budget."""
+    budgets = getattr(state, "budgets", None)
+    if not isinstance(budgets, dict):
+        return
+    for key in set(_spend_snapshot(state)) | set(baseline) | set(completed):
+        if key in baseline or key in completed:
+            budgets[key] = baseline.get(key, Decimal(0)) + completed.get(key, Decimal(0))
+        else:
+            budgets.pop(key, None)
 
 
 def _preserve_retry_spend(
@@ -4062,80 +4085,171 @@ async def execute_with_retry_async(
         finally:
             authority.revoke()
 
+    baseline_spend = _spend_snapshot(state)
+    known_completed_spend: dict[str, Decimal] = {}
+
     # Fast path
     if retry_policy.max_retries == 0 and deadline is None and circuit_breaker is None:
-        if retry_stats is not None:
-            retry_stats["attempts"] = 1
-        attempt_id = await _begin_invocation_attempt_async(
-            attempt_started,
-            attempt_number=1,
-            state=state,
-        )
         try:
-            attempt_ctx = _attempt_context_for_engine_attempt(ctx, attempt_id, attempt_context)
-            outcome = await _invoke(state, attempt_ctx)
-        except _CompletedAttemptError as exc:
+            if retry_stats is not None:
+                retry_stats["attempts"] = 1
+            attempt_id = await _begin_invocation_attempt_async(
+                attempt_started,
+                attempt_number=1,
+                state=state,
+            )
+            try:
+                attempt_ctx = _attempt_context_for_engine_attempt(ctx, attempt_id, attempt_context)
+                outcome = await _invoke(state, attempt_ctx)
+                _accumulate_spend(
+                    known_completed_spend,
+                    _spend_changes(baseline_spend, _spend_snapshot(outcome.state)),
+                )
+            except _CompletedAttemptError as exc:
+                _accumulate_spend(known_completed_spend, exc.known_spend)
+                await _finish_invocation_attempt_async(
+                    attempt_completed,
+                    attempt_id=attempt_id,
+                    outcome=None,
+                )
+                _merge_spend(state, exc.known_spend)
+                raise exc.error from None
+            except asyncio.CancelledError as cancelled:
+                try:
+                    await _finish_invocation_attempt_async(
+                        attempt_completed, attempt_id=attempt_id, outcome=None
+                    )
+                except (_InvocationAttemptPersistenceError, asyncio.CancelledError) as finalization_error:
+                    cancelled.add_note("Attempt finalization was interrupted or failed during cancellation")
+                    _logger.warning("Attempt finalization failed during cancellation", exc_info=True)
+                    raise cancelled from finalization_error
+                raise
+            except _RETRY_RUNTIME_ERRORS:
+                _accumulate_spend(
+                    known_completed_spend,
+                    _spend_changes(baseline_spend, _spend_snapshot(state)),
+                )
+                await _finish_invocation_attempt_async(
+                    attempt_completed,
+                    attempt_id=attempt_id,
+                    outcome=None,
+                )
+                raise
+            except BaseException:
+                await _finish_invocation_attempt_async(
+                    attempt_completed,
+                    attempt_id=attempt_id,
+                    outcome=None,
+                )
+                raise
             await _finish_invocation_attempt_async(
                 attempt_completed,
                 attempt_id=attempt_id,
-                outcome=None,
+                outcome=outcome if isinstance(outcome, NodeOutcome) else None,
             )
-            _merge_spend(state, exc.known_spend)
-            raise exc.error from None
-        except BaseException:
-            await _finish_invocation_attempt_async(
-                attempt_completed,
-                attempt_id=attempt_id,
-                outcome=None,
-            )
+            return outcome
+        except asyncio.CancelledError:
+            _project_completed_spend(state, baseline_spend, known_completed_spend)
             raise
-        await _finish_invocation_attempt_async(
-            attempt_completed,
-            attempt_id=attempt_id,
-            outcome=outcome if isinstance(outcome, NodeOutcome) else None,
-        )
-        return outcome
 
     last_outcome: NodeOutcome | None = None
     failed_spend: dict[str, Decimal] = {}
     node_id = str((getattr(node, "spec", None) and node.spec.metadata.component_id) or alias)
 
-    for attempt in range(retry_policy.max_retries + 1):
-        try:
-            _remaining_deadline(deadline)
-        except NodeTimeoutError:
+    def settle_failed_spend(attempt_state: ExperimentState) -> None:
+        if attempt_state is state:
+            _project_completed_spend(state, baseline_spend, known_completed_spend)
+        else:
             _merge_spend(state, failed_spend)
-            raise
-        # Circuit breaker check
-        if circuit_breaker is not None and not circuit_breaker.allow_request():
-            raise CircuitBreakerOpenError(
-                f"Circuit breaker '{circuit_breaker.name}' is open for node {alias}",
-            )
 
-        attempt_state = _fresh_retry_state(state, node) if retry_policy.max_retries > 0 else state
-        attempt_id = await _begin_invocation_attempt_async(
-            attempt_started,
-            attempt_number=attempt + 1,
-            state=attempt_state,
-        )
-        attempt_recorded = False
-        attempt_dispatch_basis_ref: ArtifactRef | None = None
-        try:
-            attempt_ctx = _attempt_context_for_engine_attempt(ctx, attempt_id, attempt_context)
-            attempt_dispatch_basis_ref = _attempt_dispatch_basis_ref(attempt_ctx)
-            outcome = await _invoke(attempt_state, attempt_ctx)
-
+    try:
+        for attempt in range(retry_policy.max_retries + 1):
             try:
-                _remaining_deadline(deadline, execution_state="completed_publication_rejected")
+                _remaining_deadline(deadline)
             except NodeTimeoutError:
-                _accumulate_spend(failed_spend, _spend_delta(state, outcome.state))
+                _merge_spend(state, failed_spend)
                 raise
-            if outcome.status != "fail":
-                _merge_spend(outcome.state, failed_spend)
+            # Circuit breaker check
+            if circuit_breaker is not None and not circuit_breaker.allow_request():
+                raise CircuitBreakerOpenError(
+                    f"Circuit breaker '{circuit_breaker.name}' is open for node {alias}",
+                )
+
+            attempt_state = _fresh_retry_state(state, node) if retry_policy.max_retries > 0 else state
+
+            attempt_baseline = _spend_snapshot(attempt_state)
+            attempt_id = await _begin_invocation_attempt_async(
+                attempt_started,
+                attempt_number=attempt + 1,
+                state=attempt_state,
+            )
+            attempt_recorded = False
+            completed_attempt_spend: dict[str, Decimal] | None = None
+            failed_attempt_spend_recorded = False
+            attempt_dispatch_basis_ref: ArtifactRef | None = None
+            try:
+                attempt_ctx = _attempt_context_for_engine_attempt(ctx, attempt_id, attempt_context)
+                attempt_dispatch_basis_ref = _attempt_dispatch_basis_ref(attempt_ctx)
+                outcome = await _invoke(attempt_state, attempt_ctx)
+                completed_attempt_spend = _spend_changes(
+                    attempt_baseline, _spend_snapshot(outcome.state)
+                )
+                _accumulate_spend(known_completed_spend, completed_attempt_spend)
+
+                try:
+                    _remaining_deadline(deadline, execution_state="completed_publication_rejected")
+                except NodeTimeoutError:
+                    _accumulate_spend(failed_spend, _spend_delta(state, outcome.state))
+                    raise
+                if outcome.status != "fail":
+                    _merge_spend(outcome.state, failed_spend)
+                    if circuit_breaker is not None:
+                        circuit_breaker.record_success()
+                    if retry_stats is not None:
+                        retry_stats["attempts"] = attempt + 1
+                    await _finish_invocation_attempt_async(
+                        attempt_completed,
+                        attempt_id=attempt_id,
+                        outcome=outcome,
+                    )
+                    attempt_recorded = True
+                    return outcome
+
                 if circuit_breaker is not None:
-                    circuit_breaker.record_success()
+                    circuit_breaker.record_failure()
+
+                if attempt < retry_policy.max_retries and _should_retry(outcome.error, retry_policy):
+                    attempt_spend = _spend_delta(state, outcome.state)
+                    _accumulate_spend(failed_spend, attempt_spend)
+                    failed_attempt_spend_recorded = True
+                    last_outcome = outcome
+                    await _finish_invocation_attempt_async(
+                        attempt_completed,
+                        attempt_id=attempt_id,
+                        outcome=outcome,
+                    )
+                    attempt_recorded = True
+                    delay = _backoff_delay(attempt, retry_policy)
+                    _logger.info(
+                        "Retrying node %s (attempt %d/%d) after %.1fs",
+                        alias,
+                        attempt + 1,
+                        retry_policy.max_retries,
+                        delay,
+                    )
+                    _emit_retry_event(
+                        ctx,
+                        alias,
+                        attempt=attempt + 1,
+                        delay=delay,
+                        spend=attempt_spend,
+                    )
+                    await _retry_delay_async(delay, deadline)
+                    continue
+
                 if retry_stats is not None:
                     retry_stats["attempts"] = attempt + 1
+                _merge_spend(outcome.state, failed_spend)
                 await _finish_invocation_attempt_async(
                     attempt_completed,
                     attempt_id=attempt_id,
@@ -4144,155 +4258,127 @@ async def execute_with_retry_async(
                 attempt_recorded = True
                 return outcome
 
-            if circuit_breaker is not None:
-                circuit_breaker.record_failure()
-
-            if attempt < retry_policy.max_retries and _should_retry(outcome.error, retry_policy):
-                attempt_spend = _spend_delta(state, outcome.state)
-                _accumulate_spend(failed_spend, attempt_spend)
-                last_outcome = outcome
-                await _finish_invocation_attempt_async(
-                    attempt_completed,
-                    attempt_id=attempt_id,
-                    outcome=outcome,
-                )
-                attempt_recorded = True
-                delay = _backoff_delay(attempt, retry_policy)
-                _logger.info(
-                    "Retrying node %s (attempt %d/%d) after %.1fs",
-                    alias,
-                    attempt + 1,
-                    retry_policy.max_retries,
-                    delay,
-                )
-                _emit_retry_event(
-                    ctx,
-                    alias,
-                    attempt=attempt + 1,
-                    delay=delay,
-                    spend=attempt_spend,
-                )
-                await _retry_delay_async(delay, deadline)
-                continue
-
-            if retry_stats is not None:
-                retry_stats["attempts"] = attempt + 1
-            _merge_spend(outcome.state, failed_spend)
-            await _finish_invocation_attempt_async(
-                attempt_completed,
-                attempt_id=attempt_id,
-                outcome=outcome,
-            )
-            attempt_recorded = True
-            return outcome
-
-        except NodeTimeoutError:
-            if not attempt_recorded:
-                await _finish_invocation_attempt_async(
-                    attempt_completed,
-                    attempt_id=attempt_id,
-                    outcome=None,
-                )
-            _merge_spend(state, failed_spend)
-            raise
-        except CircuitBreakerOpenError:
-            if not attempt_recorded:
-                await _finish_invocation_attempt_async(
-                    attempt_completed,
-                    attempt_id=attempt_id,
-                    outcome=None,
-                )
-            raise
-        except asyncio.CancelledError:
-            if not attempt_recorded:
-                await _finish_invocation_attempt_async(
-                    attempt_completed,
-                    attempt_id=attempt_id,
-                    outcome=None,
-                )
-            _logger.info("Node %s cancelled during attempt %d", alias, attempt)
-            raise
-        except _InvocationAttemptPersistenceError:
-            raise
-        except _RETRY_RUNTIME_ERRORS as exc:
-            if not attempt_recorded:
-                await _finish_invocation_attempt_async(
-                    attempt_completed,
-                    attempt_id=attempt_id,
-                    outcome=None,
-                )
-            original_error = exc.error if isinstance(exc, _CompletedAttemptError) else exc
-            captured_spend = (
-                exc.known_spend
-                if isinstance(exc, (_CompletedAttemptError, _WorkerNodeError))
-                else None
-            )
-            attempt_spend = (
-                captured_spend if captured_spend is not None else _spend_delta(state, attempt_state)
-            )
-            _accumulate_spend(failed_spend, attempt_spend)
-            try:
-                _remaining_deadline(
-                    deadline, execution_state="completed_error_publication_rejected"
-                )
             except NodeTimeoutError:
-                _merge_spend(state, failed_spend)
+                if not attempt_recorded:
+                    await _finish_invocation_attempt_async(
+                        attempt_completed,
+                        attempt_id=attempt_id,
+                        outcome=None,
+                    )
+                settle_failed_spend(attempt_state)
                 raise
-            if circuit_breaker is not None:
-                circuit_breaker.record_failure()
-            if attempt < retry_policy.max_retries and _should_retry_exception(
-                exc,
-                retry_policy,
-            ):
-                delay = _backoff_delay(attempt, retry_policy)
-                _logger.info(
-                    "Retrying node %s after exception (attempt %d/%d): %s",
-                    alias,
-                    attempt + 1,
-                    retry_policy.max_retries,
-                    exc,
-                )
-                _emit_retry_event(
-                    ctx,
-                    alias,
-                    attempt=attempt + 1,
-                    delay=delay,
-                    spend=attempt_spend,
-                )
+            except CircuitBreakerOpenError:
+                if not attempt_recorded:
+                    await _finish_invocation_attempt_async(
+                        attempt_completed,
+                        attempt_id=attempt_id,
+                        outcome=None,
+                    )
+                raise
+            except asyncio.CancelledError as cancelled:
                 try:
-                    await _retry_delay_async(delay, deadline)
+                    if not attempt_recorded:
+                        await _finish_invocation_attempt_async(
+                            attempt_completed,
+                            attempt_id=attempt_id,
+                            outcome=None,
+                        )
+                except (_InvocationAttemptPersistenceError, asyncio.CancelledError) as finalization_error:
+                    cancelled.add_note("Attempt finalization was interrupted or failed during cancellation")
+                    _logger.warning("Attempt finalization failed during cancellation", exc_info=True)
+                    raise cancelled from finalization_error
+                _logger.info("Node %s cancelled during attempt %d", alias, attempt)
+                raise
+            except _InvocationAttemptPersistenceError:
+                raise
+            except _RETRY_RUNTIME_ERRORS as exc:
+                original_error = exc.error if isinstance(exc, _CompletedAttemptError) else exc
+                captured_spend = (
+                    exc.known_spend
+                    if isinstance(exc, (_CompletedAttemptError, _WorkerNodeError))
+                    else None
+                )
+                if completed_attempt_spend is None:
+                    completed_attempt_spend = (
+                        captured_spend
+                        if captured_spend is not None
+                        else _spend_changes(attempt_baseline, _spend_snapshot(attempt_state))
+                    )
+                    _accumulate_spend(known_completed_spend, completed_attempt_spend)
+                attempt_spend = completed_attempt_spend
+                if not failed_attempt_spend_recorded:
+                    _accumulate_spend(failed_spend, attempt_spend)
+                if not attempt_recorded:
+                    await _finish_invocation_attempt_async(
+                        attempt_completed,
+                        attempt_id=attempt_id,
+                        outcome=None,
+                    )
+                try:
+                    _remaining_deadline(
+                        deadline, execution_state="completed_error_publication_rejected"
+                    )
                 except NodeTimeoutError:
-                    _merge_spend(state, failed_spend)
+                    settle_failed_spend(attempt_state)
                     raise
-                continue
+                if circuit_breaker is not None:
+                    circuit_breaker.record_failure()
+                if attempt < retry_policy.max_retries and _should_retry_exception(
+                    exc,
+                    retry_policy,
+                ):
+                    delay = _backoff_delay(attempt, retry_policy)
+                    _logger.info(
+                        "Retrying node %s after exception (attempt %d/%d): %s",
+                        alias,
+                        attempt + 1,
+                        retry_policy.max_retries,
+                        exc,
+                    )
+                    _emit_retry_event(
+                        ctx,
+                        alias,
+                        attempt=attempt + 1,
+                        delay=delay,
+                        spend=attempt_spend,
+                    )
+                    try:
+                        await _retry_delay_async(delay, deadline)
+                    except NodeTimeoutError:
+                        settle_failed_spend(attempt_state)
+                        raise
+                    continue
 
-            if retry_stats is not None:
-                retry_stats["attempts"] = attempt + 1
-            _merge_spend(state, failed_spend)
-            dlq_ref = _persist_dead_letter(
-                ctx,
-                alias,
-                node_id,
-                original_error,
-                attempts=attempt + 1,
-                policy=retry_policy,
-                dispatch_params=dispatch_params,
-                dispatch_basis_ref=attempt_dispatch_basis_ref,
-            )
-            if dlq_ref is not None:
-                _emit_dead_letter_event(
+                if retry_stats is not None:
+                    retry_stats["attempts"] = attempt + 1
+                settle_failed_spend(attempt_state)
+                dlq_ref = _persist_dead_letter(
                     ctx,
                     alias,
-                    attempt=attempt + 1,
-                    output=dlq_ref,
-                    spend=failed_spend,
+                    node_id,
+                    original_error,
+                    attempts=attempt + 1,
+                    policy=retry_policy,
+                    dispatch_params=dispatch_params,
+                    dispatch_basis_ref=attempt_dispatch_basis_ref,
                 )
-            raise RetryExhaustedError(
-                f"Node {alias}: all {retry_policy.max_retries} retries exhausted",
-            ) from original_error
+                if dlq_ref is not None:
+                    _emit_dead_letter_event(
+                        ctx,
+                        alias,
+                        attempt=attempt + 1,
+                        output=dlq_ref,
+                        spend=failed_spend,
+                    )
+                raise RetryExhaustedError(
+                    f"Node {alias}: all {retry_policy.max_retries} retries exhausted",
+                ) from original_error
 
-    if last_outcome is not None:  # pragma: no cover
-        return last_outcome
-    raise RetryExhaustedError(  # pragma: no cover
-        f"Node {alias}: all retries exhausted",
-    )
+        if last_outcome is not None:  # pragma: no cover
+            return last_outcome
+        raise RetryExhaustedError(  # pragma: no cover
+            f"Node {alias}: all retries exhausted",
+        )
+    except asyncio.CancelledError:
+        _project_completed_spend(state, baseline_spend, known_completed_spend)
+        raise

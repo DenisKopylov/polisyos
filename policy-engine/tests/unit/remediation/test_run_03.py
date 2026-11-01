@@ -398,3 +398,297 @@ def test_terminal_spend_projection_excludes_failed_state_mutation() -> None:
     }
     assert base.params == {"keep": "baseline"}
     assert base.budgets == {"prior_spent_usd": Decimal("1.00")}
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "cancel_at",
+    ["first_body", "second_body", "second_start", "finish", "second_error_finish", "error_backoff", "first_error_finish_cost", "second_error_finish_cost", "finalizer_fails"],
+)
+async def test_cancel_projects_only_known_completed_failure_spend(cancel_at: str, monkeypatch) -> None:
+    """Known failed work survives cancellation at every async callback boundary."""
+    state = ExperimentState(
+        run_id="run-03-cancel-settlement",
+        params={"counter": 0, "items": []},
+        budgets={"run_spent_usd": Decimal("5")},
+    )
+
+    class Node:
+        spec = SimpleNamespace(
+            metadata=SimpleNamespace(component_id="run-03-cancel"),
+            state_writes=["params", "budgets"],
+        )
+
+        def __init__(self):
+            self.calls = 0
+
+        async def execute_async(self, _ctx, attempt_state):
+            self.calls += 1
+            attempt_state.params["counter"] += 1
+            attempt_state.params["items"].append(self.calls)
+            if self.calls == 1 and cancel_at != "first_body":
+                attempt_state.budgets["run_spent_usd"] += Decimal("2")
+                if cancel_at == "first_error_finish_cost":
+                    raise RuntimeError("completed first failure")
+                return _fail(attempt_state)
+            if cancel_at == "second_error_finish_cost":
+                attempt_state.budgets["run_spent_usd"] += Decimal("3")
+                raise RuntimeError("completed second failure")
+            if cancel_at in {"second_error_finish", "error_backoff"}:
+                raise RuntimeError("controlled second attempt failure")
+            attempt_state.budgets["run_spent_usd"] += Decimal("100")
+            raise asyncio.CancelledError
+
+    async def started(attempt_number, _state):
+        if attempt_number == 2 and cancel_at == "second_start":
+            raise asyncio.CancelledError
+        return f"attempt-{attempt_number}"
+
+    async def finished(attempt_id, outcome):
+        if cancel_at == "finalizer_fails" and outcome is None:
+            raise OSError("attempt finalization unavailable")
+        if cancel_at in {"finish", "first_error_finish_cost"} or (
+            cancel_at in {"second_error_finish", "second_error_finish_cost"}
+            and attempt_id == "attempt-2"
+        ):
+            raise asyncio.CancelledError
+
+    delay_calls = 0
+
+    async def retry_delay(_delay, _deadline):
+        nonlocal delay_calls
+        delay_calls += 1
+        if cancel_at == "error_backoff" and delay_calls == 2:
+            raise asyncio.CancelledError
+
+    monkeypatch.setattr(
+        "polisyos.scientist.orchestration.engine.retry._retry_delay_async", retry_delay
+    )
+    node = Node()
+    with pytest.raises(asyncio.CancelledError) as cancelled:
+        await execute_with_retry_async(
+            node,
+            _context(),
+            state,
+            retry_policy=RetryPolicy(max_retries=2, backoff_base_s=0.1, jitter="none"),
+            timeout_s=None,
+            alias="cancel-settlement",
+            attempt_started=started,
+            attempt_completed=finished,
+        )
+
+    expected_spend = (
+        Decimal("5") if cancel_at == "first_body"
+        else Decimal("10") if cancel_at == "second_error_finish_cost"
+        else Decimal("7")
+    )
+    if cancel_at == "finalizer_fails":
+        assert cancelled.value.__cause__ is not None
+        assert "finalization" in " ".join(cancelled.value.__notes__)
+    assert state.budgets["run_spent_usd"] == expected_spend
+    assert state.params == {"counter": 0, "items": []}
+    assert node.calls == (
+        2 if cancel_at in {"second_body", "second_error_finish", "error_backoff", "second_error_finish_cost", "finalizer_fails"} else 1
+    )
+
+
+@pytest.mark.parametrize("mode", ["sync", "async"])
+@pytest.mark.parametrize("form", ["raise", "ipc", "return"])
+def test_unknown_budget_settlement_never_redispatches_effect(mode: str, form: str) -> None:
+    """An explicit retry filter cannot replay a producer's uncertain settlement."""
+    from polisyos.scientist.orchestration.engine.budget_ledger import (
+        BudgetLedgerSettlementOutcomeUnknownError,
+    )
+    from polisyos.scientist.orchestration.engine.retry import (
+        _worker_error_payload,
+        _worker_node_error,
+    )
+
+    class Node:
+        spec = SimpleNamespace(
+            metadata=SimpleNamespace(component_id="run-03-budget-unknown"),
+            state_writes=["params"],
+        )
+
+        def __init__(self):
+            self.calls = 0
+
+        def execute(self, _ctx, attempt_state):
+            self.calls += 1
+            error = BudgetLedgerSettlementOutcomeUnknownError("event", "digest")
+            if form == "return":
+                return _fail(attempt_state, code="node.budget_settlement_outcome_unknown")
+            if form == "ipc":
+                raise _worker_node_error(_worker_error_payload(error))
+            raise error
+
+        async def execute_async(self, ctx, attempt_state):
+            return self.execute(ctx, attempt_state)
+
+    node = Node()
+    state = ExperimentState(run_id="run-03-budget-unknown")
+    kwargs = {
+        "retry_policy": RetryPolicy(
+            max_retries=1,
+            backoff_base_s=0.1,
+            jitter="none",
+            retry_on=["node.exception", "node.budget_settlement_outcome_unknown"],
+        ),
+        "timeout_s": None,
+        "alias": "budget-unknown",
+    }
+
+    def invoke():
+        if mode == "sync":
+            return execute_with_retry_sync(node, _context(), state, **kwargs)
+        return asyncio.run(execute_with_retry_async(node, _context(), state, **kwargs))
+
+    if form == "return":
+        assert invoke().status == "fail"
+    else:
+        with pytest.raises(RetryExhaustedError):
+            invoke()
+    assert node.calls == 1
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("kind", ["retryable", "terminal", "success", "skip", "raised"])
+@pytest.mark.parametrize("prior", [False, True])
+@pytest.mark.parametrize("finalizer", ["cancel", "error"])
+async def test_completed_outcome_cost_survives_finish_cancellation(kind, prior, finalizer):
+    """All completed outcomes count even if their finalization is interrupted."""
+    state = ExperimentState(
+        run_id="run-03-all-completed",
+        params={"base": "kept"},
+        budgets={"run_spent_usd": Decimal("5")},
+    )
+
+    class Producer:
+        spec = SimpleNamespace(
+            metadata=SimpleNamespace(component_id="all-completed"),
+            state_writes=["params", "budgets"],
+        )
+
+        def __init__(self):
+            self.calls = 0
+
+        async def execute_async(self, _ctx, attempt_state):
+            self.calls += 1
+            attempt_state.params["unaccepted"] = self.calls
+            if prior and self.calls == 1:
+                attempt_state.budgets["run_spent_usd"] += Decimal("2")
+                return _fail(attempt_state)
+            result = attempt_state.model_copy(deep=True)
+            result.budgets["run_spent_usd"] += Decimal("3")
+            if kind == "raised":
+                attempt_state.budgets["run_spent_usd"] += Decimal("3")
+                raise RuntimeError("completed raised failure")
+            if kind in {"retryable", "terminal"}:
+                return _fail(result, "node.exception" if kind == "retryable" else "node.permanent")
+            return NodeOutcome(status="ok" if kind == "success" else "skip", state=result)
+
+    async def started(n, _state):
+        return f"attempt-{n}"
+
+    finish_calls = 0
+
+    async def finished(attempt_id, _outcome):
+        nonlocal finish_calls
+        target = "attempt-2" if prior else "attempt-1"
+        if attempt_id != target:
+            return
+        finish_calls += 1
+        if finish_calls > 1 and finalizer == "error":
+            raise OSError("controlled finalizer error")
+        raise asyncio.CancelledError
+
+    node = Producer()
+    with pytest.raises(asyncio.CancelledError):
+        await execute_with_retry_async(
+            node, _context(), state,
+            retry_policy=RetryPolicy(max_retries=2, backoff_base_s=0.1, jitter="none"),
+            timeout_s=None, alias="all-completed", attempt_started=started,
+            attempt_completed=finished,
+        )
+    assert state.budgets["run_spent_usd"] == Decimal("10" if prior else "8")
+    assert state.params == {"base": "kept"}
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("kind", ["success", "skip", "terminal"])
+async def test_zero_retry_copy_outcome_keeps_cost_on_finish_cancel(kind):
+    state = ExperimentState(run_id="run-03-zero", budgets={"run_spent_usd": Decimal("5")})
+
+    class Producer:
+        async def execute_async(self, _ctx, attempt_state):
+            result = attempt_state.model_copy(deep=True)
+            result.budgets["run_spent_usd"] += Decimal("3")
+            return _fail(result, "node.permanent") if kind == "terminal" else NodeOutcome(
+                status="ok" if kind == "success" else "skip", state=result
+            )
+
+    async def started(_n, _state):
+        return "attempt-1"
+
+    async def finished(_attempt_id, _outcome):
+        raise asyncio.CancelledError
+
+    with pytest.raises(asyncio.CancelledError):
+        await execute_with_retry_async(
+            Producer(), _context(), state, retry_policy=RetryPolicy(max_retries=0),
+            timeout_s=None, alias="zero-copy", attempt_started=started,
+            attempt_completed=finished,
+        )
+    assert state.budgets["run_spent_usd"] == Decimal("8")
+
+
+@pytest.mark.asyncio
+async def test_completed_failure_cost_is_not_counted_twice_after_retry_event_error(monkeypatch):
+    """An error after a completed attempt cannot turn one cost into two."""
+    state = ExperimentState(run_id="run-03-once", budgets={"run_spent_usd": Decimal("5")})
+
+    class Producer:
+        spec = SimpleNamespace(
+            metadata=SimpleNamespace(component_id="run-03-once"), state_writes=["budgets"]
+        )
+
+        async def execute_async(self, _ctx, attempt_state):
+            attempt_state.budgets["run_spent_usd"] += Decimal("2")
+            return _fail(attempt_state)
+
+    context = _context()
+    context.run.emit.side_effect = [RuntimeError("retry event unavailable"), None]
+
+    async def cancelled_delay(_delay, _deadline):
+        raise asyncio.CancelledError
+
+    monkeypatch.setattr(
+        "polisyos.scientist.orchestration.engine.retry._retry_delay_async", cancelled_delay
+    )
+    with pytest.raises(asyncio.CancelledError):
+        await execute_with_retry_async(
+            Producer(), context, state,
+            retry_policy=RetryPolicy(max_retries=1, backoff_base_s=0.1, jitter="none"),
+            timeout_s=None, alias="once",
+        )
+    assert state.budgets["run_spent_usd"] == Decimal("7")
+
+
+@pytest.mark.asyncio
+async def test_zero_retry_in_place_error_does_not_double_known_cost():
+    """The circuit-breaker path preserves one completed in-place cost."""
+    state = ExperimentState(run_id="run-03-zero-circuit", budgets={"run_spent_usd": Decimal("5")})
+
+    class Producer:
+        async def execute_async(self, _ctx, attempt_state):
+            attempt_state.budgets["run_spent_usd"] += Decimal("2")
+            raise RuntimeError("completed failure")
+
+    breaker = MagicMock()
+    breaker.allow_request.return_value = True
+    with pytest.raises(RetryExhaustedError):
+        await execute_with_retry_async(
+            Producer(), _context(), state, retry_policy=RetryPolicy(max_retries=0),
+            timeout_s=None, alias="zero-circuit", circuit_breaker=breaker,
+        )
+    assert state.budgets["run_spent_usd"] == Decimal("7")

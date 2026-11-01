@@ -872,7 +872,7 @@
       "track_id": "06-B",
       "track_position": 5,
       "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
+      "local_qualification": "REVIEWED_LOCAL_SLICE",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "/root/lane06_async",
       "base_commit": "1d3a377c677126d1bc51365336e282470a25c3a0",
@@ -896,7 +896,14 @@
         "TEST-RUN-03-03",
         "TEST-RUN-03-04"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "locator": "policy-engine/_cache/e02/run03-double-count-green-r3/",
+          "result": "182 PASS /87 explicit Linux SKIP; 0 FAIL/ERROR; 4 pins unchanged; capture-once known cost and primary cancellation, not full return/raise parity",
+          "independent_review": "GO, nonauthor final coherent delta",
+          "source_binding": "Exact after.json source hashes verified before commit; full packet and shared qualification remain open"
+        }
+      ],
       "blockers": [],
       "deferred_ids": [],
       "execution_profile": {
@@ -912,7 +919,7 @@
       "track_id": "06-B",
       "track_position": 6,
       "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
+      "local_qualification": "REVIEWED_LOCAL_SLICE",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "/root/lane06_budget",
       "base_commit": "388064755fa8833107f35ae097633b1b3445b59f",
@@ -939,7 +946,14 @@
         "TEST-DUR-01-02",
         "TEST-DUR-01-03"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "locator": "policy-engine/_cache/e02/dur01-final-impact-r1/",
+          "result": "219 PASS; 0 FAIL/ERROR/SKIP; 14 pins unchanged; durability-confirmed reuse and existing-only logical owner, not rollback/physical-binding/restore acceptance",
+          "independent_review": "GO, nonauthor final coherent delta",
+          "source_binding": "Exact after.json source hashes verified before commit; full packet and shared qualification remain open"
+        }
+      ],
       "blockers": [],
       "deferred_ids": [],
       "execution_profile": {

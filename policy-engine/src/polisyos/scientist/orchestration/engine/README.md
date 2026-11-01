@@ -655,3 +655,14 @@ boundary. Unsupported dynamic or opaque definitions remain explicitly not
 established. This is distinct from protected builtin identity, publication or
 external-effect authority. Core/workflow continuation consumers require their
 separate composed qualification; the helper alone does not complete that chain.
+
+Local continuation guards bind the actual ledger directory/lock identity and
+confirmed snapshot, and reject stale copies before further admission. Only an
+exact pending generation can resolve a lost write acknowledgment. The explicit
+`single_owner_local_v1` profile does not replace ordinary parallel accounting.
+The engine reserves the `scientist.engine-invocation:` event-ID namespace across
+all public mutation APIs; callers use another prefix. Reads still permit
+reconciliation of engine events. String subclasses and StrEnum use their actual
+Unicode value; bytes and ordinary Enum values are rejected by the annotated
+string API. This local guard does not establish authenticated latest-backup
+restoration, multi-host coordination or protection from hostile filesystem writers.

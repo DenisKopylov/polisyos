@@ -7,6 +7,7 @@ import json
 import os
 import re
 import socket
+import stat
 import tempfile
 import threading
 from collections.abc import Callable, Iterator
@@ -19,6 +20,7 @@ from typing import Any, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.core.canon import CanonSpec, content_hash, to_canonical_bytes
 from polisyos.core.errors import ErrorCategory
 from polisyos.core.llm.cache_settlement import CacheSettlementSession
 from polisyos.core.llm.settlement import LLMProducerEvent
@@ -27,6 +29,11 @@ from polisyos.scientist.orchestration.engine.budget import BudgetState
 _CANONICAL_LEDGER_CONTRACT = "scientist.multi_host_budget_ledger.v1"
 _COORDINATION_MODE = "shared_posix_file_lock"
 _SNAPSHOT_VERSION = "1.6"
+_ENGINE_EVENT_PREFIX = "scientist.engine-invocation:"
+_LEDGER_THREAD_GATES = tuple(threading.RLock() for _ in range(64))
+
+type _BudgetResourceIdentity = tuple[int, int, str, int, int]
+type _BudgetSnapshotAnchor = tuple[int, str]
 
 __all__ = [
     "BudgetLedger",
@@ -457,6 +464,16 @@ class BudgetLedgerSnapshot(BaseModel):
     )
 
 
+@dataclass
+class _LockedEventOutcome:
+    """Track only the event whose acknowledgment depends on this lock."""
+
+    event_id: str
+    payload_digest: str
+    published_snapshot: BudgetLedgerSnapshot | None = None
+    acknowledged: bool = False
+
+
 _PERSISTED_SNAPSHOT_SCHEMA = BudgetLedgerSnapshot.model_json_schema(mode="serialization")
 
 
@@ -624,7 +641,17 @@ class BudgetLedger(Protocol):
     def settlement_owner_identity(self) -> tuple[str, str, str]: ...
 
     def load(self) -> BudgetState: ...
-    def load_existing(self, expected_owner_identity: tuple[str, str, str]) -> BudgetState: ...
+    def load_for_admission(self, budget_key: str) -> tuple[BudgetState, Decimal | None]: ...
+    def load_existing(
+        self,
+        expected_owner_identity: tuple[str, str, str],
+        *,
+        expected_resource_identity: _BudgetResourceIdentity | None = None,
+        expected_snapshot_anchor: _BudgetSnapshotAnchor | None = None,
+    ) -> BudgetState: ...
+    def continuation_binding(
+        self,
+    ) -> tuple[tuple[str, str, str], _BudgetResourceIdentity, _BudgetSnapshotAnchor]: ...
     def snapshot(self) -> BudgetLedgerSnapshot: ...
     def load_or_bootstrap(self, initial_state: BudgetState) -> BudgetState: ...
     def record_spend(
@@ -710,6 +737,22 @@ def _fsync_dir(path: Path) -> None:
         os.close(fd)
 
 
+def _snapshot_anchor(snapshot: BudgetLedgerSnapshot) -> _BudgetSnapshotAnchor:
+    return snapshot.revision, content_hash(
+        to_canonical_bytes(snapshot, CanonSpec(forbid_floats=False))
+    )
+
+
+def _normalize_public_event_id(event_id: str, *, allow_engine_event: bool = False) -> str:
+    """Normalize one typed public event identity before checking or using it."""
+    if not isinstance(event_id, str):
+        raise TypeError("budget_ledger_event_id_invalid")
+    normalized = str.__str__(event_id)
+    if not allow_engine_event and str.startswith(normalized, _ENGINE_EVENT_PREFIX):
+        raise ValueError("budget_ledger_engine_event_reserved")
+    return normalized
+
+
 class FileBudgetLedger:
     """Atomic JSON budget ledger shared across threads/processes."""
 
@@ -730,6 +773,12 @@ class FileBudgetLedger:
         self._thread_lock = threading.Lock()
         self._expected_ledger_id = ledger_id
         self._require_existing = False
+        self._expected_resource_identity: _BudgetResourceIdentity | None = None
+        self._strict_snapshot_anchor: _BudgetSnapshotAnchor | None = None
+        self._pending_owned_snapshot: BudgetLedgerSnapshot | None = None
+        self._pending_owned_identity: tuple[str, str] | None = None
+        self._locked_event_outcome: _LockedEventOutcome | None = None
+        self.__engine_settlement_capability = object()
         self._ledger_id = ledger_id if ledger_id is not None else _default_ledger_id(self._path)
         resolved_host_id = str(
             host_id or os.getenv("POLISYOS_LEDGER_HOST_ID") or socket.gethostname()
@@ -753,7 +802,22 @@ class FileBudgetLedger:
             self._confirm_snapshot_durability("ledger-snapshot", snapshot)
             return snapshot.state
 
-    def load_existing(self, expected_owner_identity: tuple[str, str, str]) -> BudgetState:
+    def load_for_admission(self, budget_key: str) -> tuple[BudgetState, Decimal | None]:
+        """Reconcile the selected budget and evaluate its remaining amount under the lock."""
+        with self._thread_lock, self._file_lock(exclusive=True):
+            snapshot = self._load_snapshot()
+            if snapshot is None:
+                raise FileNotFoundError("budget ledger requires an existing snapshot")
+            self._confirm_snapshot_durability("ledger-snapshot", snapshot)
+            return snapshot.state, snapshot.state.remaining(budget_key)
+
+    def load_existing(
+        self,
+        expected_owner_identity: tuple[str, str, str],
+        *,
+        expected_resource_identity: _BudgetResourceIdentity | None = None,
+        expected_snapshot_anchor: _BudgetSnapshotAnchor | None = None,
+    ) -> BudgetState:
         """Bind a continuing owner to an existing, confirmed ledger without bootstrap.
 
         The supplied identity must come from the original admitted execution.
@@ -769,12 +833,51 @@ class FileBudgetLedger:
             or expected_owner_identity[1:] != (_CANONICAL_LEDGER_CONTRACT, _COORDINATION_MODE)
         ):
             raise ValueError("budget_ledger_identity_invalid")
+        if (expected_resource_identity is None) != (expected_snapshot_anchor is None):
+            raise ValueError("budget_ledger_continuation_binding_incomplete")
+        if expected_resource_identity is not None and (
+            type(expected_resource_identity) is not tuple
+            or len(expected_resource_identity) != 5
+            or any(type(expected_resource_identity[index]) is not int for index in (0, 1, 3, 4))
+            or not isinstance(expected_resource_identity[2], str)
+            or not expected_resource_identity[2]
+        ):
+            raise ValueError("budget_ledger_resource_identity_invalid")
+        if expected_snapshot_anchor is not None and (
+            type(expected_snapshot_anchor) is not tuple
+            or len(expected_snapshot_anchor) != 2
+            or type(expected_snapshot_anchor[0]) is not int
+            or expected_snapshot_anchor[0] < 0
+            or not isinstance(expected_snapshot_anchor[1], str)
+            or re.fullmatch(r"[0-9a-f]{64}", expected_snapshot_anchor[1]) is None
+        ):
+            raise ValueError("budget_ledger_snapshot_anchor_invalid")
         expected_id = expected_owner_identity[0]
-        with self._thread_lock, self._file_lock(exclusive=True):
+        with (
+            self._thread_lock,
+            self._file_lock(
+                exclusive=True, require_concrete=expected_resource_identity is not None
+            ) as lock_fd,
+        ):
             self._require_existing = True
             if self._expected_ledger_id is not None and self._expected_ledger_id != expected_id:
                 raise ValueError("budget_ledger_identity_mismatch")
             self._expected_ledger_id = expected_id
+            if expected_resource_identity is not None:
+                if (
+                    self._expected_resource_identity is not None
+                    and self._expected_resource_identity != expected_resource_identity
+                ):
+                    raise ValueError("budget_ledger_resource_identity_mismatch")
+                self._expected_resource_identity = expected_resource_identity
+                if self._resource_identity(lock_fd) != expected_resource_identity:
+                    raise ValueError("budget_ledger_resource_identity_mismatch")
+                if (
+                    self._strict_snapshot_anchor is not None
+                    and self._strict_snapshot_anchor != expected_snapshot_anchor
+                ):
+                    raise ValueError("budget_ledger_snapshot_anchor_mismatch")
+                self._strict_snapshot_anchor = expected_snapshot_anchor
             snapshot = self._load_snapshot()
             if snapshot is None:
                 raise FileNotFoundError("budget ledger continuation requires an existing snapshot")
@@ -784,10 +887,38 @@ class FileBudgetLedger:
                 self._confirm_snapshot_durability("ledger-snapshot", snapshot)
             return snapshot.state
 
+    def continuation_binding(
+        self,
+    ) -> tuple[tuple[str, str, str], _BudgetResourceIdentity, _BudgetSnapshotAnchor]:
+        """Read the confirmed local owner, actual lock resource, and snapshot together."""
+        owner, resource, anchor, _snapshot = self._continuation_state()
+        return owner, resource, anchor
+
+    def _continuation_state(
+        self,
+    ) -> tuple[
+        tuple[str, str, str], _BudgetResourceIdentity, _BudgetSnapshotAnchor, BudgetLedgerSnapshot
+    ]:
+        """Read one confirmed owner, physical resource, and detached normalized snapshot."""
+        with self._thread_lock, self._file_lock(exclusive=True, require_concrete=True) as lock_fd:
+            snapshot = self._load_snapshot()
+            if snapshot is None:
+                raise FileNotFoundError("budget ledger requires an existing snapshot")
+            if snapshot.ledger_id is None:
+                raise ValueError("budget_ledger_identity_not_established")
+            self._confirm_snapshot_durability("ledger-snapshot", snapshot)
+            normalized = self._normalize_snapshot(snapshot)
+            return (
+                (snapshot.ledger_id, snapshot.canonical_contract, snapshot.coordination_mode),
+                self._resource_identity(lock_fd),
+                _snapshot_anchor(normalized),
+                normalized.model_copy(deep=True),
+            )
+
     @property
     def settlement_owner_identity(self) -> tuple[str, str, str]:
         """Return the persisted owner/contract identity for producer cache isolation."""
-        with self._file_lock(exclusive=False):
+        with self._thread_lock, self._file_lock(exclusive=True):
             snapshot = self._load_snapshot()
         if snapshot is None:
             raise FileNotFoundError("budget ledger requires explicit load_or_bootstrap before use")
@@ -908,6 +1039,7 @@ class FileBudgetLedger:
         self, event_id: str, request_digest: str, key: str, amount: Decimal
     ) -> BudgetLedgerComputeReservation:
         """Reserve a priced upper budget once under the durable ledger lock."""
+        event_id = _normalize_public_event_id(event_id)
         candidate = BudgetLedgerComputeReservation(
             event_id=event_id,
             request_digest=request_digest,
@@ -916,7 +1048,10 @@ class FileBudgetLedger:
             status="reserved",
             revision=0,
         )
-        with self._thread_lock, self._file_lock(exclusive=True):
+        with (
+            self._thread_lock,
+            self._file_lock(exclusive=True, outcome_identity=(event_id, request_digest)),
+        ):
             snapshot = self._load_snapshot()
             if snapshot is None:
                 raise FileNotFoundError("budget ledger requires explicit bootstrap")
@@ -975,11 +1110,15 @@ class FileBudgetLedger:
         self, event_id: str, request_digest: str, settlement_digest: str, amount: Decimal
     ) -> BudgetLedgerComputeReservation:
         """Atomically consume one identified reservation and charge actual work once."""
+        event_id = _normalize_public_event_id(event_id)
         if type(amount) is not Decimal or not amount.is_finite() or amount < 0:
             raise ValueError("compute_actual_cost_must_be_finite_and_nonnegative")
         if re.fullmatch(r"[0-9a-f]{64}", settlement_digest) is None:
             raise ValueError("compute_settlement_digest_invalid")
-        with self._thread_lock, self._file_lock(exclusive=True):
+        with (
+            self._thread_lock,
+            self._file_lock(exclusive=True, outcome_identity=(event_id, settlement_digest)),
+        ):
             snapshot = self._load_snapshot()
             if snapshot is None:
                 raise FileNotFoundError("budget ledger requires explicit bootstrap")
@@ -1050,7 +1189,11 @@ class FileBudgetLedger:
         self, event_id: str, request_digest: str
     ) -> BudgetLedgerComputeReservation:
         """Retain the reservation when actual work cost cannot be established."""
-        with self._thread_lock, self._file_lock(exclusive=True):
+        event_id = _normalize_public_event_id(event_id)
+        with (
+            self._thread_lock,
+            self._file_lock(exclusive=True, outcome_identity=(event_id, request_digest)),
+        ):
             snapshot = self._load_snapshot()
             if snapshot is None:
                 raise FileNotFoundError("budget ledger requires explicit bootstrap")
@@ -1100,10 +1243,19 @@ class FileBudgetLedger:
             raise BudgetLedgerSettlementOutcomeUnknownError(event_id, payload_digest) from exc
         if confirmed != snapshot:
             raise BudgetLedgerSettlementOutcomeUnknownError(event_id, payload_digest)
+        outcome = self._locked_event_outcome
+        if outcome is not None and outcome.event_id == event_id:
+            if payload_digest != "readback":
+                outcome.payload_digest = payload_digest
+            outcome.acknowledged = True
 
     def resolve_compute(self, event_id: str) -> BudgetLedgerComputeReservation | None:
         """Reread this owner's durable record; absent does not prove zero work."""
-        with self._thread_lock, self._file_lock(exclusive=True):
+        event_id = _normalize_public_event_id(event_id, allow_engine_event=True)
+        with (
+            self._thread_lock,
+            self._file_lock(exclusive=True, outcome_identity=(event_id, "readback")),
+        ):
             snapshot = self._load_snapshot()
             if snapshot is None:
                 raise FileNotFoundError("budget ledger requires explicit bootstrap")
@@ -1130,6 +1282,48 @@ class FileBudgetLedger:
         charge refuses. Filesystem failure is an unknown acknowledgment;
         resolve or retry this same ID instead of inventing a second event.
         """
+        event_id = _normalize_public_event_id(event_id)
+        return self._settle_spend(
+            event_id, key, amount, payload_digest=payload_digest, provider=provider
+        )
+
+    def _issue_engine_settlement_writer(
+        self,
+    ) -> Callable[[str, Decimal, str, str | None], BudgetLedgerSpendReceipt]:
+        """Issue one private writer only from an armed, current ledger owner."""
+        with self._thread_lock, self._file_lock(exclusive=True):
+            if self._expected_resource_identity is None or self._strict_snapshot_anchor is None:
+                raise ValueError("budget_ledger_engine_guard_not_armed")
+            snapshot = self._load_snapshot()
+            if snapshot is None:
+                raise FileNotFoundError("budget ledger continuation requires an existing snapshot")
+            self._confirm_snapshot_durability("ledger-snapshot", snapshot)
+            capability = self.__engine_settlement_capability
+
+        def write(
+            event_id: str, amount: Decimal, payload_digest: str, provider: str | None
+        ) -> BudgetLedgerSpendReceipt:
+            if (
+                capability is not self.__engine_settlement_capability
+                or type(event_id) is not str
+                or not str.startswith(event_id, _ENGINE_EVENT_PREFIX)
+            ):
+                raise ValueError("budget_ledger_engine_capability_invalid")
+            return self._settle_spend(
+                event_id, "run", amount, payload_digest=payload_digest, provider=provider
+            )
+
+        return write
+
+    def _settle_spend(
+        self,
+        event_id: str,
+        key: str,
+        amount: Decimal,
+        *,
+        payload_digest: str,
+        provider: str | None,
+    ) -> BudgetLedgerSpendReceipt:
         candidate = BudgetLedgerSpendReceipt(
             event_id=event_id,
             payload_digest=payload_digest,
@@ -1139,7 +1333,7 @@ class FileBudgetLedger:
             revision=1,
         )
         with self._thread_lock:
-            with self._file_lock(exclusive=True):
+            with self._file_lock(exclusive=True, outcome_identity=(event_id, payload_digest)):
                 snapshot = self._load_snapshot()
                 if snapshot is None:
                     raise FileNotFoundError(
@@ -1187,7 +1381,9 @@ class FileBudgetLedger:
                             compute_reservations=snapshot.compute_reservations,
                         )
                     )
-                except OSError as exc:
+                except (OSError, BudgetLedgerSettlementOutcomeUnknownError) as exc:
+                    if self._pending_owned_snapshot is not None:
+                        self._pending_owned_identity = (event_id, payload_digest)
                     raise BudgetLedgerSettlementOutcomeUnknownError(
                         event_id, payload_digest
                     ) from exc
@@ -1206,8 +1402,9 @@ class FileBudgetLedger:
         pre_admission_attempt_id: str | None = None,
     ) -> BudgetLedgerProducerRecord:
         """Persist the provider intent before dispatch; pending is never zero."""
+        event_id = _normalize_public_event_id(event_id)
         with self._thread_lock:
-            with self._file_lock(exclusive=True):
+            with self._file_lock(exclusive=True, outcome_identity=(event_id, request_digest)):
                 snapshot = self._load_snapshot()
                 if snapshot is None:
                     raise FileNotFoundError(
@@ -1293,6 +1490,7 @@ class FileBudgetLedger:
         cache_reuse_response: object | None = None,
     ) -> BudgetLedgerProducerRecord:
         """Atomically publish one terminal producer status and any known charge."""
+        event_id = _normalize_public_event_id(event_id)
         status: Literal["committed", "unknown"] = "unknown" if amount is None else "committed"
         if cost_origin != "reuse" and (
             cache_reuse_session is not None or cache_reuse_response is not None
@@ -1330,7 +1528,7 @@ class FileBudgetLedger:
             revision=1,
         )
         with self._thread_lock:
-            with self._file_lock(exclusive=True):
+            with self._file_lock(exclusive=True, outcome_identity=(event_id, payload_digest)):
                 snapshot = self._load_snapshot()
                 if snapshot is None:
                     raise FileNotFoundError(
@@ -1463,7 +1661,11 @@ class FileBudgetLedger:
 
     def resolve_producer_event(self, event_id: str) -> BudgetLedgerProducerRecord | None:
         """Read exact pending, unknown, or committed producer status."""
-        with self._thread_lock, self._file_lock(exclusive=True):
+        event_id = _normalize_public_event_id(event_id, allow_engine_event=True)
+        with (
+            self._thread_lock,
+            self._file_lock(exclusive=True, outcome_identity=(event_id, "readback")),
+        ):
             snapshot = self._load_snapshot()
             if snapshot is None:
                 raise FileNotFoundError(
@@ -1503,7 +1705,11 @@ class FileBudgetLedger:
 
     def resolve_spend(self, event_id: str) -> BudgetLedgerSpendReceipt | None:
         """Resolve a durable local receipt; absence is not an assertion of zero cost."""
-        with self._thread_lock, self._file_lock(exclusive=True):
+        event_id = _normalize_public_event_id(event_id, allow_engine_event=True)
+        with (
+            self._thread_lock,
+            self._file_lock(exclusive=True, outcome_identity=(event_id, "readback")),
+        ):
             snapshot = self._load_snapshot()
             if snapshot is None:
                 raise FileNotFoundError(
@@ -1516,21 +1722,135 @@ class FileBudgetLedger:
             self._confirm_snapshot_durability(event_id, snapshot, payload_digest=digest)
             return receipt
 
+    def _resource_identity(self, lock_fd: int) -> _BudgetResourceIdentity:
+        """Measure the local directory entry and its actually locked inode."""
+        try:
+            directory = self._path.parent.stat()
+            linked_lock = os.stat(self._lock_path, follow_symlinks=False)
+            opened_lock = os.fstat(lock_fd)
+            ledger_file = os.stat(self._path, follow_symlinks=False)
+        except OSError as exc:
+            if self._pending_owned_snapshot is not None:
+                raise self._pending_outcome_unknown() from exc
+            raise
+        if (
+            not stat.S_ISREG(linked_lock.st_mode)
+            or not stat.S_ISREG(opened_lock.st_mode)
+            or (linked_lock.st_dev, linked_lock.st_ino) != (opened_lock.st_dev, opened_lock.st_ino)
+            or not stat.S_ISREG(ledger_file.st_mode)
+        ):
+            raise ValueError("budget_ledger_resource_identity_mismatch")
+        return (
+            directory.st_dev,
+            directory.st_ino,
+            self._path.name,
+            opened_lock.st_dev,
+            opened_lock.st_ino,
+        )
+
     @contextmanager
-    def _file_lock(self, *, exclusive: bool) -> Iterator[None]:
+    def _file_lock(
+        self,
+        *,
+        exclusive: bool,
+        require_concrete: bool = False,
+        outcome_identity: tuple[str, str] | None = None,
+    ) -> Iterator[int]:
         """Hold the stable lockfile for one complete read or publication."""
         try:
             import fcntl
         except ImportError as exc:  # pragma: no cover
             raise RuntimeError("fcntl is required for file budget ledger locking") from exc
 
-        fd = os.open(str(self._lock_path), os.O_RDWR | os.O_CREAT, 0o644)
         try:
-            fcntl.flock(fd, fcntl.LOCK_EX if exclusive else fcntl.LOCK_SH)
-            yield
-        finally:
-            fcntl.flock(fd, fcntl.LOCK_UN)
-            os.close(fd)
+            parent = self._path.parent.stat()
+        except OSError as exc:
+            if self._pending_owned_snapshot is not None:
+                raise self._pending_outcome_unknown() from exc
+            raise
+        gate = _LEDGER_THREAD_GATES[
+            hash((parent.st_dev, parent.st_ino, self._path.name)) % len(_LEDGER_THREAD_GATES)
+        ]
+        concrete = require_concrete or self._expected_resource_identity is not None
+        flags = os.O_RDWR | os.O_CREAT | getattr(os, "O_CLOEXEC", 0)
+        if concrete:
+            nofollow = getattr(os, "O_NOFOLLOW", 0)
+            if not nofollow:
+                raise RuntimeError("budget_ledger_no_follow_unavailable")
+            flags |= nofollow
+        with gate:
+            try:
+                fd = os.open(str(self._lock_path), flags, 0o644)
+            except OSError as exc:
+                if self._pending_owned_snapshot is not None:
+                    raise self._pending_outcome_unknown() from exc
+                raise
+            outcome = (
+                _LockedEventOutcome(*outcome_identity) if outcome_identity is not None else None
+            )
+            self._locked_event_outcome = outcome
+            failure: BaseException | None = None
+            try:
+                fcntl.flock(fd, fcntl.LOCK_EX if exclusive else fcntl.LOCK_SH)
+                if (
+                    self._expected_resource_identity is not None
+                    and self._resource_identity(fd) != self._expected_resource_identity
+                ):
+                    raise ValueError("budget_ledger_resource_identity_mismatch")
+                yield fd
+                if concrete:
+                    identity = self._resource_identity(fd)
+                    if (
+                        self._expected_resource_identity is not None
+                        and identity != self._expected_resource_identity
+                    ):
+                        raise ValueError("budget_ledger_resource_identity_mismatch")
+            except BaseException as exc:
+                failure = exc
+            finally:
+                try:
+                    fcntl.flock(fd, fcntl.LOCK_UN)
+                except BaseException as exc:
+                    if failure is None:
+                        failure = exc
+                    else:
+                        failure.add_note(f"budget lock release also failed: {exc!r}")
+                try:
+                    os.close(fd)
+                except BaseException as exc:
+                    if failure is None:
+                        failure = exc
+                    else:
+                        failure.add_note(f"budget lock close also failed: {exc!r}")
+                self._locked_event_outcome = None
+            if failure is not None:
+                if outcome is not None and (
+                    outcome.published_snapshot is not None or outcome.acknowledged
+                ):
+                    if (
+                        outcome.published_snapshot is not None
+                        and self._strict_snapshot_anchor is not None
+                    ):
+                        self._pending_owned_snapshot = outcome.published_snapshot
+                        self._pending_owned_identity = (outcome.event_id, outcome.payload_digest)
+                    if isinstance(failure, BudgetLedgerSettlementOutcomeUnknownError):
+                        if (failure.event_id, failure.payload_digest) == (
+                            outcome.event_id,
+                            outcome.payload_digest,
+                        ):
+                            raise failure
+                        raise BudgetLedgerSettlementOutcomeUnknownError(
+                            outcome.event_id, outcome.payload_digest
+                        ) from failure
+                    if isinstance(failure, Exception):
+                        raise BudgetLedgerSettlementOutcomeUnknownError(
+                            outcome.event_id, outcome.payload_digest
+                        ) from failure
+                    failure.add_note(
+                        "budget settlement acknowledgment is unknown for event "
+                        f"{outcome.event_id!r} with digest {outcome.payload_digest!r}"
+                    )
+                raise failure
 
     def _mutate(
         self,
@@ -1548,6 +1868,8 @@ class FileBudgetLedger:
     ) -> BudgetLedgerMutationResult:
         with self._thread_lock:
             with self._file_lock(exclusive=True):
+                if self._strict_snapshot_anchor is not None:
+                    raise ValueError("budget_ledger_unattributed_mutation_forbidden")
                 snapshot = self._load_snapshot()
                 if snapshot is None:
                     raise FileNotFoundError(
@@ -1599,12 +1921,39 @@ class FileBudgetLedger:
                     reserved=result.reserved,
                 )
 
-    def _load_snapshot(self) -> BudgetLedgerSnapshot | None:
+    def _read_snapshot(self) -> BudgetLedgerSnapshot | None:
         try:
             raw = self._path.read_text(encoding="utf-8")
         except FileNotFoundError:
             return None
-        snapshot = _decode_snapshot(raw)
+        return _decode_snapshot(raw)
+
+    def _pending_outcome_unknown(self) -> BudgetLedgerSettlementOutcomeUnknownError:
+        event_id, digest = self._pending_owned_identity or ("ledger-snapshot", "readback")
+        return BudgetLedgerSettlementOutcomeUnknownError(event_id, digest)
+
+    def _load_snapshot(self) -> BudgetLedgerSnapshot | None:
+        try:
+            snapshot = self._read_snapshot()
+        except (OSError, ValueError) as exc:
+            if self._pending_owned_snapshot is not None:
+                raise self._pending_outcome_unknown() from exc
+            raise
+        if self._pending_owned_snapshot is not None:
+            if snapshot != self._pending_owned_snapshot:
+                raise self._pending_outcome_unknown()
+            try:
+                _fsync_dir(self._path.parent)
+                confirmed = self._read_snapshot()
+            except (OSError, ValueError) as exc:
+                raise self._pending_outcome_unknown() from exc
+            if confirmed != snapshot:
+                raise self._pending_outcome_unknown()
+            self._strict_snapshot_anchor = _snapshot_anchor(self._normalize_snapshot(snapshot))
+            self._pending_owned_snapshot = None
+            self._pending_owned_identity = None
+        if snapshot is None:
+            return None
         if self._require_existing and snapshot.ledger_id is None:
             raise ValueError("budget_ledger_identity_not_established")
         if (
@@ -1613,6 +1962,10 @@ class FileBudgetLedger:
             and snapshot.ledger_id != self._expected_ledger_id
         ):
             raise ValueError("budget_ledger_identity_mismatch")
+        if self._strict_snapshot_anchor is not None:
+            current_anchor = _snapshot_anchor(self._normalize_snapshot(snapshot))
+            if current_anchor != self._strict_snapshot_anchor:
+                raise ValueError("budget_ledger_snapshot_anchor_mismatch")
         return snapshot
 
     def _persist_snapshot(self, snapshot: BudgetLedgerSnapshot) -> BudgetLedgerSnapshot:
@@ -1627,6 +1980,7 @@ class FileBudgetLedger:
             prefix=f".{self._path.name}.tmp-",
             dir=self._path.parent,
         )
+        replaced = False
         try:
             offset = 0
             while offset < len(payload):
@@ -1638,8 +1992,32 @@ class FileBudgetLedger:
             os.close(temp_fd)
             temp_fd = -1
             os.replace(temp_name, self._path)
+            replaced = True
+            if self._locked_event_outcome is not None:
+                self._locked_event_outcome.published_snapshot = normalized
             _fsync_dir(self._path.parent)
+            if self._strict_snapshot_anchor is not None:
+                try:
+                    confirmed = self._read_snapshot()
+                except (OSError, ValueError) as exc:
+                    raise BudgetLedgerSettlementOutcomeUnknownError(
+                        "ledger-snapshot", "readback"
+                    ) from exc
+                if confirmed != normalized:
+                    raise BudgetLedgerSettlementOutcomeUnknownError("ledger-snapshot", "readback")
+                self._strict_snapshot_anchor = _snapshot_anchor(normalized)
+                self._pending_owned_snapshot = None
+                self._pending_owned_identity = None
             return normalized
+        except (OSError, BudgetLedgerSettlementOutcomeUnknownError):
+            if replaced and self._strict_snapshot_anchor is not None:
+                self._pending_owned_snapshot = normalized
+                if self._locked_event_outcome is not None:
+                    self._pending_owned_identity = (
+                        self._locked_event_outcome.event_id,
+                        self._locked_event_outcome.payload_digest,
+                    )
+            raise
         finally:
             if temp_fd >= 0:
                 os.close(temp_fd)

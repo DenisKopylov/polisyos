@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import re
 import threading
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass
@@ -24,6 +24,7 @@ from polisyos.scientist.orchestration.engine.budget_ledger import (
     BudgetLedgerSettlementOutcomeUnknownError,
     BudgetLedgerSnapshot,
     BudgetLedgerSpendReceipt,
+    FileBudgetLedger,
 )
 
 __all__ = ["BudgetMiddleware"]
@@ -47,12 +48,38 @@ class BudgetMiddleware:
         *,
         ledger: BudgetLedger | None = None,
         continuation_owner_identity: tuple[str, str, str] | None = None,
+        continuation_resource_identity: tuple[int, int, str, int, int] | None = None,
+        continuation_snapshot_anchor: tuple[int, str] | None = None,
+        invocation_settlement_profile: Literal["single_owner_local_v1"] | None = None,
     ) -> None:
+        if invocation_settlement_profile not in (None, "single_owner_local_v1"):
+            raise ValueError("budget_invocation_settlement_profile_invalid")
+        if invocation_settlement_profile is not None and type(ledger) is not FileBudgetLedger:
+            raise ValueError("budget_ledger_engine_owner_not_supported")
+        if (
+            invocation_settlement_profile is not None
+            and continuation_owner_identity is not None
+            and (continuation_resource_identity is None or continuation_snapshot_anchor is None)
+        ):
+            raise ValueError("budget_ledger_continuation_binding_incomplete")
         self._ledger = ledger
+        self._invocation_settlement_profile = invocation_settlement_profile
+        if continuation_owner_identity is None and (
+            continuation_resource_identity is not None or continuation_snapshot_anchor is not None
+        ):
+            raise ValueError("budget_ledger_continuation_binding_incomplete")
+        self._strict_continuation = continuation_resource_identity is not None
         if continuation_owner_identity is not None:
             if ledger is None:
                 raise RuntimeError("budget continuation requires a configured ledger")
-            self._budget = ledger.load_existing(continuation_owner_identity)
+            if self._strict_continuation or continuation_snapshot_anchor is not None:
+                self._budget = ledger.load_existing(
+                    continuation_owner_identity,
+                    expected_resource_identity=continuation_resource_identity,
+                    expected_snapshot_anchor=continuation_snapshot_anchor,
+                )
+            else:
+                self._budget = ledger.load_existing(continuation_owner_identity)
         else:
             self._budget = (
                 ledger.load_or_bootstrap(budget_state) if ledger is not None else budget_state
@@ -75,6 +102,11 @@ class BudgetMiddleware:
         return self._budget
 
     @property
+    def invocation_settlement_profile(self) -> Literal["single_owner_local_v1"] | None:
+        """Return the explicitly selected local invocation-settlement profile."""
+        return self._invocation_settlement_profile
+
+    @property
     def settlement_owner_identity(self) -> tuple[str, str, str]:
         """Expose persisted ledger/contract identity without synthetic memory ownership."""
         with self._lock:
@@ -82,12 +114,87 @@ class BudgetMiddleware:
                 raise RuntimeError("durable budget settlement requires a configured ledger")
             return self._ledger.settlement_owner_identity
 
+    def continuation_binding(
+        self,
+    ) -> tuple[tuple[str, str, str], tuple[int, int, str, int, int], tuple[int, str]]:
+        """Obtain the locked owner/resource/snapshot binding for a local continuation."""
+        with self._lock:
+            if self._ledger is None:
+                raise RuntimeError("budget continuation requires a configured ledger")
+            return self._ledger.continuation_binding()
+
+    def _continuation_state(
+        self,
+    ) -> tuple[
+        tuple[str, str, str], tuple[int, int, str, int, int], tuple[int, str], BudgetLedgerSnapshot
+    ]:
+        """Obtain a single confirmed detached snapshot and its exact local binding."""
+        with self._lock:
+            if type(self._ledger) is not FileBudgetLedger:
+                raise ValueError("budget_ledger_engine_owner_not_supported")
+            return self._ledger._continuation_state()
+
+    def _arm_engine_guard(
+        self,
+        owner: tuple[str, str, str],
+        resource: tuple[int, int, str, int, int],
+        anchor: tuple[int, str],
+    ) -> None:
+        """Bind the actual engine owner to its protected local continuation point."""
+        with self._lock:
+            if (
+                type(self._ledger) is not FileBudgetLedger
+                or self._invocation_settlement_profile != "single_owner_local_v1"
+            ):
+                raise ValueError("budget_ledger_engine_owner_not_supported")
+            self._budget = self._ledger.load_existing(
+                owner, expected_resource_identity=resource, expected_snapshot_anchor=anchor
+            )
+            self._strict_continuation = True
+
+    def _issue_engine_settlement_writer(
+        self,
+    ) -> Callable[[str, Decimal, str, str | None], BudgetLedgerSpendReceipt]:
+        """Give the engine a narrow event writer, never the raw ledger."""
+        with self._lock:
+            if type(self._ledger) is not FileBudgetLedger or not self._strict_continuation:
+                raise ValueError("budget_ledger_engine_owner_not_supported")
+            ledger = self._ledger
+            write = ledger._issue_engine_settlement_writer()
+
+        def settle(
+            event_id: str, amount: Decimal, payload_digest: str, provider: str | None
+        ) -> BudgetLedgerSpendReceipt:
+            with self._lock:
+                receipt = write(event_id, amount, payload_digest, provider)
+                try:
+                    self._budget = ledger.load()
+                except (OSError, ValueError, BudgetLedgerSettlementOutcomeUnknownError) as exc:
+                    raise BudgetLedgerSettlementOutcomeUnknownError(
+                        event_id, payload_digest
+                    ) from exc
+                return receipt
+
+        return settle
+
+    def _read_engine_spent(self) -> Decimal:
+        """Read only the confirmed current run spend for an issued engine view."""
+        with self._lock:
+            if type(self._ledger) is not FileBudgetLedger or not self._strict_continuation:
+                raise ValueError("budget_ledger_engine_owner_not_supported")
+            self._budget = self._ledger.load()
+            return self._budget.spent.get("run", Decimal(0))
+
     def pre_check(self, alias: str, budget_key: str = "run") -> None:
         """Raise :class:`BudgetExhaustedError` if budget is exhausted."""
         with self._lock:
-            if self._ledger is not None:
+            if self._ledger is not None and self._strict_continuation:
+                self._budget, remaining = self._ledger.load_for_admission(budget_key)
+            elif self._ledger is not None:
                 self._budget = self._ledger.load()
-            remaining = self._budget.remaining(budget_key)
+                remaining = self._budget.remaining(budget_key)
+            else:
+                remaining = self._budget.remaining(budget_key)
             if remaining is not None and remaining <= Decimal(0):
                 raise BudgetExhaustedError(
                     f"Budget '{budget_key}' exhausted before node '{alias}'",

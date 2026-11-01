@@ -67,6 +67,16 @@ remain outside the authored-reference claim. Test source literals, fixture
 payloads, dependency locks, vendor payloads, non-documentary
 research/archive records and named captured-source directories are outside this
 authored-reference claim. No absence claim is made about their contents.
+The received E02 v3 architecture, audit and research sources, the received v1
+baseline under `07_Техническое_review/baseline`, and the received v2 source review
+under `08_Источниковое_review_v2` retain their original bytes and link context.
+Only those five exact source-capture prefixes are outside the live-authored
+reference claim and the offline link check's input selection. The reference
+receipt names their prefixes, complete path counts, path digests and file types;
+its Python form also lists the paths. Current package instructions and navigation
+remain selected, and links from live pages into captures must still resolve.
+This is a documentary-role boundary, not proof of the captured sources' authority
+or link health. Exhaustive reference inspection keeps its existing question.
 The text check runs after the existing editorial documentary-role projection
 (journal records, declared historical audits, archive-member fields and columns).
 Those role markers do not prove record authenticity, currentness or authority.

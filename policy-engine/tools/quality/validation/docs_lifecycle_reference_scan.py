@@ -67,6 +67,23 @@ _MAINTAINED_ROOTS = frozenset(
     {"src", "tools", "apps", "packages", "architecture", "schemas", "examples"}
 )
 _AMBIGUOUS_RESOURCE_NAMES = frozenset({"runs", "production_data", "_cache", "_build"})
+_RECEIVED_E02_SOURCE_CAPTURE_PREFIXES = tuple(
+    Path("docs/research/PolicyOS_E02_Executor_Final_v3") / relative
+    for relative in (
+        "05_Основания/Архитектура",
+        "05_Основания/Аудит",
+        "05_Основания/Исследование",
+        "07_Техническое_review/baseline",
+        "08_Источниковое_review_v2",
+    )
+)
+
+
+def _received_source_capture_role(relative: Path) -> str | None:
+    """Classify only repository-owned received snapshot paths, without reading markers."""
+    if any(relative.is_relative_to(prefix) for prefix in _RECEIVED_E02_SOURCE_CAPTURE_PREFIXES):
+        return "received-e02-source-capture"
+    return None
 
 
 def _outside_live_authored_role(relative: Path) -> str | None:
@@ -180,7 +197,10 @@ def _reference_scan_selection(
         elif path.name in excluded_filenames:
             reason = f"filename:{path.name}"
         if reference_scope == "live-authored":
-            if relative.suffix.lower() in _DOCUMENT_SUFFIXES:
+            capture_role = _received_source_capture_role(relative)
+            if capture_role is not None:
+                reason = capture_role
+            elif relative.suffix.lower() in _DOCUMENT_SUFFIXES:
                 reason = None
             elif path.name in excluded_filenames:
                 reason = f"filename:{path.name}"
@@ -410,6 +430,9 @@ def _check_removed_stub_references[FindingT](
                         "filenames": sorted(_AUTHORED_REFERENCE_FILENAMES),
                         "maintained_roots": sorted(_MAINTAINED_ROOTS),
                         "resource_name_disambiguation": sorted(_AMBIGUOUS_RESOURCE_NAMES),
+                        "received_source_capture_prefixes": [
+                            prefix.as_posix() for prefix in _RECEIVED_E02_SOURCE_CAPTURE_PREFIXES
+                        ],
                         "dependency_environment_rule": (
                             "Configured excluded directories minus resource_name_disambiguation; "
                             "explicit filename exclusions retain precedence."
@@ -496,6 +519,11 @@ def _check_removed_stub_references[FindingT](
                     "Tracked-path enumeration via iter_repository_files is outside the explicit "
                     "file-reader receipt (Git subprocess for repositories; recursive walk for "
                     "standalone fixtures).",
+                    "Received E02 source captures are classified by the five exact repository-owned "
+                    "prefixes in authored_reference_grammar. Their contents are outside the "
+                    "live-authored reference claim; their authenticity, link targets and absence "
+                    "of historical topology references are not established by that classification. "
+                    "Current package instructions and navigation outside those prefixes remain selected.",
                     "Historical research-audit suppression still trusts front-matter markers and "
                     "40-hex commit shape; it is not content-bound proof (P32).",
                     "Archive-map member-path suppression trusts digest-string, count, and member "

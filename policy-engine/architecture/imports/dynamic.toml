@@ -280,10 +280,10 @@ allowed_targets = ["polisyos.core.governance.profiles"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-f227d3359493"
+id = "dynamic-faab10b99033"
 pattern = "polisyos.scientist.replay.deterministic"
 source_file = "src/polisyos/core/components/_cli_replay.py"
-line = 25
+line = 102
 call = "importlib.import_module"
 owner = "team-architecture"
 target = "polisyos.scientist.replay.deterministic"
@@ -292,10 +292,10 @@ allowed_targets = ["polisyos.scientist.replay.deterministic"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-edce2aa4f2fe"
+id = "dynamic-843741f59bba"
 pattern = "polisyos.scientist.replay.backend"
 source_file = "src/polisyos/core/components/_cli_replay.py"
-line = 172
+line = 343
 call = "importlib.import_module"
 owner = "team-architecture"
 target = "polisyos.scientist.replay.backend"
@@ -304,10 +304,10 @@ allowed_targets = ["polisyos.scientist.replay.backend"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-36b00f710631"
+id = "dynamic-45293022b576"
 pattern = "polisyos.scientist.orchestration.engine.checkpoint"
 source_file = "src/polisyos/core/components/_cli_replay.py"
-line = 229
+line = 442
 call = "importlib.import_module"
 owner = "team-architecture"
 target = "polisyos.scientist.orchestration.engine.checkpoint"
@@ -2512,10 +2512,10 @@ allowed_targets = []
 notes = "Tooling dynamic import; inventoried but no decomposition target."
 
 [[pattern]]
-id = "dynamic-11f3b062d2e6"
+id = "dynamic-0e0ad430638b"
 pattern = "relative_module"
 source_file = "tools/ops_runners/runtime_cli.py"
-line = 36
+line = 35
 call = "importlib.import_module"
 owner = "team-devx"
 target = "relative_module"
@@ -2524,10 +2524,10 @@ allowed_targets = []
 notes = "Tooling dynamic import; inventoried but no decomposition target."
 
 [[pattern]]
-id = "dynamic-9bde91bb8346"
+id = "dynamic-bb37f4f70693"
 pattern = "polisyos.scientist.methods.search.objective"
 source_file = "tools/ops_runners/runtime_cli.py"
-line = 274
+line = 273
 call = "importlib.import_module"
 owner = "team-devx"
 target = "polisyos.scientist.methods.search.objective"
@@ -2536,10 +2536,10 @@ allowed_targets = ["polisyos.scientist.methods.search.objective"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-2173dfb56191"
+id = "dynamic-2697981fe8fa"
 pattern = "polisyos.scientist.methods.search.objective"
 source_file = "tools/ops_runners/runtime_cli.py"
-line = 278
+line = 277
 call = "importlib.import_module"
 owner = "team-devx"
 target = "polisyos.scientist.methods.search.objective"
@@ -2548,10 +2548,10 @@ allowed_targets = ["polisyos.scientist.methods.search.objective"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-865b4cfa3042"
+id = "dynamic-d245d487a9bd"
 pattern = "polisyos.scientist.methods.doe.designs"
 source_file = "tools/ops_runners/runtime_cli.py"
-line = 295
+line = 294
 call = "importlib.import_module"
 owner = "team-devx"
 target = "polisyos.scientist.methods.doe.designs"
@@ -2560,10 +2560,10 @@ allowed_targets = ["polisyos.scientist.methods.doe.designs"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-cee560ae71bb"
+id = "dynamic-16c8e1bcbe7d"
 pattern = "polisyos.scientist.methods.doe.sampling"
 source_file = "tools/ops_runners/runtime_cli.py"
-line = 296
+line = 295
 call = "importlib.import_module"
 owner = "team-devx"
 target = "polisyos.scientist.methods.doe.sampling"
@@ -2572,10 +2572,10 @@ allowed_targets = ["polisyos.scientist.methods.doe.sampling"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-7668df9a70a4"
+id = "dynamic-2bfe3658d743"
 pattern = "polisyos.scientist.methods.doe.analysis"
 source_file = "tools/ops_runners/runtime_cli.py"
-line = 297
+line = 296
 call = "importlib.import_module"
 owner = "team-devx"
 target = "polisyos.scientist.methods.doe.analysis"
@@ -2584,10 +2584,10 @@ allowed_targets = ["polisyos.scientist.methods.doe.analysis"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-9f0cd6a06dec"
+id = "dynamic-66bf8312f1b3"
 pattern = "polisyos.scientist.methods.doe.designs"
 source_file = "tools/ops_runners/runtime_cli.py"
-line = 363
+line = 362
 call = "importlib.import_module"
 owner = "team-devx"
 target = "polisyos.scientist.methods.doe.designs"
@@ -2596,10 +2596,10 @@ allowed_targets = ["polisyos.scientist.methods.doe.designs"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-a8ba5397c0af"
+id = "dynamic-ea799f1139c9"
 pattern = "polisyos.scientist.methods.search.objective"
 source_file = "tools/ops_runners/runtime_cli.py"
-line = 364
+line = 363
 call = "importlib.import_module"
 owner = "team-devx"
 target = "polisyos.scientist.methods.search.objective"
@@ -2608,10 +2608,10 @@ allowed_targets = ["polisyos.scientist.methods.search.objective"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-d805b95111b0"
+id = "dynamic-2d250493054f"
 pattern = "polisyos.scientist.methods.search.adversarial"
 source_file = "tools/ops_runners/runtime_cli.py"
-line = 365
+line = 364
 call = "importlib.import_module"
 owner = "team-devx"
 target = "polisyos.scientist.methods.search.adversarial"
@@ -2620,10 +2620,10 @@ allowed_targets = ["polisyos.scientist.methods.search.adversarial"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-24b3de4412b6"
+id = "dynamic-fa36bf760761"
 pattern = "polisyos.scientist.methods.search.cold_start"
 source_file = "tools/ops_runners/runtime_cli.py"
-line = 511
+line = 510
 call = "importlib.import_module"
 owner = "team-devx"
 target = "polisyos.scientist.methods.search.cold_start"
@@ -2632,10 +2632,10 @@ allowed_targets = ["polisyos.scientist.methods.search.cold_start"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-0e17685c7128"
+id = "dynamic-436735f3bf9c"
 pattern = "polisyos.scientist.methods.search.lessons"
 source_file = "tools/ops_runners/runtime_cli.py"
-line = 512
+line = 511
 call = "importlib.import_module"
 owner = "team-devx"
 target = "polisyos.scientist.methods.search.lessons"
@@ -2644,10 +2644,10 @@ allowed_targets = ["polisyos.scientist.methods.search.lessons"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-d53fa434d6e5"
+id = "dynamic-bc232f75c8b8"
 pattern = "polisyos.scientist.methods.search.sentinels"
 source_file = "tools/ops_runners/runtime_cli.py"
-line = 513
+line = 512
 call = "importlib.import_module"
 owner = "team-devx"
 target = "polisyos.scientist.methods.search.sentinels"
@@ -2656,10 +2656,10 @@ allowed_targets = ["polisyos.scientist.methods.search.sentinels"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-1a6f48b630c4"
+id = "dynamic-4ca7691c3acb"
 pattern = "polisyos.scientist.methods.search.stages"
 source_file = "tools/ops_runners/runtime_cli.py"
-line = 514
+line = 513
 call = "importlib.import_module"
 owner = "team-devx"
 target = "polisyos.scientist.methods.search.stages"
@@ -2668,10 +2668,10 @@ allowed_targets = ["polisyos.scientist.methods.search.stages"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-1cf6f3bf9881"
+id = "dynamic-f68561836343"
 pattern = "polisyos.scientist.methods.search.calibration_report"
 source_file = "tools/ops_runners/runtime_cli.py"
-line = 571
+line = 570
 call = "importlib.import_module"
 owner = "team-devx"
 target = "polisyos.scientist.methods.search.calibration_report"
@@ -2680,10 +2680,10 @@ allowed_targets = ["polisyos.scientist.methods.search.calibration_report"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-7144d2543533"
+id = "dynamic-7e65ee60a4ae"
 pattern = "polisyos.scientist.methods.search.cold_start"
 source_file = "tools/ops_runners/runtime_cli.py"
-line = 572
+line = 573
 call = "importlib.import_module"
 owner = "team-devx"
 target = "polisyos.scientist.methods.search.cold_start"
@@ -2692,10 +2692,10 @@ allowed_targets = ["polisyos.scientist.methods.search.cold_start"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-ac8d914dc3a0"
+id = "dynamic-4cd5891ef5f0"
 pattern = "polisyos.scientist.methods.search.lessons"
 source_file = "tools/ops_runners/runtime_cli.py"
-line = 573
+line = 574
 call = "importlib.import_module"
 owner = "team-devx"
 target = "polisyos.scientist.methods.search.lessons"
@@ -2704,10 +2704,10 @@ allowed_targets = ["polisyos.scientist.methods.search.lessons"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-bff0d6e7242a"
+id = "dynamic-e73f52829cef"
 pattern = "polisyos.scientist.methods.search.sentinels"
 source_file = "tools/ops_runners/runtime_cli.py"
-line = 574
+line = 575
 call = "importlib.import_module"
 owner = "team-devx"
 target = "polisyos.scientist.methods.search.sentinels"
@@ -2716,10 +2716,10 @@ allowed_targets = ["polisyos.scientist.methods.search.sentinels"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-d9334d432e45"
+id = "dynamic-89dc6280e71a"
 pattern = "polisyos.scientist.methods.search.stages"
 source_file = "tools/ops_runners/runtime_cli.py"
-line = 575
+line = 576
 call = "importlib.import_module"
 owner = "team-devx"
 target = "polisyos.scientist.methods.search.stages"
@@ -2728,10 +2728,10 @@ allowed_targets = ["polisyos.scientist.methods.search.stages"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-996f0c89724e"
+id = "dynamic-85c410cf9805"
 pattern = "polisyos.scientist.methods.backtesting.cli"
 source_file = "tools/ops_runners/runtime_cli.py"
-line = 640
+line = 641
 call = "importlib.import_module"
 owner = "team-devx"
 target = "polisyos.scientist.methods.backtesting.cli"
@@ -2740,10 +2740,10 @@ allowed_targets = ["polisyos.scientist.methods.backtesting.cli"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-57c649ba981e"
+id = "dynamic-7961323ac08e"
 pattern = "polisyos.scientist.methods.backtesting.cli"
 source_file = "tools/ops_runners/runtime_cli.py"
-line = 1007
+line = 1018
 call = "importlib.import_module"
 owner = "team-devx"
 target = "polisyos.scientist.methods.backtesting.cli"

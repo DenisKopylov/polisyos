@@ -688,6 +688,133 @@ def _prepared_read_selector_version(node_id: str) -> str:
     return f"{node_id}:{_PREPARED_READ_SELECTOR_EPOCH}"
 
 
+def _reconcile_prepared_read_cache_hit(
+    *,
+    ctx: ExecutionContext,
+    prepared_read: PreparedSKGRead,
+    cached_outcome: NodeOutcome,
+    selected_ref: ArtifactRef | None,
+    node_id: str,
+    alias: str,
+) -> ArtifactRef | None:
+    """Verify that a cached outcome belongs to the actual prepared source."""
+    origin = _prepared_read_origin(
+        cached_outcome,
+        selector_version=_prepared_read_selector_version(node_id),
+    )
+    if origin is None or any(
+        (
+            origin["source_snapshot_ref"] != prepared_read.source_snapshot_ref,
+            origin["source_snapshot_sha256"] != prepared_read.source_snapshot_sha256,
+            origin["source_binding_schema_version"] != prepared_read.source_binding_schema_version,
+            origin["query_version"] != prepared_read.query_version,
+        )
+    ):
+        return None
+    try:
+        origin_ref = ArtifactRef.model_validate_json(origin["retained_snapshot_ref_json"])
+    except ValidationError:
+        return None
+    if selected_ref is not None and origin_ref != selected_ref:
+        return None
+    try:
+        retained_ref, original_reference, version_id = _retained_prepared_source(
+            ctx=ctx,
+            prepared_read=prepared_read,
+            selected_ref=selected_ref,
+            existing_ref=origin_ref,
+        )
+    except _EXECUTOR_DEGRADED_ERRORS as exc:
+        if selected_ref is not None:
+            raise RetainedSKGSnapshotError("retained_skg_selected_source_unavailable") from exc
+        ctx.logger.warning("Retained SKG cache source unavailable for node %s: %s", alias, exc)
+        return None
+    if (
+        original_reference != origin["retained_source_original_reference"]
+        or str(version_id) != origin["retained_source_version_id"]
+    ):
+        return None
+    return retained_ref
+
+
+def _prepare_prepared_read_success(
+    *,
+    ctx: ExecutionContext,
+    prepared_read: PreparedSKGRead,
+    outcome: NodeOutcome,
+    selected_ref: ArtifactRef | None,
+) -> tuple[ArtifactRef, str, int]:
+    """Retain and reconcile the source used by a successful prepared read."""
+    retained_source_refs = [
+        ref
+        for ref in outcome.artifacts
+        if isinstance(ref, ArtifactRef) and ref.kind == "scientist.skg_source_snapshot"
+    ]
+    has_parameter_bundle = any(
+        getattr(ref, "kind", None) == "ir.context_adaptive_parameter_bundle"
+        for ref in outcome.artifacts
+    )
+    if has_parameter_bundle and len(retained_source_refs) != 1:
+        raise RetainedSKGSnapshotError("retained_skg_bundle_source_join_missing")
+    if len(retained_source_refs) > 1:
+        raise RetainedSKGSnapshotError("retained_skg_bundle_source_join_ambiguous")
+    return _retained_prepared_source(
+        ctx=ctx,
+        prepared_read=prepared_read,
+        selected_ref=selected_ref,
+        existing_ref=retained_source_refs[0] if retained_source_refs else None,
+    )
+
+
+def _attach_prepared_read_success(
+    *,
+    ctx: ExecutionContext,
+    prepared_read: PreparedSKGRead,
+    outcome: NodeOutcome,
+    retained_ref: ArtifactRef,
+    original_reference: str,
+    retained_version_id: int,
+    query_fingerprints: tuple[str, ...],
+    node_id: str,
+) -> None:
+    """Attach verified source and query evidence to the active run and outcome."""
+    ctx.run.add_input(retained_ref)
+    if retained_ref not in outcome.artifacts:
+        outcome.artifacts.append(retained_ref)
+    outcome.events.append(
+        NodeEvent(
+            level="info",
+            code="skg.prepared_connection_query",
+            message=(
+                "A successful SELECT/WITH ran on the "
+                "bound source connection; "
+                "output dependence is not established."
+            ),
+            attrs={
+                "source_snapshot_ref": prepared_read.source_snapshot_ref,
+                "retained_snapshot_ref_json": retained_ref.model_dump_json(),
+                "retained_snapshot_schema_version": "1.1",
+                "retained_source_original_reference": original_reference,
+                "retained_source_version_id": str(retained_version_id),
+                "retained_source_version_identity_kind": "content_digest",
+                "source_snapshot_sha256": prepared_read.source_snapshot_sha256,
+                "source_binding_schema_version": prepared_read.source_binding_schema_version,
+                "query_version": prepared_read.query_version,
+                "selector_version": _prepared_read_selector_version(node_id),
+                "prepared_at": prepared_read.prepared_at.isoformat(),
+                "connection_query_fingerprints_json": json.dumps(
+                    list(query_fingerprints), separators=(",", ":")
+                ),
+                "read_evidence_scope": "bound_connection_query_execution_only",
+                "output_dependency": "not_established",
+                "time_semantics": "read_transaction_opened_at",
+                "source_snapshot_authenticity": "not_established",
+                "authority_band": "candidate",
+            },
+        )
+    )
+
+
 def _persist_prepared_read_receipt(
     *,
     ctx: ExecutionContext,
@@ -1719,64 +1846,15 @@ class WorkflowExecutor:
                                 },
                             )
                     if cached_outcome is not None and prepared_read is not None:
-                        origin = _prepared_read_origin(
-                            cached_outcome,
-                            selector_version=_prepared_read_selector_version(node_id),
+                        retained_hit_ref = _reconcile_prepared_read_cache_hit(
+                            ctx=self._ctx,
+                            prepared_read=prepared_read,
+                            cached_outcome=cached_outcome,
+                            selected_ref=replay_source_ref,
+                            node_id=node_id,
+                            alias=alias,
                         )
-                        origin_matches = origin is not None and not any(
-                            (
-                                origin["source_snapshot_ref"] != prepared_read.source_snapshot_ref,
-                                origin["source_snapshot_sha256"]
-                                != prepared_read.source_snapshot_sha256,
-                                origin["source_binding_schema_version"]
-                                != prepared_read.source_binding_schema_version,
-                                origin["query_version"] != prepared_read.query_version,
-                            )
-                        )
-                        if origin_matches and origin is not None:
-                            try:
-                                origin_ref = ArtifactRef.model_validate_json(
-                                    origin["retained_snapshot_ref_json"]
-                                )
-                            except ValidationError:
-                                origin_matches = False
-                            else:
-                                if (
-                                    replay_source_ref is not None
-                                    and origin_ref != replay_source_ref
-                                ):
-                                    origin_matches = False
-                                else:
-                                    try:
-                                        (
-                                            retained_hit_ref,
-                                            original_reference,
-                                            retained_hit_version_id,
-                                        ) = _retained_prepared_source(
-                                            ctx=self._ctx,
-                                            prepared_read=prepared_read,
-                                            selected_ref=replay_source_ref,
-                                            existing_ref=origin_ref,
-                                        )
-                                    except _EXECUTOR_DEGRADED_ERRORS as exc:
-                                        if replay_source_ref is not None:
-                                            raise RetainedSKGSnapshotError(
-                                                "retained_skg_selected_source_unavailable"
-                                            ) from exc
-                                        origin_matches = False
-                                        self._ctx.logger.warning(
-                                            "Retained SKG cache source unavailable for node %s: %s",
-                                            alias,
-                                            exc,
-                                        )
-                                    else:
-                                        origin_matches = (
-                                            original_reference
-                                            == origin["retained_source_original_reference"]
-                                            and str(retained_hit_version_id)
-                                            == origin["retained_source_version_id"]
-                                        )
-                        if not origin_matches:
+                        if retained_hit_ref is None:
                             self._cache.discard(cache_key)
                             cached_outcome = None
                             cache_bypass_reason = _CACHE_BYPASS_PREPARED_READ
@@ -2116,32 +2194,12 @@ class WorkflowExecutor:
                         and outcome.status == "ok"
                     ):
                         try:
-                            retained_source_refs = [
-                                ref
-                                for ref in outcome.artifacts
-                                if isinstance(ref, ArtifactRef)
-                                and ref.kind == "scientist.skg_source_snapshot"
-                            ]
-                            has_parameter_bundle = any(
-                                getattr(ref, "kind", None) == "ir.context_adaptive_parameter_bundle"
-                                for ref in outcome.artifacts
-                            )
-                            if has_parameter_bundle and len(retained_source_refs) != 1:
-                                raise RetainedSKGSnapshotError(
-                                    "retained_skg_bundle_source_join_missing"
-                                )
-                            if len(retained_source_refs) > 1:
-                                raise RetainedSKGSnapshotError(
-                                    "retained_skg_bundle_source_join_ambiguous"
-                                )
                             retained_ref, original_reference, retained_version_id = (
-                                _retained_prepared_source(
+                                _prepare_prepared_read_success(
                                     ctx=self._ctx,
                                     prepared_read=prepared_read,
+                                    outcome=outcome,
                                     selected_ref=replay_source_ref,
-                                    existing_ref=(
-                                        retained_source_refs[0] if retained_source_refs else None
-                                    ),
                                 )
                             )
                         except _EXECUTOR_DEGRADED_ERRORS as exc:
@@ -2166,51 +2224,15 @@ class WorkflowExecutor:
                                 },
                             )
                         else:
-                            self._ctx.run.add_input(retained_ref)
-                            if retained_ref not in outcome.artifacts:
-                                outcome.artifacts.append(retained_ref)
-                            outcome.events.append(
-                                NodeEvent(
-                                    level="info",
-                                    code="skg.prepared_connection_query",
-                                    message=(
-                                        "A successful SELECT/WITH ran on the "
-                                        "bound source connection; "
-                                        "output dependence is not established."
-                                    ),
-                                    attrs={
-                                        "source_snapshot_ref": prepared_read.source_snapshot_ref,
-                                        "retained_snapshot_ref_json": (
-                                            retained_ref.model_dump_json()
-                                        ),
-                                        "retained_snapshot_schema_version": "1.1",
-                                        "retained_source_original_reference": original_reference,
-                                        "retained_source_version_id": str(retained_version_id),
-                                        "retained_source_version_identity_kind": "content_digest",
-                                        "source_snapshot_sha256": (
-                                            prepared_read.source_snapshot_sha256
-                                        ),
-                                        "source_binding_schema_version": (
-                                            prepared_read.source_binding_schema_version
-                                        ),
-                                        "query_version": prepared_read.query_version,
-                                        "selector_version": (
-                                            _prepared_read_selector_version(node_id)
-                                        ),
-                                        "prepared_at": prepared_read.prepared_at.isoformat(),
-                                        "connection_query_fingerprints_json": json.dumps(
-                                            list(connection_query_fingerprints),
-                                            separators=(",", ":"),
-                                        ),
-                                        "read_evidence_scope": (
-                                            "bound_connection_query_execution_only"
-                                        ),
-                                        "output_dependency": "not_established",
-                                        "time_semantics": "read_transaction_opened_at",
-                                        "source_snapshot_authenticity": "not_established",
-                                        "authority_band": "candidate",
-                                    },
-                                )
+                            _attach_prepared_read_success(
+                                ctx=self._ctx,
+                                prepared_read=prepared_read,
+                                outcome=outcome,
+                                retained_ref=retained_ref,
+                                original_reference=original_reference,
+                                retained_version_id=retained_version_id,
+                                query_fingerprints=connection_query_fingerprints,
+                                node_id=node_id,
                             )
 
                     if (

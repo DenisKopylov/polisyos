@@ -13,10 +13,13 @@ from __future__ import annotations
 import asyncio
 import threading
 import time
+from collections.abc import Callable
 from copy import deepcopy
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
+from functools import partial
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
@@ -24,6 +27,7 @@ from pydantic import BaseModel, ValidationError
 
 from polisyos.common.async_tools import run_blocking_async
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts import FileSystemCAS
 from polisyos.core.artifacts.async_store import ensure_async_artifact_store
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
@@ -60,6 +64,8 @@ from polisyos.scientist.orchestration.engine.errors import (
 )
 from polisyos.scientist.orchestration.engine.executor import (
     _CACHE_BYPASS_CACHE_HIT_VALIDATION,
+    _CACHE_BYPASS_PREPARED_READ,
+    _CACHE_BYPASS_PREPARED_READ_TIMEOUT,
     _CACHE_BYPASS_REPLAY_INCOMPATIBLE,
     _EXECUTOR_DEGRADED_ERRORS,
     NodeBindError,
@@ -67,10 +73,17 @@ from polisyos.scientist.orchestration.engine.executor import (
     WorkflowExecutionResult,
     WorkflowExecutionStatus,
     WorkflowReport,
+    _attach_prepared_read_success,
     _bind_retained_workflow_input,
+    _is_duckdb_error,
     _log_node_events,
     _merge_cached_outcome_state,
     _outcome_skip_reason,
+    _persist_prepared_read_receipt,
+    _prepare_prepared_read_success,
+    _prepared_read_selector_version,
+    _reconcile_prepared_read_cache_hit,
+    _retained_snapshot_directory,
     _selected_successful_node_output_refs,
     _should_cache,
     _skip_blocker_for_engine_skip,
@@ -94,13 +107,23 @@ from polisyos.scientist.orchestration.engine.idempotency import (
 )
 from polisyos.scientist.orchestration.engine.protocol import (
     CacheHitValidator,
+    CacheInputPreparer,
     NodeError,
     NodeEvent,
     NodeOutcome,
     NodeSpec,
 )
-from polisyos.scientist.orchestration.engine.retry import RetryPolicy, execute_with_retry_async
-from polisyos.scientist.orchestration.engine.skg_snapshot import SNAPSHOT_INPUT_KEY
+from polisyos.scientist.orchestration.engine.retry import (
+    RetryPolicy,
+    _node_facing_context,
+    _run_pinned_callable,
+    execute_with_retry_async,
+)
+from polisyos.scientist.orchestration.engine.skg_snapshot import (
+    SNAPSHOT_INPUT_KEY,
+    RetainedSKGSnapshotError,
+    prepare_retained_skg_read,
+)
 from polisyos.scientist.orchestration.engine.state_branching import (
     StateMutation,
     StateMutationJournal,
@@ -160,6 +183,64 @@ def _executor_degraded(
         details=details,
         log=_module_logger,
     )
+
+
+class _PreparedReaderOwner:
+    """Close a prepared reader only after every physical user has returned."""
+
+    def __init__(self) -> None:
+        self._lock = threading.Lock()
+        self._reader: Any = None
+        self._closed = False
+        self._pins = 0
+
+    def attach(self, reader: Any) -> Any:
+        with self._lock:
+            if not self._closed:
+                self._reader = reader
+                return reader
+        if reader is not None:
+            reader.close()
+        return None
+
+    def pin(self) -> Callable[[], None]:
+        with self._lock:
+            if self._closed or self._reader is None:
+                raise RuntimeError("prepared_reader_owner_not_active")
+            self._pins += 1
+        released = False
+
+        def release() -> None:
+            nonlocal released
+            reader = None
+            with self._lock:
+                if released:
+                    return
+                released = True
+                self._pins -= 1
+                if self._closed and not self._pins:
+                    reader, self._reader = self._reader, None
+            if reader is not None:
+                reader.close()
+
+        return release
+
+    def drop(self) -> None:
+        with self._lock:
+            if self._closed or self._pins:
+                raise RuntimeError("prepared_reader_owner_busy")
+            reader, self._reader = self._reader, None
+        if reader is not None:
+            reader.close()
+
+    def close(self) -> None:
+        reader = None
+        with self._lock:
+            self._closed = True
+            if not self._pins:
+                reader, self._reader = self._reader, None
+        if reader is not None:
+            reader.close()
 
 
 class AsyncWorkflowExecutor:
@@ -1929,6 +2010,30 @@ class AsyncWorkflowExecutor:
         workflow: WorkflowSpec,
         tier_index: int = 0,
     ) -> tuple[NodeOutcome, int, bool, ArtifactRef | None]:
+        owner = _PreparedReaderOwner()
+        try:
+            result = await self._execute_node_with_reader(
+                alias, inv, state, workflow, tier_index, owner
+            )
+        except BaseException as exc:
+            try:
+                owner.close()
+            except BaseException as cleanup_exc:
+                exc.add_note(f"prepared reader cleanup failed: {cleanup_exc!r}")
+            raise
+        else:
+            owner.close()
+            return result
+
+    async def _execute_node_with_reader(
+        self,
+        alias: str,
+        inv: NodeInvocation,
+        state: ExperimentState,
+        workflow: WorkflowSpec,
+        tier_index: int,
+        reader_owner: _PreparedReaderOwner,
+    ) -> tuple[NodeOutcome, int, bool, ArtifactRef | None]:
         """Execute a single node with cache, retry, timeout, metrics."""
         self._guard_workflow_admission(operation=f"node.{alias}", execution_state="not_admitted")
         try:
@@ -2013,15 +2118,78 @@ class AsyncWorkflowExecutor:
         cache_deadline = self._cache_deadline(inv, started_at=started)
         cache_hit = False
         cache_entry_ref: ArtifactRef | None = None
+        prepared_read: Any = None
+        node_context = self._ctx
+        replay_source_ref = state.inputs.get(SNAPSHOT_INPUT_KEY)
+        cache_bind_params = dict(inv.params or {})
+        cache_bypass_reason: int | None = None
+
+        if _should_cache(node_id) and isinstance(node, CacheInputPreparer):
+            if cache_deadline is not None:
+                cache_bypass_reason = _CACHE_BYPASS_PREPARED_READ_TIMEOUT
+            elif any("execute_async" in cls.__dict__ for cls in type(node).__mro__):
+                # A detached coroutine has no physical reader-lifetime owner yet.
+                cache_bypass_reason = _CACHE_BYPASS_PREPARED_READ
+            else:
+
+                def prepare_owned_read() -> Any:
+                    if replay_source_ref is None:
+                        reader = node.prepare_cache_input(
+                            _node_facing_context(self._ctx), snapshot_state(state)
+                        )
+                    else:
+                        if not isinstance(self._ctx.store, FileSystemCAS):
+                            raise RetainedSKGSnapshotError("retained_skg_local_cas_required")
+                        index_dir = (
+                            Path(str(state.params["skg_index_dir"]))
+                            if state.params.get("skg_index_dir") is not None
+                            else Path(str(state.params["skg_db_path"])).parent
+                        )
+                        reader = prepare_retained_skg_read(
+                            self._ctx.store,
+                            replay_source_ref,
+                            directory=_retained_snapshot_directory(self._ctx),
+                            index_dir=index_dir,
+                        )
+                    return reader_owner.attach(reader)
+
+                try:
+                    prepared_read = await run_blocking_async(prepare_owned_read, unbounded=True)
+                    if prepared_read is None or not isinstance(self._ctx.store, FileSystemCAS):
+                        cache_bypass_reason = _CACHE_BYPASS_PREPARED_READ
+                        reader_owner.close()
+                        prepared_read = None
+                    else:
+                        node_context = replace(self._ctx, prepared_skg_read=prepared_read)
+                        cache_bind_params["prepared_skg_read"] = prepared_read.cache_binding(
+                            selector_version=_prepared_read_selector_version(node_id)
+                        )
+                except _EXECUTOR_DEGRADED_ERRORS as exc:
+                    if replay_source_ref is not None:
+                        raise RetainedSKGSnapshotError("retained_skg_preparation_failed") from exc
+                    cache_bypass_reason = _CACHE_BYPASS_PREPARED_READ
+                except Exception as exc:
+                    if replay_source_ref is not None:
+                        raise RetainedSKGSnapshotError("retained_skg_preparation_failed") from exc
+                    if not _is_duckdb_error(exc):
+                        raise
+                    cache_bypass_reason = _CACHE_BYPASS_PREPARED_READ
+
+            if cache_bypass_reason is not None:
+                self._ctx.run.emit(
+                    f"scientist.node.{alias}",
+                    "NODE_CACHE_BYPASS",
+                    metrics={"cache_bypass": 1, "reason_code": cache_bypass_reason},
+                )
 
         # Cache check
         cache_key: str | None = None
-        if _should_cache(node_id):
+        if _should_cache(node_id) and cache_bypass_reason is None:
             try:
                 cache_key = compute_idempotency_key(
                     spec=node.spec,
                     state=state,
-                    bind_params=inv.params,
+                    bind_params=cache_bind_params if prepared_read is not None else inv.params,
                 )
             except (AttributeError, TypeError, ValueError) as exc:
                 _executor_degraded(
@@ -2033,6 +2201,28 @@ class AsyncWorkflowExecutor:
 
         cached_outcome: NodeOutcome | None = None
         retry_stats: dict[str, int] = {}
+        if prepared_read is not None and not await _run_pinned_callable(
+            prepared_read.source_generation_matches, reader_owner.pin
+        ):
+            if replay_source_ref is not None:
+                raise RetainedSKGSnapshotError("retained_skg_selected_source_changed")
+            reader_owner.drop()
+            try:
+                prepared_read = await run_blocking_async(prepare_owned_read, unbounded=True)
+            except Exception as exc:
+                raise RetainedSKGSnapshotError("retained_skg_live_source_rebind_failed") from exc
+            if prepared_read is None or not await _run_pinned_callable(
+                prepared_read.source_generation_matches, reader_owner.pin
+            ):
+                raise RetainedSKGSnapshotError("retained_skg_live_source_rebind_unstable")
+            node_context = replace(self._ctx, prepared_skg_read=prepared_read)
+            cache_key = None
+            cache_bypass_reason = _CACHE_BYPASS_PREPARED_READ
+            self._ctx.run.emit(
+                f"scientist.node.{alias}",
+                "NODE_CACHE_BYPASS",
+                metrics={"cache_bypass": 1, "reason_code": _CACHE_BYPASS_PREPARED_READ},
+            )
         if cache_key and self._cache:
             try:
                 self._check_budget(alias, budget_key="read")
@@ -2070,17 +2260,31 @@ class AsyncWorkflowExecutor:
                 )
 
         if cached_outcome is not None:
+            if prepared_read is not None and not await _run_pinned_callable(
+                prepared_read.source_generation_matches, reader_owner.pin
+            ):
+                raise RetainedSKGSnapshotError(
+                    "retained_skg_selected_source_changed"
+                    if replay_source_ref is not None
+                    else "retained_skg_live_source_rebind_required"
+                )
             if isinstance(node, CacheHitValidator):
                 try:
-                    cache_hit_valid = await run_blocking_async(
+                    validator = partial(
                         _validate_cached_node_hit,
                         node,
-                        self._ctx,
+                        node_context,
                         snapshot_state(state),
                         cached_outcome.model_copy(deep=True),
-                        timeout_seconds=self._remaining_deadline_seconds(cache_deadline),
-                        unbounded=cache_deadline is None,
                     )
+                    if prepared_read is not None:
+                        cache_hit_valid = await _run_pinned_callable(validator, reader_owner.pin)
+                    else:
+                        cache_hit_valid = await run_blocking_async(
+                            validator,
+                            timeout_seconds=self._remaining_deadline_seconds(cache_deadline),
+                            unbounded=cache_deadline is None,
+                        )
                     NodeResultCache._check_deadline(cache_deadline)
                 except _EXECUTOR_DEGRADED_ERRORS:
                     cache_hit_valid = False
@@ -2097,6 +2301,69 @@ class AsyncWorkflowExecutor:
                             "reason_code": _CACHE_BYPASS_CACHE_HIT_VALIDATION,
                         },
                     )
+
+        if cached_outcome is not None and prepared_read is not None and cache_key is not None:
+            retained_hit_ref = await _run_pinned_callable(
+                partial(
+                    _reconcile_prepared_read_cache_hit,
+                    ctx=self._ctx,
+                    prepared_read=prepared_read,
+                    cached_outcome=cached_outcome,
+                    selected_ref=replay_source_ref,
+                    node_id=node_id,
+                    alias=alias,
+                ),
+                reader_owner.pin,
+            )
+            receipt_ref = None
+            if retained_hit_ref is not None:
+                try:
+                    receipt_ref = await _run_pinned_callable(
+                        partial(
+                            _persist_prepared_read_receipt,
+                            ctx=self._ctx,
+                            run_id=state.run_id,
+                            node_id=node_id,
+                            cache_key=cache_key,
+                            prepared_read=prepared_read,
+                            cached_outcome=cached_outcome,
+                        ),
+                        reader_owner.pin,
+                    )
+                except _EXECUTOR_DEGRADED_ERRORS as exc:
+                    self._ctx.logger.warning(
+                        "Prepared SKG cache receipt could not be stored for node %s: %s",
+                        alias,
+                        exc,
+                    )
+            self._guard_workflow_admission(operation=f"node.{alias}", execution_state="unknown")
+            if retained_hit_ref is None or receipt_ref is None:
+                self._cache.discard(cache_key)
+                cached_outcome = None
+                self._ctx.run.emit(
+                    f"scientist.node.{alias}",
+                    "NODE_CACHE_BYPASS",
+                    metrics={"cache_bypass": 1, "reason_code": _CACHE_BYPASS_PREPARED_READ},
+                )
+            else:
+                self._ctx.run.add_input(retained_hit_ref)
+                receipt_event = NodeEvent(
+                    level="info",
+                    code="skg.cache_read_receipt",
+                    message="Candidate SKG cache reuse receipt persisted.",
+                    attrs={
+                        "artifact_id": str(receipt_ref.artifact_id),
+                        "source_binding_schema_version": prepared_read.source_binding_schema_version,
+                        "source_snapshot_sha256": prepared_read.source_snapshot_sha256,
+                        "source_snapshot_authenticity": "not_established",
+                    },
+                )
+                cached_outcome = cached_outcome.model_copy(
+                    update={
+                        "events": [*cached_outcome.events, receipt_event],
+                        "artifacts": [*cached_outcome.artifacts, receipt_ref],
+                    }
+                )
 
         if cached_outcome is not None:
             self._guard_workflow_admission(operation=f"node.{alias}", execution_state="unknown")
@@ -2175,6 +2442,19 @@ class AsyncWorkflowExecutor:
                 outcome = cached_outcome.model_copy(update={"state": merged_cached_state})
 
         if cached_outcome is None:
+            query_execution_marker: int | None = None
+            if prepared_read is not None:
+                if not await _run_pinned_callable(
+                    prepared_read.source_generation_matches, reader_owner.pin
+                ):
+                    raise RetainedSKGSnapshotError(
+                        "retained_skg_selected_source_changed"
+                        if replay_source_ref is not None
+                        else "retained_skg_live_source_rebind_required"
+                    )
+                query_execution_marker = await _run_pinned_callable(
+                    prepared_read.query_execution_marker, reader_owner.pin
+                )
             try:
                 self._check_budget(alias, budget_key="run")
             except BudgetExhaustedError as budget_exc:
@@ -2456,7 +2736,7 @@ class AsyncWorkflowExecutor:
                 if attempt_basis is None:
                     raise ValueError("run_invocation_attempt_context_basis_missing")
                 return replace(
-                    self._ctx,
+                    node_context,
                     _engine_invocation=_EngineInvocationBinding(
                         run_id=selected_run_id,
                         attempt_id=attempt_id,
@@ -2489,7 +2769,7 @@ class AsyncWorkflowExecutor:
             try:
                 raw_outcome = await execute_with_retry_async(
                     dispatch_node,
-                    self._ctx,
+                    node_context,
                     node_state,
                     retry_policy=retry_policy,
                     timeout_s=node_timeout_s,
@@ -2500,6 +2780,11 @@ class AsyncWorkflowExecutor:
                     attempt_started=record_attempt_started,
                     attempt_completed=record_attempt_completed,
                     attempt_context=bind_attempt_context,
+                    **(
+                        {"physical_resource_pin": reader_owner.pin}
+                        if prepared_read is not None
+                        else {}
+                    ),
                     **(
                         {"attempt_admission": admit_budget_attempt}
                         if self._strict_budget_attempts
@@ -2578,6 +2863,59 @@ class AsyncWorkflowExecutor:
                         details={"type": exc.__class__.__name__},
                     ),
                 )
+
+            if prepared_read is not None and query_execution_marker is not None:
+                fingerprints = await _run_pinned_callable(
+                    partial(prepared_read.query_fingerprints_since, query_execution_marker),
+                    reader_owner.pin,
+                )
+                if outcome.status == "ok" and fingerprints:
+                    try:
+                        (
+                            retained_ref,
+                            original_reference,
+                            retained_version_id,
+                        ) = await _run_pinned_callable(
+                            partial(
+                                _prepare_prepared_read_success,
+                                ctx=self._ctx,
+                                prepared_read=prepared_read,
+                                outcome=outcome,
+                                selected_ref=replay_source_ref,
+                            ),
+                            reader_owner.pin,
+                        )
+                    except _EXECUTOR_DEGRADED_ERRORS as exc:
+                        if replay_source_ref is not None:
+                            raise RetainedSKGSnapshotError(
+                                "retained_skg_selected_source_unavailable"
+                            ) from exc
+                        cache_key = None
+                        self._ctx.logger.warning(
+                            "Retained SKG capture unavailable for node %s: %s", alias, exc
+                        )
+                    else:
+                        self._guard_workflow_admission(
+                            operation=f"node.{alias}.prepared_source", execution_state="unknown"
+                        )
+                        _attach_prepared_read_success(
+                            ctx=self._ctx,
+                            prepared_read=prepared_read,
+                            outcome=outcome,
+                            retained_ref=retained_ref,
+                            original_reference=original_reference,
+                            retained_version_id=retained_version_id,
+                            query_fingerprints=fingerprints,
+                            node_id=node_id,
+                        )
+                else:
+                    cache_key = None
+                if cache_key is None and cache_bypass_reason is None:
+                    self._ctx.run.emit(
+                        f"scientist.node.{alias}",
+                        "NODE_CACHE_BYPASS",
+                        metrics={"cache_bypass": 1, "reason_code": _CACHE_BYPASS_PREPARED_READ},
+                    )
 
             # Cache store
             if outcome.status == "ok" and cache_key and self._cache:

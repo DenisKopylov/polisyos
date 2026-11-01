@@ -16,6 +16,28 @@ non-Trinity surface.
 - [`base.py`](./base.py) — generic migration registry / negotiation primitives.
 - For the payload shape, see [`../trinity/README.md`](../trinity/README.md); for root loaders, see [`../README.md`](../README.md).
 
+## Callback registration identity
+
+IR registration fingerprints supported callback code, defaults and captured
+values once, before changing the registry. Only a genuinely empty closure cell
+receives the empty-cell marker. Unsupported captured values raise the existing
+`MigrationCompatibilityError`; they cannot silently collide with another
+capture or replace a registered edge. Supported identical registrations remain
+idempotent, and conflicting descriptors or cycles refuse.
+
+This is the identity of a registration snapshot, not proof of immutable Python
+behavior. Captured semantic dictionaries remain live and can change later;
+callers claiming reproducible conversion need an explicit immutable/versioned
+semantic configuration and implementation/environment binding. The registry does
+not freeze or rehash every callback at invocation. Harmless mutable observer
+lists remain supported. No global, file or external-dependency drift detection
+or exhaustive historical-plugin compatibility is implied.
+
+Common and IR still use the same linear traversal with distinct copy, stamping,
+error and no-op profiles. Data Forge's instance-owned branching graph registry
+retains its separate shortest-path contract. Conversion, direct-read
+compatibility and actual DTO admission remain separate outcomes.
+
 ## Public entrypoints
 
 | Entrypoint                                                               | Use when                                                          | Defined in                                                |

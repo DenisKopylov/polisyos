@@ -137,7 +137,7 @@
       "lane_sequence": 1,
       "track_id": "06-A",
       "track_position": 1,
-      "implementation_status": "IMPLEMENTED_PENDING_REVIEW",
+      "implementation_status": "REVIEWED_LOCAL_SLICE",
       "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "/root/lane06_state",
@@ -172,16 +172,55 @@
           "peak_sampled_rss_gib": 1.303,
           "oracle": "actual pre-change failure followed by repaired mechanism; preservation controls included",
           "scope": "Only locally exercised requirements; full packet and shared integration not accepted"
+        },
+        {
+          "output": "policy-engine/_cache/e02/lane06-foundation-composed",
+          "result": "239 PASS in21.63s; peak sampled process-tree1.404GiB; ten named source/test inputs unchanged",
+          "scope": "Composed local family regressions for six packets; not full E02-I06 scenarios or all75 local TEST contracts."
         }
       ],
-      "blockers": [],
+      "blockers": [
+        "Fresh cold/warm CAS/cache, epoch/proof and actual worker/cross-owner effects remain shared qualification."
+      ],
       "deferred_ids": [],
       "execution_profile": {
-        "test_slot": "released; source/test frozen for review",
+        "test_slot": "released; relevant sources frozen through composition",
         "source_scope": "Only leased paths; root owns index/commits/refs/generated families and imported working state. Read-only analysis of downstream packets allowed; no second active lane.",
-        "independent_review": "pending",
+        "independent_review": "GO for the described local slice; no G or whole-packet acceptance",
         "delegate_limit": "At most one read-only child; explicit allowed model; grandchild is leaf."
-      }
+      },
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-STA-01-01",
+          "test_id": "TEST-STA-01-01",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Staged resultant membership on all three protected roots; preserve valid ref updates/additions and caller state; exact old-source negatives."
+        },
+        {
+          "requirement_id": "REQ-STA-01-02",
+          "test_id": "TEST-STA-01-02",
+          "status": "PARTIAL",
+          "basis": "Current-base journal regression coverage passed; full cold/warm cache consumer still open."
+        },
+        {
+          "requirement_id": "REQ-STA-01-03",
+          "test_id": "TEST-STA-01-03",
+          "status": "PARTIAL",
+          "basis": "Existing isolated local branch cases passed; actual failed/cancelled worker evidence open."
+        },
+        {
+          "requirement_id": "REQ-STA-01-04",
+          "test_id": "TEST-STA-01-04",
+          "status": "NOT_RUN",
+          "basis": "No new exact selected CAS/epoch/proof/fresh-process acceptance."
+        },
+        {
+          "requirement_id": "REQ-STA-01-05",
+          "test_id": "TEST-STA-01-05",
+          "status": "NOT_RUN",
+          "basis": "Cross-owner spend/event/external-operation identity/fence proof and declared performance workload remain open."
+        }
+      ]
     },
     {
       "packet_id": "STA-02",
@@ -189,8 +228,8 @@
       "lane_sequence": 1,
       "track_id": "06-A",
       "track_position": 2,
-      "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
+      "implementation_status": "REVIEWED_LOCAL_SLICE",
+      "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "/root/lane06_state",
       "base_commit": "3865c5ca668fb8aa507246f318cdeb7bd98b2d02",
@@ -200,7 +239,14 @@
         "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py"
       ],
       "shared_writer": "/root/lane06_state",
-      "decision_records": [],
+      "decision_records": [
+        {
+          "id": "DEC-STA-02-01",
+          "status": "PARTIAL",
+          "chosen_profile": "Current NumPy ParameterTransfer; native_hybrid is the actual existing prior-capable Foundry consumer; default dowhy_gcm refuses priors.",
+          "remaining": "No established Scientist/Runtime reader maps state.params literature_priors into SCMFitData; require explicit existing-caller bridge/proof before G02 acceptance."
+        }
+      ],
       "requirement_ids": [
         "REQ-STA-02-01",
         "REQ-STA-02-02",
@@ -213,14 +259,53 @@
         "TEST-STA-02-03",
         "TEST-STA-02-04"
       ],
-      "evidence": [],
-      "blockers": [],
+      "evidence": [
+        {
+          "output": "policy-engine/_cache/e02/sta02-runtime-reuse-final",
+          "observed_result": "32 PASS",
+          "scope": "Actual current-request ParameterTransfer with selected CAS reuse, NumPy controls and independent parameter summary oracles. Actual Scientist state→native hybrid SCM fit bridge remains open."
+        },
+        {
+          "output": "policy-engine/_cache/e02/lane06-foundation-composed",
+          "result": "239 PASS in21.63s; peak sampled process-tree1.404GiB; ten named source/test inputs unchanged",
+          "scope": "Composed local family regressions for six packets; not full E02-I06 scenarios or all75 local TEST contracts."
+        }
+      ],
+      "blockers": [
+        "Actual Scientist state→prior-capable native_hybrid SCM fit bridge and prepared-source cold/warm qualification remain open."
+      ],
       "deferred_ids": [],
       "execution_profile": {
-        "test_slot": "queued; CAN and CAS have the two light slots",
+        "test_slot": "released; relevant sources frozen through composition",
         "source_scope": "Current reused bundle→ParameterTransfer materialization only; main executor/idempotency retained. No tests/shared files outside leased paths.",
-        "independent_review": "pending"
-      }
+        "independent_review": "GO for the described local slice; no G or whole-packet acceptance"
+      },
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-STA-02-01",
+          "test_id": "TEST-STA-02-01",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Actual selected CAS bundle → current NumPy materialization for two draw/seed requests; unsupported/empty and failure-no-publication controls."
+        },
+        {
+          "requirement_id": "REQ-STA-02-02",
+          "test_id": "TEST-STA-02-02",
+          "status": "PARTIAL",
+          "basis": "Existing matcher/load checks preserved and selector does not rerun; full changed-binding/native qualification still open."
+        },
+        {
+          "requirement_id": "REQ-STA-02-03",
+          "test_id": "TEST-STA-02-03",
+          "status": "NOT_RUN",
+          "basis": "Prepared actual SKG connection/key/source and native cold/warm proof still required."
+        },
+        {
+          "requirement_id": "REQ-STA-02-04",
+          "test_id": "TEST-STA-02-04",
+          "status": "BLOCKED_IMPLEMENTATION",
+          "basis": "Actual Scientist state-to-SCMFitData mapping is not established. Existing native_hybrid consumer is prior-capable; default dowhy_gcm refuses priors. Implement the scoped bridge before full consumer acceptance."
+        }
+      ]
     },
     {
       "packet_id": "RES-02",
@@ -379,7 +464,7 @@
       "lane_sequence": 1,
       "track_id": "06-B",
       "track_position": 1,
-      "implementation_status": "IMPLEMENTED_PENDING_REVIEW",
+      "implementation_status": "REVIEWED_LOCAL_SLICE",
       "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "/root/lane06_async",
@@ -410,16 +495,47 @@
           "peak_sampled_rss_gib": 0.117,
           "oracle": "actual pre-change failure followed by repaired mechanism; preservation controls included",
           "scope": "Only locally exercised requirements; full packet and shared integration not accepted"
+        },
+        {
+          "output": "policy-engine/_cache/e02/lane06-root-common-final",
+          "result": "48 PASS on final private _inspect alias; star-import surface preserved"
+        },
+        {
+          "output": "policy-engine/_cache/e02/lane06-foundation-composed",
+          "result": "239 PASS in21.63s; peak sampled process-tree1.404GiB; ten named source/test inputs unchanged",
+          "scope": "Composed local family regressions for six packets; not full E02-I06 scenarios or all75 local TEST contracts."
         }
       ],
-      "blockers": [],
+      "blockers": [
+        "Actual deadline/backoff/CAS/claim fencing and installed typing remain unqualified; queued-timeout fresh-coroutine ownership requires an exact investigation."
+      ],
       "deferred_ids": [],
       "execution_profile": {
-        "test_slot": "released; source/test frozen for review",
+        "test_slot": "released; relevant sources frozen through composition",
         "source_scope": "Only leased paths; root owns index/commits/refs/generated families and imported working state. Read-only analysis of downstream packets allowed; no second active lane.",
-        "independent_review": "pending",
+        "independent_review": "GO for the described local slice; no G or whole-packet acceptance",
         "delegate_limit": "At most one read-only child; explicit allowed model; grandchild is leaf."
-      }
+      },
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-RUN-01-01",
+          "test_id": "TEST-RUN-01-01",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Real executor saturation/reentrancy closes only CORO_CREATED; accepted work/foreign owners preserved."
+        },
+        {
+          "requirement_id": "REQ-RUN-01-02",
+          "test_id": "TEST-RUN-01-02",
+          "status": "NOT_RUN",
+          "basis": "Native invocation deadline/backoff/publication plus actual CAS and claim owner proof not supplied by Common unit module."
+        },
+        {
+          "requirement_id": "REQ-RUN-01-03",
+          "test_id": "TEST-RUN-01-03",
+          "status": "PARTIAL",
+          "basis": "Local generic reflection regression passed; private import alias preserves incidental star names. Installed qualification remains open."
+        }
+      ]
     },
     {
       "packet_id": "EXE-01",
@@ -605,8 +721,8 @@
       "lane_sequence": 1,
       "track_id": "06-C",
       "track_position": 1,
-      "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
+      "implementation_status": "REVIEWED_LOCAL_SLICE",
+      "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "/root/lane06_cas",
       "base_commit": "3865c5ca668fb8aa507246f318cdeb7bd98b2d02",
@@ -632,15 +748,52 @@
         "TEST-CAS-01-02",
         "TEST-CAS-01-03"
       ],
-      "evidence": [],
-      "blockers": [],
+      "evidence": [
+        {
+          "output": "policy-engine/_cache/e02/lane06-cas01-native-final",
+          "result": "32 PASS after independent adversarial-test correction; real signed tenant/cell fixtures",
+          "scope": "Native selected views, custody/read-only boundaries and eight publication/owner-pointer parent-fsync faults with fresh store retry."
+        },
+        {
+          "output": "policy-engine/_cache/e02/lane06-cas01-custody-readonly",
+          "result": "124 PASS; process tests explicitly excluded; unchanged product bytes"
+        },
+        {
+          "output": "policy-engine/_cache/e02/lane06-foundation-composed",
+          "result": "239 PASS in21.63s; peak sampled process-tree1.404GiB; ten named source/test inputs unchanged",
+          "scope": "Composed local family regressions for six packets; not full E02-I06 scenarios or all75 local TEST contracts."
+        }
+      ],
+      "blockers": [
+        "Actual process restart, owner-generation-file fsync and input-owner revocation remain unqualified; composed I06-D remains NOT_RUN."
+      ],
       "deferred_ids": [],
       "execution_profile": {
-        "test_slot": "queued after exclusive STA-01 qualification; no concurrent heavy processes",
+        "test_slot": "released; relevant sources frozen through composition",
         "source_scope": "Only leased paths; root owns index/commits/refs/generated families and imported working state. Read-only analysis of downstream packets allowed; no second active lane.",
-        "independent_review": "pending",
+        "independent_review": "GO for the described local slice; no G or whole-packet acceptance",
         "delegate_limit": "At most one read-only child; explicit allowed model; grandchild is leaf."
-      }
+      },
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-CAS-01-01",
+          "test_id": "TEST-CAS-01-01",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Real signed native CAS A/B exact views preserve original default A across B and A retry; fresh reads and corrupt payload/size/profile controls."
+        },
+        {
+          "requirement_id": "REQ-CAS-01-02",
+          "test_id": "TEST-CAS-01-02",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Observer forwards create_lock_files; readonly false, bounded stripe and nesting controls passed."
+        },
+        {
+          "requirement_id": "REQ-CAS-01-03",
+          "test_id": "TEST-CAS-01-03",
+          "status": "PARTIAL",
+          "basis": "Eight actual publication/owner-pointer parent-fsync boundaries and fresh object exact retry passed; process restart, ownership-generation-file fsync and input-owner revocation remain unqualified."
+        }
+      ]
     },
     {
       "packet_id": "CAS-02",
@@ -708,8 +861,8 @@
       "lane_sequence": 1,
       "track_id": "06-D",
       "track_position": 1,
-      "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
+      "implementation_status": "REVIEWED_LOCAL_SLICE",
+      "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "/root/lane06_canonical",
       "base_commit": "3865c5ca668fb8aa507246f318cdeb7bd98b2d02",
@@ -736,15 +889,49 @@
         "TEST-CAN-01-02",
         "TEST-CAN-01-03"
       ],
-      "evidence": [],
-      "blockers": [],
+      "evidence": [
+        {
+          "kind": "native_bounded_qualification",
+          "output": "policy-engine/_cache/e02/lane06-can01-qualified",
+          "result": "216 PASS",
+          "scope": "Existing mechanisms plus targeted qualification; no whole-packet, installed or shared-scenario acceptance."
+        },
+        {
+          "output": "policy-engine/_cache/e02/lane06-foundation-composed",
+          "result": "239 PASS in21.63s; peak sampled process-tree1.404GiB; ten named source/test inputs unchanged",
+          "scope": "Composed local family regressions for six packets; not full E02-I06 scenarios or all75 local TEST contracts."
+        }
+      ],
+      "blockers": [
+        "Installed distribution and actual production historical corpus are not established. Enrolled .3 software checks use unsigned ownership-disabled fixture storage, not custody or native method-execution evidence. Full I06-E remains NOT_RUN."
+      ],
       "deferred_ids": [],
       "execution_profile": {
-        "test_slot": "queued after exclusive STA-01 qualification; no concurrent heavy processes",
+        "test_slot": "released; relevant sources frozen through composition",
         "source_scope": "Only leased paths; root owns index/commits/refs/generated families and imported working state. Read-only analysis of downstream packets allowed; no second active lane.",
-        "independent_review": "pending",
+        "independent_review": "GO for the described local slice; no G or whole-packet acceptance",
         "delegate_limit": "At most one read-only child; explicit allowed model; grandchild is leaf."
-      }
+      },
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-CAN-01-01",
+          "test_id": "TEST-CAN-01-01",
+          "status": "CONFIRMED_FINITE_CORPUS",
+          "basis": "Five declared literal vectors plus existing bounded conformance suites, separate policies and fresh IR import."
+        },
+        {
+          "requirement_id": "REQ-CAN-01-02",
+          "test_id": "TEST-CAN-01-02",
+          "status": "CONFIRMED_FINITE_CORPUS",
+          "basis": "Explicit raw alias read/current producer+selected-reader refusal; array_digest positive. No supported production alias caller invented."
+        },
+        {
+          "requirement_id": "REQ-CAN-01-03",
+          "test_id": "TEST-CAN-01-03",
+          "status": "PARTIAL",
+          "basis": "Real sync/async selected CAS paths and bounded enrolled .3 software controls passed; enrolled storage is unsigned/ownership-disabled. Installed/scoped custody claims remain open."
+        }
+      ]
     },
     {
       "packet_id": "MIG-05",
@@ -752,14 +939,18 @@
       "lane_sequence": 1,
       "track_id": "06-D",
       "track_position": 2,
-      "implementation_status": "NOT_STARTED",
-      "local_qualification": "NOT_RUN",
+      "implementation_status": "REVIEWED_LOCAL_SLICE",
+      "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "/root/lane06_canonical",
+      "base_commit": "7bbc075e3a19056b762db7a5abc1df6a886742b4",
       "integrated_commit": null,
-      "actual_write_set": [],
-      "shared_writer": null,
+      "actual_write_set": [
+        "policy-engine/src/polisyos/ir/migrations/base.py",
+        "policy-engine/tests/unit/remediation/test_mig_05.py",
+        "policy-engine/src/polisyos/ir/migrations/README.md"
+      ],
+      "shared_writer": "/root/lane06_canonical",
       "decision_records": [],
       "requirement_ids": [
         "REQ-MIG-05-01",
@@ -773,9 +964,53 @@
         "TEST-MIG-05-03",
         "TEST-MIG-05-04"
       ],
-      "evidence": [],
-      "blockers": [],
-      "deferred_ids": []
+      "evidence": [
+        {
+          "output": "policy-engine/_cache/e02/lane06-mig05-final",
+          "result": "55 PASS",
+          "scope": "Unsupported-vs-empty captured values; supported callbacks; Common/IR profile preservation; actual DataForge BFS/instances; Trinity conversion-vs-DTO validation."
+        },
+        {
+          "output": "policy-engine/_cache/e02/lane06-foundation-composed",
+          "result": "239 PASS in21.63s; peak sampled process-tree1.404GiB; ten named source/test inputs unchanged",
+          "scope": "Composed local family regressions for six packets; not full E02-I06 scenarios or all75 local TEST contracts."
+        }
+      ],
+      "blockers": [
+        "Finite supported external callback/import and historical-input inventory plus installed composition remain open; current ops converter uses per-call selected_edges, not global registration."
+      ],
+      "deferred_ids": [],
+      "execution_profile": {
+        "test_slot": "released; relevant sources frozen through composition",
+        "source_scope": "Separate reading an actually empty closure cell from failure while encoding a nonempty captured value. Preserve Common/IR profiles and supported callbacks.",
+        "independent_review": "GO for the described local slice; no G or whole-packet acceptance"
+      },
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-MIG-05-01",
+          "test_id": "TEST-MIG-05-01",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Exact empty-cell/unsupported capture split, no registry mutation on refusal, supported repeat/conflict and real callback controls."
+        },
+        {
+          "requirement_id": "REQ-MIG-05-02",
+          "test_id": "TEST-MIG-05-02",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Existing Common/IR linear profile tests passed, preserving copy/stamp/error/no-op behavior."
+        },
+        {
+          "requirement_id": "REQ-MIG-05-03",
+          "test_id": "TEST-MIG-05-03",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Actual DataForge shortest path/tie/instance controls plus Trinity conversion distinct from DTO admission."
+        },
+        {
+          "requirement_id": "REQ-MIG-05-04",
+          "test_id": "TEST-MIG-05-04",
+          "status": "PARTIAL",
+          "basis": "Finite current-source registration observations recorded; installed/external callbacks and historical-input inventory remain unqualified."
+        }
+      ]
     },
     {
       "packet_id": "MIG-01",
@@ -5935,7 +6170,15 @@
       "evidence": []
     }
   ],
-  "newly_discovered_dependencies": [],
+  "newly_discovered_dependencies": [
+    {
+      "kind": "source_drift_reconciliation",
+      "packet_id": "MIG-04",
+      "actual_owner": "tools/ops_runners/migrations/migrate.py",
+      "detail": "dataset_manifest already supplies declared converter through per-call selected_edges; preserve existing exact binding, do not restore obsolete global registration from prose.",
+      "blocks_other_work": false
+    }
+  ],
   "final_acceptance": "NOT_RUN",
   "source_admission": {
     "commit": "3865c5ca668fb8aa507246f318cdeb7bd98b2d02",
@@ -5947,6 +6190,42 @@
     "archive_integrity": "PASS_DOCUMENT_INTEGRITY before working-state edit; product checks NOT_RUN",
     "python_lock_sha256": "ccfdca0e741dc77795f5af61871af5d62e73feebf55c7ffb28cd16e55fe207e9",
     "resource_profile": "macOS arm64; existing Python 3.14 environment; at most two qualified light test jobs, unknown native job alone; about 10 GiB free; no reinstall or environment copies",
-    "authorization": "User authorizes sequential lanes, parallel work within active lane, ordinary main composition and retirement after actual content/protection/worktree checks. No cloud tasks or production-data export."
-  }
+    "authorization": "User authorizes sequential lanes, parallel work within active lane, ordinary main composition and retirement after actual content/protection/worktree checks. No cloud tasks or production-data export.",
+    "node_version": "22.22.2",
+    "filesystem_profile": "Measured APFS disk3s5 /System/Volumes/Data; native software qualification only, no power-loss/NFS/Linux guarantee"
+  },
+  "composition_checkpoints": [
+    {
+      "base_commit": "7bbc075e3a19056b762db7a5abc1df6a886742b4",
+      "source_binding": "Use the commit containing this state change together with the ten source/test hashes in lane06-foundation-composed/after.json; do not invent self-referential final SHA. Root reads delivered blobs back after commit.",
+      "packets": [
+        "STA-01",
+        "RUN-01",
+        "STA-02",
+        "CAN-01",
+        "CAS-01",
+        "MIG-05"
+      ],
+      "local_result": "239 PASS; independent source/material-delta reviews GO",
+      "shared_integration_status": "NOT_RUN",
+      "next_readiness_batch": [
+        "CAS-02",
+        "EXE-01",
+        "MIG-01"
+      ],
+      "source_reconciliation_notes": [
+        "Current main/author state, CAN and CAS historical repairs are already composed. No unique missing fix was found in the inspected named refs; no branch deleted solely from ancestry.",
+        "MIG-04 must preserve current per-call selected_edges converter binding instead of restoring obsolete global registration.",
+        "STA-02 first closes current-invocation materialization. Missing native fit bridge is explicit remaining implementation, not merely a late test."
+      ],
+      "gate_results": {
+        "ruff": "PASS",
+        "public_inventory_sync": "PASS; no generated content delta",
+        "static_architecture": "PASS with --skip-generated-checks; isolated generated-artifact probes explicitly NOT_RUN",
+        "trust_freshness": "PASS; selected payload unchanged",
+        "import_policy": "PASS, enforced complete gate on actual source",
+        "independent_reviews": "GO including final CAS adversarial-test and MIG DataForge/DTO deltas"
+      }
+    }
+  ]
 }

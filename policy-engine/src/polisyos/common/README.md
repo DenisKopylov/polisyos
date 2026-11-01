@@ -167,6 +167,12 @@ through the same bounded pool, and the submission captures the callback
 thread's current context. Callback exceptions follow the standard Future
 logging behavior.
 
+If `run_coro_sync` receives a shared-executor backpressure or reentrancy refusal
+before scheduling, it closes only the fresh, unstarted coroutine supplied to that
+call and propagates the original refusal. Tasks, Futures, suspended coroutines and
+custom awaitables retain their existing owners. Exceptions from accepted work are
+not treated as admission refusals.
+
 Every submission captures its own current context. Queue cancellation prevents
 unstarted work and notifies Future waiters; running callables and arbitrary
 callback waits remain cooperative. Shutdown closes admission before entering

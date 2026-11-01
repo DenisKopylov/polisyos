@@ -168,6 +168,7 @@ def merge_parallel_outcomes(
             applied_targets.add(group_target)
         _apply_staged_write(merged, write)
 
+    _validate_protected_membership(base_state, merged)
     return MergeResult(
         state=merged,
         resolved_conflicts=resolved_conflicts,
@@ -470,6 +471,21 @@ def _assign_value(root: Any, key: str, value: Any) -> None:
 
 
 _PROTECTED_DELETE_ROOTS = frozenset({"inputs", "artifacts_index", "reports_index"})
+
+
+def _validate_protected_membership(before: ExperimentState, after: ExperimentState) -> None:
+    """Refuse a staged merge that loses keys from the current protected indexes."""
+    for root in sorted(_PROTECTED_DELETE_ROOTS):
+        previous = getattr(before, root)
+        staged = getattr(after, root)
+        if not isinstance(staged, dict):
+            raise StateReplayIncompatible(root, "protected index is not a mapping")
+        if not isinstance(previous, dict):
+            raise StateReplayIncompatible(root, "current protected index is not a mapping")
+        removed = previous.keys() - staged.keys()
+        if removed:
+            key = min(removed)
+            raise StateReplayIncompatible(f"{root}.{key}", "protected index key was removed")
 
 
 def _target_kind(value: Any) -> StateMutationTargetKind:

@@ -24,6 +24,144 @@ pytestmark = pytest.mark.unit
 Callback = Callable[[dict[str, Any]], Any]
 
 
+class _OpaqueMigrationConfiguration:
+    """Unsupported semantic configuration, not an empty closure cell."""
+
+    def __init__(self, factor: int) -> None:
+        self.factor = factor
+
+
+def _capture_configuration(configuration: object) -> Callback:
+    def migrate(data: dict[str, Any]) -> dict[str, Any]:
+        result = _return_without_schema_version(data)
+        result["configuration"] = configuration
+        return result
+
+    return migrate
+
+
+@pytest.mark.parametrize("boundary", ["fingerprint", "registration"])
+def test_unsupported_closure_configuration_is_not_an_empty_cell(boundary: str) -> None:
+    """Distinct opaque captures refuse without changing any registry state."""
+    first = _capture_configuration(_OpaqueMigrationConfiguration(2))
+    second = _capture_configuration(_OpaqueMigrationConfiguration(7))
+    assert first.__code__ is second.__code__
+    before = ir_migrations.get_ir_owner_registry_snapshot()
+    for callback in (first, second):
+        operation = (
+            ir_migrations._migration_function_fingerprint
+            if boundary == "fingerprint"
+            else lambda fn: _register_ir("mig05.ir.opaque_capture", "0.1", "0.2", fn)
+        )
+        with pytest.raises(
+            ir_migrations.MigrationCompatibilityError,
+            match="deterministic supported identities",
+        ):
+            operation(callback)
+        assert ir_migrations.get_ir_owner_registry_snapshot() == before
+
+
+def _empty_capture_callback() -> Callback:
+    configuration = "deliberately removed"
+
+    def migrate(data: dict[str, Any]) -> dict[str, Any]:
+        if data.get("read_empty_capture"):
+            # The deleted free variable deliberately leaves an actual empty cell.
+            return {"configuration": configuration}  # noqa: F821
+        return _return_without_schema_version(data)
+
+    del configuration
+    return migrate
+
+
+def test_genuinely_empty_closure_keeps_stable_registration_and_actual_execution() -> None:
+    """Empty-cell handling stays separate from unsupported-value encoding."""
+    first, second = _empty_capture_callback(), _empty_capture_callback()
+    assert first.__closure__ is not None and len(first.__closure__) == 1
+    with pytest.raises(ValueError, match="Cell is empty"):
+        _ = first.__closure__[0].cell_contents
+    assert ir_migrations._migration_function_fingerprint(first) == (
+        ir_migrations._migration_function_fingerprint(second)
+    )
+    _register_ir("mig05.ir.empty_capture", "0.1", "0.2", first)
+    _register_ir("mig05.ir.empty_capture", "0.1", "0.2", second)
+    result = ir_migrations.migrate_artifact(
+        _payload(), artifact="mig05.ir.empty_capture", target_version="0.2"
+    )
+    assert result["schema_version"] == "0.2"
+    assert result["marker"] == "unchanged"
+
+
+@pytest.mark.parametrize(
+    ("first_value", "identical_value", "conflicting_value"),
+    [(2, 2, 7), ({"factor": 2}, {"factor": 2}, {"factor": 7})],
+    ids=["scalar", "mapping"],
+)
+def test_supported_closure_repeat_and_conflict_keep_the_registered_callback(
+    first_value: object,
+    identical_value: object,
+    conflicting_value: object,
+) -> None:
+    """Equal supported descriptors reuse; a different capture cannot replace it."""
+    artifact = "mig05.ir.supported_capture." + type(first_value).__name__
+    first = _capture_configuration(first_value)
+    identical = _capture_configuration(identical_value)
+    conflicting = _capture_configuration(conflicting_value)
+    _register_ir(artifact, "0.1", "0.2", first)
+    before = ir_migrations.get_ir_owner_registry_snapshot()
+    _register_ir(artifact, "0.1", "0.2", identical)
+    assert ir_migrations.get_ir_owner_registry_snapshot() == before
+    with pytest.raises(ir_migrations.MigrationCompatibilityError, match="Conflicting migration"):
+        _register_ir(artifact, "0.1", "0.2", conflicting)
+    after = ir_migrations.get_ir_owner_registry_snapshot()
+    assert after == before
+    assert after.migration_edges[(artifact, "0.1")].fn is first
+    result = ir_migrations.migrate_artifact(_payload(), artifact=artifact, target_version="0.2")
+    assert result["configuration"] == first_value
+    assert result["schema_version"] == "0.2"
+
+
+def test_registration_descriptor_does_not_claim_live_semantic_configuration_is_frozen() -> None:
+    """Mutable semantic capture remains explicitly outside reproducible identity."""
+    configuration = {"factor": 2}
+
+    def migrate(data: dict[str, Any]) -> dict[str, Any]:
+        return {"result": data["value"] * configuration["factor"]}
+
+    artifact = "mig05.ir.mutable_semantic_capture"
+    _register_ir(artifact, "0.1", "0.2", migrate)
+    before = ir_migrations.get_ir_owner_registry_snapshot()
+    registration = before.migration_edges[(artifact, "0.1")]
+    configuration["factor"] = 7
+    assert ir_migrations.get_ir_owner_registry_snapshot() == before
+    result = ir_migrations.migrate_artifact(
+        {"schema_version": "0.1", "value": 3}, artifact=artifact, target_version="0.2"
+    )
+    assert result == {"result": 21, "schema_version": "0.2"}
+    assert ir_migrations._migration_function_fingerprint(migrate) != registration.fingerprint
+
+
+def test_immutable_semantic_capture_and_mutable_observer_keep_actual_profile_behavior() -> None:
+    """An observer list stays live without rehashing or freezing the callback."""
+    stable_configuration = (2,)
+    observations: list[int] = []
+
+    def migrate(data: dict[str, Any]) -> dict[str, Any]:
+        observations.append(data["value"])
+        return {"result": data["value"] * stable_configuration[0]}
+
+    artifact = "mig05.ir.observed_immutable_capture"
+    _register_ir(artifact, "0.1", "0.2", migrate)
+    before = ir_migrations.get_ir_owner_registry_snapshot()
+    for value in (3, 4):
+        result = ir_migrations.migrate_artifact(
+            {"schema_version": "0.1", "value": value}, artifact=artifact, target_version="0.2"
+        )
+        assert result == {"result": value * 2, "schema_version": "0.2"}
+        assert ir_migrations.get_ir_owner_registry_snapshot() == before
+    assert observations == [3, 4]
+
+
 def _payload(version: object = "0.1") -> dict[str, Any]:
     return {
         "schema_version": version,
@@ -436,3 +574,113 @@ def test_shared_engine_annotations_resolve_for_runtime_introspection() -> None:
     assert all(get_origin(profile_hints[field]) is Callable for field in callable_fields)
     assert get_origin(runner_hints["edge_lookup"]) is Callable
     assert "profile" in runner_hints
+
+
+@pytest.mark.parametrize("reverse_registration", [False, True])
+def test_data_forge_keeps_deterministic_shortest_path_and_its_distinct_profile(
+    reverse_registration: bool,
+) -> None:
+    """The branching owner preserves ordering, instance scope and shallow copy."""
+    from pydantic import ValidationError
+
+    from polisyos.data_forge.kernel import DataForgeValidationError
+    from polisyos.data_forge.kernel.schemas.migrations import (
+        SchemaMigrationPlan,
+        SchemaMigrationRegistry,
+    )
+
+    registry = SchemaMigrationRegistry()
+    edges = [
+        ("0.1.0", "0.3.0", "high"),
+        ("0.1.0", "0.2.0", "low"),
+        ("0.3.0", "1.0.0", "viahigh"),
+        ("0.2.0", "1.0.0", "vialow"),
+    ]
+
+    def converter(label: str):
+        def migrate(data):
+            data["nested"]["last_step"] = label
+            return {**data, "route": [*data["route"], label]}
+
+        return migrate
+
+    for from_version, to_version, name in reversed(edges) if reverse_registration else edges:
+        registry.register(
+            SchemaMigrationPlan(
+                schema_id="mig05.graph",
+                from_version=from_version,
+                to_version=to_version,
+                migration_id=name,
+            ),
+            converter(name),
+        )
+    path = registry.plan_path(schema_id="mig05.graph", from_version="0.1.0", to_version="1.0.0")
+    assert [edge.migration_id for edge in path] == ["low", "vialow"]
+    original = {"schema_version": "0.1.0", "nested": {}, "route": []}
+    migrated = registry.apply(
+        original, schema_id="mig05.graph", from_version="0.1.0", to_version="1.0.0"
+    )
+    assert migrated["route"] == ["low", "vialow"]
+    assert original["route"] == []
+    assert migrated is not original
+    assert migrated["nested"] is original["nested"]
+    assert original["nested"] == {"last_step": "vialow"}
+    assert migrated["schema_version"] == "0.1.0"  # Graph owner does not auto-stamp.
+
+    with pytest.raises(DataForgeValidationError, match="already registered"):
+        registry.register(path[0], converter("duplicate"))
+    with pytest.raises(ValidationError):
+        SchemaMigrationPlan(
+            schema_id="mig05.graph", from_version="0.1", to_version="1.0.0", migration_id="bad"
+        )
+    with pytest.raises(DataForgeValidationError, match="no schema migration path"):
+        SchemaMigrationRegistry().plan_path(
+            schema_id="mig05.graph", from_version="0.1.0", to_version="1.0.0"
+        )
+    registry.register(
+        SchemaMigrationPlan(
+            schema_id="mig05.graph", from_version="0.1.0", to_version="1.0.0", migration_id="direct"
+        ),
+        converter("direct"),
+    )
+    assert [
+        edge.migration_id
+        for edge in registry.plan_path(
+            schema_id="mig05.graph", from_version="0.1.0", to_version="1.0.0"
+        )
+    ] == ["direct"]
+
+
+def test_migration_required_is_not_direct_read_or_actual_dto_admission() -> None:
+    """A successful version conversion still needs the actual Trinity validator."""
+    from pydantic import ValidationError
+
+    from polisyos.ir.trinity import TrinityBundle
+
+    artifact = "mig05.ir.conversion_not_admission"
+    for version in ("0.9", "1.0"):
+        ir_migrations.register_schema_version(
+            artifact, version, compatibility=ir_migrations.CompatibilityMode.NONE
+        )
+
+    def convert(data: dict[str, Any]) -> dict[str, Any]:
+        return {**data, "schema_version": "1.0"}
+
+    _register_ir(artifact, "0.9", "1.0", convert)
+    decision = ir_migrations.negotiate_schema_version(artifact, "0.9", "1.0")
+    assert decision.can_read is True
+    assert decision.migration_required is True
+    assert decision.reason == "migration_available"
+    valid_source = {**_canonical_trinity_payload(), "schema_version": "0.9"}
+    converted = ir_migrations.migrate_artifact(
+        valid_source, artifact=artifact, target_version="1.0"
+    )
+    bundle = TrinityBundle.model_validate(converted)
+    assert bundle.policy_spec.policy_id == "ps_mig05"
+    invalid_source = {"schema_version": "0.9", "policy_spec": {"policy_id": "missing_dependencies"}}
+    converted_invalid = ir_migrations.migrate_artifact(
+        invalid_source, artifact=artifact, target_version="1.0"
+    )
+    assert converted_invalid["schema_version"] == "1.0"
+    with pytest.raises(ValidationError):
+        TrinityBundle.model_validate(converted_invalid)

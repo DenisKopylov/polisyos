@@ -217,6 +217,13 @@ Cache verification and replay retain the full `ArtifactRef`, including its selec
 manifest profile. Distinct views of the same blob receive independent custody
 checks; a verified default view cannot authorize another producer's view.
 
+The merge also compares the resulting membership of `inputs`, `artifacts_index`
+and `reports_index` with the current base after all detached staged writes. A
+whole-root replacement cannot silently remove evidence keys: it raises the same
+`StateReplayIncompatible` used by cache eviction/recomputation before publishing
+any result. Additions and permitted ref updates remain valid; the replay grammar
+and journal version do not change.
+
 The current journal algorithm is `1.2`. It records operations against the live
 finite JSON graph, including held references after list insertion, removal or
 reparenting. Shared targets carry an operation group with one encoded intent so

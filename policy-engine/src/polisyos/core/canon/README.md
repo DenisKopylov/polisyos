@@ -6,6 +6,17 @@ shared Common mechanics. Core and IR retain separate native-tag policies and
 historical `.2` law; existing `.2` bytes, hashes and named hash domains are not
 rewritten or reinterpreted.
 
+The finite CAN-01 software corpus retains the mixed Decimal/date/datetime/
+bytes/null golden and three raw Core tags from the audited source, and adds
+four literal boundary vectors for null, empty bytes, finite floats/zero,
+Unicode and integers. It is not a production-history inventory. Core's raw
+`.2` decoder still reads `float_hex` and `bytes_hex`; their old bytes and IDs
+remain inspectable. Current producers and selected-profile readers refuse
+these aliases with `canon_profile_payload_nonconformant` because decoding and
+re-encoding would change those bytes. The opaque `.2` `array_digest` remains
+conformant. No new candidate-reader API or blanket historical compatibility
+claim follows without an actual supported historical object and consumer.
+
 ## Direct bounded encoding
 
 The module-level `to_bounded_canonical_bytes(value, spec, limits)` snapshots the
@@ -44,13 +55,19 @@ hex and array-tag reads keep their existing primitive/dictionary meaning.
 The direct bounded API does not enable a persisted `.3` writer or supply an
 owner-authorized resource policy. A caller-chosen `policy_id` is a label, not
 proof that a store, manifest profile, reader or backend is ready. Existing
-artifact-writer admission continues to refuse `.3`; unknown declarations remain
+generic artifact-writer admission continues to refuse `.3`; unknown declarations remain
 unqualified or refuse authority use. Selected `.3` artifact readers must bind
 the exact manifest and payload, complete codec flags, reader identity and
 owner vector before their corresponding writers can be enabled. State,
 checkpoint, Foundry/cache, installed and rollback consumers need their own
 reader-first verification. No producer authority, currentness, G acceptance or
 formal closure follows from a direct codec result.
+
+The separately enrolled Foundry method-artifact-output producer has its own
+bounded `.3` policy, plain DTO, selected input edges and custody/resource
+admission. Its qualification does not enable generic `.3` writers or another
+owner's payload. CAN-01 reuses that actual cohort's tests rather than creating
+a second enrollment mechanism.
 
 ## Qualified persisted reads
 

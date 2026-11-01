@@ -577,9 +577,11 @@ def _migration_function_fingerprint(fn: MigrationFn) -> str:
     if closure is not None:
         for cell in closure:
             try:
-                closure_values.append(_stable_migration_value(cell.cell_contents))
+                value = cell.cell_contents
             except ValueError:
                 closure_values.append({"type": "empty_cell"})
+            else:
+                closure_values.append(_stable_migration_value(value))
     identity = {
         "callable": callable_identity,
         "code_sha256": code_hash,

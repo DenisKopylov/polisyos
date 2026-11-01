@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import concurrent.futures
 import gc
+import inspect
 import subprocess
 import sys
 import threading
@@ -240,6 +241,149 @@ def test_run_coro_sync_works_inside_running_loop() -> None:
         return run_coro_sync(asyncio.sleep(0.01, result=11))
 
     assert asyncio.run(_wrapper()) == 11
+
+
+@pytest.mark.asyncio
+async def test_run_coro_sync_closes_only_fresh_coroutine_on_actual_backpressure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A rejected fresh coroutine never starts; another loop-owned task survives."""
+    from polisyos.common import async_tools
+
+    executor = async_tools._SharedExecutor(max_workers=1, max_queued=0)
+    started = threading.Event()
+    release = threading.Event()
+    calls: list[str] = []
+    task_release = asyncio.Event()
+
+    def hold_worker() -> None:
+        started.set()
+        assert release.wait(timeout=3)
+
+    async def rejected_body() -> None:
+        calls.append("body")
+
+    async def owned_body() -> str:
+        await task_release.wait()
+        return "owned task continued"
+
+    async def suspended_body() -> None:
+        await asyncio.sleep(0)
+
+    class OwnedAwaitable:
+        close_calls = 0
+
+        def __await__(self):
+            return task.__await__()
+
+        def close(self) -> None:
+            self.close_calls += 1
+
+    monkeypatch.setattr(async_tools, "_get_shared_executor", lambda: executor)
+    work = executor.submit(hold_worker)
+    task = asyncio.create_task(owned_body())
+    await asyncio.sleep(0)
+    rejected = rejected_body()
+    suspended = suspended_body()
+    suspended.send(None)
+    future = asyncio.get_running_loop().create_future()
+    wrapper = OwnedAwaitable()
+    try:
+        assert started.wait(timeout=2)
+        with pytest.raises(async_tools.SharedExecutorBackpressureError) as refusal:
+            run_coro_sync(rejected)
+        assert refusal.value.code == "shared_executor_queue_full"
+        assert inspect.getcoroutinestate(rejected) == inspect.CORO_CLOSED
+        assert rejected.cr_frame is None and calls == []
+        with pytest.raises(async_tools.SharedExecutorBackpressureError):
+            run_coro_sync(task)
+        assert not task.done() and not task.cancelled()
+        with pytest.raises(async_tools.SharedExecutorBackpressureError):
+            run_coro_sync(future)
+        assert not future.done() and not future.cancelled()
+        with pytest.raises(async_tools.SharedExecutorBackpressureError):
+            run_coro_sync(suspended)
+        assert inspect.getcoroutinestate(suspended) == inspect.CORO_SUSPENDED
+        with pytest.raises(async_tools.SharedExecutorBackpressureError):
+            run_coro_sync(wrapper)
+        assert wrapper.close_calls == 0
+        future.set_result("owned future continued")
+        assert await future == "owned future continued"
+        task_release.set()
+        assert await task == "owned task continued"
+    finally:
+        if inspect.getcoroutinestate(rejected) != inspect.CORO_CLOSED:
+            rejected.close()
+        suspended.close()
+        task_release.set()
+        release.set()
+        work.result(timeout=3)
+        executor.shutdown(wait=True, cancel_futures=True)
+
+
+def test_run_coro_sync_closes_fresh_coroutine_on_actual_nested_reentrancy(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A nested refusal belongs to the producer worker and starts no inner body."""
+    from polisyos.common import async_tools
+
+    executor = async_tools._SharedExecutor(max_workers=1, max_queued=0)
+    monkeypatch.setattr(async_tools, "_get_shared_executor", lambda: executor)
+    calls: list[str] = []
+
+    async def rejected_body() -> None:
+        calls.append("body")
+
+    async def inside_worker_loop() -> tuple[str, bool]:
+        rejected = rejected_body()
+        try:
+            with pytest.raises(async_tools.SharedExecutorReentrancyError):
+                run_coro_sync(rejected)
+            return inspect.getcoroutinestate(rejected), rejected.cr_frame is None
+        finally:
+            if inspect.getcoroutinestate(rejected) != inspect.CORO_CLOSED:
+                rejected.close()
+
+    try:
+        state, no_frame = executor.submit(lambda: asyncio.run(inside_worker_loop())).result(
+            timeout=3
+        )
+        assert (state, no_frame, calls) == (inspect.CORO_CLOSED, True, [])
+    finally:
+        executor.shutdown(wait=True, cancel_futures=True)
+
+
+@pytest.mark.asyncio
+async def test_run_coro_sync_keeps_admitted_ownership_and_original_body_error(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A typed error raised after admission is not mistaken for a submit refusal."""
+    from polisyos.common import async_tools
+
+    executor = async_tools._SharedExecutor(max_workers=1, max_queued=0)
+    monkeypatch.setattr(async_tools, "_get_shared_executor", lambda: executor)
+    calls: list[str] = []
+    error = async_tools.SharedExecutorBackpressureError(queue_depth=4, queue_capacity=5, capacity=6)
+
+    async def admitted_body(*, fail: bool) -> str:
+        calls.append("body")
+        try:
+            if fail:
+                raise error
+            return "accepted"
+        finally:
+            calls.append("finally")
+
+    try:
+        assert run_coro_sync(admitted_body(fail=False)) == "accepted"
+        with executor._capacity_changed:
+            assert executor._capacity_changed.wait_for(lambda: executor._outstanding_jobs == 0, 2)
+        with pytest.raises(async_tools.SharedExecutorBackpressureError) as captured:
+            run_coro_sync(admitted_body(fail=True))
+        assert captured.value is error
+        assert calls == ["body", "finally", "body", "finally"]
+    finally:
+        executor.shutdown(wait=True, cancel_futures=True)
 
 
 def test_run_coro_sync_preserves_context_inside_running_loop() -> None:

@@ -8,6 +8,7 @@ import concurrent.futures
 import contextvars
 import functools
 import hashlib
+import inspect as _inspect
 import os
 import sys
 import threading
@@ -708,7 +709,18 @@ def run_coro_sync[T](coro: Awaitable[T], *, timeout_seconds: float | None = None
             coro,
             timeout_seconds=timeout,
         )
-        future = _get_shared_executor().submit(context.run, call)
+        try:
+            future = _get_shared_executor().submit(context.run, call)
+        except (SharedExecutorBackpressureError, SharedExecutorReentrancyError):
+            # These typed refusals occur before the shared executor takes
+            # ownership. Close only an unstarted coroutine owned by this call;
+            # Tasks, Futures and already-suspended work retain their owners.
+            if (
+                _inspect.iscoroutine(coro)
+                and _inspect.getcoroutinestate(coro) == _inspect.CORO_CREATED
+            ):
+                coro.close()
+            raise
         try:
             return future.result(timeout=timeout + 1.0)
         except concurrent.futures.TimeoutError as exc:

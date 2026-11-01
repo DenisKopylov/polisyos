@@ -1,0 +1,14 @@
+id = "2026-11-01-lane06-foundation-repairs"
+title = "Repair protected replay, coroutine admission and current parameter reuse"
+type = "fixed"
+component = "scientist"
+owner = "e02-coordinator"
+summary = "Check protected evidence membership after staged state replay; clean up only unstarted coroutines on pre-submit executor refusal; materialize reused parameter bundles for the current request; propagate unsupported migration captures instead of treating them as empty closure cells. Qualify existing canonical and CAS boundaries with real selected readers."
+evidence = ["tests/unit/scientist/orchestration/engine/test_state_merge.py", "tests/unit/common/test_async_tools.py", "tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py", "tests/unit/remediation/test_mig_05.py", "tests/unit/remediation/test_can_01.py", "tests/unit/remediation/test_cas_01.py"]
+compatibility = "No public signature, persisted schema, canonical default or journal-version change. Unsupported captures now refuse before registration; supported callbacks and observer captures retain their behavior."
+change_class = "Internal mechanism corrections and native qualification through existing owners."
+surface_classification = "internal; supported public signatures unchanged"
+api = "No new API; preserve typed refusal and artifact identities."
+limitations = "Shared lane integration, installed artifacts, actual process crash recovery, production historical corpora and native SCM consumer wiring retain their explicit pending requirements. No G acceptance or authority promotion."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true

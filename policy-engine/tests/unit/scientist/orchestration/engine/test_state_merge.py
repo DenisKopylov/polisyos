@@ -241,6 +241,73 @@ class TestMergeParallelOutcomes:
                 {"node_a": ["artifacts_index"]},
             )
 
+    @pytest.mark.parametrize("root", ["inputs", "artifacts_index", "reports_index"])
+    @pytest.mark.parametrize("replacement", ["empty", "different"])
+    def test_whole_protected_root_replacement_refuses_lost_current_keys_atomically(
+        self, base_state, root, replacement
+    ):
+        """Recorded root sets cannot erase the current base or publish a sibling write."""
+        original_ref = _artifact_ref("a")
+        current_ref = _artifact_ref("b")
+        source = base_state.model_copy(update={root: {"evidence": original_ref}})
+        branch = branch_state(source, write_paths=(root, "params"), enforce_write_scope=True)
+        branch.state.params["staged"] = "must-not-publish"
+        setattr(
+            branch.state,
+            root,
+            {} if replacement == "empty" else {"new": original_ref},
+        )
+        current = base_state.model_copy(
+            update={root: {"evidence": original_ref, "current-only": current_ref}}
+        )
+        before = current.model_dump(mode="python")
+
+        with pytest.raises(StateReplayIncompatible) as exc:
+            merge_parallel_outcomes(
+                current,
+                {"node_a": _ok_outcome(branch.state)},
+                {"node_a": [root, "params"]},
+            )
+
+        assert exc.value.path.startswith(f"{root}.")
+        assert current.model_dump(mode="python") == before
+        assert "staged" not in current.params
+
+    @pytest.mark.parametrize("root", ["inputs", "artifacts_index", "reports_index"])
+    def test_whole_protected_root_set_allows_existing_ref_update_and_addition(
+        self, base_state, root
+    ):
+        """Protection is key membership, not a blanket ban on useful root writes."""
+        source = base_state.model_copy(update={root: {"evidence": _artifact_ref("a")}})
+        branch = branch_state(source, write_paths=(root,), enforce_write_scope=True)
+        replacement = {"evidence": _artifact_ref("b"), "new": _artifact_ref("c")}
+        setattr(branch.state, root, replacement)
+
+        result = merge_parallel_outcomes(
+            source,
+            {"node_a": _ok_outcome(branch.state)},
+            {"node_a": [root]},
+        )
+
+        assert result.applied is True
+        assert getattr(result.state, root) == replacement
+        assert getattr(source, root)["evidence"] == _artifact_ref("a")
+        assert "new" not in getattr(source, root)
+
+    @pytest.mark.parametrize("root", ["inputs", "artifacts_index", "reports_index"])
+    def test_unjournaled_non_mapping_protected_root_refuses_without_mutating_base(
+        self, base_state, root
+    ):
+        """Compatibility outcomes cannot substitute a missing protected container."""
+        source = base_state.model_copy(update={root: {"evidence": _artifact_ref("a")}})
+        invalid = source.model_copy(update={root: None})
+        before = source.model_dump(mode="python")
+
+        with pytest.raises(StateReplayIncompatible, match=root):
+            merge_parallel_outcomes(source, {"node_a": _ok_outcome(invalid)}, {"node_a": [root]})
+
+        assert source.model_dump(mode="python") == before
+
     # Production mutation caught: scalar/ref paths must replay through both
     # parallel merge and an explicit same-value declared write.
     def test_replay_replays_top_level_ref_and_same_value_write(self, base_state):

@@ -50,6 +50,18 @@ class _CaptureAudit:
         self.entries.append(entry)
 
 
+class _FailSecondAppendAudit(_CaptureAudit):
+    def __init__(self) -> None:
+        super().__init__()
+        self.append_calls = 0
+
+    def append(self, entry: dict[str, Any]) -> None:
+        self.append_calls += 1
+        if self.append_calls == 2:
+            raise OSError("authorization audit storage unavailable")
+        super().append(entry)
+
+
 def test_authorization_state_restoration_handles_absent_and_present_none() -> None:
     from starlette.datastructures import State
 
@@ -132,9 +144,15 @@ def test_disallowed_production_approval_is_denied_and_audited_with_principal_ide
     assert event["route_path"] == "/api/v1/runs/{run_id}/production-approval"
 
 
+@pytest.mark.parametrize(
+    "fail_authorization_audit",
+    [False, True],
+    ids=["decision-persisted", "decision-audit-fails-closed"],
+)
 def test_cross_tenant_run_denial_is_persisted_under_request_principal(
     runtime_api_env,
     monkeypatch,
+    fail_authorization_audit: bool,
 ) -> None:
     from pathlib import Path
 
@@ -179,6 +197,10 @@ def test_cross_tenant_run_denial_is_persisted_under_request_principal(
         opa_client=_AllowOPA(),
     )
     audit_path = Path(runtime_api_env["cas_root"]) / "runtime" / "audit" / "access.jsonl"
+    failing_audit = _FailSecondAppendAudit() if fail_authorization_audit else None
+    if failing_audit is not None:
+        app.state.runtime_access_audit = failing_audit
+        app.state.runtime_container.runtime_access_audit = failing_audit
     projection_calls: list[str] = []
 
     with TestClient(app, raise_server_exceptions=False) as client:
@@ -196,6 +218,22 @@ def test_cross_tenant_run_denial_is_persisted_under_request_principal(
                 "X-Request-ID": request_id,
             },
         )
+
+    if failing_audit is not None:
+        assert response.status_code == 503, response.text
+        assert response.json()["code"] == "authorization_audit_unavailable"
+        assert tenant_b not in response.text
+        assert projection_calls == []
+        assert failing_audit.append_calls == 2
+        assert len(failing_audit.entries) == 1
+        data_access_event = failing_audit.entries[0]
+        assert data_access_event["tenant_id"] == tenant_a
+        assert data_access_event["actor"] == claims.sub
+        assert data_access_event["outcome"] == "deny"
+        assert data_access_event["metadata"] == {"denial_reason": "run_tenant_mismatch"}
+        assert "runtime.authorization.decision" not in str(data_access_event)
+        assert tenant_b not in str(data_access_event)
+        return
 
     assert response.status_code == 403, response.text
     assert response.json()["code"] == "run_tenant_mismatch"

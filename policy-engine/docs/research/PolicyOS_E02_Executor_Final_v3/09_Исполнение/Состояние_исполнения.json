@@ -1251,16 +1251,18 @@
       "base_commit": "388064755fa8833107f35ae097633b1b3445b59f",
       "integrated_commit": "d41804e343691f0c3dabadef6232f7a11aabd810",
       "actual_write_set": [
-        "policy-engine/src/polisyos/core/artifacts/store.py",
+        "policy-engine/src/polisyos/core/artifacts/README.md",
         "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
         "policy-engine/src/polisyos/core/artifacts/batch_control.py",
-        "policy-engine/tests/unit/remediation/test_cas_03.py",
-        "policy-engine/tests/unit/remediation/test_b154_batch_completion.py",
-        "policy-engine/src/polisyos/core/artifacts/README.md",
+        "policy-engine/src/polisyos/core/artifacts/store.py",
         "policy-engine/src/polisyos/core/components/_cli_crypto.py",
-        "policy-engine/tests/unit/core/phase0/test_cli_signing.py",
         "policy-engine/src/polisyos/runtime/http/authorization.py",
-        "policy-engine/tests/unit/runtime/http/test_authorization.py"
+        "policy-engine/src/polisyos/runtime/http/authz_middleware.py",
+        "policy-engine/tests/unit/core/phase0/test_cli_signing.py",
+        "policy-engine/tests/unit/remediation/test_b154_batch_completion.py",
+        "policy-engine/tests/unit/remediation/test_cas_03.py",
+        "policy-engine/tests/unit/runtime/http/test_authorization.py",
+        "policy-engine/tests/unit/runtime/http/test_runtime_authorization_access_audit.py"
       ],
       "shared_writer": "/root/lane06_cas",
       "decision_records": [],
@@ -1286,6 +1288,12 @@
           "output": "policy-engine/_cache/e02/lane06-cas02-signature-restored-r1/",
           "result": "3 PASS",
           "scope": "Fresh CAS03 selected import signature verification VALID→REVOKED on actual cryptography; no deployment authorization claim."
+        },
+        {
+          "output": "policy-engine/_cache/e02/auth-audit3-r1/pytest.xml",
+          "sha256": "30a0cdc88cd1eaf2ceacb85be68084b169c0472bb33e904e78c7f0cc9476cb0d",
+          "result": "3 PASS/0 FAIL/ERROR/SKIP,106.196s,about1.43GiB observed RSS;exact reviewed source/test pins unchanged",
+          "scope": "Distinct exactly-one cross-tenant authorization and data-access events; failed authorization audit refuses503, failed data-access append preserves403 and one authorization event, no foreign tenant projection. Original failure reproduced at isolated388 baseline; bounded forward fix."
         }
       ],
       "blockers": [],

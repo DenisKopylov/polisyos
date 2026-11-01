@@ -646,3 +646,12 @@ structural list operations require the containing list. Merge compares declared
 paths using model fields, exact mapping keys and the current list shape,
 conservatively treating unresolved or shared mutable targets as overlapping.
 State reads consult declared Pydantic fields without evaluating unrelated properties.
+
+`execution_admission` persists and verifies selected original-workflow candidate
+continuity. The `trusted_local_candidate_source_v1` profile compares reconciled
+Python callables, passive bound/class/spec/config state, dispatch parameters and
+direct helper/dependency observations under a trusted interpreter/dependency
+boundary. Unsupported dynamic or opaque definitions remain explicitly not
+established. This is distinct from protected builtin identity, publication or
+external-effect authority. Core/workflow continuation consumers require their
+separate composed qualification; the helper alone does not complete that chain.

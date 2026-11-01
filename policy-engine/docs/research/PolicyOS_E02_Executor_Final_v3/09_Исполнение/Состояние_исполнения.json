@@ -344,7 +344,8 @@
       "integrated_commit": null,
       "actual_write_set": [
         "policy-engine/tests/unit/remediation/test_res_02.py",
-        "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint.py"
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+        "policy-engine/tests/integration/scientist/test_checkpoint_resume.py"
       ],
       "shared_writer": "/root/lane06_state",
       "decision_records": [],
@@ -375,14 +376,27 @@
       "lane_sequence": 1,
       "track_id": "06-A",
       "track_position": 4,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "/root/lane06_state",
+      "base_commit": "e7a49fdf939b492fc7742906658159cd2fc89ff6",
       "integrated_commit": null,
-      "actual_write_set": [],
-      "shared_writer": null,
+      "actual_write_set": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/runner/local_runner.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+        "policy-engine/tests/unit/remediation/test_res_01.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+        "policy-engine/src/polisyos/core/run/context.py",
+        "policy-engine/src/polisyos/core/run/__init__.py",
+        "policy-engine/src/polisyos/core/run/README.md",
+        "policy-engine/src/polisyos/core/run/manifest.py",
+        "policy-engine/tests/unit/core/phase0/test_run_context.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/workflow_spec.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_spec.py"
+      ],
+      "shared_writer": "/root/lane06_state",
       "decision_records": [],
       "requirement_ids": [
         "REQ-RES-01-01",
@@ -398,7 +412,12 @@
       ],
       "evidence": [],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "execution_profile": {
+        "test_slot": "Root admission; preserve frozen RES02 source until atomic-frontier removal control done",
+        "source_scope": "Sole checkpoint/deadline/source-backed workflow reader writer; coordinate typed seams with DUR02 and REP01; engineREADME root companion, idempotency only after actual defect",
+        "mandatory_companions": "Authorized mirrored tests/helper/README companions may be added within the assigned mechanism after checking no competing writer; notify Root footprint, no separate approval per routine companion. Shared generated families/index/refs remain Root-owned."
+      }
     },
     {
       "packet_id": "EXE-02",
@@ -406,14 +425,17 @@
       "lane_sequence": 1,
       "track_id": "06-A",
       "track_position": 5,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "/root/lane06_readiness",
+      "base_commit": "e7a49fdf939b492fc7742906658159cd2fc89ff6",
       "integrated_commit": null,
-      "actual_write_set": [],
-      "shared_writer": null,
+      "actual_write_set": [
+        "policy-engine/tests/unit/remediation/test_exe_02.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py"
+      ],
+      "shared_writer": "/root/lane06_readiness",
       "decision_records": [],
       "requirement_ids": [
         "REQ-EXE-02-01",
@@ -427,7 +449,12 @@
       ],
       "evidence": [],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "execution_profile": {
+        "test_slot": "Explicit root token only; source/test authorship independent",
+        "source_scope": "Test-only lease, canonical source change separately reconciled with current owner; no competing writer",
+        "delegate_limit": "One read-only leaf explicit allowed model; grandchild no delegation"
+      }
     },
     {
       "packet_id": "RES-03",
@@ -435,14 +462,17 @@
       "lane_sequence": 1,
       "track_id": "06-A",
       "track_position": 6,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "/root/lane06_partial",
+      "base_commit": "e7a49fdf939b492fc7742906658159cd2fc89ff6",
       "integrated_commit": null,
-      "actual_write_set": [],
-      "shared_writer": null,
+      "actual_write_set": [
+        "policy-engine/tests/unit/remediation/test_res_03.py",
+        "policy-engine/tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py"
+      ],
+      "shared_writer": "/root/lane06_partial",
       "decision_records": [],
       "requirement_ids": [
         "REQ-RES-03-01",
@@ -458,7 +488,13 @@
       "blockers": [],
       "deferred_ids": [
         "DA-01"
-      ]
+      ],
+      "execution_profile": {
+        "test_slot": "Explicit root token only; source/test authorship independent",
+        "source_scope": "Test-only lease, canonical source change separately reconciled with current owner; no competing writer",
+        "delegate_limit": "One read-only leaf explicit allowed model; grandchild no delegation",
+        "mandatory_companions": "Authorized mirrored tests/helper/README companions may be added within the assigned mechanism after checking no competing writer; notify Root footprint, no separate approval per routine companion. Shared generated families/index/refs remain Root-owned."
+      }
     },
     {
       "packet_id": "REP-01",
@@ -466,14 +502,23 @@
       "lane_sequence": 1,
       "track_id": "06-A",
       "track_position": 7,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
+      "assigned_executor": "/root/lane06_replay",
+      "base_commit": "e7a49fdf939b492fc7742906658159cd2fc89ff6",
       "integrated_commit": null,
-      "actual_write_set": [],
-      "shared_writer": null,
+      "actual_write_set": [
+        "policy-engine/src/polisyos/scientist/replay/deterministic.py",
+        "policy-engine/src/polisyos/scientist/replay/backend.py",
+        "policy-engine/src/polisyos/scientist/replay/README.md",
+        "policy-engine/tests/unit/remediation/test_rep_01.py",
+        "policy-engine/tests/unit/core/components/test_cli_replay.py",
+        "policy-engine/src/polisyos/core/components/_cli_replay.py",
+        "policy-engine/tools/ops_runners/runtime_cli.py",
+        "policy-engine/tests/unit/scientist/replay/test_replay_backend.py"
+      ],
+      "shared_writer": "/root/lane06_replay",
       "decision_records": [],
       "requirement_ids": [
         "REQ-REP-01-01",
@@ -487,7 +532,12 @@
       ],
       "evidence": [],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "execution_profile": {
+        "test_slot": "Queued; independent replay authorship, final checkpoint consumer checks after canonical state seam",
+        "source_scope": "Seven explicit paths; no checkpoint source writes, shared inventory/root companions serialized",
+        "mandatory_companions": "Authorized mirrored tests/helper/README companions may be added within the assigned mechanism after checking no competing writer; notify Root footprint, no separate approval per routine companion. Shared generated families/index/refs remain Root-owned."
+      }
     },
     {
       "packet_id": "RUN-01",
@@ -748,8 +798,8 @@
       "lane_sequence": 1,
       "track_id": "06-B",
       "track_position": 4,
-      "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
+      "implementation_status": "REVIEWED_LOCAL_SLICE",
+      "local_qualification": "CONFIRMED_LOCAL_PROFILE",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "/root/lane06_wire",
       "base_commit": "388064755fa8833107f35ae097633b1b3445b59f",
@@ -758,7 +808,7 @@
         "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py",
         "policy-engine/tests/unit/remediation/test_wire_01.py",
         "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
-        "policy-engine/src/polisyos/scientist/orchestration/engine/runner/decimal_worker_transport.py"
+        "policy-engine/tests/unit/scientist/orchestration/engine/runner/decimal_worker_transport.py"
       ],
       "shared_writer": "/root/lane06_wire",
       "decision_records": [],
@@ -772,14 +822,48 @@
         "TEST-WIRE-01-02",
         "TEST-WIRE-01-03"
       ],
-      "evidence": [],
-      "blockers": [],
+      "evidence": [
+        {
+          "output": "policy-engine/_cache/e02/lane06-wire01-composed-final-r1",
+          "observed_result": "375 PASS,0 FAIL/ERROR/SKIP;40.76s;2457894912 bytes sampled RSS;10 pins unchanged",
+          "scope": "Both actual JSON backends, closed typed codec/journal/legacy/adversarial corpus and real Darwin producer→typed process delivery; unsupported completed outcome does not cause another physical attempt."
+        },
+        {
+          "output": "policy-engine/_cache/e02/lane06-composed-green",
+          "observed_result": "Six additional negative-zero Decimal budget cases PASS; whole independent mixed command337PASS/87SKIP/1 diagnosed compute-child import harness error, not globally green.",
+          "scope": "The six new WIRE cases and current serializer/test pins only; the later compute helper repair is separately qualified."
+        }
+      ],
+      "blockers": [
+        "Shared lane I06/affected composed checks pending. External Temporal/Ray services and native Linux not qualified by these local Darwin codec controls."
+      ],
       "deferred_ids": [],
       "execution_profile": {
-        "test_slot": "Queued; codec editing must not coincide with RUN-02 native deciding check",
+        "test_slot": "Released; four owned files frozen for Root composition",
         "source_scope": "Four paths; engine README companion root-composed after budget owner release; no retry.py writes",
-        "delegate_limit": "One read-only leaf explicit allowed model"
-      }
+        "delegate_limit": "One read-only leaf explicit allowed model",
+        "independent_review": "GO; actual375-case outputs plus six new cases/pins independently reconciled"
+      },
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-WIRE-01-01",
+          "test_id": "TEST-WIRE-01-01",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Semantic depth matches writer/reader; actual backend may refuse raw wrapper limits before output; rooted canonical journal admission uses exact guarded projection."
+        },
+        {
+          "requirement_id": "REQ-WIRE-01-02",
+          "test_id": "TEST-WIRE-01-02",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Actual stdlib/orjson retain Decimal including signed zero budgets, bytes, exact selectors, registered subtype/journal; malicious/corrupt/unknown forms refused."
+        },
+        {
+          "requirement_id": "REQ-WIRE-01-03",
+          "test_id": "TEST-WIRE-01-03",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Current v2 envelope and literal legacy readers remain distinct; real completed producer unsupported outcome refuses after one physical attempt under permissive retry."
+        }
+      ]
     },
     {
       "packet_id": "RUN-03",
@@ -839,7 +923,9 @@
         "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_producer_events.py",
         "policy-engine/tests/unit/core/llm/test_traced_client_settlement.py",
         "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
-        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py"
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_compute_reservations.py",
+        "policy-engine/tests/_helpers/budget_ledger_process.py"
       ],
       "shared_writer": "/root/lane06_budget",
       "decision_records": [],
@@ -877,7 +963,10 @@
       "actual_write_set": [
         "policy-engine/src/polisyos/runtime/http/services/control_worker.py",
         "policy-engine/tests/unit/remediation/test_dur_02.py",
-        "policy-engine/tests/unit/remediation/test_dur_02_process.py"
+        "policy-engine/tests/unit/remediation/test_dur_02_process.py",
+        "policy-engine/src/polisyos/runtime/http/services/control/job_scope_admission.py",
+        "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "policy-engine/tests/unit/runtime/http/test_control_checkpoint_handover.py"
       ],
       "shared_writer": "/root/lane06_durable_worker",
       "decision_records": [],
@@ -896,7 +985,8 @@
       "deferred_ids": [],
       "execution_profile": {
         "test_slot": "Queued; source-only heartbeat repair independent; final continuation awaits exact RES-01/02/fallback contract",
-        "source_scope": "Three explicitpaths; fallback_runner expansion requires reviewed actual inputcontract; no checkpoint writes"
+        "source_scope": "Three explicitpaths; fallback_runner expansion requires reviewed actual inputcontract; no checkpoint writes",
+        "mandatory_companions": "Authorized mirrored tests/helper/README companions may be added within the assigned mechanism after checking no competing writer; notify Root footprint, no separate approval per routine companion. Shared generated families/index/refs remain Root-owned."
       }
     },
     {
@@ -1368,7 +1458,7 @@
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "/root/lane06_canonical",
       "base_commit": "388064755fa8833107f35ae097633b1b3445b59f",
-      "integrated_commit": null,
+      "integrated_commit": "e7a49fdf939b492fc7742906658159cd2fc89ff6",
       "actual_write_set": [
         "policy-engine/tests/unit/remediation/test_mig_02.py",
         "policy-engine/src/polisyos/runtime/README.md"
@@ -1435,7 +1525,7 @@
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "/root/lane06_canonical",
       "base_commit": "388064755fa8833107f35ae097633b1b3445b59f",
-      "integrated_commit": null,
+      "integrated_commit": "e7a49fdf939b492fc7742906658159cd2fc89ff6",
       "actual_write_set": [
         "policy-engine/tests/unit/remediation/test_mig_04.py",
         "policy-engine/src/polisyos/fabric/README.md"

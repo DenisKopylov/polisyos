@@ -40,12 +40,16 @@ def _stdlib_loads(data: bytes) -> Any:
     return json.loads(data)
 
 
-@pytest.fixture(params=("native", "stdlib"), ids=("native", "stdlib"))
+@pytest.fixture(params=("orjson", "stdlib"), ids=("orjson", "stdlib"))
 def _wire_backend(request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch) -> str:
-    """Exercise the import-selected backend and the stdlib fallback explicitly."""
+    """Select each real backend explicitly; an absent backend is not a PASS."""
     if request.param == "stdlib":
         monkeypatch.setattr(serialization_module, "_dumps", _stdlib_dumps)
         monkeypatch.setattr(serialization_module, "_loads", _stdlib_loads)
+    else:
+        orjson = pytest.importorskip("orjson")
+        monkeypatch.setattr(serialization_module, "_dumps", orjson.dumps)
+        monkeypatch.setattr(serialization_module, "_loads", orjson.loads)
     return str(request.param)
 
 
@@ -250,7 +254,8 @@ def test_artifact_ref_and_artifact_id_tags_are_compatible() -> None:
 
     payload = serialize_state(state)
     encoded = serialization_module._loads(payload)
-    encoded_ref = encoded["inputs"]["input"]
+    assert encoded["wire_schema"] == "polisyos.scientist.state_wire.v2"
+    encoded_ref = encoded["value"]["inputs"]["input"]
 
     assert encoded_ref["_type"] == "model"
     assert encoded_ref["module"] == "polisyos.core.artifacts.manifest"

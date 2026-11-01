@@ -602,3 +602,15 @@ canonical N5 intake, covering both default and supplied canonical ports. A
 foreign or absent observer refuses before work; object type alone is not the
 run-owner binding. The same intake is rechecked at the run/generic-consumer path.
 Custom contract-testing ports retain their explicit non-canonical scope.
+
+Wire v2 counts semantic children rather than technical tag wrappers. Registered model
+payloads share their model depth; a RootModel root is one child. The semantic
+ceiling remains 128, while an actual JSON backend may refuse its raw wrapper
+depth before emitting bytes. Every accepted supported state/outcome/safe payload
+must decode with its declared types and normalizations: tuple to list,
+bytearray/memoryview to bytes, and datetime to UTC. Mutation journals are admitted
+through their exact guarded wire projection and the existing canonical journal
+profile before publication; unsupported reserved tags or foreign paths refuse.
+The transport digest establishes integrity, independently of CAS access/tenant
+admission. Native process controls distinguish a completed producer whose
+outcome cannot be serialized from a new physical attempt.

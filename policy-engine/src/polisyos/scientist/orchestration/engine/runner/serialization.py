@@ -11,6 +11,15 @@ version byte (currently ``\\x01``) and append a SHA-256 integrity hash.
 Current state/outcome writers emit a tagged v2 JSON envelope. Readers retain
 legacy raw JSON and v1 integrity framing; the framing version is independent of
 the typed payload schema. V2 budgets require finite Decimal tags before coercion.
+
+Depth counts semantic children, including model fields and RootModel roots;
+tag dispatch and escaped-mapping entries are technical wrappers. The semantic
+ceiling is 128; a JSON backend may refuse a more deeply wrapped raw tree before
+returning bytes. Supported ``Any`` normalization remains tuple to list and
+bytearray/memoryview to bytes. Datetimes normalize to UTC; this transport does
+not promise arbitrary Python object identity or replace CAS access admission.
+Mutation sidecars also retain their existing canonical journal profile; values
+outside that profile are refused before the writer returns bytes.
 """
 
 from __future__ import annotations
@@ -36,6 +45,7 @@ if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactRef
     from polisyos.core.security import AccessScope
     from polisyos.core.trace import TraceRecord
+    from polisyos.scientist.orchestration.engine.state_branching import StateMutationJournal
 
 try:
     import orjson
@@ -992,7 +1002,11 @@ def _decode_wire_tag(value: Mapping[str, Any], *, depth: int) -> Any:
         model_type = _wire_model_types().get(fqn)
         if model_type is None:
             raise DeserializationError(f"Unsupported model on runner wire: {fqn}")
-        decoded_value = _decode_wire_value(value["value"], depth=depth + 1)
+        # Ordinary model fields already add one child through their mapping.
+        # Its tag/payload envelope is technical; a RootModel root is a real
+        # child and needs the same one-step budget as the encoder.
+        payload_depth = depth + int(getattr(model_type, "__pydantic_root_model__", False))
+        decoded_value = _decode_wire_value(value["value"], depth=payload_depth)
         try:
             return model_type.model_validate(decoded_value)
         except (TypeError, ValueError, ValidationError) as exc:
@@ -1033,7 +1047,7 @@ def _decode_wire_value(value: Any, *, depth: int = 0) -> Any:
         return [_decode_wire_value(item, depth=depth + 1) for item in value]
     if isinstance(value, Mapping):
         if _WIRE_TYPE_KEY in value:
-            return _decode_wire_tag(value, depth=depth + 1)
+            return _decode_wire_tag(value, depth=depth)
         decoded: dict[str, Any] = {}
         for key, item in value.items():
             if not isinstance(key, str):
@@ -1231,6 +1245,14 @@ def serialize_outcome(outcome: Any) -> bytes:
         seen=set(),
         journal_value_mode=True,
     )
+    # Admit the exact reader projection after guarding the original graph.
+    # Original models may carry instance-level projection overrides; they
+    # cannot stand in for the bytes that the reader will actually consume.
+    try:
+        wire_operations = _decode_wire_value(encoded_mutations)
+    except DeserializationError as exc:
+        raise TypeError("State mutation sidecar is not readable by its wire profile") from exc
+    _admit_wire_mutation_journal(wire_operations)
     return _dumps(
         _typed_envelope(
             _OUTCOME_WIRE_SCHEMA,
@@ -1243,16 +1265,34 @@ def serialize_outcome(outcome: Any) -> bytes:
     )
 
 
+def _admit_wire_mutation_journal(operations: Any) -> StateMutationJournal:
+    """Apply one canonical journal and rooted-path contract on both wire sides."""
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
+    from polisyos.scientist.orchestration.engine.state_branching import (
+        StateMutation,
+        mutation_journal_from_operations,
+    )
+
+    if not isinstance(operations, list) or any(
+        not isinstance(operation, StateMutation) for operation in operations
+    ):
+        raise TypeError("State mutation sidecar must contain typed operations")
+    for operation in operations:
+        parts = operation.path.split(".")
+        if (
+            not parts
+            or any(not part for part in parts)
+            or parts[0] not in ExperimentState.model_fields
+        ):
+            raise ValueError("State mutation path is not rooted in ExperimentState")
+    return mutation_journal_from_operations(operations)
+
+
 def _decode_journaled_outcome(payload: Mapping[str, Any]) -> Any:
     """Decode the bounded operation sidecar and reattach it to the state."""
     from polisyos.scientist.orchestration.engine.protocol import (
         NodeOutcome,
         decode_node_outcome,
-    )
-    from polisyos.scientist.orchestration.engine.state import ExperimentState
-    from polisyos.scientist.orchestration.engine.state_branching import (
-        StateMutation,
-        mutation_journal_from_operations,
     )
 
     if set(payload) != {"wire_schema", "outcome", "state_mutations"}:
@@ -1266,23 +1306,12 @@ def _decode_journaled_outcome(payload: Mapping[str, Any]) -> Any:
         raise DeserializationError("Journal envelope does not contain a NodeOutcome")
 
     operations = _decode_wire_value(payload["state_mutations"])
-    if not isinstance(operations, list) or any(
-        not isinstance(operation, StateMutation) for operation in operations
-    ):
-        raise DeserializationError("State mutation sidecar must contain typed operations")
-    for operation in operations:
-        parts = operation.path.split(".")
-        if (
-            not parts
-            or any(not part for part in parts)
-            or parts[0] not in ExperimentState.model_fields
-        ):
-            raise DeserializationError("State mutation path is not rooted in ExperimentState")
+    journal = _admit_wire_mutation_journal(operations)
 
     object.__setattr__(
         outcome.state,
         "_polisyos_state_mutation_journal",
-        mutation_journal_from_operations(operations),
+        journal,
     )
     return outcome
 
